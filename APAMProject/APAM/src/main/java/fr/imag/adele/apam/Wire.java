@@ -7,6 +7,7 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apamAPI.ASMInst;
+import fr.imag.adele.apam.samAPIImpl.ASMInstImpl;
 
 public class Wire {
 	ASMInst source ;
@@ -20,6 +21,8 @@ public class Wire {
 			this.destination = to ;
 			this.depName = depName ;
 			this.constraints =constraints ;
+			((ASMInstImpl)from).setWire(to, this) ;
+			((ASMInstImpl)to).setInvWire (from, this) ;
 		}
 	}
 
@@ -29,6 +32,8 @@ public class Wire {
 			this.source = from ;
 			this.destination = to ;
 			this.depName = depName ;
+			((ASMInstImpl)from).setWire(to, this) ;
+			((ASMInstImpl)to).setInvWire (from, this) ;
 			//from.setWire(to, depName, constraints)  ;
 		}
 	}

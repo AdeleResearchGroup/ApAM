@@ -37,9 +37,11 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 	private ApamDependencyHandler depHandler ;
 
 	//The known attributes and their default value
-	private int state = ASM.ACTIVE ;
+//	private int state = ASM.ACTIVE ;
 	private int shared = ASM.SHAREABLE ;
 	private int clonable = ASM.TRUE ;
+	
+	private boolean removed = false ;
 
 	private Map <ASMInst, Wire> wires = new HashMap <ASMInst, Wire> () ;			//the currently used instances
 	private Map <ASMInst, Wire> invWires = new HashMap <ASMInst, Wire> () ;			
@@ -120,12 +122,6 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		if (wires.get(to) != null) return true ;
 		if (!Wire.checkNewWire(this, to)) return false ; 
 		Wire wire = new Wire (this, to, depName, constraints);
-		if (to.getState() == ASM.LOST){
-			missingWires.put(to, wire) ;
-		} else {
-			wires.put(to, wire) ;
-		}
-		((ASMInstImpl)to).addInvWire (wire) ;
 		return true ;
 	}
 
@@ -138,14 +134,14 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 	 * A new client uses this instance. Can turn the instance back to active if idle or removed.
 	 * @param client
 	 */
-	private void addInvWire (Wire wire) {
-		ASMInst from = wire.getSource() ;
-		if ( invWires.get (from) != null) return ;
-		invWires.put (from, wire) ;
-		if (from.getState() == ASM.ACTIVE && ( state == ASM.IDLE || state == ASM.REMOVED)) {
-			setState (ASM.ACTIVE);
-		}
-	}
+//	private void addInvWire (Wire wire) {
+//		ASMInst from = wire.getSource() ;
+//		if ( invWires.get (from) != null) return ;
+//		invWires.put (from, wire) ;
+//		if (from.getState() == ASM.ACTIVE && ( state == ASM.IDLE || state == ASM.REMOVED)) {
+//			setState (ASM.ACTIVE);
+//		}
+//	}
 
 	/**
 	 * The removed wire is not considered as lost; the client may still be active. 
@@ -158,103 +154,19 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		((ASMInstImpl)inst).removeInvWire (this) ;
 	}
 
-
 	public void removeInvWire (ASMInst inst) {
+		if (removed) return ; //not to loop
 		if (wires.get(inst) == null) return ;
 		invWires.remove(inst) ;
-		if (invWires.isEmpty()) {
-			setState(ASM.IDLE) ;
+		if (invWires.isEmpty()) { //This instance ins no longer used. Delete it => remove all its wires 
+			for (ASMInst dest : wires.keySet() ) {
+				removeWire (dest) ;
+			}
+			removed = true ;
+			remove() ;
 		}
 	}
 
-	/**
-	 * internal. Not in the interface.
-	 * 
-	 * From * to removed => deletes all wires and invWires (client => fail, wired idle?)
-	 * 
-	 * From Active to * => Propagate to all wired
-	 * From * to Active => Propagate to all wired 
-	 * 
-	 */
-	private void setState (int newState) {
-		if (newState == ASM.REMOVED) {
-			for (ASMInst client : invWires.keySet()) {
-				((ASMInstImpl)client).removeWire(this) ;
-			}
-			for (ASMInst wired : wires.keySet()) {
-				((ASMInstImpl)wired).removeInvWire(this) ;
-			}
-			state = newState ;
-			return ;
-		}
-		if (state == ASM.ACTIVE) {
-			for (ASMInst wired : wires.keySet()) {
-				((ASMInstImpl)wired).inactiveClient(this) ;
-			}
-			if (newState == ASM.LOST) {
-				for (ASMInst client : invWires.keySet()) {
-					((ASMInstImpl)client).lostWired(this) ;
-				}
-			}
-			state = newState ;
-			return ;
-		}
-		if (newState == ASM.ACTIVE) {
-			for (ASMInst wired : wires.keySet()) {
-				((ASMInstImpl)wired).activeClient(this) ;
-			}
-			for (ASMInst client : invWires.keySet()) {
-				((ASMInstImpl)client).foundWired(this) ;
-			}
-			state = newState ;
-			return ;
-		}
-	}
-
-	private void foundWired (ASMInst wired) {
-		missingWires.remove (wired) ;
-	}
-	
-	/**
-	 * Object "to" disappeared. Its wire must be moved to the list missingWire.
-	 * @param to
-	 */
-	private void lostWired (ASMInst to) {
-		if (wires.get (to) == null) return ;
-		missingWires.put (to, wires.get (to)) ;
-		wires.remove(to) ;
-	}
-	/**
-	 * Internal.
-	 * The client that has a wire toward this instance is no longer in state "active".
-	 * turn to idle if no other active client, and propagate. 
-	 */
-	private void inactiveClient (ASMInst inst) {
-		if (invWires.get(inst) == null) return ;
-		for (ASMInst client : invWires.keySet()) {
-			if (client.getState()== ASM.ACTIVE) return ;
-		} //No active clients : turn to Idle
-		setState (ASM.IDLE) ;
-		for (ASMInst wiredInst : wires.keySet()) { //propagate
-			((ASMInstImpl)wiredInst).inactiveClient(this) ;
-		}
-	}
-
-	/**
-	 * Internal.
-	 * The client that has a wire toward this instance is back to state "active".
-	 * If IDLE turn to active and propagate. 
-	 */
-	private void activeClient (ASMInst inst) {
-		if (invWires.get(inst) == null) return ;
-		if (state == ASM.IDLE) {
-			// if (samInst.exist())
-			setState (ASM.ACTIVE) ;
-			for (ASMInst wiredInst : wires.keySet()) {
-				((ASMInstImpl)wiredInst).activeClient(this) ;
-			}
-		}
-	}
 
 	public void delete() throws UnsupportedOperationException,
 	ConnectionException {
@@ -281,24 +193,6 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		return samInst;
 	}
 
-	/**
-	 * remove from ASM but does not try to delete in SAM. The mapping is still valid.
-	 * It deletes the wires, and turns to "idle" the isolated instances, and transitively.
-	 * It deleted the invWires, which turns the callers in the "fault" mode : 
-	 * 		next call will try to resolve toward another instance. 
-	 */
-	@Override
-	public void remove() {
-		state = ASM.REMOVED ;
-		for (ASMInst instance : wires.keySet()) {
-			((ASMInstImpl)instance).removeInvWire (this) ; //May become idle if no other invWire
-		}
-		wires.clear() ;
-		for (ASMInst instance : invWires.keySet()) {
-			((ASMInstImpl)instance).removeWire(this) ; //The real instance should be called to be sure this wire is removed
-		}
-		invWires.clear () ;
-	}
 
 	@Override
 	public void ungetService() throws ConnectionException {
@@ -316,11 +210,6 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 	@Override
 	public int getShared() {
 		return shared;
-	}
-
-	@Override
-	public int getState() {
-		return state;
 	}
 
 	@Override
@@ -351,9 +240,12 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		depHandler = handler ;
 	}
 
+	/** we do not try to fix. Only remove that instance. The manager have been notified previously. 
+	 * 
+	 */
 	@Override
 	public void lost() {
-		setState (ASM.LOST) ;
+		remove () ;
 	}
 
 	@Override
@@ -366,4 +258,59 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		return wires.get(destInst);
 	}
 
+	/**
+	 * remove from ASM but does not try to delete in SAM. The mapping is still valid.
+	 * It deletes the wires, which deletes the isolated used instances, and transitively.
+	 * It deleted the invWires, which removes the associated real dependency : 
+	 * 		next call will try to resolve again. 
+	 */
+	@Override
+	public void remove() {
+		for (ASMInst instance : wires.keySet()) {
+			((ASMInstImpl)instance).removeInvWire (this) ; //May remove other instance if not used
+		}
+		for (ASMInst client : invWires.keySet()) {
+			((ASMInstImpl)client).removeWire(this) ; //The real instance is be called to be sure this wire is removed
+			client.getDependencyHandler().remWire(this, invWires.get(client).getDepName()) ;
+		}
+		try {
+			myBroker.removeInst(this);
+			samInst.delete() ;
+		} catch (ConnectionException e) {
+			e.printStackTrace();
+		} 
+	}
+
+	@Override
+	public void removeWire(ASMInst to, String depName) {
+		if (depName == null) {
+			removeWire (to) ;
+			return ;
+		}
+		Wire wire = wires.get(to) ;
+		if (!wire.getDepName().equals(depName))  {
+			System.out.println("Bad dependency name for " + this.getName() + " " + depName + " " + to.getName() );
+		}
+		removeWire (to) ;
+	}
+
+	@Override
+	public void substWire(ASMInst oldTo, ASMInst newTo, String depName) {
+		Wire wire = new Wire (this, newTo, depName, wires.get(oldTo).getConstraints()) ;
+		removeWire (oldTo) ;
+		depHandler.substWire(oldTo, newTo, depName) ;
+	}
+	
+	//Not in the interface.
+	public void setWire (ASMInst to, Wire wire) {
+		if (wires.containsKey(to)) return ;
+		wires.put(to, wire) ;
+		setInvWire (this, wire) ;
+	}
+	//Not in the interface
+	public void setInvWire (ASMInst from, Wire wire) {
+		if (wires.containsKey(from)) return ;
+		invWires.put (from, wire) ;
+		setWire (this, wire) ;
+	}
 }

@@ -59,5 +59,11 @@ public interface ASMInstBroker  {
      */
     public Set<ASMInst> getInsts (Filter goal) throws ConnectionException,
             InvalidSyntaxException;
+ 
+    /**
+     * Remove the instances 
+     * 
+     */
+    public void removeInst (ASMInst inst) throws ConnectionException;
 
 }

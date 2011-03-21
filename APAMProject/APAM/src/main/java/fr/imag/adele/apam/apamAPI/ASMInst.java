@@ -37,7 +37,8 @@ public interface ASMInst extends Property {
 	public Wire getWire (ASMInst detInst) ;
 	public boolean setWire (ASMInst to, String depName, Set<Filter> constraints) ;
 	public boolean setWire (ASMInst to, String depName, Filter filter) ;
-	//private void removeWire (ASMInst inst) ; internal
+	public void removeWire (ASMInst inst, String depName) ; 
+	public void substWire (ASMInst oldTo, ASMInst newTo, String depName) ;
 
 	/**
 	 * remove from ASM but does not try to delete in SAM. The mapping is still valid.
@@ -46,13 +47,12 @@ public interface ASMInst extends Property {
 	 * 		next call will try to resolve toward another instance. 
 	 */
 	public void remove () ;
+	public void lost () ;
 	
-	public int getState () ; //States cannot be directly set.
 	public int getShared () ;
 	public void setShared (int shared) ; //must be less or equal than its implem state
 	public int getClonable () ;
 	public void setClonable (int clonable) ;
-	public void lost () ;
 	public Set<ASMInst> getClients () ;
 	
 	//== from SAM interface

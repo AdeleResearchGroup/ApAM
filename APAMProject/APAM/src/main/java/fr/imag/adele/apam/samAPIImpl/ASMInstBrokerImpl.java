@@ -123,4 +123,10 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 		}
 		return null;
 	}
+
+	@Override
+	public void removeInst(ASMInst inst) throws ConnectionException {
+		inst.remove();
+		instances.remove(inst) ;
+	}
 }
