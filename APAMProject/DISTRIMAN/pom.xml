@@ -1,0 +1,180 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>APAMProject</artifactId>
+    <groupId>fr.imag.adele.apam</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <groupId>fr.imag.adele.apam</groupId>
+  <artifactId>DISTRIMAN</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>bundle</packaging>
+  
+    <name>DISTRIMAN</name>
+  <description>The Distribution and deployment Manager for APAM</description>
+  	<properties>
+		<bundle.symbolicName>DISTRIMAN</bundle.symbolicName>
+	</properties>
+  
+  	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-Name>${project.name}</Bundle-Name>
+						<Bundle-Description>
+							SAM Core Implementation of the API
+						</Bundle-Description>
+						<Bundle-SymbolicName>
+							${project.artifactId}
+						</Bundle-SymbolicName>
+						<Bundle-Vendor>
+							Adele/LIG/ Grenoble University, France
+						</Bundle-Vendor>
+						<Bundle-Version>${project.version}</Bundle-Version>
+				<!-- 		<Bundle-Activator>fr.imag.adele.sam.interceptor.Activator
+						</Bundle-Activator> -->
+						
+<!--
+						<Export-Package>
+							fr.imag.adele.sam.broker.impl,
+							fr.imag.adele.sam.exported.impl,
+							fr.imag.adele.sam.impl,
+							fr.imag.adele.sam.discovery,
+							fr.imag.adele.sam.handler,
+							fr.imag.adele.sam.interceptor,
+							fr.imag.adele.sam.invocation.security.impl
+						</Export-Package>
+-->
+<!-- 
+						<Import-Package>
+                            fr.imag.adele.apam.apamAPI,
+                            fr.imag.adele.sam,
+                            fr.imag.adele.sam.scm,
+                            fr.imag.adele.sam.broker,
+                            fr.imag.adele.sam.exported,
+                            fr.imag.adele.sam.exception,
+                            fr.imag.adele.sam.invocation.security,
+                            fr.imag.adele.sam.util,
+                            fr.imag.adele.sam.osgi.util,
+                            fr.imag.adele.am, 
+                            fr.imag.adele.am.broker,
+                            fr.imag.adele.am.eventing,
+                            fr.imag.adele.am.query,
+                            fr.imag.adele.am.exception,
+                            fr.imag.adele.am.exportedEntity,
+                            fr.imag.adele.service.communication
+                        </Import-Package>
+-->          
+<!--						<Private-Package>fr.imag.adele.sam.interceptor</Private-Package>-->
+<!--						<DynamicImport-Package>*</DynamicImport-Package>
+-->
+						<Include-Resource>
+							META-INF/LICENCE=LICENSE,
+							META-INF/NOTICE=NOTICE
+						</Include-Resource>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-ipojo-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>ipojo-bundle</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>create-staging-area</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar"
+                                    todir="${exportedFolder}/s-am" />
+                                <copy
+                                    file="${basedir}/target/${project.artifactId}-${project.version}-sources.jar"
+                                    todir="${exportedFolder}/s-am/sources" />
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.osgi.core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework
+			</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.ipojo</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>stax</groupId>
+			<artifactId>stax-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.sam</groupId>
+			<artifactId>ServiceAbstractMachine-API
+			</artifactId>
+		</dependency>
+		<dependency>
+                <groupId>fr.imag.adele.sam</groupId>
+                <artifactId>ServiceConcreteMachine-API
+                </artifactId>
+            </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.am</groupId>
+            <artifactId>AbstractMachine-API</artifactId>
+        </dependency>
+         <dependency>
+            <groupId>fr.imag.adele.am</groupId>
+            <artifactId>AbstractMachine-Impl</artifactId>
+        </dependency>
+	</dependencies>
+  
+  
+</project>
