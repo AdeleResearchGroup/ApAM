@@ -28,12 +28,15 @@ public class ASM {
 //	public static final PID    PID = new ApamPID () ;
 	
 	// State attribute of services (Spec, Implem, Instance)
-	public static final int ACTIVE  = 0 ;	//Used : destination of Requires, Uses or Wire.
-	public static final int IDLE    = 1 ;	//Not used : no Requires, Uses or Wire lead to this object
-	public static final int LOST    = 2 ;	//The corresponding object disappeared in SAM
-	public static final int REMOVED = 3 ;	//The object has been removed explicitly
-	public static final int INACTIVE= 4 ;	//The object is inactive as seen by iPOJO
-	public static final int WAITING = 5 ;	//The object is waiting for a wire
+//	public static final int ACTIVE  = 0 ;	//Used : destination of Requires, Uses or Wire.
+//	public static final int IDLE    = 1 ;	//Not used : no Requires, Uses or Wire lead to this object
+//	public static final int LOST    = 2 ;	//The corresponding object disappeared in SAM
+//	public static final int REMOVED = 3 ;	//The object has been removed explicitly
+//	public static final int INACTIVE= 4 ;	//The object is inactive as seen by iPOJO
+//	public static final int WAITING = 5 ;	//The object is waiting for a wire
+	
+	//The name of the attribute containing the dependency handler address (an object of type ApamDepndencyHandler)
+	public static final String ApamDependencyHandlerAddress = "ApamDependencyHandlerAddress" ;
 	
 	//Shared attribute of services (Spec, Implem, Instance)
 	public static final int SHAREABLE = 3 ;	//Usable by anybody

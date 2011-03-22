@@ -19,6 +19,7 @@ import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
+import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.sam.Instance;
 import fr.imag.adele.sam.broker.InstanceBroker;
@@ -105,14 +106,15 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 				}
 				impl = implBroker.addImpl (compo, samInst.getImplementation().getName(), samInst.getImplementation()) ;
 			}
-		}
-		catch (ConnectionException e) {
-			e.printStackTrace();
-		}
 
 		ASMInstImpl newInst  = new ASMInstImpl (compo, impl, null, samInst) ;
 		instances.add (newInst) ;
 		return newInst;
+		}
+		catch (ConnectionException e) {
+			e.printStackTrace();
+		}
+		return null ;
 	}
 
 	@Override

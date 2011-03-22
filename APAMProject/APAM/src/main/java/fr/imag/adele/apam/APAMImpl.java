@@ -235,38 +235,31 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 		return managersPrio.get (manager);
 	}
 
+	/**
+	 * called by an APAM client dependency handler when it initialises.
+	 * Since the client in in the middel of its creation, the Sam instance and the ASM inst are not created yet.
+	 * We simply record in the instance event handler that this instance will "appear"; 
+	 * at that time we will record the cleinet address in a property of that instance ASM.ApamDependencyHandlerAddress
+	 * It is only in the ASMInst constructor that the ASM instance will be connected to its handler.
+	 */
 	@Override
 	public void newClientCallBack(String samInstanceName, ApamDependencyHandler client) {
-		try {
-			Instance instance = ASM.SAMInstBroker.getInstance(samInstanceName) ;
-			if (instance == null) {
-				System.out.println("the instance name returned by handler does not exist in SAM : " + samInstanceName);
-				return ;
-			}
-			ASMInst inst = ASM.ASMInstBroker.getInst(samInstanceName) ;
-			if (inst == null) {
-				System.out.println("the instance returned by handler does not exist in Apam : " + samInstanceName);
-				return ;			
-			}
-			((ASMInstImpl)inst).setDependencyHandler(client) ;
-		} catch (Exception e) {
-			e.printStackTrace() ;
-		}
+		SamInstEventHandler.addNewApamInstance(samInstanceName, client) ;
 	}
 
 	@Override
 	public void appearedExpected(ASMImpl impl, DynamicManager manager) {
-		instHandler.addExpectedImpl(impl, manager) ;
+		SamInstEventHandler.addExpectedImpl(impl, manager) ;
 	}
 
 	@Override
 	public void appearedExpected(String interf, DynamicManager manager) {
-		instHandler.addExpectedInterf(interf, manager) ;
+		SamInstEventHandler.addExpectedInterf(interf, manager) ;
 	}
 
 	@Override
 	public void listenLost(DynamicManager manager) {
-		instHandler.addLost(manager) ;
+		SamInstEventHandler.addLost(manager) ;
 	}
 
 

@@ -28,7 +28,6 @@ public interface ASMImpl extends Property {
 //	public boolean addUses (ASMImpl impl) ;
 //	public boolean removeUses (ASMImpl impl) ;
 	
-	public int getState () ; //States cannot be directly set.
 	public int getShared () ;
 	public void setShared (int shared) ; //must be less or equal than its implem state
 	public int getClonable () ;

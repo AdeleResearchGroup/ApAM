@@ -62,6 +62,18 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		}
 		this.samInst = samInst ;
 		this.name = samInst.getName () ;
+		
+		//Check if it is an APAM instance
+		try {
+			ApamDependencyHandler handler = (ApamDependencyHandler)samInst.getProperty(ASM.ApamDependencyHandlerAddress);
+			if (handler != null) { //it is an Apam instance
+				depHandler = handler ;
+				handler.SetIdentifier(this) ;
+			}
+		} catch (ConnectionException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		//initialize properties. A fusion of SAM and APAM values
 		if (initialproperties != null && !initialproperties.isEmpty()) {
@@ -296,7 +308,7 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 
 	@Override
 	public void substWire(ASMInst oldTo, ASMInst newTo, String depName) {
-		Wire wire = new Wire (this, newTo, depName, wires.get(oldTo).getConstraints()) ;
+		new Wire (this, newTo, depName, wires.get(oldTo).getConstraints()) ;
 		removeWire (oldTo) ;
 		depHandler.substWire(oldTo, newTo, depName) ;
 	}

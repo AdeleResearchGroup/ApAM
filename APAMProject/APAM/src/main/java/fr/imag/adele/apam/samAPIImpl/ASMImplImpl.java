@@ -42,7 +42,7 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 	//    private Map<String, Object> properties ;
 	private Set<ASMInstImpl> instances = new HashSet <ASMInstImpl> ();
 
-	private int state = ASM.ACTIVE ;
+//	private int state = ASM.ACTIVE ;
 	private int shared = ASM.SHAREABLE ;
 	private int clonable = ASM.TRUE ;
 
@@ -260,21 +260,21 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 		return shared;
 	}
 
-	@Override
-	public int getState() {
-		return state;
-	}
-
-	/**
-	 * internal. Not in the interface.
-	 * @param state
-	 */
-	private void setState (int state) {
-		if (state >= 0 && state <= 3) this.state = state ;
-		else {
-			System.out.println("erreur. invalid state: " + state );
-		}
-	}
+//	@Override
+//	public int getState() {
+//		return state;
+//	}
+//
+//	/**
+//	 * internal. Not in the interface.
+//	 * @param state
+//	 */
+//	private void setState (int state) {
+//		if (state >= 0 && state <= 3) this.state = state ;
+//		else {
+//			System.out.println("erreur. invalid state: " + state );
+//		}
+//	}
 
 
 	@Override

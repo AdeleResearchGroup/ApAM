@@ -37,34 +37,13 @@ import fr.imag.adele.apam.apamAPI.Composite;
 
 public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 
-
-//	private static ASMSpecBroker myBroker = null ;
-//	private static ASMImplBroker implBroker = null ;
-//	private static ASMInstBroker instBroker = null ;
-//	private static ImplementationBroker samImplBroker = null ;
-//	private static InstanceBroker samInstBroker = null ;
-//	private static SpecificationBroker samSpecBroker = null ;
-
 	private String name ;
     private Composite myComposite ;
     private Specification samSpec = null ;
-//    private Map<String, Object> properties ;
     private Set<ASMImplImpl> implementations = new HashSet <ASMImplImpl> ();
     
-	private int state = ASM.ACTIVE ;
 	private int shared = ASM.SHAREABLE ;
 	private int clonable = ASM.TRUE ;
-	
-//	private Set<ASMInst> uses = new HashSet <ASMInst> () ;
-//	private Set<ASMInst> invUses = new HashSet <ASMInst> () ;
-
-//	public static void init () {
-//		myBroker = ASM.ASMSpecBroker ;
-//		implBroker = ASM.ASMImplBroker ;
-//		instBroker = ASM.ASMInstBroker ;
-//		samImplBroker = ASM.SAMImplBroker ;
-//		samInstBroker = ASM.SAMInstBroker ;
-//	}
 	
 	private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
 	
@@ -206,11 +185,6 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 	@Override
 	public int getShared() {
 		return shared;
-	}
-
-	@Override
-	public int getState() {
-		return state;
 	}
 
 	@Override

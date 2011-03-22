@@ -14,10 +14,9 @@ public interface ASMSpec extends Property {
 	public String getASMName () ;
 	public Specification getSamSpec () ;
 	
-	public int getState () ; //States cannot be directly set.
-	public int getShared () ;
+	public int  getShared () ;
+	public int  getClonable () ;
 	public void setShared (int shared) ; //must be less or equal than its implem state
-	public int getClonable () ;
 	public void setClonable (int clonable) ;
 	
 	

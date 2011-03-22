@@ -25,12 +25,20 @@ public class SamInstEventHandler implements AMEventingHandler {
 
 	//The managers are waiting for the apparition of an instance of the ASMImpl or implementing the interface
 	//In both case, no ASMInst is created.
-	static Map<ASMImpl, Set<DynamicManager>> expectedImpls     = new HashMap <ASMImpl, Set<DynamicManager>> () ;
+	static Map<ASMImpl, Set<DynamicManager>> expectedImpls      = new HashMap <ASMImpl, Set<DynamicManager>> () ;
 	static Map<String,  Set<DynamicManager>> expectedInterfaces = new HashMap <String,  Set<DynamicManager>> () ;
 
+	//registers the managers that are interested in services that disappear.
 	static Set<DynamicManager> listenLost = new HashSet <DynamicManager> () ;
+	
+	//contains the apam instance that registered to APAM but not yet created in ASM
+	static Map<String, ApamDependencyHandler> newApamInstance = new HashMap<String, ApamDependencyHandler> () ;
 
-	public synchronized void addExpectedImpl (ASMImpl impl, DynamicManager manager) {
+	public static synchronized void addNewApamInstance (String samName, ApamDependencyHandler handler) {
+		newApamInstance.put (samName, handler) ;
+	}
+	
+	public static synchronized void addExpectedImpl (ASMImpl impl, DynamicManager manager) {
 		Set<DynamicManager> mans = expectedImpls.get(impl) ;
 		if (mans == null) {
 			mans = new HashSet<DynamicManager> () ;
@@ -41,7 +49,7 @@ public class SamInstEventHandler implements AMEventingHandler {
 		}
 	}
 
-	public synchronized void addExpectedInterf (String interf, DynamicManager manager) {
+	public static synchronized void addExpectedInterf (String interf, DynamicManager manager) {
 		Set<DynamicManager> mans = expectedInterfaces.get(interf) ;
 		if (mans == null) {
 			mans = new HashSet<DynamicManager> () ;
@@ -55,38 +63,6 @@ public class SamInstEventHandler implements AMEventingHandler {
 	static public synchronized void addLost (DynamicManager manager) {
 		listenLost.add(manager) ;
 	}
-
-	//	public boolean isExpected (String implName) {
-	//		return expectedImpls.contains(implName) ;
-	//	} 
-
-	//IN DYNAMAN
-	//
-	//	public Instance getinstance (String expected) throws ConnectionException {
-	//
-	//		//if allready here
-	//		Instance instance = samInstBroker.getInstance(expected);
-	//		if (instance != null)
-	//			return instance;
-	//
-	//		//not yet here. Wait for it.
-	//		synchronized(this) {
-	//			expectedInsts.add(expected);
-	//			try {
-	//				while (expectedInsts.contains(expected)) {
-	//					this.wait();
-	//				}
-	//				//The expected impl arrived.
-	//				instance = samInstBroker.getInstance(expected);
-	//				if (instance == null) //should never occur
-	//					System.out.println("wake up but imlementation is not present "+expected);
-	//			} catch (InterruptedException e) {
-	//				e.printStackTrace();
-	//			}
-	//		}
-	//
-	//		return instance;
-	//	}
 
 	@Override
 	public Query getQuery() throws ConnectionException {
@@ -112,6 +88,13 @@ public class SamInstEventHandler implements AMEventingHandler {
 		if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_ARRIVAL)){
 			PID implPid = (PID)amEvent.getProperty(EventProperty.PID) ;
 			Instance samInst = ASM.SAMInstBroker.getInstance(implPid) ;
+			String samName = samInst.getName();
+			
+			if (newApamInstance.containsKey(samName)) { //It is an APAM instance either under creation, or auto appear
+				samInst.setProperty(ASM.ApamDependencyHandlerAddress, newApamInstance.get(samName)) ;
+				newApamInstance.remove(samName) ;
+			} 
+			
 			Implementation samImpl = samInst.getImplementation() ;
 			ASMImpl impl = ASM.ASMImplBroker.getImpl (samImpl) ;
 			if (expectedImpls.keySet().contains (impl)) {
@@ -134,6 +117,11 @@ public class SamInstEventHandler implements AMEventingHandler {
 		if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_DEPARTURE)){
 			PID implPid = (PID)amEvent.getProperty(EventProperty.PID) ;
 			Instance samInst = ASM.SAMInstBroker.getInstance(implPid) ;
+			
+			if (newApamInstance.containsKey(samInst.getName())) { //It is an APAM instance that was never used
+				newApamInstance.remove(samInst.getName()) ;
+			} 
+			
 			ASMInst inst = ASM.ASMInstBroker.getInst (samInst) ;
 			if (inst == null) return ;
 			//set state lost to inst and propagates. In fact deletes that instance.
@@ -163,4 +151,36 @@ public class SamInstEventHandler implements AMEventingHandler {
 	}
 
 }
+
+//	public boolean isExpected (String implName) {
+//		return expectedImpls.contains(implName) ;
+//	} 
+
+//IN DYNAMAN
+//
+//	public Instance getinstance (String expected) throws ConnectionException {
+//
+//		//if allready here
+//		Instance instance = samInstBroker.getInstance(expected);
+//		if (instance != null)
+//			return instance;
+//
+//		//not yet here. Wait for it.
+//		synchronized(this) {
+//			expectedInsts.add(expected);
+//			try {
+//				while (expectedInsts.contains(expected)) {
+//					this.wait();
+//				}
+//				//The expected impl arrived.
+//				instance = samInstBroker.getInstance(expected);
+//				if (instance == null) //should never occur
+//					System.out.println("wake up but imlementation is not present "+expected);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//
+//		return instance;
+//	}
 
