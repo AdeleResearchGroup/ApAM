@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.samAPIImpl;
 
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,31 +31,18 @@ import fr.imag.adele.sam.broker.InstanceBroker;
 
 public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 
-	private static ASMImplBroker myBroker = null ;
-	private static ASMInstBroker instBroker = null ;
-	private static ImplementationBroker samImplBroker = null ;
-	private static InstanceBroker samInstBroker = null ;
+	private static ASMImplBroker myBroker = ASM.ASMImplBroker ;
+	private static ImplementationBroker samImplBroker = ASM.SAMImplBroker ; ;
 
 	private String name ;
 	private ASMSpec mySpec ;
 	private Composite myComposite ;
 	private Implementation samImpl = null ;
-	//    private Map<String, Object> properties ;
-	private Set<ASMInstImpl> instances = new HashSet <ASMInstImpl> ();
 
-//	private int state = ASM.ACTIVE ;
+	private Set<ASMInst> instances = new HashSet <ASMInst> ();
+
 	private int shared = ASM.SHAREABLE ;
 	private int clonable = ASM.TRUE ;
-
-	//	private Set<ASMInst> uses = new HashSet <ASMInst> () ;
-	//	private Set<ASMInst> invUses = new HashSet <ASMInst> () ;
-
-	public static void init () {
-		myBroker = ASM.ASMImplBroker ;
-		instBroker = ASM.ASMInstBroker ;
-		samImplBroker = ASM.SAMImplBroker ;
-		samInstBroker = ASM.SAMInstBroker ;
-	}
 
 	/**
 	 * Instantiate a new service implementation.
@@ -67,15 +55,15 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 		this.name = name;
 		this.myComposite = compo ;
 		if (spec == null) {
+			//Create the spec from SAM spec
 			try {
+				//TODO use new method getSpecification
+				//Specification specification = samImpl.getSpecification();
 				Specification specification = (Specification)samImpl.getSpecifications().toArray()[0] ;
-				spec = new ASMSpecImpl (compo, specification.getName(), 
-						specification, (Properties)null) ;
-			} catch (ConnectionException e) {
-				e.printStackTrace();
-			}
+				spec = new ASMSpecImpl (compo, specification.getName(), specification, (Properties)null) ;
+			} catch (ConnectionException e) { e.printStackTrace(); }
 		}
-		this.mySpec = (ASMSpec)spec ;
+		this.mySpec = spec ;
 		if (inst != null) { 
 			instances.add((ASMInstImpl)inst) ;
 		}
@@ -83,7 +71,7 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 			System.out.println("Sam Implementation cannot be null when creating an imple");
 		}
 		samImpl = impl ;
-
+		((ASMImplBrokerImpl)myBroker).addImpl(this) ;
 		//initialize properties. A fusion of SAM and APAM values
 		if (prop != null && !prop.isEmpty()) {
 			Map<String, Object> samProp;
@@ -106,29 +94,6 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 		}
 	}
 
-	public Implementation getSamImpl () {
-		return samImpl ;
-	}
-
-	public ASMImplImpl(Composite compo, String name, ASMSpecImpl spec, Implementation impl) {
-		this.name = name;
-		this.myComposite = compo ;
-		if (spec == null) {
-			try {
-				Specification specification = (Specification)samImpl.getSpecifications().toArray()[0] ;
-				spec = new ASMSpecImpl (compo, specification.getName(), 
-						specification, null) ;
-			} catch (ConnectionException e) {
-				e.printStackTrace();
-			}
-		}
-		this.mySpec = (ASMSpec)spec ;
-		if (impl == null) {
-			System.out.println("Sam Implementation cannot be null when creating an imple");
-		}
-		samImpl   = impl ;
-	}
-
 	/**
 	 * From an implementation, create an instance. 
 	 * Creates both the SAM and ASM instances with the same properties.
@@ -141,13 +106,8 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 		Instance samInst = null;
 		try {
 			samInst = samImplBroker.createInstance(samImpl.getPid(), initialproperties);
-		} catch (ConnectionException e) {
-			e.printStackTrace();
-		} catch (UnsupportedOperationException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) {	e.printStackTrace();}
+
 		ASMInstImpl inst = new ASMInstImpl (myComposite, this, initialproperties, samInst) ;
 		instances.add(inst) ;
 		return inst ;   
@@ -157,56 +117,9 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 		return mySpec ;
 	}
 
-//	/*
-//	 * (non-Javadoc)
-//	 * @see fr.imag.adele.sam.Implementation#getImplementationClass()
-//	 */
-//	public String getImplementationClass() {
-//		return samImpl.getPid().getId();
-//	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see fr.imag.adele.sam.Implementation#getName()
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see fr.imag.adele.sam.Implementation#getPid()
-	 */
-	public PID getPid() {
-		return samImpl.getPid() ;
-	}
-
-	//    public Set<Implementation> getWires () {
-	//    	Set<Implementation> ret = new HashSet <Implementation> ();
-	//    	try {
-	//    		Instance inst = getInstance () ;
-	//    		for (Instance instreq : inst.getWires()) {
-	//    			ret.add(instreq.getImplementation()) ;
-	//    		}
-	//    	} catch (ConnectionException e) {} ; // impossible
-	//    	return ret;
-	//    }
-	//
-	//    public Set<Specification> getUses() {
-	//    	Set<Specification> ret = new HashSet <Specification> ();
-	//    	for (ASMInstImpl inst : instances) {
-	//			ret.addAll(inst.getRequires ()) ;
-	//		}
-	//        return ret;
-	//    }
-
-	/*
-	 * (non-Javadoc)
-	 * @see fr.imag.adele.sam.Implementation#getInstance(java.lang.String)
-	 */
 	public ASMInst getInst(String targetName) {
 		for (ASMInst inst : instances) {
-			if (inst.getName().equals(targetName)) return inst ;
+			if (inst.getASMName().equals(targetName)) return inst ;
 		}
 		return null;
 	}
@@ -216,14 +129,15 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 	 * @see fr.imag.adele.sam.Implementation#getInstances()
 	 */
 	public Set<ASMInst> getInsts(){
-		return new HashSet <ASMInst> (instances) ;
+		return Collections.unmodifiableSet(instances) ;
+		//return new HashSet <ASMInst> (instances) ;
 	}
 
 	/**
 	 * returns the first instance only.
 	 */
-	public ASMInst getInste(){
-		if ((instances!=null) && (instances.size() > 0)) return null ;
+	public ASMInst getInst(){
+		if ((instances==null) || (instances.size() == 0)) return null ;
 		return (ASMInst) instances.toArray()[0] ;
 	}
 
@@ -234,10 +148,6 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 					ret.add(inst) ;
 		}
 		return ret;
-	}
-
-	public boolean isInstantiator() {
-		return true;
 	}
 
 	@Override
@@ -260,22 +170,6 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 		return shared;
 	}
 
-//	@Override
-//	public int getState() {
-//		return state;
-//	}
-//
-//	/**
-//	 * internal. Not in the interface.
-//	 * @param state
-//	 */
-//	private void setState (int state) {
-//		if (state >= 0 && state <= 3) this.state = state ;
-//		else {
-//			System.out.println("erreur. invalid state: " + state );
-//		}
-//	}
-
 
 	@Override
 	public void setClonable(int clonable) {
@@ -283,8 +177,18 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 	}
 
 	@Override
-	public void setShared(int shared) {
-		if ((shared >=0) && (shared <= mySpec.getShared())) this.shared = shared ;
+	public void setShared(int newShared) {
+		for (ASMInst inst : instances) {
+			if (inst.getShared() > newShared) {
+				System.out.println("cannot change shared prop of " + getASMName() + " som instances have higher shared prop");
+				return ; //do not change anything
+			}
+		}
+		if (((newShared < 0) || newShared > mySpec.getShared())) return ; // do not change 
+		this.shared = newShared ;
+		if (shared == ASM.SHAREABLE && newShared != ASM.SHAREABLE) {
+			ASM.removeSharedImpl(this) ;
+		}
 	}
 
 	@Override
@@ -292,7 +196,6 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	/**
 	 * remove from ASM but does not try to delete in SAM. The mapping is still valid.
@@ -305,38 +208,17 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 		for (ASMInst inst : instances) {
 			inst.remove () ;
 		}
+		myBroker.removeImpl (this) ;
 	}
 
 	@Override
-	public String getImplClass() {
-		return samImpl.getImplementationClass() ;
+	public Implementation getSamImpl () {
+		return samImpl ;
 	}
-
+	
 	@Override
 	public boolean isInstantiable() {
 		return samImpl.isInstantiator();
 	}
 
-	@Override
-	public ASMInst getInst() throws ConnectionException {
-		if (instances.size() > 0)
-			return (ASMInst)instances.toArray()[0] ;
-		return null;
-	}
-
-//	@Override
-//	public Set<ASMInst> getInsts() throws ConnectionException {
-//		return new HashSet<ASMInst> (instances) ;
-//	}
-//
-//	@Override
-//	public Set<ASMInst> getInsts(Filter goal) throws ConnectionException,
-//			InvalidSyntaxException {
-//		Set<ASMInst> ret = new HashSet<ASMInst> () ;
-//		for (ASMInst inst : instances) {
-//			if (goal.match(inst.getDictionary()))
-//					ret.add (inst) ;
-//		}
-//		return ret;
-//	}
 }

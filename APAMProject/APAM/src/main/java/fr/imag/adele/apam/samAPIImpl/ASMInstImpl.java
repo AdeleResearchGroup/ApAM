@@ -28,7 +28,7 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 
 	/** The logger. */
 	private static Logger logger = Logger.getLogger(ASMInstImpl.class);
-	private static ASMInstBroker myBroker = null ;
+	private static ASMInstBroker myBroker = ASM.ASMInstBroker ;
 
 	private String name ;
 	private ASMImpl myImpl ;
@@ -37,20 +37,11 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 	private ApamDependencyHandler depHandler ;
 
 	//The known attributes and their default value
-//	private int state = ASM.ACTIVE ;
 	private int shared = ASM.SHAREABLE ;
 	private int clonable = ASM.TRUE ;
-	
-	private boolean removed = false ;
 
 	private Map <ASMInst, Wire> wires = new HashMap <ASMInst, Wire> () ;			//the currently used instances
 	private Map <ASMInst, Wire> invWires = new HashMap <ASMInst, Wire> () ;			
-	private Map <ASMInst, Wire> missingWires = new HashMap <ASMInst, Wire> () ;		//wires toward lost instances
-
-	/* WARNING : to call before any other call */
-	public static void init () {
-		myBroker = ASM.ASMInstBroker ;
-	}
 
 
 	public ASMInstImpl (Composite compo, ASMImpl impl, Properties initialproperties, Instance samInst) {
@@ -62,7 +53,7 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		}
 		this.samInst = samInst ;
 		this.name = samInst.getName () ;
-		
+		((ASMInstBrokerImpl)ASM.ASMInstBroker).addInst (this) ;
 		//Check if it is an APAM instance
 		try {
 			ApamDependencyHandler handler = (ApamDependencyHandler)samInst.getProperty(ASM.ApamDependencyHandlerAddress);
@@ -106,9 +97,9 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		return myImpl ;
 	}
 
-	public String getName() {
-		return name ;
-	}
+//	public String getName() {
+//		return name ;
+//	}
 
 
 	public Object getServiceObject() throws ConnectionException {
@@ -121,6 +112,7 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 	 * return only APAM wires.  
 	 * for SAM wires the sam instance
 	 */
+	@Override
 	public Set<ASMInst> getWires() {
 		return wires.keySet()  ;
 	}
@@ -129,62 +121,90 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		if (wires.get(to) == null) return null ;
 		return wires.get(to).getConstraints();
 	}
-	
-	public boolean setWire (ASMInst to, String depName, Set<Filter> constraints) {
-		if (wires.get(to) != null) return true ;
-		if (!Wire.checkNewWire(this, to)) return false ; 
-		Wire wire = new Wire (this, to, depName, constraints);
-		return true ;
-	}
 
+	@Override
 	public boolean setWire (ASMInst to, String depName, Filter filter) {
 		Set<Filter> constraints = new HashSet<Filter> () ;
 		constraints.add(filter);
 		return setWire (to, depName, constraints) ;
 	}
-	/**
-	 * A new client uses this instance. Can turn the instance back to active if idle or removed.
-	 * @param client
-	 */
-//	private void addInvWire (Wire wire) {
-//		ASMInst from = wire.getSource() ;
-//		if ( invWires.get (from) != null) return ;
-//		invWires.put (from, wire) ;
-//		if (from.getState() == ASM.ACTIVE && ( state == ASM.IDLE || state == ASM.REMOVED)) {
-//			setState (ASM.ACTIVE);
-//		}
-//	}
+
+	@Override
+	public boolean setWire (ASMInst to, String depName, Set<Filter> constraints) {
+		if (wires.get(to) != null) return true ;
+		if (!Wire.checkNewWire(this, to)) return false ; 
+		Wire wire = new Wire (this, to, depName, constraints);
+		wires.put(to, wire) ;
+		((ASMInstImpl)to).setInvWire (this, wire) ;
+		if (depHandler != null) {
+			depHandler.setWire(to, depName) ;
+		}
+		return true ;
+	}
+
+	//Not in the interface
+	private void setInvWire (ASMInst from, Wire wire) {
+		invWires.put (from, wire) ;
+	}
 
 	/**
 	 * The removed wire is not considered as lost; the client may still be active. 
 	 * The state is not changed.
-	 * @param inst
+	 * @param to
 	 */
-	public void removeWire (ASMInst inst) {
-		if (wires.get(inst) == null) return ;
-		wires.remove(inst) ;
-		((ASMInstImpl)inst).removeInvWire (this) ;
+	public void removeWire (ASMInst to) {
+		removeWire (to, null) ;
 	}
 
-	public void removeInvWire (ASMInst inst) {
-		if (removed) return ; //not to loop
-		if (wires.get(inst) == null) return ;
-		invWires.remove(inst) ;
-		if (invWires.isEmpty()) { //This instance ins no longer used. Delete it => remove all its wires 
-			for (ASMInst dest : wires.keySet() ) {
-				removeWire (dest) ;
+	private void removeWire (ASMInst to, ASMInst newTo) {
+		Wire wire = wires.get(to) ;
+		if (wire == null) return ;
+		wires.remove(to) ;
+		((ASMInstImpl)to).removeInvWire (this) ;
+		if (depHandler != null) {
+			if (newTo == null) {
+				depHandler.remWire(to, wire.getDepName()) ;
+			} else {
+				depHandler.substWire(to, newTo, wire.getDepName()) ;
 			}
-			removed = true ;
-			remove() ;
 		}
 	}
 
-
-	public void delete() throws UnsupportedOperationException,
-	ConnectionException {
-		samInst.delete() ;
-		remove ();
+	private void removeInvWire (ASMInst from) {
+		if (invWires.get(from) == null) return ;
+		invWires.remove(from) ;
+		if (invWires.isEmpty()) { //This instance ins no longer used. Delete it => remove all its wires 
+			for (ASMInst dest : wires.keySet() ) {
+				removeWire (dest, null) ;
+			}
+			try {
+				myBroker.removeInst(this);
+				samInst.delete() ;
+			} catch (ConnectionException e) {
+				e.printStackTrace();
+			} 
+		}
 	}
+
+	/**
+	 * remove from ASM
+	 * It deletes the wires, which deletes the isolated used instances, and transitively.
+	 * It deleted the invWires, which removes the associated real dependency : 
+	 */
+	@Override
+	public void remove() {
+		//The fact the instance is no longer used deletes it. It is done in removeWire.
+		for (ASMInst client : invWires.keySet()) {
+			((ASMInstImpl)client).removeWire(this, null) ; 
+		}
+	}
+
+	@Override
+	public void substWire(ASMInst oldTo, ASMInst newTo, String depName) {
+		new Wire (this, newTo, depName, wires.get(oldTo).getConstraints()) ;
+		removeWire (oldTo, newTo) ;
+	}
+
 
 	public ASMSpec getSpec() throws ConnectionException {
 		return myImpl.getSpec() ;
@@ -205,15 +225,6 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		return samInst;
 	}
 
-
-	@Override
-	public void ungetService() throws ConnectionException {
-//		for (ASMInst inst : wires.keySet()) {
-//			removeWire(inst) ;
-//		}
-		samInst.ungetService() ;
-	}
-
 	@Override
 	public int getClonable() {
 		return clonable;
@@ -230,14 +241,18 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 	}
 
 	@Override
-	public void setShared(int shared) {
-		if ((shared >=0) && (shared <= myImpl.getShared())) this.shared = shared ;
+	public void setShared(int newShared) {
+		if (((newShared < 0) || newShared > myImpl.getShared())) return ; // do not change 
+		if (shared == ASM.SHAREABLE && newShared != ASM.SHAREABLE) {
+			ASM.removeSharedInst(this) ;
+		}
+		this.shared = newShared ;
 	}
 
 	@Override
 	public boolean match(Filter goal)  {
 		try {
-		return goal.match((PropertyImpl)getProperties());
+			return goal.match((PropertyImpl)getProperties());
 		} catch (Exception e) {}
 		return false ;
 	}
@@ -252,13 +267,6 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		depHandler = handler ;
 	}
 
-	/** we do not try to fix. Only remove that instance. The manager have been notified previously. 
-	 * 
-	 */
-	@Override
-	public void lost() {
-		remove () ;
-	}
 
 	@Override
 	public Set<ASMInst> getClients() {
@@ -268,61 +276,5 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 	@Override
 	public Wire getWire(ASMInst destInst) {
 		return wires.get(destInst);
-	}
-
-	/**
-	 * remove from ASM but does not try to delete in SAM. The mapping is still valid.
-	 * It deletes the wires, which deletes the isolated used instances, and transitively.
-	 * It deleted the invWires, which removes the associated real dependency : 
-	 * 		next call will try to resolve again. 
-	 */
-	@Override
-	public void remove() {
-		for (ASMInst instance : wires.keySet()) {
-			((ASMInstImpl)instance).removeInvWire (this) ; //May remove other instance if not used
-		}
-		for (ASMInst client : invWires.keySet()) {
-			((ASMInstImpl)client).removeWire(this) ; //The real instance is be called to be sure this wire is removed
-			client.getDependencyHandler().remWire(this, invWires.get(client).getDepName()) ;
-		}
-		try {
-			myBroker.removeInst(this);
-			samInst.delete() ;
-		} catch (ConnectionException e) {
-			e.printStackTrace();
-		} 
-	}
-
-	@Override
-	public void removeWire(ASMInst to, String depName) {
-		if (depName == null) {
-			removeWire (to) ;
-			return ;
-		}
-		Wire wire = wires.get(to) ;
-		if (!wire.getDepName().equals(depName))  {
-			System.out.println("Bad dependency name for " + this.getName() + " " + depName + " " + to.getName() );
-		}
-		removeWire (to) ;
-	}
-
-	@Override
-	public void substWire(ASMInst oldTo, ASMInst newTo, String depName) {
-		new Wire (this, newTo, depName, wires.get(oldTo).getConstraints()) ;
-		removeWire (oldTo) ;
-		depHandler.substWire(oldTo, newTo, depName) ;
-	}
-	
-	//Not in the interface.
-	public void setWire (ASMInst to, Wire wire) {
-		if (wires.containsKey(to)) return ;
-		wires.put(to, wire) ;
-		setInvWire (this, wire) ;
-	}
-	//Not in the interface
-	public void setInvWire (ASMInst from, Wire wire) {
-		if (wires.containsKey(from)) return ;
-		invWires.put (from, wire) ;
-		setWire (this, wire) ;
 	}
 }

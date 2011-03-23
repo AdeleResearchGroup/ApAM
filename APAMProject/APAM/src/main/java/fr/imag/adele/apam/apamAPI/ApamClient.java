@@ -9,24 +9,28 @@ public interface ApamClient {
 
 	/**
 	 * An APAM client instance requires to be wired with an instance implementing the specification.
+	 * WARNING : if no logical name is provided, since more than one specification can implement the same interface, 
+	 * any specification implementing the provided interface (technical name of the interface) will be considered satisfactory.
 	 * If found, the instance is returned. 
 	 * @param client the instance that requires the specification
-	 * @param spec the specification to resolve
+	 * @param interfaceName the name of one of the interfaces of the specification to resolve.
+	 * @param specName the *logical* name of that specification; different from SAM. May be null. 
 	 * @param abort if true, the application should be aborted.
 	 * @return
 	 */
-	public ASMInst newWire (ASMInst client, ASMSpec spec, String depName) ;
+	public ASMInst newWireSpec (ASMInst client, String interfaceName, String specName, String depName, Integer abort) ;
 	
 	/**
 	 * An APAM client instance requires to be wired with an instance of implementation.
 	 * If found, the instance is returned. 
 	 * @param client the instance that requires the specification
-	 * @param impl the implementation to resolve
+	 * @param samImplName the technical name of implementation to resolve, as returned by SAM.
+	 * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
 	 * @param depName the dependency name
 	 * @param abort if true, the application should be aborted.
 	 * @return
 	 */
-	public ASMInst newWire (ASMInst client, ASMImpl impl, String depName) ;
+	public ASMInst newWireImpl (ASMInst client, String samImplName, String implName, String depName, Integer abort) ;
 
 	/**
 	 * In the case a client realizes that a dependency disappeared, it has to call this method.
@@ -36,16 +40,18 @@ public interface ApamClient {
 	 * @param abort if true the application should fail.
 	 * @return
 	 */
-	public ASMInst faultWire (ASMInst client, ASMInst lostInstance, String depName) ;
+	public ASMInst faultWire (ASMInst client, ASMInst lostInstance, String depName, Integer abort) ;
 	
 	/**
 	 * This method has to be called by a client instance when it is created. 
 	 * It allows APAM to know where is the dependency manager attached to the instance. 
 	 * This dependency manager (an iPOJO Handler currently) must implement the ApamDependencyHandler interface.   
-	 * @param instanceName
-	 * @param client
+	 * @param instanceName the name of that instance, as it will be returned by SAM
+	 * @param client the dependency handler (this)
+	 * @param implName the *logical* name of that implementation; different from SAM. May be null. 
+	 * @param specName the *logical* name of that specification; different from SAM. May be null. 
 	 */
-	public void newClientCallBack (String instanceName, ApamDependencyHandler client) ;
+	public void newClientCallBack (String instanceName, ApamDependencyHandler client, String implName, String specName) ;
 	
 	
 }

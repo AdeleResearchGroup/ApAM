@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.samAPIImpl;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,18 +33,18 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
 	private static final ASMImplBroker implBroker = ASM.ASMImplBroker ;
 
-	private Set<ASMInstImpl> instances = new HashSet< ASMInstImpl> () ;
+	private Set<ASMInst> instances = new HashSet< ASMInst> () ;
 	
 	
 	//EVENTS
-	private SamInstEventHandler handler ;
+	private SamInstEventHandler eventHandler ;
 
-	public void init () {
+	public ASMInstBrokerImpl () {
 		try {
 			Machine machine = LocalMachine.localMachine;
 			EventingEngine eventingEngine = machine.getEventingEngine();
-			handler = new SamInstEventHandler();
-			eventingEngine.subscribe(handler, EventProperty.TOPIC_INSTANCE);
+			eventHandler = new SamInstEventHandler();
+			eventingEngine.subscribe(eventHandler, EventProperty.TOPIC_INSTANCE);
 		} catch (Exception e) {}
 	}
 
@@ -60,7 +61,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 	public ASMInst getInst(String instName)
 	throws ConnectionException {
 		for (ASMInst inst : instances) {
-			if (inst.getName().equals(instName)) {
+			if (inst.getASMName().equals(instName)) {
 				return  inst;
 			}
 		}
@@ -70,7 +71,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
 	@Override
 	public Set<ASMInst> getInsts() throws ConnectionException {
-		return  new HashSet<ASMInst> (instances) ;
+		return  Collections.unmodifiableSet (instances) ;
 	}
 
 	@Override
@@ -106,10 +107,8 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 				}
 				impl = implBroker.addImpl (compo, samInst.getImplementation().getName(), samInst.getImplementation()) ;
 			}
-
-		ASMInstImpl newInst  = new ASMInstImpl (compo, impl, null, samInst) ;
-		instances.add (newInst) ;
-		return newInst;
+			if (compo == null) compo = impl.getComposite() ;
+			return new ASMInstImpl (compo, impl, null, samInst) ;
 		}
 		catch (ConnectionException e) {
 			e.printStackTrace();
@@ -117,6 +116,11 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 		return null ;
 	}
 
+	//Warning : no control
+	public void addInst (ASMInst inst) {
+		instances.add (inst) ;
+	}
+	
 	@Override
 	public ASMInst getInst(Instance samInst) {
 		for (ASMInst inst : instances) {

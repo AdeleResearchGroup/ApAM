@@ -28,15 +28,26 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 //	private static final String name = "ASMSpecificationBroker" ;
 //	private Map<SpecPID, ASMSpecImpl> PID2Spec = new ConcurrentHashMap<SpecPID, ASMSpecImpl> () ;
 
-	private Set <ASMSpec> Specs = new HashSet <ASMSpec> () ;
+	private Set <ASMSpec> specs = new HashSet <ASMSpec> () ;
 
-
+	@Override
+	public void removeSpec (ASMSpec spec) {
+		if (specs.contains (spec)) {
+			specs.remove (spec) ;
+			spec.remove() ;
+		}
+	}
+	
+	public void addSpec (ASMSpec spec) {
+		specs.add (spec) ;
+	}
+	
 	@Override
 	public ASMSpec getSpec(String[] interfaces)
 			throws ConnectionException {
 		
 		interfaces = Util.orderInterfaces(interfaces) ;
-		for (ASMSpec spec : Specs) {
+		for (ASMSpec spec : specs) {
 			if (Util.sameInterfaces (spec.getInterfaceNames(), interfaces)) 
 					return spec ;
 		}
@@ -46,8 +57,8 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	@Override
 	public ASMSpec getSpec(String name)
 			throws ConnectionException {
-		for (ASMSpec spec : Specs) {
-			if (spec.getName().equals(name)) 
+		for (ASMSpec spec : specs) {
+			if (spec.getASMName().equals(name)) 
 				return spec ;
 		}
 		return null;
@@ -57,7 +68,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	public Set<ASMSpec> getSpecs()
 			throws ConnectionException {
 		
-		return new HashSet<ASMSpec> (Specs);
+		return new HashSet<ASMSpec> (specs);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -65,7 +76,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	public Set<ASMSpec> getSpecs(Filter goal)
 			throws ConnectionException, InvalidSyntaxException {
 		Set<ASMSpec> ret = new HashSet<ASMSpec> ();
-		for (ASMSpec spec : Specs) {
+		for (ASMSpec spec : specs) {
 			if (goal.match((Dictionary<String, Object>)spec.getProperties())) 
 					ret.add(spec) ;
 		}
@@ -75,7 +86,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	@Override
 	public ASMSpec getSpec(Filter goal) throws ConnectionException,
 			InvalidSyntaxException {
-		for (ASMSpec spec : Specs) {
+		for (ASMSpec spec : specs) {
 			if (goal.match((Dictionary<String, Object>)spec.getProperties())) 
 					return spec ;
 		}
@@ -95,13 +106,13 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	@Override
 	public ASMSpec addSpec(Composite compo, String name, Specification samSpec) {
 		ASMSpecImpl spec = new ASMSpecImpl (compo, name, samSpec, null) ;
-		Specs.add(spec) ;
+		specs.add(spec) ;
 		return spec ;
 	}
 
 	@Override
 	public ASMSpec getSpec (Specification samSpec) {
-		for (ASMSpec spec : Specs) {
+		for (ASMSpec spec : specs) {
 			if (spec.getSamSpec() == samSpec)
 				return spec ;
 		}

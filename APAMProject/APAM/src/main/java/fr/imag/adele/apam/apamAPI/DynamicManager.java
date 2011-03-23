@@ -2,7 +2,7 @@ package fr.imag.adele.apam.apamAPI;
 
 import fr.imag.adele.sam.Instance;
 
-public interface DynamicManager {
+public interface DynamicManager extends Manager{
 
 	/**
 	 * The managers is notified of the apparition of an instance of  ASMImpl or implementing the interface

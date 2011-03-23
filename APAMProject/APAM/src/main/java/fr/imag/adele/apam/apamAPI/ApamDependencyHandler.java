@@ -42,10 +42,4 @@ public interface ApamDependencyHandler {
 	 */
 	public boolean substWire (ASMInst oldDestInst, ASMInst newDestInst, String depName) ;
 	
-	/**
-	 * sets the state for that object. See ASM constants for values.
-	 * @param newState
-	 * @return
-	 */
-	public boolean setState (int newState) ;
 }

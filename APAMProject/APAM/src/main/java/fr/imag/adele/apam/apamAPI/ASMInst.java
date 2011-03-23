@@ -12,9 +12,7 @@ import fr.imag.adele.sam.Instance;
 public interface ASMInst extends Property {
 	
 	public Composite getComposite () ;
-	
 	public String getASMName () ;
-	
 	// The SAM instance associated with this Apam one.
 	public Instance getSAMInst () ;
 	
@@ -37,7 +35,7 @@ public interface ASMInst extends Property {
 	public Wire getWire (ASMInst detInst) ;
 	public boolean setWire (ASMInst to, String depName, Set<Filter> constraints) ;
 	public boolean setWire (ASMInst to, String depName, Filter filter) ;
-	public void removeWire (ASMInst inst, String depName) ; 
+	public void removeWire (ASMInst to) ; 
 	public void substWire (ASMInst oldTo, ASMInst newTo, String depName) ;
 
 	/**
@@ -47,7 +45,6 @@ public interface ASMInst extends Property {
 	 * 		next call will try to resolve toward another instance. 
 	 */
 	public void remove () ;
-	public void lost () ;
 	
 	public int getShared () ;
 	public void setShared (int shared) ; //must be less or equal than its implem state
@@ -59,29 +56,11 @@ public interface ASMInst extends Property {
     public ASMSpec getSpec() throws ConnectionException;
 
     /**
-     * Delete this instance. Warning, this method can raise an
-     * {@link UnsupportedOperationException}.
-     * 
-     * @throws UnsupportedOperationException the unsupported operation exception
-     * @throws ConnectionException the connection exception
-     */
-    public void delete() throws UnsupportedOperationException,
-            ConnectionException;
-
-    /**
      * Get the implementation.
      * 
      * @return the associated Service implementation
      */
     public ASMImpl getImpl() throws ConnectionException;
-
-    /**
-     * Method getName return the Id of that service implementation. If the
-     * current service has no Id, the String "UNNAMED" is returned.
-     * 
-     * @return the name
-     */
-    public String getName();
 
      /**
      * Method getServiceObject returns an object that can be casted to the
@@ -102,14 +81,6 @@ public interface ASMInst extends Property {
      * @return true is the instance matches the goal
      */
     public boolean match(Filter goal);
-
-    /**
-     * This method must be call after the use a service (getServiceObject).<BR>
-     * Releases the service object referenced.
-     * 
-     * @throws ConnectionException the connection exception
-     */
-    public void ungetService() throws ConnectionException;
 
 }
 

@@ -14,14 +14,15 @@ import fr.imag.adele.sam.Specification;
 public interface ASMSpecBroker {
 	/**
 	 * 
-	 * @param name the name of the spec, as known by the managers. May be different from SAM
+	 * @param specName the *logical* name of that specification; different from SAM. May be null. 
 	 * @param samSpec : A SAM specification.
-	 * return an ASM Spec
+	 * return an ASM Specification
 	 */
-	public ASMSpec addSpec (Composite compo, String name, Specification samSpec) ;
+	public ASMSpec addSpec (Composite compo, String specName, Specification samSpec) ;
 	//public Specification createSpec (Specification Spec) ;
 	
-	
+	public void removeSpec (ASMSpec spec) ;
+
 	
 	/**
 	 * return the ASM specification associated with that sam specification
@@ -59,28 +60,45 @@ public interface ASMSpecBroker {
             throws ConnectionException, InvalidSyntaxException;
 
     /**
-     * Returns the first abstract service that satisfies support all the provided interfaces.
-     * 
+     * Returns the specification that implement all and only the provided interfaces.
+     * At most one specification can satisfy that requirement (by definition of specification)
      * WARNING : the same specification can be implemented by different technologies (SCM). 
      * The list of interfaces is the minimum required to implement a specification. 
      * 
      * @param interfaces : the interfaces of the required specification. 
      * The returned specification must support all the interfaces in the array.
-     * The order in which the interfaces are found in the array is nor relevant.
+     * The order in which the interfaces are provided in the array is nor relevant.
+     * NOTE : the SAM specification name is the concatenation separated by ";" of all the interfaces, ordered lexicographically.
      * Cannot be null nor empty.
      * 
-     * @return the abstract service
+     * @return the specification
      * @throws ConnectionException the connection exception Returns the
      *             ExportedSpecification exported by this Machine that satisfies
      *             the interfaces.
      */    
     public ASMSpec getSpec(String [] interfaces)throws ConnectionException ;
  
+    /**
+     * Returns *the first* specification that implements the provided interfaces.
+     * WARNING : the same interface can be implemented by different specifications, 
+     * and a specification may implement more than one interface : the first spec found is returned. 
+     * WARNING : convenient only if a single spec provides that interface; otherwise it is non deterministic.
+     * 
+     * @param interfaceName : the name of the interface of the required specification. 
+     * @return the abstract service
+     * @throws ConnectionException the connection exception Returns the
+     *             ExportedSpecification exported by this Machine that satisfies
+     *             the interfaces.
+     */    
+    public ASMSpec getSpecInterf(String interfaceName)throws ConnectionException ;
+ 
     
      /**
-     * Returns the abstract service with the given name. If name is null returns
-     * null.
-     * @param name the name
+     * Returns the specification with the given logical name. 
+     * WARNING: Name is the *logical* name of that specification; it may be null (if not Apam specific).
+     * If the logical name is null, looks for the SAM name of the specifications.
+     * NOTE : the SAM specification name is the concatenation separated by ";" of all the interfaces, ordered lexicographically.
+     * @param name the logical name of the specification, or sam name if no logical name provided 
      * @return the abstract service
      * @throws ConnectionException the connection exception Returns the
      *             ExportedAbstractService exported by this Machine with this
@@ -88,6 +106,14 @@ public interface ASMSpecBroker {
      */
     public ASMSpec getSpec(String name)
             throws ConnectionException;
+
+    /**
+     * Returns the specification with the given sam name. 
+     * @param samName the sam name of the specification
+     * @return the abstract service
+     */   
+    public ASMSpec getSpecSamName(String samName)
+    throws ConnectionException;
 
     /**
      * Returns all the abstract service. If no abstract service are matched,

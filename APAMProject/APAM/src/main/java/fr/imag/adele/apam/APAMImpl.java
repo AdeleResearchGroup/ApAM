@@ -21,11 +21,8 @@ import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.DynamicManager;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.apamAPI.ManagersMng;
-import fr.imag.adele.apam.samAPIImpl.ASMInstImpl;
 import fr.imag.adele.apam.samAPIImpl.SamImplEventHandler;
 import fr.imag.adele.apam.samAPIImpl.SamInstEventHandler;
-import fr.imag.adele.sam.Implementation;
-import fr.imag.adele.sam.Instance;
 
 public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
@@ -46,7 +43,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	}
 	
 	@Override
-	public ASMInst faultWire(ASMInst client, ASMInst lostInstance, String depName) {
+	public ASMInst faultWire(ASMInst client, ASMInst lostInstance, String depName, Integer abort) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -68,8 +65,8 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	 * 
 	 */
 	@Override
-	public ASMInst newWire(ASMInst client, ASMSpec spec, String depName) {
-		Boolean abort = false ;
+	public ASMInst newWire(ASMInst client, ASMSpec spec, String depName, Integer abort) {
+		abort = ASM.FALSE ;
 		//first step : compute selection path and constraints
 		Set<Filter> constraints = new HashSet<Filter> () ;
 		Filter thatfilter = null ;
@@ -110,29 +107,29 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 		
 		//third step : ask each manager in the order
 		ASMInst resolved ;
-		abort = false ;
 		for (int i = 0; i < managerList.size(); i++) {
-			resolved = managerList.get(i).resolve(client, spec, depName, constraints) ;
+			resolved = managerList.get(i).resolve(client, spec, depName, constraints, abort) ;
 			if (resolved != null) {
 				//accept only if a wire is possible
 				if (client.setWire (resolved, depName, constraints))				
 					return resolved ;
 			}
-			if (abort) return null ;
+			if (abort== ASM.TRUE) return null ;
 		} 
 		return null ;
 	}
 
 	@Override
-	public ASMInst newWire(ASMInst client, ASMImpl impl, String depName) {
-		Boolean abort = false ;
+	public ASMInst newWire(ASMInst client, ASMImpl impl, String depName, Integer abort) {
+		abort = ASM.FALSE ;
+		
 		//first step : compute selection path and constraints
 		Set<Filter> constraints = new HashSet<Filter> () ;
 		Filter thatfilter = null ;
 		List<Manager> selectionPath = new ArrayList<Manager>  () ;
 
 		if (managerList.size() == 0) {
-			System.out.println("No manager available. Cannot resolve " + impl.getName());
+			System.out.println("No manager available. Cannot resolve " + impl.getASMName());
 			return null ;
 		}
 		for (int i = 0; i < managerList.size(); i++) {
@@ -163,15 +160,14 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 		
 		//third step : ask each manager in the order
 		ASMInst resolved ;
-		abort = false ;
 		for (int i = 0; i < managerList.size(); i++) {
-			resolved = managerList.get(i).resolve(client, impl, depName, constraints) ;
+			resolved = managerList.get(i).resolve(client, impl, depName, constraints, abort) ;
 			if (resolved != null) {
 				//accept only if a wire is possible
 				if (client.setWire (resolved, depName, constraints))				
 					return resolved ;
 			}
-			if (abort) return null ;
+			if (abort== ASM.TRUE) return null ;
 		} 
 		return null ;
 	}

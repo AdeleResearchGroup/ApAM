@@ -9,13 +9,16 @@ import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.sam.Instance;
 
 public interface ASMInstBroker  {
+	
 	/**
-	 * add in ASM and existing SAM Instance.
+	 * adds in ASM and existing SAM Instance.
 	 * @param compo The composite in which to create the instance. Can be null if the implem is existing is ASM
 	 * @param inst a SAM Instance
+	 * @param implName the *logical* name of the associated implementation. May be different from SAM. May be null.
+	 * @param specName the *logical* name of the associated specification; different from SAM. May be null. 
 	 * @return an ASM Instance
 	 */
-	public ASMInst addInst (Composite compo, Instance samInst) ;
+	public ASMInst addInst (Composite compo, Instance samInst, String implName, String specName) ;
 	
 	/**
 	 * returns the APAM instance related to the provided sam Instance. 
@@ -26,25 +29,23 @@ public interface ASMInstBroker  {
 	
     /**
      * Return the instances with that name.
-      * @param APAM name the instance
+     * @param instName name the instance (same as sam name)
      * @return the service instance
      */
     public ASMInst getInst(String instName) throws ConnectionException;
 
     /**
      * Returns all the instances. Null if none.
-     * @param from pid of the caller
-     * @return the service instances
+      * @return the service instances
      */
     public Set<ASMInst> getInsts() throws ConnectionException;
 
     /**
      * Return all the instances that implement the specification and that
      * satisfy the goal. Null if none.
-     * @param from pid of the caller
-     * @param specification a given specification
-     * @param goal a name filter, LDAP filter or semantics filter.
-     * @return all the instances that implement the abstract service and that
+     * @param spec a given specification
+     * @param goal a name filter, LDAP filter.
+     * @return all the instances that implement the specification and that
      *         satisfy the goal
      */
     public Set<ASMInst> getInsts(ASMSpec spec, Filter goal)

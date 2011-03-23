@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.samAPIImpl;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -27,22 +28,16 @@ import fr.imag.adele.sam.event.EventProperty;
 public class ASMImplBrokerImpl implements ASMImplBroker{
 
 	private Logger logger = Logger.getLogger(ASMImplBrokerImpl.class);
-//	private static final InstanceBroker samInstBroker = ASM.SAMInstBroker ;
-//	private static final ASMInstBroker instBroker = ASM.ASMInstBroker ;
-//	private static final ASMImplBroker implBroker = ASM.ASMImplBroker ;
-//	private static final ASMSpecBroker specBroker = ASM.ASMSpecBroker ;
-//	private static final String name = "ASMImplementationBroker" ;
-//	private static final ImplementationBroker samImplBroker = ASM.SAMImplBroker ;
-	
-	private Set <ASMImplImpl> implems = new HashSet<ASMImplImpl> () ;
-	private SamImplEventHandler handler ;
 
-	public void init () {
+	private Set <ASMImpl> implems = new HashSet<ASMImpl> () ;
+	private SamImplEventHandler eventHandler ;
+
+	public ASMImplBrokerImpl () {
 		try {
 			Machine machine = LocalMachine.localMachine;
 			EventingEngine eventingEngine = machine.getEventingEngine();
-			handler = new SamImplEventHandler();
-			eventingEngine.subscribe(handler, EventProperty.TOPIC_IMPLEMENTATION);
+			eventHandler = new SamImplEventHandler();
+			eventingEngine.subscribe(eventHandler, EventProperty.TOPIC_IMPLEMENTATION);
 		} catch (Exception e) {}
 	}
 
@@ -54,11 +49,21 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 		} catch (Exception e) {}
 	}
 	
+	//Not in the interface. No control
+	public void addImpl (ASMImpl impl) {
+		implems.add(impl) ;
+	}
+
+	//Not in the interface. No control
+	public void removeImpl (ASMImpl impl) {
+		implems.remove(impl) ;
+	}
+	
 	@Override
 	public ASMImpl getImpl(String implName)
 	throws ConnectionException {
 		for (ASMImpl impl : implems) {
-			if (implName.equals(impl.getName()))
+			if (implName.equals(impl.getASMName()))
 					return impl ;
 		}
 		return null ;
@@ -67,7 +72,8 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 	@Override
 	public Set<ASMImpl> getImpls()
 	throws ConnectionException, ConnectionException {
-		return new HashSet<ASMImpl> (implems) ;
+		return Collections.unmodifiableSet(implems) ;
+		//return new HashSet<ASMImpl> (implems) ;
 	}
 
 	@Override
@@ -93,7 +99,8 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 			e.printStackTrace();
 		}
 		ASMSpecImpl spec = new ASMSpecImpl (compo, name, samSpec, null) ;
-		return new ASMImplImpl (compo, name, spec, samImpl) ;
+		ASMImplImpl impl = new ASMImplImpl (compo, name, spec, samImpl, null, null) ;
+		return impl ;
 	}
 
 	@Override
@@ -106,7 +113,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 			Set<String> implementationsNames = du.getImplementationsName();
 			implName = (String)implementationsNames.toArray()[0] ;
 			du.activate();
-			samImpl = handler.getImplementation(implName);
+			samImpl = eventHandler.getImplementation(implName);
 			//TODO comment savoir si une instance a été créée dans la foulée, et sous quel nom ?
 		} catch (ConnectionException e) {
 			e.printStackTrace();
@@ -114,8 +121,6 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 		}
 		
 		asmImpl =ASM.ASMImplBroker.addImpl(compo, name, samImpl) ;
-		//TODO re emmettre l'evennement; un manager l'attend.
-
 		return asmImpl ;
 	}
 

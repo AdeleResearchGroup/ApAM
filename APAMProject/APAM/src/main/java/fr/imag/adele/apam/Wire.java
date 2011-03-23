@@ -21,8 +21,6 @@ public class Wire {
 			this.destination = to ;
 			this.depName = depName ;
 			this.constraints =constraints ;
-			((ASMInstImpl)from).setWire(to, this) ;
-			((ASMInstImpl)to).setInvWire (from, this) ;
 		}
 	}
 
@@ -32,9 +30,6 @@ public class Wire {
 			this.source = from ;
 			this.destination = to ;
 			this.depName = depName ;
-			((ASMInstImpl)from).setWire(to, this) ;
-			((ASMInstImpl)to).setInvWire (from, this) ;
-			//from.setWire(to, depName, constraints)  ;
 		}
 	}
 

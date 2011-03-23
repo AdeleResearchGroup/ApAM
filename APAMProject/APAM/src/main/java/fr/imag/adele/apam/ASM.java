@@ -24,23 +24,13 @@ public class ASM {
 	
 // Constants
 	public static final String COMPOSITE = "Composite" ;
-	//The PID indicating that the caller is APAM or an APAM manager.
-//	public static final PID    PID = new ApamPID () ;
-	
-	// State attribute of services (Spec, Implem, Instance)
-//	public static final int ACTIVE  = 0 ;	//Used : destination of Requires, Uses or Wire.
-//	public static final int IDLE    = 1 ;	//Not used : no Requires, Uses or Wire lead to this object
-//	public static final int LOST    = 2 ;	//The corresponding object disappeared in SAM
-//	public static final int REMOVED = 3 ;	//The object has been removed explicitly
-//	public static final int INACTIVE= 4 ;	//The object is inactive as seen by iPOJO
-//	public static final int WAITING = 5 ;	//The object is waiting for a wire
 	
 	//The name of the attribute containing the dependency handler address (an object of type ApamDepndencyHandler)
 	public static final String ApamDependencyHandlerAddress = "ApamDependencyHandlerAddress" ;
 	
 	//Shared attribute of services (Spec, Implem, Instance)
 	public static final int SHAREABLE = 3 ;	//Usable by anybody
-	public static final int APPLI     = 2 ;	//Usable only from composite that can see the current composite
+	public static final int APPLI     = 2 ;	//Usable only from composites that can see the current composite
 	public static final int LOCAL     = 1 ;	//Usable only inside current composite
 	public static final int PRIVATE   = 0 ;	//Single use (unique Requires, Uses or Wire)
 	
@@ -75,9 +65,12 @@ public class ASM {
 			SAMDUBroker   = (DeploymentUnitBroker) bb.getBroker(DeploymentUnitBroker.NAME) ;
 
 			apam = new APAMImpl () ;
+			
 		} catch (Exception e) {}
 	}
 
+	//Shared service manangement
+	
 	//Keep list of shared (shareable) services
 	public static Set<ASMSpec> sharedSpecs = new HashSet <ASMSpec> () ;
 	public static Set<ASMImpl> sharedImpls = new HashSet <ASMImpl> () ;
@@ -113,7 +106,9 @@ public class ASM {
 		return null ;
 	}
 
-	
+	public static boolean isSharedInsts (ASMInst inst) {
+		return sharedInsts.contains (inst) ;
+	}
 	public static void addSharedInst (ASMInst inst) {
 		sharedInsts.add (inst) ;
 	}

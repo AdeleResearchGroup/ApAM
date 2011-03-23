@@ -125,7 +125,7 @@ public class SamInstEventHandler implements AMEventingHandler {
 			ASMInst inst = ASM.ASMInstBroker.getInst (samInst) ;
 			if (inst == null) return ;
 			//set state lost to inst and propagates. In fact deletes that instance.
-			inst.lost () ;
+			inst.remove () ;
 			ASMInst newInst = null;
 			ASMInst temp ;
 			//notifies interested managers

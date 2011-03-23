@@ -8,6 +8,7 @@ import fr.imag.adele.sam.broker.InstanceBroker;
 import fr.imag.adele.sam.ipojo.util.LDAP;
 
 import java.rmi.RemoteException;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +41,7 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 	private String name ;
     private Composite myComposite ;
     private Specification samSpec = null ;
-    private Set<ASMImplImpl> implementations = new HashSet <ASMImplImpl> ();
+    private Set<ASMImpl> implementations = new HashSet <ASMImpl> ();
     
 	private int shared = ASM.SHAREABLE ;
 	private int clonable = ASM.TRUE ;
@@ -52,6 +53,7 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 		this.name = name ;
 		this.samSpec = samSpec ;
 		
+		((ASMSpecBrokerImpl)ASM.ASMSpecBroker).addSpec (this) ;
 		//initialize properties. A fusion of SAM and APAM values
 		if (prop != null && !prop.isEmpty()) {
 			Map<String, Object> samProp;
@@ -81,8 +83,8 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 	 */
 	@Override
 	public ASMImpl getImpl(String name) {
-		for (ASMImplImpl impl : implementations) {
-			if (impl.getName().equals (name)) return impl ;
+		for (ASMImpl impl : implementations) {
+			if (impl.getASMName().equals (name)) return impl ;
 		}
 		return null ;
 	}		
@@ -91,8 +93,8 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 	public Set<ASMImpl> getImpls(Filter filter)
 	throws InvalidSyntaxException, ConnectionException {
 		Set<ASMImpl> ret = new HashSet<ASMImpl> () ;
-		for (ASMImplImpl impl : implementations) {
-			if (filter.match((Dictionary<String,Object>)impl.getProperties())) {
+		for (ASMImpl impl : implementations) {
+			if (filter.match((PropertyImpl)impl.getProperties())) {
 				ret.add(impl);
 			}
 		}
@@ -116,51 +118,10 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 	}
 
 	@Override
-	public String getName() {
-		return name ; 
-	}
-
-	@Override
 	public Set<ASMSpec> getUses()  {
 		return null;
 	}
 
-
-	@Override
-	public String toString() {
-		return "SPECIFICATION: " + name ;
-	}
-	
-	@Override	
-	public Map<String, Object> getProperties() throws ConnectionException  {
-		return samSpec.getProperties() ;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public Dictionary<String, Object> getDictionary() 	throws ConnectionException {
-		return (Dictionary<String, Object>)samSpec.getProperties() ;
-	}
-
-
-	@Override
-	public void removeProperty(String key) throws ConnectionException  {
-		samSpec.removeProperty(key) ;
-	}
-
-	@Override
-	public void setProperties(Map<String, Object> properties) throws ConnectionException {
-		samSpec.setProperties(properties) ;
-	}
-
-	@Override
-	public Object getProperty(String key) throws ConnectionException  {
-		return samSpec.getProperty(key) ;
-	}
-
-	@Override
-	public void setProperty(String key, Object value) throws ConnectionException {
-		samSpec.setProperty	(key, value) ;
-	}
 
 	@Override
 	public String getASMName() {
@@ -200,20 +161,22 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 
 	@Override
 	public void setShared(int newShared) {
-		if (shared == newShared) return ;
-		if (newShared > this.shared) {
-			System.out.println("cannot have shared value greated than specification");
-			return ;
+		for (ASMImpl impl : implementations) {
+			if (impl.getShared() > newShared) {
+				System.out.println("cannot change shared prop of " + getASMName() + " som impl have higher shared prop");
+				return ; //do not change anything
+			}
 		}
-		if (shared == ASM.SHAREABLE) {
-			ASM.removeSharedSpec (this) ;
-			shared = newShared ;
+		if (newShared < 0) return ;
+		if (shared == ASM.SHAREABLE && newShared != ASM.SHAREABLE) {
+			ASM.removeSharedSpec(this) ;
 		}
+		this.shared = newShared ;
 	}
 
 	@Override
 	public Set<ASMImpl> getImpls() throws ConnectionException {
-		return new HashSet<ASMImpl> (implementations);
+		return Collections.unmodifiableSet(implementations);
 	}
 
 }

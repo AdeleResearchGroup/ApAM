@@ -13,6 +13,7 @@ import fr.imag.adele.sam.Implementation;
 public interface ASMImpl extends Property {
 	public Composite getComposite () ;
 	public String getASMName () ;
+	public String getSAMName () ;
 	public Implementation getSamImpl () ;
 	
 	/**
@@ -70,19 +71,6 @@ public interface ASMImpl extends Property {
      */
     public ASMSpec getSpec() throws ConnectionException;
 
-    /**
-     * Get the implementation class.
-     * 
-     * @return the class full name of that implementation
-     */
-    public String getImplClass();
-
-    /**
-     * Get the name.
-     * 
-     * @return the name of this service implementation
-     */
-    public String getName();
 
     /**
      * Returns the specifications currently used by this implementation.
@@ -94,7 +82,7 @@ public interface ASMImpl extends Property {
 
 
     /**
-     * Returns an instance (a SAM object ASMInsts)of that Service
+     * Returns an instance (ASMInsts)of that Service
      * implementation that satisfies the provided Goal, if existing. Null if not
      * existing. It throws exception UnsupportedOperationException if the
      * current service implementation object does not support that
@@ -110,7 +98,7 @@ public interface ASMImpl extends Property {
     public ASMInst getInst(String name) throws ConnectionException;
 
     /**
-     * Returns all the instances (a SAM object ASMInsts) of that service
+     * Returns all the instances (ASMInsts) of that service
      * implementation Null if not existing. It throws exception
      * UnsupportedOperationException if the current service implementation
      * object does not support that functionality.
@@ -124,7 +112,7 @@ public interface ASMImpl extends Property {
     public Set<ASMInst> getInsts() throws ConnectionException;
 
     /**
-     * Returns an instance arbitrarily selected (a SAM object ASMInsts) of that service
+     * Returns an instance arbitrarily selected (ASMInsts) of that service
      * implementation Null if not instance are existing. It throws exception
      * UnsupportedOperationException if the current service implementation
      * object does not support that functionality.

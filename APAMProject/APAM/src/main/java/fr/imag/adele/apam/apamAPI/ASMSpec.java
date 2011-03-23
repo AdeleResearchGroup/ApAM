@@ -12,6 +12,7 @@ import org.osgi.framework.Filter;
 public interface ASMSpec extends Property {
 	public Composite getComposite () ;
 	public String getASMName () ;
+	public String getSAMName () ;
 	public Specification getSamSpec () ;
 	
 	public int  getShared () ;
@@ -78,13 +79,6 @@ public interface ASMSpec extends Property {
      * @return the interface
      */
     public String [] getInterfaceNames()throws ConnectionException;
-
-     /**
-     * Return the abstract service name.
-     * 
-     * @return the name
-     */
-    public String getName();
 
 
     /**
