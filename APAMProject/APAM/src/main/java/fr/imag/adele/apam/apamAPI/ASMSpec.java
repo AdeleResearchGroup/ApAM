@@ -71,13 +71,6 @@ public interface ASMSpec extends Property {
      * 
      * @return the interface
      */
-    public Class [] getInterfaces() throws ConnectionException;
-
-    /**
-     * Get the service interface.
-     * 
-     * @return the interface
-     */
     public String [] getInterfaceNames()throws ConnectionException;
 
 

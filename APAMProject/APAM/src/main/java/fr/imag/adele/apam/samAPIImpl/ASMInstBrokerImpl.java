@@ -96,7 +96,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 	}
 
 	@Override
-	public ASMInst addInst(Composite compo, Instance samInst)  {
+	public ASMInst addInst(Composite compo, Instance samInst, String implName, String specName)  {
 		ASMImpl impl = null ;
 		try {
 			impl = ASM.ASMImplBroker.getImpl(samInst.getImplementation()) ;
@@ -105,7 +105,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 					System.out.println("No implementation for the instance, and composite not provided");
 					return null ;
 				}
-				impl = implBroker.addImpl (compo, samInst.getImplementation().getName(), samInst.getImplementation()) ;
+				impl = implBroker.addImpl (compo, implName, samInst.getImplementation(), specName) ;
 			}
 			if (compo == null) compo = impl.getComposite() ;
 			return new ASMInstImpl (compo, impl, null, samInst) ;

@@ -48,9 +48,9 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 	
 	private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
 	
-	public ASMSpecImpl  (Composite compo, String name, Specification samSpec, Properties prop) {
+	public ASMSpecImpl  (Composite compo, String specName, Specification samSpec, Properties prop) {
 		this.myComposite = compo ;
-		this.name = name ;
+		this.name = specName ;
 		this.samSpec = samSpec ;
 		
 		((ASMSpecBrokerImpl)ASM.ASMSpecBroker).addSpec (this) ;
@@ -104,17 +104,7 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 
 	@Override
 	public String[] getInterfaceNames() throws ConnectionException {
-		 String interf = samSpec.getInterfaceName () ;
-		 String [] ret = {interf} ; ;
-		 return ret ;
-//		return samSpec.getInterfaceNames();
-	}
-
-	@Override
-	public Class[] getInterfaces() throws ConnectionException {
-		Class [] ret = { samSpec.getInterface() } ;
-		return ret ;
-//		return samSpec.getInterfaces() ; 
+		return samSpec.getInterfaceNames();
 	}
 
 	@Override
@@ -177,6 +167,11 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 	@Override
 	public Set<ASMImpl> getImpls() throws ConnectionException {
 		return Collections.unmodifiableSet(implementations);
+	}
+
+	@Override
+	public String getSAMName() {
+		return samSpec.getName();
 	}
 
 }

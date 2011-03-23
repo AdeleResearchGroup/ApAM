@@ -43,7 +43,6 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 	private Map <ASMInst, Wire> wires = new HashMap <ASMInst, Wire> () ;			//the currently used instances
 	private Map <ASMInst, Wire> invWires = new HashMap <ASMInst, Wire> () ;			
 
-
 	public ASMInstImpl (Composite compo, ASMImpl impl, Properties initialproperties, Instance samInst) {
 		this.myImpl = impl ;
 		this.myComposite = compo ;
@@ -56,7 +55,7 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		((ASMInstBrokerImpl)ASM.ASMInstBroker).addInst (this) ;
 		//Check if it is an APAM instance
 		try {
-			ApamDependencyHandler handler = (ApamDependencyHandler)samInst.getProperty(ASM.ApamDependencyHandlerAddress);
+			ApamDependencyHandler handler = (ApamDependencyHandler)samInst.getProperty(ASM.APAMDEPENDENCYHANDLER);
 			if (handler != null) { //it is an Apam instance
 				depHandler = handler ;
 				handler.SetIdentifier(this) ;

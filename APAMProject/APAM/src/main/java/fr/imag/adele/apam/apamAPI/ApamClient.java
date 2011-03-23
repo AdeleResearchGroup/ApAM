@@ -15,10 +15,9 @@ public interface ApamClient {
 	 * @param client the instance that requires the specification
 	 * @param interfaceName the name of one of the interfaces of the specification to resolve.
 	 * @param specName the *logical* name of that specification; different from SAM. May be null. 
-	 * @param abort if true, the application should be aborted.
 	 * @return
 	 */
-	public ASMInst newWireSpec (ASMInst client, String interfaceName, String specName, String depName, Integer abort) ;
+	public ASMInst newWireSpec (ASMInst client, String interfaceName, String specName, String depName) ;
 	
 	/**
 	 * An APAM client instance requires to be wired with an instance of implementation.
@@ -27,20 +26,18 @@ public interface ApamClient {
 	 * @param samImplName the technical name of implementation to resolve, as returned by SAM.
 	 * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
 	 * @param depName the dependency name
-	 * @param abort if true, the application should be aborted.
 	 * @return
 	 */
-	public ASMInst newWireImpl (ASMInst client, String samImplName, String implName, String depName, Integer abort) ;
+	public ASMInst newWireImpl (ASMInst client, String samImplName, String implName, String depName) ;
 
 	/**
 	 * In the case a client realizes that a dependency disappeared, it has to call this method.
 	 * APAM will try to resolve the problem (DYNAMAM in practice), and return a new instance.
 	 * @param client the instance that looses it dependency
 	 * @param lostInstance the instance that disappeared.
-	 * @param abort if true the application should fail.
 	 * @return
 	 */
-	public ASMInst faultWire (ASMInst client, ASMInst lostInstance, String depName, Integer abort) ;
+	public ASMInst faultWire (ASMInst client, ASMInst lostInstance, String depName) ;
 	
 	/**
 	 * This method has to be called by a client instance when it is created. 

@@ -26,7 +26,9 @@ public class ASM {
 	public static final String COMPOSITE = "Composite" ;
 	
 	//The name of the attribute containing the dependency handler address (an object of type ApamDepndencyHandler)
-	public static final String ApamDependencyHandlerAddress = "ApamDependencyHandlerAddress" ;
+	public static final String APAMDEPENDENCYHANDLER = "ApamDependencyHandler" ;
+	public static final String APAMSPECNAME = "ApamSpecName" ;
+	public static final String APAMIMPLNAME = "ApamImplName" ;
 	
 	//Shared attribute of services (Spec, Implem, Instance)
 	public static final int SHAREABLE = 3 ;	//Usable by anybody

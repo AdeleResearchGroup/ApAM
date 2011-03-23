@@ -63,8 +63,12 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 	public ASMImpl getImpl(String implName)
 	throws ConnectionException {
 		for (ASMImpl impl : implems) {
-			if (implName.equals(impl.getASMName()))
+			if (impl.getASMName() == null) {
+				if (impl.getSamImpl().getName().equals (implName)) return impl ;
+			} else {
+				if (implName.equals(impl.getASMName()))
 					return impl ;
+			}
 		}
 		return null ;
 	}
@@ -89,38 +93,38 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 
 
 	@Override
-	public ASMImpl addImpl(Composite compo, String name, Implementation samImpl) {
+	public ASMImpl addImpl(Composite compo, String implName, Implementation samImpl, String specName) {
 		Specification samSpec = null ;
 		
 		try {
-			//samSpec = samImpl.getSpecification();
-			samSpec = (Specification)samImpl.getSpecifications().toArray()[0];
+			samSpec = samImpl.getSpecification();
+			//samSpec = (Specification)samImpl.getSpecifications().toArray()[0];
 		} catch (ConnectionException e) {
 			e.printStackTrace();
 		}
-		ASMSpecImpl spec = new ASMSpecImpl (compo, name, samSpec, null) ;
-		ASMImplImpl impl = new ASMImplImpl (compo, name, spec, samImpl, null, null) ;
+		ASMSpecImpl spec = new ASMSpecImpl (compo, specName, samSpec, null) ;
+		ASMImplImpl impl = new ASMImplImpl (compo, implName, spec, samImpl, null, null) ;
 		return impl ;
 	}
 
 	@Override
-	public ASMImpl createImpl(Composite compo, String name, URL url, String type) {
-		String implName = null ;
+	public ASMImpl createImpl(Composite compo, String implName, URL url, String type, String specName) {
+		String implNameExpected = null ;
 		Implementation samImpl;
 		ASMImpl asmImpl ;
 		try {
 			DeploymentUnit du = ASM.SAMDUBroker.install(url, type) ;
 			Set<String> implementationsNames = du.getImplementationsName();
-			implName = (String)implementationsNames.toArray()[0] ;
+			implNameExpected = (String)implementationsNames.toArray()[0] ;
 			du.activate();
-			samImpl = eventHandler.getImplementation(implName);
+			samImpl = eventHandler.getImplementation(implNameExpected);
 			//TODO comment savoir si une instance a été créée dans la foulée, et sous quel nom ?
 		} catch (ConnectionException e) {
 			e.printStackTrace();
 			return null ;
 		}
 		
-		asmImpl =ASM.ASMImplBroker.addImpl(compo, name, samImpl) ;
+		asmImpl =ASM.ASMImplBroker.addImpl(compo, implName, samImpl, specName) ;
 		return asmImpl ;
 	}
 
@@ -130,6 +134,14 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 			if (implem.getSamImpl() == samImpl) {
 				return implem ;
 			}
+		}
+		return null;
+	}
+
+	@Override
+	public ASMImpl getImplSamName(String samName) throws ConnectionException {
+		for (ASMImpl impl : implems) {
+			if (impl.getSamImpl().getName().equals (samName)) return impl ;
 		}
 		return null;
 	}

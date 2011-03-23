@@ -57,7 +57,7 @@ public interface Manager {
 	 * @param involved the managers currently involved in this resolution.
 	 * @return an instance if resolved, null otherwise
 	 */
-	public ASMInst resolveSpec (ASMInst from, String interfaceName, String specName, String depName, Set<Filter> constraints, Integer abort) ;
+	public ASMInst resolveSpec (ASMInst from, String interfaceName, String specName, String depName, Set<Filter> constraints) ;
 
 	/**
 	 * The manager is asked to find the "right" resolution for the required implementation,
@@ -69,7 +69,7 @@ public interface Manager {
 	 * @param involved the managers currently involved in this resolution.
 	 * @return an instance if resolved, null otherwise
 	 */
-public ASMInst resolveImpl (ASMInst from, String samImplName, String implName, String depName, Set<Filter> constraints, Integer abort) ;
+public ASMInst resolveImpl (ASMInst from, String samImplName, String implName, String depName, Set<Filter> constraints) ;
 
 		// returns the relative priority of that manager, for the resolution algorithm
 	public int getPriority () ;

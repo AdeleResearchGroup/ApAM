@@ -43,85 +43,93 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	}
 	
 	@Override
-	public ASMInst faultWire(ASMInst client, ASMInst lostInstance, String depName, Integer abort) {
+	public ASMInst faultWire(ASMInst client, ASMInst lostInstance, String depName) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	/**
-	 * The client requires a wire toward an instance resolution of the spec. 
-	 * Returns that instance, if found; null otherwise.
-	 * APAM  delegates that request to the managers.
-	 * The resolution is performed in three steps. 
-	 * First APAM ask each manager, in their priority order to ask for a SelectionPath, 
-	 * and optionaly for a list of constraints to satisfy. 
-	 * Then APAM checks if a shareable instance of “spec” pertains to the current ASM 
-	 * and satisfies the constraints. If so that instance is selected. 
-	 * Third, APAM asks, in the order of the SelectionPath, each manager 
-	 * to provide and instance that is a resolution of “spec” and that satisfies 
-	 * the constraints. If so it is returned.
-	 * 
-	 * If not found returns null. If a manager ask to abort, returns abort = true.
-	 * 
+	 * An APAM client instance requires to be wired with an instance implementing the specification.
+	 * WARNING : if no logical name is provided, since more than one specification can implement the same interface, 
+	 * any specification implementing the provided interface (technical name of the interface) will be considered satisfactory.
+	 * If found, the instance is returned. 
+	 * @param client the instance that requires the specification
+	 * @param interfaceName the name of one of the interfaces of the specification to resolve.
+	 * @param specName the *logical* name of that specification; different from SAM. May be null. 
+	 * @return
 	 */
 	@Override
-	public ASMInst newWire(ASMInst client, ASMSpec spec, String depName, Integer abort) {
-		abort = ASM.FALSE ;
+	public ASMInst newWireSpec (ASMInst client, String interfaceName, String specName, String depName) {
 		//first step : compute selection path and constraints
 		Set<Filter> constraints = new HashSet<Filter> () ;
 		Filter thatfilter = null ;
 		List<Manager> selectionPath = new ArrayList<Manager>  () ;
 		
 		if (managerList.size() == 0) {
-			System.out.println("No manager available. Cannot resolve " + spec.getName());
+			System.out.println("No manager available. Cannot resolve " );
 			return null ;
 		}
 		// Call all managers in their priority order
 		//Each manager can change the order of managers in the selectionPath, and even remove.
 		//It can add itself or not. If no involved it should do nothing.
 		for (int i = 0; i < managerList.size(); i++) {
-			selectionPath = managerList.get(i).getSelectionPath(client, spec, depName, thatfilter, selectionPath) ;
+			selectionPath = managerList.get(i).getSelectionPathSpec(client, interfaceName, specName, depName, thatfilter, selectionPath) ;
 			if (thatfilter != null) {
 				constraints.add(thatfilter);
 			}
 		}
 		
 		// second step : look for a sharable instance that satisfies the constraints
-		Set<ASMInst> sharable = ASM.getSharedInsts(spec) ;
-		try {
-			for (ASMInst inst : sharable){
-				boolean satisfies = true ;
-				for (Filter filter : constraints) {
-					if (!filter.match((PropertyImpl)inst.getProperties())) {
-						satisfies = false ;
-						break ;
+		if (specName != null) {
+			ASMSpec spec = null;
+			try {
+				spec = ASM.ASMSpecBroker.getSpec(specName);
+			} catch (ConnectionException e1) {e1.printStackTrace(); }
+			if (spec != null) {
+				Set<ASMInst> sharable = ASM.getSharedInsts(spec) ;
+				try {
+					for (ASMInst inst : sharable){
+						boolean satisfies = true ;
+						for (Filter filter : constraints) {
+							if (!filter.match((PropertyImpl)inst.getProperties())) {
+								satisfies = false ;
+								break ;
+							}
+						}
+						if (satisfies) {
+							//accept only if a wire is possible
+							if (client.setWire (inst, depName, constraints))
+								return inst ;
+						}
 					}
-				}
-				if (satisfies) {
-					//accept only if a wire is possible
-					if (client.setWire (inst, depName, constraints))
-						return inst ;
-				}
+				} catch (ConnectionException e) {e.printStackTrace();}
 			}
-		} catch (ConnectionException e) {e.printStackTrace();}
-		
+		}
+
 		//third step : ask each manager in the order
 		ASMInst resolved ;
 		for (int i = 0; i < managerList.size(); i++) {
-			resolved = managerList.get(i).resolve(client, spec, depName, constraints, abort) ;
+			resolved = managerList.get(i).resolveSpec(client, interfaceName, specName, depName, constraints) ;
 			if (resolved != null) {
 				//accept only if a wire is possible
 				if (client.setWire (resolved, depName, constraints))				
 					return resolved ;
 			}
-			if (abort== ASM.TRUE) return null ;
 		} 
 		return null ;
 	}
 
+	/**
+	 * An APAM client instance requires to be wired with an instance of implementation.
+	 * If found, the instance is returned. 
+	 * @param client the instance that requires the specification
+	 * @param samImplName the technical name of implementation to resolve, as returned by SAM.
+	 * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
+	 * @param depName the dependency name
+	 * @return
+	 */
 	@Override
-	public ASMInst newWire(ASMInst client, ASMImpl impl, String depName, Integer abort) {
-		abort = ASM.FALSE ;
+	public ASMInst newWireImpl (ASMInst client, String samImplName, String implName, String depName) {
 		
 		//first step : compute selection path and constraints
 		Set<Filter> constraints = new HashSet<Filter> () ;
@@ -129,45 +137,52 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 		List<Manager> selectionPath = new ArrayList<Manager>  () ;
 
 		if (managerList.size() == 0) {
-			System.out.println("No manager available. Cannot resolve " + impl.getASMName());
+			System.out.println("No manager available. Cannot resolve ");
 			return null ;
 		}
 		for (int i = 0; i < managerList.size(); i++) {
-			selectionPath = managerList.get(i).getSelectionPath(client, impl, depName, thatfilter, selectionPath) ;
+			selectionPath = managerList.get(i).getSelectionPathImpl(client, samImplName, implName, depName, thatfilter, selectionPath) ;
 			if (thatfilter != null) {
 				constraints.add(thatfilter);
 			}
 		}
+		
 		// second pass : look for a shareable instance that satisfies the constraints
-		Set<ASMInst> sharable = ASM.getSharedInsts(impl) ;
-		try {
-			for (ASMInst inst : sharable){
-				boolean satisfies = true ;
-				for (Filter filter : constraints) {
-					if (!filter.match((PropertyImpl)inst.getProperties())) {
-						satisfies = false ;
-						break ;
-					}
-				}
-				if (satisfies) {
-					//accept only if a wire is possible
-					if (client.setWire (inst, depName, constraints))
-						return inst ;
-				}
-			}
+		if (implName != null) {
+			ASMImpl impl = null;
+			try {
+				impl = ASM.ASMImplBroker.getImpl(implName);
+				if (impl != null) {
 
-		} catch (ConnectionException e) { e.printStackTrace();}
+					Set<ASMInst> sharable = ASM.getSharedInsts(impl) ;
+					for (ASMInst inst : sharable){
+						boolean satisfies = true ;
+						for (Filter filter : constraints) {
+							if (!filter.match((PropertyImpl)inst.getProperties())) {
+								satisfies = false ;
+								break ;
+							}
+						}
+						if (satisfies) {
+							//accept only if a wire is possible
+							if (client.setWire (inst, depName, constraints))
+								return inst ;
+						}
+					}
+
+				} 
+			}catch (ConnectionException e) { e.printStackTrace();}
+		}
 		
 		//third step : ask each manager in the order
 		ASMInst resolved ;
 		for (int i = 0; i < managerList.size(); i++) {
-			resolved = managerList.get(i).resolve(client, impl, depName, constraints, abort) ;
+			resolved = managerList.get(i).resolveImpl(client, samImplName, implName, depName, constraints) ;
 			if (resolved != null) {
 				//accept only if a wire is possible
 				if (client.setWire (resolved, depName, constraints))				
 					return resolved ;
 			}
-			if (abort== ASM.TRUE) return null ;
 		} 
 		return null ;
 	}
@@ -239,8 +254,8 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	 * It is only in the ASMInst constructor that the ASM instance will be connected to its handler.
 	 */
 	@Override
-	public void newClientCallBack(String samInstanceName, ApamDependencyHandler client) {
-		SamInstEventHandler.addNewApamInstance(samInstanceName, client) ;
+	public void newClientCallBack(String samInstanceName, ApamDependencyHandler client, String implName, String specName) {
+		SamInstEventHandler.theInstHandler.addNewApamInstance(samInstanceName, client, implName, specName) ;
 	}
 
 	@Override

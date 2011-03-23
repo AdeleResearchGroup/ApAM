@@ -51,15 +51,15 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 	 * @param name CADSE name
 	 *           
 	 */                
-	public ASMImplImpl(Composite compo, String name, ASMSpecImpl spec, Implementation impl, ASMInst inst, Properties prop) {
-		this.name = name;
+	public ASMImplImpl(Composite compo, String implName, ASMSpecImpl spec, Implementation impl, ASMInst inst, Properties prop) {
+		this.name = implName;
 		this.myComposite = compo ;
 		if (spec == null) {
 			//Create the spec from SAM spec
 			try {
 				//TODO use new method getSpecification
 				//Specification specification = samImpl.getSpecification();
-				Specification specification = (Specification)samImpl.getSpecifications().toArray()[0] ;
+				Specification specification = samImpl.getSpecification();
 				spec = new ASMSpecImpl (compo, specification.getName(), specification, (Properties)null) ;
 			} catch (ConnectionException e) { e.printStackTrace(); }
 		}
@@ -219,6 +219,11 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 	@Override
 	public boolean isInstantiable() {
 		return samImpl.isInstantiator();
+	}
+
+	@Override
+	public String getSAMName() {
+		return samImpl.getName ();
 	}
 
 }

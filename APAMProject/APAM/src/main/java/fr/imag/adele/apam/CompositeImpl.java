@@ -123,27 +123,6 @@ public class CompositeImpl implements Composite {
 		hasInstance.add(inst) ;
 	}
 
-//	@Override
-//	public boolean deleteComposite(Composite comp) {
-//		
-//		return false;
-//	}
-	/**
-	 * The implementation impl must be added to composite comp. Its executable is located at the URL.
-	 * The impl must be deployed and installed in SAM.
-	 * The "share" property must be consistent with its spec. 
-	 * If shareable, it is created in the application.
-	 * If not shared and clonable ?? duplicated ??
-	 * clonable = true is not supported (yet).
-	 * deployment takes time; after install the implem is not yet in SAM
-	 */
-
-	//@Override
-	public ASMImplImpl createImpl(ASMSpec spec, ASMImpl impl,
-			URL location, String type) {
-		return (ASMImplImpl)implBroker.createImpl(this, type, location, type) ;
-	}
-
 	
 //Composite Dependency management ===============
 	public void addDepend(Composite dest) { 

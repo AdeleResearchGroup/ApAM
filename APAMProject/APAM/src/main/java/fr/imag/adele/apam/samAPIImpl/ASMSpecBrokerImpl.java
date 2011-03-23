@@ -10,6 +10,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import util.Util;
 
 import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
 import fr.imag.adele.apam.apamAPI.Composite;
@@ -57,12 +58,17 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	@Override
 	public ASMSpec getSpec(String name)
 			throws ConnectionException {
-		for (ASMSpec spec : specs) {
-			if (spec.getASMName().equals(name)) 
-				return spec ;
+		
+			for (ASMSpec spec : specs) {
+				if (spec.getASMName() == null) {
+					if (spec.getSamSpec().getName().equals (name)) return spec ;
+				} else {
+					if (name.equals(spec.getASMName()))
+						return spec ;
+				}
+			}
+			return null ;
 		}
-		return null;
-	}
 
 	@Override
 	public Set<ASMSpec> getSpecs()
@@ -124,6 +130,43 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	public Set<ASMSpec> getUsesRemote(ASMSpec specification)
 			throws ConnectionException {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+    /**
+     * Returns *the first* specification that implements the provided interfaces.
+     * WARNING : the same interface can be implemented by different specifications, 
+     * and a specification may implement more than one interface : the first spec found is returned. 
+     * WARNING : convenient only if a single spec provides that interface; otherwise it is non deterministic.
+     * 
+     * @param interfaceName : the name of the interface of the required specification. 
+     * @return the abstract service
+     * @throws ConnectionException the connection exception Returns the
+     *             ExportedSpecification exported by this Machine that satisfies
+     *             the interfaces.
+     */    
+	@Override
+	public ASMSpec getSpecInterf(String interfaceName)
+			throws ConnectionException {
+		for (ASMSpec spec : specs) {
+			String[] interfs = spec.getSamSpec().getInterfaceNames() ;
+			for (int i = 0; i < interfs.length; i++) {
+				if (interfs[i].equals(interfaceName)) return spec ;
+			}
+		}
+		return null;
+	}
+
+	 /**
+     * Returns the specification with the given sam name. 
+     * @param samName the sam name of the specification
+     * @return the abstract service
+     */   
+	@Override
+	public ASMSpec getSpecSamName(String samName) throws ConnectionException {
+		for (ASMSpec spec : specs) {
+			if (spec.getSamSpec().getName().equals (samName)) return spec ;
+		}
 		return null;
 	}
 
