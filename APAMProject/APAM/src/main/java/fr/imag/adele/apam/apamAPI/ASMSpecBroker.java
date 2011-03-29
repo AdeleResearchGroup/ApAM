@@ -1,26 +1,42 @@
 package fr.imag.adele.apam.apamAPI;
 
-import java.net.URL;
+import java.rmi.RemoteException;
+//import java.util.Properties;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.am.query.Query;
-import fr.imag.adele.sam.Implementation;
+import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Specification;
 
 public interface ASMSpecBroker {
 	/**
 	 * 
+	 * @param compo the composite in which to create that spec.
 	 * @param specName the *logical* name of that specification; different from SAM. May be null. 
 	 * @param samSpec : A SAM specification.
 	 * return an ASM Specification
 	 */
-	public ASMSpec addSpec (Composite compo, String specName, Specification samSpec) ;
+	public ASMSpec addSpec (Composite compo, String specName, Specification samSpec, Attributes properties) ;
 	//public Specification createSpec (Specification Spec) ;
 	
+	
+	/**
+	 * Creates a specification. 
+	 * WARNING : this spec may not have any corresponding spec in SAM. It does not try to create one in SAM.
+	 * @param compo the composite in which to create that spec.
+	 * @param specName the *logical* name of that specification; different from SAM. May be null.
+	 * @param interfaces the list of interfaces this spec implements
+	 * @param properties : The initial properties.
+	 * return an ASM Specification
+	 */
+	public ASMSpec createSpec (Composite compo, String specName, String[] interfaces, Attributes properties) ;
+	
+	/**
+	 * WARNING : it will also destroy all implems and instances.
+	 * @param spec the spec to delete.
+	 */
 	public void removeSpec (ASMSpec spec) ;
 
 	
@@ -41,8 +57,7 @@ public interface ASMSpecBroker {
      *         machine.
      * @throws ConnectionException the connection exception
      */
-    public Set<ASMSpec> getUses(ASMSpec specification)
-            throws ConnectionException;
+    public Set<ASMSpec> getUses(ASMSpec specification);
 
 
     /**
@@ -57,7 +72,7 @@ public interface ASMSpecBroker {
      * @throws InvalidSyntaxException the invalid syntax exception
      */
     public ASMSpec getSpec(Filter goal)
-            throws ConnectionException, InvalidSyntaxException;
+            throws InvalidSyntaxException;
 
     /**
      * Returns the specification that implement all and only the provided interfaces.
@@ -76,7 +91,7 @@ public interface ASMSpecBroker {
      *             ExportedSpecification exported by this Machine that satisfies
      *             the interfaces.
      */    
-    public ASMSpec getSpec(String [] interfaces)throws ConnectionException ;
+    public ASMSpec getSpec(String [] interfaces) ;
  
     /**
      * Returns *the first* specification that implements the provided interfaces.
@@ -90,7 +105,7 @@ public interface ASMSpecBroker {
      *             ExportedSpecification exported by this Machine that satisfies
      *             the interfaces.
      */    
-    public ASMSpec getSpecInterf(String interfaceName)throws ConnectionException ;
+    public ASMSpec getSpecInterf(String interfaceName) ;
  
     
      /**
@@ -104,16 +119,14 @@ public interface ASMSpecBroker {
      *             ExportedAbstractService exported by this Machine with this
      *             name. If name is null, returns null.
      */
-    public ASMSpec getSpec(String name)
-            throws ConnectionException;
+    public ASMSpec getSpec(String name);
 
     /**
      * Returns the specification with the given sam name. 
      * @param samName the sam name of the specification
      * @return the abstract service
      */   
-    public ASMSpec getSpecSamName(String samName)
-    throws ConnectionException;
+    public ASMSpec getSpecSamName(String samName);
 
     /**
      * Returns all the abstract service. If no abstract service are matched,
@@ -124,7 +137,7 @@ public interface ASMSpecBroker {
      *             none, returns null.
      */
 
-    public Set<ASMSpec> getSpecs() throws ConnectionException;
+    public Set<ASMSpec> getSpecs() ;
 
 
     /**
@@ -139,7 +152,7 @@ public interface ASMSpecBroker {
      *             AbstractService. If none, returns null.
      */
     public Set<ASMSpec> getSpecs(Filter goal)
-            throws ConnectionException, InvalidSyntaxException;
+            throws  InvalidSyntaxException;
 
 
     /**
@@ -153,8 +166,7 @@ public interface ASMSpecBroker {
      * @throws ConnectionException the connection exception
      * @throws ConnectionException the connection exception
      */
-    public Set<ASMSpec> getUsesRemote(ASMSpec specification)
-            throws ConnectionException;
+    public Set<ASMSpec> getUsesRemote(ASMSpec specification);
 
 
 

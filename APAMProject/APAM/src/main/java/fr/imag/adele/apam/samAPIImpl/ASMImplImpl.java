@@ -1,35 +1,32 @@
 package fr.imag.adele.apam.samAPIImpl;
 
 import java.util.Collections;
-import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
+//import fr.imag.adele.am.Property;
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.am.impl.PropertyImpl;
-import fr.imag.adele.am.query.Query;
+//import fr.imag.adele.am.impl.PropertyImpl;
 import fr.imag.adele.apam.ASM;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Instance;
-import fr.imag.adele.sam.PID;
 import fr.imag.adele.sam.Specification;
 import fr.imag.adele.sam.broker.ImplementationBroker;
-import fr.imag.adele.sam.broker.InstanceBroker;
 
 
-public class ASMImplImpl extends PropertyImpl implements ASMImpl {
+public class ASMImplImpl extends ApamProperty implements ASMImpl {
 
 	private static ASMImplBroker myBroker = ASM.ASMImplBroker ;
 	private static ImplementationBroker samImplBroker = ASM.SAMImplBroker ; ;
@@ -51,48 +48,21 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 	 * @param name CADSE name
 	 *           
 	 */                
-	public ASMImplImpl(Composite compo, String implName, ASMSpecImpl spec, Implementation impl, ASMInst inst, Properties prop) {
+	public ASMImplImpl(Composite compo, String implName, ASMSpecImpl spec, Implementation impl, Attributes prop) {
 		this.name = implName;
 		this.myComposite = compo ;
-		if (spec == null) {
-			//Create the spec from SAM spec
-			try {
-				//TODO use new method getSpecification
-				//Specification specification = samImpl.getSpecification();
-				Specification specification = samImpl.getSpecification();
-				spec = new ASMSpecImpl (compo, specification.getName(), specification, (Properties)null) ;
-			} catch (ConnectionException e) { e.printStackTrace(); }
-		}
-		this.mySpec = spec ;
-		if (inst != null) { 
-			instances.add((ASMInstImpl)inst) ;
-		}
-		if (impl == null) {
-			System.out.println("Sam Implementation cannot be null when creating an imple");
-		}
-		samImpl = impl ;
-		((ASMImplBrokerImpl)myBroker).addImpl(this) ;
-		//initialize properties. A fusion of SAM and APAM values
-		if (prop != null && !prop.isEmpty()) {
-			Map<String, Object> samProp;
-			try {
-				samProp = samImpl.getProperties();
-				for (Object attr : prop.keySet()) {
-					if (!samProp.containsKey((String)attr)) {
-						samImpl.setProperty((String)attr, prop.get(attr)) ;
-					} else { //valeur differente, pas normal !
-						if (prop.get(attr) != samProp.get(attr)) {
-							System.out.println("Erreur ! arrtibut " + attr + " different in SAM and init val : "
-									+ samProp.get(attr) + ", " + prop.get(attr));
-							//TODO raffiner. shared, instantiable etc.
-						}
-					}	
-				}
-			} catch (ConnectionException e) {
-				e.printStackTrace();
+		try {
+			this.mySpec = spec ;
+			if (impl == null) {
+				System.out.println("Sam Implementation cannot be null when creating an imple");
 			}
-		}
-	}
+			samImpl = impl ;
+			((ASMImplBrokerImpl)myBroker).addImpl(this) ;
+			this.setProperties( Util.mergeProperties (prop, impl.getProperties())) ;
+
+		} catch (ConnectionException e) { e.printStackTrace(); }
+	}	
+
 
 	/**
 	 * From an implementation, create an instance. 
@@ -102,10 +72,10 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 	 * @throws ConnectionException 
 	 */
 	@Override
-	public ASMInst createInst(Properties initialproperties)  {
+	public ASMInst createInst(Attributes initialproperties)  {
 		Instance samInst = null;
 		try {
-			samInst = samImplBroker.createInstance(samImpl.getPid(), initialproperties);
+			samInst = samImplBroker.createInstance(samImpl.getPid(), (Properties)initialproperties);
 		} catch (Exception e) {	e.printStackTrace();}
 
 		ASMInstImpl inst = new ASMInstImpl (myComposite, this, initialproperties, samInst) ;
@@ -113,10 +83,12 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 		return inst ;   
 	}
 
+	@Override
 	public ASMSpec getSpec()  {
 		return mySpec ;
 	}
 
+	@Override
 	public ASMInst getInst(String targetName) {
 		for (ASMInst inst : instances) {
 			if (inst.getASMName().equals(targetName)) return inst ;
@@ -136,15 +108,17 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 	/**
 	 * returns the first instance only.
 	 */
+	@Override
 	public ASMInst getInst(){
 		if ((instances==null) || (instances.size() == 0)) return null ;
 		return (ASMInst) instances.toArray()[0] ;
 	}
 
+	@Override
 	public Set<ASMInst> getInsts(Filter query) throws InvalidSyntaxException {
 		Set<ASMInst> ret = new HashSet<ASMInst>() ;
 		for (ASMInst inst : instances) {
-				if (query.match((PropertyImpl)inst))
+				if (query.match((ApamProperty)inst))
 					ret.add(inst) ;
 		}
 		return ret;
@@ -155,6 +129,18 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 		return name;
 	}
 
+	public void setASMName (String logicalName) {
+		if (logicalName == null || logicalName == "") return ;
+		if (name == null) {
+			name = logicalName ;
+			return ;
+		}
+		if (!name.equals(logicalName)) {
+			System.out.println("changign logical name, from " + name + " to " + logicalName);
+			name = logicalName ;
+		}
+	}
+	
 	@Override
 	public Composite getComposite() {
 		return myComposite;
@@ -192,7 +178,7 @@ public class ASMImplImpl extends PropertyImpl implements ASMImpl {
 	}
 
 	@Override
-	public Set<ASMSpec> getUses() throws ConnectionException {
+	public Set<ASMSpec> getUses()  {
 		// TODO Auto-generated method stub
 		return null;
 	}

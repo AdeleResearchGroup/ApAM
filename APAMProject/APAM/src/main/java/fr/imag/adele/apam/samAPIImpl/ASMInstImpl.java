@@ -1,18 +1,14 @@
 package fr.imag.adele.apam.samAPIImpl;
 
-import java.util.Collection;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.am.impl.PropertyImpl;
 import fr.imag.adele.apam.ASM;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
@@ -21,13 +17,16 @@ import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.sam.Instance;
 
 
-public class ASMInstImpl extends PropertyImpl implements ASMInst {
+public class ASMInstImpl extends ApamProperty implements ASMInst {
 
 	/** The logger. */
-	private static Logger logger = Logger.getLogger(ASMInstImpl.class);
+//	private static Logger logger = Logger.getLogger(ASMInstImpl.class);
 	private static ASMInstBroker myBroker = ASM.ASMInstBroker ;
 
 	private String name ;
@@ -43,7 +42,7 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 	private Map <ASMInst, Wire> wires = new HashMap <ASMInst, Wire> () ;			//the currently used instances
 	private Map <ASMInst, Wire> invWires = new HashMap <ASMInst, Wire> () ;			
 
-	public ASMInstImpl (Composite compo, ASMImpl impl, Properties initialproperties, Instance samInst) {
+	public ASMInstImpl (Composite compo, ASMImpl impl, Attributes initialproperties, Instance samInst) {
 		this.myImpl = impl ;
 		this.myComposite = compo ;
 		if (samInst == null) {
@@ -52,6 +51,7 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 		}
 		this.samInst = samInst ;
 		this.name = samInst.getName () ;
+		
 		((ASMInstBrokerImpl)ASM.ASMInstBroker).addInst (this) ;
 		//Check if it is an APAM instance
 		try {
@@ -60,30 +60,14 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 				depHandler = handler ;
 				handler.SetIdentifier(this) ;
 			}
+
+		//initialize properties. A fusion of SAM and APAM values
+		if (initialproperties != null) {
+			setProperties(Util.mergeProperties(initialproperties, samInst.getProperties()) ) ;
+		}
 		} catch (ConnectionException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
-
-		//initialize properties. A fusion of SAM and APAM values
-		if (initialproperties != null && !initialproperties.isEmpty()) {
-			Map<String, Object> samProp;
-			try {
-				samProp = samInst.getProperties();
-				for (Object attr : initialproperties.keySet()) {
-					if (!samProp.containsKey((String)attr)) {
-						samInst.setProperty((String)attr, initialproperties.get(attr)) ;
-					} else { //valeur differente, pas normal !
-						if (initialproperties.get(attr) != samProp.get(attr)) {
-							System.out.println("Erreur ! arttibut " + attr + " different in SAM and init val : "
-									+ samProp.get(attr) + ", " + initialproperties.get(attr));
-							//TODO raffiner. shared, instantiable etc.
-						}
-					}	
-				}
-			} catch (ConnectionException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
@@ -101,8 +85,13 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 //	}
 
 
-	public Object getServiceObject() throws ConnectionException {
-		return samInst.getServiceObject();
+	public Object getServiceObject()  {
+		try {
+			return samInst.getServiceObject();
+		} catch (ConnectionException e) {
+			e.printStackTrace();
+			return null ;
+		}
 	}
 
 
@@ -205,7 +194,7 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 	}
 
 
-	public ASMSpec getSpec() throws ConnectionException {
+	public ASMSpec getSpec() {
 		return myImpl.getSpec() ;
 	}
 
@@ -251,7 +240,7 @@ public class ASMInstImpl extends PropertyImpl implements ASMInst {
 	@Override
 	public boolean match(Filter goal)  {
 		try {
-			return goal.match((PropertyImpl)getProperties());
+			return goal.match((ApamProperty)getProperties());
 		} catch (Exception e) {}
 		return false ;
 	}

@@ -2,19 +2,15 @@ package fr.imag.adele.apam.samAPIImpl;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 import fr.imag.adele.am.MachineID;
-import fr.imag.adele.am.broker.MachineBroker;
 import fr.imag.adele.am.eventing.AMEvent;
 import fr.imag.adele.am.eventing.AMEventingHandler;
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.am.query.Query;
 import fr.imag.adele.apam.ASM;
-import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.PID;
-import fr.imag.adele.sam.broker.ImplementationBroker;
 import fr.imag.adele.sam.event.EventProperty;
 
 public class SamImplEventHandler implements AMEventingHandler {

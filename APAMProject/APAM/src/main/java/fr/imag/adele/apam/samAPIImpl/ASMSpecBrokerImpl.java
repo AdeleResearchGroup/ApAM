@@ -7,28 +7,17 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import util.Util;
-
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
+import fr.imag.adele.apam.ASM;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.sam.Specification;
 
 public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	
-	
-//	private Logger logger = Logger.getLogger(OSGiInstanceBroker.class);
-//	private static final InstanceBroker samInstBroker = ASM.SAMInstBroker ;
-//	private static final ImplementationBroker samImplBroker = ASM.SAMImplBroker ;
-//	private static final SpecificationBroker samSpecBroker = ASM.SAMSpecBroker ;
-//	private static final ASMInstBroker instBroker = ASM.ASMInstBroker ;
-//	private static final ASMImplBroker implBroker = ASM.ASMImplBroker ;
-//	private static final ASMSpecBroker specBroker = ASM.ASMSpecBroker ;
-//	private static final String name = "ASMSpecificationBroker" ;
-//	private Map<SpecPID, ASMSpecImpl> PID2Spec = new ConcurrentHashMap<SpecPID, ASMSpecImpl> () ;
-
 	private Set <ASMSpec> specs = new HashSet <ASMSpec> () ;
 
 	@Override
@@ -44,8 +33,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	}
 	
 	@Override
-	public ASMSpec getSpec(String[] interfaces)
-			throws ConnectionException {
+	public ASMSpec getSpec(String[] interfaces) {
 		
 		interfaces = Util.orderInterfaces(interfaces) ;
 		for (ASMSpec spec : specs) {
@@ -56,8 +44,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	}
 
 	@Override
-	public ASMSpec getSpec(String name)
-			throws ConnectionException {
+	public ASMSpec getSpec(String name) {
 		
 			for (ASMSpec spec : specs) {
 				if (spec.getASMName() == null) {
@@ -71,8 +58,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 		}
 
 	@Override
-	public Set<ASMSpec> getSpecs()
-			throws ConnectionException {
+	public Set<ASMSpec> getSpecs() {
 		
 		return new HashSet<ASMSpec> (specs);
 	}
@@ -80,7 +66,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	@SuppressWarnings("unchecked")
 	@Override
 	public Set<ASMSpec> getSpecs(Filter goal)
-			throws ConnectionException, InvalidSyntaxException {
+			throws  InvalidSyntaxException {
 		Set<ASMSpec> ret = new HashSet<ASMSpec> ();
 		for (ASMSpec spec : specs) {
 			if (goal.match((Dictionary<String, Object>)spec.getProperties())) 
@@ -90,8 +76,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	}
 	@SuppressWarnings("unchecked")
 	@Override
-	public ASMSpec getSpec(Filter goal) throws ConnectionException,
-			InvalidSyntaxException {
+	public ASMSpec getSpec(Filter goal) throws InvalidSyntaxException {
 		for (ASMSpec spec : specs) {
 			if (goal.match((Dictionary<String, Object>)spec.getProperties())) 
 					return spec ;
@@ -101,8 +86,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 
 	
 	@Override
-	public Set<ASMSpec> getUses(ASMSpec specification)
-			throws ConnectionException {
+	public Set<ASMSpec> getUses(ASMSpec specification) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -110,8 +94,8 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 
 
 	@Override
-	public ASMSpec addSpec(Composite compo, String name, Specification samSpec) {
-		ASMSpecImpl spec = new ASMSpecImpl (compo, name, samSpec, null) ;
+	public ASMSpec addSpec(Composite compo, String name, Specification samSpec, Attributes properties) {
+		ASMSpecImpl spec = new ASMSpecImpl (compo, name, samSpec, properties) ;
 		specs.add(spec) ;
 		return spec ;
 	}
@@ -127,8 +111,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 
 
 	@Override
-	public Set<ASMSpec> getUsesRemote(ASMSpec specification)
-			throws ConnectionException {
+	public Set<ASMSpec> getUsesRemote(ASMSpec specification){
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -146,8 +129,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
      *             the interfaces.
      */    
 	@Override
-	public ASMSpec getSpecInterf(String interfaceName)
-			throws ConnectionException {
+	public ASMSpec getSpecInterf(String interfaceName) {
 		for (ASMSpec spec : specs) {
 			String[] interfs = spec.getSamSpec().getInterfaceNames() ;
 			for (int i = 0; i < interfs.length; i++) {
@@ -163,11 +145,25 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
      * @return the abstract service
      */   
 	@Override
-	public ASMSpec getSpecSamName(String samName) throws ConnectionException {
+	public ASMSpec getSpecSamName(String samName)  {
 		for (ASMSpec spec : specs) {
 			if (spec.getSamSpec().getName().equals (samName)) return spec ;
 		}
 		return null;
+	}
+
+	@Override
+	public ASMSpec createSpec(Composite compo, String specName, String[] interfaces, Attributes properties) {
+		ASMSpec ret = null;
+		try {
+			if (ASM.SAMSpecBroker.getSpecification(interfaces) != null) {
+				ret = addSpec (compo, specName, ASM.SAMSpecBroker.getSpecification(interfaces), properties) ;
+			} else {
+				ret = new ASMSpecImpl(compo, specName, null, properties) ;
+			}
+	    } catch (ConnectionException e) {e.printStackTrace();}
+		ret.setShared(ASM.shared2Int(properties)) ;
+		return ret ;
 	}
 
 }

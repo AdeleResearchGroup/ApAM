@@ -4,22 +4,24 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.LocalMachine;
 import fr.imag.adele.am.Machine;
+//import fr.imag.adele.am.Property;
 import fr.imag.adele.am.eventing.AMEventingHandler;
 import fr.imag.adele.am.eventing.EventingEngine;
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.am.impl.PropertyImpl;
+//import fr.imag.adele.am.impl.PropertyImpl;
 import fr.imag.adele.apam.ASM;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Specification;
 import fr.imag.adele.sam.deployment.DeploymentUnit;
@@ -27,7 +29,7 @@ import fr.imag.adele.sam.event.EventProperty;
 
 public class ASMImplBrokerImpl implements ASMImplBroker{
 
-	private Logger logger = Logger.getLogger(ASMImplBrokerImpl.class);
+//	private Logger logger = Logger.getLogger(ASMImplBrokerImpl.class);
 
 	private Set <ASMImpl> implems = new HashSet<ASMImpl> () ;
 	private SamImplEventHandler eventHandler ;
@@ -43,12 +45,12 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 
 	public void stopSubscribe (AMEventingHandler handler) {
 		try {
-		Machine machine = LocalMachine.localMachine;
-		EventingEngine eventingEngine = machine.getEventingEngine();
-		eventingEngine.unsubscribe(handler, EventProperty.TOPIC_IMPLEMENTATION) ;
+			Machine machine = LocalMachine.localMachine;
+			EventingEngine eventingEngine = machine.getEventingEngine();
+			eventingEngine.unsubscribe(handler, EventProperty.TOPIC_IMPLEMENTATION) ;
 		} catch (Exception e) {}
 	}
-	
+
 	//Not in the interface. No control
 	public void addImpl (ASMImpl impl) {
 		implems.add(impl) ;
@@ -58,7 +60,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 	public void removeImpl (ASMImpl impl) {
 		implems.remove(impl) ;
 	}
-	
+
 	@Override
 	public ASMImpl getImpl(String implName)
 	throws ConnectionException {
@@ -74,45 +76,68 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 	}
 
 	@Override
-	public Set<ASMImpl> getImpls()
-	throws ConnectionException, ConnectionException {
+	public Set<ASMImpl> getImpls()  {
 		return Collections.unmodifiableSet(implems) ;
 		//return new HashSet<ASMImpl> (implems) ;
 	}
 
 	@Override
 	public Set<ASMImpl> getImpls(Filter goal)
-	throws ConnectionException, InvalidSyntaxException {
+	throws InvalidSyntaxException {
 		Set<ASMImpl> ret = new HashSet<ASMImpl> () ;
 		for (ASMImpl impl : implems) {
-			if (goal.match((PropertyImpl)impl.getProperties())) 
-					ret.add(impl) ;
+			if (goal.match((ApamProperty)impl.getProperties())) 
+				ret.add(impl) ;
 		}
 		return ret ;
 	}
 
 
 	@Override
-	public ASMImpl addImpl(Composite compo, String implName, Implementation samImpl, String specName) {
-		Specification samSpec = null ;
-		
+	public ASMImpl addImpl(Composite compo, String implName, Implementation samImpl, String specName, Attributes properties) {
 		try {
+			Specification samSpec = samImpl.getSpecification() ;
+			ASMImpl asmImpl = null ;
+			asmImpl = getImpl(implName);
+			if (asmImpl != null ) { //do not create twice
+				((ASMImplImpl)asmImpl).setASMName (implName) ;
+				((ASMSpecImpl)asmImpl.getSpec()).setASMName(specName) ;
+				return asmImpl ; 
+			}
 			samSpec = samImpl.getSpecification();
-			//samSpec = (Specification)samImpl.getSpecifications().toArray()[0];
+			ASMSpecImpl spec = (ASMSpecImpl)ASM.ASMSpecBroker.getSpec(samSpec) ;
+			if (spec == null) { //No ASM spec related to the sam spec.
+				spec = (ASMSpecImpl)ASM.ASMSpecBroker.getSpec (samSpec.getInterfaceNames()) ;
+				if (spec != null) { //has been created without the SAM spec. Add it now.
+					spec.setSamSpec (samSpec) ;
+				}
+				else { // create the spec
+				spec = new ASMSpecImpl (compo, specName, samSpec, properties) ;
+				}
+			} else {
+				if (specName != null) spec.setASMName(specName) ;
+			}
+			ASMImplImpl impl = new ASMImplImpl (compo, implName, spec, samImpl, properties) ;
+			return impl ;
 		} catch (ConnectionException e) {
 			e.printStackTrace();
+			return null ;
 		}
-		ASMSpecImpl spec = new ASMSpecImpl (compo, specName, samSpec, null) ;
-		ASMImplImpl impl = new ASMImplImpl (compo, implName, spec, samImpl, null, null) ;
-		return impl ;
 	}
 
 	@Override
-	public ASMImpl createImpl(Composite compo, String implName, URL url, String type, String specName) {
+	public ASMImpl createImpl(Composite compo, String implName, URL url, String type, String specName, Attributes properties) {
 		String implNameExpected = null ;
-		Implementation samImpl;
-		ASMImpl asmImpl ;
+		Implementation samImpl  ;
+		ASMImpl asmImpl = null ;
 		try {
+			asmImpl = getImpl(implName);
+			if (asmImpl != null ) { //do not create twice
+				((ASMImplImpl)asmImpl).setASMName (implName) ;
+				((ASMSpecImpl)asmImpl.getSpec()).setASMName(specName) ;
+				return asmImpl ; 
+			}
+
 			DeploymentUnit du = ASM.SAMDUBroker.install(url, type) ;
 			Set<String> implementationsNames = du.getImplementationsName();
 			implNameExpected = (String)implementationsNames.toArray()[0] ;
@@ -123,8 +148,8 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 			e.printStackTrace();
 			return null ;
 		}
-		
-		asmImpl =ASM.ASMImplBroker.addImpl(compo, implName, samImpl, specName) ;
+
+		asmImpl = addImpl(compo, implName, samImpl, specName, properties) ;
 		return asmImpl ;
 	}
 

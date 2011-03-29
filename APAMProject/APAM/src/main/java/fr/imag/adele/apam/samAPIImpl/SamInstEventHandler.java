@@ -68,6 +68,14 @@ public class SamInstEventHandler implements AMEventingHandler {
 		}
 	}
 
+	public static synchronized void removeExpectedImpl (ASMImpl impl, DynamicManager manager) {
+		Set<DynamicManager> mans = expectedImpls.get(impl) ;
+		if (mans != null) {
+			mans.remove(manager) ;
+		}
+	}
+	
+	
 	public static synchronized void addExpectedInterf (String interf, DynamicManager manager) {
 		Set<DynamicManager> mans = expectedInterfaces.get(interf) ;
 		if (mans == null) {
@@ -78,9 +86,19 @@ public class SamInstEventHandler implements AMEventingHandler {
 			mans.add(manager) ;
 		}
 	}
+	
+	public static synchronized void removeExpectedInterf (String interf, DynamicManager manager) {
+		Set<DynamicManager> mans = expectedInterfaces.get(interf) ;
+		if (mans != null) {
+			mans.remove(manager) ;
+		}
+	}
 
 	static public synchronized void addLost (DynamicManager manager) {
 		listenLost.add(manager) ;
+	}
+	static public synchronized void removeLost (DynamicManager manager) {
+		listenLost.remove(manager) ;
 	}
 
 	@Override
@@ -104,13 +122,13 @@ public class SamInstEventHandler implements AMEventingHandler {
 	//executed when a new implementation is detected by SAM. Check if it is an expected impl.
 	@Override
 	public synchronized void receive(AMEvent amEvent) throws ConnectionException {
-		if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_ARRIVAL)){
-			PID thePid = (PID)amEvent.getProperty(EventProperty.PID) ;
-			if (thePid.getType() != PID.INSTANCE) return ;
-			InstPID instPid = (InstPID)amEvent.getProperty(EventProperty.PID) ;
-			Instance samInst = ASM.SAMInstBroker.getInstance(instPid) ;
-			String samName = samInst.getName();
+		PID thePid = (PID)amEvent.getProperty(EventProperty.PID) ;
+		if (thePid.getType() != PID.INSTANCE) return ;
+		InstPID instPid = (InstPID)amEvent.getProperty(EventProperty.PID) ;
+		Instance samInst = ASM.SAMInstBroker.getInstance(instPid) ;
+		String samName = samInst.getName();
 
+		if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_ARRIVAL)){
 			if (newApamInstance.containsKey(samName)) { //It is an APAM instance either under creation, or auto appear
 				NewInstance inst = newApamInstance.get(samName) ;
 				samInst.setProperty(ASM.APAMDEPENDENCYHANDLER, inst.handler) ;
@@ -137,15 +155,12 @@ public class SamInstEventHandler implements AMEventingHandler {
 					}
 					expectedInterfaces.remove(interfs[i]);
 				}
-				return ;
 			}
+			return ;
 		}
+		
+		// a service disappears
 		if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_DEPARTURE)){
-			PID thePid = (PID)amEvent.getProperty(EventProperty.PID) ;
-			if (thePid.getType() != PID.INSTANCE) return ;
-			InstPID instPid = (InstPID)amEvent.getProperty(EventProperty.PID) ;
-			Instance samInst = ASM.SAMInstBroker.getInstance(instPid) ;
-
 			ASMInst inst = ASM.ASMInstBroker.getInst (samInst) ;
 			if (inst == null) return ;
 			//set state lost to inst and propagates. In fact deletes that instance.
@@ -171,40 +186,18 @@ public class SamInstEventHandler implements AMEventingHandler {
 					}
 				}
 			}
+			return ;
+		}
+		
+		//A property has been changed
+		if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_MODIFIED)){
+			ASMInst inst = ASM.ASMInstBroker.getInst (samInst) ;
+			if (inst == null) return ;
+			inst.setProperties(samInst.getProperties()) ;
 		}
 	}
 
 }
 
-//	public boolean isExpected (String implName) {
-//		return expectedImpls.contains(implName) ;
-//	} 
 
-//IN DYNAMAN
-//
-//	public Instance getinstance (String expected) throws ConnectionException {
-//
-//		//if allready here
-//		Instance instance = samInstBroker.getInstance(expected);
-//		if (instance != null)
-//			return instance;
-//
-//		//not yet here. Wait for it.
-//		synchronized(this) {
-//			expectedInsts.add(expected);
-//			try {
-//				while (expectedInsts.contains(expected)) {
-//					this.wait();
-//				}
-//				//The expected impl arrived.
-//				instance = samInstBroker.getInstance(expected);
-//				if (instance == null) //should never occur
-//					System.out.println("wake up but imlementation is not present "+expected);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//
-//		return instance;
-//	}
 

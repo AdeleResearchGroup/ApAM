@@ -9,6 +9,8 @@ public interface ManagersMng {
 	public List<Manager> getManagers() ;
 	public int getPriority (Manager manager) ;
 	public void removeManager (Manager manager) ;
+	public Manager getManager(String managerName) ;
+
 	
 	/**
 	 * This manager is expecting the apparation of the provided implementation or interface.
@@ -19,11 +21,21 @@ public interface ManagersMng {
 	 */
 	public void appearedExpected (ASMImpl impl, DynamicManager manager) ;
 	public void appearedExpected (String interf, DynamicManager manager) ;
-	
+
+	public void appearedNotExpected (ASMImpl impl, DynamicManager manager) ;
+	public void appearedNotExpected (String interf, DynamicManager manager) ;
+
 	/**
 	 * This manager is interested in knowing which instance disappear.
 	 * @param manager
 	 */
 	public void listenLost (DynamicManager manager) ;
+	public void listenNotLost (DynamicManager manager) ;
+	/**
+	 * This manager is interested in knowing when instance properties have been changed in SAM.
+	 * @param manager
+	 */
+	public void listenAttrChanged (AttributeManager manager) ;
+	public void listenNotAttrChanged (AttributeManager manager) ;
 
 }

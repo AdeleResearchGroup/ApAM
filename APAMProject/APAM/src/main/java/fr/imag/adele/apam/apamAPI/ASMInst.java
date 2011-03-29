@@ -4,12 +4,11 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.am.Property;
-import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Instance;
 
-public interface ASMInst extends Property {
+public interface ASMInst extends Attributes {
 	
 	public Composite getComposite () ;
 	public String getASMName () ;
@@ -53,14 +52,14 @@ public interface ASMInst extends Property {
 	public Set<ASMInst> getClients () ;
 	
 	//== from SAM interface
-    public ASMSpec getSpec() throws ConnectionException;
+    public ASMSpec getSpec() ;
 
     /**
      * Get the implementation.
      * 
      * @return the associated Service implementation
      */
-    public ASMImpl getImpl() throws ConnectionException;
+    public ASMImpl getImpl() ;
 
      /**
      * Method getServiceObject returns an object that can be casted to the
@@ -72,7 +71,7 @@ public interface ASMInst extends Property {
      * 
      * @return the service object, return null, if the object no longer exists.
      */
-    public Object getServiceObject() throws ConnectionException;
+    public Object getServiceObject() ;
      
     /**
      * Match.

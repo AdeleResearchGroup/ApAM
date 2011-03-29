@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -13,23 +12,19 @@ import fr.imag.adele.am.Machine;
 import fr.imag.adele.am.eventing.AMEventingHandler;
 import fr.imag.adele.am.eventing.EventingEngine;
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.am.impl.PropertyImpl;
 import fr.imag.adele.apam.ASM;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Instance;
-import fr.imag.adele.sam.broker.InstanceBroker;
 import fr.imag.adele.sam.event.EventProperty;
 
 public class ASMInstBrokerImpl implements ASMInstBroker {
-
-//	private Logger logger = Logger.getLogger(ASMInstBrokerImpl.class);
-//	private static final InstanceBroker samInstBroker = ASM.SAMInstBroker ;
 
 	private static final ASMImplBroker implBroker = ASM.ASMImplBroker ;
 
@@ -37,14 +32,14 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 	
 	
 	//EVENTS
-	private SamInstEventHandler eventHandler ;
+	private SamInstEventHandler instEventHandler ;
 
 	public ASMInstBrokerImpl () {
 		try {
 			Machine machine = LocalMachine.localMachine;
 			EventingEngine eventingEngine = machine.getEventingEngine();
-			eventHandler = new SamInstEventHandler();
-			eventingEngine.subscribe(eventHandler, EventProperty.TOPIC_INSTANCE);
+			instEventHandler = new SamInstEventHandler();
+			eventingEngine.subscribe(instEventHandler, EventProperty.TOPIC_INSTANCE);
 		} catch (Exception e) {}
 	}
 
@@ -58,8 +53,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
 
 	@Override
-	public ASMInst getInst(String instName)
-	throws ConnectionException {
+	public ASMInst getInst(String instName) {
 		for (ASMInst inst : instances) {
 			if (inst.getASMName().equals(instName)) {
 				return  inst;
@@ -70,15 +64,15 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 // End EVENTS
 
 	@Override
-	public Set<ASMInst> getInsts() throws ConnectionException {
+	public Set<ASMInst> getInsts()  {
 		return  Collections.unmodifiableSet (instances) ;
 	}
 
 	@Override
-	public Set<ASMInst> getInsts(ASMSpec spec, Filter goal) throws ConnectionException, InvalidSyntaxException {
+	public Set<ASMInst> getInsts(ASMSpec spec, Filter goal) throws InvalidSyntaxException {
 		Set<ASMInst> ret = new HashSet<ASMInst> ();
 		for (ASMInst inst : instances) {
-			if ((inst.getSpec() == spec) && goal.match((PropertyImpl)inst.getProperties())) 
+			if ((inst.getSpec() == spec) && goal.match((ApamProperty)inst.getProperties())) 
 				ret.add(inst) ;
 		}
 		return ret ;
@@ -86,26 +80,32 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
 	@Override
 	public Set<ASMInst> getInsts(Filter goal)
-	throws ConnectionException, InvalidSyntaxException {
+	throws InvalidSyntaxException {
 		Set<ASMInst> ret = new HashSet<ASMInst> ();
 		for (ASMInst inst : instances) {
-			if (goal.match((PropertyImpl)inst.getProperties())) 
+			if (goal.match((ApamProperty)inst.getProperties())) 
 				ret.add(inst) ;
 		}
 		return ret ;
 	}
 
 	@Override
-	public ASMInst addInst(Composite compo, Instance samInst, String implName, String specName)  {
+	public ASMInst addInst(Composite compo, Instance samInst, String implName, String specName, Attributes properties)  {
 		ASMImpl impl = null ;
+		ASMInst inst ;
 		try {
+			inst = getInst (samInst) ;
+			if (inst != null) {  //allready existing ! May have been created by DYNAMAN, without all parameters
+				//if (inst.getImpl().getASMName() == null) inst.getImpl().setASMName (implName) ;
+				return inst ; 
+			}
 			impl = ASM.ASMImplBroker.getImpl(samInst.getImplementation()) ;
 			if (impl == null) { // create the implem also
 				if (compo == null) {
 					System.out.println("No implementation for the instance, and composite not provided");
 					return null ;
 				}
-				impl = implBroker.addImpl (compo, implName, samInst.getImplementation(), specName) ;
+				impl = implBroker.addImpl (compo, implName, samInst.getImplementation(), specName, properties) ;
 			}
 			if (compo == null) compo = impl.getComposite() ;
 			return new ASMInstImpl (compo, impl, null, samInst) ;
@@ -131,7 +131,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 	}
 
 	@Override
-	public void removeInst(ASMInst inst) throws ConnectionException {
+	public void removeInst(ASMInst inst) {
 		inst.remove();
 		instances.remove(inst) ;
 	}

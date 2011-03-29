@@ -7,6 +7,7 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Implementation;
 
 public interface ASMImplBroker {
@@ -24,9 +25,10 @@ public interface ASMImplBroker {
 	 * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
 	 * @param samImpl a SAM implementation
 	 * @param specName the *logical* name of that specification; different from SAM. May be null. 
+	 * @param properties. optional : the initial properties for that implementation
 	 * @return an ASM implementation
 	 */
-	public ASMImpl addImpl (Composite compo, String implName, Implementation samImpl, String specName) ;
+	public ASMImpl addImpl (Composite compo, String implName, Implementation samImpl, String specName, Attributes properties) ;
 	
 	/**
 	 * Deploys and creates both the SAM implem and Spec; and the the corresponding ASM spec and implem
@@ -34,11 +36,14 @@ public interface ASMImplBroker {
 	 * @param url the location of the executable to deploy
 	 * @param type type of executable to deploy (bundle, jar, war, exe ...)
 	 * @param specName the *logical* name of that specification; different from SAM. May be null. 
+	 * @param properties. optional : the initial properties for that implementation
 	 * @return an ASM Implementation
 	 */
-	public ASMImpl createImpl (Composite compo, String implName, URL url, String type, String specName) ; 
+	public ASMImpl createImpl (Composite compo, String implName, URL url, String type, String specName, Attributes properties) ; 
 	
 	public void removeImpl (ASMImpl impl) ;	
+	
+	
 
   /**
      * Return an (exported) service implementation with the provided name.
@@ -64,8 +69,7 @@ public interface ASMImplBroker {
      * Get the implementations.
      * @return all Service ASMImpls. Null if none.
      */
-    public Set<ASMImpl> getImpls() throws ConnectionException,
-            ConnectionException;
+    public Set<ASMImpl> getImpls() ;
 
     /**
      * Return the list of (exported) service implementation that satisfies the

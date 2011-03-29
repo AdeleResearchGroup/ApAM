@@ -17,12 +17,14 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Apam;
 import fr.imag.adele.apam.apamAPI.ApamClient;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
+import fr.imag.adele.apam.apamAPI.AttributeManager;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.DynamicManager;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.apamAPI.ManagersMng;
 import fr.imag.adele.apam.samAPIImpl.SamImplEventHandler;
 import fr.imag.adele.apam.samAPIImpl.SamInstEventHandler;
+import fr.imag.adele.apam.util.ApamProperty;
 
 public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
@@ -33,15 +35,16 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	//int is the priority
 	private Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer> () ;
 	private List<Manager> managerList = new ArrayList<Manager> () ;
-	
-	private SamImplEventHandler implHandler ;
-	private SamInstEventHandler instHandler ;
-	
+
+//	private SamImplEventHandler implHandler ;
+//	private SamInstEventHandler instHandler ;
+
 	public APAMImpl () {
-		implHandler = new SamImplEventHandler() ;
-		instHandler = new SamInstEventHandler() ;
+		new ASM (this) ;
+//		implHandler = new SamImplEventHandler() ;
+//		instHandler = new SamInstEventHandler() ;
 	}
-	
+
 	@Override
 	public ASMInst faultWire(ASMInst client, ASMInst lostInstance, String depName) {
 		// TODO Auto-generated method stub
@@ -64,7 +67,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 		Set<Filter> constraints = new HashSet<Filter> () ;
 		Filter thatfilter = null ;
 		List<Manager> selectionPath = new ArrayList<Manager>  () ;
-		
+
 		if (managerList.size() == 0) {
 			System.out.println("No manager available. Cannot resolve " );
 			return null ;
@@ -78,31 +81,27 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 				constraints.add(thatfilter);
 			}
 		}
-		
+
 		// second step : look for a sharable instance that satisfies the constraints
 		if (specName != null) {
 			ASMSpec spec = null;
-			try {
-				spec = ASM.ASMSpecBroker.getSpec(specName);
-			} catch (ConnectionException e1) {e1.printStackTrace(); }
+			spec = ASM.ASMSpecBroker.getSpec(specName);
 			if (spec != null) {
 				Set<ASMInst> sharable = ASM.getSharedInsts(spec) ;
-				try {
-					for (ASMInst inst : sharable){
-						boolean satisfies = true ;
-						for (Filter filter : constraints) {
-							if (!filter.match((PropertyImpl)inst.getProperties())) {
-								satisfies = false ;
-								break ;
-							}
-						}
-						if (satisfies) {
-							//accept only if a wire is possible
-							if (client.setWire (inst, depName, constraints))
-								return inst ;
+				for (ASMInst inst : sharable){
+					boolean satisfies = true ;
+					for (Filter filter : constraints) {
+						if (!filter.match((PropertyImpl)inst.getProperties())) {
+							satisfies = false ;
+							break ;
 						}
 					}
-				} catch (ConnectionException e) {e.printStackTrace();}
+					if (satisfies) {
+						//accept only if a wire is possible
+						if (client.setWire (inst, depName, constraints))
+							return inst ;
+					}
+				}
 			}
 		}
 
@@ -130,7 +129,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	 */
 	@Override
 	public ASMInst newWireImpl (ASMInst client, String samImplName, String implName, String depName) {
-		
+
 		//first step : compute selection path and constraints
 		Set<Filter> constraints = new HashSet<Filter> () ;
 		Filter thatfilter = null ;
@@ -146,7 +145,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 				constraints.add(thatfilter);
 			}
 		}
-		
+
 		// second pass : look for a shareable instance that satisfies the constraints
 		if (implName != null) {
 			ASMImpl impl = null;
@@ -173,7 +172,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 				} 
 			}catch (ConnectionException e) { e.printStackTrace();}
 		}
-		
+
 		//third step : ask each manager in the order
 		ASMInst resolved ;
 		for (int i = 0; i < managerList.size(); i++) {
@@ -221,7 +220,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	public void execute () {
 		//TODO
 	}
-	
+
 	@Override
 	public Composite createAppli(String compositeName, ASMImpl main, Set <ManagerModel> models) {
 		if ( appli != null) {
@@ -233,7 +232,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 		return appli ;
 	}
 
-	
+
 	public  Composite getAppli () {
 		return appli ;
 	}
@@ -272,7 +271,36 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	public void listenLost(DynamicManager manager) {
 		SamInstEventHandler.addLost(manager) ;
 	}
+	@Override
+	public void listenAttrChanged(AttributeManager manager) {
+		ApamProperty.addAttrChanged (manager) ;
+	}
 
+	@Override
+	public Manager getManager(String managerName) {
+		return managerList.get(managerList.lastIndexOf(managerName));
+	}
+
+	@Override
+	public void appearedNotExpected(ASMImpl impl, DynamicManager manager) {
+		SamInstEventHandler.removeExpectedImpl(impl, manager) ;
+
+	}
+
+	@Override
+	public void appearedNotExpected(String interf, DynamicManager manager) {
+		SamInstEventHandler.removeExpectedInterf(interf, manager) ;
+	}
+
+	@Override
+	public void listenNotLost(DynamicManager manager) {
+		SamInstEventHandler.removeLost(manager) ;
+	}
+
+	@Override
+	public void listenNotAttrChanged(AttributeManager manager) {
+		ApamProperty.removeAttrChanged (manager) ;
+	}
 
 
 }

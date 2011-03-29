@@ -1,16 +1,16 @@
 package fr.imag.adele.apam.apamAPI;
 
-import java.util.Properties;
+//import java.util.Properties;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.Property;
-import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Implementation;
 
-public interface ASMImpl extends Property {
+
+public interface ASMImpl extends Attributes {
 	public Composite getComposite () ;
 	public String getASMName () ;
 	public String getSAMName () ;
@@ -59,9 +59,7 @@ public interface ASMImpl extends Property {
      * @throws IllegalArgumentException the illegal argument exception
      * @throws ConnectionException the connection exception
      */
-    public ASMInst createInst(Properties initialproperties)
-            throws ConnectionException, UnsupportedOperationException,
-            IllegalArgumentException;
+    public ASMInst createInst(Attributes initialproperties);
 
     /**
      * Get the abstract services.
@@ -69,7 +67,7 @@ public interface ASMImpl extends Property {
      * @return the specification that this ASMImpls implements
      * @throws ConnectionException the connection exception
      */
-    public ASMSpec getSpec() throws ConnectionException;
+    public ASMSpec getSpec() ;
 
 
     /**
@@ -78,7 +76,7 @@ public interface ASMImpl extends Property {
      * @return the specification that this ASMImpl requires.
      * @throws ConnectionException the connection exception
      */
-    public Set<ASMSpec> getUses() throws ConnectionException;
+    public Set<ASMSpec> getUses();
 
 
     /**
@@ -95,7 +93,7 @@ public interface ASMImpl extends Property {
      * @throws UnsupportedOperationException the unsupported operation exception
      * @throws ConnectionException the connection exception
      */
-    public ASMInst getInst(String name) throws ConnectionException;
+    public ASMInst getInst(String name) ;
 
     /**
      * Returns all the instances (ASMInsts) of that service
@@ -109,7 +107,7 @@ public interface ASMImpl extends Property {
      * @throws UnsupportedOperationException the unsupported operation exception
      * @throws ConnectionException the connection exception
      */
-    public Set<ASMInst> getInsts() throws ConnectionException;
+    public Set<ASMInst> getInsts();
 
     /**
      * Returns an instance arbitrarily selected (ASMInsts) of that service
@@ -123,7 +121,7 @@ public interface ASMImpl extends Property {
      * @throws UnsupportedOperationException the unsupported operation exception
      * @throws ConnectionException the connection exception
      */
-    public ASMInst getInst() throws ConnectionException;
+    public ASMInst getInst() ;
 
     
     /**
@@ -140,8 +138,7 @@ public interface ASMImpl extends Property {
      * @throws ConnectionException the connection exception
      * @throws InvalidSyntaxException the invalid syntax exception
      */
-    public Set<ASMInst> getInsts(Filter goal) throws ConnectionException,
-            InvalidSyntaxException;
+    public Set<ASMInst> getInsts(Filter goal) throws InvalidSyntaxException;
 
     /**
      * Checks if is an instantiator.

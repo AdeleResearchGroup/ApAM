@@ -1,9 +1,11 @@
-package util;
+package fr.imag.adele.apam.util;
 
 
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -12,6 +14,8 @@ import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 
+import fr.imag.adele.am.Property;
+import fr.imag.adele.am.impl.PropertyImpl;
 import fr.imag.adele.am.query.Query;
 import fr.imag.adele.am.query.QueryByName;
 import fr.imag.adele.am.query.QueryLDAP;
@@ -174,5 +178,34 @@ public class Util {
 		}
     	return propsMap ;
     }
-	
+
+    /**
+     * Adds is samProp the properties of samProp. 
+     * @param initProp
+     * @param samProp
+     * @return
+     */
+    public static Map<String, Object> mergeProperties (Attributes initProp, Map<String, Object> samProp ) {
+    	if (initProp == null) return samProp;
+    	String attr ;
+    	try {
+        for (Enumeration<String> e = ((PropertyImpl)initProp).keys() ; e.hasMoreElements() ;) {
+        	attr = e.nextElement() ;
+    		if (samProp.get(attr) == null) {
+    			samProp.put((String)attr, initProp.getProperty(attr)) ;
+    		} else { //valeur differente, pas normal !
+    			if (initProp.getProperty(attr) != samProp.get(attr)) {
+    				System.out.println("Erreur ! attribut " + attr + " different in SAM and init val : "
+    						+ samProp.get(attr) + ", " + initProp.getProperty(attr));
+    				//TODO raffiner. shared, instantiable etc.
+    			}
+    		}	
+    	}
+    	return samProp ;
+    	} catch (Exception e) {e.printStackTrace() ; } 
+    	return null ;
+    }
+    
+    
+    
 }

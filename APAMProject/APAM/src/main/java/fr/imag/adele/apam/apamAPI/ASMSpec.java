@@ -4,12 +4,11 @@ import java.util.Set;
 
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.Property;
-import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Specification;
 import org.osgi.framework.Filter;
 
-public interface ASMSpec extends Property {
+public interface ASMSpec extends Attributes {
 	public Composite getComposite () ;
 	public String getASMName () ;
 	public String getSAMName () ;
@@ -40,8 +39,7 @@ public interface ASMSpec extends Property {
      * @return the implementation
      * @throws ConnectionException the connection exception
      */
-    public ASMImpl getImpl(String implemName)
-            throws ConnectionException;
+    public ASMImpl getImpl(String implemName);
 
     /**
      * Return all the {@link ASMImpl} that implement that Abstract
@@ -50,7 +48,7 @@ public interface ASMSpec extends Property {
      * @return the implementations
      * @throws ConnectionException the connection exception
      */
-    public Set<ASMImpl> getImpls() throws ConnectionException;
+    public Set<ASMImpl> getImpls() ;
 
     /**
      * Returns all the {@link ASMImpl} that implement that Abstract
@@ -62,8 +60,7 @@ public interface ASMSpec extends Property {
      * @throws ConnectionException the connection exception
      * @throws InvalidSyntaxException
      */
-    public Set<ASMImpl> getImpls(Filter filter)
-            throws ConnectionException, InvalidSyntaxException;
+    public Set<ASMImpl> getImpls(Filter filter) throws InvalidSyntaxException;
 
 
     /**
@@ -71,7 +68,7 @@ public interface ASMSpec extends Property {
      * 
      * @return the interface
      */
-    public String [] getInterfaceNames()throws ConnectionException;
+    public String [] getInterfaceNames();
 
 
     /**
@@ -80,6 +77,6 @@ public interface ASMSpec extends Property {
      * @return the list of required abstract services. Null if none
      * @throws ConnectionException the connection exception
      */
-    public Set<ASMSpec> getUses() throws ConnectionException;
+    public Set<ASMSpec> getUses() ;
 
 }

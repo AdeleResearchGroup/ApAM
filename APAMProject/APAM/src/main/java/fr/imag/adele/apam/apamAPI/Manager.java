@@ -5,6 +5,8 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
+import fr.imag.adele.apam.ManagerModel;
+
 /**
  * Interface that each manager MUST implement.
  * Used by APAM to resolve the dependencies and manage the application.
@@ -69,8 +71,17 @@ public interface Manager {
 	 * @param involved the managers currently involved in this resolution.
 	 * @return an instance if resolved, null otherwise
 	 */
-public ASMInst resolveImpl (ASMInst from, String samImplName, String implName, String depName, Set<Filter> constraints) ;
+	public ASMInst resolveImpl (ASMInst from, String samImplName, String implName, String depName, Set<Filter> constraints) ;
 
 		// returns the relative priority of that manager, for the resolution algorithm
 	public int getPriority () ;
+	
+
+	/**
+	 * A new composite, holding a model managed by this manager, has been created. 
+	 * The manager is supposed to read and interpret that model. 
+	 * @param model the model.
+	 * @param composite the new composite (or appli)
+	 */
+	public void newComposite (ManagerModel model, Composite composite) ;
 }

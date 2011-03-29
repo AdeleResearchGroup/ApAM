@@ -1,81 +1,67 @@
 package fr.imag.adele.apam.samAPIImpl;
 
-import fr.imag.adele.sam.Implementation;
-import fr.imag.adele.sam.Specification ;
-import fr.imag.adele.sam.broker.SpecificationBroker;
-import fr.imag.adele.sam.broker.ImplementationBroker;
-import fr.imag.adele.sam.broker.InstanceBroker;
-import fr.imag.adele.sam.ipojo.util.LDAP;
-
-import java.rmi.RemoteException;
 import java.util.Collections;
-import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.LocalMachine;
-import fr.imag.adele.am.Machine;
 import fr.imag.adele.am.Property;
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.am.impl.PropertyImpl;
-import fr.imag.adele.am.query.Query;
+//import fr.imag.adele.am.impl.PropertyImpl;
 import fr.imag.adele.apam.ASM;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMImplBroker;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.apam.util.Util;
+import fr.imag.adele.sam.Specification;
 
 
-public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
+public class ASMSpecImpl extends ApamProperty implements ASMSpec{
 
 	private String name ;
-    private Composite myComposite ;
-    private Specification samSpec = null ;
-    private Set<ASMImpl> implementations = new HashSet <ASMImpl> ();
-    
+	private Composite myComposite ;
+	private Specification samSpec = null ;
+	private Set<ASMImpl> implementations = new HashSet <ASMImpl> ();
+
 	private int shared = ASM.SHAREABLE ;
 	private int clonable = ASM.TRUE ;
-	
-	private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
-	
-	public ASMSpecImpl  (Composite compo, String specName, Specification samSpec, Properties prop) {
-		this.myComposite = compo ;
-		this.name = specName ;
-		this.samSpec = samSpec ;
-		
-		((ASMSpecBrokerImpl)ASM.ASMSpecBroker).addSpec (this) ;
-		//initialize properties. A fusion of SAM and APAM values
-		if (prop != null && !prop.isEmpty()) {
-			Map<String, Object> samProp;
-			try {
-				samProp = samSpec.getProperties();
-				for (Object attr : prop.keySet()) {
-					if (!samProp.containsKey((String)attr)) {
-						samSpec.setProperty((String)attr, prop.get(attr)) ;
-					} else { //valeur differente, pas normal !
-						if (prop.get(attr) != samProp.get(attr)) {
-							System.out.println("Erreur ! arrtibut " + attr + " different in SAM and init val : "
-									+ samProp.get(attr) + ", " + prop.get(attr));
-							//TODO raffiner. shared, instantiable etc.
-						}
-					}	
-				}
-			} catch (ConnectionException e) {
-				e.printStackTrace();
-			}
-		}
 
+//	private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
+
+	public void setASMName (String logicalName) {
+		if (logicalName == null || logicalName == "") return ;
+		if (name == null) {
+			name = logicalName ;
+			return ;
+		}
+		if (!name.equals(logicalName)) {
+			System.out.println("changing logical name, from " + name + " to " + logicalName);
+			name = logicalName ;
+		}
 	}
+
+	
+	public ASMSpecImpl  (Composite compo, String specName, Specification samSpec, Attributes props) {
+		this.myComposite = compo ;
+		this.name = specName ;		//may be null
+		this.samSpec = samSpec ; 	//may be null
+		((ASMSpecBrokerImpl)ASM.ASMSpecBroker).addSpec (this) ;		
+		try {
+			//initialize properties. A fusion of SAM and APAM values
+			if (samSpec != null) {
+				this.setProperties(Util.mergeProperties (props, samSpec.getProperties())) ;
+				return ;
+			} else this.setProperties(props.getProperties()) ;
+		} catch (ConnectionException e) {
+			e.printStackTrace();
+		}
+	}
+
+
 
 	/*
 	 * (non-Javadoc)
@@ -91,10 +77,10 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 
 	@Override
 	public Set<ASMImpl> getImpls(Filter filter)
-	throws InvalidSyntaxException, ConnectionException {
+	throws InvalidSyntaxException {
 		Set<ASMImpl> ret = new HashSet<ASMImpl> () ;
 		for (ASMImpl impl : implementations) {
-			if (filter.match((PropertyImpl)impl.getProperties())) {
+			if (filter.match((ApamProperty)impl.getProperties())) {
 				ret.add(impl);
 			}
 		}
@@ -103,7 +89,7 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 
 
 	@Override
-	public String[] getInterfaceNames() throws ConnectionException {
+	public String[] getInterfaceNames()  {
 		return samSpec.getInterfaceNames();
 	}
 
@@ -141,7 +127,7 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 	@Override
 	public void remove() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -157,7 +143,7 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 				return ; //do not change anything
 			}
 		}
-		if (newShared < 0) return ;
+		if (newShared <= 0) return ;
 		if (shared == ASM.SHAREABLE && newShared != ASM.SHAREABLE) {
 			ASM.removeSharedSpec(this) ;
 		}
@@ -165,13 +151,17 @@ public class ASMSpecImpl extends PropertyImpl implements ASMSpec{
 	}
 
 	@Override
-	public Set<ASMImpl> getImpls() throws ConnectionException {
+	public Set<ASMImpl> getImpls()  {
 		return Collections.unmodifiableSet(implementations);
 	}
 
 	@Override
 	public String getSAMName() {
 		return samSpec.getName();
+	}
+	
+	public void setSamSpec (Specification samSpec) {
+		this.samSpec = samSpec ;
 	}
 
 }

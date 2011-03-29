@@ -1,32 +1,22 @@
 package fr.imag.adele.apam;
 
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.samAPIImpl.ASMImplImpl;
+import fr.imag.adele.apam.apamAPI.Manager;
 
 public class CompositeImpl implements Composite {
 
 	//Global variable. The actual content of the ASM
-	private static Map<String, Composite> composites = new HashMap <String, Composite> ();	
+	private static Map<String, Composite> composites = new HashMap <String, Composite> ();		
 	
-//	private Logger logger = Logger.getLogger(CompositeImpl.class);
-//	private static final InstanceBroker samInstBroker = ASM.SAMInstBroker ;
-//	private static final ImplementationBroker samImplBroker = ASM.SAMImplBroker ;
-//	private static final ASMInstBroker instBroker = ASM.ASMInstBroker ;
-	private static final ASMImplBroker implBroker = ASM.ASMImplBroker ;
-//	private static final ASMSpecBroker specBroker = ASM.ASMSpecBroker ;
-	
-
 	private String name ; // its name !	
 	//The models associated with this composite (appli or not)
 	private Set <ManagerModel> models = null ;
@@ -51,6 +41,13 @@ public class CompositeImpl implements Composite {
 		composites.put(name, this);
 		this.name = name ;
 		this.models = models ;
+		Manager man ;
+		for (ManagerModel managerModel : models) {
+			 man = ASM.apam.getManager (managerModel.getManagerName()) ;
+			if (man != null) {
+				man.newComposite(managerModel, this) ;
+			}
+		}
 	}
 
 	@Override
