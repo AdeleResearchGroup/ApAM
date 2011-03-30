@@ -1,0 +1,9 @@
+<ipojo>
+<component name="SAMMAN" classname="fr.imag.adele.samMan.SamMan" immediate="true">
+	<requires field="apam" proxy="false"/>
+	<callback transition="validate" method="start"/>
+	<callback transition="invalidate" method="stop"/>
+</component>
+
+<instance name="SAMMAN-Instance" component="SAMMAN"/>
+</ipojo>
