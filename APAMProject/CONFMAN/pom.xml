@@ -73,10 +73,6 @@
 <!--						<Private-Package>fr.imag.adele.sam.interceptor</Private-Package>-->
 <!--						<DynamicImport-Package>*</DynamicImport-Package>
 -->
-						<Include-Resource>
-							META-INF/LICENCE=LICENSE,
-							META-INF/NOTICE=NOTICE
-						</Include-Resource>
 					</instructions>
 				</configuration>
 			</plugin>
