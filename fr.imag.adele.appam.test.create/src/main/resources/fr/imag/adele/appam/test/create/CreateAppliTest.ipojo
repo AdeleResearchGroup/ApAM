@@ -16,7 +16,7 @@
 -->
 <ipojo xmlns:appam="fr.imag.adele.appam">
 	<component name="CreateAppliTest" classname="fr.imag.adele.appam.test.create.CreateAppliTest">
-		<requires field="apam" />
+		<requires field="apam" proxy="false"/>
 		<callback transition="validate" method="start"/>
 	</component>
 	
