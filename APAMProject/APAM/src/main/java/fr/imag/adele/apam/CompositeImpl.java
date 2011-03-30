@@ -17,49 +17,54 @@ public class CompositeImpl implements Composite {
 
 	//Global variable. The actual content of the ASM
 	private static Map<String, Composite> composites = new HashMap <String, Composite> ();		
-	
+
 	private String name ; // that composite name !	
 	//The models associated with this composite 
 	private Set <ManagerModel> models = null ;
-	
+
 	//All the specs, implem, instances contained in this composite ! Warning : may be shared.
 	private Set<ASMSpec> hasSpecs = new HashSet<ASMSpec> ();
 	private Set<ASMImpl> hasImplem = new HashSet<ASMImpl> ();
 	private Set<ASMInst> hasInstance = new HashSet<ASMInst> ();	
-	
+
 	//all the dependencies between composites
 	private Set<Composite> depends = new HashSet<Composite> ();
 	private Set<Composite> invDepend = new HashSet<Composite> (); //reverse dependency
-	
-	
+
+
 
 	private CompositeImpl () { } ; //prohibited
 	public CompositeImpl (String name, Set <ManagerModel> models) {
-		if (composites.get(name) != null) {
-			System.out.println("Composite " + name + " allready exists");
-			return ;
-		}
 		composites.put(name, this);
 		this.name = name ;
 		this.models = models ;
 		Manager man ;
-		for (ManagerModel managerModel : models) { //call the managers to indicate the new composite and the model
-			 man = ASM.apam.getManager (managerModel.getManagerName()) ;
-			if (man != null) {
-				man.newComposite(managerModel, this) ;
+		if (models != null ) {
+			for (ManagerModel managerModel : models) { //call the managers to indicate the new composite and the model
+				man = ASM.apam.getManager (managerModel.getManagerName()) ;
+				if (man != null) {
+					man.newComposite(managerModel, this) ;
+				}
 			}
 		}
 	}
 
 	@Override
 	public Composite createComposite(Composite source, String name, Set <ManagerModel> models) {
-		if (composites.get(name) != null) {
-			System.out.println("Composite " + name + " allready exists");
-			return null;
-		}
 		if (source == null) {
-			System.out.println("Source composite missing");
+			System.out.println("ERROR : Source composite missing");
+			return null ;
 		}
+		if (name == null) {
+			System.out.println("ERROR : Composite name missing");
+			return null ;
+		}
+		if (composites.get(name) != null) {
+			System.out.println("ERROR : Composite " + name + " allready exists");
+			//return null;
+			return composites.get(name) ; //WARNING Debug.
+		}
+		
 		Composite comp = new CompositeImpl (name, models) ;
 		source.addDepend(comp) ;
 		return comp;
@@ -70,19 +75,19 @@ public class CompositeImpl implements Composite {
 		return name;
 	}
 
-//	@Override
-	
+	//	@Override
+
 	/**
 	 * 2 Pbs : delete the dependent composite.
 	 * delete the contained objects ? Warning if shared. 
 	 * state ?
 	 * 
 	 */
-//	public boolean deleteComposite(String compositeName) {
-//	
-//		return false;
-//	}
-	
+	//	public boolean deleteComposite(String compositeName) {
+	//	
+	//		return false;
+	//	}
+
 	@Override
 	/**
 	 * Only creates the APAM object. No creation in SAM. 
@@ -115,8 +120,7 @@ public class CompositeImpl implements Composite {
 		hasInstance.add(inst) ;
 	}
 
-	
-//Composite Dependency management ===============
+	//Composite Dependency management ===============
 	public void addDepend(Composite dest) { 
 		if (this.depends.contains(dest)) return ; //allready existing
 		this.depends.add(dest);
@@ -143,7 +147,7 @@ public class CompositeImpl implements Composite {
 	protected Set<Composite> getInvDepend () {
 		return Collections.unmodifiableSet(invDepend) ;
 	}
-	
+
 	/**
 	 * Retire une dependance inverse.
 	 * @param origin
@@ -162,12 +166,12 @@ public class CompositeImpl implements Composite {
 		invDepend.add(origin);
 		return ;
 	}
-	
+
 	@Override
 	public boolean containsSpec(ASMSpec spec) {
 		return hasSpecs.contains(spec);
 	}
-	
+
 	@Override
 	public boolean containsImpl(ASMImpl spec) {
 		return hasImplem.contains(spec) ;
@@ -178,9 +182,9 @@ public class CompositeImpl implements Composite {
 		return hasInstance.contains(inst) ;
 	}
 
-/**
- * Warning, it is the real array !!
- */
+	/**
+	 * Warning, it is the real array !!
+	 */
 	@Override
 	public Set<Composite> getDepend() {
 		return Collections.unmodifiableSet (depends);
@@ -222,7 +226,7 @@ public class CompositeImpl implements Composite {
 	public Set<ManagerModel> getModels() {
 		return Collections.unmodifiableSet (models);
 	}
-	
+
 
 
 }

@@ -210,37 +210,30 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
 	@Override
 	public Composite createAppli(String appliName,  Set <ManagerModel> models, String implName, 
-			URL url, String type, String specName, Map<String, Object> properties) {
+			URL url, String type, String specName, Attributes properties) {
 		if (appli != null) {
 			System.out.println("Application allready existing");   
 			return null ;
 		}
 		appli = new CompositeImpl(appliName, models) ;
-		main = ASM.ASMImplBroker.createImpl(appli, implName, url, type, specName, (Attributes)properties) ;
+		main = ASM.ASMImplBroker.createImpl(appli, implName, url, type, specName, properties) ;
 		return null ;
 	}
 
-	public void execute (Map<String, Object> properties) {
-		main.createInst((Attributes)properties) ;
+	public void execute (Attributes properties) {
+		main.createInst(properties) ;
 	}
 
 	@Override
 	public Composite createAppli(String appliName,  Set <ManagerModel> models, String samImplName, String implName,
-			String specName, Map<String, Object> properties) {
-		Implementation samImpl;
-		try {
-			samImpl = ASM.SAMImplBroker.getImplementation(samImplName);
-		} catch (ConnectionException e) {
-			e.printStackTrace(); 
-			return null ;
-		}
+			String specName, Attributes properties) {
 
 		if (appli != null) {
 			System.out.println("Application allready existing");   
 			return null ;
 		}
 		appli = new CompositeImpl (appliName, models) ;
-		main = ASM.ASMImplBroker.addImpl(appli, implName, samImpl, specName, (Attributes)properties) ; 
+		main = ASM.ASMImplBroker.addImpl(appli, implName, samImplName, specName, properties) ; 
 		return appli ;
 	}
 

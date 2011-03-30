@@ -91,12 +91,15 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
 	@Override
 	public ASMInst addInst(Composite compo, Instance samInst, String implName, String specName, Attributes properties)  {
+		if (samInst == null) {
+			System.out.println("No instance provided for add Instance");
+			return null ;
+		}
 		ASMImpl impl = null ;
 		ASMInst inst ;
 		try {
 			inst = getInst (samInst) ;
 			if (inst != null) {  //allready existing ! May have been created by DYNAMAN, without all parameters
-				//if (inst.getImpl().getASMName() == null) inst.getImpl().setASMName (implName) ;
 				return inst ; 
 			}
 			impl = ASM.ASMImplBroker.getImpl(samInst.getImplementation()) ;
@@ -105,7 +108,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 					System.out.println("No implementation for the instance, and composite not provided");
 					return null ;
 				}
-				impl = implBroker.addImpl (compo, implName, samInst.getImplementation(), specName, properties) ;
+				impl = implBroker.addImpl (compo, implName, samInst.getImplementation().getName(), specName, properties) ;
 			}
 			if (compo == null) compo = impl.getComposite() ;
 			return new ASMInstImpl (compo, impl, null, samInst) ;

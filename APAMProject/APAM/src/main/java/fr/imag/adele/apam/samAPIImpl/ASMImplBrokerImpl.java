@@ -29,7 +29,7 @@ import fr.imag.adele.sam.event.EventProperty;
 
 public class ASMImplBrokerImpl implements ASMImplBroker{
 
-//	private Logger logger = Logger.getLogger(ASMImplBrokerImpl.class);
+	//	private Logger logger = Logger.getLogger(ASMImplBrokerImpl.class);
 
 	private Set <ASMImpl> implems = new HashSet<ASMImpl> () ;
 	private SamImplEventHandler eventHandler ;
@@ -92,11 +92,13 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 		return ret ;
 	}
 
-
-	@Override
-	public ASMImpl addImpl(Composite compo, String implName, Implementation samImpl, String specName, Attributes properties) {
+	private ASMImpl addImpl0(Composite compo, String implName, Implementation samImpl, String specName, Attributes properties) {
+		if ((samImpl == null) || compo == null) {
+			System.out.println("ERROR : missing Implementaion or composite in addImpl");
+			return null ;
+		}
 		try {
-			Specification samSpec = samImpl.getSpecification() ;
+			Specification samSpec;
 			ASMImpl asmImpl = null ;
 			asmImpl = getImpl(implName);
 			if (asmImpl != null ) { //do not create twice
@@ -104,21 +106,41 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 				((ASMSpecImpl)asmImpl.getSpec()).setASMName(specName) ;
 				return asmImpl ; 
 			}
+			ASMSpecImpl spec = null ;
 			samSpec = samImpl.getSpecification();
-			ASMSpecImpl spec = (ASMSpecImpl)ASM.ASMSpecBroker.getSpec(samSpec) ;
+			if (samSpec != null) { // may be null !
+				spec = (ASMSpecImpl)ASM.ASMSpecBroker.getSpec(samSpec) ;
+			}
 			if (spec == null) { //No ASM spec related to the sam spec.
 				spec = (ASMSpecImpl)ASM.ASMSpecBroker.getSpec (samSpec.getInterfaceNames()) ;
 				if (spec != null) { //has been created without the SAM spec. Add it now.
 					spec.setSamSpec (samSpec) ;
 				}
 				else { // create the spec
-				spec = new ASMSpecImpl (compo, specName, samSpec, properties) ;
+					spec = new ASMSpecImpl (compo, specName, samSpec, properties) ;
 				}
-			} else {
-				if (specName != null) spec.setASMName(specName) ;
-			}
+			} 
+			if (specName != null) spec.setASMName(specName) ;
+
 			ASMImplImpl impl = new ASMImplImpl (compo, implName, spec, samImpl, properties) ;
 			return impl ;
+
+		} catch (ConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null ;
+		}
+
+	}
+
+	@Override
+	public ASMImpl addImpl(Composite compo, String implName, String samImplName, String specName, Attributes properties) {
+		if (samImplName == null || compo == null) return null;
+		Implementation samImpl;
+		try {
+			samImpl = ASM.SAMImplBroker.getImplementation(samImplName);
+			return addImpl0(compo, samImplName, samImpl, specName, properties) ;
+
 		} catch (ConnectionException e) {
 			e.printStackTrace();
 			return null ;
@@ -127,6 +149,9 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 
 	@Override
 	public ASMImpl createImpl(Composite compo, String implName, URL url, String type, String specName, Attributes properties) {
+
+		if (url == null || type == null || compo == null) return null;
+
 		String implNameExpected = null ;
 		Implementation samImpl  ;
 		ASMImpl asmImpl = null ;
@@ -149,7 +174,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 			return null ;
 		}
 
-		asmImpl = addImpl(compo, implName, samImpl, specName, properties) ;
+		asmImpl = addImpl0(compo, implName, samImpl, specName, properties) ;
 		return asmImpl ;
 	}
 

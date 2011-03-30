@@ -28,7 +28,7 @@ public interface ASMImplBroker {
 	 * @param properties. optional : the initial properties for that implementation
 	 * @return an ASM implementation
 	 */
-	public ASMImpl addImpl (Composite compo, String implName, Implementation samImpl, String specName, Attributes properties) ;
+	public ASMImpl addImpl (Composite compo, String implName, String samImplName, String specName, Attributes properties) ;
 	
 	/**
 	 * Deploys and creates both the SAM implem and Spec; and the the corresponding ASM spec and implem

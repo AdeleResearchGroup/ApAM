@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.query.Query;
 import fr.imag.adele.am.query.QueryByName;
@@ -204,6 +205,38 @@ public class Util {
     	return null ;
     }
     
+	public static String ANDLDAP(String... params) {
+		StringBuilder sb = new StringBuilder("(&");
+		for (String p : params) {
+			sb.append(p);
+		}
+		sb.append(")");
+		return sb.toString();
+	}
+
     
-    
+	public static Filter buildFilter (Set<Filter> filters) {
+		if (filters == null || filters.size() == 0) return null ;
+		String ldap = null;
+		for (Filter f : filters) {
+			if (ldap == null) {
+				ldap = f.toString() ;
+			}
+			else {
+				ldap = ANDLDAP(ldap, f.toString()) ;
+			}
+		}
+		Filter ret = null ;
+		try {
+			ret = org.osgi.framework.FrameworkUtil.createFilter (ldap);
+		} catch (InvalidSyntaxException e) {
+			System.out.print("Invalid filters : ");
+			for (Filter f : filters) {
+				System.out.println("   " + f.toString()); ;
+			}
+			e.printStackTrace();
+		} 
+		return ret ;
+	}
+
 }

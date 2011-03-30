@@ -17,11 +17,11 @@ public interface Apam {
 	 * @param samImplName the implementation name as known by Sam.
 	 */
 	public Composite createAppli (String appliName,  Set <ManagerModel> models, String samImplName, 
-			String implName, String specName, Map<String, Object> properties) ;
+			String implName, String specName, Attributes properties) ;
 	/**
 	 * creates an instance of the main implementation associated with the root composite. i.e. starts the application.
 	 */
-	public void execute (Map<String, Object> properties) ;
+	public void execute (Attributes properties) ;
 	
 	/**
 	 * Creates an application from scratch, by deploying an implementation.
@@ -36,7 +36,8 @@ public interface Apam {
 	 * @param properties The initial properties for the Implementation.
 	 * @return
 	 */
-	public Composite createAppli(String appliName,  Set <ManagerModel> models, String implName, URL url, String type, String specName, Map<String, Object> properties) ;
+	public Composite createAppli(String appliName,  Set <ManagerModel> models, String implName, 
+			URL url, String type, String specName, Attributes properties) ;
 
 	public Composite getAppli () ;
 	public ASMImpl getAppliMain  ()  ;
