@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Export-Package: fr.imag.adele.appam.test.dependency
+Built-By: vega
+Build-Jdk: 1.6.0_24
+Bundle-Version: 1.0.0
+Tool: Bnd-1.15.0
+Bundle-Name: APPAM dependency manager test
+Bnd-LastModified: 1301483702239
+Created-By: Apache Maven Bundle Plugin
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: fr.imag.adele.appam.test.dependency
+
