@@ -1,5 +1,6 @@
 package fr.imag.adele.apam;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,9 +22,10 @@ import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.DynamicManager;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.apamAPI.ManagersMng;
-import fr.imag.adele.apam.samAPIImpl.SamImplEventHandler;
 import fr.imag.adele.apam.samAPIImpl.SamInstEventHandler;
 import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.sam.Implementation;
 
 public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
@@ -35,13 +37,9 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	private Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer> () ;
 	private List<Manager> managerList = new ArrayList<Manager> () ;
 
-//	private SamImplEventHandler implHandler ;
-//	private SamInstEventHandler instHandler ;
 
 	public APAMImpl () {
 		new ASM (this) ;
-//		implHandler = new SamImplEventHandler() ;
-//		instHandler = new SamInstEventHandler() ;
 	}
 
 	@Override
@@ -211,23 +209,38 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	}
 
 	@Override
-	public void createAppli(Composite appli, ASMImpl main) {
-		this.appli = appli ;
-		this.main = main ;
-	}
-
-	public void execute () {
-		//TODO
-	}
-
-	@Override
-	public Composite createAppli(String compositeName, ASMImpl main, Set <ManagerModel> models) {
-		if ( appli != null) {
+	public Composite createAppli(String appliName,  Set <ManagerModel> models, String implName, 
+			URL url, String type, String specName, Map<String, Object> properties) {
+		if (appli != null) {
 			System.out.println("Application allready existing");   
 			return null ;
 		}
-		Composite appli = new CompositeImpl (compositeName, models) ;
-		this.main = main ; 
+		appli = new CompositeImpl(appliName, models) ;
+		main = ASM.ASMImplBroker.createImpl(appli, implName, url, type, specName, (Attributes)properties) ;
+		return null ;
+	}
+
+	public void execute (Map<String, Object> properties) {
+		main.createInst((Attributes)properties) ;
+	}
+
+	@Override
+	public Composite createAppli(String appliName,  Set <ManagerModel> models, String samImplName, String implName,
+			String specName, Map<String, Object> properties) {
+		Implementation samImpl;
+		try {
+			samImpl = ASM.SAMImplBroker.getImplementation(samImplName);
+		} catch (ConnectionException e) {
+			e.printStackTrace(); 
+			return null ;
+		}
+
+		if (appli != null) {
+			System.out.println("Application allready existing");   
+			return null ;
+		}
+		appli = new CompositeImpl (appliName, models) ;
+		main = ASM.ASMImplBroker.addImpl(appli, implName, samImpl, specName, (Attributes)properties) ; 
 		return appli ;
 	}
 

@@ -1,4 +1,4 @@
-package samMan;
+package fr.imag.adele.samMan;
 
 import java.util.HashSet;
 import java.util.List;
@@ -12,13 +12,13 @@ import fr.imag.adele.am.broker.BrokerBroker;
 import fr.imag.adele.am.query.Query;
 import fr.imag.adele.am.query.QueryLDAPImpl;
 import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
+import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.Manager;
-import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Instance;
-import fr.imag.adele.sam.PID;
 import fr.imag.adele.sam.Specification;
 import fr.imag.adele.sam.broker.ImplementationBroker;
 import fr.imag.adele.sam.broker.InstanceBroker;
@@ -35,14 +35,12 @@ public class SamMan implements Manager {
 
 	public SamMan () {
 		try {
-
 			Machine AM = fr.imag.adele.am.LocalMachine.localMachine ;
 			BrokerBroker bb = AM.getBrokerBroker() ;
 			SAMSpecBroker = (SpecificationBroker) bb.getBroker(SpecificationBroker.SPECIFICATIONBROKERNAME) ;
 			SAMImplBroker = (ImplementationBroker) bb.getBroker(ImplementationBroker.NAME) ;
 			SAMInstBroker = (InstanceBroker) bb.getBroker(InstanceBroker.NAME) ;
 			SAMDUBroker   = (DeploymentUnitBroker) bb.getBroker(DeploymentUnitBroker.NAME) ;
-
 		} catch (Exception e) {}
 	}
 
@@ -155,7 +153,7 @@ public class SamMan implements Manager {
 			if (ASM.ASMInstBroker.getInst(theInstance) != null) {
 				return ASM.ASMInstBroker.getInst(theInstance) ;
 			}
-			return ASM.ASMInstBroker.addInst(from.getComposite(), theInstance, null, specName) ;
+			return ASM.ASMInstBroker.addInst(from.getComposite(), theInstance, null, specName, null) ;
 		} catch (Exception e) {} ;
 		return null;
 	}
@@ -188,7 +186,7 @@ public class SamMan implements Manager {
 			if (ASM.ASMInstBroker.getInst(theInstance) != null) {
 				return ASM.ASMInstBroker.getInst(theInstance) ;
 			}
-			return ASM.ASMInstBroker.addInst(from.getComposite(), theInstance, implName, null) ;
+			return ASM.ASMInstBroker.addInst(from.getComposite(), theInstance, implName, null, null) ;
 		} catch (Exception e) {} ;
 		return null;
 	}
@@ -196,6 +194,11 @@ public class SamMan implements Manager {
 	@Override
 	public int getPriority() {
 		return 0;
+	}
+
+	@Override
+	public void newComposite(ManagerModel model, Composite composite) {
+		
 	}
 
 
