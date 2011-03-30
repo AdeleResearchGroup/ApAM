@@ -61,6 +61,7 @@ public class ASMImplImpl extends ApamProperty implements ASMImpl {
 			this.setProperties( Util.mergeProperties (prop, impl.getProperties())) ;
 
 		} catch (ConnectionException e) { e.printStackTrace(); }
+		compo.addImpl(this) ;
 	}	
 
 

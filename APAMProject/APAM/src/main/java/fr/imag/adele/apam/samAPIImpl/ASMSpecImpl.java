@@ -59,6 +59,7 @@ public class ASMSpecImpl extends ApamProperty implements ASMSpec{
 		} catch (ConnectionException e) {
 			e.printStackTrace();
 		}
+		compo.addSpec(this) ;
 	}
 
 

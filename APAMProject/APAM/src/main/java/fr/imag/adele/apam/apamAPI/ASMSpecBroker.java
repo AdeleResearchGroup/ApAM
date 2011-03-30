@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.apamAPI;
 
+import java.net.URL;
 import java.rmi.RemoteException;
 //import java.util.Properties;
 import java.util.Set;
@@ -32,7 +33,21 @@ public interface ASMSpecBroker {
 	 * return an ASM Specification
 	 */
 	public ASMSpec createSpec (Composite compo, String specName, String[] interfaces, Attributes properties) ;
-	
+
+	/**
+	 * Creates and deploys a specification. 
+	 * WARNING : The  fact to deploy the specification (the packages containing the interfaces) does not create any spec in SAM.  
+	 * This spec may not have any corresponding spec in SAM. It does not try to create one in SAM.
+	 * @param compo the composite in which to create that spec.
+	 * @param specName the *logical* name of that specification; different from SAM. May be null.
+	 * @param url the location of the executable to deploy
+	 * @param type type of executable to deploy (bundle, jar, war, exe ...)
+	 * @param interfaces the list of interfaces this spec implements
+	 * @param properties : The initial properties.
+	 * return an ASM Specification
+	 */
+	public ASMSpec createSpec (Composite compo, String specName, URL url, String type, String[] interfaces, Attributes properties) ;
+
 	/**
 	 * WARNING : it will also destroy all implems and instances.
 	 * @param spec the spec to delete.

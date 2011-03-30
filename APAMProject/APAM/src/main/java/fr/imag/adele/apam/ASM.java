@@ -83,9 +83,9 @@ public class ASM {
 			Machine AM = fr.imag.adele.am.LocalMachine.localMachine ;
 			BrokerBroker bb = AM.getBrokerBroker() ;
 			SAMSpecBroker = (SpecificationBroker) bb.getBroker(SpecificationBroker.SPECIFICATIONBROKERNAME) ;
-			SAMImplBroker = (ImplementationBroker) bb.getBroker(ImplementationBroker.NAME) ;
-			SAMInstBroker = (InstanceBroker) bb.getBroker(InstanceBroker.NAME) ;
-			SAMDUBroker   = (DeploymentUnitBroker) bb.getBroker(DeploymentUnitBroker.NAME) ;
+			SAMImplBroker = (ImplementationBroker) bb.getBroker(ImplementationBroker.IMPLEMENTATIONBROKERNAME) ;
+			SAMInstBroker = (InstanceBroker) bb.getBroker(InstanceBroker.INSTANCEBROKERNAME) ;
+			SAMDUBroker   = (DeploymentUnitBroker) bb.getBroker(DeploymentUnitBroker.DEPLOYMENTUNITBROKERNAME) ;
 
 			apam = theApam ;
 		} catch (Exception e) {}

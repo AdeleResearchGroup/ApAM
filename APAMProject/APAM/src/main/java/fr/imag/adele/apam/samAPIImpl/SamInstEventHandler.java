@@ -34,27 +34,54 @@ public class SamInstEventHandler implements AMEventingHandler {
 	static Set<DynamicManager> listenLost = new HashSet <DynamicManager> () ;
 
 	//contains the apam instance that registered to APAM but not yet created in ASM
-	static Map<String, NewInstance> newApamInstance = new HashMap<String, NewInstance> () ;
+	static Map<String, NewApamInstance> newApamInstance = new HashMap<String, NewApamInstance> () ;
+	//contains the Sam instance that has been notified before the Apam handler	
+	static Map<String, NewSamInstance>  newSamInstance  = new HashMap<String, NewSamInstance> () ;
 
 	static public SamInstEventHandler theInstHandler ;
 	public SamInstEventHandler () {
 		theInstHandler = this ;
 	}
 
-	private class NewInstance {
+	private class NewApamInstance {
 		ApamDependencyHandler handler;
 		String implName = null; 
 		String specName = null; 
 
-		public NewInstance (ApamDependencyHandler handler, String implName, String specName) {
+		public NewApamInstance (ApamDependencyHandler handler, String implName, String specName) {
 			this.handler  = handler;
 			this.implName = implName;
 			this.specName = specName ;
 		}
 	}
 
+	private class NewSamInstance {
+		Instance samInst;
+		long eventTime; 
+
+		public NewSamInstance (Instance samInst, long eventTime) {
+			this.samInst  = samInst;
+			this.eventTime = eventTime;
+			long currentTime = System.currentTimeMillis() ;
+			for (String inst : newSamInstance.keySet()) { //garbage old events (not related to an Apam instance)
+				if (newSamInstance.get (inst).eventTime < (currentTime - 3)) //at least 3 mili sec old
+					newSamInstance.remove (inst) ;
+			}
+		}
+	}
+
 	public  synchronized void addNewApamInstance (String samName, ApamDependencyHandler handler, String implName, String specName) {
-		newApamInstance.put (samName, new NewInstance (handler, implName, specName) ) ;
+		try {
+			if (newSamInstance.get(samName) != null) { //the event arrived first
+				Instance samInst = newSamInstance.get(samName).samInst ;
+				samInst.setProperty(ASM.APAMDEPENDENCYHANDLER, handler) ;
+				samInst.setProperty(ASM.APAMSPECNAME, specName) ;
+				samInst.setProperty(ASM.APAMIMPLNAME, implName) ;
+				newSamInstance.remove(samName) ;			
+			} else {
+				newApamInstance.put (samName, new NewApamInstance (handler, implName, specName) ) ;
+			}
+		} catch (Exception e) {e.printStackTrace(); }
 	}
 
 	public static synchronized void addExpectedImpl (ASMImpl impl, DynamicManager manager) {
@@ -74,8 +101,8 @@ public class SamInstEventHandler implements AMEventingHandler {
 			mans.remove(manager) ;
 		}
 	}
-	
-	
+
+
 	public static synchronized void addExpectedInterf (String interf, DynamicManager manager) {
 		Set<DynamicManager> mans = expectedInterfaces.get(interf) ;
 		if (mans == null) {
@@ -86,7 +113,7 @@ public class SamInstEventHandler implements AMEventingHandler {
 			mans.add(manager) ;
 		}
 	}
-	
+
 	public static synchronized void removeExpectedInterf (String interf, DynamicManager manager) {
 		Set<DynamicManager> mans = expectedInterfaces.get(interf) ;
 		if (mans != null) {
@@ -130,12 +157,14 @@ public class SamInstEventHandler implements AMEventingHandler {
 
 		if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_ARRIVAL)){
 			if (newApamInstance.containsKey(samName)) { //It is an APAM instance either under creation, or auto appear
-				NewInstance inst = newApamInstance.get(samName) ;
+				NewApamInstance inst = newApamInstance.get(samName) ;
 				samInst.setProperty(ASM.APAMDEPENDENCYHANDLER, inst.handler) ;
 				samInst.setProperty(ASM.APAMSPECNAME, inst.specName) ;
 				samInst.setProperty(ASM.APAMIMPLNAME, inst.implName) ;
 				newApamInstance.remove(samName) ;
-			} 
+			} else { //record the event in the case it arrived before the handler registration
+				newSamInstance.put (samName, new NewSamInstance (samInst, System.currentTimeMillis())) ;
+			}
 
 			Implementation samImpl = samInst.getImplementation() ;
 			ASMImpl impl = ASM.ASMImplBroker.getImpl (samImpl) ;
@@ -158,7 +187,7 @@ public class SamInstEventHandler implements AMEventingHandler {
 			}
 			return ;
 		}
-		
+
 		// a service disappears
 		if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_DEPARTURE)){
 			ASMInst inst = ASM.ASMInstBroker.getInst (samInst) ;
@@ -188,12 +217,12 @@ public class SamInstEventHandler implements AMEventingHandler {
 			}
 			return ;
 		}
-		
+
 		//A property has been changed
 		if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_MODIFIED)){
 			ASMInst inst = ASM.ASMInstBroker.getInst (samInst) ;
 			if (inst == null) return ;
-			inst.setProperties(samInst.getProperties()) ;
+			inst.setSamProperties(samInst.getProperties()) ;
 		}
 	}
 

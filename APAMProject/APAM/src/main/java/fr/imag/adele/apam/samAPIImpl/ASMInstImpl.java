@@ -65,8 +65,9 @@ public class ASMInstImpl extends ApamProperty implements ASMInst {
 		if (initialproperties != null) {
 			setProperties(Util.mergeProperties(initialproperties, samInst.getProperties()) ) ;
 		}
+		compo.addInst(this) ;
+		
 		} catch (ConnectionException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}

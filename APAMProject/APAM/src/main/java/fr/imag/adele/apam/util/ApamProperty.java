@@ -3,19 +3,15 @@ package fr.imag.adele.apam.util;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.ASM;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.AttributeManager;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.samAPIImpl.ASMImplImpl;
@@ -26,9 +22,6 @@ public class ApamProperty extends Dictionary<String, Object> implements Attribut
 
 	/** The properties. */
 	private Map<String, Object> properties = new ConcurrentHashMap<String, Object>();
-	private ASMSpec theSpec = null ;
-	private ASMImpl theImpl = null ;
-	private ASMInst theInst = null ;
 	private static Set <AttributeManager> attrChangedManagers = new HashSet <AttributeManager> () ;
 
 	public static void addAttrChanged (AttributeManager manager) {
@@ -62,18 +55,58 @@ public class ApamProperty extends Dictionary<String, Object> implements Attribut
 		this.properties.remove(key);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see fr.imag.adele.am.Property#setProperties(java.util.Map)
-	 */
+    /**
+     * The method is called by Apam managers (when creating ASM entities for example).
+     * The method checks which attributes have been changed/created/deleted (if the entity was already existing)
+     * and asks the attribute managers to verify if each (attribute/value) pair is legal (type checking ...).
+     * The legal (attributes/value) pairs are added to the associated APAM instance, 
+     * and also changed in the SAM associated instance. 
+     * The illegal (attributes/value) pairs are ignored. 
+     * WARNING : if SAM cannot set these attributes in the real instance, the Apam attributes and the real instance properties
+     * may have different values.
+     * 
+     * @param properties the properties
+     */
 	@Override
 	public void setProperties(Map<String, Object> newProperties) {
 		for (String prop : newProperties.keySet()) {
-			setProperty(prop, newProperties.get(prop)) ;
+			setProperty0(prop, newProperties.get(prop), false) ;
 		}
 	}
 
-	private void changedAttr (String prop, Object propVal) {
+    /**
+     * Called when SAM notifies that the properties of an instance have been changed. 
+     * The method checks which attributes have been changed/created/deleted 
+     * and asks the attribute managers to verify if this is legal (type checking ...).
+     * If legal,the attributes of the associated APAM instance are changed accordingly; 
+     * if not the old value replaces the changed values in the SAM instance. 
+     * WARNING : if SAM cannot revert that attribute in the real instance, 
+     * the Apam attribute and the real instance property may have different values.
+     * 
+     * @param newSamProperties as provided by SAM.
+     */
+	@Override	
+	public void setSamProperties (Map<String, Object> newProperties) {
+		for (String prop : newProperties.keySet()) {
+			setProperty0(prop, newProperties.get(prop), true) ;
+		}
+	}
+	
+	private void setChangeInSam (String prop, Object propVal) {
+		if (!(this instanceof ASMInstImpl)) return ;
+		try {
+			((ASMInstImpl)this).getSAMInst().setProperty(prop, propVal) ;
+		} catch (ConnectionException e) {e.printStackTrace();}
+	}
+	private void removeChangeInSam (String prop) {
+		if (!(this instanceof ASMInstImpl)) return ;
+		try {
+			((ASMInstImpl)this).getSAMInst().removeProperty(prop) ;
+		} catch (ConnectionException e) {e.printStackTrace();}
+	}
+
+	
+	private void changedAttr (String prop, Object propVal, boolean samChange) {
 		boolean ok = true ;
 		for (AttributeManager man : attrChangedManagers) {
 			if (this instanceof ASMSpecImpl) {
@@ -86,13 +119,21 @@ public class ApamProperty extends Dictionary<String, Object> implements Attribut
 			}
 			if (!ok) break ;
 		}
-		if (ok) {
+		if (ok) { //propagate the change in ASM 
 			properties.put (prop, propVal) ;
 			changeShared (prop, propVal) ;
+			if (!samChange) { //propagate also in SAM
+				setChangeInSam (prop, propVal) ;
+			}
+		} else { //not Ok
+			if (samChange) { //revert the change in SAM
+				if (properties.get(prop) != null)
+					setChangeInSam (prop, properties.get(prop)) ;
+			}
 		}
 	}
 
-	private void addedAttr (String prop, Object propVal) {
+	private void addedAttr (String prop, Object propVal, boolean samChange) {
 		boolean ok = true ;
 		for (AttributeManager man : attrChangedManagers) {
 			if (this instanceof ASMSpecImpl) {
@@ -110,6 +151,13 @@ public class ApamProperty extends Dictionary<String, Object> implements Attribut
 		if (ok) {
 			properties.put (prop, propVal) ;
 			changeShared (prop, propVal) ;
+			if (!samChange) { //propagate also in SAM
+				setChangeInSam (prop, propVal) ;
+			}
+		} else { //not Ok
+			if (samChange) { //revert the change in SAM
+					removeChangeInSam (prop) ;
+			}
 		}
 	}
 
@@ -117,26 +165,38 @@ public class ApamProperty extends Dictionary<String, Object> implements Attribut
 		if ((shared instanceof String) && attr.equals (ASM.PSHARED)) {
 			if (this instanceof ASMSpecImpl) {
 				((ASMSpecImpl)this).setShared(ASM.shared2Int((String)shared)) ;
-				return ;
 			}  
-			if (this instanceof ASMImplImpl) {
+			else if (this instanceof ASMImplImpl) {
 				((ASMImplImpl)this).setShared(ASM.shared2Int((String)shared)) ;
-				return ;
 			}
-			((ASMInstImpl)this).setShared(ASM.shared2Int((String)shared)) ;
+			else if (this instanceof ASMInstImpl) 
+				((ASMInstImpl)this).setShared(ASM.shared2Int((String)shared)) ;
 		}
 	}
 
+	/**
+	 * called by Apam and its managers.
+	 */
 	@Override
 	public void setProperty(String prop, Object propVal) {
+		setProperty0(prop, propVal, false) ;
+	}
+
+	/** called either by Apam or by SAM
+	 * 
+	 * @param prop
+	 * @param propVal
+	 * @param samChange true if it is a change in SAM
+	 */
+	public void setProperty0(String prop, Object propVal, boolean samChange) {
 		if (properties.containsKey(prop)) {
 			Object attrVal = properties.get(prop) ;
 			if (((propVal instanceof String) && (!propVal.equals(attrVal))) 
 					|| (propVal != attrVal)) {
-				changedAttr (prop, propVal) ;
+				changedAttr (prop, propVal, samChange) ;
 			}
 		} else { //Look for a new property
-			addedAttr (prop,  propVal) ;
+			addedAttr (prop,  propVal, samChange) ;
 		}	
 	}  
 

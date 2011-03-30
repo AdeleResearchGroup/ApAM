@@ -10,7 +10,6 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.am.impl.PropertyImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
@@ -91,7 +90,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 				for (ASMInst inst : sharable){
 					boolean satisfies = true ;
 					for (Filter filter : constraints) {
-						if (!filter.match((PropertyImpl)inst.getProperties())) {
+						if (!filter.match((ApamProperty)inst.getProperties())) {
 							satisfies = false ;
 							break ;
 						}
@@ -157,7 +156,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 					for (ASMInst inst : sharable){
 						boolean satisfies = true ;
 						for (Filter filter : constraints) {
-							if (!filter.match((PropertyImpl)inst.getProperties())) {
+							if (!filter.match((ApamProperty)inst.getProperties())) {
 								satisfies = false ;
 								break ;
 							}

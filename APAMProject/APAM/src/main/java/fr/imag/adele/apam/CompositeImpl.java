@@ -1,6 +1,7 @@
 package fr.imag.adele.apam;
 
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,16 +18,16 @@ public class CompositeImpl implements Composite {
 	//Global variable. The actual content of the ASM
 	private static Map<String, Composite> composites = new HashMap <String, Composite> ();		
 	
-	private String name ; // its name !	
-	//The models associated with this composite (appli or not)
+	private String name ; // that composite name !	
+	//The models associated with this composite 
 	private Set <ManagerModel> models = null ;
 	
-	//All the specs, imple, instance" contained in this composite ! Warning : may be shared.
+	//All the specs, implem, instances contained in this composite ! Warning : may be shared.
 	private Set<ASMSpec> hasSpecs = new HashSet<ASMSpec> ();
 	private Set<ASMImpl> hasImplem = new HashSet<ASMImpl> ();
 	private Set<ASMInst> hasInstance = new HashSet<ASMInst> ();	
 	
-	//all the dependencies
+	//all the dependencies between composites
 	private Set<Composite> depends = new HashSet<Composite> ();
 	private Set<Composite> invDepend = new HashSet<Composite> (); //reverse dependency
 	
@@ -42,7 +43,7 @@ public class CompositeImpl implements Composite {
 		this.name = name ;
 		this.models = models ;
 		Manager man ;
-		for (ManagerModel managerModel : models) {
+		for (ManagerModel managerModel : models) { //call the managers to indicate the new composite and the model
 			 man = ASM.apam.getManager (managerModel.getManagerName()) ;
 			if (man != null) {
 				man.newComposite(managerModel, this) ;
@@ -82,30 +83,24 @@ public class CompositeImpl implements Composite {
 //		return false;
 //	}
 	
-
-///**
-// * Add a dependency relationship between source and destination.
-// * A single one allowed. 
-// * Only called by addDepend
-// */
-//	private void addInvDepend(Composite source) { //not in the interface
-//		this.fathers.add(source);
-//	}
-
-
 	@Override
 	/**
-	 * Only creates the APAM object. No creation in SAM. (create spec is not available in SAM).
-	 * Warning : the PID is not initialised.
+	 * Only creates the APAM object. No creation in SAM. 
 	 * No duplication, if already existing.
 	 * If shared, the spec is visible in the whole appli, and is created in the appli. 
 	 */
 	public void addSpec(ASMSpec spec) {
-		//ASMSpec spec = specBroker.addSpec(this, name, samSpec) ;
+		if (spec == null) return ;
 		if (spec.getShared() == ASM.SHAREABLE) ASM.addSharedSpec(spec) ;
 		hasSpecs.add (spec) ;
 	}
 
+	@Override
+	public void addImpl(ASMImpl impl) {
+		if (impl == null) return ;
+		if (impl.getShared() == ASM.SHAREABLE) ASM.addSharedImpl(impl) ;
+		hasImplem.add(impl) ;	
+	}
 
 	/**
 	 * Attention : instance SAM ou instance APAM
@@ -128,12 +123,9 @@ public class CompositeImpl implements Composite {
 		((CompositeImpl)dest).addInvDepend (this) ;
 	}
 
-//	private void addInvDepend (Composite origin) {
-//		fathers.add (origin) ;
-//	}
 	/**
 	 * A composite cannot be isolated. 
-	 * Therefore this is prohibited if the destination will be isolated. 
+	 * Therefore remove is prohibited if the destination will be isolated. 
 	 */
 	@Override
 	public boolean removeDepend(Composite destination) {
@@ -145,11 +137,11 @@ public class CompositeImpl implements Composite {
 	}
 
 	/**
-	 * retourne les depends inverses. Attention on retourne le vrai tableau !
+	 * returns the reverse dependencies !
 	 * @return
 	 */
 	protected Set<Composite> getInvDepend () {
-		return invDepend ;
+		return Collections.unmodifiableSet(invDepend) ;
 	}
 	
 	/**
@@ -191,22 +183,22 @@ public class CompositeImpl implements Composite {
  */
 	@Override
 	public Set<Composite> getDepend() {
-		return new HashSet<Composite> (depends);
+		return Collections.unmodifiableSet (depends);
 	}
 
 	@Override
 	public Set<ASMSpec> getSpecs() {
-		return new HashSet<ASMSpec> (hasSpecs);
+		return Collections.unmodifiableSet (hasSpecs);
 	}
 
 	@Override
 	public Set<ASMImpl> getImpls() {
-		return new HashSet<ASMImpl> (hasImplem);
+		return Collections.unmodifiableSet  (hasImplem);
 	}
 
 	@Override
 	public Set<ASMInst> getInsts() {
-		return new HashSet<ASMInst> (hasInstance);
+		return Collections.unmodifiableSet (hasInstance);
 	}
 
 
@@ -220,10 +212,6 @@ public class CompositeImpl implements Composite {
 		return composites.get(compositeName) ;
 	}
 	@Override
-	public void addImpl(ASMImpl impl) {
-		hasImplem.add(impl) ;	
-	}
-	@Override
 	public ManagerModel getModel(String name) {
 		for (ManagerModel model : models) {
 			if (model.getName().equals(name)) return model ;
@@ -232,7 +220,7 @@ public class CompositeImpl implements Composite {
 	}
 	@Override
 	public Set<ManagerModel> getModels() {
-		return new HashSet<ManagerModel> (models);
+		return Collections.unmodifiableSet (models);
 	}
 	
 

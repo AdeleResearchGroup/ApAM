@@ -14,12 +14,10 @@ import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 
-import fr.imag.adele.am.Property;
-import fr.imag.adele.am.impl.PropertyImpl;
 import fr.imag.adele.am.query.Query;
 import fr.imag.adele.am.query.QueryByName;
 import fr.imag.adele.am.query.QueryLDAP;
-import fr.imag.adele.sam.ipojo.util.LDAP;
+//import fr.imag.adele.sam.ipojo.util.LDAP;
 
 /**
  * The Class Utils provides a set of static method for the iPOJO service
@@ -189,7 +187,7 @@ public class Util {
     	if (initProp == null) return samProp;
     	String attr ;
     	try {
-        for (Enumeration<String> e = ((PropertyImpl)initProp).keys() ; e.hasMoreElements() ;) {
+        for (Enumeration<String> e = ((ApamProperty)initProp).keys() ; e.hasMoreElements() ;) {
         	attr = e.nextElement() ;
     		if (samProp.get(attr) == null) {
     			samProp.put((String)attr, initProp.getProperty(attr)) ;

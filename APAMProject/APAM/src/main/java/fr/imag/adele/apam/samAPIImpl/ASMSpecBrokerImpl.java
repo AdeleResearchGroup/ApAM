@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.samAPIImpl;
 
+import java.net.URL;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,12 +10,15 @@ import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.Util;
+import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Specification;
+import fr.imag.adele.sam.deployment.DeploymentUnit;
 
 public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	
@@ -162,8 +166,39 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 				ret = new ASMSpecImpl(compo, specName, null, properties) ;
 			}
 	    } catch (ConnectionException e) {e.printStackTrace();}
-		ret.setShared(ASM.shared2Int(properties)) ;
 		return ret ;
+	}
+
+	/**
+	 * Creates and deploys a specification. 
+	 * WARNING : The  fact to deploy the specification (the packages containing the interfaces) does not create any spec in SAM.  
+	 * This spec may not have any corresponding spec in SAM. It does not try to create one in SAM.
+	 * WARNING : xwhat to do if the spec already exists in SAM : Deploy anyway ?
+	 * @param compo the composite in which to create that spec.
+	 * @param specName the *logical* name of that specification; different from SAM. May be null.
+	 * @param url the location of the executable to deploy
+	 * @param type type of executable to deploy (bundle, jar, war, exe ...)
+	 * @param interfaces the list of interfaces this spec implements
+	 * @param properties : The initial properties.
+	 * return an ASM Specification
+	 */
+	@Override
+	public ASMSpec createSpec (Composite compo, String specName, URL url, String type, String[] interfaces, Attributes properties) {
+		try {
+			DeploymentUnit du = ASM.SAMDUBroker.install(url, type) ;
+		} catch (ConnectionException e) {
+			System.out.println("deployment failed for specification " + specName);
+			e.printStackTrace();
+			return null ;
+		}
+
+		ASMSpec asmSpec = getSpec(specName);
+		if (asmSpec != null ) { //do not create twice
+			((ASMImplImpl)asmSpec).setASMName (specName) ;
+		} else {
+			asmSpec = createSpec (compo, specName,  interfaces, properties) ;
+		}
+		return asmSpec ;
 	}
 
 }
