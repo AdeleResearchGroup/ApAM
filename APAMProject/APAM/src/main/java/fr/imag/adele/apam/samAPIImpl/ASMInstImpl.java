@@ -107,6 +107,7 @@ public class ASMInstImpl extends ApamProperty implements ASMInst {
 	}
 
 	public Set<Filter> getWireConstraint(ASMInst to) {
+		if (to == null) return null ;
 		if (wires.get(to) == null) return null ;
 		return wires.get(to).getConstraints();
 	}
@@ -120,6 +121,8 @@ public class ASMInstImpl extends ApamProperty implements ASMInst {
 
 	@Override
 	public boolean setWire (ASMInst to, String depName, Set<Filter> constraints) {
+		if (to == null || depName == null) return false ;
+
 		if (wires.get(to) != null) return true ;
 		if (!Wire.checkNewWire(this, to)) return false ; 
 		Wire wire = new Wire (this, to, depName, constraints);
@@ -142,10 +145,12 @@ public class ASMInstImpl extends ApamProperty implements ASMInst {
 	 * @param to
 	 */
 	public void removeWire (ASMInst to) {
+		if (to == null) return ;
 		removeWire (to, null) ;
 	}
 
 	private void removeWire (ASMInst to, ASMInst newTo) {
+		if (to == null || newTo == null) return  ;
 		Wire wire = wires.get(to) ;
 		if (wire == null) return ;
 		wires.remove(to) ;
@@ -190,6 +195,7 @@ public class ASMInstImpl extends ApamProperty implements ASMInst {
 
 	@Override
 	public void substWire(ASMInst oldTo, ASMInst newTo, String depName) {
+		if (oldTo == null || newTo == null) return  ;
 		new Wire (this, newTo, depName, wires.get(oldTo).getConstraints()) ;
 		removeWire (oldTo, newTo) ;
 	}
@@ -240,6 +246,7 @@ public class ASMInstImpl extends ApamProperty implements ASMInst {
 
 	@Override
 	public boolean match(Filter goal)  {
+		if (goal == null) return false ;
 		try {
 			return goal.match((ApamProperty)getProperties());
 		} catch (Exception e) {}
@@ -253,6 +260,7 @@ public class ASMInstImpl extends ApamProperty implements ASMInst {
 
 	@Override
 	public void setDependencyHandler(ApamDependencyHandler handler) {
+		if (handler == null) return ;
 		depHandler = handler ;
 	}
 
@@ -264,6 +272,7 @@ public class ASMInstImpl extends ApamProperty implements ASMInst {
 
 	@Override
 	public Wire getWire(ASMInst destInst) {
+		if (destInst == null) return null ;
 		return wires.get(destInst);
 	}
 }

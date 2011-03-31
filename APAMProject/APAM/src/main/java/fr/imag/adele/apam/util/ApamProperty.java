@@ -87,18 +87,21 @@ public class ApamProperty extends Dictionary<String, Object> implements Attribut
      */
 	@Override	
 	public void setSamProperties (Map<String, Object> newProperties) {
+		if (newProperties == null) return ;
 		for (String prop : newProperties.keySet()) {
 			setProperty0(prop, newProperties.get(prop), true) ;
 		}
 	}
 	
 	private void setChangeInSam (String prop, Object propVal) {
+		if (prop == null || propVal == null) return ;
 		if (!(this instanceof ASMInstImpl)) return ;
 		try {
 			((ASMInstImpl)this).getSAMInst().setProperty(prop, propVal) ;
 		} catch (ConnectionException e) {e.printStackTrace();}
 	}
 	private void removeChangeInSam (String prop) {
+		if (prop == null) return ;
 		if (!(this instanceof ASMInstImpl)) return ;
 		try {
 			((ASMInstImpl)this).getSAMInst().removeProperty(prop) ;
@@ -179,6 +182,8 @@ public class ApamProperty extends Dictionary<String, Object> implements Attribut
 	 */
 	@Override
 	public void setProperty(String prop, Object propVal) {
+		if (prop == null || propVal == null) return ;
+
 		setProperty0(prop, propVal, false) ;
 	}
 
@@ -203,6 +208,8 @@ public class ApamProperty extends Dictionary<String, Object> implements Attribut
 
 	@Override
 	public void setProperty(Manager manager, String key, Object value) {
+		if (manager == null || key == null || value == null) return ;
+
 		if (attrChangedManagers.contains(manager)) {
 			this.properties.put(key, value);
 			changeShared(key, value) ;
@@ -214,6 +221,7 @@ public class ApamProperty extends Dictionary<String, Object> implements Attribut
 	
 	@Override
 	public void setProperties(Manager manager, Map<String, Object> properties) {
+		if (manager == null || properties == null) return ;
 		if (attrChangedManagers.contains(manager)) {
 			this.properties.putAll(properties);
 		}
@@ -229,6 +237,7 @@ public class ApamProperty extends Dictionary<String, Object> implements Attribut
 
 	@Override
 	public Object get(Object key) {
+		if (key == null) return null ;
 		return properties.get(key);
 	}
 
@@ -244,11 +253,13 @@ public class ApamProperty extends Dictionary<String, Object> implements Attribut
 
 	@Override
 	public Object put(String key, Object value) {
+		if (key == null) return null ;
 		return properties.put(key, value);
 	}
 
 	@Override
 	public Object remove(Object key) {
+		if (key == null) return null ;
 		return properties.remove(key);
 	}
 

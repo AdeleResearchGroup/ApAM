@@ -91,6 +91,7 @@ public class ASMImplImpl extends ApamProperty implements ASMImpl {
 
 	@Override
 	public ASMInst getInst(String targetName) {
+		if (targetName == null) return null ;
 		for (ASMInst inst : instances) {
 			if (inst.getASMName().equals(targetName)) return inst ;
 		}
@@ -117,6 +118,7 @@ public class ASMImplImpl extends ApamProperty implements ASMImpl {
 
 	@Override
 	public Set<ASMInst> getInsts(Filter query) throws InvalidSyntaxException {
+		if (query == null) return getInsts() ;
 		Set<ASMInst> ret = new HashSet<ASMInst>() ;
 		for (ASMInst inst : instances) {
 				if (query.match((ApamProperty)inst))

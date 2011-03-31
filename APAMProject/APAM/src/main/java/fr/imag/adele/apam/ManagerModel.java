@@ -9,6 +9,9 @@ public class ManagerModel {
 	private int type ;
 	
 	public ManagerModel (String name, String managerName, URL url, int type) {
+		if (name == null || managerName == null || url == null ) {
+			System.out.println("ERROR : missing parameters for ManagerModel constructor");
+		}
 		this.name = name ;
 		this.managerName = managerName ;
 		this.url= url ;

@@ -25,7 +25,7 @@ public class SamImplEventHandler implements AMEventingHandler {
 	}
 
 	public Implementation getImplementation (String expected) throws ConnectionException {
-		
+		if (expected == null) return null ;
 		//if allready here
 		Implementation implementation = ASM.SAMImplBroker.getImplementation(expected);
 		if (implementation != null)

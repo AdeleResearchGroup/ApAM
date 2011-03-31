@@ -29,8 +29,8 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 	private static final ASMImplBroker implBroker = ASM.ASMImplBroker ;
 
 	private Set<ASMInst> instances = new HashSet< ASMInst> () ;
-	
-	
+
+
 	//EVENTS
 	private SamInstEventHandler instEventHandler ;
 
@@ -45,15 +45,16 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
 	public void stopSubscribe (AMEventingHandler handler) {
 		try {
-		Machine machine = LocalMachine.localMachine;
-		EventingEngine eventingEngine = machine.getEventingEngine();
-		eventingEngine.unsubscribe(handler, EventProperty.TOPIC_INSTANCE) ;
+			Machine machine = LocalMachine.localMachine;
+			EventingEngine eventingEngine = machine.getEventingEngine();
+			eventingEngine.unsubscribe(handler, EventProperty.TOPIC_INSTANCE) ;
 		} catch (Exception e) {}
 	}
 
 
 	@Override
 	public ASMInst getInst(String instName) {
+		if (instName == null) return null ;
 		for (ASMInst inst : instances) {
 			if (inst.getASMName().equals(instName)) {
 				return  inst;
@@ -61,7 +62,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 		}
 		return null ;
 	}
-// End EVENTS
+	// End EVENTS
 
 	@Override
 	public Set<ASMInst> getInsts()  {
@@ -70,10 +71,17 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
 	@Override
 	public Set<ASMInst> getInsts(ASMSpec spec, Filter goal) throws InvalidSyntaxException {
+		if (spec == null) return null ;
 		Set<ASMInst> ret = new HashSet<ASMInst> ();
-		for (ASMInst inst : instances) {
-			if ((inst.getSpec() == spec) && goal.match((ApamProperty)inst.getProperties())) 
-				ret.add(inst) ;
+		if (goal == null) {
+			for (ASMInst inst : instances) {
+				if (inst.getSpec() == spec) ret.add(inst) ;
+			}
+		} else {
+			for (ASMInst inst : instances) {
+				if ((inst.getSpec() == spec) && goal.match((ApamProperty)inst.getProperties())) 
+					ret.add(inst) ;
+			}
 		}
 		return ret ;
 	}
@@ -81,6 +89,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 	@Override
 	public Set<ASMInst> getInsts(Filter goal)
 	throws InvalidSyntaxException {
+		if (goal == null) return getInsts () ;
 		Set<ASMInst> ret = new HashSet<ASMInst> ();
 		for (ASMInst inst : instances) {
 			if (goal.match((ApamProperty)inst.getProperties())) 
@@ -121,11 +130,12 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
 	//Warning : no control
 	public void addInst (ASMInst inst) {
-		instances.add (inst) ;
+		if (inst != null) instances.add (inst) ;
 	}
-	
+
 	@Override
 	public ASMInst getInst(Instance samInst) {
+		if (samInst == null) return null ; 
 		for (ASMInst inst : instances) {
 			if (inst.getSAMInst() == samInst) 
 				return inst ;
@@ -135,6 +145,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
 	@Override
 	public void removeInst(ASMInst inst) {
+		if (inst == null) return ;
 		inst.remove();
 		instances.remove(inst) ;
 	}

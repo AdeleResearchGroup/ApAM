@@ -122,6 +122,7 @@ public class CompositeImpl implements Composite {
 
 	//Composite Dependency management ===============
 	public void addDepend(Composite dest) { 
+		if (dest == null) return ;
 		if (this.depends.contains(dest)) return ; //allready existing
 		this.depends.add(dest);
 		((CompositeImpl)dest).addInvDepend (this) ;
@@ -133,6 +134,7 @@ public class CompositeImpl implements Composite {
 	 */
 	@Override
 	public boolean removeDepend(Composite destination) {
+		if (destination == null) return false;
 		if (!dependsOn(destination)) return false ;
 		if (((CompositeImpl)destination).getInvDepend().size() < 2) return false ;
 		((CompositeImpl)destination).removeInvDepend (this) ;
@@ -154,6 +156,7 @@ public class CompositeImpl implements Composite {
 	 * @return
 	 */
 	protected boolean removeInvDepend (Composite origin) {
+		if (origin == null) return false ;
 		invDepend.remove(origin);
 		return true ;
 	}
@@ -169,16 +172,19 @@ public class CompositeImpl implements Composite {
 
 	@Override
 	public boolean containsSpec(ASMSpec spec) {
+		if (spec == null) return false ;
 		return hasSpecs.contains(spec);
 	}
 
 	@Override
 	public boolean containsImpl(ASMImpl spec) {
+		if (spec == null) return false ;
 		return hasImplem.contains(spec) ;
 	}
 
 	@Override
 	public boolean containsInst(ASMInst inst) {
+		if (inst == null) return false ;
 		return hasInstance.contains(inst) ;
 	}
 
@@ -208,15 +214,18 @@ public class CompositeImpl implements Composite {
 
 	@Override
 	public boolean dependsOn(Composite dest) {
+		if (dest == null) return false ;
 		return (depends.contains(dest));
 	}
 
 	@Override
 	public Composite getComposite(String compositeName) {
+		if (compositeName == null) return null ;
 		return composites.get(compositeName) ;
 	}
 	@Override
 	public ManagerModel getModel(String name) {
+		if (name == null) return null ;
 		for (ManagerModel model : models) {
 			if (model.getName().equals(name)) return model ;
 		}

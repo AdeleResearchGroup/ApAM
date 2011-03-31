@@ -71,6 +71,7 @@ public class SamInstEventHandler implements AMEventingHandler {
 	}
 
 	public  synchronized void addNewApamInstance (String samName, ApamDependencyHandler handler, String implName, String specName) {
+		if (samName == null || handler == null) return ;
 		try {
 			if (newSamInstance.get(samName) != null) { //the event arrived first
 				Instance samInst = newSamInstance.get(samName).samInst ;
@@ -85,6 +86,7 @@ public class SamInstEventHandler implements AMEventingHandler {
 	}
 
 	public static synchronized void addExpectedImpl (ASMImpl impl, DynamicManager manager) {
+		if (impl == null || manager == null) return ;
 		Set<DynamicManager> mans = expectedImpls.get(impl) ;
 		if (mans == null) {
 			mans = new HashSet<DynamicManager> () ;
@@ -96,6 +98,8 @@ public class SamInstEventHandler implements AMEventingHandler {
 	}
 
 	public static synchronized void removeExpectedImpl (ASMImpl impl, DynamicManager manager) {
+		if (impl == null || manager == null) return ;
+
 		Set<DynamicManager> mans = expectedImpls.get(impl) ;
 		if (mans != null) {
 			mans.remove(manager) ;
@@ -104,6 +108,8 @@ public class SamInstEventHandler implements AMEventingHandler {
 
 
 	public static synchronized void addExpectedInterf (String interf, DynamicManager manager) {
+		if (interf == null || manager == null) return ;
+
 		Set<DynamicManager> mans = expectedInterfaces.get(interf) ;
 		if (mans == null) {
 			mans = new HashSet<DynamicManager> () ;
@@ -115,6 +121,7 @@ public class SamInstEventHandler implements AMEventingHandler {
 	}
 
 	public static synchronized void removeExpectedInterf (String interf, DynamicManager manager) {
+		if (interf == null || manager == null) return ;
 		Set<DynamicManager> mans = expectedInterfaces.get(interf) ;
 		if (mans != null) {
 			mans.remove(manager) ;
@@ -122,9 +129,11 @@ public class SamInstEventHandler implements AMEventingHandler {
 	}
 
 	static public synchronized void addLost (DynamicManager manager) {
+		if (manager == null) return ;
 		listenLost.add(manager) ;
 	}
 	static public synchronized void removeLost (DynamicManager manager) {
+		if (manager == null) return ;
 		listenLost.remove(manager) ;
 	}
 

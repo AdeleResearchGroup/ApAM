@@ -70,6 +70,7 @@ public class ASMSpecImpl extends ApamProperty implements ASMSpec{
 	 */
 	@Override
 	public ASMImpl getImpl(String name) {
+		if (name == null) return null ;
 		for (ASMImpl impl : implementations) {
 			if (impl.getASMName().equals (name)) return impl ;
 		}
@@ -79,6 +80,7 @@ public class ASMSpecImpl extends ApamProperty implements ASMSpec{
 	@Override
 	public Set<ASMImpl> getImpls(Filter filter)
 	throws InvalidSyntaxException {
+		if (filter == null) return getImpls() ;
 		Set<ASMImpl> ret = new HashSet<ASMImpl> () ;
 		for (ASMImpl impl : implementations) {
 			if (filter.match((ApamProperty)impl.getProperties())) {
@@ -162,6 +164,7 @@ public class ASMSpecImpl extends ApamProperty implements ASMSpec{
 	}
 	
 	public void setSamSpec (Specification samSpec) {
+		if (samSpec == null) return ;
 		this.samSpec = samSpec ;
 	}
 

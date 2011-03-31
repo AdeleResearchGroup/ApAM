@@ -15,80 +15,87 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.apam.util.ApamProperty;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Specification;
 import fr.imag.adele.sam.deployment.DeploymentUnit;
 
 public class ASMSpecBrokerImpl implements ASMSpecBroker{
-	
+
 	private Set <ASMSpec> specs = new HashSet <ASMSpec> () ;
 
 	@Override
 	public void removeSpec (ASMSpec spec) {
+		if (spec == null) return ;
 		if (specs.contains (spec)) {
 			specs.remove (spec) ;
 			spec.remove() ;
 		}
 	}
-	
+
 	public void addSpec (ASMSpec spec) {
+		if (spec == null) return ;
 		specs.add (spec) ;
 	}
-	
+
 	@Override
 	public ASMSpec getSpec(String[] interfaces) {
-		
+		if (interfaces == null) return null;
+
 		interfaces = Util.orderInterfaces(interfaces) ;
 		for (ASMSpec spec : specs) {
 			if (Util.sameInterfaces (spec.getInterfaceNames(), interfaces)) 
-					return spec ;
+				return spec ;
 		}
 		return null;
 	}
 
 	@Override
 	public ASMSpec getSpec(String name) {
-		
-			for (ASMSpec spec : specs) {
-				if (spec.getASMName() == null) {
-					if (spec.getSamSpec().getName().equals (name)) return spec ;
-				} else {
-					if (name.equals(spec.getASMName()))
-						return spec ;
-				}
+		if (name == null) return null;
+
+		for (ASMSpec spec : specs) {
+			if (spec.getASMName() == null) {
+				if (spec.getSamSpec().getName().equals (name)) return spec ;
+			} else {
+				if (name.equals(spec.getASMName()))
+					return spec ;
 			}
-			return null ;
 		}
+		return null ;
+	}
 
 	@Override
 	public Set<ASMSpec> getSpecs() {
-		
+
 		return new HashSet<ASMSpec> (specs);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Set<ASMSpec> getSpecs(Filter goal)
-			throws  InvalidSyntaxException {
+	throws  InvalidSyntaxException {
+		if (goal == null) return getSpecs();
+
 		Set<ASMSpec> ret = new HashSet<ASMSpec> ();
 		for (ASMSpec spec : specs) {
-			if (goal.match((Dictionary<String, Object>)spec.getProperties())) 
-					ret.add(spec) ;
+			if (goal.match((ApamProperty)spec.getProperties())) 
+				ret.add(spec) ;
 		}
 		return ret ;
 	}
-	@SuppressWarnings("unchecked")
+
 	@Override
 	public ASMSpec getSpec(Filter goal) throws InvalidSyntaxException {
+		if (goal == null) return null ;
 		for (ASMSpec spec : specs) {
-			if (goal.match((Dictionary<String, Object>)spec.getProperties())) 
-					return spec ;
+			if (goal.match((ApamProperty)spec.getProperties())) 
+				return spec ;
 		}
 		return null;
 	}
 
-	
+
 	@Override
 	public Set<ASMSpec> getUses(ASMSpec specification) {
 		// TODO Auto-generated method stub
@@ -99,6 +106,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 
 	@Override
 	public ASMSpec addSpec(Composite compo, String name, Specification samSpec, Attributes properties) {
+		if (compo == null || samSpec == null) return null ;
 		ASMSpecImpl spec = new ASMSpecImpl (compo, name, samSpec, properties) ;
 		specs.add(spec) ;
 		return spec ;
@@ -106,6 +114,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 
 	@Override
 	public ASMSpec getSpec (Specification samSpec) {
+		if (samSpec == null) return null ;
 		for (ASMSpec spec : specs) {
 			if (spec.getSamSpec() == samSpec)
 				return spec ;
@@ -120,20 +129,21 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 		return null;
 	}
 
-    /**
-     * Returns *the first* specification that implements the provided interfaces.
-     * WARNING : the same interface can be implemented by different specifications, 
-     * and a specification may implement more than one interface : the first spec found is returned. 
-     * WARNING : convenient only if a single spec provides that interface; otherwise it is non deterministic.
-     * 
-     * @param interfaceName : the name of the interface of the required specification. 
-     * @return the abstract service
-     * @throws ConnectionException the connection exception Returns the
-     *             ExportedSpecification exported by this Machine that satisfies
-     *             the interfaces.
-     */    
+	/**
+	 * Returns *the first* specification that implements the provided interfaces.
+	 * WARNING : the same interface can be implemented by different specifications, 
+	 * and a specification may implement more than one interface : the first spec found is returned. 
+	 * WARNING : convenient only if a single spec provides that interface; otherwise it is non deterministic.
+	 * 
+	 * @param interfaceName : the name of the interface of the required specification. 
+	 * @return the abstract service
+	 * @throws ConnectionException the connection exception Returns the
+	 *             ExportedSpecification exported by this Machine that satisfies
+	 *             the interfaces.
+	 */    
 	@Override
 	public ASMSpec getSpecInterf(String interfaceName) {
+		if (interfaceName == null) return null ;
 		for (ASMSpec spec : specs) {
 			String[] interfs = spec.getSamSpec().getInterfaceNames() ;
 			for (int i = 0; i < interfs.length; i++) {
@@ -143,14 +153,15 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 		return null;
 	}
 
-	 /**
-     * Returns the specification with the given sam name. 
-     * @param samName the sam name of the specification
-     * @return the abstract service
-     */   
+	/**
+	 * Returns the specification with the given sam name. 
+	 * @param samName the sam name of the specification
+	 * @return the abstract service
+	 */   
 	@Override
 	public ASMSpec getSpecSamName(String samName)  {
-		for (ASMSpec spec : specs) {
+		if (samName == null) return null ;
+ 		for (ASMSpec spec : specs) {
 			if (spec.getSamSpec().getName().equals (samName)) return spec ;
 		}
 		return null;
@@ -158,6 +169,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 
 	@Override
 	public ASMSpec createSpec(Composite compo, String specName, String[] interfaces, Attributes properties) {
+		if (compo == null || interfaces == null) return null ;
 		ASMSpec ret = null;
 		try {
 			if (ASM.SAMSpecBroker.getSpecification(interfaces) != null) {
@@ -165,7 +177,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 			} else {
 				ret = new ASMSpecImpl(compo, specName, null, properties) ;
 			}
-	    } catch (ConnectionException e) {e.printStackTrace();}
+		} catch (ConnectionException e) {e.printStackTrace();}
 		return ret ;
 	}
 
@@ -184,6 +196,8 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	 */
 	@Override
 	public ASMSpec createSpec (Composite compo, String specName, URL url, String type, String[] interfaces, Attributes properties) {
+		if (compo == null || interfaces == null || url == null ) return null ;
+
 		try {
 			DeploymentUnit du = ASM.SAMDUBroker.install(url, type) ;
 		} catch (ConnectionException e) {

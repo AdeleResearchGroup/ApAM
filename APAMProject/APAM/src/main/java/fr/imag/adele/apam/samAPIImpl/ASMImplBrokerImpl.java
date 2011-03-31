@@ -53,17 +53,17 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 
 	//Not in the interface. No control
 	public void addImpl (ASMImpl impl) {
-		implems.add(impl) ;
+		if (impl != null) implems.add(impl) ;
 	}
 
 	//Not in the interface. No control
 	public void removeImpl (ASMImpl impl) {
-		implems.remove(impl) ;
+		if (impl != null) implems.remove(impl) ;
 	}
 
 	@Override
-	public ASMImpl getImpl(String implName)
-	throws ConnectionException {
+	public ASMImpl getImpl(String implName) {
+		if (implName == null) return null ;
 		for (ASMImpl impl : implems) {
 			if (impl.getASMName() == null) {
 				if (impl.getSamImpl().getName().equals (implName)) return impl ;
@@ -84,6 +84,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 	@Override
 	public Set<ASMImpl> getImpls(Filter goal)
 	throws InvalidSyntaxException {
+		if (goal == null) return getImpls ();
 		Set<ASMImpl> ret = new HashSet<ASMImpl> () ;
 		for (ASMImpl impl : implems) {
 			if (goal.match((ApamProperty)impl.getProperties())) 
@@ -190,6 +191,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 
 	@Override
 	public ASMImpl getImplSamName(String samName) throws ConnectionException {
+		if (samName == null) return null ;
 		for (ASMImpl impl : implems) {
 			if (impl.getSamImpl().getName().equals (samName)) return impl ;
 		}

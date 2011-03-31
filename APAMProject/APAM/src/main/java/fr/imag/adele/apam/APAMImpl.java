@@ -227,11 +227,16 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	@Override
 	public Composite createAppli(String appliName,  Set <ManagerModel> models, String samImplName, String implName,
 			String specName, Attributes properties) {
-
+		if (appliName == null) {
+			System.out.println("ERROR : appli Name is missing in create Appli");
+			return null;
+		}
 		if (appli != null) {
 			System.out.println("Application allready existing");   
-			return null ;
+			//return null ;
+			return appli ; //TODO for debug !
 		}
+		
 		appli = new CompositeImpl (appliName, models) ;
 		main = ASM.ASMImplBroker.addImpl(appli, implName, samImplName, specName, properties) ; 
 		return appli ;
@@ -251,59 +256,99 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 	}
 
 	/**
-	 * called by an APAM client dependency handler when it initialises.
-	 * Since the client in in the middel of its creation, the Sam instance and the ASM inst are not created yet.
+	 * called by an APAM client dependency handler when it initializes.
+	 * Since the client is in the middle of its creation, the Sam instance and the ASM inst are not created yet.
 	 * We simply record in the instance event handler that this instance will "appear"; 
-	 * at that time we will record the cleinet address in a property of that instance ASM.ApamDependencyHandlerAddress
+	 * at that time we will record the client address in a property of that instance ASM.ApamDependencyHandlerAddress
 	 * It is only in the ASMInst constructor that the ASM instance will be connected to its handler.
 	 */
 	@Override
 	public void newClientCallBack(String samInstanceName, ApamDependencyHandler client, String implName, String specName) {
+		if (samInstanceName== null || client == null) {
+			System.out.println("ERROR : Missing parameter samInstanceName or client in newClientCallBack");
+			return ;
+		}
 		SamInstEventHandler.theInstHandler.addNewApamInstance(samInstanceName, client, implName, specName) ;
 	}
 
 	@Override
 	public void appearedExpected(ASMImpl impl, DynamicManager manager) {
+		if (impl == null || manager == null) {
+			System.out.println("ERROR : Missing parameter impl or manager in appearedExpected");
+			return ;			
+		}
 		SamInstEventHandler.addExpectedImpl(impl, manager) ;
 	}
 
 	@Override
 	public void appearedExpected(String interf, DynamicManager manager) {
+		if (interf == null || manager == null) {
+			System.out.println("ERROR : Missing parameter interf or manager in appearedExpected");
+			return ;			
+		}
 		SamInstEventHandler.addExpectedInterf(interf, manager) ;
 	}
 
 	@Override
 	public void listenLost(DynamicManager manager) {
+		if (manager == null) {
+			System.out.println("ERROR : Missing parameter manager in listenLost");
+			return ;			
+		}
 		SamInstEventHandler.addLost(manager) ;
 	}
 	@Override
 	public void listenAttrChanged(AttributeManager manager) {
+		if (manager == null) {
+			System.out.println("ERROR : Missing parameter manager in listenAttrChanged");
+			return ;			
+		}
 		ApamProperty.addAttrChanged (manager) ;
 	}
 
 	@Override
 	public Manager getManager(String managerName) {
+		if (managerName == null) {
+			System.out.println("ERROR : Missing parameter manager in getManager");
+			return null;			
+		}
 		return managerList.get(managerList.lastIndexOf(managerName));
 	}
 
 	@Override
 	public void appearedNotExpected(ASMImpl impl, DynamicManager manager) {
+		if (impl == null || manager == null) {
+			System.out.println("ERROR : Missing parameter impl or manager in appearedNotExpected");
+			return ;			
+		}
 		SamInstEventHandler.removeExpectedImpl(impl, manager) ;
 
 	}
 
 	@Override
 	public void appearedNotExpected(String interf, DynamicManager manager) {
+		if (interf == null || manager == null) {
+			System.out.println("ERROR : Missing parameter interf or manager in appearedNotExpected");
+			return ;			
+		}
 		SamInstEventHandler.removeExpectedInterf(interf, manager) ;
 	}
 
 	@Override
 	public void listenNotLost(DynamicManager manager) {
+		if (manager == null) {
+			System.out.println("ERROR : Missing parameter manager in listenNotLost");
+			return ;			
+		}
 		SamInstEventHandler.removeLost(manager) ;
 	}
 
 	@Override
 	public void listenNotAttrChanged(AttributeManager manager) {
+		if (manager == null) {
+			System.out.println("ERROR : Missing parameter manager in listenNotAttrChanged");
+			return ;			
+		}
 		ApamProperty.removeAttrChanged (manager) ;
 	}
 

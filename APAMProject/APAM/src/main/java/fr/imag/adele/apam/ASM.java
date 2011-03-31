@@ -119,24 +119,31 @@ public class ASM {
 	}
 
 	public static boolean isSharedInsts (ASMInst inst) {
+		if (inst == null) return false ;
 		return sharedInsts.contains (inst) ;
 	}
 	public static void addSharedInst (ASMInst inst) {
+		if (inst == null) return ;
 		sharedInsts.add (inst) ;
 	}
 	public static void removeSharedInst (ASMInst inst) {
+		if (inst == null) return ;
 		sharedInsts.remove(inst) ;
 	}
 	public static void addSharedImpl (ASMImpl impl) {
+		if (impl == null) return ;
 		sharedImpls.add(impl) ;
 	}
 	public static void removeSharedImpl (ASMImpl impl) {
+		if (impl == null) return ;
 		sharedImpls.remove(impl) ;
 	}
 	public static void addSharedSpec (ASMSpec spec) {
+		if (spec == null) return ;
 		sharedSpecs.add (spec) ;
 	}
 	public static void removeSharedSpec (ASMSpec spec) {
+		if (spec == null) return ;
 		sharedSpecs.remove (spec) ;
 	}
 
