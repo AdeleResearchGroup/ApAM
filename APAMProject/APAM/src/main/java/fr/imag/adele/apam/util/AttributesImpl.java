@@ -18,7 +18,7 @@ import fr.imag.adele.apam.samAPIImpl.ASMImplImpl;
 import fr.imag.adele.apam.samAPIImpl.ASMInstImpl;
 import fr.imag.adele.apam.samAPIImpl.ASMSpecImpl;
 
-public class ApamProperty extends Dictionary<String, Object> implements Attributes {
+public class AttributesImpl extends Dictionary<String, Object> implements Attributes {
 
 	/** The properties. */
 	private Map<String, Object> properties = new ConcurrentHashMap<String, Object>();

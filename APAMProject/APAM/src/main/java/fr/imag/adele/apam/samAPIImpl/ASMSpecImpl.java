@@ -14,13 +14,13 @@ import fr.imag.adele.apam.ASM;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.sam.Specification;
 
 
-public class ASMSpecImpl extends ApamProperty implements ASMSpec{
+public class ASMSpecImpl extends AttributesImpl implements ASMSpec{
 
 	private String name ;
 	private Composite myComposite ;
@@ -83,7 +83,7 @@ public class ASMSpecImpl extends ApamProperty implements ASMSpec{
 		if (filter == null) return getImpls() ;
 		Set<ASMImpl> ret = new HashSet<ASMImpl> () ;
 		for (ASMImpl impl : implementations) {
-			if (filter.match((ApamProperty)impl.getProperties())) {
+			if (filter.match((AttributesImpl)impl.getProperties())) {
 				ret.add(impl);
 			}
 		}

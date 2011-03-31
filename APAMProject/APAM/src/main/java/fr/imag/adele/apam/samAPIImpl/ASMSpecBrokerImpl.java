@@ -15,7 +15,7 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Specification;
@@ -79,7 +79,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 
 		Set<ASMSpec> ret = new HashSet<ASMSpec> ();
 		for (ASMSpec spec : specs) {
-			if (goal.match((ApamProperty)spec.getProperties())) 
+			if (goal.match((AttributesImpl)spec.getProperties())) 
 				ret.add(spec) ;
 		}
 		return ret ;
@@ -89,7 +89,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker{
 	public ASMSpec getSpec(Filter goal) throws InvalidSyntaxException {
 		if (goal == null) return null ;
 		for (ASMSpec spec : specs) {
-			if (goal.match((ApamProperty)spec.getProperties())) 
+			if (goal.match((AttributesImpl)spec.getProperties())) 
 				return spec ;
 		}
 		return null;

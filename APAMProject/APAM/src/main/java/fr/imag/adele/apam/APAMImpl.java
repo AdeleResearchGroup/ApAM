@@ -23,334 +23,359 @@ import fr.imag.adele.apam.apamAPI.DynamicManager;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.apamAPI.ManagersMng;
 import fr.imag.adele.apam.samAPIImpl.SamInstEventHandler;
-import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.sam.Implementation;
 
 public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
-	// A single Appli per APAM so far
-	private static Composite appli = null;
-	private static ASMImpl main = null;
+    // A single Appli per APAM so far
+    private static Composite            appli        = null;
+    private static ASMImpl              main         = null;
 
-	//int is the priority
-	private Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer> () ;
-	private List<Manager> managerList = new ArrayList<Manager> () ;
+    // int is the priority
+    private final Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
+    private final List<Manager>         managerList  = new ArrayList<Manager>();
 
+    public APAMImpl() {
+        new ASM(this);
+    }
 
-	public APAMImpl () {
-		new ASM (this) ;
-	}
+    @Override
+    public ASMInst faultWire(ASMInst client, ASMInst lostInstance, String depName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public ASMInst faultWire(ASMInst client, ASMInst lostInstance, String depName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /**
+     * An APAM client instance requires to be wired with an instance
+     * implementing the specification. WARNING : if no logical name is provided,
+     * since more than one specification can implement the same interface, any
+     * specification implementing the provided interface (technical name of the
+     * interface) will be considered satisfactory. If found, the instance is
+     * returned.
+     * 
+     * @param client
+     *            the instance that requires the specification
+     * @param interfaceName
+     *            the name of one of the interfaces of the specification to
+     *            resolve.
+     * @param specName
+     *            the *logical* name of that specification; different from SAM.
+     *            May be null.
+     * @return
+     */
+    @Override
+    public ASMInst newWireSpec(ASMInst client, String interfaceName, String specName, String depName) {
+        // first step : compute selection path and constraints
+        Set<Filter> constraints = new HashSet<Filter>();
+        Filter thatfilter = null;
+        List<Manager> selectionPath = new ArrayList<Manager>();
 
-	/**
-	 * An APAM client instance requires to be wired with an instance implementing the specification.
-	 * WARNING : if no logical name is provided, since more than one specification can implement the same interface, 
-	 * any specification implementing the provided interface (technical name of the interface) will be considered satisfactory.
-	 * If found, the instance is returned. 
-	 * @param client the instance that requires the specification
-	 * @param interfaceName the name of one of the interfaces of the specification to resolve.
-	 * @param specName the *logical* name of that specification; different from SAM. May be null. 
-	 * @return
-	 */
-	@Override
-	public ASMInst newWireSpec (ASMInst client, String interfaceName, String specName, String depName) {
-		//first step : compute selection path and constraints
-		Set<Filter> constraints = new HashSet<Filter> () ;
-		Filter thatfilter = null ;
-		List<Manager> selectionPath = new ArrayList<Manager>  () ;
+        if (managerList.size() == 0) {
+            System.out.println("No manager available. Cannot resolve ");
+            return null;
+        }
+        // Call all managers in their priority order
+        // Each manager can change the order of managers in the selectionPath,
+        // and even remove.
+        // It can add itself or not. If no involved it should do nothing.
+        for (int i = 0; i < managerList.size(); i++) {
+            selectionPath = managerList.get(i).getSelectionPathSpec(client, interfaceName, specName, depName,
+                    thatfilter, selectionPath);
+            if (thatfilter != null) {
+                constraints.add(thatfilter);
+            }
+        }
 
-		if (managerList.size() == 0) {
-			System.out.println("No manager available. Cannot resolve " );
-			return null ;
-		}
-		// Call all managers in their priority order
-		//Each manager can change the order of managers in the selectionPath, and even remove.
-		//It can add itself or not. If no involved it should do nothing.
-		for (int i = 0; i < managerList.size(); i++) {
-			selectionPath = managerList.get(i).getSelectionPathSpec(client, interfaceName, specName, depName, thatfilter, selectionPath) ;
-			if (thatfilter != null) {
-				constraints.add(thatfilter);
-			}
-		}
+        // second step : look for a sharable instance that satisfies the
+        // constraints
+        if (specName != null) {
+            ASMSpec spec = null;
+            spec = ASM.ASMSpecBroker.getSpec(specName);
+            if (spec != null) {
+                Set<ASMInst> sharable = ASM.getSharedInsts(spec);
+                for (ASMInst inst : sharable) {
+                    boolean satisfies = true;
+                    for (Filter filter : constraints) {
+                        if (!filter.match((AttributesImpl) inst.getProperties())) {
+                            satisfies = false;
+                            break;
+                        }
+                    }
+                    if (satisfies) {
+                        // accept only if a wire is possible
+                        if (client.setWire(inst, depName, constraints))
+                            return inst;
+                    }
+                }
+            }
+        }
 
-		// second step : look for a sharable instance that satisfies the constraints
-		if (specName != null) {
-			ASMSpec spec = null;
-			spec = ASM.ASMSpecBroker.getSpec(specName);
-			if (spec != null) {
-				Set<ASMInst> sharable = ASM.getSharedInsts(spec) ;
-				for (ASMInst inst : sharable){
-					boolean satisfies = true ;
-					for (Filter filter : constraints) {
-						if (!filter.match((ApamProperty)inst.getProperties())) {
-							satisfies = false ;
-							break ;
-						}
-					}
-					if (satisfies) {
-						//accept only if a wire is possible
-						if (client.setWire (inst, depName, constraints))
-							return inst ;
-					}
-				}
-			}
-		}
+        // third step : ask each manager in the order
+        ASMInst resolved;
+        for (int i = 0; i < managerList.size(); i++) {
+            resolved = managerList.get(i).resolveSpec(client, interfaceName, specName, depName, constraints);
+            if (resolved != null) {
+                // accept only if a wire is possible
+                if (client.setWire(resolved, depName, constraints))
+                    return resolved;
+            }
+        }
+        return null;
+    }
 
-		//third step : ask each manager in the order
-		ASMInst resolved ;
-		for (int i = 0; i < managerList.size(); i++) {
-			resolved = managerList.get(i).resolveSpec(client, interfaceName, specName, depName, constraints) ;
-			if (resolved != null) {
-				//accept only if a wire is possible
-				if (client.setWire (resolved, depName, constraints))				
-					return resolved ;
-			}
-		} 
-		return null ;
-	}
+    /**
+     * An APAM client instance requires to be wired with an instance of
+     * implementation. If found, the instance is returned.
+     * 
+     * @param client
+     *            the instance that requires the specification
+     * @param samImplName
+     *            the technical name of implementation to resolve, as returned
+     *            by SAM.
+     * @param implName
+     *            the *logical* name of implementation to resolve. May be
+     *            different from SAM. May be null.
+     * @param depName
+     *            the dependency name
+     * @return
+     */
+    @Override
+    public ASMInst newWireImpl(ASMInst client, String samImplName, String implName, String depName) {
 
-	/**
-	 * An APAM client instance requires to be wired with an instance of implementation.
-	 * If found, the instance is returned. 
-	 * @param client the instance that requires the specification
-	 * @param samImplName the technical name of implementation to resolve, as returned by SAM.
-	 * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
-	 * @param depName the dependency name
-	 * @return
-	 */
-	@Override
-	public ASMInst newWireImpl (ASMInst client, String samImplName, String implName, String depName) {
+        // first step : compute selection path and constraints
+        Set<Filter> constraints = new HashSet<Filter>();
+        Filter thatfilter = null;
+        List<Manager> selectionPath = new ArrayList<Manager>();
 
-		//first step : compute selection path and constraints
-		Set<Filter> constraints = new HashSet<Filter> () ;
-		Filter thatfilter = null ;
-		List<Manager> selectionPath = new ArrayList<Manager>  () ;
+        if (managerList.size() == 0) {
+            System.out.println("No manager available. Cannot resolve ");
+            return null;
+        }
+        for (int i = 0; i < managerList.size(); i++) {
+            selectionPath = managerList.get(i).getSelectionPathImpl(client, samImplName, implName, depName, thatfilter,
+                    selectionPath);
+            if (thatfilter != null) {
+                constraints.add(thatfilter);
+            }
+        }
 
-		if (managerList.size() == 0) {
-			System.out.println("No manager available. Cannot resolve ");
-			return null ;
-		}
-		for (int i = 0; i < managerList.size(); i++) {
-			selectionPath = managerList.get(i).getSelectionPathImpl(client, samImplName, implName, depName, thatfilter, selectionPath) ;
-			if (thatfilter != null) {
-				constraints.add(thatfilter);
-			}
-		}
+        // second pass : look for a shareable instance that satisfies the
+        // constraints
+        if (implName != null) {
+            ASMImpl impl = null;
+            try {
+                impl = ASM.ASMImplBroker.getImpl(implName);
+                if (impl != null) {
 
-		// second pass : look for a shareable instance that satisfies the constraints
-		if (implName != null) {
-			ASMImpl impl = null;
-			try {
-				impl = ASM.ASMImplBroker.getImpl(implName);
-				if (impl != null) {
+                    Set<ASMInst> sharable = ASM.getSharedInsts(impl);
+                    for (ASMInst inst : sharable) {
+                        boolean satisfies = true;
+                        for (Filter filter : constraints) {
+                            if (!filter.match((AttributesImpl) inst.getProperties())) {
+                                satisfies = false;
+                                break;
+                            }
+                        }
+                        if (satisfies) {
+                            // accept only if a wire is possible
+                            if (client.setWire(inst, depName, constraints))
+                                return inst;
+                        }
+                    }
 
-					Set<ASMInst> sharable = ASM.getSharedInsts(impl) ;
-					for (ASMInst inst : sharable){
-						boolean satisfies = true ;
-						for (Filter filter : constraints) {
-							if (!filter.match((ApamProperty)inst.getProperties())) {
-								satisfies = false ;
-								break ;
-							}
-						}
-						if (satisfies) {
-							//accept only if a wire is possible
-							if (client.setWire (inst, depName, constraints))
-								return inst ;
-						}
-					}
+                }
+            } catch (ConnectionException e) {
+                e.printStackTrace();
+            }
+        }
 
-				} 
-			}catch (ConnectionException e) { e.printStackTrace();}
-		}
+        // third step : ask each manager in the order
+        ASMInst resolved;
+        for (int i = 0; i < managerList.size(); i++) {
+            resolved = managerList.get(i).resolveImpl(client, samImplName, implName, depName, constraints);
+            if (resolved != null) {
+                // accept only if a wire is possible
+                if (client.setWire(resolved, depName, constraints))
+                    return resolved;
+            }
+        }
+        return null;
+    }
 
-		//third step : ask each manager in the order
-		ASMInst resolved ;
-		for (int i = 0; i < managerList.size(); i++) {
-			resolved = managerList.get(i).resolveImpl(client, samImplName, implName, depName, constraints) ;
-			if (resolved != null) {
-				//accept only if a wire is possible
-				if (client.setWire (resolved, depName, constraints))				
-					return resolved ;
-			}
-		} 
-		return null ;
-	}
+    @Override
+    public void addManager(Manager manager, int priority) {
+        if (managerList.size() == 0) {
+            managerList.add(manager);
+        } else {
+            for (int i = 0; i < managerList.size(); i++) {
+                if (priority >= managerList.get(i).getPriority()) {
+                    managerList.add(i, manager);
+                }
+            }
+        }
+        managersPrio.put(manager, new Integer(priority));
+    }
 
-	@Override
-	public void addManager(Manager manager, int priority) {
-		if (managerList.size()==0) {
-			managerList.add(manager) ;
-		} else {
-			for (int i = 0; i < managerList.size(); i++) {
-				if (priority >= managerList.get(i).getPriority()) {
-					managerList.add(i, manager) ;
-				}
-			}
-		}
-		managersPrio.put (manager, new Integer (priority)) ;
-	}
+    @Override
+    public List<Manager> getManagers() {
+        return new ArrayList<Manager>(managerList);
+    }
 
-	@Override
-	public List<Manager> getManagers() {
-		return new ArrayList<Manager> (managerList);
-	}
+    @Override
+    public void removeManager(Manager manager) {
+        managersPrio.remove(manager);
+        managerList.remove(manager);
+    }
 
-	@Override
-	public void removeManager(Manager manager) {
-		managersPrio.remove(manager);
-		managerList.remove(manager) ;
-	}
+    @Override
+    public Composite createAppli(String appliName, Set<ManagerModel> models, String implName, URL url, String type,
+            String specName, Attributes properties) {
+        if (APAMImpl.appli != null) {
+            System.out.println("Application allready existing");
+            return null;
+        }
+        APAMImpl.appli = new CompositeImpl(appliName, models);
+        APAMImpl.main = ASM.ASMImplBroker.createImpl(APAMImpl.appli, implName, url, type, specName, properties);
+        return null;
+    }
 
-	@Override
-	public Composite createAppli(String appliName,  Set <ManagerModel> models, String implName, 
-			URL url, String type, String specName, Attributes properties) {
-		if (appli != null) {
-			System.out.println("Application allready existing");   
-			return null ;
-		}
-		appli = new CompositeImpl(appliName, models) ;
-		main = ASM.ASMImplBroker.createImpl(appli, implName, url, type, specName, properties) ;
-		return null ;
-	}
+    @Override
+    public void execute(Attributes properties) {
+        APAMImpl.main.createInst(properties);
+    }
 
-	public void execute (Attributes properties) {
-		main.createInst(properties) ;
-	}
+    @Override
+    public Composite createAppli(String appliName, Set<ManagerModel> models, String samImplName, String implName,
+            String specName, Attributes properties) {
+        if (appliName == null) {
+            System.out.println("ERROR : appli Name is missing in create Appli");
+            return null;
+        }
+        if (APAMImpl.appli != null) {
+            System.out.println("Application allready existing");
+            // return null ;
+            return APAMImpl.appli; // TODO for debug !
+        }
 
-	@Override
-	public Composite createAppli(String appliName,  Set <ManagerModel> models, String samImplName, String implName,
-			String specName, Attributes properties) {
-		if (appliName == null) {
-			System.out.println("ERROR : appli Name is missing in create Appli");
-			return null;
-		}
-		if (appli != null) {
-			System.out.println("Application allready existing");   
-			//return null ;
-			return appli ; //TODO for debug !
-		}
-		
-		appli = new CompositeImpl (appliName, models) ;
-		main = ASM.ASMImplBroker.addImpl(appli, implName, samImplName, specName, properties) ; 
-		return appli ;
-	}
+        APAMImpl.appli = new CompositeImpl(appliName, models);
+        APAMImpl.main = ASM.ASMImplBroker.addImpl(APAMImpl.appli, implName, samImplName, specName, properties);
+        return APAMImpl.appli;
+    }
 
+    @Override
+    public Composite getAppli() {
+        return APAMImpl.appli;
+    }
 
-	public  Composite getAppli () {
-		return appli ;
-	}
-	public ASMImpl getAppliMain () {
-		return main ;
-	}
+    @Override
+    public ASMImpl getAppliMain() {
+        return APAMImpl.main;
+    }
 
-	@Override
-	public int getPriority(Manager manager) {
-		return managersPrio.get (manager);
-	}
+    @Override
+    public int getPriority(Manager manager) {
+        return managersPrio.get(manager);
+    }
 
-	/**
-	 * called by an APAM client dependency handler when it initializes.
-	 * Since the client is in the middle of its creation, the Sam instance and the ASM inst are not created yet.
-	 * We simply record in the instance event handler that this instance will "appear"; 
-	 * at that time we will record the client address in a property of that instance ASM.ApamDependencyHandlerAddress
-	 * It is only in the ASMInst constructor that the ASM instance will be connected to its handler.
-	 */
-	@Override
-	public void newClientCallBack(String samInstanceName, ApamDependencyHandler client, String implName, String specName) {
-		if (samInstanceName== null || client == null) {
-			System.out.println("ERROR : Missing parameter samInstanceName or client in newClientCallBack");
-			return ;
-		}
-		SamInstEventHandler.theInstHandler.addNewApamInstance(samInstanceName, client, implName, specName) ;
-	}
+    /**
+     * called by an APAM client dependency handler when it initializes. Since
+     * the client is in the middle of its creation, the Sam instance and the ASM
+     * inst are not created yet. We simply record in the instance event handler
+     * that this instance will "appear"; at that time we will record the client
+     * address in a property of that instance ASM.ApamDependencyHandlerAddress
+     * It is only in the ASMInst constructor that the ASM instance will be
+     * connected to its handler.
+     */
+    @Override
+    public void newClientCallBack(String samInstanceName, ApamDependencyHandler client, String implName, String specName) {
+        if ((samInstanceName == null) || (client == null)) {
+            System.out.println("ERROR : Missing parameter samInstanceName or client in newClientCallBack");
+            return;
+        }
+        SamInstEventHandler.theInstHandler.addNewApamInstance(samInstanceName, client, implName, specName);
+    }
 
-	@Override
-	public void appearedExpected(ASMImpl impl, DynamicManager manager) {
-		if (impl == null || manager == null) {
-			System.out.println("ERROR : Missing parameter impl or manager in appearedExpected");
-			return ;			
-		}
-		SamInstEventHandler.addExpectedImpl(impl, manager) ;
-	}
+    @Override
+    public void appearedExpected(ASMImpl impl, DynamicManager manager) {
+        if ((impl == null) || (manager == null)) {
+            System.out.println("ERROR : Missing parameter impl or manager in appearedExpected");
+            return;
+        }
+        SamInstEventHandler.addExpectedImpl(impl, manager);
+    }
 
-	@Override
-	public void appearedExpected(String interf, DynamicManager manager) {
-		if (interf == null || manager == null) {
-			System.out.println("ERROR : Missing parameter interf or manager in appearedExpected");
-			return ;			
-		}
-		SamInstEventHandler.addExpectedInterf(interf, manager) ;
-	}
+    @Override
+    public void appearedExpected(String interf, DynamicManager manager) {
+        if ((interf == null) || (manager == null)) {
+            System.out.println("ERROR : Missing parameter interf or manager in appearedExpected");
+            return;
+        }
+        SamInstEventHandler.addExpectedInterf(interf, manager);
+    }
 
-	@Override
-	public void listenLost(DynamicManager manager) {
-		if (manager == null) {
-			System.out.println("ERROR : Missing parameter manager in listenLost");
-			return ;			
-		}
-		SamInstEventHandler.addLost(manager) ;
-	}
-	@Override
-	public void listenAttrChanged(AttributeManager manager) {
-		if (manager == null) {
-			System.out.println("ERROR : Missing parameter manager in listenAttrChanged");
-			return ;			
-		}
-		ApamProperty.addAttrChanged (manager) ;
-	}
+    @Override
+    public void listenLost(DynamicManager manager) {
+        if (manager == null) {
+            System.out.println("ERROR : Missing parameter manager in listenLost");
+            return;
+        }
+        SamInstEventHandler.addLost(manager);
+    }
 
-	@Override
-	public Manager getManager(String managerName) {
-		if (managerName == null) {
-			System.out.println("ERROR : Missing parameter manager in getManager");
-			return null;			
-		}
-		return managerList.get(managerList.lastIndexOf(managerName));
-	}
+    @Override
+    public void listenAttrChanged(AttributeManager manager) {
+        if (manager == null) {
+            System.out.println("ERROR : Missing parameter manager in listenAttrChanged");
+            return;
+        }
+        AttributesImpl.addAttrChanged(manager);
+    }
 
-	@Override
-	public void appearedNotExpected(ASMImpl impl, DynamicManager manager) {
-		if (impl == null || manager == null) {
-			System.out.println("ERROR : Missing parameter impl or manager in appearedNotExpected");
-			return ;			
-		}
-		SamInstEventHandler.removeExpectedImpl(impl, manager) ;
+    @Override
+    public Manager getManager(String managerName) {
+        if (managerName == null) {
+            System.out.println("ERROR : Missing parameter manager in getManager");
+            return null;
+        }
+        return managerList.get(managerList.lastIndexOf(managerName));
+    }
 
-	}
+    @Override
+    public void appearedNotExpected(ASMImpl impl, DynamicManager manager) {
+        if ((impl == null) || (manager == null)) {
+            System.out.println("ERROR : Missing parameter impl or manager in appearedNotExpected");
+            return;
+        }
+        SamInstEventHandler.removeExpectedImpl(impl, manager);
 
-	@Override
-	public void appearedNotExpected(String interf, DynamicManager manager) {
-		if (interf == null || manager == null) {
-			System.out.println("ERROR : Missing parameter interf or manager in appearedNotExpected");
-			return ;			
-		}
-		SamInstEventHandler.removeExpectedInterf(interf, manager) ;
-	}
+    }
 
-	@Override
-	public void listenNotLost(DynamicManager manager) {
-		if (manager == null) {
-			System.out.println("ERROR : Missing parameter manager in listenNotLost");
-			return ;			
-		}
-		SamInstEventHandler.removeLost(manager) ;
-	}
+    @Override
+    public void appearedNotExpected(String interf, DynamicManager manager) {
+        if ((interf == null) || (manager == null)) {
+            System.out.println("ERROR : Missing parameter interf or manager in appearedNotExpected");
+            return;
+        }
+        SamInstEventHandler.removeExpectedInterf(interf, manager);
+    }
 
-	@Override
-	public void listenNotAttrChanged(AttributeManager manager) {
-		if (manager == null) {
-			System.out.println("ERROR : Missing parameter manager in listenNotAttrChanged");
-			return ;			
-		}
-		ApamProperty.removeAttrChanged (manager) ;
-	}
+    @Override
+    public void listenNotLost(DynamicManager manager) {
+        if (manager == null) {
+            System.out.println("ERROR : Missing parameter manager in listenNotLost");
+            return;
+        }
+        SamInstEventHandler.removeLost(manager);
+    }
 
+    @Override
+    public void listenNotAttrChanged(AttributeManager manager) {
+        if (manager == null) {
+            System.out.println("ERROR : Missing parameter manager in listenNotAttrChanged");
+            return;
+        }
+        AttributesImpl.removeAttrChanged(manager);
+    }
 
 }

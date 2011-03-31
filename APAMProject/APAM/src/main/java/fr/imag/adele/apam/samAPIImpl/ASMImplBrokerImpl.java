@@ -20,7 +20,7 @@ import fr.imag.adele.apam.ASM;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Specification;
@@ -87,7 +87,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker{
 		if (goal == null) return getImpls ();
 		Set<ASMImpl> ret = new HashSet<ASMImpl> () ;
 		for (ASMImpl impl : implems) {
-			if (goal.match((ApamProperty)impl.getProperties())) 
+			if (goal.match((AttributesImpl)impl.getProperties())) 
 				ret.add(impl) ;
 		}
 		return ret ;

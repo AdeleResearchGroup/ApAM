@@ -157,7 +157,7 @@ public class Util {
 		if (samProp == null)return (Map<String, Object>)initProp ;
 		String attr ;
 		try {
-			for (Enumeration<String> e = ((ApamProperty)initProp).keys() ; e.hasMoreElements() ;) {
+			for (Enumeration<String> e = ((AttributesImpl)initProp).keys() ; e.hasMoreElements() ;) {
 				attr = e.nextElement() ;
 				if (samProp.get(attr) == null) {
 					samProp.put((String)attr, initProp.getProperty(attr)) ;

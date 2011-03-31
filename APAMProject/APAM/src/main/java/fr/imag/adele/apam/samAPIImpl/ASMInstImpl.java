@@ -17,13 +17,13 @@ import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.sam.Instance;
 
 
-public class ASMInstImpl extends ApamProperty implements ASMInst {
+public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
 	/** The logger. */
 //	private static Logger logger = Logger.getLogger(ASMInstImpl.class);
@@ -248,7 +248,7 @@ public class ASMInstImpl extends ApamProperty implements ASMInst {
 	public boolean match(Filter goal)  {
 		if (goal == null) return false ;
 		try {
-			return goal.match((ApamProperty)getProperties());
+			return goal.match((AttributesImpl)getProperties());
 		} catch (Exception e) {}
 		return false ;
 	}

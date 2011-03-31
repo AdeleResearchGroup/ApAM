@@ -19,7 +19,7 @@ import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Instance;
 import fr.imag.adele.sam.event.EventProperty;
@@ -79,7 +79,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 			}
 		} else {
 			for (ASMInst inst : instances) {
-				if ((inst.getSpec() == spec) && goal.match((ApamProperty)inst.getProperties())) 
+				if ((inst.getSpec() == spec) && goal.match((AttributesImpl)inst.getProperties())) 
 					ret.add(inst) ;
 			}
 		}
@@ -92,7 +92,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 		if (goal == null) return getInsts () ;
 		Set<ASMInst> ret = new HashSet<ASMInst> ();
 		for (ASMInst inst : instances) {
-			if (goal.match((ApamProperty)inst.getProperties())) 
+			if (goal.match((AttributesImpl)inst.getProperties())) 
 				ret.add(inst) ;
 		}
 		return ret ;

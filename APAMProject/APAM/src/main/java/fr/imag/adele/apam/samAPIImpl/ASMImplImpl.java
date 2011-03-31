@@ -17,7 +17,7 @@ import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.util.ApamProperty;
+import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.sam.Implementation;
@@ -26,7 +26,7 @@ import fr.imag.adele.sam.Specification;
 import fr.imag.adele.sam.broker.ImplementationBroker;
 
 
-public class ASMImplImpl extends ApamProperty implements ASMImpl {
+public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
 	private static ASMImplBroker myBroker = ASM.ASMImplBroker ;
 	private static ImplementationBroker samImplBroker = ASM.SAMImplBroker ; ;
@@ -121,7 +121,7 @@ public class ASMImplImpl extends ApamProperty implements ASMImpl {
 		if (query == null) return getInsts() ;
 		Set<ASMInst> ret = new HashSet<ASMInst>() ;
 		for (ASMInst inst : instances) {
-				if (query.match((ApamProperty)inst))
+				if (query.match((AttributesImpl)inst))
 					ret.add(inst) ;
 		}
 		return ret;
