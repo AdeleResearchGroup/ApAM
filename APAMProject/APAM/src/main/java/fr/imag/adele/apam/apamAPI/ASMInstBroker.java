@@ -6,55 +6,54 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-//import fr.imag.adele.am.Property;
-//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Instance;
 
-public interface ASMInstBroker  {
-	
-	/**
-	 * adds in ASM and existing SAM Instance.
-	 * @param compo The composite in which to create the instance. Can be null if the implem is existing is ASM
-	 * @param inst a SAM Instance
-	 * @param implName the *logical* name of the associated implementation. May be different from SAM. May be null.
-	 * @param specName the *logical* name of the associated specification; different from SAM. May be null. 
-	 * @param properties. optional : the initial properties 
-	 * @return an ASM Instance
-	 */
-	public ASMInst addInst (Composite compo, Instance samInst, String implName, String specName, Attributes properties) ;
-	
-	/**
-	 * returns the APAM instance related to the provided sam Instance. 
-	 * @param samInst A SAM Instance
-	 * @return
-	 */
-	public ASMInst getInst (Instance samInst) ;
-	
+public interface ASMInstBroker {
+
+    /**
+     * adds in ASM and existing SAM Instance.
+     * 
+     * @param compo The composite in which to create the instance. Can be null if the implem is existing is ASM
+     * @param inst a SAM Instance
+     * @param implName the *logical* name of the associated implementation. May be different from SAM. May be null.
+     * @param specName the *logical* name of the associated specification; different from SAM. May be null.
+     * @param properties . optional : the initial properties
+     * @return an ASM Instance
+     */
+    public ASMInst addInst(Composite compo, Instance samInst, String implName, String specName, Attributes properties);
+
+    /**
+     * returns the APAM instance related to the provided sam Instance.
+     * 
+     * @param samInst A SAM Instance
+     * @return
+     */
+    public ASMInst getInst(Instance samInst);
+
     /**
      * Return the instances with that name.
+     * 
      * @param instName name the instance (same as sam name)
      * @return the service instance
      */
-    public ASMInst getInst(String instName) ;
+    public ASMInst getInst(String instName);
 
     /**
      * Returns all the instances. Null if none.
-      * @return the service instances
+     * 
+     * @return the service instances
      */
-    public Set<ASMInst> getInsts() ;
+    public Set<ASMInst> getInsts();
 
     /**
-     * Return all the instances that implement the specification and that
-     * satisfy the goal. Null if none.
+     * Return all the instances that implement the specification and that satisfy the goal. Null if none.
+     * 
      * @param spec a given specification
      * @param goal a name filter, LDAP filter.
-     * @return all the instances that implement the specification and that
-     *         satisfy the goal
+     * @return all the instances that implement the specification and that satisfy the goal
      */
-    public Set<ASMInst> getInsts(ASMSpec spec, Filter goal)
-            throws InvalidSyntaxException;
-
+    public Set<ASMInst> getInsts(ASMSpec spec, Filter goal) throws InvalidSyntaxException;
 
     /**
      * Return all the instances that satisfy the goal. Null if none.
@@ -62,12 +61,52 @@ public interface ASMInstBroker  {
      * @param goal the goal
      * @return the service instances
      */
-    public Set<ASMInst> getInsts (Filter goal) throws InvalidSyntaxException;
- 
+    public Set<ASMInst> getInsts(Filter goal) throws InvalidSyntaxException;
+
     /**
-     * Remove the instances 
+     * Remove the instances
      * 
      */
-    public void removeInst (ASMInst inst) ;
+    public void removeInst(ASMInst inst);
+
+    /**
+     * returns one instance implementing impl, and sharable inside appli and compo.
+     * 
+     * @param impl the implementation of the returned instance.
+     * @param appli Can be null .The returned instance must be sharable inside the given appli (shared = appli).
+     * @param compo Can be null .The returned instance must be sharable inside the given composite (shared = local)
+     * @return
+     */
+    public ASMInst getShared(ASMImpl impl, Application appli, Composite compo);
+
+    /**
+     * returns one instance implementing spec, and shareable inside appli and compo.
+     * 
+     * @param spec the specification of the returned instance
+     * @param appli Can be null. The returned instance must be sharable inside the given appli (shared = appli)
+     * @param compo Can be null. The returned instance must be sharable inside the given composite (shared = local)
+     * @return
+     */
+    public ASMInst getShared(ASMSpec spec, Application appli, Composite compo);
+
+    /**
+     * returns all instances implementing impl, and shareable inside appli and compo.
+     * 
+     * @param impl the specification of the returned instance
+     * @param appli Can be null.The returned instance must be sharable inside the given appli (shared = appli)
+     * @param compo Can be null.The returned instance must be sharable inside the given composite (shared = local)
+     * @return
+     */
+    public Set<ASMInst> getShareds(ASMImpl impl, Application appli, Composite compo);
+
+    /**
+     * returns all instances implementing spec, and shareable inside appli and compo.
+     * 
+     * @param impl the implementation of the returned instance
+     * @param appli Can be null.The returned instance must be sharable inside the given appli (shared = appli)
+     * @param compo Can be null. The returned instance must be sharable inside the given composite (shared = local)
+     * @return
+     */
+    public Set<ASMInst> getShareds(ASMSpec spec, Application appli, Composite compo);
 
 }
