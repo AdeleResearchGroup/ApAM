@@ -174,8 +174,8 @@ public class SamInstEventHandler implements AMEventingHandler {
         InstPID instPid = (InstPID) amEvent.getProperty(EventProperty.INSTANCE_PID);
         if (instPid == null)
             return;
-        Instance samInst = ASM.SAMInstBroker.getInstance(instPid);
-        String samName = samInst.getName();
+        Instance samInst = ASM.SAMInstBroker.getInstance(instPid); // null if departure
+        String samName = instPid.getId(); // available even if it disappeared
 
         if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_ARRIVAL)) {
             if (SamInstEventHandler.newApamInstance.containsKey(samName)) { // It is an APAM instance either under
@@ -216,7 +216,7 @@ public class SamInstEventHandler implements AMEventingHandler {
 
         // a service disappears
         if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_DEPARTURE)) {
-            ASMInst inst = ASM.ASMInstBroker.getInst(samInst);
+            ASMInst inst = ASM.ASMInstBroker.getInst(samName);
             if (inst == null)
                 return;
             // set state lost to inst and propagates. In fact deletes that instance.
