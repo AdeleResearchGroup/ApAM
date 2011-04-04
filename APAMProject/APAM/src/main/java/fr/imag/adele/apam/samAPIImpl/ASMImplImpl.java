@@ -80,7 +80,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     public ASMInst createInst(Attributes initialproperties) {
         Instance samInst = null;
         try {
-            samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getPid(), (Properties) initialproperties);
+            samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getImplPid(), (Properties) initialproperties);
         } catch (Exception e) {
             e.printStackTrace();
         }
