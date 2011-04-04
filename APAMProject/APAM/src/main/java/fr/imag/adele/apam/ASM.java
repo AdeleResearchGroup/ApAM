@@ -56,6 +56,7 @@ public class ASM {
 
             ASM.apam = theApam;
         } catch (Exception e) {
+        	e.printStackTrace();
         }
     }
 }
