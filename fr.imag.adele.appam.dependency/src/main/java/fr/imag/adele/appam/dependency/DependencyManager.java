@@ -6,7 +6,6 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.PrimitiveHandler;
 import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
@@ -350,25 +349,28 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
 
 	}
 
-	public void start() {
- 	}
 
 	@Override
-	public void stateChanged(int state) {
-
+	public void start() {
 		/*
-		 * Register this instance with APAM the when the instance is validated 
-		 * 
+		 * The instance is started, nothing to do; we should already be registered
 		 */
-		switch (state) {
-		case ComponentInstance.VALID:
-			apam.newClientCallBack(getInstanceManager().getInstanceName(), this, apamComponent, apamSpecification);
-			break;
-		case ComponentInstance.INVALID:
-			thisInstance = null;
-			break;
-		}
 	}
+
+	/**
+	 * Dynamically register this instance with APAM
+	 */
+	public void apamBound() {
+		apam.newClientCallBack(getInstanceManager().getInstanceName(), this, apamComponent, apamSpecification);
+	}
+	
+	/**
+	 * Avoid invoking APAM, if not available
+	 */
+	public void apamUnbound() {
+		thisInstance = null;
+	}
+
 	/**
 	 * This callback method will be invoked by APAM when the instance is effectively added to the 
 	 * application state model

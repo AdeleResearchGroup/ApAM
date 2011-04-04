@@ -339,19 +339,19 @@ public class Dependency implements FieldInterceptor {
 				return serviceObjects;
 			}
 
-			if (fieldClass.isAssignableFrom(Vector.class)) {
+			if (Vector.class.isAssignableFrom(fieldClass)) {
 				return new Vector<Object>(Arrays.asList(serviceObjects));
 			}
 
-			if (fieldClass.isAssignableFrom(List.class)) {
+			if (List.class.isAssignableFrom(fieldClass)) {
 				return Arrays.asList(serviceObjects);
 			}
 
-			if (fieldClass.isAssignableFrom(Set.class)) {
+			if (Set.class.isAssignableFrom(fieldClass)) {
 				return new HashSet<Object>(Arrays.asList(serviceObjects));
 			}
 
-			if (fieldClass.isAssignableFrom(Collection.class)) {
+			if (Collection.class.isAssignableFrom(fieldClass)) {
 				return Arrays.asList(serviceObjects);
 			}
 
