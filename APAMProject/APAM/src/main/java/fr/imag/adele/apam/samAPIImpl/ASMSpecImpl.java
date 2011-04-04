@@ -48,6 +48,11 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         this.samSpec = samSpec; // may be null
         ((ASMSpecBrokerImpl) ASM.ASMSpecBroker).addSpec(this);
         try {
+            if (props == null) {
+                props = new AttributesImpl();
+            }
+            props.setProperty(Attributes.APAMAPPLI, compo.getApplication().getName());
+            props.setProperty(Attributes.APAMCOMPO, compo.getName());
             // initialize properties. A fusion of SAM and APAM values
             if (samSpec != null) {
                 this.setProperties(Util.mergeProperties(props, samSpec.getProperties()));

@@ -33,14 +33,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     private Instance                 samInst;
     private ApamDependencyHandler    depHandler;
 
-    // The known attributes and their default value
-    // private final int shared = ASM.SHAREABLE;
-    // private final int clonable = ASM.TRUE;
-
-    private final Map<ASMInst, Wire> wires    = new HashMap<ASMInst, Wire>(); // the
-                                                                              // currently
-                                                                              // used
-                                                                              // instances
+    private final Map<ASMInst, Wire> wires    = new HashMap<ASMInst, Wire>(); // the currently used instances
     private final Map<ASMInst, Wire> invWires = new HashMap<ASMInst, Wire>();
 
     public ASMInstImpl(Composite compo, ASMImpl impl, Attributes initialproperties, Instance samInst) {
@@ -57,17 +50,22 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         // Check if it is an APAM instance
         try {
             ApamDependencyHandler handler = (ApamDependencyHandler) samInst.getProperty(ASM.APAMDEPENDENCYHANDLER);
-            if (handler != null) { // it is an Apam instance
-                depHandler = handler;
-                handler.SetIdentifier(this);
-            }
 
+            if (initialproperties == null) {
+                initialproperties = new AttributesImpl();
+            }
+            initialproperties.setProperty(Attributes.APAMAPPLI, compo.getApplication().getName());
+            initialproperties.setProperty(Attributes.APAMCOMPO, compo.getName());
             // initialize properties. A fusion of SAM and APAM values
             if (initialproperties != null) {
                 setProperties(Util.mergeProperties(initialproperties, samInst.getProperties()));
             }
-            compo.addInst(this);
 
+            if (handler != null) { // it is an Apam instance
+                depHandler = handler;
+                handler.SetIdentifier(this);
+            }
+            compo.addInst(this);
         } catch (ConnectionException e1) {
             e1.printStackTrace();
         }

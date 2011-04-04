@@ -20,6 +20,7 @@ import fr.imag.adele.apam.apamAPI.ApamClient;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Application;
 import fr.imag.adele.apam.apamAPI.AttributeManager;
+import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.DynamicManager;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.apamAPI.ManagersMng;
@@ -363,4 +364,32 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         AttributesImpl.removeAttrChanged(manager);
     }
 
+    public void dumpApam() {
+        for (Application appli : getApplications()) {
+            System.out.println("Application : " + appli.getName() + "  Main : " + appli.getMainImpl());
+            dumpComposite(appli.getMainComposite(), "  ");
+            System.out.println("\n \nState: ");
+            dumpState(appli.getMainImpl().getInst(), "  ");
+        }
+    }
+
+    public void dumpState(ASMInst inst, String indent) {
+        if (inst == null)
+            return;
+        System.out.println(indent + inst.getASMName() + "(" + inst.getImpl());
+        indent = indent + "  ";
+        for (ASMInst to : inst.getWires()) {
+            dumpState(to, indent);
+        }
+    }
+
+    public void dumpComposite(Composite compo, String indent) {
+        if (compo == null)
+            return;
+        System.out.println(indent + compo.getName());
+        indent = indent + "  ";
+        for (Composite comp : compo.getDepend()) {
+            dumpComposite(comp, indent);
+        }
+    }
 }

@@ -44,7 +44,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
      * @param name CADSE name
      * 
      */
-    public ASMImplImpl(Composite compo, String implName, ASMSpecImpl spec, Implementation impl, Attributes prop) {
+    public ASMImplImpl(Composite compo, String implName, ASMSpecImpl spec, Implementation impl, Attributes props) {
         name = implName;
         myComposite = compo;
         try {
@@ -54,7 +54,14 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
             }
             samImpl = impl;
             ((ASMImplBrokerImpl) ASMImplImpl.myBroker).addImpl(this);
-            this.setProperties(Util.mergeProperties(prop, impl.getProperties()));
+            if (props == null) {
+                props = new AttributesImpl();
+            }
+            props.setProperty(Attributes.APAMAPPLI, compo.getApplication().getName());
+            props.setProperty(Attributes.APAMCOMPO, compo.getName());
+            // initialize properties. A fusion of SAM and APAM values
+
+            this.setProperties(Util.mergeProperties(props, impl.getProperties()));
 
         } catch (ConnectionException e) {
             e.printStackTrace();
