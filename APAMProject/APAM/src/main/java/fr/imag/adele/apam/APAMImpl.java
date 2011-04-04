@@ -2,12 +2,12 @@ package fr.imag.adele.apam;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
 
@@ -31,11 +31,11 @@ import fr.imag.adele.apam.util.AttributesImpl;
 public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
     // The applications
-    private static Set<Application>      applications = new HashSet<Application>();
+    private static Map<String, Application> applications = new ConcurrentHashMap<String, Application>();
 
     // int is the priority
-    private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
-    private static List<Manager>         managerList  = new ArrayList<Manager>();
+    private static Map<Manager, Integer>    managersPrio = new HashMap<Manager, Integer>();
+    private static List<Manager>            managerList  = new ArrayList<Manager>();
 
     public APAMImpl() {
         new ASM(this);
@@ -228,7 +228,14 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         if (getApplication(appliName) != null) {
             System.out.println("Warning : Application allready existing, creating another instance");
         }
-        return new ApplicationImpl(appliName, models, implName, url, type, specName, properties);
+
+        if (APAMImpl.applications.get(appliName) != null)
+            appliName = ((ApplicationImpl) APAMImpl.applications.get(appliName)).getNewName();
+
+        Application appli = new ApplicationImpl(appliName, models, implName, url, type, specName, properties);
+        if (appli != null)
+            APAMImpl.applications.put(appliName, appli);
+        return appli;
     }
 
     @Override
@@ -243,12 +250,16 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             // return null ;
             return null;
         }
-        return new ApplicationImpl(appliName, models, samImplName, implName, specName, properties);
+
+        Application appli = new ApplicationImpl(appliName, models, samImplName, implName, specName, properties);
+        if (appli != null)
+            APAMImpl.applications.put(appliName, appli);
+        return appli;
     }
 
     @Override
     public Application getApplication(String name) {
-        for (Application appli : APAMImpl.applications) {
+        for (Application appli : APAMImpl.applications.values()) {
             if (name.equals(appli.getName()))
                 return appli;
         }
@@ -257,7 +268,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
     @Override
     public Set<Application> getApplications() {
-        return Collections.unmodifiableSet(APAMImpl.applications);
+        return new HashSet<Application>(APAMImpl.applications.values());
     }
 
     @Override
@@ -364,6 +375,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         AttributesImpl.removeAttrChanged(manager);
     }
 
+    @Override
     public void dumpApam() {
         for (Application appli : getApplications()) {
             System.out.println("Application : " + appli.getName() + "  Main : " + appli.getMainImpl());

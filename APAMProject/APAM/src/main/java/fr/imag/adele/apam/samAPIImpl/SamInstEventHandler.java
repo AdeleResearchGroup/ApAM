@@ -79,8 +79,10 @@ public class SamInstEventHandler implements AMEventingHandler {
             if (SamInstEventHandler.newSamInstance.get(samName) != null) { // the event arrived first
                 Instance samInst = SamInstEventHandler.newSamInstance.get(samName).samInst;
                 samInst.setProperty(ASM.APAMDEPENDENCYHANDLER, handler);
-                samInst.setProperty(ASM.APAMSPECNAME, specName);
-                samInst.setProperty(ASM.APAMIMPLNAME, implName);
+                if (specName != null)
+                    samInst.setProperty(ASM.APAMSPECNAME, specName);
+                if (implName != null)
+                    samInst.setProperty(ASM.APAMIMPLNAME, implName);
                 SamInstEventHandler.newSamInstance.remove(samName);
             } else {
                 SamInstEventHandler.newApamInstance.put(samName, new NewApamInstance(handler, implName, specName));
@@ -180,8 +182,10 @@ public class SamInstEventHandler implements AMEventingHandler {
                                                                             // creation, or auto appear
                 NewApamInstance inst = SamInstEventHandler.newApamInstance.get(samName);
                 samInst.setProperty(ASM.APAMDEPENDENCYHANDLER, inst.handler);
-                samInst.setProperty(ASM.APAMSPECNAME, inst.specName);
-                samInst.setProperty(ASM.APAMIMPLNAME, inst.implName);
+                if (inst.specName != null)
+                    samInst.setProperty(ASM.APAMSPECNAME, inst.specName);
+                if (inst.implName != null)
+                    samInst.setProperty(ASM.APAMIMPLNAME, inst.implName);
                 SamInstEventHandler.newApamInstance.remove(samName);
             } else { // record the event in the case it arrived before the handler registration
                 SamInstEventHandler.newSamInstance

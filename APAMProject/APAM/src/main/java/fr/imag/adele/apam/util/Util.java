@@ -174,7 +174,7 @@ public class Util {
         if (initProp == null)
             return samProp;
         if (samProp == null)
-            return (Map<String, Object>) initProp;
+            return initProp.getProperties();
         String attr;
         try {
             for (Enumeration<String> e = ((AttributesImpl) initProp).keys(); e.hasMoreElements();) {
