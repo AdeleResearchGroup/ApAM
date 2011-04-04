@@ -1,17 +1,20 @@
 package fr.imag.adele.appam.test.create;
 
 import fr.imag.adele.apam.apamAPI.Apam;
-import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apamAPI.Application;
 
 public class CreateAppliTest {
-	
-	Apam apam;
-	
-	@SuppressWarnings("unused")
-	private void start() {
+    // iPOJO injected
+    Apam apam;
 
-		Composite compo = apam.createAppli("monAppli", null, "DependencyTest", null, null, null);
-		apam.execute(null);
-	}
+    @SuppressWarnings("unused")
+    private void start() {
+
+        Application appli = apam.createAppli("monAppli", null, "DependencyTest", null, null, null);
+        apam.dumpApam();
+        appli.execute(null);
+        apam.dumpApam();
+
+    }
 
 }
