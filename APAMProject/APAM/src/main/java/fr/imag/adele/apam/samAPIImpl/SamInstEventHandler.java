@@ -71,6 +71,13 @@ public class SamInstEventHandler implements AMEventingHandler {
         }
     }
 
+    public static ApamDependencyHandler getHandlerInstance(String samName) {
+        NewApamInstance samInst = SamInstEventHandler.newApamInstance.get(samName);
+        if (samInst == null)
+            return null;
+        return SamInstEventHandler.newApamInstance.get(samName).handler;
+    }
+
     public synchronized void addNewApamInstance(String samName, ApamDependencyHandler handler, String implName,
             String specName) {
         if ((samName == null) || (handler == null))

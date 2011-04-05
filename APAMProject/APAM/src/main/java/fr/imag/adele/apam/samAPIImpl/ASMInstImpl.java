@@ -49,7 +49,13 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         ((ASMInstBrokerImpl) ASM.ASMInstBroker).addInst(this);
         // Check if it is an APAM instance
         try {
-            ApamDependencyHandler handler = (ApamDependencyHandler) samInst.getProperty(ASM.APAMDEPENDENCYHANDLER);
+            // Waiting for the handler event
+            ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(samInst.getName());
+            // ApamDependencyHandler handler = (ApamDependencyHandler) samInst.getProperty(ASM.APAMDEPENDENCYHANDLER);
+            if (handler != null) { // it is an Apam instance
+                depHandler = handler;
+                handler.SetIdentifier(this);
+            }
 
             if (initialproperties == null) {
                 initialproperties = new AttributesImpl();
@@ -61,10 +67,6 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
                 setProperties(Util.mergeProperties(initialproperties, samInst.getProperties()));
             }
 
-            if (handler != null) { // it is an Apam instance
-                depHandler = handler;
-                handler.SetIdentifier(this);
-            }
             compo.addInst(this);
         } catch (ConnectionException e1) {
             e1.printStackTrace();

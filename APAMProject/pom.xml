@@ -312,5 +312,8 @@
 		<module>CONFMAN</module>
 		<module>DYNAMAN</module>
 		<module>DISTRIMAN</module>
+		<module>test.create.S1</module>
+		<module>test.create.S3</module>
+		<module>test.create.S2</module>
 	</modules>
 </project>
