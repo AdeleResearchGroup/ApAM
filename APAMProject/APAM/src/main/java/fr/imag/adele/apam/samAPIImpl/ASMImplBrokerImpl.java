@@ -179,6 +179,8 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             DeploymentUnit du = ASM.SAMDUBroker.install(url, type);
             Set<String> implementationsNames = du.getImplementationsName();
             implNameExpected = (String) implementationsNames.toArray()[0];
+            
+            eventHandler.addExpected(implNameExpected);
             du.activate();
             samImpl = eventHandler.getImplementation(implNameExpected);
             // TODO comment savoir si une instance a été créée dans la foulée,

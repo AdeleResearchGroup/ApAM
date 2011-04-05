@@ -33,7 +33,7 @@ public class SamImplEventHandler implements AMEventingHandler {
 
         // not yet here. Wait for it.
         synchronized (this) {
-            expectedImpls.add(expected);
+            
             try {
                 while (expectedImpls.contains(expected)) {
                     this.wait();
@@ -56,6 +56,14 @@ public class SamImplEventHandler implements AMEventingHandler {
         return null;
     }
 
+    /**
+     * 
+     * @param expected
+     */
+    public synchronized void addExpected(String expected) {
+    	expectedImpls.add(expected);
+    }
+    
     // executed when a new implementation is detected by SAM. Check if it is an expected impl.
     @Override
     public synchronized void receive(AMEvent amEvent) throws ConnectionException {
