@@ -380,7 +380,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         for (Application appli : getApplications()) {
             System.out.println("Application : " + appli.getName() + "  Main : " + appli.getMainImpl());
             dumpComposite(appli.getMainComposite(), "  ");
-            System.out.println("\n \nState: ");
+            System.out.println("\nState: ");
             dumpState(appli.getMainImpl().getInst(), "  ");
         }
     }
@@ -388,7 +388,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     public void dumpState(ASMInst inst, String indent) {
         if (inst == null)
             return;
-        System.out.println(indent + inst.getASMName() + "(" + inst.getImpl());
+        System.out.println(indent + inst.getASMName() + "(" + inst.getImpl() + ")");
         indent = indent + "  ";
         for (ASMInst to : inst.getWires()) {
             dumpState(to, indent);
