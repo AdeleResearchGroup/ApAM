@@ -69,6 +69,16 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         compo.addImpl(this);
     }
 
+    @Override
+    public String toString() {
+        String ret;
+        if (name == null)
+            ret = " (" + samImpl.getName() + ") ";
+        else
+            ret = name + " (" + samImpl.getName() + ") ";
+        return ret;
+    }
+
     /**
      * From an implementation, create an instance. Creates both the SAM and ASM instances with the same properties.
      * 

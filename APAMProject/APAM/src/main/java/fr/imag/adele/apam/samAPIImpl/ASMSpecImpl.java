@@ -65,6 +65,18 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         compo.addSpec(this);
     }
 
+    @Override
+    public String toString() {
+        String ret;
+        if (name == null)
+            ret = " (" + samSpec.getName() + ") ";
+        else if (samSpec == null)
+            ret = name;
+        else
+            ret = name + " (" + samSpec.getName() + ") ";
+        return ret;
+    }
+
     /*
      * (non-Javadoc)
      * 

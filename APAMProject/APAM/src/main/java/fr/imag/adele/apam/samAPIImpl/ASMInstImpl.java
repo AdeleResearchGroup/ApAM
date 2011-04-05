@@ -27,7 +27,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     // private static Logger logger = Logger.getLogger(ASMInstImpl.class);
     private static ASMInstBroker     myBroker = ASM.ASMInstBroker;
 
-    private String                   name;
+    // private String name;
     private ASMImpl                  myImpl;
     private Composite                myComposite;
     private Instance                 samInst;
@@ -44,7 +44,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             return;
         }
         this.samInst = samInst;
-        name = samInst.getName();
+        // name = samInst.getName();
 
         ((ASMInstBrokerImpl) ASM.ASMInstBroker).addInst(this);
         // Check if it is an APAM instance
@@ -69,6 +69,11 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         } catch (ConnectionException e1) {
             e1.printStackTrace();
         }
+    }
+
+    @Override
+    public String toString() {
+        return samInst.getName();
     }
 
     /*
@@ -217,7 +222,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
     @Override
     public String getASMName() {
-        return name;
+        return samInst.getName();
     }
 
     @Override
