@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
@@ -60,6 +59,18 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
      */
     @Override
     public ASMInst newWireSpec(ASMInst client, String interfaceName, String specName, String depName) {
+        ASMInst inst = newWireSpec0(client, interfaceName, specName, depName);
+        if (inst == null) {
+            if (specName != null)
+                System.out.println("Failed to resolve " + specName + " from " + client);
+            if (interfaceName != null)
+                System.out.println("Failed to resolve " + interfaceName + " from " + client);
+        } else
+            dumpApam();
+        return inst;
+    }
+
+    public ASMInst newWireSpec0(ASMInst client, String interfaceName, String specName, String depName) {
         // first step : compute selection path and constraints
         Set<Filter> constraints = new HashSet<Filter>();
         Filter thatfilter = null;
@@ -81,8 +92,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             }
         }
 
-        // second step : look for a sharable instance that satisfies the
-        // constraints
+        // second step : look for a sharable instance that satisfies the constraints
         if (specName != null) {
             ASMSpec spec = null;
             spec = ASM.ASMSpecBroker.getSpec(specName);
@@ -101,6 +111,25 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                         // accept only if a wire is possible
                         if (client.setWire(inst, depName, constraints))
                             return inst;
+                    }
+                }
+
+                // try to find a sharable implementation and instantiate.
+                Set<ASMImpl> sharedImpl = ASM.ASMImplBroker.getShareds(spec, client.getComposite().getApplication(),
+                        client.getComposite());
+                for (ASMImpl impl : sharedImpl) {
+                    boolean satisfies = true;
+                    for (Filter filter : constraints) {
+                        if (!filter.match((AttributesImpl) impl.getProperties())) {
+                            satisfies = false;
+                            break;
+                        }
+                    }
+                    if (satisfies) { // This implem is sharable and satisfies the constraints. Instantiate.
+                        ASMInst inst = impl.createInst(null);
+                        // accept only if a wire is possible
+                        if (client.setWire(inst, depName, constraints))
+                            return inst; // If not we have created an instance unused ! delete it ?
                     }
                 }
             }
@@ -131,6 +160,18 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
      */
     @Override
     public ASMInst newWireImpl(ASMInst client, String samImplName, String implName, String depName) {
+        ASMInst inst = newWireImpl0(client, samImplName, implName, depName);
+        if (inst == null) {
+            if (implName != null)
+                System.out.println("Failed to resolve " + implName + " from " + client);
+            if (samImplName != null)
+                System.out.println("Failed to resolve " + samImplName + " from " + client);
+        } else
+            dumpApam();
+        return inst;
+    }
+
+    public ASMInst newWireImpl0(ASMInst client, String samImplName, String implName, String depName) {
 
         // first step : compute selection path and constraints
         Set<Filter> constraints = new HashSet<Filter>();
@@ -149,34 +190,41 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             }
         }
 
-        // second pass : look for a shareable instance that satisfies the
-        // constraints
+        // second pass : look for a sharable instance that satisfies the constraints
         if (implName != null) {
             ASMImpl impl = null;
-            try {
-                impl = ASM.ASMImplBroker.getImpl(implName);
-                if (impl != null) {
-
-                    Set<ASMInst> sharable = ASM.ASMInstBroker.getShareds(impl, client.getComposite().getApplication(),
-                            client.getComposite());
-                    for (ASMInst inst : sharable) {
-                        boolean satisfies = true;
-                        for (Filter filter : constraints) {
-                            if (!filter.match((AttributesImpl) inst.getProperties())) {
-                                satisfies = false;
-                                break;
-                            }
-                        }
-                        if (satisfies) {
-                            // accept only if a wire is possible
-                            if (client.setWire(inst, depName, constraints))
-                                return inst;
+            impl = ASM.ASMImplBroker.getImpl(implName);
+            if (impl != null) {
+                Set<ASMInst> sharable = ASM.ASMInstBroker.getShareds(impl, client.getComposite().getApplication(),
+                        client.getComposite());
+                for (ASMInst inst : sharable) {
+                    boolean satisfies = true;
+                    for (Filter filter : constraints) {
+                        if (!filter.match((AttributesImpl) inst.getProperties())) {
+                            satisfies = false;
+                            break;
                         }
                     }
-
+                    if (satisfies) {
+                        // accept only if a wire is possible
+                        if (client.setWire(inst, depName, constraints))
+                            return inst;
+                    }
                 }
-            } catch (ConnectionException e) {
-                e.printStackTrace();
+                // The impl does not have sharable instance. try to instanciate.
+                boolean satisfies = true;
+                for (Filter filter : constraints) {
+                    if (!filter.match((AttributesImpl) impl.getProperties())) {
+                        satisfies = false;
+                        break;
+                    }
+                }
+                if (satisfies) { // The implem is sharable and satisfies the constraints. Instantiate.
+                    ASMInst inst = impl.createInst(null);
+                    // accept only if a wire is possible
+                    if (client.setWire(inst, depName, constraints))
+                        return inst; // If not we have created an instance unused ! delete it ?
+                }
             }
         }
 

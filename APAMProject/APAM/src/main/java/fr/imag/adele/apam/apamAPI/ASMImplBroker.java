@@ -56,7 +56,7 @@ public interface ASMImplBroker {
      * @return a (exported) service ASMImpl that has the provided name, null if none.
      * @throws ConnectionException the connection exception
      */
-    public ASMImpl getImpl(String implName) throws ConnectionException;
+    public ASMImpl getImpl(String implName);
 
     /**
      * Returns the ASM implementation with the given sam name. WARNING : that implementation may be present in SAM but
@@ -65,7 +65,7 @@ public interface ASMImplBroker {
      * @param samName the sam name of the implementation
      * @return the ASM implementation
      */
-    public ASMImpl getImplSamName(String samName) throws ConnectionException;
+    public ASMImpl getImplSamName(String samName);
 
     /**
      * Get the implementations.
@@ -81,7 +81,7 @@ public interface ASMImplBroker {
      * @return all (exported) service ASMImpls that satisfy the goal. Null if none.
      * @throws ConnectionException the connection exception
      */
-    public Set<ASMImpl> getImpls(Filter goal) throws ConnectionException, InvalidSyntaxException;
+    public Set<ASMImpl> getImpls(Filter goal) throws InvalidSyntaxException;
 
     /**
      * returns all implementaitons implementing spec, and with shared = shareable

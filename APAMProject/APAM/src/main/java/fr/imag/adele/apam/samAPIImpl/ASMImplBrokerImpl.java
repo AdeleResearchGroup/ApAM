@@ -135,7 +135,6 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             return impl;
 
         } catch (ConnectionException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return null;
         }
@@ -179,7 +178,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             DeploymentUnit du = ASM.SAMDUBroker.install(url, type);
             Set<String> implementationsNames = du.getImplementationsName();
             implNameExpected = (String) implementationsNames.toArray()[0];
-            
+
             eventHandler.addExpected(implNameExpected);
             du.activate();
             samImpl = eventHandler.getImplementation(implNameExpected);
@@ -205,7 +204,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
     }
 
     @Override
-    public ASMImpl getImplSamName(String samName) throws ConnectionException {
+    public ASMImpl getImplSamName(String samName) {
         if (samName == null)
             return null;
         for (ASMImpl impl : implems) {
