@@ -57,4 +57,9 @@ public interface Apam {
     public Set<Application> getApplications();
 
     public void dumpApam();
+
+    public void dumpAppli(String appliName);
+
+    public void dumpState(ASMInst inst, String indent, String dep);
+
 }

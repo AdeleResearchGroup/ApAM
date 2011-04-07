@@ -59,30 +59,47 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
      */
     @Override
     public ASMInst newWireSpec(ASMInst client, String interfaceName, String specName, String depName) {
-        ASMInst inst = newWireSpec0(client, interfaceName, specName, depName);
+        Set<ASMInst> allInst = new HashSet<ASMInst>();
+        ASMInst inst = newWireSpec0(client, interfaceName, specName, depName, true, allInst);
         if (inst == null) {
             if (specName != null)
-                System.out.println("Failed to resolve " + specName + " from " + client);
+                System.out.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
             if (interfaceName != null)
-                System.out.println("Failed to resolve " + interfaceName + " from " + client);
-        } else
-            dumpApam();
+                System.out.println("Failed to resolve " + interfaceName + " from " + client + "(" + depName + ")");
+            return null;
+        }
+        dumpApam();
         return inst;
     }
 
-    public ASMInst newWireSpec0(ASMInst client, String interfaceName, String specName, String depName) {
-        // first step : compute selection path and constraints
+    @Override
+    public Set<ASMInst> newWireSpecs(ASMInst client, String interfaceName, String specName, String depName) {
+        Set<ASMInst> allInst = new HashSet<ASMInst>();
+        newWireSpec0(client, interfaceName, specName, depName, true, allInst);
+        if (allInst.isEmpty()) {
+            if (specName != null)
+                System.out.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
+            if (interfaceName != null)
+                System.out.println("Failed to resolve " + interfaceName + " from " + client + "(" + depName + ")");
+        } else
+            dumpApam();
+        return allInst;
+    }
+
+    public ASMInst newWireSpec0(ASMInst client, String interfaceName, String specName, String depName,
+            boolean multiple, Set<ASMInst> allInst) {
         Set<Filter> constraints = new HashSet<Filter>();
         Filter thatfilter = null;
         List<Manager> selectionPath = new ArrayList<Manager>();
+        // Set<ASMInst> allInst = new HashSet<ASMInst>();
 
+        // first step : compute selection path and constraints
         if (APAMImpl.managerList.size() == 0) {
             System.out.println("No manager available. Cannot resolve ");
             return null;
         }
         // Call all managers in their priority order
-        // Each manager can change the order of managers in the selectionPath,
-        // and even remove.
+        // Each manager can change the order of managers in the selectionPath, and even remove.
         // It can add itself or not. If no involved it should do nothing.
         for (int i = 0; i < APAMImpl.managerList.size(); i++) {
             selectionPath = APAMImpl.managerList.get(i).getSelectionPathSpec(client, interfaceName, specName, depName,
@@ -107,12 +124,16 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                             break;
                         }
                     }
-                    if (satisfies) {
-                        // accept only if a wire is possible
-                        if (client.setWire(inst, depName, constraints))
-                            return inst;
+                    if (satisfies) { // accept only if a wire is possible
+                        if (client.setWire(inst, depName, constraints)) {
+                            allInst.add(inst);
+                            if (!multiple)
+                                return inst;
+                        }
                     }
                 }
+                if (!allInst.isEmpty())
+                    return null; // we found at least one
 
                 // try to find a sharable implementation and instantiate.
                 Set<ASMImpl> sharedImpl = ASM.ASMImplBroker.getShareds(spec, client.getComposite().getApplication(),
@@ -128,21 +149,31 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                     if (satisfies) { // This implem is sharable and satisfies the constraints. Instantiate.
                         ASMInst inst = impl.createInst(null);
                         // accept only if a wire is possible
-                        if (client.setWire(inst, depName, constraints))
-                            return inst; // If not we have created an instance unused ! delete it ?
+                        if (client.setWire(inst, depName, constraints)) {
+                            // At most one instantiation, even if multiple
+                            allInst.add(inst);
+                            if (!multiple)
+                                return inst;
+                        }
                     }
                 }
+                if (!allInst.isEmpty())
+                    return null; // we found at least one
             }
         }
 
         // third step : ask each manager in the order
-        ASMInst resolved;
         for (int i = 0; i < APAMImpl.managerList.size(); i++) {
-            resolved = APAMImpl.managerList.get(i).resolveSpec(client, interfaceName, specName, depName, constraints);
-            if (resolved != null) {
-                // accept only if a wire is possible
-                if (client.setWire(resolved, depName, constraints))
-                    return resolved;
+            Set<ASMInst> insts = APAMImpl.managerList.get(i).resolveSpecs(client, interfaceName, specName, depName,
+                    constraints);
+            if (insts != null) {
+                for (ASMInst ins : insts) {
+                    if (client.setWire(ins, depName, constraints)) {
+                        allInst.add(ins);
+                        if (!multiple)
+                            return ins;
+                    }
+                }
             }
         }
         return null;
@@ -160,18 +191,31 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
      */
     @Override
     public ASMInst newWireImpl(ASMInst client, String samImplName, String implName, String depName) {
-        ASMInst inst = newWireImpl0(client, samImplName, implName, depName);
+        ASMInst inst = newWireImpl0(client, samImplName, implName, depName, false, null);
         if (inst == null) {
             if (implName != null)
-                System.out.println("Failed to resolve " + implName + " from " + client);
+                System.out.println("Failed to resolve " + implName + " from " + client + "(" + depName + ")");
             if (samImplName != null)
-                System.out.println("Failed to resolve " + samImplName + " from " + client);
-        } else
-            dumpApam();
+                System.out.println("Failed to resolve " + samImplName + " from " + client + "(" + depName + ")");
+        }
         return inst;
     }
 
-    public ASMInst newWireImpl0(ASMInst client, String samImplName, String implName, String depName) {
+    @Override
+    public Set<ASMInst> newWireImpls(ASMInst client, String samImplName, String implName, String depName) {
+        Set<ASMInst> allInst = new HashSet<ASMInst>();
+        ASMInst inst = newWireImpl0(client, samImplName, implName, depName, true, allInst);
+        if (allInst.isEmpty()) {
+            if (implName != null)
+                System.out.println("Failed to resolve " + implName + " from " + client + "(" + depName + ")");
+            if (samImplName != null)
+                System.out.println("Failed to resolve " + samImplName + " from " + client + "(" + depName + ")");
+        }
+        return allInst;
+    }
+
+    public ASMInst newWireImpl0(ASMInst client, String samImplName, String implName, String depName, boolean multiple,
+            Set<ASMInst> allInst) {
 
         // first step : compute selection path and constraints
         Set<Filter> constraints = new HashSet<Filter>();
@@ -205,11 +249,15 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                             break;
                         }
                     }
-                    if (satisfies) {
-                        // accept only if a wire is possible
-                        if (client.setWire(inst, depName, constraints))
-                            return inst;
+                    if (satisfies) { // accept only if a wire is possible
+                        if (client.setWire(inst, depName, constraints)) {
+                            if (multiple)
+                                allInst.add(inst);
+                            else
+                                return inst;
+                        }
                     }
+
                 }
                 // The impl does not have sharable instance. try to instanciate.
                 boolean satisfies = true;
@@ -219,11 +267,14 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                         break;
                     }
                 }
-                if (satisfies) { // The implem is sharable and satisfies the constraints. Instantiate.
+
+                if (satisfies) { // This implem is sharable and satisfies the constraints. Instantiate.
                     ASMInst inst = impl.createInst(null);
                     // accept only if a wire is possible
                     if (client.setWire(inst, depName, constraints))
-                        return inst; // If not we have created an instance unused ! delete it ?
+                        if (multiple) // At most one instantiation, even if multiple
+                            allInst.add(inst);
+                    return inst; // If not we have created an instance unused ! delete it ?
                 }
             }
         }
@@ -231,11 +282,23 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         // third step : ask each manager in the order
         ASMInst resolved;
         for (int i = 0; i < APAMImpl.managerList.size(); i++) {
-            resolved = APAMImpl.managerList.get(i).resolveImpl(client, samImplName, implName, depName, constraints);
-            if (resolved != null) {
-                // accept only if a wire is possible
-                if (client.setWire(resolved, depName, constraints))
-                    return resolved;
+            if (multiple) {
+                allInst = APAMImpl.managerList.get(i).resolveImpls(client, samImplName, implName, depName, constraints);
+                if (!allInst.isEmpty()) {
+                    for (ASMInst ins : allInst) {
+                        if (!client.setWire(ins, depName, constraints)) {
+                            allInst.remove(ins);
+                        }
+                    }
+                    return null;
+                }
+            } else {
+                resolved = APAMImpl.managerList.get(i).resolveImpl(client, samImplName, implName, depName, constraints);
+                if (resolved != null) {
+                    // accept only if a wire is possible
+                    if (client.setWire(resolved, depName, constraints))
+                        return resolved;
+                }
             }
         }
         return null;
@@ -335,7 +398,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     public void
             newClientCallBack(String samInstanceName, ApamDependencyHandler client, String implName, String specName) {
         if ((samInstanceName == null) || (client == null)) {
-            System.out.println("ERROR : Missing parameter samInstanceName or client in newClientCallBack");
+            System.err.println("ERROR : Missing parameter samInstanceName or client in newClientCallBack");
             return;
         }
         SamInstEventHandler.theInstHandler.addNewApamInstance(samInstanceName, client, implName, specName);
@@ -344,7 +407,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     @Override
     public void appearedExpected(ASMImpl impl, DynamicManager manager) {
         if ((impl == null) || (manager == null)) {
-            System.out.println("ERROR : Missing parameter impl or manager in appearedExpected");
+            System.err.println("ERROR : Missing parameter impl or manager in appearedExpected");
             return;
         }
         SamInstEventHandler.addExpectedImpl(impl, manager);
@@ -424,22 +487,36 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     }
 
     @Override
+    public void dumpAppli(String name) {
+        for (Application appli : getApplications()) {
+            if (appli.getName().equals(name)) {
+                System.out.println("Application : " + appli.getName() + "  Main : " + appli.getMainImpl());
+                dumpComposite(appli.getMainComposite(), "  ");
+                System.out.println("\nState: ");
+                dumpState(appli.getMainImpl().getInst(), "  ", "");
+                break;
+            }
+        }
+    }
+
+    @Override
     public void dumpApam() {
         for (Application appli : getApplications()) {
             System.out.println("Application : " + appli.getName() + "  Main : " + appli.getMainImpl());
             dumpComposite(appli.getMainComposite(), "  ");
             System.out.println("\nState: ");
-            dumpState(appli.getMainImpl().getInst(), "  ");
+            dumpState(appli.getMainImpl().getInst(), "  ", "");
         }
     }
 
-    public void dumpState(ASMInst inst, String indent) {
+    @Override
+    public void dumpState(ASMInst inst, String indent, String dep) {
         if (inst == null)
             return;
-        System.out.println(indent + inst.getASMName() + "(" + inst.getImpl() + ")");
+        System.out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " " + inst.getSpec());
         indent = indent + "  ";
         for (ASMInst to : inst.getWires()) {
-            dumpState(to, indent);
+            dumpState(to, indent, inst.getWire(to).depName);
         }
     }
 

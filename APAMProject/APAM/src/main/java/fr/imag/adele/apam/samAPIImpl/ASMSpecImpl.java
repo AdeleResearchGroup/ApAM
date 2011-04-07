@@ -46,6 +46,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         myComposite = compo;
         name = specName; // may be null
         this.samSpec = samSpec; // may be null
+        compo.addSpec(this);
         ((ASMSpecBrokerImpl) ASM.ASMSpecBroker).addSpec(this);
         try {
             if (props == null) {
@@ -62,18 +63,19 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         } catch (ConnectionException e) {
             e.printStackTrace();
         }
-        compo.addSpec(this);
     }
 
     @Override
     public String toString() {
-        String ret;
-        if (name == null)
+        String ret = "";
+        if (name == null) {
             ret = " (" + samSpec.getName() + ") ";
-        else if (samSpec == null)
-            ret = name;
-        else
-            ret = name + " (" + samSpec.getName() + ") ";
+        } else {
+            if (samSpec == null)
+                ret = name;
+            else
+                ret = name + " (" + samSpec.getName() + ") ";
+        }
         return ret;
     }
 

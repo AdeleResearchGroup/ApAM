@@ -36,6 +36,7 @@ public class ApplicationImpl implements Application {
             String specName, Attributes properties) {
         name = appliName;
         mainCompo = new CompositeImpl(appliName, this, models);
+        composites.add(mainCompo);
         mainImpl = ASM.ASMImplBroker.createImpl(mainCompo, implName, url, type, specName, properties);
     }
 
@@ -43,6 +44,7 @@ public class ApplicationImpl implements Application {
             String specName, Attributes properties) {
         name = appliName;
         mainCompo = new CompositeImpl(appliName, this, models);
+        composites.add(mainCompo);
         mainImpl = ASM.ASMImplBroker.addImpl(mainCompo, implName, samImplName, specName, properties);
     }
 

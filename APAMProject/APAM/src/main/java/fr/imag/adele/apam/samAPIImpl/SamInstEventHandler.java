@@ -62,19 +62,21 @@ public class SamInstEventHandler implements AMEventingHandler {
             this.samInst = samInst;
             this.eventTime = eventTime;
             long currentTime = System.currentTimeMillis();
-            for (String inst : SamInstEventHandler.newSamInstance.keySet()) { // garbage old events (not related to an
-                                                                              // Apam instance)
-                if (SamInstEventHandler.newSamInstance.get(inst).eventTime < (currentTime - 3)) // at least 3 mili sec
-                                                                                                // old
+            // garbage old events (not related to an Apam instance)
+            for (String inst : SamInstEventHandler.newSamInstance.keySet()) {
+                // at least 30 seconds (because of the debugger) !
+                if (SamInstEventHandler.newSamInstance.get(inst).eventTime < (currentTime - 30000))
                     SamInstEventHandler.newSamInstance.remove(inst);
             }
         }
     }
 
-    public static ApamDependencyHandler getHandlerInstance(String samName) {
+    public static ApamDependencyHandler getHandlerInstance(String samName, String implName, String specName) {
         NewApamInstance samInst = SamInstEventHandler.newApamInstance.get(samName);
         if (samInst == null)
             return null;
+        implName = samInst.implName;
+        specName = samInst.specName;
         return SamInstEventHandler.newApamInstance.get(samName).handler;
     }
 

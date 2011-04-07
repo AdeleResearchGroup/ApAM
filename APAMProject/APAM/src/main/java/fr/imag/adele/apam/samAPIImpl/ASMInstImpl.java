@@ -50,12 +50,22 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         // Check if it is an APAM instance
         try {
             // Waiting for the handler event
-            ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(samInst.getName());
-            // ApamDependencyHandler handler = (ApamDependencyHandler) samInst.getProperty(ASM.APAMDEPENDENCYHANDLER);
+            String implName = null;
+            String specName = null;
+            ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(samInst.getName(), implName,
+                    specName);
+            if (handler == null)
+                handler = (ApamDependencyHandler) samInst.getProperty(ASM.APAMDEPENDENCYHANDLER);
+            implName = (String) samInst.getProperty(ASM.APAMIMPLNAME);
+            specName = (String) samInst.getProperty(ASM.APAMSPECNAME);
             if (handler != null) { // it is an Apam instance
                 depHandler = handler;
                 handler.SetIdentifier(this);
             }
+            if (implName != null)
+                impl.setASMName(implName);
+            if (specName != null)
+                ((ASMSpecImpl) impl.getSpec()).setASMName(specName);
 
             if (initialproperties == null) {
                 initialproperties = new AttributesImpl();
