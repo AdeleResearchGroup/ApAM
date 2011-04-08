@@ -12,15 +12,10 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-	<instance component="S1" name="Create-Test-S1"/>
-<callback transition="validate" method="start"/>
+
 -->
-<ipojo xmlns:appam="fr.imag.adele.appam">
-	<component name="S1Impl" classname="fr.imag.adele.apam.test.s1.S1Impl"
-	apam-implementation="S1ImplApam" 
-	apam-specification="S1">
-		<provides/>
-		<appam:dependency field="s2" />
-	</component>
+
+<ipojo>
+	<instance component="apam.shell" />
 </ipojo>
 

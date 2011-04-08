@@ -18,10 +18,15 @@
 
 <ipojo xmlns:appam="fr.imag.adele.appam">
 	<component name="S2Impl" classname="fr.imag.adele.apam.test.s2.S2Impl"
-	apam-implementation="S2Impl" 
+	apam-implementation="S2ImplApamName" 
 	apam-specification="S2">
 		<provides/>
-		<appam:dependency field="s3" />
+		<appam:dependency field="s3s" />
 	</component>
+	
+	<instance component="S2Impl"/>
+	<instance component="S2Impl"/>
+	<instance component="S2Impl"/>
+	
 </ipojo>
 

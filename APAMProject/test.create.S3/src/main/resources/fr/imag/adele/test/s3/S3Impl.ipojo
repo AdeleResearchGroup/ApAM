@@ -19,9 +19,13 @@
 -->
 <ipojo xmlns:appam="fr.imag.adele.appam">
 	<component name="S3Impl" classname="fr.imag.adele.apam.test.s3.S3Impl"
-	apam-implementation="S3Impl" 
+	apam-implementation="S3ImplApam" 
 	apam-specification="S3">
 		<provides/>
 	</component>
+	
+	<instance component="S3Impl"/>
+	<instance component="S3Impl"/>
+	<instance component="S3Impl"/>
 </ipojo>
 

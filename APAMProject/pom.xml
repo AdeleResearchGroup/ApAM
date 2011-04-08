@@ -315,5 +315,6 @@
 		<module>test.create.S1</module>
 		<module>test.create.S3</module>
 		<module>test.create.S2</module>
+		<module>ApamCommand</module>
 	</modules>
 </project>
