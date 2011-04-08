@@ -59,8 +59,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
      */
     @Override
     public ASMInst newWireSpec(ASMInst client, String interfaceName, String specName, String depName) {
-        Set<ASMInst> allInst = new HashSet<ASMInst>();
-        ASMInst inst = newWireSpec0(client, interfaceName, specName, depName, true, allInst);
+        ASMInst inst = newWireSpec0(client, interfaceName, specName, depName, false, null);
         if (inst == null) {
             if (specName != null)
                 System.out.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
@@ -163,15 +162,20 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         }
 
         // third step : ask each manager in the order
+        Set<ASMInst> insts = null;
+        ASMInst inst = null;
         for (int i = 0; i < APAMImpl.managerList.size(); i++) {
-            Set<ASMInst> insts = APAMImpl.managerList.get(i).resolveSpecs(client, interfaceName, specName, depName,
-                    constraints);
-            if (insts != null) {
-                for (ASMInst ins : insts) {
-                    if (client.setWire(ins, depName, constraints)) {
-                        allInst.add(ins);
-                        if (!multiple)
-                            return ins;
+            if (!multiple) {
+                inst = APAMImpl.managerList.get(i).resolveSpec(client, interfaceName, specName, depName, constraints);
+                if ((inst != null) && (client.setWire(inst, depName, constraints)))
+                    return inst;
+            } else {
+                insts = APAMImpl.managerList.get(i).resolveSpecs(client, interfaceName, specName, depName, constraints);
+                if (insts != null) {
+                    for (ASMInst ins : insts) {
+                        if (client.setWire(ins, depName, constraints)) {
+                            allInst.add(ins);
+                        }
                     }
                 }
             }

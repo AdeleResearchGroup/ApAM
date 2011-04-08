@@ -42,7 +42,7 @@ public class SamInstEventHandler implements AMEventingHandler {
         SamInstEventHandler.theInstHandler = this;
     }
 
-    private class NewApamInstance {
+    public class NewApamInstance {
         ApamDependencyHandler handler;
         String                implName = null;
         String                specName = null;
@@ -71,13 +71,14 @@ public class SamInstEventHandler implements AMEventingHandler {
         }
     }
 
-    public static ApamDependencyHandler getHandlerInstance(String samName, String implName, String specName) {
-        NewApamInstance samInst = SamInstEventHandler.newApamInstance.get(samName);
-        if (samInst == null)
-            return null;
-        implName = samInst.implName;
-        specName = samInst.specName;
-        return SamInstEventHandler.newApamInstance.get(samName).handler;
+    public static NewApamInstance getHandlerInstance(String samName) {
+        return SamInstEventHandler.newApamInstance.get(samName);
+        // NewApamInstance samInst = SamInstEventHandler.newApamInstance.get(samName);
+        // if (samInst == null)
+        // return null;
+        // implName = samInst.implName;
+        // specName = samInst.specName;
+        // return SamInstEventHandler.newApamInstance.get(samName).handler;
     }
 
     public synchronized void addNewApamInstance(String samName, ApamDependencyHandler handler, String implName,

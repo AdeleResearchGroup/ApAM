@@ -16,6 +16,7 @@ import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.samAPIImpl.SamInstEventHandler.NewApamInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
@@ -49,33 +50,36 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         ((ASMInstBrokerImpl) ASM.ASMInstBroker).addInst(this);
         // Check if it is an APAM instance
         try {
-            // Waiting for the handler event
             String implName = null;
             String specName = null;
-            ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(samInst.getName(), implName,
-                    specName);
-            if (handler == null)
+            ApamDependencyHandler handler = null;
+            // The apam handler arrived first : it stored the info in the object NewApamInstance
+            // ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(samInst.getName(), implName,
+            // specName);
+            NewApamInstance apamInst = SamInstEventHandler.getHandlerInstance(samInst.getName());
+            if (apamInst != null) {
+                handler = apamInst.handler;
+                implName = apamInst.implName;
+                specName = apamInst.specName;
+            }
+            // The event arrived first : it stored the info in the attributes
+            if (handler == null) {
                 handler = (ApamDependencyHandler) samInst.getProperty(ASM.APAMDEPENDENCYHANDLER);
-            implName = (String) samInst.getProperty(ASM.APAMIMPLNAME);
-            specName = (String) samInst.getProperty(ASM.APAMSPECNAME);
+                implName = (String) samInst.getProperty(ASM.APAMIMPLNAME);
+                specName = (String) samInst.getProperty(ASM.APAMSPECNAME);
+            }
             if (handler != null) { // it is an Apam instance
                 depHandler = handler;
                 handler.SetIdentifier(this);
+                if (implName != null)
+                    impl.setASMName(implName);
+                if (specName != null)
+                    ((ASMSpecImpl) impl.getSpec()).setASMName(specName);
             }
-            if (implName != null)
-                impl.setASMName(implName);
-            if (specName != null)
-                ((ASMSpecImpl) impl.getSpec()).setASMName(specName);
 
-            if (initialproperties == null) {
-                initialproperties = new AttributesImpl();
-            }
-            initialproperties.setProperty(Attributes.APAMAPPLI, compo.getApplication().getName());
-            initialproperties.setProperty(Attributes.APAMCOMPO, compo.getName());
-            // initialize properties. A fusion of SAM and APAM values
-            if (initialproperties != null) {
-                setProperties(Util.mergeProperties(initialproperties, samInst.getProperties()));
-            }
+            setProperties(Util.mergeProperties(initialproperties, samInst.getProperties()));
+            this.setProperty(Attributes.APAMAPPLI, compo.getApplication().getName());
+            this.setProperty(Attributes.APAMCOMPO, compo.getName());
 
             compo.addInst(this);
         } catch (ConnectionException e1) {
