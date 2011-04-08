@@ -25,7 +25,29 @@ public interface Apam {
 
     /**
      * Creates an application from scratch, by deploying an implementation. First creates the root composites
-     * (compositeName), associates its models (modles). Then install an implementation (implName) from its URL,
+     * (compositeName), associates its models (models). Then installs and creates the specification (from the url or
+     * only by its interfaces) then installs and creates the main implementation (implName) from its URL, considered as
+     * the application Main. At least the following parameters MUST be non null: appliName, implName, implUrl, specName,
+     * interfaces
+     * 
+     * @param compositeName The name of the root composite.
+     * @param models The manager models
+     * @param implName The logical name for the Application Main implementation
+     * @param implUrl Location of the Main executable.
+     * @param implType Type of packaging for main executable.
+     * @param specName optional : the logical name of the associated specification
+     * @param specUrl Location of the code (interfaces) associated with the main specification.
+     * @param specType Type of packaging for the code (interfaces) associated with the main specification.
+     * @param interfaces List of the interfaces implemented by this specificaiton.
+     * @param properties The initial properties for the Implementation.
+     * @return The new created application.
+     */
+    public Application createAppli(String appliName, Set<ManagerModel> models, String implName, URL implUrl,
+            String implType, String specName, URL specUrl, String specType, String[] interfaces, Attributes properties);
+
+    /**
+     * Creates an application from scratch, by deploying an implementation. First creates the root composites
+     * (compositeName), associates its models (models). Then install an implementation (implName) from its URL,
      * considered as the application Main.
      * 
      * @param compositeName The name of the root composite.

@@ -40,6 +40,18 @@ public class ApplicationImpl implements Application {
         mainImpl = ASM.ASMImplBroker.createImpl(mainCompo, implName, url, type, specName, properties);
     }
 
+    public ApplicationImpl(String appliName, Set<ManagerModel> models, String implName, URL implUrl, String implType,
+            String specName, URL specUrl, String specType, String[] interfaces, Attributes properties) {
+        name = appliName;
+        mainCompo = new CompositeImpl(appliName, this, models);
+        composites.add(mainCompo);
+        if (specUrl == null)
+            ASM.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
+        else
+            ASM.ASMSpecBroker.createSpec(mainCompo, specName, specUrl, specType, interfaces, properties);
+        mainImpl = ASM.ASMImplBroker.createImpl(mainCompo, implName, implUrl, implType, specName, properties);
+    }
+
     public ApplicationImpl(String appliName, Set<ManagerModel> models, String samImplName, String implName,
             String specName, Attributes properties) {
         name = appliName;

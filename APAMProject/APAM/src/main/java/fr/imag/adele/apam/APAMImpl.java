@@ -372,6 +372,44 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         return appli;
     }
 
+    /**
+     * Creates an application from scratch, by deploying an implementation. First creates the root composites
+     * (compositeName), associates its models (modles). Then install an implementation (implName) from its URL,
+     * considered as the application Main.
+     * 
+     * @param compositeName The name of the root composite.
+     * @param models The manager models
+     * @param implName The logical name for the Application Main implementation
+     * @param implUrl Location of the Main executable.
+     * @param implType Type of packaging for main executable.
+     * @param specName optional : the logical name of the associated specification
+     * @param specUrl Location of the code (interfaces) associated with the main specification.
+     * @param specType Type of packaging for the code (interfaces) associated with the main specification.
+     * @param properties The initial properties for the Implementation.
+     * @return The new created application.
+     */
+    @Override
+    public Application createAppli(String appliName, Set<ManagerModel> models, String implName, URL implUrl,
+            String implType, String specName, URL specUrl, String specType, String[] interfaces, Attributes properties) {
+        if ((appliName == null) || (implUrl == null) || (implType == null) || (specName == null)
+                || (interfaces == null)) {
+            System.err.println("ERROR : missing parameters for create application");
+            return null;
+        }
+        if (getApplication(appliName) != null) {
+            System.out.println("Warning : Application allready existing, creating another instance");
+        }
+
+        if (APAMImpl.applications.get(appliName) != null)
+            appliName = ((ApplicationImpl) APAMImpl.applications.get(appliName)).getNewName();
+
+        Application appli = new ApplicationImpl(appliName, models, implName, implUrl, implType, specName, specUrl,
+                specType, interfaces, properties);
+        if (appli != null)
+            APAMImpl.applications.put(appliName, appli);
+        return appli;
+    }
+
     @Override
     public Application getApplication(String name) {
         for (Application appli : APAMImpl.applications.values()) {
