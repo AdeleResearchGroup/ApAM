@@ -89,6 +89,19 @@ public class SamMan implements Manager {
     @Override
     public ASMInst resolveSpec(ASMInst from, String interfaceName, String specName, String depName,
             Set<Filter> constraints) {
+        return resolveSpec0(from, interfaceName, specName, depName, constraints, false, null);
+    }
+
+    @Override
+    public Set<ASMInst> resolveSpecs(ASMInst from, String interfaceName, String specName, String depName,
+            Set<Filter> constraints) {
+        Set<ASMInst> allInst = new HashSet<ASMInst>();
+        resolveSpec0(from, interfaceName, specName, depName, constraints, true, allInst);
+        return allInst;
+    }
+
+    public ASMInst resolveSpec0(ASMInst from, String interfaceName, String specName, String depName,
+            Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
         if ((interfaceName == null) && (specName == null)) {
             System.out.println("missing parameter interfaceName or specName");
             return null;
@@ -102,7 +115,8 @@ public class SamMan implements Manager {
             Query query = null;
             Filter filter;
             ASMSpec asmSpec;
-            Set<Instance> samInsts;
+            // Set<Instance> samInsts;
+            Set<Instance> allInstances = new HashSet<Instance>();
 
             if ((constraints != null) && (constraints.size() > 0)) {
                 filter = Util.buildFilter(constraints);
@@ -115,58 +129,60 @@ public class SamMan implements Manager {
                 asmSpec = ASM.ASMSpecBroker.getSpecInterf(interfaceName);
             }
 
-            Instance theInstance = null;
             if (asmSpec == null) { // No ASM spec known. Look for a SAM instance
                 if (interfaceName == null)
                     return null; // no Way
-                samInsts = SamMan.SAMInstBroker.getInstances();
-                for (Instance instance : samInsts) {
+                for (Instance instance : SamMan.SAMInstBroker.getInstances()) {
                     Specification samSpec = instance.getSpecification();
                     if (samSpec != null) {
                         String[] interfs = samSpec.getInterfaceNames();
                         for (String interf : interfs) {
-                            if (interf.equals(interfaceName)) {
-                                theInstance = instance;
+                            if (interf.equals(interfaceName)) { // we found one
+                                allInstances.add(instance);
+                                if (!multiple) // one is enough
+                                    break;
                             }
                         }
                     }
                 }
             } else { // We know the ASM specification
                 if (asmSpec.getSamSpec() != null) { // Is sam spec known ?
-                    samInsts = SamMan.SAMInstBroker.getInstances(asmSpec.getSamSpec(), query);
-                    if ((samInsts != null) && (samInsts.size() > 0)) {
-                        theInstance = (Instance) samInsts.toArray()[0];
-                    }
+                    allInstances = SamMan.SAMInstBroker.getInstances(asmSpec.getSamSpec(), query);
                 }
             }
 
             // Last chance look for an implementation that implement the interface.
-            if ((theInstance == null) && (interfaceName != null)) {
+            if ((allInstances.isEmpty()) && (interfaceName != null)) {
                 Set<Implementation> samImpls = SamMan.SAMImplBroker.getImplementations();
                 for (Implementation impl : samImpls) {
                     Specification samSpec = impl.getSpecification();
                     if (samSpec != null) {
                         for (String interf : samSpec.getInterfaceNames()) {
                             if (interf.equals(interfaceName)) { // We got an implementation
-                                theInstance = impl.createInstance(null); // create an instance
-                                break;
+                                allInstances.add(impl.createInstance(null));
+                                break; // only one instantiation
                             }
                         }
                     }
-                    if (theInstance != null)
+                    if (!allInstances.isEmpty())
                         break;
                 }
             }
 
-            if (theInstance == null)
-                return null;
-
             // we have found a sam Instance.
-            if (ASM.ASMInstBroker.getInst(theInstance) != null) {
-                return ASM.ASMInstBroker.getInst(theInstance);
+            ASMInst returnInst = null;
+            for (Instance inst : allInstances) {
+                if (ASM.ASMInstBroker.getInst(inst) != null)
+                    returnInst = ASM.ASMInstBroker.getInst(inst);
+                else
+                    returnInst = ASM.ASMInstBroker.addInst(from.getComposite(), inst, null, specName, null);
+                if (multiple)
+                    allInst.add(returnInst);
+                else
+                    return returnInst;
             }
-            return ASM.ASMInstBroker.addInst(from.getComposite(), theInstance, null, specName, null);
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -174,6 +190,20 @@ public class SamMan implements Manager {
     @Override
     public ASMInst resolveImpl(ASMInst from, String samImplName, String implName, String depName,
             Set<Filter> constraints) {
+        return resolveImpl0(from, samImplName, implName, depName, constraints, false, null);
+    }
+
+    @Override
+    public Set<ASMInst> resolveImpls(ASMInst from, String samImplName, String implName, String depName,
+            Set<Filter> constraints) {
+        Set<ASMInst> allInst = new HashSet<ASMInst>();
+        resolveImpl0(from, samImplName, implName, depName, constraints, true, allInst);
+        return allInst;
+    }
+
+    public ASMInst resolveImpl0(ASMInst from, String samImplName, String implName, String depName,
+            Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
+        // TODO
         if ((samImplName == null) && (implName == null)) {
             System.out.println("ERROR : missing parameter samImplName or implName in resolveImpl");
             return null;
