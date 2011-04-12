@@ -275,7 +275,7 @@ public class ApamCommand {
     private void printInstance(String indent, ASMInst instance) {
         System.out.println(indent + "----- [ ASMInst : " + instance.getASMName() + " ] -----");
         ASMImpl implementation = instance.getImpl();
-        Set<ASMInst> tos = instance.getWires();
+        Set<ASMInst> tos = instance.getWireDests();
         System.out.println(indent + "   dependencies:");
         for (ASMInst inst : tos) {
             System.out.println(indent + "      " + instance.getWire(inst).getDepName() + ": " + inst);
