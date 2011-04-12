@@ -17,8 +17,9 @@
 <ipojo xmlns:appam="fr.imag.adele.appam">
 	<component name="DependencyTest" classname="fr.imag.adele.appam.test.dependency.DependencyTest"
 	           apam-implementation="APAMDependencyTest">
+	    <provides/>
 		<callback transition="validate" method="start"/>
-		<appam:dependency field="dependencies" />
+		<appam:dependency  field="dependencies" />
 	</component>
 	
 	<instance component="DependencyTest" name="DependencyTest-auto-appear-instance"/>

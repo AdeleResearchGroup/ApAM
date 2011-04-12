@@ -2,7 +2,7 @@ package fr.imag.adele.appam.test.dependency;
 
 import java.util.List;
 
-public class DependencyTest {
+public class DependencyTest implements DependencyTestProvidedInterface {
 
 	private List<DependencyTestInterface> dependencies;
 
