@@ -34,6 +34,11 @@ public class SamMan implements Manager {
      */
     private ManagersMng                apam;
 
+    @Override
+    public String getName() {
+        return "SAMMAN";
+    }
+
     /**
      * SANMAN activated, register with APAM
      */
@@ -50,7 +55,6 @@ public class SamMan implements Manager {
     // TODO Must read the opportunist model and build the list of opportunist specs.
     // If empty, all is supposed to be opportunist ???
     private static Set<String> opportunismNames = new HashSet<String>();
-    private static Set<Filter> filters          = new HashSet<Filter>();
     private static boolean     specOpportunist  = true;                 // if the model says all specifications are
                                                                          // opportunist
     private static boolean     implOpportunist  = true;                 // if the model says all implementations are
@@ -70,7 +74,7 @@ public class SamMan implements Manager {
 
     @Override
     public List<Manager> getSelectionPathSpec(ASMInst from, String interfaceName, String specName, String depName,
-            Filter filter, List<Manager> involved) {
+            Set<Filter> filter, List<Manager> involved) {
         if (opportunistSpec(specName)) {
             involved.add(this);
         }
@@ -79,7 +83,7 @@ public class SamMan implements Manager {
 
     @Override
     public List<Manager> getSelectionPathImpl(ASMInst from, String samImplName, String implName, String depName,
-            Filter filter, List<Manager> involved) {
+            Set<Filter> filter, List<Manager> involved) {
         if (opportunistImpl(implName))
             involved.add(this);
 
@@ -203,7 +207,6 @@ public class SamMan implements Manager {
 
     public ASMInst resolveImpl0(ASMInst from, String samImplName, String implName, String depName,
             Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
-        // TODO
         if ((samImplName == null) && (implName == null)) {
             System.out.println("ERROR : missing parameter samImplName or implName in resolveImpl");
             return null;
@@ -254,6 +257,12 @@ public class SamMan implements Manager {
     @Override
     public void newComposite(ManagerModel model, Composite composite) {
 
+    }
+
+    @Override
+    public List<Filter> getConstraintsSpec(String interfaceName, String specName, String depName,
+            List<Filter> initConstraints) {
+        return initConstraints;
     }
 
 }
