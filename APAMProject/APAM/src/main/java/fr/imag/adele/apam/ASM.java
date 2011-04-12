@@ -24,6 +24,12 @@ public class ASM {
     public static final String         APAMSPECNAME          = "ApamSpecName";
     public static final String         APAMIMPLNAME          = "ApamImplName";
 
+    public static final String         ASMMAN                = "ASMMAN";
+    public static final String         SAMMAN                = "SAMMAN";
+    public static final String         CONFMAN               = "CONFMAN";
+    public static final String         DYNAMAN               = "DYNAMAN";
+    public static final String         DISTRIMAN             = "DISTRIMAN";
+
     // Clonable attribute of services (Spec, Implem, Instance)
     public static final int            TRUE                  = 0;
     public static final int            FALSE                 = 1;
@@ -56,7 +62,7 @@ public class ASM {
 
             ASM.apam = theApam;
         } catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
         }
     }
 }

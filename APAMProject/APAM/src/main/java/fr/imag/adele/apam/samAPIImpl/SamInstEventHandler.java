@@ -229,30 +229,14 @@ public class SamInstEventHandler implements AMEventingHandler {
             ASMInst inst = ASM.ASMInstBroker.getInst(samName);
             if (inst == null)
                 return;
-            // set state lost to inst and propagates. In fact deletes that instance.
-            inst.remove();
-            ASMInst newInst = null;
-            ASMInst temp;
             // notifies interested managers
             if (SamInstEventHandler.listenLost.contains(inst)) {
                 for (DynamicManager manager : SamInstEventHandler.listenLost) {
-                    temp = manager.lostInst(inst);
-                    if (temp != null)
-                        newInst = temp;
+                    manager.lostInst(inst);
                 }
             }
-            // Change the dependency for all APAM specific clients
-            ApamDependencyHandler handler;
-            for (ASMInst client : inst.getClients()) {
-                handler = client.getDependencyHandler();
-                if (handler != null) { // An apam client
-                    if (newInst != null) { // should substitute old to new instance in all clients.
-                        handler.substWire(inst, newInst, client.getWire(inst).getDepName());
-                    } else {
-                        handler.remWire(inst, client.getWire(inst).getDepName());
-                    }
-                }
-            }
+            // deletes that instance, which deletes the wires and so on.
+            inst.remove();
             return;
         }
 

@@ -28,23 +28,18 @@ public interface ASMInst extends Attributes {
     public ApamDependencyHandler getDependencyHandler();
 
     /**
-     * The relation wires is established between two ASM instances as consequences of resolutions and state. Wires are
-     * internally managed, may be different from SAM wires. If additional wires are found ... TBD If some wires are not
-     * in SAM ... TBD
+     * The relation wires is established between two ASM instances. Wires are internally managed, may be different from
+     * SAM wires.
      * 
      * @return
      */
-    public Set<ASMInst> getWires();
+    public Set<ASMInst> getWireDests();
 
     public Wire getWire(ASMInst detInst);
 
-    public boolean setWire(ASMInst to, String depName, Set<Filter> constraints);
-
-    public boolean setWire(ASMInst to, String depName, Filter filter);
+    public boolean createWire(ASMInst to, String depName);
 
     public void removeWire(ASMInst to);
-
-    public void substWire(ASMInst oldTo, ASMInst newTo, String depName);
 
     /**
      * remove from ASM but does not try to delete in SAM. The mapping is still valid. It deletes the wires, and turns to

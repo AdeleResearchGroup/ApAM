@@ -1,31 +1,15 @@
 package fr.imag.adele.apam;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.osgi.framework.Filter;
-
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.util.Attributes;
 
 public class Wire {
-    ASMInst     source;
-    ASMInst     destination;
-    String      depName;
-    Set<Filter> constraints = new HashSet<Filter>();
+    ASMInst source;
+    ASMInst destination;
+    String  depName;
 
-    public Wire(ASMInst from, ASMInst to, String depName, Set<Filter> constraints) {
+    public Wire(ASMInst from, ASMInst to, String depName) {
         if (Wire.checkNewWire(from, to)) {
-            source = from;
-            destination = to;
-            this.depName = depName;
-            this.constraints = constraints;
-        }
-    }
-
-    public Wire(ASMInst from, ASMInst to, String depName, Filter filter) {
-        if (Wire.checkNewWire(from, to)) {
-            constraints.add(filter);
             source = from;
             destination = to;
             this.depName = depName;
@@ -50,7 +34,7 @@ public class Wire {
             return true; // sharable by default
         try {
             if (shared.equals(Attributes.PRIVATE)) {
-                if (to.getWires() == null)
+                if (to.getWireDests() == null)
                     return true;
             } else if (shared.equals(Attributes.LOCAL)) {
                 if (from.getComposite() == to.getComposite())
@@ -80,22 +64,6 @@ public class Wire {
 
     public String getDepName() {
         return depName;
-    }
-
-    public Set<Filter> getConstraints() {
-        return new HashSet<Filter>(constraints);
-    }
-
-    public void setConstraints(Set<Filter> constraints) {
-        this.constraints = constraints;
-    }
-
-    public void addFilter(Filter filter) {
-        constraints.add(filter);
-    }
-
-    public void removeFilter(Filter filter) {
-        constraints.remove(filter);
     }
 
 }

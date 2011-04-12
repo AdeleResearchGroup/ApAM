@@ -1,7 +1,6 @@
 package fr.imag.adele.apam.samAPIImpl;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -121,27 +120,12 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
      * sam instance
      */
     @Override
-    public Set<ASMInst> getWires() {
+    public Set<ASMInst> getWireDests() {
         return wires.keySet();
     }
 
-    public Set<Filter> getWireConstraint(ASMInst to) {
-        if (to == null)
-            return null;
-        if (wires.get(to) == null)
-            return null;
-        return wires.get(to).getConstraints();
-    }
-
     @Override
-    public boolean setWire(ASMInst to, String depName, Filter filter) {
-        Set<Filter> constraints = new HashSet<Filter>();
-        constraints.add(filter);
-        return setWire(to, depName, constraints);
-    }
-
-    @Override
-    public boolean setWire(ASMInst to, String depName, Set<Filter> constraints) {
+    public boolean createWire(ASMInst to, String depName) {
         if ((to == null) || (depName == null))
             return false;
 
@@ -149,7 +133,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             return true;
         if (!Wire.checkNewWire(this, to))
             return false;
-        Wire wire = new Wire(this, to, depName, constraints);
+        Wire wire = new Wire(this, to, depName);
         wires.put(to, wire);
         ((ASMInstImpl) to).setInvWire(this, wire);
         if (depHandler != null) {
@@ -164,19 +148,13 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     }
 
     /**
-     * The removed wire is not considered as lost; the client may still be active. The state is not changed.
      * 
      * @param to
      */
+
     @Override
     public void removeWire(ASMInst to) {
-        if (to == null)
-            return;
-        removeWire(to, null);
-    }
-
-    private void removeWire(ASMInst to, ASMInst newTo) {
-        if ((to == null) || (newTo == null))
+        if ((to == null))
             return;
         Wire wire = wires.get(to);
         if (wire == null)
@@ -184,11 +162,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         wires.remove(to);
         ((ASMInstImpl) to).removeInvWire(this);
         if (depHandler != null) {
-            if (newTo == null) {
-                depHandler.remWire(to, wire.getDepName());
-            } else {
-                depHandler.substWire(to, newTo, wire.getDepName());
-            }
+            depHandler.remWire(to, wire.getDepName());
         }
     }
 
@@ -199,7 +173,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         if (invWires.isEmpty()) { // This instance ins no longer used. Delete it
                                   // => remove all its wires
             for (ASMInst dest : wires.keySet()) {
-                removeWire(dest, null);
+                removeWire(dest);
             }
             try {
                 ASMInstImpl.myBroker.removeInst(this);
@@ -219,16 +193,8 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         // The fact the instance is no longer used deletes it. It is done in
         // removeWire.
         for (ASMInst client : invWires.keySet()) {
-            ((ASMInstImpl) client).removeWire(this, null);
+            ((ASMInstImpl) client).removeWire(this);
         }
-    }
-
-    @Override
-    public void substWire(ASMInst oldTo, ASMInst newTo, String depName) {
-        if ((oldTo == null) || (newTo == null))
-            return;
-        new Wire(this, newTo, depName, wires.get(oldTo).getConstraints());
-        removeWire(oldTo, newTo);
     }
 
     @Override

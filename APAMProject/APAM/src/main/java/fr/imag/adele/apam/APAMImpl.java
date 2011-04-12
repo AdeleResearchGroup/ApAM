@@ -118,14 +118,14 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                 insts = APAMImpl.managerList.get(i).resolveSpecs(client, interfaceName, specName, depName, constraints);
                 if (insts != null) {
                     for (ASMInst ins : insts) {
-                        if (client.setWire(ins, depName, constraints)) {
+                        if (client.createWire(ins, depName)) {
                             allInst.add(ins);
                         }
                     }
                 }
             } else {
                 inst = APAMImpl.managerList.get(i).resolveSpec(client, interfaceName, specName, depName, constraints);
-                if ((inst != null) && (client.setWire(inst, depName, constraints)))
+                if ((inst != null) && (client.createWire(inst, depName)))
                     return inst;
             }
         }
@@ -193,7 +193,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                 allInst = APAMImpl.managerList.get(i).resolveImpls(client, samImplName, implName, depName, constraints);
                 if (!allInst.isEmpty()) {
                     for (ASMInst ins : allInst) {
-                        if (!client.setWire(ins, depName, constraints)) {
+                        if (!client.createWire(ins, depName)) {
                             allInst.remove(ins);
                         }
                     }
@@ -203,7 +203,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                 resolved = APAMImpl.managerList.get(i).resolveImpl(client, samImplName, implName, depName, constraints);
                 if (resolved != null) {
                     // accept only if a wire is possible
-                    if (client.setWire(resolved, depName, constraints))
+                    if (client.createWire(resolved, depName))
                         return resolved;
                 }
             }
@@ -460,7 +460,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             return;
         System.out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " " + inst.getSpec());
         indent = indent + "  ";
-        for (ASMInst to : inst.getWires()) {
+        for (ASMInst to : inst.getWireDests()) {
             dumpState(to, indent, inst.getWire(to).depName);
         }
     }

@@ -11,7 +11,6 @@ import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.Manager;
-import fr.imag.adele.apam.apamAPI.ManagersMng;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.sam.broker.ImplementationBroker;
 import fr.imag.adele.sam.broker.InstanceBroker;
@@ -24,13 +23,8 @@ public class AsmMan implements Manager {
 
     @Override
     public String getName() {
-        return "ASMMAN";
+        return ASM.ASMMAN;
     }
-
-    /*
-     * The reference to APAM, injected by iPojo
-     */
-    private ManagersMng apam;
 
     @Override
     public List<Manager> getSelectionPathSpec(ASMInst from, String interfaceName, String specName, String depName,
@@ -77,7 +71,7 @@ public class AsmMan implements Manager {
                     }
                 }
                 if (satisfies) { // accept only if a wire is possible
-                    if (client.setWire(inst, depName, constraints)) {
+                    if (client.createWire(inst, depName)) {
                         if (multiple)
                             allInst.add(inst);
                         else
@@ -102,7 +96,7 @@ public class AsmMan implements Manager {
                 if (satisfies) { // This implem is sharable and satisfies the constraints. Instantiate.
                     ASMInst inst = impl.createInst(null);
                     // accept only if a wire is possible
-                    if (client.setWire(inst, depName, constraints)) {
+                    if (client.createWire(inst, depName)) {
                         // At most one instantiation, even if multiple
                         if (multiple)
                             allInst.add(inst);
@@ -151,7 +145,7 @@ public class AsmMan implements Manager {
                     }
                 }
                 if (satisfies) { // accept only if a wire is possible
-                    if (client.setWire(inst, depName, constraints)) {
+                    if (client.createWire(inst, depName)) {
                         if (multiple)
                             allInst.add(inst);
                         else
@@ -172,7 +166,7 @@ public class AsmMan implements Manager {
             if (satisfies) { // This implem is sharable and satisfies the constraints. Instantiate.
                 ASMInst inst = impl.createInst(null);
                 // accept only if a wire is possible
-                if (client.setWire(inst, depName, constraints))
+                if (client.createWire(inst, depName))
                     if (multiple) // At most one instantiation, even if multiple
                         allInst.add(inst);
                 return inst; // If not we have created an instance unused ! delete it ?
