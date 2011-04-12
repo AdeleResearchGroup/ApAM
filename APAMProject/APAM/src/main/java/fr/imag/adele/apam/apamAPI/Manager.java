@@ -17,20 +17,41 @@ import fr.imag.adele.apam.ManagerModel;
 public interface Manager {
 
     /**
+     * 
+     * @return the name of that manager.
+     */
+    public String getName();
+
+    /**
      * Provided that a resolution will be asked for a wire between from and the required specification (or interface),
      * each manager is asked if it want to be involved. If not, does nothing. If so, it must return the list "involved"
      * including itself somewhere (the order is important), and perhaps, it can add the contraints that it will require
-     * from each manager.
+     * from each manager. WARNING: Either (or both) interfaceName or specName are needed.
+     * 
+     * @param interfaceName the name of one of the interfaces of the specification to resolve. May be null.
+     * @param specName the *logical* name of that specification; different from SAM. May be null.
+     * @param initConstraints The constraints allr'eady set on that object.
+     * @param involved the managers currently involved in this resolution.
+     * @return The list of managers involved, including this manager if it feels involved; in the right order.
+     */
+    public List<Filter> getConstraintsSpec(String interfaceName, String specName, String depName,
+            List<Filter> initConstraints);
+
+    /**
+     * Provided that a resolution will be asked for a wire between from and the required specification (or interface),
+     * each manager is asked if it want to be involved. If not, does nothing. If so, it must return the list "involved"
+     * including itself somewhere (the order is important), and perhaps, it can add the contraints that it will require
+     * from each manager. WARNING: Either (or both) interfaceName or specName are needed.
      * 
      * @param from the instance origin of the future wire.
-     * @param interfaceName the name of one of the interfaces of the specification to resolve.
+     * @param interfaceName the name of one of the interfaces of the specification to resolve. May be null.
      * @param specName the *logical* name of that specification; different from SAM. May be null.
      * @param filter The constraints added by this manager.
      * @param involved the managers currently involved in this resolution.
      * @return The list of managers involved, including this manager if it feels involved; in the right order.
      */
     public List<Manager> getSelectionPathSpec(ASMInst from, String interfaceName, String specName, String depName,
-            Filter filter, List<Manager> involved);
+            Set<Filter> constraints, List<Manager> involved);
 
     /**
      * Provided that a resolution will be asked for a wire between from and the required specification (or interface),
@@ -46,7 +67,7 @@ public interface Manager {
      * @return The list of managers involved, including this manager if it feels involved; in the right order.
      */
     public List<Manager> getSelectionPathImpl(ASMInst from, String samImplName, String implName, String depName,
-            Filter filter, List<Manager> involved);
+            Set<Filter> constraints, List<Manager> involved);
 
     /**
      * The manager is asked to find the "right" resolution for the required specification (or interface), in order to

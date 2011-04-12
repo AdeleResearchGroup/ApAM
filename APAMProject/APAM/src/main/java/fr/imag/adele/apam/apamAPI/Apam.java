@@ -42,8 +42,8 @@ public interface Apam {
      * @param properties The initial properties for the Implementation.
      * @return The new created application.
      */
-    public Application createAppli(String appliName, Set<ManagerModel> models, String implName, URL implUrl,
-            String implType, String specName, URL specUrl, String specType, String[] interfaces, Attributes properties);
+    public Application createAppliDeploySpec(String appliName, Set<ManagerModel> models, String specName, URL specUrl,
+            String specType, String[] interfaces, Attributes properties);
 
     /**
      * Creates an application from scratch, by deploying an implementation. First creates the root composites
@@ -59,8 +59,8 @@ public interface Apam {
      * @param properties The initial properties for the Implementation.
      * @return The new created application.
      */
-    public Application createAppli(String appliName, Set<ManagerModel> models, String implName, URL url, String type,
-            String specName, Attributes properties);
+    public Application createAppliDeployImpl(String appliName, Set<ManagerModel> models, String implName, URL url,
+            String type, String specName, Attributes properties);
 
     /**
      * Returns the application that has that name. WARNING : more than one application may have same name; in that case

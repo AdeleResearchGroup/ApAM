@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import fr.imag.adele.apam.apamAPI.ASMImpl;
+import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Application;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Attributes;
@@ -17,6 +18,7 @@ public class ApplicationImpl implements Application {
     private final String         name;
     private Composite            mainCompo  = null;
     private ASMImpl              mainImpl   = null;
+    private ASMSpec              mainSpec   = null;
 
     // To have different names
     private static int           nbSameName = 0;
@@ -38,10 +40,11 @@ public class ApplicationImpl implements Application {
         mainCompo = new CompositeImpl(appliName, this, models);
         composites.add(mainCompo);
         mainImpl = ASM.ASMImplBroker.createImpl(mainCompo, implName, url, type, specName, properties);
+        mainSpec = mainImpl.getSpec();
     }
 
-    public ApplicationImpl(String appliName, Set<ManagerModel> models, String implName, URL implUrl, String implType,
-            String specName, URL specUrl, String specType, String[] interfaces, Attributes properties) {
+    public ApplicationImpl(String appliName, Set<ManagerModel> models, String specName, URL specUrl, String specType,
+            String[] interfaces, Attributes properties) {
         name = appliName;
         mainCompo = new CompositeImpl(appliName, this, models);
         composites.add(mainCompo);
@@ -49,7 +52,8 @@ public class ApplicationImpl implements Application {
             ASM.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
         else
             ASM.ASMSpecBroker.createSpec(mainCompo, specName, specUrl, specType, interfaces, properties);
-        mainImpl = ASM.ASMImplBroker.createImpl(mainCompo, implName, implUrl, implType, specName, properties);
+        mainSpec = ASM.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
+        mainImpl = null;
     }
 
     public ApplicationImpl(String appliName, Set<ManagerModel> models, String samImplName, String implName,
@@ -58,7 +62,10 @@ public class ApplicationImpl implements Application {
         mainCompo = new CompositeImpl(appliName, this, models);
         composites.add(mainCompo);
         mainImpl = ASM.ASMImplBroker.addImpl(mainCompo, implName, samImplName, specName, properties);
+        mainSpec = mainImpl.getSpec();
     }
+
+    // public ApplicationImpl(appliName, models, specName, specUrl, specType, interfaces, properties)
 
     @Override
     public String getName() {
@@ -78,6 +85,11 @@ public class ApplicationImpl implements Application {
     @Override
     public ASMImpl getMainImpl() {
         return mainImpl;
+    }
+
+    @Override
+    public ASMSpec getMainSpec() {
+        return mainSpec;
     }
 
     @Override

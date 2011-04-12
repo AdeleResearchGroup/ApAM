@@ -14,11 +14,18 @@ public interface Application {
     public Composite getMainComposite();
 
     /**
-     * Provides the main implementation for tha application.
+     * Provides the main implementation for that application.
      * 
      * @return
      */
     public ASMImpl getMainImpl();
+
+    /**
+     * return the main specification. Never null.
+     * 
+     * @return
+     */
+    public ASMSpec getMainSpec();
 
     /**
      * returns the name of that application
@@ -42,8 +49,7 @@ public interface Application {
     public Composite getComposite(String name);
 
     /**
-     * creates an instance of the main implementation associated with the root
-     * composite. i.e. starts the application.
+     * creates an instance of the main implementation associated with the root composite. i.e. starts the application.
      */
     public void execute(Attributes properties);
 
