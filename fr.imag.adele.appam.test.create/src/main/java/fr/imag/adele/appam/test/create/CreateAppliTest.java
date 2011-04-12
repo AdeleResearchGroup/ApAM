@@ -17,7 +17,7 @@ public class CreateAppliTest implements Runnable {
      */
     public void run() {
         try {
-            Application appli = apam.createAppli("monAppliADeployer", null, "DependencyTest", new File(
+            Application appli = apam.createAppliDeployImpl("monAppliADeployer", null, "DependencyTest", new File(
                     "F:/APAM/fr.imag.adele.appam.test.dependency/target/test.dependency-1.0.0.jar").toURI().toURL(),
                     "bundle", null, null);
             apam.dumpApam();
