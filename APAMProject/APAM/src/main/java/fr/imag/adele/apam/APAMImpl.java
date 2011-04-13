@@ -91,7 +91,6 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     public ASMInst newWireSpec0(ASMInst client, String interfaceName, String specName, String depName,
             boolean multiple, Set<ASMInst> allInst) {
         Set<Filter> constraints = new HashSet<Filter>();
-        List<Manager> selectionPath = new ArrayList<Manager>();
         // Set<ASMInst> allInst = new HashSet<ASMInst>();
 
         // first step : compute selection path and constraints
@@ -102,9 +101,14 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         // Call all managers in their priority order
         // Each manager can change the order of managers in the selectionPath, and even remove.
         // It can add itself or not. If no involved it should do nothing.
+        List<Manager> selectionPath = new ArrayList<Manager>();
+        List<Manager> previousSelectionPath;
         for (int i = 0; i < APAMImpl.managerList.size(); i++) {
+            previousSelectionPath = selectionPath;
             selectionPath = APAMImpl.managerList.get(i).getSelectionPathSpec(client, interfaceName, specName, depName,
                     constraints, selectionPath);
+            if (selectionPath == null)
+                selectionPath = previousSelectionPath;
         }
 
         // To select first in the ASM
@@ -113,9 +117,9 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         // third step : ask each manager in the order
         Set<ASMInst> insts = null;
         ASMInst inst = null;
-        for (int i = 0; i < APAMImpl.managerList.size(); i++) {
+        for (Manager manager : selectionPath) {
             if (multiple) {
-                insts = APAMImpl.managerList.get(i).resolveSpecs(client, interfaceName, specName, depName, constraints);
+                insts = manager.resolveSpecs(client, interfaceName, specName, depName, constraints);
                 if (insts != null) {
                     for (ASMInst ins : insts) {
                         if (client.createWire(ins, depName)) {
@@ -124,7 +128,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                     }
                 }
             } else {
-                inst = APAMImpl.managerList.get(i).resolveSpec(client, interfaceName, specName, depName, constraints);
+                inst = manager.resolveSpec(client, interfaceName, specName, depName, constraints);
                 if ((inst != null) && (client.createWire(inst, depName)))
                     return inst;
             }
@@ -223,6 +227,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             for (int i = 0; i < APAMImpl.managerList.size(); i++) {
                 if (priority >= APAMImpl.managerList.get(i).getPriority()) {
                     APAMImpl.managerList.add(i, manager);
+                    break;
                 }
             }
         }

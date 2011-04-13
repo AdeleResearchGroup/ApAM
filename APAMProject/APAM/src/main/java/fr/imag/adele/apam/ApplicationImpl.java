@@ -65,7 +65,12 @@ public class ApplicationImpl implements Application {
         mainSpec = mainImpl.getSpec();
     }
 
-    // public ApplicationImpl(appliName, models, specName, specUrl, specType, interfaces, properties)
+    // Not in the interface
+    // In case the appli has been created from a spec only.
+    public void setMainImpl(ASMImpl impl) {
+        if ((mainImpl == null) && (impl.getSpec() == mainSpec))
+            mainImpl = impl;
+    }
 
     @Override
     public String getName() {

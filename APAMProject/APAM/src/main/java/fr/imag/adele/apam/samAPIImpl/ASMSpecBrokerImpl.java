@@ -218,7 +218,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
 
         ASMSpec asmSpec = getSpec(specName);
         if (asmSpec != null) { // do not create twice
-            ((ASMImplImpl) asmSpec).setASMName(specName);
+            ((ASMSpecImpl) asmSpec).setASMName(specName);
         } else {
             asmSpec = createSpec(compo, specName, interfaces, properties);
         }

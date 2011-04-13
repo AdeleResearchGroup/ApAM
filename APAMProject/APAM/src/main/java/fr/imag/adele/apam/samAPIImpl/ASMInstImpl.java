@@ -11,7 +11,6 @@ import fr.imag.adele.apam.ASM;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
@@ -25,7 +24,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
     /** The logger. */
     // private static Logger logger = Logger.getLogger(ASMInstImpl.class);
-    private static ASMInstBroker     myBroker = ASM.ASMInstBroker;
+    // private static ASMInstBroker myBroker = ASM.ASMInstBroker;
 
     // private String name;
     private ASMImpl                  myImpl;
@@ -176,7 +175,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
                 removeWire(dest);
             }
             try {
-                ASMInstImpl.myBroker.removeInst(this);
+                ASM.ASMInstBroker.removeInst(this);
                 samInst.delete();
             } catch (ConnectionException e) {
                 e.printStackTrace();

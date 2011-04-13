@@ -14,6 +14,7 @@ import fr.imag.adele.am.eventing.AMEventingHandler;
 import fr.imag.adele.am.eventing.EventingEngine;
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.ApplicationImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
@@ -131,8 +132,13 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             if (specName != null)
                 spec.setASMName(specName);
 
-            ASMImplImpl impl = new ASMImplImpl(compo, implName, spec, samImpl, properties);
-            return impl;
+            asmImpl = new ASMImplImpl(compo, implName, spec, samImpl, properties);
+
+            Application appli = asmImpl.getComposite().getApplication();
+            if ((asmImpl.getSpec() == appli.getMainSpec()) && (appli.getMainImpl() == null))
+                ((ApplicationImpl) appli).setMainImpl(asmImpl);
+
+            return asmImpl;
 
         } catch (ConnectionException e) {
             e.printStackTrace();
@@ -190,6 +196,10 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         }
 
         asmImpl = addImpl0(compo, implName, samImpl, specName, properties);
+        // in case it is the main implementation
+        Application appli = asmImpl.getComposite().getApplication();
+        if ((asmImpl.getSpec() == appli.getMainSpec()) && (appli.getMainImpl() == null))
+            ((ApplicationImpl) appli).setMainImpl(asmImpl);
         return asmImpl;
     }
 
