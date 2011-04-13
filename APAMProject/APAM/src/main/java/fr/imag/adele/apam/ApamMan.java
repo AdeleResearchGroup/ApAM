@@ -15,7 +15,7 @@ import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.sam.broker.ImplementationBroker;
 import fr.imag.adele.sam.broker.InstanceBroker;
 
-public class AsmMan implements Manager {
+public class ApamMan implements Manager {
 
     // The entry point in SAM
     public static ImplementationBroker SAMImplBroker = null;

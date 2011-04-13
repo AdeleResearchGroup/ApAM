@@ -31,7 +31,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
     // The applications
     private static Map<String, Application> applications = new ConcurrentHashMap<String, Application>();
-    private static Manager                  asmMan;
+    private static Manager                  apamMan;
 
     // int is the priority
     private static Map<Manager, Integer>    managersPrio = new HashMap<Manager, Integer>();
@@ -39,8 +39,8 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
     public APAMImpl() {
         new ASM(this);
-        APAMImpl.asmMan = new AsmMan();
-        addManager(APAMImpl.asmMan, -1);
+        APAMImpl.apamMan = new ApamMan();
+        addManager(APAMImpl.apamMan, -1); // -1 to be sure it is not in the main loop
     }
 
     @Override
@@ -91,7 +91,6 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     public ASMInst newWireSpec0(ASMInst client, String interfaceName, String specName, String depName,
             boolean multiple, Set<ASMInst> allInst) {
         Set<Filter> constraints = new HashSet<Filter>();
-        // Set<ASMInst> allInst = new HashSet<ASMInst>();
 
         // first step : compute selection path and constraints
         if (APAMImpl.managerList.size() == 0) {
@@ -103,16 +102,15 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         // It can add itself or not. If no involved it should do nothing.
         List<Manager> selectionPath = new ArrayList<Manager>();
         List<Manager> previousSelectionPath;
-        for (int i = 0; i < APAMImpl.managerList.size(); i++) {
+        for (int i = 1; i < APAMImpl.managerList.size(); i++) { // Start from one to skip ApamMan. Added after the loop.
             previousSelectionPath = selectionPath;
             selectionPath = APAMImpl.managerList.get(i).getSelectionPathSpec(client, interfaceName, specName, depName,
                     constraints, selectionPath);
             if (selectionPath == null)
                 selectionPath = previousSelectionPath;
         }
-
-        // To select first in the ASM
-        selectionPath.add(0, APAMImpl.asmMan);
+        // To select first the APAM manager
+        selectionPath.add(0, APAMImpl.apamMan);
 
         // third step : ask each manager in the order
         Set<ASMInst> insts = null;
@@ -182,34 +180,31 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             System.out.println("No manager available. Cannot resolve ");
             return null;
         }
-        for (int i = 0; i < APAMImpl.managerList.size(); i++) {
+        for (int i = 1; i < APAMImpl.managerList.size(); i++) { // start from 1 to skip ApamMan
             selectionPath = APAMImpl.managerList.get(i).getSelectionPathImpl(client, samImplName, implName, depName,
                     constraints, selectionPath);
         }
-
-        // To select first in the ASM
-        selectionPath.add(0, APAMImpl.asmMan);
+        // To select first in Apam
+        selectionPath.add(0, APAMImpl.apamMan);
 
         // third step : ask each manager in the order
-        ASMInst resolved;
-        for (int i = 0; i < APAMImpl.managerList.size(); i++) {
+
+        Set<ASMInst> insts = null;
+        ASMInst inst = null;
+        for (Manager manager : selectionPath) {
             if (multiple) {
-                allInst = APAMImpl.managerList.get(i).resolveImpls(client, samImplName, implName, depName, constraints);
-                if (!allInst.isEmpty()) {
-                    for (ASMInst ins : allInst) {
-                        if (!client.createWire(ins, depName)) {
-                            allInst.remove(ins);
+                insts = manager.resolveImpls(client, samImplName, implName, depName, constraints);
+                if (insts != null) {
+                    for (ASMInst ins : insts) {
+                        if (client.createWire(ins, depName)) {
+                            allInst.add(ins);
                         }
                     }
-                    return null;
                 }
             } else {
-                resolved = APAMImpl.managerList.get(i).resolveImpl(client, samImplName, implName, depName, constraints);
-                if (resolved != null) {
-                    // accept only if a wire is possible
-                    if (client.createWire(resolved, depName))
-                        return resolved;
-                }
+                inst = manager.resolveImpl(client, samImplName, implName, depName, constraints);
+                if ((inst != null) && (client.createWire(inst, depName)))
+                    return inst;
             }
         }
         return null;
@@ -217,15 +212,15 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
     @Override
     public void addManager(Manager manager, int priority) {
-        if ((priority < 0) && !manager.getName().equals(APAMImpl.asmMan.getName())) {
+        if ((priority < 0) && !manager.getName().equals(APAMImpl.apamMan.getName())) {
             System.err.println("invalid priority" + priority + ". 0 assumed");
             priority = 0;
         }
         if (APAMImpl.managerList.size() == 0) {
             APAMImpl.managerList.add(manager);
         } else {
-            for (int i = 0; i < APAMImpl.managerList.size(); i++) {
-                if (priority >= APAMImpl.managerList.get(i).getPriority()) {
+            for (int i = 1; i < APAMImpl.managerList.size(); i++) {
+                if (priority <= APAMImpl.managerList.get(i).getPriority()) {
                     APAMImpl.managerList.add(i, manager);
                     break;
                 }
@@ -393,10 +388,14 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     @Override
     public Manager getManager(String managerName) {
         if (managerName == null) {
-            System.out.println("ERROR : Missing parameter manager in getManager");
+            System.err.println("ERROR : Missing parameter manager in getManager");
             return null;
         }
-        return APAMImpl.managerList.get(APAMImpl.managerList.lastIndexOf(managerName));
+        for (Manager man : APAMImpl.managerList) {
+            if (man.getName().equals(managerName))
+                return man;
+        }
+        return null;
     }
 
     @Override
