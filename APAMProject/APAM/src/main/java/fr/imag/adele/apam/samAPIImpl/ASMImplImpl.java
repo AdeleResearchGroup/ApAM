@@ -88,16 +88,16 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
      */
     @Override
     public ASMInst createInst(Attributes initialproperties) {
-        Instance samInst = null;
         try {
-            samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getImplPid(), (Properties) initialproperties);
+            Instance samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getImplPid(),
+                    (Properties) initialproperties);
+            ASMInstImpl inst = new ASMInstImpl(myComposite, this, initialproperties, samInst);
+            instances.add(inst);
+            return inst;
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        ASMInstImpl inst = new ASMInstImpl(myComposite, this, initialproperties, samInst);
-        instances.add(inst);
-        return inst;
+        return null;
     }
 
     @Override
@@ -208,11 +208,6 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         // TODO Auto-generated method stub
         return null;
     }
-
-    /**
-     * remove from ASM but does not try to delete in SAM. The mapping is still valid. It deletes all instances. No
-     * change of state. May be selected again later.
-     */
 
     @Override
     public void remove() {

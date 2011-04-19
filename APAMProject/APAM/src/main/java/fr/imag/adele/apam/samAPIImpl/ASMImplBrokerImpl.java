@@ -103,7 +103,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
     private ASMImpl addImpl0(Composite compo, String implName, Implementation samImpl, String specName,
             Attributes properties) {
         if ((samImpl == null) || (compo == null)) {
-            System.out.println("ERROR : missing Implementaion or composite in addImpl");
+            System.err.println("ERROR : missing Implementaion or composite in addImpl");
             return null;
         }
         try {

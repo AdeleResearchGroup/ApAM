@@ -59,26 +59,6 @@ public class CompositeImpl implements Composite {
     }
 
     @Override
-    public Composite createComposite(Composite source, String name, Set<ManagerModel> models) {
-        if (source == null) {
-            System.out.println("ERROR : Source composite missing");
-            return null;
-        }
-        if (name == null) {
-            System.out.println("ERROR : Composite name missing");
-            return null;
-        }
-        if (source.getApplication().getComposite(name) != null) {
-            System.out.println("ERROR : Composite " + name + " allready exists");
-            return null;
-        }
-        ((ApplicationImpl) appli).addComposite(this);
-        Composite comp = new CompositeImpl(name, source.getApplication(), models);
-        source.addDepend(comp);
-        return comp;
-    }
-
-    @Override
     public String getName() {
         return name;
     }
@@ -86,8 +66,7 @@ public class CompositeImpl implements Composite {
     // @Override
 
     /**
-     * 2 Pbs : delete the dependent composite. delete the contained objects ?
-     * Warning if shared. state ?
+     * 2 Pbs : delete the dependent composite. delete the contained objects ? Warning if shared. state ?
      * 
      */
     // public boolean deleteComposite(String compositeName) {
@@ -137,8 +116,7 @@ public class CompositeImpl implements Composite {
     }
 
     /**
-     * A composite cannot be isolated. Therefore remove is prohibited if the
-     * destination will be isolated.
+     * A composite cannot be isolated. Therefore remove is prohibited if the destination will be isolated.
      */
     @Override
     public boolean removeDepend(Composite destination) {

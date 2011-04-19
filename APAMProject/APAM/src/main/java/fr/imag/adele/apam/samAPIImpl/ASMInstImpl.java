@@ -12,6 +12,7 @@ import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
+import fr.imag.adele.apam.apamAPI.ApamComponent;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.samAPIImpl.SamInstEventHandler.NewApamInstance;
@@ -39,15 +40,16 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         myImpl = impl;
         myComposite = compo;
         if (samInst == null) {
-            System.out.println("erreur : sam instance cannot be null on ASM instance constructor");
+            System.err.println("ERROR : sam instance cannot be null on ASM instance constructor");
             return;
         }
         this.samInst = samInst;
-        // name = samInst.getName();
 
         ((ASMInstBrokerImpl) ASM.ASMInstBroker).addInst(this);
-        // Check if it is an APAM instance
         try {
+            if (samInst.getServiceObject() instanceof ApamComponent)
+                ((ApamComponent) samInst.getServiceObject()).apamStart(this);
+
             String implName = null;
             String specName = null;
             ApamDependencyHandler handler = null;
@@ -128,7 +130,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         if ((to == null) || (depName == null))
             return false;
 
-        if (wires.get(to) != null)
+        if ((wires.get(to) != null) && (depName.equals(wires.get(to).getDepName()))) // allready exists
             return true;
         if (!Wire.checkNewWire(this, to))
             return false;

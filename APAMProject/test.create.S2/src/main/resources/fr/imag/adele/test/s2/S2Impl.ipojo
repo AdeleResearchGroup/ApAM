@@ -22,6 +22,9 @@
 	apam-specification="S2">
 		<provides/>
 		<appam:dependency field="s3s" />
+		<appam:dependency field="s4_1" />
+		<appam:dependency field="s4_2" />
+		<requires field="apam" />	
 	</component>
 	
 	<instance component="S2Impl"/>

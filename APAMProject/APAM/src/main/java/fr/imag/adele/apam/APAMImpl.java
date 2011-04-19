@@ -13,7 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apamAPI.ASMImpl;
+import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
+import fr.imag.adele.apam.apamAPI.ASMInstBroker;
+import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
 import fr.imag.adele.apam.apamAPI.Apam;
 import fr.imag.adele.apam.apamAPI.ApamClient;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
@@ -70,7 +73,6 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                 System.out.println("Failed to resolve " + interfaceName + " from " + client + "(" + depName + ")");
             return null;
         }
-        dumpApam();
         return inst;
     }
 
@@ -83,8 +85,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                 System.out.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
             if (interfaceName != null)
                 System.out.println("Failed to resolve " + interfaceName + " from " + client + "(" + depName + ")");
-        } else
-            dumpApam();
+        }
         return allInst;
     }
 
@@ -216,15 +217,16 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             System.err.println("invalid priority" + priority + ". 0 assumed");
             priority = 0;
         }
-        if (APAMImpl.managerList.size() == 0) {
-            APAMImpl.managerList.add(manager);
-        } else {
-            for (int i = 1; i < APAMImpl.managerList.size(); i++) {
-                if (priority <= APAMImpl.managerList.get(i).getPriority()) {
-                    APAMImpl.managerList.add(i, manager);
-                    break;
-                }
+        boolean inserted = false;
+        for (int i = 0; i < APAMImpl.managerList.size(); i++) {
+            if (priority <= APAMImpl.managerList.get(i).getPriority()) {
+                APAMImpl.managerList.add(i, manager);
+                inserted = true;
+                break;
             }
+        }
+        if (!inserted) { // at the end
+            APAMImpl.managerList.add(manager);
         }
         APAMImpl.managersPrio.put(manager, new Integer(priority));
     }
@@ -330,6 +332,26 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     @Override
     public int getPriority(Manager manager) {
         return APAMImpl.managersPrio.get(manager);
+    }
+
+    @Override
+    public Composite createComposite(Composite source, String name, Set<ManagerModel> models) {
+        if (source == null) {
+            System.out.println("ERROR : Source composite missing");
+            return null;
+        }
+        if (name == null) {
+            System.out.println("ERROR : Composite name missing");
+            return null;
+        }
+        if (source.getApplication().getComposite(name) != null) {
+            System.out.println("ERROR : Composite " + name + " allready exists");
+            return null;
+        }
+        Composite comp = new CompositeImpl(name, source.getApplication(), models);
+        ((ApplicationImpl) source.getApplication()).addComposite(comp);
+        source.addDepend(comp);
+        return comp;
     }
 
     /**
@@ -477,5 +499,20 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         for (Composite comp : compo.getDepend()) {
             dumpComposite(comp, indent);
         }
+    }
+
+    @Override
+    public ASMSpecBroker getSpecBroker() {
+        return ASM.ASMSpecBroker;
+    }
+
+    @Override
+    public ASMImplBroker getImplBroker() {
+        return ASM.ASMImplBroker;
+    }
+
+    @Override
+    public ASMInstBroker getInstBroker() {
+        return ASM.ASMInstBroker;
     }
 }

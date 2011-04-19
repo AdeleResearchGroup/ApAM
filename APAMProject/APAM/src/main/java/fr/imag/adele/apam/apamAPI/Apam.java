@@ -24,6 +24,17 @@ public interface Apam {
             String specName, Attributes properties);
 
     /**
+     * Creates a composite in the application in which the source pertains. A single composite with this name can exist
+     * in an application. Return null if name conflicts.
+     * 
+     * @param source The origin if the dependency relationship. The embedding composite.
+     * @param name the symbolic name. Unique in this application
+     * @param models optionnal : the associated models.
+     * @return
+     */
+    public Composite createComposite(Composite source, String name, Set<ManagerModel> models);
+
+    /**
      * Creates an application from scratch, by deploying an implementation. First creates the root composites
      * (compositeName), associates its models (models). Then installs and creates the specification (from the url or
      * only by its interfaces) then installs and creates the main implementation (implName) from its URL, considered as
@@ -77,6 +88,12 @@ public interface Apam {
      * @return
      */
     public Set<Application> getApplications();
+
+    public ASMSpecBroker getSpecBroker();
+
+    public ASMImplBroker getImplBroker();
+
+    public ASMInstBroker getInstBroker();
 
     public void dumpApam();
 
