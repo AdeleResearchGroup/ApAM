@@ -1,17 +1,18 @@
 package fr.imag.adele.apam;
 
 import fr.imag.adele.apam.apamAPI.ASMInst;
+import fr.imag.adele.apam.samAPIImpl.ASMInstImpl;
 import fr.imag.adele.apam.util.Attributes;
 
 public class Wire {
-    ASMInst source;
-    ASMInst destination;
-    String  depName;
+    ASMInstImpl source;
+    ASMInstImpl destination;
+    String      depName;
 
     public Wire(ASMInst from, ASMInst to, String depName) {
         if (Wire.checkNewWire(from, to)) {
-            source = from;
-            destination = to;
+            source = (ASMInstImpl) from;
+            destination = (ASMInstImpl) to;
             this.depName = depName;
         }
     }
@@ -64,6 +65,14 @@ public class Wire {
 
     public String getDepName() {
         return depName;
+    }
+
+    public void remove() {
+        source.removeWire(this);
+        destination.removeInvWire(this);
+        if (source.getDepHandler() != null) {
+            source.getDepHandler().remWire(destination, depName);
+        }
     }
 
 }

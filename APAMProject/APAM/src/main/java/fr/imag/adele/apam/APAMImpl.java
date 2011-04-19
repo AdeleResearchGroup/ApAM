@@ -486,8 +486,8 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             return;
         System.out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " " + inst.getSpec());
         indent = indent + "  ";
-        for (ASMInst to : inst.getWireDests()) {
-            dumpState(to, indent, inst.getWire(to).depName);
+        for (Wire wire : inst.getWires()) {
+            dumpState(wire.getDestination(), indent, wire.getDepName());
         }
     }
 

@@ -1,7 +1,7 @@
 package fr.imag.adele.apam.samAPIImpl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -28,13 +28,17 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     // private static ASMInstBroker myBroker = ASM.ASMInstBroker;
 
     // private String name;
-    private ASMImpl                  myImpl;
-    private Composite                myComposite;
-    private Instance                 samInst;
-    private ApamDependencyHandler    depHandler;
+    private ASMImpl               myImpl;
+    private Composite             myComposite;
+    private Instance              samInst;
+    private ApamDependencyHandler depHandler;
 
-    private final Map<ASMInst, Wire> wires    = new HashMap<ASMInst, Wire>(); // the currently used instances
-    private final Map<ASMInst, Wire> invWires = new HashMap<ASMInst, Wire>();
+    public ApamDependencyHandler getDepHandler() {
+        return depHandler;
+    }
+
+    private final Set<Wire> wires    = new HashSet<Wire>(); // the currently used instances
+    private final Set<Wire> invWires = new HashSet<Wire>();
 
     public ASMInstImpl(Composite compo, ASMImpl impl, Attributes initialproperties, Instance samInst) {
         myImpl = impl;
@@ -122,7 +126,16 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
      */
     @Override
     public Set<ASMInst> getWireDests() {
-        return wires.keySet();
+        Set<ASMInst> dests = new HashSet<ASMInst>();
+        for (Wire wire : wires) {
+            dests.add(wire.getDestination());
+        }
+        return dests;
+    }
+
+    @Override
+    public Set<Wire> getWires() {
+        return Collections.unmodifiableSet(wires);
     }
 
     @Override
@@ -130,58 +143,31 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         if ((to == null) || (depName == null))
             return false;
 
-        if ((wires.get(to) != null) && (depName.equals(wires.get(to).getDepName()))) // allready exists
-            return true;
+        for (Wire wire : wires) { // check if it allready exists
+            if ((wire.getSource() == to) && wire.getDepName().equals(depName))
+                return true;
+        }
+
         if (!Wire.checkNewWire(this, to))
             return false;
         Wire wire = new Wire(this, to, depName);
-        wires.put(to, wire);
-        ((ASMInstImpl) to).setInvWire(this, wire);
+        wires.add(wire);
+        ((ASMInstImpl) to).invWires.add(wire);
         if (depHandler != null) {
             depHandler.setWire(to, depName);
         }
         return true;
     }
 
-    // Not in the interface
-    private void setInvWire(ASMInst from, Wire wire) {
-        invWires.put(from, wire);
-    }
-
-    /**
-     * 
-     * @param to
-     */
-
     @Override
-    public void removeWire(ASMInst to) {
-        if ((to == null))
-            return;
-        Wire wire = wires.get(to);
-        if (wire == null)
-            return;
-        wires.remove(to);
-        ((ASMInstImpl) to).removeInvWire(this);
-        if (depHandler != null) {
-            depHandler.remWire(to, wire.getDepName());
-        }
+    public void removeWire(Wire wire) {
+        wires.remove(wire);
     }
 
-    private void removeInvWire(ASMInst from) {
-        if (invWires.get(from) == null)
-            return;
-        invWires.remove(from);
+    public void removeInvWire(Wire wire) {
+        invWires.remove(wire);
         if (invWires.isEmpty()) { // This instance ins no longer used. Delete it
-                                  // => remove all its wires
-            for (ASMInst dest : wires.keySet()) {
-                removeWire(dest);
-            }
-            try {
-                ASM.ASMInstBroker.removeInst(this);
-                samInst.delete();
-            } catch (ConnectionException e) {
-                e.printStackTrace();
-            }
+            remove();
         }
     }
 
@@ -189,13 +175,22 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
      * remove from ASM It deletes the wires, which deletes the isolated used instances, and transitively. It deleted the
      * invWires, which removes the associated real dependency :
      */
+
     @Override
     public void remove() {
-        // The fact the instance is no longer used deletes it. It is done in
-        // removeWire.
-        for (ASMInst client : invWires.keySet()) {
-            ((ASMInstImpl) client).removeWire(this);
+        for (Wire wire : invWires) {
+            wire.remove();
         }
+        for (Wire wire : wires) {
+            wire.remove();
+        }
+        try {
+            ASM.ASMInstBroker.removeInst(this);
+            samInst.delete();
+        } catch (ConnectionException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -252,14 +247,51 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
-    public Set<ASMInst> getClients() {
-        return invWires.keySet();
+    public Set<Wire> getInvWires() {
+        return Collections.unmodifiableSet(invWires);
     }
+
+    //
+    // public Set<ASMInst> getClients() {
+    // Set<ASMInst> clients = new HashSet<ASMInst>();
+    // for (Wire wire : invWires.keySet()) {
+    // clients.add(wire.getDestination());
+    // }
+    // return clients;
+    // }
 
     @Override
     public Wire getWire(ASMInst destInst) {
         if (destInst == null)
             return null;
-        return wires.get(destInst);
+        for (Wire wire : invWires) {
+            if (wire.getDestination() == destInst)
+                return wire;
+        }
+        return null;
     }
+
+    @Override
+    public Wire getWire(ASMInst destInst, String depName) {
+        if (destInst == null)
+            return null;
+        for (Wire wire : invWires) {
+            if ((wire.getDestination() == destInst) && (wire.getDepName().equals(depName)))
+                return wire;
+        }
+        return null;
+    }
+
+    @Override
+    public Set<Wire> getWires(ASMInst destInst) {
+        if (destInst == null)
+            return null;
+        Set<Wire> w = new HashSet<Wire>();
+        for (Wire wire : invWires) {
+            if (wire.getDestination() == destInst)
+                w.add(wire);
+        }
+        return w;
+    }
+
 }

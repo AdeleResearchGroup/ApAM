@@ -37,22 +37,23 @@ public interface ASMInst extends Attributes {
 
     public Wire getWire(ASMInst detInst);
 
+    public Wire getWire(ASMInst destInst, String depName);
+
+    public Set<Wire> getWires(ASMInst destInst);
+
+    public Set<Wire> getWires();
+
+    public Set<Wire> getInvWires();
+
     public boolean createWire(ASMInst to, String depName);
 
-    public void removeWire(ASMInst to);
+    public void removeWire(Wire wire);
 
-    /**
-     * remove from ASM but does not try to delete in SAM. The mapping is still valid. It deletes the wires, and turns to
-     * "idle" the isolated instances, and transitively. It deleted the invWires, which turns the callers in the "fault"
-     * mode : next call will try to resolve toward another instance.
-     */
     public void remove();
 
     public String getShared();
 
     public String getClonable();
-
-    public Set<ASMInst> getClients();
 
     // == from SAM interface
     public ASMSpec getSpec();

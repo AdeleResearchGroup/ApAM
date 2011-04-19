@@ -26,13 +26,13 @@ import org.apache.felix.service.command.Descriptor;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Apam;
 import fr.imag.adele.apam.apamAPI.Application;
 import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.samAPIImpl.ASMInstImpl;
 
 /**
  * 
@@ -106,13 +106,13 @@ public class ApamCommand {
             if ((specification.getASMName() != null)
                     && (specification.getASMName().equalsIgnoreCase(specificationName))) {
                 printSpecification("", specification);
-                testImplemtations("   ", specification.getImpls());
+                testImplementations("   ", specification.getImpls());
                 break;
             }
             if ((specification.getSAMName() != null)
                     && (specification.getSAMName().equalsIgnoreCase(specificationName))) {
                 printSpecification("", specification);
-                testImplemtations("   ", specification.getImpls());
+                testImplementations("   ", specification.getImpls());
                 break;
             }
         }
@@ -126,6 +126,10 @@ public class ApamCommand {
     @Descriptor("Display informations about the target implemetation")
     public void implem(@Descriptor("target implementation") String implementationName) {
         ASMImpl implementation = ASM.ASMImplBroker.getImpl(implementationName);
+        if (implementation == null) {
+            System.out.println("No such implementation : " + implementation);
+            return;
+        }
         printImplementation("", implementation);
         testInstances("   ", implementation.getInsts());
     }
@@ -139,7 +143,10 @@ public class ApamCommand {
     public void inst(@Descriptor("target implementation") String instanceName) {
         try {
             ASMInst instance = ASM.ASMInstBroker.getInst(instanceName);
-            printInstance("", instance);
+            if (instance == null) {
+                System.out.println("No such instance : " + instanceName);
+            } else
+                printInstance("", instance);
         } catch (Exception e) {
 
             e.printStackTrace();
@@ -158,7 +165,7 @@ public class ApamCommand {
     public void appli(@Descriptor("target application") String appliName) {
         Application appli = apam.getApplication(appliName);
         if (appli == null) {
-            System.out.println("No application " + appliName);
+            System.out.println("No such application : " + appliName);
             return;
         }
         System.out.println("Application " + appli);
@@ -203,7 +210,7 @@ public class ApamCommand {
                 break;
         }
         if (compo == null) {
-            System.out.println("No composite " + compoName);
+            System.out.println("No such composite : " + compoName);
             return;
         }
         System.out.println("Name : " + compoName + ";  Application " + compo.getApplication().getName());
@@ -256,8 +263,9 @@ public class ApamCommand {
      * @throws ConnectionException the connection exception
      */
     private void testInstances(String indent, Set<ASMInst> instances) {
+        if (instances == null)
+            return;
         for (ASMInst instance : instances) {
-
             printInstance(indent, instance);
             System.out.print("ASMImpl " + instance.getImpl());
             System.out.println("ASMSpec " + instance.getSpec());
@@ -273,26 +281,24 @@ public class ApamCommand {
      * @throws ConnectionException the connection exception
      */
     private void printInstance(String indent, ASMInst instance) {
+        if (instance == null)
+            return;
         System.out.println(indent + "----- [ ASMInst : " + instance.getASMName() + " ] -----");
         ASMImpl implementation = instance.getImpl();
-        Set<ASMInst> tos = instance.getWireDests();
         System.out.println(indent + "   dependencies:");
-        for (ASMInst inst : tos) {
-            System.out.println(indent + "      " + instance.getWire(inst).getDepName() + ": " + inst);
+        for (Wire wire : instance.getWires()) {
+            System.out.println(indent + "      " + wire.getDepName() + ": " + wire.getDestination());
         }
 
-        Set<ASMInst> from = ((ASMInstImpl) instance).getClients();
         System.out.println(indent + "   called by:");
-        for (ASMInst inst : from) {
-            if (inst.getWire(instance) != null)
-                System.out.println(indent + "      from " + inst.getWire(instance).getDepName() + ": " + inst);
-        }
+        for (Wire wire : instance.getInvWires())
+            System.out.println(indent + "      (" + wire.getDepName() + ") " + wire.getSource());
 
         if (implementation == null) {
             System.out.println(indent + " warning :  no factory for this instance");
         } else {
-            System.out.println(indent + "   implementation name : " + instance.getImpl());
-            System.out.println(indent + "   specification name : " + instance.getSpec());
+            System.out.println(indent + "   implementation : " + instance.getImpl());
+            System.out.println(indent + "   specification  : " + instance.getSpec());
             printProperties(indent + "   ", instance.getProperties());
         }
 
@@ -305,7 +311,7 @@ public class ApamCommand {
      * @param impls the impls
      * @throws ConnectionException the connection exception
      */
-    private void testImplemtations(String indent, Set<ASMImpl> impls) {
+    private void testImplementations(String indent, Set<ASMImpl> impls) {
         for (ASMImpl impl : impls) {
             printImplementation(indent, impl);
             testInstances(indent + "   ", impl.getInsts());

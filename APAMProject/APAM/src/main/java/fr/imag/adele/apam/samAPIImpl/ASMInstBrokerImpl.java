@@ -156,12 +156,16 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
     public void removeInst(ASMInst inst) {
         if (inst == null)
             return;
-        inst.remove();
-        instances.remove(inst);
+        if (instances.contains(inst)) {
+            instances.remove(inst);
+            inst.remove();
+        }
     }
 
     @Override
     public Set<ASMInst> getShareds(ASMSpec spec, Application appli, Composite compo) {
+        if (spec == null)
+            return null;
         Set<ASMInst> ret = new HashSet<ASMInst>();
         for (ASMInst inst : instances) {
             if (inst.getSpec() == spec) {
@@ -180,6 +184,8 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
     @Override
     public ASMInst getShared(ASMImpl impl, Application appli, Composite compo) {
+        if (impl == null)
+            return null;
         for (ASMInst inst : instances) {
             if (inst.getImpl() == impl) {
                 if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
@@ -197,6 +203,8 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
     @Override
     public ASMInst getShared(ASMSpec spec, Application appli, Composite compo) {
+        if (spec == null)
+            return null;
         for (ASMInst inst : instances) {
             if (inst.getSpec() == spec) {
                 if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
@@ -214,6 +222,8 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
 
     @Override
     public Set<ASMInst> getShareds(ASMImpl impl, Application appli, Composite compo) {
+        if (impl == null)
+            return null;
         Set<ASMInst> ret = new HashSet<ASMInst>();
         for (ASMInst inst : instances) {
             if (inst.getImpl() == impl) {
