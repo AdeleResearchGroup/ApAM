@@ -1,0 +1,11 @@
+<ipojo xmlns:appam="fr.imag.adele.appam">
+	<component name="S4Impl" classname="fr.imag.adele.apam.test.s4.S4Impl"
+	apam-implementation="S4ImplApam" 
+	apam-specification="S4">
+		<provides/>
+	</component>
+	
+	<instance component="S4Impl"/>
+	<instance component="S4Impl"/>
+	<instance component="S4Impl"/>
+</ipojo>
