@@ -114,7 +114,12 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
     }
 
     @Override
-    public Set<ASMSpec> getUses() {
+    public Set<ASMSpec> getRequires() {
+        return null;
+    }
+
+    @Override
+    public Set<ASMSpec> getInvRequires() {
         return null;
     }
 

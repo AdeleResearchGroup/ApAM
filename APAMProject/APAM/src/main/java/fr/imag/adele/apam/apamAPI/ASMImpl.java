@@ -72,12 +72,18 @@ public interface ASMImpl extends Attributes {
     public ASMSpec getSpec();
 
     /**
-     * Returns the specifications currently used by this implementation.
+     * Returns the implementation currently used by this implementation.
      * 
-     * @return the specification that this ASMImpl requires.
-     * @throws ConnectionException the connection exception
+     * @return the implementation that this ASMImpl requires.
      */
-    public Set<ASMSpec> getUses();
+    public Set<ASMImpl> getUses();
+
+    /**
+     * Returns the implementation currently using this implementation.
+     * 
+     * @return the implementation that use this ASMImpl .
+     */
+    public Set<ASMImpl> getInvUses();
 
     /**
      * Returns an instance (ASMInsts)of that Service implementation that satisfies the provided Goal, if existing. Null

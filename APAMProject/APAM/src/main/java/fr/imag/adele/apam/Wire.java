@@ -1,6 +1,9 @@
 package fr.imag.adele.apam;
 
+import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
+import fr.imag.adele.apam.apamAPI.ASMSpec;
+import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.samAPIImpl.ASMInstImpl;
 import fr.imag.adele.apam.util.Attributes;
 
@@ -28,26 +31,75 @@ public class Wire {
      * @param to
      * @return
      */
-    public static boolean checkNewWire(ASMInst from, ASMInst to) {
-        String shared = (String) to.getProperty(Attributes.SHARED);
+    public static boolean checkSpecAccess(ASMSpec spec, Composite compoFrom) {
+        String shared = (String) spec.getProperty(Attributes.SHARED);
 
         if ((shared == null) || (shared.equals(Attributes.SHARABLE)))
             return true;
 
         if (shared.equals(Attributes.APPLI))
-            return (from.getComposite().getApplication() == to.getComposite().getApplication());
+            return (compoFrom.getApplication() == spec.getComposite().getApplication());
 
         if (shared.equals(Attributes.COMPOSITE))
-            return ((from.getComposite() == to.getComposite()) || (from.getComposite().dependsOn(to.getComposite())));
+            return ((compoFrom == spec.getComposite()) || (compoFrom.dependsOn(spec.getComposite())));
 
         if (shared.equals(Attributes.LOCAL))
-            return (from.getComposite() == to.getComposite());
+            return (compoFrom == spec.getComposite());
 
         if (shared.equals(Attributes.PRIVATE))
-            return (to.getInvWires().size() == 0);
+            return (spec.getInvRequires().size() == 0);
 
         System.out.println("Invalid Shared value :  " + shared);
         return false;
+    }
+
+    public static boolean checkImplAccess(ASMImpl impl, Composite compoFrom) {
+        String shared = (String) impl.getProperty(Attributes.SHARED);
+
+        if ((shared == null) || (shared.equals(Attributes.SHARABLE)))
+            return true;
+
+        if (shared.equals(Attributes.APPLI))
+            return (compoFrom.getApplication() == impl.getComposite().getApplication());
+
+        if (shared.equals(Attributes.COMPOSITE))
+            return ((compoFrom == impl.getComposite()) || (compoFrom.dependsOn(impl.getComposite())));
+
+        if (shared.equals(Attributes.LOCAL))
+            return (compoFrom == impl.getComposite());
+
+        if (shared.equals(Attributes.PRIVATE))
+            return (impl.getInvUses().size() == 0);
+
+        System.out.println("Invalid Shared value :  " + shared);
+        return false;
+    }
+
+    public static boolean checkInstAccess(ASMInst inst, Composite compoFrom) {
+        String shared = (String) inst.getProperty(Attributes.SHARED);
+
+        if ((shared == null) || (shared.equals(Attributes.SHARABLE)))
+            return true;
+
+        if (shared.equals(Attributes.APPLI))
+            return (compoFrom.getApplication() == inst.getComposite().getApplication());
+
+        if (shared.equals(Attributes.COMPOSITE))
+            return ((compoFrom == inst.getComposite()) || (compoFrom.dependsOn(inst.getComposite())));
+
+        if (shared.equals(Attributes.LOCAL))
+            return (compoFrom == inst.getComposite());
+
+        if (shared.equals(Attributes.PRIVATE))
+            return (inst.getInvWires().size() == 0);
+
+        System.out.println("Invalid Shared value :  " + shared);
+        return false;
+
+    }
+
+    public static boolean checkNewWire(ASMInst from, ASMInst to) {
+        return Wire.checkInstAccess(to, from.getComposite());
     }
 
     public ASMInst getSource() {

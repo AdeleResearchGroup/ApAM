@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
@@ -62,48 +63,57 @@ public class ApamMan implements Manager {
         if (spec == null)
             return null;
 
-        Set<ASMInst> sharable = ASM.ASMInstBroker.getShareds(spec, client.getComposite().getApplication(), client
-                .getComposite());
-        for (ASMInst inst : sharable) {
-            boolean satisfies = true;
-            for (Filter filter : constraints) {
-                if (!filter.match((AttributesImpl) inst.getProperties())) {
-                    satisfies = false;
-                    break;
+        // Set<ASMInst> sharable = ASM.ASMInstBroker.getShareds(spec, client.getComposite().getApplication(), client
+        // .getComposite());
+
+        try {
+            for (ASMInst inst : ASM.ASMInstBroker.getInsts(spec, null)) {
+                if (Wire.checkNewWire(client, inst)) {
+                    boolean satisfies = true;
+                    for (Filter filter : constraints) {
+                        if (!filter.match((AttributesImpl) inst.getProperties())) {
+                            satisfies = false;
+                            break;
+                        }
+                    }
+                    if (satisfies) { // accept only if a wire is possible
+                        client.createWire(inst, depName);
+                        if (multiple)
+                            allInst.add(inst);
+                        else
+                            return inst;
+
+                    }
                 }
             }
-            if (satisfies) { // accept only if a wire is possible
-                if (client.createWire(inst, depName)) {
-                    if (multiple)
-                        allInst.add(inst);
-                    else
-                        return inst;
-                }
-            }
+        } catch (InvalidSyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+
         if (multiple && !allInst.isEmpty())
             return null; // we found at least one
 
         // try to find a sharable implementation and instantiate.
-        Set<ASMImpl> sharedImpl = ASM.ASMImplBroker.getShareds(spec, client.getComposite().getApplication(), client
-                .getComposite());
-        for (ASMImpl impl : sharedImpl) {
-            boolean satisfies = true;
-            for (Filter filter : constraints) {
-                if (!filter.match((AttributesImpl) impl.getProperties())) {
-                    satisfies = false;
-                    break;
+        for (ASMImpl impl : ASM.ASMImplBroker.getImpls(spec)) {
+            if (Wire.checkImplAccess(impl, client.getComposite())) {
+                boolean satisfies = true;
+                for (Filter filter : constraints) {
+                    if (!filter.match((AttributesImpl) impl.getProperties())) {
+                        satisfies = false;
+                        break;
+                    }
                 }
-            }
-            if (satisfies) { // This implem is sharable and satisfies the constraints. Instantiate.
-                ASMInst inst = impl.createInst(null);
-                // accept only if a wire is possible
-                if (client.createWire(inst, depName)) {
+                if (satisfies) { // This implem is sharable and satisfies the constraints. Instantiate.
+                    ASMInst inst = impl.createInst(null);
+                    // accept only if a wire is possible
+                    client.createWire(inst, depName);
                     // At most one instantiation, even if multiple
                     if (multiple)
                         allInst.add(inst);
                     else
                         return inst;
+
                 }
             }
         }
@@ -133,26 +143,27 @@ public class ApamMan implements Manager {
         ASMImpl impl = null;
         impl = ASM.ASMImplBroker.getImpl(implName);
         if (impl != null) {
-            Set<ASMInst> sharable = ASM.ASMInstBroker.getShareds(impl, client.getComposite().getApplication(), client
-                    .getComposite());
-            for (ASMInst inst : sharable) {
-                boolean satisfies = true;
-                for (Filter filter : constraints) {
-                    if (!filter.match((AttributesImpl) inst.getProperties())) {
-                        satisfies = false;
-                        break;
+            // Set<ASMInst> sharable = ASM.ASMInstBroker.getShareds(impl, client.getComposite().getApplication(), client
+            // .getComposite());
+            for (ASMInst inst : impl.getInsts()) {
+                if (Wire.checkNewWire(client, inst)) {
+                    boolean satisfies = true;
+                    for (Filter filter : constraints) {
+                        if (!filter.match((AttributesImpl) inst.getProperties())) {
+                            satisfies = false;
+                            break;
+                        }
                     }
-                }
-                if (satisfies) { // accept only if a wire is possible
-                    if (client.createWire(inst, depName)) {
+                    if (satisfies) { // accept only if a wire is possible
+                        client.createWire(inst, depName);
                         if (multiple)
                             allInst.add(inst);
                         else
                             return inst;
                     }
                 }
-
             }
+
             // The impl does not have sharable instance. try to instanciate.
             boolean satisfies = true;
             for (Filter filter : constraints) {

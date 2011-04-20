@@ -189,22 +189,14 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
             setProperty(Attributes.SHARED, clonable);
     }
 
-    // @Override
-    // public void setShared(String newShared) {
-    // if (((newShared < 0) || (newShared > mySpec.getShared())))
-    // return; // do not change
-    // for (ASMInst inst : instances) {
-    // if (inst.getShared() > newShared) {
-    // System.out.println("cannot change shared prop of " + getASMName()
-    // + " som instances have higher shared prop");
-    // return; // do not change anything
-    // }
-    // }
-    // shared = newShared;
-    // }
+    @Override
+    public Set<ASMImpl> getUses() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
     @Override
-    public Set<ASMSpec> getUses() {
+    public Set<ASMImpl> getInvUses() {
         // TODO Auto-generated method stub
         return null;
     }

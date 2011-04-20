@@ -69,44 +69,4 @@ public interface ASMInstBroker {
      */
     public void removeInst(ASMInst inst);
 
-    /**
-     * returns one instance implementing impl, and sharable inside appli and compo.
-     * 
-     * @param impl the implementation of the returned instance.
-     * @param appli Can be null .The returned instance must be sharable inside the given appli (shared = appli).
-     * @param compo Can be null .The returned instance must be sharable inside the given composite (shared = local)
-     * @return
-     */
-    public ASMInst getShared(ASMImpl impl, Application appli, Composite compo);
-
-    /**
-     * returns one instance implementing spec, and shareable inside appli and compo.
-     * 
-     * @param spec the specification of the returned instance
-     * @param appli Can be null. The returned instance must be sharable inside the given appli (shared = appli)
-     * @param compo Can be null. The returned instance must be sharable inside the given composite (shared = local)
-     * @return
-     */
-    public ASMInst getShared(ASMSpec spec, Application appli, Composite compo);
-
-    /**
-     * returns all instances implementing impl, and shareable inside appli and compo.
-     * 
-     * @param impl the specification of the returned instance
-     * @param appli Can be null.The returned instance must be sharable inside the given appli (shared = appli)
-     * @param compo Can be null.The returned instance must be sharable inside the given composite (shared = local)
-     * @return
-     */
-    public Set<ASMInst> getShareds(ASMImpl impl, Application appli, Composite compo);
-
-    /**
-     * returns all instances implementing spec, and shareable inside appli and compo.
-     * 
-     * @param impl the implementation of the returned instance
-     * @param appli Can be null.The returned instance must be sharable inside the given appli (shared = appli)
-     * @param compo Can be null. The returned instance must be sharable inside the given composite (shared = local)
-     * @return
-     */
-    public Set<ASMInst> getShareds(ASMSpec spec, Application appli, Composite compo);
-
 }

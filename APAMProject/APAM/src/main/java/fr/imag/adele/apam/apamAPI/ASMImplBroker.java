@@ -75,7 +75,7 @@ public interface ASMImplBroker {
     public Set<ASMImpl> getImpls();
 
     /**
-     * Return the list of (exported) service implementation that satisfies the goal.
+     * Return the list of service implementation that satisfies the goal.
      * 
      * @param goal the filter
      * @return all (exported) service ASMImpls that satisfy the goal. Null if none.
@@ -84,23 +84,12 @@ public interface ASMImplBroker {
     public Set<ASMImpl> getImpls(Filter goal) throws InvalidSyntaxException;
 
     /**
-     * returns all implementaitons implementing spec, and with shared = shareable
+     * returns the list of implementations that implement the specification
      * 
-     * @param spec the specification of the returned instance
-     * @param appli Can be null. The returned instance must be sharable inside the given appli (shared = appli)
-     * @param compo Can be null. The returned instance must be sharable inside the given composite (shared = local)
+     * @param spec
      * @return
+     * @throws InvalidSyntaxException
      */
-    public Set<ASMImpl> getShareds(ASMSpec spec, Application appli, Composite compo);
-
-    /**
-     * returns one implementation implementing Spec, and shareable inside appli.
-     * 
-     * @param spec the specification of the returned instance
-     * @param appli Can be null. The returned instance must be sharable inside the given appli (shared = appli)
-     * @param compo Can be null. The returned instance must be sharable inside the given composite (shared = local)
-     * @return
-     */
-    public ASMImpl getShared(ASMSpec spec, Application appli, Composite compo);
+    public Set<ASMImpl> getImpls(ASMSpec spec);
 
 }

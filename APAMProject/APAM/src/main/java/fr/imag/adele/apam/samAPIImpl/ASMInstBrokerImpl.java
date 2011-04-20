@@ -18,7 +18,6 @@ import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.Application;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
@@ -162,82 +161,82 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
         }
     }
 
-    @Override
-    public Set<ASMInst> getShareds(ASMSpec spec, Application appli, Composite compo) {
-        if (spec == null)
-            return null;
-        Set<ASMInst> ret = new HashSet<ASMInst>();
-        for (ASMInst inst : instances) {
-            if (inst.getSpec() == spec) {
-                if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
-                    ret.add(inst);
-                else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
-                        .getApplication() == appli))) {
-                    ret.add(inst);
-                } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
-                    ret.add(inst);
-                }
-            }
-        }
-        return ret;
-    }
+    // @Override
+    // public Set<ASMInst> getShareds(ASMSpec spec, Application appli, Composite compo) {
+    // if (spec == null)
+    // return null;
+    // Set<ASMInst> ret = new HashSet<ASMInst>();
+    // for (ASMInst inst : instances) {
+    // if (inst.getSpec() == spec) {
+    // if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
+    // ret.add(inst);
+    // else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
+    // .getApplication() == appli))) {
+    // ret.add(inst);
+    // } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
+    // ret.add(inst);
+    // }
+    // }
+    // }
+    // return ret;
+    // }
 
-    @Override
-    public ASMInst getShared(ASMImpl impl, Application appli, Composite compo) {
-        if (impl == null)
-            return null;
-        for (ASMInst inst : instances) {
-            if (inst.getImpl() == impl) {
-                if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
-                    return inst;
-                else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
-                        .getApplication() == appli))) {
-                    return inst;
-                } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
-                    return inst;
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public ASMInst getShared(ASMSpec spec, Application appli, Composite compo) {
-        if (spec == null)
-            return null;
-        for (ASMInst inst : instances) {
-            if (inst.getSpec() == spec) {
-                if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
-                    return inst;
-                else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
-                        .getApplication() == appli))) {
-                    return inst;
-                } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
-                    return inst;
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Set<ASMInst> getShareds(ASMImpl impl, Application appli, Composite compo) {
-        if (impl == null)
-            return null;
-        Set<ASMInst> ret = new HashSet<ASMInst>();
-        for (ASMInst inst : instances) {
-            if (inst.getImpl() == impl) {
-                if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
-                    ret.add(inst);
-                else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
-                        .getApplication() == appli))) {
-                    ret.add(inst);
-                } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
-                    ret.add(inst);
-                }
-            }
-        }
-        return ret;
-    }
+    // @Override
+    // public ASMInst getShared(ASMImpl impl, Application appli, Composite compo) {
+    // if (impl == null)
+    // return null;
+    // for (ASMInst inst : instances) {
+    // if (inst.getImpl() == impl) {
+    // if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
+    // return inst;
+    // else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
+    // .getApplication() == appli))) {
+    // return inst;
+    // } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
+    // return inst;
+    // }
+    // }
+    // }
+    // return null;
+    // }
+    //
+    // @Override
+    // public ASMInst getShared(ASMSpec spec, Application appli, Composite compo) {
+    // if (spec == null)
+    // return null;
+    // for (ASMInst inst : instances) {
+    // if (inst.getSpec() == spec) {
+    // if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
+    // return inst;
+    // else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
+    // .getApplication() == appli))) {
+    // return inst;
+    // } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
+    // return inst;
+    // }
+    // }
+    // }
+    // return null;
+    // }
+    //
+    // @Override
+    // public Set<ASMInst> getShareds(ASMImpl impl, Application appli, Composite compo) {
+    // if (impl == null)
+    // return null;
+    // Set<ASMInst> ret = new HashSet<ASMInst>();
+    // for (ASMInst inst : instances) {
+    // if (inst.getImpl() == impl) {
+    // if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
+    // ret.add(inst);
+    // else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
+    // .getApplication() == appli))) {
+    // ret.add(inst);
+    // } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
+    // ret.add(inst);
+    // }
+    // }
+    // }
+    // return ret;
+    // }
 
 }

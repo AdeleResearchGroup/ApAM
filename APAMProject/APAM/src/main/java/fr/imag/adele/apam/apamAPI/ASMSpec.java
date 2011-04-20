@@ -67,11 +67,20 @@ public interface ASMSpec extends Attributes {
     public String[] getInterfaceNames();
 
     /**
-     * Return the list of required abstract services. Null if none.
+     * Return the list of currently used specification (may be a sub-set of ConfMan requires).
      * 
      * @return the list of required abstract services. Null if none
      * @throws ConnectionException the connection exception
      */
-    public Set<ASMSpec> getUses();
+    public Set<ASMSpec> getRequires();
+
+    /**
+     * Return the list of specification that are currently connected to thatspec (may be a sub-set of ConfMan requires).
+     * 
+     * @return the list of abstract services using that spec. Null if none
+     * @throws ConnectionException the connection exception
+     */
+
+    public Set<ASMSpec> getInvRequires();
 
 }
