@@ -13,6 +13,7 @@ public interface Attributes {
     public static final String SHARED    = "SHARED";         // Property name
     public static final String SHARABLE  = "SHARABLE";
     public static final String APPLI     = "APPLI";
+    public static final String COMPOSITE = "COMPOSITE";
     public static final String LOCAL     = "LOCAL";
     public static final String PRIVATE   = "PRIVATE";
 

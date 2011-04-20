@@ -9,6 +9,8 @@ import fr.imag.adele.apam.apamAPI.ApamComponent;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.test.s3.S3;
 import fr.imag.adele.apam.test.s4.S4;
+import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.apam.util.AttributesImpl;
 
 public class S2Impl implements S2, ApamComponent {
 
@@ -24,6 +26,12 @@ public class S2Impl implements S2, ApamComponent {
         myInst = inst;
     }
 
+    // @Override
+    public void callBackS2(String s) {
+        System.out.println("Back in S2 : " + s);
+    }
+
+    // @Override
     public void callS2(String s) {
         int i = 1;
         for (S3 s3 : s3s) {
@@ -31,21 +39,30 @@ public class S2Impl implements S2, ApamComponent {
             i++;
         }
 
-        Composite compo;
+        Composite compo2 = null;
+        Composite compo3 = null;
         if (myInst != null) {
-            compo = apam.createComposite(myInst.getComposite(), "Composite2", null);
-        } else {
-            System.out.println("my inst pas instnacie");
-            compo = apam.createComposite(apam.getApplication("TestS1").getMainComposite(), "Composite2", null);
-            if (compo == null) {
-                System.out.println("pas pu creer composite 2");
-                return;
-            }
+            compo2 = apam.createComposite(myInst.getComposite(), "Compo2", null);
+            compo3 = apam.createComposite(myInst.getComposite(), "Compo3", null);
+        }
+        if (compo2 == null) {
+            System.out.println("composite 2 n'a pas pu etre cree");
+            return;
+        }
+        if (compo3 == null) {
+            System.out.println("compo 3 n'a pas pu etre cree");
+            return;
         }
 
         ASMImplBroker implBroker = apam.getImplBroker();
 
-        implBroker.addImpl(compo, "ApamS4impl", "S4Impl", "S4In", null);
+        Attributes c2Attrs = new AttributesImpl();
+        c2Attrs.setProperty(Attributes.SHARED, Attributes.APAMCOMPO);
+        implBroker.addImpl(compo2, "ApamS4impl", "S4Impl", "S4In", c2Attrs);
+
+        Attributes c3Attrs = new AttributesImpl();
+        implBroker.addImpl(compo3, "ApamS5impl", "S5Impl", "S5", c2Attrs);
+
         System.out.println("S2 called " + s);
         s4_1.callS4("depuis S4_1 ");
         s4_2.callS4("depuis S4_2 ");

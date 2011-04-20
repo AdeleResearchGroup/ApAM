@@ -19,39 +19,34 @@ public class Wire {
 
     /**
      * Check if this new wire is consistent or not. Check the shared property, Check if composite are correctly set.
-     * Checks if the wire is already existing.
+     * Checks if the wire is already existing. • D.shared = shareable. D est utilisable par tout autre objet O. •
+     * D.shared = Appli. D n’est utilisable par O que si CO.appli == CD.appli. • D.shared = Composite. D n’est
+     * utilisable par O que si CO==CD ou CO-depend-CD. • D.shared = local. D n’est utilisable par O que si CO==CD. •
+     * D.shared = private. D n’est utilisable par O que si CO==CD et O’ / O’ utilise D.
      * 
      * @param from
      * @param to
      * @return
      */
     public static boolean checkNewWire(ASMInst from, ASMInst to) {
-        if ((from.getComposite() == null) || (to.getComposite() == null)) {
-            System.out.println("erreur : Composite not present in instance.");
-            return false;
-        }
         String shared = (String) to.getProperty(Attributes.SHARED);
-        if (shared == null)
-            return true; // sharable by default
-        try {
-            if (shared.equals(Attributes.PRIVATE)) {
-                if (to.getWireDests() == null)
-                    return true;
-            } else if (shared.equals(Attributes.LOCAL)) {
-                if (from.getComposite() == to.getComposite())
-                    return true;
-            } else if (shared.equals(Attributes.APPLI)) {
-                if (from.getComposite() == to.getComposite())
-                    return true;
-                if (from.getComposite().dependsOn(to.getComposite()))
-                    return true;
-            } else
-                return true;
 
-            System.out.println("prohibited wire between " + from + " and " + to);
-            return false;
-        } catch (Exception e) {
-        }
+        if ((shared == null) || (shared.equals(Attributes.SHARABLE)))
+            return true;
+
+        if (shared.equals(Attributes.APPLI))
+            return (from.getComposite().getApplication() == to.getComposite().getApplication());
+
+        if (shared.equals(Attributes.COMPOSITE))
+            return ((from.getComposite() == to.getComposite()) || (from.getComposite().dependsOn(to.getComposite())));
+
+        if (shared.equals(Attributes.LOCAL))
+            return (from.getComposite() == to.getComposite());
+
+        if (shared.equals(Attributes.PRIVATE))
+            return (to.getInvWires().size() == 0);
+
+        System.out.println("Invalid Shared value :  " + shared);
         return false;
     }
 

@@ -6,10 +6,10 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <groupId>fr.imag.adele.apam</groupId>
-  <artifactId>test.create.S4</artifactId>
+  <artifactId>S5</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
-  <name>S4</name>
+  <name>S5</name>
 
 	<build>
 		<plugins>
@@ -41,7 +41,7 @@
 			                 <goal>ipojo-bundle</goal>
 			            </goals>
 						<configuration>
-							 <metadata>src/main/resources/fr/imag/adele/apam/test/s4/S4Impl.ipojo</metadata>
+							 <metadata>src/main/resources/s5/S5Impl.ipojo</metadata>
 						</configuration>
 					</execution>
 				</executions>
@@ -52,20 +52,6 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>APAM</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<type>bundle</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>S5</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<type>bundle</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-  			<groupId>fr.imag.adele.apam</groupId>
-  			<artifactId>test.create.S2</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
