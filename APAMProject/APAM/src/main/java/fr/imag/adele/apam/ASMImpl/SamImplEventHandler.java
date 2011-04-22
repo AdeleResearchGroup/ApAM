@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.samAPIImpl;
+package fr.imag.adele.apam.ASMImpl;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -8,7 +8,7 @@ import fr.imag.adele.am.eventing.AMEvent;
 import fr.imag.adele.am.eventing.AMEventingHandler;
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.am.query.Query;
-import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.PID;
 import fr.imag.adele.sam.event.EventProperty;
@@ -27,7 +27,7 @@ public class SamImplEventHandler implements AMEventingHandler {
         if (expected == null)
             return null;
         // if allready here
-        Implementation implementation = ASM.SAMImplBroker.getImplementation(expected);
+        Implementation implementation = CST.SAMImplBroker.getImplementation(expected);
         if (implementation != null)
             return implementation;
 
@@ -39,7 +39,7 @@ public class SamImplEventHandler implements AMEventingHandler {
                     this.wait();
                 }
                 // The expected impl arrived.
-                implementation = ASM.SAMImplBroker.getImplementation(expected);
+                implementation = CST.SAMImplBroker.getImplementation(expected);
                 if (implementation == null) // should never occur
                     System.out.println("wake up but imlementation is not present " + expected);
             } catch (InterruptedException e) {

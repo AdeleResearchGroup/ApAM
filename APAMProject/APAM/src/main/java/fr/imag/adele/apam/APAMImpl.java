@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.apamAPI.ASMImpl;
+import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMInstBroker;
@@ -26,7 +26,6 @@ import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.DynamicManager;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.apamAPI.ManagersMng;
-import fr.imag.adele.apam.samAPIImpl.SamInstEventHandler;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 
@@ -41,7 +40,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     private static List<Manager>            managerList  = new ArrayList<Manager>();
 
     public APAMImpl() {
-        new ASM(this);
+        new CST(this);
         APAMImpl.apamMan = new ApamMan();
         addManager(APAMImpl.apamMan, -1); // -1 to be sure it is not in the main loop
     }
@@ -368,20 +367,20 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             System.err.println("ERROR : Missing parameter samInstanceName or client in newClientCallBack");
             return;
         }
-        SamInstEventHandler.theInstHandler.addNewApamInstance(samInstanceName, client, implName, specName);
+        SamInstEventHandler.addNewApamInstance(samInstanceName, client, implName, specName);
     }
 
     @Override
-    public void appearedExpected(ASMImpl impl, DynamicManager manager) {
-        if ((impl == null) || (manager == null)) {
+    public void appearedImplExpected(String samImplName, DynamicManager manager) {
+        if ((samImplName == null) || (manager == null)) {
             System.err.println("ERROR : Missing parameter impl or manager in appearedExpected");
             return;
         }
-        SamInstEventHandler.addExpectedImpl(impl, manager);
+        SamInstEventHandler.addExpectedImpl(samImplName, manager);
     }
 
     @Override
-    public void appearedExpected(String interf, DynamicManager manager) {
+    public void appearedInterfExpected(String interf, DynamicManager manager) {
         if ((interf == null) || (manager == null)) {
             System.out.println("ERROR : Missing parameter interf or manager in appearedExpected");
             return;
@@ -421,17 +420,17 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     }
 
     @Override
-    public void appearedNotExpected(ASMImpl impl, DynamicManager manager) {
-        if ((impl == null) || (manager == null)) {
+    public void appearedImplNotExpected(String samImplName, DynamicManager manager) {
+        if ((samImplName == null) || (manager == null)) {
             System.out.println("ERROR : Missing parameter impl or manager in appearedNotExpected");
             return;
         }
-        SamInstEventHandler.removeExpectedImpl(impl, manager);
+        SamInstEventHandler.removeExpectedImpl(samImplName, manager);
 
     }
 
     @Override
-    public void appearedNotExpected(String interf, DynamicManager manager) {
+    public void appearedInterfNotExpected(String interf, DynamicManager manager) {
         if ((interf == null) || (manager == null)) {
             System.out.println("ERROR : Missing parameter interf or manager in appearedNotExpected");
             return;
@@ -503,16 +502,16 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
     @Override
     public ASMSpecBroker getSpecBroker() {
-        return ASM.ASMSpecBroker;
+        return CST.ASMSpecBroker;
     }
 
     @Override
     public ASMImplBroker getImplBroker() {
-        return ASM.ASMImplBroker;
+        return CST.ASMImplBroker;
     }
 
     @Override
     public ASMInstBroker getInstBroker() {
-        return ASM.ASMInstBroker;
+        return CST.ASMInstBroker;
     }
 }

@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.samAPIImpl;
+package fr.imag.adele.apam.ASMImpl;
 
 import java.net.URL;
 import java.util.Collections;
@@ -13,7 +13,7 @@ import fr.imag.adele.am.Machine;
 import fr.imag.adele.am.eventing.AMEventingHandler;
 import fr.imag.adele.am.eventing.EventingEngine;
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.ApplicationImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
@@ -118,10 +118,10 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             ASMSpecImpl spec = null;
             samSpec = samImpl.getSpecification();
             if (samSpec != null) { // may be null !
-                spec = (ASMSpecImpl) ASM.ASMSpecBroker.getSpec(samSpec);
+                spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(samSpec);
             }
             if (spec == null) { // No ASM spec related to the sam spec.
-                spec = (ASMSpecImpl) ASM.ASMSpecBroker.getSpec(samSpec.getInterfaceNames());
+                spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(samSpec.getInterfaceNames());
                 if (spec != null) { // has been created without the SAM spec.
                                     // Add it now.
                     spec.setSamSpec(samSpec);
@@ -154,7 +154,11 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             return null;
         Implementation samImpl;
         try {
-            samImpl = ASM.SAMImplBroker.getImplementation(samImplName);
+            samImpl = CST.SAMImplBroker.getImplementation(samImplName);
+            if (samImpl == null) {
+                System.out.println("ERROR : Sam Implementation " + samImplName + " cannot be found");
+                return null;
+            }
             return addImpl0(compo, samImplName, samImpl, specName, properties);
 
         } catch (ConnectionException e) {
@@ -181,7 +185,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
                 return asmImpl;
             }
 
-            DeploymentUnit du = ASM.SAMDUBroker.install(url, type);
+            DeploymentUnit du = CST.SAMDUBroker.install(url, type);
             Set<String> implementationsNames = du.getImplementationsName();
             implNameExpected = (String) implementationsNames.toArray()[0];
 

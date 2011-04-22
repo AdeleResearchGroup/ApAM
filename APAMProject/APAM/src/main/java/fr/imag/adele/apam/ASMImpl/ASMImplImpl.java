@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.samAPIImpl;
+package fr.imag.adele.apam.ASMImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -9,7 +9,7 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
@@ -24,8 +24,11 @@ import fr.imag.adele.sam.broker.ImplementationBroker;
 
 public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
-    private static ASMImplBroker        myBroker      = ASM.ASMImplBroker;
-    private static ImplementationBroker samImplBroker = ASM.SAMImplBroker;      ;
+    private static ASMImplBroker        myBroker      = CST.ASMImplBroker;
+    private static ImplementationBroker samImplBroker = CST.SAMImplBroker;      ;
+
+    private final Set<ASMImpl>          uses          = new HashSet<ASMImpl>(); // all relations uses
+    private final Set<ASMImpl>          invUses       = new HashSet<ASMImpl>(); // all reverse relations uses
 
     private String                      name;
     private ASMSpec                     mySpec;
@@ -189,24 +192,61 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
             setProperty(Attributes.SHARED, clonable);
     }
 
+    // relation uses control
+    public void addUses(ASMImpl dest) {
+        if (uses.contains(dest))
+            return;
+        uses.add(dest);
+        ((ASMImplImpl) dest).addInvUses(this);
+        ((ASMSpecImpl) getSpec()).addRequires(dest.getSpec());
+    }
+
+    public void removeUses(ASMImpl dest) {
+        for (ASMInst inst : instances) {
+            for (ASMInst instDest : inst.getWireDests())
+                if (instDest.getImpl() == dest) {
+                    return; // it exists another instance that uses that destination. Do nothing.
+                }
+        }
+        uses.remove(dest);
+        ((ASMImplImpl) dest).removeInvUses(this);
+        ((ASMSpecImpl) getSpec()).removeRequires(dest.getSpec());
+    }
+
+    private void addInvUses(ASMImpl orig) {
+        invUses.add(orig);
+    }
+
+    private void removeInvUses(ASMImpl orig) {
+        invUses.remove(orig);
+    }
+
     @Override
     public Set<ASMImpl> getUses() {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.unmodifiableSet(uses);
     }
 
     @Override
     public Set<ASMImpl> getInvUses() {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.unmodifiableSet(invUses);
     }
 
+    //
     @Override
     public void remove() {
         for (ASMInst inst : instances) {
             inst.remove();
         }
         ASMImplImpl.myBroker.removeImpl(this);
+        // remove the APAM specific attributes in SAM
+        if (samImpl != null) {
+            try {
+                samImpl.removeProperty(Attributes.APAMAPPLI);
+                samImpl.removeProperty(Attributes.APAMCOMPO);
+            } catch (ConnectionException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

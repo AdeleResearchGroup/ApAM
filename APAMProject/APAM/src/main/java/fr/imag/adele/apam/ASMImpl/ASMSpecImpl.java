@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.samAPIImpl;
+package fr.imag.adele.apam.ASMImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,7 +8,7 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
@@ -23,6 +23,9 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
     private Composite          myComposite;
     private Specification      samSpec         = null;
     private final Set<ASMImpl> implementations = new HashSet<ASMImpl>();
+
+    private final Set<ASMSpec> requires        = new HashSet<ASMSpec>(); // all relations requires
+    private final Set<ASMSpec> invRequires     = new HashSet<ASMSpec>(); // all reverse relations requires
 
     // private int shared = ASM.SHAREABLE;
     // private final int clonable = ASM.TRUE;
@@ -47,7 +50,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         name = specName; // may be null
         this.samSpec = samSpec; // may be null
         compo.addSpec(this);
-        ((ASMSpecBrokerImpl) ASM.ASMSpecBroker).addSpec(this);
+        ((ASMSpecBrokerImpl) CST.ASMSpecBroker).addSpec(this);
         try {
             if (props == null) {
                 props = new AttributesImpl();
@@ -113,15 +116,54 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         return samSpec.getInterfaceNames();
     }
 
+    // relation requires control
+    public void addRequires(ASMSpec dest) {
+        if (requires.contains(dest))
+            return;
+        requires.add(dest);
+        ((ASMSpecImpl) dest).addInvRequires(this);
+    }
+
+    public void removeRequires(ASMSpec dest) {
+        for (ASMImpl impl : implementations) {
+            for (ASMImpl implDest : impl.getUses())
+                if (implDest.getSpec() == dest) {
+                    return; // it exists another instance that uses that destination. Do nothing.
+                }
+        }
+        requires.remove(dest);
+        ((ASMSpecImpl) dest).removeInvRequires(this);
+    }
+
+    private void addInvRequires(ASMSpec orig) {
+        invRequires.add(orig);
+    }
+
+    private void removeInvRequires(ASMSpec orig) {
+        invRequires.remove(orig);
+    }
+
     @Override
     public Set<ASMSpec> getRequires() {
-        return null;
+        return Collections.unmodifiableSet(requires);
     }
 
     @Override
     public Set<ASMSpec> getInvRequires() {
-        return null;
+        return Collections.unmodifiableSet(invRequires);
     }
+
+    //
+
+    // @Override
+    // public Set<ASMSpec> getRequires() {
+    // return null;
+    // }
+    //
+    // @Override
+    // public Set<ASMSpec> getInvRequires() {
+    // return null;
+    // }
 
     @Override
     public String getASMName() {
@@ -150,25 +192,21 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
 
     @Override
     public void remove() {
-        // TODO Auto-generated method stub
+        for (ASMImpl impl : implementations) {
+            impl.remove();
+        }
+        CST.ASMSpecBroker.removeSpec(this);
 
+        // remove the APAM specific attributes in SAM
+        if (samSpec != null) {
+            try {
+                samSpec.removeProperty(Attributes.APAMAPPLI);
+                samSpec.removeProperty(Attributes.APAMCOMPO);
+            } catch (ConnectionException e) {
+                e.printStackTrace();
+            }
+        }
     }
-
-    // @Override
-    // public void setShared(int newShared) {
-    // if ((newShared < Attributes.PRIVATE) || (newShared > Attributes.SHARABLE)) {
-    // System.err.println("ERROR : invalid shared value : " + newShared);
-    // return;
-    // }
-    // for (ASMImpl impl : implementations) {
-    // if (impl.getShared() > newShared) {
-    // System.out.println("cannot change shared prop of " + getASMName()
-    // + " some implementations have higher shared prop");
-    // return; // do not change anything
-    // }
-    // }
-    // shared = newShared;
-    // }
 
     @Override
     public Set<ASMImpl> getImpls() {

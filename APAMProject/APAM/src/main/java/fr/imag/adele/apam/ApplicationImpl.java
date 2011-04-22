@@ -39,7 +39,7 @@ public class ApplicationImpl implements Application {
         name = appliName;
         mainCompo = new CompositeImpl(appliName, this, models);
         composites.add(mainCompo);
-        mainImpl = ASM.ASMImplBroker.createImpl(mainCompo, implName, url, type, specName, properties);
+        mainImpl = CST.ASMImplBroker.createImpl(mainCompo, implName, url, type, specName, properties);
         mainSpec = mainImpl.getSpec();
     }
 
@@ -49,10 +49,10 @@ public class ApplicationImpl implements Application {
         mainCompo = new CompositeImpl(appliName, this, models);
         composites.add(mainCompo);
         if (specUrl == null)
-            ASM.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
+            CST.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
         else
-            ASM.ASMSpecBroker.createSpec(mainCompo, specName, specUrl, specType, interfaces, properties);
-        mainSpec = ASM.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
+            CST.ASMSpecBroker.createSpec(mainCompo, specName, specUrl, specType, interfaces, properties);
+        mainSpec = CST.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
         mainImpl = null;
     }
 
@@ -61,7 +61,7 @@ public class ApplicationImpl implements Application {
         name = appliName;
         mainCompo = new CompositeImpl(appliName, this, models);
         composites.add(mainCompo);
-        mainImpl = ASM.ASMImplBroker.addImpl(mainCompo, implName, samImplName, specName, properties);
+        mainImpl = CST.ASMImplBroker.addImpl(mainCompo, implName, samImplName, specName, properties);
         mainSpec = mainImpl.getSpec();
     }
 

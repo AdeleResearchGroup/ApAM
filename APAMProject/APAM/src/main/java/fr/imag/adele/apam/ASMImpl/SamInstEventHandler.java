@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.samAPIImpl;
+package fr.imag.adele.apam.ASMImpl;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,8 +10,7 @@ import fr.imag.adele.am.eventing.AMEvent;
 import fr.imag.adele.am.eventing.AMEventingHandler;
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.am.query.Query;
-import fr.imag.adele.apam.ASM;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.DynamicManager;
@@ -25,24 +24,24 @@ public class SamInstEventHandler implements AMEventingHandler {
 
     // The managers are waiting for the apparition of an instance of the ASMImpl or implementing the interface
     // In both case, no ASMInst is created.
-    static Map<ASMImpl, Set<DynamicManager>> expectedImpls      = new HashMap<ASMImpl, Set<DynamicManager>>();
-    static Map<String, Set<DynamicManager>>  expectedInterfaces = new HashMap<String, Set<DynamicManager>>();
+    static Map<String, Set<DynamicManager>> expectedImpls      = new HashMap<String, Set<DynamicManager>>();
+    static Map<String, Set<DynamicManager>> expectedInterfaces = new HashMap<String, Set<DynamicManager>>();
 
     // registers the managers that are interested in services that disappear.
-    static Set<DynamicManager>               listenLost         = new HashSet<DynamicManager>();
+    static Set<DynamicManager>              listenLost         = new HashSet<DynamicManager>();
 
     // contains the apam instance that registered to APAM but not yet created in ASM
-    static Map<String, NewApamInstance>      newApamInstance    = new HashMap<String, NewApamInstance>();
+    static Map<String, NewApamInstance>     newApamInstance    = new HashMap<String, NewApamInstance>();
     // contains the Sam instance that has been notified before the Apam handler
-    static Map<String, NewSamInstance>       newSamInstance     = new HashMap<String, NewSamInstance>();
+    static Map<String, NewSamInstance>      newSamInstance     = new HashMap<String, NewSamInstance>();
 
-    static public SamInstEventHandler        theInstHandler;
+    static public SamInstEventHandler       theInstHandler;
 
     public SamInstEventHandler() {
         SamInstEventHandler.theInstHandler = this;
     }
 
-    public class NewApamInstance {
+    public static class NewApamInstance {
         ApamDependencyHandler handler;
         String                implName = null;
         String                specName = null;
@@ -81,18 +80,18 @@ public class SamInstEventHandler implements AMEventingHandler {
         // return SamInstEventHandler.newApamInstance.get(samName).handler;
     }
 
-    public synchronized void addNewApamInstance(String samName, ApamDependencyHandler handler, String implName,
+    public static synchronized void addNewApamInstance(String samName, ApamDependencyHandler handler, String implName,
             String specName) {
         if ((samName == null) || (handler == null))
             return;
         try {
             if (SamInstEventHandler.newSamInstance.get(samName) != null) { // the event arrived first
                 Instance samInst = SamInstEventHandler.newSamInstance.get(samName).samInst;
-                samInst.setProperty(ASM.APAMDEPENDENCYHANDLER, handler);
+                samInst.setProperty(CST.APAMDEPENDENCYHANDLER, handler);
                 if (specName != null)
-                    samInst.setProperty(ASM.APAMSPECNAME, specName);
+                    samInst.setProperty(CST.APAMSPECNAME, specName);
                 if (implName != null)
-                    samInst.setProperty(ASM.APAMIMPLNAME, implName);
+                    samInst.setProperty(CST.APAMIMPLNAME, implName);
                 SamInstEventHandler.newSamInstance.remove(samName);
             } else {
                 SamInstEventHandler.newApamInstance.put(samName, new NewApamInstance(handler, implName, specName));
@@ -102,24 +101,24 @@ public class SamInstEventHandler implements AMEventingHandler {
         }
     }
 
-    public static synchronized void addExpectedImpl(ASMImpl impl, DynamicManager manager) {
-        if ((impl == null) || (manager == null))
+    public static synchronized void addExpectedImpl(String samImplName, DynamicManager manager) {
+        if ((samImplName == null) || (manager == null))
             return;
-        Set<DynamicManager> mans = SamInstEventHandler.expectedImpls.get(impl);
+        Set<DynamicManager> mans = SamInstEventHandler.expectedImpls.get(samImplName);
         if (mans == null) {
             mans = new HashSet<DynamicManager>();
             mans.add(manager);
-            SamInstEventHandler.expectedImpls.put(impl, mans);
+            SamInstEventHandler.expectedImpls.put(samImplName, mans);
         } else {
             mans.add(manager);
         }
     }
 
-    public static synchronized void removeExpectedImpl(ASMImpl impl, DynamicManager manager) {
-        if ((impl == null) || (manager == null))
+    public static synchronized void removeExpectedImpl(String samImplName, DynamicManager manager) {
+        if ((samImplName == null) || (manager == null))
             return;
 
-        Set<DynamicManager> mans = SamInstEventHandler.expectedImpls.get(impl);
+        Set<DynamicManager> mans = SamInstEventHandler.expectedImpls.get(samImplName);
         if (mans != null) {
             mans.remove(manager);
         }
@@ -184,18 +183,18 @@ public class SamInstEventHandler implements AMEventingHandler {
         InstPID instPid = (InstPID) amEvent.getProperty(EventProperty.INSTANCE_PID);
         if (instPid == null)
             return;
-        Instance samInst = ASM.SAMInstBroker.getInstance(instPid); // null if departure
+        Instance samInst = CST.SAMInstBroker.getInstance(instPid); // null if departure
         String samName = instPid.getId(); // available even if it disappeared
 
         if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_ARRIVAL)) {
             if (SamInstEventHandler.newApamInstance.containsKey(samName)) { // It is an APAM instance either under
                                                                             // creation, or auto appear
                 NewApamInstance inst = SamInstEventHandler.newApamInstance.get(samName);
-                samInst.setProperty(ASM.APAMDEPENDENCYHANDLER, inst.handler);
+                samInst.setProperty(CST.APAMDEPENDENCYHANDLER, inst.handler);
                 if (inst.specName != null)
-                    samInst.setProperty(ASM.APAMSPECNAME, inst.specName);
+                    samInst.setProperty(CST.APAMSPECNAME, inst.specName);
                 if (inst.implName != null)
-                    samInst.setProperty(ASM.APAMIMPLNAME, inst.implName);
+                    samInst.setProperty(CST.APAMIMPLNAME, inst.implName);
                 SamInstEventHandler.newApamInstance.remove(samName);
             } else { // record the event in the case it arrived before the handler registration
                 SamInstEventHandler.newSamInstance
@@ -203,12 +202,16 @@ public class SamInstEventHandler implements AMEventingHandler {
             }
 
             Implementation samImpl = samInst.getImplementation();
-            ASMImpl impl = ASM.ASMImplBroker.getImpl(samImpl);
-            if (SamInstEventHandler.expectedImpls.keySet().contains(impl)) {
-                for (DynamicManager manager : SamInstEventHandler.expectedImpls.get(impl)) {
-                    manager.appeared(samInst, impl);
+            if (samImpl == null) {
+                System.out.println("samImpl est null pour" + samName);
+            }
+            String samImplName = samImpl.getName();
+            // ASMImpl impl = CST.ASMImplBroker.getImpl(samImpl);
+            if (SamInstEventHandler.expectedImpls.keySet().contains(samImplName)) {
+                for (DynamicManager manager : SamInstEventHandler.expectedImpls.get(samImplName)) {
+                    manager.appeared(samInst);
                 }
-                SamInstEventHandler.expectedImpls.remove(impl);
+                SamInstEventHandler.expectedImpls.remove(samImplName);
                 return;
             }
             Specification samSpec = samInst.getSpecification();
@@ -216,7 +219,7 @@ public class SamInstEventHandler implements AMEventingHandler {
             for (String interf : interfs) {
                 if (SamInstEventHandler.expectedInterfaces.get(interf) != null) {
                     for (DynamicManager manager : SamInstEventHandler.expectedInterfaces.get(interf)) {
-                        manager.appeared(samInst, interf);
+                        manager.appeared(samInst);
                     }
                     SamInstEventHandler.expectedInterfaces.remove(interf);
                 }
@@ -226,7 +229,7 @@ public class SamInstEventHandler implements AMEventingHandler {
 
         // a service disappears
         if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_DEPARTURE)) {
-            ASMInst inst = ASM.ASMInstBroker.getInst(samName);
+            ASMInst inst = CST.ASMInstBroker.getInst(samName);
             if (inst == null)
                 return;
             // notifies interested managers
@@ -242,7 +245,7 @@ public class SamInstEventHandler implements AMEventingHandler {
 
         // A property has been changed
         if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_MODIFIED)) {
-            ASMInst inst = ASM.ASMInstBroker.getInst(samInst);
+            ASMInst inst = CST.ASMInstBroker.getInst(samInst);
             if (inst == null)
                 return;
             inst.setSamProperties(samInst.getProperties());

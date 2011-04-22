@@ -11,11 +11,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.ASMImpl.ASMImplImpl;
+import fr.imag.adele.apam.ASMImpl.ASMInstImpl;
+import fr.imag.adele.apam.ASMImpl.ASMSpecImpl;
 import fr.imag.adele.apam.apamAPI.AttributeManager;
 import fr.imag.adele.apam.apamAPI.Manager;
-import fr.imag.adele.apam.samAPIImpl.ASMImplImpl;
-import fr.imag.adele.apam.samAPIImpl.ASMInstImpl;
-import fr.imag.adele.apam.samAPIImpl.ASMSpecImpl;
 
 public class AttributesImpl extends Dictionary<String, Object> implements Attributes {
 
@@ -177,10 +177,11 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
     private void changeShared(String attr, Object shared) {
         if ((shared instanceof String) && attr.equals(Attributes.SHARED)) {
             if (((String) shared).equals(Attributes.APPLI) || ((String) shared).equals(Attributes.LOCAL)
-                    || ((String) shared).equals(Attributes.PRIVATE) || ((String) shared).equals(Attributes.SHARABLE)) {
+                    || ((String) shared).equals(Attributes.COMPOSITE) || ((String) shared).equals(Attributes.PRIVATE)
+                    || ((String) shared).equals(Attributes.SHARABLE)) {
                 properties.put(attr, shared);
             } else
-                System.err.println("ERROR : invalid shared value : " + shared);
+                System.err.println("ERROR in " + this + " : invalid shared value : " + shared);
         }
     }
 

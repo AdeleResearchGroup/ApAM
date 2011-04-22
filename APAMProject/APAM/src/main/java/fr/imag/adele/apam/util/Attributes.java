@@ -26,14 +26,6 @@ public interface Attributes {
     public static final String APAMAPPLI = "ApamApplication";
     public static final String APAMCOMPO = "ApamComposite";
 
-    // /**
-    // * same as getProperty (SHARED) ;
-    // * @return
-    // */
-    // public String getShared();
-    //
-    // public void setShared(String value);
-
     /**
      * Get the property of a targeted entity for the given key.
      * 

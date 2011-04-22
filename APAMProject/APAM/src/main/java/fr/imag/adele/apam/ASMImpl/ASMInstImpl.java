@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.samAPIImpl;
+package fr.imag.adele.apam.ASMImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -7,15 +7,15 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.ASMImpl.SamInstEventHandler.NewApamInstance;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamComponent;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.samAPIImpl.SamInstEventHandler.NewApamInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
@@ -49,7 +49,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         }
         this.samInst = samInst;
 
-        ((ASMInstBrokerImpl) ASM.ASMInstBroker).addInst(this);
+        ((ASMInstBrokerImpl) CST.ASMInstBroker).addInst(this);
         try {
             if (samInst.getServiceObject() instanceof ApamComponent)
                 ((ApamComponent) samInst.getServiceObject()).apamStart(this);
@@ -68,9 +68,9 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             }
             // The event arrived first : it stored the info in the attributes
             if (handler == null) {
-                handler = (ApamDependencyHandler) samInst.getProperty(ASM.APAMDEPENDENCYHANDLER);
-                implName = (String) samInst.getProperty(ASM.APAMIMPLNAME);
-                specName = (String) samInst.getProperty(ASM.APAMSPECNAME);
+                handler = (ApamDependencyHandler) samInst.getProperty(CST.APAMDEPENDENCYHANDLER);
+                implName = (String) samInst.getProperty(CST.APAMIMPLNAME);
+                specName = (String) samInst.getProperty(CST.APAMSPECNAME);
             }
             if (handler != null) { // it is an Apam instance
                 depHandler = handler;
@@ -151,6 +151,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         if (!Wire.checkNewWire(this, to))
             return false;
         Wire wire = new Wire(this, to, depName);
+        ((ASMImplImpl) getImpl()).addUses(to.getImpl());
         wires.add(wire);
         ((ASMInstImpl) to).invWires.add(wire);
         if (depHandler != null) {
@@ -162,6 +163,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     @Override
     public void removeWire(Wire wire) {
         wires.remove(wire);
+        ((ASMImplImpl) getImpl()).removeUses(wire.getDestination().getImpl());
     }
 
     public void removeInvWire(Wire wire) {
@@ -185,8 +187,13 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             wire.remove();
         }
         try {
-            ASM.ASMInstBroker.removeInst(this);
-            samInst.delete();
+            CST.ASMInstBroker.removeInst(this);
+            // Should we delete the Sam instance,
+            // TODO
+            // samInst.delete();
+            // or only remove the Apam attributes, such that SAMMAN knows which objects are APAM?
+            samInst.removeProperty(Attributes.APAMAPPLI);
+            samInst.removeProperty(Attributes.APAMCOMPO);
         } catch (ConnectionException e) {
             e.printStackTrace();
         }
@@ -250,15 +257,6 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     public Set<Wire> getInvWires() {
         return Collections.unmodifiableSet(invWires);
     }
-
-    //
-    // public Set<ASMInst> getClients() {
-    // Set<ASMInst> clients = new HashSet<ASMInst>();
-    // for (Wire wire : invWires.keySet()) {
-    // clients.add(wire.getDestination());
-    // }
-    // return clients;
-    // }
 
     @Override
     public Wire getWire(ASMInst destInst) {

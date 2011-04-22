@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.samAPIImpl;
+package fr.imag.adele.apam.ASMImpl;
 
 import java.net.URL;
 import java.util.HashSet;
@@ -8,7 +8,7 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
 import fr.imag.adele.apam.apamAPI.Composite;
@@ -178,8 +178,8 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
             return null;
         ASMSpec ret = null;
         try {
-            if (ASM.SAMSpecBroker.getSpecification(interfaces) != null) {
-                ret = addSpec(compo, specName, ASM.SAMSpecBroker.getSpecification(interfaces), properties);
+            if (CST.SAMSpecBroker.getSpecification(interfaces) != null) {
+                ret = addSpec(compo, specName, CST.SAMSpecBroker.getSpecification(interfaces), properties);
             } else {
                 ret = new ASMSpecImpl(compo, specName, null, properties);
             }
@@ -208,7 +208,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
             return null;
 
         try {
-            DeploymentUnit du = ASM.SAMDUBroker.install(url, type);
+            DeploymentUnit du = CST.SAMDUBroker.install(url, type);
             du.getSpecificationsName();
         } catch (ConnectionException e) {
             System.out.println("deployment failed for specification " + specName);

@@ -13,12 +13,13 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.util.AttributesImpl;
+import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements Manager {
 
     @Override
     public String getName() {
-        return ASM.ASMMAN;
+        return CST.ASMMAN;
     }
 
     @Override
@@ -55,19 +56,14 @@ public class ApamMan implements Manager {
         if (specName == null) {
             if (interfaceName == null)
                 return null;
-            spec = ASM.ASMSpecBroker.getSpecInterf(interfaceName);
-            if (spec == null)
-                return null;
-        }
-        spec = ASM.ASMSpecBroker.getSpec(specName);
+            spec = CST.ASMSpecBroker.getSpecInterf(interfaceName);
+        } else
+            spec = CST.ASMSpecBroker.getSpec(specName);
         if (spec == null)
             return null;
 
-        // Set<ASMInst> sharable = ASM.ASMInstBroker.getShareds(spec, client.getComposite().getApplication(), client
-        // .getComposite());
-
         try {
-            for (ASMInst inst : ASM.ASMInstBroker.getInsts(spec, null)) {
+            for (ASMInst inst : CST.ASMInstBroker.getInsts(spec, null)) {
                 if (Wire.checkNewWire(client, inst)) {
                     boolean satisfies = true;
                     for (Filter filter : constraints) {
@@ -95,8 +91,8 @@ public class ApamMan implements Manager {
             return null; // we found at least one
 
         // try to find a sharable implementation and instantiate.
-        for (ASMImpl impl : ASM.ASMImplBroker.getImpls(spec)) {
-            if (Wire.checkImplAccess(impl, client.getComposite())) {
+        for (ASMImpl impl : CST.ASMImplBroker.getImpls(spec)) {
+            if (Util.checkImplAccess(impl, client.getComposite(), client.toString())) {
                 boolean satisfies = true;
                 for (Filter filter : constraints) {
                     if (!filter.match((AttributesImpl) impl.getProperties())) {
@@ -141,7 +137,7 @@ public class ApamMan implements Manager {
         if (implName == null)
             return null;
         ASMImpl impl = null;
-        impl = ASM.ASMImplBroker.getImpl(implName);
+        impl = CST.ASMImplBroker.getImpl(implName);
         if (impl != null) {
             // Set<ASMInst> sharable = ASM.ASMInstBroker.getShareds(impl, client.getComposite().getApplication(), client
             // .getComposite());

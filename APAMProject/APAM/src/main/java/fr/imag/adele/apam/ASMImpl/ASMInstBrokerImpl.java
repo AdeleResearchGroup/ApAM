@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.samAPIImpl;
+package fr.imag.adele.apam.ASMImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,7 +12,7 @@ import fr.imag.adele.am.Machine;
 import fr.imag.adele.am.eventing.AMEventingHandler;
 import fr.imag.adele.am.eventing.EventingEngine;
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
@@ -26,7 +26,7 @@ import fr.imag.adele.sam.event.EventProperty;
 
 public class ASMInstBrokerImpl implements ASMInstBroker {
 
-    private static final ASMImplBroker implBroker = ASM.ASMImplBroker;
+    private static final ASMImplBroker implBroker = CST.ASMImplBroker;
 
     private final Set<ASMInst>         instances  = new HashSet<ASMInst>();
 
@@ -116,7 +116,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
                 // DYNAMAN, without all parameters
                 return inst;
             }
-            impl = ASM.ASMImplBroker.getImpl(samInst.getImplementation());
+            impl = CST.ASMImplBroker.getImpl(samInst.getImplementation());
             if (impl == null) { // create the implem also
                 if (compo == null) {
                     System.out.println("No implementation for the instance, and composite not provided");

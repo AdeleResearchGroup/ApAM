@@ -50,7 +50,7 @@ public class CompositeImpl implements Composite {
                                                        // indicate the new
                                                        // composite and the
                                                        // model
-                man = ASM.apam.getManager(managerModel.getManagerName());
+                man = CST.apam.getManager(managerModel.getManagerName());
                 if (man != null) {
                     man.newComposite(managerModel, this);
                 }
