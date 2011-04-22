@@ -8,9 +8,8 @@ import org.osgi.framework.Filter;
 
 import fr.imag.adele.am.query.Query;
 import fr.imag.adele.am.query.QueryLDAPImpl;
-import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
@@ -44,8 +43,8 @@ public class SamMan implements Manager {
      */
     public void start() {
         apam.addManager(this, 0);
-        SamMan.SAMImplBroker = ASM.SAMImplBroker;
-        SamMan.SAMInstBroker = ASM.SAMInstBroker;
+        SamMan.SAMImplBroker = CST.SAMImplBroker;
+        SamMan.SAMInstBroker = CST.SAMInstBroker;
     }
 
     public void stop() {
@@ -138,9 +137,9 @@ public class SamMan implements Manager {
         try {
             ASMSpec asmSpec;
             if (specName != null) {
-                asmSpec = ASM.ASMSpecBroker.getSpec(specName);
+                asmSpec = CST.ASMSpecBroker.getSpec(specName);
             } else {
-                asmSpec = ASM.ASMSpecBroker.getSpecInterf(interfaceName);
+                asmSpec = CST.ASMSpecBroker.getSpecInterf(interfaceName);
             }
 
             // Look by its specification
@@ -149,7 +148,10 @@ public class SamMan implements Manager {
                 Specification spec = asmSpec.getSamSpec();
                 if (spec != null) { // Is sam spec known ?
                     for (Instance inst : SamMan.SAMInstBroker.getInstances()) {
-                        if (inst.getSpecification() == spec)
+                        // //if it is an Apam impl, it has already been checked by ApamMan
+                        // if (inst.getProperty(Attributes.APAMAPPLI) != null)
+                        if ((inst.getSpecification() == spec) // if it is an Apam implem, do not use it.
+                                && (CST.ASMImplBroker.getImpl(inst.getImplementation()) == null))
                             allInstances.add(inst);
                     }
                 }
@@ -163,6 +165,9 @@ public class SamMan implements Manager {
             // Last chance look for an implementation that implement the interface.
             if ((allInstances.isEmpty()) && (interfaceName != null)) {
                 for (Implementation impl : SamMan.SAMImplBroker.getImplementations()) {
+                    // if it is an Apam impl, it has already been checked by ApamMan
+                    if (CST.ASMImplBroker.getImpl(impl) != null)
+                        break;
                     Specification samSpec = impl.getSpecification();
                     if (samSpec != null) {
                         for (String interf : samSpec.getInterfaceNames()) {
@@ -180,6 +185,7 @@ public class SamMan implements Manager {
                 return null;
 
             // we have found a sam Instance.
+            // check if it satisfies the constraints
             Set<Instance> matchInsts;
             if ((constraints == null) || constraints.isEmpty()) {
                 matchInsts = allInstances;
@@ -195,10 +201,11 @@ public class SamMan implements Manager {
 
             ASMInst returnInst = null;
             for (Instance inst : matchInsts) {
-                if (ASM.ASMInstBroker.getInst(inst) != null)
-                    returnInst = ASM.ASMInstBroker.getInst(inst);
-                else
-                    returnInst = ASM.ASMInstBroker.addInst(from.getComposite(), inst, null, specName, null);
+                // ignore the Apam instances, they have been checked by ApamMan
+                if (CST.ASMInstBroker.getInst(inst) != null)
+                    // returnInst = CST.ASMInstBroker.getInst(inst);
+                    break;
+                returnInst = CST.ASMInstBroker.addInst(from.getComposite(), inst, null, specName, null);
                 if (multiple)
                     allInst.add(returnInst);
                 else
@@ -210,63 +217,70 @@ public class SamMan implements Manager {
         return null;
     }
 
+    // the resolution from an Apam impl has been checked by ApamMan.
+    // If ApamMan could nor resol, SamMan either.
+    // Do nothing
     @Override
     public ASMInst resolveImpl(ASMInst from, String samImplName, String implName, String depName,
             Set<Filter> constraints) {
-        return resolveImpl0(from, samImplName, implName, depName, constraints, false, null);
+        // return resolveImpl0(from, samImplName, implName, depName, constraints, false, null);
+        return null;
     }
 
+    // the resolution from an Apam impl has been checked by ApamMan.
+    // If ApamMan could nor resol, SamMan either.
+    // Do nothing
     @Override
     public Set<ASMInst> resolveImpls(ASMInst from, String samImplName, String implName, String depName,
             Set<Filter> constraints) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
-        resolveImpl0(from, samImplName, implName, depName, constraints, true, allInst);
+        // resolveImpl0(from, samImplName, implName, depName, constraints, true, allInst);
         return allInst;
     }
 
-    public ASMInst resolveImpl0(ASMInst from, String samImplName, String implName, String depName,
-            Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
-        if ((samImplName == null) && (implName == null)) {
-            System.out.println("ERROR : missing parameter samImplName or implName in resolveImpl");
-            return null;
-        }
-        if (from == null) {
-            System.out.println("ERROR : missing parameter from in resolveImpl");
-            return null;
-        }
-
-        try {
-            Query query = null;
-            Filter filter;
-            ASMImpl impl;
-            Set<Instance> samInsts;
-
-            if ((constraints != null) && (constraints.size() > 0)) {
-                filter = Util.buildFilter(constraints);
-                query = new QueryLDAPImpl(filter.toString());
-            }
-            // Is the impl known by Apam (either a sam name or logical name) ?
-            if ((implName != null) && (ASM.ASMImplBroker.getImpl(implName) != null)) {
-                impl = ASM.ASMImplBroker.getImpl(implName);
-            } else {
-                impl = ASM.ASMImplBroker.getImplSamName(implName);
-            }
-            if (impl == null)
-                return null;
-
-            samInsts = SamMan.SAMImplBroker.getInstances(impl.getSamImpl().getImplPid(), query);
-            if ((samInsts == null) || (samInsts.size() == 0))
-                return null;
-            Instance theInstance = (Instance) samInsts.toArray()[0];
-            if (ASM.ASMInstBroker.getInst(theInstance) != null) {
-                return ASM.ASMInstBroker.getInst(theInstance);
-            }
-            return ASM.ASMInstBroker.addInst(from.getComposite(), theInstance, implName, null, null);
-        } catch (Exception e) {
-        }
-
-        return null;
-    }
+    // public ASMInst resolveImpl0(ASMInst from, String samImplName, String implName, String depName,
+    // Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
+    // if ((samImplName == null) && (implName == null)) {
+    // System.out.println("ERROR : missing parameter samImplName or implName in resolveImpl");
+    // return null;
+    // }
+    // if (from == null) {
+    // System.out.println("ERROR : missing parameter from in resolveImpl");
+    // return null;
+    // }
+    //
+    // try {
+    // Query query = null;
+    // Filter filter;
+    // ASMImpl impl;
+    // Set<Instance> samInsts;
+    //
+    // if ((constraints != null) && (constraints.size() > 0)) {
+    // filter = Util.buildFilter(constraints);
+    // query = new QueryLDAPImpl(filter.toString());
+    // }
+    // // Is the impl known by Apam (either a sam name or logical name) ?
+    // if ((implName != null) && (CST.ASMImplBroker.getImpl(implName) != null)) {
+    // impl = CST.ASMImplBroker.getImpl(implName);
+    // } else {
+    // impl = CST.ASMImplBroker.getImplSamName(implName);
+    // }
+    // if (impl == null)
+    // return null;
+    //
+    // samInsts = SamMan.SAMImplBroker.getInstances(impl.getSamImpl().getImplPid(), query);
+    // if ((samInsts == null) || (samInsts.size() == 0))
+    // return null;
+    // Instance theInstance = (Instance) samInsts.toArray()[0];
+    // if (CST.ASMInstBroker.getInst(theInstance) != null) {
+    // return CST.ASMInstBroker.getInst(theInstance);
+    // }
+    // return CST.ASMInstBroker.addInst(from.getComposite(), theInstance, implName, null, null);
+    // } catch (Exception e) {
+    // }
+    //
+    // return null;
+    // }
 
     @Override
     public int getPriority() {
