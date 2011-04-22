@@ -143,23 +143,24 @@ public class SamMan implements Manager {
             }
 
             // Look by its specification
-            Set<Instance> allInstances = new HashSet<Instance>();
+            Set<Instance> instInterf = new HashSet<Instance>();
             if (asmSpec != null) { // Look by its sam interface
                 Specification spec = asmSpec.getSamSpec();
                 if (spec != null) { // Is sam spec known ?
                     for (Instance inst : SamMan.SAMInstBroker.getInstances()) {
-                        // //if it is an Apam impl, it has already been checked by ApamMan
-                        // if (inst.getProperty(Attributes.APAMAPPLI) != null)
-                        if ((inst.getSpecification() == spec) // if it is an Apam implem, do not use it.
-                                && (CST.ASMImplBroker.getImpl(inst.getImplementation()) == null))
-                            allInstances.add(inst);
+                        if (inst.getSpecification() == spec)
+                            instInterf.add(inst);
                     }
                 }
+            } else { // Look by its interface
+                if (interfaceName != null)
+                    instInterf = getSamInstanceInterf(interfaceName);
             }
-
-            // Look by its interface
-            if ((allInstances.isEmpty()) && (interfaceName != null)) {
-                allInstances = getSamInstanceInterf(interfaceName);
+            // eliminate those instances that have an Apam impl. it has already been checked by ApamMan
+            Set<Instance> allInstances = new HashSet<Instance>();
+            for (Instance in : instInterf) {
+                if (CST.ASMImplBroker.getImpl(in.getImplementation()) == null)
+                    allInstances.add(in);
             }
 
             // Last chance look for an implementation that implement the interface.

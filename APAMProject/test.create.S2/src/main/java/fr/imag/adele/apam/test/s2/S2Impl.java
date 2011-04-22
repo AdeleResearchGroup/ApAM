@@ -65,8 +65,10 @@ public class S2Impl implements S2, ApamComponent {
         implBroker.addImpl(compo3, "ApamS5impl", "S5Impl", "S5", c3Attrs);
 
         System.out.println("S2 called " + s);
-        s4_1.callS4("depuis S4_1 ");
-        s4_2.callS4("depuis S4_2 ");
+        if (s4_1 != null)
+            s4_1.callS4("depuis S4_1 ");
+        if (s4_2 != null)
+            s4_2.callS4("depuis S4_2 ");
 
     }
 

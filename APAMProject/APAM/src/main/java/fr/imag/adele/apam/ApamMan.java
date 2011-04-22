@@ -83,7 +83,6 @@ public class ApamMan implements Manager {
                 }
             }
         } catch (InvalidSyntaxException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

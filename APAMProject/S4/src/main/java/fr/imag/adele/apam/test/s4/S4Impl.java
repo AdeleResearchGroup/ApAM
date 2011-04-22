@@ -11,12 +11,14 @@ public class S4Impl implements S4 {
     @Override
     public void callS4(String s) {
         System.out.println("S4 called " + s);
-        s5.callS5(" from s4");
-        s2_inv.callBackS2(" back from s4");
+        if (s5 != null)
+            s5.callS5(" from s4");
+        if (s2_inv != null)
+            s2_inv.callBackS2(" back from s4");
     }
 
     @Override
     public void callBackS4(String s) {
-        System.out.println("called back : " + s);
+        System.out.println("In call back S4 : " + s);
     }
 }
