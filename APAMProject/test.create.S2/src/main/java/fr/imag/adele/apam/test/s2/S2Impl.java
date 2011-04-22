@@ -57,11 +57,12 @@ public class S2Impl implements S2, ApamComponent {
         ASMImplBroker implBroker = apam.getImplBroker();
 
         Attributes c2Attrs = new AttributesImpl();
-        c2Attrs.setProperty(Attributes.SHARED, Attributes.APAMCOMPO);
+        c2Attrs.setProperty(Attributes.SHARED, Attributes.COMPOSITE);
         implBroker.addImpl(compo2, "ApamS4impl", "S4Impl", "S4In", c2Attrs);
 
         Attributes c3Attrs = new AttributesImpl();
-        implBroker.addImpl(compo3, "ApamS5impl", "S5Impl", "S5", c2Attrs);
+        c3Attrs.setProperty(Attributes.SHARED, Attributes.LOCAL);
+        implBroker.addImpl(compo3, "ApamS5impl", "S5Impl", "S5", c3Attrs);
 
         System.out.println("S2 called " + s);
         s4_1.callS4("depuis S4_1 ");
