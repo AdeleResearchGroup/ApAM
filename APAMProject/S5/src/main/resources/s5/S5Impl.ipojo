@@ -1,0 +1,9 @@
+<ipojo xmlns:appam="fr.imag.adele.appam">
+	<component name="S5Impl" classname="fr.imag.adele.apam.test.s5.S5Impl"
+	apam-implementation="S5ImplApam" 
+	apam-specification="S5">
+		<provides/>
+	</component>
+	
+	<instance component="S5Impl"/>
+</ipojo>
