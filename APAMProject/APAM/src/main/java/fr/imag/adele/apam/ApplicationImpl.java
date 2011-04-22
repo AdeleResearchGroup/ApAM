@@ -49,10 +49,10 @@ public class ApplicationImpl implements Application {
         mainCompo = new CompositeImpl(appliName, this, models);
         composites.add(mainCompo);
         if (specUrl == null)
-            CST.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
+        	mainSpec = CST.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
         else
-            CST.ASMSpecBroker.createSpec(mainCompo, specName, specUrl, specType, interfaces, properties);
-        mainSpec = CST.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
+        	mainSpec = CST.ASMSpecBroker.createSpec(mainCompo, specName, specUrl, specType, interfaces, properties);
+        //mainSpec = CST.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
         mainImpl = null;
     }
 
