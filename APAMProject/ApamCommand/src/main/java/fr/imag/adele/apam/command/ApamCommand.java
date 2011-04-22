@@ -25,7 +25,7 @@ import org.apache.felix.ipojo.annotations.ServiceProperty;
 import org.apache.felix.service.command.Descriptor;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASM;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
@@ -66,7 +66,7 @@ public class ApamCommand {
 
     @Descriptor("Display all the Apam specifications")
     public void specs() {
-        Set<ASMSpec> specifications = ASM.ASMSpecBroker.getSpecs();
+        Set<ASMSpec> specifications = CST.ASMSpecBroker.getSpecs();
         for (ASMSpec specification : specifications) {
             System.out.println("ASMSpec : " + specification);
         }
@@ -77,7 +77,7 @@ public class ApamCommand {
      */
     @Descriptor("Display of all the implementations of the local machine")
     public void implems() {
-        Set<ASMImpl> implementations = ASM.ASMImplBroker.getImpls();
+        Set<ASMImpl> implementations = CST.ASMImplBroker.getImpls();
         for (ASMImpl implementation : implementations) {
             System.out.println("ASMImpl : " + implementation);
         }
@@ -88,7 +88,7 @@ public class ApamCommand {
      */
     @Descriptor("Display of all the instances of the local machine")
     public void insts() {
-        Set<ASMInst> instances = ASM.ASMInstBroker.getInsts();
+        Set<ASMInst> instances = CST.ASMInstBroker.getInsts();
         for (ASMInst instance : instances) {
             System.out.println("ASMInst : " + instance);
         }
@@ -101,7 +101,7 @@ public class ApamCommand {
      */
     @Descriptor("Display informations about the target specification")
     public void spec(@Descriptor("target specification") String specificationName) {
-        Set<ASMSpec> specifications = ASM.ASMSpecBroker.getSpecs();
+        Set<ASMSpec> specifications = CST.ASMSpecBroker.getSpecs();
         for (ASMSpec specification : specifications) {
             if ((specification.getASMName() != null)
                     && (specification.getASMName().equalsIgnoreCase(specificationName))) {
@@ -125,7 +125,7 @@ public class ApamCommand {
      */
     @Descriptor("Display informations about the target implemetation")
     public void implem(@Descriptor("target implementation") String implementationName) {
-        ASMImpl implementation = ASM.ASMImplBroker.getImpl(implementationName);
+        ASMImpl implementation = CST.ASMImplBroker.getImpl(implementationName);
         if (implementation == null) {
             System.out.println("No such implementation : " + implementation);
             return;
@@ -142,7 +142,7 @@ public class ApamCommand {
     @Descriptor("Display informations about the target instance")
     public void inst(@Descriptor("target implementation") String instanceName) {
         try {
-            ASMInst instance = ASM.ASMInstBroker.getInst(instanceName);
+            ASMInst instance = CST.ASMInstBroker.getInst(instanceName);
             if (instance == null) {
                 System.out.println("No such instance : " + instanceName);
             } else
@@ -238,7 +238,7 @@ public class ApamCommand {
 
     @Descriptor("Display all the dependencies")
     public void wire(@Descriptor("target instance") String instName) {
-        ASMInst inst = ASM.ASMInstBroker.getInst(instName);
+        ASMInst inst = CST.ASMInstBroker.getInst(instName);
         if (inst != null)
             apam.dumpState(inst, "  ", null);
     }
@@ -251,8 +251,17 @@ public class ApamCommand {
      */
     private void printSpecification(String indent, ASMSpec specification) {
         System.out.println(indent + "----- [ ASMSpec : " + specification.getASMName() + " ] -----");
-        // System.out.println(indent + "   SpecificationPID :" + specification.getSpecPid());
+        System.out.println(indent + "   Interfaces:");
+        for (String interf : specification.getInterfaceNames()) {
+            System.out.println(indent + "      " + interf);
+        }
+
+        System.out.println(indent + "   Requires:");
+        for (ASMSpec spec : specification.getRequires()) {
+            System.out.println(indent + "      " + spec);
+        }
         printProperties(indent + "   ", specification.getProperties());
+
     }
 
     /**
@@ -326,9 +335,15 @@ public class ApamCommand {
      * @throws ConnectionException the connection exception
      */
     private void printImplementation(String indent, ASMImpl impl) {
-        System.out.print(indent + "----- [ ASMImpl : " + impl + " ] -----");
+        System.out.println(indent + "----- [ ASMImpl : " + impl + " ] -----");
         // System.out.println(indent + "   implementation pid : " + impl.getImplPid());
-        System.out.println(indent + "   specification name : " + impl.getSpec());
+        System.out.println(indent + "   specification : " + impl.getSpec());
+
+        System.out.println(indent + "   Uses:");
+        for (ASMImpl implem : impl.getUses()) {
+            System.out.println(indent + "      " + implem);
+        }
+
         printProperties(indent + "   ", impl.getProperties());
     }
 
