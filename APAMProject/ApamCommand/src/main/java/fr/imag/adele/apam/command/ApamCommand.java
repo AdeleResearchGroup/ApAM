@@ -15,6 +15,7 @@ package fr.imag.adele.apam.command;
  * limitations under the License.
  */
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,7 +55,7 @@ public class ApamCommand {
      */
     @ServiceProperty(name = "osgi.command.function", value = "{}")
     String[] m_function = new String[] { "specs", "implems", "insts", "spec", "implem", "inst", "applis", "dump",
-            "appli", "compos", "compo", "wire" };
+                        "appli", "compos", "compo", "wire" };
 
     // ipojo injected
     @Requires
@@ -127,11 +128,11 @@ public class ApamCommand {
     public void implem(@Descriptor("target implementation") String implementationName) {
         ASMImpl implementation = CST.ASMImplBroker.getImpl(implementationName);
         if (implementation == null) {
-            System.out.println("No such implementation : " + implementation);
+            System.out.println("No such implementation : " + implementationName);
             return;
         }
         printImplementation("", implementation);
-        testInstances("   ", implementation.getInsts());
+        // testInstances("   ", implementation.getInsts());
     }
 
     /**
@@ -148,7 +149,6 @@ public class ApamCommand {
             } else
                 printInstance("", instance);
         } catch (Exception e) {
-
             e.printStackTrace();
         }
     }
@@ -176,12 +176,12 @@ public class ApamCommand {
 
     @Descriptor("Display the full Apam state model")
     public void dump() {
-        apam.dumpApam();
+        dumpApam();
     }
 
     @Descriptor("Display the state model of the target application")
     public void state(@Descriptor("target application") String appliName) {
-        apam.dumpAppli(appliName);
+        dumpAppli(appliName);
     }
 
     @Descriptor("Display all the Apam composites")
@@ -240,7 +240,7 @@ public class ApamCommand {
     public void wire(@Descriptor("target instance") String instName) {
         ASMInst inst = CST.ASMInstBroker.getInst(instName);
         if (inst != null)
-            apam.dumpState(inst, "  ", null);
+            dumpState(inst, "  ", null);
     }
 
     /**
@@ -343,7 +343,10 @@ public class ApamCommand {
         for (ASMImpl implem : impl.getUses()) {
             System.out.println(indent + "      " + implem);
         }
-
+        System.out.println(indent + "   Instances:");
+        for (ASMInst inst : impl.getInsts()) {
+            System.out.println(indent + "      " + inst);
+        }
         printProperties(indent + "   ", impl.getProperties());
     }
 
@@ -357,6 +360,63 @@ public class ApamCommand {
         System.out.println(indent + "Properties : ");
         for (String key : properties.keySet()) {
             System.out.println(indent + "   " + key + " = " + properties.get(key));
+        }
+    }
+
+    private void dumpAppli(String name) {
+        for (Application appli : apam.getApplications()) {
+            if (appli.getName().equals(name)) {
+                System.out.println("Application : " + appli.getName() + "  Main : " + appli.getMainImpl());
+                dumpComposite(appli.getMainComposite(), "  ");
+                System.out.println("\nState: ");
+                dumpState(appli.getMainImpl().getInst(), "  ", "");
+                break;
+            }
+        }
+    }
+
+    private void dumpApam() {
+        for (Application appli : apam.getApplications()) {
+            System.out.println("Application : " + appli.getName() + "  Main : " + appli.getMainImpl());
+            dumpComposite(appli.getMainComposite(), "  ");
+            System.out.println("\nState: ");
+            dumpState(appli.getMainImpl().getInst(), "  ", "");
+        }
+    }
+
+    private void dumpState(ASMInst inst, String indent, String dep) {
+        Set<ASMInst> insts = new HashSet<ASMInst>();
+        insts.add(inst);
+        System.out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " " + inst.getSpec());
+        indent = indent + "  ";
+        for (Wire wire : inst.getWires()) {
+            System.out.println(indent + wire.getDepName() + ": " + wire.getDestination() + " "
+                    + wire.getDestination().getImpl() + " " + wire.getDestination().getSpec());
+            dumpState0(wire.getDestination(), indent, wire.getDepName(), insts);
+        }
+    }
+
+    private void dumpState0(ASMInst inst, String indent, String dep, Set<ASMInst> insts) {
+        if (insts.contains(inst)) {
+            System.out.println(indent + "  *");
+            return;
+        }
+        insts.add(inst);
+        indent = indent + "  ";
+        for (Wire wire : inst.getWires()) {
+            System.out.println(indent + wire.getDepName() + ": " + wire.getDestination() + " "
+                    + wire.getDestination().getImpl() + " " + wire.getDestination().getSpec());
+            dumpState0(wire.getDestination(), indent, wire.getDepName(), insts);
+        }
+    }
+
+    private void dumpComposite(Composite compo, String indent) {
+        if (compo == null)
+            return;
+        System.out.println(indent + compo.getName());
+        indent = indent + "  ";
+        for (Composite comp : compo.getDepend()) {
+            dumpComposite(comp, indent);
         }
     }
 

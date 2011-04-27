@@ -143,17 +143,18 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         if ((to == null) || (depName == null))
             return false;
 
-        for (Wire wire : wires) { // check if it allready exists
-            if ((wire.getSource() == to) && wire.getDepName().equals(depName))
+        for (Wire wire : wires) { // check if it already exists
+            if ((wire.getDestination() == to) && wire.getDepName().equals(depName))
                 return true;
         }
 
         if (!Wire.checkNewWire(this, to))
             return false;
         Wire wire = new Wire(this, to, depName);
-        ((ASMImplImpl) getImpl()).addUses(to.getImpl());
         wires.add(wire);
         ((ASMInstImpl) to).invWires.add(wire);
+
+        ((ASMImplImpl) getImpl()).addUses(to.getImpl());
         if (depHandler != null) {
             depHandler.setWire(to, depName);
         }

@@ -457,50 +457,6 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     }
 
     @Override
-    public void dumpAppli(String name) {
-        for (Application appli : getApplications()) {
-            if (appli.getName().equals(name)) {
-                System.out.println("Application : " + appli.getName() + "  Main : " + appli.getMainImpl());
-                dumpComposite(appli.getMainComposite(), "  ");
-                System.out.println("\nState: ");
-                dumpState(appli.getMainImpl().getInst(), "  ", "");
-                break;
-            }
-        }
-    }
-
-    @Override
-    public void dumpApam() {
-        for (Application appli : getApplications()) {
-            System.out.println("Application : " + appli.getName() + "  Main : " + appli.getMainImpl());
-            dumpComposite(appli.getMainComposite(), "  ");
-            System.out.println("\nState: ");
-            dumpState(appli.getMainImpl().getInst(), "  ", "");
-        }
-    }
-
-    @Override
-    public void dumpState(ASMInst inst, String indent, String dep) {
-        if (inst == null)
-            return;
-        System.out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " " + inst.getSpec());
-        indent = indent + "  ";
-        for (Wire wire : inst.getWires()) {
-            dumpState(wire.getDestination(), indent, wire.getDepName());
-        }
-    }
-
-    public void dumpComposite(Composite compo, String indent) {
-        if (compo == null)
-            return;
-        System.out.println(indent + compo.getName());
-        indent = indent + "  ";
-        for (Composite comp : compo.getDepend()) {
-            dumpComposite(comp, indent);
-        }
-    }
-
-    @Override
     public ASMSpecBroker getSpecBroker() {
         return CST.ASMSpecBroker;
     }

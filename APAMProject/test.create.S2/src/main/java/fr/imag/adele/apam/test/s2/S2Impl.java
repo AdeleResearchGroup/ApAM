@@ -2,6 +2,7 @@ package fr.imag.adele.apam.test.s2;
 
 import java.util.Set;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.Apam;
@@ -57,11 +58,11 @@ public class S2Impl implements S2, ApamComponent {
         ASMImplBroker implBroker = apam.getImplBroker();
 
         Attributes c2Attrs = new AttributesImpl();
-        c2Attrs.setProperty(Attributes.SHARED, Attributes.COMPOSITE);
+        c2Attrs.setProperty(CST.A_SHARED, CST.V_COMPOSITE);
         implBroker.addImpl(compo2, "ApamS4impl", "S4Impl", "S4In", c2Attrs);
 
         Attributes c3Attrs = new AttributesImpl();
-        c3Attrs.setProperty(Attributes.SHARED, Attributes.COMPOSITE);
+        c3Attrs.setProperty(CST.A_SHARED, CST.V_COMPOSITE);
         implBroker.addImpl(compo3, "ApamS5impl", "S5Impl", "S5", c3Attrs);
 
         System.out.println("S2 called " + s);

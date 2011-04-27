@@ -95,10 +95,10 @@ public interface Apam {
 
     public ASMInstBroker getInstBroker();
 
-    public void dumpApam();
-
-    public void dumpAppli(String appliName);
-
-    public void dumpState(ASMInst inst, String indent, String dep);
+    // public void dumpApam();
+    //
+    // public void dumpAppli(String appliName);
+    //
+    // public void dumpState(ASMInst inst, String indent, String dep);
 
 }
