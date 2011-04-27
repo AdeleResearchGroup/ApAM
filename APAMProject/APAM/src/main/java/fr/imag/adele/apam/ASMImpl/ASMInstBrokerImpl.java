@@ -125,9 +125,8 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
                 impl = ASMInstBrokerImpl.implBroker.addImpl(compo, implName, samInst.getImplementation().getName(),
                         specName, properties);
             }
-            if (compo == null)
-                compo = impl.getComposite();
-            return new ASMInstImpl(compo, impl, null, samInst);
+            // Instances always created inside the implementation composite
+            return new ASMInstImpl(impl, null, samInst);
         } catch (ConnectionException e) {
             e.printStackTrace();
         }

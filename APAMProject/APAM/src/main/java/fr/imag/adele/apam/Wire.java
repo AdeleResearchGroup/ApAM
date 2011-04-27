@@ -26,10 +26,15 @@ public class Wire {
      */
 
     public static boolean checkNewWire(ASMInst from, ASMInst to) {
-        boolean valid = Util.checkInstAccess(to, from.getComposite(), from.toString());
+        boolean valid = Util.checkInstVisible(to, from.getComposite(), from.toString());
         if (!valid) {
-            System.out.println(from + " has no access right to " + to
-                    + " (shared attribute is " + to.getShared() + ")");
+            System.out.println(from + " has no visibility to " + to
+                    + " (scope attribute is " + to.getScope() + ")");
+        }
+        if ((to.getImpl().getShared().equals(CST.V_FALSE)) && !(to.getInvWires().isEmpty())) {
+            System.out.println("instance " + to
+                    + " is not sharable and is allready used.");
+            valid = false;
         }
         return valid;
     }

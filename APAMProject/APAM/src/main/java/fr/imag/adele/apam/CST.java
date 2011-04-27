@@ -16,34 +16,46 @@ import fr.imag.adele.sam.deployment.broker.DeploymentUnitBroker;
 public class CST {
 
     // Constants
-    public static final String         COMPOSITE             = "Composite";
+    // value object : address of the iPOJO apam dependency handler
+    public static final String         A_DEPHANDLER   = "ApamDependencyHandler";
+    public static final String         A_APAMSPECNAME = "ApamSpecName";
+    public static final String         A_APAMIMPLNAME = "ApamImplName";
 
-    // The name of the attribute containing the dependency handler address (an
-    // object of type ApamDepndencyHandler)
-    public static final String         APAMDEPENDENCYHANDLER = "ApamDependencyHandler";
-    public static final String         APAMSPECNAME          = "ApamSpecName";
-    public static final String         APAMIMPLNAME          = "ApamImplName";
+    // indicate in which scope this object is visible. Instance have the visibility of its implementaiton
+    public static final String         A_SCOPE        = "SCOPE";
+    // visible everywhere
+    public static final String         V_GLOBAL       = "GLOBAL";
+    // visible in the current appli only
+    public static final String         V_APPLI        = "APPLI";
+    // visible in the current composite and on composites that depend on the current composite
+    public static final String         V_COMPOSITE    = "COMPOSITE";
+    // visible in the current composite only
+    public static final String         V_LOCAL        = "LOCAL";
 
-    public static final String         ASMMAN                = "ASMMAN";
-    public static final String         SAMMAN                = "SAMMAN";
-    public static final String         CONFMAN               = "CONFMAN";
-    public static final String         DYNAMAN               = "DYNAMAN";
-    public static final String         DISTRIMAN             = "DISTRIMAN";
+    // multiple on a group head indicates if more than one resolution is allowed in the scope
+    public static final String         A_MULTIPLE     = "MULTIPLE";
+    // shared on an implementation indicates if its instances can have more than one incoming wire
+    public static final String         A_SHARED       = "SHARED";
+    public static final String         V_TRUE         = "TRUE";
+    public static final String         V_FALSE        = "FALSE";
 
-    // Clonable attribute of services (Spec, Implem, Instance)
-    public static final int            TRUE                  = 0;
-    public static final int            FALSE                 = 1;
+    // Managers
+    public static final String         APAMMAN        = "APAMMAN";
+    public static final String         SAMMAN         = "SAMMAN";
+    public static final String         CONFMAN        = "CONFMAN";
+    public static final String         DYNAMAN        = "DYNAMAN";
+    public static final String         DISTRIMAN      = "DISTRIMAN";
 
     // The entry point in the ASM : its brokers
-    public static ASMSpecBroker        ASMSpecBroker         = null;
-    public static ASMImplBroker        ASMImplBroker         = null;
-    public static ASMInstBroker        ASMInstBroker         = null;
+    public static ASMSpecBroker        ASMSpecBroker  = null;
+    public static ASMImplBroker        ASMImplBroker  = null;
+    public static ASMInstBroker        ASMInstBroker  = null;
 
-    // The entry point in SAM
-    public static SpecificationBroker  SAMSpecBroker         = null;
-    public static ImplementationBroker SAMImplBroker         = null;
-    public static InstanceBroker       SAMInstBroker         = null;
-    public static DeploymentUnitBroker SAMDUBroker           = null;
+    // The entry point in SAM : its brokers
+    public static SpecificationBroker  SAMSpecBroker  = null;
+    public static ImplementationBroker SAMImplBroker  = null;
+    public static InstanceBroker       SAMInstBroker  = null;
+    public static DeploymentUnitBroker SAMDUBroker    = null;
 
     public static APAMImpl             apam;
 

@@ -87,11 +87,11 @@ public class SamInstEventHandler implements AMEventingHandler {
         try {
             if (SamInstEventHandler.newSamInstance.get(samName) != null) { // the event arrived first
                 Instance samInst = SamInstEventHandler.newSamInstance.get(samName).samInst;
-                samInst.setProperty(CST.APAMDEPENDENCYHANDLER, handler);
+                samInst.setProperty(CST.A_DEPHANDLER, handler);
                 if (specName != null)
-                    samInst.setProperty(CST.APAMSPECNAME, specName);
+                    samInst.setProperty(CST.A_APAMSPECNAME, specName);
                 if (implName != null)
-                    samInst.setProperty(CST.APAMIMPLNAME, implName);
+                    samInst.setProperty(CST.A_APAMIMPLNAME, implName);
                 SamInstEventHandler.newSamInstance.remove(samName);
             } else {
                 SamInstEventHandler.newApamInstance.put(samName, new NewApamInstance(handler, implName, specName));
@@ -190,11 +190,11 @@ public class SamInstEventHandler implements AMEventingHandler {
             if (SamInstEventHandler.newApamInstance.containsKey(samName)) { // It is an APAM instance either under
                                                                             // creation, or auto appear
                 NewApamInstance inst = SamInstEventHandler.newApamInstance.get(samName);
-                samInst.setProperty(CST.APAMDEPENDENCYHANDLER, inst.handler);
+                samInst.setProperty(CST.A_DEPHANDLER, inst.handler);
                 if (inst.specName != null)
-                    samInst.setProperty(CST.APAMSPECNAME, inst.specName);
+                    samInst.setProperty(CST.A_APAMSPECNAME, inst.specName);
                 if (inst.implName != null)
-                    samInst.setProperty(CST.APAMIMPLNAME, inst.implName);
+                    samInst.setProperty(CST.A_APAMIMPLNAME, inst.implName);
                 SamInstEventHandler.newApamInstance.remove(samName);
             } else { // record the event in the case it arrived before the handler registration
                 SamInstEventHandler.newSamInstance
@@ -202,9 +202,9 @@ public class SamInstEventHandler implements AMEventingHandler {
             }
 
             Implementation samImpl = samInst.getImplementation();
-            if (samImpl == null) {
-                System.out.println("samImpl est null pour" + samName);
-            }
+            // if (samImpl == null) {
+            // System.out.println("samImpl est null pour " + samName);
+            // }
             String samImplName = samImpl.getName();
             // ASMImpl impl = CST.ASMImplBroker.getImpl(samImpl);
             if (SamInstEventHandler.expectedImpls.keySet().contains(samImplName)) {

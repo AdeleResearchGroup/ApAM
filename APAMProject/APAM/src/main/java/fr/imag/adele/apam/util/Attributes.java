@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.util;
 
 import java.util.Map;
+import java.util.Properties;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.apamAPI.Manager;
@@ -8,19 +9,6 @@ import fr.imag.adele.apam.apamAPI.Manager;
 //import fr.imag.adele.am.exception.ConnectionException;
 
 public interface Attributes {
-
-    // Shared property when in property table
-    public static final String SHARED    = "SHARED";         // Property name
-    public static final String SHARABLE  = "SHARABLE";
-    public static final String APPLI     = "APPLI";
-    public static final String COMPOSITE = "COMPOSITE";
-    public static final String LOCAL     = "LOCAL";
-    public static final String PRIVATE   = "PRIVATE";
-
-    public static final String CLONABLE  = "CLONABLE";
-
-    public static final String TRUE      = "TRUE";
-    public static final String FALSE     = "FALSE";
 
     // Name of the application that created that object
     public static final String APAMAPPLI = "ApamApplication";
@@ -42,6 +30,8 @@ public interface Attributes {
      * @throws ConnectionException the connection exception
      */
     public Map<String, Object> getProperties();
+
+    public Properties attr2Properties();
 
     /**
      * The method asks the attribute managers to verify if that (attribute/value) pair is legal (type checking ...). If

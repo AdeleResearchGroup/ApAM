@@ -61,14 +61,14 @@ public class S2Impl implements S2, ApamComponent {
         implBroker.addImpl(compo2, "ApamS4impl", "S4Impl", "S4In", c2Attrs);
 
         Attributes c3Attrs = new AttributesImpl();
-        c3Attrs.setProperty(Attributes.SHARED, Attributes.LOCAL);
+        c3Attrs.setProperty(Attributes.SHARED, Attributes.COMPOSITE);
         implBroker.addImpl(compo3, "ApamS5impl", "S5Impl", "S5", c3Attrs);
 
         System.out.println("S2 called " + s);
         if (s4_1 != null)
-            s4_1.callS4("depuis S4_1 ");
+            s4_1.callS4("depuis S2 (s4_1) ");
         if (s4_2 != null)
-            s4_2.callS4("depuis S4_2 ");
+            s4_2.callS4("depuis S2 (s4_2) ");
 
     }
 

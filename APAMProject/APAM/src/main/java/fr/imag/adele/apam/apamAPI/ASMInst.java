@@ -53,7 +53,7 @@ public interface ASMInst extends Attributes {
 
     public String getShared();
 
-    public String getClonable();
+    public String getScope();
 
     // == from SAM interface
     public ASMSpec getSpec();

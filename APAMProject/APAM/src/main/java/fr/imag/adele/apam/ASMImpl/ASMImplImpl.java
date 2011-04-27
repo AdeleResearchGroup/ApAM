@@ -2,7 +2,6 @@ package fr.imag.adele.apam.ASMImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -92,9 +91,13 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     @Override
     public ASMInst createInst(Attributes initialproperties) {
         try {
-            Instance samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getImplPid(),
-                    (Properties) initialproperties);
-            ASMInstImpl inst = new ASMInstImpl(myComposite, this, initialproperties, samInst);
+            Instance samInst;
+            if (initialproperties == null)
+                samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getImplPid(), null);
+            else
+                samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getImplPid(),
+                        initialproperties.attr2Properties());
+            ASMInstImpl inst = new ASMInstImpl(this, initialproperties, samInst);
             instances.add(inst);
             return inst;
         } catch (Exception e) {
@@ -177,20 +180,26 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     }
 
     @Override
-    public String getClonable() {
-        return null;
+    public String getScope() {
+        String scope = (String) getProperty(CST.A_SCOPE);
+        if (scope == null)
+            scope = CST.V_GLOBAL;
+        return (String) getProperty(CST.A_SCOPE);
     }
 
     @Override
     public String getShared() {
-        return (String) getProperty(Attributes.SHARED);
+        String shared = (String) getProperty(CST.A_SHARED);
+        if (shared == null)
+            shared = CST.V_TRUE;
+        return shared;
     }
 
-    @Override
-    public void setClonable(String clonable) {
-        if ((clonable.equals(Attributes.TRUE) || (clonable.equals(Attributes.FALSE))))
-            setProperty(Attributes.SHARED, clonable);
-    }
+    // @Override
+    // public void setScope(String scope) {
+    // if ((scope.equals(CST.V_TRUE) || (scope.equals(CST.V_FALSE))))
+    // setProperty(CST.A_SCOPE, scope);
+    // }
 
     // relation uses control
     public void addUses(ASMImpl dest) {

@@ -40,9 +40,9 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     private final Set<Wire> wires    = new HashSet<Wire>(); // the currently used instances
     private final Set<Wire> invWires = new HashSet<Wire>();
 
-    public ASMInstImpl(Composite compo, ASMImpl impl, Attributes initialproperties, Instance samInst) {
+    public ASMInstImpl(ASMImpl impl, Attributes initialproperties, Instance samInst) {
         myImpl = impl;
-        myComposite = compo;
+        myComposite = impl.getComposite();
         if (samInst == null) {
             System.err.println("ERROR : sam instance cannot be null on ASM instance constructor");
             return;
@@ -68,9 +68,9 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             }
             // The event arrived first : it stored the info in the attributes
             if (handler == null) {
-                handler = (ApamDependencyHandler) samInst.getProperty(CST.APAMDEPENDENCYHANDLER);
-                implName = (String) samInst.getProperty(CST.APAMIMPLNAME);
-                specName = (String) samInst.getProperty(CST.APAMSPECNAME);
+                handler = (ApamDependencyHandler) samInst.getProperty(CST.A_DEPHANDLER);
+                implName = (String) samInst.getProperty(CST.A_APAMIMPLNAME);
+                specName = (String) samInst.getProperty(CST.A_APAMSPECNAME);
             }
             if (handler != null) { // it is an Apam instance
                 depHandler = handler;
@@ -82,10 +82,10 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             }
 
             setProperties(Util.mergeProperties(initialproperties, samInst.getProperties()));
-            this.setProperty(Attributes.APAMAPPLI, compo.getApplication().getName());
-            this.setProperty(Attributes.APAMCOMPO, compo.getName());
+            this.setProperty(Attributes.APAMAPPLI, myComposite.getApplication().getName());
+            this.setProperty(Attributes.APAMCOMPO, myComposite.getName());
 
-            compo.addInst(this);
+            myComposite.addInst(this);
         } catch (ConnectionException e1) {
             e1.printStackTrace();
         }
@@ -221,13 +221,13 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
-    public String getClonable() {
-        return (String) getProperty(Attributes.CLONABLE);
+    public String getScope() {
+        return getImpl().getScope();
     }
 
     @Override
     public String getShared() {
-        return (String) getProperty(Attributes.SHARED);
+        return getImpl().getShared();
     }
 
     @Override

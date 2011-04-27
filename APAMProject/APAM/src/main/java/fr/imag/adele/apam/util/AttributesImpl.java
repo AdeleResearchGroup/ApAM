@@ -7,10 +7,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.ASMImpl.ASMImplImpl;
 import fr.imag.adele.apam.ASMImpl.ASMInstImpl;
 import fr.imag.adele.apam.ASMImpl.ASMSpecImpl;
@@ -135,7 +137,7 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         }
         if (ok) { // propagate the change in ASM
             properties.put(prop, propVal);
-            changeShared(prop, propVal);
+            changeScope(prop, propVal);
             if (!samChange) { // propagate also in SAM
                 setChangeInSam(prop, propVal);
             }
@@ -163,7 +165,7 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         }
         if (ok) {
             properties.put(prop, propVal);
-            changeShared(prop, propVal);
+            changeScope(prop, propVal);
             if (!samChange) { // propagate also in SAM
                 setChangeInSam(prop, propVal);
             }
@@ -174,14 +176,14 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         }
     }
 
-    private void changeShared(String attr, Object shared) {
-        if ((shared instanceof String) && attr.equals(Attributes.SHARED)) {
-            if (((String) shared).equals(Attributes.APPLI) || ((String) shared).equals(Attributes.LOCAL)
-                    || ((String) shared).equals(Attributes.COMPOSITE) || ((String) shared).equals(Attributes.PRIVATE)
-                    || ((String) shared).equals(Attributes.SHARABLE)) {
-                properties.put(attr, shared);
+    private void changeScope(String attr, Object scope) {
+        if ((scope instanceof String) && attr.equals(CST.A_SCOPE)) {
+            if (((String) scope).equals(CST.V_APPLI) || ((String) scope).equals(CST.V_LOCAL)
+                    || ((String) scope).equals(CST.V_COMPOSITE)
+                    || ((String) scope).equals(CST.V_GLOBAL)) {
+                properties.put(attr, scope);
             } else
-                System.err.println("ERROR in " + this + " : invalid shared value : " + shared);
+                System.err.println("ERROR in " + this + " : invalid shared value : " + scope);
         }
     }
 
@@ -221,7 +223,7 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
 
         if (AttributesImpl.attrChangedManagers.contains(manager)) {
             properties.put(key, value);
-            changeShared(key, value);
+            changeScope(key, value);
         } else {
             setProperty(key, value);
         }
@@ -234,8 +236,8 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         if (AttributesImpl.attrChangedManagers.contains(manager)) {
             this.properties.putAll(properties);
         }
-        if (this.properties.get(Attributes.SHARED) != null) {
-            changeShared(Attributes.SHARED, properties.get(Attributes.SHARED));
+        if (this.properties.get(CST.A_SCOPE) != null) {
+            changeScope(CST.A_SCOPE, properties.get(CST.A_SCOPE));
         }
     }
 
@@ -314,6 +316,18 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         }
 
         private final Iterator<Object> _iterator;
+    }
+
+    /**
+     * WARNING : valid only if all values are string !
+     * 
+     * @return
+     */
+    @Override
+    public Properties attr2Properties() {
+        Properties prop = new Properties();
+        prop.putAll(properties);
+        return prop;
     }
 
 }

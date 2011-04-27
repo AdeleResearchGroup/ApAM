@@ -19,7 +19,7 @@ public class ApamMan implements Manager {
 
     @Override
     public String getName() {
-        return CST.ASMMAN;
+        return CST.APAMMAN;
     }
 
     @Override
@@ -91,7 +91,7 @@ public class ApamMan implements Manager {
 
         // try to find a sharable implementation and instantiate.
         for (ASMImpl impl : CST.ASMImplBroker.getImpls(spec)) {
-            if (Util.checkImplAccess(impl, client.getComposite(), client.toString())) {
+            if (Util.checkImplVisible(impl, client.getComposite(), client.toString())) {
                 boolean satisfies = true;
                 for (Filter filter : constraints) {
                     if (!filter.match((AttributesImpl) impl.getProperties())) {

@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
@@ -140,52 +141,51 @@ public class Util {
         return ret;
     }
 
-    public static boolean checkSpecAccess(ASMSpec spec, Composite compoFrom, String from) {
-        String shared = spec.getShared();
-        boolean valid = Util.checkAccess(compoFrom, spec.getComposite(), shared, (spec.getInvRequires().size() != 0));
+    public static boolean checkSpecVisible(ASMSpec spec, Composite compoFrom, String from) {
+        String scope = spec.getScope();
+        boolean valid = Util.checkVisibility(compoFrom, spec.getComposite(), scope);
         if (!valid) {
+
             System.out.println(from + " in Composite " + compoFrom.getName()
-                    + " has no access to specification " + spec + " in Composite " + spec.getComposite().getName()
-                    + " (shared attribute is " + shared + ")");
+                    + " does not see specification " + spec + " in Composite " + spec.getComposite().getName()
+                    + " (scope attribute is " + scope + ")");
         }
         return valid;
     }
 
-    public static boolean checkImplAccess(ASMImpl impl, Composite compoFrom, String from) {
-        String shared = impl.getShared();
-        boolean valid = Util.checkAccess(compoFrom, impl.getComposite(), shared, (impl.getInvUses().size() != 0));
+    public static boolean checkImplVisible(ASMImpl impl, Composite compoFrom, String from) {
+        String scope = impl.getScope();
+        boolean valid = Util.checkVisibility(compoFrom, impl.getComposite(), scope);
         if (!valid) {
             System.out.println(from + " in Composite " + compoFrom.getName()
-                    + " has no access to implementation " + impl + " in Composite " + impl.getComposite().getName()
-                    + " (shared attribute is " + shared + ")");
+                    + " does not see implementation " + impl + " in Composite " + impl.getComposite().getName()
+                    + " (shared attribute is " + scope + ")");
         }
         return valid;
     }
 
-    public static boolean checkInstAccess(ASMInst inst, Composite compoFrom, String from) {
-        String shared = inst.getShared();
-        boolean valid = Util.checkAccess(compoFrom, inst.getComposite(), shared, (inst.getInvWires().size() != 0));
+    public static boolean checkInstVisible(ASMInst inst, Composite compoFrom, String from) {
+        String scope = inst.getScope();
+        boolean valid = Util.checkVisibility(compoFrom, inst.getComposite(), scope);
         if (!valid) {
             System.out.println(from + " in Composite " + compoFrom.getName()
-                    + " has no access to instance " + inst + " in Composite " + inst.getComposite().getName()
-                    + " (shared attribute is " + shared + ")");
+                    + " does not see instance " + inst + " in Composite " + inst.getComposite().getName()
+                    + " (shared attribute is " + scope + ")");
         }
         return valid;
     }
 
-    public static boolean checkAccess(Composite compoFrom, Composite compoTo, String shared, boolean invDep) {
-        if ((shared == null) || (shared.equals(Attributes.SHARABLE)))
+    public static boolean checkVisibility(Composite compoFrom, Composite compoTo, String scope) {
+        if ((scope == null) || (scope.equals(CST.V_GLOBAL)))
             return true;
-        if (shared.equals(Attributes.APPLI))
+        if (scope.equals(CST.V_APPLI))
             return (compoFrom.getApplication() == compoTo.getApplication());
-        if (shared.equals(Attributes.COMPOSITE))
+        if (scope.equals(CST.V_COMPOSITE))
             return ((compoFrom == compoTo) || (compoFrom.dependsOn(compoTo)));
-        if (shared.equals(Attributes.LOCAL))
+        if (scope.equals(CST.V_LOCAL))
             return (compoFrom == compoTo);
-        if (shared.equals(Attributes.PRIVATE))
-            return (!invDep);
 
-        System.err.println("CheckAccess : Invalid Shared value :  " + shared);
+        System.err.println("CheckAccess : Invalid Scope value :  " + scope);
 
         return false;
     }

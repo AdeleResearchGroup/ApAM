@@ -21,28 +21,10 @@ public interface ASMImpl extends Attributes {
 
     public Implementation getSamImpl();
 
-    /**
-     * The relation uses is established between two ASM implementations. On getUses, APAM tries to update the list with
-     * the information provided by SAM. If additional uses are found ... If some uses are not in SAM ...
-     * 
-     * @return
-     */
-
-    // public Set<ASMImpl> getUses () ;
-    // Uses are dynamically computed from the actual wires.
-    // public boolean addUses (ASMImpl impl) ;
-    // public boolean removeUses (ASMImpl impl) ;
-
     public String getShared();
 
-    public String getClonable();
+    public String getScope();
 
-    public void setClonable(String clonable);
-
-    /**
-     * remove from ASM but does not try to delete in SAM. The mapping is still valid. It deletes all instances. No
-     * change of state. May be selected again later.
-     */
     public void remove();
 
     // ====

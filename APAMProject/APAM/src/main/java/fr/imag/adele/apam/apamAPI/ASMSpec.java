@@ -20,7 +20,7 @@ public interface ASMSpec extends Attributes {
 
     public String getShared();
 
-    public String getClonable();
+    public String getScope();
 
     /**
      * remove from ASM but does not try to delete in SAM. The mapping is still valid. It deletes all its

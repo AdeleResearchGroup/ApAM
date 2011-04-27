@@ -171,8 +171,11 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
     }
 
     @Override
-    public String getClonable() {
-        return (String) getProperty(Attributes.CLONABLE);
+    public String getScope() {
+        String scope = (String) getProperty(CST.A_SCOPE);
+        if (scope == null)
+            scope = CST.V_GLOBAL;
+        return (String) getProperty(CST.A_SCOPE);
     }
 
     @Override
@@ -187,7 +190,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
 
     @Override
     public String getShared() {
-        return (String) getProperty(Attributes.SHARED);
+        return CST.V_TRUE;
     }
 
     @Override
