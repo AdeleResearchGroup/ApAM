@@ -33,6 +33,10 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         AttributesImpl.attrChangedManagers.remove(manager);
     }
 
+    public Dictionary<String, Object> attr2Dictionary() {
+        return this;
+    }
+
     /*
      * (non-Javadoc)
      * 
