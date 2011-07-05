@@ -80,13 +80,14 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-ipojo-plugin</artifactId>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>ApamMavenPlugIn</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
 				<executions>
 					<execution>
 						<goals>
-							<goal>ipojo-bundle</goal>
-						</goals>
+							<goal>apam-ipojo-bundle</goal>
+						</goals>						
 					</execution>
 				</executions>
 			</plugin>
