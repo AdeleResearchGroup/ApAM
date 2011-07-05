@@ -26,7 +26,7 @@
 					<instructions>
 						<Bundle-Name>${project.name}</Bundle-Name>
 						<Bundle-Description>
-							SAM Core Implementation of the API
+							Dynamic Manager DYNAMAN
 						</Bundle-Description>
 						<Bundle-SymbolicName>
 							${project.artifactId}
@@ -35,59 +35,20 @@
 							Adele/LIG/ Grenoble University, France
 						</Bundle-Vendor>
 						<Bundle-Version>${project.version}</Bundle-Version>
-				<!-- 		<Bundle-Activator>fr.imag.adele.sam.interceptor.Activator
-						</Bundle-Activator> -->
-						
-<!--
-						<Export-Package>
-							fr.imag.adele.sam.broker.impl,
-							fr.imag.adele.sam.exported.impl,
-							fr.imag.adele.sam.impl,
-							fr.imag.adele.sam.discovery,
-							fr.imag.adele.sam.handler,
-							fr.imag.adele.sam.interceptor,
-							fr.imag.adele.sam.invocation.security.impl
-						</Export-Package>
--->
-<!-- 
-						<Import-Package>
-                            fr.imag.adele.apam.apamAPI,
-                            fr.imag.adele.sam,
-                            fr.imag.adele.sam.scm,
-                            fr.imag.adele.sam.broker,
-                            fr.imag.adele.sam.exported,
-                            fr.imag.adele.sam.exception,
-                            fr.imag.adele.sam.invocation.security,
-                            fr.imag.adele.sam.util,
-                            fr.imag.adele.sam.osgi.util,
-                            fr.imag.adele.am, 
-                            fr.imag.adele.am.broker,
-                            fr.imag.adele.am.eventing,
-                            fr.imag.adele.am.query,
-                            fr.imag.adele.am.exception,
-                            fr.imag.adele.am.exportedEntity,
-                            fr.imag.adele.service.communication
-                        </Import-Package>
--->          
-<!--						<Private-Package>fr.imag.adele.sam.interceptor</Private-Package>-->
-<!--						<DynamicImport-Package>*</DynamicImport-Package>
--->
-						<Include-Resource>
-							META-INF/LICENCE=LICENSE,
-							META-INF/NOTICE=NOTICE
-						</Include-Resource>
 					</instructions>
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugIn</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-ipojo-plugin</artifactId>
 				<executions>
 					<execution>
 						<goals>
-							<goal>apam-ipojo-bundle</goal>
-						</goals>						
+							<goal>ipojo-bundle</goal>
+						</goals>
+						<configuration>
+							 <metadata>src/main/resources/fr/imag/adele/dynamic/application/manager/DynamicManagerImplementation.ipojo</metadata>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -104,28 +65,6 @@
                     </execution>
                 </executions>
 
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.1</version>
-                <executions>
-                    <execution>
-                        <id>create-staging-area</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar"
-                                    todir="${exportedFolder}/s-am" />
-                                <copy
-                                    file="${basedir}/target/${project.artifactId}-${project.version}-sources.jar"
-                                    todir="${exportedFolder}/s-am/sources" />
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 		</plugins>
 	</build>
@@ -175,6 +114,13 @@
             <groupId>fr.imag.adele.am</groupId>
             <artifactId>AbstractMachine-Impl</artifactId>
         </dependency>
+         <dependency>
+         	<groupId>fr.imag.adele.apam</groupId>
+         	<artifactId>APAM</artifactId>
+         	<version>0.0.1-SNAPSHOT</version>
+         	<type>bundle</type>
+         	<scope>compile</scope>
+         </dependency>
 	</dependencies>
   
   
