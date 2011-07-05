@@ -4,7 +4,9 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.PrimitiveHandler;
@@ -399,6 +401,33 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
         thisInstance = inst;
     }
 
+    /**
+     * This method will be invoked by APAM to get a minimal model of the dependencies known by this handler
+     */
+    public Set<DependencyModel> getDependencies() {
+    	Set<DependencyModel> dependenciesModel = new HashSet<DependencyModel>();
+    	
+    	for (Dependency dependency : dependencies.values()) {
+    		DependencyModel dependencyModel = new DependencyModel();
+    		dependencyModel.dependencyName	= dependency.getName();
+    		dependencyModel.isMultiple		= dependency.isAggregate();
+    		dependencyModel.target			= dependency.getTarget();
+    		switch (dependency.getKind()) {
+			case INTERFACE:
+				dependencyModel.targetKind = TargetKind.INTERFACE;
+				break;
+			case SPECIFICATION:
+				dependencyModel.targetKind = TargetKind.SPECIFICATION;
+				break;
+			case IMPLEMENTATION:
+				dependencyModel.targetKind = TargetKind.IMPLEMENTATION;
+				break;
+			}
+			dependenciesModel.add(dependencyModel);
+		}
+    	return dependenciesModel;
+    }
+    
     @Override
     public void stop() {
     }

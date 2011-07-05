@@ -155,10 +155,16 @@ public class Dependency implements FieldInterceptor {
              * removing the previous ones. This may happen only if there is an application model that is not coherent
              * with the dependency metadata.
              */
+        	
+        	/*
+        	 * TODO  When substituting dependencies, the existing dependency is not removed before the new one is
+        	 * added, so we have to replace anyway. Modify APAM code to use substituteDependency 
+        	 * 
             if (isScalar() && (targetServices.size() != 0)) {
                 return;
             }
-
+            
+        	 */
             targetServices.add(target);
             injectedValue = null;
         }
