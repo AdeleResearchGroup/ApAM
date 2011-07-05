@@ -1,0 +1,10 @@
+<ipojo>
+<component name="OBRMAN" classname="fr.imag.adele.obrMan.OBRMan" immediate="true">
+	<requires field="apam" proxy="false"/>
+	<requires field="repoAdmin" proxy="false"/>
+	<callback transition="validate" method="start"/>
+	<callback transition="invalidate" method="stop"/>
+</component>
+
+<instance name="OBRMAN-Instance" component="OBRMAN"/>
+</ipojo>
