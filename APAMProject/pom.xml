@@ -265,7 +265,7 @@
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-ipojo-plugin</artifactId>
-					<version>1.6.0</version>
+					<version>1.8.0</version>
 					<executions>
 						<execution>
 							<goals>
@@ -312,11 +312,7 @@
 		<module>CONFMAN</module>
 		<module>DYNAMAN</module>
 		<module>DISTRIMAN</module>
-		<module>test.create.S1</module>
-		<module>test.create.S3</module>
-		<module>test.create.S2</module>
 		<module>ApamCommand</module>
-		<module>S4</module>
-		<module>S5</module>
+		<module>OBRMAN</module>
 	</modules>
 </project>
