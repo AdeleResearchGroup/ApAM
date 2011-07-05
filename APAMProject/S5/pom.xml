@@ -31,7 +31,7 @@
            			<Export-Package>fr.imag.adele.appam.test.create.*</Export-Package>
 				</configuration>
 			</plugin>
-			<plugin>
+<!-- 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-ipojo-plugin</artifactId>
 				<version>1.6.0</version>
@@ -46,7 +46,8 @@
 					</execution>
 				</executions>
 			</plugin>
-		</plugins>
+ -->
+ 		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
