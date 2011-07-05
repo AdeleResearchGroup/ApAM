@@ -125,10 +125,24 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
      * sam instance
      */
     @Override
+    public Set<ASMInst> getWireDests(String depName) {
+        Set<ASMInst> dests = new HashSet<ASMInst>();
+        for (Wire wire : wires) {
+        	if (wire.getDepName().equals(depName))
+        		dests.add(wire.getDestination());
+        }
+        return dests;
+    }
+
+    /**
+     * returns the connections towards the service instances actually used. return only APAM wires. for SAM wires the
+     * sam instance
+     */
+    @Override
     public Set<ASMInst> getWireDests() {
         Set<ASMInst> dests = new HashSet<ASMInst>();
         for (Wire wire : wires) {
-            dests.add(wire.getDestination());
+       		dests.add(wire.getDestination());
         }
         return dests;
     }
@@ -136,6 +150,16 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     @Override
     public Set<Wire> getWires() {
         return Collections.unmodifiableSet(wires);
+    }
+
+    @Override
+    public Set<Wire> getWires(String dependencyName) {
+        Set<Wire> dests = new HashSet<Wire>();
+        for (Wire wire : wires) {
+        	if (wire.getDepName().equals(dependencyName))
+        		dests.add(wire);
+        }
+        return dests;
     }
 
     @Override
@@ -260,6 +284,16 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
+    public Set<Wire> getInvWires(String depName) {
+        Set<Wire> w = new HashSet<Wire>();
+        for (Wire wire : invWires) {
+            if ((wire.getDestination() == this) && (wire.getDepName().equals(depName)))
+                w.add(wire);
+       }
+        return w;
+    }
+
+    @Override
     public Wire getWire(ASMInst destInst) {
         if (destInst == null)
             return null;
@@ -281,7 +315,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         return null;
     }
 
-    @Override
+     @Override
     public Set<Wire> getWires(ASMInst destInst) {
         if (destInst == null)
             return null;

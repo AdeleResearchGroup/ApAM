@@ -1,6 +1,9 @@
 package fr.imag.adele.apam.apamAPI;
 
+import java.util.List;
 import java.util.Set;
+
+import org.osgi.framework.Filter;
 
 /**
  * Interface called by client instances.
@@ -9,6 +12,15 @@ import java.util.Set;
  * 
  */
 public interface ApamClient {
+
+    /**
+     * Provided that a resolution will be asked for a wire to the required specification (or interface), each manager is
+     * asked for the constraints that it will require.
+     * 
+     * WARNING: Either (or both) interfaceName or specName are needed.
+     */ 
+    public List<Filter> getConstraintsSpec(String interfaceName, String specName, String depName,
+            List<Filter> initConstraints);
 
     /**
      * An APAM client instance requires to be wired with an instance implementing the specification. WARNING : if no

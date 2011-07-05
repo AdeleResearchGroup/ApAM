@@ -1,5 +1,7 @@
 package fr.imag.adele.apam.apamAPI;
 
+import java.util.Set;
+
 /**
  * Interface that APAM Client instances (handlers, annotation or proxies) MUST implement.
  * Used to manage the wires.
@@ -41,5 +43,24 @@ public interface ApamDependencyHandler {
 	 * @return
 	 */
 	public boolean substWire (ASMInst oldDestInst, ASMInst newDestInst, String depName) ;
+	
+	/**
+	 * A minimal model of the information known by the handler about the potential dependencies
+	 * of its managed instance.
+	 */
+	
+	public enum TargetKind { INTERFACE, SPECIFICATION, IMPLEMENTATION }
+	
+	public static class DependencyModel {
+		public String dependencyName;
+		public String target;
+		public TargetKind targetKind;
+		public boolean isMultiple;
+	}
+	
+	/**
+	 * Get the list of dependencies known by the handler
+	 */
+	public Set<DependencyModel> getDependencies();
 	
 }

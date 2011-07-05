@@ -35,6 +35,8 @@ public interface ASMInst extends Attributes {
      */
     public Set<ASMInst> getWireDests();
 
+    public Set<ASMInst> getWireDests(String depName);
+
     public Wire getWire(ASMInst detInst);
 
     public Wire getWire(ASMInst destInst, String depName);
@@ -43,7 +45,11 @@ public interface ASMInst extends Attributes {
 
     public Set<Wire> getWires();
 
+    public Set<Wire> getWires(String depName);
+
     public Set<Wire> getInvWires();
+
+	public Set<Wire> getInvWires(String depName);
 
     public boolean createWire(ASMInst to, String depName);
 
@@ -82,5 +88,6 @@ public interface ASMInst extends Attributes {
      * @return true is the instance matches the goal
      */
     public boolean match(Filter goal);
+
 
 }

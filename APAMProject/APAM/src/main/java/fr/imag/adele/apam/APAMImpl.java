@@ -52,6 +52,21 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     }
 
     /**
+     * Provided that a resolution will be asked for a wire to the required specification (or interface), each manager is
+     * asked for the constraints that it will require.
+     * 
+     * WARNING: Either (or both) interfaceName or specName are needed.
+     */ 
+    public List<Filter> getConstraintsSpec(String interfaceName, String specName, String depName,
+            List<Filter> initConstraints) {
+    	
+    	for (Manager manager : managerList) {
+			manager.getConstraintsSpec(interfaceName,specName,depName,initConstraints);
+		}
+    	return initConstraints;
+    }
+
+    /**
      * An APAM client instance requires to be wired with an instance implementing the specification. WARNING : if no
      * logical name is provided, since more than one specification can implement the same interface, any specification
      * implementing the provided interface (technical name of the interface) will be considered satisfactory. If found,
