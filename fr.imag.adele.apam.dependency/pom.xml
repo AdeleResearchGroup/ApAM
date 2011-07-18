@@ -22,7 +22,7 @@
 	<version>1.0.0</version>
 	<packaging>bundle</packaging>
 
-	<name>APPAM dependency Manager</name>
+	<name>APAM dependency Manager</name>
 
 	<build>
 		<plugins>
