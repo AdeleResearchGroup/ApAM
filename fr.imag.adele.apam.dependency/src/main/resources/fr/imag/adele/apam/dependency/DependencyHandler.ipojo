@@ -15,7 +15,7 @@
 
 -->
 <ipojo>
-	<handler classname="fr.imag.adele.appam.dependency.DependencyManager"
+	<handler classname="fr.imag.adele.apam.dependency.DependencyManager"
 		name="dependency" namespace="fr.imag.adele.appam">
 		<requires specification="fr.imag.adele.apam.apamAPI.ApamClient" field="apam" 
 				  proxy="false" nullable="false">
