@@ -41,7 +41,7 @@
 				<version>2.3.4</version>
 				<extensions>true</extensions>
 				<configuration>
-           			<Export-Package>fr.imag.adele.appam.dependency.*</Export-Package>
+           			<Export-Package>fr.imag.adele.apam.dependency.*</Export-Package>
             		<Private-Package>*</Private-Package>
 				</configuration>
 			</plugin>
@@ -55,7 +55,7 @@
 			                 <goal>ipojo-bundle</goal>
 			            </goals>
 						<configuration>
-							 <metadata>src/main/resources/fr/imag/adele/appam/dependency/DependencyHandler.ipojo</metadata>
+							 <metadata>src/main/resources/fr/imag/adele/apam/dependency/DependencyHandler.ipojo</metadata>
 						</configuration>
 					</execution>
 				</executions>

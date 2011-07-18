@@ -1,4 +1,4 @@
-package fr.imag.adele.appam.dependency;
+package fr.imag.adele.apam.dependency;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
