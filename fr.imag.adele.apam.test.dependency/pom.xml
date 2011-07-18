@@ -17,12 +17,12 @@
   	
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>fr.imag.adele.appam</groupId>
+	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>test.dependency</artifactId>
 	<version>1.0.0</version>
 	<packaging>bundle</packaging>
 
-	<name>APPAM dependency manager test</name>
+	<name>APAM dependency manager test</name>
 
 	<build>
 		<plugins>
@@ -41,7 +41,7 @@
 				<version>2.3.4</version>
 				<extensions>true</extensions>
 				<configuration>
-           			<Export-Package>fr.imag.adele.appam.test.dependency.*</Export-Package>
+           			<Export-Package>fr.imag.adele.apam.test.dependency.*</Export-Package>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -54,7 +54,7 @@
 			                 <goal>ipojo-bundle</goal>
 			            </goals>
 						<configuration>
-							 <metadata>src/main/resources/fr/imag/adele/appam/test/dependency/DependencyTest.ipojo</metadata>
+							 <metadata>src/main/resources/fr/imag/adele/apam/test/dependency/DependencyTest.ipojo</metadata>
 						</configuration>
 					</execution>
 				</executions>

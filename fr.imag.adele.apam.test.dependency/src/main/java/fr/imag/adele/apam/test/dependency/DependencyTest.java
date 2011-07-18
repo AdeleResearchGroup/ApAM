@@ -1,4 +1,4 @@
-package fr.imag.adele.appam.test.dependency;
+package fr.imag.adele.apam.test.dependency;
 
 import java.util.List;
 

@@ -14,12 +14,12 @@
     limitations under the License.
 
 -->
-<ipojo xmlns:appam="fr.imag.adele.appam">
-	<component name="DependencyTest" classname="fr.imag.adele.appam.test.dependency.DependencyTest"
+<ipojo xmlns:apam="fr.imag.adele.apam">
+	<component name="DependencyTest" classname="fr.imag.adele.apam.test.dependency.DependencyTest"
 	           apam-implementation="APAMDependencyTest">
 	    <provides/>
 		<callback transition="validate" method="start"/>
-		<appam:dependency  field="dependencies" />
+		<apam:dependency  field="dependencies" />
 	</component>
 	
 	<instance component="DependencyTest" name="DependencyTest-auto-appear-instance"/>
