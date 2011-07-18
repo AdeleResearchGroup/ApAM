@@ -17,7 +17,7 @@
   	
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>fr.imag.adele.appam</groupId>
+	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>Dependency</artifactId>
 	<version>1.0.0</version>
 	<packaging>bundle</packaging>
