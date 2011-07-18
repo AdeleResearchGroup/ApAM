@@ -24,7 +24,7 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
     /**
      * The name space of this handler
      */
-    private final static String     APAM_NAMESPACE                     = "fr.imag.adele.appam";
+    private final static String     APAM_NAMESPACE                     = "fr.imag.adele.apam";
 
     /**
      * Configuration property to specify the dependency's target implementation
