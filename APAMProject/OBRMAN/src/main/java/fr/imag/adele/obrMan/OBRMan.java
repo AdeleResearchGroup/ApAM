@@ -1,7 +1,16 @@
 package fr.imag.adele.obrMan;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Dictionary;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Property;
@@ -13,22 +22,105 @@ import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 
+import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.ApplicationImpl;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.ASMImpl.ASMImplImpl;
+import fr.imag.adele.apam.ASMImpl.ASMSpecImpl;
+import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Apam;
+import fr.imag.adele.apam.apamAPI.Application;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.Manager;
+import fr.imag.adele.apam.apamAPI.ManagersMng;
+import fr.imag.adele.sam.Implementation;
+import fr.imag.adele.sam.Instance;
 
-public class OBRMan implements Manager {
+public class OBRMan implements Manager, IOBRMAN {
 
     // iPOJO injected
     private RepositoryAdmin repoAdmin;
-    private Apam            apam;
+    private ManagersMng     apam;
 
     private Resolver        resolver;
     private Repository      local;
     private Resource[]      allResources;
+
+    /**
+     * OBRMAN activated, register with APAM
+     */
+    public void start() {
+        System.out.println("Started OBRMAN");
+        apam.addManager(this, 3);
+        // TODO should take its default model : its repositories.
+
+        // to test only
+        try {
+            local = repoAdmin.addRepository("file:///F:/Maven/.m2/repository.xml");
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println("local repo : " + local.getURI());
+        resolver = repoAdmin.resolver();
+        allResources = local.getResources(); // read once for each session, and cached.
+        // for (Resource res : allResources) {
+        // printRes(res);
+        // }
+        //        Resource selected;
+        //        selected = lookFor("bundle", "(symbolicname=ApamCommand)", null);
+        //        selected = lookFor("apam-component", "(name=S2Impl)", null);
+        //        selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", null);
+        //        selected = lookFor("apam-component", "(apam-specification=S2)", null);
+        //        selected = lookFor("apam-component", "(scope=LOCAL)", null);
+        //        selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", null);
+        //        selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", null);
+        //        selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", null);
+        //        selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.test.s2.S2)", null);
+        //        selected = lookFor("apam-component", "(&(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)(scope=LOCAL))",
+        //                null);
+        //
+        //        Set<Filter> constraints = new HashSet<Filter>();
+        //
+        //        selected = lookFor("bundle", "(symbolicname=ApamCommand)", constraints);
+        //
+        //        try {
+        //            Filter f = FilterImpl.newInstance("(&(scope=LOCAL)(shared=TRUE))");
+        //            constraints.add(f);
+        //        } catch (InvalidSyntaxException e) {
+        //            System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
+        //        }
+        //
+        //        selected = lookFor("apam-component", "(name=S2Impl)", constraints);
+        //        selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", constraints);
+        //        selected = lookFor("apam-component", "(apam-specification=S2)", null);
+        //
+        //        try {
+        //            Filter f = FilterImpl.newInstance("(test=yes)");
+        //            constraints.add(f);
+        //        } catch (InvalidSyntaxException e) {
+        //            System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
+        //        }
+        //
+        //        selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", constraints);
+        //        selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", constraints);
+        //        try {
+        //            Filter f = FilterImpl.newInstance("(X=Y)");
+        //            constraints.add(f);
+        //        } catch (InvalidSyntaxException e) {
+        //            System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
+        //        }
+        //
+        //        selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", constraints);
+
+    }
+
+    public void stop() {
+        apam.removeManager(this);
+    }
 
     private void printCap(Capability aCap) {
         System.out.println("   Capability name: " + aCap.getName());
@@ -38,70 +130,48 @@ public class OBRMan implements Manager {
     }
 
     private void printRes(Resource aResource) {
-        // System.out.println("capabilities : " + aResource.getCapabilities());
-        // System.out.println("getPresentationName : " + aResource.getPresentationName());
         System.out.println("\n\nRessource SymbolicName : " + aResource.getSymbolicName());
         for (Capability aCap : aResource.getCapabilities()) {
             printCap(aCap);
         }
     }
 
-    private void resolveDeploy(Resource aResource) {
-        resolver.add(aResource);
-        if (resolver.resolve()) {
-            resolver.deploy(Resolver.START);
-        } else {
-            Reason[] reqs = resolver.getUnsatisfiedRequirements();
-            for (Reason req : reqs) {
-                System.out.println("Unable to resolve: " + req);
+    private String printProperties(Property[] props) {
+        StringBuffer ret = new StringBuffer();
+        for (Property prop : props) {
+            ret.append(prop.getName() + "=" + prop.getValue() + ",  ");
+        }
+        return ret.toString();
+    }
+
+    // serious stuff now !
+    private String getAttributeInResource(Resource res, String capability, String attr) {
+        for (Capability aCap : res.getCapabilities()) {
+            if (aCap.getName().equals(capability)) {
+                return (String) (aCap.getPropertiesAsMap().get(attr));
             }
         }
+        return null;
     }
 
-    public void start() {
-        System.out.println("entering OBRMan");
-        // local = repoAdmin.getLocalRepository();
+    private Set<Resource>
+            lookForAll(String capability, String filterStr, Set<Filter> constraints, Set<Resource> allRes) {
+        System.out.println("looking for all resources : " + capability + "; filter : " + filterStr);
+        if (allResources == null)
+            return null;
         try {
-            local = repoAdmin.addRepository("file:///F:/Maven/.m2/repository.xml");
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        System.out.println("local repo : " + local.getURI());
-        resolver = repoAdmin.resolver();
-        allResources = local.getResources();
-        for (Resource res : allResources) {
-            printRes(res);
-            // test("(name=" + res.getSymbolicName() + ")");
-        }
-        Resource selected;
-        selected = lookFor("bundle", "(symbolicname=ApamCommand)");
-        // test("(name=S4)");
-        // test("");
-        // test("");
-    }
-
-    public void stop() {
-
-    }
-
-    private Resource lookFor(String capability, String filterStr) {
-        System.out.println("looking for capability : " + capability + "; filter : " + filterStr);
-        Requirement req = repoAdmin.getHelper().requirement(capability, filterStr);
-        try {
-            FilterImpl filter = FilterImpl.newInstance(filterStr);
-            allResources = local.getResources();
-            System.out.println("requeriment discover : "
-                    + repoAdmin.discoverResources(new Requirement[] { req }).length);
+            FilterImpl filter = null;
+            if (filterStr != null)
+                filter = FilterImpl.newInstance(filterStr);
             for (Resource res : allResources) {
-                for (Capability aCap : res.getCapabilities()) {
-                    System.out.println("requeriment match : " + req.isSatisfied(aCap));
+                Capability[] capabilities = res.getCapabilities();
+                for (Capability aCap : capabilities) {
                     if (aCap.getName().equals(capability)) {
-                        System.out.println("resource : " + res.getSymbolicName() + "; Capability : "
-                                + aCap.getName() + "; properties : " + aCap.getProperties());
-                        if (filter.matchCase(aCap.getPropertiesAsMap())) {
-                            System.out.println(" found !!!");
-                            return res;
+                        if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
+                            if ((constraints == null) || matchConstraints(capabilities, constraints)) {
+                                System.out.println("   Found : " + res.getSymbolicName());
+                                allRes.add(res);
+                            }
                         }
                     }
                 }
@@ -109,86 +179,371 @@ public class OBRMan implements Manager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if (allRes.isEmpty())
+            System.out.println("   Not Found");
+        return allRes;
+    }
+
+    private Resource lookFor(String capability, String filterStr, Set<Filter> constraints) {
+        System.out.println("looking for capability : " + capability + "; filter : " + filterStr);
+        //Requirement req = repoAdmin.getHelper().requirement(capability, filterStr);
+        if (allResources == null)
+            return null;
+        try {
+            FilterImpl filter = null;
+            if (filterStr != null)
+                filter = FilterImpl.newInstance(filterStr);
+            for (Resource res : allResources) {
+                Capability[] capabilities = res.getCapabilities();
+                for (Capability aCap : capabilities) {
+                    if (aCap.getName().equals(capability)) {
+                        if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
+                            if ((constraints == null) || matchConstraints(capabilities, constraints)) {
+                                System.out.println("   Found : " + res.getSymbolicName());
+                                return res;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("   Not Found");
         return null;
     }
 
-    public void deployInstall(Resource res) {
+    private boolean matchConstraints(Capability[] capabilities, Set<Filter> constraints) {
+        if ((constraints == null) || constraints.isEmpty())
+            return true;
+        if (capabilities == null)
+            return true;
+        FilterImpl filter;
+
+        //trace
+        System.out.print("maching constraints : ");
+        for (Filter constraint : constraints) {
+            System.out.print(constraint + ", ");
+        }
+        System.out.println("");
+
+        for (Capability aCap : capabilities) {
+            if (aCap.getName().equals("apam-component")) {
+                Map map = aCap.getPropertiesAsMap();
+                for (Filter constraint : constraints) {
+                    try {
+                        filter = FilterImpl.newInstance(constraint.toString());
+                        if (!filter.matchCase(map)) {
+                            System.out.println("contraint not matched : " + constraint);
+                            return false;
+                        }
+                    } catch (InvalidSyntaxException e) {
+                        System.err.println("invalid syntax in filter : " + constraint.toString());
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Deploys, installs and instantiate
+     * 
+     * @param res
+     * @return
+     */
+    public boolean deployInstall(Resource res) {
         resolver.add(res);
         if (resolver.resolve()) {
             resolver.deploy(Resolver.START);
-        } else {
-            Reason[] reqs = resolver.getUnsatisfiedRequirements();
-            for (Reason req : reqs) {
-                System.out.println("Unable to resolve: " + req);
-            }
+            return true;
         }
+        Reason[] reqs = resolver.getUnsatisfiedRequirements();
+        for (Reason req : reqs) {
+            System.out.println("Unable to resolve: " + req);
+        }
+        return false;
+    }
+
+    /**
+     * Given the res OBR resource, supposed to match an Apam requirement when resolving a wire from "from".
+     * Install and start from the OBR repository, and creates the associated ASM impl and inst.
+     * 
+     * @param res : OBR resource (supposed to match an Apam requirement)
+     * @param from : the origin of the wire toward the resource.
+     * @return
+     */
+    private ASMInst installInstantiate(Resource res, Composite composite, boolean multiple, Set<ASMInst> allInst) {
+        String implName = getAttributeInResource(res, "apam-component", "apam-implementation");
+        String specName = getAttributeInResource(res, "apam-component", "apam-specification");
+        String implNameExpected = res.getSymbolicName(); //the sam name
+        if (implName == null)
+            implName = implNameExpected;
+
+        Implementation samImpl = null;
+        Instance samInst = null;
+        ASMImpl asmImpl = null;
+        ASMInst asmInst = null;
+        try {
+            asmImpl = CST.ASMImplBroker.getImpl(implName);
+            if (asmImpl != null) { // do not install twice
+                ((ASMImplImpl) asmImpl).setASMName(implName);
+                ((ASMSpecImpl) asmImpl.getSpec()).setASMName(specName);
+                asmInst = asmImpl.getInst();
+                if (asmInst != null)
+                    return asmInst;
+                return asmImpl.createInst(null);
+            }
+
+            CST.implEventHandler.addExpected(implNameExpected);
+            boolean deployed = deployInstall(res);
+            if (!deployed) {
+                System.err.print("could not install resource ");
+                printRes(res);
+                return null;
+            }
+            //waiting for the implementation to be ready in SAM.
+            samImpl = CST.implEventHandler.getImplementation(implNameExpected);
+            // instances may have been created by deploy or iPOJO
+            //We have to wait for these instances to appear !! How long ? how to know they are all ready
+            Thread.sleep(10);
+
+            Set<Instance> allInstances = null;
+            if (multiple) {
+                allInstances = samImpl.getInstances();
+                if ((allInstances == null) || allInstances.isEmpty())
+                    allInstances.add(samImpl.createInstance(null)); // should not be null
+            } else {
+                samInst = samImpl.getInstance();
+                if (samInst == null) // An instance must be created 
+                    samInst = samImpl.createInstance(null); // should not be null
+            }
+            //            System.out.println("instances rtouvees : " + samImpl.getInstances());
+            //            if (samInst == null) {// An instance must be created 
+            //                samInst = samImpl.createInstance(null); // should not be null
+            //                System.out.println("creating a new instance: " + samInst);
+            //            }
+            if ((samInst == null) && ((allInstances == null) || allInstances.isEmpty())) {
+                System.err.println("sam instance is null. in OBRMAN install instanciate");
+                new Exception().printStackTrace();
+            }
+
+            asmImpl = CST.ASMImplBroker.addImpl(composite, implName, samImpl.getName(), specName, null);
+            if (multiple) {
+                if (allInst == null)
+                    allInst = new HashSet<ASMInst>();
+                for (Instance inst : allInstances) {
+                    allInst.add(CST.ASMInstBroker.addInst(composite, inst, implNameExpected, specName, null));
+                }
+            } else
+                asmInst = CST.ASMInstBroker.addInst(composite, samInst, implNameExpected, specName, null);
+            // in case it is the main implementation
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        //null if multiple
+        return asmInst;
     }
 
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
-        return null;
+        return CST.OBRMAN;
     }
 
     @Override
     public List<Filter> getConstraintsSpec(String interfaceName, String specName, String depName,
             List<Filter> initConstraints) {
-        // TODO Auto-generated method stub
-        return null;
+        return initConstraints;
+    }
+
+    //at the end
+    @Override
+    public List<Manager> getSelectionPathSpec(ASMInst from, Composite composite, String interfaceName, String specName,
+            String depName, Set<Filter> constraints, List<Manager> involved) {
+        involved.add(involved.size(), this);
+        return involved;
     }
 
     @Override
-    public List<Manager> getSelectionPathSpec(ASMInst from, String interfaceName, String specName, String depName,
-            Set<Filter> constraints, List<Manager> involved) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<Manager> getSelectionPathImpl(ASMInst from, Composite composite, String samImplName, String implName,
+            String depName, Set<Filter> constraints, List<Manager> involved) {
+        involved.add(involved.size(), this);
+        return involved;
     }
 
     @Override
-    public List<Manager> getSelectionPathImpl(ASMInst from, String samImplName, String implName, String depName,
-            Set<Filter> constraints, List<Manager> involved) {
-        // TODO Auto-generated method stub
+    public ASMInst resolveSpec(ASMInst from, Composite composite, String interfaceName, String specName,
+            String depName, Set<Filter> constraints) {
+        Resource selected = null;
+        ASMInst newInst = null;
+        if (specName != null) {
+            selected = lookFor("apam-component", "(apam-specification=" + specName + ")", constraints);
+        }
+        if ((selected == null) && (interfaceName != null)) {
+            selected = lookFor("apam-interface", "(name=" + interfaceName + ")", constraints);
+        }
+        if (selected != null) {
+            newInst = installInstantiate(selected, composite, false, null);
+            System.out.println("deployed :" + newInst.getASMName());
+            //printRes(selected);
+            return newInst;
+        }
         return null;
     }
 
+    /**
+     * return only the first one. It is not planned to return resources, and it is not reasonnable to install all
+     * matching resources
+     */
     @Override
-    public ASMInst resolveSpec(ASMInst from, String interfaceName, String specName, String depName,
+    public Set<ASMInst> resolveSpecs(ASMInst from, Composite composite, String interfaceName, String specName,
+            String depName, Set<Filter> constraints) {
+        Set<ASMInst> allInsts = new HashSet<ASMInst>();
+        Resource selected = null;
+        ASMInst newInst = null;
+        if (specName != null) {
+            selected = lookFor("apam-component", "(apam-specification=" + specName + ")", constraints);
+        }
+        if ((selected == null) && (interfaceName != null)) {
+            selected = lookFor("apam-interface", "(name=" + interfaceName + ")", constraints);
+        }
+        if (selected != null) {
+            installInstantiate(selected, composite, true, allInsts);
+
+            System.out.print("deployed instances :");
+            for (ASMInst inst : allInsts) {
+                System.out.print(" " + inst.getASMName());
+            }
+            System.out.println("\n");
+            //printRes(selected);
+            return allInsts;
+        }
+        return null;
+    }
+
+    private Resource getResourceImpl(String samImplName, String implName, Set<Filter> constraints) {
+        Resource selected = null;
+        if (implName != null) {
+            selected = lookFor("apam-component", "(apam-implementation=" + implName + ")", constraints);
+        }
+        if (selected == null) { //look by bundle name. First apam component by bundle name
+            if (samImplName == null)
+                samImplName = implName;
+            selected = lookFor("apam-component", "(name=" + samImplName + ")", constraints);
+        }
+        if (selected == null) { //legacy iPOJO component
+            selected = lookFor("component", "(name=" + samImplName + ")", constraints);
+        }
+        if (selected == null) { //legacy OSGi component
+            selected = lookFor("bundle", "(symbolicname=" + samImplName + ")", constraints);
+        }
+        return selected;
+    }
+
+    @Override
+    public ASMInst resolveImpl(ASMInst from, Composite composite, String samImplName, String implName, String depName,
             Set<Filter> constraints) {
-        // TODO Auto-generated method stub
+
+        ASMInst newInst = null;
+        Resource selected = getResourceImpl(samImplName, implName, constraints);
+        if (selected != null) {
+            newInst = installInstantiate(selected, composite, false, null);
+            System.out.println("deployed :" + newInst.getASMName());
+            //printRes(selected);
+            return newInst;
+        }
         return null;
     }
 
     @Override
-    public Set<ASMInst> resolveSpecs(ASMInst from, String interfaceName, String specName, String depName,
-            Set<Filter> constraints) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public Set<ASMInst> resolveImpls(ASMInst from, Composite composite, String samImplName, String implName,
+            String depName, Set<Filter> constraints) {
+        Set<ASMInst> allInsts = new HashSet<ASMInst>();
+        Set<ASMInst> rets = new HashSet<ASMInst>();
+        Resource selected = getResourceImpl(samImplName, implName, constraints);
+        if (selected != null) {
+            installInstantiate(selected, composite, true, allInsts);
 
-    @Override
-    public ASMInst resolveImpl(ASMInst from, String samImplName, String implName, String depName,
-            Set<Filter> constraints) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+            System.out.print("deployed instances :");
+            for (ASMInst inst : allInsts) {
+                System.out.print(" " + inst.getASMName());
+            }
+            System.out.println("\n");
 
-    @Override
-    public Set<ASMInst> resolveImpls(ASMInst from, String samImplName, String implName, String depName,
-            Set<Filter> constraints) {
-        // TODO Auto-generated method stub
+            return allInsts;
+        }
         return null;
     }
 
     @Override
     public int getPriority() {
-        // TODO Auto-generated method stub
-        return 0;
+        return 3;
     }
 
     @Override
     public void newComposite(ManagerModel model, Composite composite) {
-        // TODO Auto-generated method stub
+        if (model == null)
+            return;
+        String obrModel;
+        try {
+            obrModel = OBRMan.readFileAsString(model.getURL());
+        } catch (IOException e1) {
+            System.err.println("invalid OBRMAN Model. Cannot be read :" + model.getURL());
+            return;
+        }
+        StringTokenizer st = new StringTokenizer(obrModel);
+        String repoUrlStr = null;
+        while (st.hasMoreElements()) {
+            try {
+                repoUrlStr = st.nextToken("\n");
+                System.out.println("new repository :" + repoUrlStr);
+                local = repoAdmin.addRepository(repoUrlStr);
+            } catch (Exception e) {
+                System.err.println("Invalid OBR repository address :" + repoUrlStr);
+                return;
+            }
+            System.out.println("new local repo : " + local.getURI());
+            resolver = repoAdmin.resolver();
+            allResources = local.getResources(); // read once for each session, and cached.
+        }
+    }
 
+    private static String readFileAsString(URL url) throws java.io.IOException {
+        InputStream is = url.openStream();
+        byte[] buffer = new byte[is.available()];
+        BufferedInputStream f = null;
+        try {
+            f = new BufferedInputStream(is);
+            f.read(buffer);
+        } finally {
+            if (f != null)
+                try {
+                    f.close();
+                } catch (IOException ignored) {
+                }
+        }
+        return new String(buffer);
+    }
+
+    //Interface IOBRMAN
+    @Override
+    public Set<Resource> getResources(String capability, String filterStr, Set<Filter> constraints) {
+        Set<Resource> allRes = new HashSet<Resource>();
+        lookForAll(capability, filterStr, constraints, allRes);
+        return allRes;
+    }
+
+    @Override
+    public Resource getResource(String capability, String filterStr, Set<Filter> constraints) {
+        return lookFor(capability, filterStr, constraints);
+    }
+
+    @Override
+    public boolean install(Resource resource) {
+        deployInstall(resource);
+        return false;
     }
 
 }
