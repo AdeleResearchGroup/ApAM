@@ -24,14 +24,10 @@ import fr.imag.adele.sam.broker.InstanceBroker;
 
 public class SamMan implements Manager {
 
-    // The entry point in SAM
-    public static ImplementationBroker SAMImplBroker = null;
-    public static InstanceBroker       SAMInstBroker = null;
-
     /*
      * The reference to APAM, injected by iPojo
      */
-    private ManagersMng                apam;
+    private ManagersMng apam;
 
     @Override
     public String getName() {
@@ -43,8 +39,6 @@ public class SamMan implements Manager {
      */
     public void start() {
         apam.addManager(this, 0);
-        SamMan.SAMImplBroker = CST.SAMImplBroker;
-        SamMan.SAMInstBroker = CST.SAMInstBroker;
     }
 
     public void stop() {
@@ -55,9 +49,10 @@ public class SamMan implements Manager {
     // If empty, all is supposed to be opportunist ???
     private static Set<String> opportunismNames = new HashSet<String>();
     private static boolean     specOpportunist  = true;                 // if the model says all specifications are
-                                                                         // opportunist
+    // opportunist
     private static boolean     implOpportunist  = true;                 // if the model says all implementations are
-                                                                         // opportunist
+
+    // opportunist
 
     private boolean opportunistSpec(String specName) {
         if (SamMan.specOpportunist)
@@ -72,7 +67,8 @@ public class SamMan implements Manager {
     }
 
     @Override
-    public List<Manager> getSelectionPathSpec(ASMInst from, String interfaceName, String specName, String depName,
+    public List<Manager> getSelectionPathSpec(ASMInst from, Composite composite, String interfaceName, String specName,
+            String depName,
             Set<Filter> filter, List<Manager> involved) {
         if (opportunistSpec(specName)) {
             involved.add(this);
@@ -81,7 +77,8 @@ public class SamMan implements Manager {
     }
 
     @Override
-    public List<Manager> getSelectionPathImpl(ASMInst from, String samImplName, String implName, String depName,
+    public List<Manager> getSelectionPathImpl(ASMInst from, Composite composite, String samImplName, String implName,
+            String depName,
             Set<Filter> filter, List<Manager> involved) {
         if (opportunistImpl(implName))
             involved.add(this);
@@ -92,7 +89,7 @@ public class SamMan implements Manager {
     private Set<Instance> getSamInstanceInterf(String interfaceName) {
         Set<Instance> insts = new HashSet<Instance>();
         try {
-            for (Instance instance : SamMan.SAMInstBroker.getInstances()) {
+            for (Instance instance : CST.SAMInstBroker.getInstances()) {
                 Specification samSpec = instance.getSpecification();
                 if (samSpec != null) {
                     String[] interfs = samSpec.getInterfaceNames();
@@ -110,27 +107,30 @@ public class SamMan implements Manager {
     }
 
     @Override
-    public ASMInst resolveSpec(ASMInst from, String interfaceName, String specName, String depName,
-            Set<Filter> constraints) {
-        return resolveSpec0(from, interfaceName, specName, depName, constraints, false, null);
+    public ASMInst resolveSpec(Composite implComposite, Composite instComposite, String interfaceName, String specName,
+            String depName, Set<Filter> constraints) {
+        return resolveSpec0(implComposite, instComposite, interfaceName, specName, depName, constraints, false, null);
     }
 
     @Override
-    public Set<ASMInst> resolveSpecs(ASMInst from, String interfaceName, String specName, String depName,
+    public Set<ASMInst> resolveSpecs(Composite implComposite, Composite instComposite, String interfaceName,
+            String specName,
+            String depName,
             Set<Filter> constraints) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
-        resolveSpec0(from, interfaceName, specName, depName, constraints, true, allInst);
+        resolveSpec0(implComposite, instComposite, interfaceName, specName, depName, constraints, true, allInst);
         return allInst;
     }
 
-    public ASMInst resolveSpec0(ASMInst from, String interfaceName, String specName, String depName,
-            Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
+    public ASMInst resolveSpec0(Composite implComposite, Composite instComposite, String interfaceName,
+            String specName,
+            String depName, Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
         if ((interfaceName == null) && (specName == null)) {
             System.err.println("ERROR : missing parameter interfaceName or specName");
             return null;
         }
-        if (from == null) {
-            System.err.println("ERROR : missing parameter from in resolveSpec");
+        if (implComposite == null) {
+            System.err.println("ERROR : missing parameter composite in resolveSpec");
             return null;
         }
 
@@ -147,7 +147,7 @@ public class SamMan implements Manager {
             if (asmSpec != null) { // Look by its sam interface
                 Specification spec = asmSpec.getSamSpec();
                 if (spec != null) { // Is sam spec known ?
-                    for (Instance inst : SamMan.SAMInstBroker.getInstances()) {
+                    for (Instance inst : CST.SAMInstBroker.getInstances()) {
                         if (inst.getSpecification() == spec)
                             instInterf.add(inst);
                     }
@@ -163,9 +163,9 @@ public class SamMan implements Manager {
                     allInstances.add(in);
             }
 
-            // Last chance look for an implementation that implement the interface.
+            // Last chance look for an implementation that implements the interface.
             if ((allInstances.isEmpty()) && (interfaceName != null)) {
-                for (Implementation impl : SamMan.SAMImplBroker.getImplementations()) {
+                for (Implementation impl : CST.SAMImplBroker.getImplementations()) {
                     // if it is an Apam impl, it has already been checked by ApamMan
                     if (CST.ASMImplBroker.getImpl(impl) != null)
                         break;
@@ -173,7 +173,7 @@ public class SamMan implements Manager {
                     if (samSpec != null) {
                         for (String interf : samSpec.getInterfaceNames()) {
                             if (interf.equals(interfaceName)) { // We got an implementation
-                                allInstances.add(impl.createInstance(null)); // create an instance
+                                allInstances.add(impl.createInstance(null)); // create a SAM instance
                                 break;
                             }
                         }
@@ -203,14 +203,13 @@ public class SamMan implements Manager {
             ASMInst returnInst = null;
             for (Instance inst : matchInsts) {
                 // ignore the Apam instances, they have been checked by ApamMan
-                if (CST.ASMInstBroker.getInst(inst) != null)
-                    // returnInst = CST.ASMInstBroker.getInst(inst);
-                    break;
-                returnInst = CST.ASMInstBroker.addInst(from.getComposite(), inst, null, specName, null);
-                if (multiple)
-                    allInst.add(returnInst);
-                else
-                    return returnInst;
+                if (CST.ASMInstBroker.getInst(inst) == null) {
+                    returnInst = CST.ASMInstBroker.addInst(implComposite, instComposite, inst, null, specName, null);
+                    if (multiple)
+                        allInst.add(returnInst);
+                    else
+                        return returnInst;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -222,7 +221,8 @@ public class SamMan implements Manager {
     // If ApamMan could nor resol, SamMan either.
     // Do nothing
     @Override
-    public ASMInst resolveImpl(ASMInst from, String samImplName, String implName, String depName,
+    public ASMInst resolveImpl(Composite implComposite, Composite instComposite, String samImplName, String implName,
+            String depName,
             Set<Filter> constraints) {
         // return resolveImpl0(from, samImplName, implName, depName, constraints, false, null);
         return null;
@@ -232,7 +232,9 @@ public class SamMan implements Manager {
     // If ApamMan could nor resol, SamMan either.
     // Do nothing
     @Override
-    public Set<ASMInst> resolveImpls(ASMInst from, String samImplName, String implName, String depName,
+    public Set<ASMInst> resolveImpls(Composite implComposite, Composite instComposite, String samImplName,
+            String implName,
+            String depName,
             Set<Filter> constraints) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
         // resolveImpl0(from, samImplName, implName, depName, constraints, true, allInst);

@@ -1,8 +1,7 @@
 <obr> 
    <capability name='apam-component'>
       <p n='name' v='SAMMAN' />
-      <p n='apam-specification' v='null' />
-      <p n='apam-implementation' v='null' />
+      <p n='interfaces' v='fr.imag.adele.apam.apamAPI.Manager' />
    </capability>
    <capability name='apam-interface'>
       <p n='name' v='fr.imag.adele.apam.apamAPI.Manager' />
