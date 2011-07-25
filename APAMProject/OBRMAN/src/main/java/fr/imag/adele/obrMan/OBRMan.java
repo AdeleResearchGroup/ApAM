@@ -273,7 +273,8 @@ public class OBRMan implements Manager, IOBRMAN {
      * @param from : the origin of the wire toward the resource.
      * @return
      */
-    private ASMInst installInstantiate(Resource res, Composite composite, boolean multiple, Set<ASMInst> allInst) {
+    private ASMInst installInstantiate(Resource res, Composite implComposite, Composite instComposite,
+            boolean multiple, Set<ASMInst> allInst) {
         String implName = getAttributeInResource(res, "apam-component", "apam-implementation");
         String specName = getAttributeInResource(res, "apam-component", "apam-specification");
         String implNameExpected = res.getSymbolicName(); //the sam name
@@ -292,7 +293,7 @@ public class OBRMan implements Manager, IOBRMAN {
                 asmInst = asmImpl.getInst();
                 if (asmInst != null)
                     return asmInst;
-                return asmImpl.createInst(null);
+                return asmImpl.createInst(instComposite, null);
             }
 
             CST.implEventHandler.addExpected(implNameExpected);
@@ -328,15 +329,17 @@ public class OBRMan implements Manager, IOBRMAN {
                 new Exception().printStackTrace();
             }
 
-            asmImpl = CST.ASMImplBroker.addImpl(composite, implName, samImpl.getName(), specName, null);
+            asmImpl = CST.ASMImplBroker.addImpl(implComposite, implName, samImpl.getName(), specName, null);
             if (multiple) {
                 if (allInst == null)
                     allInst = new HashSet<ASMInst>();
                 for (Instance inst : allInstances) {
-                    allInst.add(CST.ASMInstBroker.addInst(composite, inst, implNameExpected, specName, null));
+                    allInst.add(CST.ASMInstBroker.addInst(implComposite, instComposite, inst, implNameExpected,
+                            specName, null));
                 }
             } else
-                asmInst = CST.ASMInstBroker.addInst(composite, samInst, implNameExpected, specName, null);
+                asmInst = CST.ASMInstBroker.addInst(implComposite, instComposite, samInst, implNameExpected, specName,
+                        null);
             // in case it is the main implementation
 
         } catch (Exception e) {
@@ -374,7 +377,7 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     @Override
-    public ASMInst resolveSpec(ASMInst from, Composite composite, String interfaceName, String specName,
+    public ASMInst resolveSpec(Composite implComposite, Composite instComposite, String interfaceName, String specName,
             String depName, Set<Filter> constraints) {
         Resource selected = null;
         ASMInst newInst = null;
@@ -385,7 +388,7 @@ public class OBRMan implements Manager, IOBRMAN {
             selected = lookFor("apam-interface", "(name=" + interfaceName + ")", constraints);
         }
         if (selected != null) {
-            newInst = installInstantiate(selected, composite, false, null);
+            newInst = installInstantiate(selected, implComposite, instComposite, false, null);
             System.out.println("deployed :" + newInst.getASMName());
             //printRes(selected);
             return newInst;
@@ -398,7 +401,8 @@ public class OBRMan implements Manager, IOBRMAN {
      * matching resources
      */
     @Override
-    public Set<ASMInst> resolveSpecs(ASMInst from, Composite composite, String interfaceName, String specName,
+    public Set<ASMInst> resolveSpecs(Composite implComposite, Composite instComposite, String interfaceName,
+            String specName,
             String depName, Set<Filter> constraints) {
         Set<ASMInst> allInsts = new HashSet<ASMInst>();
         Resource selected = null;
@@ -410,7 +414,7 @@ public class OBRMan implements Manager, IOBRMAN {
             selected = lookFor("apam-interface", "(name=" + interfaceName + ")", constraints);
         }
         if (selected != null) {
-            installInstantiate(selected, composite, true, allInsts);
+            installInstantiate(selected, implComposite, instComposite, true, allInsts);
 
             System.out.print("deployed instances :");
             for (ASMInst inst : allInsts) {
@@ -443,13 +447,14 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     @Override
-    public ASMInst resolveImpl(ASMInst from, Composite composite, String samImplName, String implName, String depName,
+    public ASMInst resolveImpl(Composite implComposite, Composite instComposite, String samImplName, String implName,
+            String depName,
             Set<Filter> constraints) {
 
         ASMInst newInst = null;
         Resource selected = getResourceImpl(samImplName, implName, constraints);
         if (selected != null) {
-            newInst = installInstantiate(selected, composite, false, null);
+            newInst = installInstantiate(selected, implComposite, instComposite, false, null);
             System.out.println("deployed :" + newInst.getASMName());
             //printRes(selected);
             return newInst;
@@ -458,13 +463,14 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     @Override
-    public Set<ASMInst> resolveImpls(ASMInst from, Composite composite, String samImplName, String implName,
+    public Set<ASMInst> resolveImpls(Composite implComposite, Composite instComposite, String samImplName,
+            String implName,
             String depName, Set<Filter> constraints) {
         Set<ASMInst> allInsts = new HashSet<ASMInst>();
         Set<ASMInst> rets = new HashSet<ASMInst>();
         Resource selected = getResourceImpl(samImplName, implName, constraints);
         if (selected != null) {
-            installInstantiate(selected, composite, true, allInsts);
+            installInstantiate(selected, implComposite, instComposite, true, allInsts);
 
             System.out.print("deployed instances :");
             for (ASMInst inst : allInsts) {
