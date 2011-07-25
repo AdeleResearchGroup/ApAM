@@ -57,6 +57,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
      * 
      * WARNING: Either (or both) interfaceName or specName are needed.
      */
+    @Override
     public List<Filter> getConstraintsSpec(String interfaceName, String specName, String depName,
             List<Filter> initConstraints) {
 
@@ -84,8 +85,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
      */
     @Override
     public ASMInst newWireSpec(ASMInst client, String interfaceName, String specName, String depName) {
-        ASMInst inst = newWireSpec0(client, client.getComposite(), client.getImpl().getComposite(), interfaceName,
-                specName, depName, false, null);
+        ASMInst inst = newWireSpec0(client, null, null, interfaceName, specName, depName, false, null);
         if (inst == null) {
             if (specName != null)
                 System.out.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
@@ -97,11 +97,10 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     }
 
     @Override
-    public Set<ASMInst> newWireSpecs(ASMInst client, String interfaceName, String specName,
-            String depName) {
+    public Set<ASMInst> newWireSpecs(ASMInst client, String interfaceName, String specName, String depName) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
-        newWireSpec0(client, client.getComposite(), client.getImpl().getComposite(), interfaceName, specName, depName,
-                true, allInst);
+        newWireSpec0(client, null, null, interfaceName, specName, depName, true, allInst);
+
         if (allInst.isEmpty()) {
             if (specName != null)
                 System.out.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");

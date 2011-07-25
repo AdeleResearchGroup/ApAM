@@ -86,6 +86,12 @@ public class ApplicationImpl implements Application {
         mainImpl = null;
     }
 
+    public ApplicationImpl(String appliName) {
+        name = appliName;
+        mainImplCompo = new CompositeImpl(appliName, null, this, null);
+        mainInstCompo = new CompositeImpl(appliName, null, this, null);
+    }
+
     /**
      * Creation from an implementation known by its name. The implementation will be searched by the various available
      * managers,
