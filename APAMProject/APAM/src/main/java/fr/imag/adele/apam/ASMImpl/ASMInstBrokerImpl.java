@@ -103,7 +103,8 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
     }
 
     @Override
-    public ASMInst addInst(Composite compo, Instance samInst, String implName, String specName, Attributes properties) {
+    public ASMInst addInst(Composite implComposite, Composite instComposite, Instance samInst, String implName,
+            String specName, Attributes properties) {
         if (samInst == null) {
             System.out.println("No instance provided for add Instance");
             return null;
@@ -118,15 +119,18 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
             }
             impl = CST.ASMImplBroker.getImpl(samInst.getImplementation());
             if (impl == null) { // create the implem also
-                if (compo == null) {
+                if (implComposite == null) {
                     System.out.println("No implementation for the instance, and composite not provided");
                     return null;
                 }
-                impl = ASMInstBrokerImpl.implBroker.addImpl(compo, implName, samInst.getImplementation().getName(),
+                impl = ASMInstBrokerImpl.implBroker.addImpl(implComposite, implName, samInst.getImplementation()
+                        .getName(),
                         specName, properties);
             }
             // Instances always created inside the implementation composite
-            return new ASMInstImpl(impl, null, samInst);
+            inst = new ASMInstImpl(impl, instComposite, null, samInst);
+            addInst(inst);
+            return inst;
         } catch (ConnectionException e) {
             e.printStackTrace();
         }

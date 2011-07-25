@@ -3,13 +3,16 @@ package fr.imag.adele.apam.util;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
@@ -23,7 +26,7 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
 
     /** The properties. */
     private final Map<String, Object>    properties          = new ConcurrentHashMap<String, Object>();
-    private static Set<AttributeManager> attrChangedManagers = new HashSet<AttributeManager>();
+    private static Set<AttributeManager> attrChangedManagers = new ConcurrentSkipListSet<AttributeManager>();
 
     public static void addAttrChanged(AttributeManager manager) {
         AttributesImpl.attrChangedManagers.add(manager);
@@ -78,9 +81,10 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
      * @param properties the properties
      */
     @Override
-    public void setProperties(Map<String, Object> newProperties) {
-        for (String prop : newProperties.keySet()) {
-            setProperty0(prop, newProperties.get(prop), false);
+    public synchronized void setProperties(Map<String, Object> newProperties) {
+        Map<String, Object> props = new HashMap<String, Object>(newProperties);
+        for (String prop : props.keySet()) {
+            setProperty0(prop, props.get(prop), false);
         }
     }
 
@@ -126,8 +130,73 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         }
     }
 
+    public boolean checkAttribute(String prop, Object propVal) {
+        if (prop.toUpperCase().equals(CST.A_SCOPE)
+                || prop.toUpperCase().equals(CST.A_SHARED)
+                || prop.toUpperCase().equals(CST.A_MULTIPLE)
+                || prop.toUpperCase().equals(CST.A_REMOTABLE)) {
+            prop = prop.toUpperCase();
+            if (!(propVal instanceof String)) {
+                System.err.println("invalide attribute value : not a string");
+                return false;
+            }
+            propVal = ((String) propVal).toUpperCase();
+            return (checkScope(prop, propVal) && checkBoolean(prop, propVal));
+        }
+        return true;
+    }
+
+    public Map<String, Object> checkPredefinedAttributes(Map<String, Object> attrs) {
+        Object propVal;
+        Map<String, Object> attributes = new HashMap<String, Object>();
+        for (String prop : attrs.keySet()) {
+            propVal = attrs.get(prop);
+            if (prop.toUpperCase().equals(CST.A_SCOPE)
+                    || prop.toUpperCase().equals(CST.A_SHARED)
+                    || prop.toUpperCase().equals(CST.A_MULTIPLE)
+                    || prop.toUpperCase().equals(CST.A_REMOTABLE)) {
+                prop = prop.toUpperCase();
+                if (!(propVal instanceof String)) {
+                    System.err.println("invalide attribute value : not a string");
+                } else {
+                    propVal = ((String) propVal).toUpperCase();
+                    if (checkScope(prop, propVal) && checkBoolean(prop, propVal))
+                        attributes.put(prop, propVal);
+                }
+            } else { //any other attributes
+                attributes.put(prop, propVal);
+            }
+        }
+        return attributes;
+    }
+
+    private boolean checkScope(String attr, Object scope) {
+        if (!attr.equals(CST.A_SCOPE))
+            return true;
+        if (((String) scope).equals(CST.V_LOCAL) || ((String) scope).equals(CST.V_APPLI)
+                || ((String) scope).equals(CST.V_COMPOSITE)
+                || ((String) scope).equals(CST.V_GLOBAL)) {
+            return true;
+        } else
+            System.err.println("ERROR in " + this + " : invalid scope value : " + scope);
+        return false;
+    }
+
+    private boolean checkBoolean(String attr, Object shared) {
+        if (!(attr.equals(CST.A_SHARED) || attr.equals(CST.A_MULTIPLE) || attr.equals(CST.A_REMOTABLE)))
+            return true;
+        if (((String) shared).equals(CST.V_TRUE) || ((String) shared).equals(CST.V_FALSE))
+            return true;
+        else
+            System.err.println("ERROR in " + this + " : invalid value : " + attr + " = " + shared);
+        return false;
+    }
+
     private void changedAttr(String prop, Object propVal, boolean samChange) {
+        if (!checkAttribute(prop, propVal))
+            return;
         boolean ok = true;
+        //check if managers are ok.
         for (AttributeManager man : AttributesImpl.attrChangedManagers) {
             if (this instanceof ASMSpecImpl) {
                 ok = man.attrSpecChanged((ASMSpecImpl) this, prop, propVal);
@@ -139,9 +208,9 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
             if (!ok)
                 break;
         }
+
         if (ok) { // propagate the change in ASM
             properties.put(prop, propVal);
-            changeScope(prop, propVal);
             if (!samChange) { // propagate also in SAM
                 setChangeInSam(prop, propVal);
             }
@@ -154,6 +223,8 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
     }
 
     private void addedAttr(String prop, Object propVal, boolean samChange) {
+        if (!checkAttribute(prop, propVal))
+            return;
         boolean ok = true;
         for (AttributeManager man : AttributesImpl.attrChangedManagers) {
             if (this instanceof ASMSpecImpl) {
@@ -169,7 +240,6 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         }
         if (ok) {
             properties.put(prop, propVal);
-            changeScope(prop, propVal);
             if (!samChange) { // propagate also in SAM
                 setChangeInSam(prop, propVal);
             }
@@ -177,17 +247,6 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
             if (samChange) { // revert the change in SAM
                 removeChangeInSam(prop);
             }
-        }
-    }
-
-    private void changeScope(String attr, Object scope) {
-        if ((scope instanceof String) && attr.equals(CST.A_SCOPE)) {
-            if (((String) scope).equals(CST.V_APPLI) || ((String) scope).equals(CST.V_LOCAL)
-                    || ((String) scope).equals(CST.V_COMPOSITE)
-                    || ((String) scope).equals(CST.V_GLOBAL)) {
-                properties.put(attr, scope);
-            } else
-                System.err.println("ERROR in " + this + " : invalid shared value : " + scope);
         }
     }
 
@@ -224,12 +283,13 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
     public void setProperty(Manager manager, String key, Object value) {
         if ((manager == null) || (key == null) || (value == null))
             return;
+        if (!checkAttribute(key, value))
+            return;
 
         if (AttributesImpl.attrChangedManagers.contains(manager)) {
             properties.put(key, value);
-            changeScope(key, value);
         } else {
-            setProperty(key, value);
+            setProperty0(key, value, false);
         }
     }
 
@@ -239,9 +299,6 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
             return;
         if (AttributesImpl.attrChangedManagers.contains(manager)) {
             this.properties.putAll(properties);
-        }
-        if (this.properties.get(CST.A_SCOPE) != null) {
-            changeScope(CST.A_SCOPE, properties.get(CST.A_SCOPE));
         }
     }
 
@@ -332,6 +389,11 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         Properties prop = new Properties();
         prop.putAll(properties);
         return prop;
+    }
+
+    public Dictionary attr2Dictionnary() {
+        Dictionary dict = new Hashtable(properties);
+        return dict;
     }
 
 }

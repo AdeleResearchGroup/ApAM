@@ -1,7 +1,9 @@
 package fr.imag.adele.apam;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.apamAPI.ASMImpl;
@@ -14,42 +16,59 @@ import fr.imag.adele.apam.apamAPI.Manager;
 public class CompositeImpl implements Composite {
 
     // Global variable. The actual content of the ASM
-    // private static Map<String, Composite> composites = new HashMap <String,
-    // Composite> ();
+    private static Map<String, Composite> composites  = new HashMap<String, Composite>();
 
-    private String               name;                                  // that
-                                                                         // composite
-                                                                         // name
-                                                                         // !
+    private String                        name;
     // The application it pertains to.
-    private Application          appli;
+    private Application                   appli;
     // The models associated with this composite
-    private Set<ManagerModel>    models      = null;
+    private Set<ManagerModel>             models      = null;
 
     // All the specs, implem, instances contained in this composite ! Warning :
     // may be shared.
-    private final Set<ASMSpec>   hasSpecs    = new HashSet<ASMSpec>();
-    private final Set<ASMImpl>   hasImplem   = new HashSet<ASMImpl>();
-    private final Set<ASMInst>   hasInstance = new HashSet<ASMInst>();
+    private final Set<ASMSpec>            hasSpecs    = new HashSet<ASMSpec>();
+    private final Set<ASMImpl>            hasImplem   = new HashSet<ASMImpl>();
+    private final Set<ASMInst>            hasInstance = new HashSet<ASMInst>();
 
     // all the dependencies between composites
-    private final Set<Composite> depends     = new HashSet<Composite>();
-    private final Set<Composite> invDepend   = new HashSet<Composite>(); // reverse
-                                                                         // dependency
+    private final Set<Composite>          depends     = new HashSet<Composite>();
+    private final Set<Composite>          invDepend   = new HashSet<Composite>();        // reverse dependency
+
+    //The father-son delationship
+    private final Set<Composite>          sons        = new HashSet<Composite>();
+    private Composite                     father      = null;                            //null if appli
+
+    // To have different names
+    private int                           nbSameName  = 0;
+
+    public String getNewName(String name) {
+        String newName = name + "-" + nbSameName;
+        nbSameName++;
+        return newName;
+    }
 
     private CompositeImpl() {
     }; // prohibited
 
-    public CompositeImpl(String name, Application application, Set<ManagerModel> models) {
+    public CompositeImpl(String name, Composite father, Application application, Set<ManagerModel> models) {
+        CompositeImpl same = (CompositeImpl) CompositeImpl.composites.get(name);
+        if (same != null) {
+            name = same.getNewName(name);
+        }
+        CompositeImpl.composites.put(name, this);
         this.name = name;
         appli = application;
+        ((ApplicationImpl) appli).addComposite(this);
         this.models = models;
+        if (father != null) { //father is null when creating an application, or instance composite.
+            ((CompositeImpl) father).addSon(this);
+            this.father = father;
+            ((CompositeImpl) father).addDepend(this);
+            addInvDepend(father);
+        }
         Manager man;
         if (models != null) {
-            for (ManagerModel managerModel : models) { // call the managers to
-                                                       // indicate the new
-                                                       // composite and the
-                                                       // model
+            for (ManagerModel managerModel : models) { // call the managers to indicate the new composite and the model
                 man = CST.apam.getManager(managerModel.getManagerName());
                 if (man != null) {
                     man.newComposite(managerModel, this);
@@ -102,6 +121,41 @@ public class CompositeImpl implements Composite {
             return;
         }
         hasInstance.add(inst);
+    }
+
+    //Father-son relationship management. Hidden;    
+    public void addSon(Composite dest) {
+        if (dest == null)
+            return;
+        if (sons.contains(dest))
+            return; // allready existing
+        sons.add(dest);
+        ((CompositeImpl) dest).addInvDepend(this);
+    }
+
+    /**
+     * A son can be removed only when deleted. Warning : not checked.
+     */
+    public boolean removeSon(Composite destination) {
+        if (destination == null)
+            return false;
+        sons.remove(destination);
+        return true;
+    }
+
+    /**
+     * returns the father !
+     * 
+     * @return
+     */
+    @Override
+    public Composite getFather() {
+        return father;
+    }
+
+    @Override
+    public Set<Composite> getSons() {
+        return Collections.unmodifiableSet(sons);
     }
 
     // Composite Dependency management ===============

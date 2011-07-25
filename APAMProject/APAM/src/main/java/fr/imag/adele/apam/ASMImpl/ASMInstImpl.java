@@ -40,9 +40,10 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     private final Set<Wire> wires    = new HashSet<Wire>(); // the currently used instances
     private final Set<Wire> invWires = new HashSet<Wire>();
 
-    public ASMInstImpl(ASMImpl impl, Attributes initialproperties, Instance samInst) {
+    public ASMInstImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, Instance samInst) {
         myImpl = impl;
-        myComposite = impl.getComposite();
+        myComposite = instCompo;
+        instCompo.addInst(this);
         if (samInst == null) {
             System.err.println("ERROR : sam instance cannot be null on ASM instance constructor");
             return;
@@ -81,11 +82,12 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
                     ((ASMSpecImpl) impl.getSpec()).setASMName(specName);
             }
 
-            setProperties(Util.mergeProperties(initialproperties, samInst.getProperties()));
+            setProperties(Util.mergeProperties(this, initialproperties, samInst.getProperties()));
             this.setProperty(Attributes.APAMAPPLI, myComposite.getApplication().getName());
             this.setProperty(Attributes.APAMCOMPO, myComposite.getName());
 
             myComposite.addInst(this);
+            ((ASMImplImpl) impl).addInst(this);
         } catch (ConnectionException e1) {
             e1.printStackTrace();
         }
@@ -128,8 +130,8 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     public Set<ASMInst> getWireDests(String depName) {
         Set<ASMInst> dests = new HashSet<ASMInst>();
         for (Wire wire : wires) {
-        	if (wire.getDepName().equals(depName))
-        		dests.add(wire.getDestination());
+            if (wire.getDepName().equals(depName))
+                dests.add(wire.getDestination());
         }
         return dests;
     }
@@ -142,7 +144,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     public Set<ASMInst> getWireDests() {
         Set<ASMInst> dests = new HashSet<ASMInst>();
         for (Wire wire : wires) {
-       		dests.add(wire.getDestination());
+            dests.add(wire.getDestination());
         }
         return dests;
     }
@@ -156,8 +158,8 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     public Set<Wire> getWires(String dependencyName) {
         Set<Wire> dests = new HashSet<Wire>();
         for (Wire wire : wires) {
-        	if (wire.getDepName().equals(dependencyName))
-        		dests.add(wire);
+            if (wire.getDepName().equals(dependencyName))
+                dests.add(wire);
         }
         return dests;
     }
@@ -172,7 +174,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
                 return true;
         }
 
-        if (!Wire.checkNewWire(this, to))
+        if (!Wire.checkNewWire(getComposite(), to))
             return false;
         Wire wire = new Wire(this, to, depName);
         wires.add(wire);
@@ -247,12 +249,20 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
     @Override
     public String getScope() {
-        return getImpl().getScope();
+        String scope = (String) getProperty(CST.A_SCOPE);
+        if (scope == null)
+            scope = CST.V_GLOBAL;
+        //scope.toUpperCase();
+        return scope;
     }
 
     @Override
     public String getShared() {
-        return getImpl().getShared();
+        String shared = (String) getProperty(CST.A_SHARED);
+        if (shared == null)
+            shared = CST.V_TRUE;
+        //shared.toUpperCase();
+        return shared;
     }
 
     @Override
@@ -289,7 +299,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         for (Wire wire : invWires) {
             if ((wire.getDestination() == this) && (wire.getDepName().equals(depName)))
                 w.add(wire);
-       }
+        }
         return w;
     }
 
@@ -315,7 +325,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         return null;
     }
 
-     @Override
+    @Override
     public Set<Wire> getWires(ASMInst destInst) {
         if (destInst == null)
             return null;

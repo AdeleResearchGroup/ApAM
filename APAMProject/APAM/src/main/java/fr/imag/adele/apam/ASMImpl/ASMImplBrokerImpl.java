@@ -13,8 +13,8 @@ import fr.imag.adele.am.Machine;
 import fr.imag.adele.am.eventing.AMEventingHandler;
 import fr.imag.adele.am.eventing.EventingEngine;
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.ApplicationImpl;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
@@ -31,18 +31,20 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
 
     // private Logger logger = Logger.getLogger(ASMImplBrokerImpl.class);
 
-    private final Set<ASMImpl>  implems = new HashSet<ASMImpl>();
-    private SamImplEventHandler eventHandler;
+    private final Set<ASMImpl> implems = new HashSet<ASMImpl>();
 
-    public ASMImplBrokerImpl() {
-        try {
-            Machine machine = LocalMachine.localMachine;
-            EventingEngine eventingEngine = machine.getEventingEngine();
-            eventHandler = new SamImplEventHandler();
-            eventingEngine.subscribe(eventHandler, EventProperty.TOPIC_IMPLEMENTATION);
-        } catch (Exception e) {
-        }
-    }
+    // private SamImplEventHandler eventHandler;
+
+    // public ASMImplBrokerImpl() {
+    // try {
+    // eventHandler = CST.implEventHandler ;
+    // Machine machine = LocalMachine.localMachine;
+    // EventingEngine eventingEngine = machine.getEventingEngine();
+    // eventHandler = new SamImplEventHandler();
+    // eventingEngine.subscribe(eventHandler, EventProperty.TOPIC_IMPLEMENTATION);
+    // } catch (Exception e) {
+    // }
+    // }
 
     public void stopSubscribe(AMEventingHandler handler) {
         try {
@@ -150,8 +152,11 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
     @Override
     public ASMImpl
             addImpl(Composite compo, String implName, String samImplName, String specName, Attributes properties) {
-        if ((samImplName == null) || (compo == null))
+        if ((samImplName == null) || (compo == null)) {
+            System.out.println("ERROR : parameter Sam Implementation " + samImplName
+                    + " or composite : " + compo + " missing. In addimpl.");
             return null;
+        }
         Implementation samImpl;
         try {
             samImpl = CST.SAMImplBroker.getImplementation(samImplName);
@@ -189,9 +194,9 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             Set<String> implementationsNames = du.getImplementationsName();
             implNameExpected = (String) implementationsNames.toArray()[0];
 
-            eventHandler.addExpected(implNameExpected);
+            CST.implEventHandler.addExpected(implNameExpected);
             du.activate();
-            samImpl = eventHandler.getImplementation(implNameExpected);
+            samImpl = CST.implEventHandler.getImplementation(implNameExpected);
             // TODO comment savoir si une instance a été créée dans la foulée,
             // et sous quel nom ?
         } catch (ConnectionException e) {

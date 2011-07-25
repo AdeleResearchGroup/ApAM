@@ -56,14 +56,19 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
      * asked for the constraints that it will require.
      * 
      * WARNING: Either (or both) interfaceName or specName are needed.
-     */ 
+     */
     public List<Filter> getConstraintsSpec(String interfaceName, String specName, String depName,
             List<Filter> initConstraints) {
-    	
-    	for (Manager manager : managerList) {
-			manager.getConstraintsSpec(interfaceName,specName,depName,initConstraints);
-		}
-    	return initConstraints;
+
+        for (Manager manager : APAMImpl.managerList) {
+            manager.getConstraintsSpec(interfaceName, specName, depName, initConstraints);
+        }
+        return initConstraints;
+    }
+
+    public ASMInst
+            resolveAppli(Composite implComposite, Composite instComposite, String samImplName, String implName) {
+        return newWireImpl0(null, implComposite, instComposite, samImplName, implName, null, false, null);
     }
 
     /**
@@ -79,7 +84,8 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
      */
     @Override
     public ASMInst newWireSpec(ASMInst client, String interfaceName, String specName, String depName) {
-        ASMInst inst = newWireSpec0(client, interfaceName, specName, depName, false, null);
+        ASMInst inst = newWireSpec0(client, client.getComposite(), client.getImpl().getComposite(), interfaceName,
+                specName, depName, false, null);
         if (inst == null) {
             if (specName != null)
                 System.out.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
@@ -91,9 +97,11 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     }
 
     @Override
-    public Set<ASMInst> newWireSpecs(ASMInst client, String interfaceName, String specName, String depName) {
+    public Set<ASMInst> newWireSpecs(ASMInst client, String interfaceName, String specName,
+            String depName) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
-        newWireSpec0(client, interfaceName, specName, depName, true, allInst);
+        newWireSpec0(client, client.getComposite(), client.getImpl().getComposite(), interfaceName, specName, depName,
+                true, allInst);
         if (allInst.isEmpty()) {
             if (specName != null)
                 System.out.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
@@ -103,10 +111,19 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         return allInst;
     }
 
-    public ASMInst newWireSpec0(ASMInst client, String interfaceName, String specName, String depName,
+    public ASMInst newWireSpec0(ASMInst client, Composite implComposite, Composite instComposite, String interfaceName,
+            String specName,
+            String depName,
             boolean multiple, Set<ASMInst> allInst) {
         Set<Filter> constraints = new HashSet<Filter>();
-
+        if (client != null) {
+            instComposite = client.getComposite();
+            implComposite = client.getImpl().getComposite();
+        }
+        if ((instComposite == null) && (implComposite == null)) {
+            System.out.println("missing parameter in newWire");
+            new Exception().printStackTrace();
+        }
         // first step : compute selection path and constraints
         if (APAMImpl.managerList.size() == 0) {
             System.out.println("No manager available. Cannot resolve ");
@@ -116,23 +133,30 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         // Each manager can change the order of managers in the selectionPath, and even remove.
         // It can add itself or not. If no involved it should do nothing.
         List<Manager> selectionPath = new ArrayList<Manager>();
-        List<Manager> previousSelectionPath;
+        List<Manager> previousSelectionPath = new ArrayList<Manager>();
         for (int i = 1; i < APAMImpl.managerList.size(); i++) { // Start from one to skip ApamMan. Added after the loop.
             previousSelectionPath = selectionPath;
-            selectionPath = APAMImpl.managerList.get(i).getSelectionPathSpec(client, interfaceName, specName, depName,
-                    constraints, selectionPath);
+            selectionPath = APAMImpl.managerList.get(i).getSelectionPathSpec(client, implComposite, interfaceName,
+                    specName, depName, constraints, selectionPath);
             if (selectionPath == null)
                 selectionPath = previousSelectionPath;
         }
         // To select first the APAM manager
         selectionPath.add(0, APAMImpl.apamMan);
 
+        System.out.print("selection path : ");
+        for (Manager man : selectionPath) {
+            System.out.print(" " + man.getName());
+        }
         // third step : ask each manager in the order
         Set<ASMInst> insts = null;
         ASMInst inst = null;
+        System.out.print("\nResolving spec interface " + interfaceName + ", specName: " + specName + ": ");
         for (Manager manager : selectionPath) {
+            System.out.print(" " + manager.getName());
             if (multiple) {
-                insts = manager.resolveSpecs(client, interfaceName, specName, depName, constraints);
+                insts = manager.resolveSpecs(implComposite, instComposite, interfaceName, specName, depName,
+                        constraints);
                 if (insts != null) {
                     for (ASMInst ins : insts) {
                         if (client.createWire(ins, depName)) {
@@ -141,9 +165,11 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
                     }
                 }
             } else {
-                inst = manager.resolveSpec(client, interfaceName, specName, depName, constraints);
-                if ((inst != null) && (client.createWire(inst, depName)))
+                inst = manager.resolveSpec(implComposite, instComposite, interfaceName, specName, depName, constraints);
+                if ((inst != null) && (client.createWire(inst, depName))) {
+                    System.out.println("\n   Got : " + inst);
                     return inst;
+                }
             }
         }
         return null;
@@ -161,7 +187,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
      */
     @Override
     public ASMInst newWireImpl(ASMInst client, String samImplName, String implName, String depName) {
-        ASMInst inst = newWireImpl0(client, samImplName, implName, depName, false, null);
+        ASMInst inst = newWireImpl0(client, null, null, samImplName, implName, depName, false, null);
         if (inst == null) {
             if (implName != null)
                 System.out.println("Failed to resolve " + implName + " from " + client + "(" + depName + ")");
@@ -174,7 +200,11 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     @Override
     public Set<ASMInst> newWireImpls(ASMInst client, String samImplName, String implName, String depName) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
-        ASMInst inst = newWireImpl0(client, samImplName, implName, depName, true, allInst);
+        if (client == null) {
+            System.err.println("missing client parameter : newWireImpls");
+            return null;
+        }
+        ASMInst inst = newWireImpl0(client, null, null, samImplName, implName, depName, true, allInst);
         if (allInst.isEmpty()) {
             if (implName != null)
                 System.out.println("Failed to resolve " + implName + " from " + client + "(" + depName + ")");
@@ -184,8 +214,18 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         return allInst;
     }
 
-    public ASMInst newWireImpl0(ASMInst client, String samImplName, String implName, String depName, boolean multiple,
+    public ASMInst newWireImpl0(ASMInst client, Composite implComposite, Composite instComposite, String samImplName,
+            String implName, String depName,
+            boolean multiple,
             Set<ASMInst> allInst) {
+
+        if (client != null) {
+            instComposite = client.getComposite();
+            implComposite = client.getImpl().getComposite();
+        }
+        if ((implComposite == null) || (instComposite == null)) {
+            System.err.println("missing composites in  new Wire");
+        }
 
         // first step : compute selection path and constraints
         Set<Filter> constraints = new HashSet<Filter>();
@@ -196,30 +236,49 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             return null;
         }
         for (int i = 1; i < APAMImpl.managerList.size(); i++) { // start from 1 to skip ApamMan
-            selectionPath = APAMImpl.managerList.get(i).getSelectionPathImpl(client, samImplName, implName, depName,
-                    constraints, selectionPath);
+            selectionPath = APAMImpl.managerList.get(i).getSelectionPathImpl(client, implComposite, samImplName,
+                    implName,
+                    depName, constraints, selectionPath);
         }
         // To select first in Apam
         selectionPath.add(0, APAMImpl.apamMan);
+
+        System.out.print("selection path : ");
+        for (Manager man : selectionPath) {
+            System.out.print(" " + man.getName());
+        }
 
         // third step : ask each manager in the order
 
         Set<ASMInst> insts = null;
         ASMInst inst = null;
+        System.out.print("\nResolving impl samname " + samImplName + ", implName: " + implName + ": ");
         for (Manager manager : selectionPath) {
+            System.out.print("  " + manager.getName());
             if (multiple) {
-                insts = manager.resolveImpls(client, samImplName, implName, depName, constraints);
+                insts = manager.resolveImpls(implComposite, instComposite, samImplName, implName, depName, constraints);
                 if (insts != null) {
                     for (ASMInst ins : insts) {
-                        if (client.createWire(ins, depName)) {
+                        if (client == null) { //only for resolving by name
+                            allInst.add(ins);
+                        } else if (client.createWire(ins, depName)) {
                             allInst.add(ins);
                         }
                     }
                 }
             } else {
-                inst = manager.resolveImpl(client, samImplName, implName, depName, constraints);
-                if ((inst != null) && (client.createWire(inst, depName)))
-                    return inst;
+                inst = manager.resolveImpl(implComposite, instComposite, samImplName, implName, depName, constraints);
+                if (inst != null) { //found a solution. Is it Ok ?
+                    if (client == null) { //only for resolving by name
+                        System.out.println("\n   Got : " + inst.getASMName());
+                        return inst;
+                    } else {
+                        if (client.createWire(inst, depName)) {
+                            System.out.println("\n   Got : " + inst.getASMName());
+                            return inst;
+                        }
+                    }
+                }
             }
         }
         return null;
@@ -271,8 +330,10 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             appliName = ((ApplicationImpl) APAMImpl.applications.get(appliName)).getNewName();
 
         Application appli = new ApplicationImpl(appliName, models, implName, url, type, specName, properties);
-        if (appli != null)
+        if (appli != null) {
             APAMImpl.applications.put(appliName, appli);
+            //            appli.getMainImpl().createInst(appli.getMainInstComposite(), properties);
+        }
         return appli;
     }
 
@@ -360,9 +421,9 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         }
         if (source.getApplication().getComposite(name) != null) {
             System.out.println("ERROR : Composite " + name + " allready exists");
-            return null;
+            return source.getApplication().getComposite(name);
         }
-        Composite comp = new CompositeImpl(name, source.getApplication(), models);
+        Composite comp = new CompositeImpl(name, source, source.getApplication(), models);
         ((ApplicationImpl) source.getApplication()).addComposite(comp);
         source.addDepend(comp);
         return comp;

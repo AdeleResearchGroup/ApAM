@@ -41,16 +41,20 @@ public interface Manager {
      * Provided that a resolution will be asked for a wire between from and the required specification (or interface),
      * each manager is asked if it want to be involved. If not, does nothing. If so, it must return the list "involved"
      * including itself somewhere (the order is important), and perhaps, it can add the contraints that it will require
-     * from each manager. WARNING: Either (or both) interfaceName or specName are needed.
+     * from each manager. WARNING: Either (or both) interfaceName or specName are needed;
+     * either or both client or composite are needed.
      * 
-     * @param from the instance origin of the future wire.
+     * 
+     * @param from the instance origin of the future wire. Can be null.
+     * @param composite the composite in which is located the client (if any). Cannot be null.
      * @param interfaceName the name of one of the interfaces of the specification to resolve. May be null.
      * @param specName the *logical* name of that specification; different from SAM. May be null.
      * @param filter The constraints added by this manager.
      * @param involved the managers currently involved in this resolution.
      * @return The list of managers involved, including this manager if it feels involved; in the right order.
      */
-    public List<Manager> getSelectionPathSpec(ASMInst from, String interfaceName, String specName, String depName,
+    public List<Manager> getSelectionPathSpec(ASMInst from, Composite composite, String interfaceName, String specName,
+            String depName,
             Set<Filter> constraints, List<Manager> involved);
 
     /**
@@ -59,70 +63,91 @@ public interface Manager {
      * including itself somewhere (the order is important), and perhaps, it can add the contraints that it will require
      * from each manager.
      * 
-     * @param from the instance origin of the future wire.
+     * @param from the instance origin of the future wire. Can be null.
+     * @param composite the composite in which is located the client (if any). Cannot be null.
      * @param samImplName the technical name of implementation to resolve, as returned by SAM.
      * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
      * @param filter The constraints added by this manager.
      * @param involved the managers currently involved in this resolution.
      * @return The list of managers involved, including this manager if it feels involved; in the right order.
      */
-    public List<Manager> getSelectionPathImpl(ASMInst from, String samImplName, String implName, String depName,
+    public List<Manager> getSelectionPathImpl(ASMInst from, Composite composite, String samImplName, String implName,
+            String depName,
             Set<Filter> constraints, List<Manager> involved);
 
     /**
-     * The manager is asked to find the "right" resolution for the required specification (or interface), in order to
-     * create a wire between from and and the returned instance.
+     * The manager is asked to find the "right" resolution for the required specification (or interface).
+     * If an implementation has to be created, it must be inside implComposite.
+     * If an instance must be created, it must be created inside instComposite.
      * 
-     * @param from the instance origin of the future wire.
+     * @param ImplComposite the composite in which is located the calling implem (and where to create implementation, if
+     *            needed). Cannot be null.
+     * @param InstComposite the composite in which is located the calling instances. Cannot be null.
      * @param interfaceName the name of one of the interfaces of the specification to resolve.
      * @param specName the *logical* name of that specification; different from SAM. May be null.
      * @param filter The constraints added by this manager.
      * @param involved the managers currently involved in this resolution.
      * @return an instance if resolved, null otherwise
      */
-    public ASMInst resolveSpec(ASMInst from, String interfaceName, String specName, String depName,
+    public ASMInst resolveSpec(Composite implComposite, Composite instComposite, String interfaceName, String specName,
+            String depName,
             Set<Filter> constraints);
 
     /**
-     * The manager is asked to find the "right" resolution for the required specification (or interface), in order to
-     * create a wire between from and and the returned instance.
+     * The manager is asked to find the "right" resolution for the required specification (or interface).
+     * If an implementation has to be created, it must be inside implComposite.
+     * If an instance must be created, it must be created inside instComposite.
      * 
-     * @param from the instance origin of the future wire.
+     * @param ImplComposite the composite in which is located the calling implem (and where to create implementation, if
+     *            needed). Cannot be null.
+     * @param InstComposite the composite in which is located the calling instances. Cannot be null.
      * @param interfaceName the name of one of the interfaces of the specification to resolve.
      * @param specName the *logical* name of that specification; different from SAM. May be null.
      * @param filter The constraints added by this manager.
      * @param involved the managers currently involved in this resolution.
      * @return all the instances if resolved, null otherwise
      */
-    public Set<ASMInst> resolveSpecs(ASMInst from, String interfaceName, String specName, String depName,
+    public Set<ASMInst> resolveSpecs(Composite implComposite, Composite instComposite, String interfaceName,
+            String specName,
+            String depName,
             Set<Filter> constraints);
 
     /**
-     * The manager is asked to find the "right" resolution for the required implementation, in order to create a wire
-     * between from and the returned instance.
+     * The manager is asked to find the "right" resolution for the required implementation.
+     * If an implementation has to be created, it must be inside implComposite.
+     * If an instance must be created, it must be created inside instComposite.
      * 
-     * @param from the instance origin of the future wire.
+     * @param ImplComposite the composite in which is located the calling implem (and where to create implementation, if
+     *            needed). Cannot be null.
+     * @param InstComposite the composite in which is located the calling instances. Cannot be null.
      * @param samImplName the technical name of implementation to resolve, as returned by SAM.
      * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
      * @param filter The constraints added by this manager.
      * @param involved the managers currently involved in this resolution.
      * @return an instance if resolved, null otherwise
      */
-    public ASMInst resolveImpl(ASMInst from, String samImplName, String implName, String depName,
+    public ASMInst resolveImpl(Composite implComposite, Composite instComposite, String samImplName, String implName,
+            String depName,
             Set<Filter> constraints);
 
     /**
-     * The manager is asked to find the "right" resolution for the required implementation, in order to create a wire
-     * between from and the returned instance.
+     * The manager is asked to find the "right" resolution for the required implementation.
+     * If an implementation has to be created, it must be inside implComposite.
+     * If an instance must be created, it must be created inside instComposite.
      * 
-     * @param from the instance origin of the future wire.
+     * @param from the instance origin of the future wire. Can be null.
+     * @param ImplComposite the composite in which is located the calling implem (and where to create implementation, if
+     *            needed). Cannot be null.
+     * @param InstComposite the composite in which is located the calling instances. Cannot be null.
      * @param samImplName the technical name of implementation to resolve, as returned by SAM.
      * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
      * @param filter The constraints added by this manager.
      * @param involved the managers currently involved in this resolution.
      * @return All the instances if resolved, null otherwise
      */
-    public Set<ASMInst> resolveImpls(ASMInst from, String samImplName, String implName, String depName,
+    public Set<ASMInst> resolveImpls(Composite implComposite, Composite instComposite, String samImplName,
+            String implName,
+            String depName,
             Set<Filter> constraints);
 
     // returns the relative priority of that manager, for the resolution algorithm

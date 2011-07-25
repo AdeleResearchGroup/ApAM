@@ -15,7 +15,7 @@ import fr.imag.adele.sam.event.EventProperty;
 
 public class SamImplEventHandler implements AMEventingHandler {
 
-    Set<String> expectedImpls = new HashSet<String>();
+    static Set<String> expectedImpls = new HashSet<String>();
 
     @Override
     public Query getQuery() throws ConnectionException {
@@ -33,9 +33,9 @@ public class SamImplEventHandler implements AMEventingHandler {
 
         // not yet here. Wait for it.
         synchronized (this) {
-            
+
             try {
-                while (expectedImpls.contains(expected)) {
+                while (SamImplEventHandler.expectedImpls.contains(expected)) {
                     this.wait();
                 }
                 // The expected impl arrived.
@@ -61,9 +61,9 @@ public class SamImplEventHandler implements AMEventingHandler {
      * @param expected
      */
     public synchronized void addExpected(String expected) {
-    	expectedImpls.add(expected);
+        SamImplEventHandler.expectedImpls.add(expected);
     }
-    
+
     // executed when a new implementation is detected by SAM. Check if it is an expected impl.
     @Override
     public synchronized void receive(AMEvent amEvent) throws ConnectionException {
@@ -72,8 +72,8 @@ public class SamImplEventHandler implements AMEventingHandler {
             if (implPid == null)
                 return;
             String name = implPid.getId();
-            if (expectedImpls.contains(name)) { // it is expected
-                expectedImpls.remove(name);
+            if (SamImplEventHandler.expectedImpls.contains(name)) { // it is expected
+                SamImplEventHandler.expectedImpls.remove(name);
                 notifyAll(); // wake up the thread waiting in getImplementation
             }
         }

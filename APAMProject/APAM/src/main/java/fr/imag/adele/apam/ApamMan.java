@@ -23,32 +23,38 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public List<Manager> getSelectionPathSpec(ASMInst from, String interfaceName, String specName, String depName,
+    public List<Manager> getSelectionPathSpec(ASMInst from, Composite composite, String interfaceName, String specName,
+            String depName,
             Set<Filter> filter, List<Manager> involved) {
         return involved;
     }
 
     @Override
-    public List<Manager> getSelectionPathImpl(ASMInst from, String samImplName, String implName, String depName,
+    public List<Manager> getSelectionPathImpl(ASMInst from, Composite composite, String samImplName, String implName,
+            String depName,
             Set<Filter> filter, List<Manager> involved) {
         return involved;
     }
 
     @Override
-    public ASMInst resolveSpec(ASMInst from, String interfaceName, String specName, String depName,
+    public ASMInst resolveSpec(Composite implComposite, Composite instComposite, String interfaceName, String specName,
+            String depName,
             Set<Filter> constraints) {
-        return resolveSpec0(from, interfaceName, specName, depName, constraints, false, null);
+        return resolveSpec0(implComposite, instComposite, interfaceName, specName, depName, constraints, false, null);
     }
 
     @Override
-    public Set<ASMInst> resolveSpecs(ASMInst client, String interfaceName, String specName, String depName,
+    public Set<ASMInst> resolveSpecs(Composite implComposite, Composite instComposite, String interfaceName,
+            String specName,
+            String depName,
             Set<Filter> constraints) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
-        resolveSpec0(client, interfaceName, specName, depName, constraints, true, allInst);
+        resolveSpec0(implComposite, instComposite, interfaceName, specName, depName, constraints, true, allInst);
         return allInst;
     }
 
-    private ASMInst resolveSpec0(ASMInst client, String interfaceName, String specName, String depName,
+    private ASMInst resolveSpec0(Composite implComposite, Composite instComposite, String interfaceName,
+            String specName, String depName,
             Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
         // second step : look for a sharable instance that satisfies the constraints
         // make sure we have the ASM specification
@@ -64,7 +70,7 @@ public class ApamMan implements Manager {
 
         try {
             for (ASMInst inst : CST.ASMInstBroker.getInsts(spec, null)) {
-                if (Wire.checkNewWire(client, inst)) {
+                if (Wire.checkNewWire(instComposite, inst)) {
                     boolean satisfies = true;
                     for (Filter filter : constraints) {
                         if (!filter.match((AttributesImpl) inst.getProperties())) {
@@ -73,7 +79,6 @@ public class ApamMan implements Manager {
                         }
                     }
                     if (satisfies) { // accept only if a wire is possible
-                        client.createWire(inst, depName);
                         if (multiple)
                             allInst.add(inst);
                         else
@@ -91,7 +96,7 @@ public class ApamMan implements Manager {
 
         // try to find a sharable implementation and instantiate.
         for (ASMImpl impl : CST.ASMImplBroker.getImpls(spec)) {
-            if (Util.checkImplVisible(impl, client.getComposite(), client.toString())) {
+            if (Util.checkImplVisible(impl, implComposite)) {
                 boolean satisfies = true;
                 for (Filter filter : constraints) {
                     if (!filter.match((AttributesImpl) impl.getProperties())) {
@@ -100,10 +105,7 @@ public class ApamMan implements Manager {
                     }
                 }
                 if (satisfies) { // This implem is sharable and satisfies the constraints. Instantiate.
-                    ASMInst inst = impl.createInst(null);
-                    // accept only if a wire is possible
-                    client.createWire(inst, depName);
-                    // At most one instantiation, even if multiple
+                    ASMInst inst = impl.createInst(instComposite, null);
                     if (multiple)
                         allInst.add(inst);
                     else
@@ -116,20 +118,24 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public ASMInst resolveImpl(ASMInst from, String samImplName, String implName, String depName,
+    public ASMInst resolveImpl(Composite implComposite, Composite instComposite, String samImplName, String implName,
+            String depName,
             Set<Filter> constraints) {
-        return resolveImpl0(from, samImplName, implName, depName, constraints, false, null);
+        return resolveImpl0(implComposite, instComposite, samImplName, implName, depName, constraints, false, null);
     }
 
     @Override
-    public Set<ASMInst> resolveImpls(ASMInst from, String samImplName, String implName, String depName,
+    public Set<ASMInst> resolveImpls(Composite implComposite, Composite instComposite, String samImplName,
+            String implName,
+            String depName,
             Set<Filter> constraints) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
-        resolveImpl0(from, samImplName, implName, depName, constraints, true, allInst);
+        resolveImpl0(implComposite, instComposite, samImplName, implName, depName, constraints, true, allInst);
         return allInst;
     }
 
-    private ASMInst resolveImpl0(ASMInst client, String samImplName, String implName, String depName,
+    private ASMInst resolveImpl0(Composite implComposite, Composite instComposite, String samImplName, String implName,
+            String depName,
             Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
 
         // second pass : look for a sharable instance that satisfies the constraints
@@ -140,8 +146,9 @@ public class ApamMan implements Manager {
         if (impl != null) {
             // Set<ASMInst> sharable = ASM.ASMInstBroker.getShareds(impl, client.getComposite().getApplication(), client
             // .getComposite());
+            boolean valide = false;
             for (ASMInst inst : impl.getInsts()) {
-                if (Wire.checkNewWire(client, inst)) {
+                if (Wire.checkNewWire(implComposite, inst)) {
                     boolean satisfies = true;
                     for (Filter filter : constraints) {
                         if (!filter.match((AttributesImpl) inst.getProperties())) {
@@ -149,8 +156,7 @@ public class ApamMan implements Manager {
                             break;
                         }
                     }
-                    if (satisfies) { // accept only if a wire is possible
-                        client.createWire(inst, depName);
+                    if (satisfies) { // accept only if satisfies constraints and a wire is possible
                         if (multiple)
                             allInst.add(inst);
                         else
@@ -169,12 +175,13 @@ public class ApamMan implements Manager {
             }
 
             if (satisfies) { // This implem is sharable and satisfies the constraints. Instantiate.
-                ASMInst inst = impl.createInst(null);
+                ASMInst inst = impl.createInst(instComposite, null);
                 // accept only if a wire is possible
-                if (client.createWire(inst, depName))
+                if (Wire.checkNewWire(instComposite, inst)) {
                     if (multiple) // At most one instantiation, even if multiple
                         allInst.add(inst);
-                return inst; // If not we have created an instance unused ! delete it ?
+                    return inst; // If not we have created an instance unused ! delete it ?
+                }
             }
         }
         return null;

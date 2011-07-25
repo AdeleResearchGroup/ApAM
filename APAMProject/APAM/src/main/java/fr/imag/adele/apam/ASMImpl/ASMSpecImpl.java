@@ -20,7 +20,7 @@ import fr.imag.adele.sam.Specification;
 public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
 
     private String             name;
-    private Composite          myComposite;
+    private final Composite          myComposite;
     private Specification      samSpec         = null;
     private final Set<ASMImpl> implementations = new HashSet<ASMImpl>();
 
@@ -55,14 +55,13 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
             if (props == null) {
                 props = new AttributesImpl();
             }
+            // initialize properties. A fusion of SAM and APAM values
+            if (samSpec != null)
+                this.setProperties(Util.mergeProperties(this, props, samSpec.getProperties()));
+            else
+                this.setProperties(Util.mergeProperties(this, props, null));
             props.setProperty(Attributes.APAMAPPLI, compo.getApplication().getName());
             props.setProperty(Attributes.APAMCOMPO, compo.getName());
-            // initialize properties. A fusion of SAM and APAM values
-            if (samSpec != null) {
-                this.setProperties(Util.mergeProperties(props, samSpec.getProperties()));
-                return;
-            } else
-                this.setProperties(props.getProperties());
         } catch (ConnectionException e) {
             e.printStackTrace();
         }

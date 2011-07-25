@@ -43,7 +43,7 @@ public interface ASMImpl extends Attributes {
      * @throws IllegalArgumentException the illegal argument exception
      * @throws ConnectionException the connection exception
      */
-    public ASMInst createInst(Attributes initialproperties);
+    public ASMInst createInst(Composite compo, Attributes initialproperties);
 
     /**
      * Get the abstract services.

@@ -49,6 +49,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     public ASMImplImpl(Composite compo, String implName, ASMSpecImpl spec, Implementation impl, Attributes props) {
         name = implName;
         myComposite = compo;
+        compo.addImpl(this);
         try {
             mySpec = spec;
             if (impl == null) {
@@ -63,7 +64,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
             props.setProperty(Attributes.APAMCOMPO, compo.getName());
             // initialize properties. A fusion of SAM and APAM values
 
-            this.setProperties(Util.mergeProperties(props, impl.getProperties()));
+            this.setProperties(Util.mergeProperties(this, props, impl.getProperties()));
 
         } catch (ConnectionException e) {
             e.printStackTrace();
@@ -89,7 +90,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
      * @throws ConnectionException
      */
     @Override
-    public ASMInst createInst(Attributes initialproperties) {
+    public ASMInst createInst(Composite instCompo, Attributes initialproperties) {
         try {
             Instance samInst;
             if (initialproperties == null)
@@ -97,13 +98,19 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
             else
                 samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getImplPid(),
                         initialproperties.attr2Properties());
-            ASMInstImpl inst = new ASMInstImpl(this, initialproperties, samInst);
-            instances.add(inst);
+            ASMInstImpl inst = new ASMInstImpl(this, instCompo, initialproperties, samInst);
+            addInst(inst);
             return inst;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    //WARNING : no control !
+    public void addInst(ASMInst inst) {
+        if (inst != null)
+            instances.add(inst);
     }
 
     @Override
@@ -192,6 +199,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         String shared = (String) getProperty(CST.A_SHARED);
         if (shared == null)
             shared = CST.V_TRUE;
+        //shared.toUpperCase();
         return shared;
     }
 

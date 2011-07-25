@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.util;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.util.AttributesImpl;
 
 /**
  * The static Class Util provides a set of static method for the iPOJO service concrete machine.
@@ -75,36 +77,40 @@ public class Util {
     }
 
     /**
-     * Adds is samProp the properties of samProp.
+     * Adds in ASM object the properties found in the associated SAM object.
+     * Checks the predefined attribute : upperCase and valid values.
+     * Either samProp or initProp can be null
      * 
-     * @param initProp
-     * @param samProp
+     * @param initProp : the initial properties provided in the ASM constructor
+     * @param samProp : the properties found in SAM.
      * @return
      */
-    public static Map<String, Object> mergeProperties(Attributes initProp, Map<String, Object> samProp) {
-        if (initProp == null)
-            return samProp;
-        if (samProp == null)
-            return initProp.getProperties();
+    public static Map<String, Object> mergeProperties(AttributesImpl asmObj, Attributes initProp,
+            Map<String, Object> samProp) {
+        if ((initProp == null) && (samProp == null))
+            return new HashMap<String, Object>();
+
         String attr;
-        try {
+        Object val;
+        if ((initProp != null) && (samProp != null)) { //merge
             for (Enumeration<String> e = ((AttributesImpl) initProp).keys(); e.hasMoreElements();) {
                 attr = e.nextElement();
+                val = initProp.getProperty(attr);
                 if (samProp.get(attr) == null) {
                     samProp.put(attr, initProp.getProperty(attr));
-                } else { // valeur differente, pas normal !
+                } else { // different values, pas normal !
                     if (initProp.getProperty(attr) != samProp.get(attr)) {
-                        System.out.println("Erreur ! attribut " + attr + " different in SAM and init val : "
+                        System.out.println("Warning ! attribut " + attr + "in " + asmObj
+                                + " different in SAM and init val : "
                                 + samProp.get(attr) + ", " + initProp.getProperty(attr));
-                        // TODO raffiner. shared, instantiable etc.
                     }
                 }
             }
-            return samProp;
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return null;
+
+        if (samProp == null)
+            samProp = initProp.getProperties();
+        return asmObj.checkPredefinedAttributes(samProp);
     }
 
     public static String ANDLDAP(String... params) {
@@ -153,24 +159,30 @@ public class Util {
         return valid;
     }
 
-    public static boolean checkImplVisible(ASMImpl impl, Composite compoFrom, String from) {
-        String scope = impl.getScope();
-        boolean valid = Util.checkVisibility(compoFrom, impl.getComposite(), scope);
+    public static boolean checkImplVisible(ASMImpl impl, Composite compoFrom) {
+        //        if (impl.getShared().equals(CST.V_FALSE) && !impl.getInvWires().isEmpty()) {
+        //            System.out.println(impl + "is not sharable");
+        //            return false;
+        //        }
+        boolean valid = Util.checkVisibility(compoFrom, impl.getComposite(), impl.getScope());
         if (!valid) {
-            System.out.println(from + " in Composite " + compoFrom.getName()
+            System.out.println("Composite " + compoFrom.getName()
                     + " does not see implementation " + impl + " in Composite " + impl.getComposite().getName()
-                    + " (shared attribute is " + scope + ")");
+                    + " (scope is " + impl.getScope() + ")");
         }
         return valid;
     }
 
-    public static boolean checkInstVisible(ASMInst inst, Composite compoFrom, String from) {
-        String scope = inst.getScope();
-        boolean valid = Util.checkVisibility(compoFrom, inst.getComposite(), scope);
+    public static boolean checkInstVisible(ASMInst inst, Composite compoFrom) {
+        if (inst.getShared().equals(CST.V_FALSE) && !inst.getInvWires().isEmpty()) {
+            System.out.println(inst + "is not sharable");
+            return false;
+        }
+        boolean valid = Util.checkVisibility(compoFrom, inst.getComposite(), inst.getScope());
         if (!valid) {
-            System.out.println(from + " in Composite " + compoFrom.getName()
-                    + " does not see instance " + inst + " in Composite " + inst.getComposite().getName()
-                    + " (shared attribute is " + scope + ")");
+            System.out.println("Composite " + compoFrom.getName()
+                            + " does not see instance " + inst + " in Composite " + inst.getComposite().getName()
+                            + " (shared is " + inst.getShared() + ", scope is " + inst.getScope());
         }
         return valid;
     }
@@ -186,7 +198,6 @@ public class Util {
             return (compoFrom == compoTo);
 
         System.err.println("CheckAccess : Invalid Scope value :  " + scope);
-
         return false;
     }
 }

@@ -2,6 +2,7 @@ package fr.imag.adele.apam;
 
 import fr.imag.adele.apam.ASMImpl.ASMInstImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
+import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Util;
 
 public class Wire {
@@ -10,7 +11,7 @@ public class Wire {
     private String      depName;
 
     public Wire(ASMInst from, ASMInst to, String depName) {
-        if (Wire.checkNewWire(from, to)) {
+        if (Wire.checkNewWire(from.getComposite(), to)) {
             source = (ASMInstImpl) from;
             destination = (ASMInstImpl) to;
             this.depName = depName;
@@ -25,18 +26,8 @@ public class Wire {
      * @return
      */
 
-    public static boolean checkNewWire(ASMInst from, ASMInst to) {
-        boolean valid = Util.checkInstVisible(to, from.getComposite(), from.toString());
-        if (!valid) {
-            System.out.println(from + " has no visibility to " + to
-                    + " (scope attribute is " + to.getScope() + ")");
-        }
-        if ((to.getImpl().getShared().equals(CST.V_FALSE)) && !(to.getInvWires().isEmpty())) {
-            System.out.println("instance " + to
-                    + " is not sharable and is allready used.");
-            valid = false;
-        }
-        return valid;
+    public static boolean checkNewWire(Composite compositeFrom, ASMInst to) {
+        return Util.checkInstVisible(to, compositeFrom);
     }
 
     public ASMInst getSource() {

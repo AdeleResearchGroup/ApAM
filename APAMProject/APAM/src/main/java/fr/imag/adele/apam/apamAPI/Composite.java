@@ -2,6 +2,7 @@ package fr.imag.adele.apam.apamAPI;
 
 /**
  * Interface used by APAM and managers to manage the composites.
+ * 
  * @author Jacky
  * 
  */
@@ -38,6 +39,10 @@ public interface Composite {
     public Set<Composite> getDepend();
 
     public boolean dependsOn(Composite destination);
+
+    public Composite getFather();
+
+    public Set<Composite> getSons();
 
     public ManagerModel getModel(String name);
 

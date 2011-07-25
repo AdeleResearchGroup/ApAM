@@ -11,7 +11,14 @@ public interface Application {
      * 
      * @return
      */
-    public Composite getMainComposite();
+    public Composite getMainImplComposite();
+
+    /**
+     * Provides the root composite for that application instance
+     * 
+     * @return
+     */
+    public Composite getMainInstComposite();
 
     /**
      * Provides the main implementation for that application.
@@ -51,6 +58,6 @@ public interface Application {
     /**
      * creates an instance of the main implementation associated with the root composite. i.e. starts the application.
      */
-    public void execute(Attributes properties);
+    //public void execute(Attributes properties);
 
 }
