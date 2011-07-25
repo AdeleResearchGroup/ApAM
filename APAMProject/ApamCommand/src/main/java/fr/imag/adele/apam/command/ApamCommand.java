@@ -5,9 +5,9 @@ package fr.imag.adele.apam.command;
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -213,27 +213,45 @@ public class ApamCommand {
             System.out.println("No such composite : " + compoName);
             return;
         }
-        System.out.println("Name : " + compoName + ";  Application " + compo.getApplication().getName());
-        System.out.print("  Depends on composites : ");
+        printComposite(compo, "");
+        System.out.println("");
+    }
+
+    private void printComposite(Composite compo, String indent) {
+        System.out.println(indent + compo.getName());
+        System.out.print(indent + "   Depends on composites : ");
         for (Composite comDep : compo.getDepend()) {
             System.out.print(comDep.getName() + " ");
         }
         System.out.println("");
-        System.out.print("  Contains Specifications: ");
-        for (ASMSpec spec : compo.getSpecs()) {
-            System.out.print(spec + " ");
+
+        if (!compo.getSpecs().isEmpty()) {
+            System.out.print(indent + "   Contains Specifications: ");
+            for (ASMSpec spec : compo.getSpecs()) {
+                System.out.print(spec + " ");
+            }
+            System.out.println("");
         }
-        System.out.println("");
-        System.out.print("  Contains Implementations: ");
-        for (ASMImpl impl : compo.getImpls()) {
-            System.out.print(impl + " ");
+
+        if (!compo.getImpls().isEmpty()) {
+            System.out.print(indent + "   Contains Implementations: ");
+            for (ASMImpl impl : compo.getImpls()) {
+                System.out.print(impl + " ");
+            }
+            System.out.println("");
         }
-        System.out.println("");
-        System.out.print("  Contains Instances : ");
-        for (ASMInst inst : compo.getInsts()) {
-            System.out.print(inst + " ");
+
+        if (!compo.getInsts().isEmpty()) {
+            System.out.print(indent + "   Contains Instances : ");
+            for (ASMInst inst : compo.getInsts()) {
+                System.out.print(inst + " ");
+            }
+            System.out.println("");
         }
-        System.out.println("");
+
+        for (Composite comp : compo.getSons()) {
+            printComposite(comp, indent + "   ");
+        }
     }
 
     @Descriptor("Display all the dependencies")
@@ -367,8 +385,11 @@ public class ApamCommand {
         for (Application appli : apam.getApplications()) {
             if (appli.getName().equals(name)) {
                 System.out.println("Application : " + appli.getName() + "  Main : " + appli.getMainImpl());
-                dumpComposite(appli.getMainComposite(), "  ");
-                System.out.println("\nState: ");
+                System.out.println("  Implementation composites:");
+                dumpComposite(appli.getMainImplComposite(), "     ");
+                System.out.println("  Instance composites:");
+                dumpComposite(appli.getMainInstComposite(), "     ");
+                System.out.println("State: ");
                 dumpState(appli.getMainImpl().getInst(), "  ", "");
                 break;
             }
@@ -378,13 +399,19 @@ public class ApamCommand {
     private void dumpApam() {
         for (Application appli : apam.getApplications()) {
             System.out.println("Application : " + appli.getName() + "  Main : " + appli.getMainImpl());
-            dumpComposite(appli.getMainComposite(), "  ");
-            System.out.println("\nState: ");
+            System.out.println("  Implementation composites:");
+            printComposite(appli.getMainImplComposite(), "     ");
+            System.out.println("  Instance composites:");
+            printComposite(appli.getMainInstComposite(), "     ");
+            System.out.println("State: ");
             dumpState(appli.getMainImpl().getInst(), "  ", "");
+            System.out.println("\n");
         }
     }
 
     private void dumpState(ASMInst inst, String indent, String dep) {
+        if (inst == null)
+            return;
         Set<ASMInst> insts = new HashSet<ASMInst>();
         insts.add(inst);
         System.out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " " + inst.getSpec());
@@ -398,7 +425,7 @@ public class ApamCommand {
 
     private void dumpState0(ASMInst inst, String indent, String dep, Set<ASMInst> insts) {
         if (insts.contains(inst)) {
-            System.out.println(indent + "  *");
+            System.out.println(indent + "*" + dep + ": " + inst.getASMName());
             return;
         }
         insts.add(inst);
