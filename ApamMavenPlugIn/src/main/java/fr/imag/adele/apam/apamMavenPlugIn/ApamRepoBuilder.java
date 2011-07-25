@@ -102,7 +102,7 @@ public class ApamRepoBuilder {
             components = getMetadataInfo(is);
 
         for (ComponentInfo comp : components) {
-            // printElement(comp.m_componentMetadata, "");
+            //printElement(comp.m_componentMetadata, "");
             printOBRElement(obrContent, comp, "", jarFile);
         }
         return true;
@@ -110,8 +110,9 @@ public class ApamRepoBuilder {
 
     private void printOBRElement(StringBuffer obrContent, ComponentInfo component, String indent, JarFile jarfile) {
         Element elem = component.m_componentMetadata;
-        if (((elem != null) && (elem.getName().equals("component")) && ((elem.getAttribute("apam-specification") != null) || (elem
-                .getAttribute("apam-implementation") != null)))) {
+        if ((elem != null) && (elem.getName().equals("component"))) {
+
+            //apam attributes
             obrContent.append("   <capability name='apam-component'>\n");
             obrContent.append("      <p n='name' v='" + elem.getAttribute("name") + "' />\n");
             if (elem.getAttribute("apam-specification") != null)
@@ -120,25 +121,55 @@ public class ApamRepoBuilder {
             if (elem.getAttribute("apam-implementation") != null)
                 obrContent.append("      <p n='apam-implementation' v='" + elem.getAttribute("apam-implementation")
                         + "' />\n");
+
+            //property attributes
+            if (elem.getElements("provides") != null) {
+                for (Element prov : elem.getElements("provides")) {
+                    //printElement(prov, indent + "   ");
+                    if (prov.getElements("property") != null) {
+                        for (Element property : prov.getElements("property")) {
+                            //printElement(property, indent + "      ");
+                            if (property.containsAttribute("value"))
+                                obrContent.append("      <p n='" + property.getAttribute("name") + "' v='"
+                                        + property.getAttribute("value") + "' />\n");
+                        }
+                    }
+                }
+            }
+
+            //interfaces
+            if (jarfile == null)
+                return;
+            List<String> interfaces;
+            try {
+                byte[] classByte = getBytecode(component.m_classname, jarfile);
+                interfaces = getInterfaces(classByte);
+            } catch (IOException e) {
+                // System.err.println("Cannot extract bytecode for component '" + component.m_classname + "'");
+                return;
+            }
+
+            if (interfaces != null) {
+                obrContent.append("      <p n='interfaces' v='");
+                for (int j = 0; j < interfaces.size(); j++) {
+                    if (j > 0)
+                        obrContent.append(", ");
+                    obrContent.append(interfaces.get(j).toString());
+                    //                    obrContent.append("   <capability name='apam-interface'>\n");
+                    //                    obrContent.append("      <p n='name' v='" + interfaces.get(j).toString() + "' />\n");
+                    //                    obrContent.append("   </capability>\n");
+                }
+                obrContent.append("' />\n");
+            }
             obrContent.append("   </capability>\n");
-        }
 
-        if (jarfile == null)
-            return;
-        List<String> interfaces;
-        try {
-            byte[] classByte = getBytecode(component.m_classname, jarfile);
-            interfaces = getInterfaces(classByte);
-        } catch (IOException e) {
-            // System.err.println("Cannot extract bytecode for component '" + component.m_classname + "'");
-            return;
-        }
-
-        if (interfaces != null) {
-            for (int j = 0; j < interfaces.size(); j++) {
-                obrContent.append("   <capability name='apam-interface'>\n");
-                obrContent.append("      <p n='name' v='" + interfaces.get(j).toString() + "' />\n");
-                obrContent.append("   </capability>\n");
+            //interfaces again in capability apam-interface
+            if (interfaces != null) {
+                for (int j = 0; j < interfaces.size(); j++) {
+                    obrContent.append("   <capability name='apam-interface'>\n");
+                    obrContent.append("      <p n='name' v='" + interfaces.get(j).toString() + "' />\n");
+                    obrContent.append("   </capability>\n");
+                }
             }
         }
     }
@@ -223,7 +254,7 @@ public class ApamRepoBuilder {
         for (Attribute attr : attrs) {
             System.out.println(indent + attr.getName() + " = " + attr.getValue());
         }
-        ;
+
         Element[] elems = elem.getElements();
         for (Element el : elems) {
             printElement(el, indent + "  ");
