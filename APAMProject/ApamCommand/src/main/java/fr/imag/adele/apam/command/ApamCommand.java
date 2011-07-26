@@ -390,7 +390,7 @@ public class ApamCommand {
                 System.out.println("  Instance composites:");
                 dumpComposite(appli.getMainInstComposite(), "     ");
                 System.out.println("State: ");
-                dumpState(appli.getMainImpl().getInst(), "  ", "");
+                dumpState(appli.getMainInstComposite().getMainInst(), "  ", "");
                 break;
             }
         }
@@ -404,7 +404,7 @@ public class ApamCommand {
             System.out.println("  Instance composites:");
             printComposite(appli.getMainInstComposite(), "     ");
             System.out.println("State: ");
-            dumpState(appli.getMainImpl().getInst(), "  ", "");
+            dumpState(appli.getMainInstComposite().getMainInst(), "  ", "");
             System.out.println("\n");
         }
     }
