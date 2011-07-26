@@ -22,8 +22,8 @@ public class ApplicationImpl implements Application {
     private final String         name;
     private Composite            mainImplCompo = null;
     private Composite            mainInstCompo = null;
-    private ASMImpl              mainImpl      = null;
-    private ASMSpec              mainSpec      = null;
+    //    private ASMImpl              mainImpl      = null;
+    //    private ASMSpec              mainSpec      = null;
 
     // To have different names
     private static int           nbSameName    = 0;
@@ -55,10 +55,16 @@ public class ApplicationImpl implements Application {
         name = appliName;
         mainImplCompo = new CompositeImpl(appliName, null, this, models);
         mainInstCompo = new CompositeImpl(appliName, null, this, models);
-        mainImpl = CST.ASMImplBroker.createImpl(mainImplCompo, implName, url, type, specName, properties);
-        mainSpec = mainImpl.getSpec();
-        mainImpl.createInst(mainInstCompo, properties);
 
+        ASMImpl mainImpl;
+        ASMInst mainInst;
+
+        mainImpl = CST.ASMImplBroker.createImpl(mainImplCompo, implName, url, type, specName, properties);
+        mainInst = mainImpl.createInst(mainInstCompo, properties);
+
+        ((CompositeImpl) mainImplCompo).setMainSpec(mainImpl.getSpec());
+        ((CompositeImpl) mainImplCompo).setMainImpl(mainImpl);
+        ((CompositeImpl) mainInstCompo).setMainInst(mainInst);
     }
 
     /**
@@ -78,12 +84,14 @@ public class ApplicationImpl implements Application {
         name = appliName;
         mainImplCompo = new CompositeImpl(appliName, null, this, models);
         mainInstCompo = new CompositeImpl(appliName, null, this, models);
+        ASMSpec mainSpec;
+
         if (specUrl == null)
             mainSpec = CST.ASMSpecBroker.createSpec(mainImplCompo, specName, interfaces, properties);
         else
             mainSpec = CST.ASMSpecBroker.createSpec(mainImplCompo, specName, specUrl, specType, interfaces, properties);
         //mainSpec = CST.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
-        mainImpl = null;
+        ((CompositeImpl) mainImplCompo).setMainSpec(mainSpec);
     }
 
     public ApplicationImpl(String appliName) {
@@ -91,6 +99,14 @@ public class ApplicationImpl implements Application {
         mainImplCompo = new CompositeImpl(appliName, null, this, null);
         mainInstCompo = new CompositeImpl(appliName, null, this, null);
     }
+
+    //    private void setAppliComposite (ApplicationImpl appli) {
+    //        ((CompositeImpl)mainImplCompo).setMainImpl(mainImpl) ;
+    //        ((CompositeImpl)mainImplCompo).setMainSpec(mainImpl.getSpec()) ;
+    //        ((CompositeImpl)mainInstCompo).setMainInst(mainInst) ;
+    //        
+    //        
+    //    }
 
     /**
      * Creation from an implementation known by its name. The implementation will be searched by the various available
@@ -109,7 +125,10 @@ public class ApplicationImpl implements Application {
         name = appliName;
         mainImplCompo = new CompositeImpl(appliName, null, this, models);
         mainInstCompo = new CompositeImpl(appliName, null, this, models);
+        ASMSpec mainSpec;
+        ASMImpl mainImpl;
         ASMInst mainInst = null;
+
         Implementation samImpl = null;
 
         if (samImplName != null) {
@@ -127,10 +146,13 @@ public class ApplicationImpl implements Application {
                     e.printStackTrace();
                 }
                 if (samInst != null) {
-                    CST.ASMInstBroker.addInst(mainImplCompo, mainInstCompo, samInst, implName, specName, properties);
+                    mainInst = CST.ASMInstBroker.addInst(mainImplCompo, mainInstCompo, samInst, implName, specName,
+                            properties);
                 } else
-                    mainImpl.createInst(mainInstCompo, properties);
-                mainSpec = mainImpl.getSpec();
+                    mainInst = mainImpl.createInst(mainInstCompo, properties);
+                ((CompositeImpl) mainImplCompo).setMainSpec(mainImpl.getSpec());
+                ((CompositeImpl) mainImplCompo).setMainImpl(mainImpl);
+                ((CompositeImpl) mainInstCompo).setMainInst(mainInst);
                 return;
             }
         }
@@ -143,15 +165,18 @@ public class ApplicationImpl implements Application {
             System.err.println("cannot find " + implName);
             return;
         }
-        mainImpl = mainInst.getImpl();
-        mainSpec = mainImpl.getSpec();
+
+        ((CompositeImpl) mainImplCompo).setMainSpec(mainInst.getImpl().getSpec());
+        ((CompositeImpl) mainImplCompo).setMainImpl(mainInst.getImpl());
+        ((CompositeImpl) mainInstCompo).setMainInst(mainInst);
     }
 
     // Not in the interface
     // In case the appli has been created from a spec only.
     public void setMainImpl(ASMImpl impl) {
-        if ((mainImpl == null) && (impl.getSpec() == mainSpec))
-            mainImpl = impl;
+        if ((mainImplCompo.getMainImpl() == null) && (impl.getSpec() == mainImplCompo.getMainSpec()))
+            ((CompositeImpl) mainImplCompo).setMainImpl(impl);
+
     }
 
     @Override
@@ -176,12 +201,12 @@ public class ApplicationImpl implements Application {
 
     @Override
     public ASMImpl getMainImpl() {
-        return mainImpl;
+        return mainImplCompo.getMainImpl();
     }
 
     @Override
     public ASMSpec getMainSpec() {
-        return mainSpec;
+        return mainImplCompo.getMainSpec();
     }
 
     @Override

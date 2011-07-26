@@ -147,42 +147,43 @@ public class Util {
         return ret;
     }
 
-    public static boolean checkSpecVisible(ASMSpec spec, Composite compoFrom, String from) {
-        String scope = spec.getScope();
-        boolean valid = Util.checkVisibility(compoFrom, spec.getComposite(), scope);
-        if (!valid) {
+    //    public static boolean checkSpecVisible(ASMSpec spec, Composite compoFrom, String from) {
+    //        String scope = spec.getScope();
+    //        boolean valid = Util.checkVisibility(compoFrom, spec.getComposite(), scope);
+    //        if (!valid) {
+    //
+    //            System.out.println(from + " in Composite " + compoFrom.getName()
+    //                    + " does not see specification " + spec + " in Composite " + spec.getComposite().getName()
+    //                    + " (scope attribute is " + scope + ")");
+    //        }
+    //        return valid;
+    //    }
 
-            System.out.println(from + " in Composite " + compoFrom.getName()
-                    + " does not see specification " + spec + " in Composite " + spec.getComposite().getName()
-                    + " (scope attribute is " + scope + ")");
-        }
-        return valid;
-    }
-
-    public static boolean checkImplVisible(ASMImpl impl, Composite compoFrom) {
-        //        if (impl.getShared().equals(CST.V_FALSE) && !impl.getInvWires().isEmpty()) {
-        //            System.out.println(impl + "is not sharable");
-        //            return false;
-        //        }
-        boolean valid = Util.checkVisibility(compoFrom, impl.getComposite(), impl.getScope());
-        if (!valid) {
-            System.out.println("Composite " + compoFrom.getName()
-                    + " does not see implementation " + impl + " in Composite " + impl.getComposite().getName()
-                    + " (scope is " + impl.getScope() + ")");
-        }
-        return valid;
-    }
+    //    public static boolean checkImplVisible(ASMImpl impl, Composite compoFrom) {
+    //        //        if (impl.getShared().equals(CST.V_FALSE) && !impl.getInvWires().isEmpty()) {
+    //        //            System.out.println(impl + "is not sharable");
+    //        //            return false;
+    //        //        }
+    //        boolean valid = Util.checkVisibility(compoFrom, impl.getComposite(), impl.getScope());
+    //        if (!valid) {
+    //            System.out.println("Composite " + compoFrom.getName()
+    //                    + " does not see implementation " + impl + " in Composite " + impl.getComposite().getName()
+    //                    + " (scope is " + impl.getScope() + ")");
+    //        }
+    //        return valid;
+    //    }
 
     public static boolean checkInstVisible(ASMInst inst, Composite compoFrom) {
-        if (inst.getShared().equals(CST.V_FALSE) && !inst.getInvWires().isEmpty()) {
-            System.out.println(inst + "is not sharable");
+        if ((inst.getShared().equals(CST.V_FALSE) && (!inst.getInvWires().isEmpty() //it is used
+        || (inst.getComposite().getApplication().getMainImpl().getInst(inst.getASMName()) != null)))) { //the main instance
+            System.out.println(inst + " is not sharable");
             return false;
         }
         boolean valid = Util.checkVisibility(compoFrom, inst.getComposite(), inst.getScope());
         if (!valid) {
             System.out.println("Composite " + compoFrom.getName()
-                            + " does not see instance " + inst + " in Composite " + inst.getComposite().getName()
-                            + " (shared is " + inst.getShared() + ", scope is " + inst.getScope());
+                    + " does not see instance " + inst + " in Composite " + inst.getComposite().getName()
+                    + " (shared is " + inst.getShared() + ", scope is " + inst.getScope());
         }
         return valid;
     }

@@ -56,7 +56,7 @@ public class ApamMan implements Manager {
     private ASMInst resolveSpec0(Composite implComposite, Composite instComposite, String interfaceName,
             String specName, String depName,
             Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
-        // second step : look for a sharable instance that satisfies the constraints
+        //  look for a sharable instance that satisfies the constraints
         // make sure we have the ASM specification
         ASMSpec spec = null;
         if (specName == null) {
@@ -78,7 +78,7 @@ public class ApamMan implements Manager {
                             break;
                         }
                     }
-                    if (satisfies) { // accept only if a wire is possible
+                    if (satisfies) { // accept only if it satisfies the constraints and if a wire is possible
                         if (multiple)
                             allInst.add(inst);
                         else
@@ -96,24 +96,24 @@ public class ApamMan implements Manager {
 
         // try to find a sharable implementation and instantiate.
         for (ASMImpl impl : CST.ASMImplBroker.getImpls(spec)) {
-            if (Util.checkImplVisible(impl, implComposite)) {
-                boolean satisfies = true;
-                for (Filter filter : constraints) {
-                    if (!filter.match((AttributesImpl) impl.getProperties())) {
-                        satisfies = false;
-                        break;
-                    }
-                }
-                if (satisfies) { // This implem is sharable and satisfies the constraints. Instantiate.
-                    ASMInst inst = impl.createInst(instComposite, null);
-                    if (multiple)
-                        allInst.add(inst);
-                    else
-                        return inst;
-
+            //    if (Util.checkImplVisible(impl, implComposite)) {
+            boolean satisfies = true;
+            for (Filter filter : constraints) {
+                if (!filter.match((AttributesImpl) impl.getProperties())) {
+                    satisfies = false;
+                    break;
                 }
             }
+            if (satisfies) { // This implem satisfies the constraints. Instantiate.
+                ASMInst inst = impl.createInst(instComposite, null);
+                if (multiple)
+                    allInst.add(inst);
+                else
+                    return inst;
+
+            }
         }
+        //}
         return null;
     }
 

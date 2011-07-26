@@ -79,4 +79,10 @@ public interface Composite {
 
     public Set<ASMInst> getInsts();
 
+    public ASMSpec getMainSpec();
+
+    public ASMImpl getMainImpl();
+
+    public ASMInst getMainInst();
+
 }

@@ -38,6 +38,11 @@ public class CompositeImpl implements Composite {
     private final Set<Composite>          sons        = new HashSet<Composite>();
     private Composite                     father      = null;                            //null if appli
 
+    //For executable composites
+    private ASMSpec                       mainSpec    = null;
+    private ASMImpl                       mainImpl    = null;
+    private ASMInst                       mainInst    = null;
+
     // To have different names
     private int                           nbSameName  = 0;
 
@@ -288,6 +293,30 @@ public class CompositeImpl implements Composite {
     @Override
     public Set<ManagerModel> getModels() {
         return Collections.unmodifiableSet(models);
+    }
+
+    public ASMSpec getMainSpec() {
+        return mainSpec;
+    }
+
+    public ASMInst getMainInst() {
+        return mainInst;
+    }
+
+    public ASMImpl getMainImpl() {
+        return mainImpl;
+    }
+
+    public void setMainSpec(ASMSpec spec) {
+        mainSpec = spec;
+    }
+
+    public void setMainInst(ASMInst inst) {
+        mainInst = inst;
+    }
+
+    public void setMainImpl(ASMImpl impl) {
+        mainImpl = impl;
     }
 
 }
