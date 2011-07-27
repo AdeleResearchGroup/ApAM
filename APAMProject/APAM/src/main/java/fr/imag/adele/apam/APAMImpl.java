@@ -143,30 +143,35 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         // To select first the APAM manager
         selectionPath.add(0, APAMImpl.apamMan);
 
-        System.out.print("selection path : ");
+        System.out.println("selection path : ");
         for (Manager man : selectionPath) {
             System.out.print(" " + man.getName());
         }
         // third step : ask each manager in the order
         Set<ASMInst> insts = null;
         ASMInst inst = null;
-        System.out.print("\nResolving spec interface " + interfaceName + ", specName: " + specName + ": ");
+        System.out.println("Resolving spec interface " + interfaceName + ", specName: " + specName + ": ");
         for (Manager manager : selectionPath) {
-            System.out.print(" " + manager.getName());
+            System.out.println(" " + manager.getName());
             if (multiple) {
                 insts = manager.resolveSpecs(implComposite, instComposite, interfaceName, specName, depName,
                         constraints);
                 if (insts != null) {
+                    System.out.print("   Got : ");
                     for (ASMInst ins : insts) {
                         if (client.createWire(ins, depName)) {
                             allInst.add(ins);
+                            System.out.println(ins + " ");
                         }
                     }
+                    System.out.println("");
                 }
+                if (!allInst.isEmpty())
+                    return null;
             } else {
                 inst = manager.resolveSpec(implComposite, instComposite, interfaceName, specName, depName, constraints);
                 if ((inst != null) && (client.createWire(inst, depName))) {
-                    System.out.println("\n   Got : " + inst);
+                    System.out.println("   Got : " + inst);
                     return inst;
                 }
             }
@@ -251,29 +256,31 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
         Set<ASMInst> insts = null;
         ASMInst inst = null;
-        System.out.print("\nResolving impl samname " + samImplName + ", implName: " + implName + ": ");
+        System.out.println("Resolving impl samname " + samImplName + ", implName: " + implName + ": ");
         for (Manager manager : selectionPath) {
-            System.out.print("  " + manager.getName());
+            System.out.println("  " + manager.getName());
             if (multiple) {
                 insts = manager.resolveImpls(implComposite, instComposite, samImplName, implName, depName, constraints);
                 if (insts != null) {
+                    System.out.print("   Got : ");
                     for (ASMInst ins : insts) {
-                        if (client == null) { //only for resolving by name
+                        if (client.createWire(ins, depName)) {
                             allInst.add(ins);
-                        } else if (client.createWire(ins, depName)) {
-                            allInst.add(ins);
+                            System.out.println(ins + " ");
                         }
                     }
+                    System.out.println("");
+                    if (!allInst.isEmpty())
+                        return null;
                 }
             } else {
                 inst = manager.resolveImpl(implComposite, instComposite, samImplName, implName, depName, constraints);
                 if (inst != null) { //found a solution. Is it Ok ?
+                    System.out.println("   Got : " + inst.getASMName());
                     if (client == null) { //only for resolving by name
-                        System.out.println("\n   Got : " + inst.getASMName());
                         return inst;
                     } else {
                         if (client.createWire(inst, depName)) {
-                            System.out.println("\n   Got : " + inst.getASMName());
                             return inst;
                         }
                     }

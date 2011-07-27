@@ -86,10 +86,10 @@ public class Util {
      * @return
      */
     public static Map<String, Object> mergeProperties(AttributesImpl asmObj, Attributes initProp,
-            Map<String, Object> samProp) {
-        if ((initProp == null) && (samProp == null))
+            Map<String, Object> samPropParam) {
+        if ((initProp == null) && (samPropParam == null))
             return new HashMap<String, Object>();
-
+        Map<String, Object> samProp = new HashMap<String, Object>(samPropParam);
         String attr;
         Object val;
         if ((initProp != null) && (samProp != null)) { //merge
@@ -97,12 +97,12 @@ public class Util {
                 attr = e.nextElement();
                 val = initProp.getProperty(attr);
                 if (samProp.get(attr) == null) {
-                    samProp.put(attr, initProp.getProperty(attr));
+                    samProp.put(attr, val);
                 } else { // different values, pas normal !
                     if (initProp.getProperty(attr) != samProp.get(attr)) {
                         System.out.println("Warning ! attribut " + attr + "in " + asmObj
                                 + " different in SAM and init val : "
-                                + samProp.get(attr) + ", " + initProp.getProperty(attr));
+                                + samProp.get(attr) + ", " + val);
                     }
                 }
             }

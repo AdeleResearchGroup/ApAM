@@ -83,7 +83,6 @@ public class ApamMan implements Manager {
                             allInst.add(inst);
                         else
                             return inst;
-
                     }
                 }
             }
@@ -94,7 +93,7 @@ public class ApamMan implements Manager {
         if (multiple && !allInst.isEmpty())
             return null; // we found at least one
 
-        // try to find a sharable implementation and instantiate.
+        // try to find an  implementation and instantiate.
         for (ASMImpl impl : CST.ASMImplBroker.getImpls(spec)) {
             //    if (Util.checkImplVisible(impl, implComposite)) {
             boolean satisfies = true;
@@ -106,14 +105,14 @@ public class ApamMan implements Manager {
             }
             if (satisfies) { // This implem satisfies the constraints. Instantiate.
                 ASMInst inst = impl.createInst(instComposite, null);
-                if (multiple)
+                if (multiple) {
                     allInst.add(inst);
-                else
+                    return null;
+                } else {
                     return inst;
-
+                }
             }
         }
-        //}
         return null;
     }
 
