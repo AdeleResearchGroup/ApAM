@@ -1,0 +1,21 @@
+<obr> 
+   <capability name='apam-component'>
+      <p n='name' v='DependencyTest' />
+      <p n='apam-specification' v='APAMDependencyTestSpec' />
+      <p n='apam-implementation' v='APAMDependencyTest' />
+      <p n='interfaces' v='fr.imag.adele.apam.test.dependency.DependencyTestProvidedInterface' />
+   </capability>
+   <capability name='apam-interface'>
+      <p n='name' v='fr.imag.adele.apam.test.dependency.DependencyTestProvidedInterface' />
+   </capability>
+   <capability name='apam-component'>
+      <p n='name' v='AppliTest' />
+      <p n='apam-composite' v='true' />
+      <p n='apam-specification' v='APAMDependencyTestSpec' />
+      <p n='apam-implementation' v='APAMDependencyTest' />
+      <p n='interfaces' v='fr.imag.adele.apam.test.dependency.DependencyTestProvidedInterface' />
+   </capability>
+   <capability name='apam-interface'>
+      <p n='name' v='fr.imag.adele.apam.test.dependency.DependencyTestProvidedInterface' />
+   </capability>
+</obr> 

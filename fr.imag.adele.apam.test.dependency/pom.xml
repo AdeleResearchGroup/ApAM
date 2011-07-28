@@ -44,15 +44,16 @@
            			<Export-Package>fr.imag.adele.apam.test.dependency.*</Export-Package>
 				</configuration>
 			</plugin>
+			
 			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-ipojo-plugin</artifactId>
-				<version>1.8.0</version>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>ApamMavenPlugIn</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
 				<executions>
 					<execution>
-			            <goals>
-			                 <goal>ipojo-bundle</goal>
-			            </goals>
+						<goals>
+							<goal>apam-ipojo-bundle</goal>
+						</goals>						
 						<configuration>
 							 <metadata>src/main/resources/fr/imag/adele/apam/test/dependency/DependencyTest.xml</metadata>
 						</configuration>

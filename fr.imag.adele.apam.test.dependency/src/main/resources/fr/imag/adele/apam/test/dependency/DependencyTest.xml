@@ -17,18 +17,18 @@
 <ipojo xmlns:apam="fr.imag.adele.apam">
 
 	<component name="DependencyTest" classname="fr.imag.adele.apam.test.dependency.DependencyTest"
-	           apam-implementation="APAMDependencyTest">
+	           apam:implementation="APAMDependencyTest" apam:specification="APAMDependencyTestSpec">
 	    <provides/>
 		<callback transition="validate" method="start"/>
 		<apam:dependency  field="dependencies" />
 	</component>
 
-<!--
-	<apam.composite name="AppliTest">
+	<apam.composite name="AppliTest" 
+					apam:implementation="APAMDependencyTest" apam:specification="APAMDependencyTestSpec">
+	    <provides specifications="fr.imag.adele.apam.test.dependency.DependencyTestProvidedInterface"/>
 	</apam.composite>
--->	
+	
 	<instance component="DependencyTest" name="DependencyTest-auto-appear-instance"/>
-<!--
 	<instance component="AppliTest" name="AppliTest-instance"/>
--->
+
 </ipojo>
