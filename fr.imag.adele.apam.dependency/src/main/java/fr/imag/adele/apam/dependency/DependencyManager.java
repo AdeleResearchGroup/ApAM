@@ -29,12 +29,12 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
     /**
      * Configuration property to specify the dependency's target implementation
      */
-    private final static String     COMPONENT_IMPLEMENTATION_PROPERTY  = "apam-implementation";
+    private final static String     COMPONENT_IMPLEMENTATION_PROPERTY  = "implementation";
 
     /**
      * Configuration property to specify the dependency's target specification
      */
-    private final static String     COMPONENT_SPECIFICATION_PROPERTY   = "apam-specification";
+    private final static String     COMPONENT_SPECIFICATION_PROPERTY   = "specification";
 
     /**
      * Configuration element to handle APAM dependencies
@@ -92,7 +92,7 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
     private String                  apamSpecification;
 
     /**
-     * The list of dpendencies declared in this component
+     * The list of dependencies declared in this component
      */
     private Map<String, Dependency> dependencies;
 
@@ -114,11 +114,10 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
         /*
          * Validate an APAM component name is specified, otherwise use the iPojo component name
          */
-        String componentName = componentMetadata.getAttribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY);
+        String componentName = componentMetadata.getAttribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY,DependencyManager.APAM_NAMESPACE);
         if (componentName == null) {
             componentName = componentDescriptor.getName();
-            componentMetadata.addAttribute(new Attribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY,
-                    componentName));
+            componentMetadata.addAttribute(new Attribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY,DependencyManager.APAM_NAMESPACE,componentName));
         }
 
         /*
@@ -192,7 +191,7 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
             }
 
             /*
-             * validate field's class is compatible with the specified characteritics of the dependency
+             * validate field's class is compatible with the specified characteristics of the dependency
              */
             Class<?> fieldClass = field.getType();
             boolean isAggregateField = fieldClass.isArray() || Collection.class.isAssignableFrom(fieldClass);
@@ -319,7 +318,8 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
      * 
      * @see org.apache.felix.ipojo.Handler#configure(org.apache.felix.ipojo.metadata.Element, java.util.Dictionary)
      */
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     public void configure(Element componentMetadata, Dictionary configuration) throws ConfigurationException {
         /*
          * Get component information and add interceptors to delegate dependency resolution
@@ -328,8 +328,8 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
          * including initializing unspecified properties with appropriate default values. Here we just assume metadata
          * is correct.
          */
-        apamComponent = componentMetadata.getAttribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY);
-        apamSpecification = componentMetadata.getAttribute(DependencyManager.COMPONENT_SPECIFICATION_PROPERTY);
+        apamComponent = componentMetadata.getAttribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY,DependencyManager.APAM_NAMESPACE);
+        apamSpecification = componentMetadata.getAttribute(DependencyManager.COMPONENT_SPECIFICATION_PROPERTY,DependencyManager.APAM_NAMESPACE);
 
         dependencies = new HashMap<String, Dependency>();
 
