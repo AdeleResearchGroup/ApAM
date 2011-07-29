@@ -4,9 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,22 +15,20 @@ import org.apache.felix.bundlerepository.Property;
 import org.apache.felix.bundlerepository.Reason;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
-import org.apache.felix.bundlerepository.Requirement;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ApplicationImpl;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.CompExInstImpl;
+import fr.imag.adele.apam.CompExTypeImpl;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.ASMImpl.ASMImplImpl;
-import fr.imag.adele.apam.ASMImpl.ASMSpecImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Application;
+import fr.imag.adele.apam.apamAPI.CompExType;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.apamAPI.ManagersMng;
@@ -155,7 +151,8 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     private Set<Resource>
-            lookForAll(String capability, String filterStr, Set<Filter> constraints, Set<Resource> allRes) {
+            lookForAll(String capability, String filterStr, Set<Filter> constraints) {
+        Set<Resource> allRes = new HashSet<Resource>();
         System.out.println("looking for all resources : " + capability + "; filter : " + filterStr);
         if (allResources == null)
             return null;
@@ -182,6 +179,71 @@ public class OBRMan implements Manager, IOBRMAN {
         if (allRes.isEmpty())
             System.out.println("   Not Found");
         return allRes;
+    }
+
+    private Resource lookForPref(String capability, List<Filter> preferences, Set<Resource> candidates) {
+        Resource winner = null;
+        int maxMatch = 0;
+        int match = 0;
+        try {
+            for (Resource res : candidates) {
+                Capability[] capabilities = res.getCapabilities();
+                for (Capability aCap : capabilities) {
+                    if (aCap.getName().equals(capability)) {
+                        match = matchPreferences(capabilities, preferences);
+                        if (match > maxMatch) {
+                            maxMatch = match;
+                            winner = res;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (winner == null) {
+            System.out.println("   Not Found");
+        } else {
+            System.out.println("   Found : " + winner.getSymbolicName());
+        }
+        return winner;
+    }
+
+    private int matchPreferences(Capability[] capabilities, List<Filter> preferences) {
+        FilterImpl filter;
+        //trace
+        System.out.print("maching constraints : ");
+        for (Filter constraint : preferences) {
+            System.out.print(constraint + ", ");
+        }
+        System.out.println("");
+        //fin trace
+        for (Capability aCap : capabilities) {
+            if (aCap.getName().equals("apam-component")) {
+                Map map = aCap.getPropertiesAsMap();
+                int match = 0;
+                for (Filter constraint : preferences) {
+                    try {
+                        filter = FilterImpl.newInstance(constraint.toString());
+                        if (!filter.matchCase(map)) {
+                            System.out.println("contraint not matched : " + constraint);
+                            return match;
+                        }
+                        match++;
+                    } catch (InvalidSyntaxException e) {
+                        System.err.println("invalid syntax in filter : " + constraint.toString());
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+    private Resource lookFor(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences) {
+        if ((preferences != null) && !preferences.isEmpty()) {
+            return lookForPref(capability, preferences, lookForAll(capability, filterStr, constraints));
+        }
+        return lookFor(capability, filterStr, constraints);
     }
 
     private Resource lookFor(String capability, String filterStr, Set<Filter> constraints) {
@@ -277,6 +339,7 @@ public class OBRMan implements Manager, IOBRMAN {
             boolean multiple, Set<ASMInst> allInst) {
         String implName = getAttributeInResource(res, "apam-component", "apam-implementation");
         String specName = getAttributeInResource(res, "apam-component", "apam-specification");
+
         String implNameExpected = res.getSymbolicName(); //the sam name
         if (implName == null)
             implName = implNameExpected;
@@ -287,12 +350,8 @@ public class OBRMan implements Manager, IOBRMAN {
         ASMInst asmInst = null;
         try {
             asmImpl = CST.ASMImplBroker.getImpl(implName);
-            if (asmImpl != null) { // do not install twice
-                ((ASMImplImpl) asmImpl).setASMName(implName);
-                ((ASMSpecImpl) asmImpl.getSpec()).setASMName(specName);
-                asmInst = asmImpl.getInst();
-                if (asmInst != null)
-                    return asmInst;
+            if (asmImpl != null) { // do not install twice. Bizarre, APMAN should have found it !
+                System.err.println("ERROR : " + implName + " allready deployed.");
                 return asmImpl.createInst(instComposite, null);
             }
 
@@ -309,21 +368,35 @@ public class OBRMan implements Manager, IOBRMAN {
             //We have to wait for these instances to appear !! How long ? how to know they are all ready
             Thread.sleep(10);
 
+            if ((samImpl.getProperty(CST.PROPERTY_COMPOSITE) != null) &&
+                    ((Boolean) samImpl.getProperty(CST.PROPERTY_COMPOSITE) == true)) {
+                //get the interfaces
+                CompExType compType = CompExTypeImpl.createCompExType(implComposite, samImpl);
+                if (compType == null)
+                    return null;
+
+                CompExInstImpl compInst = (CompExInstImpl) ((ASMImplImpl) compType).createInst(instComposite, null);
+                if (compInst == null)
+                    return null;
+                if (multiple) {
+                    allInst = new HashSet<ASMInst>();
+                    allInst.add(compInst.getMainInst());
+                }
+                return compInst.getMainInst();
+            }
+
             Set<Instance> allInstances = null;
             if (multiple) {
                 allInstances = samImpl.getInstances();
-                if ((allInstances == null) || allInstances.isEmpty())
+                if (allInstances == null)
+                    allInstances = new HashSet<Instance>();
+                if (allInstances.isEmpty())
                     allInstances.add(samImpl.createInstance(null)); // should not be null
             } else {
                 samInst = samImpl.getInstance();
                 if (samInst == null) // An instance must be created 
                     samInst = samImpl.createInstance(null); // should not be null
             }
-            //            System.out.println("instances rtouvees : " + samImpl.getInstances());
-            //            if (samInst == null) {// An instance must be created 
-            //                samInst = samImpl.createInstance(null); // should not be null
-            //                System.out.println("creating a new instance: " + samInst);
-            //            }
             if ((samInst == null) && ((allInstances == null) || allInstances.isEmpty())) {
                 System.err.println("sam instance is null. in OBRMAN install instanciate");
                 new Exception().printStackTrace();
@@ -364,28 +437,38 @@ public class OBRMan implements Manager, IOBRMAN {
     //at the end
     @Override
     public List<Manager> getSelectionPathSpec(ASMInst from, Composite composite, String interfaceName, String specName,
-            String depName, Set<Filter> constraints, List<Manager> involved) {
+            Set<Filter> constraints, List<Manager> involved) {
         involved.add(involved.size(), this);
         return involved;
     }
 
     @Override
     public List<Manager> getSelectionPathImpl(ASMInst from, Composite composite, String samImplName, String implName,
-            String depName, Set<Filter> constraints, List<Manager> involved) {
+            Set<Filter> constraints, List<Manager> involved) {
         involved.add(involved.size(), this);
         return involved;
     }
 
     @Override
     public ASMInst resolveSpec(Composite implComposite, Composite instComposite, String interfaceName, String specName,
-            String depName, Set<Filter> constraints) {
+            Set<Filter> constraints, List<Filter> preferences) {
+
+        // temporary 
+        try {
+            Filter f = FilterImpl.newInstance("(apam-composite=TRUE)");
+            preferences.add(f);
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+        }
+        //end
+
         Resource selected = null;
         ASMInst newInst = null;
         if (specName != null) {
-            selected = lookFor("apam-component", "(apam-specification=" + specName + ")", constraints);
+            selected = lookFor("apam-component", "(apam-specification=" + specName + ")", constraints, preferences);
         }
         if ((selected == null) && (interfaceName != null)) {
-            selected = lookFor("apam-interface", "(name=" + interfaceName + ")", constraints);
+            selected = lookFor("apam-interface", "(name=" + interfaceName + ")", constraints, preferences);
         }
         if (selected != null) {
             newInst = installInstantiate(selected, implComposite, instComposite, false, null);
@@ -402,16 +485,24 @@ public class OBRMan implements Manager, IOBRMAN {
      */
     @Override
     public Set<ASMInst> resolveSpecs(Composite implComposite, Composite instComposite, String interfaceName,
-            String specName,
-            String depName, Set<Filter> constraints) {
+            String specName, Set<Filter> constraints, List<Filter> preferences) {
+
+        // temporary 
+        try {
+            Filter f = FilterImpl.newInstance("(apam-composite=TRUE)");
+            preferences.add(f);
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+        }
+        //end
+
         Set<ASMInst> allInsts = new HashSet<ASMInst>();
         Resource selected = null;
-        ASMInst newInst = null;
         if (specName != null) {
-            selected = lookFor("apam-component", "(apam-specification=" + specName + ")", constraints);
+            selected = lookFor("apam-component", "(apam-specification=" + specName + ")", constraints, preferences);
         }
         if ((selected == null) && (interfaceName != null)) {
-            selected = lookFor("apam-interface", "(name=" + interfaceName + ")", constraints);
+            selected = lookFor("apam-interface", "(name=" + interfaceName + ")", constraints, preferences);
         }
         if (selected != null) {
             installInstantiate(selected, implComposite, instComposite, true, allInsts);
@@ -427,32 +518,42 @@ public class OBRMan implements Manager, IOBRMAN {
         return null;
     }
 
-    private Resource getResourceImpl(String samImplName, String implName, Set<Filter> constraints) {
+    private Resource getResourceImpl(String samImplName, String implName, Set<Filter> constraints,
+            List<Filter> preferences) {
         Resource selected = null;
+
+        // temporary 
+        try {
+            Filter f = FilterImpl.newInstance("(apam-composite=TRUE)");
+            preferences.add(f);
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+        }
+        //end
+
         if (implName != null) {
-            selected = lookFor("apam-component", "(apam-implementation=" + implName + ")", constraints);
+            selected = lookFor("apam-component", "(apam-implementation=" + implName + ")", constraints, preferences);
         }
         if (selected == null) { //look by bundle name. First apam component by bundle name
             if (samImplName == null)
                 samImplName = implName;
-            selected = lookFor("apam-component", "(name=" + samImplName + ")", constraints);
+            selected = lookFor("apam-component", "(name=" + samImplName + ")", constraints, preferences);
         }
         if (selected == null) { //legacy iPOJO component
-            selected = lookFor("component", "(name=" + samImplName + ")", constraints);
+            selected = lookFor("component", "(name=" + samImplName + ")", constraints, preferences);
         }
         if (selected == null) { //legacy OSGi component
-            selected = lookFor("bundle", "(symbolicname=" + samImplName + ")", constraints);
+            selected = lookFor("bundle", "(symbolicname=" + samImplName + ")", constraints, preferences);
         }
         return selected;
     }
 
     @Override
     public ASMInst resolveImpl(Composite implComposite, Composite instComposite, String samImplName, String implName,
-            String depName,
-            Set<Filter> constraints) {
+            Set<Filter> constraints, List<Filter> preferences) {
 
         ASMInst newInst = null;
-        Resource selected = getResourceImpl(samImplName, implName, constraints);
+        Resource selected = getResourceImpl(samImplName, implName, constraints, preferences);
         if (selected != null) {
             newInst = installInstantiate(selected, implComposite, instComposite, false, null);
             System.out.println("deployed :" + newInst.getASMName());
@@ -464,11 +565,10 @@ public class OBRMan implements Manager, IOBRMAN {
 
     @Override
     public Set<ASMInst> resolveImpls(Composite implComposite, Composite instComposite, String samImplName,
-            String implName,
-            String depName, Set<Filter> constraints) {
+            String implName, Set<Filter> constraints, List<Filter> preferences) {
         Set<ASMInst> allInsts = new HashSet<ASMInst>();
         Set<ASMInst> rets = new HashSet<ASMInst>();
-        Resource selected = getResourceImpl(samImplName, implName, constraints);
+        Resource selected = getResourceImpl(samImplName, implName, constraints, preferences);
         if (selected != null) {
             installInstantiate(selected, implComposite, instComposite, true, allInsts);
 
@@ -537,8 +637,7 @@ public class OBRMan implements Manager, IOBRMAN {
     @Override
     public Set<Resource> getResources(String capability, String filterStr, Set<Filter> constraints) {
         Set<Resource> allRes = new HashSet<Resource>();
-        lookForAll(capability, filterStr, constraints, allRes);
-        return allRes;
+        return lookForAll(capability, filterStr, constraints);
     }
 
     @Override
@@ -550,6 +649,22 @@ public class OBRMan implements Manager, IOBRMAN {
     public boolean install(Resource resource) {
         deployInstall(resource);
         return false;
+    }
+
+    @Override
+    public ASMImpl resolveImplByName(Composite implComposite, Composite instComposite, String samImplName,
+            String implName, Set<Filter> constraints, List<Filter> preferences) {
+        //TODO
+        ASMInst inst = resolveImpl(implComposite, instComposite, samImplName, implName, constraints, preferences);
+        return inst.getImpl();
+    }
+
+    @Override
+    public ASMImpl resolveSpecByName(Composite implComposite, Composite instComposite, String interfaceName,
+            String specName, Set<Filter> constraints, List<Filter> preferences) {
+        // TODO 
+        ASMInst inst = resolveSpec(implComposite, instComposite, interfaceName, specName, constraints, preferences);
+        return inst.getImpl();
     }
 
 }
