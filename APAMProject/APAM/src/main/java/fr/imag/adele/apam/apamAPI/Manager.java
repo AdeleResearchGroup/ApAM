@@ -54,7 +54,6 @@ public interface Manager {
      * @return The list of managers involved, including this manager if it feels involved; in the right order.
      */
     public List<Manager> getSelectionPathSpec(ASMInst from, Composite composite, String interfaceName, String specName,
-            String depName,
             Set<Filter> constraints, List<Manager> involved);
 
     /**
@@ -72,7 +71,6 @@ public interface Manager {
      * @return The list of managers involved, including this manager if it feels involved; in the right order.
      */
     public List<Manager> getSelectionPathImpl(ASMInst from, Composite composite, String samImplName, String implName,
-            String depName,
             Set<Filter> constraints, List<Manager> involved);
 
     /**
@@ -90,8 +88,7 @@ public interface Manager {
      * @return an instance if resolved, null otherwise
      */
     public ASMInst resolveSpec(Composite implComposite, Composite instComposite, String interfaceName, String specName,
-            String depName,
-            Set<Filter> constraints);
+            Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * The manager is asked to find the "right" resolution for the required specification (or interface).
@@ -109,8 +106,7 @@ public interface Manager {
      */
     public Set<ASMInst> resolveSpecs(Composite implComposite, Composite instComposite, String interfaceName,
             String specName,
-            String depName,
-            Set<Filter> constraints);
+            Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * The manager is asked to find the "right" resolution for the required implementation.
@@ -127,8 +123,7 @@ public interface Manager {
      * @return an instance if resolved, null otherwise
      */
     public ASMInst resolveImpl(Composite implComposite, Composite instComposite, String samImplName, String implName,
-            String depName,
-            Set<Filter> constraints);
+            Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * The manager is asked to find the "right" resolution for the required implementation.
@@ -146,9 +141,7 @@ public interface Manager {
      * @return All the instances if resolved, null otherwise
      */
     public Set<ASMInst> resolveImpls(Composite implComposite, Composite instComposite, String samImplName,
-            String implName,
-            String depName,
-            Set<Filter> constraints);
+            String implName, Set<Filter> constraints, List<Filter> preferences);
 
     // returns the relative priority of that manager, for the resolution algorithm
     public int getPriority();
@@ -161,4 +154,12 @@ public interface Manager {
      * @param composite the new composite (or appli)
      */
     public void newComposite(ManagerModel model, Composite composite);
+
+    public ASMImpl resolveImplByName(Composite implComposite, Composite instComposite, String samImplName,
+            String implName,
+            Set<Filter> constraints, List<Filter> preferences);
+
+    public ASMImpl resolveSpecByName(Composite implComposite, Composite instComposite, String interfaceName,
+            String specName,
+            Set<Filter> constraints, List<Filter> preferences);
 }

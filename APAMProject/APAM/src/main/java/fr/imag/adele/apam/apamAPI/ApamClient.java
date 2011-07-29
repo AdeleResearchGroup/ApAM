@@ -18,7 +18,7 @@ public interface ApamClient {
      * asked for the constraints that it will require.
      * 
      * WARNING: Either (or both) interfaceName or specName are needed.
-     */ 
+     */
     public List<Filter> getConstraintsSpec(String interfaceName, String specName, String depName,
             List<Filter> initConstraints);
 
@@ -33,7 +33,8 @@ public interface ApamClient {
      * @param specName the *logical* name of that specification; different from SAM. May be null.
      * @return
      */
-    public ASMInst newWireSpec(ASMInst client, String interfaceName, String specName, String depName);
+    public ASMInst newWireSpec(ASMInst client, String interfaceName, String specName, String depName,
+            Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * An APAM client instance requires to be wired with an instance implementing the specification. WARNING : if no
@@ -46,7 +47,8 @@ public interface ApamClient {
      * @param specName the *logical* name of that specification; different from SAM. May be null.
      * @return
      */
-    public Set<ASMInst> newWireSpecs(ASMInst client, String interfaceName, String specName, String depName);
+    public Set<ASMInst> newWireSpecs(ASMInst client, String interfaceName, String specName, String depName,
+            Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * An APAM client instance requires to be wired with an instance of implementation. If found, the instance is
@@ -58,7 +60,8 @@ public interface ApamClient {
      * @param depName the dependency name
      * @return
      */
-    public ASMInst newWireImpl(ASMInst client, String samImplName, String implName, String depName);
+    public ASMInst newWireImpl(ASMInst client, String samImplName, String implName, String depName,
+            Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * An APAM client instance requires to be wired with an instance of implementation. If found, the instance is
@@ -70,7 +73,8 @@ public interface ApamClient {
      * @param depName the dependency name
      * @return
      */
-    public Set<ASMInst> newWireImpls(ASMInst client, String samImplName, String implName, String depName);
+    public Set<ASMInst> newWireImpls(ASMInst client, String samImplName, String implName, String depName,
+            Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * In the case a client realizes that a dependency disappeared, it has to call this method. APAM will try to resolve

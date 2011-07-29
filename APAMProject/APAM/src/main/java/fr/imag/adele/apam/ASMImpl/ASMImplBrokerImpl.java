@@ -173,10 +173,10 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
     }
 
     @Override
-    public ASMImpl createImpl(Composite compo, String implName, URL url, String type, String specName,
+    public ASMImpl createImpl(Composite compo, String implName, URL url, String specName,
             Attributes properties) {
 
-        if ((url == null) || (type == null) || (compo == null))
+        if ((url == null) || (compo == null))
             return null;
 
         String implNameExpected = null;
@@ -190,7 +190,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
                 return asmImpl;
             }
 
-            DeploymentUnit du = CST.SAMDUBroker.install(url, type);
+            DeploymentUnit du = CST.SAMDUBroker.install(url, "bundle");
             Set<String> implementationsNames = du.getImplementationsName();
             implNameExpected = (String) implementationsNames.toArray()[0];
 

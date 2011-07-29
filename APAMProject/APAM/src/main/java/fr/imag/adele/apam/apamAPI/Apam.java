@@ -1,7 +1,10 @@
 package fr.imag.adele.apam.apamAPI;
 
 import java.net.URL;
+import java.util.List;
 import java.util.Set;
+
+import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.util.Attributes;
@@ -22,17 +25,6 @@ public interface Apam {
      */
     public Application createAppli(String appliName, Set<ManagerModel> models, String samImplName, String implName,
             String specName, Attributes properties);
-
-    /**
-     * Creates a composite in the application in which the source pertains. A single composite with this name can exist
-     * in an application. Return null if name conflicts.
-     * 
-     * @param source The origin if the dependency relationship. The embedding composite.
-     * @param name the symbolic name. Unique in this application
-     * @param models optionnal : the associated models.
-     * @return
-     */
-    public Composite createComposite(Composite source, String name, Set<ManagerModel> models);
 
     /**
      * Creates an application from scratch, by deploying a specification, and its main implementation. First creates the
@@ -95,5 +87,11 @@ public interface Apam {
     public ASMImplBroker getImplBroker();
 
     public ASMInstBroker getInstBroker();
+
+    public ASMImpl resolveImplByName(Composite implComposite, Composite instComposite, String samImplName,
+            String implName, Set<Filter> constraints, List<Filter> preferences);
+
+    public ASMImpl resolveSpecByName(Composite implComposite, Composite instComposite, String interfaceName,
+            String specName, Set<Filter> constraints, List<Filter> preferences);
 
 }

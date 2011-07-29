@@ -38,47 +38,6 @@
 							Adele/LIG/ Grenoble University, France
 						</Bundle-Vendor>
 						<Bundle-Version>${project.version}</Bundle-Version>
-				<!-- 		<Bundle-Activator>fr.imag.adele.sam.interceptor.Activator
-						</Bundle-Activator> -->
-						
-<!--
-						<Export-Package>
-							fr.imag.adele.sam.broker.impl,
-							fr.imag.adele.sam.exported.impl,
-							fr.imag.adele.sam.impl,
-							fr.imag.adele.sam.discovery,
-							fr.imag.adele.sam.handler,
-							fr.imag.adele.sam.interceptor,
-							fr.imag.adele.sam.invocation.security.impl
-						</Export-Package>
--->
-<!--						<Import-Package>
-                            fr.imag.adele.apam.apamAPI,
-                            fr.imag.adele.sam,
-                            fr.imag.adele.sam.scm,
-                            fr.imag.adele.sam.broker,
-                            fr.imag.adele.sam.exported,
-                            fr.imag.adele.sam.exception,
-                            fr.imag.adele.sam.invocation.security,
-                            fr.imag.adele.sam.util,
-                            fr.imag.adele.sam.osgi.util,
-                            fr.imag.adele.am, 
-                            fr.imag.adele.am.broker,
-                            fr.imag.adele.am.eventing,
-                            fr.imag.adele.am.query,
-                            fr.imag.adele.am.exception,
-                            fr.imag.adele.am.exportedEntity,
-                            fr.imag.adele.service.communication
-                        </Import-Package>
--->
-<!--						<Private-Package>fr.imag.adele.sam.interceptor</Private-Package>-->
-<!--						<DynamicImport-Package>*</DynamicImport-Package>
-
-						<Include-Resource>
-							META-INF/LICENCE=LICENSE,
-							META-INF/NOTICE=NOTICE
-						</Include-Resource>
--->
 					</instructions>
 				</configuration>
 			</plugin>
@@ -95,21 +54,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			
-<!-- 			
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-ipojo-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>ipojo-bundle</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			
- -->			
 			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -161,6 +105,12 @@
 			</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+	      <groupId>org.apache.felix</groupId>
+	      <artifactId>org.apache.felix.utils</artifactId>
+	      <version>1.1.0</version>
+	      <optional>true</optional>
+	    </dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>

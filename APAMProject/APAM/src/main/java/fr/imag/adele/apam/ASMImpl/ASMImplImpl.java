@@ -23,18 +23,18 @@ import fr.imag.adele.sam.broker.ImplementationBroker;
 
 public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
-    private static ASMImplBroker        myBroker      = CST.ASMImplBroker;
-    private static ImplementationBroker samImplBroker = CST.SAMImplBroker;      ;
+    protected static ASMImplBroker        myBroker      = CST.ASMImplBroker;
+    protected static ImplementationBroker samImplBroker = CST.SAMImplBroker;      ;
 
-    private final Set<ASMImpl>          uses          = new HashSet<ASMImpl>(); // all relations uses
-    private final Set<ASMImpl>          invUses       = new HashSet<ASMImpl>(); // all reverse relations uses
+    protected final Set<ASMImpl>          uses          = new HashSet<ASMImpl>(); // all relations uses
+    protected final Set<ASMImpl>          invUses       = new HashSet<ASMImpl>(); // all reverse relations uses
 
-    private String                      name;
-    private ASMSpec                     mySpec;
-    private final Composite             myComposite;
-    private Implementation              samImpl       = null;
+    protected String                      name;
+    protected ASMSpec                     mySpec;
+    protected final Composite             myComposite;
+    protected Implementation              samImpl       = null;
 
-    private final Set<ASMInst>          instances     = new HashSet<ASMInst>();
+    protected final Set<ASMInst>          instances     = new HashSet<ASMInst>();
 
     // private int shared = ASM.SHAREABLE;
     // private int clonable = ASM.TRUE;

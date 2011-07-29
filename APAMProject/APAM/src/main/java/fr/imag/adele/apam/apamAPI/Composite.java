@@ -23,14 +23,15 @@ public interface Composite {
     public Application getApplication();
 
     /**
-     * Creates an application with name the appli name and also the name of the first composite. Main is the
-     * implementation to start.
+     * Creates a composite in the application in which the source pertains. A single composite with this name can exist
+     * in an application. Return null if name conflicts.
      * 
-     * @param name name of the appli.
-     * @param main name of the imple to start.
-     * @param start if true, instantiate main and start it.
-     * @return an Application State model.
+     * @param source The origin of the dependency relationship. The embedding composite.
+     * @param name the symbolic name. Unique in this application
+     * @param models optionnal : the associated models.
+     * @return
      */
+    public Composite createComposite(Composite father, String name, Set<ManagerModel> models);
 
     public void addDepend(Composite destination);
 
@@ -78,6 +79,14 @@ public interface Composite {
     public boolean containsInst(ASMInst inst);
 
     public Set<ASMInst> getInsts();
+
+    //TO remove ...
+
+    public void setMainSpec(ASMSpec spec);
+
+    public void setMainImpl(ASMImpl impl);
+
+    public void setMainInst(ASMInst inst);
 
     public ASMSpec getMainSpec();
 

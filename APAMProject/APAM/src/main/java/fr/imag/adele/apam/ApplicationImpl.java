@@ -59,7 +59,7 @@ public class ApplicationImpl implements Application {
         ASMImpl mainImpl;
         ASMInst mainInst;
 
-        mainImpl = CST.ASMImplBroker.createImpl(mainImplCompo, implName, url, type, specName, properties);
+        mainImpl = CST.ASMImplBroker.createImpl(mainImplCompo, implName, url, specName, properties);
         mainInst = mainImpl.createInst(mainInstCompo, properties);
 
         ((CompositeImpl) mainImplCompo).setMainSpec(mainImpl.getSpec());
@@ -160,7 +160,7 @@ public class ApplicationImpl implements Application {
         if (implName == null)
             implName = samImplName;
         samImplName = null;
-        mainInst = ((CST.apam)).resolveAppli(mainImplCompo, mainInstCompo, samImplName, implName);
+        mainInst = ((CST.apam)).resolveAppli(mainImplCompo, mainInstCompo, samImplName, implName, null, null);
         if (mainInst == null) {
             System.err.println("cannot find " + implName);
             return;

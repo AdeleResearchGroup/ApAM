@@ -38,12 +38,11 @@ public interface ASMImplBroker {
      * 
      * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
      * @param url the location of the executable to deploy
-     * @param type type of executable to deploy (bundle, jar, war, exe ...)
      * @param specName the *logical* name of that specification; different from SAM. May be null.
      * @param properties . optional : the initial properties for that implementation
      * @return an ASM Implementation
      */
-    public ASMImpl createImpl(Composite compo, String implName, URL url, String type, String specName,
+    public ASMImpl createImpl(Composite compo, String implName, URL url, String specName,
             Attributes properties);
 
     public void removeImpl(ASMImpl impl);

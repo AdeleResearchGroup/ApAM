@@ -38,13 +38,12 @@ public class CompositeImpl implements Composite {
     private final Set<Composite>          sons        = new HashSet<Composite>();
     private Composite                     father      = null;                            //null if appli
 
-    //For executable composites
-    private ASMSpec                       mainSpec    = null;
-    private ASMImpl                       mainImpl    = null;
-    private ASMInst                       mainInst    = null;
-
     // To have different names
     private int                           nbSameName  = 0;
+
+    private ASMSpec                       mainSpec0   = null;
+    private ASMImpl                       mainImpl0   = null;
+    private ASMInst                       mainInst0   = null;
 
     public String getNewName(String name) {
         String newName = name + "-" + nbSameName;
@@ -83,6 +82,26 @@ public class CompositeImpl implements Composite {
     }
 
     @Override
+    public Composite createComposite(Composite source, String name, Set<ManagerModel> models) {
+        if (source == null) {
+            System.out.println("ERROR : Source composite missing");
+            return null;
+        }
+        if (name == null) {
+            System.out.println("ERROR : Composite name missing");
+            return null;
+        }
+        if (source.getApplication().getComposite(name) != null) {
+            System.out.println("ERROR : Composite " + name + " allready exists");
+            return source.getApplication().getComposite(name);
+        }
+        Composite comp = new CompositeImpl(name, source, source.getApplication(), models);
+        ((ApplicationImpl) source.getApplication()).addComposite(comp);
+        source.addDepend(comp);
+        return comp;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -114,6 +133,7 @@ public class CompositeImpl implements Composite {
         if (impl == null)
             return;
         hasImplem.add(impl);
+        //TODO retirer  de l'ancien ???
     }
 
     /**
@@ -295,28 +315,34 @@ public class CompositeImpl implements Composite {
         return Collections.unmodifiableSet(models);
     }
 
+    @Override
+    public void setMainSpec(ASMSpec mainSpec0) {
+        this.mainSpec0 = mainSpec0;
+    }
+
+    @Override
     public ASMSpec getMainSpec() {
-        return mainSpec;
+        return mainSpec0;
     }
 
-    public ASMInst getMainInst() {
-        return mainInst;
+    @Override
+    public void setMainImpl(ASMImpl mainImpl0) {
+        this.mainImpl0 = mainImpl0;
     }
 
+    @Override
     public ASMImpl getMainImpl() {
-        return mainImpl;
+        return mainImpl0;
     }
 
-    public void setMainSpec(ASMSpec spec) {
-        mainSpec = spec;
+    @Override
+    public void setMainInst(ASMInst mainInst0) {
+        this.mainInst0 = mainInst0;
     }
 
-    public void setMainInst(ASMInst inst) {
-        mainInst = inst;
-    }
-
-    public void setMainImpl(ASMImpl impl) {
-        mainImpl = impl;
+    @Override
+    public ASMInst getMainInst() {
+        return mainInst0;
     }
 
 }
