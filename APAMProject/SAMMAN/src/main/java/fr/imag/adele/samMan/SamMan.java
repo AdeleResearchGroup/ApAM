@@ -10,6 +10,7 @@ import fr.imag.adele.am.query.Query;
 import fr.imag.adele.am.query.QueryLDAPImpl;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
@@ -68,7 +69,6 @@ public class SamMan implements Manager {
 
     @Override
     public List<Manager> getSelectionPathSpec(ASMInst from, Composite composite, String interfaceName, String specName,
-            String depName,
             Set<Filter> filter, List<Manager> involved) {
         if (opportunistSpec(specName)) {
             involved.add(this);
@@ -78,7 +78,6 @@ public class SamMan implements Manager {
 
     @Override
     public List<Manager> getSelectionPathImpl(ASMInst from, Composite composite, String samImplName, String implName,
-            String depName,
             Set<Filter> filter, List<Manager> involved) {
         if (opportunistImpl(implName))
             involved.add(this);
@@ -108,23 +107,21 @@ public class SamMan implements Manager {
 
     @Override
     public ASMInst resolveSpec(Composite implComposite, Composite instComposite, String interfaceName, String specName,
-            String depName, Set<Filter> constraints) {
-        return resolveSpec0(implComposite, instComposite, interfaceName, specName, depName, constraints, false, null);
+            Set<Filter> constraints, List<Filter> preferences) {
+        return resolveSpec0(implComposite, instComposite, interfaceName, specName, constraints, preferences, false,
+                null);
     }
 
     @Override
     public Set<ASMInst> resolveSpecs(Composite implComposite, Composite instComposite, String interfaceName,
-            String specName,
-            String depName,
-            Set<Filter> constraints) {
+            String specName, Set<Filter> constraints, List<Filter> preferences) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
-        resolveSpec0(implComposite, instComposite, interfaceName, specName, depName, constraints, true, allInst);
+        resolveSpec0(implComposite, instComposite, interfaceName, specName, constraints, preferences, true, allInst);
         return allInst;
     }
 
     public ASMInst resolveSpec0(Composite implComposite, Composite instComposite, String interfaceName,
-            String specName,
-            String depName, Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
+            String specName, Set<Filter> constraints, List<Filter> preferences, boolean multiple, Set<ASMInst> allInst) {
         if ((interfaceName == null) && (specName == null)) {
             System.err.println("ERROR : missing parameter interfaceName or specName");
             return null;
@@ -222,8 +219,7 @@ public class SamMan implements Manager {
     // Do nothing
     @Override
     public ASMInst resolveImpl(Composite implComposite, Composite instComposite, String samImplName, String implName,
-            String depName,
-            Set<Filter> constraints) {
+            Set<Filter> constraints, List<Filter> preferences) {
         // return resolveImpl0(from, samImplName, implName, depName, constraints, false, null);
         return null;
     }
@@ -233,57 +229,11 @@ public class SamMan implements Manager {
     // Do nothing
     @Override
     public Set<ASMInst> resolveImpls(Composite implComposite, Composite instComposite, String samImplName,
-            String implName,
-            String depName,
-            Set<Filter> constraints) {
+            String implName, Set<Filter> constraints, List<Filter> preferences) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
         // resolveImpl0(from, samImplName, implName, depName, constraints, true, allInst);
         return allInst;
     }
-
-    // public ASMInst resolveImpl0(ASMInst from, String samImplName, String implName, String depName,
-    // Set<Filter> constraints, boolean multiple, Set<ASMInst> allInst) {
-    // if ((samImplName == null) && (implName == null)) {
-    // System.out.println("ERROR : missing parameter samImplName or implName in resolveImpl");
-    // return null;
-    // }
-    // if (from == null) {
-    // System.out.println("ERROR : missing parameter from in resolveImpl");
-    // return null;
-    // }
-    //
-    // try {
-    // Query query = null;
-    // Filter filter;
-    // ASMImpl impl;
-    // Set<Instance> samInsts;
-    //
-    // if ((constraints != null) && (constraints.size() > 0)) {
-    // filter = Util.buildFilter(constraints);
-    // query = new QueryLDAPImpl(filter.toString());
-    // }
-    // // Is the impl known by Apam (either a sam name or logical name) ?
-    // if ((implName != null) && (CST.ASMImplBroker.getImpl(implName) != null)) {
-    // impl = CST.ASMImplBroker.getImpl(implName);
-    // } else {
-    // impl = CST.ASMImplBroker.getImplSamName(implName);
-    // }
-    // if (impl == null)
-    // return null;
-    //
-    // samInsts = SamMan.SAMImplBroker.getInstances(impl.getSamImpl().getImplPid(), query);
-    // if ((samInsts == null) || (samInsts.size() == 0))
-    // return null;
-    // Instance theInstance = (Instance) samInsts.toArray()[0];
-    // if (CST.ASMInstBroker.getInst(theInstance) != null) {
-    // return CST.ASMInstBroker.getInst(theInstance);
-    // }
-    // return CST.ASMInstBroker.addInst(from.getComposite(), theInstance, implName, null, null);
-    // } catch (Exception e) {
-    // }
-    //
-    // return null;
-    // }
 
     @Override
     public int getPriority() {
@@ -299,6 +249,18 @@ public class SamMan implements Manager {
     public List<Filter> getConstraintsSpec(String interfaceName, String specName, String depName,
             List<Filter> initConstraints) {
         return initConstraints;
+    }
+
+    @Override
+    public ASMImpl resolveImplByName(Composite implComposite, Composite instComposite, String samImplName,
+            String implName, Set<Filter> constraints, List<Filter> preferences) {
+        return null;
+    }
+
+    @Override
+    public ASMImpl resolveSpecByName(Composite implComposite, Composite instComposite, String interfaceName,
+            String specName, Set<Filter> constraints, List<Filter> preferences) {
+        return null;
     }
 
 }
