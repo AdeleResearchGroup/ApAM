@@ -114,10 +114,12 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
         /*
          * Validate an APAM component name is specified, otherwise use the iPojo component name
          */
-        String componentName = componentMetadata.getAttribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY,DependencyManager.APAM_NAMESPACE);
+        String componentName = componentMetadata.getAttribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY,
+                DependencyManager.APAM_NAMESPACE);
         if (componentName == null) {
             componentName = componentDescriptor.getName();
-            componentMetadata.addAttribute(new Attribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY,DependencyManager.APAM_NAMESPACE,componentName));
+            componentMetadata.addAttribute(new Attribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY,
+                    DependencyManager.APAM_NAMESPACE, componentName));
         }
 
         /*
@@ -319,7 +321,7 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
      * @see org.apache.felix.ipojo.Handler#configure(org.apache.felix.ipojo.metadata.Element, java.util.Dictionary)
      */
     @SuppressWarnings("rawtypes")
-	@Override
+    @Override
     public void configure(Element componentMetadata, Dictionary configuration) throws ConfigurationException {
         /*
          * Get component information and add interceptors to delegate dependency resolution
@@ -328,8 +330,10 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
          * including initializing unspecified properties with appropriate default values. Here we just assume metadata
          * is correct.
          */
-        apamComponent = componentMetadata.getAttribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY,DependencyManager.APAM_NAMESPACE);
-        apamSpecification = componentMetadata.getAttribute(DependencyManager.COMPONENT_SPECIFICATION_PROPERTY,DependencyManager.APAM_NAMESPACE);
+        apamComponent = componentMetadata.getAttribute(DependencyManager.COMPONENT_IMPLEMENTATION_PROPERTY,
+                DependencyManager.APAM_NAMESPACE);
+        apamSpecification = componentMetadata.getAttribute(DependencyManager.COMPONENT_SPECIFICATION_PROPERTY,
+                DependencyManager.APAM_NAMESPACE);
 
         dependencies = new HashMap<String, Dependency>();
 
@@ -405,29 +409,29 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
      * This method will be invoked by APAM to get a minimal model of the dependencies known by this handler
      */
     public Set<DependencyModel> getDependencies() {
-    	Set<DependencyModel> dependenciesModel = new HashSet<DependencyModel>();
-    	
-    	for (Dependency dependency : dependencies.values()) {
-    		DependencyModel dependencyModel = new DependencyModel();
-    		dependencyModel.dependencyName	= dependency.getName();
-    		dependencyModel.isMultiple		= dependency.isAggregate();
-    		dependencyModel.target			= dependency.getTarget();
-    		switch (dependency.getKind()) {
-			case INTERFACE:
-				dependencyModel.targetKind = TargetKind.INTERFACE;
-				break;
-			case SPECIFICATION:
-				dependencyModel.targetKind = TargetKind.SPECIFICATION;
-				break;
-			case IMPLEMENTATION:
-				dependencyModel.targetKind = TargetKind.IMPLEMENTATION;
-				break;
-			}
-			dependenciesModel.add(dependencyModel);
-		}
-    	return dependenciesModel;
+        Set<DependencyModel> dependenciesModel = new HashSet<DependencyModel>();
+
+        for (Dependency dependency : dependencies.values()) {
+            DependencyModel dependencyModel = new DependencyModel();
+            dependencyModel.dependencyName = dependency.getName();
+            dependencyModel.isMultiple = dependency.isAggregate();
+            dependencyModel.target = dependency.getTarget();
+            switch (dependency.getKind()) {
+                case INTERFACE:
+                    dependencyModel.targetKind = TargetKind.INTERFACE;
+                    break;
+                case SPECIFICATION:
+                    dependencyModel.targetKind = TargetKind.SPECIFICATION;
+                    break;
+                case IMPLEMENTATION:
+                    dependencyModel.targetKind = TargetKind.IMPLEMENTATION;
+                    break;
+            }
+            dependenciesModel.add(dependencyModel);
+        }
+        return dependenciesModel;
     }
-    
+
     @Override
     public void stop() {
     }
@@ -485,21 +489,21 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
         switch (dependency.getKind()) {
             case IMPLEMENTATION:
                 if (dependency.isScalar())
-                    apam.newWireImpl(thisInstance, null, dependency.getTarget(), dependency.getName());
+                    apam.newWireImpl(thisInstance, null, dependency.getTarget(), dependency.getName(), null, null);
                 else
-                    apam.newWireImpls(thisInstance, null, dependency.getTarget(), dependency.getName());
+                    apam.newWireImpls(thisInstance, null, dependency.getTarget(), dependency.getName(), null, null);
                 break;
             case SPECIFICATION:
                 if (dependency.isScalar())
-                    apam.newWireSpec(thisInstance, null, dependency.getTarget(), dependency.getName());
+                    apam.newWireSpec(thisInstance, null, dependency.getTarget(), dependency.getName(), null, null);
                 else
-                    apam.newWireSpecs(thisInstance, null, dependency.getTarget(), dependency.getName());
+                    apam.newWireSpecs(thisInstance, null, dependency.getTarget(), dependency.getName(), null, null);
                 break;
             case INTERFACE:
                 if (dependency.isScalar())
-                    apam.newWireSpec(thisInstance, dependency.getTarget(), null, dependency.getName());
+                    apam.newWireSpec(thisInstance, dependency.getTarget(), null, dependency.getName(), null, null);
                 else
-                    apam.newWireSpecs(thisInstance, dependency.getTarget(), null, dependency.getName());
+                    apam.newWireSpecs(thisInstance, dependency.getTarget(), null, dependency.getName(), null, null);
                 break;
         }
     }
