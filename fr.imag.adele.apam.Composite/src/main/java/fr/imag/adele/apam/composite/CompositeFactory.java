@@ -4,7 +4,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.felix.ipojo.ComponentFactory;
 import org.apache.felix.ipojo.ComponentInstance;
@@ -103,22 +105,22 @@ public class CompositeFactory extends ComponentFactory {
     /**
      * The name of the APAM component for the main instance of the composite
      */
-    private String                   apamComponent;
+    private String                  apamComponent;
 
     /**
      * The name of the APAM specification for the main instance of the composite
      */
-    private String                   apamSpecification;
+    private String                  apamSpecification;
 
     /**
      * The list of provided interfaces for the main instance of the component
      */
-    private final String[]           apamInterfaces;
+    private final String[]          apamInterfaces;
 
     /**
      * The list of models associated to this composite
      */
-    private final List<ManagerModel> managerModels;
+    private final Set<ManagerModel> managerModels;
 
     /**
      * Build a new factory with the specified metadata
@@ -151,7 +153,7 @@ public class CompositeFactory extends ComponentFactory {
         /*
          * look for manager models in the root directory of the bundle
          */
-        managerModels = new ArrayList<ManagerModel>();
+        managerModels = new HashSet<ManagerModel>();
 
         @SuppressWarnings("unchecked")
         Enumeration<String> paths = context.getBundle().getEntryPaths("/");
@@ -274,7 +276,7 @@ public class CompositeFactory extends ComponentFactory {
     /**
      * Get The list of models associated to this composite
      */
-    public List<ManagerModel> getManagerModels() {
+    public Set<ManagerModel> getManagerModels() {
         return managerModels;
 
     }
