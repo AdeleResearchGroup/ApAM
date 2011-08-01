@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -182,42 +183,37 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     private Resource lookForPref(String capability, List<Filter> preferences, Set<Resource> candidates) {
-        Resource winner = null;
-        int maxMatch = 0;
-        int match = 0;
-        try {
-            for (Resource res : candidates) {
-                Capability[] capabilities = res.getCapabilities();
-                for (Capability aCap : capabilities) {
-                    if (aCap.getName().equals(capability)) {
-                        match = matchPreferences(capabilities, preferences);
-                        if (match > maxMatch) {
-                            maxMatch = match;
-                            winner = res;
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (winner == null) {
-            System.out.println("   Not Found");
-        } else {
-            System.out.println("   Found : " + winner.getSymbolicName());
-        }
-        return winner;
-    }
-
-    private int matchPreferences(Capability[] capabilities, List<Filter> preferences) {
-        FilterImpl filter;
+        if (candidates.isEmpty())
+            return null;
         //trace
-        System.out.print("maching constraints : ");
+        System.out.print("preferences : ");
         for (Filter constraint : preferences) {
             System.out.print(constraint + ", ");
         }
         System.out.println("");
         //fin trace
+
+        Resource winner = null;
+        int maxMatch = -1;
+        int match = 0;
+        for (Resource res : candidates) {
+            Capability[] capabilities = res.getCapabilities();
+            for (Capability aCap : capabilities) {
+                if (aCap.getName().equals(capability)) {
+                    match = matchPreferences(capabilities, preferences);
+                    if (match > maxMatch) {
+                        maxMatch = match;
+                        winner = res;
+                    }
+                }
+            }
+        }
+        System.out.println("   Found : " + winner.getSymbolicName());
+        return winner;
+    }
+
+    private int matchPreferences(Capability[] capabilities, List<Filter> preferences) {
+        FilterImpl filter;
         for (Capability aCap : capabilities) {
             if (aCap.getName().equals("apam-component")) {
                 Map map = aCap.getPropertiesAsMap();
@@ -234,6 +230,7 @@ public class OBRMan implements Manager, IOBRMAN {
                         System.err.println("invalid syntax in filter : " + constraint.toString());
                     }
                 }
+                return match;
             }
         }
         return 0;
@@ -454,8 +451,10 @@ public class OBRMan implements Manager, IOBRMAN {
             Set<Filter> constraints, List<Filter> preferences) {
 
         // temporary 
+        if (preferences == null)
+            preferences = new ArrayList<Filter>();
         try {
-            Filter f = FilterImpl.newInstance("(apam-composite=TRUE)");
+            Filter f = FilterImpl.newInstance("(apam-composite=true)");
             preferences.add(f);
         } catch (InvalidSyntaxException e) {
             e.printStackTrace();
@@ -488,8 +487,10 @@ public class OBRMan implements Manager, IOBRMAN {
             String specName, Set<Filter> constraints, List<Filter> preferences) {
 
         // temporary 
+        if (preferences == null)
+            preferences = new ArrayList<Filter>();
         try {
-            Filter f = FilterImpl.newInstance("(apam-composite=TRUE)");
+            Filter f = FilterImpl.newInstance("(apam-composite=true)");
             preferences.add(f);
         } catch (InvalidSyntaxException e) {
             e.printStackTrace();
@@ -523,8 +524,10 @@ public class OBRMan implements Manager, IOBRMAN {
         Resource selected = null;
 
         // temporary 
+        if (preferences == null)
+            preferences = new ArrayList<Filter>();
         try {
-            Filter f = FilterImpl.newInstance("(apam-composite=TRUE)");
+            Filter f = FilterImpl.newInstance("(apam-composite=true)");
             preferences.add(f);
         } catch (InvalidSyntaxException e) {
             e.printStackTrace();
@@ -532,12 +535,13 @@ public class OBRMan implements Manager, IOBRMAN {
         //end
 
         if (implName != null) {
-            selected = lookFor("apam-component", "(apam-implementation=" + implName + ")", constraints, preferences);
+            selected = lookFor(CST.CAPABILITY_COMPONENT, "(apam-implementation=" + implName + ")", constraints,
+                    preferences);
         }
         if (selected == null) { //look by bundle name. First apam component by bundle name
             if (samImplName == null)
                 samImplName = implName;
-            selected = lookFor("apam-component", "(name=" + samImplName + ")", constraints, preferences);
+            selected = lookFor(CST.CAPABILITY_COMPONENT, "(name=" + samImplName + ")", constraints, preferences);
         }
         if (selected == null) { //legacy iPOJO component
             selected = lookFor("component", "(name=" + samImplName + ")", constraints, preferences);
@@ -613,6 +617,9 @@ public class OBRMan implements Manager, IOBRMAN {
             System.out.println("new local repo : " + local.getURI());
             resolver = repoAdmin.resolver();
             allResources = local.getResources(); // read once for each session, and cached.
+            //            for (Resource res : allResources) {
+            //                printRes(res);
+            //            }
         }
     }
 
@@ -641,8 +648,8 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     @Override
-    public Resource getResource(String capability, String filterStr, Set<Filter> constraints) {
-        return lookFor(capability, filterStr, constraints);
+    public Resource getResource(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences) {
+        return lookFor(capability, filterStr, constraints, preferences);
     }
 
     @Override

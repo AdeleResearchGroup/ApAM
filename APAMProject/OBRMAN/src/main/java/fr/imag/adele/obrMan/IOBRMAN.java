@@ -1,5 +1,6 @@
 package fr.imag.adele.obrMan;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.felix.bundlerepository.Resource;
@@ -30,7 +31,7 @@ public interface IOBRMAN {
      * @param constraints a set of filters. Can be null.
      * @return a resource matching filterStr and all constraints.
      */
-    public Resource getResource(String capability, String filterStr, Set<Filter> constraints);
+    public Resource getResource(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * Install and starts the associated resource. False if it could not be successfully deployed.
