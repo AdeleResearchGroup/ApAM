@@ -12,6 +12,7 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Application;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.Manager;
+import fr.imag.adele.apam.apamAPI.CompExType;
 
 public class CompositeImpl implements Composite {
 
@@ -65,13 +66,18 @@ public class CompositeImpl implements Composite {
         ((ApplicationImpl) appli).addComposite(this);
         this.models = models;
         if (father != null) { //father is null when creating an application, or instance composite.
-            ((CompositeImpl) father).addSon(this);
+            if (father instanceof CompositeImpl) {
+                ((CompositeImpl) father).addSon(this);
+                ((CompositeImpl) father).addDepend(this);
+            } else {
+                ((CompExTypeImpl) father).getCompositeMe().addSon(this);
+                ((CompExTypeImpl) father).getCompositeMe().addDepend(this);
+            }
             this.father = father;
-            ((CompositeImpl) father).addDepend(this);
-            addInvDepend(father);
         }
-        Manager man;
+
         if (models != null) {
+            Manager man;
             for (ManagerModel managerModel : models) { // call the managers to indicate the new composite and the model
                 man = CST.apam.getManager(managerModel.getManagerName());
                 if (man != null) {

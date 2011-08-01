@@ -33,12 +33,11 @@ import fr.imag.adele.apam.util.AttributesImpl;
 public class APAMImpl implements Apam, ApamClient, ManagersMng {
 
     // The applications
-    private static Map<String, Application> applications = new ConcurrentHashMap<String, Application>();
-    private static Manager                  apamMan;
+    private static Manager               apamMan;
 
     // int is the priority
-    private static Map<Manager, Integer>    managersPrio = new HashMap<Manager, Integer>();
-    private static List<Manager>            managerList  = new ArrayList<Manager>();
+    private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
+    private static List<Manager>         managerList  = new ArrayList<Manager>();
 
     public APAMImpl() {
         new CST(this);
@@ -72,8 +71,8 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     public ASMImpl resolveImplByName(Composite implComposite, Composite instComposite, String samImplName,
             String implName, Set<Filter> constraints, List<Filter> preferences) {
         //TODO
-        return null;
-
+        ASMInst inst = resolveAppli(implComposite, instComposite, samImplName, implName, constraints, preferences);
+        return inst.getImpl();
     }
 
     @Override
@@ -351,95 +350,6 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     }
 
     @Override
-    public Application createAppliDeployImpl(String appliName, Set<ManagerModel> models, String implName, URL url,
-            String type, String specName, Attributes properties) {
-        if ((appliName == null) || (url == null) || (type == null)) {
-            System.err.println("ERROR : missing parameters for create application");
-            return null;
-        }
-        if (getApplication(appliName) != null) {
-            System.out.println("Warning : Application allready existing, creating another instance");
-        }
-
-        if (APAMImpl.applications.get(appliName) != null)
-            appliName = ((ApplicationImpl) APAMImpl.applications.get(appliName)).getNewName();
-
-        Application appli = new ApplicationImpl(appliName, models, implName, url, type, specName, properties);
-        if (appli != null) {
-            APAMImpl.applications.put(appliName, appli);
-            //            appli.getMainImpl().createInst(appli.getMainInstComposite(), properties);
-        }
-        return appli;
-    }
-
-    @Override
-    public Application createAppli(String appliName, Set<ManagerModel> models, String samImplName, String implName,
-            String specName, Attributes properties) {
-        if (appliName == null) {
-            System.err.println("ERROR : appli Name is missing in create Appli");
-            return null;
-        }
-        if (getApplication(appliName) != null) {
-            System.out.println("Warning : Application allready existing, creating another instance");
-            // return null ;
-            return null;
-        }
-
-        Application appli = new ApplicationImpl(appliName, models, samImplName, implName, specName, properties);
-        if (appli != null)
-            APAMImpl.applications.put(appliName, appli);
-        return appli;
-    }
-
-    /**
-     * Creates an application from scratch, by deploying an implementation. First creates the root composites
-     * (compositeName), associates its models (models). Then install an implementation (implName) from its URL,
-     * considered as the application Main. All parameters are mandatory.
-     * 
-     * @param compositeName The name of the root composite.
-     * @param models The manager models
-     * @param specName optional : the logical name of the associated specification
-     * @param specUrl Location of the code (interfaces) associated with the main specification.
-     * @param specType Type of packaging for the code (interfaces) associated with the main specification.
-     * @param properties The initial properties for the Implementation.
-     * @return The new created application.
-     */
-    @Override
-    public Application createAppliDeploySpec(String appliName, Set<ManagerModel> models, String specName, URL specUrl,
-            String specType, String[] interfaces, Attributes properties) {
-        if ((appliName == null) || (specName == null) || (specUrl == null) || (specType == null)
-                || (interfaces == null)) {
-            System.err.println("ERROR : missing parameters for create application");
-            return null;
-        }
-        if (getApplication(appliName) != null) {
-            System.out.println("Warning : Application allready existing, creating another instance");
-        }
-
-        if (APAMImpl.applications.get(appliName) != null)
-            appliName = ((ApplicationImpl) APAMImpl.applications.get(appliName)).getNewName();
-
-        Application appli = new ApplicationImpl(appliName, models, specName, specUrl, specType, interfaces, properties);
-        if (appli != null)
-            APAMImpl.applications.put(appliName, appli);
-        return appli;
-    }
-
-    @Override
-    public Application getApplication(String name) {
-        for (Application appli : APAMImpl.applications.values()) {
-            if (name.equals(appli.getName()))
-                return appli;
-        }
-        return null;
-    }
-
-    @Override
-    public Set<Application> getApplications() {
-        return new HashSet<Application>(APAMImpl.applications.values());
-    }
-
-    @Override
     public int getPriority(Manager manager) {
         return APAMImpl.managersPrio.get(manager);
     }
@@ -560,5 +470,34 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     @Override
     public ASMInstBroker getInstBroker() {
         return CST.ASMInstBroker;
+    }
+
+    @Override
+    public Application createAppli(String appliName, Set<ManagerModel> models, String samImplName, String implName,
+            String specName, Attributes properties) {
+        return ApplicationImpl.createAppli(appliName, models, samImplName, implName, specName, properties);
+    }
+
+    @Override
+    public Application createAppliDeploySpec(String appliName, Set<ManagerModel> models, String specName, URL specUrl,
+            String specType, String[] interfaces, Attributes properties) {
+        return ApplicationImpl.createAppliDeploySpec(appliName, models, specName, specUrl, specType, interfaces,
+                properties);
+    }
+
+    @Override
+    public Application createAppliDeployImpl(String appliName, Set<ManagerModel> models, String implName, URL url,
+            String type, String specName, Attributes properties) {
+        return ApplicationImpl.createAppliDeployImpl(appliName, models, implName, url, specName, properties);
+    }
+
+    @Override
+    public Application getApplication(String name) {
+        return ApplicationImpl.getApplication(name);
+    }
+
+    @Override
+    public Set<Application> getApplications() {
+        return ApplicationImpl.getApplications();
     }
 }

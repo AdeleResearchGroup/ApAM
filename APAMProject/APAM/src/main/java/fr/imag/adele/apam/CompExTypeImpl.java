@@ -2,6 +2,7 @@ package fr.imag.adele.apam;
 
 import java.net.URL;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.felix.utils.filter.FilterImpl;
@@ -31,13 +32,16 @@ public class CompExTypeImpl extends ASMImplImpl implements CompExType, Composite
     private final ASMImpl   mainImpl;
 
     //    private final Set<ManagerModel> models;
+    public CompositeImpl getCompositeMe() {
+        return (CompositeImpl) me;
+    }
 
     // mainSpec == this.getSpec ()
     private CompExTypeImpl(Composite meParam, Application appli, String implName, Implementation samImpl,
-            Set<ManagerModel> models,
-            ASMImpl mainImplparam) {
+            Set<ManagerModel> models, ASMImpl mainImplparam) {
         //the composite itself as an ASMImpl
-        super(null, implName, (ASMSpecImpl) mainImplparam.getSpec(), samImpl, null);
+        //Warning father is itself !!
+        super(meParam, implName, (ASMSpecImpl) mainImplparam.getSpec(), samImpl, null);
         me = meParam;
         mainImplName = implName;
         mainImpl = mainImplparam;
@@ -45,8 +49,7 @@ public class CompExTypeImpl extends ASMImplImpl implements CompExType, Composite
     }
 
     private CompExTypeImpl(Composite meParam, Composite father, String implName, Implementation samImpl,
-            Set<ManagerModel> models,
-            ASMImpl mainImplparam) {
+            Set<ManagerModel> models, ASMImpl mainImplparam) {
         //the composite itself as an ASMImpl
         super(father, implName, (ASMSpecImpl) mainImplparam.getSpec(), samImpl, null);
         me = meParam;
@@ -57,10 +60,11 @@ public class CompExTypeImpl extends ASMImplImpl implements CompExType, Composite
 
     public static CompExType createCompExType(Application appli, String implName, Set<ManagerModel> models) {
         ASMImpl mainImpl = null;
-        Composite meParam = new CompositeImpl(implName, null, appli, models);
         if (implName == null) {
             System.err.println("ERROR : Name missing");
+            new Exception("ERROR : Name missing").printStackTrace();
         }
+        Composite meParam = new CompositeImpl(implName, null, appli, models);
         //BUG : the instance should not have been created. It will be lost 
         ASMInst mainInst = ((CST.apam)).resolveAppli(meParam, meParam, implName, implName, null, null);
         if (mainInst == null) {
@@ -72,7 +76,8 @@ public class CompExTypeImpl extends ASMImplImpl implements CompExType, Composite
             System.err.println("Error parameters missing for CompomEx " + implName);
             return null;
         }
-        return new CompExTypeImpl(meParam, appli, implName, mainImpl.getSamImpl(), models, mainImpl);
+        CompExType newComp = new CompExTypeImpl(meParam, appli, implName, mainImpl.getSamImpl(), models, mainImpl);
+        return newComp;
     }
 
     public static CompExType createCompExType(Composite implComposite, String implName, Set<ManagerModel> models) {
@@ -80,6 +85,7 @@ public class CompExTypeImpl extends ASMImplImpl implements CompExType, Composite
         Composite meParam = new CompositeImpl(implName, implComposite, implComposite.getApplication(), models);
         if (implName == null) {
             System.err.println("ERROR : Name missing");
+            new Exception("ERROR : Name missing").printStackTrace();
         }
         //BUG : the instance should not have been created. It will be lost 
         ASMInst mainInst = ((CST.apam)).resolveAppli(implComposite, implComposite, implName, implName, null, null);
@@ -120,17 +126,9 @@ public class CompExTypeImpl extends ASMImplImpl implements CompExType, Composite
         ASMImpl mainImpl = null;
         Composite meParam = new CompositeImpl(samImpl.getName(), implComposite, implComposite.getApplication(), models);
         if (implName != null) { //Look for by name
-            //Do not select another composite
-            Set<Filter> constraints = new HashSet<Filter>();
-            try {
-                Filter f = FilterImpl.newInstance("(!(apam-composite=TRUE))");
-                constraints.add(f);
-            } catch (InvalidSyntaxException e) {
-                e.printStackTrace();
-            }
 
             mainImpl = ((CST.apam)).resolveImplByName(implComposite, implComposite, implName, implName,
-                            constraints, null);
+                            null, null);
             if (mainImpl == null) {
                 System.err.println("cannot find " + implName);
                 return null;
@@ -142,6 +140,15 @@ public class CompExTypeImpl extends ASMImplImpl implements CompExType, Composite
             if (interfaces != null) {
                 mainImpl = null;
             }
+            //Do not select another composite
+            //            Set<Filter> constraints = new HashSet<Filter>();
+            //            try {
+            //                Filter f = FilterImpl.newInstance("(!(apam-composite=true))");
+            //                constraints.add(f);
+            //            } catch (InvalidSyntaxException e) {
+            //                e.printStackTrace();
+            //            }
+            //resolveSpecByName
         }
         if (mainImpl == null) {
             System.err.println("Error parameters missing for CompomEx " + samImpl.getName());
@@ -183,7 +190,7 @@ public class CompExTypeImpl extends ASMImplImpl implements CompExType, Composite
 
     @Override
     public ASMInst createInst(Composite instCompo, Attributes initialproperties) {
-        ASMInst mainInst = mainImpl.createInst(instCompo, initialproperties);
+        //ASMInst mainInst = mainImpl.createInst(instCompo, initialproperties);
         CompExInstImpl compEx = (CompExInstImpl) CompExInstImpl.createCompExInst(this, instCompo, initialproperties);
 
         return compEx;

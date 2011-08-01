@@ -136,9 +136,9 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
 
             asmImpl = new ASMImplImpl(compo, implName, spec, samImpl, properties);
 
-            Application appli = asmImpl.getComposite().getApplication();
-            if ((asmImpl.getSpec() == appli.getMainSpec()) && (appli.getMainImpl() == null))
-                ((ApplicationImpl) appli).setMainImpl(asmImpl);
+            //          Application appli = asmImpl.getComposite().getApplication();
+            //            if ((asmImpl.getSpec() == appli.getMainSpec()) && (appli.getMainImpl() == null))
+            //                ((ApplicationImpl) appli).setMainImpl(asmImpl);
 
             return asmImpl;
 
@@ -206,9 +206,9 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
 
         asmImpl = addImpl0(compo, implName, samImpl, specName, properties);
         // in case it is the main implementation
-        Application appli = asmImpl.getComposite().getApplication();
-        if ((asmImpl.getSpec() == appli.getMainSpec()) && (appli.getMainImpl() == null))
-            ((ApplicationImpl) appli).setMainImpl(asmImpl);
+        //        Application appli = asmImpl.getComposite().getApplication();
+        //        if ((asmImpl.getSpec() == appli.getMainSpec()) && (appli.getMainImpl() == null))
+        //            ((ApplicationImpl) appli).setMainImpl(asmImpl);
         return asmImpl;
     }
 

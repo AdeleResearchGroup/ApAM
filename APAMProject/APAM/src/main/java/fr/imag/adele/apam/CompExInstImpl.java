@@ -26,12 +26,14 @@ public class CompExInstImpl extends ASMInstImpl implements CompExInst, Composite
 
     // mainSpec == this.getSpec ()
 
-    private CompExInstImpl(CompExType father, Composite instCompo, Instance samCompInst, ASMInst asmInst) {
+    private CompExInstImpl(CompExType father, Composite instCompo, ASMInst asmInst) {
         //the composite instance as an ASMInst
-        super((ASMImpl) father, instCompo, null, samCompInst);
-
+        //directly refers to the sam object associated with the main instance.
+        super((ASMImpl) father, instCompo, null, asmInst.getSAMInst());
         //create main instance
         me = new CompositeImpl(asmInst.getASMName(), father, father.getApplication(), null);
+        //because constructor needs the instance, and the instance need the composite ...
+        ((ASMInstImpl) asmInst).setComposite(this);
         compType = father;
         mainInst = asmInst;
         mainImpl = asmInst.getImpl();
@@ -40,25 +42,32 @@ public class CompExInstImpl extends ASMInstImpl implements CompExInst, Composite
     //@Override
     public static CompExInst createCompExInst(CompExType compExType, Composite instCompo, Attributes initialproperties) {
         Set<ManagerModel> models = null;
-        //look for main implem. Deploy if needed.
         ASMInst asmInst;
         Instance samCompInst = null;
-        try {
-            samCompInst = ((ASMImplImpl) compExType).getSamImpl().createInstance(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (compExType.getMainImpl() != null) {
-            asmInst = compExType.getMainImpl().createInst(instCompo, initialproperties);
-            return new CompExInstImpl(compExType, instCompo, samCompInst, asmInst);
-        }
-        //look by name. Deploy if needed.
-        asmInst = (CST.apam).resolveAppli(compExType, instCompo, compExType.getMainImplName(), null, null, null);
-        if (asmInst == null)
+        if (compExType == null) {
+            System.err.println("ERROR :  missing type in createCompExInst");
             return null;
-
-        return new CompExInstImpl(compExType, instCompo, samCompInst, asmInst);
+        }
+        //        try {
+        //            samCompInst = ((ASMImplImpl) compExType).getSamImpl().createInstance(null);
+        //        } catch (Exception e) {
+        //            e.printStackTrace();
+        //        }
+        //        if (compExType.getMainImpl() != null) {
+        //        if (instCompo == null) { //an application
+        //            instCompo = this ;
+        //        }
+        asmInst = compExType.getMainImpl().createInst(null, initialproperties);
+        return new CompExInstImpl(compExType, instCompo, asmInst);
     }
+
+    //look by name. Deploy if needed.
+    //        asmInst = (CST.apam).resolveAppli(compExType, instCompo, compExType.getMainImplName(), null, null, null);
+    //        if (asmInst == null)
+    //            return null;
+    //
+    //        return new CompExInstImpl(compExType, instCompo, samCompInst, asmInst);
+    //    }
 
     @Override
     public ASMInst getMainInst() {

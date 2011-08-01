@@ -42,8 +42,8 @@ public class CST {
     // shared on an implementation indicates if its instances can have more than one incoming wire
     public static final String         A_SHARED                               = "SHARED";
     //for boolean attributes
-    public static final String         V_TRUE                                 = "TRUE";
-    public static final String         V_FALSE                                = "FALSE";
+    public static final String         V_TRUE                                 = "true";
+    public static final String         V_FALSE                                = "false";
 
     // Managers
     public static final String         APAMMAN                                = "APAMMAN";
@@ -56,6 +56,10 @@ public class CST {
     //Property names of composites
     //Value boolean
     public static final String         PROPERTY_COMPOSITE                     = "apam-composite";
+    //Capability
+    public static final String         CAPABILITY_COMPONENT                   = "apam-component";
+    //Capability
+    public static final String         CAPABILITY_INTERFACE                   = "apam-interface";
     //String
     public static final String         PROPERTY_COMPOSITE_MAIN_IMPLEMENTATION = "apam-implementation";
     //String

@@ -42,8 +42,10 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
     public ASMInstImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, Instance samInst) {
         myImpl = impl;
-        myComposite = instCompo;
-        instCompo.addInst(this);
+        if (instCompo != null) { //only if main appli instance.
+            myComposite = instCompo;
+            instCompo.addInst(this);
+        }
         if (samInst == null) {
             System.err.println("ERROR : sam instance cannot be null on ASM instance constructor");
             return;
@@ -83,14 +85,26 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             }
 
             setProperties(Util.mergeProperties(this, initialproperties, samInst.getProperties()));
-            this.setProperty(Attributes.APAMAPPLI, myComposite.getApplication().getName());
-            this.setProperty(Attributes.APAMCOMPO, myComposite.getName());
 
-            myComposite.addInst(this);
+            if (myComposite != null) { //instance of main appli !! 
+                this.setProperty(Attributes.APAMAPPLI, myComposite.getApplication().getName());
+                this.setProperty(Attributes.APAMCOMPO, myComposite.getName());
+                myComposite.addInst(this);
+                // Done in setComposite
+            }
+
             ((ASMImplImpl) impl).addInst(this);
         } catch (ConnectionException e1) {
             e1.printStackTrace();
         }
+    }
+
+    // only for main appli instance.
+    public void setComposite(Composite instCompo) {
+        myComposite = instCompo;
+        this.setProperty(Attributes.APAMAPPLI, instCompo.getApplication().getName());
+        this.setProperty(Attributes.APAMCOMPO, instCompo.getName());
+        instCompo.addInst(this);
     }
 
     @Override

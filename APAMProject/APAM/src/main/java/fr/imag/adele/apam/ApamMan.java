@@ -17,7 +17,8 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.util.AttributesImpl;
-import fr.imag.adele.apam.util.Util;
+
+//import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements Manager {
 
@@ -141,7 +142,7 @@ public class ApamMan implements Manager {
         if (impl != null) {
             // Set<ASMInst> sharable = ASM.ASMInstBroker.getShareds(impl, client.getComposite().getApplication(), client
             // .getComposite());
-            boolean valide = false;
+            //boolean valide = false;
             for (ASMInst inst : impl.getInsts()) {
                 if (Wire.checkNewWire(implComposite, inst)) {
                     boolean satisfies = true;
@@ -257,39 +258,21 @@ public class ApamMan implements Manager {
 
     private ASMImpl matchPreferences(Set<ASMImpl> candidates, List<Filter> preferences) {
         ASMImpl winner = null;
-        int maxMatch = 0;
-        int match = 0;
+        int maxMatch = -1;
         for (ASMImpl impl : candidates) {
-            match = matchPreferences(impl, preferences);
+            int match = 0;
+            for (Filter filter : preferences) {
+                if (!filter.match((AttributesImpl) impl.getProperties()))
+                    break;
+                match++;
+            }
             if (match > maxMatch) {
                 maxMatch = match;
                 winner = impl;
             }
         }
-        if (winner == null) {
-            System.out.println("   Not Found");
-        } else {
-            System.out.println("   Found : " + winner);
-        }
+        System.out.println("   Selected : " + winner);
         return winner;
-    }
-
-    private int matchPreferences(ASMImpl impl, List<Filter> preferences) {
-        //trace
-        System.out.print("maching constraints : ");
-        for (Filter constraint : preferences) {
-            System.out.print(constraint + ", ");
-        }
-        System.out.println("");
-        //fin trace
-        int match = 0;
-        for (Filter filter : preferences) {
-            if (!filter.match((AttributesImpl) impl.getProperties())) {
-                break;
-            }
-            match++;
-        }
-        return match;
     }
 
 }

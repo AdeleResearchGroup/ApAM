@@ -1,16 +1,13 @@
 package fr.imag.adele.apam.apamAPI;
 
+import java.net.URL;
 import java.util.Set;
 
+import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.util.Attributes;
 
 public interface Application {
 
-    /**
-     * Provides the root composite for that application instance
-     * 
-     * @return
-     */
     public Composite getMainImplComposite();
 
     /**
