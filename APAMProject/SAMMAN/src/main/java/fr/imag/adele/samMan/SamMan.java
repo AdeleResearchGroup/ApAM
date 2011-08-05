@@ -160,29 +160,6 @@ public class SamMan implements Manager {
                     allInstances.add(in);
             }
 
-            // Last chance look for an implementation that implements the interface.
-            if ((allInstances.isEmpty()) && (interfaceName != null)) {
-                for (Implementation impl : CST.SAMImplBroker.getImplementations()) {
-                    // if it is an Apam impl, it has already been checked by ApamMan
-                    if (CST.ASMImplBroker.getImpl(impl) != null)
-                        break;
-                    Specification samSpec = impl.getSpecification();
-                    if (samSpec != null) {
-                        for (String interf : samSpec.getInterfaceNames()) {
-                            if (interf.equals(interfaceName)) { // We got an implementation
-                                allInstances.add(impl.createInstance(null)); // create a SAM instance
-                                break;
-                            }
-                        }
-                    }
-                    if (!allInstances.isEmpty())
-                        break;// only one instantiation
-                }
-            }
-            if (allInstances.isEmpty())
-                return null;
-
-            // we have found a sam Instance.
             // check if it satisfies the constraints
             Set<Instance> matchInsts;
             if ((constraints == null) || constraints.isEmpty()) {
@@ -208,6 +185,44 @@ public class SamMan implements Manager {
                         return returnInst;
                 }
             }
+
+            // we have found a sam Instance.
+            if (returnInst != null)
+            	return null;
+            
+            // Last chance look for an implementation that implements the interface.
+            if (interfaceName != null) {
+                for (Implementation impl : CST.SAMImplBroker.getImplementations()) {
+                    // if it is an Apam impl, it has already been checked by ApamMan
+                    if (CST.ASMImplBroker.getImpl(impl) != null)
+                        continue;
+                    Specification samSpec = impl.getSpecification();
+                    if (samSpec != null) {
+                        for (String interf : samSpec.getInterfaceNames()) {
+                            if (interf.equals(interfaceName)) { // We got an implementation
+     
+                                String apamImplName = (String)impl.getProperty(CST.PROPERTY_IMPLEMENTATION_NAME);
+                                String apamSpecName = (String)impl.getProperty(CST.PROPERTY_COMPOSITE_MAIN_SPECIFICATION);
+
+                            	// activate the implementation in APAM, an create a new instance by APAM API.
+                            	// This will take care of the case of executable composites
+                            	ASMImpl asmImpl = CST.ASMImplBroker.addImpl(implComposite, apamImplName, impl.getName(), apamSpecName, null);
+                            	returnInst = asmImpl.createInst(instComposite, null); 
+                            	
+                               	if (multiple) {
+                               		allInst.add(returnInst);}
+                               	else
+                               		return returnInst;
+                               	
+                               	return null;
+                            	
+                            }
+                        }
+                    }
+                }
+            }
+            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
