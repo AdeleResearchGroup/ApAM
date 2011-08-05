@@ -2,9 +2,11 @@ package fr.imag.adele.apam.dependency;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,6 +16,7 @@ import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
+import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ApamClient;
@@ -486,24 +489,27 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
         if ((apam == null) || (thisInstance == null))
             return;
 
+        Set<Filter> constraints = Collections.emptySet();
+        List<Filter> preferences = null;
+        
         switch (dependency.getKind()) {
             case IMPLEMENTATION:
                 if (dependency.isScalar())
-                    apam.newWireImpl(thisInstance, null, dependency.getTarget(), dependency.getName(), null, null);
+                    apam.newWireImpl(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints, preferences);
                 else
-                    apam.newWireImpls(thisInstance, null, dependency.getTarget(), dependency.getName(), null, null);
+                    apam.newWireImpls(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints, preferences);
                 break;
             case SPECIFICATION:
                 if (dependency.isScalar())
-                    apam.newWireSpec(thisInstance, null, dependency.getTarget(), dependency.getName(), null, null);
+                    apam.newWireSpec(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints, preferences);
                 else
-                    apam.newWireSpecs(thisInstance, null, dependency.getTarget(), dependency.getName(), null, null);
+                    apam.newWireSpecs(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints, preferences);
                 break;
             case INTERFACE:
                 if (dependency.isScalar())
-                    apam.newWireSpec(thisInstance, dependency.getTarget(), null, dependency.getName(), null, null);
+                    apam.newWireSpec(thisInstance, dependency.getTarget(), null, dependency.getName(), constraints, preferences);
                 else
-                    apam.newWireSpecs(thisInstance, dependency.getTarget(), null, dependency.getName(), null, null);
+                    apam.newWireSpecs(thisInstance, dependency.getTarget(), null, dependency.getName(), constraints, preferences);
                 break;
         }
     }
