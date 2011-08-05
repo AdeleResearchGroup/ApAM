@@ -74,6 +74,7 @@ public class CompositeFactory extends ComponentFactory {
         public Dictionary getPropertiesToPublish() {
             Dictionary properties = super.getPropertiesToPublish();
             properties.put(CST.PROPERTY_COMPOSITE, true);
+            properties.put(CST.PROPERTY_IMPLEMENTATION_NAME, getName());
             properties.put(CST.PROPERTY_COMPOSITE_MAIN_IMPLEMENTATION, getMainImplementation());
             properties.put(CST.PROPERTY_COMPOSITE_MAIN_SPECIFICATION, getProvidedSpecification());
             properties.put(CST.PROPERTY_COMPOSITE_MODELS, getManagerModels());
