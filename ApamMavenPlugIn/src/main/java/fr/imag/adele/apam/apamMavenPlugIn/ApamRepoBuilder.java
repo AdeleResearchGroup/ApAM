@@ -115,17 +115,24 @@ public class ApamRepoBuilder {
         //apam attributes
         obrContent.append("   <capability name='apam-component'>\n");
         
+        // The ipojo name
         obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
-        
-        if (component.isComposite())
-        	obrContent.append("      <p n='apam-composite' v='" + component.isComposite() + "' />\n");
-        
-        if (component.getApamSpecification() != null)
-            obrContent.append("      <p n='apam-specification' v='" +component.getApamSpecification()
-                    + "' />\n");
+
+        // The optional APAM name
         if (component.getApamImplementation() != null)
             obrContent.append("      <p n='apam-implementation' v='" + component.getApamImplementation()
                     + "' />\n");
+
+        // The name of the APAM provided interface. Optional if not defined the interface will be used
+        if (component.getApamSpecification() != null)
+            obrContent.append("      <p n='apam-specification' v='" +component.getApamSpecification()
+                    + "' />\n");
+
+        // Information for composites
+        if (component.isComposite()) {
+        	obrContent.append("      <p n='apam-composite' v='" + component.isComposite() + "' />\n");
+        	obrContent.append("      <p n='apam-main-implementation' v='" + component.getApamMainImplementation() + "' />\n");
+        }
 
         // property attributes
         Map<String,String> properties = component.getProperties();
@@ -344,12 +351,26 @@ public class ApamRepoBuilder {
         }
         
         /**
-         * Get the apam implementation name. For composites it correspond to the main implementation.
+         * Get the apam implementation name. For composites it is the same as the component name, for iPojo
+         * components it is possible to specify a different name.
          */
         public String getApamImplementation() {
+        	if (isComposite())
+        		return getName();
+        	
         	return m_componentMetadata.getAttribute(APAM_IMPLEMENTATION_PROPERTY,APAM_NAMESPACE);
         }
-        
+
+        /**
+         * Get the apam implementation of the main specification for a composite.
+         */
+        public String getApamMainImplementation() {
+        	if (isComposite())
+        		return m_componentMetadata.getAttribute(APAM_IMPLEMENTATION_PROPERTY,APAM_NAMESPACE);
+        	
+        	return null;
+        }
+
         /**
          * Get the list of provided interfaces of this component
          */
