@@ -2,10 +2,7 @@ package fr.imag.adele.apam;
 
 import java.util.Set;
 
-import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASMImpl.ASMImplImpl;
 import fr.imag.adele.apam.ASMImpl.ASMInstImpl;
-import fr.imag.adele.apam.ASMImpl.ASMSpecImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
@@ -14,12 +11,11 @@ import fr.imag.adele.apam.apamAPI.CompExInst;
 import fr.imag.adele.apam.apamAPI.CompExType;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Instance;
 
-public class CompExInstImpl extends ASMInstImpl implements CompExInst, Composite {
+public class CompExInstImpl extends ASMInstImpl implements CompExInst {
 
-    private final CompositeImpl me;
+    private final Composite		me;
     private final CompExType    compType;
     private final ASMImpl       mainImpl;
     private final ASMInst       mainInst;
@@ -31,14 +27,41 @@ public class CompExInstImpl extends ASMInstImpl implements CompExInst, Composite
         //directly refers to the sam object associated with the main instance.
         super((ASMImpl) father, instCompo, null, asmInst.getSAMInst());
         //create main instance
-        me = new CompositeImpl(asmInst.getASMName(), father, father.getApplication(), null);
+        // TODO decide who is the father, the composite type or the instcompo that is containing me as an ASMInst
+        me = new CompositeImpl(father.getASMName()+"<"+asmInst.getASMName()+">", instCompo, father.getApplication(), null);
+        
+        //the composite itself as an ASMInst
+        //Warning father is itself !!
+        if (instCompo == null)
+    	   this.setComposite(me);
+        
         //because constructor needs the instance, and the instance need the composite ...
         ((ASMInstImpl) asmInst).setComposite(this);
+
         compType = father;
         mainInst = asmInst;
         mainImpl = asmInst.getImpl();
     }
 
+    /**
+     * Get access to the internal implementation of the wrapped instance
+     */
+	@Override
+	public Internal asInternal() {
+		return me.asInternal();
+	}
+	
+	
+    @Override
+    public String getASMName() {
+    	return compType.getASMName()+"<"+mainInst.getASMName()+">";
+    }
+    
+    @Override
+    public String toString() {
+        return getASMName();
+    }
+ 
     //@Override
     public static CompExInst createCompExInst(CompExType compExType, Composite instCompo, Attributes initialproperties) {
         Set<ManagerModel> models = null;
@@ -85,11 +108,6 @@ public class CompExInstImpl extends ASMInstImpl implements CompExInst, Composite
     }
 
     @Override
-    public Object getServiceObject() {
-        return ((ASMInstImpl) mainInst).getServiceObject();
-    }
-
-    @Override
     public String getName() {
         return me.getName();
     }
@@ -100,8 +118,8 @@ public class CompExInstImpl extends ASMInstImpl implements CompExInst, Composite
     }
 
     @Override
-    public Composite createComposite(Composite father, String name, Set<ManagerModel> models) {
-        return me.createComposite(father, name, models);
+    public Composite createComposite(String name, Set<ManagerModel> models) {
+        return me.createComposite(name, models);
     }
 
     @Override
@@ -123,6 +141,11 @@ public class CompExInstImpl extends ASMInstImpl implements CompExInst, Composite
     public boolean dependsOn(Composite destination) {
         return me.dependsOn(destination);
     }
+
+	@Override
+	public Set<Composite> getDependents() {
+		return me.getDependents();
+	}
 
     @Override
     public Composite getFather() {
@@ -187,26 +210,6 @@ public class CompExInstImpl extends ASMInstImpl implements CompExInst, Composite
     @Override
     public Set<ASMInst> getInsts() {
         return me.getInsts();
-    }
-
-    @Override
-    public void setMainSpec(ASMSpec spec) {
-        new Exception("cannot set Spec in a CompExType").printStackTrace();
-    }
-
-    @Override
-    public void setMainImpl(ASMImpl impl) {
-        new Exception("cannot set Impl in a CompExType").printStackTrace();
-    }
-
-    @Override
-    public void setMainInst(ASMInst inst) {
-        new Exception("cannot set Inst in a CompExType").printStackTrace();
-    }
-
-    @Override
-    public ASMSpec getMainSpec() {
-        return mainImpl.getSpec();
     }
 
 }

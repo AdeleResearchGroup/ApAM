@@ -7,7 +7,7 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Implementation;
 
-public interface CompExType extends Composite {
+public interface CompExType extends ASMImpl, Composite {
 
     /**
      * Creates a composite type and instance from a composite Object (found by a manager, or in a repository (OBR or
@@ -87,4 +87,6 @@ public interface CompExType extends Composite {
     public ASMImpl getMainImpl();
 
     public String getMainImplName();
+
+	public ASMSpec getMainSpec();
 }

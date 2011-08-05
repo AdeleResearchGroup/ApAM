@@ -18,6 +18,7 @@ import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
+import fr.imag.adele.apam.apamAPI.CompExType;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
@@ -127,7 +128,16 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
                         .getName(),
                         specName, properties);
             }
-            // Instances always created inside the implementation composite
+
+            // Normally composite implementations are visible by SAM, but they can not be instantiated. 
+            // Their iPojo instances (although allowed) are not visible in the OSGi register or by SAM. 
+            // The only way to create an instance of a composite should be using APAM. 
+           
+            if (impl instanceof CompExType) {
+            	System.err.println("Error, trying to activate a composite instance without using the APAM API");
+            	return null;
+            }
+          
             inst = new ASMInstImpl(impl, instComposite, null, samInst);
             addInst(inst);
             return inst;

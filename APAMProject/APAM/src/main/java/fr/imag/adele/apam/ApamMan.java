@@ -161,6 +161,9 @@ public class ApamMan implements Manager {
                 }
             }
 
+            if (multiple && !allInst.isEmpty())
+                return null; // we found at least one
+
             // The impl does not have sharable instance. try to instanciate.
             boolean satisfies = true;
             for (Filter filter : constraints) {

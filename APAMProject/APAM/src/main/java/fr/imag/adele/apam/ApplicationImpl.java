@@ -12,6 +12,7 @@ import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Application;
+import fr.imag.adele.apam.apamAPI.CompExInst;
 import fr.imag.adele.apam.apamAPI.CompExType;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Attributes;
@@ -24,8 +25,8 @@ public class ApplicationImpl implements Application {
     private static Map<String, Application> applications  = new ConcurrentHashMap<String, Application>();
 
     private final String                    name;
-    private Composite                       mainImplCompo = null;
-    private Composite                       mainInstCompo = null;
+    private CompExType                      mainImplCompo = null;
+    private CompExInst                      mainInstCompo = null;
     //    private ASMImpl              mainImpl      = null;
     //    private ASMSpec              mainSpec      = null;
 
@@ -60,8 +61,8 @@ public class ApplicationImpl implements Application {
         if (name.equals(implName)) {
             System.err.println("ERROR : application and main implementation must have different names " + name);
         }
-        mainImplCompo = CompExTypeImpl.createCompExType(this, models, implName, url, specName, properties);
-        ((ASMImpl) mainImplCompo).createInst(null, properties);
+        mainImplCompo = CompExTypeImpl.createCompExType(this, name, models, implName, url, specName, properties);
+        mainInstCompo = (CompExInst) mainImplCompo.createInst(null, properties);
         ApplicationImpl.applications.put(appliName, this);
         //        mainImplCompo = new CompositeImpl(appliName, null, this, models);
         //        mainInstCompo = new CompositeImpl(appliName, null, this, models);
@@ -91,27 +92,40 @@ public class ApplicationImpl implements Application {
      */
     public ApplicationImpl(String appliName, Set<ManagerModel> models, String specName, URL specUrl, String specType,
             String[] interfaces, Attributes properties) {
+    	
         name = appliName;
-        mainImplCompo = new CompositeImpl(appliName, null, this, models);
-        mainInstCompo = new CompositeImpl(appliName, null, this, models);
+        
         ASMSpec mainSpec;
-
         if (specUrl == null)
             mainSpec = CST.ASMSpecBroker.createSpec(mainImplCompo, specName, interfaces, properties);
         else
             mainSpec = CST.ASMSpecBroker.createSpec(mainImplCompo, specName, specUrl, specType, interfaces, properties);
-        //mainSpec = CST.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
-        ((CompositeImpl) mainImplCompo).setMainSpec(mainSpec);
+        
+        mainImplCompo = CompExTypeImpl.createCompExType(this,mainSpec.getASMName(),mainSpec.getInterfaceNames(),models);
+        mainInstCompo = (CompExInst) mainImplCompo.createInst(null, properties);
         ApplicationImpl.applications.put(appliName, this);
+    	
+//        name = appliName;
+//        mainImplCompo = new CompositeImpl(appliName, null, this, models);
+//        mainInstCompo = new CompositeImpl(appliName, null, this, models);
+//        ASMSpec mainSpec;
+//
+//        if (specUrl == null)
+//            mainSpec = CST.ASMSpecBroker.createSpec(mainImplCompo, specName, interfaces, properties);
+//        else
+//            mainSpec = CST.ASMSpecBroker.createSpec(mainImplCompo, specName, specUrl, specType, interfaces, properties);
+//        //mainSpec = CST.ASMSpecBroker.createSpec(mainCompo, specName, interfaces, properties);
+//        ((CompositeImpl) mainImplCompo).setMainSpec(mainSpec);
+//        ApplicationImpl.applications.put(appliName, this);
     }
 
-    // hummmm ....
-    public ApplicationImpl(String appliName) {
-        name = appliName;
-        mainImplCompo = new CompositeImpl(appliName, null, this, null);
-        mainInstCompo = new CompositeImpl(appliName, null, this, null);
-        ApplicationImpl.applications.put(appliName, this);
-    }
+//    //hummmm ....
+//    public ApplicationImpl(String appliName) {
+//        name = appliName;
+//        mainImplCompo = new CompositeImpl(appliName, null, this, null);
+//        mainInstCompo = new CompositeImpl(appliName, null, this, null);
+//        ApplicationImpl.applications.put(appliName, this);
+//    }
 
     //    private void setAppliComposite (ApplicationImpl appli) {
     //        ((CompositeImpl)mainImplCompo).setMainImpl(mainImpl) ;
@@ -134,11 +148,13 @@ public class ApplicationImpl implements Application {
      */
     public ApplicationImpl(String appliName, Set<ManagerModel> models, String samImplName, String implName,
             String specName, Attributes properties) {
-        name = (implName == null) ? samImplName : implName;
-        if (appliName.equals(name)) {
+    	name = appliName;
+        String mainImplemName = (implName == null) ? samImplName : implName;
+        if (name.equals(mainImplemName)) {
             System.err.println("ERROR : application must have a different name than the main implementation" + name);
         }
-        mainImplCompo = CompExTypeImpl.createCompExType(this, name, models);
+        mainImplCompo = CompExTypeImpl.createCompExType(this, mainImplemName, models);
+        mainInstCompo = (CompExInst) mainImplCompo.createInst(null, properties);
         ApplicationImpl.applications.put(appliName, this);
         //        if (!appliName.equals(implName)) {
         //            (mainImplCompo.getMainImpl()).setASMName(implName);
@@ -201,7 +217,10 @@ public class ApplicationImpl implements Application {
         }
         if (ApplicationImpl.getApplication(appliName) != null) {
             System.out.println("Warning : Application allready existing, creating another instance");
-            appliName = ((ApplicationImpl) ApplicationImpl.applications.get(appliName)).getNewName();
+            CompExType main = (CompExType) ApplicationImpl.getApplication(appliName).getMainImplComposite();
+            ((ASMImpl) main).createInst(null, properties);
+            //TODO BUG should return the instance 
+            return ApplicationImpl.getApplication(appliName);
         }
 
         Application appli = new ApplicationImpl(appliName, models, implName, url, specName, properties);
@@ -274,14 +293,6 @@ public class ApplicationImpl implements Application {
         return new HashSet<Application>(ApplicationImpl.applications.values());
     }
 
-    // Not in the interface
-    // In case the appli has been created from a spec only.
-    public void setMainImpl(ASMImpl impl) {
-        if ((mainImplCompo.getMainImpl() == null) && (impl.getSpec() == mainImplCompo.getMainSpec()))
-            ((CompositeImpl) mainImplCompo).setMainImpl(impl);
-
-    }
-
     @Override
     public String getName() {
         return name;
@@ -293,12 +304,12 @@ public class ApplicationImpl implements Application {
     //    }
 
     @Override
-    public Composite getMainImplComposite() {
+    public CompExType getMainImplComposite() {
         return mainImplCompo;
     }
 
     @Override
-    public Composite getMainInstComposite() {
+    public CompExInst getMainInstComposite() {
         return mainInstCompo;
     }
 

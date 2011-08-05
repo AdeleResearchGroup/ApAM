@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
 
@@ -76,7 +75,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     }
 
     @Override
-    public ASMImpl resolveSpecByName(Composite implComposite, Composite instComposite, String interfaceName,
+    public ASMImpl resolveSpecByName(Composite implComposite, Composite instComposite, String[] interfaces,
             String specName, Set<Filter> constraints, List<Filter> preferences) {
         //TODO
         return null;

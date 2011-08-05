@@ -26,12 +26,10 @@ public interface Composite {
      * Creates a composite in the application in which the source pertains. A single composite with this name can exist
      * in an application. Return null if name conflicts.
      * 
-     * @param source The origin of the dependency relationship. The embedding composite.
      * @param name the symbolic name. Unique in this application
-     * @param models optionnal : the associated models.
-     * @return
+     * @param models optional : the associated models.
      */
-    public Composite createComposite(Composite father, String name, Set<ManagerModel> models);
+    public Composite createComposite(String name, Set<ManagerModel> models);
 
     public void addDepend(Composite destination);
 
@@ -40,6 +38,8 @@ public interface Composite {
     public Set<Composite> getDepend();
 
     public boolean dependsOn(Composite destination);
+    
+    public Set<Composite> getDependents();
 
     public Composite getFather();
 
@@ -80,18 +80,61 @@ public interface Composite {
 
     public Set<ASMInst> getInsts();
 
-    //TO remove ...
+    /**
+     * This is a privileged interface that must be provided by all implementations of Composite in 
+     * order to be able to automatically handle consistent bidirectional relationships.
+     * 
+     * It ensures that father/sons and depends/dependents associations are kept coherent.
+     * 
+     * Implementing this interface ensures a minimal compatibility among the many possible different
+     * implementations of Composite. Implementations of Composite must ensure that it should always
+     * be possible to get a internal representation for its instances.
+     * 
+     * @author vega
+     *
+     */
+    public interface Internal extends Composite {
+    	
+    	/**
+    	 * Registers a new child with the this composite.
+    	 * 
+    	 * This should be called as a side effect of creating a new Composite specifying
+    	 * this as a father.
+    	 */
+        public void addSon(Composite child);
 
-    public void setMainSpec(ASMSpec spec);
+        /**
+         * Unregisters an existing child from the list of sons of this composite.
+         * 
+         * Notice that this means that the passed composite has no longer a father, so
+         * it is no longer valid. 
+         * 
+         * This should be called as side effect of deleting a Composite.
+         * 
+         * TODO should we allow moving a composite to another parent?
+         */
+        public boolean removeSon(Composite child);
 
-    public void setMainImpl(ASMImpl impl);
+        /**
+         * Adds a new dependent composite.
+         * 
+    	 * This should be called as a side effect of adding a dependency to this Composite
+         */
+        public void addInvDepend(Composite dependent);
 
-    public void setMainInst(ASMInst inst);
-
-    public ASMSpec getMainSpec();
-
-    public ASMImpl getMainImpl();
-
-    public ASMInst getMainInst();
+        /**
+         * Removes an existing dependent composite.
+         * 
+    	 * This should be called as a side effect of removing a dependency to this Composite
+         */
+       public boolean removeInvDepend(Composite dependent);
+       
+    }
+    
+    /**
+     * Gets the internal representation of this Composite
+     * 
+     */
+    public Internal asInternal();
 
 }

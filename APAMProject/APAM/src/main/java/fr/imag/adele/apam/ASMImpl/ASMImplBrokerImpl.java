@@ -15,6 +15,7 @@ import fr.imag.adele.am.eventing.EventingEngine;
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.ApplicationImpl;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.CompExTypeImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
@@ -134,7 +135,16 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             if (specName != null)
                 spec.setASMName(specName);
 
-            asmImpl = new ASMImplImpl(compo, implName, spec, samImpl, properties);
+            // create a primitive or composite implementation
+
+            if ((samImpl.getProperty(CST.PROPERTY_COMPOSITE) != null) &&
+                    ((Boolean) samImpl.getProperty(CST.PROPERTY_COMPOSITE) == true)) {
+            	
+            	// TODO Allow specifying properties to the composite instance
+            	asmImpl = CompExTypeImpl.createCompExType(compo, samImpl);
+            }
+            else
+            	asmImpl = new ASMImplImpl(compo, implName, spec, samImpl, properties);
 
             //          Application appli = asmImpl.getComposite().getApplication();
             //            if ((asmImpl.getSpec() == appli.getMainSpec()) && (appli.getMainImpl() == null))

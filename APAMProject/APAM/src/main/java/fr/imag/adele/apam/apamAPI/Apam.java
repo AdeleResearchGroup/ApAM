@@ -91,7 +91,7 @@ public interface Apam {
     public ASMImpl resolveImplByName(Composite implComposite, Composite instComposite, String samImplName,
             String implName, Set<Filter> constraints, List<Filter> preferences);
 
-    public ASMImpl resolveSpecByName(Composite implComposite, Composite instComposite, String interfaceName,
+    public ASMImpl resolveSpecByName(Composite implComposite, Composite instComposite, String[] interfaces,
             String specName, Set<Filter> constraints, List<Filter> preferences);
 
 }

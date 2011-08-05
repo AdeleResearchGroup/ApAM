@@ -12,9 +12,9 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Application;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.Manager;
-import fr.imag.adele.apam.apamAPI.CompExType;
 
-public class CompositeImpl implements Composite {
+public class CompositeImpl implements Composite, Composite.Internal {
+
 
     // Global variable. The actual content of the ASM
     private static Map<String, Composite> composites  = new HashMap<String, Composite>();
@@ -42,10 +42,6 @@ public class CompositeImpl implements Composite {
     // To have different names
     private int                           nbSameName  = 0;
 
-    private ASMSpec                       mainSpec0   = null;
-    private ASMImpl                       mainImpl0   = null;
-    private ASMInst                       mainInst0   = null;
-
     public String getNewName(String name) {
         String newName = name + "-" + nbSameName;
         nbSameName++;
@@ -56,24 +52,24 @@ public class CompositeImpl implements Composite {
     }; // prohibited
 
     public CompositeImpl(String name, Composite father, Application application, Set<ManagerModel> models) {
-        CompositeImpl same = (CompositeImpl) CompositeImpl.composites.get(name);
+        
+    	// TODO We need to review this with the new specification of CompExType and CompExInst
+    	CompositeImpl same = (CompositeImpl) CompositeImpl.composites.get(name);
         if (same != null) {
             name = same.getNewName(name);
         }
+        
+        // Register composite with the application and the global registry
         CompositeImpl.composites.put(name, this);
         this.name = name;
         appli = application;
         ((ApplicationImpl) appli).addComposite(this);
+        
         this.models = models;
         if (father != null) { //father is null when creating an application, or instance composite.
-            if (father instanceof CompositeImpl) {
-                ((CompositeImpl) father).addSon(this);
-                ((CompositeImpl) father).addDepend(this);
-            } else {
-                ((CompExTypeImpl) father).getCompositeMe().addSon(this);
-                ((CompExTypeImpl) father).getCompositeMe().addDepend(this);
-            }
             this.father = father;
+            this.father.addDepend(this);
+            this.father.asInternal().addSon(this);
         }
 
         if (models != null) {
@@ -88,24 +84,27 @@ public class CompositeImpl implements Composite {
     }
 
     @Override
-    public Composite createComposite(Composite source, String name, Set<ManagerModel> models) {
-        if (source == null) {
-            System.out.println("ERROR : Source composite missing");
-            return null;
-        }
+    public Composite createComposite(String name, Set<ManagerModel> models) {
         if (name == null) {
             System.out.println("ERROR : Composite name missing");
             return null;
         }
-        if (source.getApplication().getComposite(name) != null) {
+        if (this.getApplication().getComposite(name) != null) {
             System.out.println("ERROR : Composite " + name + " allready exists");
-            return source.getApplication().getComposite(name);
+            return this.getApplication().getComposite(name);
         }
-        Composite comp = new CompositeImpl(name, source, source.getApplication(), models);
-        ((ApplicationImpl) source.getApplication()).addComposite(comp);
-        source.addDepend(comp);
-        return comp;
+
+        return new CompositeImpl(name, this, this.getApplication(), models);
     }
+
+    /**
+     * Give access to the internal representation of this Composite
+     */
+    @Override
+    public final Internal asInternal() {
+    	return this;
+    }
+
 
     @Override
     public String getName() {
@@ -154,14 +153,13 @@ public class CompositeImpl implements Composite {
         hasInstance.add(inst);
     }
 
-    //Father-son relationship management. Hidden;    
+    //Father-son relationship management. Hidden, Internal;    
     public void addSon(Composite dest) {
         if (dest == null)
             return;
         if (sons.contains(dest))
             return; // allready existing
         sons.add(dest);
-        ((CompositeImpl) dest).addInvDepend(this);
     }
 
     /**
@@ -196,8 +194,9 @@ public class CompositeImpl implements Composite {
             return;
         if (depends.contains(dest))
             return; // allready existing
+        
         depends.add(dest);
-        ((CompositeImpl) dest).addInvDepend(this);
+        dest.asInternal().addInvDepend(this);
     }
 
     /**
@@ -209,11 +208,12 @@ public class CompositeImpl implements Composite {
             return false;
         if (!dependsOn(destination))
             return false;
-        if (((CompositeImpl) destination).getInvDepend().size() < 2)
+        if (destination.getDependents().size() < 2)
             return false;
-        ((CompositeImpl) destination).removeInvDepend(this);
+        
         depends.remove(destination);
-        return false;
+        destination.asInternal().removeInvDepend(this);
+        return true;
     }
 
     /**
@@ -221,17 +221,18 @@ public class CompositeImpl implements Composite {
      * 
      * @return
      */
-    protected Set<Composite> getInvDepend() {
+    @Override
+    public Set<Composite> getDependents() {
         return Collections.unmodifiableSet(invDepend);
     }
 
     /**
-     * Retire une dependance inverse.
+     * Retire une dependance inverse.  Hidden, Internal; 
      * 
      * @param origin
      * @return
      */
-    protected boolean removeInvDepend(Composite origin) {
+    public boolean removeInvDepend(Composite origin) {
         if (origin == null)
             return false;
         invDepend.remove(origin);
@@ -239,12 +240,13 @@ public class CompositeImpl implements Composite {
     }
 
     /**
-     * Ajoute une dépendance inverse.
+     * Ajoute une dépendance inverse.  Hidden, Internal; 
      * 
      * @param origin
      * @return
      */
-    protected void addInvDepend(Composite origin) {
+    @Override
+    public void addInvDepend(Composite origin) {
         invDepend.add(origin);
         return;
     }
@@ -319,36 +321,6 @@ public class CompositeImpl implements Composite {
     @Override
     public Set<ManagerModel> getModels() {
         return Collections.unmodifiableSet(models);
-    }
-
-    @Override
-    public void setMainSpec(ASMSpec mainSpec0) {
-        this.mainSpec0 = mainSpec0;
-    }
-
-    @Override
-    public ASMSpec getMainSpec() {
-        return mainSpec0;
-    }
-
-    @Override
-    public void setMainImpl(ASMImpl mainImpl0) {
-        this.mainImpl0 = mainImpl0;
-    }
-
-    @Override
-    public ASMImpl getMainImpl() {
-        return mainImpl0;
-    }
-
-    @Override
-    public void setMainInst(ASMInst mainInst0) {
-        this.mainInst0 = mainInst0;
-    }
-
-    @Override
-    public ASMInst getMainInst() {
-        return mainInst0;
     }
 
 }
