@@ -56,6 +56,7 @@ public class OBRMan implements Manager, IOBRMAN {
 
         // to test only
         try {
+        	//local = repoAdmin.addRepository("file:///C:/Program%20Files/Apache%20Software%20Foundation/apache-maven-2.2.1/repository/repository.xml");
             local = repoAdmin.addRepository("file:///F:/Maven/.m2/repository.xml");
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -342,82 +343,70 @@ public class OBRMan implements Manager, IOBRMAN {
             implName = implNameExpected;
 
         Implementation samImpl = null;
-        Instance samInst = null;
         ASMImpl asmImpl = null;
         ASMInst asmInst = null;
         try {
             asmImpl = CST.ASMImplBroker.getImpl(implName);
-            if (asmImpl != null) { // do not install twice. Bizarre, APMAN should have found it !
-                System.err.println("ERROR : " + implName + " allready deployed.");
-                return asmImpl.createInst(instComposite, null);
+            if (asmImpl == null) {
+                
+            	// deploy selected resource
+                CST.implEventHandler.addExpected(implNameExpected);
+                boolean deployed = deployInstall(res);
+                if (!deployed) {
+                    System.err.print("could not install resource ");
+                    printRes(res);
+                    return null;
+                }
+                
+                //waiting for the implementation to be ready in SAM.
+                samImpl = CST.implEventHandler.getImplementation(implNameExpected);
+                
+                // Activate implementation in APAM
+                asmImpl = CST.ASMImplBroker.addImpl(implComposite, implName, samImpl.getName(), specName, null);
+            	
+            }
+            else { // do not install twice. Bizarre, APMAN should have found it !
+                System.err.println("ERROR : " + implName + " found by OBRMAN but allready deployed.");
+                // proceed anyway
             }
 
-            CST.implEventHandler.addExpected(implNameExpected);
-            boolean deployed = deployInstall(res);
-            if (!deployed) {
-                System.err.print("could not install resource ");
-                printRes(res);
-                return null;
-            }
-            //waiting for the implementation to be ready in SAM.
-            samImpl = CST.implEventHandler.getImplementation(implNameExpected);
+
             // instances may have been created by deploy or iPOJO
             //We have to wait for these instances to appear !! How long ? how to know they are all ready
             Thread.sleep(10);
 
-            if ((samImpl.getProperty(CST.PROPERTY_COMPOSITE) != null) &&
-                    ((Boolean) samImpl.getProperty(CST.PROPERTY_COMPOSITE) == true)) {
-                //get the interfaces
-                CompExType compType = CompExTypeImpl.createCompExType(implComposite, samImpl);
-                if (compType == null)
-                    return null;
-
-                CompExInstImpl compInst = (CompExInstImpl) ((ASMImplImpl) compType).createInst(instComposite, null);
-                if (compInst == null)
-                    return null;
-                if (multiple) {
+            // Return already deployed instances if found
+            
+            Set<Instance> existingInstances = samImpl.getInstances();
+            if ( existingInstances != null && !existingInstances.isEmpty()) {
+                if (allInst == null)
                     allInst = new HashSet<ASMInst>();
-                    allInst.add(compInst.getMainInst());
+                for (Instance inst : existingInstances) {
+                	asmInst = CST.ASMInstBroker.addInst(implComposite, instComposite, inst, implName, specName, null);
+                    allInst.add(asmInst);
+                    if (! multiple)
+                    	return asmInst;
                 }
-                return compInst.getMainInst();
+                
+                return null; 
             }
-
-            Set<Instance> allInstances = null;
-            if (multiple) {
-                allInstances = samImpl.getInstances();
-                if (allInstances == null)
-                    allInstances = new HashSet<Instance>();
-                if (allInstances.isEmpty())
-                    allInstances.add(samImpl.createInstance(null)); // should not be null
-            } else {
-                samInst = samImpl.getInstance();
-                if (samInst == null) // An instance must be created 
-                    samInst = samImpl.createInstance(null); // should not be null
-            }
-            if ((samInst == null) && ((allInstances == null) || allInstances.isEmpty())) {
-                System.err.println("sam instance is null. in OBRMAN install instanciate");
-                new Exception().printStackTrace();
-            }
-
-            asmImpl = CST.ASMImplBroker.addImpl(implComposite, implName, samImpl.getName(), specName, null);
+            
+            // If no instances were deployed then create a new instance and return it
+            asmInst = asmImpl.createInst(instComposite, null);
             if (multiple) {
                 if (allInst == null)
                     allInst = new HashSet<ASMInst>();
-                for (Instance inst : allInstances) {
-                    allInst.add(CST.ASMInstBroker.addInst(implComposite, instComposite, inst, implNameExpected,
-                            specName, null));
-                }
+                allInst.add(asmInst);
+                return null;
+                
             } else
-                asmInst = CST.ASMInstBroker.addInst(implComposite, instComposite, samInst, implNameExpected, specName,
-                        null);
-            // in case it is the main implementation
+                return asmInst;
+            
 
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-        //null if multiple
-        return asmInst;
     }
 
     @Override
