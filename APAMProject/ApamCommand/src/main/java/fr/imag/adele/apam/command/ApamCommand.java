@@ -274,6 +274,8 @@ public class ApamCommand {
         for (Composite comDep : compo.getSons()) {
             System.out.print(comDep.getName() + " ");
         }
+        System.out.println("");
+
         System.out.print(indent + "   Depends on composites : ");
         for (Composite comDep : compo.getDepend()) {
             System.out.print(comDep.getName() + " ");
@@ -446,7 +448,7 @@ public class ApamCommand {
     private void dumpCompo(Composite comp) {
         printComposite(comp, "");
         System.out.println("State: ");
-        dumpState(comp, "  ", "");
+        dumpState(comp.getMainInst(), "  ", "");
         System.out.println("\n");
     }
 
