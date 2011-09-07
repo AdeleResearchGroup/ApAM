@@ -382,61 +382,64 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
 
     /**
      * The description of this handler instance
-     *
+     * 
      */
     private static class Description extends HandlerDescription {
 
-    	private final DependencyManager dependencyManager;
-    	
-		public Description(DependencyManager dependencyManager) {
-			super(dependencyManager);
-			this.dependencyManager = dependencyManager;
-		}
-		
-		@Override
-		public Element getHandlerInfo() {
-			Element root = super.getHandlerInfo();
-			
-			for (Dependency dependency : dependencyManager.dependencies.values()) {
-				Element dependencyDescription = new Element("dependency", "");
-				dependencyDescription.addAttribute(new Attribute("name",dependency.getName()));
-				dependencyDescription.addAttribute(new Attribute("isAggregate",Boolean.toString(dependency.isAggregate())));
-				dependencyDescription.addAttribute(new Attribute("target",dependency.getTarget()));
-				dependencyDescription.addAttribute(new Attribute("kind",dependency.getKind().toString()));
-				dependencyDescription.addAttribute(new Attribute("resolved",Boolean.toString(dependency.isResolved())));
-				
-				if (dependency.isResolved()) {
-					Set<ASMInst> targets = dependencyManager.thisInstance.getWireDests(dependency.getName());
-					StringBuffer resolution = new StringBuffer();
-					if (targets.size() > 1)
-						resolution.append("{");
+        private final DependencyManager dependencyManager;
 
-					boolean first = true;
-					
-					for (ASMInst target : targets) {
-						if (!first)
-							resolution.append(",");
-						resolution.append(target.getASMName());
-						first=false;
-					}
-					
-					if (targets.size() > 1)
-						resolution.append("}");
+        public Description(DependencyManager dependencyManager) {
+            super(dependencyManager);
+            this.dependencyManager = dependencyManager;
+        }
 
-					dependencyDescription.addAttribute(new Attribute("resolution", resolution.toString()));
-				}
-				root.addElement(dependencyDescription);
-			}
-			
-			return root;
-		}
-    	
+        @Override
+        public Element getHandlerInfo() {
+            Element root = super.getHandlerInfo();
+
+            for (Dependency dependency : dependencyManager.dependencies.values()) {
+                Element dependencyDescription = new Element("dependency", "");
+                dependencyDescription.addAttribute(new Attribute("name", dependency.getName()));
+                dependencyDescription.addAttribute(new Attribute("isAggregate", Boolean.toString(dependency
+                        .isAggregate())));
+                dependencyDescription.addAttribute(new Attribute("target", dependency.getTarget()));
+                dependencyDescription.addAttribute(new Attribute("kind", dependency.getKind().toString()));
+                dependencyDescription
+                        .addAttribute(new Attribute("resolved", Boolean.toString(dependency.isResolved())));
+
+                if (dependency.isResolved()) {
+                    Set<ASMInst> targets = dependencyManager.thisInstance.getWireDests(dependency.getName());
+                    StringBuffer resolution = new StringBuffer();
+                    if (targets.size() > 1)
+                        resolution.append("{");
+
+                    boolean first = true;
+
+                    for (ASMInst target : targets) {
+                        if (!first)
+                            resolution.append(",");
+                        resolution.append(target.getName());
+                        first = false;
+                    }
+
+                    if (targets.size() > 1)
+                        resolution.append("}");
+
+                    dependencyDescription.addAttribute(new Attribute("resolution", resolution.toString()));
+                }
+                root.addElement(dependencyDescription);
+            }
+
+            return root;
+        }
+
     }
+
     @Override
     public HandlerDescription getDescription() {
-    	return new Description(this);
+        return new Description(this);
     }
-    
+
     @Override
     public void start() {
         /*
@@ -549,25 +552,31 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
 
         Set<Filter> constraints = Collections.emptySet();
         List<Filter> preferences = null;
-        
+
         switch (dependency.getKind()) {
             case IMPLEMENTATION:
                 if (dependency.isScalar())
-                    apam.newWireImpl(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints, preferences);
+                    apam.newWireImpl(thisInstance, dependency.getTarget(), dependency.getName(), constraints,
+                            preferences);
                 else
-                    apam.newWireImpls(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints, preferences);
+                    apam.newWireImpls(thisInstance, dependency.getTarget(), dependency.getName(), constraints,
+                            preferences);
                 break;
             case SPECIFICATION:
                 if (dependency.isScalar())
-                    apam.newWireSpec(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints, preferences);
+                    apam.newWireSpec(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints,
+                            preferences);
                 else
-                    apam.newWireSpecs(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints, preferences);
+                    apam.newWireSpecs(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints,
+                            preferences);
                 break;
             case INTERFACE:
                 if (dependency.isScalar())
-                    apam.newWireSpec(thisInstance, dependency.getTarget(), null, dependency.getName(), constraints, preferences);
+                    apam.newWireSpec(thisInstance, dependency.getTarget(), null, dependency.getName(), constraints,
+                            preferences);
                 else
-                    apam.newWireSpecs(thisInstance, dependency.getTarget(), null, dependency.getName(), constraints, preferences);
+                    apam.newWireSpecs(thisInstance, dependency.getTarget(), null, dependency.getName(), constraints,
+                            preferences);
                 break;
         }
     }
