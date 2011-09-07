@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
+import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.am.query.Query;
 import fr.imag.adele.am.query.QueryLDAPImpl;
 import fr.imag.adele.apam.CST;
@@ -13,6 +14,7 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
+import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.apamAPI.ManagersMng;
@@ -68,8 +70,9 @@ public class SamMan implements Manager {
     }
 
     @Override
-    public List<Manager> getSelectionPathSpec(ASMInst from, Composite composite, String interfaceName, String specName,
-            Set<Filter> filter, List<Manager> involved) {
+    public List<Manager> getSelectionPathSpec(ASMInst from, CompositeType composite, String interfaceName,
+            String specName,
+            Set<Filter> constraints, List<Filter> preferences, List<Manager> involved) {
         if (opportunistSpec(specName)) {
             involved.add(this);
         }
@@ -77,12 +80,12 @@ public class SamMan implements Manager {
     }
 
     @Override
-    public List<Manager> getSelectionPathImpl(ASMInst from, Composite composite, String samImplName, String implName,
-            Set<Filter> filter, List<Manager> involved) {
+    public List<Manager> getSelectionPathImpl(ASMInst from, CompositeType compType, String implName,
+            Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath) {
         if (opportunistImpl(implName))
-            involved.add(this);
+            selPath.add(this);
 
-        return involved;
+        return selPath;
     }
 
     private Set<Instance> getSamInstanceInterf(String interfaceName) {
@@ -105,30 +108,62 @@ public class SamMan implements Manager {
         return insts;
     }
 
+    private Set<Instance> getSamInstanceInterfaces(String[] interfaces) {
+        Set<Instance> insts = new HashSet<Instance>();
+        try {
+            for (Instance instance : CST.SAMInstBroker.getInstances()) {
+                Specification samSpec = instance.getSpecification();
+                if (samSpec != null) {
+                    String[] interfs = samSpec.getInterfaceNames();
+                    if (Util.sameInterfaces(interfs, interfaces)) {
+                        insts.add(instance);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return insts;
+    }
+
     @Override
-    public ASMInst resolveSpec(Composite implComposite, Composite instComposite, String interfaceName, String specName,
+    public ASMInst resolveSpec(Composite instComposite, String interfaceName, String specName,
             Set<Filter> constraints, List<Filter> preferences) {
-        return resolveSpec0(implComposite, instComposite, interfaceName, specName, constraints, preferences, false,
+        return resolveSpec0(instComposite, interfaceName, null, specName, constraints, preferences, false,
                 null);
     }
 
     @Override
-    public Set<ASMInst> resolveSpecs(Composite implComposite, Composite instComposite, String interfaceName,
+    public Set<ASMInst> resolveSpecs(Composite instComposite, String interfaceName,
             String specName, Set<Filter> constraints, List<Filter> preferences) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
-        resolveSpec0(implComposite, instComposite, interfaceName, specName, constraints, preferences, true, allInst);
+        resolveSpec0(instComposite, interfaceName, null, specName, constraints, preferences, true, allInst);
         return allInst;
     }
 
-    public ASMInst resolveSpec0(Composite implComposite, Composite instComposite, String interfaceName,
+    /**
+     * At least one of : specName, interfaceName, interfaces is required.
+     * Only one is used, they are considered in that order.
+     * 
+     * @param instComposite
+     * @param interfaceName. Optional : a specification containing at least this interface is considered satisfactory.
+     * @param interfaces. Optional : we need a specification with exactly the interfaces provided in the array.
+     * @param specName. Optional : name of the specification. If provided interfaces are not checked.
+     * @param constraints. Optional
+     * @param preferences. Optional
+     * @param multiple
+     * @param allInst
+     * @return
+     */
+    public ASMInst resolveSpec0(Composite instComposite, String interfaceName, String[] interfaces,
             String specName, Set<Filter> constraints, List<Filter> preferences, boolean multiple, Set<ASMInst> allInst) {
-        if ((interfaceName == null) && (specName == null)) {
+        if ((interfaceName == null) && (specName == null) && (interfaces == null)) {
             System.err.println("ERROR : missing parameter interfaceName or specName");
             return null;
         }
-        if (implComposite == null) {
-            System.err.println("ERROR : missing parameter composite in resolveSpec");
-            return null;
+        CompositeType implComposite = null;
+        if (instComposite != null) {
+            implComposite = instComposite.getCompType();
         }
 
         try {
@@ -136,7 +171,10 @@ public class SamMan implements Manager {
             if (specName != null) {
                 asmSpec = CST.ASMSpecBroker.getSpec(specName);
             } else {
-                asmSpec = CST.ASMSpecBroker.getSpecInterf(interfaceName);
+                if (interfaceName != null)
+                    asmSpec = CST.ASMSpecBroker.getSpecInterf(interfaceName);
+                else
+                    asmSpec = CST.ASMSpecBroker.getSpec(interfaces);
             }
 
             // Look by its specification
@@ -150,8 +188,13 @@ public class SamMan implements Manager {
                     }
                 }
             } else { // Look by its interface
-                if (interfaceName != null)
+                if (interfaceName != null) {
                     instInterf = getSamInstanceInterf(interfaceName);
+                } else {
+                    if (interfaces != null) {
+                        instInterf = getSamInstanceInterfaces(interfaces);
+                    }
+                }
             }
             // eliminate those instances that have an Apam impl. it has already been checked by ApamMan
             Set<Instance> allInstances = new HashSet<Instance>();
@@ -178,7 +221,7 @@ public class SamMan implements Manager {
             for (Instance inst : matchInsts) {
                 // ignore the Apam instances, they have been checked by ApamMan
                 if (CST.ASMInstBroker.getInst(inst) == null) {
-                    returnInst = CST.ASMInstBroker.addInst(implComposite, instComposite, inst, null, specName, null);
+                    returnInst = CST.ASMInstBroker.addInst(instComposite, inst, null, specName, null);
                     if (multiple)
                         allInst.add(returnInst);
                     else
@@ -188,66 +231,125 @@ public class SamMan implements Manager {
 
             // we have found a sam Instance.
             if (returnInst != null)
-            	return null;
-            
-            // Last chance look for an implementation that implements the interface.
-            if (interfaceName != null) {
+                return null;
+
+            // Last chance look for an implementation that implements the interface(s).
+            if ((interfaceName != null) || (interfaces != null)) {
                 for (Implementation impl : CST.SAMImplBroker.getImplementations()) {
                     // if it is an Apam impl, it has already been checked by ApamMan
                     if (CST.ASMImplBroker.getImpl(impl) != null)
                         continue;
                     Specification samSpec = impl.getSpecification();
-                    if (samSpec != null) {
-                        for (String interf : samSpec.getInterfaceNames()) {
-                            if (interf.equals(interfaceName)) { // We got an implementation
-     
-                                String apamImplName = (String)impl.getProperty(CST.PROPERTY_IMPLEMENTATION_NAME);
-                                String apamSpecName = (String)impl.getProperty(CST.PROPERTY_COMPOSITE_MAIN_SPECIFICATION);
-
-                            	// activate the implementation in APAM, an create a new instance by APAM API.
-                            	// This will take care of the case of executable composites
-                            	ASMImpl asmImpl = CST.ASMImplBroker.addImpl(implComposite, apamImplName, impl.getName(), apamSpecName, null);
-                            	returnInst = asmImpl.createInst(instComposite, null); 
-                            	
-                               	if (multiple) {
-                               		allInst.add(returnInst);}
-                               	else
-                               		return returnInst;
-                               	
-                               	return null;
-                            	
-                            }
-                        }
+                    if (samSpecMatchInterface(samSpec, interfaceName, interfaces)) {
+                        String apamSpecName = (String) impl
+                                        .getProperty(CST.PROPERTY_COMPOSITE_MAIN_SPECIFICATION);
+                        // activate the implementation in APAM, an create a new instance by APAM API.
+                        // This will take care of the case of composites
+                        ASMImpl asmImpl = CST.ASMImplBroker.addImpl(implComposite, impl.getName(),
+                                        apamSpecName, null);
+                        returnInst = asmImpl.createInst(instComposite, null);
+                        if (multiple) {
+                            allInst.add(returnInst);
+                        } else
+                            return returnInst;
+                        return null;
                     }
                 }
             }
-            
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    // the resolution from an Apam impl has been checked by ApamMan.
-    // If ApamMan could nor resol, SamMan either.
-    // Do nothing
-    @Override
-    public ASMInst resolveImpl(Composite implComposite, Composite instComposite, String samImplName, String implName,
-            Set<Filter> constraints, List<Filter> preferences) {
-        // return resolveImpl0(from, samImplName, implName, depName, constraints, false, null);
-        return null;
+    private boolean samSpecMatchInterface(Specification samSpec, String interfaceName, String[] interfaces) {
+        if (samSpec == null)
+            return false;
+        if (interfaceName != null) {
+            for (String interf : samSpec.getInterfaceNames()) {
+                if (interf.equals(interfaceName)) {
+                    return true;
+                }
+            }
+        }
+        return Util.sameInterfaces(samSpec.getInterfaceNames(), interfaces);
     }
 
     // the resolution from an Apam impl has been checked by ApamMan.
     // If ApamMan could nor resol, SamMan either.
     // Do nothing
     @Override
-    public Set<ASMInst> resolveImpls(Composite implComposite, Composite instComposite, String samImplName,
-            String implName, Set<Filter> constraints, List<Filter> preferences) {
+    public ASMInst resolveImpl(CompositeType implComposite, Composite instComposite, String implName,
+            Set<Filter> constraints, List<Filter> preferences) {
+        return resolveImpl0(implComposite, instComposite, implName, constraints, preferences, false, null);
+    }
+
+    // the resolution from an Apam impl has been checked by ApamMan.
+    // If ApamMan could nor resol, SamMan either.
+    // Do nothing
+    @Override
+    public Set<ASMInst> resolveImpls(CompositeType implComposite, Composite instComposite, String implName,
+            Set<Filter> constraints, List<Filter> preferences) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
-        // resolveImpl0(from, samImplName, implName, depName, constraints, true, allInst);
+        resolveImpl0(implComposite, instComposite, implName, constraints, preferences, true, allInst);
         return allInst;
+    }
+
+    private ASMInst resolveImpl0(CompositeType implComposite, Composite instComposite, String samImplName,
+            Set<Filter> constraints, List<Filter> preferences, boolean multiple, Set<ASMInst> allInsts) {
+        try {
+            Implementation samImpl = CST.SAMImplBroker.getImplementation(samImplName);
+            if ((samImpl == null) || (CST.ASMImplBroker.getImpl(samImplName) != null))
+                return null;
+
+            //the implementation has been found. Create it in Apam.
+            String apamSpecName = (String) samImpl.getProperty(CST.PROPERTY_COMPOSITE_MAIN_SPECIFICATION);
+            ASMImpl asmImpl = CST.ASMImplBroker.addImpl(implComposite, samImplName, apamSpecName, null);
+
+            //Now look for the instances to return.
+            Set<Instance> samInsts = new HashSet<Instance>();
+            //Eliminate the apam instances, they have been checked allready.
+            for (Instance instance : samImpl.getInstances()) {
+                if (CST.ASMInstBroker.getInst(instance) == null)
+                    samInsts.add(instance);
+            }
+
+            // check if it satisfies the constraints
+            Set<Instance> matchInsts;
+            if ((constraints == null) || constraints.isEmpty()) {
+                matchInsts = samInsts;
+            } else {
+                matchInsts = new HashSet<Instance>();
+                Filter filter = Util.buildFilter(constraints);
+                Query query = new QueryLDAPImpl(filter.toString());
+                for (Instance inst : samInsts) {
+                    if (inst.match(query))
+                        matchInsts.add(inst);
+                }
+            }
+
+            ASMInst returnInst = null;
+            //No instance found, instantiate.
+            if (matchInsts.isEmpty()) {
+                returnInst = asmImpl.createInst(instComposite, null);
+                if (multiple) {
+                    allInsts.add(returnInst);
+                }
+                return returnInst;
+            }
+
+            //create in Apam and return the apam instances.
+            for (Instance inst : matchInsts) {
+                returnInst = CST.ASMInstBroker.addInst(instComposite, inst, null, apamSpecName, null);
+                if (multiple)
+                    allInsts.add(returnInst);
+                else
+                    return returnInst;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -256,7 +358,7 @@ public class SamMan implements Manager {
     }
 
     @Override
-    public void newComposite(ManagerModel model, Composite composite) {
+    public void newComposite(ManagerModel model, CompositeType composite) {
 
     }
 
@@ -267,14 +369,27 @@ public class SamMan implements Manager {
     }
 
     @Override
-    public ASMImpl resolveImplByName(Composite implComposite, Composite instComposite, String samImplName,
-            String implName, Set<Filter> constraints, List<Filter> preferences) {
+    public ASMImpl resolveImplByName(Composite composite, String implName) {
         return null;
     }
 
     @Override
-    public ASMImpl resolveSpecByName(Composite implComposite, Composite instComposite, String interfaceName,
-            String specName, Set<Filter> constraints, List<Filter> preferences) {
+    public ASMImpl resolveSpecByName(Composite composite, String specName, Set<Filter> constraints,
+            List<Filter> preferences) {
+        ASMInst inst = resolveSpec0(composite, null, null, specName,
+                constraints, preferences, false, null);
+        if (inst != null)
+            return inst.getImpl();
+        return null;
+    }
+
+    @Override
+    public ASMImpl resolveSpecByInterface(Composite composite, String interfaceName, String[] interfaces,
+            Set<Filter> constraints, List<Filter> preferences) {
+        ASMInst inst = resolveSpec0(composite, interfaceName, interfaces, null,
+                 constraints, preferences, false, null);
+        if (inst != null)
+            return inst.getImpl();
         return null;
     }
 
