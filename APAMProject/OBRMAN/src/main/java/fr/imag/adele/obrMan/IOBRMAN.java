@@ -3,6 +3,7 @@ package fr.imag.adele.obrMan;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Filter;
 
@@ -29,6 +30,7 @@ public interface IOBRMAN {
      * @param capability a capability as found in the OBR repository.xml
      * @param filterStr a String representing a constraint. can be null.
      * @param constraints a set of filters. Can be null.
+     * @param selectedCapability : the capability that matched the constraints.
      * @return a resource matching filterStr and all constraints.
      */
     public Resource getResource(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences);
