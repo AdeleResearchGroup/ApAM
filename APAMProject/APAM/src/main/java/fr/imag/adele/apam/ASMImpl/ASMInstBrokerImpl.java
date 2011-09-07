@@ -18,8 +18,8 @@ import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.CompExType;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.sam.Instance;
@@ -58,7 +58,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
         if (instName == null)
             return null;
         for (ASMInst inst : instances) {
-            if (inst.getASMName().equals(instName)) {
+            if (inst.getName().equals(instName)) {
                 return inst;
             }
         }
@@ -104,7 +104,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
     }
 
     @Override
-    public ASMInst addInst(Composite implComposite, Composite instComposite, Instance samInst, String implName,
+    public ASMInst addInst(Composite instComposite, Instance samInst, String implName,
             String specName, Attributes properties) {
         if (samInst == null) {
             System.out.println("No instance provided for add Instance");
@@ -120,24 +120,19 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
             }
             impl = CST.ASMImplBroker.getImpl(samInst.getImplementation());
             if (impl == null) { // create the implem also
-                if (implComposite == null) {
-                    System.out.println("No implementation for the instance, and composite not provided");
-                    return null;
-                }
-                impl = ASMInstBrokerImpl.implBroker.addImpl(implComposite, implName, samInst.getImplementation()
-                        .getName(),
-                        specName, properties);
+                impl = ASMInstBrokerImpl.implBroker.addImpl(instComposite.getCompType(),
+                        samInst.getImplementation().getName(), specName, properties);
             }
 
             // Normally composite implementations are visible by SAM, but they can not be instantiated. 
             // Their iPojo instances (although allowed) are not visible in the OSGi register or by SAM. 
             // The only way to create an instance of a composite should be using APAM. 
-           
-            if (impl instanceof CompExType) {
-            	System.err.println("Error, trying to activate a composite instance without using the APAM API");
-            	return null;
+
+            if (impl instanceof CompositeType) {
+                System.err.println("Error, trying to activate a composite instance without using the APAM API");
+                return null;
             }
-          
+
             inst = new ASMInstImpl(impl, instComposite, null, samInst);
             addInst(inst);
             return inst;

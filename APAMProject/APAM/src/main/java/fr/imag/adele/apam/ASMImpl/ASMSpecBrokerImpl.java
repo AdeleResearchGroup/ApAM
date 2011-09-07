@@ -11,7 +11,6 @@ import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
-import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
@@ -57,11 +56,11 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
             return null;
 
         for (ASMSpec spec : specs) {
-            if (spec.getASMName() == null) {
+            if (spec.getName() == null) {
                 if (spec.getSamSpec().getName().equals(name))
                     return spec;
             } else {
-                if (name.equals(spec.getASMName()))
+                if (name.equals(spec.getName()))
                     return spec;
             }
         }
@@ -99,16 +98,10 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
     }
 
     @Override
-    public Set<ASMSpec> getUses(ASMSpec specification) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public ASMSpec addSpec(Composite compo, String name, Specification samSpec, Attributes properties) {
-        if ((compo == null) || (samSpec == null))
+    public ASMSpec addSpec(String name, Specification samSpec, Attributes properties) {
+        if ((samSpec == null))
             return null;
-        ASMSpecImpl spec = new ASMSpecImpl(compo, name, samSpec, properties);
+        ASMSpecImpl spec = new ASMSpecImpl(name, samSpec, properties);
         specs.add(spec);
         return spec;
     }
@@ -121,12 +114,6 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
             if (spec.getSamSpec() == samSpec)
                 return spec;
         }
-        return null;
-    }
-
-    @Override
-    public Set<ASMSpec> getUsesRemote(ASMSpec specification) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -173,15 +160,15 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
     }
 
     @Override
-    public ASMSpec createSpec(Composite compo, String specName, String[] interfaces, Attributes properties) {
-        if ((compo == null) || (interfaces == null))
+    public ASMSpec createSpec(String specName, String[] interfaces, Attributes properties) {
+        if (interfaces == null)
             return null;
         ASMSpec ret = null;
         try {
             if (CST.SAMSpecBroker.getSpecification(interfaces) != null) {
-                ret = addSpec(compo, specName, CST.SAMSpecBroker.getSpecification(interfaces), properties);
+                ret = addSpec(specName, CST.SAMSpecBroker.getSpecification(interfaces), properties);
             } else {
-                ret = new ASMSpecImpl(compo, specName, null, properties);
+                ret = new ASMSpecImpl(specName, null, properties);
             }
         } catch (ConnectionException e) {
             e.printStackTrace();
@@ -202,13 +189,12 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
      * @param properties : The initial properties. return an ASM Specification
      */
     @Override
-    public ASMSpec createSpec(Composite compo, String specName, URL url, String type, String[] interfaces,
-            Attributes properties) {
-        if ((compo == null) || (interfaces == null) || (url == null))
+    public ASMSpec createSpec(String specName, URL url, String[] interfaces, Attributes properties) {
+        if ((interfaces == null) || (url == null))
             return null;
 
         try {
-            DeploymentUnit du = CST.SAMDUBroker.install(url, type);
+            DeploymentUnit du = CST.SAMDUBroker.install(url, "bundle");
             du.getSpecificationsName();
         } catch (ConnectionException e) {
             System.out.println("deployment failed for specification " + specName);
@@ -217,12 +203,22 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
         }
 
         ASMSpec asmSpec = getSpec(specName);
-        if (asmSpec != null) { // do not create twice
-            ((ASMSpecImpl) asmSpec).setASMName(specName);
-        } else {
-            asmSpec = createSpec(compo, specName, interfaces, properties);
+        if (asmSpec == null) { // do not create twice
+            asmSpec = createSpec(specName, interfaces, properties);
         }
         return asmSpec;
+    }
+
+    @Override
+    public Set<ASMSpec> getRequires(ASMSpec specification) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Set<ASMSpec> getRequireRemote(ASMSpec specification) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

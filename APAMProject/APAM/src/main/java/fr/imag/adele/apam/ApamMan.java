@@ -15,6 +15,7 @@ import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.util.AttributesImpl;
 
@@ -28,34 +29,33 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public List<Manager> getSelectionPathSpec(ASMInst from, Composite composite, String interfaceName, String specName,
-            Set<Filter> filter, List<Manager> involved) {
+    public List<Manager> getSelectionPathSpec(ASMInst from, CompositeType composite, String interfaceName,
+            String specName, Set<Filter> filter, List<Filter> preferences, List<Manager> involved) {
         return involved;
     }
 
     @Override
-    public List<Manager> getSelectionPathImpl(ASMInst from, Composite composite, String samImplName, String implName,
-            Set<Filter> filter, List<Manager> involved) {
+    public List<Manager> getSelectionPathImpl(ASMInst from, CompositeType composite, String implName,
+            Set<Filter> filter, List<Filter> preferences, List<Manager> involved) {
         return involved;
     }
 
     @Override
-    public ASMInst resolveSpec(Composite implComposite, Composite instComposite, String interfaceName, String specName,
+    public ASMInst resolveSpec(Composite instComposite, String interfaceName, String specName,
             Set<Filter> constraints, List<Filter> preferences) {
-        return resolveSpec0(implComposite, instComposite, interfaceName, specName, constraints, preferences, false,
+        return resolveSpec0(instComposite, interfaceName, specName, constraints, preferences, false,
                 null);
     }
 
     @Override
-    public Set<ASMInst> resolveSpecs(Composite implComposite, Composite instComposite, String interfaceName,
+    public Set<ASMInst> resolveSpecs(Composite instComposite, String interfaceName,
             String specName, Set<Filter> constraints, List<Filter> preferences) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
-        resolveSpec0(implComposite, instComposite, interfaceName, specName, constraints, preferences, true, allInst);
+        resolveSpec0(instComposite, interfaceName, specName, constraints, preferences, true, allInst);
         return allInst;
     }
 
-    private ASMInst resolveSpec0(Composite implComposite, Composite instComposite, String interfaceName,
-            String specName,
+    private ASMInst resolveSpec0(Composite instComposite, String interfaceName, String specName,
             Set<Filter> constraints, List<Filter> preferences, boolean multiple, Set<ASMInst> allInst) {
         //  look for a sharable instance that satisfies the constraints
         // make sure we have the ASM specification
@@ -118,20 +118,20 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public ASMInst resolveImpl(Composite implComposite, Composite instComposite, String samImplName, String implName,
+    public ASMInst resolveImpl(CompositeType implComposite, Composite composite, String implName,
             Set<Filter> constraints, List<Filter> preferences) {
-        return resolveImpl0(implComposite, instComposite, implName, constraints, preferences, false, null);
+        return resolveImpl0(implComposite, composite, implName, constraints, preferences, false, null);
     }
 
     @Override
-    public Set<ASMInst> resolveImpls(Composite implComposite, Composite instComposite, String samImplName,
+    public Set<ASMInst> resolveImpls(CompositeType implComposite, Composite instComposite,
             String implName, Set<Filter> constraints, List<Filter> preferences) {
         Set<ASMInst> allInst = new HashSet<ASMInst>();
         resolveImpl0(implComposite, instComposite, implName, constraints, preferences, true, allInst);
         return allInst;
     }
 
-    private ASMInst resolveImpl0(Composite implComposite, Composite instComposite, String implName,
+    private ASMInst resolveImpl0(CompositeType implComposite, Composite instComposite, String implName,
             Set<Filter> constraints, List<Filter> preferences, boolean multiple, Set<ASMInst> allInst) {
 
         // second pass : look for a sharable instance that satisfies the constraints
@@ -144,7 +144,7 @@ public class ApamMan implements Manager {
             // .getComposite());
             //boolean valide = false;
             for (ASMInst inst : impl.getInsts()) {
-                if (Wire.checkNewWire(implComposite, inst)) {
+                if (Wire.checkNewWire(instComposite, inst)) {
                     boolean satisfies = true;
                     for (Filter filter : constraints) {
                         if (!filter.match((AttributesImpl) inst.getProperties())) {
@@ -192,7 +192,7 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public void newComposite(ManagerModel model, Composite composite) {
+    public void newComposite(ManagerModel model, CompositeType composite) {
 
     }
 
@@ -203,36 +203,29 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public ASMImpl resolveImplByName(Composite implComposite, Composite instComposite,
-            String samImplName, String implName, Set<Filter> constraints, List<Filter> preferences) {
+    public ASMImpl resolveImplByName(Composite composite, String implName) {
         if (implName == null)
             return null;
-        ASMImpl impl = null;
-        impl = CST.ASMImplBroker.getImpl(implName);
-        if (impl != null) {
-            boolean satisfies = true;
-            for (Filter filter : constraints) {
-                if (!filter.match((AttributesImpl) impl.getProperties())) {
-                    satisfies = false;
-                    break;
-                }
-            }
-            if (satisfies)
-                return impl;
-        }
-        return null;
+        return CST.ASMImplBroker.getImpl(implName);
     }
 
     @Override
-    public ASMImpl resolveSpecByName(Composite implComposite, Composite instComposite, String interfaceName,
-            String specName, Set<Filter> constraints, List<Filter> preferences) {
+    public ASMImpl resolveSpecByInterface(Composite instComposite, String interfaceName, String[] interfaces,
+            Set<Filter> constraints,
+            List<Filter> preferences) {
+        ASMSpec spec = CST.ASMSpecBroker.getSpec(interfaces);
+        if (spec == null)
+            return null;
+        return resolveSpecByName(instComposite, spec.getName(), constraints, preferences);
+    }
+
+    @Override
+    public ASMImpl resolveSpecByName(Composite composite, String specName,
+            Set<Filter> constraints, List<Filter> preferences) {
         ASMSpec spec = null;
-        if (specName == null) {
-            if (interfaceName == null)
-                return null;
-            spec = CST.ASMSpecBroker.getSpecInterf(interfaceName);
-        } else
-            spec = CST.ASMSpecBroker.getSpec(specName);
+        if (specName == null)
+            return null;
+        spec = CST.ASMSpecBroker.getSpec(specName);
         if (spec == null)
             return null;
         boolean prefer = ((preferences != null) && !preferences.isEmpty());

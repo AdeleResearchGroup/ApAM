@@ -11,7 +11,6 @@ import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
@@ -20,7 +19,7 @@ import fr.imag.adele.sam.Specification;
 public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
 
     private String             name;
-    private final Composite          myComposite;
+    //    private final CompositeOLD          myComposite;
     private Specification      samSpec         = null;
     private final Set<ASMImpl> implementations = new HashSet<ASMImpl>();
 
@@ -32,24 +31,38 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
 
     // private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
 
-    public void setASMName(String logicalName) {
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String logicalName) {
         if ((logicalName == null) || (logicalName == ""))
             return;
         if (name == null) {
             name = logicalName;
             return;
         }
-        if (!name.equals(logicalName)) {
+        if (name.equals(logicalName))
+            return;
+        if ((samSpec != null) && name.equals(samSpec.getName())) {
             System.out.println("changing logical name, from " + name + " to " + logicalName);
             name = logicalName;
+            return;
         }
+        System.err.println(" Error : cannot change specification name from " + name + " to " + logicalName);
     }
 
-    public ASMSpecImpl(Composite compo, String specName, Specification samSpec, Attributes props) {
-        myComposite = compo;
-        name = specName; // may be null
+    public ASMSpecImpl(String specName, Specification samSpec, Attributes props) {
+        if (((name == null) && (samSpec == null))) {
+            new Exception("Both spec name and samSpec are null in spec constructor");
+            return;
+        }
+        if (specName == null) {
+            name = samSpec.getName();
+        } else
+            name = specName;
         this.samSpec = samSpec; // may be null
-        compo.addSpec(this);
         ((ASMSpecBrokerImpl) CST.ASMSpecBroker).addSpec(this);
         try {
             if (props == null) {
@@ -60,8 +73,6 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
                 this.setProperties(Util.mergeProperties(this, props, samSpec.getProperties()));
             else
                 this.setProperties(Util.mergeProperties(this, props, null));
-            props.setProperty(Attributes.APAMAPPLI, compo.getApplication().getName());
-            props.setProperty(Attributes.APAMCOMPO, compo.getName());
         } catch (ConnectionException e) {
             e.printStackTrace();
         }
@@ -91,7 +102,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         if (name == null)
             return null;
         for (ASMImpl impl : implementations) {
-            if (impl.getASMName().equals(name))
+            if (impl.getName().equals(name))
                 return impl;
         }
         return null;
@@ -152,44 +163,9 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         return Collections.unmodifiableSet(invRequires);
     }
 
-    //
-
-    // @Override
-    // public Set<ASMSpec> getRequires() {
-    // return null;
-    // }
-    //
-    // @Override
-    // public Set<ASMSpec> getInvRequires() {
-    // return null;
-    // }
-
-    @Override
-    public String getASMName() {
-        return name;
-    }
-
-    @Override
-    public String getScope() {
-        String scope = (String) getProperty(CST.A_SCOPE);
-        if (scope == null)
-            scope = CST.V_GLOBAL;
-        return (String) getProperty(CST.A_SCOPE);
-    }
-
-    @Override
-    public Composite getComposite() {
-        return myComposite;
-    }
-
     @Override
     public Specification getSamSpec() {
         return samSpec;
-    }
-
-    @Override
-    public String getShared() {
-        return CST.V_TRUE;
     }
 
     @Override
@@ -213,11 +189,6 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
     @Override
     public Set<ASMImpl> getImpls() {
         return Collections.unmodifiableSet(implementations);
-    }
-
-    @Override
-    public String getSAMName() {
-        return samSpec.getName();
     }
 
     public void setSamSpec(Specification samSpec) {

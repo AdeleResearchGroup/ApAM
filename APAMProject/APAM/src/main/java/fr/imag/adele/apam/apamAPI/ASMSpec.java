@@ -10,17 +10,10 @@ import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Specification;
 
 public interface ASMSpec extends Attributes {
-    public Composite getComposite();
 
-    public String getASMName();
-
-    public String getSAMName();
+    public String getName();
 
     public Specification getSamSpec();
-
-    public String getShared();
-
-    public String getScope();
 
     /**
      * remove from ASM but does not try to delete in SAM. The mapping is still valid. It deletes all its
@@ -28,7 +21,6 @@ public interface ASMSpec extends Attributes {
      */
     public void remove();
 
-    // == adapted from SAM Specification
     /**
      * Return the first {@link ASMImpl} that implement that Abstract Service and with the specified name If name is
      * null, returns null. If more than one service implementation satisfy the method, an arbitrary one is returned.

@@ -60,7 +60,7 @@ public interface ApamClient {
      * @param depName the dependency name
      * @return
      */
-    public ASMInst newWireImpl(ASMInst client, String samImplName, String implName, String depName,
+    public ASMInst newWireImpl(ASMInst client, String implName, String depName,
             Set<Filter> constraints, List<Filter> preferences);
 
     /**
@@ -73,7 +73,7 @@ public interface ApamClient {
      * @param depName the dependency name
      * @return
      */
-    public Set<ASMInst> newWireImpls(ASMInst client, String samImplName, String implName, String depName,
+    public Set<ASMInst> newWireImpls(ASMInst client, String implName, String depName,
             Set<Filter> constraints, List<Filter> preferences);
 
     /**

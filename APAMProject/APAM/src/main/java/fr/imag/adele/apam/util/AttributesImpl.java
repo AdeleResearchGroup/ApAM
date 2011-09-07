@@ -173,7 +173,8 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
     private boolean checkScope(String attr, Object scope) {
         if (!attr.equals(CST.A_SCOPE))
             return true;
-        if (((String) scope).equals(CST.V_LOCAL) || ((String) scope).equals(CST.V_APPLI)
+        if (((String) scope).equals(CST.V_LOCAL)
+                // || ((String) scope).equals(CST.V_APPLI)
                 || ((String) scope).equals(CST.V_COMPOSITE)
                 || ((String) scope).equals(CST.V_GLOBAL)) {
             return true;

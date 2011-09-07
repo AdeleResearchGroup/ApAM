@@ -53,8 +53,8 @@ public interface Manager {
      * @param involved the managers currently involved in this resolution.
      * @return The list of managers involved, including this manager if it feels involved; in the right order.
      */
-    public List<Manager> getSelectionPathSpec(ASMInst from, Composite composite, String interfaceName, String specName,
-            Set<Filter> constraints, List<Manager> involved);
+    public List<Manager> getSelectionPathSpec(ASMInst from, CompositeType compType, String interfaceName,
+            String specName, Set<Filter> constraints, List<Filter> preferences, List<Manager> involved);
 
     /**
      * Provided that a resolution will be asked for a wire between from and the required specification (or interface),
@@ -70,8 +70,8 @@ public interface Manager {
      * @param involved the managers currently involved in this resolution.
      * @return The list of managers involved, including this manager if it feels involved; in the right order.
      */
-    public List<Manager> getSelectionPathImpl(ASMInst from, Composite composite, String samImplName, String implName,
-            Set<Filter> constraints, List<Manager> involved);
+    public List<Manager> getSelectionPathImpl(ASMInst from, CompositeType compType, String implName,
+            Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath);
 
     /**
      * The manager is asked to find the "right" resolution for the required specification (or interface).
@@ -87,7 +87,7 @@ public interface Manager {
      * @param involved the managers currently involved in this resolution.
      * @return an instance if resolved, null otherwise
      */
-    public ASMInst resolveSpec(Composite implComposite, Composite instComposite, String interfaceName, String specName,
+    public ASMInst resolveSpec(Composite instComposite, String interfaceName, String specName,
             Set<Filter> constraints, List<Filter> preferences);
 
     /**
@@ -104,9 +104,8 @@ public interface Manager {
      * @param involved the managers currently involved in this resolution.
      * @return all the instances if resolved, null otherwise
      */
-    public Set<ASMInst> resolveSpecs(Composite implComposite, Composite instComposite, String interfaceName,
-            String specName,
-            Set<Filter> constraints, List<Filter> preferences);
+    public Set<ASMInst> resolveSpecs(Composite instComposite, String interfaceName,
+            String specName, Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * The manager is asked to find the "right" resolution for the required implementation.
@@ -116,14 +115,13 @@ public interface Manager {
      * @param ImplComposite the composite in which is located the calling implem (and where to create implementation, if
      *            needed). Cannot be null.
      * @param InstComposite the composite in which is located the calling instances. Cannot be null.
-     * @param samImplName the technical name of implementation to resolve, as returned by SAM.
-     * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
+     * @param implName the name of implementation to resolve. May be different from SAM. May be null.
      * @param filter The constraints added by this manager.
      * @param involved the managers currently involved in this resolution.
      * @return an instance if resolved, null otherwise
      */
-    public ASMInst resolveImpl(Composite implComposite, Composite instComposite, String samImplName, String implName,
-            Set<Filter> constraints, List<Filter> preferences);
+    public ASMInst resolveImpl(CompositeType compType, Composite composite, String implName, Set<Filter> constraints,
+            List<Filter> preferences);
 
     /**
      * The manager is asked to find the "right" resolution for the required implementation.
@@ -134,14 +132,13 @@ public interface Manager {
      * @param ImplComposite the composite in which is located the calling implem (and where to create implementation, if
      *            needed). Cannot be null.
      * @param InstComposite the composite in which is located the calling instances. Cannot be null.
-     * @param samImplName the technical name of implementation to resolve, as returned by SAM.
-     * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
+     * @param implName the name of implementation to resolve. May be different from SAM. May be null.
      * @param filter The constraints added by this manager.
      * @param involved the managers currently involved in this resolution.
      * @return All the instances if resolved, null otherwise
      */
-    public Set<ASMInst> resolveImpls(Composite implComposite, Composite instComposite, String samImplName,
-            String implName, Set<Filter> constraints, List<Filter> preferences);
+    public Set<ASMInst> resolveImpls(CompositeType compType, Composite composite, String implName,
+            Set<Filter> constraints, List<Filter> preferences);
 
     // returns the relative priority of that manager, for the resolution algorithm
     public int getPriority();
@@ -153,13 +150,14 @@ public interface Manager {
      * @param model the model.
      * @param composite the new composite (or appli)
      */
-    public void newComposite(ManagerModel model, Composite composite);
+    public void newComposite(ManagerModel model, CompositeType composite);
 
-    public ASMImpl resolveImplByName(Composite implComposite, Composite instComposite, String samImplName,
-            String implName,
+    //Simple resolutions
+    public ASMImpl resolveImplByName(Composite composite, String implName);
+
+    public ASMImpl resolveSpecByName(Composite composite, String specName,
             Set<Filter> constraints, List<Filter> preferences);
 
-    public ASMImpl resolveSpecByName(Composite implComposite, Composite instComposite, String interfaceName,
-            String specName,
+    public ASMImpl resolveSpecByInterface(Composite composite, String interfaceName, String[] interfaces,
             Set<Filter> constraints, List<Filter> preferences);
 }

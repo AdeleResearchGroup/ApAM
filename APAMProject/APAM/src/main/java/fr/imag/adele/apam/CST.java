@@ -24,8 +24,10 @@ public class CST {
     public static final String         A_APAMSPECNAME                         = "ApamSpecName";
     public static final String         A_APAMIMPLNAME                         = "ApamImplName";
 
-    // indicate in which scope this object is visible. Instance have the visibility of its implementaiton
+    // indicate in which scope this object is visible. Scope for instances, implscope for implems.
     public static final String         A_SCOPE                                = "SCOPE";
+    public static final String         A_IMPLSCOPE                            = "IMPLSCOPE";
+    public static final String         V_LOCALSCOPE                           = "LOCALSCOPE";
     // visible everywhere
     public static final String         V_GLOBAL                               = "GLOBAL";
     // visible in the current appli only
@@ -61,7 +63,7 @@ public class CST {
     //Value boolean
     public static final String         PROPERTY_COMPOSITE                     = "apam-composite";
     //String
-    public static final String         PROPERTY_IMPLEMENTATION_NAME			  = "apam-implementation";
+    //    public static final String         PROPERTY_IMPLEMENTATION_NAME           = "apam-implementation";
     //String
     public static final String         PROPERTY_COMPOSITE_MAIN_IMPLEMENTATION = "apam-main-implementation";
     //String

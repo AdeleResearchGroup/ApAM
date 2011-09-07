@@ -13,14 +13,12 @@ import fr.imag.adele.am.Machine;
 import fr.imag.adele.am.eventing.AMEventingHandler;
 import fr.imag.adele.am.eventing.EventingEngine;
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ApplicationImpl;
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompExTypeImpl;
+import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.Application;
-import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.sam.Implementation;
@@ -74,13 +72,8 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         if (implName == null)
             return null;
         for (ASMImpl impl : implems) {
-            if (impl.getASMName() == null) {
-                if (impl.getSamImpl().getName().equals(implName))
-                    return impl;
-            } else {
-                if (implName.equals(impl.getASMName()))
-                    return impl;
-            }
+            if (implName.equals(impl.getName()))
+                return impl;
         }
         return null;
     }
@@ -103,23 +96,19 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         return ret;
     }
 
-    private ASMImpl addImpl0(Composite compo, String implName, Implementation samImpl, String specName,
+    private ASMImpl addImpl0(CompositeType compo, Implementation samImpl, String specName,
             Attributes properties) {
-        if ((samImpl == null) || (compo == null)) {
-            System.err.println("ERROR : missing Implementaion or composite in addImpl");
+        if (samImpl == null) {
+            System.err.println("ERROR : missing sam Implementaion in addImpl");
             return null;
         }
+        //       if (compo == null && )
+        String implName = samImpl.getName();
         try {
-            Specification samSpec;
+            //specification control
+            Specification samSpec = samImpl.getSpecification();
             ASMImpl asmImpl = null;
-            asmImpl = getImpl(implName);
-            if (asmImpl != null) { // do not create twice
-                ((ASMImplImpl) asmImpl).setASMName(implName);
-                ((ASMSpecImpl) asmImpl.getSpec()).setASMName(specName);
-                return asmImpl;
-            }
             ASMSpecImpl spec = null;
-            samSpec = samImpl.getSpecification();
             if (samSpec != null) { // may be null !
                 spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(samSpec);
             }
@@ -129,26 +118,27 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
                                     // Add it now.
                     spec.setSamSpec(samSpec);
                 } else { // create the spec
-                    spec = new ASMSpecImpl(compo, specName, samSpec, properties);
+                    spec = new ASMSpecImpl(specName, samSpec, properties);
                 }
             }
             if (specName != null)
-                spec.setASMName(specName);
+                spec.setName(specName);
+
+            //if allready existing do not duplicate
+            asmImpl = getImpl(implName);
+            if (asmImpl != null) { // do not create twice
+                ((ASMSpecImpl) asmImpl.getSpec()).setName(specName);
+                return asmImpl;
+            }
 
             // create a primitive or composite implementation
-
             if ((samImpl.getProperty(CST.PROPERTY_COMPOSITE) != null) &&
                     ((Boolean) samImpl.getProperty(CST.PROPERTY_COMPOSITE) == true)) {
-            	
-            	// TODO Allow specifying properties to the composite instance
-            	asmImpl = CompExTypeImpl.createCompExType(compo, samImpl);
+                // Allow specifying properties to the composite instance
+                asmImpl = CompositeTypeImpl.createCompositeType(compo, samImpl);
+            } else {
+                asmImpl = new ASMImplImpl(compo, spec, samImpl, properties);
             }
-            else
-            	asmImpl = new ASMImplImpl(compo, implName, spec, samImpl, properties);
-
-            //          Application appli = asmImpl.getComposite().getApplication();
-            //            if ((asmImpl.getSpec() == appli.getMainSpec()) && (appli.getMainImpl() == null))
-            //                ((ApplicationImpl) appli).setMainImpl(asmImpl);
 
             return asmImpl;
 
@@ -161,8 +151,8 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
 
     @Override
     public ASMImpl
-            addImpl(Composite compo, String implName, String samImplName, String specName, Attributes properties) {
-        if ((samImplName == null) || (compo == null)) {
+            addImpl(CompositeType compo, String samImplName, String specName, Attributes properties) {
+        if (samImplName == null) {
             System.out.println("ERROR : parameter Sam Implementation " + samImplName
                     + " or composite : " + compo + " missing. In addimpl.");
             return null;
@@ -174,7 +164,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
                 System.out.println("ERROR : Sam Implementation " + samImplName + " cannot be found");
                 return null;
             }
-            return addImpl0(compo, samImplName, samImpl, specName, properties);
+            return addImpl0(compo, samImpl, specName, properties);
 
         } catch (ConnectionException e) {
             e.printStackTrace();
@@ -183,30 +173,39 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
     }
 
     @Override
-    public ASMImpl createImpl(Composite compo, String implName, URL url, String specName,
+    public ASMImpl createImpl(CompositeType compo, String implName, URL url, String specName,
             Attributes properties) {
 
-        if ((url == null) || (compo == null))
+        if (url == null)
             return null;
 
-        String implNameExpected = null;
+        //        String implNameExpected = null;
         Implementation samImpl;
         ASMImpl asmImpl = null;
         try {
             asmImpl = getImpl(implName);
             if (asmImpl != null) { // do not create twice
-                ((ASMImplImpl) asmImpl).setASMName(implName);
-                ((ASMSpecImpl) asmImpl.getSpec()).setASMName(specName);
+                ((ASMSpecImpl) asmImpl.getSpec()).setName(specName);
                 return asmImpl;
             }
 
             DeploymentUnit du = CST.SAMDUBroker.install(url, "bundle");
             Set<String> implementationsNames = du.getImplementationsName();
-            implNameExpected = (String) implementationsNames.toArray()[0];
+            boolean found = false;
+            for (String implInBundle : implementationsNames) {
+                if (implInBundle.equals(implName)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                System.err.println("Error : Bundle at URL " + url + " does not contain implementation " + implName);
+                return null;
+            }
 
-            CST.implEventHandler.addExpected(implNameExpected);
+            CST.implEventHandler.addExpected(implName);
             du.activate();
-            samImpl = CST.implEventHandler.getImplementation(implNameExpected);
+            samImpl = CST.implEventHandler.getImplementation(implName);
             // TODO comment savoir si une instance a été créée dans la foulée,
             // et sous quel nom ?
         } catch (ConnectionException e) {
@@ -214,11 +213,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             return null;
         }
 
-        asmImpl = addImpl0(compo, implName, samImpl, specName, properties);
-        // in case it is the main implementation
-        //        Application appli = asmImpl.getComposite().getApplication();
-        //        if ((asmImpl.getSpec() == appli.getMainSpec()) && (appli.getMainImpl() == null))
-        //            ((ApplicationImpl) appli).setMainImpl(asmImpl);
+        asmImpl = addImpl0(compo, samImpl, specName, properties);
         return asmImpl;
     }
 
@@ -233,17 +228,6 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
     }
 
     @Override
-    public ASMImpl getImplSamName(String samName) {
-        if (samName == null)
-            return null;
-        for (ASMImpl impl : implems) {
-            if (impl.getSamImpl().getName().equals(samName))
-                return impl;
-        }
-        return null;
-    }
-
-    @Override
     public Set<ASMImpl> getImpls(ASMSpec spec) {
         Set<ASMImpl> impls = new HashSet<ASMImpl>();
         for (ASMImpl impl : implems) {
@@ -252,40 +236,5 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         }
         return impls;
     }
-
-    // @Override
-    // public Set<ASMImpl> getShareds(ASMSpec spec, Application appli, Composite compo) {
-    // Set<ASMImpl> ret = new HashSet<ASMImpl>();
-    // for (ASMImpl inst : implems) {
-    // if (inst.getSpec() == spec) {
-    // if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
-    // ret.add(inst);
-    // else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
-    // .getApplication() == appli))) {
-    // ret.add(inst);
-    // } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
-    // ret.add(inst);
-    // }
-    // }
-    // }
-    // return ret;
-    // }
-    //
-    // @Override
-    // public ASMImpl getShared(ASMSpec spec, Application appli, Composite compo) {
-    // for (ASMImpl inst : implems) {
-    // if (inst.getSpec() == spec) {
-    // if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
-    // return inst;
-    // else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
-    // .getApplication() == appli))) {
-    // return inst;
-    // } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
-    // return inst;
-    // }
-    // }
-    // }
-    // return null;
-    // }
 
 }

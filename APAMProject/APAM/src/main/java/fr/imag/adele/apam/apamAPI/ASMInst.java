@@ -10,9 +10,14 @@ import fr.imag.adele.sam.Instance;
 
 public interface ASMInst extends Attributes {
 
+    //The composite in which this instance pertains.
+    //WARNING : may be null. A root composite, as an ASMInst, does not pertain to any other Composite
     public Composite getComposite();
 
-    public String getASMName();
+    //The composite at the end of the "father" relationship chain. 
+    public Composite getRootComposite();
+
+    public String getName();
 
     // The SAM instance associated with this Apam one.
     public Instance getSAMInst();

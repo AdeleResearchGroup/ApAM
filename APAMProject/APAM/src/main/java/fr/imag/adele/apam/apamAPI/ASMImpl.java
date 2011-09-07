@@ -11,13 +11,10 @@ import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Implementation;
 
 public interface ASMImpl extends Attributes {
-    public Composite getComposite();
 
-    public String getASMName();
+    public Set<CompositeType> getComposites();
 
-    public void setASMName(String logicalName);
-
-    public String getSAMName();
+    public String getName();
 
     public Implementation getSamImpl();
 
@@ -27,21 +24,14 @@ public interface ASMImpl extends Attributes {
 
     public void remove();
 
-    // ====
-
     /**
      * Creates an instance of that implementation, and initialize its properties with the set of provided properties.
      * The actual new service properties are those provided plus those found in the associated implementation, plus
      * those in the associated specification.
      * <p>
-     * It throws exception UnsupportedOperationException if the current implementation object does not support that
-     * functionality.
      * 
      * @param initialproperties the initial properties
      * @return the instance
-     * @throws UnsupportedOperationException the unsupported operation exception
-     * @throws IllegalArgumentException the illegal argument exception
-     * @throws ConnectionException the connection exception
      */
     public ASMInst createInst(Composite compo, Attributes initialproperties);
 

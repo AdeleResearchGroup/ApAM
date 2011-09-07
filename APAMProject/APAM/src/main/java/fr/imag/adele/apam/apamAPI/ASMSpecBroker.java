@@ -14,17 +14,11 @@ import fr.imag.adele.sam.Specification;
 public interface ASMSpecBroker {
     /**
      * 
-     * @param compo
-     *            the composite in which to create that spec.
-     * @param specName
-     *            the *logical* name of that specification; different from SAM.
+     * @param specName the *logical* name of that specification; different from SAM.
      *            May be null.
-     * @param samSpec
-     *            : A SAM specification. return an ASM Specification
+     * @param samSpec : A SAM specification.
      */
-    public ASMSpec addSpec(Composite compo, String specName, Specification samSpec, Attributes properties);
-
-    // public Specification createSpec (Specification Spec) ;
+    public ASMSpec addSpec(String specName, Specification samSpec, Attributes properties);
 
     /**
      * Creates a specification. WARNING : this spec may not have any
@@ -40,7 +34,7 @@ public interface ASMSpecBroker {
      * @param properties
      *            : The initial properties. return an ASM Specification
      */
-    public ASMSpec createSpec(Composite compo, String specName, String[] interfaces, Attributes properties);
+    public ASMSpec createSpec(String specName, String[] interfaces, Attributes properties);
 
     /**
      * Creates and deploys a specification. WARNING : The fact to deploy the
@@ -48,22 +42,14 @@ public interface ASMSpecBroker {
      * any spec in SAM. This spec may not have any corresponding spec in SAM. It
      * does not try to create one in SAM.
      * 
-     * @param compo
-     *            the composite in which to create that spec.
-     * @param specName
-     *            the *logical* name of that specification; different from SAM.
+     * @param compo the composite in which to create that spec.
+     * @param specName the *logical* name of that specification; different from SAM.
      *            May be null.
-     * @param url
-     *            the location of the executable to deploy
-     * @param type
-     *            type of executable to deploy (bundle, jar, war, exe ...)
-     * @param interfaces
-     *            the list of interfaces this spec implements
-     * @param properties
-     *            : The initial properties. return an ASM Specification
+     * @param url the location of the executable to deploy
+     * @param interfaces the list of interfaces this spec implements
+     * @param properties : The initial properties. return an ASM Specification
      */
-    public ASMSpec createSpec(Composite compo, String specName, URL url, String type, String[] interfaces,
-            Attributes properties);
+    public ASMSpec createSpec(String specName, URL url, String[] interfaces, Attributes properties);
 
     /**
      * WARNING : it will also destroy all implems and instances.
@@ -94,7 +80,7 @@ public interface ASMSpecBroker {
      * @throws ConnectionException
      *             the connection exception
      */
-    public Set<ASMSpec> getUses(ASMSpec specification);
+    public Set<ASMSpec> getRequires(ASMSpec specification);
 
     /**
      * Returns the first abstract service that satisfies the goal. If goal is
@@ -183,8 +169,7 @@ public interface ASMSpecBroker {
      * 
      * @return the abstract services
      * @throws ConnectionException
-     *             the connection exception Returns all the
-     *             {@link ExportedAbstractService} exported by this Machine. If
+     *             the connection exception Returns all the {@link ExportedAbstractService} exported by this Machine. If
      *             none, returns null.
      */
 
@@ -199,8 +184,8 @@ public interface ASMSpecBroker {
      *            the goal
      * @return the abstract services
      * @throws ConnectionException
-     *             the connection exception Returns all the
-     *             {@link ExportedAbstractService} exported by this Machine that
+     *             the connection exception Returns all the {@link ExportedAbstractService} exported by this Machine
+     *             that
      *             satisfies the goal. If goal is null, returns all the exported
      *             AbstractService. If none, returns null.
      */
@@ -222,6 +207,6 @@ public interface ASMSpecBroker {
      * @throws ConnectionException
      *             the connection exception
      */
-    public Set<ASMSpec> getUsesRemote(ASMSpec specification);
+    public Set<ASMSpec> getRequireRemote(ASMSpec specification);
 
 }

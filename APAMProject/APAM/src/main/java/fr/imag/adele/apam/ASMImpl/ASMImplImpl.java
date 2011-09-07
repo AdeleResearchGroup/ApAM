@@ -14,6 +14,7 @@ import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
@@ -24,17 +25,19 @@ import fr.imag.adele.sam.broker.ImplementationBroker;
 public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
     protected static ASMImplBroker        myBroker      = CST.ASMImplBroker;
-    protected static ImplementationBroker samImplBroker = CST.SAMImplBroker;      ;
+    protected static ImplementationBroker samImplBroker = CST.SAMImplBroker;            ;
 
-    protected final Set<ASMImpl>          uses          = new HashSet<ASMImpl>(); // all relations uses
-    protected final Set<ASMImpl>          invUses       = new HashSet<ASMImpl>(); // all reverse relations uses
+    protected final Set<ASMImpl>          uses          = new HashSet<ASMImpl>();      // all relations uses
+    protected final Set<ASMImpl>          invUses       = new HashSet<ASMImpl>();      // all reverse relations uses
+
+    protected final Set<CompositeType>    inComposites  = new HashSet<CompositeType>(); // composite it is contained in.
 
     protected String                      name;
     protected ASMSpec                     mySpec;
-    protected final Composite             myComposite;
+    protected Set<CompositeType>          myComposites  = new HashSet<CompositeType>(); // composite it contains.
     protected Implementation              samImpl       = null;
 
-    protected final Set<ASMInst>          instances     = new HashSet<ASMInst>();
+    protected Set<ASMInst>                instances     = new HashSet<ASMInst>();
 
     // private int shared = ASM.SHAREABLE;
     // private int clonable = ASM.TRUE;
@@ -46,40 +49,51 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
      * @param name CADSE name
      * 
      */
-    public ASMImplImpl(Composite compo, String implName, ASMSpecImpl spec, Implementation impl, Attributes props) {
-        name = implName;
-        myComposite = compo;
+
+    public ASMImplImpl(CompositeType compo, ASMSpecImpl spec, Implementation impl, Attributes props) {
+        name = impl.getName(); //warning, for composites, it is a different name. Overloaded in createCOmpositeType
+        mySpec = spec;
+        if (impl == null) {
+            new Exception("Sam Implementation cannot be null when creating an imple").printStackTrace();
+        }
+        samImpl = impl;
+        ((ASMImplBrokerImpl) ASMImplImpl.myBroker).addImpl(this);
+        if (compo != null) { //compo is null for the root composite AND its main implem.
+                             // done in create composite type when compo is null 
+            initializeNewImpl(compo, props);
+        }
+    }
+
+    //warning : for setting composite name, which is different from sam name.
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void initializeNewImpl(CompositeType compo, Attributes props) {
+        myComposites.add(compo);
         compo.addImpl(this);
+        if (props == null) {
+            props = new AttributesImpl();
+        }
+        //        props.setProperty(Attributes.APAMAPPLI, compo.getApplication().getName());
+        props.setProperty(Attributes.APAMCOMPO, compo.getName());
+        // initialize properties. A fusion of SAM and APAM values
         try {
-            mySpec = spec;
-            if (impl == null) {
-                System.out.println("Sam Implementation cannot be null when creating an imple");
-            }
-            samImpl = impl;
-            ((ASMImplBrokerImpl) ASMImplImpl.myBroker).addImpl(this);
-            if (props == null) {
-                props = new AttributesImpl();
-            }
-            props.setProperty(Attributes.APAMAPPLI, compo.getApplication().getName());
-            props.setProperty(Attributes.APAMCOMPO, compo.getName());
-            // initialize properties. A fusion of SAM and APAM values
-
-            this.setProperties(Util.mergeProperties(this, props, impl.getProperties()));
-
+            this.setProperties(Util.mergeProperties(this, props, getSamImpl().getProperties()));
         } catch (ConnectionException e) {
             e.printStackTrace();
         }
-        compo.addImpl(this);
     }
 
     @Override
     public String toString() {
-        String ret;
-        if (name == null)
-            ret = " (" + samImpl.getName() + ") ";
-        else
-            ret = name + " (" + samImpl.getName() + ") ";
-        return ret;
+        return name;
+        //        String ret;
+        //        if (name == null)
+        //            ret = " (" + samImpl.getName() + ") ";
+        //        else
+        //            ret = name + " (" + samImpl.getName() + ") ";
+        //        return ret;
     }
 
     /**
@@ -123,7 +137,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         if (targetName == null)
             return null;
         for (ASMInst inst : instances) {
-            if (inst.getASMName().equals(targetName))
+            if (inst.getName().equals(targetName))
                 return inst;
         }
         return null;
@@ -163,27 +177,13 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     }
 
     @Override
-    public String getASMName() {
+    public String getName() {
         return name;
     }
 
     @Override
-    public void setASMName(String logicalName) {
-        if ((logicalName == null) || (logicalName == ""))
-            return;
-        if (name == null) {
-            name = logicalName;
-            return;
-        }
-        if (!name.equals(logicalName)) {
-            System.out.println("changign logical name, from " + name + " to " + logicalName);
-            name = logicalName;
-        }
-    }
-
-    @Override
-    public Composite getComposite() {
-        return myComposite;
+    public Set<CompositeType> getComposites() {
+        return Collections.unmodifiableSet(myComposites);
     }
 
     @Override
@@ -238,6 +238,14 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         invUses.remove(orig);
     }
 
+    public void addInComposites(CompositeType compo) {
+        inComposites.add(compo);
+    }
+
+    public void removeInComposites(CompositeType compo) {
+        inComposites.remove(compo);
+    }
+
     @Override
     public Set<ASMImpl> getUses() {
         return Collections.unmodifiableSet(uses);
@@ -274,11 +282,6 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     @Override
     public boolean isInstantiable() {
         return samImpl.isInstantiator();
-    }
-
-    @Override
-    public String getSAMName() {
-        return samImpl.getName();
     }
 
 }
