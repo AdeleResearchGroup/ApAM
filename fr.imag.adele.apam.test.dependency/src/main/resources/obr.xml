@@ -1,7 +1,6 @@
 <obr> 
    <capability name='apam-component'>
       <p n='name' v='DependencyTest' />
-      <p n='apam-implementation' v='APAMDependencyTest' />
       <p n='apam-specification' v='APAMDependencyTestSpec' />
       <p n='interfaces' v='fr.imag.adele.apam.test.dependency.DependencyTestProvidedInterface' />
    </capability>
@@ -13,7 +12,7 @@
       <p n='apam-implementation' v='AppliTest' />
       <p n='apam-specification' v='APAMDependencyTestSpec' />
       <p n='apam-composite' v='true' />
-      <p n='apam-main-implementation' v='APAMDependencyTest' />
+      <p n='apam-main-implementation' v='DependencyTest' />
       <p n='interfaces' v='fr.imag.adele.apam.test.dependency.DependencyTestProvidedInterface' />
    </capability>
    <capability name='apam-interface'>
