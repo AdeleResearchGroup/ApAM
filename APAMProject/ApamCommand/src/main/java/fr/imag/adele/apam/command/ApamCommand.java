@@ -218,7 +218,7 @@ public class ApamCommand {
     @Descriptor("Display an Apam composites")
     public void compo(@Descriptor("target composite") String compoName) {
         Composite compo = apam.getComposite(compoName);
-        if (compoName == null) {
+        if (compo == null) {
             System.out.println("No such composite : " + compoName);
             return;
         }
