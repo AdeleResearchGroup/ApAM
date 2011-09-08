@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apamAPI.CompositeOLD;
 import fr.imag.adele.dynamic.application.manager.DynamicApplicationPlatform;
 import fr.imag.adele.dynamic.application.manager.ServiceClassifier;
 import fr.imag.adele.sam.Instance;
@@ -22,14 +22,14 @@ public class CompositeServiceInterpreter {
 	/**
 	 * A factory method to create an interpreter for the given composite and model
 	 */
-	public static CompositeServiceInterpreter create(DynamicApplicationPlatform platform, Composite composite, URL model) {
+	public static CompositeServiceInterpreter create(DynamicApplicationPlatform platform, CompositeOLD composite, URL model) {
 		return new CompositeServiceInterpreter(composite, platform);
 	}
 	
 	/**
 	 * The composite handled by this interpreter
 	 */
-	private final Composite		composite;
+	private final CompositeOLD		composite;
 	
 	/**
 	 * The execution platform for running this interpreter
@@ -56,7 +56,7 @@ public class CompositeServiceInterpreter {
 	/**
 	 * Builds a new instance of the interpreter
 	 */
-	public CompositeServiceInterpreter(Composite composite, DynamicApplicationPlatform platform) {
+	public CompositeServiceInterpreter(CompositeOLD composite, DynamicApplicationPlatform platform) {
 		this.composite			= composite;
 		this.platform			= platform;
 		
@@ -68,7 +68,7 @@ public class CompositeServiceInterpreter {
 	/**
 	 * Get the associated composite
 	 */
-	public Composite getComposite() {
+	public CompositeOLD getComposite() {
 		return composite;
 	}
 	

@@ -376,7 +376,6 @@ public class OBRMan implements Manager, IOBRMAN {
             Thread.sleep(10);
 
             // Return already deployed instances if found
-
             Set<Instance> existingInstances = samImpl.getInstances();
             if ((existingInstances != null) && !existingInstances.isEmpty()) {
                 if (allInst == null)
@@ -387,7 +386,6 @@ public class OBRMan implements Manager, IOBRMAN {
                     if (!multiple)
                         return asmInst;
                 }
-
                 return null;
             }
 
@@ -580,7 +578,6 @@ public class OBRMan implements Manager, IOBRMAN {
         Selected selected = getResourceImpl(implName, constraints, preferences);
         if (selected != null) {
             installInstantiate(selected.resource, implName, implComposite, instComposite, true, allInsts);
-
             System.out.print("deployed instances :");
             for (ASMInst inst : allInsts) {
                 System.out.print(" " + inst.getName());

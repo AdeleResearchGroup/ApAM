@@ -12,14 +12,14 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompositeImpl;
+import fr.imag.adele.apam.CompositeImplOLD;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.Apam;
 import fr.imag.adele.apam.apamAPI.ApamClient;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
-import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apamAPI.CompositeOLD;
 import fr.imag.adele.apam.apamAPI.DynamicManager;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.apamAPI.ManagersMng;
@@ -143,7 +143,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * Executes the dynamic model to the specified composite
 	 */
 	
-	public synchronized void newComposite(ManagerModel model, Composite composite) {
+	public synchronized void newComposite(ManagerModel model, CompositeOLD composite) {
 		/*
 		 * ignore calls while invalidated
 		 */
@@ -183,7 +183,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		 * the appearing instance
 		 */
 
-		Composite composite = getCompositeWaitingFor(instance);
+		CompositeOLD composite = getCompositeWaitingFor(instance);
 
 		/*
 		 * If none found,  try those composites that would bind dynamically to the instance
@@ -211,13 +211,13 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * Get the composite containing the greatest number of instances waiting for resolution that can
 	 * be potentially satisfied by the specified instance. 
 	 */
-	private Composite getCompositeWaitingFor(Instance instance) {
+	private CompositeOLD getCompositeWaitingFor(Instance instance) {
 
 		/*
 		 * Count the number of request that could be satisfied for any composite
 		 * with pending requests.
 		 */
-		Map<Composite,Integer> counts = new HashMap<Composite, Integer>();
+		Map<CompositeOLD,Integer> counts = new HashMap<CompositeOLD, Integer>();
 		
 		for (ASMInst source : pendingRequests.keySet()) {
 			for (BindingRequest pendingRequest : getPendingRequests(source)) {
@@ -225,7 +225,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 				if (! pendingRequest.isSatisfiedBy(instance))
 					continue;
 				
-				Composite composite		= pendingRequest.getSource().getComposite(); 
+				CompositeOLD composite		= pendingRequest.getSource().getComposite(); 
 
 				Integer currentCount	= counts.get(composite);
 				currentCount 			= (currentCount == null) ? 1 : currentCount+1;
@@ -240,10 +240,10 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		if (counts.isEmpty())
 			return null;
 
-		Composite SelectedComposite = null;
+		CompositeOLD SelectedComposite = null;
 		int maxCount = -1;
 		
-		for (Composite composite : counts.keySet()) {
+		for (CompositeOLD composite : counts.keySet()) {
 			int count = counts.get(composite);
 			if (count > maxCount) {
 				maxCount = count;
@@ -258,9 +258,9 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * Get the composite containing the greatest number of dynamic binding declarations that can possibly
 	 * be satisfied by the specified instance. 
 	 */
-	private Composite getCompositeBindingTo(Instance instance) {
+	private CompositeOLD getCompositeBindingTo(Instance instance) {
 
-		Composite SelectedComposite = null;
+		CompositeOLD SelectedComposite = null;
 		int maxCount = -1;
 		
 		for (CompositeServiceInterpreter runningComposite : runningComposites) {
@@ -527,7 +527,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
 
-		public void newComposite(ManagerModel model, Composite composite) {
+		public void newComposite(ManagerModel model, CompositeOLD composite) {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
 
