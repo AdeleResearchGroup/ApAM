@@ -114,32 +114,33 @@ public class ApamRepoBuilder {
 
         //apam attributes
         obrContent.append("   <capability name='apam-component'>\n");
-        
+
         // The ipojo name
         obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
 
-        // The optional APAM name
-        if (component.getApamImplementation() != null)
-            obrContent.append("      <p n='apam-implementation' v='" + component.getApamImplementation()
-                    + "' />\n");
+        //        // The optional APAM name
+        //        if (component.getApamImplementation() != null)
+        //            obrContent.append("      <p n='apam-implementation' v='" + component.getApamImplementation()
+        //                    + "' />\n");
 
         // The name of the APAM provided interface. Optional if not defined the interface will be used
         if (component.getApamSpecification() != null)
-            obrContent.append("      <p n='apam-specification' v='" +component.getApamSpecification()
+            obrContent.append("      <p n='apam-specification' v='" + component.getApamSpecification()
                     + "' />\n");
 
         // Information for composites
         if (component.isComposite()) {
-        	obrContent.append("      <p n='apam-composite' v='" + component.isComposite() + "' />\n");
-        	obrContent.append("      <p n='apam-main-implementation' v='" + component.getApamMainImplementation() + "' />\n");
+            obrContent.append("      <p n='apam-composite' v='" + component.isComposite() + "' />\n");
+            obrContent.append("      <p n='apam-main-implementation' v='" + component.getApamMainImplementation()
+                    + "' />\n");
         }
 
         // property attributes
-        Map<String,String> properties = component.getProperties();
+        Map<String, String> properties = component.getProperties();
         for (String propertyName : properties.keySet()) {
             obrContent.append("      <p n='" + propertyName + "' v='"
                     + properties.get(propertyName) + "' />\n");
-		}
+        }
 
         //interfaces
         List<String> interfaces = component.getInterfaces(jarfile);
@@ -152,19 +153,18 @@ public class ApamRepoBuilder {
             }
             obrContent.append("' />\n");
         }
-        
 
         obrContent.append("   </capability>\n");
 
         //interfaces again as capabilities
-        
-        if (!interfaces.isEmpty()) {
-            for (int j = 0; j < interfaces.size(); j++) {
-                obrContent.append("   <capability name='apam-interface'>\n");
-                obrContent.append("      <p n='name' v='" + interfaces.get(j) + "' />\n");
-                obrContent.append("   </capability>\n");
-            }
-        }
+
+        //        if (!interfaces.isEmpty()) {
+        //            for (int j = 0; j < interfaces.size(); j++) {
+        //                obrContent.append("   <capability name='apam-interface'>\n");
+        //                obrContent.append("      <p n='name' v='" + interfaces.get(j) + "' />\n");
+        //                obrContent.append("   </capability>\n");
+        //            }
+        //        }
 
     }
 
@@ -255,7 +255,7 @@ public class ApamRepoBuilder {
         }
     }
 
-     public List<ApamComponentInfo> getMetadataInfo(InputStream metadata) {
+    public List<ApamComponentInfo> getMetadataInfo(InputStream metadata) {
         if (metadata != null) {
             parseXMLMetadata(metadata);
         }
@@ -279,7 +279,7 @@ public class ApamRepoBuilder {
         for (int i = 0; i < m_metadata.size(); i++) {
             Element meta = m_metadata.get(i);
             if (isApamComponent(meta)) {
-            	apamComponents.add(new ApamComponentInfo(meta));
+                apamComponents.add(new ApamComponentInfo(meta));
             }
         }
         return apamComponents;
@@ -287,17 +287,18 @@ public class ApamRepoBuilder {
 
     /**
      * Whether an ipojo metada corresponds to an APAM component
+     * 
      * @param meta
      * @return
      */
     private boolean isApamComponent(Element meta) {
-    	
-		boolean isPrimitiveIPojo	= meta.getName().equalsIgnoreCase("component") && meta.getAttribute("classname") != null;
-		boolean isApamComposite		= meta.getName().equalsIgnoreCase("apam.composite");
-		
-		return isPrimitiveIPojo || isApamComposite;
-	}
 
+        boolean isPrimitiveIPojo = meta.getName().equalsIgnoreCase("component")
+                && (meta.getAttribute("classname") != null);
+        boolean isApamComposite = meta.getName().equalsIgnoreCase("apam.composite");
+
+        return isPrimitiveIPojo || isApamComposite;
+    }
 
     /**
      * Component Info. Represent a component type to be manipulated.
@@ -305,152 +306,155 @@ public class ApamRepoBuilder {
      * @author <a href="mailto:felix-dev@incubator.apache.org">Felix Project Team</a>
      */
     private final class ApamComponentInfo {
-    	
-    	final static String APAM_NAMESPACE 					= "fr.imag.adele.apam";
-    	
-    	final static String APAM_SPECIFICATION_PROPERTY 	= "specification";
 
-    	final static String APAM_IMPLEMENTATION_PROPERTY 	= "implementation";
-    	
+        final static String   APAM_NAMESPACE               = "fr.imag.adele.apam";
+
+        final static String   APAM_SPECIFICATION_PROPERTY  = "specification";
+
+        final static String   APAM_IMPLEMENTATION_PROPERTY = "implementation";
+
         /**
          * Component Type metadata.
          */
-        private Element m_componentMetadata;
-
+        private final Element m_componentMetadata;
 
         /**
          * Constructor.
+         * 
          * @param met : component type metadata
          */
         public ApamComponentInfo(Element met) {
-        	m_componentMetadata = met;
+            m_componentMetadata = met;
         }
-        
+
         /**
          * The name of the component
          */
-        public  String getName() {
-        	return m_componentMetadata.getAttribute("name");
+        public String getName() {
+            return m_componentMetadata.getAttribute("name");
         }
-        
+
         /**
          * Whether this is a composite definition
+         * 
          * @return
          */
         public boolean isComposite() {
-        	return m_componentMetadata.getName().equalsIgnoreCase("apam.composite");
+            return m_componentMetadata.getName().equalsIgnoreCase("apam.composite");
         }
-        
+
         /**
          * Get the apam provided specification name. For composites it correspond to the specification
-         * provided by the main implementation.     
+         * provided by the main implementation.
          */
-        
+
         public String getApamSpecification() {
-        	return m_componentMetadata.getAttribute(APAM_SPECIFICATION_PROPERTY,APAM_NAMESPACE);
+            return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_SPECIFICATION_PROPERTY,
+                    ApamComponentInfo.APAM_NAMESPACE);
         }
-        
+
         /**
          * Get the apam implementation name. For composites it is the same as the component name, for iPojo
          * components it is possible to specify a different name.
          */
         public String getApamImplementation() {
-        	if (isComposite())
-        		return getName();
-        	
-        	return m_componentMetadata.getAttribute(APAM_IMPLEMENTATION_PROPERTY,APAM_NAMESPACE);
+            if (isComposite())
+                return getName();
+
+            return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_IMPLEMENTATION_PROPERTY,
+                    ApamComponentInfo.APAM_NAMESPACE);
         }
 
         /**
          * Get the apam implementation of the main specification for a composite.
          */
         public String getApamMainImplementation() {
-        	if (isComposite())
-        		return m_componentMetadata.getAttribute(APAM_IMPLEMENTATION_PROPERTY,APAM_NAMESPACE);
-        	
-        	return null;
+            if (isComposite())
+                return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_IMPLEMENTATION_PROPERTY,
+                        ApamComponentInfo.APAM_NAMESPACE);
+
+            return null;
         }
 
         /**
          * Get the list of provided interfaces of this component
          */
         @SuppressWarnings("unchecked")
-		public List<String> getInterfaces(JarFile jarfile) {
-        	
-        	List<String> interfaces = new ArrayList<String>();
-        	
-        	/*
-        	 * Get interfaces explicitly specified in the Provides handler 
-        	 */
-        	for (Element provides : optional(m_componentMetadata.getElements("provides"))) {
-				String specifications = provides.getAttribute("specifications");
-				
-				if (specifications != null) {
-					interfaces.addAll(Arrays.asList(parseArrays(specifications)));
-				}
-			}
-        	
-        	/*
-        	 * For primitive components if not specification is explicitly specified,
-        	 * get all the implemented interfaces from the implementation class 
-        	 */
-        	if (interfaces.isEmpty() && ! isComposite()) {
-                try {
-                	
-	               	String className = m_componentMetadata.getAttribute("classname");
-	               	className = className.replace('.', '/');
-	               	className += ".class";
-                    
-	                InputStream byteCodeStream = getInputStream(className, jarfile);
+        public List<String> getInterfaces(JarFile jarfile) {
 
-	                if (byteCodeStream != null) {
-		                ClassReader ckReader = new ClassReader(byteCodeStream);
-		                ClassChecker ck = new ClassChecker();
-		                ckReader.accept(ck, ClassReader.SKIP_FRAMES);
-		                byteCodeStream.close();
-	
-	                    interfaces.addAll(ck.getInterfaces());
-	                }
+            List<String> interfaces = new ArrayList<String>();
+
+            /*
+             * Get interfaces explicitly specified in the Provides handler
+             */
+            for (Element provides : optional(m_componentMetadata.getElements("provides"))) {
+                String specifications = provides.getAttribute("specifications");
+
+                if (specifications != null) {
+                    interfaces.addAll(Arrays.asList(ApamRepoBuilder.parseArrays(specifications)));
+                }
+            }
+
+            /*
+             * For primitive components if not specification is explicitly specified,
+             * get all the implemented interfaces from the implementation class
+             */
+            if (interfaces.isEmpty() && !isComposite()) {
+                try {
+
+                    String className = m_componentMetadata.getAttribute("classname");
+                    className = className.replace('.', '/');
+                    className += ".class";
+
+                    InputStream byteCodeStream = getInputStream(className, jarfile);
+
+                    if (byteCodeStream != null) {
+                        ClassReader ckReader = new ClassReader(byteCodeStream);
+                        ClassChecker ck = new ClassChecker();
+                        ckReader.accept(ck, ClassReader.SKIP_FRAMES);
+                        byteCodeStream.close();
+
+                        interfaces.addAll(ck.getInterfaces());
+                    }
                 } catch (IOException e) {
                 }
-       		
-        	}
-        		
-        	return interfaces;
-        }  
-        
+
+            }
+
+            return interfaces;
+        }
+
         /**
          * Get the list of properties defined for this component
          */
-        public Map<String,String> getProperties() {
-        	
-        	Map<String,String> properties = new HashMap<String,String>();
-        	
-        	for (Element provides : optional(m_componentMetadata.getElements("provides")) ) {
+        public Map<String, String> getProperties() {
+
+            Map<String, String> properties = new HashMap<String, String>();
+
+            for (Element provides : optional(m_componentMetadata.getElements("provides"))) {
                 for (Element property : optional(provides.getElements("property"))) {
-                	if (property.containsAttribute("value")) {
-                    	properties.put(property.getAttribute("name"),property.getAttribute("value"));
-                	}
+                    if (property.containsAttribute("value")) {
+                        properties.put(property.getAttribute("name"), property.getAttribute("value"));
+                    }
                 }
-			}
-        	
-        	return properties;
-        	
+            }
+
+            return properties;
+
         }
-        
+
     }
 
     /**
      * Constant to represent undefined elements
      */
-	final static Element[] EMPTY_ELEMENT_LIST = new Element[0];
-
+    final static Element[] EMPTY_ELEMENT_LIST = new Element[0];
 
     /**
      * Utility method to be ease iteration over possibly null element lists
      */
     private final Element[] optional(Element[] elements) {
-    	return elements != null ? elements : EMPTY_ELEMENT_LIST;
+        return elements != null ? elements : ApamRepoBuilder.EMPTY_ELEMENT_LIST;
     }
 
     /**
@@ -546,10 +550,11 @@ public class ApamRepoBuilder {
         }
         return manifest;
     }
-    
+
     /**
      * Parses the iPOJO string form of an array as {a, b, c}
      * or [a, b, c].
+     * 
      * @param str the string form
      * @return the resulting string array
      */
@@ -557,28 +562,29 @@ public class ApamRepoBuilder {
         if (str.length() == 0) {
             return new String[0];
         }
-        
+
         // Remove { and } or [ and ]
-        if ((str.charAt(0) == '{' && str.charAt(str.length() - 1) == '}') 
-                || (str.charAt(0) == '[' && str.charAt(str.length() - 1) == ']')) {
+        if (((str.charAt(0) == '{') && (str.charAt(str.length() - 1) == '}'))
+                || ((str.charAt(0) == '[') && (str.charAt(str.length() - 1) == ']'))) {
             String internal = (str.substring(1, str.length() - 1)).trim();
             // Check empty array
             if (internal.length() == 0) {
                 return new String[0];
             }
-            return split(internal, ",");
+            return ApamRepoBuilder.split(internal, ",");
         } else {
             return new String[] { str };
         }
     }
-    
+
     /**
-     * Split method. 
+     * Split method.
      * This method is equivalent of the String.split in java 1.4
      * The result array contains 'trimmed' String
+     * 
      * @param toSplit the String to split
      * @param separator the separator
-     * @return the split array 
+     * @return the split array
      */
     public static String[] split(String toSplit, String separator) {
         StringTokenizer tokenizer = new StringTokenizer(toSplit, separator);
