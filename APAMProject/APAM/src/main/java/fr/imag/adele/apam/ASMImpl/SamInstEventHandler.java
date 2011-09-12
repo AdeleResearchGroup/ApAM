@@ -62,7 +62,8 @@ public class SamInstEventHandler implements AMEventingHandler {
             this.eventTime = eventTime;
             long currentTime = System.currentTimeMillis();
             // garbage old events (not related to an Apam instance)
-            for (String inst : SamInstEventHandler.newSamInstance.keySet()) {
+            Set<String> instances = new HashSet<String>(SamInstEventHandler.newSamInstance.keySet());
+            for (String inst : instances) {
                 // at least 30 seconds (because of the debugger) !
                 if (SamInstEventHandler.newSamInstance.get(inst).eventTime < (currentTime - 30000))
                     SamInstEventHandler.newSamInstance.remove(inst);

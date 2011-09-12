@@ -112,7 +112,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
             else
                 samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getImplPid(),
                         initialproperties.attr2Properties());
-            ASMInstImpl inst = new ASMInstImpl(this, instCompo, initialproperties, samInst);
+            ASMInstImpl inst = new ASMInstImpl(this, instCompo, initialproperties, samInst, false);
             addInst(inst);
             return inst;
         } catch (Exception e) {
@@ -284,4 +284,8 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         return samImpl.isInstantiator();
     }
 
+    @Override
+    public Set<CompositeType> getInCompositeType() {
+        return Collections.unmodifiableSet(inComposites);
+    }
 }

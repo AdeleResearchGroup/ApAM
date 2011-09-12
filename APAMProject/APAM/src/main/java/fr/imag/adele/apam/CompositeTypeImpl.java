@@ -24,7 +24,7 @@ import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.CompositeImpl;
 import fr.imag.adele.sam.Implementation;
 
-public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
+public class CompositeTypeImpl extends ASMImplImpl implements CompositeType, CompositeType.Internal {
 
     // Global variable. The actual content of the ASM
     private static Map<String, CompositeType> compositeTypes = new HashMap<String, CompositeType>();
@@ -34,9 +34,13 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
     private String                            mainImplName;
     private final Set<ManagerModel>           models;
 
-    // All the specs, implem, instances contained in this composite ! Warning :
-    // may be shared.
+    // All the implementations deployed (really or logically) by this composite type! 
+    // Warning : implems may be deployed (logically) by more than one composite Type. 
     private final Set<ASMImpl>                hasImplem      = new HashSet<ASMImpl>();
+
+    //The composites types that have been deployed inside the current one.
+    private final Set<CompositeType>          embedded       = new HashSet<CompositeType>();
+    private final Set<CompositeType>          invEmbedded    = new HashSet<CompositeType>();
 
     // all the dependencies between composite types
     private final Set<CompositeType>          imports        = new HashSet<CompositeType>();
@@ -48,8 +52,8 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
      * Get access to the internal implementation of the wrapped instance
      */
     @Override
-    public Internal asInternal() {
-        return asInternal();
+    public final Internal asInternal() {
+        return this;
     }
 
     /**
@@ -226,6 +230,29 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
         return imports.remove(destination);
     }
 
+    public void addEmbedded(CompositeType destination) {
+        embedded.add(destination);
+        ((CompositeTypeImpl) destination).addInvEmbedded(this);
+    }
+
+    public boolean removeEmbedded(CompositeType destination) {
+        ((CompositeTypeImpl) destination).removeInvEmbedded(this);
+        return imports.remove(destination);
+    }
+
+    public void addInvEmbedded(CompositeType origin) {
+        invEmbedded.add(origin);
+    }
+
+    public boolean removeInvEmbedded(CompositeType origin) {
+        return invEmbedded.remove(origin);
+    }
+
+    @Override
+    public Set<CompositeType> getEmbedded() {
+        return Collections.unmodifiableSet(embedded);
+    }
+
     @Override
     public Set<CompositeType> getImport() {
         return Collections.unmodifiableSet(imports);
@@ -269,5 +296,26 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
     @Override
     public Set<ASMImpl> getImpls() {
         return Collections.unmodifiableSet(hasImplem);
+    }
+
+    @Override
+    public void addInvImport(CompositeType dependent) {
+        invImports.add(dependent);
+    }
+
+    @Override
+    public boolean removeInvImport(CompositeType dependent) {
+
+        return invImports.remove(dependent);
+    }
+
+    @Override
+    public Set<CompositeType> getInvEmbedded() {
+        return Collections.unmodifiableSet(invEmbedded);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

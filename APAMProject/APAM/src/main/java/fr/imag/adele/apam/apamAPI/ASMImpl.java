@@ -14,6 +14,8 @@ public interface ASMImpl extends Attributes {
 
     public Set<CompositeType> getComposites();
 
+    public Set<CompositeType> getInCompositeType();
+
     public String getName();
 
     public Implementation getSamImpl();

@@ -133,7 +133,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
                 return null;
             }
 
-            inst = new ASMInstImpl(impl, instComposite, null, samInst);
+            inst = new ASMInstImpl(impl, instComposite, null, samInst, false);
             addInst(inst);
             return inst;
         } catch (ConnectionException e) {

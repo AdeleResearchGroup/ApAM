@@ -318,11 +318,24 @@ public class OBRMan implements Manager, IOBRMAN {
      * @return
      */
     public boolean deployInstall(Resource res) {
-        resolver.add(res);
-        if (resolver.resolve()) {
-            resolver.deploy(Resolver.START);
-            return true;
+        boolean deployed = false;
+        //the events sent by iPOJO for the previous deployed bundle may interfere and 
+        //change the state of the local repository, which produces the IllegalStateException. 
+        while (!deployed) {
+            try {
+                resolver = repoAdmin.resolver();
+                resolver.add(res);
+                if (resolver.resolve()) {
+                    resolver.deploy(Resolver.START);
+                    return true;
+                }
+                deployed = true;
+            } catch (IllegalStateException e) {
+                System.out.println("OBR changed state. Resolving again " + res.getSymbolicName());
+                //Thread.sleep(10) ;
+            }
         }
+
         Reason[] reqs = resolver.getUnsatisfiedRequirements();
         for (Reason req : reqs) {
             System.out.println("Unable to resolve: " + req);

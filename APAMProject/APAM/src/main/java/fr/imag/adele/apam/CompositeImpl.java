@@ -16,7 +16,7 @@ import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Instance;
 
-public class CompositeImpl extends ASMInstImpl implements Composite {
+public class CompositeImpl extends ASMInstImpl implements Composite, Composite.Internal {
 
     // Global variable. The actual content of the ASM
     private static Map<String, Composite> composites     = new HashMap<String, Composite>();
@@ -32,15 +32,14 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
     private final Set<Composite>          depend         = new HashSet<Composite>();
     private final Set<Composite>          invDepend      = new HashSet<Composite>();        // reverse dependency
 
-    //The father-son delationship
+    //The father-son relationship
     private final Set<Composite>          sons           = new HashSet<Composite>();
-    private final Composite               father;                                           //null if appli
+    private Composite                     father;                                           //null if appli
 
     private CompositeImpl(CompositeType compType, Composite instCompo, ASMInst asmInst) {
         //the composite instance as an ASMInst
         //directly refers to the sam object associated with the main instance.
-        super(compType, instCompo, null, asmInst.getSAMInst());
-
+        super(compType, instCompo, null, asmInst.getSAMInst(), true);
         //because the constructor needs the instance, and the instance need the composite ...
         ((ASMInstImpl) asmInst).setComposite(this);
         name = compType.getName() + "<" + asmInst.getName() + ">";
@@ -48,13 +47,13 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
         mainInst = asmInst;
         hasInstance.add(mainInst);
         mainImpl = asmInst.getImpl();
+        ((ASMInstImpl) asmInst).setComposite(this);
 
         //instCompo is both the father, and the composite that contains the new one, seen as a usual ASMInst.
         if (instCompo != null) {
             instCompo.asInternal().addSon(this);
         } else
             CompositeImpl.rootComposites.put(name, this);
-        father = instCompo;
         CompositeImpl.composites.put(name, this);
         setComposite(instCompo); //may be null
 
@@ -65,7 +64,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
      */
     @Override
     public Internal asInternal() {
-        return asInternal();
+        return this;
     }
 
     public static Collection<Composite> getRootComposites() {
@@ -129,6 +128,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
     }
 
     //Father-son relationship management. Hidden, Internal;    
+    @Override
     public void addSon(Composite dest) {
         if (dest == null)
             return;
@@ -141,6 +141,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
     /**
      * A son can be removed only when deleted. Warning : not checked.
      */
+    @Override
     public boolean removeSon(Composite destination) {
         if (destination == null)
             return false;
@@ -209,6 +210,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
      * @param origin
      * @return
      */
+    @Override
     public boolean removeInvDepend(Composite origin) {
         if (origin == null)
             return false;
@@ -223,6 +225,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
      * @return
      */
 
+    @Override
     public void addInvDepend(Composite origin) {
         invDepend.add(origin);
         return;
@@ -260,6 +263,16 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
     @Override
     public Set<ManagerModel> getModels() {
         return compType.getModels();
+    }
+
+    @Override
+    public void addInvSon(Composite father) {
+        this.father = father;
+    }
+
+    @Override
+    public void removeInvSon(Composite father) {
+        this.father = null;
     }
 
 }

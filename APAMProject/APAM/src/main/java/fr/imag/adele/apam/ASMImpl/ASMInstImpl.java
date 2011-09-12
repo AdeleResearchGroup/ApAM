@@ -8,6 +8,7 @@ import org.osgi.framework.Filter;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.ASMImpl.SamInstEventHandler.NewApamInstance;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
@@ -16,6 +17,7 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamComponent;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
@@ -30,7 +32,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     private ASMImpl               myImpl;
     private Composite             myComposite;
     private Composite             rootComposite;
-    private Instance              samInst;
+    protected Instance            samInst;
     private ApamDependencyHandler depHandler;
 
     public ApamDependencyHandler getDepHandler() {
@@ -40,13 +42,14 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     private final Set<Wire> wires    = new HashSet<Wire>(); // the currently used instances
     private final Set<Wire> invWires = new HashSet<Wire>();
 
-    public ASMInstImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, Instance samInst) {
+    public ASMInstImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, Instance samInst,
+            boolean composite) {
         if (samInst == null) {
             new Exception("ERROR : sam instance cannot be null on ASM instance constructor").printStackTrace();
             return;
         }
-        myImpl = impl;
         this.samInst = samInst;
+        myImpl = impl;
         ((ASMImplImpl) impl).addInst(this);
         if (instCompo != null) { //null only if main appli instance.
             myComposite = instCompo;
@@ -58,6 +61,11 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         }
 
         ((ASMInstBrokerImpl) CST.ASMInstBroker).addInst(this);
+
+        //when called by Composite constructor. No associated handler. 
+        if (composite)
+            return;
+
         try {
             if (samInst.getServiceObject() instanceof ApamComponent)
                 ((ApamComponent) samInst.getServiceObject()).apamStart(this);
@@ -175,7 +183,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
-    public boolean createWire(ASMInst to, String depName) {
+    public boolean createWire(ASMInst to, String depName, boolean deployed) {
         if ((to == null) || (depName == null))
             return false;
 
@@ -189,11 +197,26 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         Wire wire = new Wire(this, to, depName);
         wires.add(wire);
         ((ASMInstImpl) to).invWires.add(wire);
-
-        ((ASMImplImpl) getImpl()).addUses(to.getImpl());
         if (depHandler != null) {
             depHandler.setWire(to, depName);
         }
+
+        //Other relationships to instantiate
+        ((ASMImplImpl) getImpl()).addUses(to.getImpl());
+        ((ASMSpecImpl) getSpec()).addRequires(to.getSpec());
+
+        // if to has been deployed, and from is inside a composite (it is not a root)
+        if (deployed && (getComposite() != null)) {
+            getComposite().getCompType().addImpl(to.getImpl());
+            if (to instanceof Composite) { //|| (returnedInst.getComposite().getMainInst() == returnedInst)) { //it is a composite
+                ((CompositeTypeImpl) getComposite().getCompType()).addEmbedded(((Composite) to).getCompType());
+            } else {
+                if (to.getComposite().getMainInst() == to) { //to is a composite (or the main instance of a composite)
+                    ((CompositeTypeImpl) getComposite().getCompType()).addEmbedded(to.getComposite().getCompType());
+                }
+            }
+        }
+
         return true;
     }
 

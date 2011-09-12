@@ -25,6 +25,10 @@ public interface CompositeType extends ASMImpl {
 
     public Set<ASMImpl> getImpls();
 
+    public Set<CompositeType> getEmbedded();
+
+    public Set<CompositeType> getInvEmbedded();
+
     /**
      * This is a privileged interface that must be provided by all implementations of Composite in
      * order to be able to automatically handle consistent bidirectional relationships.

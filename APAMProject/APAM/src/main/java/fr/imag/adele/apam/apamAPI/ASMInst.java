@@ -56,7 +56,17 @@ public interface ASMInst extends Attributes {
 
     public Set<Wire> getInvWires();
 
-    public boolean createWire(ASMInst to, String depName);
+    /**
+     * A new wire has to be instantiated between the current instance and the to instance, for the dependency called
+     * dep.
+     * If "to" was instantiated during this resolution, deployed is true. Should be false by default.
+     * 
+     * @param to : the destination of the wire by the depName dependency
+     * @param depName : name of the dependency
+     * @param deployed : to was deployed (logically or physically) during this resolution. false if unknown.
+     * @return
+     */
+    public boolean createWire(ASMInst to, String depName, boolean deployed);
 
     public void removeWire(Wire wire);
 

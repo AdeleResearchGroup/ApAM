@@ -231,45 +231,51 @@ public class ApamCommand {
                 + ". Main implementation : " + compo.getMainImpl()
                 + ". Models : " + compo.getModels());
 
-        System.out.print(indent + "   Imports composite types : ");
-        if (!compo.getImport().isEmpty()) {
-            for (CompositeType comDep : compo.getImport()) {
-                System.out.print(comDep.getName() + " ");
-            }
+        System.out.print(indent + "   Embedded in composite types : ");
+        for (CompositeType comType : compo.getInvEmbedded()) {
+            System.out.print(comType.getName() + " ");
         }
         System.out.println("");
+
+        System.out.print(indent + "   Contains composite types : ");
+        for (CompositeType comType : compo.getEmbedded()) {
+            System.out.print(comType.getName() + " ");
+        }
+        System.out.println("");
+
+        System.out.print(indent + "   Imports composite types : ");
+        for (CompositeType comDep : compo.getImport()) {
+            System.out.print(comDep.getName() + " ");
+        }
+        System.out.println("");
+
         System.out.print(indent + "   Uses composite types : ");
-        if (!compo.getUses().isEmpty()) {
-            for (ASMImpl comDep : compo.getUses()) {
-                System.out.print(comDep.getName() + " ");
-            }
+        for (ASMImpl comDep : compo.getUses()) {
+            System.out.print(comDep.getName() + " ");
         }
         System.out.println("");
 
         System.out.print(indent + "   Contains Implementations: ");
-        if (!compo.getImpls().isEmpty()) {
-            for (ASMImpl impl : compo.getImpls()) {
-                System.out.print(impl + " ");
-            }
+        for (ASMImpl impl : compo.getImpls()) {
+            System.out.print(impl + " ");
         }
         System.out.println("");
 
-        if (!compo.getInsts().isEmpty()) {
-            System.out.print(indent + "   Composite Instances : ");
-            for (ASMInst inst : compo.getInsts()) {
-                System.out.print(inst + " ");
-            }
-            System.out.println("");
+        System.out.print(indent + "   Composite Instances : ");
+        for (ASMInst inst : compo.getInsts()) {
+            System.out.print(inst + " ");
         }
+        System.out.println("");
 
-        //        for (CompositeType comp : compo.getSons()) {
-        //            printCompositeType(comp, indent + "   ");
-        //        }
+        for (CompositeType comType : compo.getEmbedded()) {
+            printCompositeType(comType, indent + "   ");
+        }
     }
 
     private void printComposite(Composite compo, String indent) {
         System.out.println(indent + "Composite " + compo.getName() + " Composite Type : "
-                + compo.getCompType().getName());
+                + compo.getCompType().getName() + " Father : "
+                + ((compo.getFather() == null) ? "root" : compo.getFather().getName()));
         System.out.print(indent + "   Son composite : ");
         for (Composite comDep : compo.getSons()) {
             System.out.print(comDep.getName() + " ");
@@ -366,6 +372,7 @@ public class ApamCommand {
             System.out.println(indent + " warning :  no factory for this instance");
         } else {
             System.out.println(indent + "   implementation : " + instance.getImpl());
+            System.out.println(indent + "   composite      : " + instance.getComposite().getName());
             System.out.println(indent + "   specification  : " + instance.getSpec());
             printProperties(indent + "   ", instance.getProperties());
         }
@@ -397,10 +404,21 @@ public class ApamCommand {
         System.out.println(indent + "----- [ ASMImpl : " + impl + " ] -----");
         System.out.println(indent + "   specification : " + impl.getSpec());
 
+        System.out.println(indent + "   In composite types:");
+        for (CompositeType compo : impl.getInCompositeType()) {
+            System.out.println(indent + "      " + compo.getName());
+        }
+
         System.out.println(indent + "   Uses:");
         for (ASMImpl implem : impl.getUses()) {
             System.out.println(indent + "      " + implem);
         }
+
+        System.out.println(indent + "   Used by:");
+        for (ASMImpl implem : impl.getInvUses()) {
+            System.out.println(indent + "      " + implem);
+        }
+
         System.out.println(indent + "   Instances:");
         for (ASMInst inst : impl.getInsts()) {
             System.out.println(indent + "      " + inst);
