@@ -397,6 +397,8 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
         public Element getHandlerInfo() {
             Element root = super.getHandlerInfo();
 
+            ASMInst self = dependencyManager.thisInstance;
+            root.addAttribute(new Attribute("asm-instance", self == null ? "" : self.getName()));
             for (Dependency dependency : dependencyManager.dependencies.values()) {
                 Element dependencyDescription = new Element("dependency", "");
                 dependencyDescription.addAttribute(new Attribute("name", dependency.getName()));
@@ -425,7 +427,7 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
                     if (targets.size() > 1)
                         resolution.append("}");
 
-                    dependencyDescription.addAttribute(new Attribute("resolution", resolution.toString()));
+                    dependencyDescription.addAttribute(new Attribute("asm-resolution", resolution.toString()));
                 }
                 root.addElement(dependencyDescription);
             }
