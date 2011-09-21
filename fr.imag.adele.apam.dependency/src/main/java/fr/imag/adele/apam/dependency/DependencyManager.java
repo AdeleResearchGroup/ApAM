@@ -19,6 +19,7 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.osgi.framework.Filter;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ApamClient;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
@@ -508,6 +509,7 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
     }
 
     public boolean setWire(ASMInst destInst, String depName) {
+        System.out.println("Handler set wire " + depName + " :" + thisInstance + "->" + destInst);
         Dependency dependency = dependencies.get(depName);
 
         if (dependency == null)
@@ -549,8 +551,16 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
         /*
          * This instance is not actually yet managed by APAM
          */
-        if ((apam == null) || (thisInstance == null))
+        if (apam == null)
             return;
+
+        if (thisInstance == null) {
+            thisInstance = CST.ASMInstBroker.getInst(getInstanceManager().getInstanceName());
+            if (thisInstance == null) {
+                System.err.println("Dependency resolver: client instance " + getInstanceManager().getInstanceName()
+                        + " unkown");
+            }
+        }
 
         Set<Filter> constraints = Collections.emptySet();
         List<Filter> preferences = null;
