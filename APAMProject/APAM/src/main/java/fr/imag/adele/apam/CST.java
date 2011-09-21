@@ -43,7 +43,7 @@ public class CST {
     public static final String         A_REMOTABLE                            = "REMOTABLE";
     // shared on an implementation indicates if its instances can have more than one incoming wire
     public static final String         A_SHARED                               = "SHARED";
-    //for boolean attributes
+    // for boolean attributes
     public static final String         V_TRUE                                 = "TRUE";
     public static final String         V_FALSE                                = "FALSE";
 
@@ -55,18 +55,19 @@ public class CST {
     public static final String         DISTRIMAN                              = "DISTRIMAN";
     public static final String         OBRMAN                                 = "OBRMAN";
 
-    //Property names of composites
-    //Capability
+    public static final String         ROOTCOMPOSITETYPE                      = "rootCompositeType";
+    // Property names of composites
+    // Capability
     public static final String         CAPABILITY_COMPONENT                   = "apam-component";
-    //Capability
+    // Capability
     public static final String         CAPABILITY_INTERFACE                   = "apam-interface";
-    //Value boolean
+    // Value boolean
     public static final String         PROPERTY_COMPOSITE                     = "apam-composite";
-    //String
-    //    public static final String         PROPERTY_IMPLEMENTATION_NAME           = "apam-implementation";
-    //String
+    // String
+    // public static final String PROPERTY_IMPLEMENTATION_NAME = "apam-implementation";
+    // String
     public static final String         PROPERTY_COMPOSITE_MAIN_IMPLEMENTATION = "apam-main-implementation";
-    //String
+    // String
     public static final String         PROPERTY_COMPOSITE_MAIN_SPECIFICATION  = "apam-specification";
     // List<ManagerModel>
     public static final String         PROPERTY_COMPOSITE_MODELS              = "apam-models";

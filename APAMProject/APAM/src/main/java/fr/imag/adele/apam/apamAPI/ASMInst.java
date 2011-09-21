@@ -66,11 +66,9 @@ public interface ASMInst extends Attributes {
      * @param deployed : to was deployed (logically or physically) during this resolution. false if unknown.
      * @return
      */
-    public boolean createWire(ASMInst to, String depName, boolean deployed);
+    public boolean createWire(ASMInst to, String depName);
 
     public void removeWire(Wire wire);
-
-    public void remove();
 
     public String getShared();
 

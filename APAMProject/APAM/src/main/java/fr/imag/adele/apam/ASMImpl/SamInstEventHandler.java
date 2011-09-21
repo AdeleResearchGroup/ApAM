@@ -32,7 +32,7 @@ public class SamInstEventHandler implements AMEventingHandler {
 
     // contains the apam instance that registered to APAM but not yet created in ASM
     static Map<String, NewApamInstance>     newApamInstance    = new HashMap<String, NewApamInstance>();
-    // contains the Sam instance that has been notified before the Apam handler
+    // contains the Sam instance that have been notified before the Apam handler
     static Map<String, NewSamInstance>      newSamInstance     = new HashMap<String, NewSamInstance>();
 
     static public SamInstEventHandler       theInstHandler;
@@ -203,9 +203,6 @@ public class SamInstEventHandler implements AMEventingHandler {
             }
 
             Implementation samImpl = samInst.getImplementation();
-            // if (samImpl == null) {
-            // System.out.println("samImpl est null pour " + samName);
-            // }
             String samImplName = samImpl.getName();
             // ASMImpl impl = CST.ASMImplBroker.getImpl(samImpl);
             if (SamInstEventHandler.expectedImpls.keySet().contains(samImplName)) {
@@ -240,7 +237,7 @@ public class SamInstEventHandler implements AMEventingHandler {
                 }
             }
             // deletes that instance, which deletes the wires and so on.
-            inst.remove();
+            CST.ASMInstBroker.removeInst(inst);
             return;
         }
 
@@ -252,5 +249,4 @@ public class SamInstEventHandler implements AMEventingHandler {
             inst.setSamProperties(samInst.getProperties());
         }
     }
-
 }

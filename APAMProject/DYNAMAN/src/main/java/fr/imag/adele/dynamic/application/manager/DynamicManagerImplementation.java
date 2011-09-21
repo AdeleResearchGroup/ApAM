@@ -204,7 +204,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		 */
 		Attributes properties = new AttributesImpl();
 		properties.setProperty(CST.A_SCOPE,CST.V_GLOBAL);
-		return apam.getInstBroker().addInst(composite,instance,null,null,properties);
+		return apam.getInstBroker().addSamInst(composite,instance,null,null,properties);
 	}
 
 	/**

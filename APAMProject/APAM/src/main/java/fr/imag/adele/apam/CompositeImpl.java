@@ -10,53 +10,65 @@ import java.util.Set;
 import fr.imag.adele.apam.ASMImpl.ASMInstImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.sam.Instance;
 
 public class CompositeImpl extends ASMInstImpl implements Composite, Composite.Internal {
 
-    // Global variable. The actual content of the ASM
-    private static Map<String, Composite> composites     = new HashMap<String, Composite>();
-    private static Map<String, Composite> rootComposites = new HashMap<String, Composite>();
+    // Global variable.
+    private static Map<String, Composite> composites    = new HashMap<String, Composite>();
+    private static Composite              rootComposite = new CompositeImpl();
 
     private final String                  name;
     private final CompositeType           compType;
     private final ASMImpl                 mainImpl;
     private final ASMInst                 mainInst;
-    private final Set<ASMInst>            hasInstance    = new HashSet<ASMInst>();
+    private final Composite               myRootComposite;
+    private final Set<ASMInst>            hasInstance   = new HashSet<ASMInst>();
 
-    // all the dependencies between composites
-    private final Set<Composite>          depend         = new HashSet<Composite>();
-    private final Set<Composite>          invDepend      = new HashSet<Composite>();        // reverse dependency
+    // the dependencies between composites
+    private final Set<Composite>          depend        = new HashSet<Composite>();
+    private final Set<Composite>          invDepend     = new HashSet<Composite>();        // reverse dependency
 
-    //The father-son relationship
-    private final Set<Composite>          sons           = new HashSet<Composite>();
-    private Composite                     father;                                           //null if appli
+    // The father-son relationship
+    private final Set<Composite>          sons          = new HashSet<Composite>();
+    private Composite                     father;                                          // null if appli
 
-    private CompositeImpl(CompositeType compType, Composite instCompo, ASMInst asmInst) {
-        //the composite instance as an ASMInst
-        //directly refers to the sam object associated with the main instance.
-        super(compType, instCompo, null, asmInst.getSAMInst(), true);
-        //because the constructor needs the instance, and the instance need the composite ...
-        ((ASMInstImpl) asmInst).setComposite(this);
-        name = compType.getName() + "<" + asmInst.getName() + ">";
+    private CompositeImpl() {
+        super();
+        name = "rootComposite";
+        mainImpl = null;
+        mainInst = null;
+        compType = null;
+        myRootComposite = null;
+    }
+
+    private CompositeImpl(CompositeType compType, Composite instCompo, Attributes initialproperties) {
+        // First create the composite, as an ASMInst empty
+        super();
+
+        // initialize as a composite
+        name = ((CompositeTypeImpl) compType).getNewInstName();
         this.compType = compType;
+        mainImpl = compType.getMainImpl();
+
+        // instCompo is both the father, and the composite that contains the new one, seen as a usual ASMInst.
+        instCompo.asInternal().addSon(this);
+        CompositeImpl.composites.put(name, this);
+
+        // create the main instance with this composite as container. Do not try to reuse an existing instance.
+        // Each composite has a different main instance
+        ASMInst asmInst = compType.getMainImpl().createInst(this, initialproperties);
+        // initialize the composite as ASMInst
+        // name = compType.getName() + "<" + asmInst.getName() + ">";
         mainInst = asmInst;
         hasInstance.add(mainInst);
-        mainImpl = asmInst.getImpl();
-        ((ASMInstImpl) asmInst).setComposite(this);
-
-        //instCompo is both the father, and the composite that contains the new one, seen as a usual ASMInst.
-        if (instCompo != null) {
-            instCompo.asInternal().addSon(this);
+        if (instCompo.getRootComposite() == null) {
+            myRootComposite = this;
         } else
-            CompositeImpl.rootComposites.put(name, this);
-        CompositeImpl.composites.put(name, this);
-        setComposite(instCompo); //may be null
-
+            myRootComposite = instCompo.getRootComposite();
+        instConstructor(compType, instCompo, initialproperties, asmInst.getSAMInst());
     }
 
     /**
@@ -68,7 +80,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
     }
 
     public static Collection<Composite> getRootComposites() {
-        return Collections.unmodifiableCollection(CompositeImpl.rootComposites.values());
+        return Collections.unmodifiableSet(CompositeImpl.rootComposite.getSons());
     }
 
     public static Collection<Composite> getComposites() {
@@ -89,18 +101,14 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
         return getName();
     }
 
-    public static Composite createComposite(CompositeType compType, Composite instCompo, Attributes initialproperties,
-            ASMInst first) {
+    public static Composite createComposite(CompositeType compType, Composite instCompo, Attributes initialproperties) {
         if (compType == null) {
             System.err.println("ERROR :  missing type in createComposite");
             return null;
         }
-        ASMInst asmInst;
-        if (first != null)
-            asmInst = first;
-        else
-            asmInst = compType.getMainImpl().createInst(null, initialproperties);
-        return new CompositeImpl(compType, instCompo, asmInst);
+        if (instCompo == null)
+            instCompo = CompositeImpl.rootComposite;
+        return new CompositeImpl(compType, instCompo, initialproperties);
     }
 
     @Override
@@ -127,7 +135,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
         hasInstance.add(inst);
     }
 
-    //Father-son relationship management. Hidden, Internal;    
+    // Father-son relationship management. Hidden, Internal;
     @Override
     public void addSon(Composite dest) {
         if (dest == null)
@@ -165,6 +173,11 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
         return Collections.unmodifiableSet(sons);
     }
 
+    @Override
+    public Composite getRootComposite() {
+        return myRootComposite;
+    }
+
     // Composite Dependency management ===============
     @Override
     public void addDepend(Composite dest) {
@@ -184,11 +197,11 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
     public boolean removeDepend(Composite destination) {
         if (destination == null)
             return false;
-        //        if (!dependsOn(destination))
-        //            return false;
-        //        if (destination.getDepends().size() < 2)
-        //            return false;
-        //        
+        // if (!dependsOn(destination))
+        // return false;
+        // if (destination.getDepends().size() < 2)
+        // return false;
+        //
         depend.remove(destination);
         destination.asInternal().removeInvDepend(this);
         return true;

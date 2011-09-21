@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.apamAPI;
 
+import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -50,6 +51,14 @@ public interface ASMSpec extends Attributes {
      * @throws InvalidSyntaxException
      */
     public Set<ASMImpl> getImpls(Filter filter) throws InvalidSyntaxException;
+
+    public Set<ASMImpl> getImpls(Set<Filter> constraints);
+
+    public Set<ASMImpl> getImpls(Set<ASMImpl> candidates, Set<Filter> constraints);
+
+    public ASMImpl getImpl(Set<Filter> constraints, List<Filter> preferences);
+
+    public ASMImpl getPreferedImpl(Set<ASMImpl> candidates, List<Filter> preferences);
 
     /**
      * Get the service interface.

@@ -163,7 +163,7 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
                     if (checkScope(prop, propVal) && checkBoolean(prop, propVal))
                         attributes.put(prop, propVal);
                 }
-            } else { //any other attributes
+            } else { // any other attributes
                 attributes.put(prop, propVal);
             }
         }
@@ -174,7 +174,7 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         if (!attr.equals(CST.A_SCOPE))
             return true;
         if (((String) scope).equals(CST.V_LOCAL)
-                // || ((String) scope).equals(CST.V_APPLI)
+                || ((String) scope).equals(CST.V_APPLI)
                 || ((String) scope).equals(CST.V_COMPOSITE)
                 || ((String) scope).equals(CST.V_GLOBAL)) {
             return true;
@@ -197,7 +197,7 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         if (!checkAttribute(prop, propVal))
             return;
         boolean ok = true;
-        //check if managers are ok.
+        // check if managers are ok.
         for (AttributeManager man : AttributesImpl.attrChangedManagers) {
             if (this instanceof ASMSpecImpl) {
                 ok = man.attrSpecChanged((ASMSpecImpl) this, prop, propVal);

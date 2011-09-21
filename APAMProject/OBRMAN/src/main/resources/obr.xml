@@ -3,10 +3,4 @@
       <p n='name' v='OBRMAN' />
       <p n='interfaces' v='fr.imag.adele.apam.apamAPI.Manager, fr.imag.adele.obrMan.IOBRMAN' />
    </capability>
-   <capability name='apam-interface'>
-      <p n='name' v='fr.imag.adele.apam.apamAPI.Manager' />
-   </capability>
-   <capability name='apam-interface'>
-      <p n='name' v='fr.imag.adele.obrMan.IOBRMAN' />
-   </capability>
 </obr> 

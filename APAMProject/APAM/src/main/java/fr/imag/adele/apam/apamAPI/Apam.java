@@ -77,11 +77,30 @@ public interface Apam {
     public Composite startAppli(CompositeType composite);
 
     //Simple resolutions
-    public ASMInst resolveImplByName(Composite composite, String implName);
+    public ASMImpl findImplByName(CompositeType compoType, String implName);
 
-    public ASMInst resolveSpecByName(Composite composite, String specName,
+    public ASMImpl findImplByName(CompositeType compoType, String implName, List<Manager> selectionPath);
+
+    public ASMImpl resolveSpecByName(CompositeType compoType, String specName,
             Set<Filter> constraints, List<Filter> preferences);
 
-    public ASMInst resolveSpecByInterface(Composite composite, String interfaceName, String[] interfaces,
+    public ASMImpl resolveSpecByName(CompositeType compoType, String specName, Set<Filter> constraints,
+            List<Filter> preferences, List<Manager> selectionPath);
+
+    public ASMImpl resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
             Set<Filter> constraints, List<Filter> preferences);
+
+    public ASMImpl resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
+            Set<Filter> constraints, List<Filter> preferences, List<Manager> selectionPath);
+
+    public ASMInst resolveImpl(Composite compo, ASMImpl impl, Set<Filter> constraints, List<Filter> preferences);
+
+    public Set<ASMInst> resolveImpls(Composite compo, ASMImpl impl, Set<Filter> constraints, List<Filter> preferences);
+
+    public ASMInst resolveImpl(Composite compo, ASMImpl impl, Set<Filter> constraints, List<Filter> preferences,
+            List<Manager> selectionPath);
+
+    public Set<ASMInst> resolveImpls(Composite compo, ASMImpl impl, Set<Filter> constraints, List<Filter> preferences,
+            List<Manager> selectionPath);
+
 }

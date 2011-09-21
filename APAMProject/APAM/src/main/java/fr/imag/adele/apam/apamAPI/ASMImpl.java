@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.apamAPI;
 
 //import java.util.Properties;
+import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -109,6 +110,12 @@ public interface ASMImpl extends Attributes {
      * @throws InvalidSyntaxException the invalid syntax exception
      */
     public Set<ASMInst> getInsts(Filter goal) throws InvalidSyntaxException;
+
+    public Set<ASMInst> getInsts(Set<Filter> constraints);
+
+    public ASMInst getInst(Set<Filter> constraints, List<Filter> preferences);
+
+    public ASMInst getPreferedInst(Set<ASMInst> candidates, List<Filter> preferences);
 
     /**
      * Checks if is an instantiator.

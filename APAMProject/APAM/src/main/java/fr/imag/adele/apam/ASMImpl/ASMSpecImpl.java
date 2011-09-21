@@ -2,6 +2,7 @@ package fr.imag.adele.apam.ASMImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -19,7 +20,7 @@ import fr.imag.adele.sam.Specification;
 public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
 
     private String             name;
-    //    private final CompositeOLD          myComposite;
+    // private final CompositeOLD myComposite;
     private Specification      samSpec         = null;
     private final Set<ASMImpl> implementations = new HashSet<ASMImpl>();
 
@@ -34,6 +35,10 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
     @Override
     public String getName() {
         return name;
+    }
+
+    public void addImpl(ASMImpl impl) {
+        implementations.add(impl);
     }
 
     public void setName(String logicalName) {
@@ -186,6 +191,10 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         }
     }
 
+    public void removeImpl(ASMImpl impl) {
+        implementations.remove(impl);
+    }
+
     @Override
     public Set<ASMImpl> getImpls() {
         return Collections.unmodifiableSet(implementations);
@@ -195,6 +204,75 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         if (samSpec == null)
             return;
         this.samSpec = samSpec;
+    }
+
+    @Override
+    public Set<ASMImpl> getImpls(Set<Filter> constraints) {
+        if ((constraints == null) || constraints.isEmpty())
+            return Collections.unmodifiableSet(implementations);
+        Set<ASMImpl> ret = new HashSet<ASMImpl>();
+        for (ASMImpl impl : implementations) {
+            for (Filter filter : constraints) {
+                if (filter.match((AttributesImpl) impl.getProperties())) {
+                    ret.add(impl);
+                }
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public Set<ASMImpl> getImpls(Set<ASMImpl> candidates, Set<Filter> constraints) {
+        if ((constraints == null) || constraints.isEmpty())
+            return Collections.unmodifiableSet(candidates);
+        Set<ASMImpl> ret = new HashSet<ASMImpl>();
+        for (ASMImpl impl : candidates) {
+            for (Filter filter : constraints) {
+                if (filter.match((AttributesImpl) impl.getProperties())) {
+                    ret.add(impl);
+                }
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public ASMImpl getImpl(Set<Filter> constraints, List<Filter> preferences) {
+        Set<ASMImpl> impls = null;
+        if ((preferences != null) && !preferences.isEmpty()) {
+            impls = getImpls(constraints);
+        } else
+            impls = implementations;
+        if ((constraints == null) || constraints.isEmpty())
+            return ((ASMImpl) impls.toArray()[0]);
+
+        return getPreferedImpl(impls, preferences);
+    }
+
+    @Override
+    public ASMImpl getPreferedImpl(Set<ASMImpl> candidates, List<Filter> preferences) {
+        if ((preferences == null) || preferences.isEmpty()) {
+            if (candidates.isEmpty())
+                return null;
+            else
+                return (ASMImpl) candidates.toArray()[0];
+        }
+        ASMImpl winner = null;
+        int maxMatch = -1;
+        for (ASMImpl impl : candidates) {
+            int match = 0;
+            for (Filter filter : preferences) {
+                if (!filter.match((AttributesImpl) impl.getProperties()))
+                    break;
+                match++;
+            }
+            if (match > maxMatch) {
+                maxMatch = match;
+                winner = impl;
+            }
+        }
+        System.out.println("   Selected : " + winner);
+        return winner;
     }
 
 }

@@ -275,7 +275,8 @@ public class ApamCommand {
     private void printComposite(Composite compo, String indent) {
         System.out.println(indent + "Composite " + compo.getName() + " Composite Type : "
                 + compo.getCompType().getName() + " Father : "
-                + ((compo.getFather() == null) ? "root" : compo.getFather().getName()));
+                + compo.getFather().getName());
+        System.out.println(indent + "   In application : " + compo.getRootComposite());
         System.out.print(indent + "   Son composite : ");
         for (Composite comDep : compo.getSons()) {
             System.out.print(comDep.getName() + " ");
@@ -371,9 +372,10 @@ public class ApamCommand {
         if (implementation == null) {
             System.out.println(indent + " warning :  no factory for this instance");
         } else {
-            System.out.println(indent + "   implementation : " + instance.getImpl());
-            System.out.println(indent + "   composite      : " + instance.getComposite().getName());
             System.out.println(indent + "   specification  : " + instance.getSpec());
+            System.out.println(indent + "   implementation : " + instance.getImpl());
+            System.out.println(indent + "   in composite   : " + instance.getComposite());
+            System.out.println(indent + "   in application : " + instance.getRootComposite());
             printProperties(indent + "   ", instance.getProperties());
         }
 
@@ -439,14 +441,14 @@ public class ApamCommand {
         }
     }
 
-    //    private void dumpCompoTypes() {
-    //        Collection<CompositeType> compTypes = apam.getCompositeTypes();
-    //        for (CompositeType compType : compTypes) {
-    //            for (ASMInst compo : compType.getInsts()) {
-    //                dumpCompo((Composite) compo);
-    //            }
-    //        }
-    //    }
+    // private void dumpCompoTypes() {
+    // Collection<CompositeType> compTypes = apam.getCompositeTypes();
+    // for (CompositeType compType : compTypes) {
+    // for (ASMInst compo : compType.getInsts()) {
+    // dumpCompo((Composite) compo);
+    // }
+    // }
+    // }
 
     private void dumpCompoType(String name) {
         CompositeType compType = apam.getCompositeType(name);
@@ -504,14 +506,14 @@ public class ApamCommand {
         }
     }
 
-    //    private void dumpComposite(CompositeOLD compo, String indent) {
-    //        if (compo == null)
-    //            return;
-    //        System.out.println(indent + compo.getName());
-    //        indent = indent + "  ";
-    //        for (CompositeOLD comp : compo.getDepend()) {
-    //            dumpComposite(comp, indent);
-    //        }
-    //    }
+    // private void dumpComposite(CompositeOLD compo, String indent) {
+    // if (compo == null)
+    // return;
+    // System.out.println(indent + compo.getName());
+    // indent = indent + "  ";
+    // for (CompositeOLD comp : compo.getDepend()) {
+    // dumpComposite(comp, indent);
+    // }
+    // }
 
 }

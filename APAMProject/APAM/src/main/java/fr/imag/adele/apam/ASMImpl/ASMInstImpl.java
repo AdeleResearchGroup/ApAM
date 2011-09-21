@@ -8,7 +8,6 @@ import org.osgi.framework.Filter;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.ASMImpl.SamInstEventHandler.NewApamInstance;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
@@ -17,7 +16,6 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamComponent;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
@@ -31,7 +29,6 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
     private ASMImpl               myImpl;
     private Composite             myComposite;
-    private Composite             rootComposite;
     protected Instance            samInst;
     private ApamDependencyHandler depHandler;
 
@@ -42,35 +39,53 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     private final Set<Wire> wires    = new HashSet<Wire>(); // the currently used instances
     private final Set<Wire> invWires = new HashSet<Wire>();
 
-    public ASMInstImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, Instance samInst,
-            boolean composite) {
+    // WARNING to be used only for creating composites.
+    public ASMInstImpl() {
+    }
+
+    protected void instConstructor(ASMImpl impl, Composite instCompo, Attributes initialproperties, Instance samInst) {
         if (samInst == null) {
             new Exception("ERROR : sam instance cannot be null on ASM instance constructor").printStackTrace();
             return;
         }
+        if (instCompo == null) {
+            new Exception("no composite in instance contructor" + samInst);
+        }
         this.samInst = samInst;
         myImpl = impl;
-        ((ASMImplImpl) impl).addInst(this);
-        if (instCompo != null) { //null only if main appli instance.
-            myComposite = instCompo;
-            rootComposite = instCompo.getRootComposite();
-            myComposite.addContainInst(this);
-            this.setProperty(Attributes.APAMCOMPO, myComposite.getName());
-        } else {
-            this.setProperty(Attributes.APAMCOMPO, "root");
-        }
-
+        myComposite = instCompo;
+        myComposite.addContainInst(this);
+        this.setProperty(Attributes.APAMCOMPO, myComposite.getName());
         ((ASMInstBrokerImpl) CST.ASMInstBroker).addInst(this);
+    }
 
-        //when called by Composite constructor. No associated handler. 
-        if (composite)
-            return;
+    public ASMInstImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, Instance samInst,
+            boolean composite) {
 
+        // this.samInst = samInst;
+        // myImpl = impl;
+        // if (instCompo != null) { //null only if main appli instance.
+        // myComposite = instCompo;
+        // rootComposite = instCompo.getRootComposite();
+        // myComposite.addContainInst(this);
+        // this.setProperty(Attributes.APAMCOMPO, myComposite.getName());
+        // } else {
+        // this.setProperty(Attributes.APAMCOMPO, "root");
+        // }
+        //
+        // ((ASMInstBrokerImpl) CST.ASMInstBroker).addInst(this);
+        //
+        // //when called by Composite constructor. No associated handler
+        // //No specific sam instance.
+        // //If no composite it is the first main instance to be ignored.
+        // if (composite || (instCompo == null))
+        // return;
+
+        // Create the implementation and initialize
+        instConstructor(impl, instCompo, initialproperties, samInst);
+
+        // Compute the handler for apam components, and get the spec name if provided
         try {
-            if (samInst.getServiceObject() instanceof ApamComponent)
-                ((ApamComponent) samInst.getServiceObject()).apamStart(this);
-
-            String implName = null;
             String specName = null;
             ApamDependencyHandler handler = null;
             // The apam handler arrived first : it stored the info in the object NewApamInstance
@@ -79,7 +94,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             NewApamInstance apamInst = SamInstEventHandler.getHandlerInstance(samInst.getName());
             if (apamInst != null) {
                 handler = apamInst.handler;
-                implName = apamInst.implName;
+                // implName = apamInst.implName;
                 specName = apamInst.specName;
             }
             // The event arrived first : it stored the info in the attributes
@@ -97,19 +112,30 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
             setProperties(Util.mergeProperties(this, initialproperties, samInst.getProperties()));
 
+            if ((instCompo != null) && (samInst.getServiceObject() instanceof ApamComponent))
+                ((ApamComponent) samInst.getServiceObject()).apamStart(this);
+
         } catch (ConnectionException e1) {
             e1.printStackTrace();
         }
+
     }
 
-    // only for main appli instance.
-    public void setComposite(Composite instCompo) {
-        myComposite = instCompo;
-        if (instCompo == null)
-            return;
-        this.setProperty(Attributes.APAMCOMPO, instCompo.getName());
-        instCompo.addContainInst(this);
-    }
+    // // only for main appli instance.
+    // public void setComposite(Composite instCompo) {
+    // myComposite = instCompo;
+    // if (instCompo == null)
+    // return;
+    // this.setProperty(Attributes.APAMCOMPO, instCompo.getName());
+    // instCompo.addContainInst(this);
+    // try {
+    // if (samInst.getServiceObject() instanceof ApamComponent)
+    // ((ApamComponent) samInst.getServiceObject()).apamStart(this);
+    // } catch (ConnectionException e1) {
+    // e1.printStackTrace();
+    // }
+    //
+    // }
 
     @Override
     public String toString() {
@@ -183,7 +209,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
-    public boolean createWire(ASMInst to, String depName, boolean deployed) {
+    public boolean createWire(ASMInst to, String depName) {
         if ((to == null) || (depName == null))
             return false;
 
@@ -201,21 +227,22 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             depHandler.setWire(to, depName);
         }
 
-        //Other relationships to instantiate
+        // Other relationships to instantiate
         ((ASMImplImpl) getImpl()).addUses(to.getImpl());
         ((ASMSpecImpl) getSpec()).addRequires(to.getSpec());
 
-        // if to has been deployed, and from is inside a composite (it is not a root)
-        if (deployed && (getComposite() != null)) {
-            getComposite().getCompType().addImpl(to.getImpl());
-            if (to instanceof Composite) { //|| (returnedInst.getComposite().getMainInst() == returnedInst)) { //it is a composite
-                ((CompositeTypeImpl) getComposite().getCompType()).addEmbedded(((Composite) to).getCompType());
-            } else {
-                if (to.getComposite().getMainInst() == to) { //to is a composite (or the main instance of a composite)
-                    ((CompositeTypeImpl) getComposite().getCompType()).addEmbedded(to.getComposite().getCompType());
-                }
-            }
-        }
+        // // if to has been deployed, and from is inside a composite (it is not a root)
+        // if (deployed && (getComposite() != null)) {
+        // getComposite().getCompType().addImpl(to.getImpl());
+        // if (to instanceof Composite) { //|| (returnedInst.getComposite().getMainInst() == returnedInst)) { //it is a
+        // composite
+        // ((CompositeTypeImpl) getComposite().getCompType()).addEmbedded(((Composite) to).getCompType());
+        // } else {
+        // if (to.getComposite().getMainInst() == to) { //to is the main instance of a composite
+        // ((CompositeTypeImpl) getComposite().getCompType()).addEmbedded(to.getComposite().getCompType());
+        // }
+        // }
+        // }
 
         return true;
     }
@@ -238,7 +265,6 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
      * invWires, which removes the associated real dependency :
      */
 
-    @Override
     public void remove() {
         for (Wire wire : invWires) {
             wire.remove();
@@ -247,12 +273,13 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             wire.remove();
         }
         try {
-            CST.ASMInstBroker.removeInst(this);
+            // CST.ASMInstBroker.removeInst(this);
+            // ((ASMImplImpl) getImpl()).removeInst(this);
             // Should we delete the Sam instance,
             // TODO
             // samInst.delete();
             // or only remove the Apam attributes, such that SAMMAN knows which objects are APAM?
-            samInst.removeProperty(Attributes.APAMAPPLI);
+            // samInst.removeProperty(Attributes.APAMAPPLI);
             samInst.removeProperty(Attributes.APAMCOMPO);
         } catch (ConnectionException e) {
             e.printStackTrace();
@@ -285,7 +312,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         String scope = (String) getProperty(CST.A_SCOPE);
         if (scope == null)
             scope = CST.V_GLOBAL;
-        //scope.toUpperCase();
+        // scope.toUpperCase();
         return scope;
     }
 
@@ -294,7 +321,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         String shared = (String) getProperty(CST.A_SHARED);
         if (shared == null)
             shared = CST.V_TRUE;
-        //shared.toUpperCase();
+        // shared.toUpperCase();
         return shared;
     }
 
@@ -373,7 +400,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     @Override
     public Composite getRootComposite() {
 
-        return rootComposite;
+        return myComposite.getRootComposite();
     }
 
 }

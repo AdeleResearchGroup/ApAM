@@ -2,6 +2,7 @@ package fr.imag.adele.apam.ASMImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -39,32 +40,38 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
     protected Set<ASMInst>                instances     = new HashSet<ASMInst>();
 
-    // private int shared = ASM.SHAREABLE;
-    // private int clonable = ASM.TRUE;
-
     /**
      * Instantiate a new service implementation.
      * 
      * @param instance the ASM instance
-     * @param name CADSE name
+     * 
      * 
      */
 
+    // WARNING to be used ONLY when creating a composite type
+    protected ASMImplImpl() {
+
+    }
+
     public ASMImplImpl(CompositeType compo, ASMSpecImpl spec, Implementation impl, Attributes props) {
-        name = impl.getName(); //warning, for composites, it is a different name. Overloaded in createCOmpositeType
-        mySpec = spec;
         if (impl == null) {
             new Exception("Sam Implementation cannot be null when creating an imple").printStackTrace();
         }
-        samImpl = impl;
-        ((ASMImplBrokerImpl) ASMImplImpl.myBroker).addImpl(this);
-        if (compo != null) { //compo is null for the root composite AND its main implem.
-                             // done in create composite type when compo is null 
-            initializeNewImpl(compo, props);
+        if (compo == null) { // compo is null for the root composite AND its main implem.
+            // done in create composite type when compo is null
+            new Exception("compo is null").printStackTrace();
         }
+
+        name = impl.getName(); // warning, for composites, it is a different name. Overloaded in createCOmpositeType
+        mySpec = spec;
+        spec.addImpl(this);
+        ((ASMImplBrokerImpl) ASMImplImpl.myBroker).addImpl(this);
+        samImpl = impl;
+        initializeNewImpl(compo, props);
+
     }
 
-    //warning : for setting composite name, which is different from sam name.
+    // warning : for setting composite name, which is different from sam name.
     public void setName(String name) {
         this.name = name;
     }
@@ -75,7 +82,6 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         if (props == null) {
             props = new AttributesImpl();
         }
-        //        props.setProperty(Attributes.APAMAPPLI, compo.getApplication().getName());
         props.setProperty(Attributes.APAMCOMPO, compo.getName());
         // initialize properties. A fusion of SAM and APAM values
         try {
@@ -88,12 +94,12 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     @Override
     public String toString() {
         return name;
-        //        String ret;
-        //        if (name == null)
-        //            ret = " (" + samImpl.getName() + ") ";
-        //        else
-        //            ret = name + " (" + samImpl.getName() + ") ";
-        //        return ret;
+        // String ret;
+        // if (name == null)
+        // ret = " (" + samImpl.getName() + ") ";
+        // else
+        // ret = name + " (" + samImpl.getName() + ") ";
+        // return ret;
     }
 
     /**
@@ -113,7 +119,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
                 samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getImplPid(),
                         initialproperties.attr2Properties());
             ASMInstImpl inst = new ASMInstImpl(this, instCompo, initialproperties, samInst, false);
-            addInst(inst);
+            // addInst(inst);
             return inst;
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,7 +127,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         return null;
     }
 
-    //WARNING : no control !
+    // WARNING : no control ! Only called by the instance Broker.
     public void addInst(ASMInst inst) {
         if (inst != null)
             instances.add(inst);
@@ -177,6 +183,54 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     }
 
     @Override
+    public Set<ASMInst> getInsts(Set<Filter> constraints) {
+        if ((constraints == null) || constraints.isEmpty())
+            return Collections.unmodifiableSet(instances);
+        Set<ASMInst> ret = new HashSet<ASMInst>();
+        for (ASMInst inst : instances) {
+            for (Filter filter : constraints) {
+                if (filter.match((AttributesImpl) inst.getProperties())) {
+                    ret.add(inst);
+                }
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public ASMInst getInst(Set<Filter> constraints, List<Filter> preferences) {
+        Set<ASMInst> insts = null;
+        if ((preferences != null) && !preferences.isEmpty()) {
+            insts = getInsts(constraints);
+        } else
+            insts = instances;
+        if ((constraints == null) || constraints.isEmpty())
+            return ((ASMInst) insts.toArray()[0]);
+
+        return getPreferedInst(insts, preferences);
+    }
+
+    @Override
+    public ASMInst getPreferedInst(Set<ASMInst> candidates, List<Filter> preferences) {
+        ASMInst winner = null;
+        int maxMatch = -1;
+        for (ASMInst inst : candidates) {
+            int match = 0;
+            for (Filter filter : preferences) {
+                if (!filter.match((AttributesImpl) inst))
+                    break;
+                match++;
+            }
+            if (match > maxMatch) {
+                maxMatch = match;
+                winner = inst;
+            }
+        }
+        System.out.println("   Selected : " + winner);
+        return winner;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -199,7 +253,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         String shared = (String) getProperty(CST.A_SHARED);
         if (shared == null)
             shared = CST.V_TRUE;
-        //shared.toUpperCase();
+        // shared.toUpperCase();
         return shared;
     }
 
@@ -260,18 +314,22 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     @Override
     public void remove() {
         for (ASMInst inst : instances) {
-            inst.remove();
+            ((ASMInstImpl) inst).remove();
         }
         ASMImplImpl.myBroker.removeImpl(this);
+        ((ASMSpecImpl) getSpec()).removeImpl(this);
         // remove the APAM specific attributes in SAM
         if (samImpl != null) {
             try {
-                samImpl.removeProperty(Attributes.APAMAPPLI);
                 samImpl.removeProperty(Attributes.APAMCOMPO);
             } catch (ConnectionException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void removeInst(ASMInst inst) {
+        instances.remove(inst);
     }
 
     @Override

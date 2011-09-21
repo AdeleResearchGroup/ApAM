@@ -104,8 +104,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
     }
 
     @Override
-    public ASMInst addInst(Composite instComposite, Instance samInst, String implName,
-            String specName, Attributes properties) {
+    public ASMInst addSamInst(Composite instComposite, Instance samInst, String specName, Attributes properties) {
         if (samInst == null) {
             System.out.println("No instance provided for add Instance");
             return null;
@@ -124,17 +123,16 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
                         samInst.getImplementation().getName(), specName, properties);
             }
 
-            // Normally composite implementations are visible by SAM, but they can not be instantiated. 
-            // Their iPojo instances (although allowed) are not visible in the OSGi register or by SAM. 
-            // The only way to create an instance of a composite should be using APAM. 
-
+            // Normally composite implementations are visible by SAM, but they can not be instantiated.
+            // Their iPojo instances (although allowed) are not visible in the OSGi registry or by SAM.
+            // The only way to create an instance of a composite should be using APAM.
             if (impl instanceof CompositeType) {
-                System.err.println("Error, trying to activate a composite instance without using the APAM API");
+                System.err.println("Error, trying to activate composite instance " + impl
+                        + " without using the APAM API");
                 return null;
             }
 
             inst = new ASMInstImpl(impl, instComposite, null, samInst, false);
-            addInst(inst);
             return inst;
         } catch (ConnectionException e) {
             e.printStackTrace();
@@ -142,18 +140,25 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
         return null;
     }
 
-    // Warning : no control
+    // adds both in the broker and in its implem
     public void addInst(ASMInst inst) {
-        if (inst != null)
+        if ((inst != null) && !instances.contains(inst)) {
             instances.add(inst);
+            ((ASMImplImpl) inst.getImpl()).addInst(inst);
+        }
     }
 
     @Override
     public ASMInst getInst(Instance samInst) {
         if (samInst == null)
             return null;
+        String samName = samInst.getName();
+        // Warning : for a composite both the composite and the main instance refer to the same sam instance
         for (ASMInst inst : instances) {
-            if (inst.getSAMInst() == samInst)
+            if ((inst.getSAMInst() == samInst) && !inst.getName().equals(samName)) {
+                System.err.println("error in name " + samName);
+            }
+            if (inst.getName().equals(samName))
                 return inst;
         }
         return null;
@@ -165,86 +170,9 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
             return;
         if (instances.contains(inst)) {
             instances.remove(inst);
-            inst.remove();
+            ((ASMInstImpl) inst).remove(); // wires and sam attributes
+            ((ASMImplImpl) inst.getImpl()).removeInst(inst);
         }
     }
-
-    // @Override
-    // public Set<ASMInst> getShareds(ASMSpec spec, Application appli, Composite compo) {
-    // if (spec == null)
-    // return null;
-    // Set<ASMInst> ret = new HashSet<ASMInst>();
-    // for (ASMInst inst : instances) {
-    // if (inst.getSpec() == spec) {
-    // if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
-    // ret.add(inst);
-    // else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
-    // .getApplication() == appli))) {
-    // ret.add(inst);
-    // } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
-    // ret.add(inst);
-    // }
-    // }
-    // }
-    // return ret;
-    // }
-
-    // @Override
-    // public ASMInst getShared(ASMImpl impl, Application appli, Composite compo) {
-    // if (impl == null)
-    // return null;
-    // for (ASMInst inst : instances) {
-    // if (inst.getImpl() == impl) {
-    // if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
-    // return inst;
-    // else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
-    // .getApplication() == appli))) {
-    // return inst;
-    // } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
-    // return inst;
-    // }
-    // }
-    // }
-    // return null;
-    // }
-    //
-    // @Override
-    // public ASMInst getShared(ASMSpec spec, Application appli, Composite compo) {
-    // if (spec == null)
-    // return null;
-    // for (ASMInst inst : instances) {
-    // if (inst.getSpec() == spec) {
-    // if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
-    // return inst;
-    // else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
-    // .getApplication() == appli))) {
-    // return inst;
-    // } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
-    // return inst;
-    // }
-    // }
-    // }
-    // return null;
-    // }
-    //
-    // @Override
-    // public Set<ASMInst> getShareds(ASMImpl impl, Application appli, Composite compo) {
-    // if (impl == null)
-    // return null;
-    // Set<ASMInst> ret = new HashSet<ASMInst>();
-    // for (ASMInst inst : instances) {
-    // if (inst.getImpl() == impl) {
-    // if (inst.getProperty(Attributes.SHARED).equals(Attributes.SHARABLE))
-    // ret.add(inst);
-    // else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.APPLI) && (inst.getComposite()
-    // .getApplication() == appli))) {
-    // ret.add(inst);
-    // } else if ((inst.getProperty(Attributes.SHARED).equals(Attributes.LOCAL) && (inst.getComposite() == compo))) {
-    // ret.add(inst);
-    // }
-    // }
-    // }
-    // return ret;
-    // }
 
 }

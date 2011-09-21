@@ -53,7 +53,8 @@ public class OBRMan implements Manager, IOBRMAN {
 
         // to test only
         try {
-            //local = repoAdmin.addRepository("file:///C:/Program%20Files/Apache%20Software%20Foundation/apache-maven-2.2.1/repository/repository.xml");
+            // local =
+            // repoAdmin.addRepository("file:///C:/Program%20Files/Apache%20Software%20Foundation/apache-maven-2.2.1/repository/repository.xml");
             local = repoAdmin.addRepository("file:///F:/Maven/.m2/repository.xml");
         } catch (Exception e) {
             e.printStackTrace();
@@ -64,51 +65,52 @@ public class OBRMan implements Manager, IOBRMAN {
         // for (Resource res : allResources) {
         // printRes(res);
         // }
-        //        Resource selected;
-        //        selected = lookFor("bundle", "(symbolicname=ApamCommand)", null);
-        //        selected = lookFor("apam-component", "(name=S2Impl)", null);
-        //        selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", null);
-        //        selected = lookFor("apam-component", "(apam-specification=S2)", null);
-        //        selected = lookFor("apam-component", "(scope=LOCAL)", null);
-        //        selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", null);
-        //        selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", null);
-        //        selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", null);
-        //        selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.test.s2.S2)", null);
-        //        selected = lookFor("apam-component", "(&(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)(scope=LOCAL))",
-        //                null);
+        // Resource selected;
+        // selected = lookFor("bundle", "(symbolicname=ApamCommand)", null);
+        // selected = lookFor("apam-component", "(name=S2Impl)", null);
+        // selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", null);
+        // selected = lookFor("apam-component", "(apam-specification=S2)", null);
+        // selected = lookFor("apam-component", "(scope=LOCAL)", null);
+        // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", null);
+        // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", null);
+        // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", null);
+        // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.test.s2.S2)", null);
+        // selected = lookFor("apam-component",
+        // "(&(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)(scope=LOCAL))",
+        // null);
         //
-        //        Set<Filter> constraints = new HashSet<Filter>();
+        // Set<Filter> constraints = new HashSet<Filter>();
         //
-        //        selected = lookFor("bundle", "(symbolicname=ApamCommand)", constraints);
+        // selected = lookFor("bundle", "(symbolicname=ApamCommand)", constraints);
         //
-        //        try {
-        //            Filter f = FilterImpl.newInstance("(&(scope=LOCAL)(shared=TRUE))");
-        //            constraints.add(f);
-        //        } catch (InvalidSyntaxException e) {
-        //            System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
-        //        }
+        // try {
+        // Filter f = FilterImpl.newInstance("(&(scope=LOCAL)(shared=TRUE))");
+        // constraints.add(f);
+        // } catch (InvalidSyntaxException e) {
+        // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
+        // }
         //
-        //        selected = lookFor("apam-component", "(name=S2Impl)", constraints);
-        //        selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", constraints);
-        //        selected = lookFor("apam-component", "(apam-specification=S2)", null);
+        // selected = lookFor("apam-component", "(name=S2Impl)", constraints);
+        // selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", constraints);
+        // selected = lookFor("apam-component", "(apam-specification=S2)", null);
         //
-        //        try {
-        //            Filter f = FilterImpl.newInstance("(test=yes)");
-        //            constraints.add(f);
-        //        } catch (InvalidSyntaxException e) {
-        //            System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
-        //        }
+        // try {
+        // Filter f = FilterImpl.newInstance("(test=yes)");
+        // constraints.add(f);
+        // } catch (InvalidSyntaxException e) {
+        // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
+        // }
         //
-        //        selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", constraints);
-        //        selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", constraints);
-        //        try {
-        //            Filter f = FilterImpl.newInstance("(X=Y)");
-        //            constraints.add(f);
-        //        } catch (InvalidSyntaxException e) {
-        //            System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
-        //        }
+        // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", constraints);
+        // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", constraints);
+        // try {
+        // Filter f = FilterImpl.newInstance("(X=Y)");
+        // constraints.add(f);
+        // } catch (InvalidSyntaxException e) {
+        // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
+        // }
         //
-        //        selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", constraints);
+        // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", constraints);
 
     }
 
@@ -168,7 +170,8 @@ public class OBRMan implements Manager, IOBRMAN {
                     if (aCap.getName().equals(capability)) {
                         if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(capabilities, constraints)) {
-                                System.out.println("   Found : " + getAttributeInCapability(aCap, "name"));
+                                System.out.println("   Found bundle : " + res.getSymbolicName() + " Component:  "
+                                        + getAttributeInCapability(aCap, "name"));
                                 allRes.add(res);
                             }
                         }
@@ -187,13 +190,13 @@ public class OBRMan implements Manager, IOBRMAN {
         if (candidates.isEmpty())
             return null;
 
-        //trace
+        // trace
         System.out.print("preferences : ");
         for (Filter constraint : preferences) {
             System.out.print(constraint + ", ");
         }
         System.out.println("");
-        //fin trace
+        // fin trace
 
         Resource winner = null;
         Capability selectedCapability = null;
@@ -203,7 +206,7 @@ public class OBRMan implements Manager, IOBRMAN {
             Capability[] capabilities = res.getCapabilities();
             for (Capability aCap : capabilities) {
                 if (aCap.getName().equals(capability)) {
-                    match = matchPreferences(capabilities, preferences);
+                    match = matchPreferences(aCap, preferences);
                     if (match > maxMatch) {
                         maxMatch = match;
                         winner = res;
@@ -212,34 +215,35 @@ public class OBRMan implements Manager, IOBRMAN {
                 }
             }
         }
-        System.out.println("   Found : " + getAttributeInCapability(selectedCapability, "name"));
         if (winner == null)
             return null;
+        System.out.println("   Found bundle : " + winner.getSymbolicName() + " Component:  "
+                + getAttributeInCapability(selectedCapability, "name"));
         return new Selected(winner, selectedCapability);
     }
 
-    private int matchPreferences(Capability[] capabilities, List<Filter> preferences) {
+    private int matchPreferences(Capability aCap, List<Filter> preferences) {
         FilterImpl filter;
-        for (Capability aCap : capabilities) {
-            if (aCap.getName().equals("apam-component")) {
-                Map map = aCap.getPropertiesAsMap();
-                int match = 0;
-                for (Filter constraint : preferences) {
-                    try {
-                        filter = FilterImpl.newInstance(constraint.toString());
-                        if (!filter.matchCase(map)) {
-                            System.out.println("contraint not matched : " + constraint);
-                            return match;
-                        }
-                        match++;
-                    } catch (InvalidSyntaxException e) {
-                        System.err.println("invalid syntax in filter : " + constraint.toString());
-                    }
+        // for (Capability aCap : capabilities) {
+        // if (aCap.getName().equals("apam-component")) {
+        Map map = aCap.getPropertiesAsMap();
+        int match = 0;
+        for (Filter constraint : preferences) {
+            try {
+                filter = FilterImpl.newInstance(constraint.toString());
+                if (!filter.matchCase(map)) {
+                    // System.out.println("contraint not matched : " + constraint);
+                    return match;
                 }
-                return match;
+                match++;
+            } catch (InvalidSyntaxException e) {
+                System.err.println("invalid syntax in filter : " + constraint.toString());
             }
         }
-        return 0;
+        return match;
+        // }
+        // }
+        // return 0;
     }
 
     private Selected lookFor(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences) {
@@ -251,7 +255,7 @@ public class OBRMan implements Manager, IOBRMAN {
 
     private Selected lookFor(String capability, String filterStr, Set<Filter> constraints) {
         System.out.println("looking for capability : " + capability + "; filter : " + filterStr);
-        //Requirement req = repoAdmin.getHelper().requirement(capability, filterStr);
+        // Requirement req = repoAdmin.getHelper().requirement(capability, filterStr);
         if (allResources == null)
             return null;
         try {
@@ -264,7 +268,8 @@ public class OBRMan implements Manager, IOBRMAN {
                     if (aCap.getName().equals(capability)) {
                         if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(capabilities, constraints)) {
-                                System.out.println("   Found : " + res.getSymbolicName());
+                                System.out.println("   Found bundle : " + res.getSymbolicName() + " Component:  "
+                                        + getAttributeInCapability(aCap, "name"));
                                 return new Selected(res, aCap);
                             }
                         }
@@ -285,7 +290,7 @@ public class OBRMan implements Manager, IOBRMAN {
             return true;
         FilterImpl filter;
 
-        //trace
+        // trace
         System.out.print("maching constraints : ");
         for (Filter constraint : constraints) {
             System.out.print(constraint + ", ");
@@ -319,12 +324,13 @@ public class OBRMan implements Manager, IOBRMAN {
      */
     public boolean deployInstall(Resource res) {
         boolean deployed = false;
-        //the events sent by iPOJO for the previous deployed bundle may interfere and 
-        //change the state of the local repository, which produces the IllegalStateException. 
+        // the events sent by iPOJO for the previous deployed bundle may interfere and
+        // change the state of the local repository, which produces the IllegalStateException.
         while (!deployed) {
             try {
                 resolver = repoAdmin.resolver();
                 resolver.add(res);
+                // printRes(res);
                 if (resolver.resolve()) {
                     resolver.deploy(Resolver.START);
                     return true;
@@ -332,7 +338,7 @@ public class OBRMan implements Manager, IOBRMAN {
                 deployed = true;
             } catch (IllegalStateException e) {
                 System.out.println("OBR changed state. Resolving again " + res.getSymbolicName());
-                //Thread.sleep(10) ;
+                // Thread.sleep(10) ;
             }
         }
 
@@ -351,18 +357,16 @@ public class OBRMan implements Manager, IOBRMAN {
      * @param from : the origin of the wire toward the resource.
      * @return
      */
-    private ASMInst installInstantiate(Resource res, String implName, CompositeType implComposite,
-            Composite instComposite, boolean multiple, Set<ASMInst> allInst) {
+    private ASMImpl installInstantiate(Resource res, String implName, CompositeType implComposite) {
 
         String specName = getAttributeInResource(res, "apam-component", "apam-specification");
         Implementation samImpl = null;
         ASMImpl asmImpl = null;
-        ASMInst asmInst = null;
 
         try {
             asmImpl = CST.ASMImplBroker.getImpl(implName);
             samImpl = CST.SAMImplBroker.getImplementation(implName);
-            //Check if allready deployed
+            // Check if already deployed
             if ((asmImpl == null) && (samImpl == null)) {
                 // deploy selected resource
                 CST.implEventHandler.addExpected(implName);
@@ -373,7 +377,7 @@ public class OBRMan implements Manager, IOBRMAN {
                     return null;
                 }
 
-                //waiting for the implementation to be ready in SAM.
+                // waiting for the implementation to be ready in SAM.
                 samImpl = CST.implEventHandler.getImplementation(implName);
 
                 // Activate implementation in APAM
@@ -383,39 +387,13 @@ public class OBRMan implements Manager, IOBRMAN {
                 System.err.println("ERROR : " + implName + " found by OBRMAN but allready deployed.");
                 // proceed anyway
             }
+        }
 
-            // instances may have been created by deploy or iPOJO
-            //We have to wait for these instances to appear !! How long ? how to know they are all ready
-            Thread.sleep(10);
-
-            // Return already deployed instances if found
-            Set<Instance> existingInstances = samImpl.getInstances();
-            if ((existingInstances != null) && !existingInstances.isEmpty()) {
-                if (allInst == null)
-                    allInst = new HashSet<ASMInst>();
-                for (Instance inst : existingInstances) {
-                    asmInst = CST.ASMInstBroker.addInst(instComposite, inst, implName, specName, null);
-                    allInst.add(asmInst);
-                    if (!multiple)
-                        return asmInst;
-                }
-                return null;
-            }
-
-            // If no instances were deployed then create a new instance and return it
-            asmInst = asmImpl.createInst(instComposite, null);
-            if (multiple) {
-                if (allInst == null)
-                    allInst = new HashSet<ASMInst>();
-                allInst.add(asmInst);
-                return null;
-            } else
-                return asmInst;
-
-        } catch (Exception e) {
+        catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+        return asmImpl;
     }
 
     @Override
@@ -423,182 +401,49 @@ public class OBRMan implements Manager, IOBRMAN {
         return CST.OBRMAN;
     }
 
+    // at the end
     @Override
-    public List<Filter> getConstraintsSpec(String interfaceName, String specName, String depName,
-            List<Filter> initConstraints) {
-        return initConstraints;
-    }
-
-    //at the end
-    @Override
-    public List<Manager> getSelectionPathSpec(ASMInst from, CompositeType composite, String interfaceName,
-            String specName,
-            Set<Filter> constraints, List<Filter> preferences, List<Manager> involved) {
+    public void getSelectionPathSpec(CompositeType compTypeFrom, String interfaceName, String[] interfaces,
+            String specName, Set<Filter> constraints, List<Filter> preferences, List<Manager> involved) {
         involved.add(involved.size(), this);
-        return involved;
     }
 
     @Override
-    public List<Manager> getSelectionPathImpl(ASMInst from, CompositeType composite, String implName,
-            Set<Filter> constraints, List<Filter> preferences, List<Manager> involved) {
-        involved.add(involved.size(), this);
-        return involved;
+    public void getSelectionPathImpl(CompositeType compTypeFrom, String implName, List<Manager> selPath) {
+        selPath.add(selPath.size(), this);
     }
 
     @Override
-    public ASMInst resolveSpec(Composite instComposite, String interfaceName, String specName,
-            Set<Filter> constraints, List<Filter> preferences) {
-
-        CompositeType implComposite = null;
-        if (instComposite != null)
-            implComposite = instComposite.getCompType();
-        // temporary 
-        if (preferences == null)
-            preferences = new ArrayList<Filter>();
-        try {
-            Filter f = FilterImpl.newInstance("(apam-composite=true)");
-            preferences.add(f);
-        } catch (InvalidSyntaxException e) {
-            e.printStackTrace();
-        }
-        //end
-
-        Selected selected = null;
-        ASMInst newInst = null;
-        if (specName != null) {
-            selected = lookFor(CST.CAPABILITY_COMPONENT, "(apam-specification=" + specName + ")", constraints,
-                    preferences);
-        }
-        if ((selected == null) && (interfaceName != null)) {
-            selected = lookFor(CST.CAPABILITY_COMPONENT, "(interfaces=*" + interfaceName + "*)", constraints,
-                    preferences);
-        }
-        if (selected != null) {
-            String implName = getAttributeInCapability(selected.capability, "name");
-            newInst = installInstantiate(selected.resource, implName, implComposite, instComposite, false, null);
-            System.out.println("deployed :" + newInst.getName());
-            //printRes(selected);
-            return newInst;
-        }
-        return null;
+    public void getSelectionPathInst(Composite compoFrom, ASMImpl impl,
+            Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath) {
+        return;
     }
 
-    /**
-     * return only the first one. It is not planned to return resources, and it is not reasonnable to install all
-     * matching resources
-     */
-    @Override
-    public Set<ASMInst> resolveSpecs(Composite instComposite, String interfaceName,
-            String specName, Set<Filter> constraints, List<Filter> preferences) {
-
-        CompositeType implComposite = null;
-        if (instComposite != null)
-            implComposite = instComposite.getCompType();
-
-        // temporary 
-        if (preferences == null)
-            preferences = new ArrayList<Filter>();
-        try {
-            Filter f = FilterImpl.newInstance("(apam-composite=true)");
-            preferences.add(f);
-        } catch (InvalidSyntaxException e) {
-            e.printStackTrace();
-        }
-        //end
-
-        Set<ASMInst> allInsts = new HashSet<ASMInst>();
+    private Selected getResourceImpl(String implName, Set<Filter> constraints) {
         Selected selected = null;
-        String implName = null;
-
-        if (specName != null) {
-            selected = lookFor(CST.CAPABILITY_COMPONENT, "(apam-specification=" + specName + ")", constraints,
-                    preferences);
-        }
-        if ((selected == null) && (interfaceName != null)) {
-            selected = lookFor(CST.CAPABILITY_COMPONENT, "(interfaces=*" + interfaceName + "*)", constraints,
-                    preferences);
-        }
-        if (selected != null) {
-            implName = getAttributeInCapability(selected.capability, "name");
-            installInstantiate(selected.resource, implName, implComposite, instComposite, true, allInsts);
-
-            System.out.print("deployed instances :");
-            for (ASMInst inst : allInsts) {
-                System.out.print(" " + inst.getName());
-            }
-            System.out.println("\n");
-            //printRes(selected);
-            return allInsts;
-        }
-        return null;
-    }
-
-    private Selected getResourceImpl(String implName, Set<Filter> constraints, List<Filter> preferences) {
-        Selected selected = null;
-
-        // temporary 
-        if (preferences == null)
-            preferences = new ArrayList<Filter>();
-        try {
-            Filter f = FilterImpl.newInstance("(apam-composite=true)");
-            preferences.add(f);
-        } catch (InvalidSyntaxException e) {
-            e.printStackTrace();
-        }
-        //end
-
         String filterStr = null;
         if (implName != null)
             filterStr = "(name=" + implName + ")";
 
-        //            selected = lookFor(CST.CAPABILITY_COMPONENT, "(apam-implementation=" + implName + ")", constraints,
-        //                    preferences);
-        //        }
-        if (selected == null) { //look by bundle name. First apam component by bundle name
-            selected = lookFor(CST.CAPABILITY_COMPONENT, filterStr, constraints, preferences);
+        if (selected == null) { // look by bundle name. First apam component by bundle name
+            selected = lookFor(CST.CAPABILITY_COMPONENT, filterStr, constraints, null);
         }
-        if (selected == null) { //legacy iPOJO component
-            selected = lookFor("component", filterStr, constraints, preferences);
+        if (selected == null) { // legacy iPOJO component
+            selected = lookFor("component", filterStr, constraints, null);
         }
-        if (selected == null) { //legacy OSGi component
-            selected = lookFor("bundle", filterStr, constraints, preferences);
+        if (selected == null) { // legacy OSGi component
+            selected = lookFor("bundle", filterStr, constraints, null);
         }
         return selected;
     }
 
     @Override
-    public ASMInst resolveImpl(CompositeType implComposite, Composite instComposite, String implName,
-            Set<Filter> constraints, List<Filter> preferences) {
-
-        ASMInst newInst = null;
-        Capability cap = null;
-        Selected selected = getResourceImpl(implName, constraints, preferences);
-        if (selected != null) {
-            newInst = installInstantiate(selected.resource, implName, implComposite, instComposite, false, null);
-            System.out.println("deployed :" + newInst.getName());
-            //printRes(selected);
-            return newInst;
-        }
+    public ASMInst resolveImpl(Composite composite, ASMImpl impl, Set<Filter> constraints, List<Filter> preferences) {
         return null;
     }
 
     @Override
-    public Set<ASMInst> resolveImpls(CompositeType implComposite, Composite instComposite,
-            String implName, Set<Filter> constraints, List<Filter> preferences) {
-        Set<ASMInst> allInsts = new HashSet<ASMInst>();
-        Set<ASMInst> rets = new HashSet<ASMInst>();
-        Capability cap = null;
-        Selected selected = getResourceImpl(implName, constraints, preferences);
-        if (selected != null) {
-            installInstantiate(selected.resource, implName, implComposite, instComposite, true, allInsts);
-            System.out.print("deployed instances :");
-            for (ASMInst inst : allInsts) {
-                System.out.print(" " + inst.getName());
-            }
-            System.out.println("\n");
-
-            return allInsts;
-        }
+    public Set<ASMInst> resolveImpls(Composite composite, ASMImpl impl, Set<Filter> constraints) {
         return null;
     }
 
@@ -632,9 +477,9 @@ public class OBRMan implements Manager, IOBRMAN {
             System.out.println("new local repo : " + local.getURI());
             resolver = repoAdmin.resolver();
             allResources = local.getResources(); // read once for each session, and cached.
-            //            for (Resource res : allResources) {
-            //                printRes(res);
-            //            }
+            // for (Resource res : allResources) {
+            // printRes(res);
+            // }
         }
     }
 
@@ -655,7 +500,7 @@ public class OBRMan implements Manager, IOBRMAN {
         return new String(buffer);
     }
 
-    //Interface IOBRMAN
+    // Interface IOBRMAN
     @Override
     public Set<Resource> getResources(String capability, String filterStr, Set<Filter> constraints) {
         Set<Resource> allRes = new HashSet<Resource>();
@@ -673,22 +518,77 @@ public class OBRMan implements Manager, IOBRMAN {
         return false;
     }
 
-    @Override
-    public ASMImpl resolveImplByName(Composite instComposite, String implName) {
-        ASMInst inst = resolveImpl(null, instComposite, implName, null, null);
-        return inst.getImpl();
-    }
-
-    @Override
-    public ASMImpl resolveSpecByName(Composite instComposite,
-            String specName, Set<Filter> constraints, List<Filter> preferences) {
-        ASMInst inst = resolveSpec(instComposite, null, specName, constraints, preferences);
-        return inst.getImpl();
-    }
-
-    @Override
-    public ASMImpl resolveSpecByInterface(Composite composite, String interfaceName, String[] interfaces,
+    // interface manager
+    private ASMImpl resolveSpec(CompositeType compoType, String interfaceName, String specName,
             Set<Filter> constraints, List<Filter> preferences) {
+
+        // temporary
+        if (preferences == null)
+            preferences = new ArrayList<Filter>();
+        try {
+            Filter f = FilterImpl.newInstance("(apam-composite=true)");
+            preferences.add(f);
+        } catch (InvalidSyntaxException e) {
+            e.printStackTrace();
+        }
+        // end
+
+        Selected selected = null;
+        ASMImpl impl = null;
+        if (specName != null) {
+            selected = lookFor(CST.CAPABILITY_COMPONENT, "(apam-specification=" + specName + ")", constraints,
+                    preferences);
+        }
+        if ((selected == null) && (interfaceName != null)) {
+            selected = lookFor(CST.CAPABILITY_COMPONENT, "(interfaces=*" + interfaceName + "*)", constraints,
+                    preferences);
+        }
+        if (selected != null) {
+            String implName = getAttributeInCapability(selected.capability, "name");
+            impl = installInstantiate(selected.resource, implName, compoType);
+            System.out.println("deployed :" + impl);
+            // printRes(selected);
+            return impl;
+        }
+        return null;
+    }
+
+    @Override
+    public ASMImpl resolveSpecByName(CompositeType compoType, String specName,
+            Set<Filter> constraints, List<Filter> preferences) {
+        return resolveSpec(compoType, null, specName, constraints, preferences);
+    }
+
+    @Override
+    public ASMImpl resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
+            Set<Filter> constraints, List<Filter> preferences) {
+        return resolveSpec(compoType, interfaceName, null, constraints, preferences);
+    }
+
+    @Override
+    public ASMImpl findImplByName(CompositeType compoType, String implName) {
+        // private Selected getResourceImpl(String implName, Set<Filter> constraints) {
+        Selected selected = null;
+        ASMImpl impl = null;
+        String filterStr = null;
+        if (implName != null)
+            filterStr = "(name=" + implName + ")";
+
+        if (selected == null) { // look by bundle name. First apam component by bundle name
+            selected = lookFor(CST.CAPABILITY_COMPONENT, filterStr, null, null);
+        }
+        if (selected == null) { // legacy iPOJO component
+            selected = lookFor("component", filterStr, null, null);
+        }
+        if (selected == null) { // legacy OSGi component
+            selected = lookFor("bundle", filterStr, null, null);
+        }
+        if (selected != null) {
+            impl = installInstantiate(selected.resource, implName, compoType);
+            System.out.println("deployed :" + impl);
+            // printRes(selected);
+            return impl;
+        }
         return null;
     }
 

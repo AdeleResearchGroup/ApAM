@@ -102,10 +102,10 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             System.err.println("ERROR : missing sam Implementaion in addImpl");
             return null;
         }
-        //       if (compo == null && )
+        // if (compo == null && )
         String implName = samImpl.getName();
         try {
-            //specification control
+            // specification control
             Specification samSpec = samImpl.getSpecification();
             ASMImpl asmImpl = null;
             ASMSpecImpl spec = null;
@@ -124,7 +124,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             if (specName != null)
                 spec.setName(specName);
 
-            //if allready existing do not duplicate
+            // if allready existing do not duplicate
             asmImpl = getImpl(implName);
             if (asmImpl != null) { // do not create twice
                 ((ASMSpecImpl) asmImpl.getSpec()).setName(specName);
@@ -179,7 +179,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         if (url == null)
             return null;
 
-        //        String implNameExpected = null;
+        // String implNameExpected = null;
         Implementation samImpl;
         ASMImpl asmImpl = null;
         try {
@@ -206,7 +206,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             CST.implEventHandler.addExpected(implName);
             du.activate();
             samImpl = CST.implEventHandler.getImplementation(implName);
-            // TODO comment savoir si une instance a été créée dans la foulée,
+            // comment savoir si une instance a été créée dans la foulée,
             // et sous quel nom ?
         } catch (ConnectionException e) {
             e.printStackTrace();
@@ -219,8 +219,11 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
 
     @Override
     public ASMImpl getImpl(Implementation samImpl) {
+        String samName = samImpl.getName();
+        // Warning : for a composite main implem, both the composite type and the main implem refer to the same sam
+        // implem
         for (ASMImpl implem : implems) {
-            if (implem.getSamImpl() == samImpl) {
+            if ((implem.getSamImpl() == samImpl) && implem.getName().equals(samName)) {
                 return implem;
             }
         }
