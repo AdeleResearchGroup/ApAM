@@ -208,7 +208,6 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType, Com
 
     public static Collection<CompositeType> getRootCompositeTypes() {
         return CompositeTypeImpl.rootCompoType.getEmbedded();
-        // return Collections.unmodifiableCollection(CompositeTypeImpl.rootTypes.values());
     }
 
     public static Collection<CompositeType> getCompositeTypes() {

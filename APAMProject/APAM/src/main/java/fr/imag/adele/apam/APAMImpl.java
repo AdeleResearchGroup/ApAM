@@ -594,11 +594,6 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     }
 
     @Override
-    public CompositeType createCompositeType(Implementation samImpl) {
-        return CompositeTypeImpl.createCompositeType(null, samImpl);
-    }
-
-    @Override
     public CompositeType createCompositeType(String name, String mainImplName,
             Set<ManagerModel> models, Attributes attributes) {
         return CompositeTypeImpl.createCompositeType(null, name, mainImplName, null,
