@@ -19,7 +19,6 @@
 	<component name="DependencyTest" classname="fr.imag.adele.apam.test.dependency.DependencyTest"
 	           apam:specification="APAMDependencyTestSpec">
 	    <provides/>
-		<callback transition="validate" method="start"/>
 		<apam:dependency  field="dependencies" />
 	</component>
 
