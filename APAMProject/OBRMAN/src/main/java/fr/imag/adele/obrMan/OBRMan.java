@@ -474,7 +474,7 @@ public class OBRMan implements Manager, IOBRMAN {
                 System.err.println("Invalid OBR repository address :" + repoUrlStr);
                 return;
             }
-            System.out.println("new local repo : " + local.getURI());
+            // System.out.println("new local repo : " + local.getURI());
             resolver = repoAdmin.resolver();
             allResources = local.getResources(); // read once for each session, and cached.
             // for (Resource res : allResources) {
@@ -540,7 +540,7 @@ public class OBRMan implements Manager, IOBRMAN {
                     preferences);
         }
         if ((selected == null) && (interfaceName != null)) {
-            selected = lookFor(CST.CAPABILITY_COMPONENT, "(interfaces=*" + interfaceName + "*)", constraints,
+            selected = lookFor(CST.CAPABILITY_COMPONENT, "(interfaces=*;" + interfaceName + ";*)", constraints,
                     preferences);
         }
         if (selected != null) {
@@ -600,5 +600,11 @@ public class OBRMan implements Manager, IOBRMAN {
             resource = res;
             capability = cap;
         }
+    }
+
+    @Override
+    public void notifySelection(ASMInst client, String resName, String depName, ASMImpl impl, ASMInst inst,
+            Set<ASMInst> insts) {
+        // Do not care
     }
 }
