@@ -104,7 +104,7 @@ public class ApamRepoBuilder {
             components = getMetadataInfo(is);
 
         for (ApamComponentInfo comp : components) {
-            //printElement(comp.m_componentMetadata, "");
+            // printElement(comp.m_componentMetadata, "");
             printOBRElement(obrContent, comp, "", jarFile);
         }
         return true;
@@ -112,16 +112,11 @@ public class ApamRepoBuilder {
 
     private void printOBRElement(StringBuffer obrContent, ApamComponentInfo component, String indent, JarFile jarfile) {
 
-        //apam attributes
+        // apam attributes
         obrContent.append("   <capability name='apam-component'>\n");
 
         // The ipojo name
         obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
-
-        //        // The optional APAM name
-        //        if (component.getApamImplementation() != null)
-        //            obrContent.append("      <p n='apam-implementation' v='" + component.getApamImplementation()
-        //                    + "' />\n");
 
         // The name of the APAM provided interface. Optional if not defined the interface will be used
         if (component.getApamSpecification() != null)
@@ -142,30 +137,20 @@ public class ApamRepoBuilder {
                     + properties.get(propertyName) + "' />\n");
         }
 
-        //interfaces
+        // interfaces
         List<String> interfaces = component.getInterfaces(jarfile);
         if (!interfaces.isEmpty()) {
             obrContent.append("      <p n='interfaces' v='");
             for (int j = 0; j < interfaces.size(); j++) {
-                if (j > 0)
-                    obrContent.append(", ");
-                obrContent.append(interfaces.get(j));
+                if (!interfaces.get(j).startsWith("java.lang.")) {
+                    obrContent.append(";");
+                    obrContent.append(interfaces.get(j));
+                }
             }
-            obrContent.append("' />\n");
+            obrContent.append(";' />\n");
         }
 
         obrContent.append("   </capability>\n");
-
-        //interfaces again as capabilities
-
-        //        if (!interfaces.isEmpty()) {
-        //            for (int j = 0; j < interfaces.size(); j++) {
-        //                obrContent.append("   <capability name='apam-interface'>\n");
-        //                obrContent.append("      <p n='name' v='" + interfaces.get(j) + "' />\n");
-        //                obrContent.append("   </capability>\n");
-        //            }
-        //        }
-
     }
 
     /**
