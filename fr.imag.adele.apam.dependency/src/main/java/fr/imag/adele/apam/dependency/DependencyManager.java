@@ -571,8 +571,7 @@ public class DependencyManager extends PrimitiveHandler implements ApamDependenc
                     apam.newWireImpl(thisInstance, dependency.getTarget(), dependency.getName(), constraints,
                             preferences);
                 else
-                    apam.newWireImpls(thisInstance, dependency.getTarget(), dependency.getName(), constraints,
-                            preferences);
+                    apam.newWireImpls(thisInstance, dependency.getTarget(), dependency.getName(), constraints);
                 break;
             case SPECIFICATION:
                 if (dependency.isScalar())
