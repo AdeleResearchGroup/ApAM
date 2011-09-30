@@ -4,14 +4,13 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.CompositeOLD;
+import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.dynamic.application.manager.DynamicApplicationPlatform;
 import fr.imag.adele.dynamic.application.manager.ServiceClassifier;
 import fr.imag.adele.sam.Instance;
 
 /**
- * This class handles the execution of a single composite according to the specified model.
+ * This class handles the execution of a single composite type according to the specified model.
  * 
  * @author vega
  *
@@ -22,14 +21,14 @@ public class CompositeServiceInterpreter {
 	/**
 	 * A factory method to create an interpreter for the given composite and model
 	 */
-	public static CompositeServiceInterpreter create(DynamicApplicationPlatform platform, CompositeOLD composite, URL model) {
+	public static CompositeServiceInterpreter create(DynamicApplicationPlatform platform, CompositeType composite, URL model) {
 		return new CompositeServiceInterpreter(composite, platform);
 	}
 	
 	/**
 	 * The composite handled by this interpreter
 	 */
-	private final CompositeOLD		composite;
+	private final CompositeType		compositeType;
 	
 	/**
 	 * The execution platform for running this interpreter
@@ -49,15 +48,15 @@ public class CompositeServiceInterpreter {
 	private Set<FailureManager> failureManagers;
 	
 	/**
-	 * Thelist of substitution managers
+	 * The list of substitution managers
 	 */
 	private Set<SubtstitutionManager> substitutionManagers;
 	
 	/**
 	 * Builds a new instance of the interpreter
 	 */
-	public CompositeServiceInterpreter(CompositeOLD composite, DynamicApplicationPlatform platform) {
-		this.composite			= composite;
+	public CompositeServiceInterpreter(CompositeType compositeType, DynamicApplicationPlatform platform) {
+		this.compositeType		= compositeType;
 		this.platform			= platform;
 		
 		this.binders				= new HashSet<DynamicBinder>();
@@ -68,8 +67,8 @@ public class CompositeServiceInterpreter {
 	/**
 	 * Get the associated composite
 	 */
-	public CompositeOLD getComposite() {
-		return composite;
+	public CompositeType getCompositeType() {
+		return compositeType;
 	}
 	
 	/**
@@ -89,6 +88,8 @@ public class CompositeServiceInterpreter {
 	/**
 	 * Gets an estimate of the number of bindings that can be resolved by the dynamic binders of this
 	 * composite if the specified instance is activated. 
+	 *
+	 * TODO Change algorithm to make a better estimate of the good composite to use
 	 */
 	public int getEstimatedBindingCount(Instance instance) {
 		int count = 0;

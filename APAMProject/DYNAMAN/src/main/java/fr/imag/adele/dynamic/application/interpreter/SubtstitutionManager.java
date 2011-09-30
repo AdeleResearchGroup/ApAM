@@ -38,7 +38,7 @@ public class SubtstitutionManager implements Listener {
 		STRONG {
 			public void substitute(CompositeServiceInterpreter compositeInterpreter, Wire wire) {
 				ASMInst source = wire.getSource();
-				ServiceClassifier target = new ServiceClassifierBySpecification(wire.getDestination().getSpec().getASMName());
+				ServiceClassifier target = new ServiceClassifierBySpecification(wire.getDestination().getSpec().getName());
 				compositeInterpreter.getPlatform().resolve(new BindingRequest(source,wire.getDepName(),false,target),false);
 			}
 		},		
@@ -50,7 +50,7 @@ public class SubtstitutionManager implements Listener {
 		WEAK {
 			public void substitute(CompositeServiceInterpreter compositeInterpreter, Wire wire) {
 				ASMInst source = wire.getSource();
-				ServiceClassifier target = new ServiceClassifierByImplementation(wire.getDestination().getImpl().getASMName(),true);
+				ServiceClassifier target = new ServiceClassifierByImplementation(wire.getDestination().getImpl().getName());
 				compositeInterpreter.getPlatform().resolve(new BindingRequest(source,wire.getDepName(),false,target),false);
 			}
 		};

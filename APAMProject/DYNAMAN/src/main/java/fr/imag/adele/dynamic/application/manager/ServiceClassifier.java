@@ -75,7 +75,7 @@ public abstract class ServiceClassifier {
 		private final ServiceClassifier operand1;
 		private final ServiceClassifier operand2;
 		
-		public BinaryOperator(ServiceClassifier operand1, ServiceClassifier operand2) {
+		private BinaryOperator(ServiceClassifier operand1, ServiceClassifier operand2) {
 			
 			assert operand1 != null && operand2 != null;
 			

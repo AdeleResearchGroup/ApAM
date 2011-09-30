@@ -43,7 +43,7 @@ public class ServiceClassifierBySpecification extends ServiceClassifier {
 		if (specification == null)
 			return false;
 		
-		return specificationName.equals(specification.getASMName());
+		return specificationName.equals(specification.getName());
 	}
 	
 	/**

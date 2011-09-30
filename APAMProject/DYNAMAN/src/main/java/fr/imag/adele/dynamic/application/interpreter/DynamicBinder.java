@@ -1,6 +1,7 @@
 package fr.imag.adele.dynamic.application.interpreter;
 
 import fr.imag.adele.apam.apamAPI.ASMInst;
+import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.dynamic.application.manager.BindingRequest;
 import fr.imag.adele.dynamic.application.manager.DynamicApplicationPlatform.Listener;
 import fr.imag.adele.dynamic.application.manager.ServiceClassifier;
@@ -55,9 +56,13 @@ public class DynamicBinder implements Listener {
 		if (!target.contains(instance))
 			return count;
 		
-		for (ASMInst sourceInstance : compositeInterpreter.getComposite().getInsts()) {
-			if (source.contains(sourceInstance))
-				count++;
+		for (ASMInst sourceComposite : compositeInterpreter.getCompositeType().getInsts()) {
+			
+			for (ASMInst sourceInstance : ((Composite) sourceComposite).getContainInsts()) {
+				
+				if (source.contains(sourceInstance))
+					count++;
+			}
 		}
 		
 		return count;
@@ -83,21 +88,28 @@ public class DynamicBinder implements Listener {
 		
 		
 		/*
-		 * Iterate over all potential sources in the composite
+		 * Iterate over all potential sources in all the composite type instances
 		 */
-		for (ASMInst sourceInstance : compositeInterpreter.getComposite().getInsts()) {
+		
+		for (ASMInst sourceComposite : compositeInterpreter.getCompositeType().getInsts()) {
 			
-			/*
-			 * Ignore instances in the composite not satisfying the source condition 
-			 */
-			if (! source.contains(sourceInstance))
-				continue;
+			for (ASMInst sourceInstance : ((Composite) sourceComposite).getContainInsts()) {
 			
-			/*
-			 * We are sure that the candidate target instance is in the APAM state we can try
-			 * to resolve dependency for the potential source
-			 */
-			compositeInterpreter.getPlatform().resolve(sourceInstance,dependency,false);
+				/*
+				 * Ignore instances in the composite not satisfying the source condition 
+				 */
+				if (! source.contains(sourceInstance))
+					continue;
+			
+				/*
+				 * We are sure that the candidate target instance is in the APAM state we can try
+				 * to resolve dependency for the potential source
+				 */
+				if (dependency != null)
+					compositeInterpreter.getPlatform().resolve(sourceInstance,dependency,false);
+				else
+					compositeInterpreter.getPlatform().resolve(sourceInstance,false);
+			}
 		}
 	}
 

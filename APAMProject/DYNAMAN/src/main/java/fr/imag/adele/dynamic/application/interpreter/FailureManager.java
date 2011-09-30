@@ -40,10 +40,22 @@ public class FailureManager implements Listener {
 		 */
 		FAIL {
 			public void handleRequest(CompositeServiceInterpreter compositeInperpreter, BindingRequest request) {
-				throw new IllegalArgumentException("unsatisfied binding for "+request.getSource().getASMName()+":"+request.getDependency());
+				throw new IllegalArgumentException("unsatisfied binding for "+request.getSource().getName()+":"+request.getDependency());
+			}
+		},		
+		
+		
+		/**
+		 * A simple policy that simply let the flow control continue.
+		 * 
+		 * NOTE: this ends up with null reference injected in the dependency, the actual behavior depends on
+		 * whether the client service test for this condition or not. 
+		 */
+		IGNORE {
+			public void handleRequest(CompositeServiceInterpreter compositeInperpreter, BindingRequest request) {
 			}
 		};		
-		
+
 		/**
 		 * Handle a request failure in the context of the given interpreter
 		 */

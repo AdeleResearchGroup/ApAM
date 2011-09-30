@@ -6,20 +6,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompositeImplOLD;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.Apam;
 import fr.imag.adele.apam.apamAPI.ApamClient;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
-import fr.imag.adele.apam.apamAPI.CompositeOLD;
+import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apamAPI.DynamicManager;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.apamAPI.ManagersMng;
@@ -139,25 +139,6 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	}
 	
 	
-	/**
-	 * Executes the dynamic model to the specified composite
-	 */
-	
-	public synchronized void newComposite(ManagerModel model, CompositeOLD composite) {
-		/*
-		 * ignore calls while invalidated
-		 */
-		if (runningComposites == null)
-			return;
-		
-		/*
-		 * create a new interpreter instance for this composite
-		 */
-		assert model.getManagerName().equals(this.getName());
-		CompositeServiceInterpreter interpreter = CompositeServiceInterpreter.create(this,composite,model.getURL());
-		runningComposites.add(interpreter);
-		interpreter.start();
-	}
 
 	
 	/**
@@ -183,7 +164,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		 * the appearing instance
 		 */
 
-		CompositeOLD composite = getCompositeWaitingFor(instance);
+		Composite composite = getCompositeWaitingFor(instance);
 
 		/*
 		 * If none found,  try those composites that would bind dynamically to the instance
@@ -204,20 +185,20 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		 */
 		Attributes properties = new AttributesImpl();
 		properties.setProperty(CST.A_SCOPE,CST.V_GLOBAL);
-		return apam.getInstBroker().addSamInst(composite,instance,null,null,properties);
+		return apam.getInstBroker().addSamInst(composite,instance,null,properties);
 	}
 
 	/**
 	 * Get the composite containing the greatest number of instances waiting for resolution that can
 	 * be potentially satisfied by the specified instance. 
 	 */
-	private CompositeOLD getCompositeWaitingFor(Instance instance) {
+	private Composite getCompositeWaitingFor(Instance instance) {
 
 		/*
 		 * Count the number of request that could be satisfied for any composite
 		 * with pending requests.
 		 */
-		Map<CompositeOLD,Integer> counts = new HashMap<CompositeOLD, Integer>();
+		Map<Composite,Integer> counts = new HashMap<Composite, Integer>();
 		
 		for (ASMInst source : pendingRequests.keySet()) {
 			for (BindingRequest pendingRequest : getPendingRequests(source)) {
@@ -225,7 +206,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 				if (! pendingRequest.isSatisfiedBy(instance))
 					continue;
 				
-				CompositeOLD composite		= pendingRequest.getSource().getComposite(); 
+				Composite composite		= pendingRequest.getSource().getComposite(); 
 
 				Integer currentCount	= counts.get(composite);
 				currentCount 			= (currentCount == null) ? 1 : currentCount+1;
@@ -240,10 +221,10 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		if (counts.isEmpty())
 			return null;
 
-		CompositeOLD SelectedComposite = null;
+		Composite SelectedComposite = null;
 		int maxCount = -1;
 		
-		for (CompositeOLD composite : counts.keySet()) {
+		for (Composite composite : counts.keySet()) {
 			int count = counts.get(composite);
 			if (count > maxCount) {
 				maxCount = count;
@@ -258,21 +239,25 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * Get the composite containing the greatest number of dynamic binding declarations that can possibly
 	 * be satisfied by the specified instance. 
 	 */
-	private CompositeOLD getCompositeBindingTo(Instance instance) {
+	private Composite getCompositeBindingTo(Instance instance) {
 
-		CompositeOLD SelectedComposite = null;
+		
+		/*
+		 * TODO Change algorithm to make a better estimate of the good composite to use
+		 */
+		Composite selectedComposite = null;
 		int maxCount = -1;
 		
 		for (CompositeServiceInterpreter runningComposite : runningComposites) {
 			int count = runningComposite.getEstimatedBindingCount(instance);
 			if (count > maxCount) {
 				maxCount = count;
-				SelectedComposite = runningComposite.getComposite();
+				selectedComposite = (Composite)runningComposite.getCompositeType().getInst();
 			}
 				
 		}
 
-		return SelectedComposite;
+		return selectedComposite;
 
 	}
 	
@@ -302,14 +287,8 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		}
 		
 		if (concernedServices instanceof ServiceClassifierByImplementation) {
-			boolean isLogicalName		= ((ServiceClassifierByImplementation)concernedServices).isLogicalName();
 			String implementationName 	= ((ServiceClassifierByImplementation)concernedServices).getImplementation();
-
-			String apamName				= isLogicalName ? implementationName : null;
-			String samName				= isLogicalName ? null : implementationName;
-			
-			if (samName != null)
-				apamRegistry.appearedImplExpected(samName,listener);
+			apamRegistry.appearedImplExpected(implementationName,listener);
 		}
 		
 		/*
@@ -351,14 +330,8 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		}
 		
 		if (concernedServices instanceof ServiceClassifierByImplementation) {
-			boolean isLogicalName		= ((ServiceClassifierByImplementation)concernedServices).isLogicalName();
 			String implementationName 	= ((ServiceClassifierByImplementation)concernedServices).getImplementation();
-
-			String apamName				= isLogicalName ? implementationName : null;
-			String samName				= isLogicalName ? null : implementationName;
-			
-			if (samName != null)
-				apamRegistry.appearedImplNotExpected(samName,listener);
+			apamRegistry.appearedImplNotExpected(implementationName,listener);
 		}
 		
 		/*
@@ -476,60 +449,74 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 			listener.bindingFailure(request);
 			
 		}
-		
-		/*
-		 * Ignore all other methods usually used to implement managers, until API is modified to allow
-		 * for small granularity listeners.
-		 */
 
+		@Override
 		public String getName() {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
 
-		public List<Filter> getConstraintsSpec(String interfaceName,
-				String specName, String depName, List<Filter> initConstraints) {
+		@Override
+		public void getSelectionPathSpec(CompositeType compTypeFrom,
+				String interfaceName, String[] interfaces, String specName,
+				Set<Filter> constraints, List<Filter> preferences,
+				List<Manager> selPath) {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
 
-		public List<Manager> getSelectionPathSpec(ASMInst from,
-				String interfaceName, String specName, String depName,
-				Set<Filter> constraints, List<Manager> involved) {
+		@Override
+		public void getSelectionPathImpl(CompositeType compTypeFrom,
+				String implName, List<Manager> selPath) {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
 
-		public List<Manager> getSelectionPathImpl(ASMInst from,
-				String samImplName, String implName, String depName,
-				Set<Filter> constraints, List<Manager> involved) {
+		@Override
+		public void getSelectionPathInst(Composite compoFrom, ASMImpl impl,
+				Set<Filter> constraints, List<Filter> preferences,
+				List<Manager> selPath) {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
 
-		public ASMInst resolveSpec(ASMInst from, String interfaceName,
-				String specName, String depName, Set<Filter> constraints) {
-			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
-		}
-
-		public Set<ASMInst> resolveSpecs(ASMInst from, String interfaceName,
-				String specName, String depName, Set<Filter> constraints) {
-			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
-		}
-
-		public ASMInst resolveImpl(ASMInst from, String samImplName,
-				String implName, String depName, Set<Filter> constraints) {
-			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
-		}
-
-		public Set<ASMInst> resolveImpls(ASMInst from, String samImplName,
-				String implName, String depName, Set<Filter> constraints) {
-			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
-		}
-
+		@Override
 		public int getPriority() {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
 
-		public void newComposite(ManagerModel model, CompositeOLD composite) {
+		@Override
+		public void newComposite(ManagerModel model, CompositeType composite) {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
+
+		@Override
+		public ASMImpl resolveSpecByName(CompositeType compoType,
+				String specName, Set<Filter> constraints,
+				List<Filter> preferences) {
+			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
+		}
+
+		@Override
+		public ASMImpl resolveSpecByInterface(CompositeType compoType,
+				String interfaceName, String[] interfaces,
+				Set<Filter> constraints, List<Filter> preferences) {
+			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
+		}
+
+		@Override
+		public ASMImpl findImplByName(CompositeType compoType, String implName) {
+			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
+		}
+
+		@Override
+		public ASMInst resolveImpl(Composite compo, ASMImpl impl,
+				Set<Filter> constraints, List<Filter> preferences) {
+			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
+		}
+
+		@Override
+		public Set<ASMInst> resolveImpls(Composite compo, ASMImpl impl,
+				Set<Filter> constraints) {
+			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
+		}
+		
 
 	}
 	
@@ -565,7 +552,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		 */
 		
 		List<Filter> constraints = new ArrayList<Filter>();
-		
+		/*
 		if (target instanceof ServiceClassifierByInterface) {
 			String interfaceName = ((ServiceClassifierByInterface)target).getInterface();
 			constraints = apamResolver.getConstraintsSpec(interfaceName,null,dependency,constraints);
@@ -575,7 +562,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 			String specificationName = ((ServiceClassifierBySpecification)target).getSpecification();
 			constraints = apamResolver.getConstraintsSpec(null,specificationName,dependency,constraints);
 		}
-		
+		*/
 		/*
 		 * build refined service classifier
 		 */
@@ -583,7 +570,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		
 	}
 
-	/**
+	/**	
 	 * Resolves the given request if possible, by creating appropriate wires between the source and a target
 	 * satisfying the specified constraints. If specified, it will recursively resolve the selected target. 
 	 * 
@@ -698,7 +685,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 				target = new ServiceClassifierBySpecification(dependencyModel.target);
 				break;
 			case IMPLEMENTATION:
-				target = new ServiceClassifierByImplementation(dependencyModel.target,true);
+				target = new ServiceClassifierByImplementation(dependencyModel.target);
 				break;
 			}
 			
@@ -813,32 +800,28 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 				String interfaceName = ((ServiceClassifierByInterface)target).getInterface();
 				
 				if (request.isAggregate())
-					apamResolver.newWireSpecs(source,interfaceName,null,dependency);
+					apamResolver.newWireSpecs(source,interfaceName,null,dependency,null,null);
 				else
-					apamResolver.newWireSpec(source,interfaceName,null,dependency);
+					apamResolver.newWireSpec(source,interfaceName,null,dependency, null, null);
 			}
 			
 			if (target instanceof ServiceClassifierBySpecification) {
 				String specificationName = ((ServiceClassifierBySpecification)target).getSpecification();
 				
 				if (request.isAggregate())
-					apamResolver.newWireSpecs(source,null,specificationName,dependency);
+					apamResolver.newWireSpecs(source,null,specificationName,dependency,null,null);
 				else
-					apamResolver.newWireSpec(source,null,specificationName,dependency);
+					apamResolver.newWireSpec(source,null,specificationName,dependency,null,null);
 				
 			}
 			
 			if (target instanceof ServiceClassifierByImplementation) {
-				boolean isLogicalName		= ((ServiceClassifierByImplementation)target).isLogicalName();
 				String implementationName 	= ((ServiceClassifierByImplementation)target).getImplementation();
 
-				String apamName				= isLogicalName ? implementationName : null;
-				String samName				= isLogicalName ? null : implementationName;
-				
 				if (request.isAggregate())
-					apamResolver.newWireImpls(source,apamName,samName,dependency);
+					apamResolver.newWireImpls(source,implementationName,dependency,null,null);
 				else
-					apamResolver.newWireImpl(source,apamName,samName,dependency);
+					apamResolver.newWireImpl(source,implementationName,dependency,null,null);
 			}
 			
 			/*
@@ -899,114 +882,20 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		}
 	}
 
-	
-	/**
-	 * This  method is invoked by APAM to request binding resolution. Dynaman is always the least priority manager,
-	 * so if it is invoked it means binding could not be resolved and we should try failure recovery.
-	 */
-	@Override
-	public ASMInst resolveSpec(ASMInst from, String interfaceName,
-			String specName, String depName, Set<Filter> constraints) {
-		
-		ServiceClassifier target = ServiceClassifier.ANY;
-		
-		if (interfaceName != null)
-			target = new ServiceClassifierByInterface(interfaceName);
-		
-		if (specName != null)
-			target = new ServiceClassifierBySpecification(specName);
-
-		if (constraints != null)
-			target = target.and(new ServiceClassifierByConstraints(constraints));
-		
-		bindingFailure(new BindingRequest(from,depName,false,target));
-		
-		Set<ASMInst> resolution = from.getWireDests(depName); 
-		return resolution.isEmpty() ? null : resolution.iterator().next();
-	}
 
 	/**
-	 * This  method is invoked by APAM to request binding resolution. Dynaman is always the least priority manager,
-	 * so if it is invoked it means binding could not be resolved and we should try failure recovery.
+	 * Dynaman does not resolve bindings, it does not add new constraints and it
+	 * must be the last involved manager in order to handle failure.
 	 */
 	@Override
-	public Set<ASMInst> resolveSpecs(ASMInst from, String interfaceName,
-			String specName, String depName, Set<Filter> constraints) {
+	public void getSelectionPathSpec(CompositeType compTypeFrom,
+			String interfaceName, String[] interfaces, String specName,
+			Set<Filter> constraints, List<Filter> preferences,
+			List<Manager> selPath) {
 		
-		ServiceClassifier target = ServiceClassifier.ANY;
+		if (!selPath.contains(this))
+			selPath.add(selPath.size(),this);
 		
-		if (interfaceName != null)
-			target = new ServiceClassifierByInterface(interfaceName);
-		
-		if (specName != null)
-			target = new ServiceClassifierBySpecification(specName);
-
-		if (constraints != null)
-			target = target.and(new ServiceClassifierByConstraints(constraints));
-		
-		bindingFailure(new BindingRequest(from,depName,true,target));
-		
-		return from.getWireDests(depName); 
-		
-	}
-
-	/**
-	 * This  method is invoked by APAM to request binding resolution. Dynaman is always the least priority manager,
-	 * so if it is invoked it means binding could not be resolved and we should try failure recovery.
-	 */
-	@Override
-	public ASMInst resolveImpl(ASMInst from, String samImplName,
-			String implName, String depName, Set<Filter> constraints) {
-		
-		ServiceClassifier target = ServiceClassifier.ANY;
-		
-		if (samImplName != null)
-			target = new ServiceClassifierByImplementation(samImplName,false);
-		
-		if (implName != null)
-			target = new ServiceClassifierByImplementation(implName,true);
-
-		if (constraints != null)
-			target = target.and(new ServiceClassifierByConstraints(constraints));
-		
-		bindingFailure(new BindingRequest(from,depName,false,target));
-		
-		Set<ASMInst> resolution = from.getWireDests(depName); 
-		return resolution.isEmpty() ? null : resolution.iterator().next();
-	}
-
-	/**
-	 * This  method is invoked by APAM to request binding resolution. Dynaman is always the least priority manager,
-	 * so if it is invoked it means binding could not be resolved and we should try failure recovery.
-	 */
-	@Override
-	public Set<ASMInst> resolveImpls(ASMInst from, String samImplName,
-			String implName, String depName, Set<Filter> constraints) {
-
-		ServiceClassifier target = ServiceClassifier.ANY;
-		
-		if (samImplName != null)
-			target = new ServiceClassifierByImplementation(samImplName,false);
-		
-		if (implName != null)
-			target = new ServiceClassifierByImplementation(implName,true);
-
-		if (constraints != null)
-			target = target.and(new ServiceClassifierByConstraints(constraints));
-		
-		bindingFailure(new BindingRequest(from,depName,true,target));
-		
-		return from.getWireDests(depName); 
-	
-	}
-
-	/**
-	 * Dynaman does not resolve bindings, it does not add new constraints
-	 */
-	@Override
-	public List<Filter> getConstraintsSpec(String interfaceName,
-			String specName, String depName, List<Filter> initConstraints) {
-		return initConstraints;
 	}
 
 	/**
@@ -1014,14 +903,11 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * must be the last involved manager in order to handle failure.
 	 */
 	@Override
-	public List<Manager> getSelectionPathSpec(ASMInst from,
-			String interfaceName, String specName, String depName,
-			Set<Filter> constraints, List<Manager> involved) {
+	public void getSelectionPathImpl(CompositeType compTypeFrom,
+			String implName, List<Manager> selPath) {
 		
-		if (!involved.contains(this))
-			involved.add(involved.size(),this);
-		
-		return involved;
+		if (!selPath.contains(this))
+			selPath.add(selPath.size(),this);
 	}
 
 	/**
@@ -1029,14 +915,153 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * must be the last involved manager in order to handle failure.
 	 */
 	@Override
-	public List<Manager> getSelectionPathImpl(ASMInst from, String samImplName,
-			String implName, String depName, Set<Filter> constraints,
-			List<Manager> involved) {
-
-		if (!involved.contains(this))
-			involved.add(involved.size(),this);
+	public void getSelectionPathInst(Composite compoFrom, ASMImpl impl,
+			Set<Filter> constraints, List<Filter> preferences,
+			List<Manager> selPath) {
 		
-		return involved;
+		if (!selPath.contains(this))
+			selPath.add(selPath.size(),this);
+	}
+
+	/**
+	 * Executes the dynamic model to the specified composite
+	 */
+	
+	@Override
+	public synchronized void newComposite(ManagerModel model, CompositeType composite) {
+		/*
+		 * ignore calls while invalidated
+		 */
+		if (runningComposites == null)
+			return;
+		
+		/*
+		 * create a new interpreter instance for this composite
+		 */
+		assert model.getManagerName().equals(this.getName());
+		CompositeServiceInterpreter interpreter = CompositeServiceInterpreter.create(this,composite,model.getURL());
+		runningComposites.add(interpreter);
+		interpreter.start();
+	}
+
+
+	/**
+	 * This  method is invoked by APAM in a two step (specification-implementation-instance) binding resolution. 
+	 * Dynaman is not involved in resolution, but must be part of the selection process to handle binding failure.
+	 */
+	@Override
+	public ASMImpl resolveSpecByName(CompositeType compoType, String specName,
+			Set<Filter> constraints, List<Filter> preferences) {
+		
+		
+		/*
+		 * TODO:  Because of the two step process we should remember this call to keep track of the original 
+		 * request
+		 * 
+		 *	ServiceClassifier target = ServiceClassifier.ANY;
+		 *
+		 *	if (specName != null)
+		 *		target = new ServiceClassifierBySpecification(specName);
+	 	 *
+		 *	if (constraints != null)
+		 *		target = target.and(new ServiceClassifierByConstraints(constraints));
+		 *
+		 *	bindingFailure(new BindingRequest(from,depName,false,target));
+		 */
+		return null;
+	}
+
+
+	/**
+	 * This  method is invoked by APAM in a two step (specification-implementation-instance) binding resolution.
+	 * Dynaman is not involved in resolution, but must be part of the selection process to handle binding failure.
+	 */
+	@Override
+	public ASMImpl resolveSpecByInterface(CompositeType compoType,
+			String interfaceName, String[] interfaces, Set<Filter> constraints,
+			List<Filter> preferences) {
+		
+		/*
+		 * TODO:  Because of the two step process we should remember this call to keep track of the original 
+		 * request
+		 * 
+		 *	ServiceClassifier target = ServiceClassifier.ANY;
+		 *
+		 *	if (interfaceName != null)
+		 *		target = new ServiceClassifierByInterface(interfaceName);
+	 	 *
+		 *	if (constraints != null)
+		 *		target = target.and(new ServiceClassifierByConstraints(constraints));
+		 *
+		 *	bindingFailure(new BindingRequest(from,depName,false,target));
+		 */
+
+		return null;
+	}
+
+	/**
+	 * This  method is invoked by APAM in a two step (specification-implementation-instance) binding resolution.
+	 * Dynaman is not involved in resolution, but must be part of the selection process to handle binding failure.
+	 */
+	@Override
+	public ASMImpl findImplByName(CompositeType compoType, String implName) {
+		/*
+		 * TODO:  Because of the two step process we should remember this call to keep track of the original 
+		 * request
+		 * 
+		 *	ServiceClassifier target = ServiceClassifier.ANY;
+		 *
+		 *  if (implName != null)
+		 *		target = new ServiceClassifierByImplementation(implName);
+	 	 *
+		 *	bindingFailure(new BindingRequest(from,depName,false,target));
+		 */
+
+		return null;
+	}
+
+	
+
+	/**
+	 * This  method is invoked by APAM in a two step (specification-implementation-instance) binding resolution.
+	 * Dynaman is not involved in resolution, but must be part of the selection process to handle binding failure.
+	 */
+	@Override
+	public ASMInst resolveImpl(Composite compo, ASMImpl impl,
+			Set<Filter> constraints, List<Filter> preferences) {
+		/*
+		 * TODO:  Because of the two step process we should remember this call to keep track of the original 
+		 * request
+		 * 
+		 *	ServiceClassifier target = ServiceClassifier.ANY;
+		 *
+		 *  if (implName != null)
+		 *		target = new ServiceClassifierByImplementation(implName);
+	 	 *
+		 *	bindingFailure(new BindingRequest(from,depName,false,target));
+		 */
+
+		bindingFailure(null);
+		return null;
+	}
+
+	@Override
+	public Set<ASMInst> resolveImpls(Composite compo, ASMImpl impl,
+			Set<Filter> constraints) {
+		/*
+		 * TODO:  Because of the two step process we should remember this call to keep track of the original 
+		 * request
+		 * 
+		 *	ServiceClassifier target = ServiceClassifier.ANY;
+		 *
+		 *  if (implName != null)
+		 *		target = new ServiceClassifierByImplementation(implName);
+	 	 *
+		 *	bindingFailure(new BindingRequest(from,depName,false,target));
+		 */
+
+		bindingFailure(null);
+		return null;
 	}
 
 

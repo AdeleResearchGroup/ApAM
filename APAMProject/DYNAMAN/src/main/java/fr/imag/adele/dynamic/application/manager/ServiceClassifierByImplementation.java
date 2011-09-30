@@ -20,17 +20,12 @@ public class ServiceClassifierByImplementation extends ServiceClassifier {
 	 */
 	private final String implementationName;
 	
-	/**
-	 * Whether we should use the logical (ASM) or physical (SAM) name
-	 */
-	private final boolean isLogicalName;
 	
-	public ServiceClassifierByImplementation(String implementationName, boolean isLogicalName) {
+	public ServiceClassifierByImplementation(String implementationName) {
 		
 		assert implementationName != null;
 		
 		this.implementationName = implementationName;
-		this.isLogicalName		= isLogicalName;
 	}
 	
 	/**
@@ -41,13 +36,6 @@ public class ServiceClassifierByImplementation extends ServiceClassifier {
 	}
 	
 	/**
-	 * Whether the implementation name represents a logical (ASM )or physical (SAM) name
-	 */
-	public boolean isLogicalName() {
-		return isLogicalName;
-	}
-
-	/**
 	 * Whether the service is an instance of the implementation associated to this class
 	 */
 	public @Override boolean contains(ASMInst instance) {
@@ -56,7 +44,7 @@ public class ServiceClassifierByImplementation extends ServiceClassifier {
 		if (implementation == null)
 			return false;
 		
-		return implementationName.equals(isLogicalName ? implementation.getASMName() : implementation.getSAMName());
+		return implementationName.equals(implementation.getName());
 	}
 	
 	/**
@@ -91,15 +79,14 @@ public class ServiceClassifierByImplementation extends ServiceClassifier {
 		
 		ServiceClassifierByImplementation that = (ServiceClassifierByImplementation)object;
 		
-		return	this.implementationName.equals(that.implementationName) &&
-				this.isLogicalName == that.isLogicalName;
+		return	this.implementationName.equals(that.implementationName);
 	}
 	
 	/**
 	 * Adjust hash code to be consistent to the equality definition
 	 */
 	public @Override int hashCode() {
-		return this.implementationName.hashCode() + Boolean.valueOf(this.isLogicalName).hashCode();
+		return this.implementationName.hashCode();
 	}
 
 }
