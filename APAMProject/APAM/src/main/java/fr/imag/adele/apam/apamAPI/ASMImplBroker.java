@@ -21,21 +21,22 @@ public interface ASMImplBroker {
     public ASMImpl getImpl(Implementation samImpl);
 
     /**
-     * add in ASM and existing SAM implem.
+     * If the sam implementation of name samImplName is found, creates a new implementation, and adds it in the broker.
      * 
-     * @param implName the name of implementation to resolve.
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
-     * @param properties . optional : the initial properties for that implementation
-     * @return an ASM implementation
+     * @param compoType the composite type that will contain that new implementation.
+     * @param samImplName : the name of an implementation in Sam.
+     * @param specName. Optional : the symbolic name of the associated specification.
+     * @param properties. The initial properties of that implementation (merged with the sam properties)
+     * @return the new created implementation, null if failed.
      */
-    public ASMImpl addImpl(CompositeType compo, String implName, String specName, Attributes properties);
+    public ASMImpl addImpl(CompositeType compoType, String samImplName, String specName, Attributes properties);
 
     /**
      * Deploys and creates both the SAM implem and Spec; and the the corresponding ASM spec and implem
      * 
-     * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
+     * @param implName the name of implementation to resolve.
      * @param url the location of the executable to deploy
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
+     * @param specName the *logical* name of that specification. May be null.
      * @param properties . optional : the initial properties for that implementation
      * @return an ASM Implementation
      */
@@ -44,19 +45,17 @@ public interface ASMImplBroker {
     public void removeImpl(ASMImpl impl);
 
     /**
-     * Return an (exported) service implementation with the provided name. For those implementation with no logical
-     * name, looks for the SAM name.
+     * Return an implementation with the provided name.
      * 
-     * @param name the *logical* implementation name, or sam name if no logical name.
-     * @return a (exported) service ASMImpl that has the provided name, null if none.
-     * @throws ConnectionException the connection exception
+     * @param the implementation name.
+     * @return an ASMImpl that has the provided name, null if none.
      */
     public ASMImpl getImpl(String implName);
 
     /**
-     * Get the implementations.
+     * Get all the implementations.
      * 
-     * @return all Service ASMImpls. Null if none.
+     * @return all ASMImpls. Null if none.
      */
     public Set<ASMImpl> getImpls();
 
@@ -64,7 +63,7 @@ public interface ASMImplBroker {
      * Return the list of service implementation that satisfies the goal.
      * 
      * @param goal the filter
-     * @return all (exported) service ASMImpls that satisfy the goal. Null if none.
+     * @return all ASMImpls that satisfy the goal. Null if none.
      * @throws ConnectionException the connection exception
      */
     public Set<ASMImpl> getImpls(Filter goal) throws InvalidSyntaxException;

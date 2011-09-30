@@ -28,6 +28,7 @@ public class CST {
     public static final String         A_SCOPE                                = "SCOPE";
     public static final String         A_IMPLSCOPE                            = "IMPLSCOPE";
     public static final String         V_LOCALSCOPE                           = "LOCALSCOPE";
+    public static final String         A_INSTANTIABLE                         = "INSTANTIABLE";
     // visible everywhere
     public static final String         V_GLOBAL                               = "GLOBAL";
     // visible in the current appli only

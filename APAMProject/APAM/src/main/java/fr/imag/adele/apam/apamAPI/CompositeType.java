@@ -4,65 +4,89 @@ import java.util.Set;
 import fr.imag.adele.apam.ManagerModel;
 
 public interface CompositeType extends ASMImpl {
-
+    /**
+     * 
+     * @return the main implementation
+     */
     public ASMImpl getMainImpl();
 
+    /**
+     * 
+     * @param name
+     * @return the model of that name
+     */
     public ManagerModel getModel(String name);
 
+    /**
+     * returns all the models
+     * 
+     * @return
+     */
     public Set<ManagerModel> getModels();
 
+    /**
+     * Adds an "import" relationship towards "destination". Not in the interface
+     * 
+     * @param destination
+     */
     public void addImport(CompositeType destination);
 
+    /**
+     * removes an "import" relationship.
+     * 
+     * @param destination
+     * @return
+     */
     public boolean removeImport(CompositeType destination);
 
+    /**
+     * returns all the "import" relationships
+     * 
+     * @return
+     */
     public Set<CompositeType> getImport();
 
+    /**
+     * return true if the composite type import "destination"
+     * 
+     * @param destination
+     * @return
+     */
     public boolean imports(CompositeType destination);
 
+    /**
+     * adds an implementation in the current composite type
+     * 
+     * @param impl
+     */
     public void addImpl(ASMImpl impl);
 
-    public boolean containsImpl(ASMImpl spec);
+    /**
+     * return true if the current type contains "impl"
+     * 
+     * @param spec
+     * @return
+     */
+    public boolean containsImpl(ASMImpl impl);
 
+    /**
+     * return all the implementation contained in this type
+     * 
+     * @return
+     */
     public Set<ASMImpl> getImpls();
 
+    /**
+     * return the composite types embedded in the current one.
+     * 
+     * @return
+     */
     public Set<CompositeType> getEmbedded();
 
+    /**
+     * returns the composite types that contain this one.
+     * 
+     * @return
+     */
     public Set<CompositeType> getInvEmbedded();
-
-    /**
-     * This is a privileged interface that must be provided by all implementations of Composite in
-     * order to be able to automatically handle consistent bidirectional relationships.
-     * 
-     * It ensures that import associations are kept coherent.
-     * 
-     * Implementing this interface ensures a minimal compatibility among the many possible different
-     * implementations of Composite. Implementations of Composite must ensure that it should always
-     * be possible to get a internal representation for its instances.
-     * 
-     * @author vega
-     * 
-     */
-    public interface Internal extends CompositeType {
-
-        /**
-         * Adds a new dependent composite.
-         * 
-         * This should be called as a side effect of adding a dependency to this Composite
-         */
-        public void addInvImport(CompositeType dependent);
-
-        /**
-         * Removes an existing dependent composite.
-         * 
-         * This should be called as a side effect of removing a dependency to this Composite
-         */
-        public boolean removeInvImport(CompositeType dependent);
-
-    }
-
-    /**
-     * Gets the internal representation of this Composite
-     * 
-     */
-    public Internal asInternal();
 }

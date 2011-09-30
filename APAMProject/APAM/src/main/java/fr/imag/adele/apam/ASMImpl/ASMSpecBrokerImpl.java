@@ -215,10 +215,4 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
         return null;
     }
 
-    @Override
-    public Set<ASMSpec> getRequireRemote(ASMSpec specification) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }

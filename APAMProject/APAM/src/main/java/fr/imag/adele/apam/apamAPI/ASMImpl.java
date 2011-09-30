@@ -13,23 +13,42 @@ import fr.imag.adele.sam.Implementation;
 
 public interface ASMImpl extends Attributes {
 
-    public Set<CompositeType> getComposites();
-
+    /**
+     * Returns all the composite type that contains this implementation.
+     * An implementation is contained in all the composite types that deployed (logically or physically) it.
+     * 
+     * @return
+     */
     public Set<CompositeType> getInCompositeType();
 
     public String getName();
 
+    /**
+     * return the sam implementation associated with this implementation (same name)
+     * 
+     * @return
+     */
     public Implementation getSamImpl();
 
+    /**
+     * return the value of the shared attribute
+     * 
+     * @return
+     */
     public String getShared();
 
+    /**
+     * returns the vazlue of the scope attribute
+     * 
+     * @return
+     */
     public String getScope();
 
     public void remove();
 
     /**
      * Creates an instance of that implementation, and initialize its properties with the set of provided properties.
-     * The actual new service properties are those provided plus those found in the associated implementation, plus
+     * The actual new service properties are those provided plus those found in the associated sam implementation, plus
      * those in the associated specification.
      * <p>
      * 
@@ -39,10 +58,7 @@ public interface ASMImpl extends Attributes {
     public ASMInst createInst(Composite compo, Attributes initialproperties);
 
     /**
-     * Get the abstract services.
-     * 
      * @return the specification that this ASMImpls implements
-     * @throws ConnectionException the connection exception
      */
     public ASMSpec getSpec();
 
@@ -61,60 +77,64 @@ public interface ASMImpl extends Attributes {
     public Set<ASMImpl> getInvUses();
 
     /**
-     * Returns an instance (ASMInsts)of that Service implementation that satisfies the provided Goal, if existing. Null
-     * if not existing. It throws exception UnsupportedOperationException if the current service implementation object
-     * does not support that functionality.
+     * Returns the instance (ASMInsts)of that implementation having that name.
      * <p>
      * There is no constraint that an service instance has an Id.
      * 
      * @param name the name
      * @return the service instance
-     * @throws UnsupportedOperationException the unsupported operation exception
-     * @throws ConnectionException the connection exception
      */
     public ASMInst getInst(String name);
 
     /**
-     * Returns all the instances (ASMInsts) of that service implementation Null if not existing. It throws exception
-     * UnsupportedOperationException if the current service implementation object does not support that functionality.
-     * <p>
+     * Returns all the instances (ASMInsts) of that service implementation Null if not existing.
      * 
      * @return All instances of that service implementation or null if not existing.
-     * @throws UnsupportedOperationException the unsupported operation exception
-     * @throws ConnectionException the connection exception
      */
     public Set<ASMInst> getInsts();
 
     /**
      * Returns an instance arbitrarily selected (ASMInsts) of that service implementation Null if not instance are
-     * existing. It throws exception UnsupportedOperationException if the current service implementation object does not
-     * support that functionality.
-     * <p>
+     * existing.
      * 
-     * @return All instances of that service implementation or null if not existing.
-     * @throws UnsupportedOperationException the unsupported operation exception
-     * @throws ConnectionException the connection exception
+     * @return An instance of that service implementation or null if not existing.
      */
     public ASMInst getInst();
 
     /**
-     * Returns all the instances (a SAM object ASMInsts)of that Service implementation that satisfy the provided Goal,
-     * if existing. Null if not existing. It throws exception UnsupportedOperationException if the current service
-     * implementation object does not support that functionality.
-     * <p>
+     * Returns all the instances of that implementation that satisfy the provided Goal,
+     * if existing. Null if not existing.
      * 
      * @param goal the goal
      * @return All instances satisfying the goal
-     * @throws UnsupportedOperationException the unsupported operation exception
-     * @throws ConnectionException the connection exception
      * @throws InvalidSyntaxException the invalid syntax exception
      */
     public Set<ASMInst> getInsts(Filter goal) throws InvalidSyntaxException;
 
+    /**
+     * Returns all the instances of that implementation that satisfy all the filters.
+     * Null if not existing.
+     * 
+     * @param constraints. All the constraint that must be satisfied by the instances.
+     */
     public Set<ASMInst> getInsts(Set<Filter> constraints);
+
+    /**
+     * Returns all the instances of that implementation that satisfy all the filters.
+     * Null if not existing.
+     * 
+     * @param constraints. All the constraint that must be satisfied by the instances.
+     * @param preferences. Return the instance that matches the maximum number of constraints, taken in the order
+     */
 
     public ASMInst getInst(Set<Filter> constraints, List<Filter> preferences);
 
+    /**
+     * Among the instance in "candidates", return the instance that matches the maximum number of constraints, taken in
+     * the order
+     * 
+     * @param preferences. The preferences ordered from the most important (first).
+     */
     public ASMInst getPreferedInst(Set<ASMInst> candidates, List<Filter> preferences);
 
     /**

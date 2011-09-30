@@ -14,7 +14,7 @@ import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
 
-public class CompositeImpl extends ASMInstImpl implements Composite, Composite.Internal {
+public class CompositeImpl extends ASMInstImpl implements Composite {
 
     // Global variable.
     private static Map<String, Composite> composites    = new HashMap<String, Composite>();
@@ -54,7 +54,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
         mainImpl = compType.getMainImpl();
 
         // instCompo is both the father, and the composite that contains the new one, seen as a usual ASMInst.
-        instCompo.asInternal().addSon(this);
+        ((CompositeImpl) instCompo).addSon(this);
         CompositeImpl.composites.put(name, this);
 
         // create the main instance with this composite as container. Do not try to reuse an existing instance.
@@ -64,19 +64,28 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
         // name = compType.getName() + "<" + asmInst.getName() + ">";
         mainInst = asmInst;
         hasInstance.add(mainInst);
+
+        // if it is a root composite
         if (instCompo.getRootComposite() == null) {
             myRootComposite = this;
+            father = null;
         } else
             myRootComposite = instCompo.getRootComposite();
+
+        // terminate the ASMInst initialisation
         instConstructor(compType, instCompo, initialproperties, asmInst.getSAMInst());
     }
 
     /**
      * Get access to the internal implementation of the wrapped instance
      */
-    @Override
-    public Internal asInternal() {
-        return this;
+//    @Override
+//    public Internal asInternal() {
+//        return this;
+//    }
+
+    public static Composite getRootAllComposites() {
+        return CompositeImpl.rootComposite;
     }
 
     public static Collection<Composite> getRootComposites() {
@@ -136,25 +145,23 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
     }
 
     // Father-son relationship management. Hidden, Internal;
-    @Override
     public void addSon(Composite dest) {
         if (dest == null)
             return;
         if (sons.contains(dest))
             return; // allready existing
         sons.add(dest);
-        dest.asInternal().addInvSon(this);
+        ((CompositeImpl) dest).addInvSon(this);
     }
 
     /**
      * A son can be removed only when deleted. Warning : not checked.
      */
-    @Override
     public boolean removeSon(Composite destination) {
         if (destination == null)
             return false;
         sons.remove(destination);
-        destination.asInternal().removeInvSon(this);
+        ((CompositeImpl) destination).removeInvSon(this);
         return true;
     }
 
@@ -187,7 +194,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
             return; // allready existing
 
         depend.add(dest);
-        dest.asInternal().addInvDepend(this);
+        ((CompositeImpl) dest).addInvDepend(this);
     }
 
     /**
@@ -203,7 +210,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
         // return false;
         //
         depend.remove(destination);
-        destination.asInternal().removeInvDepend(this);
+        ((CompositeImpl) destination).removeInvDepend(this);
         return true;
     }
 
@@ -223,7 +230,6 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
      * @param origin
      * @return
      */
-    @Override
     public boolean removeInvDepend(Composite origin) {
         if (origin == null)
             return false;
@@ -238,7 +244,6 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
      * @return
      */
 
-    @Override
     public void addInvDepend(Composite origin) {
         invDepend.add(origin);
         return;
@@ -278,12 +283,10 @@ public class CompositeImpl extends ASMInstImpl implements Composite, Composite.I
         return compType.getModels();
     }
 
-    @Override
     public void addInvSon(Composite father) {
         this.father = father;
     }
 
-    @Override
     public void removeInvSon(Composite father) {
         this.father = null;
     }

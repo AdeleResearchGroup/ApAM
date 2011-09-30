@@ -27,10 +27,11 @@ public interface Manager {
      * each manager is asked if it want to be involved. If this manager is not involved, it does nothing. If involved,
      * it must return the list "selPath" including itself somewhere (the order is important).
      * It can *add* constraints or preferences that will used by each manager during the resolution.
-     * WARNING: Either interfaceName or specName are needed;
+     * WARNING: Either interfaceName, interfaces or specName are needed;
      * 
      * @param compTypeFrom the composite type origin of the future wire. Can be null.
      * @param interfaceName the name of one of the interfaces of the specification to resolve. May be null.
+     * @param interfaces the complete list of interface for that specification. May be null.
      * @param specName the *logical* name of that specification; different from SAM. May be null.
      * @param constraints The constraints for this resolution.
      * @param preferences The preferences for this resolution.
@@ -109,6 +110,15 @@ public interface Manager {
     public ASMImpl resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
             Set<Filter> constraints, List<Filter> preferences);
 
+    /**
+     * The manager is asked to find the implementation given its name.
+     * If it must be created, it must be inside compoType.
+     * 
+     * @param compoType the composite in which is located the calling implem (and where to create implementation, if
+     *            needed). Cannot be null.
+     * @param implName the name of implementation to find.
+     * @return the implementations if resolved, null otherwise
+     */
     public ASMImpl findImplByName(CompositeType compoType, String implName);
 
     /**
@@ -135,4 +145,21 @@ public interface Manager {
      * @return an instance if resolved, null otherwise
      */
     public Set<ASMInst> resolveImpls(Composite compo, ASMImpl impl, Set<Filter> constraints);
+
+    /**
+     * Once the resolution terminated, either successful or not, the managers are notified of the current
+     * selection.
+     * Currently, the managers cannot "undo" nor change the current selection.
+     * 
+     * @param client the client of that resolution
+     * @param resName : either the interfaceName, the spec name or the implementation name to resolve
+     *            depending on the fact newWireSpec or newWireImpl has been called.
+     * @param depName : the dependency to resolve.
+     * @param impl : the implementation selected
+     * @param inst : the instance selected (null if cardinality multiple)
+     * @param insts : the set of instances selected (null if simple cardinality)
+     */
+    public void notifySelection(ASMInst client, String resName, String depName, ASMImpl impl, ASMInst inst,
+            Set<ASMInst> insts);
+
 }

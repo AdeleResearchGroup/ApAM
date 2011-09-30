@@ -35,7 +35,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
     protected String                      name;
     protected ASMSpec                     mySpec;
-    protected Set<CompositeType>          myComposites  = new HashSet<CompositeType>(); // composite it contains.
+//    protected Set<CompositeType>          myComposites  = new HashSet<CompositeType>(); // composite it contains.
     protected Implementation              samImpl       = null;
 
     protected Set<ASMInst>                instances     = new HashSet<ASMInst>();
@@ -48,7 +48,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
      * 
      */
 
-    // WARNING to be used ONLY when creating a composite type
+    // used ONLY when creating a composite type
     protected ASMImplImpl() {
 
     }
@@ -77,7 +77,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     }
 
     public void initializeNewImpl(CompositeType compo, Attributes props) {
-        myComposites.add(compo);
+        // myComposites.add(compo);
         compo.addImpl(this);
         if (props == null) {
             props = new AttributesImpl();
@@ -111,6 +111,10 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
      */
     @Override
     public ASMInst createInst(Composite instCompo, Attributes initialproperties) {
+        if ((getProperty(CST.A_INSTANTIABLE) != null) && getProperty(CST.A_INSTANTIABLE).equals(CST.V_FALSE)) {
+            System.out.println("Implementation " + this + " is not instantiable");
+            return null;
+        }
         try {
             Instance samInst;
             if (initialproperties == null)
@@ -212,6 +216,9 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
     @Override
     public ASMInst getPreferedInst(Set<ASMInst> candidates, List<Filter> preferences) {
+        if ((preferences == null) || preferences.isEmpty()) {
+            return (ASMInst) candidates.toArray()[0];
+        }
         ASMInst winner = null;
         int maxMatch = -1;
         for (ASMInst inst : candidates) {
@@ -235,10 +242,10 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         return name;
     }
 
-    @Override
-    public Set<CompositeType> getComposites() {
-        return Collections.unmodifiableSet(myComposites);
-    }
+//    @Override
+//    public Set<CompositeType> getComposites() {
+//        return Collections.unmodifiableSet(myComposites);
+//    }
 
     @Override
     public String getScope() {

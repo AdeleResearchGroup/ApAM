@@ -171,88 +171,8 @@ public class ApamMan implements Manager {
             if (Wire.checkNewWire(composite, asmInst))
                 insts.add(asmInst);
         }
-//        if (!insts.isEmpty())
         return insts;
-//        Manager samMan = CST.apam.getManager(CST.SAMMAN);
-//        if (samMan != null) {
-//            ((SamMan) samMan).findSamInstForImpl(composite, impl, constraints, null, insts);
-//        }
-//        return insts;
     }
-
-    /*
-    private ASMInst resolveImpl0(CompositeType implComposite, Composite instComposite, String implName,
-            Set<Filter> constraints, List<Filter> preferences, boolean multiple, Set<ASMInst> allInst) {
-
-        // Look for a sharable instance that satisfies the constraints
-        if (implName == null)
-            return null;
-        ASMImpl impl = null;
-        impl = CST.ASMImplBroker.getImpl(implName);
-        if (impl != null) {
-            // Set<ASMInst> sharable = ASM.ASMInstBroker.getShareds(impl, client.getComposite().getApplication(), client
-            // .getComposite());
-            // boolean valide = false;
-            for (ASMInst inst : impl.getInsts()) {
-                if (inst.getComposite() == null) {
-                    System.err.println("Invalid instance " + inst);
-                    break;
-                }
-                if ((inst.getComposite().getMainInst() != inst) && Wire.checkNewWire(instComposite, inst)) {
-                    boolean satisfies = true;
-                    for (Filter filter : constraints) {
-                        if (!filter.match((AttributesImpl) inst.getProperties())) {
-                            satisfies = false;
-                            break;
-                        }
-                    }
-                    if (satisfies) { // accept only if satisfies constraints and a wire is possible
-                        if (multiple)
-                            allInst.add(inst);
-                        else
-                            return inst;
-                    }
-                }
-            }
-
-            if (multiple && !allInst.isEmpty())
-                return null; // we found at least one
-
-            // The impl does not have sharable instance. try to instanciate.
-            boolean satisfies = true;
-            for (Filter filter : constraints) {
-                if (!filter.match((AttributesImpl) impl.getProperties())) {
-                    satisfies = false;
-                    break;
-                }
-            }
-
-            if (satisfies) { // This implem is sharable and satisfies the constraints. Instantiate.
-                ASMInst inst = null;
-                // Check in Sam if there is an available instance.
-                // try {
-                // for (Instance instance : impl.getSamImpl().getInstances()) {
-                // //Eliminate the apam instances, they have been checked allready.
-                // if (CST.ASMInstBroker.getInst(instance) == null)
-                // inst = CST.ASMInstBroker.addSamInst(instComposite, instance, null, null);
-                // }
-                // } catch (ConnectionException e) {
-                // // TODO Auto-generated catch block
-                // e.printStackTrace();
-                // }
-                if (inst == null)
-                    inst = impl.createInst(instComposite, null);
-                // accept only if a wire is possible
-                if (Wire.checkNewWire(instComposite, inst)) {
-                    if (multiple) // At most one instantiation, even if multiple
-                        allInst.add(inst);
-                    return inst; // If not we have created an instance unused ! delete it ?
-                }
-            }
-        }
-        return null;
-    }
-    */
 
     @Override
     public int getPriority() {
@@ -310,23 +230,10 @@ public class ApamMan implements Manager {
         return spec.getImpl(constraints, preferences);
     }
 
-    // private ASMImpl matchPreferences(Set<ASMImpl> candidates, List<Filter> preferences) {
-    // ASMImpl winner = null;
-    // int maxMatch = -1;
-    // for (ASMImpl impl : candidates) {
-    // int match = 0;
-    // for (Filter filter : preferences) {
-    // if (!filter.match((AttributesImpl) impl.getProperties()))
-    // break;
-    // match++;
-    // }
-    // if (match > maxMatch) {
-    // maxMatch = match;
-    // winner = impl;
-    // }
-    // }
-    // System.out.println("   Selected : " + winner);
-    // return winner;
-    // }
+    @Override
+    public void notifySelection(ASMInst client, String resName, String depName, ASMImpl impl, ASMInst inst,
+            Set<ASMInst> insts) {
+        // do not care
+    }
 
 }

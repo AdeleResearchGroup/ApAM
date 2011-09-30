@@ -14,26 +14,29 @@ public interface ASMSpec extends Attributes {
 
     public String getName();
 
+    /**
+     * return the sam specificatrion (if existing !!) associated with this specification.
+     * 
+     * @return
+     */
     public Specification getSamSpec();
 
     /**
-     * remove from ASM but does not try to delete in SAM. The mapping is still valid. It deletes all its
+     * remove from ASM but does not try to delete in SAM. It deletes all its
      * Implementations. No change of state. May be selected again later.
      */
     public void remove();
 
     /**
-     * Return the first {@link ASMImpl} that implement that Abstract Service and with the specified name If name is
-     * null, returns null. If more than one service implementation satisfy the method, an arbitrary one is returned.
+     * Return the implementation that implement that specification and has the provided name.
      * 
-     * @param name the name
+     * @param implemName the name
      * @return the implementation
-     * @throws ConnectionException the connection exception
      */
     public ASMImpl getImpl(String implemName);
 
     /**
-     * Return all the {@link ASMImpl} that implement that Abstract Service. If no services implementation are found,
+     * Return all the implementation of that specification. If no services implementation are found,
      * returns null.
      * 
      * @return the implementations
@@ -42,22 +45,46 @@ public interface ASMSpec extends Attributes {
     public Set<ASMImpl> getImpls();
 
     /**
-     * Returns all the {@link ASMImpl} that implement that Abstract Service and satisfies the goal If no services
-     * implementation are found, returns null.
+     * Returns all the implementations that satisfy the goal. Null if none.
      * 
      * @param goal If null or empty, no constraints.
      * @return the implementations
-     * @throws ConnectionException the connection exception
      * @throws InvalidSyntaxException
      */
     public Set<ASMImpl> getImpls(Filter filter) throws InvalidSyntaxException;
 
+    /**
+     * Returns all the implementations that satisfy all the constraints. Null if none.
+     * 
+     * @param constraint : the set of filters. If null or empty, no constraints.
+     * @return the implementations
+     */
     public Set<ASMImpl> getImpls(Set<Filter> constraints);
 
+    /**
+     * Returns the subset of "candidates" that satisfy all the constraints. Null if none.
+     * 
+     * @param constraint : the set of filters. If null or empty, no constraints.
+     * @return the implementations
+     */
     public Set<ASMImpl> getImpls(Set<ASMImpl> candidates, Set<Filter> constraints);
 
+    /**
+     * Return the implementation that matches the constraints and that best satisfies the preferences.
+     * 
+     * @param constraints
+     * @param preferences
+     * @return
+     */
     public ASMImpl getImpl(Set<Filter> constraints, List<Filter> preferences);
 
+    /**
+     * returns the implementation, in the candidate set, that best satisfies the preferences.
+     * 
+     * @param candidates
+     * @param preferences
+     * @return
+     */
     public ASMImpl getPreferedImpl(Set<ASMImpl> candidates, List<Filter> preferences);
 
     /**
@@ -68,20 +95,18 @@ public interface ASMSpec extends Attributes {
     public String[] getInterfaceNames();
 
     /**
-     * Return the list of currently used specification (may be a sub-set of ConfMan requires).
+     * Return the list of currently required specification.
      * 
-     * @return the list of required abstract services. Null if none
-     * @throws ConnectionException the connection exception
+     * @return the list of currently required specification. Null if none
      */
     public Set<ASMSpec> getRequires();
 
     /**
-     * Return the list of specification that are currently connected to thatspec (may be a sub-set of ConfMan requires).
+     * Return the list of specification that currently require that spec.
      * 
-     * @return the list of abstract services using that spec. Null if none
+     * @return the list of specifications using that spec. Null if none
      * @throws ConnectionException the connection exception
      */
-
     public Set<ASMSpec> getInvRequires();
 
 }

@@ -10,11 +10,12 @@ import fr.imag.adele.sam.Instance;
 
 public interface ASMInst extends Attributes {
 
-    //The composite in which this instance pertains.
-    //WARNING : may be null. A root composite, as an ASMInst, does not pertain to any other Composite
+    /**
+     * Returns the composite to which this instance pertains.
+     */
     public Composite getComposite();
 
-    //The composite at the end of the "father" relationship chain. 
+    // The composite at the end of the "father" relationship chain.
     public Composite getRootComposite();
 
     public String getName();
@@ -33,47 +34,112 @@ public interface ASMInst extends Attributes {
     public ApamDependencyHandler getDependencyHandler();
 
     /**
-     * The relation wires is established between two ASM instances. Wires are internally managed, may be different from
-     * SAM wires.
-     * 
-     * @return
+     * The relation wires is established between two ASM instances. Wires are internally managed.
+     */
+
+    /**
+     * returns all the instances this one is wired to.
      */
     public Set<ASMInst> getWireDests();
 
+    /**
+     * returns the wire toward that destination
+     * 
+     * @param destInst
+     * @return
+     */
     public Wire getWire(ASMInst destInst);
 
+    /**
+     * returns the wire for hte "depName" dependency toward that destination instance
+     * 
+     * @param destInst : the instance destination of that dependency
+     * @param depName : name of the dependency
+     * @return
+     */
     public Wire getWire(ASMInst destInst, String depName);
 
+    /**
+     * Retruns all hte wires toward that destination.
+     * 
+     * @param destInst
+     * @return
+     */
     public Set<Wire> getWires(ASMInst destInst);
 
+    /**
+     * returns all the destinations of that dependency (if multiple cardinality)
+     * 
+     * @param depName
+     * @return
+     */
     public Set<ASMInst> getWireDests(String depName);
 
+    /**
+     * returns all the wires related to that dependency (if multiple cardinality)
+     * 
+     * @param depName
+     * @return
+     */
     public Set<Wire> getWires(String dependencyName);
 
+    /**
+     * Returns all the wires, for hte provided dependency, leading to the current instance.
+     * 
+     * @param depName
+     * @return
+     */
     public Set<Wire> getInvWires(String depName);
 
+    /**
+     * returns all the wire from the current instance
+     * 
+     * @return
+     */
     public Set<Wire> getWires();
 
+    /**
+     * Returns all the wires leading to the current instance.
+     * 
+     * @param depName
+     * @return
+     */
     public Set<Wire> getInvWires();
 
     /**
      * A new wire has to be instantiated between the current instance and the to instance, for the dependency called
-     * dep.
-     * If "to" was instantiated during this resolution, deployed is true. Should be false by default.
+     * depName.
      * 
      * @param to : the destination of the wire by the depName dependency
      * @param depName : name of the dependency
-     * @param deployed : to was deployed (logically or physically) during this resolution. false if unknown.
      * @return
      */
     public boolean createWire(ASMInst to, String depName);
 
+    /**
+     * remove that wire.
+     * 
+     * @param wire
+     */
     public void removeWire(Wire wire);
 
+    /**
+     * returns the value of the shared attribute
+     * 
+     * @return
+     */
     public String getShared();
 
+    /*
+     * returns the value of hte scope attribute
+     */
     public String getScope();
 
+    /**
+     * returns the specification of that instance
+     * 
+     * @return
+     */
     public ASMSpec getSpec();
 
     /**

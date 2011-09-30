@@ -198,7 +198,7 @@ public class Util {
         }
 
         System.out.println("Composite type " + compoFrom.getName()
-                        + " does not see implementation " + impl + " in " + impl.getComposites()
+                        + " does not see implementation " + impl + " in " + impl.getInCompositeType()
                         + " (scope is " + impl.getScope() + ")");
 
         return false;

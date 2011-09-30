@@ -12,15 +12,15 @@ import fr.imag.adele.sam.Instance;
 public interface ASMInstBroker {
 
     /**
-     * adds in ASM and existing SAM Instance.
+     * adds in ASM an existing SAM Instance.
      * 
-     * @param instCompo The composite in which to create the instance. Cannot be null.
+     * @param compo The composite in which to create the instance. Cannot be null.
      * @param inst a SAM Instance
      * @param specName the *logical* name of the associated specification; different from SAM. May be null.
      * @param properties . optional : the initial properties
      * @return an ASM Instance
      */
-    public ASMInst addSamInst(Composite instCompo, Instance samInst, String specName, Attributes properties);
+    public ASMInst addSamInst(Composite compo, Instance samInst, String specName, Attributes properties);
 
     /**
      * returns the APAM instance related to the provided sam Instance.
