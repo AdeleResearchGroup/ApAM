@@ -1,6 +1,6 @@
 <obr> 
    <capability name='apam-component'>
       <p n='name' v='SAMMAN' />
-      <p n='interfaces' v='fr.imag.adele.apam.apamAPI.Manager' />
+      <p n='interfaces' v=';fr.imag.adele.apam.apamAPI.Manager;' />
    </capability>
 </obr> 

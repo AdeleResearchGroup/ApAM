@@ -147,6 +147,9 @@ public class SamMan implements Manager {
     public ASMInst findSamInstForImpl(Composite compo, ASMImpl impl, Set<Filter> constraints,
             List<Filter> preferences, Set<ASMInst> allInst) {
 
+        // composite type do not have unknown instances in SAM. Further, their samImpl is the main.
+        if (impl instanceof CompositeType)
+            return null;
         Set<Instance> allInstances = new HashSet<Instance>();
         try {
             for (Instance inst : impl.getSamImpl().getInstances()) {
@@ -324,6 +327,12 @@ public class SamMan implements Manager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public void notifySelection(ASMInst client, String resName, String depName, ASMImpl impl, ASMInst inst,
+            Set<ASMInst> insts) {
+        // samMan does not care
     }
 
 }
