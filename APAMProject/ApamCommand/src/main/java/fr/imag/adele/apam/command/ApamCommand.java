@@ -183,10 +183,10 @@ public class ApamCommand {
         dumpApam();
     }
 
-    @Descriptor("Display the state model of the target application")
-    public void state(@Descriptor("target application") String appliName) {
-        dumpCompoType(appliName);
-    }
+//    @Descriptor("Display the state model of the target application")
+//    public void state(@Descriptor("target application") String appliName) {
+//        dumpCompoType(appliName);
+//    }
 
     @Descriptor("Display all the Apam composites types")
     public void compoTypes() {
@@ -275,7 +275,7 @@ public class ApamCommand {
     private void printComposite(Composite compo, String indent) {
         System.out.println(indent + "Composite " + compo.getName() + " Composite Type : "
                 + compo.getCompType().getName() + " Father : "
-                + compo.getFather().getName());
+                + compo.getFather());
         System.out.println(indent + "   In application : " + compo.getRootComposite());
         System.out.print(indent + "   Son composite : ");
         for (Composite comDep : compo.getSons()) {
@@ -296,6 +296,10 @@ public class ApamCommand {
             }
             System.out.println("");
         }
+
+        System.out.println(indent + "State " + compo);
+        dumpState(compo.getMainInst(), indent + "  ", "");
+        System.out.println("");
 
         for (Composite comp : compo.getSons()) {
             printComposite(comp, indent + "   ");
@@ -441,15 +445,6 @@ public class ApamCommand {
         }
     }
 
-    // private void dumpCompoTypes() {
-    // Collection<CompositeType> compTypes = apam.getCompositeTypes();
-    // for (CompositeType compType : compTypes) {
-    // for (ASMInst compo : compType.getInsts()) {
-    // dumpCompo((Composite) compo);
-    // }
-    // }
-    // }
-
     private void dumpCompoType(String name) {
         CompositeType compType = apam.getCompositeType(name);
         if (compType == null) {
@@ -458,11 +453,11 @@ public class ApamCommand {
         }
         printCompositeType(compType, "");
         for (ASMInst compo : compType.getInsts()) {
-            dumpCompo((Composite) compo);
+            printComposite((Composite) compo, "   ");
         }
-        for (ASMImpl compo : compType.getUses()) {
-            printCompositeType((CompositeType) compo, "");
-        }
+//        for (ASMImpl compo : compType.getUses()) {
+//            printCompositeType((CompositeType) compo, "");
+//        }
     }
 
     private void dumpCompo(Composite comp) {
