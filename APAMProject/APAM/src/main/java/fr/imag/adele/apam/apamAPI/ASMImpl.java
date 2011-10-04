@@ -8,6 +8,8 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.apamAPI.ApamDependencyHandler.DependencyModel;
+import fr.imag.adele.apam.apamAPI.ApamDependencyHandler.TargetKind;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Implementation;
 
@@ -143,5 +145,27 @@ public interface ASMImpl extends Attributes {
      * @return true if method createASMInst is supported
      */
     public boolean isInstantiable();
+
+    /**
+     * A minimal model of the information known by the handler about the potential dependencies
+     * of its managed instance.
+     */
+
+    public enum TargetKind {
+        INTERFACE, SPECIFICATION, IMPLEMENTATION
+    }
+
+    public static class DependencyModel {
+        public String     dependencyName; // depName
+        public String     target;        // spec name, interface or implem
+        public TargetKind targetKind;    // INTERFACE, SPECIFICATION, IMPLEMENTATION
+        public String[]   source;        // for composites, the list of source specifications.
+        public boolean    isMultiple;
+    }
+
+    /**
+     * Get the list of dependencies known by the handler
+     */
+    public Set<DependencyModel> getDependencies();
 
 }

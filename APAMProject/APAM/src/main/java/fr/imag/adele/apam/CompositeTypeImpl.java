@@ -153,6 +153,8 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
             mainImplName = (String) samImpl.getProperty(CST.PROPERTY_COMPOSITE_MAIN_IMPLEMENTATION);
             specName = (String) samImpl.getProperty(CST.PROPERTY_COMPOSITE_MAIN_SPECIFICATION);
             models = (Set<ManagerModel>) samImpl.getProperty(CST.PROPERTY_COMPOSITE_MODELS);
+            
+            read all  composite attribute
             // TODO
             // interfaces = samImpl.
         } catch (ConnectionException e) {
