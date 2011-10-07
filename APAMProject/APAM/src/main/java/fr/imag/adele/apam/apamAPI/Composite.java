@@ -108,4 +108,10 @@ public interface Composite extends ASMInst {
      */
     public Set<ASMInst> getContainInsts();
 
+    /**
+     * 
+     * @return true if the attribute "internalInstances" is set to "true"
+     */
+    public boolean getInternal();
+
 }

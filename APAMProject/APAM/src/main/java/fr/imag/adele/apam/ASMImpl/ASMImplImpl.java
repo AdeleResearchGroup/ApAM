@@ -10,6 +10,7 @@ import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
@@ -25,20 +26,19 @@ import fr.imag.adele.sam.broker.ImplementationBroker;
 
 public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
-    protected static ASMImplBroker        myBroker      = CST.ASMImplBroker;
-    protected static ImplementationBroker samImplBroker = CST.SAMImplBroker;            ;
+    protected final Set<ASMImpl>       uses         = new HashSet<ASMImpl>();      // all relations uses
+    protected final Set<ASMImpl>       invUses      = new HashSet<ASMImpl>();      // all reverse relations uses
 
-    protected final Set<ASMImpl>          uses          = new HashSet<ASMImpl>();      // all relations uses
-    protected final Set<ASMImpl>          invUses       = new HashSet<ASMImpl>();      // all reverse relations uses
+    protected final Set<CompositeType> inComposites = new HashSet<CompositeType>(); // composite it is contained in.
 
-    protected final Set<CompositeType>    inComposites  = new HashSet<CompositeType>(); // composite it is contained in.
+    protected String                   name;
+    protected ASMSpec                  mySpec;
+    protected Implementation           samImpl      = null;
 
-    protected String                      name;
-    protected ASMSpec                     mySpec;
-//    protected Set<CompositeType>          myComposites  = new HashSet<CompositeType>(); // composite it contains.
-    protected Implementation              samImpl       = null;
+    protected Set<ASMInst>             instances    = new HashSet<ASMInst>();      // the instances of that impl.
 
-    protected Set<ASMInst>                instances     = new HashSet<ASMInst>();
+    protected Set<DependencyModel>     dependencyModel;                            // The dependencies of that Impl, as
+                                                                                    // known by the handler.
 
     /**
      * Instantiate a new service implementation.
@@ -65,7 +65,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         name = impl.getName(); // warning, for composites, it is a different name. Overloaded in createCOmpositeType
         mySpec = spec;
         spec.addImpl(this);
-        ((ASMImplBrokerImpl) ASMImplImpl.myBroker).addImpl(this);
+        ((ASMImplBrokerImpl) CST.ASMImplBroker).addImpl(this);
         samImpl = impl;
         initializeNewImpl(compo, props);
 
@@ -89,6 +89,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         } catch (ConnectionException e) {
             e.printStackTrace();
         }
+        dependencyModel = (Set<DependencyModel>) getProperty(CST.A_DEPENDENCIES);
     }
 
     @Override
@@ -118,9 +119,9 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         try {
             Instance samInst;
             if (initialproperties == null)
-                samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getImplPid(), null);
+                samInst = CST.SAMImplBroker.createInstance(samImpl.getImplPid(), null);
             else
-                samInst = ASMImplImpl.samImplBroker.createInstance(samImpl.getImplPid(),
+                samInst = CST.SAMImplBroker.createInstance(samImpl.getImplPid(),
                         initialproperties.attr2Properties());
             ASMInstImpl inst = new ASMInstImpl(this, instCompo, initialproperties, samInst, false);
             // addInst(inst);
@@ -242,17 +243,21 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         return name;
     }
 
-//    @Override
-//    public Set<CompositeType> getComposites() {
-//        return Collections.unmodifiableSet(myComposites);
-//    }
-
+    /**
+     * returns the visibility.
+     * WARNING : an implem can pertain to various composite types that can overload (reduce) the visibility.
+     * The widest possible visibility is returned.
+     */
     @Override
-    public String getScope() {
-        String scope = (String) getProperty(CST.A_SCOPE);
-        if (scope == null)
-            scope = CST.V_GLOBAL;
-        return (String) getProperty(CST.A_SCOPE);
+    public String getVisible() {
+        String visible = (String) getProperty(CST.A_VISIBLE);
+        String compoVisible;
+        for (CompositeType compoDest : getInCompositeType()) {
+            // Check if the composite type overloads the implementation scope
+            compoVisible = ((CompositeTypeImpl) compoDest).getVisibleInCompoType(this);
+            visible = Util.getEffectiveScope(visible, compoVisible);
+        }
+        return visible;
     }
 
     @Override
@@ -260,7 +265,6 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         String shared = (String) getProperty(CST.A_SHARED);
         if (shared == null)
             shared = CST.V_TRUE;
-        // shared.toUpperCase();
         return shared;
     }
 
@@ -323,7 +327,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         for (ASMInst inst : instances) {
             ((ASMInstImpl) inst).remove();
         }
-        ASMImplImpl.myBroker.removeImpl(this);
+        CST.ASMImplBroker.removeImpl(this);
         ((ASMSpecImpl) getSpec()).removeImpl(this);
         // remove the APAM specific attributes in SAM
         if (samImpl != null) {
@@ -352,5 +356,10 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     @Override
     public Set<CompositeType> getInCompositeType() {
         return Collections.unmodifiableSet(inComposites);
+    }
+
+    @Override
+    public Set<DependencyModel> getDependencies() {
+        return (Set<DependencyModel>) getProperty(CST.A_DEPENDENCIES);
     }
 }

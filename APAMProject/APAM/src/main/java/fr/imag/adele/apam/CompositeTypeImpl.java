@@ -22,6 +22,7 @@ import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.CompositeImpl;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Instance;
@@ -47,6 +48,19 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
     // all the dependencies between composite types
     private final Set<CompositeType>          imports        = new HashSet<CompositeType>();
     private final Set<CompositeType>          invImports     = new HashSet<CompositeType>();
+
+    // special attributes for visibility and scope control
+    private String                            internalImplementations;                              // true false
+    private String                            internalInstances;                                    // true false
+    private Set<String>                       globalScope;
+    private Set<String>                       appliScope;
+    private Set<String>                       compositeScope;
+    private Set<String>                       localScope;
+    private Set<String>                       localVisible;
+    private Set<String>                       compositeVisible;
+    private Set<String>                       globalVisible;
+
+    // private Set<DependencyModel> dependencyModel;
 
     private CompositeTypeImpl() {
         name = CST.ROOTCOMPOSITETYPE;
@@ -96,14 +110,14 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
         samImpl = mainImpl.getSamImpl();
         this.mainImpl = mainImpl;
         name = compositeName;
-        ((ASMImplImpl) mainImpl).initializeNewImpl(this, attributes); // complete attribute value init, and chainings.
-
+        ((ASMImplImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
         CompositeTypeImpl.compositeTypes.put(name, this);
-        ((ASMImplBrokerImpl) ASMImplImpl.myBroker).addImpl(this);
+        ((ASMImplBrokerImpl) CST.ASMImplBroker).addImpl(this);
 
         fromCompo.addImpl(this);
         ((CompositeTypeImpl) fromCompo).addEmbedded(this);
         inComposites.add(fromCompo);
+        initializeCompoAttributes(attributes);
     }
 
     /**
@@ -149,22 +163,113 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
         Set<ManagerModel> models = null;
         String[] interfaces = null;
         try {
-            // implName = (String) samImpl.getProperty(CST.PROPERTY_IMPLEMENTATION_NAME);
-            mainImplName = (String) samImpl.getProperty(CST.PROPERTY_COMPOSITE_MAIN_IMPLEMENTATION);
-            specName = (String) samImpl.getProperty(CST.PROPERTY_COMPOSITE_MAIN_SPECIFICATION);
-            models = (Set<ManagerModel>) samImpl.getProperty(CST.PROPERTY_COMPOSITE_MODELS);
-            
-            read all  composite attribute
-            // TODO
-            // interfaces = samImpl.
+            Attributes properties = new AttributesImpl();
+            Map<String, Object> p = samImpl.getProperties();
+            for (String prop : p.keySet()) {
+                properties.setProperty(prop, p.get(prop));
+            }
+            mainImplName = (String) samImpl.getProperty(CST.A_MAIN_IMPLEMENTATION);
+            specName = (String) samImpl.getProperty(CST.A_MAIN_SPECIFICATION);
+            models = (Set<ManagerModel>) samImpl.getProperty(CST.A_MODELS);
+
+            if (implComposite == null)
+                implComposite = CompositeTypeImpl.rootCompoType;
+
+            return CompositeTypeImpl.createCompositeType(implComposite, samImpl.getName(),
+                    mainImplName, specName, models, properties);
         } catch (ConnectionException e) {
             e.printStackTrace();
         }
-        if (implComposite == null)
-            implComposite = CompositeTypeImpl.rootCompoType;
+        return null;
+    }
 
-        return CompositeTypeImpl.createCompositeType(implComposite, samImpl.getName(), mainImplName, specName, models,
-                null);
+    /**
+     * Initializes the attributes of the composite implementation.
+     * The handler has set the specific attributes on the corresponding SAM object (when created from a bundle),
+     * and/or provided when creating the composite type by API.
+     * 
+     * @param properties composite specific attributes
+     */
+    public void initializeCompoAttributes(Attributes properties) {
+        if (properties == null)
+            return;
+        setProperties(properties.getProperties());
+        internalImplementations = (String) getProperty(CST.A_INTERNALIMPL);
+        internalInstances = (String) getProperty(CST.A_INTERNALINST);
+        globalScope = (Set<String>) getProperty(CST.A_GLOBALSCOPE);
+        appliScope = (Set<String>) getProperty(CST.A_APPLISCOPE);
+        compositeScope = (Set<String>) getProperty(CST.A_COMPOSITESCOPE);
+        localScope = (Set<String>) getProperty(CST.A_LOCALSCOPE);
+        localVisible = (Set<String>) getProperty(CST.A_LOCALVISIBLE);
+        compositeVisible = (Set<String>) getProperty(CST.A_COMPOSITEVISIBLE);
+        globalVisible = (Set<String>) getProperty(CST.A_GLOBALVISIBLE);
+    }
+
+    public String getScopeInComposite(ASMInst inst) {
+        String name = inst.getName();
+
+        if (localScope != null) {
+            for (String scope : localScope) {
+                if (name.matches(scope)) {
+                    System.out.println("overloaded local scope for " + inst + " in composite type " + this);
+                    return CST.V_LOCAL;
+                }
+            }
+        }
+        if (compositeScope != null) {
+            for (String scope : compositeScope) {
+                if (name.matches(scope)) {
+                    System.out.println("overloaded composite scope for " + inst + " in composite type " + this);
+                    return CST.V_COMPOSITE;
+                }
+            }
+        }
+        if (appliScope != null) {
+            for (String scope : appliScope) {
+                if (name.matches(scope)) {
+                    System.out.println("overloaded appli scope for " + inst + " in composite type " + this);
+                    return CST.V_APPLI;
+                }
+            }
+        }
+        if (localScope != null) {
+            for (String scope : globalScope) {
+                if (name.matches(scope)) {
+                    System.out.println("overloaded global scope for " + inst + " in composite type " + this);
+                    return CST.V_GLOBAL;
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getVisibleInCompoType(ASMImpl impl) {
+        String name = impl.getName();
+        if (localVisible != null) {
+            for (String visible : localVisible) {
+                if (name.matches(visible)) {
+                    System.out.println("overloaded local visible for " + name + " in composite type " + this);
+                    return CST.V_LOCAL;
+                }
+            }
+        }
+        if (compositeVisible != null) {
+            for (String visible : compositeVisible) {
+                if (name.matches(visible)) {
+                    System.out.println("overloaded composite visible for " + name + " in composite type " + this);
+                    return CST.V_COMPOSITE;
+                }
+            }
+        }
+        if (globalVisible != null) {
+            for (String visible : globalVisible) {
+                if (name.matches(visible)) {
+                    System.out.println("overloaded global visible for " + name + " in composite type " + this);
+                    return CST.V_GLOBAL;
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -189,8 +294,6 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
         if (fromCompo == null)
             fromCompo = CompositeTypeImpl.rootCompoType;
         if (mainImpl instanceof CompositeType) {
-//            fromCompo.containsImpl(mainImpl);
-//            ((ASMImplImpl) mainImpl).addInComposites(fromCompo);
             return (CompositeType) mainImpl;
         }
         return new CompositeTypeImpl(fromCompo, name, mainImpl.getName(), mainImpl, models, properties, null);
@@ -324,6 +427,19 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
     @Override
     public Set<CompositeType> getInvEmbedded() {
         return Collections.unmodifiableSet(invEmbedded);
+    }
+
+    @Override
+    public boolean getInternal() {
+        if (internalImplementations == null)
+            return false;
+        return internalImplementations.equals(CST.V_TRUE);
+    }
+
+    public boolean getInternalInst() {
+        if (internalInstances == null)
+            return false;
+        return internalInstances.equals(CST.V_TRUE);
     }
 
     @Override

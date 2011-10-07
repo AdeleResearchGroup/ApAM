@@ -291,4 +291,9 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
         this.father = null;
     }
 
+    @Override
+    public boolean getInternal() {
+        return ((CompositeTypeImpl) compType).getInternalInst();
+    }
+
 }

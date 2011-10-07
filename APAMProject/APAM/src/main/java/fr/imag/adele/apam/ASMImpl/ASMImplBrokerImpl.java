@@ -132,8 +132,8 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             }
 
             // create a primitive or composite implementation
-            if ((samImpl.getProperty(CST.PROPERTY_COMPOSITE) != null) &&
-                    ((Boolean) samImpl.getProperty(CST.PROPERTY_COMPOSITE) == true)) {
+            if ((samImpl.getProperty(CST.A_COMPOSITE) != null) &&
+                    ((Boolean) samImpl.getProperty(CST.A_COMPOSITE) == true)) {
                 // Allow specifying properties to the composite instance
                 asmImpl = CompositeTypeImpl.createCompositeType(compo, samImpl);
             } else {

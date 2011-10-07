@@ -8,6 +8,7 @@ import org.osgi.framework.Filter;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.ASMImpl.SamInstEventHandler.NewApamInstance;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
@@ -16,6 +17,7 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamComponent;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
@@ -310,10 +312,10 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     @Override
     public String getScope() {
         String scope = (String) getProperty(CST.A_SCOPE);
-        if (scope == null)
-            scope = CST.V_GLOBAL;
-        // scope.toUpperCase();
-        return scope;
+        String compoScope;
+        // Check if the composite type overloads the implementation scope
+        compoScope = ((CompositeTypeImpl) myComposite.getCompType()).getScopeInComposite(this);
+        return Util.getEffectiveScope(scope, compoScope);
     }
 
     @Override

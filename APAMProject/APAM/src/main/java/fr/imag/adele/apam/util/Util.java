@@ -10,6 +10,7 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
@@ -161,71 +162,72 @@ public class Util {
     // }
 
     /**
+     * Provided the scope of an object, and the value that can overload it (from the composite)
+     * return what has to be the effective scope.
+     * The overload can only reduce the object scope.
+     * If scope is null it is assumed to be global; if overload is null it is assumed to be missing.
+     */
+    public static String getEffectiveScope(String scope, String overload) {
+        if (scope == null)
+            scope = CST.V_GLOBAL;
+
+        if ((overload == null) || overload.equals(CST.V_GLOBAL))
+            return scope;
+
+        if (overload.equals(CST.V_LOCAL) || scope.equals(CST.V_LOCAL))
+            return CST.V_LOCAL;
+
+        if (overload.equals(CST.V_APPLI))
+            return (scope.equals(CST.V_GLOBAL)) ? CST.V_APPLI : scope;
+
+        if (overload.equals(CST.V_COMPOSITE))
+            return CST.V_COMPOSITE;
+
+        return CST.V_GLOBAL;
+    }
+
+    /**
      * Checks if implementation impl is visible from composite type compoFrom.
      * An implementation can pertain to more than one composite type.
-     * Each composite type can overload the scope attribute, if it provides an attribute "localScope" which is a set
-     * of regExp, in which one regExp matches the implementation name. If it matches, the scope is considered to be
-     * "LOCAL".
+     * Each composite type can overload the scope attribute. Returns true if impl is visible
+     * through at least one of the composite types in which it is contained.
      * 
      * Otherwise the scope rules are the same.
      */
-
     public static boolean checkImplVisible(ASMImpl impl, CompositeType compoFrom) {
-        String scope = impl.getScope();
-//        if (scope == null) scope = CST.V_GLOBAL ;
-//        // default visibility for implementations is GLOBAL
-//        if ((compoFrom == null) || (impl.getInCompositeType() == null)) { // compoFrom or impl are root composite
-//            return scope.equals(CST.V_GLOBAL);
-//        }
-
-        for (CompositeType compoDest : impl.getInCompositeType()) {
-            // Check if the composite type overloads the implementation scope
-            Object compoScope = compoDest.getProperty(CST.V_LOCALSCOPE);
-            if ((compoScope != null) && (compoScope instanceof Set<?>)) {
-                for (String localImpl : (Set<String>) compoScope) {
-                    if (impl.getName().matches(localImpl)) {
-                        System.out.println("overloaded scope for " + impl.getName() + " in composite type "
-                                + compoFrom.getName());
-                        if (compoDest == compoFrom)
-                            return true;
-                        break;
-                    }
-                }
-            } else {
-                if (Util.checkVisibilityImpl(compoFrom, compoDest, scope))
-                    return true;
-            }
+        for (CompositeType compoTo : impl.getInCompositeType()) {
+            if (Util.checkVisibilityImpl(compoFrom, compoTo, impl))
+                return true;
         }
-
         System.out.println("Composite type " + compoFrom.getName()
                         + " does not see implementation " + impl + " in " + impl.getInCompositeType()
-                        + " (scope is " + impl.getScope() + ")");
-
+                        + " (scope is " + impl.getVisible() + ")");
         return false;
     }
 
-    public static boolean checkInstVisible(ASMInst inst, Composite compoFrom) {
-        String scope = inst.getScope();
-        if ((compoFrom == null) || (inst.getComposite() == null)) { // compoFrom or impl are root composite
-            return scope.equals(CST.V_GLOBAL);
-        }
+    /**
+     * Provided that scope is the wider possible visibility value of an implementation pertaining to compoTo,
+     * return true if the implementation in compoTo is visible from compoFrom.
+     * 
+     * @param compoFrom : the composite that wants to see an implementation in compoTo
+     * @param compoTo : the composite type containing the implementation to see.
+     * @param visible : the wider possible visibility of the implementation to see.
+     * @return
+     */
+    private static boolean checkVisibilityImpl(CompositeType compoFrom, CompositeType compoTo, ASMImpl impl) {
+        String visible = ((CompositeTypeImpl) compoTo).getVisibleInCompoType(impl);
+        if ((visible == null) || (visible.equals(CST.V_GLOBAL)))
+            return true;
+        if (visible.equals(CST.V_COMPOSITE))
+            return ((compoFrom == compoTo) || (compoFrom.imports(compoTo)));
+        if (visible.equals(CST.V_LOCAL))
+            return (compoFrom == compoTo);
 
-        if ((inst.getShared().equals(CST.V_FALSE) && (!inst.getInvWires().isEmpty()))) { // it is used
-            // || (inst.getComposite().getApplication().getMainImpl().getInst(inst.getASMName()) != null)))) { //the
-            // main instance
-            System.out.println(inst + " is not sharable");
-            return false;
-        }
-        boolean valid = Util.checkVisibility(compoFrom, inst.getComposite(), inst.getScope());
-        if (!valid) {
-            System.out.println("Composite " + compoFrom.getName()
-                    + " does not see instance " + inst + " in Composite " + inst.getComposite().getName()
-                    + " (shared is " + inst.getShared() + ", scope is " + inst.getScope() + ")");
-        }
-        return valid;
+        System.err.println("CheckAccess : Invalid Scope value :  " + visible);
+        return false;
     }
 
-    public static boolean checkVisibility(Composite compoFrom, Composite compoTo, String scope) {
+    private static boolean checkVisibility(Composite compoFrom, Composite compoTo, String scope) {
         if ((scope == null) || (scope.equals(CST.V_GLOBAL)))
             return true;
         if (scope.equals(CST.V_APPLI))
@@ -239,18 +241,25 @@ public class Util {
         return false;
     }
 
-    public static boolean checkVisibilityImpl(CompositeType compoFrom, CompositeType compoTo, String scope) {
-        if ((scope == null) || (scope.equals(CST.V_GLOBAL)))
-            return true;
-        // if (scope.equals(CST.V_APPLI))
-        // return (compoFrom.getApplication() == compoTo.getApplication());
-        if (scope.equals(CST.V_COMPOSITE))
-            return ((compoFrom == compoTo) || (compoFrom.imports(compoTo)));
-        if (scope.equals(CST.V_LOCAL))
-            return (compoFrom == compoTo);
+    public static boolean checkInstVisible(ASMInst inst, Composite compoFrom) {
+        // if the composite is declared internal, only local instances are visible.
+        String scope = (compoFrom.getInternal()) ? CST.V_LOCAL : inst.getScope();
 
-        System.err.println("CheckAccess : Invalid Scope value :  " + scope);
-        return false;
+        if ((compoFrom == null) || (inst.getComposite() == null)) { // compoFrom or impl are root composite
+            return scope.equals(CST.V_GLOBAL);
+        }
+
+        if ((inst.getShared().equals(CST.V_FALSE) && (!inst.getInvWires().isEmpty()))) {
+            System.out.println(inst + " is not sharable");
+            return false;
+        }
+        boolean valid = Util.checkVisibility(compoFrom, inst.getComposite(), inst.getScope());
+        if (!valid) {
+            System.out.println("Composite " + compoFrom.getName()
+                    + " does not see instance " + inst + " in Composite " + inst.getComposite().getName()
+                    + " (shared is " + inst.getShared() + ", scope is " + inst.getScope() + ")");
+        }
+        return valid;
     }
 }
 

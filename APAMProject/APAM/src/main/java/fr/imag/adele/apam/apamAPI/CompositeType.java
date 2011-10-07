@@ -89,4 +89,11 @@ public interface CompositeType extends ASMImpl {
      * @return
      */
     public Set<CompositeType> getInvEmbedded();
+
+    /**
+     * 
+     * @return true if the attribute "internamImplementations" is set to "true"
+     */
+    public boolean getInternal();
+
 }
