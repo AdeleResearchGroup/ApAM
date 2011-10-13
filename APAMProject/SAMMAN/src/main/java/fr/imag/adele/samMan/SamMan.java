@@ -142,8 +142,7 @@ public class SamMan implements Manager {
         return Util.sameInterfaces(samSpec.getInterfaceNames(), interfaces);
     }
 
-    // WARNING : to be used by AmpamMan to find sam instances
-    // if allInst != null, all the instances are to be returned.
+    // if allInst != null, all the valid instances are to be returned.
     public ASMInst findSamInstForImpl(Composite compo, ASMImpl impl, Set<Filter> constraints,
             List<Filter> preferences, Set<ASMInst> allInst) {
 
@@ -154,7 +153,7 @@ public class SamMan implements Manager {
         try {
             for (Instance inst : impl.getSamImpl().getInstances()) {
                 // ignore the Apam instances, they have been checked by ApamMan
-                if (CST.ASMInstBroker.getInst(inst) == null) {
+                if (CST.ASMInstBroker.getInst(inst.getName()) == null) {
                     allInstances.add(inst);
                 }
             }
@@ -310,12 +309,12 @@ public class SamMan implements Manager {
             if ((interfaceName != null) || (interfaces != null)) {
                 for (Implementation impl : CST.SAMImplBroker.getImplementations()) {
                     // if it is an Apam impl, it has already been checked by ApamMan
-                    if (CST.ASMImplBroker.getImpl(impl) != null)
+                    if (CST.ASMImplBroker.getImpl(impl.getName()) != null)
                         continue;
                     Specification samSpec = impl.getSpecification();
                     if (samSpecMatchInterface(samSpec, interfaceName, interfaces)) {
                         String apamSpecName = (String) impl
-                                    .getProperty(CST.PROPERTY_COMPOSITE_MAIN_SPECIFICATION);
+                                    .getProperty(CST.A_MAIN_SPECIFICATION);
                         // activate the implementation in APAM.
                         // This will take care of the case of composites
                         return CST.ASMImplBroker.addImpl(compoType, impl.getName(),
