@@ -112,6 +112,6 @@ public interface Composite extends ASMInst {
      * 
      * @return true if the attribute "internalInstances" is set to "true"
      */
-    public boolean getInternal();
+    public boolean isInternal();
 
 }

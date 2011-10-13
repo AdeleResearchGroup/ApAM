@@ -456,27 +456,32 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     }
 
     @Override
-    public ASMImpl findImplByName(CompositeType compoType, String implName) {
+    public ASMImpl findImplByName(CompositeType compoTypeFrom, String implName) {
 
-        List<Manager> selectionPath = computeSelectionPathImpl(compoType, implName);
+        List<Manager> selectionPath = computeSelectionPathImpl(compoTypeFrom, implName);
         if (selectionPath.isEmpty()) {
             System.out.println("No manager available. Cannot resolve ");
             return null;
         }
 
-        if (compoType == null)
-            compoType = CompositeTypeImpl.getRootCompositeType();
+        if (compoTypeFrom == null)
+            compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
         ASMImpl impl = null;
-        System.out.println("Looking for implementation: " + implName + ": ");
+        System.out.println("Looking for implementation " + implName + ": ");
         boolean deployed = false;
         for (Manager manager : selectionPath) {
             if (!manager.getName().equals(CST.APAMMAN))
                 deployed = true;
-            System.out.println("  " + manager.getName());
-            impl = manager.findImplByName(compoType, implName);
+            System.out.print(manager.getName() + "  ");
+            impl = manager.findImplByName(compoTypeFrom, implName);
+
             if (impl != null) {
-                if (deployed)
-                    deployedImpl(compoType, impl);
+                if (deployed) {
+                    deployedImpl(compoTypeFrom, impl);
+                    System.out.println(" : deployed " + impl);
+                } else {
+                    System.out.println(" : selected " + impl);
+                }
                 return impl;
             }
         }
@@ -505,11 +510,16 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         for (Manager manager : selectionPath) {
             if (!manager.getName().equals(CST.APAMMAN))
                 deployed = true;
-            System.out.println("  " + manager.getName());
+            System.out.println(manager.getName() + "  ");
             impl = manager.resolveSpecByName(compoTypeFrom, specName, constraints, preferences);
+
             if (impl != null) {
-                if (deployed)
+                if (deployed) {
                     deployedImpl(compoTypeFrom, impl);
+                    System.out.println(" : deployed " + impl);
+                } else {
+                    System.out.println(" : selected " + impl);
+                }
                 return impl;
             }
         }
@@ -541,11 +551,15 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         for (Manager manager : selectionPath) {
             if (!manager.getName().equals(CST.APAMMAN))
                 deployed = true;
-            System.out.println("  " + manager.getName());
+            System.out.print(manager.getName() + "  ");
             impl = manager.resolveSpecByInterface(compoTypeFrom, interfaceName, interfaces, constraints, preferences);
             if (impl != null) {
-                if (deployed)
+                if (deployed) {
                     deployedImpl(compoTypeFrom, impl);
+                    System.out.println(" : deployed " + impl);
+                } else {
+                    System.out.println(" : selected " + impl);
+                }
                 return impl;
             }
         }
@@ -567,9 +581,9 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         if (compo == null)
             compo = CompositeImpl.getRootAllComposites();
         ASMInst inst = null;
-        System.out.println("Looking for an instance of: " + impl + ": ");
+        System.out.println("Looking for an instance of " + impl + ": ");
         for (Manager manager : selectionPath) {
-            System.out.println("  " + manager.getName());
+            System.out.print(manager.getName() + "  ");
             inst = manager.resolveImpl(compo, impl, constraints, preferences);
             if (inst != null) {
                 System.out.println("selected : " + inst);
@@ -600,9 +614,9 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             compo = CompositeImpl.getRootAllComposites();
 
         Set<ASMInst> insts = null;
-        System.out.println("Looking for instances of: " + impl + ": ");
+        System.out.println("Looking for instances of " + impl + ": ");
         for (Manager manager : selectionPath) {
-            System.out.println("  " + manager.getName());
+            System.out.print(manager.getName() + "  ");
             insts = manager.resolveImpls(compo, impl, constraints);
             if ((insts != null) && !insts.isEmpty()) {
                 System.out.println("selected " + insts);
@@ -631,10 +645,10 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
     public void notifySelection(ASMInst client, String resName, String depName, ASMImpl impl, ASMInst inst,
             Set<ASMInst> insts) {
         for (Manager manager : APAMImpl.managerList) {
-            System.out.print("  " + manager.getName());
+//            System.out.print("  " + manager.getName());
             manager.notifySelection(client, resName, depName, impl, inst, insts);
         }
-        System.out.println("");
+//        System.out.println("");
     }
 
     @Override

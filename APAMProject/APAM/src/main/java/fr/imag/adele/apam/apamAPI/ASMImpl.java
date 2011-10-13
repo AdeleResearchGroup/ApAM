@@ -156,11 +156,11 @@ public interface ASMImpl extends Attributes {
     }
 
     public static class DependencyModel {
-        public String     dependencyName; // depName
+        public String     dependencyName; // depName. field inside source code. Not relevant for composites.
         public String     target;        // spec name, interface or implem
         public TargetKind targetKind;    // INTERFACE, SPECIFICATION, IMPLEMENTATION
         public String[]   source;        // for composites, the list of source specifications.
-        public boolean    isMultiple;
+        public boolean    isMultiple;    // cardinality multiple
     }
 
     /**

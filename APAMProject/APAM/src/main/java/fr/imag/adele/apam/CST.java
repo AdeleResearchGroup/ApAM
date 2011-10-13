@@ -63,7 +63,7 @@ public class CST {
     // Capability
     public static final String         CAPABILITY_INTERFACE  = "apam-interface";
     // Value boolean
-    public static final String         A_COMPOSITE    = "apam-composite";
+    public static final String         A_COMPOSITE           = "apam-composite";
     // String
     public static final String         A_MAIN_IMPLEMENTATION = "apam-main-implementation";
     // String
@@ -77,7 +77,7 @@ public class CST {
     // List<ManagerModel>
     public static final String         A_MODELS              = "apam-models";
     // List<String>
-    public static final String         A_GLOBALSCOPE         = "globalScope";
+//    public static final String         A_GLOBALSCOPE         = "globalScope";
     // List<String>
     public static final String         A_APPLISCOPE          = "appliScope";
     // List<String>
@@ -89,7 +89,7 @@ public class CST {
     // List<String>
     public static final String         A_COMPOSITEVISIBLE    = "compositeVisible";
     // List<String>
-    public static final String         A_GLOBALVISIBLE       = "globalVisible";
+//    public static final String         A_GLOBALVISIBLE       = "globalVisible";
     // List<DependencyModel>
     public static final String         A_DEPENDENCIES        = "dependencies";
 

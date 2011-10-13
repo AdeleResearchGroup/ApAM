@@ -220,10 +220,11 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
                 return true;
         }
 
-        if (!Wire.checkNewWire(getComposite(), to))
+        if (!Wire.checkNewWire(this, to, depName))
             return false;
         Wire wire = new Wire(this, to, depName);
         wires.add(wire);
+
         ((ASMInstImpl) to).invWires.add(wire);
         if (depHandler != null) {
             depHandler.setWire(to, depName);
@@ -232,20 +233,6 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         // Other relationships to instantiate
         ((ASMImplImpl) getImpl()).addUses(to.getImpl());
         ((ASMSpecImpl) getSpec()).addRequires(to.getSpec());
-
-        // // if to has been deployed, and from is inside a composite (it is not a root)
-        // if (deployed && (getComposite() != null)) {
-        // getComposite().getCompType().addImpl(to.getImpl());
-        // if (to instanceof Composite) { //|| (returnedInst.getComposite().getMainInst() == returnedInst)) { //it is a
-        // composite
-        // ((CompositeTypeImpl) getComposite().getCompType()).addEmbedded(((Composite) to).getCompType());
-        // } else {
-        // if (to.getComposite().getMainInst() == to) { //to is the main instance of a composite
-        // ((CompositeTypeImpl) getComposite().getCompType()).addEmbedded(to.getComposite().getCompType());
-        // }
-        // }
-        // }
-
         return true;
     }
 
@@ -311,11 +298,8 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
     @Override
     public String getScope() {
-        String scope = (String) getProperty(CST.A_SCOPE);
-        String compoScope;
         // Check if the composite type overloads the implementation scope
-        compoScope = ((CompositeTypeImpl) myComposite.getCompType()).getScopeInComposite(this);
-        return Util.getEffectiveScope(scope, compoScope);
+        return ((CompositeTypeImpl) myComposite.getCompType()).getScopeInComposite(this);
     }
 
     @Override

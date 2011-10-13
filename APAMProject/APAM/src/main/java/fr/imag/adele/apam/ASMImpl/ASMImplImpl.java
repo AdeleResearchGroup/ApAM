@@ -246,17 +246,19 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     /**
      * returns the visibility.
      * WARNING : an implem can pertain to various composite types that can overload (reduce) the visibility.
-     * The widest possible visibility is returned.
+     * Is returned only the intrinsic visibility.
      */
     @Override
     public String getVisible() {
         String visible = (String) getProperty(CST.A_VISIBLE);
-        String compoVisible;
-        for (CompositeType compoDest : getInCompositeType()) {
-            // Check if the composite type overloads the implementation scope
-            compoVisible = ((CompositeTypeImpl) compoDest).getVisibleInCompoType(this);
-            visible = Util.getEffectiveScope(visible, compoVisible);
-        }
+        if (visible == null)
+            visible = CST.V_GLOBAL;
+//        String compoVisible;
+//        for (CompositeType compoDest : getInCompositeType()) {
+//            // Check if the composite type overloads the implementation scope
+//            compoVisible = ((CompositeTypeImpl) compoDest).getVisibleInCompoType(this);
+//            visible = Util.getEffectiveScope(visible, compoVisible);
+//        }
         return visible;
     }
 
@@ -360,6 +362,9 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
     @Override
     public Set<DependencyModel> getDependencies() {
-        return (Set<DependencyModel>) getProperty(CST.A_DEPENDENCIES);
+        Set<DependencyModel> deps = (Set<DependencyModel>) getProperty(CST.A_DEPENDENCIES);
+        if (deps == null)
+            return Collections.EMPTY_SET;
+        return deps;
     }
 }

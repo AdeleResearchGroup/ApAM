@@ -292,7 +292,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
     }
 
     @Override
-    public boolean getInternal() {
+    public boolean isInternal() {
         return ((CompositeTypeImpl) compType).getInternalInst();
     }
 

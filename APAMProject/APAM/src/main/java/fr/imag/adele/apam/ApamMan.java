@@ -46,121 +46,15 @@ public class ApamMan implements Manager {
             Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath) {
     }
 
-    /*
-    @Override
-    public ASMInst resolveSpec(Composite composite, String interfaceName, String specName,
-            Set<Filter> constraints, List<Filter> preferences) {
-        ASMSpec spec = null;
-        if (specName == null) {
-            if (interfaceName == null)
-                return null;
-            spec = CST.ASMSpecBroker.getSpecInterf(interfaceName);
-        } else
-            spec = CST.ASMSpecBroker.getSpec(specName);
-        if (spec == null)
-            return null;
-        ASMImpl impl = findImplByInterface(composite.getCompType(), interfaceName, null, constraints, preferences);
-        if (impl == null)
-            return null;
-        return resolveImpl(composite, impl, constraints, preferences);
-    }
-
-    @Override
-    public Set<ASMInst> resolveSpecs(Composite composite, String interfaceName,
-            String specName, Set<Filter> constraints, List<Filter> preferences) {
-        ASMSpec spec = null;
-        if (specName == null) {
-            if (interfaceName == null)
-                return null;
-            spec = CST.ASMSpecBroker.getSpecInterf(interfaceName);
-        } else
-            spec = CST.ASMSpecBroker.getSpec(specName);
-        if (spec == null)
-            return null;
-        ASMImpl impl = findImplByInterface(composite.getCompType(), interfaceName, null, constraints, preferences);
-        if (impl == null)
-            return null;
-        return resolveImpls(composite, impl, constraints, preferences);
-    }
-    */
-
-    /*
-        private ASMInst resolveSpecxx(Composite instComposite, String interfaceName, String specName,
-                Set<Filter> constraints, List<Filter> preferences, boolean multiple, Set<ASMInst> allInst) {
-            //  look for a sharable instance that satisfies the constraints
-            // make sure we have the ASM specification
-            ASMSpec spec = null;
-            if (specName == null) {
-                if (interfaceName == null)
-                    return null;
-                spec = CST.ASMSpecBroker.getSpecInterf(interfaceName);
-            } else
-                spec = CST.ASMSpecBroker.getSpec(specName);
-            if (spec == null)
-                return null;
-
-            try {
-                for (ASMInst inst : CST.ASMInstBroker.getInsts(spec, null)) {
-                    if ((inst.getComposite().getMainInst() != inst) && Wire.checkNewWire(instComposite, inst)) {
-                        boolean satisfies = true;
-                        for (Filter filter : constraints) {
-                            if (!filter.match((AttributesImpl) inst.getProperties())) {
-                                satisfies = false;
-                                break;
-                            }
-                        }
-                        if (satisfies) { // accept only if it satisfies the constraints and if a wire is possible
-                            if (multiple)
-                                allInst.add(inst);
-                            else
-                                return inst;
-                        }
-                    }
-                }
-            } catch (InvalidSyntaxException e) {
-                e.printStackTrace();
-            }
-
-            if (multiple && !allInst.isEmpty())
-                return null; // we found at least one
-
-            // try to find an  implementation and instantiate.
-            for (ASMImpl impl : CST.ASMImplBroker.getImpls(spec)) {
-                //    if (Util.checkImplVisible(impl, implComposite)) {
-                boolean satisfies = true;
-                for (Filter filter : constraints) {
-                    if (!filter.match((AttributesImpl) impl.getProperties())) {
-                        satisfies = false;
-                        break;
-                    }
-                }
-                if (satisfies) { // This implem satisfies the constraints. Instantiate.
-                    ASMInst inst = impl.createInst(instComposite, null);
-                    if (multiple) {
-                        allInst.add(inst);
-                        return null;
-                    } else {
-                        return inst;
-                    }
-                }
-            }
-            return null;
-        }
-        */
-
     @Override
     public ASMInst resolveImpl(Composite composite, ASMImpl impl, Set<Filter> constraints, List<Filter> preferences) {
         Set<ASMInst> insts = new HashSet<ASMInst>();
         for (ASMInst inst : impl.getInsts(constraints)) {
-            if (Wire.checkNewWire(composite, inst))
+            if (Util.checkInstVisible(composite, inst))
                 insts.add(inst);
         }
         if (!insts.isEmpty())
             return impl.getPreferedInst(insts, preferences);
-//        Manager samMan = CST.apam.getManager(CST.SAMMAN);
-//        if (samMan != null) {
-//            return ((SamMan) samMan).findSamInstForImpl(composite, impl, constraints, preferences, null);
-//        }
         return null;
     }
 
@@ -168,7 +62,7 @@ public class ApamMan implements Manager {
     public Set<ASMInst> resolveImpls(Composite composite, ASMImpl impl, Set<Filter> constraints) {
         Set<ASMInst> insts = new HashSet<ASMInst>();
         for (ASMInst asmInst : impl.getInsts(constraints)) {
-            if (Wire.checkNewWire(composite, asmInst))
+            if (Util.checkInstVisible(composite, asmInst))
                 insts.add(asmInst);
         }
         return insts;

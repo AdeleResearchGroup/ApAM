@@ -94,6 +94,6 @@ public interface CompositeType extends ASMImpl {
      * 
      * @return true if the attribute "internamImplementations" is set to "true"
      */
-    public boolean getInternal();
+    public boolean isInternal();
 
 }

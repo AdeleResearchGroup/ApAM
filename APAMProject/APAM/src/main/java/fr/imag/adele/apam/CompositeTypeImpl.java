@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.PatternSyntaxException;
 
 import org.osgi.framework.Filter;
 
@@ -48,19 +49,6 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
     // all the dependencies between composite types
     private final Set<CompositeType>          imports        = new HashSet<CompositeType>();
     private final Set<CompositeType>          invImports     = new HashSet<CompositeType>();
-
-    // special attributes for visibility and scope control
-    private String                            internalImplementations;                              // true false
-    private String                            internalInstances;                                    // true false
-    private Set<String>                       globalScope;
-    private Set<String>                       appliScope;
-    private Set<String>                       compositeScope;
-    private Set<String>                       localScope;
-    private Set<String>                       localVisible;
-    private Set<String>                       compositeVisible;
-    private Set<String>                       globalVisible;
-
-    // private Set<DependencyModel> dependencyModel;
 
     private CompositeTypeImpl() {
         name = CST.ROOTCOMPOSITETYPE;
@@ -117,7 +105,8 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
         fromCompo.addImpl(this);
         ((CompositeTypeImpl) fromCompo).addEmbedded(this);
         inComposites.add(fromCompo);
-        initializeCompoAttributes(attributes);
+        if (attributes != null)
+            setProperties(attributes.getProperties());
     }
 
     /**
@@ -183,93 +172,121 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
         return null;
     }
 
-    /**
-     * Initializes the attributes of the composite implementation.
-     * The handler has set the specific attributes on the corresponding SAM object (when created from a bundle),
-     * and/or provided when creating the composite type by API.
-     * 
-     * @param properties composite specific attributes
-     */
-    public void initializeCompoAttributes(Attributes properties) {
-        if (properties == null)
-            return;
-        setProperties(properties.getProperties());
-        internalImplementations = (String) getProperty(CST.A_INTERNALIMPL);
-        internalInstances = (String) getProperty(CST.A_INTERNALINST);
-        globalScope = (Set<String>) getProperty(CST.A_GLOBALSCOPE);
-        appliScope = (Set<String>) getProperty(CST.A_APPLISCOPE);
-        compositeScope = (Set<String>) getProperty(CST.A_COMPOSITESCOPE);
-        localScope = (Set<String>) getProperty(CST.A_LOCALSCOPE);
-        localVisible = (Set<String>) getProperty(CST.A_LOCALVISIBLE);
-        compositeVisible = (Set<String>) getProperty(CST.A_COMPOSITEVISIBLE);
-        globalVisible = (Set<String>) getProperty(CST.A_GLOBALVISIBLE);
+    public String getScopeInComposite(ASMInst inst) {
+        String overload = getScopeOverload(inst);
+        return CompositeTypeImpl.getEffectiveScope((String) inst.getProperty(CST.A_SCOPE), overload);
     }
 
-    public String getScopeInComposite(ASMInst inst) {
-        String name = inst.getName();
-
-        if (localScope != null) {
-            for (String scope : localScope) {
-                if (name.matches(scope)) {
-                    System.out.println("overloaded local scope for " + inst + " in composite type " + this);
-                    return CST.V_LOCAL;
+    private String getScopeOverload(ASMInst inst) {
+        // the last scope for error message
+        String s = "";
+        String name = inst.getSpec().getName();
+        try {
+            Set<String> localScope = (Set<String>) getProperty(CST.A_LOCALSCOPE);
+            if (localScope != null) {
+                for (String scope : localScope) {
+                    s = scope;
+                    if (name.matches(scope)) {
+                        System.out.println("overloaded local scope for " + name + " (" + inst + ") in composite type "
+                                + this
+                                + "  matching \"" + s + "\"");
+                        return CST.V_LOCAL;
+                    }
                 }
             }
-        }
-        if (compositeScope != null) {
-            for (String scope : compositeScope) {
-                if (name.matches(scope)) {
-                    System.out.println("overloaded composite scope for " + inst + " in composite type " + this);
-                    return CST.V_COMPOSITE;
+            Set<String> compositeScope = (Set<String>) getProperty(CST.A_COMPOSITESCOPE);
+            if (compositeScope != null) {
+                for (String scope : compositeScope) {
+                    s = scope;
+                    if (name.matches(scope)) {
+                        System.out.println("overloaded composite scope for " + name + " (" + inst
+                                + ") in composite type " + this
+                                + "  matching \"" + s + "\"");
+                        return CST.V_COMPOSITE;
+                    }
                 }
             }
-        }
-        if (appliScope != null) {
-            for (String scope : appliScope) {
-                if (name.matches(scope)) {
-                    System.out.println("overloaded appli scope for " + inst + " in composite type " + this);
-                    return CST.V_APPLI;
+            Set<String> appliScope = (Set<String>) getProperty(CST.A_APPLISCOPE);
+            if (appliScope != null) {
+                for (String scope : appliScope) {
+                    s = scope;
+                    if (name.matches(scope)) {
+                        System.out.println("overloaded appli scope for " + name + " (" + inst + ") in composite type "
+                                + this
+                                + "  matching \"" + s + "\"");
+                        return CST.V_APPLI;
+                    }
                 }
             }
-        }
-        if (localScope != null) {
-            for (String scope : globalScope) {
-                if (name.matches(scope)) {
-                    System.out.println("overloaded global scope for " + inst + " in composite type " + this);
-                    return CST.V_GLOBAL;
-                }
-            }
+        } catch (PatternSyntaxException e) {
+            System.err.println("invalid scope expression : " + s);
         }
         return null;
     }
 
     public String getVisibleInCompoType(ASMImpl impl) {
-        String name = impl.getName();
-        if (localVisible != null) {
-            for (String visible : localVisible) {
-                if (name.matches(visible)) {
-                    System.out.println("overloaded local visible for " + name + " in composite type " + this);
-                    return CST.V_LOCAL;
+        String overload = getImplOverload(impl);
+        return CompositeTypeImpl.getEffectiveScope((String) impl.getProperty(CST.A_VISIBLE), overload);
+    }
+
+    private String getImplOverload(ASMImpl impl) {
+        // the last scope for error message
+        String s = "";
+        String name = impl.getSpec().getName();
+        try {
+            Set<String> localVisible = (Set<String>) getProperty(CST.A_LOCALVISIBLE);
+            if (localVisible != null) {
+                for (String visible : localVisible) {
+                    s = visible;
+                    if (name.matches(visible)) {
+                        System.out.println("overloaded local visible for " + name + " (" + impl
+                                + ") in composite type " + this
+                                + "  matching \"" + s + "\"");
+                        return CST.V_LOCAL;
+                    }
                 }
             }
-        }
-        if (compositeVisible != null) {
-            for (String visible : compositeVisible) {
-                if (name.matches(visible)) {
-                    System.out.println("overloaded composite visible for " + name + " in composite type " + this);
-                    return CST.V_COMPOSITE;
+            Set<String> compositeVisible = (Set<String>) getProperty(CST.A_COMPOSITEVISIBLE);
+            if (compositeVisible != null) {
+                for (String visible : compositeVisible) {
+                    s = visible;
+                    if (name.matches(visible)) {
+                        System.out.println("overloaded composite visible for " + name + " (" + impl
+                                + ") in composite type " + this
+                                + "  matching \"" + s + "\"");
+                        return CST.V_COMPOSITE;
+                    }
                 }
             }
-        }
-        if (globalVisible != null) {
-            for (String visible : globalVisible) {
-                if (name.matches(visible)) {
-                    System.out.println("overloaded global visible for " + name + " in composite type " + this);
-                    return CST.V_GLOBAL;
-                }
-            }
+        } catch (PatternSyntaxException e) {
+            System.err.println("invalid visibility expression : " + s);
         }
         return null;
+    }
+
+    /**
+     * Provided the scope of an object, and the value that can overload it (from the composite)
+     * return what has to be the effective scope.
+     * The overload can only reduce the object scope.
+     * If scope is null it is assumed to be global; if overload is null it is assumed to be missing.
+     */
+    private static String getEffectiveScope(String scope, String overload) {
+        if (scope == null)
+            scope = CST.V_GLOBAL;
+
+        if ((overload == null) || overload.equals(CST.V_GLOBAL))
+            return scope;
+
+        if (overload.equals(CST.V_LOCAL) || scope.equals(CST.V_LOCAL))
+            return CST.V_LOCAL;
+
+        if (overload.equals(CST.V_APPLI))
+            return (scope.equals(CST.V_GLOBAL)) ? CST.V_APPLI : scope;
+
+        if (overload.equals(CST.V_COMPOSITE))
+            return CST.V_COMPOSITE;
+
+        return CST.V_GLOBAL;
     }
 
     /**
@@ -430,13 +447,15 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
     }
 
     @Override
-    public boolean getInternal() {
+    public boolean isInternal() {
+        String internalImplementations = (String) getProperty(CST.A_INTERNALIMPL);
         if (internalImplementations == null)
             return false;
         return internalImplementations.equals(CST.V_TRUE);
     }
 
     public boolean getInternalInst() {
+        String internalInstances = (String) getProperty(CST.A_INTERNALINST);
         if (internalInstances == null)
             return false;
         return internalInstances.equals(CST.V_TRUE);
