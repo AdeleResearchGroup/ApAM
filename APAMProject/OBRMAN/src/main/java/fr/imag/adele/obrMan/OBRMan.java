@@ -383,8 +383,8 @@ public class OBRMan implements Manager, IOBRMAN {
                 // Activate implementation in APAM
                 asmImpl = CST.ASMImplBroker.addImpl(implComposite, implName, specName, null);
 
-            } else { // do not install twice. Bizarre, APMAN or SAMMAN should have found it !
-                System.err.println("ERROR : " + implName + " found by OBRMAN but allready deployed.");
+            } else { // do not install twice. It is a logical deployement. The allready existing impl is not visible !
+                System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
                 // proceed anyway
             }
         }
@@ -546,7 +546,7 @@ public class OBRMan implements Manager, IOBRMAN {
         if (selected != null) {
             String implName = getAttributeInCapability(selected.capability, "name");
             impl = installInstantiate(selected.resource, implName, compoType);
-            System.out.println("deployed :" + impl);
+            // System.out.println("deployed :" + impl);
             // printRes(selected);
             return impl;
         }
@@ -585,7 +585,7 @@ public class OBRMan implements Manager, IOBRMAN {
         }
         if (selected != null) {
             impl = installInstantiate(selected.resource, implName, compoType);
-            System.out.println("deployed :" + impl);
+            // System.out.println("deployed :" + impl);
             // printRes(selected);
             return impl;
         }
