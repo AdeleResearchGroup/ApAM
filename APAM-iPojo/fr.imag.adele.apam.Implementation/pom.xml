@@ -91,12 +91,5 @@
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
-			 <groupId>fr.imag.adele.apam</groupId>
-			 <artifactId>Implementation</artifactId>
-			 <version>0.0.1-SNAPSHOT</version>
-			 <type>bundle</type>
-             <scope>compile</scope>
-		</dependency>
 	</dependencies>  
 </project>
