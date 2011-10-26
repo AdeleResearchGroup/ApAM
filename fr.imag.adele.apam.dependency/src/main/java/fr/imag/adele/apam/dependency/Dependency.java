@@ -1,9 +1,10 @@
 package fr.imag.adele.apam.dependency;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +12,9 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.felix.ipojo.FieldInterceptor;
+import org.apache.felix.ipojo.parser.FieldMetadata;
+import org.apache.felix.ipojo.parser.PojoMetadata;
+import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apamAPI.ASMInst;
 
@@ -28,7 +32,7 @@ public class Dependency implements FieldInterceptor {
     /**
      * The dependency manager
      */
-    private final DependencyManager manager;
+    private final DependencyHandler manager;
 
     /**
      * The name of the dependency
@@ -41,20 +45,32 @@ public class Dependency implements FieldInterceptor {
     private final boolean           isAggregate;
 
     /**
-     * The type of the field to be injected
-     */
-    private final String            fieldClassName;
-    /**
      * The name of the target entity.
      * 
      */
     private final String            target;
 
     /**
-     * The kind of targer
+     * The kind of target
      */
     private final Kind              targetKind;
 
+    /**
+     * The optional constraints
+     */
+    private final Set<Filter> 		constraints;
+    
+     /**
+     * The optional preferences
+     */
+    private final List<Filter>		preferences;
+    
+    /**
+     * The description of the injected fields
+     */
+    private final PojoMetadata		instrumentedCodeDescription;
+    
+    
     /**
      * The kind of possible targets for the dependency
      */
@@ -76,6 +92,13 @@ public class Dependency implements FieldInterceptor {
     private Object             injectedValue;
 
     /**
+     * The last injected value type.
+     * 
+     * This is a cached value that must be recalculated in case of update of the dependency.
+     */
+    private String             injectedType;
+
+    /**
      * Whether this dependency is satisfied by a target service.
      * 
      * This is a cached value that must be recalculated in case of update of the dependency.
@@ -85,20 +108,26 @@ public class Dependency implements FieldInterceptor {
     /**
      * Dependency constructor.
      * 
-     * @param name the name of the dependency.
+     * @param pojoMetadata the name of the dependency.
      * 
      */
-    public Dependency(DependencyManager manager, String name, boolean isAggregate, String fieldClassName,
-            String target, Kind targetKind) {
-        this.manager = manager;
+    public Dependency(DependencyHandler manager, PojoMetadata instrumentedCodeDescription, String name, Boolean isAggregate,
+            String target, Kind targetKind, Set<Filter> constraints, List<Filter> preferences) {
+        
+    	this.manager = manager;
+        this.instrumentedCodeDescription = instrumentedCodeDescription;
+
         this.name = name;
         this.isAggregate = isAggregate;
-        this.fieldClassName = fieldClassName;
         this.target = target;
         this.targetKind = targetKind;
+        
+        this.constraints = constraints;
+        this.preferences = preferences;
 
         targetServices = new HashSet<ASMInst>();
         injectedValue = null;
+        injectedType = null;
         isResolved = false;
     }
 
@@ -137,6 +166,20 @@ public class Dependency implements FieldInterceptor {
         return targetKind;
     }
 
+    /**
+     * The constraints
+     */
+    public Set<Filter> getConstraints() {
+    	return constraints;
+    }
+    
+    /**
+     * The preferences
+     */
+    public List<Filter> getPreferences() {
+    	return preferences;
+    }
+    
     /**
      * Adds a new target to this dependency
      */
@@ -254,7 +297,7 @@ public class Dependency implements FieldInterceptor {
             manager.resolve(this);
         }
 
-        return getFieldValue();
+         return getFieldValue(fieldName);
     }
 
     /**
@@ -281,13 +324,23 @@ public class Dependency implements FieldInterceptor {
      * dependency object.
      * 
      */
-    private Object getFieldValue() {
+    private Object getFieldValue(String fieldName) {
 
         synchronized (this) {
+        	
+            FieldMetadata field = instrumentedCodeDescription.getField(fieldName);
+            String fieldType	= FieldMetadata.getReflectionType(field.getFieldType());
+            
             /*
-             * Return the cached value, if it has not been invalidated
+             * Return the cached value, if it has not been invalidated.
+             * 
+             * TODO Currently we only cache a single value for a dependency. For different collection types we need to
+             * evaluate if it is worth caching all accessed fields.
              */
-            if (injectedValue != null)
+            if (injectedValue != null && isScalar())
+                return injectedValue;
+
+            if (injectedValue != null && !isScalar() && injectedType.equals(fieldType))
                 return injectedValue;
 
             /*
@@ -306,9 +359,10 @@ public class Dependency implements FieldInterceptor {
              * Return an private copy of the collection
              */
             if (isAggregate()) {
-                injectedValue = getServiceObjectCollection();
+                injectedValue = getServiceObjectCollection(fieldType);
             }
 
+            injectedType = fieldType;
             return injectedValue;
         }
 
@@ -318,42 +372,51 @@ public class Dependency implements FieldInterceptor {
      * Returns a collection of service objects that is compatible with the class of the field that will be injected.
      * 
      */
-    private Object getServiceObjectCollection() {
+    private Object getServiceObjectCollection(String fieldType) {
 
         try {
 
             /*
-             * Get service object references
+             * return the collection that better fits the field declaration
              */
-            Object serviceObjects[] = new Object[targetServices.size()];
-            int index = 0;
-            for (ASMInst targetService : targetServices) {
-                serviceObjects[index++] = targetService.getServiceObject();
+            Class<?> fieldClass = manager.getFactory().loadClass(fieldType);
+
+            /*
+             * For arrays we need to reflectively build a type conforming array 
+             */
+            if (fieldClass.isArray()) {
+            	
+                int index = 0;
+            	Object array = Array.newInstance(fieldClass.getComponentType(),targetServices.size());
+                for (ASMInst targetService : targetServices) {
+                	Array.set(array, index++, targetService.getServiceObject());
+                }
+               return array;
             }
 
             /*
-             * return the collection that better fits the field declaration
+             * For collections use an erased Object collection
              */
-            Class<?> fieldClass = manager.getFactory().loadClass(fieldClassName);
-
-            if (fieldClass.isArray()) {
-                return serviceObjects;
+            List<Object> serviceObjects = new ArrayList<Object>(targetServices.size());
+            for (ASMInst targetService : targetServices) {
+            	serviceObjects.add(targetService.getServiceObject());
             }
 
+ 
             if (Vector.class.isAssignableFrom(fieldClass)) {
-                return new Vector<Object>(Arrays.asList(serviceObjects));
+                return new Vector<Object>(serviceObjects);
             }
 
             if (List.class.isAssignableFrom(fieldClass)) {
-                return Arrays.asList(serviceObjects);
+                return serviceObjects;
             }
 
             if (Set.class.isAssignableFrom(fieldClass)) {
-                return new HashSet<Object>(Arrays.asList(serviceObjects));
+                return new HashSet<Object>(serviceObjects);
             }
 
             if (Collection.class.isAssignableFrom(fieldClass)) {
-                return Arrays.asList(serviceObjects);
+                return serviceObjects;
             }
 
         } catch (ClassNotFoundException unexpected) {
@@ -363,9 +426,7 @@ public class Dependency implements FieldInterceptor {
         return null;
     }
 
-    private final static Class<?>[] supportedCollections      = new Class<?>[] { Collection.class, List.class,
-            Vector.class, Set.class                          };
-
+    private final static Class<?>[] supportedCollections      = new Class<?>[] { Collection.class, List.class,Vector.class, Set.class };
     private final static String     supportedCollectionsNames = "array or Collection or List or Vector or Set";
 
     /**

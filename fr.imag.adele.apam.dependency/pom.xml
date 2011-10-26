@@ -41,21 +41,22 @@
 				<version>2.3.4</version>
 				<extensions>true</extensions>
 				<configuration>
-           			<Export-Package>fr.imag.adele.apam.dependency.*</Export-Package>
-            		<Private-Package>*</Private-Package>
+          			<instructions>
+	           			<Export-Package>fr.imag.adele.apam.dependency.*</Export-Package>
+          			</instructions>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-ipojo-plugin</artifactId>
-				<version>1.6.0</version>
+				<version>1.8.0</version>
 				<executions>
 					<execution>
 			            <goals>
 			                 <goal>ipojo-bundle</goal>
 			            </goals>
 						<configuration>
-							 <metadata>src/main/resources/fr/imag/adele/apam/dependency/DependencyHandler.ipojo</metadata>
+							 <metadata>src/main/resources/metadata.xml</metadata>
 						</configuration>
 					</execution>
 				</executions>
@@ -87,6 +88,13 @@
 			<version>0.0.1-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			 <groupId>fr.imag.adele.apam</groupId>
+			 <artifactId>Implementation</artifactId>
+			 <version>0.0.1-SNAPSHOT</version>
+			 <type>bundle</type>
+             <scope>compile</scope>
 		</dependency>
 	</dependencies>
 
