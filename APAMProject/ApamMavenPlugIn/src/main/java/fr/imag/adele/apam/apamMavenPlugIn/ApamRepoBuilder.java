@@ -278,11 +278,13 @@ public class ApamRepoBuilder {
      */
     private boolean isApamComponent(Element meta) {
 
-        boolean isPrimitiveIPojo = meta.getName().equalsIgnoreCase("component")
+    	boolean isApam = meta.getNameSpace() != null && meta.getNameSpace().equals(ApamComponentInfo.APAM_NAMESPACE);
+    	
+        boolean isImplementation = meta.getName().equalsIgnoreCase("implementation")
                 && (meta.getAttribute("classname") != null);
-        boolean isApamComposite = meta.getName().equalsIgnoreCase("apam.composite");
+        boolean isComposite = meta.getName().equalsIgnoreCase("composite");
 
-        return isPrimitiveIPojo || isApamComposite;
+        return isApam && (isImplementation || isComposite);
     }
 
     /**
@@ -296,7 +298,9 @@ public class ApamRepoBuilder {
 
         final static String   APAM_SPECIFICATION_PROPERTY  = "specification";
 
-        final static String   APAM_IMPLEMENTATION_PROPERTY = "implementation";
+        final static String   APAM_INTERFACES_PROPERTY  = "interfaces";
+
+        final static String   APAM_IMPLEMENTATION_PROPERTY = "mainImplem";
 
         /**
          * Component Type metadata.
@@ -325,7 +329,7 @@ public class ApamRepoBuilder {
          * @return
          */
         public boolean isComposite() {
-            return m_componentMetadata.getName().equalsIgnoreCase("apam.composite");
+            return m_componentMetadata.getName().equalsIgnoreCase("composite");
         }
 
         /**
@@ -334,29 +338,16 @@ public class ApamRepoBuilder {
          */
 
         public String getApamSpecification() {
-            return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_SPECIFICATION_PROPERTY,
-                    ApamComponentInfo.APAM_NAMESPACE);
+            return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_SPECIFICATION_PROPERTY);
         }
 
-        /**
-         * Get the apam implementation name. For composites it is the same as the component name, for iPojo
-         * components it is possible to specify a different name.
-         */
-        public String getApamImplementation() {
-            if (isComposite())
-                return getName();
-
-            return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_IMPLEMENTATION_PROPERTY,
-                    ApamComponentInfo.APAM_NAMESPACE);
-        }
 
         /**
          * Get the apam implementation of the main specification for a composite.
          */
         public String getApamMainImplementation() {
             if (isComposite())
-                return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_IMPLEMENTATION_PROPERTY,
-                        ApamComponentInfo.APAM_NAMESPACE);
+                return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_IMPLEMENTATION_PROPERTY);
 
             return null;
         }
@@ -370,21 +361,10 @@ public class ApamRepoBuilder {
             List<String> interfaces = new ArrayList<String>();
 
             /*
-             * Get interfaces explicitly specified in the Provides handler
-             */
-            for (Element provides : optional(m_componentMetadata.getElements("provides"))) {
-                String specifications = provides.getAttribute("specifications");
-
-                if (specifications != null) {
-                    interfaces.addAll(Arrays.asList(ApamRepoBuilder.parseArrays(specifications)));
-                }
-            }
-
-            /*
              * For primitive components if not specification is explicitly specified,
              * get all the implemented interfaces from the implementation class
              */
-            if (interfaces.isEmpty() && !isComposite()) {
+            if (!isComposite()) {
                 try {
 
                     String className = m_componentMetadata.getAttribute("classname");
@@ -406,6 +386,19 @@ public class ApamRepoBuilder {
 
             }
 
+            /*
+             * For composite components get the explicitly specified interfaces
+             */
+            if (isComposite()) {
+
+            	String encodedInterfaces = m_componentMetadata.getAttribute(ApamComponentInfo.APAM_INTERFACES_PROPERTY);
+            	if (encodedInterfaces != null) {
+	            	for (String interfaceName : parseArrays(encodedInterfaces)) {
+	                	interfaces.add(interfaceName);
+					}
+            	}
+            }
+
             return interfaces;
         }
 
@@ -416,8 +409,12 @@ public class ApamRepoBuilder {
 
             Map<String, String> properties = new HashMap<String, String>();
 
-            for (Element provides : optional(m_componentMetadata.getElements("provides"))) {
-                for (Element property : optional(provides.getElements("property"))) {
+            for (Element propertiesDeclaration : optional(m_componentMetadata.getElements("properties",ApamComponentInfo.APAM_NAMESPACE))) {
+                for (Attribute attribute : optional(propertiesDeclaration.getAttributes())) {
+                	 properties.put(attribute.getName(),attribute.getValue());
+				}
+                
+            	for (Element property : optional(propertiesDeclaration.getElements("property",ApamComponentInfo.APAM_NAMESPACE))) {
                     if (property.containsAttribute("value")) {
                         properties.put(property.getAttribute("name"), property.getAttribute("value"));
                     }
@@ -436,10 +433,22 @@ public class ApamRepoBuilder {
     final static Element[] EMPTY_ELEMENT_LIST = new Element[0];
 
     /**
-     * Utility method to be ease iteration over possibly null element lists
+     * Constant to represent undefined attributes
+     */
+    final static Attribute[] EMPTY_ATTRIBUTE_LIST = new Attribute[0];
+
+    /**
+     * Utility method to facilitate iteration over possibly null element lists
      */
     private final Element[] optional(Element[] elements) {
         return elements != null ? elements : ApamRepoBuilder.EMPTY_ELEMENT_LIST;
+    }
+
+    /**
+     * Utility method to facilitate iteration over possibly null attribute lists
+     */
+    private final Attribute[] optional(Attribute[] attributes) {
+        return attributes != null ? attributes : ApamRepoBuilder.EMPTY_ATTRIBUTE_LIST;
     }
 
     /**
