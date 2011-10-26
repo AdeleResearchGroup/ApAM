@@ -25,22 +25,20 @@ public interface ASMImplBroker {
      * 
      * @param compoType the composite type that will contain that new implementation.
      * @param samImplName : the name of an implementation in Sam.
-     * @param specName. Optional : the symbolic name of the associated specification.
      * @param properties. The initial properties of that implementation (merged with the sam properties)
      * @return the new created implementation, null if failed.
      */
-    public ASMImpl addImpl(CompositeType compoType, String samImplName, String specName, Attributes properties);
+    public ASMImpl addImpl(CompositeType compoType, String samImplName, Attributes properties);
 
     /**
      * Deploys and creates both the SAM implem and Spec; and the the corresponding ASM spec and implem
      * 
      * @param implName the name of implementation to resolve.
      * @param url the location of the executable to deploy
-     * @param specName the *logical* name of that specification. May be null.
      * @param properties . optional : the initial properties for that implementation
      * @return an ASM Implementation
      */
-    public ASMImpl createImpl(CompositeType compo, String implName, URL url, String specName, Attributes properties);
+    public ASMImpl createImpl(CompositeType compo, String implName, URL url, Attributes properties);
 
     public void removeImpl(ASMImpl impl);
 

@@ -16,11 +16,10 @@ public interface ASMInstBroker {
      * 
      * @param compo The composite in which to create the instance. Cannot be null.
      * @param inst a SAM Instance
-     * @param specName the *logical* name of the associated specification; different from SAM. May be null.
      * @param properties . optional : the initial properties
      * @return an ASM Instance
      */
-    public ASMInst addSamInst(Composite compo, Instance samInst, String specName, Attributes properties);
+    public ASMInst addSamInst(Composite compo, Instance samInst, Attributes properties);
 
     /**
      * returns the APAM instance related to the provided sam Instance.

@@ -96,10 +96,8 @@ public interface ApamClient {
      * 
      * @param instanceName the name of that instance, as it will be returned by SAM
      * @param client the dependency handler (this)
-     * @param implName the *logical* name of that implementation; different from SAM. May be null.
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
      */
-    public void newClientCallBack(String instanceName, ApamDependencyHandler client, String implName, String specName);
+    public void newClientCallBack(String instanceName, ApamDependencyHandler client);
 
     /**
      * Before to resolve a specification (i.e. to select one of its implementations)

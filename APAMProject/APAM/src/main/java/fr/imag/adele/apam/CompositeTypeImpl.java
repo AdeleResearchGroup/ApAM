@@ -158,7 +158,7 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
                 properties.setProperty(prop, p.get(prop));
             }
             mainImplName = (String) samImpl.getProperty(CST.A_MAIN_IMPLEMENTATION);
-            specName = (String) samImpl.getProperty(CST.A_MAIN_SPECIFICATION);
+            specName = (String) samImpl.getProperty(CST.A_APAMSPECNAME);
             models = (Set<ManagerModel>) samImpl.getProperty(CST.A_MODELS);
 
             if (implComposite == null)
@@ -182,7 +182,7 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
         String s = "";
         String name = inst.getSpec().getName();
         try {
-            Set<String> localScope = (Set<String>) getProperty(CST.A_LOCALSCOPE);
+            String[] localScope = (String[]) getProperty(CST.A_LOCALSCOPE);
             if (localScope != null) {
                 for (String scope : localScope) {
                     s = scope;
@@ -194,7 +194,7 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
                     }
                 }
             }
-            Set<String> compositeScope = (Set<String>) getProperty(CST.A_COMPOSITESCOPE);
+            String[] compositeScope = (String[]) getProperty(CST.A_COMPOSITESCOPE);
             if (compositeScope != null) {
                 for (String scope : compositeScope) {
                     s = scope;
@@ -206,7 +206,7 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
                     }
                 }
             }
-            Set<String> appliScope = (Set<String>) getProperty(CST.A_APPLISCOPE);
+            String[] appliScope = (String[]) getProperty(CST.A_APPLISCOPE);
             if (appliScope != null) {
                 for (String scope : appliScope) {
                     s = scope;
@@ -234,7 +234,7 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
         String s = "";
         String name = impl.getSpec().getName();
         try {
-            Set<String> localVisible = (Set<String>) getProperty(CST.A_LOCALVISIBLE);
+            String[] localVisible = (String[]) getProperty(CST.A_LOCALVISIBLE);
             if (localVisible != null) {
                 for (String visible : localVisible) {
                     s = visible;
@@ -246,7 +246,7 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
                     }
                 }
             }
-            Set<String> compositeVisible = (Set<String>) getProperty(CST.A_COMPOSITEVISIBLE);
+            String[] compositeVisible = (String[]) getProperty(CST.A_COMPOSITEVISIBLE);
             if (compositeVisible != null) {
                 for (String visible : compositeVisible) {
                     s = visible;
@@ -307,13 +307,13 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
     public static CompositeType createCompositeType(CompositeType fromCompo, String name, Set<ManagerModel> models,
             String implName, URL url, String specName, Attributes properties) {
         ASMImpl mainImpl;
-        mainImpl = CST.ASMImplBroker.createImpl(null, implName, url, specName, properties);
+        mainImpl = CST.ASMImplBroker.createImpl(null, implName, url, properties);
         if (fromCompo == null)
             fromCompo = CompositeTypeImpl.rootCompoType;
         if (mainImpl instanceof CompositeType) {
             return (CompositeType) mainImpl;
         }
-        return new CompositeTypeImpl(fromCompo, name, mainImpl.getName(), mainImpl, models, properties, null);
+        return new CompositeTypeImpl(fromCompo, name, mainImpl.getName(), mainImpl, models, properties, specName);
     }
 
     public static Collection<CompositeType> getRootCompositeTypes() {

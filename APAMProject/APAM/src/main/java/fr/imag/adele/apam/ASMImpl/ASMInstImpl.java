@@ -10,14 +10,12 @@ import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.Wire;
-import fr.imag.adele.apam.ASMImpl.SamInstEventHandler.NewApamInstance;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamComponent;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
@@ -86,30 +84,18 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         // Create the implementation and initialize
         instConstructor(impl, instCompo, initialproperties, samInst);
 
-        // Compute the handler for apam components, and get the spec name if provided
+        // Compute the handler for apam components
         try {
-            String specName = null;
-            ApamDependencyHandler handler = null;
-            // The apam handler arrived first : it stored the info in the object NewApamInstance
-            // ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(samInst.getName(), implName,
-            // specName);
-            NewApamInstance apamInst = SamInstEventHandler.getHandlerInstance(samInst.getName());
-            if (apamInst != null) {
-                handler = apamInst.handler;
-                // implName = apamInst.implName;
-                specName = apamInst.specName;
-            }
-            // The event arrived first : it stored the info in the attributes
+            ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(samInst.getName());
+
+            // The Sam event arrived first : it stored the info in the attributes
             if (handler == null) {
                 handler = (ApamDependencyHandler) samInst.getProperty(CST.A_DEPHANDLER);
-                // implName = (String) samInst.getProperty(CST.A_APAMIMPLNAME);
-                specName = (String) samInst.getProperty(CST.A_APAMSPECNAME);
             }
+            
             if (handler != null) { // it is an Apam instance
                 depHandler = handler;
                 handler.SetIdentifier(this);
-                if ((specName != null) && (impl.getSpec()).getName().equals(samInst.getSpecification().getName()))
-                    ((ASMSpecImpl) impl.getSpec()).setName(specName);
             }
 
             setProperties(Util.mergeProperties(this, initialproperties, samInst.getProperties()));

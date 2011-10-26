@@ -172,9 +172,9 @@ public class SamMan implements Manager {
                 if (match || inst.match(query))
                     if (allInst == null) {
                         // return the first that matches
-                        return CST.ASMInstBroker.addSamInst(compo, inst, null, null);
+                        return CST.ASMInstBroker.addSamInst(compo, inst,  null);
                     } else
-                        allInst.add(CST.ASMInstBroker.addSamInst(compo, inst, null, null));
+                        allInst.add(CST.ASMInstBroker.addSamInst(compo, inst,  null));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,7 +214,7 @@ public class SamMan implements Manager {
             Implementation samImpl = CST.SAMImplBroker.getImplementation(implName);
             // In Sam but not in Apam. Create it in Apam.
             if (samImpl != null) {
-                return CST.ASMImplBroker.addImpl(compoType, implName, null, null);
+                return CST.ASMImplBroker.addImpl(compoType, implName,  null);
             }
         } catch (ConnectionException e) {
             e.printStackTrace();
@@ -265,7 +265,7 @@ public class SamMan implements Manager {
             }
 
             Implementation impl = getPreferedImpl(matchImpls, preferences);
-            return CST.ASMImplBroker.addImpl(compoType, impl.getName(), specName, null);
+            return CST.ASMImplBroker.addImpl(compoType, impl.getName(), null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -313,12 +313,9 @@ public class SamMan implements Manager {
                         continue;
                     Specification samSpec = impl.getSpecification();
                     if (samSpecMatchInterface(samSpec, interfaceName, interfaces)) {
-                        String apamSpecName = (String) impl
-                                    .getProperty(CST.A_MAIN_SPECIFICATION);
                         // activate the implementation in APAM.
                         // This will take care of the case of composites
-                        return CST.ASMImplBroker.addImpl(compoType, impl.getName(),
-                                    apamSpecName, null);
+                        return CST.ASMImplBroker.addImpl(compoType, impl.getName(), null);
                     }
                 }
             }

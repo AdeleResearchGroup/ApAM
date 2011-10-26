@@ -104,7 +104,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
     }
 
     @Override
-    public ASMInst addSamInst(Composite instComposite, Instance samInst, String specName, Attributes properties) {
+    public ASMInst addSamInst(Composite instComposite, Instance samInst, Attributes properties) {
         if (samInst == null) {
             System.out.println("No instance provided for add Instance");
             return null;
@@ -120,7 +120,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
             impl = CST.ASMImplBroker.getImpl(samInst.getImplementation());
             if (impl == null) { // create the implem also
                 impl = ASMInstBrokerImpl.implBroker.addImpl(instComposite.getCompType(),
-                        samInst.getImplementation().getName(), specName, properties);
+                        samInst.getImplementation().getName(), properties);
             }
 
             // Normally composite implementations are visible by SAM, but they can not be instantiated.

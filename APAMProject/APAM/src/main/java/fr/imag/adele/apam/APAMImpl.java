@@ -293,13 +293,12 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
      * its handler.
      */
     @Override
-    public void
-            newClientCallBack(String samInstanceName, ApamDependencyHandler client, String implName, String specName) {
+    public void newClientCallBack(String samInstanceName, ApamDependencyHandler client) {
         if ((samInstanceName == null) || (client == null)) {
             System.err.println("ERROR : Missing parameter samInstanceName or client in newClientCallBack");
             return;
         }
-        SamInstEventHandler.addNewApamInstance(samInstanceName, client, implName, specName);
+        SamInstEventHandler.addNewApamInstance(samInstanceName, client);
     }
 
     @Override

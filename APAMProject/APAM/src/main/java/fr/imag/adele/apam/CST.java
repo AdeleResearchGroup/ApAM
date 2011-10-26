@@ -22,7 +22,6 @@ public class CST {
     // value object : address of the iPOJO apam dependency handler
     public static final String         A_DEPHANDLER          = "ApamDependencyHandler";
     public static final String         A_APAMSPECNAME        = "ApamSpecName";
-    public static final String         A_APAMIMPLNAME        = "ApamImplName";
 
     // indicate in which scope this object is visible. Scope for instances, implscope for implems.
     public static final String         A_SCOPE               = "SCOPE";
@@ -66,8 +65,6 @@ public class CST {
     public static final String         A_COMPOSITE           = "apam-composite";
     // String
     public static final String         A_MAIN_IMPLEMENTATION = "apam-main-implementation";
-    // String
-    public static final String         A_MAIN_SPECIFICATION  = "apam-specification";
 
     // Composite properties
     // boolean

@@ -31,7 +31,7 @@ public class SamInstEventHandler implements AMEventingHandler {
     static Set<DynamicManager>              listenLost         = new HashSet<DynamicManager>();
 
     // contains the apam instance that registered to APAM but not yet created in ASM
-    static Map<String, NewApamInstance>     newApamInstance    = new HashMap<String, NewApamInstance>();
+    static Map<String, ApamDependencyHandler>     newApamInstance    = new HashMap<String, ApamDependencyHandler>();
     // contains the Sam instance that have been notified before the Apam handler
     static Map<String, NewSamInstance>      newSamInstance     = new HashMap<String, NewSamInstance>();
 
@@ -39,18 +39,6 @@ public class SamInstEventHandler implements AMEventingHandler {
 
     public SamInstEventHandler() {
         SamInstEventHandler.theInstHandler = this;
-    }
-
-    public static class NewApamInstance {
-        ApamDependencyHandler handler;
-        String                implName = null;
-        String                specName = null;
-
-        public NewApamInstance(ApamDependencyHandler handler, String implName, String specName) {
-            this.handler = handler;
-            this.implName = implName;
-            this.specName = specName;
-        }
     }
 
     private class NewSamInstance {
@@ -65,37 +53,27 @@ public class SamInstEventHandler implements AMEventingHandler {
             Set<String> instances = new HashSet<String>(SamInstEventHandler.newSamInstance.keySet());
             for (String inst : instances) {
                 // at least 30 seconds (because of the debugger) !
-                if (SamInstEventHandler.newSamInstance.get(inst).eventTime < (currentTime - 30000))
+                if (SamInstEventHandler.newSamInstance.get(inst).eventTime < (currentTime - 30000)) {
                     SamInstEventHandler.newSamInstance.remove(inst);
+                }
             }
         }
     }
 
-    public static NewApamInstance getHandlerInstance(String samName) {
+    public static synchronized ApamDependencyHandler getHandlerInstance(String samName) {
         return SamInstEventHandler.newApamInstance.get(samName);
-        // NewApamInstance samInst = SamInstEventHandler.newApamInstance.get(samName);
-        // if (samInst == null)
-        // return null;
-        // implName = samInst.implName;
-        // specName = samInst.specName;
-        // return SamInstEventHandler.newApamInstance.get(samName).handler;
     }
 
-    public static synchronized void addNewApamInstance(String samName, ApamDependencyHandler handler, String implName,
-            String specName) {
+    public static synchronized void addNewApamInstance(String samName, ApamDependencyHandler handler) {
         if ((samName == null) || (handler == null))
             return;
         try {
-            if (SamInstEventHandler.newSamInstance.get(samName) != null) { // the event arrived first
+           if (SamInstEventHandler.newSamInstance.get(samName) != null) { // the event arrived first
                 Instance samInst = SamInstEventHandler.newSamInstance.get(samName).samInst;
                 samInst.setProperty(CST.A_DEPHANDLER, handler);
-                if (specName != null)
-                    samInst.setProperty(CST.A_APAMSPECNAME, specName);
-                if (implName != null)
-                    samInst.setProperty(CST.A_APAMIMPLNAME, implName);
                 SamInstEventHandler.newSamInstance.remove(samName);
             } else {
-                SamInstEventHandler.newApamInstance.put(samName, new NewApamInstance(handler, implName, specName));
+                SamInstEventHandler.newApamInstance.put(samName,handler);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -148,13 +126,13 @@ public class SamInstEventHandler implements AMEventingHandler {
         }
     }
 
-    static public synchronized void addLost(DynamicManager manager) {
+    public static synchronized void addLost(DynamicManager manager) {
         if (manager == null)
             return;
         SamInstEventHandler.listenLost.add(manager);
     }
 
-    static public synchronized void removeLost(DynamicManager manager) {
+    public static synchronized void removeLost(DynamicManager manager) {
         if (manager == null)
             return;
         SamInstEventHandler.listenLost.remove(manager);
@@ -181,6 +159,8 @@ public class SamInstEventHandler implements AMEventingHandler {
     // executed when a new implementation is detected by SAM. Check if it is an expected impl.
     @Override
     public synchronized void receive(AMEvent amEvent) throws ConnectionException {
+    	
+			
         InstPID instPid = (InstPID) amEvent.getProperty(EventProperty.INSTANCE_PID);
         if (instPid == null)
             return;
@@ -188,41 +168,49 @@ public class SamInstEventHandler implements AMEventingHandler {
         String samName = instPid.getId(); // available even if it disappeared
 
         if (amEvent.getProperty(EventProperty.TYPE).equals(EventProperty.TYPE_ARRIVAL)) {
-            if (SamInstEventHandler.newApamInstance.containsKey(samName)) { // It is an APAM instance either under
-                                                                            // creation, or auto appear
-                NewApamInstance inst = SamInstEventHandler.newApamInstance.get(samName);
-                samInst.setProperty(CST.A_DEPHANDLER, inst.handler);
-                if (inst.specName != null)
-                    samInst.setProperty(CST.A_APAMSPECNAME, inst.specName);
-                if (inst.implName != null)
-                    samInst.setProperty(CST.A_APAMIMPLNAME, inst.implName);
-                SamInstEventHandler.newApamInstance.remove(samName);
-            } else { // record the event in the case it arrived before the handler registration
-                SamInstEventHandler.newSamInstance
-                        .put(samName, new NewSamInstance(samInst, System.currentTimeMillis()));
-            }
+        	
+        	/*
+        	 * IMPORTANT We need to be careful because static methods are synchronized on the class and non-static methods
+        	 * are synchronized on the object. If we want to ensure mutual exclusion to all the different object maps
+        	 * we must always synchronize on the class.  
+        	 * 
+        	 * TODO Change all static methods into methods of a singleton object to avoid this kind of error prone behavior.
+        	 */
+        	synchronized (SamInstEventHandler.class) { /*begin static synchronization*/
+        		
+	            if (SamInstEventHandler.newApamInstance.containsKey(samName)) { // It is an APAM instance either under
+	                                                                            // creation, or auto appear
+	            	ApamDependencyHandler handler = SamInstEventHandler.newApamInstance.get(samName);
+	                samInst.setProperty(CST.A_DEPHANDLER, handler);
+	                SamInstEventHandler.newApamInstance.remove(samName);
+	            } else { // record the event in the case it arrived before the handler registration
+	                SamInstEventHandler.newSamInstance
+	                        .put(samName, new NewSamInstance(samInst, System.currentTimeMillis()));
+	            }
+	
+	            Implementation samImpl = samInst.getImplementation();
+	            String samImplName = samImpl.getName();
+	            // ASMImpl impl = CST.ASMImplBroker.getImpl(samImpl);
+	            if (SamInstEventHandler.expectedImpls.keySet().contains(samImplName)) {
+	                for (DynamicManager manager : SamInstEventHandler.expectedImpls.get(samImplName)) {
+	                    manager.appeared(samInst);
+	                }
+	                SamInstEventHandler.expectedImpls.remove(samImplName);
+	                return;
+	            }
+	            Specification samSpec = samInst.getSpecification();
+	            String[] interfs = samSpec.getInterfaceNames();
+	            for (String interf : interfs) {
+	                if (SamInstEventHandler.expectedInterfaces.get(interf) != null) {
+	                    for (DynamicManager manager : SamInstEventHandler.expectedInterfaces.get(interf)) {
+	                        manager.appeared(samInst);
+	                    }
+	                    SamInstEventHandler.expectedInterfaces.remove(interf);
+	                }
+	            }
+	            return;
+    		} /*end static synchronization*/
 
-            Implementation samImpl = samInst.getImplementation();
-            String samImplName = samImpl.getName();
-            // ASMImpl impl = CST.ASMImplBroker.getImpl(samImpl);
-            if (SamInstEventHandler.expectedImpls.keySet().contains(samImplName)) {
-                for (DynamicManager manager : SamInstEventHandler.expectedImpls.get(samImplName)) {
-                    manager.appeared(samInst);
-                }
-                SamInstEventHandler.expectedImpls.remove(samImplName);
-                return;
-            }
-            Specification samSpec = samInst.getSpecification();
-            String[] interfs = samSpec.getInterfaceNames();
-            for (String interf : interfs) {
-                if (SamInstEventHandler.expectedInterfaces.get(interf) != null) {
-                    for (DynamicManager manager : SamInstEventHandler.expectedInterfaces.get(interf)) {
-                        manager.appeared(samInst);
-                    }
-                    SamInstEventHandler.expectedInterfaces.remove(interf);
-                }
-            }
-            return;
         }
 
         // a service disappears
@@ -248,5 +236,6 @@ public class SamInstEventHandler implements AMEventingHandler {
                 return;
             inst.setSamProperties(samInst.getProperties());
         }
+        
     }
 }

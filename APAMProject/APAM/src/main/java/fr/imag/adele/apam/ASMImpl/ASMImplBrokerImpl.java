@@ -96,15 +96,16 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         return ret;
     }
 
-    private ASMImpl addImpl0(CompositeType compo, Implementation samImpl, String specName,
-            Attributes properties) {
+    private ASMImpl addImpl0(CompositeType compo, Implementation samImpl, Attributes properties) {
         if (samImpl == null) {
             System.err.println("ERROR : missing sam Implementaion in addImpl");
             return null;
         }
         // if (compo == null && )
-        String implName = samImpl.getName();
         try {
+            String implName = samImpl.getName();
+            String specName = (String)samImpl.getProperty(CST.A_APAMSPECNAME) ;
+
             // specification control
             Specification samSpec = samImpl.getSpecification();
             ASMImpl asmImpl = null;
@@ -150,8 +151,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
     }
 
     @Override
-    public ASMImpl
-            addImpl(CompositeType compo, String samImplName, String specName, Attributes properties) {
+    public ASMImpl addImpl(CompositeType compo, String samImplName, Attributes properties) {
         if (samImplName == null) {
             System.out.println("ERROR : parameter Sam Implementation " + samImplName
                     + " or composite : " + compo + " missing. In addimpl.");
@@ -164,7 +164,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
                 System.out.println("ERROR : Sam Implementation " + samImplName + " cannot be found");
                 return null;
             }
-            return addImpl0(compo, samImpl, specName, properties);
+            return addImpl0(compo,samImpl,properties);
 
         } catch (ConnectionException e) {
             e.printStackTrace();
@@ -173,8 +173,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
     }
 
     @Override
-    public ASMImpl createImpl(CompositeType compo, String implName, URL url, String specName,
-            Attributes properties) {
+    public ASMImpl createImpl(CompositeType compo, String implName, URL url, Attributes properties) {
 
         if (url == null)
             return null;
@@ -185,7 +184,6 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         try {
             asmImpl = getImpl(implName);
             if (asmImpl != null) { // do not create twice
-                ((ASMSpecImpl) asmImpl.getSpec()).setName(specName);
                 return asmImpl;
             }
 
@@ -213,7 +211,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             return null;
         }
 
-        asmImpl = addImpl0(compo, samImpl, specName, properties);
+        asmImpl = addImpl0(compo, samImpl, properties);
         return asmImpl;
     }
 

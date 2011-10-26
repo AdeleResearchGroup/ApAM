@@ -1,6 +1,2 @@
 <obr> 
-   <capability name='apam-component'>
-      <p n='name' v='APAM' />
-      <p n='interfaces' v=';fr.imag.adele.apam.apamAPI.Apam;fr.imag.adele.apam.apamAPI.ApamClient;fr.imag.adele.apam.apamAPI.ManagersMng;' />
-   </capability>
 </obr> 
