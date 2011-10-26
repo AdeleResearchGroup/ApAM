@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Export-Package: fr.imag.adele.apam.specification;uses:="org.apache.fel
+ ix.ipojo.util,org.osgi.framework,fr.imag.adele.apam.apamAPI,org.apach
+ e.felix.ipojo.architecture,org.apache.felix.ipojo,fr.imag.adele.apam.
+ util,org.apache.felix.ipojo.metadata"
+IPOJO-Extension: specification:fr.imag.adele.apam.specification.Specif
+ ication
+Built-By: vega
+Tool: Bnd-1.15.0
+Bundle-Name: APAM Specification
+Created-By: Apache Maven Bundle Plugin
+Build-Jdk: 1.6.0_26
+Bundle-Version: 0.0.1.SNAPSHOT
+Bnd-LastModified: 1319206826822
+Bundle-ManifestVersion: 2
+Bundle-Description: Handle runtime definition of APAM specifications
+Import-Package: fr.imag.adele.apam.apamAPI,fr.imag.adele.apam.util,org
+ .apache.felix.ipojo;version="[1.8,2)",org.apache.felix.ipojo.architec
+ ture;version="[1.8,2)",org.apache.felix.ipojo.metadata,org.apache.fel
+ ix.ipojo.util;version="[1.8,2)",org.osgi.framework;version="[1.5,2)"
+Bundle-SymbolicName: fr.imag.adele.apam.Specification
+
