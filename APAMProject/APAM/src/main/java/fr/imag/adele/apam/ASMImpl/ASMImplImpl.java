@@ -194,7 +194,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         Set<ASMInst> ret = new HashSet<ASMInst>();
         for (ASMInst inst : instances) {
             for (Filter filter : constraints) {
-                if (filter.match((AttributesImpl) inst.getProperties())) {
+                if (filter.match((AttributesImpl) inst)) {
                     ret.add(inst);
                 }
             }

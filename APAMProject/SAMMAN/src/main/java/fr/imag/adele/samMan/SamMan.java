@@ -172,9 +172,9 @@ public class SamMan implements Manager {
                 if (match || inst.match(query))
                     if (allInst == null) {
                         // return the first that matches
-                        return CST.ASMInstBroker.addSamInst(compo, inst,  null);
+                        return CST.ASMInstBroker.addSamInst(compo, inst, null);
                     } else
-                        allInst.add(CST.ASMInstBroker.addSamInst(compo, inst,  null));
+                        allInst.add(CST.ASMInstBroker.addSamInst(compo, inst, null));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -214,7 +214,7 @@ public class SamMan implements Manager {
             Implementation samImpl = CST.SAMImplBroker.getImplementation(implName);
             // In Sam but not in Apam. Create it in Apam.
             if (samImpl != null) {
-                return CST.ASMImplBroker.addImpl(compoType, implName,  null);
+                return CST.ASMImplBroker.addImpl(compoType, implName, null);
             }
         } catch (ConnectionException e) {
             e.printStackTrace();
@@ -263,9 +263,11 @@ public class SamMan implements Manager {
                         matchImpls.add(impl);
                 }
             }
-
-            Implementation impl = getPreferedImpl(matchImpls, preferences);
-            return CST.ASMImplBroker.addImpl(compoType, impl.getName(), null);
+            if (!matchImpls.isEmpty()) {
+                Implementation impl = getPreferedImpl(matchImpls, preferences);
+                return CST.ASMImplBroker.addImpl(compoType, impl.getName(), null);
+            } else
+                return null;
         } catch (Exception e) {
             e.printStackTrace();
         }

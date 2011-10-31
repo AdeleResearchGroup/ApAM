@@ -228,7 +228,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         Set<ASMImpl> ret = new HashSet<ASMImpl>();
         for (ASMImpl impl : candidates) {
             for (Filter filter : constraints) {
-                if (filter.match((AttributesImpl) impl.getProperties())) {
+                if (filter.match((AttributesImpl) impl)) {
                     ret.add(impl);
                 }
             }
@@ -262,7 +262,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         for (ASMImpl impl : candidates) {
             int match = 0;
             for (Filter filter : preferences) {
-                if (!filter.match((AttributesImpl) impl.getProperties()))
+                if (!filter.match((AttributesImpl) impl))
                     break;
                 match++;
             }
