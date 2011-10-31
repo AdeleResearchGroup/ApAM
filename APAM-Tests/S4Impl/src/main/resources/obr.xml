@@ -1,0 +1,7 @@
+<obr> 
+   <capability name='apam-component'>
+      <p n='name' v='S4Impl' />
+      <p n='apam-specification' v='S4' />
+      <p n='interfaces' v=';fr.imag.adele.apam.test.s4.S4;' />
+   </capability>
+</obr> 

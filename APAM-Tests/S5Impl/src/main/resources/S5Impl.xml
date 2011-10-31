@@ -1,0 +1,6 @@
+<ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+	<implementation name="S5Impl" classname="fr.imag.adele.apam.test.s5Impl.S5Impl" specification="S5">
+		<dependency field="s2_inv" />		
+		<!-- <apam:dependency field="repoAdmin" />  -->
+	</implementation>
+</ipojo>
