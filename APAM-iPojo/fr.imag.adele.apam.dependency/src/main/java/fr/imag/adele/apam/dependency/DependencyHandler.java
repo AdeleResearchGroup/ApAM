@@ -624,7 +624,7 @@ public class DependencyHandler extends ImplementationHandler implements ApamDepe
 	}
 
 	public boolean setWire(ASMInst destInst, String depName) {
-		System.out.println("Handler set wire " + depName + " :" + thisInstance	+ "->" + destInst);
+//		System.out.println("Handler set wire " + depName + " :" + thisInstance	+ "->" + destInst);
 		Dependency dependency = dependencies.get(depName);
 
 		if (dependency == null)

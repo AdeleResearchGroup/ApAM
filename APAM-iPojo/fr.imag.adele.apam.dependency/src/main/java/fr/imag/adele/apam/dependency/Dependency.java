@@ -58,19 +58,18 @@ public class Dependency implements FieldInterceptor {
     /**
      * The optional constraints
      */
-    private final Set<Filter> 		constraints;
-    
-     /**
+    private final Set<Filter>       constraints;
+
+    /**
      * The optional preferences
      */
-    private final List<Filter>		preferences;
-    
+    private final List<Filter>      preferences;
+
     /**
      * The description of the injected fields
      */
-    private final PojoMetadata		instrumentedCodeDescription;
-    
-    
+    private final PojoMetadata      instrumentedCodeDescription;
+
     /**
      * The kind of possible targets for the dependency
      */
@@ -111,17 +110,18 @@ public class Dependency implements FieldInterceptor {
      * @param pojoMetadata the name of the dependency.
      * 
      */
-    public Dependency(DependencyHandler manager, PojoMetadata instrumentedCodeDescription, String name, Boolean isAggregate,
+    public Dependency(DependencyHandler manager, PojoMetadata instrumentedCodeDescription, String name,
+            Boolean isAggregate,
             String target, Kind targetKind, Set<Filter> constraints, List<Filter> preferences) {
-        
-    	this.manager = manager;
+
+        this.manager = manager;
         this.instrumentedCodeDescription = instrumentedCodeDescription;
 
         this.name = name;
         this.isAggregate = isAggregate;
         this.target = target;
         this.targetKind = targetKind;
-        
+
         this.constraints = constraints;
         this.preferences = preferences;
 
@@ -141,14 +141,14 @@ public class Dependency implements FieldInterceptor {
     /**
      * Whether this dependency is aggregate
      */
-    public boolean isAggregate() {
+    public final boolean isAggregate() {
         return isAggregate;
     }
 
     /**
      * Whether this dependency is scalar
      */
-    public boolean isScalar() {
+    public final boolean isScalar() {
         return !isAggregate();
     }
 
@@ -170,16 +170,16 @@ public class Dependency implements FieldInterceptor {
      * The constraints
      */
     public Set<Filter> getConstraints() {
-    	return constraints;
+        return constraints;
     }
-    
+
     /**
      * The preferences
      */
     public List<Filter> getPreferences() {
-    	return preferences;
+        return preferences;
     }
-    
+
     /**
      * Adds a new target to this dependency
      */
@@ -198,16 +198,16 @@ public class Dependency implements FieldInterceptor {
              * removing the previous ones. This may happen only if there is an application model that is not coherent
              * with the dependency metadata.
              */
-        	
-        	/*
-        	 * TODO  When substituting dependencies, the existing dependency is not removed before the new one is
-        	 * added, so we have to replace anyway. Modify APAM code to use substituteDependency 
-        	 * 
+
+            /*
+             * TODO  When substituting dependencies, the existing dependency is not removed before the new one is
+             * added, so we have to replace anyway. Modify APAM code to use substituteDependency 
+             * 
             if (isScalar() && (targetServices.size() != 0)) {
                 return;
             }
             
-        	 */
+             */
             targetServices.add(target);
             injectedValue = null;
         }
@@ -257,21 +257,21 @@ public class Dependency implements FieldInterceptor {
      * Whether this dependency is satisfied by a target service.
      * 
      */
-    public boolean isResolved() {
-        synchronized (this) {
-            /*
-             * Return the cached value, if it has not been invalidated
-             */
-            if (injectedValue != null)
-                return isResolved;
-
-            /*
-             * update cached value
-             */
-            isResolved = !targetServices.isEmpty();
-
+    public final boolean isResolved() {
+        // synchronized (this) {
+        /*
+         * Return the cached value, if it has not been invalidated
+         */
+        if (injectedValue != null)
             return isResolved;
-        }
+
+        /*
+         * update cached value
+         */
+        isResolved = !targetServices.isEmpty();
+
+        return isResolved;
+        // }
 
     }
 
@@ -297,7 +297,7 @@ public class Dependency implements FieldInterceptor {
             manager.resolve(this);
         }
 
-         return getFieldValue(fieldName);
+        return getFieldValue(fieldName);
     }
 
     /**
@@ -324,47 +324,47 @@ public class Dependency implements FieldInterceptor {
      * dependency object.
      * 
      */
-    private Object getFieldValue(String fieldName) {
+    private final Object getFieldValue(String fieldName) {
 
-        synchronized (this) {
-        	
-            FieldMetadata field = instrumentedCodeDescription.getField(fieldName);
-            String fieldType	= FieldMetadata.getReflectionType(field.getFieldType());
-            
-            /*
-             * Return the cached value, if it has not been invalidated.
-             * 
-             * TODO Currently we only cache a single value for a dependency. For different collection types we need to
-             * evaluate if it is worth caching all accessed fields.
-             */
-            if (injectedValue != null && isScalar())
-                return injectedValue;
+        // synchronized (this) {
 
-            if (injectedValue != null && !isScalar() && injectedType.equals(fieldType))
-                return injectedValue;
-
-            /*
-             * update resolution state
-             */
-            isResolved = !targetServices.isEmpty();
-
-            /*
-             * Return the service object directly for scalar dependencies.
-             */
-            if (isScalar()) {
-                injectedValue = targetServices.isEmpty() ? null : targetServices.iterator().next().getServiceObject();
-            }
-
-            /*
-             * Return an private copy of the collection
-             */
-            if (isAggregate()) {
-                injectedValue = getServiceObjectCollection(fieldType);
-            }
-
-            injectedType = fieldType;
+        /*
+         * Return the cached value, if it has not been invalidated.
+         * 
+         * TODO Currently we only cache a single value for a dependency. For different collection types we need to
+         * evaluate if it is worth caching all accessed fields.
+         */
+        if ((injectedValue != null) && isScalar())
             return injectedValue;
+
+        FieldMetadata field = instrumentedCodeDescription.getField(fieldName);
+        String fieldType = FieldMetadata.getReflectionType(field.getFieldType());
+
+        if ((injectedValue != null) && !isScalar() && injectedType.equals(fieldType))
+            return injectedValue;
+
+        /*
+         * update resolution state
+         */
+        isResolved = !targetServices.isEmpty();
+
+        /*
+         * Return the service object directly for scalar dependencies.
+         */
+        if (isScalar()) {
+            injectedValue = targetServices.isEmpty() ? null : targetServices.iterator().next().getServiceObject();
         }
+
+        /*
+         * Return an private copy of the collection
+         */
+        if (isAggregate()) {
+            injectedValue = getServiceObjectCollection(fieldType);
+        }
+
+        injectedType = fieldType;
+        return injectedValue;
+        // }
 
     }
 
@@ -385,13 +385,13 @@ public class Dependency implements FieldInterceptor {
              * For arrays we need to reflectively build a type conforming array 
              */
             if (fieldClass.isArray()) {
-            	
+
                 int index = 0;
-            	Object array = Array.newInstance(fieldClass.getComponentType(),targetServices.size());
+                Object array = Array.newInstance(fieldClass.getComponentType(), targetServices.size());
                 for (ASMInst targetService : targetServices) {
-                	Array.set(array, index++, targetService.getServiceObject());
+                    Array.set(array, index++, targetService.getServiceObject());
                 }
-               return array;
+                return array;
             }
 
             /*
@@ -399,10 +399,9 @@ public class Dependency implements FieldInterceptor {
              */
             List<Object> serviceObjects = new ArrayList<Object>(targetServices.size());
             for (ASMInst targetService : targetServices) {
-            	serviceObjects.add(targetService.getServiceObject());
+                serviceObjects.add(targetService.getServiceObject());
             }
 
- 
             if (Vector.class.isAssignableFrom(fieldClass)) {
                 return new Vector<Object>(serviceObjects);
             }
@@ -426,7 +425,8 @@ public class Dependency implements FieldInterceptor {
         return null;
     }
 
-    private final static Class<?>[] supportedCollections      = new Class<?>[] { Collection.class, List.class,Vector.class, Set.class };
+    private final static Class<?>[] supportedCollections      = new Class<?>[] { Collection.class, List.class,
+                                                              Vector.class, Set.class };
     private final static String     supportedCollectionsNames = "array or Collection or List or Vector or Set";
 
     /**
