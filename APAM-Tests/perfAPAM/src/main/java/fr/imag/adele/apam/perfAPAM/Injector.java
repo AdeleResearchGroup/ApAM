@@ -26,14 +26,17 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import fr.imag.adele.apam.CompositeTypeImpl;
+//import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.Apam;
 //import fr.imag.adele.apam.apamAPI.ApamComponent;
 import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.perfAPAM.ComponentTestImpl;
+import fr.imag.adele.apam.perfAPAM.Service;
 
 public class Injector implements Runnable, intTestApam {
+
+    private Service             testPerf;
 
     Apam                        apam;
     private static final String targetedNbInstance = "nbInstance";
@@ -90,15 +93,37 @@ public class Injector implements Runnable, intTestApam {
     }
 
     private void createTreeInstance() {
-        System.out.println("create tree intance; limit: " + limit);
+
         CompositeType testPerf = apam.createCompositeType("TestPerfApam", "TestApam",
-                    null /* models */, null /* properties */);
+                null /* models */, null /* properties */);
         ASMInst test = testPerf.createInst(null /* composite */, null/* properties */);
         Service s = (Service) test.getServiceObject();
+        s.callTestPerf();
 
+//        int k = 0;
+//        
+//        if (testPerf == null) {
+//            System.out.println("ya un pb, testPerf is null");
+//        }
+//        for (int i = 1; i < 10; i++) {
+//            nanoTimeStart = System.nanoTime();
+//            for (int j = 1; j < 10000; j++) {
+//                k = 1;
+//            }
+//            long during = (System.nanoTime() - nanoTimeStart) / 1000;
+//            System.out.println("loop alone 10 000. Invocation time (µS): " + during);
+//        }
+//        for (int i = 1; i < 10; i++) {
+//            nanoTimeStart = System.nanoTime();
+//            for (int j = 1; j < 10000; j++) {
+//                k = 1;
+//                s.callPerf(1);
+//            }
+//            long during = (System.nanoTime() - nanoTimeStart) / 1000;
+//            System.out.println("10 000 calls loop. Invocation time (µS): " + during);
+//        }
         long nanoTimeStart;
         ComponentTestImpl.startTime = System.nanoTime();
-
         for (int i = 1; i < 10; i++) {
             nanoTimeStart = System.nanoTime();
             s.call(limit);
@@ -107,7 +132,6 @@ public class Injector implements Runnable, intTestApam {
                         + " / invocation time (µS): " + during);
         }
     }
-
 //    private int calculateI(double x) {
 //        double ret = 0;
 //        ret = Math.log10((x + 1) * 0.5) / Math.log10(2);

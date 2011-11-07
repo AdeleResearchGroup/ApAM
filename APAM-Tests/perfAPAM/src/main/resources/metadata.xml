@@ -12,6 +12,7 @@
 
 	<implementation name="TestApam"
 		classname="fr.imag.adele.apam.perfAPAM.ComponentTestImpl">
+		<dependency field="testPerf" />
 		<properties shared="false" />
 		<dependency field="instance1" />
 		<dependency field="instance2" />
@@ -23,6 +24,7 @@
 		<ipojo:callback transition="invalidate" method="stop" />
 	</ipojo:component>
 
+<!--	<ipojo:instance component="TestApam" name="premiereInstanceAPAM" /> -->
 	<ipojo:instance name="TestApam-Instance" component="Injector" />
 
 </ipojo>

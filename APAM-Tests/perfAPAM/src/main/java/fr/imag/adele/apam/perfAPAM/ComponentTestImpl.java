@@ -32,6 +32,8 @@ public class ComponentTestImpl implements Service {
     private Service            instance1;
     private Service            instance2;
 
+    private Service            testPerf;
+
     public ComponentTestImpl() {
         ComponentTestImpl.instances++;
         miliers = ComponentTestImpl.instances / 1000;
@@ -54,6 +56,37 @@ public class ComponentTestImpl implements Service {
             return;
         instance1.call(level - 1);
         instance2.call(level - 1);
+    }
+
+    @Override
+    public void callPerf(int i) {
+    }
+
+    @Override
+    public void callTestPerf() {
+        int k = 0;
+        long nanoTimeStart;
+        if (testPerf == null) {
+            System.out.println("ya un pb, testPerf is null");
+        }
+        for (int i = 1; i < 10; i++) {
+            nanoTimeStart = System.nanoTime();
+            for (int j = 1; j < 10000; j++) {
+                k = 1;
+            }
+            long during = (System.nanoTime() - nanoTimeStart) / 1000;
+            System.out.println("loop alone 10 000. Invocation time (µS): " + during);
+        }
+        for (int i = 1; i < 10; i++) {
+            nanoTimeStart = System.nanoTime();
+            for (int j = 1; j < 10000; j++) {
+                k = 1;
+                testPerf.callPerf(1);
+            }
+            long during = (System.nanoTime() - nanoTimeStart) / 1000;
+            System.out.println("10 000 calls loop. Invocation time (µS): " + during);
+        }
+
     }
 
 }

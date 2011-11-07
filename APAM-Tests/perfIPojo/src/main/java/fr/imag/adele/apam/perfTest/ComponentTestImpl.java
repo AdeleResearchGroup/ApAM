@@ -74,7 +74,8 @@ public class ComponentTestImpl implements Service {
 
     public void start() {
         if (currentLevel == null) {
-            throw new NullPointerException("currentLevel is null");
+            return;
+            // throw new NullPointerException("currentLevel is null");
         }
         int i = Integer.valueOf(currentLevel).intValue();
         if (i <= ComponentTestImpl.limit) {
@@ -115,5 +116,8 @@ public class ComponentTestImpl implements Service {
             instance2.call(i - 1);
         }
 
+    }
+
+    public void callPerf(int i) {
     }
 }

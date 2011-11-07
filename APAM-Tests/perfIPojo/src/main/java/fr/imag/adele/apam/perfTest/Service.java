@@ -21,4 +21,6 @@ public interface Service {
     public static final String INSTANCENAME   = "instance.name";
 
     public void call(int i);
+
+    public void callPerf(int i);
 }

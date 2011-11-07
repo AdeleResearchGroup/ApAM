@@ -34,6 +34,8 @@ import fr.imag.adele.apam.perfTest.ComponentTestImpl;
 
 public class Injector {
 
+    private Service             testPerf;
+
     private static final String targetedNbInstance = "nbInstance";
     private ComponentTestImpl   instance;
     private ComponentInstance   instanceRef;
@@ -129,10 +131,33 @@ public class Injector {
     }
 
     private void createTreeInstance() {
+        int k = 0;
+        long nanoTimeStart;
+        if (testPerf == null) {
+            System.out.println("ya un pb, testPerf is null");
+        }
+        for (int i = 1; i < 10; i++) {
+            nanoTimeStart = System.nanoTime();
+            for (int j = 1; j < 10000; j++) {
+                k = 1;
+            }
+            long during = (System.nanoTime() - nanoTimeStart) / 1000;
+            System.out.println("loop alone 10 000. Invocation time (µS): " + during);
+        }
+        for (int i = 1; i < 10; i++) {
+            nanoTimeStart = System.nanoTime();
+            for (int j = 1; j < 10000; j++) {
+                k = 1;
+                testPerf.callPerf(1);
+            }
+            long during = (System.nanoTime() - nanoTimeStart) / 1000;
+            System.out.println("10 000 calls loop. Invocation time (µS): " + during);
+        }
+
         System.out.println("limit: " + ComponentTestImpl.limit);
         try {
             ComponentTestImpl.startTime = System.nanoTime();
-            long nanoTimeStart = System.nanoTime();
+            nanoTimeStart = System.nanoTime();
             ComponentTestImpl.factory = factory;
             ComponentTestImpl.instances = 0;
 

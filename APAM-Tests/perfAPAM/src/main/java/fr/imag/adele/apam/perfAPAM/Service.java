@@ -20,5 +20,9 @@ public interface Service {
     public static final String INSTANCENUMBER = "instanceNumber";
     public static final String INSTANCENAME   = "instance.name";
 
-    public void call(int level);
+    public void call(int i);
+
+    public void callPerf(int i);
+
+    public void callTestPerf();
 }

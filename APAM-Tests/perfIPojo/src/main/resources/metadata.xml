@@ -18,11 +18,13 @@
 
 	<component className="fr.imag.adele.apam.perfTest.Injector"
 		name="component.test.ipojo.Injector" architecture="true">
+		<requires field="testPerf" />
 		<requires field="factory" filter="(factory.name=component.test.impl.ipojo)"
 			nullable="false" />
 		<callback transition="validate" method="start" />
 		<callback transition="invalidate" method="stop" />
 	</component>
+	<instance component="component.test.impl.ipojo" name="premiereInstanceIPojo" />
 	<instance component="component.test.ipojo.Injector" name="component.test.ipojo.Injector" />
 
 </iPOJO>
