@@ -38,11 +38,18 @@ public interface ASMInstBroker {
     public ASMInst getInst(String instName);
 
     /**
-     * Returns all the instances. Null if none.
+     * Returns all the instances. empty if none.
      * 
      * @return the service instances
      */
     public Set<ASMInst> getInsts();
+
+    /**
+     * Returns all the sharable instances. empty if none.
+     * 
+     * @return the service instances
+     */
+    public Set<ASMInst> getSharableInsts();
 
     /**
      * Return all the instances that implement the specification and that satisfy the goal. Null if none.

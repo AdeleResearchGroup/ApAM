@@ -30,6 +30,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     private ASMImpl               myImpl;
     private Composite             myComposite;
     protected Instance            samInst;
+    private boolean               sharable = true;
     private ApamDependencyHandler depHandler;
 
     public ApamDependencyHandler getDepHandler() {
@@ -51,6 +52,8 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         if (instCompo == null) {
             new Exception("no composite in instance contructor" + samInst);
         }
+        if (impl.getShared().equals(CST.V_FALSE))
+            sharable = false;
         this.samInst = samInst;
         myImpl = impl;
         myComposite = instCompo;
@@ -61,26 +64,6 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
     public ASMInstImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, Instance samInst,
             boolean composite) {
-
-        // this.samInst = samInst;
-        // myImpl = impl;
-        // if (instCompo != null) { //null only if main appli instance.
-        // myComposite = instCompo;
-        // rootComposite = instCompo.getRootComposite();
-        // myComposite.addContainInst(this);
-        // this.setProperty(Attributes.APAMCOMPO, myComposite.getName());
-        // } else {
-        // this.setProperty(Attributes.APAMCOMPO, "root");
-        // }
-        //
-        // ((ASMInstBrokerImpl) CST.ASMInstBroker).addInst(this);
-        //
-        // //when called by Composite constructor. No associated handler
-        // //No specific sam instance.
-        // //If no composite it is the first main instance to be ignored.
-        // if (composite || (instCompo == null))
-        // return;
-
         // Create the implementation and initialize
         instConstructor(impl, instCompo, initialproperties, samInst);
 
@@ -92,17 +75,18 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             if (handler == null) {
                 handler = (ApamDependencyHandler) samInst.getProperty(CST.A_DEPHANDLER);
             }
-            
+
             if (handler != null) { // it is an Apam instance
                 depHandler = handler;
                 handler.SetIdentifier(this);
             }
 
             setProperties(Util.mergeProperties(this, initialproperties, samInst.getProperties()));
+            setProperty(CST.A_SHARED, getShared());
+            sharable = (getShared().equals(CST.V_TRUE));
 
             if ((instCompo != null) && (samInst.getServiceObject() instanceof ApamComponent))
                 ((ApamComponent) samInst.getServiceObject()).apamStart(this);
-
         } catch (ConnectionException e1) {
             e1.printStackTrace();
         }
@@ -291,6 +275,9 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     @Override
     public String getShared() {
         String shared = (String) getProperty(CST.A_SHARED);
+        if (shared == null) {
+            shared = getImpl().getShared();
+        }
         if (shared == null)
             shared = CST.V_TRUE;
         // shared.toUpperCase();
@@ -371,8 +358,11 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
     @Override
     public Composite getRootComposite() {
-
         return myComposite.getRootComposite();
     }
 
+    @Override
+    public boolean isSharable() {
+        return sharable;
+    }
 }

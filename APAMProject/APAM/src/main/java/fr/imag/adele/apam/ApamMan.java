@@ -2,28 +2,16 @@ package fr.imag.adele.apam;
 
 import java.util.HashSet;
 import java.util.List;
-//import java.util.Map;
 import java.util.Set;
 
-//import org.apache.felix.bundlerepository.Capability;
-//import org.apache.felix.bundlerepository.Resource;
-//import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
-
-import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apamAPI.Manager;
-import fr.imag.adele.apam.util.AttributesImpl;
-//import fr.imag.adele.apam.samMan.SamMan;
 import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.sam.Instance;
-
-//import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements Manager {
 
@@ -49,7 +37,7 @@ public class ApamMan implements Manager {
     @Override
     public ASMInst resolveImpl(Composite composite, ASMImpl impl, Set<Filter> constraints, List<Filter> preferences) {
         Set<ASMInst> insts = new HashSet<ASMInst>();
-        for (ASMInst inst : impl.getInsts(constraints)) {
+        for (ASMInst inst : impl.getSharableInsts(constraints)) {
             if (Util.checkInstVisible(composite, inst))
                 insts.add(inst);
         }
@@ -61,7 +49,7 @@ public class ApamMan implements Manager {
     @Override
     public Set<ASMInst> resolveImpls(Composite composite, ASMImpl impl, Set<Filter> constraints) {
         Set<ASMInst> insts = new HashSet<ASMInst>();
-        for (ASMInst asmInst : impl.getInsts(constraints)) {
+        for (ASMInst asmInst : impl.getSharableInsts(constraints)) {
             if (Util.checkInstVisible(composite, asmInst))
                 insts.add(asmInst);
         }

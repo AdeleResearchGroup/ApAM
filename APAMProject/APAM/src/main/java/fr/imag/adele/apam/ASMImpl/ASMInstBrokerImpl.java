@@ -27,9 +27,10 @@ import fr.imag.adele.sam.event.EventProperty;
 
 public class ASMInstBrokerImpl implements ASMInstBroker {
 
-    private static final ASMImplBroker implBroker = CST.ASMImplBroker;
+    private static final ASMImplBroker implBroker        = CST.ASMImplBroker;
 
-    private final Set<ASMInst>         instances  = new HashSet<ASMInst>();
+    private final Set<ASMInst>         instances         = new HashSet<ASMInst>();
+    private final Set<ASMInst>         sharableInstances = new HashSet<ASMInst>();
 
     // EVENTS
     private SamInstEventHandler        instEventHandler;
@@ -44,14 +45,14 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
         }
     }
 
-    public void stopSubscribe(AMEventingHandler handler) {
-        try {
-            Machine machine = LocalMachine.localMachine;
-            EventingEngine eventingEngine = machine.getEventingEngine();
-            eventingEngine.unsubscribe(handler, EventProperty.TOPIC_INSTANCE);
-        } catch (Exception e) {
-        }
-    }
+//    public void stopSubscribe(AMEventingHandler handler) {
+//        try {
+//            Machine machine = LocalMachine.localMachine;
+//            EventingEngine eventingEngine = machine.getEventingEngine();
+//            eventingEngine.unsubscribe(handler, EventProperty.TOPIC_INSTANCE);
+//        } catch (Exception e) {
+//        }
+//    }
 
     @Override
     public ASMInst getInst(String instName) {
@@ -66,6 +67,11 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
     }
 
     // End EVENTS
+
+    @Override
+    public Set<ASMInst> getSharableInsts() {
+        return Collections.unmodifiableSet(sharableInstances);
+    }
 
     @Override
     public Set<ASMInst> getInsts() {
@@ -145,11 +151,13 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
         if ((inst != null) && !instances.contains(inst)) {
             instances.add(inst);
             ((ASMImplImpl) inst.getImpl()).addInst(inst);
+            if (inst.isSharable())
+                sharableInstances.add(inst);
         }
     }
 
     @Override
-    public ASMInst getInst(Instance samInst) {
+    public synchronized ASMInst getInst(Instance samInst) {
         if (samInst == null)
             return null;
         String samName = samInst.getName();
@@ -170,6 +178,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
             return;
         if (instances.contains(inst)) {
             instances.remove(inst);
+            sharableInstances.remove(inst);
             ((ASMInstImpl) inst).remove(); // wires and sam attributes
             ((ASMImplImpl) inst.getImpl()).removeInst(inst);
         }

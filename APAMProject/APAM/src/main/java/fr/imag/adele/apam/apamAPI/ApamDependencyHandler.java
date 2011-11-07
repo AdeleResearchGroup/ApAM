@@ -15,7 +15,7 @@ public interface ApamDependencyHandler {
     /**
      * Give the client its own identity. To be provided as parameter later on to know who calls.
      * 
-     * @param inst The ASMInst ance object in the ASM, representing that client instance.
+     * @param inst The ASMInstance object in the ASM, representing that client instance.
      */
     public void SetIdentifier(ASMInst inst);
 

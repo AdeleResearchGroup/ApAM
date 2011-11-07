@@ -91,29 +91,35 @@ public class Util {
             Map<String, Object> samPropParam) {
         if ((initProp == null) && (samPropParam == null))
             return new HashMap<String, Object>();
-        Map<String, Object> samProp = new HashMap<String, Object>(samPropParam);
-        String attr;
-        Object val;
-        if ((initProp != null) && (samProp != null)) { // merge
-            for (Enumeration<String> e = ((AttributesImpl) initProp).keys(); e.hasMoreElements();) {
-                attr = e.nextElement();
-                val = initProp.getProperty(attr);
-                if (samProp.get(attr) == null) {
-                    samProp.put(attr, val);
-                } else { // different values, pas normal !
-                    if (initProp.getProperty(attr) != samProp.get(attr)) {
-                        System.out.println("Warning ! attribut " + attr + "in " + asmObj
-                                + " different in SAM and init val : "
-                                + samProp.get(attr) + ", " + val);
-                    }
-                }
-            }
-        }
-
-        if (samProp == null)
-            samProp = initProp.getProperties();
-        return asmObj.checkPredefinedAttributes(samProp);
+        return asmObj.checkPredefinedAttributes(samPropParam);
     }
+
+//       
+//        if ((initProp == null) && (samPropParam == null))
+//            return new HashMap<String, Object>();
+//        Map<String, Object> samProp = new HashMap<String, Object>(samPropParam);
+//        String attr;
+//        Object val;
+//        if ((initProp != null) && (samProp != null)) { // merge
+//            for (Enumeration<String> e = ((AttributesImpl) initProp).keys(); e.hasMoreElements();) {
+//                attr = e.nextElement();
+//                val = initProp.getProperty(attr);
+//                if (samProp.get(attr) == null) {
+//                    samProp.put(attr, val);
+//                } else { // different values, pas normal !
+//                    if (initProp.getProperty(attr) != samProp.get(attr)) {
+//                        System.out.println("Warning ! attribut " + attr + "in " + asmObj
+//                                + " different in SAM and init val : "
+//                                + samProp.get(attr) + ", " + val);
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (samProp == null)
+//            samProp = initProp.getProperties();
+//        return asmObj.checkPredefinedAttributes(samProp);
+//     }
 
     public static String ANDLDAP(String... params) {
         StringBuilder sb = new StringBuilder("(&");
@@ -158,29 +164,17 @@ public class Util {
      * Otherwise the scope rules are the same.
      */
     public static boolean checkImplVisible(ASMImpl impl, CompositeType compoFrom) {
-
-        if ((impl.getShared().equals(CST.V_FALSE) && (!impl.getInvUses().isEmpty()))) {
-            System.out.println(impl + " is not sharable");
-            return false;
-        }
-
-        // if it is a root composite
-        if ((impl.getInCompositeType() == null) || impl.getInCompositeType().isEmpty()) {
-            return (impl.getProperty(CST.A_SCOPE) == CST.V_GLOBAL);
-        }
-
         for (CompositeType compoTo : impl.getInCompositeType()) {
             if (Util.checkVisibilityImpl(compoFrom, compoTo, impl))
                 return true;
         }
-
         // failed
-        if (compoFrom.isInternal()) {
-            System.out.println("Composite type " + compoFrom.getName()
-                    + " is internal and does not see implementation " + impl + " in " + impl.getInCompositeType());
-        } else
-            System.out.println("Composite type " + compoFrom.getName()
-                        + " does not see implementation " + impl + " in " + impl.getInCompositeType());
+//        if (compoFrom.isInternal()) {
+//            System.out.println("Composite type " + compoFrom.getName()
+//                    + " is internal and does not see implementation " + impl + " in " + impl.getInCompositeType());
+//        } else
+//            System.out.println("Composite type " + compoFrom.getName()
+//                        + " does not see implementation " + impl + " in " + impl.getInCompositeType());
         return false;
     }
 
@@ -217,15 +211,15 @@ public class Util {
             scope = CST.V_LOCAL;
 
         if ((toInst.getShared().equals(CST.V_FALSE) && (!toInst.getInvWires().isEmpty()))) {
-            System.out.println(toInst + " is not sharable");
+//            System.out.println(toInst + " is not sharable");
             return false;
         }
 
         boolean valid = Util.checkVisibility(compoFrom, toInst.getComposite(), scope);
         if (!valid) {
-            System.out.println("Composite " + compoFrom.getName()
-                    + " does not see instance " + toInst + " in Composite " + toInst.getComposite().getName()
-                    + " (scope is " + scope + ")");
+//            System.out.println("Composite " + compoFrom.getName()
+//                    + " does not see instance " + toInst + " in Composite " + toInst.getComposite().getName()
+//                    + " (scope is " + scope + ")");
         }
         return valid;
     }

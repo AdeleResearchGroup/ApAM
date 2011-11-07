@@ -241,13 +241,13 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         }
         if (ok) {
             properties.put(prop, propVal);
-            if (!samChange) { // propagate also in SAM
-                setChangeInSam(prop, propVal);
-            }
-        } else { // not Ok
-            if (samChange) { // revert the change in SAM
-                removeChangeInSam(prop);
-            }
+//            if (!samChange) { // propagate also in SAM
+//                setChangeInSam(prop, propVal);
+//            }
+//        } else { // not Ok
+//            if (samChange) { // revert the change in SAM
+//                removeChangeInSam(prop);
+//            }
         }
     }
 

@@ -1,7 +1,6 @@
 package fr.imag.adele.apam;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,15 +9,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
-import org.osgi.framework.Filter;
-
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.ASMImpl.ASMImplBrokerImpl;
 import fr.imag.adele.apam.ASMImpl.ASMImplImpl;
 import fr.imag.adele.apam.ASMImpl.ASMSpecImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
+//import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apamAPI.Manager;
@@ -26,7 +23,6 @@ import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.CompositeImpl;
 import fr.imag.adele.sam.Implementation;
-import fr.imag.adele.sam.Instance;
 
 public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
 
@@ -55,6 +51,14 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
     }
 
     public static CompositeType getRootCompositeType() {
+        return CompositeTypeImpl.rootCompoType;
+    }
+
+    /*
+     * Called once when initializing CompositeImpl. 
+     */
+    public static CompositeType getRootCompositeType(Composite compo) {
+        ((ASMImplImpl) CompositeTypeImpl.rootCompoType).addInst(compo);
         return CompositeTypeImpl.rootCompoType;
     }
 
@@ -99,14 +103,15 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
         this.mainImpl = mainImpl;
         name = compositeName;
         ((ASMImplImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
+        if (attributes != null)
+            setProperties(attributes.getProperties());
+        setProperty(Attributes.APAMCOMPO, fromCompo.getName());
         CompositeTypeImpl.compositeTypes.put(name, this);
         ((ASMImplBrokerImpl) CST.ASMImplBroker).addImpl(this);
 
         fromCompo.addImpl(this);
         ((CompositeTypeImpl) fromCompo).addEmbedded(this);
         inComposites.add(fromCompo);
-        if (attributes != null)
-            setProperties(attributes.getProperties());
     }
 
     /**
@@ -131,8 +136,12 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
             System.err.println("Composite type " + name + " allready existing");
             return null;
         }
-        if (fromCompo == null)
+        if (fromCompo == null) {
             fromCompo = CompositeTypeImpl.rootCompoType;
+            if (attributes == null)
+                attributes = new AttributesImpl();
+            attributes.setProperty(CST.A_VISIBLE, CST.V_LOCAL);
+        }
 
         return new CompositeTypeImpl(fromCompo, name, mainImplName, null, models, attributes, specName);
     }
@@ -161,8 +170,10 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
             specName = (String) samImpl.getProperty(CST.A_APAMSPECNAME);
             models = (Set<ManagerModel>) samImpl.getProperty(CST.A_MODELS);
 
-            if (implComposite == null)
+            if (implComposite == null) {
                 implComposite = CompositeTypeImpl.rootCompoType;
+                properties.setProperty(CST.A_VISIBLE, CST.V_LOCAL);
+            }
 
             return CompositeTypeImpl.createCompositeType(implComposite, samImpl.getName(),
                     mainImplName, specName, models, properties);
@@ -308,8 +319,12 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
             String implName, URL url, String specName, Attributes properties) {
         ASMImpl mainImpl;
         mainImpl = CST.ASMImplBroker.createImpl(null, implName, url, properties);
-        if (fromCompo == null)
+        if (fromCompo == null) {
             fromCompo = CompositeTypeImpl.rootCompoType;
+            if (properties == null)
+                properties = new AttributesImpl();
+            properties.setProperty(CST.A_VISIBLE, CST.V_LOCAL);
+        }
         if (mainImpl instanceof CompositeType) {
             return (CompositeType) mainImpl;
         }

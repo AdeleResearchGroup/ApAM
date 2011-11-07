@@ -8,10 +8,6 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.LocalMachine;
-import fr.imag.adele.am.Machine;
-import fr.imag.adele.am.eventing.AMEventingHandler;
-import fr.imag.adele.am.eventing.EventingEngine;
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeTypeImpl;
@@ -24,7 +20,6 @@ import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Specification;
 import fr.imag.adele.sam.deployment.DeploymentUnit;
-import fr.imag.adele.sam.event.EventProperty;
 
 public class ASMImplBrokerImpl implements ASMImplBroker {
 
@@ -32,27 +27,14 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
 
     private final Set<ASMImpl> implems = new HashSet<ASMImpl>();
 
-    // private SamImplEventHandler eventHandler;
-
-    // public ASMImplBrokerImpl() {
-    // try {
-    // eventHandler = CST.implEventHandler ;
-    // Machine machine = LocalMachine.localMachine;
-    // EventingEngine eventingEngine = machine.getEventingEngine();
-    // eventHandler = new SamImplEventHandler();
-    // eventingEngine.subscribe(eventHandler, EventProperty.TOPIC_IMPLEMENTATION);
-    // } catch (Exception e) {
-    // }
-    // }
-
-    public void stopSubscribe(AMEventingHandler handler) {
-        try {
-            Machine machine = LocalMachine.localMachine;
-            EventingEngine eventingEngine = machine.getEventingEngine();
-            eventingEngine.unsubscribe(handler, EventProperty.TOPIC_IMPLEMENTATION);
-        } catch (Exception e) {
-        }
-    }
+//    public void stopSubscribe(AMEventingHandler handler) {
+//        try {
+//            Machine machine = LocalMachine.localMachine;
+//            EventingEngine eventingEngine = machine.getEventingEngine();
+//            eventingEngine.unsubscribe(handler, EventProperty.TOPIC_IMPLEMENTATION);
+//        } catch (Exception e) {
+//        }
+//    }
 
     // Not in the interface. No control
     public void addImpl(ASMImpl impl) {
@@ -104,7 +86,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         // if (compo == null && )
         try {
             String implName = samImpl.getName();
-            String specName = (String)samImpl.getProperty(CST.A_APAMSPECNAME) ;
+            String specName = (String) samImpl.getProperty(CST.A_APAMSPECNAME);
 
             // specification control
             Specification samSpec = samImpl.getSpecification();
@@ -128,7 +110,8 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             // if allready existing do not duplicate
             asmImpl = getImpl(implName);
             if (asmImpl != null) { // do not create twice
-                ((ASMSpecImpl) asmImpl.getSpec()).setName(specName);
+                if (specName != null)
+                    ((ASMSpecImpl) asmImpl.getSpec()).setName(specName);
                 return asmImpl;
             }
 
@@ -164,7 +147,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
                 System.out.println("ERROR : Sam Implementation " + samImplName + " cannot be found");
                 return null;
             }
-            return addImpl0(compo,samImpl,properties);
+            return addImpl0(compo, samImpl, properties);
 
         } catch (ConnectionException e) {
             e.printStackTrace();

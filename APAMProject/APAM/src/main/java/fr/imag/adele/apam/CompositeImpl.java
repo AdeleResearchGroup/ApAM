@@ -40,7 +40,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
         name = "rootComposite";
         mainImpl = null;
         mainInst = null;
-        compType = null;
+        compType = CompositeTypeImpl.getRootCompositeType(this);
         myRootComposite = null;
     }
 

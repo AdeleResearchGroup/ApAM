@@ -5,7 +5,6 @@ import java.util.Set;
 import fr.imag.adele.apam.ASMImpl.ASMInstImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl.DependencyModel;
 import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.util.Util;
 
 public class Wire {

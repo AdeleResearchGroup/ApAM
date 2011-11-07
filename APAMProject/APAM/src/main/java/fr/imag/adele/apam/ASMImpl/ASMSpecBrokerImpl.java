@@ -15,6 +15,7 @@ import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.sam.Specification;
+
 import fr.imag.adele.sam.deployment.DeploymentUnit;
 
 public class ASMSpecBrokerImpl implements ASMSpecBroker {

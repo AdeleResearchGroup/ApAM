@@ -99,6 +99,16 @@ public interface ApamClient {
      */
     public void newClientCallBack(String instanceName, ApamDependencyHandler client);
 
+    /*
+     *     public void newInstance       (String instanceName, ApformInstance client);
+     *     public void newImplementation (String implemName, ApformImplementation client);
+     *     public void newSpecification  (String specName, ApformSpecification client);
+     *     
+     *     public void vanishInstance (String instanceName) ;
+     *     public void vanishImplementation (String implementationName) ;
+     *     public void vanishSpecification (String specificationName) ;
+     */
+
     /**
      * Before to resolve a specification (i.e. to select one of its implementations)
      * defined by one interface, all its interfaces, or its name, this method is called to

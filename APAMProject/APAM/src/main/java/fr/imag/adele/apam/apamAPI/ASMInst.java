@@ -130,6 +130,13 @@ public interface ASMInst extends Attributes {
      */
     public String getShared();
 
+    /**
+     * returns the value of the shared attribute
+     * 
+     * @return
+     */
+    public boolean isSharable();
+
     /*
      * returns the value of hte scope attribute
      */

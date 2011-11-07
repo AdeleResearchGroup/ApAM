@@ -26,19 +26,20 @@ import fr.imag.adele.sam.broker.ImplementationBroker;
 
 public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
-    protected final Set<ASMImpl>       uses         = new HashSet<ASMImpl>();      // all relations uses
-    protected final Set<ASMImpl>       invUses      = new HashSet<ASMImpl>();      // all reverse relations uses
+    protected final Set<ASMImpl>       uses              = new HashSet<ASMImpl>();      // all relations uses
+    protected final Set<ASMImpl>       invUses           = new HashSet<ASMImpl>();      // all reverse relations uses
 
-    protected final Set<CompositeType> inComposites = new HashSet<CompositeType>(); // composite it is contained in.
+    protected final Set<CompositeType> inComposites      = new HashSet<CompositeType>(); // composite it is contained
+                                                                                         // in.
 
     protected String                   name;
     protected ASMSpec                  mySpec;
-    protected Implementation           samImpl      = null;
+    protected Implementation           samImpl           = null;
 
-    protected Set<ASMInst>             instances    = new HashSet<ASMInst>();      // the instances of that impl.
+    protected Set<ASMInst>             instances         = new HashSet<ASMInst>();      // the instances of that impl.
+    protected Set<ASMInst>             sharableInstances = new HashSet<ASMInst>();      // the sharable instances of
 
-    protected Set<DependencyModel>     dependencyModel;                            // The dependencies of that Impl, as
-                                                                                    // known by the handler.
+    protected Set<DependencyModel>     dependencyModel;                                 // The dependencies of that
 
     /**
      * Instantiate a new service implementation.
@@ -134,8 +135,11 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
     // WARNING : no control ! Only called by the instance Broker.
     public void addInst(ASMInst inst) {
-        if (inst != null)
+        if (inst != null) {
             instances.add(inst);
+            if (inst.isSharable())
+                sharableInstances.add(inst);
+        }
     }
 
     @Override
@@ -154,6 +158,16 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         return null;
     }
 
+    /**
+     * returns the first instance only.
+     */
+    @Override
+    public ASMInst getInst() {
+        if (instances.size() == 0)
+            return null;
+        return (ASMInst) instances.toArray()[0];
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -165,14 +179,10 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         // return new HashSet <ASMInst> (instances) ;
     }
 
-    /**
-     * returns the first instance only.
-     */
     @Override
-    public ASMInst getInst() {
-        if ((instances == null) || (instances.size() == 0))
-            return null;
-        return (ASMInst) instances.toArray()[0];
+    public Set<ASMInst> getSharableInsts() {
+        return Collections.unmodifiableSet(sharableInstances);
+        // return new HashSet <ASMInst> (instances) ;
     }
 
     @Override
@@ -181,6 +191,18 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
             return getInsts();
         Set<ASMInst> ret = new HashSet<ASMInst>();
         for (ASMInst inst : instances) {
+            if (query.match((AttributesImpl) inst))
+                ret.add(inst);
+        }
+        return ret;
+    }
+
+    @Override
+    public Set<ASMInst> getSharableInsts(Filter query) throws InvalidSyntaxException {
+        if (query == null)
+            return getSharableInsts();
+        Set<ASMInst> ret = new HashSet<ASMInst>();
+        for (ASMInst inst : sharableInstances) {
             if (query.match((AttributesImpl) inst))
                 ret.add(inst);
         }
@@ -203,12 +225,40 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     }
 
     @Override
+    public Set<ASMInst> getSharableInsts(Set<Filter> constraints) {
+        if ((constraints == null) || constraints.isEmpty())
+            return Collections.unmodifiableSet(sharableInstances);
+        Set<ASMInst> ret = new HashSet<ASMInst>();
+        for (ASMInst inst : sharableInstances) {
+            for (Filter filter : constraints) {
+                if (filter.match((AttributesImpl) inst)) {
+                    ret.add(inst);
+                }
+            }
+        }
+        return ret;
+    }
+
+    @Override
     public ASMInst getInst(Set<Filter> constraints, List<Filter> preferences) {
         Set<ASMInst> insts = null;
         if ((preferences != null) && !preferences.isEmpty()) {
             insts = getInsts(constraints);
         } else
             insts = instances;
+        if ((constraints == null) || constraints.isEmpty())
+            return ((ASMInst) insts.toArray()[0]);
+
+        return getPreferedInst(insts, preferences);
+    }
+
+    @Override
+    public ASMInst getSharableInst(Set<Filter> constraints, List<Filter> preferences) {
+        Set<ASMInst> insts = null;
+        if ((preferences != null) && !preferences.isEmpty()) {
+            insts = getSharableInsts(constraints);
+        } else
+            insts = sharableInstances;
         if ((constraints == null) || constraints.isEmpty())
             return ((ASMInst) insts.toArray()[0]);
 
@@ -343,6 +393,8 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
     public void removeInst(ASMInst inst) {
         instances.remove(inst);
+        if (inst.isSharable())
+            sharableInstances.remove(inst);
     }
 
     @Override
