@@ -13,7 +13,7 @@
   <artifactId>perfIPojo</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
-  <name>perfTest</name>
+  <name>perfIPojo</name>
 
 	<build>
 		<plugins>
