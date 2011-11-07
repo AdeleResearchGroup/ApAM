@@ -17,5 +17,7 @@
   	<module>S4Impl</module>
   	<module>S5Impl</module>
   	<module>S5CompEx</module>
+  	<module>perfAPAM</module>
+  	<module>perfIPojo</module>
   </modules>
 </project>
