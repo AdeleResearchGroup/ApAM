@@ -367,7 +367,7 @@ public class OBRMan implements Manager, IOBRMAN {
             asmImpl = CST.ASMImplBroker.getImpl(implName);
             samImpl = CST.SAMImplBroker.getImplementation(implName);
             // Check if already deployed
-            if ((asmImpl == null) && (samImpl == null)) {
+            if (samImpl == null) {
                 // deploy selected resource
                 CST.implEventHandler.addExpected(implName);
                 boolean deployed = deployInstall(res);
@@ -376,17 +376,14 @@ public class OBRMan implements Manager, IOBRMAN {
                     printRes(res);
                     return null;
                 }
-
                 // waiting for the implementation to be ready in SAM.
                 samImpl = CST.implEventHandler.getImplementation(implName);
-
-                // Activate implementation in APAM
-                asmImpl = CST.ASMImplBroker.addImpl(implComposite, implName, null);
-
             } else { // do not install twice. It is a logical deployement. The allready existing impl is not visible !
                 System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
                 // proceed anyway
             }
+            // Activate implementation in APAM
+            asmImpl = CST.ASMImplBroker.addImpl(implComposite, implName, null);
         }
 
         catch (Exception e) {
