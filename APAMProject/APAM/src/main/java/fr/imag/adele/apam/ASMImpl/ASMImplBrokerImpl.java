@@ -16,7 +16,6 @@ import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apform.ApformImpl;
-import fr.imag.adele.apam.apform.ApformImplementationImpl;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.apformAPI.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
@@ -30,15 +29,6 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
     // private Logger logger = Logger.getLogger(ASMImplBrokerImpl.class);
 
     private final Set<ASMImpl> implems = new HashSet<ASMImpl>();
-
-//    public void stopSubscribe(AMEventingHandler handler) {
-//        try {
-//            Machine machine = LocalMachine.localMachine;
-//            EventingEngine eventingEngine = machine.getEventingEngine();
-//            eventingEngine.unsubscribe(handler, EventProperty.TOPIC_IMPLEMENTATION);
-//        } catch (Exception e) {
-//        }
-//    }
 
     // Not in the interface. No control
     public void addImpl(ASMImpl impl) {
@@ -182,7 +172,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         } catch (Exception e) {
             System.err.println("deployment failed :" + implName + " at URL " + url);
         }
-        asmImpl = CST.apform.getWaitImplementation(compo, implName, properties);
+        asmImpl = ApformImpl.getWaitImplementation(compo, implName, properties);
         // comment savoir si une instance a été créée dans la foulée,
         // et sous quel nom ?
 

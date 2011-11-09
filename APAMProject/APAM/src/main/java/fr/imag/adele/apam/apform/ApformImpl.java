@@ -20,16 +20,19 @@ import fr.imag.adele.apam.util.AttributesImpl;
 
 public class ApformImpl {
 
-    static Set<ASMImpl>                     unusedImplems      = CompositeTypeImpl.getRootCompositeType().getImpls();
-    static Set<ASMInst>                     unusedInsts        = CompositeImpl.getRootAllComposites().getContainInsts();
+    static Set<ASMImpl>                     unusedImplems         = CompositeTypeImpl.getRootCompositeType().getImpls();
+    static Set<ASMInst>                     unusedInsts           = CompositeImpl.getRootAllComposites()
+                                                                          .getContainInsts();
+
+    static Set<String>                      expectedImpls         = new HashSet<String>();
 
     // The managers are waiting for the apparition of an instance of the ASMImpl or implementing the interface
     // In both case, no ASMInst is created.
-    static Map<String, Set<DynamicManager>> expectedImpls      = new HashMap<String, Set<DynamicManager>>();
-    static Map<String, Set<DynamicManager>> expectedInterfaces = new HashMap<String, Set<DynamicManager>>();
+    static Map<String, Set<DynamicManager>> expectedMngImpls      = new HashMap<String, Set<DynamicManager>>();
+    static Map<String, Set<DynamicManager>> expectedMngInterfaces = new HashMap<String, Set<DynamicManager>>();
 
     // registers the managers that are interested in services that disappear.
-    static Set<DynamicManager>              listenLost         = new HashSet<DynamicManager>();
+    static Set<DynamicManager>              listenLost            = new HashSet<DynamicManager>();
 
     public static ASMImpl getUnusedImplem(String name) {
         ASMImpl impl = CST.ASMImplBroker.getImpl(name);
@@ -45,7 +48,7 @@ public class ApformImpl {
      * @param expectedImpl the symbolic name of that implementation
      * @return
      */
-    public ASMImpl getWaitImplementation(CompositeType compoType, String expectedImpl, Attributes properties) {
+    public static ASMImpl getWaitImplementation(CompositeType compoType, String expectedImpl, Attributes properties) {
         if (expectedImpl == null)
             return null;
         // if allready here
@@ -57,8 +60,8 @@ public class ApformImpl {
         synchronized (ApformImpl.expectedImpls) {
 
             try {
-                while (ApformImplementationImpl.expectedImpls.contains(expectedImpl)) {
-                    this.wait();
+                while (ApformImpl.expectedImpls.contains(expectedImpl)) {
+                    ApformImpl.expectedImpls.wait();
                 }
                 // The expected impl arrived. It is in unUsed.
                 impl = CST.ASMImplBroker.getImpl(expectedImpl);
@@ -71,7 +74,7 @@ public class ApformImpl {
                 impl.setProperties(properties.getProperties());
             if (compoType != null)
                 ApformImpl.moveImpl(impl, compoType);
-            ApformImplementationImpl.apfImplems.remove(impl);
+            ApformImpl.unusedImplems.remove(impl);
         }
         return impl;
     }
@@ -95,18 +98,20 @@ public class ApformImpl {
      * 
      * @param expected
      */
-    public static synchronized void addExpected(String expected) {
-        ApformImplementationImpl.expectedImpls.add(expected);
+    public static void addExpected(String expected) {
+        synchronized (ApformImpl.expectedImpls) {
+            ApformImpl.expectedImpls.add(expected);
+        }
     }
 
     public static synchronized void addExpectedImpl(String samImplName, DynamicManager manager) {
         if ((samImplName == null) || (manager == null))
             return;
-        Set<DynamicManager> mans = ApformImpl.expectedImpls.get(samImplName);
+        Set<DynamicManager> mans = ApformImpl.expectedMngImpls.get(samImplName);
         if (mans == null) {
             mans = new HashSet<DynamicManager>();
             mans.add(manager);
-            ApformImpl.expectedImpls.put(samImplName, mans);
+            ApformImpl.expectedMngImpls.put(samImplName, mans);
         } else {
             mans.add(manager);
         }
@@ -116,7 +121,7 @@ public class ApformImpl {
         if ((samImplName == null) || (manager == null))
             return;
 
-        Set<DynamicManager> mans = ApformImpl.expectedImpls.get(samImplName);
+        Set<DynamicManager> mans = ApformImpl.expectedMngImpls.get(samImplName);
         if (mans != null) {
             mans.remove(manager);
         }
@@ -126,11 +131,11 @@ public class ApformImpl {
         if ((interf == null) || (manager == null))
             return;
 
-        Set<DynamicManager> mans = ApformImpl.expectedInterfaces.get(interf);
+        Set<DynamicManager> mans = ApformImpl.expectedMngInterfaces.get(interf);
         if (mans == null) {
             mans = new HashSet<DynamicManager>();
             mans.add(manager);
-            ApformImpl.expectedInterfaces.put(interf, mans);
+            ApformImpl.expectedMngInterfaces.put(interf, mans);
         } else {
             mans.add(manager);
         }
@@ -139,7 +144,7 @@ public class ApformImpl {
     public static synchronized void removeExpectedInterf(String interf, DynamicManager manager) {
         if ((interf == null) || (manager == null))
             return;
-        Set<DynamicManager> mans = ApformImpl.expectedInterfaces.get(interf);
+        Set<DynamicManager> mans = ApformImpl.expectedMngInterfaces.get(interf);
         if (mans != null) {
             mans.remove(manager);
         }

@@ -10,11 +10,10 @@ import fr.imag.adele.apam.ASMImpl.ASMSpecBrokerImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
-import fr.imag.adele.apam.apform.AformSpecificationImpl;
+import fr.imag.adele.apam.apform.Apform2ApamImpl;
 import fr.imag.adele.apam.apform.ApformImpl;
-import fr.imag.adele.apam.apform.ApformImplementationImpl;
-import fr.imag.adele.apam.apform.ApformInstanceImpl;
 import fr.imag.adele.apam.apformAPI.Apform;
+import fr.imag.adele.apam.apformAPI.Apform2Apam;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.apformAPI.ApformSpecification;
@@ -103,10 +102,11 @@ public class CST {
     public static ASMSpecBroker        ASMSpecBroker         = null;
     public static ASMImplBroker        ASMImplBroker         = null;
     public static ASMInstBroker        ASMInstBroker         = null;
-    public static ApformImpl           apform                = null;
-    public static ApformImplementation apformImpl            = null;
-    public static ApformInstance       apformInst            = null;
-    public static ApformSpecification  apformSpec            = null;
+//    public static ApformImpl           apform                = null;
+    public static Apform2Apam          apform2Apam           = null;
+
+    // public static ApformInstance apformInst = null;
+//    public static ApformSpecification  apformSpec            = null;
 
 //    // The entry point in SAM : its brokers
 //    public static SpecificationBroker  SAMSpecBroker         = null;
@@ -125,11 +125,13 @@ public class CST {
         CST.ASMImplBroker = new ASMImplBrokerImpl();
         CST.ASMInstBroker = new ASMInstBrokerImpl();
         CST.ASMInstBroker = new ASMInstBrokerImpl();
-        CST.apform = new ApformImpl();
-        CST.apformSpec = new AformSpecificationImpl();
-        CST.apformImpl = new ApformImplementationImpl();
-        CST.apformInst = new ApformInstanceImpl();
+//        CST.apform = new ApformImpl();
+        CST.apform2Apam = new Apform2ApamImpl();
         CST.apam = theApam;
+
+        // CST.apformSpec = new AformSpecificationImpl();
+//        CST.apformImpl = new ApformImplementationImpl();
+//        CST.apformInst = new ApformInstanceImpl();
 
 //            Machine AM = fr.imag.adele.am.LocalMachine.localMachine;
 //            EventingEngine eventingEngine = AM.getEventingEngine();

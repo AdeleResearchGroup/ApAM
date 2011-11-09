@@ -23,8 +23,12 @@ public class Apform2ApamImpl implements Apform2Apam {
 
     @Override
     public void newImplementation(String implemName, ApformImplementation client) {
-        // TODO Auto-generated method stub
-
+        synchronized (ApformImpl.expectedImpls) {
+            if (ApformImpl.expectedImpls.contains(implemName)) { // it is expected
+                ApformImpl.expectedImpls.remove(implemName);
+                ApformImpl.expectedImpls.notifyAll(); // wake up the thread waiting in getImplementation
+            }
+        }
     }
 
     @Override
