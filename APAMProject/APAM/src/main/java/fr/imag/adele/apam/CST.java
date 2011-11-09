@@ -1,20 +1,29 @@
 package fr.imag.adele.apam;
 
-import fr.imag.adele.am.Machine;
-import fr.imag.adele.am.broker.BrokerBroker;
-import fr.imag.adele.am.eventing.EventingEngine;
+//import fr.imag.adele.am.Machine;
+//import fr.imag.adele.am.broker.BrokerBroker;
+//import fr.imag.adele.am.eventing.EventingEngine;
 import fr.imag.adele.apam.ASMImpl.ASMImplBrokerImpl;
 import fr.imag.adele.apam.ASMImpl.ASMInstBrokerImpl;
 import fr.imag.adele.apam.ASMImpl.ASMSpecBrokerImpl;
-import fr.imag.adele.apam.ASMImpl.SamImplEventHandler;
+//import fr.imag.adele.apam.ASMImpl.SamImplEventHandler;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
-import fr.imag.adele.sam.broker.ImplementationBroker;
-import fr.imag.adele.sam.broker.InstanceBroker;
-import fr.imag.adele.sam.broker.SpecificationBroker;
+import fr.imag.adele.apam.apform.AformSpecificationImpl;
+import fr.imag.adele.apam.apform.ApformImpl;
+import fr.imag.adele.apam.apform.ApformImplementationImpl;
+import fr.imag.adele.apam.apform.ApformInstanceImpl;
+import fr.imag.adele.apam.apformAPI.Apform;
+import fr.imag.adele.apam.apformAPI.ApformImplementation;
+import fr.imag.adele.apam.apformAPI.ApformInstance;
+import fr.imag.adele.apam.apformAPI.ApformSpecification;
+//import fr.imag.adele.sam.broker.ImplementationBroker;
+//import fr.imag.adele.sam.broker.InstanceBroker;
+//import fr.imag.adele.sam.broker.SpecificationBroker;
 import fr.imag.adele.sam.deployment.broker.DeploymentUnitBroker;
-import fr.imag.adele.sam.event.EventProperty;
+
+//import fr.imag.adele.sam.event.EventProperty;
 
 public class CST {
 
@@ -94,39 +103,44 @@ public class CST {
     public static ASMSpecBroker        ASMSpecBroker         = null;
     public static ASMImplBroker        ASMImplBroker         = null;
     public static ASMInstBroker        ASMInstBroker         = null;
+    public static ApformImpl           apform                = null;
+    public static ApformImplementation apformImpl            = null;
+    public static ApformInstance       apformInst            = null;
+    public static ApformSpecification  apformSpec            = null;
 
-    // The entry point in SAM : its brokers
-    public static SpecificationBroker  SAMSpecBroker         = null;
-    public static ImplementationBroker SAMImplBroker         = null;
-    public static InstanceBroker       SAMInstBroker         = null;
+//    // The entry point in SAM : its brokers
+//    public static SpecificationBroker  SAMSpecBroker         = null;
+//    public static ImplementationBroker SAMImplBroker         = null;
+//    public static InstanceBroker       SAMInstBroker         = null;
     public static DeploymentUnitBroker SAMDUBroker           = null;
 
     // the Apam entry point.
     public static APAMImpl             apam                  = null;
 
     // the implementation event handler. It installs an implem and waits for its apparition in SAM
-    public static SamImplEventHandler  implEventHandler      = null;
+//    public static SamImplEventHandler  implEventHandler      = null;
 
     public CST(APAMImpl theApam) {
-        try {
-            CST.ASMSpecBroker = new ASMSpecBrokerImpl();
-            CST.ASMImplBroker = new ASMImplBrokerImpl();
-            CST.ASMInstBroker = new ASMInstBrokerImpl();
+        CST.ASMSpecBroker = new ASMSpecBrokerImpl();
+        CST.ASMImplBroker = new ASMImplBrokerImpl();
+        CST.ASMInstBroker = new ASMInstBrokerImpl();
+        CST.ASMInstBroker = new ASMInstBrokerImpl();
+        CST.apform = new ApformImpl();
+        CST.apformSpec = new AformSpecificationImpl();
+        CST.apformImpl = new ApformImplementationImpl();
+        CST.apformInst = new ApformInstanceImpl();
+        CST.apam = theApam;
 
-            Machine AM = fr.imag.adele.am.LocalMachine.localMachine;
-            EventingEngine eventingEngine = AM.getEventingEngine();
-            CST.implEventHandler = new SamImplEventHandler();
-            eventingEngine.subscribe(CST.implEventHandler, EventProperty.TOPIC_IMPLEMENTATION);
+//            Machine AM = fr.imag.adele.am.LocalMachine.localMachine;
+//            EventingEngine eventingEngine = AM.getEventingEngine();
+//            CST.implEventHandler = new SamImplEventHandler();
+//            eventingEngine.subscribe(CST.implEventHandler, EventProperty.TOPIC_IMPLEMENTATION);
+//
+//            BrokerBroker bb = AM.getBrokerBroker();
+//            CST.SAMSpecBroker = (SpecificationBroker) bb.getBroker(SpecificationBroker.SPECIFICATIONBROKERNAME);
+//            CST.SAMImplBroker = (ImplementationBroker) bb.getBroker(ImplementationBroker.IMPLEMENTATIONBROKERNAME);
+//            CST.SAMInstBroker = (InstanceBroker) bb.getBroker(InstanceBroker.INSTANCEBROKERNAME);
+//            CST.SAMDUBroker = (DeploymentUnitBroker) bb.getBroker(DeploymentUnitBroker.DEPLOYMENTUNITBROKERNAME);
 
-            BrokerBroker bb = AM.getBrokerBroker();
-            CST.SAMSpecBroker = (SpecificationBroker) bb.getBroker(SpecificationBroker.SPECIFICATIONBROKERNAME);
-            CST.SAMImplBroker = (ImplementationBroker) bb.getBroker(ImplementationBroker.IMPLEMENTATIONBROKERNAME);
-            CST.SAMInstBroker = (InstanceBroker) bb.getBroker(InstanceBroker.INSTANCEBROKERNAME);
-            CST.SAMDUBroker = (DeploymentUnitBroker) bb.getBroker(DeploymentUnitBroker.DEPLOYMENTUNITBROKERNAME);
-
-            CST.apam = theApam;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

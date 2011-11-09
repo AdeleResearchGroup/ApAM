@@ -12,25 +12,64 @@ import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
+import fr.imag.adele.apam.apformAPI.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.sam.Specification;
+
+//import fr.imag.adele.sam.ApformSpecification;
 
 public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
 
-    private String             name;
+    private String              name;
     // private final CompositeOLD myComposite;
-    private Specification      samSpec         = null;
-    private final Set<ASMImpl> implementations = new HashSet<ASMImpl>();
+    private ApformSpecification apfSpec         = null;
+    private final Set<ASMImpl>  implementations = new HashSet<ASMImpl>();
+    private String[]            interfaces;
 
-    private final Set<ASMSpec> requires        = new HashSet<ASMSpec>(); // all relations requires
-    private final Set<ASMSpec> invRequires     = new HashSet<ASMSpec>(); // all reverse relations requires
+    private final Set<ASMSpec>  requires        = new HashSet<ASMSpec>(); // all relations requires
+    private final Set<ASMSpec>  invRequires     = new HashSet<ASMSpec>(); // all reverse relations requires
 
     // private int shared = ASM.SHAREABLE;
     // private final int clonable = ASM.TRUE;
 
     // private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
+
+    public ASMSpecImpl(String specName, ApformSpecification apfSpec, String[] interfaces, Attributes props) {
+        if (((name == null) && (apfSpec == null))) {
+            new Exception("Both spec name and apfSpec are null in spec constructor");
+            return;
+        }
+        if (specName == null) {
+            name = apfSpec.getName();
+        } else
+            name = specName;
+        if (apfSpec != null) {
+            this.apfSpec = apfSpec;
+            this.interfaces = apfSpec.getInterfaceNames();
+        } else {
+            this.interfaces = interfaces;
+        }
+        ((ASMSpecBrokerImpl) CST.ASMSpecBroker).addSpec(this);
+        setProperties(props.getProperties());
+//        try {
+//            if (props == null) {
+//                props = new AttributesImpl();
+//            }
+//            // initialize properties. A fusion of SAM and APAM values
+//            if (apfSpec != null)
+//                this.setProperties(Util.mergeProperties(this, props, apfSpec.getProperties()));
+//            else
+//                this.setProperties(Util.mergeProperties(this, props, null));
+//        } catch (ConnectionException e) {
+//            e.printStackTrace();
+//        }
+    }
+
+    @Override
+    public String[] getInterfaces() {
+        return interfaces;
+    }
 
     @Override
     public String getName() {
@@ -50,7 +89,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         }
         if (name.equals(logicalName))
             return;
-        if ((samSpec != null) && name.equals(samSpec.getName())) {
+        if ((apfSpec != null) && name.equals(apfSpec.getName())) {
             System.out.println("changing logical name, from " + name + " to " + logicalName);
             name = logicalName;
             return;
@@ -58,41 +97,16 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         System.err.println(" Error : cannot change specification name from " + name + " to " + logicalName);
     }
 
-    public ASMSpecImpl(String specName, Specification samSpec, Attributes props) {
-        if (((name == null) && (samSpec == null))) {
-            new Exception("Both spec name and samSpec are null in spec constructor");
-            return;
-        }
-        if (specName == null) {
-            name = samSpec.getName();
-        } else
-            name = specName;
-        this.samSpec = samSpec; // may be null
-        ((ASMSpecBrokerImpl) CST.ASMSpecBroker).addSpec(this);
-        try {
-            if (props == null) {
-                props = new AttributesImpl();
-            }
-            // initialize properties. A fusion of SAM and APAM values
-            if (samSpec != null)
-                this.setProperties(Util.mergeProperties(this, props, samSpec.getProperties()));
-            else
-                this.setProperties(Util.mergeProperties(this, props, null));
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public String toString() {
         String ret = "";
         if (name == null) {
-            ret = " (" + samSpec.getName() + ") ";
+            ret = " (" + apfSpec.getName() + ") ";
         } else {
-            if (samSpec == null)
+            if (apfSpec == null)
                 ret = name;
             else
-                ret = name + " (" + samSpec.getName() + ") ";
+                ret = name + " (" + apfSpec.getName() + ") ";
         }
         return ret;
     }
@@ -100,7 +114,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
     /*
      * (non-Javadoc)
      * 
-     * @see fr.imag.adele.sam.Specification#getASMImpl(java.lang.String)
+     * @see fr.imag.adele.apf.ApformSpecification#getASMImpl(java.lang.String)
      */
     @Override
     public ASMImpl getImpl(String name) {
@@ -128,7 +142,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
 
     @Override
     public String[] getInterfaceNames() {
-        return samSpec.getInterfaceNames();
+        return apfSpec.getInterfaceNames();
     }
 
     // relation requires control
@@ -169,8 +183,8 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
     }
 
     @Override
-    public Specification getSamSpec() {
-        return samSpec;
+    public ApformSpecification getApformSpec() {
+        return apfSpec;
     }
 
     @Override
@@ -180,15 +194,15 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         }
         CST.ASMSpecBroker.removeSpec(this);
 
-        // remove the APAM specific attributes in SAM
-        if (samSpec != null) {
-            try {
-                samSpec.removeProperty(Attributes.APAMAPPLI);
-                samSpec.removeProperty(Attributes.APAMCOMPO);
-            } catch (ConnectionException e) {
-                e.printStackTrace();
-            }
-        }
+//        // remove the APAM specific attributes in SAM
+//        if (apfSpec != null) {
+//            try {
+//                apfSpec.removeProperty(Attributes.APAMAPPLI);
+//                apfSpec.removeProperty(Attributes.APAMCOMPO);
+//            } catch (ConnectionException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     public void removeImpl(ASMImpl impl) {
@@ -200,10 +214,10 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         return Collections.unmodifiableSet(implementations);
     }
 
-    public void setSamSpec(Specification samSpec) {
-        if (samSpec == null)
+    public void setSamSpec(ApformSpecification apfSpec) {
+        if (apfSpec == null)
             return;
-        this.samSpec = samSpec;
+        this.apfSpec = apfSpec;
     }
 
     @Override

@@ -11,10 +11,12 @@ import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
+import fr.imag.adele.apam.apformAPI.ApformImplementation;
+import fr.imag.adele.apam.apformAPI.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.sam.Specification;
+//import fr.imag.adele.sam.Specification;
 
 import fr.imag.adele.sam.deployment.DeploymentUnit;
 
@@ -58,7 +60,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
 
         for (ASMSpec spec : specs) {
             if (spec.getName() == null) {
-                if (spec.getSamSpec().getName().equals(name))
+                if (spec.getApformSpec().getName().equals(name))
                     return spec;
             } else {
                 if (name.equals(spec.getName()))
@@ -99,20 +101,20 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
     }
 
     @Override
-    public ASMSpec addSpec(String name, Specification samSpec, Attributes properties) {
-        if ((samSpec == null))
+    public ASMSpec addSpec(String name, ApformSpecification apfSpec, Attributes properties) {
+        if ((apfSpec == null))
             return null;
-        ASMSpecImpl spec = new ASMSpecImpl(name, samSpec, properties);
+        ASMSpecImpl spec = new ASMSpecImpl(name, apfSpec, null, properties);
         specs.add(spec);
         return spec;
     }
 
     @Override
-    public ASMSpec getSpec(Specification samSpec) {
-        if (samSpec == null)
+    public ASMSpec getSpec(ApformSpecification apfSpec) {
+        if (apfSpec == null)
             return null;
         for (ASMSpec spec : specs) {
-            if (spec.getSamSpec() == samSpec)
+            if (spec.getApformSpec() == apfSpec)
                 return spec;
         }
         return null;
@@ -134,7 +136,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
         if (interfaceName == null)
             return null;
         for (ASMSpec spec : specs) {
-            String[] interfs = spec.getSamSpec().getInterfaceNames();
+            String[] interfs = spec.getApformSpec().getInterfaceNames();
             for (String interf : interfs) {
                 if (interf.equals(interfaceName))
                     return spec;
@@ -150,11 +152,11 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
      * @return the abstract service
      */
     @Override
-    public ASMSpec getSpecSamName(String samName) {
+    public ASMSpec getSpecApfName(String samName) {
         if (samName == null)
             return null;
         for (ASMSpec spec : specs) {
-            if (spec.getSamSpec().getName().equals(samName))
+            if (spec.getApformSpec().getName().equals(samName))
                 return spec;
         }
         return null;
@@ -165,17 +167,21 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
         if (interfaces == null)
             return null;
         ASMSpec ret = null;
-        try {
-            if (CST.SAMSpecBroker.getSpecification(interfaces) != null) {
-                ret = addSpec(specName, CST.SAMSpecBroker.getSpecification(interfaces), properties);
-            } else {
-                ret = new ASMSpecImpl(specName, null, properties);
-            }
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-        }
+        ret = new ASMSpecImpl(specName, null, interfaces, properties);
         return ret;
     }
+
+//        try {
+//            if (CST.SAMSpecBroker.getSpecification(interfaces) != null) {
+//                ret = addSpec(specName, CST.SAMSpecBroker.getSpecification(interfaces), properties);
+//            } else {
+//                ret = new ASMSpecImpl(specName, null, properties);
+//            }
+//        } catch (ConnectionException e) {
+//            e.printStackTrace();
+//        }
+//        return ret;
+//    }
 
     /**
      * Creates and deploys a specification. WARNING : The fact to deploy the specification (the packages containing the

@@ -1,30 +1,32 @@
 package fr.imag.adele.apam.apamAPI;
 
 import java.net.URL;
-import java.rmi.RemoteException;
+//import java.rmi.RemoteException;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.apformAPI.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.sam.Specification;
+
+//import fr.imag.adele.sam.Specification;
 
 public interface ASMSpecBroker {
     /**
      * If samSpec is existing, creates the corresponding specification.
      * 
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
-     * @param samSpec : A SAM specification.
+     * @param specName the *logical* name of that specification; different from Apform. May be null.
+     * @param samSpec : A Apform specification.
      */
-    public ASMSpec addSpec(String specName, Specification samSpec, Attributes properties);
+    public ASMSpec addSpec(String specName, ApformSpecification apfSpec, Attributes properties);
 
     /**
      * Creates a specification. WARNING : this spec may not have any
-     * corresponding spec in SAM. It does not try to create one in SAM.
+     * corresponding spec in Apform. It does not try to create one in Apform.
      * 
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
+     * @param specName the *logical* name of that specification; different from Apform. May be null.
      * @param interfaces the list of interfaces this spec implements
      * @param properties : The initial properties.
      *            return an ASM Specification
@@ -34,10 +36,10 @@ public interface ASMSpecBroker {
     /**
      * Creates and deploys a specification. WARNING : The fact to deploy the
      * specification (the packages containing the interfaces) does not create
-     * any spec in SAM. This spec may not have any corresponding spec in SAM. It
-     * does not try to create one in SAM.
+     * any spec in Apform. This spec may not have any corresponding spec in Apform. It
+     * does not try to create one in Apform.
      * 
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
+     * @param specName the *logical* name of that specification; different from Apform. May be null.
      * @param url the location of the executable to deploy
      * @param interfaces the list of interfaces this spec implements
      * @param properties : The initial properties. return an ASM Specification
@@ -52,12 +54,12 @@ public interface ASMSpecBroker {
     public void removeSpec(ASMSpec spec);
 
     /**
-     * return the ASM specification associated with that sam specification
+     * return the ASM specification associated with that Apform specification
      * 
-     * @param samImpl
+     * @param ApformImpl
      * @return
      */
-    public ASMSpec getSpec(Specification samSpec);
+    public ASMSpec getSpec(ApformSpecification ApfSpec);
 
     /**
      * Returns the specifications currently required by the provided specification
@@ -83,7 +85,7 @@ public interface ASMSpecBroker {
      * @param interfaces : the interfaces of the required specification. The returned
      *            specification must support all the interfaces in the array.
      *            The order in which the interfaces are provided in the array is
-     *            not relevant. NOTE : the SAM specification name is the
+     *            not relevant. NOTE : the Apform specification name is the
      *            concatenation separated by ";" of all the interfaces, ordered
      *            lexicographically. Cannot be null nor empty.
      * 
@@ -105,22 +107,22 @@ public interface ASMSpecBroker {
 
     /**
      * Returns the specification with the given logical name. WARNING: Name is
-     * the *logical* name of that specification; if not set, the naame is the sam name, i.e.the concatenation
+     * the *logical* name of that specification; if not set, the naame is the Apf name, i.e.the concatenation
      * separated by ";" of all the interfaces, ordered lexicographically.
      * 
-     * @param name the logical name of the specification, or sam name if no
+     * @param name the logical name of the specification, or Apf name if no
      *            logical name provided
      * @return the abstract service
      */
     public ASMSpec getSpec(String name);
 
     /**
-     * Returns the specification with the given sam name.
+     * Returns the specification with the given Apf name.
      * 
-     * @param samName the sam name of the specification
+     * @param ApfName the Apf name of the specification
      * @return the abstract service
      */
-    public ASMSpec getSpecSamName(String samName);
+    public ASMSpec getSpecApfName(String ApfName);
 
     /**
      * Returns all the specifications.

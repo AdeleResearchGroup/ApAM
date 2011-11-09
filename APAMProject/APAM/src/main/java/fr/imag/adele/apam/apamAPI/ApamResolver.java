@@ -11,7 +11,7 @@ import org.osgi.framework.Filter;
  * @author Jacky
  * 
  */
-public interface ApamClient {
+public interface ApamResolver {
 
     /**
      * An APAM client instance requires to be wired with an instance implementing the specification. WARNING : if no
@@ -80,6 +80,76 @@ public interface ApamClient {
             Set<Filter> constraints);
 
     /**
+     * Look for an implementation with a given name "implName", visible from composite Type compoType.
+     * 
+     * @param compoType
+     * @param implName
+     * @return
+     */
+    public ASMImpl findImplByName(CompositeType compoType, String implName);
+
+    /**
+     * First looks for the specification defined by its name, and then resolve that specification.
+     * Returns the implementation that implement the specification and that satisfies the constraints.
+     * 
+     * @param compoType : the implementation to return must either be visible from compoType, or be deployed.
+     * @param specName
+     * @param constraints. The constraints to satisfy. They must be all satisfied.
+     * @param preferences. If more than one implementation satisfies the constraints, returns the one that satisfies the
+     *            maximum
+     *            number of preferences, taken in the order, and stopping at the first failure.
+     * @return
+     */
+    public ASMImpl resolveSpecByName(CompositeType compoType, String specName,
+            Set<Filter> constraints, List<Filter> preferences);
+
+    /**
+     * First looks for the specification defined by its interface, and then resolve that specification.
+     * Returns the implementation that implement the specification and that satisfies the constraints.
+     * 
+     * @param compoType : the implementation to return must either be visible from compoType, or be deployed.
+     * @param interfaceName. The full name of one of the interfaces of the specification.
+     *            WARNING : different specifications may share the same interface.
+     * @param interfaces. The complete list of interface of the specification. At most one specification can be
+     *            selected.
+     * @param constraints. The constraints to satisfy. They must be all satisfied.
+     * @param preferences. If more than one implementation satisfies the constraints, returns the one that satisfies the
+     *            maximum
+     *            number of preferences, taken in the order, and stopping at the first failure.
+     * @return
+     */
+    public ASMImpl resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
+            Set<Filter> constraints, List<Filter> preferences);
+
+    /**
+     * Look for an instance of "impl" that satisfies the constraints. That instance must be either shared and visible
+     * from "compo",
+     * or instantiated if impl is visible from the composite type.
+     * 
+     * @param compo. the composite that will contain the instance, if created, or from which the shared instance is
+     *            visible.
+     * @param impl
+     * @param constraints. The constraints to satisfy. They must be all satisfied.
+     * @param preferences. If more than one implementation satisfies the constraints, returns the one that satisfies the
+     *            maximum
+     * @return
+     */
+    public ASMInst resolveImpl(Composite compo, ASMImpl impl, Set<Filter> constraints, List<Filter> preferences);
+
+    /**
+     * Look for all the existing instance of "impl" that satisfy the constraints.
+     * These instances must be either shared and visible from "compo".
+     * If no existing instance can be found, one is created if impl is visible from the composite type.
+     * 
+     * @param compo. the composite that will contain the instance, if created, or from which the shared instance is
+     *            visible.
+     * @param impl
+     * @param constraints. The constraints to satisfy. They must be all satisfied.
+     * @return
+     */
+    public Set<ASMInst> resolveImpls(Composite compo, ASMImpl impl, Set<Filter> constraints);
+
+    /**
      * In the case a client realizes that a dependency disappeared, it has to call this method. APAM will try to resolve
      * the problem (DYNAMAM in practice), and return a new instance.
      * 
@@ -88,26 +158,6 @@ public interface ApamClient {
      * @return
      */
     public ASMInst faultWire(ASMInst client, ASMInst lostInstance, String depName);
-
-    /**
-     * This method has to be called by a client instance when it is created. It allows APAM to know where is the
-     * dependency manager attached to the instance. This dependency manager (an iPOJO Handler currently) must implement
-     * the ApamDependencyHandler interface.
-     * 
-     * @param instanceName the name of that instance, as it will be returned by SAM
-     * @param client the dependency handler (this)
-     */
-    public void newClientCallBack(String instanceName, ApamDependencyHandler client);
-
-    /*
-     *     public void newInstance       (String instanceName, ApformInstance client);
-     *     public void newImplementation (String implemName, ApformImplementation client);
-     *     public void newSpecification  (String specName, ApformSpecification client);
-     *     
-     *     public void vanishInstance (String instanceName) ;
-     *     public void vanishImplementation (String implementationName) ;
-     *     public void vanishSpecification (String specificationName) ;
-     */
 
     /**
      * Before to resolve a specification (i.e. to select one of its implementations)

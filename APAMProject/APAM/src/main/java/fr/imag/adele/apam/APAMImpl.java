@@ -12,7 +12,8 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
+import fr.imag.adele.apam.apform.Apform2ApamImpl;
+import fr.imag.adele.apam.apform.ApformImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
@@ -20,7 +21,7 @@ import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
 import fr.imag.adele.apam.apamAPI.Apam;
-import fr.imag.adele.apam.apamAPI.ApamClient;
+import fr.imag.adele.apam.apamAPI.ApamResolver;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.AttributeManager;
 import fr.imag.adele.apam.apamAPI.Composite;
@@ -34,7 +35,7 @@ import fr.imag.adele.apam.CompositeImpl;
 
 //import fr.imag.adele.sam.Implementation;
 
-public class APAMImpl implements Apam, ApamClient, ManagersMng {
+public class APAMImpl implements Apam, ApamResolver, ManagersMng {
 
     // The applications
     private static Manager               apamMan;
@@ -286,21 +287,21 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
         return APAMImpl.managersPrio.get(manager);
     }
 
-    /**
-     * called by an APAM client dependency handler when it initializes. Since the client is in the middle of its
-     * creation, the Sam instance and the ASM inst are not created yet. We simply record in the instance event handler
-     * that this instance will "appear"; at that time we will record the client address in a property of that instance
-     * ASM.ApamDependencyHandlerAddress It is only in the ASMInst constructor that the ASM instance will be connected to
-     * its handler.
-     */
-    @Override
-    public void newClientCallBack(String samInstanceName, ApamDependencyHandler client) {
-        if ((samInstanceName == null) || (client == null)) {
-            System.err.println("ERROR : Missing parameter samInstanceName or client in newClientCallBack");
-            return;
-        }
-        SamInstEventHandler.addNewApamInstance(samInstanceName, client);
-    }
+//    /**
+//     * called by an APAM client dependency handler when it initializes. Since the client is in the middle of its
+//     * creation, the Sam instance and the ASM inst are not created yet. We simply record in the instance event handler
+//     * that this instance will "appear"; at that time we will record the client address in a property of that instance
+//     * ASM.ApamDependencyHandlerAddress It is only in the ASMInst constructor that the ASM instance will be connected to
+//     * its handler.
+//     */
+//    @Override
+//    public void newClientCallBack(String samInstanceName, ApamDependencyHandler client) {
+//        if ((samInstanceName == null) || (client == null)) {
+//            System.err.println("ERROR : Missing parameter samInstanceName or client in newClientCallBack");
+//            return;
+//        }
+//        ApformImpl.addNewApamInstance(samInstanceName, client);
+//    }
 
     @Override
     public void appearedImplExpected(String samImplName, DynamicManager manager) {
@@ -308,7 +309,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             System.err.println("ERROR : Missing parameter impl or manager in appearedExpected");
             return;
         }
-        SamInstEventHandler.addExpectedImpl(samImplName, manager);
+        ApformImpl.addExpectedImpl(samImplName, manager);
     }
 
     @Override
@@ -317,7 +318,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             System.out.println("ERROR : Missing parameter interf or manager in appearedExpected");
             return;
         }
-        SamInstEventHandler.addExpectedInterf(interf, manager);
+        ApformImpl.addExpectedInterf(interf, manager);
     }
 
     @Override
@@ -326,7 +327,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             System.out.println("ERROR : Missing parameter manager in listenLost");
             return;
         }
-        SamInstEventHandler.addLost(manager);
+        ApformImpl.addLost(manager);
     }
 
     @Override
@@ -357,7 +358,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             System.out.println("ERROR : Missing parameter impl or manager in appearedNotExpected");
             return;
         }
-        SamInstEventHandler.removeExpectedImpl(samImplName, manager);
+        ApformImpl.removeExpectedImpl(samImplName, manager);
 
     }
 
@@ -367,7 +368,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             System.out.println("ERROR : Missing parameter interf or manager in appearedNotExpected");
             return;
         }
-        SamInstEventHandler.removeExpectedInterf(interf, manager);
+        ApformImpl.removeExpectedInterf(interf, manager);
     }
 
     @Override
@@ -376,7 +377,7 @@ public class APAMImpl implements Apam, ApamClient, ManagersMng {
             System.out.println("ERROR : Missing parameter manager in listenNotLost");
             return;
         }
-        SamInstEventHandler.removeLost(manager);
+        ApformImpl.removeLost(manager);
     }
 
     @Override

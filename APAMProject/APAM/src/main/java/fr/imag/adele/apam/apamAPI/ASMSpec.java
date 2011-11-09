@@ -7,19 +7,23 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.apformAPI.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.sam.Specification;
+
+//import fr.imag.adele.sam.Specification;
 
 public interface ASMSpec extends Attributes {
 
     public String getName();
 
+    public String[] getInterfaces();
+
     /**
-     * return the sam specificatrion (if existing !!) associated with this specification.
+     * return the apform specificatrion (if existing !!) associated with this specification.
      * 
      * @return
      */
-    public Specification getSamSpec();
+    public ApformSpecification getApformSpec();
 
     /**
      * remove from ASM but does not try to delete in SAM. It deletes all its

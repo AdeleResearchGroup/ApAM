@@ -5,6 +5,7 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Instance;
 
@@ -21,21 +22,21 @@ public interface ASMInst extends Attributes {
     public String getName();
 
     // The SAM instance associated with this Apam one.
-    public Instance getSAMInst();
+    public ApformInstance getApformInst();
 
-    /**
-     * Apam native client (real iPOJO instances) have an Apam Dependency Handler managing wires. Those instances have a
-     * call back toward these real instance.
-     * 
-     * @param handler
-     */
-    public void setDependencyHandler(ApamDependencyHandler handler);
-
-    public ApamDependencyHandler getDependencyHandler();
-
-    /**
-     * The relation wires is established between two ASM instances. Wires are internally managed.
-     */
+//    /**
+//     * Apam native client (real iPOJO instances) have an Apam Dependency Handler managing wires. Those instances have a
+//     * call back toward these real instance.
+//     * 
+//     * @param handler
+//     */
+//    public void setDependencyHandler(ApamDependencyHandler handler);
+//
+//    public ApamDependencyHandler getDependencyHandler();
+//
+//    /**
+//     * The relation wires is established between two ASM instances. Wires are internally managed.
+//     */
 
     /**
      * returns all the instances this one is wired to.

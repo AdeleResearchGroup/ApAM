@@ -7,8 +7,8 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.sam.Implementation;
 
 public interface ASMImplBroker {
 
@@ -18,7 +18,7 @@ public interface ASMImplBroker {
      * @param samImpl
      * @return
      */
-    public ASMImpl getImpl(Implementation samImpl);
+    public ASMImpl getImpl(ApformImplementation apfImpl);
 
     /**
      * If the sam implementation of name samImplName is found, creates a new implementation, and adds it in the broker.

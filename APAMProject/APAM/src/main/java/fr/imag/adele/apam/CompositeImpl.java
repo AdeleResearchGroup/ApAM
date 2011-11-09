@@ -73,7 +73,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
             myRootComposite = instCompo.getRootComposite();
 
         // terminate the ASMInst initialisation
-        instConstructor(compType, instCompo, initialproperties, asmInst.getSAMInst());
+        instConstructor(compType, instCompo, initialproperties, asmInst.getApformInst());
     }
 
     /**

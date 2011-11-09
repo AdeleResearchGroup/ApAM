@@ -7,11 +7,11 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.LocalMachine;
-import fr.imag.adele.am.Machine;
-import fr.imag.adele.am.eventing.AMEventingHandler;
-import fr.imag.adele.am.eventing.EventingEngine;
-import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.am.LocalMachine;
+//import fr.imag.adele.am.Machine;
+//import fr.imag.adele.am.eventing.AMEventingHandler;
+//import fr.imag.adele.am.eventing.EventingEngine;
+//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
@@ -20,10 +20,11 @@ import fr.imag.adele.apam.apamAPI.ASMInstBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.CompositeType;
+import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
-import fr.imag.adele.sam.Instance;
-import fr.imag.adele.sam.event.EventProperty;
+//import fr.imag.adele.sam.Instance;
+//import fr.imag.adele.sam.event.EventProperty;
 
 public class ASMInstBrokerImpl implements ASMInstBroker {
 
@@ -36,13 +37,13 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
     private SamInstEventHandler        instEventHandler;
 
     public ASMInstBrokerImpl() {
-        try {
-            Machine machine = LocalMachine.localMachine;
-            EventingEngine eventingEngine = machine.getEventingEngine();
-            instEventHandler = new SamInstEventHandler();
-            eventingEngine.subscribe(instEventHandler, EventProperty.TOPIC_INSTANCE);
-        } catch (Exception e) {
-        }
+//        try {
+//            Machine machine = LocalMachine.localMachine;
+//            EventingEngine eventingEngine = machine.getEventingEngine();
+//            instEventHandler = new SamInstEventHandler();
+//            eventingEngine.subscribe(instEventHandler, EventProperty.TOPIC_INSTANCE);
+//        } catch (Exception e) {
+//        }
     }
 
 //    public void stopSubscribe(AMEventingHandler handler) {
@@ -110,40 +111,35 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
     }
 
     @Override
-    public ASMInst addSamInst(Composite instComposite, Instance samInst, Attributes properties) {
-        if (samInst == null) {
+    public ASMInst addApformInst(Composite instComposite, ApformInstance apfInst, Attributes properties) {
+        if (apfInst == null) {
             System.out.println("No instance provided for add Instance");
             return null;
         }
         ASMImpl impl = null;
         ASMInst inst;
-        try {
-            inst = getInst(samInst);
-            if (inst != null) { // allready existing ! May have been created by
-                // DYNAMAN, without all parameters
-                return inst;
-            }
-            impl = CST.ASMImplBroker.getImpl(samInst.getImplementation());
-            if (impl == null) { // create the implem also
-                impl = ASMInstBrokerImpl.implBroker.addImpl(instComposite.getCompType(),
-                        samInst.getImplementation().getName(), properties);
-            }
-
-            // Normally composite implementations are visible by SAM, but they can not be instantiated.
-            // Their iPojo instances (although allowed) are not visible in the OSGi registry or by SAM.
-            // The only way to create an instance of a composite should be using APAM.
-            if (impl instanceof CompositeType) {
-                System.err.println("Error, trying to activate composite instance " + impl
-                        + " without using the APAM API");
-                return null;
-            }
-
-            inst = new ASMInstImpl(impl, instComposite, null, samInst, false);
+        inst = CST.ASMInstBroker.getInst(apfInst.getName());
+        if (inst != null) { // allready existing ! May have been created by
+            // DYNAMAN, without all parameters
             return inst;
-        } catch (ConnectionException e) {
-            e.printStackTrace();
         }
-        return null;
+        impl = CST.ASMImplBroker.getImpl(apfInst.getImplemName());
+        if (impl == null) { // create the implem also
+            impl = ASMInstBrokerImpl.implBroker.addImpl(instComposite.getCompType(),
+                        apfInst.getImplemName(), properties);
+        }
+
+        // Normally composite implementations are visible by SAM, but they can not be instantiated.
+        // Their iPojo instances (although allowed) are not visible in the OSGi registry or by SAM.
+        // The only way to create an instance of a composite should be using APAM.
+        if (impl instanceof CompositeType) {
+            System.err.println("Error, trying to activate composite instance " + impl
+                        + " without using the APAM API");
+            return null;
+        }
+
+        inst = new ASMInstImpl(impl, instComposite, null, apfInst, false);
+        return inst;
     }
 
     // adds both in the broker and in its implem
@@ -156,21 +152,21 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
         }
     }
 
-    @Override
-    public synchronized ASMInst getInst(Instance samInst) {
-        if (samInst == null)
-            return null;
-        String samName = samInst.getName();
-        // Warning : for a composite both the composite and the main instance refer to the same sam instance
-        for (ASMInst inst : instances) {
-            if ((inst.getSAMInst() == samInst) && !inst.getName().equals(samName)) {
-                System.err.println("error in name " + samName);
-            }
-            if (inst.getName().equals(samName))
-                return inst;
-        }
-        return null;
-    }
+//    @Override
+//    public synchronized ASMInst getInst(Instance samInst) {
+//        if (samInst == null)
+//            return null;
+//        String samName = samInst.getName();
+//        // Warning : for a composite both the composite and the main instance refer to the same sam instance
+//        for (ASMInst inst : instances) {
+//            if ((inst.getApformInst() == samInst) && !inst.getName().equals(samName)) {
+//                System.err.println("error in name " + samName);
+//            }
+//            if (inst.getName().equals(samName))
+//                return inst;
+//        }
+//        return null;
+//    }
 
     @Override
     public void removeInst(ASMInst inst) {

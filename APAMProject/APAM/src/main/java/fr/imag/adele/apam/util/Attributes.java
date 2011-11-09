@@ -75,16 +75,16 @@ public interface Attributes {
      */
     public void setProperties(Manager manager, Map<String, Object> properties);
 
-    /**
-     * Called when SAM notifies that the properties of an instance have been changed. The method checks which attributes
-     * have been changed/created/deleted and asks the attribute managers to verify if this is legal (type checking ...).
-     * If legal,the attributes of the associated APAM instance are changed accordingly; if not the old value replaces
-     * the changed values in the SAM instance. WARNING : if SAM cannot revert that attribute in the real instance, the
-     * Apam attribute and the real instance property may have different values.
-     * 
-     * @param newSamProperties as provided by SAM.
-     */
-    public void setSamProperties(Map<String, Object> newSamProperties);
+//    /**
+//     * Called when SAM notifies that the properties of an instance have been changed. The method checks which attributes
+//     * have been changed/created/deleted and asks the attribute managers to verify if this is legal (type checking ...).
+//     * If legal,the attributes of the associated APAM instance are changed accordingly; if not the old value replaces
+//     * the changed values in the SAM instance. WARNING : if SAM cannot revert that attribute in the real instance, the
+//     * Apam attribute and the real instance property may have different values.
+//     * 
+//     * @param newSamProperties as provided by SAM.
+//     */
+//    public void setSamProperties(Map<String, Object> newSamProperties);
 
     /**
      * 

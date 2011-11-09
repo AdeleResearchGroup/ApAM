@@ -153,9 +153,9 @@ public class Wire {
     public void remove() {
         source.removeWire(this);
         destination.removeInvWire(this);
-        if (source.getDepHandler() != null) {
-            source.getDepHandler().remWire(destination, depName);
-        }
+//        if (source.getDepHandler() != null) {
+//            source.getDepHandler().remWire(destination, depName);
+//        }
     }
 
 }

@@ -16,10 +16,12 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamComponent;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.sam.Instance;
+
+//import fr.imag.adele.sam.Instance;
 
 public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
@@ -27,24 +29,25 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     // private static Logger logger = Logger.getLogger(ASMInstImpl.class);
     // private static ASMInstBroker myBroker = ASM.ASMInstBroker;
 
-    private ASMImpl               myImpl;
-    private Composite             myComposite;
-    protected Instance            samInst;
-    private boolean               sharable = true;
-    private ApamDependencyHandler depHandler;
+    private ASMImpl          myImpl;
+    private Composite        myComposite;
+    protected ApformInstance apformInst;
+    private boolean          sharable = true;
+//    private ApamDependencyHandler depHandler;
 
-    public ApamDependencyHandler getDepHandler() {
-        return depHandler;
-    }
+//    public ApamDependencyHandler getDepHandler() {
+//        return depHandler;
+//    }
 
-    private final Set<Wire> wires    = new HashSet<Wire>(); // the currently used instances
-    private final Set<Wire> invWires = new HashSet<Wire>();
+    private final Set<Wire>  wires    = new HashSet<Wire>(); // the currently used instances
+    private final Set<Wire>  invWires = new HashSet<Wire>();
 
     // WARNING to be used only for creating composites.
     public ASMInstImpl() {
     }
 
-    protected void instConstructor(ASMImpl impl, Composite instCompo, Attributes initialproperties, Instance samInst) {
+    protected void instConstructor(ASMImpl impl, Composite instCompo, Attributes initialproperties,
+            ApformInstance samInst) {
         if (samInst == null) {
             new Exception("ERROR : sam instance cannot be null on ASM instance constructor").printStackTrace();
             return;
@@ -54,7 +57,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         }
         if (impl.getShared().equals(CST.V_FALSE))
             sharable = false;
-        this.samInst = samInst;
+        apformInst = samInst;
         myImpl = impl;
         myComposite = instCompo;
         myComposite.addContainInst(this);
@@ -62,62 +65,47 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         ((ASMInstBrokerImpl) CST.ASMInstBroker).addInst(this);
     }
 
-    public ASMInstImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, Instance samInst,
+    public ASMInstImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, ApformInstance apformInst,
             boolean composite) {
         // Create the implementation and initialize
-        instConstructor(impl, instCompo, initialproperties, samInst);
+        instConstructor(impl, instCompo, initialproperties, apformInst);
 
         // Compute the handler for apam components
-        try {
-            ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(samInst.getName());
+//        try {
+//            ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(apformInst.getName());
+//
+//            // The Sam event arrived first : it stored the info in the attributes
+//            if (handler == null) {
+//                handler = (ApamDependencyHandler) apformInst.getProperty(CST.A_DEPHANDLER);
+//            }
+//
+//            if (handler != null) { // it is an Apam instance
+//                depHandler = handler;
+//                handler.SetIdentifier(this);
+//            }
 
-            // The Sam event arrived first : it stored the info in the attributes
-            if (handler == null) {
-                handler = (ApamDependencyHandler) samInst.getProperty(CST.A_DEPHANDLER);
-            }
+//            setProperties(Util.mergeProperties(this, initialproperties, apformInst.getProperties()));
+        setProperties(apformInst.getProperties());
+        setProperty(CST.A_SHARED, getShared());
+        sharable = (getShared().equals(CST.V_TRUE));
 
-            if (handler != null) { // it is an Apam instance
-                depHandler = handler;
-                handler.SetIdentifier(this);
-            }
-
-            setProperties(Util.mergeProperties(this, initialproperties, samInst.getProperties()));
-            setProperty(CST.A_SHARED, getShared());
-            sharable = (getShared().equals(CST.V_TRUE));
-
-            if ((instCompo != null) && (samInst.getServiceObject() instanceof ApamComponent))
-                ((ApamComponent) samInst.getServiceObject()).apamStart(this);
-        } catch (ConnectionException e1) {
-            e1.printStackTrace();
-        }
+        if ((instCompo != null) && (apformInst.getServiceObject() instanceof ApamComponent))
+            ((ApamComponent) apformInst.getServiceObject()).apamStart(this);
+//        } catch (ConnectionException e1) {
+//            e1.printStackTrace();
+//        }
 
     }
 
-    // // only for main appli instance.
-    // public void setComposite(Composite instCompo) {
-    // myComposite = instCompo;
-    // if (instCompo == null)
-    // return;
-    // this.setProperty(Attributes.APAMCOMPO, instCompo.getName());
-    // instCompo.addContainInst(this);
-    // try {
-    // if (samInst.getServiceObject() instanceof ApamComponent)
-    // ((ApamComponent) samInst.getServiceObject()).apamStart(this);
-    // } catch (ConnectionException e1) {
-    // e1.printStackTrace();
-    // }
-    //
-    // }
-
     @Override
     public String toString() {
-        return samInst.getName();
+        return apformInst.getName();
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see fr.imag.adele.sam.Instance#getImplementation()
+     * @see fr.imag.adele.sam.ApformInstance#getImplementation()
      */
     @Override
     public ASMImpl getImpl() {
@@ -130,12 +118,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
     @Override
     public Object getServiceObject() {
-        try {
-            return samInst.getServiceObject();
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return apformInst.getServiceObject();
     }
 
     /**
@@ -196,9 +179,9 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         wires.add(wire);
 
         ((ASMInstImpl) to).invWires.add(wire);
-        if (depHandler != null) {
-            depHandler.setWire(to, depName);
-        }
+        // if (apformI != null) {
+        apformInst.setWire(to, depName);
+        // }
 
         // Other relationships to instantiate
         ((ASMImplImpl) getImpl()).addUses(to.getImpl());
@@ -231,18 +214,18 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         for (Wire wire : wires) {
             wire.remove();
         }
-        try {
-            // CST.ASMInstBroker.removeInst(this);
-            // ((ASMImplImpl) getImpl()).removeInst(this);
-            // Should we delete the Sam instance,
-            // TODO
-            // samInst.delete();
-            // or only remove the Apam attributes, such that SAMMAN knows which objects are APAM?
-            // samInst.removeProperty(Attributes.APAMAPPLI);
-            samInst.removeProperty(Attributes.APAMCOMPO);
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-        }
+//        try {
+        // CST.ASMInstBroker.removeInst(this);
+        // ((ASMImplImpl) getImpl()).removeInst(this);
+        // Should we delete the Sam instance,
+        // TODO
+        // samInst.delete();
+        // or only remove the Apam attributes, such that SAMMAN knows which objects are APAM?
+        // samInst.removeProperty(Attributes.APAMAPPLI);
+        // apformInst.removeProperty(Attributes.APAMCOMPO);
+//        } catch (ConnectionException e) {
+//            e.printStackTrace();
+//        }
 
     }
 
@@ -253,7 +236,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
     @Override
     public String getName() {
-        return samInst.getName();
+        return apformInst.getName();
     }
 
     @Override
@@ -262,8 +245,8 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
-    public Instance getSAMInst() {
-        return samInst;
+    public ApformInstance getApformInst() {
+        return apformInst;
     }
 
     @Override
@@ -295,17 +278,17 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         return false;
     }
 
-    @Override
-    public ApamDependencyHandler getDependencyHandler() {
-        return depHandler;
-    }
-
-    @Override
-    public void setDependencyHandler(ApamDependencyHandler handler) {
-        if (handler == null)
-            return;
-        depHandler = handler;
-    }
+//    @Override
+//    public ApamDependencyHandler getDependencyHandler() {
+//        return depHandler;
+//    }
+//
+//    @Override
+//    public void setDependencyHandler(ApamDependencyHandler handler) {
+//        if (handler == null)
+//            return;
+//        depHandler = handler;
+//    }
 
     @Override
     public Set<Wire> getInvWires() {

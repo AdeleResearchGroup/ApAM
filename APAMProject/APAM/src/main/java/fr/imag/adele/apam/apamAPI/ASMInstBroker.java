@@ -6,8 +6,10 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
+import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.sam.Instance;
+
+//import fr.imag.adele.sam.Instance;
 
 public interface ASMInstBroker {
 
@@ -19,7 +21,7 @@ public interface ASMInstBroker {
      * @param properties . optional : the initial properties
      * @return an ASM Instance
      */
-    public ASMInst addSamInst(Composite compo, Instance samInst, Attributes properties);
+    public ASMInst addApformInst(Composite compo, ApformInstance apformInst, Attributes properties);
 
     /**
      * returns the APAM instance related to the provided sam Instance.
@@ -27,7 +29,7 @@ public interface ASMInstBroker {
      * @param samInst A SAM Instance
      * @return
      */
-    public ASMInst getInst(Instance samInst);
+//    public ASMInst getInst(Instance samInst);
 
     /**
      * Return the instances with that name.

@@ -151,7 +151,7 @@ public class SamMan implements Manager {
             return null;
         Set<Instance> allInstances = new HashSet<Instance>();
         try {
-            for (Instance inst : impl.getSamImpl().getInstances()) {
+            for (Instance inst : impl.getApformImpl().getInstances()) {
                 // ignore the Apam instances, they have been checked by ApamMan
                 if (CST.ASMInstBroker.getInst(inst.getName()) == null) {
                     allInstances.add(inst);
@@ -234,7 +234,7 @@ public class SamMan implements Manager {
             // Look by its specification
             Set<Implementation> implInterf = new HashSet<Implementation>();
             if (asmSpec != null) { // Look by its sam interface
-                Specification spec = asmSpec.getSamSpec();
+                Specification spec = asmSpec.getApformSpec();
                 if (spec != null) { // Is sam spec known ?
                     spec = CST.SAMSpecBroker.getSpecification(specName);
                     if (spec == null)

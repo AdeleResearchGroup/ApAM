@@ -10,19 +10,21 @@ import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompositeTypeImpl;
+//import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMImplBroker;
+//import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.CompositeType;
+import fr.imag.adele.apam.apformAPI.ApformImplementation;
+import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
-import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.sam.Implementation;
-import fr.imag.adele.sam.Instance;
-import fr.imag.adele.sam.broker.ImplementationBroker;
+//import fr.imag.adele.apam.util.Util;
+//import fr.imag.adele.sam.Implementation;
+//import fr.imag.adele.sam.Instance;
+//import fr.imag.adele.sam.broker.ImplementationBroker;
 
 public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
@@ -34,7 +36,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
     protected String                   name;
     protected ASMSpec                  mySpec;
-    protected Implementation           samImpl           = null;
+    protected ApformImplementation     apfImpl           = null;
 
     protected Set<ASMInst>             instances         = new HashSet<ASMInst>();      // the instances of that impl.
     protected Set<ASMInst>             sharableInstances = new HashSet<ASMInst>();      // the sharable instances of
@@ -54,9 +56,9 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
 
     }
 
-    public ASMImplImpl(CompositeType compo, ASMSpecImpl spec, Implementation impl, Attributes props) {
+    public ASMImplImpl(CompositeType compo, ASMSpecImpl spec, ApformImplementation impl, Attributes props) {
         if (impl == null) {
-            new Exception("Sam Implementation cannot be null when creating an imple").printStackTrace();
+            new Exception("Sam ApformImplementation cannot be null when creating an imple").printStackTrace();
         }
         if (compo == null) { // compo is null for the root composite AND its main implem.
             // done in create composite type when compo is null
@@ -67,7 +69,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         mySpec = spec;
         spec.addImpl(this);
         ((ASMImplBrokerImpl) CST.ASMImplBroker).addImpl(this);
-        samImpl = impl;
+        apfImpl = impl;
         initializeNewImpl(compo, props);
 
     }
@@ -80,17 +82,17 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     public void initializeNewImpl(CompositeType compo, Attributes props) {
         // myComposites.add(compo);
         compo.addImpl(this);
-        if (props == null) {
-            props = new AttributesImpl();
+        if (props != null) {
+            this.setProperties(props.getProperties());
         }
-        props.setProperty(Attributes.APAMCOMPO, compo.getName());
-        // initialize properties. A fusion of SAM and APAM values
-        try {
-            this.setProperties(Util.mergeProperties(this, props, getSamImpl().getProperties()));
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-        }
+        setProperty(Attributes.APAMCOMPO, compo.getName());
         dependencyModel = (Set<DependencyModel>) getProperty(CST.A_DEPENDENCIES);
+        // initialize properties. A fusion of SAM and APAM values
+//        try {
+//            this.setProperties(Util.mergeProperties(this, props, getSamImpl().getProperties()));
+//        } catch (ConnectionException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -117,20 +119,21 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
             System.out.println("Implementation " + this + " is not instantiable");
             return null;
         }
-        try {
-            Instance samInst;
-            if (initialproperties == null)
-                samInst = CST.SAMImplBroker.createInstance(samImpl.getImplPid(), null);
-            else
-                samInst = CST.SAMImplBroker.createInstance(samImpl.getImplPid(),
-                        initialproperties.attr2Properties());
-            ASMInstImpl inst = new ASMInstImpl(this, instCompo, initialproperties, samInst, false);
-            // addInst(inst);
-            return inst;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        ApformInstance apfInst = apfImpl.createInstance(initialproperties);
+//        try {
+//            Instance samInst;
+//            if (initialproperties == null)
+//                samInst = CST.SAMImplBroker.createInstance(apfImpl.getImplPid(), null);
+//            else
+//                samInst = CST.SAMImplBroker.createInstance(apfImpl.getImplPid(),
+//                        initialproperties.attr2Properties());
+        ASMInstImpl inst = new ASMInstImpl(this, instCompo, initialproperties, apfInst, false);
+        // addInst(inst);
+        return inst;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
     }
 
     // WARNING : no control ! Only called by the instance Broker.
@@ -382,13 +385,13 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         CST.ASMImplBroker.removeImpl(this);
         ((ASMSpecImpl) getSpec()).removeImpl(this);
         // remove the APAM specific attributes in SAM
-        if (samImpl != null) {
-            try {
-                samImpl.removeProperty(Attributes.APAMCOMPO);
-            } catch (ConnectionException e) {
-                e.printStackTrace();
-            }
-        }
+//        if (apfImpl != null) {
+//            try {
+//                apfImpl.removeProperty(Attributes.APAMCOMPO);
+//            } catch (ConnectionException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     public void removeInst(ASMInst inst) {
@@ -398,13 +401,14 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     }
 
     @Override
-    public Implementation getSamImpl() {
-        return samImpl;
+    public ApformImplementation getApformImpl() {
+        return apfImpl;
     }
 
     @Override
     public boolean isInstantiable() {
-        return samImpl.isInstantiator();
+        String instantiable = (String) getProperty(CST.A_INSTANTIABLE);
+        return (instantiable == null) ? true : instantiable.equals(CST.V_TRUE);
     }
 
     @Override

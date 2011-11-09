@@ -19,10 +19,12 @@ import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apamAPI.Manager;
+import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.CompositeImpl;
-import fr.imag.adele.sam.Implementation;
+
+//import fr.imag.adele.sam.Implementation;
 
 public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
 
@@ -99,7 +101,7 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
         this.models = models;
         mySpec = mainImpl.getSpec();
         ((ASMSpecImpl) mySpec).addImpl(this);
-        samImpl = mainImpl.getSamImpl();
+        apfImpl = mainImpl.getApformImpl();
         this.mainImpl = mainImpl;
         name = compositeName;
         ((ASMImplImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
@@ -154,33 +156,28 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
      * @param samImpl
      * @return
      */
-    public static CompositeType createCompositeType(CompositeType implComposite, Implementation samImpl) {
+    public static CompositeType createCompositeType(CompositeType implComposite, ApformImplementation samImpl) {
         // String implName = null;
         String specName = null;
         String mainImplName = null;
         Set<ManagerModel> models = null;
         String[] interfaces = null;
-        try {
-            Attributes properties = new AttributesImpl();
-            Map<String, Object> p = samImpl.getProperties();
-            for (String prop : p.keySet()) {
-                properties.setProperty(prop, p.get(prop));
-            }
-            mainImplName = (String) samImpl.getProperty(CST.A_MAIN_IMPLEMENTATION);
-            specName = (String) samImpl.getProperty(CST.A_APAMSPECNAME);
-            models = (Set<ManagerModel>) samImpl.getProperty(CST.A_MODELS);
-
-            if (implComposite == null) {
-                implComposite = CompositeTypeImpl.rootCompoType;
-                properties.setProperty(CST.A_VISIBLE, CST.V_LOCAL);
-            }
-
-            return CompositeTypeImpl.createCompositeType(implComposite, samImpl.getName(),
-                    mainImplName, specName, models, properties);
-        } catch (ConnectionException e) {
-            e.printStackTrace();
+        Attributes properties = new AttributesImpl();
+        Map<String, Object> p = samImpl.getProperties();
+        for (String prop : p.keySet()) {
+            properties.setProperty(prop, p.get(prop));
         }
-        return null;
+        mainImplName = (String) samImpl.getProperty(CST.A_MAIN_IMPLEMENTATION);
+        specName = (String) samImpl.getProperty(CST.A_APAMSPECNAME);
+        models = (Set<ManagerModel>) samImpl.getProperty(CST.A_MODELS);
+
+        if (implComposite == null) {
+            implComposite = CompositeTypeImpl.rootCompoType;
+            properties.setProperty(CST.A_VISIBLE, CST.V_LOCAL);
+        }
+
+        return CompositeTypeImpl.createCompositeType(implComposite, samImpl.getName(),
+                    mainImplName, specName, models, properties);
     }
 
     public String getScopeInComposite(ASMInst inst) {

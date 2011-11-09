@@ -25,7 +25,7 @@ import fr.imag.adele.apam.apamAPI.Manager;
 public class AttributesImpl extends Dictionary<String, Object> implements Attributes {
 
     /** The properties. */
-    private final Map<String, Object>    properties          = new ConcurrentHashMap<String, Object>();
+    private Map<String, Object>          properties          = new ConcurrentHashMap<String, Object>();
     private static Set<AttributeManager> attrChangedManagers = new ConcurrentSkipListSet<AttributeManager>();
 
     public static void addAttrChanged(AttributeManager manager) {
@@ -82,10 +82,11 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
      */
     @Override
     public synchronized void setProperties(Map<String, Object> newProperties) {
-        Map<String, Object> props = new HashMap<String, Object>(newProperties);
-        for (String prop : props.keySet()) {
-            setProperty0(prop, props.get(prop), false);
-        }
+        properties = newProperties;
+//        Map<String, Object> props = new HashMap<String, Object>(newProperties);
+//        for (String prop : props.keySet()) {
+//            setProperty0(prop, props.get(prop), false);
+//        }
     }
 
     /**
@@ -97,38 +98,38 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
      * 
      * @param newSamProperties as provided by SAM.
      */
-    @Override
-    public void setSamProperties(Map<String, Object> newProperties) {
-        if (newProperties == null)
-            return;
-        for (String prop : newProperties.keySet()) {
-            setProperty0(prop, newProperties.get(prop), true);
-        }
-    }
+//    @Override
+//    public void setSamProperties(Map<String, Object> newProperties) {
+//        if (newProperties == null)
+//            return;
+//        for (String prop : newProperties.keySet()) {
+//            setProperty0(prop, newProperties.get(prop), true);
+//        }
+//    }
 
-    private void setChangeInSam(String prop, Object propVal) {
-        if ((prop == null) || (propVal == null))
-            return;
-        if (!(this instanceof ASMInstImpl))
-            return;
-        try {
-            ((ASMInstImpl) this).getSAMInst().setProperty(prop, propVal);
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void removeChangeInSam(String prop) {
-        if (prop == null)
-            return;
-        if (!(this instanceof ASMInstImpl))
-            return;
-        try {
-            ((ASMInstImpl) this).getSAMInst().removeProperty(prop);
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-        }
-    }
+//    private void setChangeInSam(String prop, Object propVal) {
+//        if ((prop == null) || (propVal == null))
+//            return;
+//        if (!(this instanceof ASMInstImpl))
+//            return;
+//        try {
+//            ((ASMInstImpl) this).getApformInst().setProperty(prop, propVal);
+//        } catch (ConnectionException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    private void removeChangeInSam(String prop) {
+//        if (prop == null)
+//            return;
+//        if (!(this instanceof ASMInstImpl))
+//            return;
+//        try {
+//            ((ASMInstImpl) this).getApformInst().removeProperty(prop);
+//        } catch (ConnectionException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public boolean checkAttribute(String prop, Object propVal) {
         if (prop.toUpperCase().equals(CST.A_SCOPE)
@@ -193,63 +194,63 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
         return false;
     }
 
-    private void changedAttr(String prop, Object propVal, boolean samChange) {
-        if (!checkAttribute(prop, propVal))
-            return;
-        boolean ok = true;
-        // check if managers are ok.
-        for (AttributeManager man : AttributesImpl.attrChangedManagers) {
-            if (this instanceof ASMSpecImpl) {
-                ok = man.attrSpecChanged((ASMSpecImpl) this, prop, propVal);
-            } else if (this instanceof ASMImplImpl) {
-                ok = man.attrImplChanged((ASMImplImpl) this, prop, propVal);
-            } else if (this instanceof ASMInstImpl) {
-                ok = man.attrInstChanged((ASMInstImpl) this, prop, propVal);
-            }
-            if (!ok)
-                break;
-        }
-
-        if (ok) { // propagate the change in ASM
-            properties.put(prop, propVal);
-            if (!samChange) { // propagate also in SAM
-                setChangeInSam(prop, propVal);
-            }
-        } else { // not Ok
-            if (samChange) { // revert the change in SAM
-                if (properties.get(prop) != null)
-                    setChangeInSam(prop, properties.get(prop));
-            }
-        }
-    }
-
-    private void addedAttr(String prop, Object propVal, boolean samChange) {
-        if (!checkAttribute(prop, propVal))
-            return;
-        boolean ok = true;
-        for (AttributeManager man : AttributesImpl.attrChangedManagers) {
-            if (this instanceof ASMSpecImpl) {
-                ok = man.attrSpecAdded((ASMSpecImpl) this, prop, propVal);
-            } else if (this instanceof ASMImplImpl) {
-                ok = man.attrImplAdded((ASMImplImpl) this, prop, propVal);
-            } else if (this instanceof ASMInstImpl) {
-                ok = man.attrInstAdded((ASMInstImpl) this, prop, propVal);
-            }
-            if (!ok) {
-                break;
-            }
-        }
-        if (ok) {
-            properties.put(prop, propVal);
+//    private void changedAttr(String prop, Object propVal, boolean samChange) {
+//        if (!checkAttribute(prop, propVal))
+//            return;
+//        boolean ok = true;
+//        // check if managers are ok.
+//        for (AttributeManager man : AttributesImpl.attrChangedManagers) {
+//            if (this instanceof ASMSpecImpl) {
+//                ok = man.attrSpecChanged((ASMSpecImpl) this, prop, propVal);
+//            } else if (this instanceof ASMImplImpl) {
+//                ok = man.attrImplChanged((ASMImplImpl) this, prop, propVal);
+//            } else if (this instanceof ASMInstImpl) {
+//                ok = man.attrInstChanged((ASMInstImpl) this, prop, propVal);
+//            }
+//            if (!ok)
+//                break;
+//        }
+//
+//        if (ok) { // propagate the change in ASM
+//            properties.put(prop, propVal);
 //            if (!samChange) { // propagate also in SAM
 //                setChangeInSam(prop, propVal);
 //            }
 //        } else { // not Ok
 //            if (samChange) { // revert the change in SAM
-//                removeChangeInSam(prop);
+//                if (properties.get(prop) != null)
+//                    setChangeInSam(prop, properties.get(prop));
 //            }
-        }
-    }
+//        }
+//    }
+//
+//    private void addedAttr(String prop, Object propVal, boolean samChange) {
+//        if (!checkAttribute(prop, propVal))
+//            return;
+//        boolean ok = true;
+//        for (AttributeManager man : AttributesImpl.attrChangedManagers) {
+//            if (this instanceof ASMSpecImpl) {
+//                ok = man.attrSpecAdded((ASMSpecImpl) this, prop, propVal);
+//            } else if (this instanceof ASMImplImpl) {
+//                ok = man.attrImplAdded((ASMImplImpl) this, prop, propVal);
+//            } else if (this instanceof ASMInstImpl) {
+//                ok = man.attrInstAdded((ASMInstImpl) this, prop, propVal);
+//            }
+//            if (!ok) {
+//                break;
+//            }
+//        }
+//        if (ok) {
+//            properties.put(prop, propVal);
+////            if (!samChange) { // propagate also in SAM
+////                setChangeInSam(prop, propVal);
+////            }
+////        } else { // not Ok
+////            if (samChange) { // revert the change in SAM
+////                removeChangeInSam(prop);
+////            }
+//        }
+//    }
 
     /**
      * called by Apam and its managers.
@@ -258,8 +259,8 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
     public void setProperty(String prop, Object propVal) {
         if ((prop == null) || (propVal == null))
             return;
-
-        setProperty0(prop, propVal, false);
+        properties.put(prop, propVal);
+//        setProperty0(prop, propVal, false);
     }
 
     /**
@@ -269,16 +270,16 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
      * @param propVal
      * @param samChange true if it is a change in SAM
      */
-    public void setProperty0(String prop, Object propVal, boolean samChange) {
-        if (properties.containsKey(prop)) {
-            Object attrVal = properties.get(prop);
-            if (((propVal instanceof String) && (!propVal.equals(attrVal))) || (propVal != attrVal)) {
-                changedAttr(prop, propVal, samChange);
-            }
-        } else { // Look for a new property
-            addedAttr(prop, propVal, samChange);
-        }
-    }
+//    public void setProperty0(String prop, Object propVal, boolean samChange) {
+//        if (properties.containsKey(prop)) {
+//            Object attrVal = properties.get(prop);
+//            if (((propVal instanceof String) && (!propVal.equals(attrVal))) || (propVal != attrVal)) {
+//                changedAttr(prop, propVal, samChange);
+//            }
+//        } else { // Look for a new property
+//            addedAttr(prop, propVal, samChange);
+//        }
+//    }
 
     @Override
     public void setProperty(Manager manager, String key, Object value) {
@@ -289,9 +290,10 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
 
         if (AttributesImpl.attrChangedManagers.contains(manager)) {
             properties.put(key, value);
-        } else {
-            setProperty0(key, value, false);
         }
+//        else {
+//            setProperty0(key, value, false);
+//        }
     }
 
     @Override

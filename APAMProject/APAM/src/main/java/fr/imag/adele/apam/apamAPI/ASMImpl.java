@@ -7,11 +7,13 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.am.exception.ConnectionException;
 //import fr.imag.adele.apam.apamAPI.ApamDependencyHandler.DependencyModel;
 //import fr.imag.adele.apam.apamAPI.ApamDependencyHandler.TargetKind;
+import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.sam.Implementation;
+
+//import fr.imag.adele.sam.Implementation;
 
 public interface ASMImpl extends Attributes {
 
@@ -30,7 +32,7 @@ public interface ASMImpl extends Attributes {
      * 
      * @return
      */
-    public Implementation getSamImpl();
+    public ApformImplementation getApformImpl();
 
     /**
      * return the value of the shared attribute

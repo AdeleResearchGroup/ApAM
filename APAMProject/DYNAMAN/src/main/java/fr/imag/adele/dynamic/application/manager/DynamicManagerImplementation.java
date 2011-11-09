@@ -16,7 +16,7 @@ import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.Apam;
-import fr.imag.adele.apam.apamAPI.ApamClient;
+import fr.imag.adele.apam.apamAPI.ApamResolver;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.CompositeType;
@@ -68,7 +68,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	/**
 	 * A reference to the APAM resolver 
 	 */
-	private ApamClient apamResolver;
+	private ApamResolver apamResolver;
 	
 	/**
 	 * A reference to the APAM machine

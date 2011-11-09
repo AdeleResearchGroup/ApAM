@@ -23,7 +23,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMImpl.DependencyModel;
 import fr.imag.adele.apam.apamAPI.ASMImpl.TargetKind;
 import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ApamClient;
+import fr.imag.adele.apam.apamAPI.ApamResolver;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.implementation.Implementation;
 import fr.imag.adele.apam.implementation.ImplementationHandler;
@@ -93,7 +93,7 @@ public class DependencyHandler extends ImplementationHandler implements ApamDepe
 	/**
 	 * A reference to the APAM machine.
 	 */
-	private ApamClient apam;
+	private ApamResolver apam;
 
 	/**
 	 * A reference to the corresponding instance in the APAM application state

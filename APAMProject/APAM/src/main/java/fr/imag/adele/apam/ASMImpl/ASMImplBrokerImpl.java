@@ -8,17 +8,21 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.CompositeType;
+import fr.imag.adele.apam.apform.ApformImpl;
+import fr.imag.adele.apam.apform.ApformImplementationImpl;
+import fr.imag.adele.apam.apformAPI.ApformImplementation;
+import fr.imag.adele.apam.apformAPI.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
-import fr.imag.adele.sam.Implementation;
-import fr.imag.adele.sam.Specification;
+//import fr.imag.adele.sam.ApformImplementation;
+//import fr.imag.adele.sam.ApformSpecification;
 import fr.imag.adele.sam.deployment.DeploymentUnit;
 
 public class ASMImplBrokerImpl implements ASMImplBroker {
@@ -78,81 +82,71 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         return ret;
     }
 
-    private ASMImpl addImpl0(CompositeType compo, Implementation samImpl, Attributes properties) {
-        if (samImpl == null) {
-            System.err.println("ERROR : missing sam Implementaion in addImpl");
+    private ASMImpl addImpl0(CompositeType compo, ApformImplementation apfImpl, Attributes properties) {
+        if (apfImpl == null) {
+            System.err.println("ERROR : missing apf Implementaion in addImpl");
             return null;
         }
         // if (compo == null && )
-        try {
-            String implName = samImpl.getName();
-            String specName = (String) samImpl.getProperty(CST.A_APAMSPECNAME);
+        String implName = apfImpl.getName();
+        String specName = (String) apfImpl.getProperty(CST.A_APAMSPECNAME);
 
-            // specification control
-            Specification samSpec = samImpl.getSpecification();
-            ASMImpl asmImpl = null;
-            ASMSpecImpl spec = null;
-            if (samSpec != null) { // may be null !
-                spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(samSpec);
+        // specification control
+        ApformSpecification apfSpec = apfImpl.getSpecification();
+        ASMImpl asmImpl = null;
+        ASMSpecImpl spec = null;
+        if (apfSpec != null) { // may be null !
+            spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(apfSpec);
+        }
+        if (spec == null) { // No ASM spec related to the apf spec.
+            spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(apfSpec.getInterfaceNames());
+            if (spec != null) { // has been created without the SAM spec.
+                                // Add it now.
+                // spec.setSamSpec(apfSpec);
+            } else { // create the spec
+                spec = new ASMSpecImpl(specName, apfSpec, null, properties);
             }
-            if (spec == null) { // No ASM spec related to the sam spec.
-                spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(samSpec.getInterfaceNames());
-                if (spec != null) { // has been created without the SAM spec.
-                                    // Add it now.
-                    spec.setSamSpec(samSpec);
-                } else { // create the spec
-                    spec = new ASMSpecImpl(specName, samSpec, properties);
-                }
-            }
+        }
+        if (specName != null)
+            spec.setName(specName);
+
+        // if allready existing do not duplicate
+        asmImpl = getImpl(implName);
+        if (asmImpl != null) { // do not create twice
             if (specName != null)
-                spec.setName(specName);
-
-            // if allready existing do not duplicate
-            asmImpl = getImpl(implName);
-            if (asmImpl != null) { // do not create twice
-                if (specName != null)
-                    ((ASMSpecImpl) asmImpl.getSpec()).setName(specName);
-                return asmImpl;
-            }
-
-            // create a primitive or composite implementation
-            if ((samImpl.getProperty(CST.A_COMPOSITE) != null) &&
-                    ((Boolean) samImpl.getProperty(CST.A_COMPOSITE) == true)) {
-                // Allow specifying properties to the composite instance
-                asmImpl = CompositeTypeImpl.createCompositeType(compo, samImpl);
-            } else {
-                asmImpl = new ASMImplImpl(compo, spec, samImpl, properties);
-            }
-
+                ((ASMSpecImpl) asmImpl.getSpec()).setName(specName);
             return asmImpl;
-
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-            return null;
         }
 
+        // create a primitive or composite implementation
+        if ((apfImpl.getProperty(CST.A_COMPOSITE) != null) &&
+                    ((Boolean) apfImpl.getProperty(CST.A_COMPOSITE) == true)) {
+            // Allow specifying properties to the composite instance
+            asmImpl = CompositeTypeImpl.createCompositeType(compo, apfImpl);
+        } else {
+            asmImpl = new ASMImplImpl(compo, spec, apfImpl, properties);
+        }
+
+        return asmImpl;
     }
 
     @Override
-    public ASMImpl addImpl(CompositeType compo, String samImplName, Attributes properties) {
-        if (samImplName == null) {
-            System.out.println("ERROR : parameter Sam Implementation " + samImplName
+    public ASMImpl addImpl(CompositeType compo, String apfImplName, Attributes properties) {
+        if (apfImplName == null) {
+            System.out.println("ERROR : parameter Sam ApformImplementation " + apfImplName
                     + " or composite : " + compo + " missing. In addimpl.");
             return null;
         }
-        Implementation samImpl;
-        try {
-            samImpl = CST.SAMImplBroker.getImplementation(samImplName);
-            if (samImpl == null) {
-                System.out.println("ERROR : Sam Implementation " + samImplName + " cannot be found");
-                return null;
-            }
-            return addImpl0(compo, samImpl, properties);
-
-        } catch (ConnectionException e) {
-            e.printStackTrace();
+        ApformImplementation apfImpl;
+        ASMImpl impl = ApformImpl.getUnusedImplem(apfImplName);
+        if (impl == null) {
+            System.out.println("ERROR : Sam ApformImplementation " + apfImplName + " cannot be found");
             return null;
         }
+        // TODO probably BUG
+        apfImpl = impl.getApformImpl();
+        return addImpl0(compo, apfImpl, properties);
+
     }
 
     @Override
@@ -162,14 +156,13 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             return null;
 
         // String implNameExpected = null;
-        Implementation samImpl;
+        ApformImplementation apfImpl;
         ASMImpl asmImpl = null;
+        asmImpl = getImpl(implName);
+        if (asmImpl != null) { // do not create twice
+            return asmImpl;
+        }
         try {
-            asmImpl = getImpl(implName);
-            if (asmImpl != null) { // do not create twice
-                return asmImpl;
-            }
-
             DeploymentUnit du = CST.SAMDUBroker.install(url, "bundle");
             Set<String> implementationsNames = du.getImplementationsName();
             boolean found = false;
@@ -184,27 +177,26 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
                 return null;
             }
 
-            CST.implEventHandler.addExpected(implName);
+            ApformImpl.addExpected(implName);
             du.activate();
-            samImpl = CST.implEventHandler.getImplementation(implName);
-            // comment savoir si une instance a été créée dans la foulée,
-            // et sous quel nom ?
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-            return null;
+        } catch (Exception e) {
+            System.err.println("deployment failed :" + implName + " at URL " + url);
         }
+        asmImpl = CST.apform.getWaitImplementation(compo, implName, properties);
+        // comment savoir si une instance a été créée dans la foulée,
+        // et sous quel nom ?
 
-        asmImpl = addImpl0(compo, samImpl, properties);
+//        asmImpl = addImpl0(compo, apfImpl, properties);
         return asmImpl;
     }
 
     @Override
-    public ASMImpl getImpl(Implementation samImpl) {
-        String samName = samImpl.getName();
-        // Warning : for a composite main implem, both the composite type and the main implem refer to the same sam
+    public ASMImpl getImpl(ApformImplementation apfImpl) {
+        String apfName = apfImpl.getName();
+        // Warning : for a composite main implem, both the composite type and the main implem refer to the same apf
         // implem
         for (ASMImpl implem : implems) {
-            if ((implem.getSamImpl() == samImpl) && implem.getName().equals(samName)) {
+            if ((implem.getApformImpl() == apfImpl) && implem.getName().equals(apfName)) {
                 return implem;
             }
         }
