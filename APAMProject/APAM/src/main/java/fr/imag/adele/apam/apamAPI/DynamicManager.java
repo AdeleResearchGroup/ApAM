@@ -5,15 +5,11 @@ import fr.imag.adele.sam.Instance;
 public interface DynamicManager extends Manager {
 
     /**
-     * The managers is notified of the apparition of an instance of ASMImpl or implementing the interface. APAM did not
-     * create any ASMInst. If needed, the manager should call APAM for an instance / implementation creation.
+     * The managers is notified of the apparition of an instance of ASMImpl or implementing the interface.
      * 
-     * @param samInstance The instance that appeared.
-     * @param impl The ASM impl of the instance that appeared (if existing)
-     * @param interf If no ASM impl is existing for that instance, the interface is provided. Warning : it is an
-     *            interface (the one in the OSGi registry), not a Spec.
+     * @param inst The instance that appeared.
      */
-    public abstract void appeared(Instance samInstance);
+    public abstract void appeared(ASMInst inst);
 
     /**
      * The instance "lost" disappeared. The disappeared ASM instance is turned to the "lost" state (and propagated) If

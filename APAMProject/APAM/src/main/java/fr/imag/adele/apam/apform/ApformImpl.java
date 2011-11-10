@@ -19,6 +19,8 @@ import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 
 public class ApformImpl {
+    static final CompositeType              rootType              = CompositeTypeImpl.getRootCompositeType();
+    static final Composite                  rootInst              = CompositeImpl.getRootAllComposites();
 
     static Set<ASMImpl>                     unusedImplems         = CompositeTypeImpl.getRootCompositeType().getImpls();
     static Set<ASMInst>                     unusedInsts           = CompositeImpl.getRootAllComposites()
@@ -34,11 +36,56 @@ public class ApformImpl {
     // registers the managers that are interested in services that disappear.
     static Set<DynamicManager>              listenLost            = new HashSet<DynamicManager>();
 
+    public static ASMImpl getUnusedImplem(ASMImpl impl) {
+        return (ApformImpl.unusedImplems.contains(impl)) ? impl : null;
+    }
+
     public static ASMImpl getUnusedImplem(String name) {
         ASMImpl impl = CST.ASMImplBroker.getImpl(name);
         if (impl == null)
             return null;
         return (ApformImpl.unusedImplems.contains(impl)) ? impl : null;
+    }
+
+    public static ASMInst getUnusedInst(ASMInst inst) {
+        return (ApformImpl.unusedInsts.contains(inst)) ? inst : null;
+    }
+
+    public static ASMInst getUnusedInst(String name) {
+        ASMInst inst = CST.ASMInstBroker.getInst(name);
+        if (inst == null)
+            return null;
+        return (ApformImpl.unusedInsts.contains(inst)) ? inst : null;
+    }
+
+    /**
+     * The implementation that was unused so far, is now logicaly deployed.
+     * Remove it from the unUsed compositeType.
+     * 
+     * @param impl
+     */
+    public static void setUsedImpl(ASMImpl impl) {
+        if (ApformImpl.getUnusedImplem(impl) == null)
+            return;
+        ((CompositeTypeImpl) ApformImpl.rootType).removeImpl(impl);
+        if (impl instanceof CompositeType) { // it is a composite
+            ((CompositeTypeImpl) ApformImpl.rootType).removeEmbedded((CompositeType) impl);
+        }
+    }
+
+    /**
+     * The implementation that was unused so far, is now logicaly deployed.
+     * Remove it from the unUsed compositeType.
+     * 
+     * @param impl
+     */
+    public static void setUsedInst(ASMInst inst) {
+        if (ApformImpl.getUnusedInst(inst) == null)
+            return;
+        ((CompositeImpl) ApformImpl.rootInst).removeInst(inst);
+        if (inst instanceof Composite) { // it is a composite. Should never happen ?
+            ((CompositeImpl) ApformImpl.rootInst).removeSon((Composite) inst);
+        }
     }
 
     /**
@@ -48,7 +95,7 @@ public class ApformImpl {
      * @param expectedImpl the symbolic name of that implementation
      * @return
      */
-    public static ASMImpl getWaitImplementation(CompositeType compoType, String expectedImpl, Attributes properties) {
+    public static ASMImpl getWaitImplementation(String expectedImpl) {
         if (expectedImpl == null)
             return null;
         // if allready here
@@ -70,28 +117,8 @@ public class ApformImpl {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if (properties != null)
-                impl.setProperties(properties.getProperties());
-            if (compoType != null)
-                ApformImpl.moveImpl(impl, compoType);
-            ApformImpl.unusedImplems.remove(impl);
         }
         return impl;
-    }
-
-    /**
-     * Provided an unused implementation, remove it from the unused list, and adds it in the provided composite.
-     * 
-     * @param impl
-     * @param compoType
-     */
-    public static void moveImpl(ASMImpl impl, CompositeType compoType) {
-        if (compoType == null) {
-            System.err.println("compoType must not be null in moveImpl");
-            return;
-        }
-        ApformImpl.unusedImplems.remove(impl);
-        compoType.addImpl(impl);
     }
 
     /**
@@ -104,26 +131,32 @@ public class ApformImpl {
         }
     }
 
-    public static synchronized void addExpectedImpl(String samImplName, DynamicManager manager) {
+    public static void addExpectedImpl(String samImplName, DynamicManager manager) {
         if ((samImplName == null) || (manager == null))
             return;
-        Set<DynamicManager> mans = ApformImpl.expectedMngImpls.get(samImplName);
-        if (mans == null) {
-            mans = new HashSet<DynamicManager>();
-            mans.add(manager);
-            ApformImpl.expectedMngImpls.put(samImplName, mans);
-        } else {
-            mans.add(manager);
+
+        synchronized (ApformImpl.expectedMngImpls) {
+            Set<DynamicManager> mans = ApformImpl.expectedMngImpls.get(samImplName);
+            if (mans == null) {
+                mans = new HashSet<DynamicManager>();
+                mans.add(manager);
+                ApformImpl.expectedMngImpls.put(samImplName, mans);
+            } else {
+                mans.add(manager);
+            }
         }
+
     }
 
     public static synchronized void removeExpectedImpl(String samImplName, DynamicManager manager) {
         if ((samImplName == null) || (manager == null))
             return;
 
-        Set<DynamicManager> mans = ApformImpl.expectedMngImpls.get(samImplName);
-        if (mans != null) {
-            mans.remove(manager);
+        synchronized (ApformImpl.expectedMngImpls) {
+            Set<DynamicManager> mans = ApformImpl.expectedMngImpls.get(samImplName);
+            if (mans != null) {
+                mans.remove(manager);
+            }
         }
     }
 
@@ -131,35 +164,44 @@ public class ApformImpl {
         if ((interf == null) || (manager == null))
             return;
 
-        Set<DynamicManager> mans = ApformImpl.expectedMngInterfaces.get(interf);
-        if (mans == null) {
-            mans = new HashSet<DynamicManager>();
-            mans.add(manager);
-            ApformImpl.expectedMngInterfaces.put(interf, mans);
-        } else {
-            mans.add(manager);
+        synchronized (ApformImpl.expectedMngInterfaces) {
+            Set<DynamicManager> mans = ApformImpl.expectedMngInterfaces.get(interf);
+            if (mans == null) {
+                mans = new HashSet<DynamicManager>();
+                mans.add(manager);
+                ApformImpl.expectedMngInterfaces.put(interf, mans);
+            } else {
+                mans.add(manager);
+            }
         }
     }
 
     public static synchronized void removeExpectedInterf(String interf, DynamicManager manager) {
         if ((interf == null) || (manager == null))
             return;
-        Set<DynamicManager> mans = ApformImpl.expectedMngInterfaces.get(interf);
-        if (mans != null) {
-            mans.remove(manager);
+        synchronized (ApformImpl.expectedMngInterfaces) {
+            Set<DynamicManager> mans = ApformImpl.expectedMngInterfaces.get(interf);
+            if (mans != null) {
+                mans.remove(manager);
+            }
         }
     }
 
     public static synchronized void addLost(DynamicManager manager) {
         if (manager == null)
             return;
-        ApformImpl.listenLost.add(manager);
+
+        synchronized (ApformImpl.listenLost) {
+            ApformImpl.listenLost.add(manager);
+        }
     }
 
     public static synchronized void removeLost(DynamicManager manager) {
         if (manager == null)
             return;
-        ApformImpl.listenLost.remove(manager);
+        synchronized (ApformImpl.listenLost) {
+            ApformImpl.listenLost.remove(manager);
+        }
     }
 
 }

@@ -291,6 +291,10 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
         this.father = null;
     }
 
+    public void removeInst(ASMInst inst) {
+        hasInstance.remove(inst);
+    }
+
     @Override
     public boolean isInternal() {
         return ((CompositeTypeImpl) compType).getInternalInst();

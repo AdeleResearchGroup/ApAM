@@ -24,11 +24,13 @@ public interface ASMImplBroker {
      * If the sam implementation of name samImplName is found, creates a new implementation, and adds it in the broker.
      * 
      * @param compoType the composite type that will contain that new implementation.
-     * @param samImplName : the name of an implementation in Sam.
+     * @param apfImpl : the name of an implementation in Apform, not created yet .
      * @param properties. The initial properties of that implementation (merged with the sam properties)
      * @return the new created implementation, null if failed.
      */
-    public ASMImpl addImpl(CompositeType compoType, String samImplName, Attributes properties);
+//    public ASMImpl addImpl(CompositeType compoType, String apfName, Attributes properties);
+
+//    public ASMImpl addImpl(CompositeType compo, ApformImplementation apfImpl, Attributes properties);
 
     /**
      * Deploys and creates both the SAM implem and Spec; and the the corresponding ASM spec and implem

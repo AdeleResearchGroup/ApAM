@@ -21,7 +21,7 @@ public interface ASMInstBroker {
      * @param properties . optional : the initial properties
      * @return an ASM Instance
      */
-    public ASMInst addApformInst(Composite compo, ApformInstance apformInst, Attributes properties);
+    public ASMInst addInst(Composite compo, ApformInstance apformInst, Attributes properties);
 
     /**
      * returns the APAM instance related to the provided sam Instance.

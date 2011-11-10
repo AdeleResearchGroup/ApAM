@@ -16,6 +16,7 @@ import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamComponent;
 import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.apform.ApformImpl;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
@@ -182,6 +183,12 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         // if (apformI != null) {
         apformInst.setWire(to, depName);
         // }
+
+        // if the instance was in the unUsed pull, move it to the from composite.
+        if (ApformImpl.getUnusedInst(to) != null) {
+            ApformImpl.setUsedInst(to);
+            getComposite().addContainInst(to);
+        }
 
         // Other relationships to instantiate
         ((ASMImplImpl) getImpl()).addUses(to.getImpl());

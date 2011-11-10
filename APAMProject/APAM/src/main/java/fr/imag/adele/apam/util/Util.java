@@ -87,12 +87,12 @@ public class Util {
      * @param samProp : the properties found in SAM.
      * @return
      */
-    public static Map<String, Object> mergeProperties(AttributesImpl asmObj, Attributes initProp,
-            Map<String, Object> samPropParam) {
-        if ((initProp == null) && (samPropParam == null))
-            return new HashMap<String, Object>();
-        return asmObj.checkPredefinedAttributes(samPropParam);
-    }
+//    public static Map<String, Object> mergeProperties(AttributesImpl asmObj, Attributes initProp,
+//            Map<String, Object> samPropParam) {
+//        if ((initProp == null) && (samPropParam == null))
+//            return new HashMap<String, Object>();
+//        return asmObj.checkPredefinedAttributes(samPropParam);
+//    }
 
 //       
 //        if ((initProp == null) && (samPropParam == null))

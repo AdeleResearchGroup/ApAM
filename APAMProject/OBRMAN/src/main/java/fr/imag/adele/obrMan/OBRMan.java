@@ -30,6 +30,7 @@ import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.Manager;
 import fr.imag.adele.apam.apamAPI.ManagersMng;
+import fr.imag.adele.apam.apform.ApformImpl;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Instance;
 
@@ -363,33 +364,28 @@ public class OBRMan implements Manager, IOBRMAN {
         Implementation samImpl = null;
         ASMImpl asmImpl = null;
 
-        try {
-            asmImpl = CST.ASMImplBroker.getImpl(implName);
-            samImpl = CST.SAMImplBroker.getImplementation(implName);
-            // Check if already deployed
-            if (samImpl == null) {
-                // deploy selected resource
-                CST.implEventHandler.addExpected(implName);
-                boolean deployed = deployInstall(res);
-                if (!deployed) {
-                    System.err.print("could not install resource ");
-                    printRes(res);
-                    return null;
-                }
-                // waiting for the implementation to be ready in SAM.
-                samImpl = CST.implEventHandler.getImplementation(implName);
-            } else { // do not install twice. It is a logical deployement. The allready existing impl is not visible !
-                System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
-                // proceed anyway
+        asmImpl = CST.ASMImplBroker.getImpl(implName);
+        // samImpl = CST.SAMImplBroker.getImplementation(implName);
+        // Check if already deployed
+        if (asmImpl == null) {
+            // deploy selected resource
+            ApformImpl.addExpected(implName);
+            boolean deployed = deployInstall(res);
+            if (!deployed) {
+                System.err.print("could not install resource ");
+                printRes(res);
+                return null;
             }
-            // Activate implementation in APAM
-            asmImpl = CST.ASMImplBroker.addImpl(implComposite, implName, null);
+            // waiting for the implementation to be ready in Apam.
+            asmImpl = ApformImpl.getWaitImplementation(implName);
+        } else { // do not install twice.
+                 // It is a logical deployement. The allready existing impl is not visible !
+//            System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
+//            asmImpl = CST.ASMImplBroker.addImpl(implComposite, asmImpl, null);
         }
 
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        // Activate implementation in APAM
+        // asmImpl = CST.ASMImplBroker.addImpl(implComposite, implName, null);
         return asmImpl;
     }
 

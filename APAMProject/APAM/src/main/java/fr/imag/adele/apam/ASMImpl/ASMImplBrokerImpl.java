@@ -72,18 +72,21 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         return ret;
     }
 
-    private ASMImpl addImpl0(CompositeType compo, ApformImplementation apfImpl, Attributes properties) {
-        if (apfImpl == null) {
-            System.err.println("ERROR : missing apf Implementaion in addImpl");
+//    @Override
+    public ASMImpl addImpl(CompositeType compo, ApformImplementation apfImpl, Attributes properties) {
+        if ((apfImpl == null) || (compo == null)) {
+            System.err.println("ERROR : missing apf Implementaion or composite in addImpl");
             return null;
         }
         // if (compo == null && )
         String implName = apfImpl.getName();
-        String specName = (String) apfImpl.getProperty(CST.A_APAMSPECNAME);
-
+        ASMImpl asmImpl = CST.ASMImplBroker.getImpl(implName);
+        if (asmImpl != null) {
+            System.err.println("Implementation already existing (in addImpl) " + implName);
+        }
         // specification control
+        String specName = (String) apfImpl.getProperty(CST.A_APAMSPECNAME);
         ApformSpecification apfSpec = apfImpl.getSpecification();
-        ASMImpl asmImpl = null;
         ASMSpecImpl spec = null;
         if (apfSpec != null) { // may be null !
             spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(apfSpec);
@@ -120,24 +123,23 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         return asmImpl;
     }
 
-    @Override
-    public ASMImpl addImpl(CompositeType compo, String apfImplName, Attributes properties) {
-        if (apfImplName == null) {
-            System.out.println("ERROR : parameter Sam ApformImplementation " + apfImplName
-                    + " or composite : " + compo + " missing. In addimpl.");
-            return null;
-        }
-        ApformImplementation apfImpl;
-        ASMImpl impl = ApformImpl.getUnusedImplem(apfImplName);
-        if (impl == null) {
-            System.out.println("ERROR : Sam ApformImplementation " + apfImplName + " cannot be found");
-            return null;
-        }
-        // TODO probably BUG
-        apfImpl = impl.getApformImpl();
-        return addImpl0(compo, apfImpl, properties);
-
-    }
+//    @Override
+//    public ASMImpl addImpl(CompositeType compo, String apfImplName, Attributes properties) {
+//        if (apfImplName == null) {
+//            System.out.println("ERROR : parameter ApformImplementation " + apfImplName
+//                    + " or composite : " + compo + " missing. In addimpl.");
+//            return null;
+//        }
+//        ApformImplementation apfImpl;
+//        ASMImpl impl = ApformImpl.getUnusedImplem(apfImplName);
+//        if (impl == null) {
+//            System.out.println("ERROR : Sam ApformImplementation " + apfImplName + " cannot be found");
+//            return null;
+//        }
+//        // TODO probably BUG
+//        apfImpl = impl.getApformImpl();
+//        return addImpl(compo, apfImpl, properties);
+//    }
 
     @Override
     public ASMImpl createImpl(CompositeType compo, String implName, URL url, Attributes properties) {
@@ -172,7 +174,8 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         } catch (Exception e) {
             System.err.println("deployment failed :" + implName + " at URL " + url);
         }
-        asmImpl = ApformImpl.getWaitImplementation(compo, implName, properties);
+        asmImpl = ApformImpl.getWaitImplementation(implName);
+        CST.apam.deployedImpl(compo, asmImpl, true);
         // comment savoir si une instance a été créée dans la foulée,
         // et sous quel nom ?
 
