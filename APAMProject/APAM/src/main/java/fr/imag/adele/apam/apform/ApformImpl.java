@@ -8,15 +8,17 @@ import java.util.Set;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeImpl;
 import fr.imag.adele.apam.CompositeTypeImpl;
-import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
+//import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.AttributeManager;
+import fr.imag.adele.apam.ASMImpl.ASMInstImpl;
+import fr.imag.adele.apam.ASMImpl.ASMImplImpl;
+//import fr.imag.adele.apam.apamAPI.AttributeManager;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apamAPI.DynamicManager;
-import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.AttributesImpl;
+//import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.AttributesImpl;
 
 public class ApformImpl {
     static final CompositeType              rootType              = CompositeTypeImpl.getRootCompositeType();
@@ -36,19 +38,11 @@ public class ApformImpl {
     // registers the managers that are interested in services that disappear.
     static Set<DynamicManager>              listenLost            = new HashSet<DynamicManager>();
 
-    public static ASMImpl getUnusedImplem(ASMImpl impl) {
-        return (ApformImpl.unusedImplems.contains(impl)) ? impl : null;
-    }
-
     public static ASMImpl getUnusedImplem(String name) {
         ASMImpl impl = CST.ASMImplBroker.getImpl(name);
         if (impl == null)
             return null;
         return (ApformImpl.unusedImplems.contains(impl)) ? impl : null;
-    }
-
-    public static ASMInst getUnusedInst(ASMInst inst) {
-        return (ApformImpl.unusedInsts.contains(inst)) ? inst : null;
     }
 
     public static ASMInst getUnusedInst(String name) {
@@ -65,8 +59,9 @@ public class ApformImpl {
      * @param impl
      */
     public static void setUsedImpl(ASMImpl impl) {
-        if (ApformImpl.getUnusedImplem(impl) == null)
+        if (impl.isUsed())
             return;
+        ((ASMImplImpl) impl).setUsed(true);
         ((CompositeTypeImpl) ApformImpl.rootType).removeImpl(impl);
         if (impl instanceof CompositeType) { // it is a composite
             ((CompositeTypeImpl) ApformImpl.rootType).removeEmbedded((CompositeType) impl);
@@ -80,9 +75,10 @@ public class ApformImpl {
      * @param impl
      */
     public static void setUsedInst(ASMInst inst) {
-        if (ApformImpl.getUnusedInst(inst) == null)
+        if (inst.isUsed())
             return;
         ((CompositeImpl) ApformImpl.rootInst).removeInst(inst);
+        ((ASMInstImpl) inst).setUsed(true);
         if (inst instanceof Composite) { // it is a composite. Should never happen ?
             ((CompositeImpl) ApformImpl.rootInst).removeSon((Composite) inst);
         }

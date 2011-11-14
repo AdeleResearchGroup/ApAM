@@ -33,7 +33,7 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
     private static CompositeType              rootCompoType  = new CompositeTypeImpl();
     private int                               instNumber     = -1;
 
-    private ASMImpl                           mainImpl       = null;                                 ;
+    private ASMImpl                           mainImpl       = null;
     private Set<ManagerModel>                 models;
 
     // All the implementations deployed (really or logically) by this composite type!
@@ -343,8 +343,8 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
     // overloads the usual createInst method for ASMImpl
     @Override
     public ASMInst createInst(Composite instCompo, Attributes initialproperties) {
-        Composite comp = CompositeImpl.createComposite(this, instCompo, initialproperties);
-        return comp;
+        // Composite comp = CompositeImpl.createComposite(this, instCompo, initialproperties);
+        return new CompositeImpl(this, instCompo, null, initialproperties);
     }
 
     @Override

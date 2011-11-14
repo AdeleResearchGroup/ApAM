@@ -8,6 +8,7 @@ import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.sam.Instance;
 
 //import fr.imag.adele.sam.Instance;
 

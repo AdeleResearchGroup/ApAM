@@ -78,38 +78,38 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             System.err.println("ERROR : missing apf Implementaion or composite in addImpl");
             return null;
         }
-        // if (compo == null && )
+
         String implName = apfImpl.getName();
-        ASMImpl asmImpl = CST.ASMImplBroker.getImpl(implName);
-        if (asmImpl != null) {
-            System.err.println("Implementation already existing (in addImpl) " + implName);
-        }
-        // specification control
         String specName = (String) apfImpl.getProperty(CST.A_APAMSPECNAME);
+
+        // if allready existing do not duplicate
+        ASMImpl asmImpl = getImpl(implName);
+        if (asmImpl != null) { // do not create twice
+            System.err.println("Implementation already existing (in addImpl) " + implName);
+            if (specName != null)
+                ((ASMSpecImpl) asmImpl.getSpec()).setName(specName);
+            return asmImpl;
+        }
+
+//        ASMImpl asmImpl = getImpl(implName);
+//        if (asmImpl != null) {
+//            System.err.println("Implementation already existing (in addImpl) " + implName);
+//        }
+        // specification control
         ApformSpecification apfSpec = apfImpl.getSpecification();
         ASMSpecImpl spec = null;
         if (apfSpec != null) { // may be null !
             spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(apfSpec);
         }
-        if (spec == null) { // No ASM spec related to the apf spec.
-            spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(apfSpec.getInterfaceNames());
-            if (spec != null) { // has been created without the SAM spec.
-                                // Add it now.
-                // spec.setSamSpec(apfSpec);
-            } else { // create the spec
-                spec = new ASMSpecImpl(specName, apfSpec, null, properties);
-            }
-        }
+        if ((spec == null) && (specName != null)) // No ASM spec related to the apf spec.
+            spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(specName);
+        if (spec == null)
+            spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(apfImpl.getInterfaceNames());
+        if (spec == null)
+            spec = new ASMSpecImpl(specName, apfSpec, null, properties);
+
         if (specName != null)
             spec.setName(specName);
-
-        // if allready existing do not duplicate
-        asmImpl = getImpl(implName);
-        if (asmImpl != null) { // do not create twice
-            if (specName != null)
-                ((ASMSpecImpl) asmImpl.getSpec()).setName(specName);
-            return asmImpl;
-        }
 
         // create a primitive or composite implementation
         if ((apfImpl.getProperty(CST.A_COMPOSITE) != null) &&

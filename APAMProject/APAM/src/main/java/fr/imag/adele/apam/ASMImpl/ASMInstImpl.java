@@ -14,13 +14,11 @@ import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.ApamComponent;
-import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apform.ApformImpl;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
-import fr.imag.adele.apam.util.Util;
 
 //import fr.imag.adele.sam.Instance;
 
@@ -34,11 +32,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     private Composite        myComposite;
     protected ApformInstance apformInst;
     private boolean          sharable = true;
-//    private ApamDependencyHandler depHandler;
-
-//    public ApamDependencyHandler getDepHandler() {
-//        return depHandler;
-//    }
+    private boolean          used     = false;
 
     private final Set<Wire>  wires    = new HashSet<Wire>(); // the currently used instances
     private final Set<Wire>  invWires = new HashSet<Wire>();
@@ -174,18 +168,21 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
                 return true;
         }
 
+        // useless when called by Apam. Needed if called by an external program.
         if (!Wire.checkNewWire(this, to, depName))
             return false;
+
+        // creation
         Wire wire = new Wire(this, to, depName);
         wires.add(wire);
-
         ((ASMInstImpl) to).invWires.add(wire);
-        // if (apformI != null) {
-        apformInst.setWire(to, depName);
-        // }
+
+        if (!(this instanceof Composite)) { // This is an outgoing link from a composite
+            apformInst.setWire(to, depName);
+        }
 
         // if the instance was in the unUsed pull, move it to the from composite.
-        if (ApformImpl.getUnusedInst(to) != null) {
+        if (!to.isUsed()) {
             ApformImpl.setUsedInst(to);
             getComposite().addContainInst(to);
         }
@@ -352,7 +349,16 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
+    public final boolean isUsed() {
+        return used;
+    }
+
+    public final void setUsed(boolean used) {
+        this.used = used;
+    }
+
+    @Override
     public boolean isSharable() {
-        return sharable;
+        return (used) ? sharable : true;
     }
 }

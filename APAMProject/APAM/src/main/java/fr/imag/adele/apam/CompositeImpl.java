@@ -44,25 +44,32 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
         myRootComposite = null;
     }
 
-    private CompositeImpl(CompositeType compType, Composite instCompo, Attributes initialproperties) {
+    public CompositeImpl(CompositeType compType, Composite instCompo, ASMInst externalMainInst,
+            Attributes initialproperties) {
         // First create the composite, as an ASMInst empty
         super();
 
+        if (instCompo == null)
+            instCompo = CompositeImpl.rootComposite;
+
         // initialize as a composite
-        name = ((CompositeTypeImpl) compType).getNewInstName();
         this.compType = compType;
         mainImpl = compType.getMainImpl();
+
+        // if it is a composite created from an unused inst that calls Apam
+        // create the main instance with this composite as container. Do not try to reuse an existing instance.
+        // Each composite has a different main instance
+        if (externalMainInst == null) { // normal case
+            externalMainInst = compType.getMainImpl().createInst(this, initialproperties);
+        }
+        mainInst = externalMainInst;
+        name = ((CompositeTypeImpl) compType).getNewInstName();
 
         // instCompo is both the father, and the composite that contains the new one, seen as a usual ASMInst.
         ((CompositeImpl) instCompo).addSon(this);
         CompositeImpl.composites.put(name, this);
 
-        // create the main instance with this composite as container. Do not try to reuse an existing instance.
-        // Each composite has a different main instance
-        ASMInst asmInst = compType.getMainImpl().createInst(this, initialproperties);
         // initialize the composite as ASMInst
-        // name = compType.getName() + "<" + asmInst.getName() + ">";
-        mainInst = asmInst;
         hasInstance.add(mainInst);
 
         // if it is a root composite
@@ -73,7 +80,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
             myRootComposite = instCompo.getRootComposite();
 
         // terminate the ASMInst initialisation
-        instConstructor(compType, instCompo, initialproperties, asmInst.getApformInst());
+        instConstructor(compType, instCompo, initialproperties, mainInst.getApformInst());
     }
 
     /**
@@ -115,9 +122,7 @@ public class CompositeImpl extends ASMInstImpl implements Composite {
             System.err.println("ERROR :  missing type in createComposite");
             return null;
         }
-        if (instCompo == null)
-            instCompo = CompositeImpl.rootComposite;
-        return new CompositeImpl(compType, instCompo, initialproperties);
+        return new CompositeImpl(compType, instCompo, null, initialproperties);
     }
 
     @Override

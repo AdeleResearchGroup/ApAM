@@ -37,6 +37,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     protected String                   name;
     protected ASMSpec                  mySpec;
     protected ApformImplementation     apfImpl           = null;
+    protected boolean                  used              = false;
 
     protected Set<ASMInst>             instances         = new HashSet<ASMInst>();      // the instances of that impl.
     protected Set<ASMInst>             sharableInstances = new HashSet<ASMInst>();      // the sharable instances of
@@ -422,5 +423,14 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         if (deps == null)
             return Collections.EMPTY_SET;
         return deps;
+    }
+
+    @Override
+    public boolean isUsed() {
+        return used;
+    }
+
+    public void setUsed(boolean used) {
+        this.used = used;
     }
 }

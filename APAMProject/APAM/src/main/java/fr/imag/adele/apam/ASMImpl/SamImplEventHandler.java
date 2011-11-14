@@ -13,7 +13,7 @@ import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.PID;
 import fr.imag.adele.sam.event.EventProperty;
 
-public class SamImplEventHandler implements AMEventingHandler {
+public class SamImplEventHandler {
 //
 //    static Set<String> expectedImpls = new HashSet<String>();
 //

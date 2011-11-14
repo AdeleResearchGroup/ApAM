@@ -20,7 +20,7 @@ import fr.imag.adele.sam.Instance;
 import fr.imag.adele.sam.Specification;
 import fr.imag.adele.sam.event.EventProperty;
 
-public class SamInstEventHandler implements AMEventingHandler {
+public class SamInstEventHandler {
 //
 //    // The managers are waiting for the apparition of an instance of the ASMImpl or implementing the interface
 //    // In both case, no ASMInst is created.

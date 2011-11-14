@@ -24,20 +24,6 @@ public interface ASMInst extends Attributes {
     // The SAM instance associated with this Apam one.
     public ApformInstance getApformInst();
 
-//    /**
-//     * Apam native client (real iPOJO instances) have an Apam Dependency Handler managing wires. Those instances have a
-//     * call back toward these real instance.
-//     * 
-//     * @param handler
-//     */
-//    public void setDependencyHandler(ApamDependencyHandler handler);
-//
-//    public ApamDependencyHandler getDependencyHandler();
-//
-//    /**
-//     * The relation wires is established between two ASM instances. Wires are internally managed.
-//     */
-
     /**
      * returns all the instances this one is wired to.
      */
@@ -137,6 +123,8 @@ public interface ASMInst extends Attributes {
      * @return
      */
     public boolean isSharable();
+
+    public boolean isUsed();
 
     /*
      * returns the value of hte scope attribute

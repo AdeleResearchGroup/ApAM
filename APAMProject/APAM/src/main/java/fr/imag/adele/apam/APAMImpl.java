@@ -36,10 +36,8 @@ import fr.imag.adele.apam.CompositeImpl;
 
 public class APAMImpl implements Apam, ApamResolver, ManagersMng {
 
-    // The applications
     private static Manager               apamMan;
 
-    // int is the priority
     private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
     private static List<Manager>         managerList  = new ArrayList<Manager>();
 
@@ -81,8 +79,8 @@ public class APAMImpl implements Apam, ApamResolver, ManagersMng {
             return null;
         }
 
-        CompositeType compoType = client.getComposite().getCompType();
-        Composite compo = client.getComposite();
+        Composite compo = getClientComposite(client);
+        CompositeType compoType = compo.getCompType();
 
         ASMImpl impl = null;
         if (specName != null)
@@ -112,8 +110,8 @@ public class APAMImpl implements Apam, ApamResolver, ManagersMng {
             new Exception("missing client, name or interface").printStackTrace();
         }
 
-        CompositeType compoType = client.getComposite().getCompType();
-        Composite compo = client.getComposite();
+        Composite compo = getClientComposite(client);
+        CompositeType compoType = compo.getCompType();
 
         ASMImpl impl = null;
         if (specName != null)
@@ -138,6 +136,19 @@ public class APAMImpl implements Apam, ApamResolver, ManagersMng {
         return insts;
     }
 
+    // if the instance is unused, it will become the main instance of a new composite.
+    private Composite getClientComposite(ASMInst mainInst) {
+        if (!mainInst.isUsed())
+            return mainInst.getComposite();
+
+        ASMImpl mainImplem = mainInst.getImpl();
+        String newName = mainImplem.getName() + "_Appli";
+
+        CompositeType newCompoT = CompositeTypeImpl.createCompositeType(null, newName, mainImplem.getName(), null,
+                null, null);
+        return new CompositeImpl(newCompoT, null, mainInst, null);
+    }
+
     /**
      * An APAM client instance requires to be wired with an instance of implementation. If found, the instance is
      * returned.
@@ -155,8 +166,8 @@ public class APAMImpl implements Apam, ApamResolver, ManagersMng {
             System.err.println("missing client or implementation name");
         }
 
+        Composite compo = getClientComposite(client);
         CompositeType compType = client.getComposite().getCompType();
-        Composite compo = client.getComposite();
 
         ASMImpl impl = findImplByName(compType, implName);
         if (impl == null) {
@@ -180,8 +191,8 @@ public class APAMImpl implements Apam, ApamResolver, ManagersMng {
             System.err.println("missing client or implementation name");
         }
 
-        CompositeType compType = client.getComposite().getCompType();
-        Composite compo = client.getComposite();
+        Composite compo = getClientComposite(client);
+        CompositeType compType = compo.getCompType();
 
         ASMImpl impl = findImplByName(compType, implName);
         if (impl == null) {
@@ -448,19 +459,19 @@ public class APAMImpl implements Apam, ApamResolver, ManagersMng {
      */
     public void deployedImpl(CompositeType compoType, ASMImpl impl, boolean deployed) {
         // it was not deployed
-        if (!deployed && (ApformImpl.getUnusedImplem(impl) == null)) {
+        if (!deployed && impl.isUsed()) {
             System.out.println(" : selected " + impl);
             return;
         }
 
-        if (ApformImpl.getUnusedImplem(impl) != null) {
+        if (!impl.isUsed()) {
             System.out.println(" : deployed " + impl);
         } else {
             System.out.println("Logicaly deployed " + impl);
         }
 
         // it was unused so far. Remove it from unused
-        if (ApformImpl.getUnusedImplem(impl) != null) {
+        if (!impl.isUsed()) {
             ApformImpl.setUsedImpl(impl);
         }
         // impl is inside compotype

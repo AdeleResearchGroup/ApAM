@@ -7,9 +7,6 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-//import fr.imag.adele.am.exception.ConnectionException;
-//import fr.imag.adele.apam.apamAPI.ApamDependencyHandler.DependencyModel;
-//import fr.imag.adele.apam.apamAPI.ApamDependencyHandler.TargetKind;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.util.Attributes;
 
@@ -180,6 +177,8 @@ public interface ASMImpl extends Attributes {
      * @return true if method createASMInst is supported
      */
     public boolean isInstantiable();
+
+    public boolean isUsed();
 
     /**
      * A minimal model of the information known by the handler about the potential dependencies
