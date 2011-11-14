@@ -13,15 +13,6 @@ import fr.imag.adele.sam.Implementation;
 
 public interface Apam {
 
-    // Getting the brokers
-    public ASMSpecBroker getSpecBroker();
-
-    public ASMImplBroker getImplBroker();
-
-    public ASMInstBroker getInstBroker();
-
-    // Composite type creation.
-
     /**
      * Creates an isolated composite type.
      * A single composite with this name can exist in APAM. Returns null if name conflicts.

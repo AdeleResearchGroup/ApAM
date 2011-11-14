@@ -12,7 +12,6 @@ import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.am.query.Query;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.apamAPI.DynamicManager;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.InstPID;

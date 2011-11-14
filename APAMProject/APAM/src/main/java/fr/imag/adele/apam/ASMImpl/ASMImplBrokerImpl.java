@@ -15,6 +15,7 @@ import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.CompositeType;
+import fr.imag.adele.apam.apamAPI.ApamResolver;
 import fr.imag.adele.apam.apform.ApformImpl;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.apformAPI.ApformSpecification;
@@ -175,7 +176,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             System.err.println("deployment failed :" + implName + " at URL " + url);
         }
         asmImpl = ApformImpl.getWaitImplementation(implName);
-        CST.apam.deployedImpl(compo, asmImpl, true);
+        ApamResolver.deployedImpl(compo, asmImpl, true);
         // comment savoir si une instance a été créée dans la foulée,
         // et sous quel nom ?
 

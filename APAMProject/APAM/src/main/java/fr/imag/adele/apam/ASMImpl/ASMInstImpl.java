@@ -64,7 +64,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
             boolean composite) {
         // Create the implementation and initialize
         instConstructor(impl, instCompo, initialproperties, apformInst);
-
+        apformInst.setInst(this);
         // Compute the handler for apam components
 //        try {
 //            ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(apformInst.getName());
@@ -86,10 +86,6 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
         if ((instCompo != null) && (apformInst.getServiceObject() instanceof ApamComponent))
             ((ApamComponent) apformInst.getServiceObject()).apamStart(this);
-//        } catch (ConnectionException e1) {
-//            e1.printStackTrace();
-//        }
-
     }
 
     @Override

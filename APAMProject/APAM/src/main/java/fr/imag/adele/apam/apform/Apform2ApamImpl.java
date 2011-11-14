@@ -31,7 +31,7 @@ public class Apform2ApamImpl implements Apform2Apam {
     @Override
     public void newInstance(String instanceName, ApformInstance client) {
         if (ApformImpl.getUnusedInst(instanceName) != null) {
-            System.err.println("Implementation already existing: " + instanceName);
+            System.err.println("Instance already existing: " + instanceName);
             return;
         }
         ASMInst inst = CST.ASMInstBroker.addInst(Apform2ApamImpl.rootInst, client, null);

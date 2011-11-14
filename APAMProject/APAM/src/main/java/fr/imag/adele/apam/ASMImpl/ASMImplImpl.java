@@ -121,20 +121,10 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
             return null;
         }
         ApformInstance apfInst = apfImpl.createInstance(initialproperties);
-//        try {
-//            Instance samInst;
-//            if (initialproperties == null)
-//                samInst = CST.SAMImplBroker.createInstance(apfImpl.getImplPid(), null);
-//            else
-//                samInst = CST.SAMImplBroker.createInstance(apfImpl.getImplPid(),
-//                        initialproperties.attr2Properties());
-        ASMInstImpl inst = new ASMInstImpl(this, instCompo, initialproperties, apfInst, false);
-        // addInst(inst);
+        // if it is a composite. Not sure it is ever caller here.
+        boolean composite = ((getProperty(CST.A_COMPOSITE) != null) && getProperty(CST.A_COMPOSITE).equals(CST.V_TRUE));
+        ASMInstImpl inst = new ASMInstImpl(this, instCompo, initialproperties, apfInst, composite);
         return inst;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
     }
 
     // WARNING : no control ! Only called by the instance Broker.

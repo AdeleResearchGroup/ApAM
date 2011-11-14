@@ -15,10 +15,11 @@ import fr.imag.adele.apam.ASMImpl.ASMImplImpl;
 import fr.imag.adele.apam.ASMImpl.ASMSpecImpl;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
-//import fr.imag.adele.apam.apamAPI.ASMSpec;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apamAPI.Manager;
+import fr.imag.adele.apam.apamAPI.ApamManagers;
+import fr.imag.adele.apam.apamAPI.ApamResolver;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
@@ -80,7 +81,7 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
         if (models != null) {
             Manager man;
             for (ManagerModel managerModel : models) { // call the managers to indicate the new composite and the model
-                man = CST.apam.getManager(managerModel.getManagerName());
+                man = ApamManagers.getManager(managerModel.getManagerName());
                 if (man != null) {
                     man.newComposite(managerModel, this);
                 }
@@ -89,7 +90,7 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
             models = Collections.emptySet();
 
         if (mainImpl == null) {
-            mainImpl = ((CST.apam)).findImplByName(this, mainImplName);
+            mainImpl = ApamResolver.findImplByName(this, mainImplName);
             if (mainImpl == null) {
                 System.err.println("cannot find main implementation " + mainImplName);
                 return;

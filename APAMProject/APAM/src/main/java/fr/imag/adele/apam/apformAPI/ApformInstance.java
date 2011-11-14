@@ -61,4 +61,6 @@ public interface ApformInstance {
      */
     public boolean substWire(ASMInst oldDestInst, ASMInst newDestInst, String depName);
 
+    public void setInst(ASMInst asmInstImpl);
+
 }
