@@ -175,6 +175,7 @@ public class Implementation  extends ComponentFactory implements ApformImplement
      */
     public Implementation(BundleContext context, Element metadata) throws ConfigurationException {
         super(context, metadata);
+        apamTracker = new ApamTracker(context);
     }
 
     /**
