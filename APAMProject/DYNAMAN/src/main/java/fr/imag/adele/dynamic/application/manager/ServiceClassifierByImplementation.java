@@ -1,8 +1,8 @@
 package fr.imag.adele.dynamic.application.manager;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMInst;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Instance;
 

@@ -22,25 +22,21 @@ import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ApamManagers;
-import fr.imag.adele.apam.apamAPI.CompositeType;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.Manager;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.apamImpl.ManagerModel;
 //import fr.imag.adele.apam.apamAPI.ManagersMng;
-import fr.imag.adele.apam.apform.ApformImpl;
-import fr.imag.adele.sam.Implementation;
-
-//import fr.imag.adele.sam.Instance;
+import fr.imag.adele.apam.apformAPI.Apform;
 
 public class OBRMan implements Manager, IOBRMAN {
 
     // iPOJO injected
     private RepositoryAdmin repoAdmin;
-//    private ManagersMng     apam;
 
     private Resolver        resolver;
     private Repository      local;
@@ -362,8 +358,7 @@ public class OBRMan implements Manager, IOBRMAN {
      */
     private ASMImpl installInstantiate(Resource res, String implName, CompositeType implComposite) {
 
-        String specName = getAttributeInResource(res, "apam-component", "apam-specification");
-        Implementation samImpl = null;
+//        String specName = getAttributeInResource(res, "apam-component", "apam-specification");
         ASMImpl asmImpl = null;
 
         asmImpl = CST.ASMImplBroker.getImpl(implName);
@@ -371,7 +366,6 @@ public class OBRMan implements Manager, IOBRMAN {
         // Check if already deployed
         if (asmImpl == null) {
             // deploy selected resource
-            ApformImpl.addExpected(implName);
             boolean deployed = deployInstall(res);
             if (!deployed) {
                 System.err.print("could not install resource ");
@@ -379,7 +373,7 @@ public class OBRMan implements Manager, IOBRMAN {
                 return null;
             }
             // waiting for the implementation to be ready in Apam.
-            asmImpl = ApformImpl.getWaitImplementation(implName);
+            asmImpl = Apform.getWaitImplementation(implName);
         } else { // do not install twice.
                  // It is a logical deployement. The allready existing impl is not visible !
 //            System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
@@ -498,7 +492,7 @@ public class OBRMan implements Manager, IOBRMAN {
     // Interface IOBRMAN
     @Override
     public Set<Resource> getResources(String capability, String filterStr, Set<Filter> constraints) {
-        Set<Resource> allRes = new HashSet<Resource>();
+//        Set<Resource> allRes = new HashSet<Resource>();
         return lookForAll(capability, filterStr, constraints);
     }
 

@@ -27,14 +27,14 @@ import org.apache.felix.ipojo.annotations.ServiceProperty;
 import org.apache.felix.service.command.Descriptor;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Wire;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.Apam;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.apamImpl.Wire;
 
 /**
  * 

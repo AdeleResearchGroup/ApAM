@@ -9,22 +9,22 @@ import org.osgi.framework.Filter;
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.am.query.Query;
 import fr.imag.adele.am.query.QueryLDAPImpl;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.CompositeType;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.Manager;
-import fr.imag.adele.apam.apamAPI.ManagersMng;
+import fr.imag.adele.apam.apam.ASMImpl;
+import fr.imag.adele.apam.apam.ASMInst;
+import fr.imag.adele.apam.apam.ASMSpec;
+import fr.imag.adele.apam.apam.Composite;
+import fr.imag.adele.apam.apam.CompositeType;
+import fr.imag.adele.apam.apam.Manager;
+import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.apamImpl.ManagerModel;
+//import fr.imag.adele.apam.apamImpl.apamAPI.ManagersMng;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.sam.Implementation;
-import fr.imag.adele.sam.Instance;
-import fr.imag.adele.sam.Specification;
-import fr.imag.adele.sam.broker.ImplementationBroker;
-import fr.imag.adele.sam.broker.InstanceBroker;
+//import fr.imag.adele.sam.Implementation;
+//import fr.imag.adele.sam.Instance;
+//import fr.imag.adele.sam.Specification;
+//import fr.imag.adele.sam.broker.ImplementationBroker;
+//import fr.imag.adele.sam.broker.InstanceBroker;
 
 public class SamMan implements Manager {
 

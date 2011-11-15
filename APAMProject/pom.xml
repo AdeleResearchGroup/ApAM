@@ -308,11 +308,11 @@
 
 	<modules>
 		<module>APAM</module>
-		<module>SAMMAN</module>
 		<module>ApamCommand</module>
 		<module>OBRMAN</module>
 		<module>ApamMavenPlugIn</module>
 		<module>CONFMAN</module>
+		<module>SAMMAN</module>
 		<module>DYNAMAN</module>
 		<module>DISTRIMAN</module>
 	</modules>

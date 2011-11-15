@@ -4,7 +4,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
-import fr.imag.adele.apam.apamAPI.CompositeType;
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.dynamic.application.manager.DynamicApplicationPlatform;
 import fr.imag.adele.dynamic.application.manager.ServiceClassifier;
 import fr.imag.adele.sam.Instance;

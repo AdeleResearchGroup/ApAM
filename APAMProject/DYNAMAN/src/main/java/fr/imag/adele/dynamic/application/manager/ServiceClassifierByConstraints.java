@@ -6,8 +6,8 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.query.QueryLDAPImpl;
-import fr.imag.adele.apam.ASMImpl.ASMInstImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.apamImpl.InstanceImpl;
 import fr.imag.adele.sam.Instance;
 
 /**
@@ -41,7 +41,7 @@ public class ServiceClassifierByConstraints extends ServiceClassifier {
 		 * Iterate over all constraints
 		 */
 		for (Filter constraint : constraints) {
-			if (!constraint.match((ASMInstImpl)instance))
+			if (!constraint.match((InstanceImpl)instance))
 				return false;
 		}
 		

@@ -1,7 +1,7 @@
 package fr.imag.adele.dynamic.application.interpreter;
 
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Composite;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Composite;
 import fr.imag.adele.dynamic.application.manager.BindingRequest;
 import fr.imag.adele.dynamic.application.manager.DynamicApplicationPlatform.Listener;
 import fr.imag.adele.dynamic.application.manager.ServiceClassifier;

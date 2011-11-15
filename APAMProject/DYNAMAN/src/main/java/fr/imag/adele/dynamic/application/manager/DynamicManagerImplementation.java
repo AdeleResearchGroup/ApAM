@@ -10,21 +10,21 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.Wire;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Apam;
-import fr.imag.adele.apam.apamAPI.ApamResolver;
-import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
-import fr.imag.adele.apam.apamAPI.DynamicManager;
-import fr.imag.adele.apam.apamAPI.Manager;
-import fr.imag.adele.apam.apamAPI.ManagersMng;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.ApamResolver;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.DynamicManager;
+import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.apamImpl.ManagerModel;
+import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
+import fr.imag.adele.apamImpl.apamAPI.ApamDependencyHandler;
+import fr.imag.adele.apamImpl.apamAPI.ManagersMng;
 import fr.imag.adele.dynamic.application.interpreter.CompositeServiceInterpreter;
 import fr.imag.adele.sam.Instance;
 
