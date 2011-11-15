@@ -15,7 +15,7 @@ import org.apache.felix.ipojo.handlers.configuration.ConfigurationHandlerDescrip
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
@@ -32,7 +32,7 @@ public class ApamComponentInstance extends InstanceManager implements ApformInst
 	/**
 	 * The APAM instance associated to this component instance
 	 */
-	private ASMInst apamInstance;
+	private Instance apamInstance;
 
 	/**
 	 * The list of dependencies declared in this component
@@ -64,7 +64,7 @@ public class ApamComponentInstance extends InstanceManager implements ApformInst
 	 * Attach an APAM logical instance to this platform instance
 	 */
 	@Override
-	public void setInst(ASMInst apamInstance) {
+	public void setInst(Instance apamInstance) {
 		this.apamInstance = apamInstance;
 	}
 	
@@ -204,7 +204,7 @@ public class ApamComponentInstance extends InstanceManager implements ApformInst
 	 *  Apform: resolve dependency
 	 */
 	@Override
-	public boolean setWire(ASMInst destInst, String depName) {
+	public boolean setWire(Instance destInst, String depName) {
 	//	System.out.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
 		Dependency dependency = dependencies.get(depName);
 
@@ -219,7 +219,7 @@ public class ApamComponentInstance extends InstanceManager implements ApformInst
 	 *  Apform: unresolve dependency
 	 */
 	@Override
-	public boolean remWire(ASMInst destInst, String depName) {
+	public boolean remWire(Instance destInst, String depName) {
 		System.out.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
 		Dependency dependency = dependencies.get(depName);
 
@@ -234,7 +234,7 @@ public class ApamComponentInstance extends InstanceManager implements ApformInst
 	 *  Apform: substitute dependency
 	 */
 	@Override
-	public boolean substWire(ASMInst oldDestInst, ASMInst newDestInst, String depName) {
+	public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
 		System.out.println("Native instance subs wire " + depName + " :" + getInstanceName() + "from ->" + oldDestInst +" to ->"+newDestInst);
 		Dependency dependency = dependencies.get(depName);
 

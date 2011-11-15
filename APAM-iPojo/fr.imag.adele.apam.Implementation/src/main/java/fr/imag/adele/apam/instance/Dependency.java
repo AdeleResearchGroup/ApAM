@@ -20,7 +20,7 @@ import org.apache.felix.ipojo.parser.PojoMetadata;
 import org.apache.felix.ipojo.util.Logger;
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 
 /**
  * This class keeps track of an APAM dependency, it handles the calculation of the target services based on updates to
@@ -86,7 +86,7 @@ public class Dependency implements FieldInterceptor {
     /**
      * The list of target services.
      */
-    private final Set<ASMInst> targetServices;
+    private final Set<Instance> targetServices;
 
     /**
      * The last injected value.
@@ -129,7 +129,7 @@ public class Dependency implements FieldInterceptor {
         this.constraints = constraints;
         this.preferences = preferences;
 
-        targetServices = new HashSet<ASMInst>();
+        targetServices = new HashSet<Instance>();
         injectedValue = null;
         injectedType = null;
         isResolved = false;
@@ -243,7 +243,7 @@ public class Dependency implements FieldInterceptor {
 
 			firstElement = true;
 
-			for (ASMInst target : targetServices) {
+			for (Instance target : targetServices) {
 				if (!firstElement)
 					resolution.append(",");
 				resolution.append(target.getName());
@@ -262,7 +262,7 @@ public class Dependency implements FieldInterceptor {
     /**
      * Adds a new target to this dependency
      */
-    public void addTarget(ASMInst target) {
+    public void addTarget(Instance target) {
 
         /*
          * Add this target and invalidate cache
@@ -298,7 +298,7 @@ public class Dependency implements FieldInterceptor {
      * 
      * @param target
      */
-    public void removeTarget(ASMInst target) {
+    public void removeTarget(Instance target) {
 
         /*
          * Remove this target and invalidate cache
@@ -315,7 +315,7 @@ public class Dependency implements FieldInterceptor {
      * @param oldTarget
      * @param newTarget
      */
-    public void substituteTarget(ASMInst oldTarget, ASMInst newTarget) {
+    public void substituteTarget(Instance oldTarget, Instance newTarget) {
 
         /*
          * substitute the target atomically and invalidate the cache
@@ -477,7 +477,7 @@ public class Dependency implements FieldInterceptor {
             	
                 int index = 0;
             	Object array = Array.newInstance(fieldClass.getComponentType(),targetServices.size());
-                for (ASMInst targetService : targetServices) {
+                for (Instance targetService : targetServices) {
                 	Array.set(array, index++, targetService.getServiceObject());
                 }
                return array;
@@ -487,7 +487,7 @@ public class Dependency implements FieldInterceptor {
              * For collections use an erased Object collection
              */
             List<Object> serviceObjects = new ArrayList<Object>(targetServices.size());
-            for (ASMInst targetService : targetServices) {
+            for (Instance targetService : targetServices) {
             	serviceObjects.add(targetService.getServiceObject());
             }
 

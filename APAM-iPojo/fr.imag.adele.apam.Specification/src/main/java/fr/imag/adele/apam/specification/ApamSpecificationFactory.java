@@ -17,8 +17,8 @@ import org.apache.felix.ipojo.util.Tracker;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import fr.imag.adele.apam.ASMSpec;
-import fr.imag.adele.apam.ASMSpecBroker;
+import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.SpecificationBroker;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
