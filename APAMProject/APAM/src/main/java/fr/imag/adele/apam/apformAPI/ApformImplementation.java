@@ -2,7 +2,7 @@ package fr.imag.adele.apam.apformAPI;
 
 import java.util.Map;
 
-import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.util.Attributes;
 
 public interface ApformImplementation {

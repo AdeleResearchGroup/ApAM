@@ -10,8 +10,8 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.Composite;
@@ -151,7 +151,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * If there are no pending requests that would be satisfied we try to find the composite with the greatest number
 	 * of dynamic binds that can be satisfied by this instance.
 	 */
-	public ASMInst activate(Instance instance) {
+	public Instance activate(Instance instance) {
 		
 		/*
 		 * Return if already mapped
@@ -200,7 +200,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		 */
 		Map<Composite,Integer> counts = new HashMap<Composite, Integer>();
 		
-		for (ASMInst source : pendingRequests.keySet()) {
+		for (Instance source : pendingRequests.keySet()) {
 			for (BindingRequest pendingRequest : getPendingRequests(source)) {
 				
 				if (! pendingRequest.isSatisfiedBy(instance))
@@ -416,7 +416,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		/**
 		 * Dispatch APAM event to signal instance dispparition to concerned listeners.
 		 */
-		public ASMInst lostInst(ASMInst lost) {
+		public Instance lostInst(Instance lost) {
 			/*
 			 * Ignore events not concerning this listener
 			 */
@@ -470,7 +470,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		}
 
 		@Override
-		public void getSelectionPathInst(Composite compoFrom, ASMImpl impl,
+		public void getSelectionPathInst(Composite compoFrom, Implementation impl,
 				Set<Filter> constraints, List<Filter> preferences,
 				List<Manager> selPath) {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
@@ -487,32 +487,32 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		}
 
 		@Override
-		public ASMImpl resolveSpecByName(CompositeType compoType,
+		public Implementation resolveSpecByName(CompositeType compoType,
 				String specName, Set<Filter> constraints,
 				List<Filter> preferences) {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
 
 		@Override
-		public ASMImpl resolveSpecByInterface(CompositeType compoType,
+		public Implementation resolveSpecByInterface(CompositeType compoType,
 				String interfaceName, String[] interfaces,
 				Set<Filter> constraints, List<Filter> preferences) {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
 
 		@Override
-		public ASMImpl findImplByName(CompositeType compoType, String implName) {
+		public Implementation findImplByName(CompositeType compoType, String implName) {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
 
 		@Override
-		public ASMInst resolveImpl(Composite compo, ASMImpl impl,
+		public Instance resolveImpl(Composite compo, Implementation impl,
 				Set<Filter> constraints, List<Filter> preferences) {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
 
 		@Override
-		public Set<ASMInst> resolveImpls(Composite compo, ASMImpl impl,
+		public Set<Instance> resolveImpls(Composite compo, Implementation impl,
 				Set<Filter> constraints) {
 			throw new UnsupportedOperationException("Error in APAM registry, call unwrongly directed to listener");
 		}
@@ -609,7 +609,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * based on the basic dependency model of the handler associated to the instance, and delegates process
 	 * to the resolve(BindingRequest, boolean) method.
 	 */
-	public void resolve(ASMInst instance, String dependency, boolean eager) {
+	public void resolve(Instance instance, String dependency, boolean eager) {
 		
 		/*
 		 * Get a model of the dependency of the destination
@@ -641,7 +641,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * based on the basic dependency model of the handler associated to the instance, and delegates process
 	 * to the resolve(BindingRequest, boolean) method.
 	 */
-	public void resolve(ASMInst instance, boolean eager) {
+	public void resolve(Instance instance, boolean eager) {
 		
 		/*
 		 * Get a model of the dependencies of the destination
@@ -659,7 +659,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * based on the basic dependency model of the handler associated to the instance, and delegates process
 	 * to the resolve(BindingRequest, boolean) method.
 	 */
-	private void resolve(ASMInst instance, Set<ApamDependencyHandler.DependencyModel> dependencies, boolean eager) {
+	private void resolve(Instance instance, Set<ApamDependencyHandler.DependencyModel> dependencies, boolean eager) {
 		
 		/*
 		 * Iterate over all potential dependencies of the resolved instance 
@@ -695,12 +695,12 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		}
 	}
 	
-	private Map<ASMInst,Set<BindingRequest>> pendingRequests= new HashMap<ASMInst, Set<BindingRequest>>();
+	private Map<Instance,Set<BindingRequest>> pendingRequests= new HashMap<Instance, Set<BindingRequest>>();
 	
 	/**
 	 * Adds a new request to the list of pending request associated with the source
 	 */
-	protected synchronized void addPendingRequest(ASMInst source, BindingRequest request) {
+	protected synchronized void addPendingRequest(Instance source, BindingRequest request) {
 		
 		Set<BindingRequest> sourcePendingRequests = pendingRequests.get(source);
 		
@@ -715,7 +715,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	/**
 	 * Removes a new request to the list of pending request associated with the source
 	 */
-	protected synchronized void removePendingRequest(ASMInst source, BindingRequest request) {
+	protected synchronized void removePendingRequest(Instance source, BindingRequest request) {
 		
 		Set<BindingRequest> sourcePendingRequests = pendingRequests.get(source);
 		
@@ -732,7 +732,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	/**
 	 * Get an immutable copy of the pending request associated with the source
 	 */
-	protected synchronized Set<BindingRequest> getPendingRequests(ASMInst source) {
+	protected synchronized Set<BindingRequest> getPendingRequests(Instance source) {
 		
 		Set<BindingRequest> sourcePendingRequests = new HashSet<BindingRequest>();
 		if (pendingRequests.get(source) != null)
@@ -788,7 +788,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		try {
 			requestInProgress.set(request);
 			
-			ASMInst	source				= request.getSource();
+			Instance	source				= request.getSource();
 			String dependency			= request.getDependency();
 			ServiceClassifier target	= request.getTarget();
 			
@@ -827,7 +827,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 			/*
 			 * Notify all pending request satisfied by this resolution
 			 */
-			for (ASMInst resolvedDestination : source.getWireDests(dependency)) {
+			for (Instance resolvedDestination : source.getWireDests(dependency)) {
 				
 				for (BindingRequest pendingRequest :  getPendingRequests(source)) {
 					
@@ -915,7 +915,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * must be the last involved manager in order to handle failure.
 	 */
 	@Override
-	public void getSelectionPathInst(Composite compoFrom, ASMImpl impl,
+	public void getSelectionPathInst(Composite compoFrom, Implementation impl,
 			Set<Filter> constraints, List<Filter> preferences,
 			List<Manager> selPath) {
 		
@@ -950,7 +950,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * Dynaman is not involved in resolution, but must be part of the selection process to handle binding failure.
 	 */
 	@Override
-	public ASMImpl resolveSpecByName(CompositeType compoType, String specName,
+	public Implementation resolveSpecByName(CompositeType compoType, String specName,
 			Set<Filter> constraints, List<Filter> preferences) {
 		
 		
@@ -977,7 +977,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * Dynaman is not involved in resolution, but must be part of the selection process to handle binding failure.
 	 */
 	@Override
-	public ASMImpl resolveSpecByInterface(CompositeType compoType,
+	public Implementation resolveSpecByInterface(CompositeType compoType,
 			String interfaceName, String[] interfaces, Set<Filter> constraints,
 			List<Filter> preferences) {
 		
@@ -1004,7 +1004,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * Dynaman is not involved in resolution, but must be part of the selection process to handle binding failure.
 	 */
 	@Override
-	public ASMImpl findImplByName(CompositeType compoType, String implName) {
+	public Implementation findImplByName(CompositeType compoType, String implName) {
 		/*
 		 * TODO:  Because of the two step process we should remember this call to keep track of the original 
 		 * request
@@ -1027,7 +1027,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	 * Dynaman is not involved in resolution, but must be part of the selection process to handle binding failure.
 	 */
 	@Override
-	public ASMInst resolveImpl(Composite compo, ASMImpl impl,
+	public Instance resolveImpl(Composite compo, Implementation impl,
 			Set<Filter> constraints, List<Filter> preferences) {
 		/*
 		 * TODO:  Because of the two step process we should remember this call to keep track of the original 
@@ -1046,7 +1046,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 	}
 
 	@Override
-	public Set<ASMInst> resolveImpls(Composite compo, ASMImpl impl,
+	public Set<Instance> resolveImpls(Composite compo, Implementation impl,
 			Set<Filter> constraints) {
 		/*
 		 * TODO:  Because of the two step process we should remember this call to keep track of the original 

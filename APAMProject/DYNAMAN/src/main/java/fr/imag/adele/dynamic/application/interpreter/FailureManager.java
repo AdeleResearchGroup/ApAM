@@ -1,6 +1,6 @@
 package fr.imag.adele.dynamic.application.interpreter;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.dynamic.application.manager.BindingRequest;
 import fr.imag.adele.dynamic.application.manager.DynamicApplicationPlatform.Listener;
 import fr.imag.adele.dynamic.application.manager.ServiceClassifier;
@@ -97,7 +97,7 @@ public class FailureManager implements Listener {
 	/**
 	 * This class dosen't handle substitution, just let APAM perform the usual behavior
 	 */
-	public void removed(ASMInst instance) {
+	public void removed(Instance instance) {
 	}
 
 	/**

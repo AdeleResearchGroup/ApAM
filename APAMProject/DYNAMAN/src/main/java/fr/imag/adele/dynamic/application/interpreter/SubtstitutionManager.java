@@ -1,6 +1,6 @@
 package fr.imag.adele.dynamic.application.interpreter;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.dynamic.application.manager.BindingRequest;
 import fr.imag.adele.dynamic.application.manager.DynamicApplicationPlatform.Listener;
@@ -37,7 +37,7 @@ public class SubtstitutionManager implements Listener {
 		 */
 		STRONG {
 			public void substitute(CompositeServiceInterpreter compositeInterpreter, Wire wire) {
-				ASMInst source = wire.getSource();
+				Instance source = wire.getSource();
 				ServiceClassifier target = new ServiceClassifierBySpecification(wire.getDestination().getSpec().getName());
 				compositeInterpreter.getPlatform().resolve(new BindingRequest(source,wire.getDepName(),false,target),false);
 			}
@@ -49,7 +49,7 @@ public class SubtstitutionManager implements Listener {
 		 */
 		WEAK {
 			public void substitute(CompositeServiceInterpreter compositeInterpreter, Wire wire) {
-				ASMInst source = wire.getSource();
+				Instance source = wire.getSource();
 				ServiceClassifier target = new ServiceClassifierByImplementation(wire.getDestination().getImpl().getName());
 				compositeInterpreter.getPlatform().resolve(new BindingRequest(source,wire.getDepName(),false,target),false);
 			}
@@ -90,7 +90,7 @@ public class SubtstitutionManager implements Listener {
 	 * If an instance concerned by this manager try to substitute all the existing wires that will be
 	 * removed 
 	 */
-	public void removed(ASMInst instance) {
+	public void removed(Instance instance) {
 		
 		/*
 		 * Verify this manager handles the removed target instance

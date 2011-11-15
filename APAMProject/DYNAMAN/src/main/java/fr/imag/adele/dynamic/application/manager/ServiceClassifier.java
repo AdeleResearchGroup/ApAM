@@ -1,6 +1,6 @@
 package fr.imag.adele.dynamic.application.manager;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.sam.Instance;
 
 /**
@@ -22,7 +22,7 @@ public abstract class ServiceClassifier {
 	/**
 	 * Determines if the service is a member of this equivalence class
 	 */
-	public abstract boolean contains(ASMInst instance);
+	public abstract boolean contains(Instance instance);
 	
 	/**
 	 * Determines if the service is a member of this equivalence class
@@ -142,7 +142,7 @@ public abstract class ServiceClassifier {
 		}
 		
 			
-		public @Override boolean contains(ASMInst instance) {
+		public @Override boolean contains(Instance instance) {
 			return firstOperand().contains(instance) && secondOperand().contains(instance);
 		}
 
@@ -187,7 +187,7 @@ public abstract class ServiceClassifier {
 		}
 		
 			
-		public @Override boolean contains(ASMInst instance) {
+		public @Override boolean contains(Instance instance) {
 			return firstOperand().contains(instance) || secondOperand().contains(instance);
 		}
 
@@ -223,7 +223,7 @@ public abstract class ServiceClassifier {
 	 */
 	public static ServiceClassifier ANY = new ServiceClassifier() {
 		
-		public @Override boolean contains(ASMInst instance) {
+		public @Override boolean contains(Instance instance) {
 			return true;
 		}
 

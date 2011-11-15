@@ -1,8 +1,8 @@
 package fr.imag.adele.dynamic.application.manager;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.sam.Implementation;
 import fr.imag.adele.sam.Instance;
 
@@ -38,9 +38,9 @@ public class ServiceClassifierByImplementation extends ServiceClassifier {
 	/**
 	 * Whether the service is an instance of the implementation associated to this class
 	 */
-	public @Override boolean contains(ASMInst instance) {
+	public @Override boolean contains(Instance instance) {
 		
-		ASMImpl implementation	= instance.getImpl();
+		Implementation implementation	= instance.getImpl();
 		if (implementation == null)
 			return false;
 		

@@ -2,8 +2,8 @@ package fr.imag.adele.apam.apamImpl;
 
 import java.util.Set;
 
-import fr.imag.adele.apam.ASMInst;
-import fr.imag.adele.apam.ASMImpl.DependencyModel;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Implementation.DependencyModel;
 import fr.imag.adele.apam.util.Util;
 
 public class Wire {
@@ -11,7 +11,7 @@ public class Wire {
     private final InstanceImpl destination;
     private final String       depName;
 
-    public Wire(ASMInst from, ASMInst to, String depName) {
+    public Wire(Instance from, Instance to, String depName) {
         source = (InstanceImpl) from;
         destination = (InstanceImpl) to;
         this.depName = depName;
@@ -25,13 +25,13 @@ public class Wire {
      * @return
      */
 
-    public static boolean checkNewWire(ASMInst from, ASMInst to, String depName) {
+    public static boolean checkNewWire(Instance from, Instance to, String depName) {
         if (!Wire.checkDependency(from, to, depName))
             return false;
         return Util.checkInstVisible(from.getComposite(), to);
     }
 
-    public static boolean checkDependency(ASMInst from, ASMInst to, String depName) {
+    public static boolean checkDependency(Instance from, Instance to, String depName) {
         // it should matches a dependency of the "from" implementation.
         boolean found = false;
         Set<DependencyModel> deps = from.getImpl().getDependencies();
@@ -80,7 +80,7 @@ public class Wire {
      * @param depName
      * @return
      */
-    private static boolean matchDependencyCompo(DependencyModel dep, ASMInst from, ASMInst to, String depName) {
+    private static boolean matchDependencyCompo(DependencyModel dep, Instance from, Instance to, String depName) {
         String fromSpec = from.getSpec().getName();
         switch (dep.targetKind) {
             case INTERFACE: { // "to" must match the target
@@ -113,7 +113,7 @@ public class Wire {
         return false;
     }
 
-    private static boolean matchDependency(DependencyModel dep, ASMInst from, ASMInst to, String depName) {
+    private static boolean matchDependency(DependencyModel dep, Instance from, Instance to, String depName) {
         switch (dep.targetKind) {
             case INTERFACE: { // "to" must match the target
                 for (String interf : to.getSpec().getInterfaceNames()) {
@@ -137,11 +137,11 @@ public class Wire {
         return false;
     }
 
-    public ASMInst getSource() {
+    public Instance getSource() {
         return source;
     }
 
-    public ASMInst getDestination() {
+    public Instance getDestination() {
         return destination;
     }
 

@@ -9,9 +9,9 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 //import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMImplBroker;
-import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.ImplementationBroker;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apformAPI.Apform;
@@ -23,30 +23,30 @@ import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.ApformSpecification;
 import fr.imag.adele.sam.deployment.DeploymentUnit;
 
-public class ImplementationBrokerImpl implements ASMImplBroker {
+public class ImplementationBrokerImpl implements ImplementationBroker {
 
     // private Logger logger = Logger.getLogger(ASMImplBrokerImpl.class);
 
-    private final Set<ASMImpl> implems = new HashSet<ASMImpl>();
+    private final Set<Implementation> implems = new HashSet<Implementation>();
 
     // Not in the interface. No control
-    public void addImpl(ASMImpl impl) {
+    public void addImpl(Implementation impl) {
         if (impl != null)
             implems.add(impl);
     }
 
     // Not in the interface. No control
     @Override
-    public void removeImpl(ASMImpl impl) {
+    public void removeImpl(Implementation impl) {
         if (impl != null)
             implems.remove(impl);
     }
 
     @Override
-    public ASMImpl getImpl(String implName) {
+    public Implementation getImpl(String implName) {
         if (implName == null)
             return null;
-        for (ASMImpl impl : implems) {
+        for (Implementation impl : implems) {
             if (implName.equals(impl.getName()))
                 return impl;
         }
@@ -54,17 +54,17 @@ public class ImplementationBrokerImpl implements ASMImplBroker {
     }
 
     @Override
-    public Set<ASMImpl> getImpls() {
+    public Set<Implementation> getImpls() {
         return Collections.unmodifiableSet(implems);
         // return new HashSet<ASMImpl> (implems) ;
     }
 
     @Override
-    public Set<ASMImpl> getImpls(Filter goal) throws InvalidSyntaxException {
+    public Set<Implementation> getImpls(Filter goal) throws InvalidSyntaxException {
         if (goal == null)
             return getImpls();
-        Set<ASMImpl> ret = new HashSet<ASMImpl>();
-        for (ASMImpl impl : implems) {
+        Set<Implementation> ret = new HashSet<Implementation>();
+        for (Implementation impl : implems) {
             if (goal.match((AttributesImpl) impl.getProperties()))
                 ret.add(impl);
         }
@@ -72,7 +72,7 @@ public class ImplementationBrokerImpl implements ASMImplBroker {
     }
 
 //    @Override
-    public ASMImpl addImpl(CompositeType compo, ApformImplementation apfImpl, Attributes properties) {
+    public Implementation addImpl(CompositeType compo, ApformImplementation apfImpl, Attributes properties) {
         if ((apfImpl == null) || (compo == null)) {
             System.err.println("ERROR : missing apf Implementaion or composite in addImpl");
             return null;
@@ -82,7 +82,7 @@ public class ImplementationBrokerImpl implements ASMImplBroker {
         String specName = (String) apfImpl.getProperty(CST.A_APAMSPECNAME);
 
         // if allready existing do not duplicate
-        ASMImpl asmImpl = getImpl(implName);
+        Implementation asmImpl = getImpl(implName);
         if (asmImpl != null) { // do not create twice
             System.err.println("Implementation already existing (in addImpl) " + implName);
             if (specName != null)
@@ -142,14 +142,14 @@ public class ImplementationBrokerImpl implements ASMImplBroker {
 //    }
 
     @Override
-    public ASMImpl createImpl(CompositeType compo, String implName, URL url, Attributes properties) {
+    public Implementation createImpl(CompositeType compo, String implName, URL url, Attributes properties) {
 
         if (url == null)
             return null;
 
         // String implNameExpected = null;
         ApformImplementation apfImpl;
-        ASMImpl asmImpl = null;
+        Implementation asmImpl = null;
         asmImpl = getImpl(implName);
         if (asmImpl != null) { // do not create twice
             return asmImpl;
@@ -182,11 +182,11 @@ public class ImplementationBrokerImpl implements ASMImplBroker {
     }
 
     @Override
-    public ASMImpl getImpl(ApformImplementation apfImpl) {
+    public Implementation getImpl(ApformImplementation apfImpl) {
         String apfName = apfImpl.getName();
         // Warning : for a composite main implem, both the composite type and the main implem refer to the same apf
         // implem
-        for (ASMImpl implem : implems) {
+        for (Implementation implem : implems) {
             if ((implem.getApformImpl() == apfImpl) && implem.getName().equals(apfName)) {
                 return implem;
             }
@@ -195,9 +195,9 @@ public class ImplementationBrokerImpl implements ASMImplBroker {
     }
 
     @Override
-    public Set<ASMImpl> getImpls(ASMSpec spec) {
-        Set<ASMImpl> impls = new HashSet<ASMImpl>();
-        for (ASMImpl impl : implems) {
+    public Set<Implementation> getImpls(Specification spec) {
+        Set<Implementation> impls = new HashSet<Implementation>();
+        for (Implementation impl : implems) {
             if (impl.getSpec() == spec)
                 impls.add(impl);
         }

@@ -4,20 +4,20 @@ import java.util.Set;
 
 import fr.imag.adele.apam.apamImpl.ManagerModel;
 
-public interface Composite extends ASMInst {
+public interface Composite extends Instance {
 
     /**
      * retiurns the main instance
      * 
      * @return
      */
-    public ASMInst getMainInst();
+    public Instance getMainInst();
 
     /**
      * 
      * @return the main implementation
      */
-    public ASMImpl getMainImpl();
+    public Implementation getMainImpl();
 
     /**
      * 
@@ -91,7 +91,7 @@ public interface Composite extends ASMInst {
      * 
      * @param inst
      */
-    public void addContainInst(ASMInst inst);
+    public void addContainInst(Instance inst);
 
     /**
      * retuirn true if the instance is contained in the current one.
@@ -99,14 +99,14 @@ public interface Composite extends ASMInst {
      * @param inst
      * @return
      */
-    public boolean containsInst(ASMInst inst);
+    public boolean containsInst(Instance inst);
 
     /**
      * return all the instances contained in the current composite.
      * 
      * @return
      */
-    public Set<ASMInst> getContainInsts();
+    public Set<Instance> getContainInsts();
 
     /**
      * 

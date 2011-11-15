@@ -1,6 +1,6 @@
 package fr.imag.adele.dynamic.application.interpreter;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.dynamic.application.manager.BindingRequest;
 import fr.imag.adele.dynamic.application.manager.DynamicApplicationPlatform.Listener;
@@ -56,9 +56,9 @@ public class DynamicBinder implements Listener {
 		if (!target.contains(instance))
 			return count;
 		
-		for (ASMInst sourceComposite : compositeInterpreter.getCompositeType().getInsts()) {
+		for (Instance sourceComposite : compositeInterpreter.getCompositeType().getInsts()) {
 			
-			for (ASMInst sourceInstance : ((Composite) sourceComposite).getContainInsts()) {
+			for (Instance sourceInstance : ((Composite) sourceComposite).getContainInsts()) {
 				
 				if (source.contains(sourceInstance))
 					count++;
@@ -78,7 +78,7 @@ public class DynamicBinder implements Listener {
 		 * First try to map the dynamic instance in APAM 
 		 */
 		
-		ASMInst targetInstance =  compositeInterpreter.getPlatform().activate(instance);
+		Instance targetInstance =  compositeInterpreter.getPlatform().activate(instance);
 		
 		/*
 		 * If the dynamic instance could not be activated simply ignore this event
@@ -91,9 +91,9 @@ public class DynamicBinder implements Listener {
 		 * Iterate over all potential sources in all the composite type instances
 		 */
 		
-		for (ASMInst sourceComposite : compositeInterpreter.getCompositeType().getInsts()) {
+		for (Instance sourceComposite : compositeInterpreter.getCompositeType().getInsts()) {
 			
-			for (ASMInst sourceInstance : ((Composite) sourceComposite).getContainInsts()) {
+			for (Instance sourceInstance : ((Composite) sourceComposite).getContainInsts()) {
 			
 				/*
 				 * Ignore instances in the composite not satisfying the source condition 
@@ -117,7 +117,7 @@ public class DynamicBinder implements Listener {
 	 * This class dosen't handle substitution, just let APAM perform the usual behavior of destroying
 	 * all the incoming wires to the disappearing instance.
 	 */
-	public void removed(ASMInst instance) {
+	public void removed(Instance instance) {
 	}
 
 	/**

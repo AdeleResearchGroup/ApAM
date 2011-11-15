@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 //import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DynamicManager;
@@ -24,8 +24,8 @@ public class Apform {
     static final CompositeType              rootType              = CompositeTypeImpl.getRootCompositeType();
     static final Composite                  rootInst              = CompositeImpl.getRootAllComposites();
 
-    static Set<ASMImpl>                     unusedImplems         = CompositeTypeImpl.getRootCompositeType().getImpls();
-    static Set<ASMInst>                     unusedInsts           = CompositeImpl.getRootAllComposites()
+    static Set<Implementation>                     unusedImplems         = CompositeTypeImpl.getRootCompositeType().getImpls();
+    static Set<Instance>                     unusedInsts           = CompositeImpl.getRootAllComposites()
                                                                           .getContainInsts();
 
     public static Set<String>               expectedImpls         = new HashSet<String>();
@@ -38,15 +38,15 @@ public class Apform {
     // registers the managers that are interested in services that disappear.
     static Set<DynamicManager>              listenLost            = new HashSet<DynamicManager>();
 
-    public static ASMImpl getUnusedImplem(String name) {
-        ASMImpl impl = CST.ASMImplBroker.getImpl(name);
+    public static Implementation getUnusedImplem(String name) {
+        Implementation impl = CST.ASMImplBroker.getImpl(name);
         if (impl == null)
             return null;
         return (Apform.unusedImplems.contains(impl)) ? impl : null;
     }
 
-    public static ASMInst getUnusedInst(String name) {
-        ASMInst inst = CST.ASMInstBroker.getInst(name);
+    public static Instance getUnusedInst(String name) {
+        Instance inst = CST.ASMInstBroker.getInst(name);
         if (inst == null)
             return null;
         return (Apform.unusedInsts.contains(inst)) ? inst : null;
@@ -58,7 +58,7 @@ public class Apform {
      * 
      * @param impl
      */
-    public static void setUsedImpl(ASMImpl impl) {
+    public static void setUsedImpl(Implementation impl) {
         if (impl.isUsed())
             return;
         ((ImplementationImpl) impl).setUsed(true);
@@ -74,7 +74,7 @@ public class Apform {
      * 
      * @param impl
      */
-    public static void setUsedInst(ASMInst inst) {
+    public static void setUsedInst(Instance inst) {
         if (inst.isUsed())
             return;
         ((CompositeImpl) Apform.rootInst).removeInst(inst);
@@ -91,11 +91,11 @@ public class Apform {
      * @param expectedImpl the symbolic name of that implementation
      * @return
      */
-    public static ASMImpl getWaitImplementation(String expectedImpl) {
+    public static Implementation getWaitImplementation(String expectedImpl) {
         if (expectedImpl == null)
             return null;
         // if allready here
-        ASMImpl impl = CST.ASMImplBroker.getImpl(expectedImpl);
+        Implementation impl = CST.ASMImplBroker.getImpl(expectedImpl);
         if (impl != null)
             return impl;
         Apform.expectedImpls.add(expectedImpl);

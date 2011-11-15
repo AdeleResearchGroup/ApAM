@@ -8,11 +8,10 @@ import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.sam.Instance;
 
 //import fr.imag.adele.sam.Instance;
 
-public interface ASMInstBroker {
+public interface InstanceBroker {
 
     /**
      * adds in ASM an existing SAM Instance.
@@ -22,7 +21,7 @@ public interface ASMInstBroker {
      * @param properties . optional : the initial properties
      * @return an ASM Instance
      */
-    public ASMInst addInst(Composite compo, ApformInstance apformInst, Attributes properties);
+    public Instance addInst(Composite compo, ApformInstance apformInst, Attributes properties);
 
     /**
      * returns the APAM instance related to the provided sam Instance.
@@ -38,21 +37,21 @@ public interface ASMInstBroker {
      * @param instName name the instance (same as sam name)
      * @return the service instance
      */
-    public ASMInst getInst(String instName);
+    public Instance getInst(String instName);
 
     /**
      * Returns all the instances. empty if none.
      * 
      * @return the service instances
      */
-    public Set<ASMInst> getInsts();
+    public Set<Instance> getInsts();
 
     /**
      * Returns all the sharable instances. empty if none.
      * 
      * @return the service instances
      */
-    public Set<ASMInst> getSharableInsts();
+    public Set<Instance> getSharableInsts();
 
     /**
      * Return all the instances that implement the specification and that satisfy the goal. Null if none.
@@ -61,7 +60,7 @@ public interface ASMInstBroker {
      * @param goal a name filter, LDAP filter.
      * @return all the instances that implement the specification and that satisfy the goal
      */
-    public Set<ASMInst> getInsts(ASMSpec spec, Filter goal) throws InvalidSyntaxException;
+    public Set<Instance> getInsts(Specification spec, Filter goal) throws InvalidSyntaxException;
 
     /**
      * Return all the instances that satisfy the goal. Null if none.
@@ -69,12 +68,12 @@ public interface ASMInstBroker {
      * @param goal the goal
      * @return the service instances
      */
-    public Set<ASMInst> getInsts(Filter goal) throws InvalidSyntaxException;
+    public Set<Instance> getInsts(Filter goal) throws InvalidSyntaxException;
 
     /**
      * Remove the instances
      * 
      */
-    public void removeInst(ASMInst inst);
+    public void removeInst(Instance inst);
 
 }

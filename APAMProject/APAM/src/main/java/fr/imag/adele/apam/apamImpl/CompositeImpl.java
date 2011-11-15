@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
@@ -21,10 +21,10 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
     private final String                  name;
     private final CompositeType           compType;
-    private final ASMImpl                 mainImpl;
-    private final ASMInst                 mainInst;
+    private final Implementation                 mainImpl;
+    private final Instance                 mainInst;
     private final Composite               myRootComposite;
-    private final Set<ASMInst>            hasInstance   = new HashSet<ASMInst>();
+    private final Set<Instance>            hasInstance   = new HashSet<Instance>();
 
     // the dependencies between composites
     private final Set<Composite>          depend        = new HashSet<Composite>();
@@ -43,7 +43,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         myRootComposite = null;
     }
 
-    public CompositeImpl(CompositeType compType, Composite instCompo, ASMInst externalMainInst,
+    public CompositeImpl(CompositeType compType, Composite instCompo, Instance externalMainInst,
             Attributes initialproperties) {
         // First create the composite, as an ASMInst empty
         super();
@@ -125,12 +125,12 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     }
 
     @Override
-    public ASMInst getMainInst() {
+    public Instance getMainInst() {
         return mainInst;
     }
 
     @Override
-    public ASMImpl getMainImpl() {
+    public Implementation getMainImpl() {
         return mainImpl;
     }
 
@@ -140,7 +140,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     }
 
     @Override
-    public void addContainInst(ASMInst inst) {
+    public void addContainInst(Instance inst) {
         if (inst == null) {
             System.err.println("ERROR : shoudl provide a real instance to addInst in composite");
             return;
@@ -254,7 +254,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     }
 
     @Override
-    public boolean containsInst(ASMInst inst) {
+    public boolean containsInst(Instance inst) {
         if (inst == null)
             return false;
         return hasInstance.contains(inst);
@@ -266,7 +266,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     }
 
     @Override
-    public Set<ASMInst> getContainInsts() {
+    public Set<Instance> getContainInsts() {
         return Collections.unmodifiableSet(hasInstance);
     }
 
@@ -295,7 +295,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         this.father = null;
     }
 
-    public void removeInst(ASMInst inst) {
+    public void removeInst(Instance inst) {
         hasInstance.remove(inst);
     }
 

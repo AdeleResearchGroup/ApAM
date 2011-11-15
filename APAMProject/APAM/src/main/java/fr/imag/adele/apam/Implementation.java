@@ -12,7 +12,7 @@ import fr.imag.adele.apam.util.Attributes;
 
 //import fr.imag.adele.sam.Implementation;
 
-public interface ASMImpl extends Attributes {
+public interface Implementation extends Attributes {
 
     /**
      * Returns all the composite type that contains this implementation.
@@ -56,26 +56,26 @@ public interface ASMImpl extends Attributes {
      * @param initialproperties the initial properties
      * @return the instance
      */
-    public ASMInst createInst(Composite compo, Attributes initialproperties);
+    public Instance createInst(Composite compo, Attributes initialproperties);
 
     /**
      * @return the specification that this ASMImpls implements
      */
-    public ASMSpec getSpec();
+    public Specification getSpec();
 
     /**
      * Returns the implementation currently used by this implementation.
      * 
      * @return the implementation that this ASMImpl requires.
      */
-    public Set<ASMImpl> getUses();
+    public Set<Implementation> getUses();
 
     /**
      * Returns the implementation currently using this implementation.
      * 
      * @return the implementation that use this ASMImpl .
      */
-    public Set<ASMImpl> getInvUses();
+    public Set<Implementation> getInvUses();
 
     /**
      * Returns the instance (ASMInsts)of that implementation having that name.
@@ -85,7 +85,7 @@ public interface ASMImpl extends Attributes {
      * @param name the name
      * @return the service instance
      */
-    public ASMInst getInst(String name);
+    public Instance getInst(String name);
 
     /**
      * Returns an instance arbitrarily selected (ASMInsts) of that service implementation Null if not instance are
@@ -93,7 +93,7 @@ public interface ASMImpl extends Attributes {
      * 
      * @return An instance of that service implementation or null if not existing.
      */
-    public ASMInst getInst();
+    public Instance getInst();
 
     /**
      * Returns all the instances (ASMInsts) of that service implementation. Empty if not existing.
@@ -101,14 +101,14 @@ public interface ASMImpl extends Attributes {
      * @return All instances of that service implementation.
      */
 
-    public Set<ASMInst> getInsts();
+    public Set<Instance> getInsts();
 
     /**
      * Returns all the sharable instances (ASMInsts) of that service implementation. Empty if not existing.
      * 
      * @return All instances of that service implementation.
      */
-    public Set<ASMInst> getSharableInsts();
+    public Set<Instance> getSharableInsts();
 
     /**
      * Returns all the instances of that implementation that satisfy the provided Goal,
@@ -118,7 +118,7 @@ public interface ASMImpl extends Attributes {
      * @return All instances satisfying the goal
      * @throws InvalidSyntaxException the invalid syntax exception
      */
-    public Set<ASMInst> getInsts(Filter goal) throws InvalidSyntaxException;
+    public Set<Instance> getInsts(Filter goal) throws InvalidSyntaxException;
 
     /**
      * Returns all the sharable instances of that implementation that satisfy the provided Goal,
@@ -127,14 +127,14 @@ public interface ASMImpl extends Attributes {
      * @return All instances satisfying the goal
      * @throws InvalidSyntaxException the invalid syntax exception
      */
-    public Set<ASMInst> getSharableInsts(Filter goal) throws InvalidSyntaxException;
+    public Set<Instance> getSharableInsts(Filter goal) throws InvalidSyntaxException;
 
     /**
      * Returns all the sharable instances of that implementation that satisfy all the filters.
      * 
      * @param constraints. All the constraint that must be satisfied by the instances.
      */
-    public Set<ASMInst> getSharableInsts(Set<Filter> constraints);
+    public Set<Instance> getSharableInsts(Set<Filter> constraints);
 
     /**
      * Returns all the instances of that implementation that satisfy all the filters.
@@ -142,7 +142,7 @@ public interface ASMImpl extends Attributes {
      * 
      * @param constraints. All the constraint that must be satisfied by the instances.
      */
-    public Set<ASMInst> getInsts(Set<Filter> constraints);
+    public Set<Instance> getInsts(Set<Filter> constraints);
 
     /**
      * Returns all the instances of that implementation that satisfy all the filters.
@@ -151,7 +151,7 @@ public interface ASMImpl extends Attributes {
      * @param constraints. All the constraint that must be satisfied by the instances.
      * @param preferences. Return the instance that matches the maximum number of constraints, taken in the order
      */
-    public ASMInst getInst(Set<Filter> constraints, List<Filter> preferences);
+    public Instance getInst(Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * Returns all the sharable instances of that implementation that satisfy all the filters.
@@ -161,7 +161,7 @@ public interface ASMImpl extends Attributes {
      * @param preferences. Return the instance that matches the maximum number of constraints, taken in the order
      */
 
-    public ASMInst getSharableInst(Set<Filter> constraints, List<Filter> preferences);
+    public Instance getSharableInst(Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * Among the instance in "candidates", return the instance that matches the maximum number of constraints, taken in
@@ -169,7 +169,7 @@ public interface ASMImpl extends Attributes {
      * 
      * @param preferences. The preferences ordered from the most important (first).
      */
-    public ASMInst getPreferedInst(Set<ASMInst> candidates, List<Filter> preferences);
+    public Instance getPreferedInst(Set<Instance> candidates, List<Filter> preferences);
 
     /**
      * Checks if is an instantiator.

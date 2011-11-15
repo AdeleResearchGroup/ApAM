@@ -8,8 +8,8 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASMSpec;
-import fr.imag.adele.apam.ASMSpecBroker;
+import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.SpecificationBroker;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.apformAPI.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
@@ -19,12 +19,12 @@ import fr.imag.adele.apam.util.Util;
 
 import fr.imag.adele.sam.deployment.DeploymentUnit;
 
-public class SpecificationBrokerImpl implements ASMSpecBroker {
+public class SpecificationBrokerImpl implements SpecificationBroker {
 
-    private final Set<ASMSpec> specs = new HashSet<ASMSpec>();
+    private final Set<Specification> specs = new HashSet<Specification>();
 
     @Override
-    public void removeSpec(ASMSpec spec) {
+    public void removeSpec(Specification spec) {
         if (spec == null)
             return;
         if (specs.contains(spec)) {
@@ -33,19 +33,19 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
         }
     }
 
-    public void addSpec(ASMSpec spec) {
+    public void addSpec(Specification spec) {
         if (spec == null)
             return;
         specs.add(spec);
     }
 
     @Override
-    public ASMSpec getSpec(String[] interfaces) {
+    public Specification getSpec(String[] interfaces) {
         if (interfaces == null)
             return null;
 
         interfaces = Util.orderInterfaces(interfaces);
-        for (ASMSpec spec : specs) {
+        for (Specification spec : specs) {
             if (Util.sameInterfaces(spec.getInterfaceNames(), interfaces))
                 return spec;
         }
@@ -53,11 +53,11 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
     }
 
     @Override
-    public ASMSpec getSpec(String name) {
+    public Specification getSpec(String name) {
         if (name == null)
             return null;
 
-        for (ASMSpec spec : specs) {
+        for (Specification spec : specs) {
             if (name.equals(spec.getName()))
                 return spec;
 
@@ -73,18 +73,18 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
     }
 
     @Override
-    public Set<ASMSpec> getSpecs() {
+    public Set<Specification> getSpecs() {
 
-        return new HashSet<ASMSpec>(specs);
+        return new HashSet<Specification>(specs);
     }
 
     @Override
-    public Set<ASMSpec> getSpecs(Filter goal) throws InvalidSyntaxException {
+    public Set<Specification> getSpecs(Filter goal) throws InvalidSyntaxException {
         if (goal == null)
             return getSpecs();
 
-        Set<ASMSpec> ret = new HashSet<ASMSpec>();
-        for (ASMSpec spec : specs) {
+        Set<Specification> ret = new HashSet<Specification>();
+        for (Specification spec : specs) {
             if (goal.match((AttributesImpl) spec.getProperties()))
                 ret.add(spec);
         }
@@ -92,10 +92,10 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
     }
 
     @Override
-    public ASMSpec getSpec(Filter goal) throws InvalidSyntaxException {
+    public Specification getSpec(Filter goal) throws InvalidSyntaxException {
         if (goal == null)
             return null;
-        for (ASMSpec spec : specs) {
+        for (Specification spec : specs) {
             if (goal.match((AttributesImpl) spec.getProperties()))
                 return spec;
         }
@@ -103,7 +103,7 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
     }
 
     @Override
-    public ASMSpec addSpec(String name, ApformSpecification apfSpec, Attributes properties) {
+    public Specification addSpec(String name, ApformSpecification apfSpec, Attributes properties) {
         if ((apfSpec == null))
             return null;
         SpecificationImpl spec = new SpecificationImpl(name, apfSpec, null, properties);
@@ -112,10 +112,10 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
     }
 
     @Override
-    public ASMSpec getSpec(ApformSpecification apfSpec) {
+    public Specification getSpec(ApformSpecification apfSpec) {
         if (apfSpec == null)
             return null;
-        for (ASMSpec spec : specs) {
+        for (Specification spec : specs) {
             if (spec.getApformSpec() == apfSpec)
                 return spec;
         }
@@ -134,10 +134,10 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
      *             that satisfies the interfaces.
      */
     @Override
-    public ASMSpec getSpecInterf(String interfaceName) {
+    public Specification getSpecInterf(String interfaceName) {
         if (interfaceName == null)
             return null;
-        for (ASMSpec spec : specs) {
+        for (Specification spec : specs) {
             String[] interfs = spec.getInterfaceNames();
             for (String interf : interfs) {
                 if (interf.equals(interfaceName))
@@ -154,10 +154,10 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
      * @return the abstract service
      */
     @Override
-    public ASMSpec getSpecApfName(String samName) {
+    public Specification getSpecApfName(String samName) {
         if (samName == null)
             return null;
-        for (ASMSpec spec : specs) {
+        for (Specification spec : specs) {
             if (spec.getApformSpec() != null) {
                 if (spec.getApformSpec().getName().equals(samName))
                     return spec;
@@ -167,10 +167,10 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
     }
 
     @Override
-    public ASMSpec createSpec(String specName, String[] interfaces, Attributes properties) {
+    public Specification createSpec(String specName, String[] interfaces, Attributes properties) {
         if (interfaces == null)
             return null;
-        ASMSpec ret = null;
+        Specification ret = null;
         ret = new SpecificationImpl(specName, null, interfaces, properties);
         return ret;
     }
@@ -200,7 +200,7 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
      * @param properties : The initial properties. return an ASM Specification
      */
     @Override
-    public ASMSpec createSpec(String specName, URL url, String[] interfaces, Attributes properties) {
+    public Specification createSpec(String specName, URL url, String[] interfaces, Attributes properties) {
         if ((interfaces == null) || (url == null))
             return null;
 
@@ -213,7 +213,7 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
             return null;
         }
 
-        ASMSpec asmSpec = getSpec(specName);
+        Specification asmSpec = getSpec(specName);
         if (asmSpec == null) { // do not create twice
             asmSpec = createSpec(specName, interfaces, properties);
         }
@@ -221,7 +221,7 @@ public class SpecificationBrokerImpl implements ASMSpecBroker {
     }
 
     @Override
-    public Set<ASMSpec> getRequires(ASMSpec specification) {
+    public Set<Specification> getRequires(Specification specification) {
         // TODO Auto-generated method stub
         return null;
     }

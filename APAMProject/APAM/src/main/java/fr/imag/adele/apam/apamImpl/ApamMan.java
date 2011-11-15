@@ -6,9 +6,9 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMInst;
-import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Manager;
@@ -31,14 +31,14 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public void getSelectionPathInst(Composite compoFrom, ASMImpl impl,
+    public void getSelectionPathInst(Composite compoFrom, Implementation impl,
             Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath) {
     }
 
     @Override
-    public ASMInst resolveImpl(Composite composite, ASMImpl impl, Set<Filter> constraints, List<Filter> preferences) {
-        Set<ASMInst> insts = new HashSet<ASMInst>();
-        for (ASMInst inst : impl.getSharableInsts(constraints)) {
+    public Instance resolveImpl(Composite composite, Implementation impl, Set<Filter> constraints, List<Filter> preferences) {
+        Set<Instance> insts = new HashSet<Instance>();
+        for (Instance inst : impl.getSharableInsts(constraints)) {
             if (Util.checkInstVisible(composite, inst))
                 insts.add(inst);
         }
@@ -48,9 +48,9 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public Set<ASMInst> resolveImpls(Composite composite, ASMImpl impl, Set<Filter> constraints) {
-        Set<ASMInst> insts = new HashSet<ASMInst>();
-        for (ASMInst asmInst : impl.getSharableInsts(constraints)) {
+    public Set<Instance> resolveImpls(Composite composite, Implementation impl, Set<Filter> constraints) {
+        Set<Instance> insts = new HashSet<Instance>();
+        for (Instance asmInst : impl.getSharableInsts(constraints)) {
             if (Util.checkInstVisible(composite, asmInst))
                 insts.add(asmInst);
         }
@@ -67,10 +67,10 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public ASMImpl findImplByName(CompositeType compoType, String implName) {
+    public Implementation findImplByName(CompositeType compoType, String implName) {
         if (implName == null)
             return null;
-        ASMImpl impl = CST.ASMImplBroker.getImpl(implName);
+        Implementation impl = CST.ASMImplBroker.getImpl(implName);
         if (impl == null)
             return null;
         if (Util.checkImplVisible(impl, compoType)) {
@@ -80,18 +80,18 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public ASMImpl resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
+    public Implementation resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
             Set<Filter> constraints, List<Filter> preferences) {
-        ASMSpec spec = null;
+        Specification spec = null;
         if (interfaceName != null)
             spec = CST.ASMSpecBroker.getSpecInterf(interfaceName);
         else
             spec = CST.ASMSpecBroker.getSpec(interfaces);
         if (spec == null)
             return null;
-        Set<ASMImpl> impls = new HashSet<ASMImpl>();
+        Set<Implementation> impls = new HashSet<Implementation>();
         // select those that are visible
-        for (ASMImpl impl : spec.getImpls()) {
+        for (Implementation impl : spec.getImpls()) {
             if (Util.checkImplVisible(impl, compoType))
                 impls.add(impl);
         }
@@ -102,9 +102,9 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public ASMImpl resolveSpecByName(CompositeType compoType, String specName,
+    public Implementation resolveSpecByName(CompositeType compoType, String specName,
             Set<Filter> constraints, List<Filter> preferences) {
-        ASMSpec spec = null;
+        Specification spec = null;
         if (specName == null)
             return null;
         spec = CST.ASMSpecBroker.getSpec(specName);
@@ -114,8 +114,8 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public void notifySelection(ASMInst client, String resName, String depName, ASMImpl impl, ASMInst inst,
-            Set<ASMInst> insts) {
+    public void notifySelection(Instance client, String resName, String depName, Implementation impl, Instance inst,
+            Set<Instance> insts) {
         // do not care
     }
 

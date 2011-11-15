@@ -10,7 +10,7 @@ import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.util.Attributes;
 
-public interface ASMImplBroker {
+public interface ImplementationBroker {
 
     /**
      * return the ASM implementation associated with that sam implementation
@@ -18,7 +18,7 @@ public interface ASMImplBroker {
      * @param samImpl
      * @return
      */
-    public ASMImpl getImpl(ApformImplementation apfImpl);
+    public Implementation getImpl(ApformImplementation apfImpl);
 
     /**
      * If the sam implementation of name samImplName is found, creates a new implementation, and adds it in the broker.
@@ -40,9 +40,9 @@ public interface ASMImplBroker {
      * @param properties . optional : the initial properties for that implementation
      * @return an ASM Implementation
      */
-    public ASMImpl createImpl(CompositeType compo, String implName, URL url, Attributes properties);
+    public Implementation createImpl(CompositeType compo, String implName, URL url, Attributes properties);
 
-    public void removeImpl(ASMImpl impl);
+    public void removeImpl(Implementation impl);
 
     /**
      * Return an implementation with the provided name.
@@ -50,14 +50,14 @@ public interface ASMImplBroker {
      * @param the implementation name.
      * @return an ASMImpl that has the provided name, null if none.
      */
-    public ASMImpl getImpl(String implName);
+    public Implementation getImpl(String implName);
 
     /**
      * Get all the implementations.
      * 
      * @return all ASMImpls. Null if none.
      */
-    public Set<ASMImpl> getImpls();
+    public Set<Implementation> getImpls();
 
     /**
      * Return the list of service implementation that satisfies the goal.
@@ -66,7 +66,7 @@ public interface ASMImplBroker {
      * @return all ASMImpls that satisfy the goal. Null if none.
      * @throws ConnectionException the connection exception
      */
-    public Set<ASMImpl> getImpls(Filter goal) throws InvalidSyntaxException;
+    public Set<Implementation> getImpls(Filter goal) throws InvalidSyntaxException;
 
     /**
      * returns the list of implementations that implement the specification
@@ -75,6 +75,6 @@ public interface ASMImplBroker {
      * @return
      * @throws InvalidSyntaxException
      */
-    public Set<ASMImpl> getImpls(ASMSpec spec);
+    public Set<Implementation> getImpls(Specification spec);
 
 }

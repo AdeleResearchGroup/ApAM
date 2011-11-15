@@ -1,8 +1,8 @@
 package fr.imag.adele.dynamic.application.manager;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASMInst;
-import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.sam.Instance;
 import fr.imag.adele.sam.Specification;
 
@@ -37,12 +37,12 @@ public class ServiceClassifierByInterface extends ServiceClassifier {
 	/**
 	 * Whether the service implements the interface associated to this class
 	 */
-	public @Override boolean contains(ASMInst instance) {
+	public @Override boolean contains(Instance instance) {
 		
 		/*
 		 * Validate the specification
 		 */
-		ASMSpec specification	= instance.getSpec();
+		Specification specification	= instance.getSpec();
 		if (specification == null)
 			return false;
 		

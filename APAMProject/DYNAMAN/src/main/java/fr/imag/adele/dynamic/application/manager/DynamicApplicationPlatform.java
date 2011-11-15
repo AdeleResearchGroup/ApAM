@@ -1,6 +1,6 @@
 package fr.imag.adele.dynamic.application.manager;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.sam.Instance;
 
@@ -19,7 +19,7 @@ public interface DynamicApplicationPlatform {
 		/**
 		 * An existing instance of the class expected by the listener was removed from the platform.
 		 */
-		public void removed(ASMInst instance);
+		public void removed(Instance instance);
 		
 		/**
 		 * Event for signaling an instance could not be bound to the unresolved target
@@ -57,7 +57,7 @@ public interface DynamicApplicationPlatform {
 	 * based on the basic dependency model of the handler associated to the instance, and delegates process
 	 * to the resolve(BindingRequest, boolean) method.
 	 */
-	public void resolve(ASMInst instance, String dependency, boolean eager);
+	public void resolve(Instance instance, String dependency, boolean eager);
 	
 	
 	/**
@@ -65,7 +65,7 @@ public interface DynamicApplicationPlatform {
 	 * based on the basic dependency model of the handler associated to the instance, and delegates process
 	 * to the resolve(BindingRequest, boolean) method.
 	 */
-	public void resolve(ASMInst instance, boolean eager);
+	public void resolve(Instance instance, boolean eager);
 	
 	/**
 	 * Blocks the specified request until a future resolve satisfies it 
@@ -86,6 +86,6 @@ public interface DynamicApplicationPlatform {
 	 * Decides to activate a dynamic physical instance into the platform, this is a global decision that may
 	 * involve several composite interpreters and may require knowledge of global platform state
 	 */
-	public ASMInst activate(Instance instance);
+	public Instance activate(Instance instance);
 
 }

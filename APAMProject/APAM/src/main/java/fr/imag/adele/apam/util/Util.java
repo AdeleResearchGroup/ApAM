@@ -9,9 +9,9 @@ import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMInst;
-import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apamImpl.CST;
@@ -163,7 +163,7 @@ public class Util {
      * 
      * Otherwise the scope rules are the same.
      */
-    public static boolean checkImplVisible(ASMImpl impl, CompositeType compoFrom) {
+    public static boolean checkImplVisible(Implementation impl, CompositeType compoFrom) {
         for (CompositeType compoTo : impl.getInCompositeType()) {
             if (Util.checkVisibilityImpl(compoFrom, compoTo, impl))
                 return true;
@@ -186,7 +186,7 @@ public class Util {
      * @param compoTo : the composite type containing the implementation to see.
      * @return
      */
-    private static boolean checkVisibilityImpl(CompositeType compoFrom, CompositeType compoTo, ASMImpl impl) {
+    private static boolean checkVisibilityImpl(CompositeType compoFrom, CompositeType compoTo, Implementation impl) {
         String visible = (compoFrom.isInternal()) ? CST.V_LOCAL : ((CompositeTypeImpl) compoTo)
                 .getVisibleInCompoType(impl);
 
@@ -201,7 +201,7 @@ public class Util {
         return false;
     }
 
-    public static boolean checkInstVisible(Composite compoFrom, ASMInst toInst) {
+    public static boolean checkInstVisible(Composite compoFrom, Instance toInst) {
         String scope = toInst.getScope();
         if ((compoFrom == null) || (toInst.getComposite() == null)) { // compoFrom or impl are root composite
             return scope.equals(CST.V_GLOBAL);

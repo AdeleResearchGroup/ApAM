@@ -9,8 +9,8 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apformAPI.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
@@ -18,16 +18,16 @@ import fr.imag.adele.apam.util.Util;
 
 //import fr.imag.adele.sam.ApformSpecification;
 
-public class SpecificationImpl extends AttributesImpl implements ASMSpec {
+public class SpecificationImpl extends AttributesImpl implements Specification {
 
     private String              name;
     // private final CompositeOLD myComposite;
     private ApformSpecification apfSpec         = null;
-    private final Set<ASMImpl>  implementations = new HashSet<ASMImpl>();
+    private final Set<Implementation>  implementations = new HashSet<Implementation>();
     private String[]            interfaces;
 
-    private final Set<ASMSpec>  requires        = new HashSet<ASMSpec>(); // all relations requires
-    private final Set<ASMSpec>  invRequires     = new HashSet<ASMSpec>(); // all reverse relations requires
+    private final Set<Specification>  requires        = new HashSet<Specification>(); // all relations requires
+    private final Set<Specification>  invRequires     = new HashSet<Specification>(); // all reverse relations requires
 
     // private int shared = ASM.SHAREABLE;
     // private final int clonable = ASM.TRUE;
@@ -76,7 +76,7 @@ public class SpecificationImpl extends AttributesImpl implements ASMSpec {
         return name;
     }
 
-    public void addImpl(ASMImpl impl) {
+    public void addImpl(Implementation impl) {
         implementations.add(impl);
     }
 
@@ -118,10 +118,10 @@ public class SpecificationImpl extends AttributesImpl implements ASMSpec {
      * @see fr.imag.adele.apf.ApformSpecification#getASMImpl(java.lang.String)
      */
     @Override
-    public ASMImpl getImpl(String name) {
+    public Implementation getImpl(String name) {
         if (name == null)
             return null;
-        for (ASMImpl impl : implementations) {
+        for (Implementation impl : implementations) {
             if (impl.getName().equals(name))
                 return impl;
         }
@@ -129,11 +129,11 @@ public class SpecificationImpl extends AttributesImpl implements ASMSpec {
     }
 
     @Override
-    public Set<ASMImpl> getImpls(Filter filter) throws InvalidSyntaxException {
+    public Set<Implementation> getImpls(Filter filter) throws InvalidSyntaxException {
         if (filter == null)
             return getImpls();
-        Set<ASMImpl> ret = new HashSet<ASMImpl>();
-        for (ASMImpl impl : implementations) {
+        Set<Implementation> ret = new HashSet<Implementation>();
+        for (Implementation impl : implementations) {
             if (filter.match((AttributesImpl) impl.getProperties())) {
                 ret.add(impl);
             }
@@ -147,16 +147,16 @@ public class SpecificationImpl extends AttributesImpl implements ASMSpec {
     }
 
     // relation requires control
-    public void addRequires(ASMSpec dest) {
+    public void addRequires(Specification dest) {
         if (requires.contains(dest))
             return;
         requires.add(dest);
         ((SpecificationImpl) dest).addInvRequires(this);
     }
 
-    public void removeRequires(ASMSpec dest) {
-        for (ASMImpl impl : implementations) {
-            for (ASMImpl implDest : impl.getUses())
+    public void removeRequires(Specification dest) {
+        for (Implementation impl : implementations) {
+            for (Implementation implDest : impl.getUses())
                 if (implDest.getSpec() == dest) {
                     return; // it exists another instance that uses that destination. Do nothing.
                 }
@@ -165,21 +165,21 @@ public class SpecificationImpl extends AttributesImpl implements ASMSpec {
         ((SpecificationImpl) dest).removeInvRequires(this);
     }
 
-    private void addInvRequires(ASMSpec orig) {
+    private void addInvRequires(Specification orig) {
         invRequires.add(orig);
     }
 
-    private void removeInvRequires(ASMSpec orig) {
+    private void removeInvRequires(Specification orig) {
         invRequires.remove(orig);
     }
 
     @Override
-    public Set<ASMSpec> getRequires() {
+    public Set<Specification> getRequires() {
         return Collections.unmodifiableSet(requires);
     }
 
     @Override
-    public Set<ASMSpec> getInvRequires() {
+    public Set<Specification> getInvRequires() {
         return Collections.unmodifiableSet(invRequires);
     }
 
@@ -190,7 +190,7 @@ public class SpecificationImpl extends AttributesImpl implements ASMSpec {
 
     @Override
     public void remove() {
-        for (ASMImpl impl : implementations) {
+        for (Implementation impl : implementations) {
             impl.remove();
         }
         CST.ASMSpecBroker.removeSpec(this);
@@ -206,12 +206,12 @@ public class SpecificationImpl extends AttributesImpl implements ASMSpec {
 //        }
     }
 
-    public void removeImpl(ASMImpl impl) {
+    public void removeImpl(Implementation impl) {
         implementations.remove(impl);
     }
 
     @Override
-    public Set<ASMImpl> getImpls() {
+    public Set<Implementation> getImpls() {
         return Collections.unmodifiableSet(implementations);
     }
 
@@ -222,11 +222,11 @@ public class SpecificationImpl extends AttributesImpl implements ASMSpec {
     }
 
     @Override
-    public Set<ASMImpl> getImpls(Set<Filter> constraints) {
+    public Set<Implementation> getImpls(Set<Filter> constraints) {
         if ((constraints == null) || constraints.isEmpty())
             return Collections.unmodifiableSet(implementations);
-        Set<ASMImpl> ret = new HashSet<ASMImpl>();
-        for (ASMImpl impl : implementations) {
+        Set<Implementation> ret = new HashSet<Implementation>();
+        for (Implementation impl : implementations) {
             for (Filter filter : constraints) {
                 if (filter.match((AttributesImpl) impl.getProperties())) {
                     ret.add(impl);
@@ -237,11 +237,11 @@ public class SpecificationImpl extends AttributesImpl implements ASMSpec {
     }
 
     @Override
-    public Set<ASMImpl> getImpls(Set<ASMImpl> candidates, Set<Filter> constraints) {
+    public Set<Implementation> getImpls(Set<Implementation> candidates, Set<Filter> constraints) {
         if ((constraints == null) || constraints.isEmpty())
             return Collections.unmodifiableSet(candidates);
-        Set<ASMImpl> ret = new HashSet<ASMImpl>();
-        for (ASMImpl impl : candidates) {
+        Set<Implementation> ret = new HashSet<Implementation>();
+        for (Implementation impl : candidates) {
             for (Filter filter : constraints) {
                 if (filter.match((AttributesImpl) impl)) {
                     ret.add(impl);
@@ -252,29 +252,29 @@ public class SpecificationImpl extends AttributesImpl implements ASMSpec {
     }
 
     @Override
-    public ASMImpl getImpl(Set<Filter> constraints, List<Filter> preferences) {
-        Set<ASMImpl> impls = null;
+    public Implementation getImpl(Set<Filter> constraints, List<Filter> preferences) {
+        Set<Implementation> impls = null;
         if ((preferences != null) && !preferences.isEmpty()) {
             impls = getImpls(constraints);
         } else
             impls = implementations;
         if ((constraints == null) || constraints.isEmpty())
-            return ((ASMImpl) impls.toArray()[0]);
+            return ((Implementation) impls.toArray()[0]);
 
         return getPreferedImpl(impls, preferences);
     }
 
     @Override
-    public ASMImpl getPreferedImpl(Set<ASMImpl> candidates, List<Filter> preferences) {
+    public Implementation getPreferedImpl(Set<Implementation> candidates, List<Filter> preferences) {
         if ((preferences == null) || preferences.isEmpty()) {
             if (candidates.isEmpty())
                 return null;
             else
-                return (ASMImpl) candidates.toArray()[0];
+                return (Implementation) candidates.toArray()[0];
         }
-        ASMImpl winner = null;
+        Implementation winner = null;
         int maxMatch = -1;
-        for (ASMImpl impl : candidates) {
+        for (Implementation impl : candidates) {
             int match = 0;
             for (Filter filter : preferences) {
                 if (!filter.match((AttributesImpl) impl))

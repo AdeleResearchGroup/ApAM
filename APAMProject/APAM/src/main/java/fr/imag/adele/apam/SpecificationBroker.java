@@ -13,14 +13,14 @@ import fr.imag.adele.apam.util.Attributes;
 
 //import fr.imag.adele.sam.Specification;
 
-public interface ASMSpecBroker {
+public interface SpecificationBroker {
     /**
      * If samSpec is existing, creates the corresponding specification.
      * 
      * @param specName the *logical* name of that specification; different from Apform. May be null.
      * @param samSpec : A Apform specification.
      */
-    public ASMSpec addSpec(String specName, ApformSpecification apfSpec, Attributes properties);
+    public Specification addSpec(String specName, ApformSpecification apfSpec, Attributes properties);
 
     /**
      * Creates a specification. WARNING : this spec may not have any
@@ -31,7 +31,7 @@ public interface ASMSpecBroker {
      * @param properties : The initial properties.
      *            return an ASM Specification
      */
-    public ASMSpec createSpec(String specName, String[] interfaces, Attributes properties);
+    public Specification createSpec(String specName, String[] interfaces, Attributes properties);
 
     /**
      * Creates and deploys a specification. WARNING : The fact to deploy the
@@ -44,14 +44,14 @@ public interface ASMSpecBroker {
      * @param interfaces the list of interfaces this spec implements
      * @param properties : The initial properties. return an ASM Specification
      */
-    public ASMSpec createSpec(String specName, URL url, String[] interfaces, Attributes properties);
+    public Specification createSpec(String specName, URL url, String[] interfaces, Attributes properties);
 
     /**
      * WARNING : it will also destroy all implems and instances.
      * 
      * @param spec the spec to delete.
      */
-    public void removeSpec(ASMSpec spec);
+    public void removeSpec(Specification spec);
 
     /**
      * return the ASM specification associated with that Apform specification
@@ -59,14 +59,14 @@ public interface ASMSpecBroker {
      * @param ApformImpl
      * @return
      */
-    public ASMSpec getSpec(ApformSpecification ApfSpec);
+    public Specification getSpec(ApformSpecification ApfSpec);
 
     /**
      * Returns the specifications currently required by the provided specification
      * 
      * @param specification the specification
      */
-    public Set<ASMSpec> getRequires(ASMSpec specification);
+    public Set<Specification> getRequires(Specification specification);
 
     /**
      * Returns the specification that satisfies the goal. If goal is
@@ -75,7 +75,7 @@ public interface ASMSpecBroker {
      * @param goal the goal
      * @return the specification that satisfies the goal
      */
-    public ASMSpec getSpec(Filter goal) throws InvalidSyntaxException;
+    public Specification getSpec(Filter goal) throws InvalidSyntaxException;
 
     /**
      * Returns the specification that implement all and only the provided
@@ -91,7 +91,7 @@ public interface ASMSpecBroker {
      * 
      * @return the specification
      */
-    public ASMSpec getSpec(String[] interfaces);
+    public Specification getSpec(String[] interfaces);
 
     /**
      * Returns *the first* specification that implements the provided
@@ -103,7 +103,7 @@ public interface ASMSpecBroker {
      * @param interfaceName : the name of the interface of the required specification.
      * @return the specification
      */
-    public ASMSpec getSpecInterf(String interfaceName);
+    public Specification getSpecInterf(String interfaceName);
 
     /**
      * Returns the specification with the given logical name. WARNING: Name is
@@ -114,7 +114,7 @@ public interface ASMSpecBroker {
      *            logical name provided
      * @return the abstract service
      */
-    public ASMSpec getSpec(String name);
+    public Specification getSpec(String name);
 
     /**
      * Returns the specification with the given Apf name.
@@ -122,7 +122,7 @@ public interface ASMSpecBroker {
      * @param ApfName the Apf name of the specification
      * @return the abstract service
      */
-    public ASMSpec getSpecApfName(String ApfName);
+    public Specification getSpecApfName(String ApfName);
 
     /**
      * Returns all the specifications.
@@ -130,7 +130,7 @@ public interface ASMSpecBroker {
      * @return the abstract services
      */
 
-    public Set<ASMSpec> getSpecs();
+    public Set<Specification> getSpecs();
 
     /**
      * Returns all the specifications that satisfies the goal. If goal is null
@@ -139,6 +139,6 @@ public interface ASMSpecBroker {
      * @param goal the goal
      * @return the specificaitons
      */
-    public Set<ASMSpec> getSpecs(Filter goal) throws InvalidSyntaxException;
+    public Set<Specification> getSpecs(Filter goal) throws InvalidSyntaxException;
 
 }

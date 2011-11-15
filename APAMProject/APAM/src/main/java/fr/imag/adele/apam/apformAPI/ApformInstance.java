@@ -2,7 +2,7 @@ package fr.imag.adele.apam.apformAPI;
 
 import java.util.Map;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 
 public interface ApformInstance {
 
@@ -40,7 +40,7 @@ public interface ApformInstance {
      * @param destInst. Real address of the destination.
      * @return False if it cannot be performed : legacy.
      */
-    public boolean setWire(ASMInst destInst, String depName);
+    public boolean setWire(Instance destInst, String depName);
 
     /**
      * Remove a wire. That dependency is no longer valid (disappear or other reason)
@@ -49,7 +49,7 @@ public interface ApformInstance {
      * @param destInst the old destination object (if multiple).
      * @return false if it could not be performed: legacy.
      */
-    public boolean remWire(ASMInst destInst, String depName);
+    public boolean remWire(Instance destInst, String depName);
 
     /**
      * Change a dependency by another one.
@@ -59,8 +59,8 @@ public interface ApformInstance {
      * @param newDestInst The new destination.
      * @return false if it could not be performed: legacy.
      */
-    public boolean substWire(ASMInst oldDestInst, ASMInst newDestInst, String depName);
+    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName);
 
-    public void setInst(ASMInst asmInstImpl);
+    public void setInst(Instance asmInstImpl);
 
 }

@@ -4,12 +4,12 @@ import java.util.Set;
 
 import fr.imag.adele.apam.apamImpl.ManagerModel;
 
-public interface CompositeType extends ASMImpl {
+public interface CompositeType extends Implementation {
     /**
      * 
      * @return the main implementation
      */
-    public ASMImpl getMainImpl();
+    public Implementation getMainImpl();
 
     /**
      * 
@@ -60,7 +60,7 @@ public interface CompositeType extends ASMImpl {
      * 
      * @param impl
      */
-    public void addImpl(ASMImpl impl);
+    public void addImpl(Implementation impl);
 
     /**
      * return true if the current type contains "impl"
@@ -68,14 +68,14 @@ public interface CompositeType extends ASMImpl {
      * @param spec
      * @return
      */
-    public boolean containsImpl(ASMImpl impl);
+    public boolean containsImpl(Implementation impl);
 
     /**
      * return all the implementation contained in this type
      * 
      * @return
      */
-    public Set<ASMImpl> getImpls();
+    public Set<Implementation> getImpls();
 
     /**
      * return the composite types embedded in the current one.

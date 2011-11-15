@@ -7,9 +7,8 @@ import org.osgi.framework.Filter;
 import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.sam.Instance;
 
-public interface ASMInst extends Attributes {
+public interface Instance extends Attributes {
 
     /**
      * Returns the composite to which this instance pertains.
@@ -27,7 +26,7 @@ public interface ASMInst extends Attributes {
     /**
      * returns all the instances this one is wired to.
      */
-    public Set<ASMInst> getWireDests();
+    public Set<Instance> getWireDests();
 
     /**
      * returns the wire toward that destination
@@ -35,7 +34,7 @@ public interface ASMInst extends Attributes {
      * @param destInst
      * @return
      */
-    public Wire getWire(ASMInst destInst);
+    public Wire getWire(Instance destInst);
 
     /**
      * returns the wire for hte "depName" dependency toward that destination instance
@@ -44,7 +43,7 @@ public interface ASMInst extends Attributes {
      * @param depName : name of the dependency
      * @return
      */
-    public Wire getWire(ASMInst destInst, String depName);
+    public Wire getWire(Instance destInst, String depName);
 
     /**
      * Retruns all hte wires toward that destination.
@@ -52,7 +51,7 @@ public interface ASMInst extends Attributes {
      * @param destInst
      * @return
      */
-    public Set<Wire> getWires(ASMInst destInst);
+    public Set<Wire> getWires(Instance destInst);
 
     /**
      * returns all the destinations of that dependency (if multiple cardinality)
@@ -60,7 +59,7 @@ public interface ASMInst extends Attributes {
      * @param depName
      * @return
      */
-    public Set<ASMInst> getWireDests(String depName);
+    public Set<Instance> getWireDests(String depName);
 
     /**
      * returns all the wires related to that dependency (if multiple cardinality)
@@ -101,7 +100,7 @@ public interface ASMInst extends Attributes {
      * @param depName : name of the dependency
      * @return
      */
-    public boolean createWire(ASMInst to, String depName);
+    public boolean createWire(Instance to, String depName);
 
     /**
      * remove that wire.
@@ -136,14 +135,14 @@ public interface ASMInst extends Attributes {
      * 
      * @return
      */
-    public ASMSpec getSpec();
+    public Specification getSpec();
 
     /**
      * Get the implementation.
      * 
      * @return the associated Service implementation
      */
-    public ASMImpl getImpl();
+    public Implementation getImpl();
 
     /**
      * Method getServiceObject returns an object that can be casted to the associated interface, and on which the

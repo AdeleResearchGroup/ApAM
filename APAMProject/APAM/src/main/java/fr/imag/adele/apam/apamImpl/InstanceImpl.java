@@ -7,9 +7,9 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMInst;
-import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.apformAPI.Apform;
@@ -19,13 +19,13 @@ import fr.imag.adele.apam.util.AttributesImpl;
 
 //import fr.imag.adele.sam.Instance;
 
-public class InstanceImpl extends AttributesImpl implements ASMInst {
+public class InstanceImpl extends AttributesImpl implements Instance {
 
     /** The logger. */
     // private static Logger logger = Logger.getLogger(ASMInstImpl.class);
     // private static ASMInstBroker myBroker = ASM.ASMInstBroker;
 
-    private ASMImpl          myImpl;
+    private Implementation          myImpl;
     private Composite        myComposite;
     protected ApformInstance apformInst;
     private boolean          sharable = true;
@@ -38,7 +38,7 @@ public class InstanceImpl extends AttributesImpl implements ASMInst {
     public InstanceImpl() {
     }
 
-    protected void instConstructor(ASMImpl impl, Composite instCompo, Attributes initialproperties,
+    protected void instConstructor(Implementation impl, Composite instCompo, Attributes initialproperties,
             ApformInstance samInst) {
         if (samInst == null) {
             new Exception("ERROR : sam instance cannot be null on ASM instance constructor").printStackTrace();
@@ -57,7 +57,7 @@ public class InstanceImpl extends AttributesImpl implements ASMInst {
         ((InstanceBrokerImpl) CST.ASMInstBroker).addInst(this);
     }
 
-    public InstanceImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, ApformInstance apformInst,
+    public InstanceImpl(Implementation impl, Composite instCompo, Attributes initialproperties, ApformInstance apformInst,
             boolean composite) {
         // Create the implementation and initialize
         instConstructor(impl, instCompo, initialproperties, apformInst);
@@ -96,7 +96,7 @@ public class InstanceImpl extends AttributesImpl implements ASMInst {
      * @see fr.imag.adele.sam.ApformInstance#getImplementation()
      */
     @Override
-    public ASMImpl getImpl() {
+    public Implementation getImpl() {
         return myImpl;
     }
 
@@ -114,8 +114,8 @@ public class InstanceImpl extends AttributesImpl implements ASMInst {
      * sam instance
      */
     @Override
-    public Set<ASMInst> getWireDests(String depName) {
-        Set<ASMInst> dests = new HashSet<ASMInst>();
+    public Set<Instance> getWireDests(String depName) {
+        Set<Instance> dests = new HashSet<Instance>();
         for (Wire wire : wires) {
             if (wire.getDepName().equals(depName))
                 dests.add(wire.getDestination());
@@ -128,8 +128,8 @@ public class InstanceImpl extends AttributesImpl implements ASMInst {
      * sam instance
      */
     @Override
-    public Set<ASMInst> getWireDests() {
-        Set<ASMInst> dests = new HashSet<ASMInst>();
+    public Set<Instance> getWireDests() {
+        Set<Instance> dests = new HashSet<Instance>();
         for (Wire wire : wires) {
             dests.add(wire.getDestination());
         }
@@ -152,7 +152,7 @@ public class InstanceImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
-    public boolean createWire(ASMInst to, String depName) {
+    public boolean createWire(Instance to, String depName) {
         if ((to == null) || (depName == null))
             return false;
 
@@ -227,7 +227,7 @@ public class InstanceImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
-    public ASMSpec getSpec() {
+    public Specification getSpec() {
         return myImpl.getSpec();
     }
 
@@ -303,7 +303,7 @@ public class InstanceImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
-    public Wire getWire(ASMInst destInst) {
+    public Wire getWire(Instance destInst) {
         if (destInst == null)
             return null;
         for (Wire wire : invWires) {
@@ -314,7 +314,7 @@ public class InstanceImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
-    public Wire getWire(ASMInst destInst, String depName) {
+    public Wire getWire(Instance destInst, String depName) {
         if (destInst == null)
             return null;
         for (Wire wire : invWires) {
@@ -325,7 +325,7 @@ public class InstanceImpl extends AttributesImpl implements ASMInst {
     }
 
     @Override
-    public Set<Wire> getWires(ASMInst destInst) {
+    public Set<Wire> getWires(Instance destInst) {
         if (destInst == null)
             return null;
         Set<Wire> w = new HashSet<Wire>();

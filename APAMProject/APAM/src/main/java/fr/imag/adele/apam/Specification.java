@@ -12,7 +12,7 @@ import fr.imag.adele.apam.util.Attributes;
 
 //import fr.imag.adele.sam.Specification;
 
-public interface ASMSpec extends Attributes {
+public interface Specification extends Attributes {
 
     public String getName();
 
@@ -37,7 +37,7 @@ public interface ASMSpec extends Attributes {
      * @param implemName the name
      * @return the implementation
      */
-    public ASMImpl getImpl(String implemName);
+    public Implementation getImpl(String implemName);
 
     /**
      * Return all the implementation of that specification. If no services implementation are found,
@@ -46,7 +46,7 @@ public interface ASMSpec extends Attributes {
      * @return the implementations
      * @throws ConnectionException the connection exception
      */
-    public Set<ASMImpl> getImpls();
+    public Set<Implementation> getImpls();
 
     /**
      * Returns all the implementations that satisfy the goal. Null if none.
@@ -55,7 +55,7 @@ public interface ASMSpec extends Attributes {
      * @return the implementations
      * @throws InvalidSyntaxException
      */
-    public Set<ASMImpl> getImpls(Filter filter) throws InvalidSyntaxException;
+    public Set<Implementation> getImpls(Filter filter) throws InvalidSyntaxException;
 
     /**
      * Returns all the implementations that satisfy all the constraints. Null if none.
@@ -63,7 +63,7 @@ public interface ASMSpec extends Attributes {
      * @param constraint : the set of filters. If null or empty, no constraints.
      * @return the implementations
      */
-    public Set<ASMImpl> getImpls(Set<Filter> constraints);
+    public Set<Implementation> getImpls(Set<Filter> constraints);
 
     /**
      * Returns the subset of "candidates" that satisfy all the constraints. Null if none.
@@ -71,7 +71,7 @@ public interface ASMSpec extends Attributes {
      * @param constraint : the set of filters. If null or empty, no constraints.
      * @return the implementations
      */
-    public Set<ASMImpl> getImpls(Set<ASMImpl> candidates, Set<Filter> constraints);
+    public Set<Implementation> getImpls(Set<Implementation> candidates, Set<Filter> constraints);
 
     /**
      * Return the implementation that matches the constraints and that best satisfies the preferences.
@@ -80,7 +80,7 @@ public interface ASMSpec extends Attributes {
      * @param preferences
      * @return
      */
-    public ASMImpl getImpl(Set<Filter> constraints, List<Filter> preferences);
+    public Implementation getImpl(Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * returns the implementation, in the candidate set, that best satisfies the preferences.
@@ -89,7 +89,7 @@ public interface ASMSpec extends Attributes {
      * @param preferences
      * @return
      */
-    public ASMImpl getPreferedImpl(Set<ASMImpl> candidates, List<Filter> preferences);
+    public Implementation getPreferedImpl(Set<Implementation> candidates, List<Filter> preferences);
 
     /**
      * Get the service interface.
@@ -103,7 +103,7 @@ public interface ASMSpec extends Attributes {
      * 
      * @return the list of currently required specification. Null if none
      */
-    public Set<ASMSpec> getRequires();
+    public Set<Specification> getRequires();
 
     /**
      * Return the list of specification that currently require that spec.
@@ -111,6 +111,6 @@ public interface ASMSpec extends Attributes {
      * @return the list of specifications using that spec. Null if none
      * @throws ConnectionException the connection exception
      */
-    public Set<ASMSpec> getInvRequires();
+    public Set<Specification> getInvRequires();
 
 }

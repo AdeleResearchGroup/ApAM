@@ -9,7 +9,7 @@ public interface DynamicManager extends Manager {
      * 
      * @param inst The instance that appeared.
      */
-    public abstract void appeared(ASMInst inst);
+    public abstract void appeared(Instance inst);
 
     /**
      * The instance "lost" disappeared. The disappeared ASM instance is turned to the "lost" state (and propagated) If
@@ -19,6 +19,6 @@ public interface DynamicManager extends Manager {
      * 
      * @param lost the ASM instance that disappeared
      */
-    public abstract ASMInst lostInst(ASMInst lost);
+    public abstract Instance lostInst(Instance lost);
 
 }

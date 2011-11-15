@@ -22,8 +22,8 @@ import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
@@ -356,10 +356,10 @@ public class OBRMan implements Manager, IOBRMAN {
      * @param from : the origin of the wire toward the resource.
      * @return
      */
-    private ASMImpl installInstantiate(Resource res, String implName, CompositeType implComposite) {
+    private Implementation installInstantiate(Resource res, String implName, CompositeType implComposite) {
 
 //        String specName = getAttributeInResource(res, "apam-component", "apam-specification");
-        ASMImpl asmImpl = null;
+        Implementation asmImpl = null;
 
         asmImpl = CST.ASMImplBroker.getImpl(implName);
         // samImpl = CST.SAMImplBroker.getImplementation(implName);
@@ -403,7 +403,7 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     @Override
-    public void getSelectionPathInst(Composite compoFrom, ASMImpl impl,
+    public void getSelectionPathInst(Composite compoFrom, Implementation impl,
             Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath) {
         return;
     }
@@ -427,12 +427,12 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     @Override
-    public ASMInst resolveImpl(Composite composite, ASMImpl impl, Set<Filter> constraints, List<Filter> preferences) {
+    public Instance resolveImpl(Composite composite, Implementation impl, Set<Filter> constraints, List<Filter> preferences) {
         return null;
     }
 
     @Override
-    public Set<ASMInst> resolveImpls(Composite composite, ASMImpl impl, Set<Filter> constraints) {
+    public Set<Instance> resolveImpls(Composite composite, Implementation impl, Set<Filter> constraints) {
         return null;
     }
 
@@ -508,7 +508,7 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     // interface manager
-    private ASMImpl resolveSpec(CompositeType compoType, String interfaceName, String specName,
+    private Implementation resolveSpec(CompositeType compoType, String interfaceName, String specName,
             Set<Filter> constraints, List<Filter> preferences) {
 
         // temporary
@@ -523,7 +523,7 @@ public class OBRMan implements Manager, IOBRMAN {
         // end
 
         Selected selected = null;
-        ASMImpl impl = null;
+        Implementation impl = null;
         if (specName != null) {
             selected = lookFor(CST.CAPABILITY_COMPONENT, "(apam-specification=" + specName + ")", constraints,
                     preferences);
@@ -543,22 +543,22 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     @Override
-    public ASMImpl resolveSpecByName(CompositeType compoType, String specName,
+    public Implementation resolveSpecByName(CompositeType compoType, String specName,
             Set<Filter> constraints, List<Filter> preferences) {
         return resolveSpec(compoType, null, specName, constraints, preferences);
     }
 
     @Override
-    public ASMImpl resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
+    public Implementation resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
             Set<Filter> constraints, List<Filter> preferences) {
         return resolveSpec(compoType, interfaceName, null, constraints, preferences);
     }
 
     @Override
-    public ASMImpl findImplByName(CompositeType compoType, String implName) {
+    public Implementation findImplByName(CompositeType compoType, String implName) {
         // private Selected getResourceImpl(String implName, Set<Filter> constraints) {
         Selected selected = null;
-        ASMImpl impl = null;
+        Implementation impl = null;
         String filterStr = null;
         if (implName != null)
             filterStr = "(name=" + implName + ")";
@@ -592,8 +592,8 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     @Override
-    public void notifySelection(ASMInst client, String resName, String depName, ASMImpl impl, ASMInst inst,
-            Set<ASMInst> insts) {
+    public void notifySelection(Instance client, String resName, String depName, Implementation impl, Instance inst,
+            Set<Instance> insts) {
         // Do not care
     }
 }

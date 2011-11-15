@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.Composite;
@@ -31,12 +31,12 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     private static CompositeType              rootCompoType  = new CompositeTypeImpl();
     private int                               instNumber     = -1;
 
-    private ASMImpl                           mainImpl       = null;
+    private Implementation                           mainImpl       = null;
     private Set<ManagerModel>                 models;
 
     // All the implementations deployed (really or logically) by this composite type!
     // Warning : implems may be deployed (logically) by more than one composite Type.
-    private final Set<ASMImpl>                contains       = new HashSet<ASMImpl>();
+    private final Set<Implementation>                contains       = new HashSet<Implementation>();
 
     // The composites types that have been deployed inside the current one.
     private final Set<CompositeType>          embedded       = new HashSet<CompositeType>();
@@ -70,7 +70,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * @param models. the models. Can be null.
      * @param attributes. initial properties. Can be null.
      */
-    private CompositeTypeImpl(CompositeType fromCompo, String compositeName, String mainImplName, ASMImpl mainImpl,
+    private CompositeTypeImpl(CompositeType fromCompo, String compositeName, String mainImplName, Implementation mainImpl,
             Set<ManagerModel> models, Attributes attributes, String specName) {
         // the composite itself as an ASMImpl. Warning created empty. Must be fully initialized.
         super();
@@ -178,12 +178,12 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                     mainImplName, specName, models, properties);
     }
 
-    public String getScopeInComposite(ASMInst inst) {
+    public String getScopeInComposite(Instance inst) {
         String overload = getScopeOverload(inst);
         return CompositeTypeImpl.getEffectiveScope((String) inst.getProperty(CST.A_SCOPE), overload);
     }
 
-    private String getScopeOverload(ASMInst inst) {
+    private String getScopeOverload(Instance inst) {
         // the last scope for error message
         String s = "";
         String name = inst.getSpec().getName();
@@ -230,12 +230,12 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         return null;
     }
 
-    public String getVisibleInCompoType(ASMImpl impl) {
+    public String getVisibleInCompoType(Implementation impl) {
         String overload = getImplOverload(impl);
         return CompositeTypeImpl.getEffectiveScope((String) impl.getProperty(CST.A_VISIBLE), overload);
     }
 
-    private String getImplOverload(ASMImpl impl) {
+    private String getImplOverload(Implementation impl) {
         // the last scope for error message
         String s = "";
         String name = impl.getSpec().getName();
@@ -312,7 +312,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      */
     public static CompositeType createCompositeType(CompositeType fromCompo, String name, Set<ManagerModel> models,
             String implName, URL url, String specName, Attributes properties) {
-        ASMImpl mainImpl;
+        Implementation mainImpl;
         mainImpl = CST.ASMImplBroker.createImpl(null, implName, url, properties);
         if (fromCompo == null) {
             fromCompo = CompositeTypeImpl.rootCompoType;
@@ -340,13 +340,13 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     // overloads the usual createInst method for ASMImpl
     @Override
-    public ASMInst createInst(Composite instCompo, Attributes initialproperties) {
+    public Instance createInst(Composite instCompo, Attributes initialproperties) {
         // Composite comp = CompositeImpl.createComposite(this, instCompo, initialproperties);
         return new CompositeImpl(this, instCompo, null, initialproperties);
     }
 
     @Override
-    public ASMImpl getMainImpl() {
+    public Implementation getMainImpl() {
         return mainImpl;
     }
 
@@ -422,23 +422,23 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     }
 
     @Override
-    public void addImpl(ASMImpl impl) {
+    public void addImpl(Implementation impl) {
         contains.add(impl);
         ((ImplementationImpl) impl).addInComposites(this);
     }
 
-    public void removeImpl(ASMImpl impl) {
+    public void removeImpl(Implementation impl) {
         contains.remove(impl);
         ((ImplementationImpl) impl).removeInComposites(this);
     }
 
     @Override
-    public boolean containsImpl(ASMImpl impl) {
+    public boolean containsImpl(Implementation impl) {
         return contains.contains(impl);
     }
 
     @Override
-    public Set<ASMImpl> getImpls() {
+    public Set<Implementation> getImpls() {
         return Collections.unmodifiableSet(contains);
     }
 

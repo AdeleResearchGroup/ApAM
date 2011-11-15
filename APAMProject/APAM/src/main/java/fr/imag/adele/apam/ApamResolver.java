@@ -24,17 +24,17 @@ public class ApamResolver {
      * @param lostInstance the instance that disappeared.
      * @return
      */
-    public static ASMInst faultWire(ASMInst client, ASMInst lostInstance, String depName) {
+    public static Instance faultWire(Instance client, Instance lostInstance, String depName) {
         // TODO Auto-generated method stub
         return null;
     }
 
     // if the instance is unused, it will become the main instance of a new composite.
-    private static Composite getClientComposite(ASMInst mainInst) {
+    private static Composite getClientComposite(Instance mainInst) {
         if (mainInst.isUsed())
             return mainInst.getComposite();
 
-        ASMImpl mainImplem = mainInst.getImpl();
+        Implementation mainImplem = mainInst.getImpl();
         String newName = mainImplem.getName() + "_Appli";
 
         CompositeType newCompoT = CompositeTypeImpl.createCompositeType(null, newName, mainImplem.getName(), null,
@@ -58,7 +58,7 @@ public class ApamResolver {
      * @param preferences. Optional. To select the right instance.
      * @return
      */
-    public static ASMInst newWireSpec(ASMInst client, String interfaceName, String specName, String depName,
+    public static Instance newWireSpec(Instance client, String interfaceName, String specName, String depName,
             Set<Filter> constraints, List<Filter> preferences) {
 
         if ((client == null) || ((interfaceName == null) && (specName == null))) {
@@ -70,7 +70,7 @@ public class ApamResolver {
         Composite compo = ApamResolver.getClientComposite(client);
         CompositeType compoType = compo.getCompType();
 
-        ASMImpl impl = null;
+        Implementation impl = null;
         if (specName != null)
             impl = ApamResolver.resolveSpecByName(compoType, specName, constraints, preferences);
         else {
@@ -83,7 +83,7 @@ public class ApamResolver {
             return null;
         }
 
-        ASMInst inst = ApamResolver.resolveImpl(compo, impl, constraints, preferences);
+        Instance inst = ApamResolver.resolveImpl(compo, impl, constraints, preferences);
         if (inst != null)
             client.createWire(inst, depName);
         ApamResolver.notifySelection(client, specName, depName, impl, inst, null);
@@ -107,7 +107,7 @@ public class ApamResolver {
      * @param preferences The preferences for this resolution.
      * @return
      */
-    public static Set<ASMInst> newWireSpecs(ASMInst client, String interfaceName, String specName, String depName,
+    public static Set<Instance> newWireSpecs(Instance client, String interfaceName, String specName, String depName,
             Set<Filter> constraints, List<Filter> preferences) {
 
         if ((client == null) || ((interfaceName == null) && (specName == null))) {
@@ -117,7 +117,7 @@ public class ApamResolver {
         Composite compo = ApamResolver.getClientComposite(client);
         CompositeType compoType = compo.getCompType();
 
-        ASMImpl impl = null;
+        Implementation impl = null;
         if (specName != null)
             impl = ApamResolver.resolveSpecByName(compoType, specName, constraints, preferences);
         else {
@@ -130,9 +130,9 @@ public class ApamResolver {
             return Collections.emptySet();
         }
 
-        Set<ASMInst> insts = ApamResolver.resolveImpls(compo, impl, constraints);
+        Set<Instance> insts = ApamResolver.resolveImpls(compo, impl, constraints);
         if ((insts != null) && !insts.isEmpty()) {
-            for (ASMInst inst : insts) {
+            for (Instance inst : insts) {
                 client.createWire(inst, depName);
             }
         }
@@ -150,7 +150,7 @@ public class ApamResolver {
      * @param depName the dependency name
      * @return
      */
-    public static ASMInst newWireImpl(ASMInst client, String implName, String depName,
+    public static Instance newWireImpl(Instance client, String implName, String depName,
             Set<Filter> constraints, List<Filter> preferences) {
         if ((implName == null) || (client == null)) {
             System.err.println("missing client or implementation name");
@@ -159,14 +159,14 @@ public class ApamResolver {
         Composite compo = ApamResolver.getClientComposite(client);
         CompositeType compType = client.getComposite().getCompType();
 
-        ASMImpl impl = ApamResolver.findImplByName(compType, implName);
+        Implementation impl = ApamResolver.findImplByName(compType, implName);
         if (impl == null) {
             System.out.println("Failed to resolve " + implName + " from " + client + "(" + depName + ")");
             ApamResolver.notifySelection(client, implName, depName, null, null, null);
             return null;
         }
 
-        ASMInst inst = ApamResolver.resolveImpl(compo, impl, constraints, preferences);
+        Instance inst = ApamResolver.resolveImpl(compo, impl, constraints, preferences);
         if (inst != null)
             client.createWire(inst, depName);
         ApamResolver.notifySelection(client, implName, depName, impl, inst, null);
@@ -184,7 +184,7 @@ public class ApamResolver {
      * @param constraints The constraints for this resolution.
      * @return
      */
-    public static Set<ASMInst> newWireImpls(ASMInst client, String implName, String depName,
+    public static Set<Instance> newWireImpls(Instance client, String implName, String depName,
             Set<Filter> constraints) {
 
         if ((implName == null) || (client == null)) {
@@ -194,16 +194,16 @@ public class ApamResolver {
         Composite compo = ApamResolver.getClientComposite(client);
         CompositeType compType = compo.getCompType();
 
-        ASMImpl impl = ApamResolver.findImplByName(compType, implName);
+        Implementation impl = ApamResolver.findImplByName(compType, implName);
         if (impl == null) {
             System.out.println("Failed to resolve " + implName + " from " + client + "(" + depName + ")");
             ApamResolver.notifySelection(client, implName, depName, null, null, null);
             return null;
         }
 
-        Set<ASMInst> insts = ApamResolver.resolveImpls(compo, impl, constraints);
+        Set<Instance> insts = ApamResolver.resolveImpls(compo, impl, constraints);
         if ((insts != null) && !insts.isEmpty()) {
-            for (ASMInst inst : insts) {
+            for (Instance inst : insts) {
                 client.createWire(inst, depName);
             }
         }
@@ -267,7 +267,7 @@ public class ApamResolver {
      * @param preferences : the preferences added by the managers. A (empty) list must be provided as parameter.
      * @return : the managers that will be called for that resolution.
      */
-    public static List<Manager> computeSelectionPathInst(Composite compoFrom, ASMImpl impl,
+    public static List<Manager> computeSelectionPathInst(Composite compoFrom, Implementation impl,
             Set<Filter> constraints, List<Filter> preferences) {
         if (APAMImpl.managerList.size() == 0) {
             System.out.println("No manager available. Cannot resolve ");
@@ -291,7 +291,7 @@ public class ApamResolver {
      * @param compoType
      * @param impl
      */
-    public static void deployedImpl(CompositeType compoType, ASMImpl impl, boolean deployed) {
+    public static void deployedImpl(CompositeType compoType, Implementation impl, boolean deployed) {
         // it was not deployed
         if (!deployed && impl.isUsed()) {
             System.out.println(" : selected " + impl);
@@ -324,7 +324,7 @@ public class ApamResolver {
      * @param implName
      * @return
      */
-    public static ASMImpl findImplByName(CompositeType compoTypeFrom, String implName) {
+    public static Implementation findImplByName(CompositeType compoTypeFrom, String implName) {
 
         List<Manager> selectionPath = ApamResolver.computeSelectionPathImpl(compoTypeFrom, implName);
         if (selectionPath.isEmpty()) {
@@ -334,7 +334,7 @@ public class ApamResolver {
 
         if (compoTypeFrom == null)
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
-        ASMImpl impl = null;
+        Implementation impl = null;
         System.out.println("Looking for implementation " + implName + ": ");
         boolean deployed = false;
         for (Manager manager : selectionPath) {
@@ -363,7 +363,7 @@ public class ApamResolver {
      *            number of preferences, taken in the order, and stopping at the first failure.
      * @return
      */
-    public static ASMImpl resolveSpecByName(CompositeType compoTypeFrom, String specName, Set<Filter> constraints,
+    public static Implementation resolveSpecByName(CompositeType compoTypeFrom, String specName, Set<Filter> constraints,
             List<Filter> preferences) {
         if (constraints == null)
             constraints = new HashSet<Filter>();
@@ -379,7 +379,7 @@ public class ApamResolver {
 
         if (compoTypeFrom == null)
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
-        ASMImpl impl = null;
+        Implementation impl = null;
         System.out.println("Looking for an implem implementing " + specName + ": ");
         boolean deployed = false;
         for (Manager manager : selectionPath) {
@@ -411,7 +411,7 @@ public class ApamResolver {
      *            number of preferences, taken in the order, and stopping at the first failure.
      * @return
      */
-    public static ASMImpl resolveSpecByInterface(CompositeType compoTypeFrom, String interfaceName,
+    public static Implementation resolveSpecByInterface(CompositeType compoTypeFrom, String interfaceName,
             String[] interfaces,
             Set<Filter> constraints, List<Filter> preferences) {
         if (constraints == null)
@@ -428,7 +428,7 @@ public class ApamResolver {
 
         if (compoTypeFrom == null)
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
-        ASMImpl impl = null;
+        Implementation impl = null;
         if (interfaceName != null)
             System.out.println("Looking for an implem with interface " + interfaceName);
         else
@@ -460,7 +460,7 @@ public class ApamResolver {
      *            maximum
      * @return
      */
-    public static ASMInst resolveImpl(Composite compo, ASMImpl impl, Set<Filter> constraints, List<Filter> preferences) {
+    public static Instance resolveImpl(Composite compo, Implementation impl, Set<Filter> constraints, List<Filter> preferences) {
         if (constraints == null)
             constraints = new HashSet<Filter>();
         if (preferences == null)
@@ -473,7 +473,7 @@ public class ApamResolver {
 
         if (compo == null)
             compo = CompositeImpl.getRootAllComposites();
-        ASMInst inst = null;
+        Instance inst = null;
         System.out.println("Looking for an instance of " + impl + ": ");
         for (Manager manager : selectionPath) {
             System.out.print(manager.getName() + "  ");
@@ -499,7 +499,7 @@ public class ApamResolver {
      * @param constraints. The constraints to satisfy. They must be all satisfied.
      * @return
      */
-    public static Set<ASMInst> resolveImpls(Composite compo, ASMImpl impl, Set<Filter> constraints) {
+    public static Set<Instance> resolveImpls(Composite compo, Implementation impl, Set<Filter> constraints) {
 
         if (impl == null) {
             System.err.println("impl is null in resolveImpls");
@@ -516,7 +516,7 @@ public class ApamResolver {
         if (compo == null)
             compo = CompositeImpl.getRootAllComposites();
 
-        Set<ASMInst> insts = null;
+        Set<Instance> insts = null;
         System.out.println("Looking for instances of " + impl + ": ");
         for (Manager manager : selectionPath) {
             System.out.print(manager.getName() + "  ");
@@ -527,7 +527,7 @@ public class ApamResolver {
             }
         }
         if (insts == null)
-            insts = new HashSet<ASMInst>();
+            insts = new HashSet<Instance>();
         if (insts.isEmpty()) {
             insts.add(impl.createInst(compo, null));
         }
@@ -545,8 +545,8 @@ public class ApamResolver {
      * @param inst
      * @param insts
      */
-    public static void notifySelection(ASMInst client, String resName, String depName, ASMImpl impl, ASMInst inst,
-            Set<ASMInst> insts) {
+    public static void notifySelection(Instance client, String resName, String depName, Implementation impl, Instance inst,
+            Set<Instance> insts) {
         for (Manager manager : APAMImpl.managerList) {
             System.out.print("  " + manager.getName());
             manager.notifySelection(client, resName, depName, impl, inst, insts);

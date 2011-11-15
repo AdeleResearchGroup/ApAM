@@ -5,9 +5,9 @@ import java.util.Set;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.am.query.Query;
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMInst;
-import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DynamicManager;
@@ -27,7 +27,7 @@ public class Apform2ApamImpl implements Apform2Apam {
 
     static final CompositeType rootType      = CompositeTypeImpl.getRootCompositeType();
     static final Composite     rootInst      = CompositeImpl.getRootAllComposites();
-    static Set<ASMImpl>        unusedImplems = CompositeTypeImpl.getRootCompositeType().getImpls();
+    static Set<Implementation>        unusedImplems = CompositeTypeImpl.getRootCompositeType().getImpls();
 
     @Override
     public void newInstance(String instanceName, ApformInstance client) {
@@ -35,7 +35,7 @@ public class Apform2ApamImpl implements Apform2Apam {
             System.err.println("Instance already existing: " + instanceName);
             return;
         }
-        ASMInst inst = CST.ASMInstBroker.addInst(Apform2ApamImpl.rootInst, client, null);
+        Instance inst = CST.ASMInstBroker.addInst(Apform2ApamImpl.rootInst, client, null);
         inst.setProperties(client.getProperties());
     }
 
@@ -77,7 +77,7 @@ public class Apform2ApamImpl implements Apform2Apam {
             System.err.println("Implementation already existing: " + implemName);
             return;
         }
-        ASMImpl impl = ((ImplementationBrokerImpl) CST.ASMImplBroker).addImpl(Apform2ApamImpl.rootType, client, null);
+        Implementation impl = ((ImplementationBrokerImpl) CST.ASMImplBroker).addImpl(Apform2ApamImpl.rootType, client, null);
         impl.setProperties(client.getProperties());
         synchronized (Apform.expectedImpls) {
             if (Apform.expectedImpls.contains(implemName)) { // it is expected
@@ -93,7 +93,7 @@ public class Apform2ApamImpl implements Apform2Apam {
             System.err.println("Specification already existing: " + specName);
             return;
         }
-        ASMSpec spec = CST.ASMSpecBroker.addSpec(specName, client, null);
+        Specification spec = CST.ASMSpecBroker.addSpec(specName, client, null);
         spec.setProperties(client.getProperties());
     }
 

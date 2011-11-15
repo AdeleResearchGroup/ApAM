@@ -12,11 +12,11 @@ import org.osgi.framework.InvalidSyntaxException;
 //import fr.imag.adele.am.eventing.AMEventingHandler;
 //import fr.imag.adele.am.eventing.EventingEngine;
 //import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASMImpl;
-import fr.imag.adele.apam.ASMImplBroker;
-import fr.imag.adele.apam.ASMInst;
-import fr.imag.adele.apam.ASMInstBroker;
-import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.ImplementationBroker;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.InstanceBroker;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 //import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
@@ -26,12 +26,12 @@ import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.Instance;
 //import fr.imag.adele.sam.event.EventProperty;
 
-public class InstanceBrokerImpl implements ASMInstBroker {
+public class InstanceBrokerImpl implements InstanceBroker {
 
-    private static final ASMImplBroker implBroker        = CST.ASMImplBroker;
+    private static final ImplementationBroker implBroker        = CST.ASMImplBroker;
 
-    private final Set<ASMInst>         instances         = new HashSet<ASMInst>();
-    private final Set<ASMInst>         sharableInstances = new HashSet<ASMInst>();
+    private final Set<Instance>         instances         = new HashSet<Instance>();
+    private final Set<Instance>         sharableInstances = new HashSet<Instance>();
 
     // EVENTS
 //    private SamInstEventHandler        instEventHandler;
@@ -56,10 +56,10 @@ public class InstanceBrokerImpl implements ASMInstBroker {
 //    }
 
     @Override
-    public ASMInst getInst(String instName) {
+    public Instance getInst(String instName) {
         if (instName == null)
             return null;
-        for (ASMInst inst : instances) {
+        for (Instance inst : instances) {
             if (inst.getName().equals(instName)) {
                 return inst;
             }
@@ -70,27 +70,27 @@ public class InstanceBrokerImpl implements ASMInstBroker {
     // End EVENTS
 
     @Override
-    public Set<ASMInst> getSharableInsts() {
+    public Set<Instance> getSharableInsts() {
         return Collections.unmodifiableSet(sharableInstances);
     }
 
     @Override
-    public Set<ASMInst> getInsts() {
+    public Set<Instance> getInsts() {
         return Collections.unmodifiableSet(instances);
     }
 
     @Override
-    public Set<ASMInst> getInsts(ASMSpec spec, Filter goal) throws InvalidSyntaxException {
+    public Set<Instance> getInsts(Specification spec, Filter goal) throws InvalidSyntaxException {
         if (spec == null)
             return null;
-        Set<ASMInst> ret = new HashSet<ASMInst>();
+        Set<Instance> ret = new HashSet<Instance>();
         if (goal == null) {
-            for (ASMInst inst : instances) {
+            for (Instance inst : instances) {
                 if (inst.getSpec() == spec)
                     ret.add(inst);
             }
         } else {
-            for (ASMInst inst : instances) {
+            for (Instance inst : instances) {
                 if ((inst.getSpec() == spec) && goal.match((AttributesImpl) inst.getProperties()))
                     ret.add(inst);
             }
@@ -99,11 +99,11 @@ public class InstanceBrokerImpl implements ASMInstBroker {
     }
 
     @Override
-    public Set<ASMInst> getInsts(Filter goal) throws InvalidSyntaxException {
+    public Set<Instance> getInsts(Filter goal) throws InvalidSyntaxException {
         if (goal == null)
             return getInsts();
-        Set<ASMInst> ret = new HashSet<ASMInst>();
-        for (ASMInst inst : instances) {
+        Set<Instance> ret = new HashSet<Instance>();
+        for (Instance inst : instances) {
             if (goal.match((AttributesImpl) inst.getProperties()))
                 ret.add(inst);
         }
@@ -111,13 +111,13 @@ public class InstanceBrokerImpl implements ASMInstBroker {
     }
 
     @Override
-    public ASMInst addInst(Composite instComposite, ApformInstance apfInst, Attributes properties) {
+    public Instance addInst(Composite instComposite, ApformInstance apfInst, Attributes properties) {
         if (apfInst == null) {
             System.out.println("No instance provided for add Instance");
             return null;
         }
-        ASMImpl impl = null;
-        ASMInst inst;
+        Implementation impl = null;
+        Instance inst;
         inst = CST.ASMInstBroker.getInst(apfInst.getName());
         if (inst != null) { // allready existing ! May have been created by
             // DYNAMAN, without all parameters
@@ -144,7 +144,7 @@ public class InstanceBrokerImpl implements ASMInstBroker {
     }
 
     // adds both in the broker and in its implem
-    public void addInst(ASMInst inst) {
+    public void addInst(Instance inst) {
         if ((inst != null) && !instances.contains(inst)) {
             instances.add(inst);
             ((ImplementationImpl) inst.getImpl()).addInst(inst);
@@ -170,7 +170,7 @@ public class InstanceBrokerImpl implements ASMInstBroker {
 //    }
 
     @Override
-    public void removeInst(ASMInst inst) {
+    public void removeInst(Instance inst) {
         if (inst == null)
             return;
         if (instances.contains(inst)) {

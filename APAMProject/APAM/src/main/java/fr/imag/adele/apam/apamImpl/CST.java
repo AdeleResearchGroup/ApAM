@@ -1,25 +1,11 @@
 package fr.imag.adele.apam.apamImpl;
 
-//import fr.imag.adele.am.Machine;
-//import fr.imag.adele.am.broker.BrokerBroker;
-//import fr.imag.adele.am.eventing.EventingEngine;
-//import fr.imag.adele.apam.ASMImpl.SamImplEventHandler;
-import fr.imag.adele.apam.ASMImplBroker;
-import fr.imag.adele.apam.ASMInstBroker;
-import fr.imag.adele.apam.ASMSpecBroker;
+import fr.imag.adele.apam.ImplementationBroker;
+import fr.imag.adele.apam.InstanceBroker;
+import fr.imag.adele.apam.SpecificationBroker;
 import fr.imag.adele.apam.apform.Apform2ApamImpl;
-import fr.imag.adele.apam.apformAPI.Apform;
 import fr.imag.adele.apam.apformAPI.Apform2Apam;
-import fr.imag.adele.apam.apformAPI.Apform;
-import fr.imag.adele.apam.apformAPI.ApformImplementation;
-import fr.imag.adele.apam.apformAPI.ApformInstance;
-import fr.imag.adele.apam.apformAPI.ApformSpecification;
-//import fr.imag.adele.sam.broker.ImplementationBroker;
-//import fr.imag.adele.sam.broker.InstanceBroker;
-//import fr.imag.adele.sam.broker.SpecificationBroker;
 import fr.imag.adele.sam.deployment.broker.DeploymentUnitBroker;
-
-//import fr.imag.adele.sam.event.EventProperty;
 
 public class CST {
 
@@ -96,9 +82,9 @@ public class CST {
     public static final String         A_DEPENDENCIES        = "dependencies";
 
     // The entry point in the ASM : its brokers
-    public static ASMSpecBroker        ASMSpecBroker         = null;
-    public static ASMImplBroker        ASMImplBroker         = null;
-    public static ASMInstBroker        ASMInstBroker         = null;
+    public static SpecificationBroker  ASMSpecBroker         = null;
+    public static ImplementationBroker ASMImplBroker         = null;
+    public static InstanceBroker       ASMInstBroker         = null;
 //    public static ApformImpl           apform                = null;
     public static Apform2Apam          apform2Apam           = null;
 

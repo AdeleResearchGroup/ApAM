@@ -1,6 +1,6 @@
 package fr.imag.adele.dynamic.application.manager;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.sam.Instance;
 
 /**
@@ -14,7 +14,7 @@ public class BindingRequest {
 	/**
 	 * The source of the binding request
 	 */
-	private final ASMInst source;
+	private final Instance source;
 	
 	
 	/**
@@ -36,7 +36,7 @@ public class BindingRequest {
 	/**
 	 * Builds a new binding request reification
 	 */
-	public BindingRequest(ASMInst source, String dependency, boolean isAggregate, ServiceClassifier target) {
+	public BindingRequest(Instance source, String dependency, boolean isAggregate, ServiceClassifier target) {
 		
 		assert source != null && dependency != null && target != null;
 		
@@ -49,7 +49,7 @@ public class BindingRequest {
 	/**
 	 * The source of the unresolved request
 	 */
-	public ASMInst getSource() {
+	public Instance getSource() {
 		return source;
 	}
 	
@@ -70,7 +70,7 @@ public class BindingRequest {
 	/**
 	 * Decides whether the specified service could resolve this request
 	 */
-	public boolean isSatisfiedBy(ASMInst candidate) {
+	public boolean isSatisfiedBy(Instance candidate) {
 		return target.contains(candidate);
 	}
 	

@@ -65,7 +65,7 @@ public interface Manager {
      * @param preferences The preferences for this resolution.
      * @param selPath the managers currently involved in this resolution.
      */
-    public void getSelectionPathInst(Composite compoFrom, ASMImpl impl,
+    public void getSelectionPathInst(Composite compoFrom, Implementation impl,
             Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath);
 
     // returns the relative priority of that manager, for the resolution algorithm
@@ -91,7 +91,7 @@ public interface Manager {
      * @param preferences The preferences for this resolution.
      * @return the implementations if resolved, null otherwise
      */
-    public ASMImpl resolveSpecByName(CompositeType compoType, String specName,
+    public Implementation resolveSpecByName(CompositeType compoType, String specName,
             Set<Filter> constraints, List<Filter> preferences);
 
     /**
@@ -107,7 +107,7 @@ public interface Manager {
      * @param preferences The preferences for this resolution.
      * @return the implementations if resolved, null otherwise
      */
-    public ASMImpl resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
+    public Implementation resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
             Set<Filter> constraints, List<Filter> preferences);
 
     /**
@@ -119,7 +119,7 @@ public interface Manager {
      * @param implName the name of implementation to find.
      * @return the implementations if resolved, null otherwise
      */
-    public ASMImpl findImplByName(CompositeType compoType, String implName);
+    public Implementation findImplByName(CompositeType compoType, String implName);
 
     /**
      * The manager is asked to find the "right" instance for the required implementation.
@@ -131,7 +131,7 @@ public interface Manager {
      * @param preferences The preferences for this resolution.
      * @return an instance if resolved, null otherwise
      */
-    public ASMInst resolveImpl(Composite compo, ASMImpl impl, Set<Filter> constraints,
+    public Instance resolveImpl(Composite compo, Implementation impl, Set<Filter> constraints,
             List<Filter> preferences);
 
     /**
@@ -144,7 +144,7 @@ public interface Manager {
      * @param preferences The preferences for this resolution.
      * @return an instance if resolved, null otherwise
      */
-    public Set<ASMInst> resolveImpls(Composite compo, ASMImpl impl, Set<Filter> constraints);
+    public Set<Instance> resolveImpls(Composite compo, Implementation impl, Set<Filter> constraints);
 
     /**
      * Once the resolution terminated, either successful or not, the managers are notified of the current
@@ -159,7 +159,7 @@ public interface Manager {
      * @param inst : the instance selected (null if cardinality multiple)
      * @param insts : the set of instances selected (null if simple cardinality)
      */
-    public void notifySelection(ASMInst client, String resName, String depName, ASMImpl impl, ASMInst inst,
-            Set<ASMInst> insts);
+    public void notifySelection(Instance client, String resName, String depName, Implementation impl, Instance inst,
+            Set<Instance> insts);
 
 }

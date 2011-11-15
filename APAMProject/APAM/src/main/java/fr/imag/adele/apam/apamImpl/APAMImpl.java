@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.ApamResolver;
@@ -48,7 +48,7 @@ public class APAMImpl implements Apam {
 
     @Override
     public Composite startAppli(String compositeName) {
-        ASMImpl compoType = ApamResolver.findImplByName(null, compositeName);
+        Implementation compoType = ApamResolver.findImplByName(null, compositeName);
         if (compoType == null)
             return null;
         if (compoType instanceof CompositeType)
