@@ -17,10 +17,5 @@
 <ipojo>
 	<handler classname="fr.imag.adele.apam.dependency.DependencyHandler"
 		name="dependency" namespace="fr.imag.adele.apam">
-		<requires specification="fr.imag.adele.apam.apamAPI.ApamClient" field="apam" 
-				  proxy="false" nullable="false">
-        	<callback type="bind" method="apamBound"/>
-        	<callback type="unbind" method="apamUnbound"/>
-		</requires>
 	</handler>
 </ipojo>

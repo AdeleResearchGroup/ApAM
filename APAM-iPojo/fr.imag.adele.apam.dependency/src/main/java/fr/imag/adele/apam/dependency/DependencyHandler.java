@@ -4,10 +4,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.ConfigurationException;
@@ -19,16 +17,14 @@ import org.apache.felix.ipojo.parser.ParseUtils;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.apamAPI.ASMImpl.DependencyModel;
 import fr.imag.adele.apam.apamAPI.ASMImpl.TargetKind;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ApamResolver;
-import fr.imag.adele.apam.apamAPI.ApamDependencyHandler;
 import fr.imag.adele.apam.implementation.Implementation;
 import fr.imag.adele.apam.implementation.ImplementationHandler;
+import fr.imag.adele.apam.instance.Dependency;
+import fr.imag.adele.apam.instance.Instance;
 
-public class DependencyHandler extends ImplementationHandler implements ApamDependencyHandler {
+public class DependencyHandler extends ImplementationHandler {
 
 	/**
 	 * Configuration property to specify the dependency's name
@@ -90,20 +86,6 @@ public class DependencyHandler extends ImplementationHandler implements ApamDepe
 	 */
 	private final static String CONSTRAINT_FILTER_PROPERTY 			= "filter";
 
-	/**
-	 * A reference to the APAM machine.
-	 */
-	private ApamResolver apam;
-
-	/**
-	 * A reference to the corresponding instance in the APAM application state
-	 */
-	private ASMInst thisInstance;
-
-	/**
-	 * The list of dependencies declared in this component
-	 */
-	private Map<String, Dependency> dependencies;
 
 	/*
 	 * @see
@@ -112,7 +94,7 @@ public class DependencyHandler extends ImplementationHandler implements ApamDepe
 	 * org.apache.felix.ipojo.metadata.Element)
 	 */
 	@Override
-	public void initializeComponentFactory(	ComponentTypeDescription componentDescriptor, Element componentMetadata) throws ConfigurationException {
+	public void initializeComponentFactory(ComponentTypeDescription componentDescriptor, Element componentMetadata) throws ConfigurationException {
 
 		String implementationName = componentDescriptor.getName();
 
@@ -285,9 +267,20 @@ public class DependencyHandler extends ImplementationHandler implements ApamDepe
 						 * If no target is specified, try to infer at least a target interface from the field definition
 						 */
 						if (dependencySpecification == null && dependencyImplementation == null	&& dependencyInterface == null) {
-							if (fieldElementClass != null	&& fieldElementClass.isInterface()) {
-								dependencyInterface = fieldElementClass.getCanonicalName();
-								dependencyDeclaration.addAttribute(new Attribute(DEPENDENCY_INTERFACE_PROPERTY,dependencyInterface));
+							if (fieldElementClass != null) {
+								
+								
+								if (fieldElementClass.isInterface()) {
+									// The type of the field is an interface
+									dependencyInterface = fieldElementClass.getCanonicalName();
+								}
+								else if (fieldElementClass.getInterfaces().length  == 1) {
+									// the type of the field implements a single interface
+									dependencyInterface = fieldElementClass.getInterfaces()[0].getCanonicalName();
+								}
+								
+								if (dependencyInterface != null)
+									dependencyDeclaration.addAttribute(new Attribute(DEPENDENCY_INTERFACE_PROPERTY,dependencyInterface));
 							}
 						}
 
@@ -410,7 +403,6 @@ public class DependencyHandler extends ImplementationHandler implements ApamDepe
 		 * unspecified properties with appropriate default values. Here we just
 		 * assume metadata is correct.
 		 */
-		dependencies = new HashMap<String, Dependency>();
 
 		Element dependencyDeclarations[] = componentMetadata.getElements(
 				Implementation.DEPENDENCY_DECLARATION,
@@ -478,13 +470,11 @@ public class DependencyHandler extends ImplementationHandler implements ApamDepe
 			}
 
 			/*
-			 * register the dependency injector to handle all decalred fields
+			 * register the dependency injector to handle all declared fields
 			 */
-			Dependency dependency = new Dependency(this, getFactory().getPojoMetadata(),
+			Dependency dependency = new Dependency(getInstanceManager(), getFactory().getPojoMetadata(),
 											dependencyName, Boolean.valueOf(dependencyAggregate),
 											dependencyTarget, dependencyKind, constraints, preferences);
-			
-			dependencies.put(dependencyName, dependency);
 			
 			for (String fieldName : ParseUtils.parseArrays(dependencyFieldsName)) {
 				getInstanceManager().register(getFactory().getPojoMetadata().getField(fieldName), dependency);
@@ -501,78 +491,24 @@ public class DependencyHandler extends ImplementationHandler implements ApamDepe
 	 */
 	private static class Description extends HandlerDescription {
 
-		private final DependencyHandler dependencyManager;
-
-		public Description(DependencyHandler dependencyManager) {
-			super(dependencyManager);
-			this.dependencyManager = dependencyManager;
+		private DependencyHandler dependencyHandler;
+		
+		public Description(DependencyHandler dependencyHandler) {
+			super(dependencyHandler);
+			this.dependencyHandler = dependencyHandler;
 		}
 
+		
 		@Override
 		public Element getHandlerInfo() {
 			Element root = super.getHandlerInfo();
 
-			ASMInst self = dependencyManager.thisInstance;
-			root.addAttribute(new Attribute("asm-instance", self == null ? "" : self.getName()));
-			for (Dependency dependency : dependencyManager.dependencies.values()) {
-				
-				Element dependencyDescription = new Element("dependency", "");
-				dependencyDescription.addAttribute(new Attribute("name", dependency.getName()));
-				dependencyDescription.addAttribute(new Attribute("isAggregate",	Boolean.toString(dependency.isAggregate())));
-				dependencyDescription.addAttribute(new Attribute("target", dependency.getTarget()));
-				dependencyDescription.addAttribute(new Attribute("kind", dependency.getKind().toString()));
-
-				boolean firstElement = false;
-
-				StringBuffer constraints = new StringBuffer();
-				constraints.append("{");
-				firstElement = true;
-				for (Filter filter : dependency.getConstraints()) {
-					if (!firstElement)
-						constraints.append(",");
-					constraints.append(filter.toString());
-					firstElement = false;
+			if (dependencyHandler.getInstanceManager() instanceof Instance) {
+				Instance instance = (Instance) dependencyHandler.getInstanceManager();
+				for (Dependency dependency : instance.getDependencies()) {
+					root.addElement(dependency.getDescription());
 				}
-				constraints.append("}");
-				dependencyDescription.addAttribute(new Attribute("constraints", constraints.toString()));
-
-				StringBuffer preferences = new StringBuffer();
-				preferences.append("{");
-				firstElement = true;
-				for (Filter filter : dependency.getPreferences()) {
-					if (!firstElement)
-						preferences.append(",");
-					preferences.append(filter.toString());
-					firstElement = false;
-				}
-				preferences.append("}");
-				dependencyDescription.addAttribute(new Attribute("preferences",	preferences.toString()));
-
-				dependencyDescription.addAttribute(new Attribute("resolved",Boolean.toString(dependency.isResolved())));
-
-				if (dependency.isResolved()) {
-					Set<ASMInst> targets = dependencyManager.thisInstance.getWireDests(dependency.getName());
-					StringBuffer resolution = new StringBuffer();
-					if (targets.size() > 1)
-						resolution.append("{");
-
-					firstElement = true;
-
-					for (ASMInst target : targets) {
-						if (!firstElement)
-							resolution.append(",");
-						resolution.append(target.getName());
-						firstElement = false;
-					}
-
-					if (targets.size() > 1)
-						resolution.append("}");
-
-					dependencyDescription.addAttribute(new Attribute("asm-resolution", resolution.toString()));
-				}
-				root.addElement(dependencyDescription);
 			}
-
 			return root;
 		}
 
@@ -591,28 +527,6 @@ public class DependencyHandler extends ImplementationHandler implements ApamDepe
 		 */
 	}
 
-	/**
-	 * Dynamically register this instance with APAM
-	 */
-	public void apamBound() {
-		apam.newClientCallBack(getInstanceManager().getInstanceName(), this);
-	}
-
-	/**
-	 * Avoid invoking APAM, if not available
-	 */
-	public void apamUnbound() {
-		thisInstance = null;
-	}
-
-	/**
-	 * This callback method will be invoked by APAM when the instance is
-	 * effectively added to the application state model
-	 */
-	public void SetIdentifier(ASMInst inst) {
-		thisInstance = inst;
-	}
-
 	@Override
 	public void stop() {
 	}
@@ -621,91 +535,6 @@ public class DependencyHandler extends ImplementationHandler implements ApamDepe
 	public String toString() {
 		return "APPAM Dependency manager for "
 				+ getInstanceManager().getInstanceName();
-	}
-
-	public boolean setWire(ASMInst destInst, String depName) {
-//		System.out.println("Handler set wire " + depName + " :" + thisInstance	+ "->" + destInst);
-		Dependency dependency = dependencies.get(depName);
-
-		if (dependency == null)
-			return false;
-
-		dependency.addDependency(destInst);
-		return true;
-	}
-
-	public boolean remWire(ASMInst destInst, String depName) {
-		Dependency dependency = dependencies.get(depName);
-
-		if (dependency == null)
-			return false;
-
-		dependency.removeDependency(destInst);
-		return true;
-	}
-
-	public boolean substWire(ASMInst oldDestInst, ASMInst newDestInst,
-			String depName) {
-		Dependency dependency = dependencies.get(depName);
-
-		if (dependency == null)
-			return false;
-
-		dependency.substituteDependency(oldDestInst, newDestInst);
-		return true;
-	}
-
-	/**
-	 * Delegate APAM to resolve a given dependency.
-	 * 
-	 * NOTE nothing is returned from this method, the call to APAM has as
-	 * side-effect the update of the dependency.
-	 * 
-	 * @param dependency
-	 */
-	public void resolve(Dependency dependency) {
-
-		/*
-		 * This instance is not actually yet managed by APAM
-		 */
-		if (apam == null)
-			return;
-
-		if (thisInstance == null) {
-			thisInstance = CST.ASMInstBroker.getInst(getInstanceManager().getInstanceName());
-			if (thisInstance == null) {
-				System.err.println("Dependency resolver: client instance " + getInstanceManager().getInstanceName() + " unkown");
-			}
-		}
-		
-		/*
-		 * Make a copy of constraints and preferences before invoking resolution. This allow resolution managers to modify constraints
-		 * and preferences are part of their processing.
-		 */
-		Set<Filter> constraints 	= new HashSet<Filter>(dependency.getConstraints());
-		List<Filter> preferences	= new ArrayList<Filter>(dependency.getPreferences());
-		
-		
-		switch (dependency.getKind()) {
-		case IMPLEMENTATION:
-			if (dependency.isScalar())
-				apam.newWireImpl(thisInstance, dependency.getTarget(),dependency.getName(), constraints, preferences);
-			else
-				apam.newWireImpls(thisInstance, dependency.getTarget(),	dependency.getName(), constraints);
-			break;
-		case SPECIFICATION:
-			if (dependency.isScalar())
-				apam.newWireSpec(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints, preferences);
-			else
-				apam.newWireSpecs(thisInstance, null, dependency.getTarget(), dependency.getName(), constraints, preferences);
-			break;
-		case INTERFACE:
-			if (dependency.isScalar())
-				apam.newWireSpec(thisInstance, dependency.getTarget(), null, dependency.getName(), constraints, preferences);
-			else
-				apam.newWireSpecs(thisInstance, dependency.getTarget(), null, dependency.getName(), constraints, preferences);
-			break;
-		}
 	}
 
 }
