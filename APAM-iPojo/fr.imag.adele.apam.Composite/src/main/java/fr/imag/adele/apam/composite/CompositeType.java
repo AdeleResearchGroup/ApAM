@@ -6,13 +6,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.Factory;
-import org.apache.felix.ipojo.HandlerManager;
-import org.apache.felix.ipojo.IPojoContext;
-import org.apache.felix.ipojo.MissingHandlerException;
-import org.apache.felix.ipojo.UnacceptableConfiguration;
 import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
@@ -264,37 +259,5 @@ public class CompositeType extends Implementation {
         return managerModels;
     }
 
-    /**
-     * Creates an instance.
-     * This method is called with the monitor lock.
-     * 
-     * @param config the instance configuration
-     * @param context the iPOJO context to use
-     * @param handlers the handler array to use
-     * @return the new component instance.
-     * @throws ConfigurationException if the instance creation failed during the configuration process.
-     */
-    @Override
-    @SuppressWarnings({"rawtypes" })
-    public ComponentInstance createInstance(Dictionary configuration, IPojoContext context, HandlerManager[] handlers)
-            throws ConfigurationException {
-        throw new ConfigurationException("APAM composites can not be directly instantiated, use instead the APAM API");
-    }
-
-    /**
-     * Reconfigure an existing instance.
-     * 
-     * @param properties : the new configuration to push.
-     * @throws UnacceptableConfiguration : occurs if the new configuration is
-     *             not consistent with the component type.
-     * @throws MissingHandlerException : occurs when an handler is unavailable when creating the instance.
-     * @see org.apache.felix.ipojo.Factory#reconfigure(java.util.Dictionary)
-     */
-    @Override
-    @SuppressWarnings("rawtypes")
-    public synchronized void reconfigure(Dictionary properties) throws UnacceptableConfiguration,
-            MissingHandlerException {
-        throw new UnacceptableConfiguration("APAM composites can not be directly instantiated, use instead the APAM API");
-    }
 
 }
