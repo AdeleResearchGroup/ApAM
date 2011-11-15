@@ -125,11 +125,11 @@ public class Specification  extends ComponentFactory {
     }
 
     private void apamBound(Apam apam) {
+    	// TODO migrate this to be an abstract implementation
+    	//ASMSpecBroker broker = apam.getSpecBroker();
+    	//ASMSpec specAPAM = broker.getSpec(getName());
     	
-    	ASMSpecBroker broker = apam.getSpecBroker();
-    	ASMSpec specAPAM = broker.getSpec(getName());
-    	
-    	if (specAPAM == null) {
+    	//if (specAPAM == null) {
     		
     		ComponentTypeDescription description = getComponentDescription();
     		
@@ -139,8 +139,8 @@ public class Specification  extends ComponentFactory {
                 	attributes.setProperty(property.getName(), property.getObjectValue(getBundleContext()));
                 }
     		}
-    		specAPAM = broker.createSpec(getName(),description.getprovidedServiceSpecification(),attributes);
-    	}
+    		//specAPAM = broker.createSpec(getName(),description.getprovidedServiceSpecification(),attributes);
+    	//}
     		
     }
     
