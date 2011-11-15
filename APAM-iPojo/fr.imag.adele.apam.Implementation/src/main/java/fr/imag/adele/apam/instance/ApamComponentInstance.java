@@ -19,9 +19,9 @@ import fr.imag.adele.apam.ASMInst;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
-import fr.imag.adele.apam.implementation.Implementation;
+import fr.imag.adele.apam.implementation.ApamFactory;
 
-public class Instance extends InstanceManager implements ApformInstance {
+public class ApamComponentInstance extends InstanceManager implements ApformInstance {
 
 
 	/**
@@ -46,7 +46,7 @@ public class Instance extends InstanceManager implements ApformInstance {
 	 * @param context
 	 * @param handlers
 	 */
-	public Instance(Implementation implementation, boolean isApamCreated, BundleContext context, HandlerManager[] handlers) {
+	public ApamComponentInstance(ApamFactory implementation, boolean isApamCreated, BundleContext context, HandlerManager[] handlers) {
 		super(implementation, context, handlers);
 		
 		this.isApamCreated 	= isApamCreated;
@@ -55,8 +55,8 @@ public class Instance extends InstanceManager implements ApformInstance {
 	}
 
 	@Override
-	public Implementation getFactory() {
-		return (Implementation) super.getFactory();
+	public ApamFactory getFactory() {
+		return (ApamFactory) super.getFactory();
 	}
 
 

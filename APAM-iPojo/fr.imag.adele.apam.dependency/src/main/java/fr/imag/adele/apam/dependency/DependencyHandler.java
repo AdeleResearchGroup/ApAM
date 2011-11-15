@@ -19,10 +19,10 @@ import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.ASMImpl.DependencyModel;
 import fr.imag.adele.apam.ASMImpl.TargetKind;
-import fr.imag.adele.apam.implementation.Implementation;
+import fr.imag.adele.apam.implementation.ApamFactory;
 import fr.imag.adele.apam.implementation.ImplementationHandler;
 import fr.imag.adele.apam.instance.Dependency;
-import fr.imag.adele.apam.instance.Instance;
+import fr.imag.adele.apam.instance.ApamComponentInstance;
 
 public class DependencyHandler extends ImplementationHandler {
 
@@ -98,8 +98,8 @@ public class DependencyHandler extends ImplementationHandler {
 
 		String implementationName = componentDescriptor.getName();
 
-		boolean isApamImplementation = componentDescriptor instanceof Implementation.Description;
-		Implementation.Description implementationDescription = isApamImplementation ? (Implementation.Description) componentDescriptor	: null;
+		boolean isApamImplementation = componentDescriptor instanceof ApamFactory.Description;
+		ApamFactory.Description implementationDescription = isApamImplementation ? (ApamFactory.Description) componentDescriptor	: null;
 
 		/*
 		 * Validate the component class is accessible
@@ -120,7 +120,7 @@ public class DependencyHandler extends ImplementationHandler {
 		 * Statically validate the component type dependencies
 		 */
 
-		Element dependencyDeclarations[] = componentMetadata.getElements(Implementation.DEPENDENCY_DECLARATION,APAM_NAMESPACE);
+		Element dependencyDeclarations[] = componentMetadata.getElements(ApamFactory.DEPENDENCY_DECLARATION,APAM_NAMESPACE);
 		for (Element dependencyDeclaration : dependencyDeclarations) {
 
 			String dependencyName 			= dependencyDeclaration.getAttribute(DEPENDENCY_NAME_PROPERTY);
@@ -405,7 +405,7 @@ public class DependencyHandler extends ImplementationHandler {
 		 */
 
 		Element dependencyDeclarations[] = componentMetadata.getElements(
-				Implementation.DEPENDENCY_DECLARATION,
+				ApamFactory.DEPENDENCY_DECLARATION,
 				DependencyHandler.APAM_NAMESPACE);
 
 		for (Element dependencyDeclaration : dependencyDeclarations) {
@@ -503,8 +503,8 @@ public class DependencyHandler extends ImplementationHandler {
 		public Element getHandlerInfo() {
 			Element root = super.getHandlerInfo();
 
-			if (dependencyHandler.getInstanceManager() instanceof Instance) {
-				Instance instance = (Instance) dependencyHandler.getInstanceManager();
+			if (dependencyHandler.getInstanceManager() instanceof ApamComponentInstance) {
+				ApamComponentInstance instance = (ApamComponentInstance) dependencyHandler.getInstanceManager();
 				for (Dependency dependency : instance.getDependencies()) {
 					root.addElement(dependency.getDescription());
 				}

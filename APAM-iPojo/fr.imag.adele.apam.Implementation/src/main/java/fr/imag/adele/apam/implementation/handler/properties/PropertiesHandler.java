@@ -8,7 +8,7 @@ import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.apache.felix.ipojo.metadata.Element;
 
 import fr.imag.adele.apam.apamImpl.CST;
-import fr.imag.adele.apam.implementation.Implementation;
+import fr.imag.adele.apam.implementation.ApamFactory;
 import fr.imag.adele.apam.implementation.ImplementationHandler;
 
 /**
@@ -57,12 +57,12 @@ public class PropertiesHandler extends ImplementationHandler {
     /**
      * Utility method to add a new property to the implementation description
      */
-    private static final void addProperty(Implementation.Description implementationDescription, String name,
+    private static final void addProperty(ApamFactory.Description implementationDescription, String name,
             String value, String type) {
         implementationDescription.addProperty(new PropertyDescription(name, type, value, true));
     }
 
-    private static final void addProperty(Implementation.Description implementationDescription, String name,
+    private static final void addProperty(ApamFactory.Description implementationDescription, String name,
             String value) {
         PropertiesHandler.addProperty(implementationDescription, name, value, String.class.getName());
     }
@@ -81,11 +81,11 @@ public class PropertiesHandler extends ImplementationHandler {
         /*
          * This handler works only for APAM native implementations
          */
-        if (!(componentDescriptor instanceof Implementation.Description))
+        if (!(componentDescriptor instanceof ApamFactory.Description))
             throw new ConfigurationException("APAM properties handler can only be used on APAM native implementtaions "
                     + componentMetadata);
 
-        Implementation.Description implementationDescription = (Implementation.Description) componentDescriptor;
+        ApamFactory.Description implementationDescription = (ApamFactory.Description) componentDescriptor;
         String implementationName = implementationDescription.getName();
 
         /*

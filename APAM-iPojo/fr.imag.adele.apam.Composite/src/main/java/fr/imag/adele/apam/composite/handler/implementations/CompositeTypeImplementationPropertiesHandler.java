@@ -9,7 +9,7 @@ import org.apache.felix.ipojo.metadata.Element;
 
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.composite.CompositeType;
-import fr.imag.adele.apam.implementation.Implementation;
+import fr.imag.adele.apam.implementation.ApamFactory;
 import fr.imag.adele.apam.implementation.ImplementationHandler;
 
 /**
@@ -43,12 +43,12 @@ public class CompositeTypeImplementationPropertiesHandler extends Implementation
     /**
      * Utility method to add a new property to the implementation description
      */
-    private static final void addProperty(Implementation.Description implementationDescription, String name,
+    private static final void addProperty(ApamFactory.Description implementationDescription, String name,
             String value, String type) {
         implementationDescription.addProperty(new PropertyDescription(name, type, value, true));
     }
 
-    private static final void addProperty(Implementation.Description implementationDescription, String name,
+    private static final void addProperty(ApamFactory.Description implementationDescription, String name,
             String value) {
         CompositeTypeImplementationPropertiesHandler.addProperty(implementationDescription, name, value, String.class
                 .getName());

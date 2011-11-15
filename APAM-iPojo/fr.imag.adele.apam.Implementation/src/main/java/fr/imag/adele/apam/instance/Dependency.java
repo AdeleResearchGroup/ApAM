@@ -142,8 +142,8 @@ public class Dependency implements FieldInterceptor {
          * TODO we are only able to receive notifications if the source instance is an APAM native instance. We need
          * to also handle the case of iPojo component instances with APAM dependencies (e.g. hybrid configurations)
          */
-    	if (instance instanceof Instance)
-    		((Instance)instance).addDependency(this);
+    	if (instance instanceof ApamComponentInstance)
+    		((ApamComponentInstance)instance).addDependency(this);
 
         
     }
@@ -376,8 +376,8 @@ public class Dependency implements FieldInterceptor {
              * TODO we are only able to resolve a dependency if the source instance is an APAM native instance. We need
              * to also handle the case of iPojo component instances with APAM dependencies (e.g. hybrid configurations)
              */
-        	if (instance instanceof Instance)
-        		((Instance)instance).resolve(this);
+        	if (instance instanceof ApamComponentInstance)
+        		((ApamComponentInstance)instance).resolve(this);
         }
 
          return getFieldValue(fieldName);

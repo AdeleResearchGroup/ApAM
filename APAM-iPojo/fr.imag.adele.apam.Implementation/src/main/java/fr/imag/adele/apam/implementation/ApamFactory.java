@@ -28,10 +28,10 @@ import fr.imag.adele.apam.apformAPI.Apform2Apam;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.apformAPI.ApformSpecification;
-import fr.imag.adele.apam.instance.Instance;
+import fr.imag.adele.apam.instance.ApamComponentInstance;
 import fr.imag.adele.apam.util.Attributes;
 
-public class Implementation  extends ComponentFactory implements ApformImplementation {
+public class ApamFactory  extends ComponentFactory implements ApformImplementation {
 
     /**
      * The name space of this factory
@@ -63,7 +63,7 @@ public class Implementation  extends ComponentFactory implements ApformImplement
         /**
          * Creates the Apam Implementation Description.
          */
-        protected Description(Implementation factory) {
+        protected Description(ApamFactory factory) {
             super(factory);
 
             for (String providedInterface : getProvidedInterfaces()) {
@@ -79,8 +79,8 @@ public class Implementation  extends ComponentFactory implements ApformImplement
       	 * Redefines with covariant result type.
          **/
         @Override
-        public Implementation getFactory() {
-        	return (Implementation) super.getFactory();
+        public ApamFactory getFactory() {
+        	return (ApamFactory) super.getFactory();
         }
         
         /**
@@ -173,7 +173,7 @@ public class Implementation  extends ComponentFactory implements ApformImplement
      * @param metadata
      * @throws ConfigurationException
      */
-    public Implementation(BundleContext context, Element metadata) throws ConfigurationException {
+    public ApamFactory(BundleContext context, Element metadata) throws ConfigurationException {
         super(context, metadata);
         apamTracker = new ApamTracker(context);
     }
@@ -203,7 +203,7 @@ public class Implementation  extends ComponentFactory implements ApformImplement
     	 * Create a native APAM instance and configure it.
     	 * 
     	 */
-        Instance instance = new Instance(this, isApamCall(), context, handlers);
+        ApamComponentInstance instance = new ApamComponentInstance(this, isApamCall(), context, handlers);
 
         try {
             instance.configure(m_componentMetadata, configuration);
@@ -442,12 +442,12 @@ public class Implementation  extends ComponentFactory implements ApformImplement
 	public ApformInstance createInstance(Attributes initialproperties) {
 		try {
 			
-			Instance instance = null;
+			ApamComponentInstance instance = null;
 			
 			try {
 				insideApamCall.set(true);
 				Properties configuration = initialproperties != null ? initialproperties.attr2Properties() : new Properties();
-				instance = (Instance) createComponentInstance(configuration);
+				instance = (ApamComponentInstance) createComponentInstance(configuration);
 			}
 			finally {
 				insideApamCall.set(false);
@@ -521,12 +521,12 @@ public class Implementation  extends ComponentFactory implements ApformImplement
     	public void addedService(ServiceReference reference) {
        		bound = true;
    			Apam apam = (Apam) getService(reference);
-       		Implementation.this.bindToApam(apam);
+       		ApamFactory.this.bindToApam(apam);
     	}
     	
 		@Override
     	public void removedService(ServiceReference reference, Object service) {
-   			Implementation.this.unbindFromApam((Apam) service);
+   			ApamFactory.this.unbindFromApam((Apam) service);
    			ungetService(reference);
    			bound = false;
     	}

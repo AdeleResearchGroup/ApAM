@@ -16,9 +16,9 @@ import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.ManagerModel;
-import fr.imag.adele.apam.implementation.Implementation;
+import fr.imag.adele.apam.implementation.ApamFactory;
 
-public class CompositeType extends Implementation {
+public class CompositeType extends ApamFactory {
 
 
     /**
@@ -48,7 +48,7 @@ public class CompositeType extends Implementation {
      * 
      * @see ComponentTypeDescription
      */
-    public static class Description extends Implementation.Description {
+    public static class Description extends ApamFactory.Description {
 
         /**
          * Creates the ApamCompositeDescription.
