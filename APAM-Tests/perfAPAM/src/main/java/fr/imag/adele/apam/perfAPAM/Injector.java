@@ -27,7 +27,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 //import fr.imag.adele.apam.CompositeTypeImpl;
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.CompositeType;
@@ -44,7 +44,7 @@ public class Injector implements Runnable, ApamComponent {
     int                         limit;
 
     @Override
-    public void apamStart(ASMInst inst) {
+    public void apamStart(Instance inst) {
         new Thread(this, "APAM perf test").start();
     }
 

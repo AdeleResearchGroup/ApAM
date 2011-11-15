@@ -2,7 +2,7 @@ package fr.imag.adele.apam.test.s2Impl;
 
 import java.util.Set;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.apamImpl.CST;
@@ -22,10 +22,10 @@ public class S2Impl implements S2, ApamComponent {
     Set<S3_1> s3s;
     S3_2[]      s3_2;
 
-    ASMInst   myInst;
+    Instance   myInst;
 
     @Override
-    public void apamStart(ASMInst inst) {
+    public void apamStart(Instance inst) {
         myInst = inst;
         System.out.println("S2Impl Started : " + inst.getName());
     }

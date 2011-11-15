@@ -1,6 +1,6 @@
 package fr.imag.adele.apam.test.s5Impl;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.test.s2.S2;
@@ -19,7 +19,7 @@ public class S5Impl implements S5, ApamComponent {
     }
 
     @Override
-    public void apamStart(ASMInst apamInstance) {
+    public void apamStart(Instance apamInstance) {
         apamInstance.getComposite().getCompType().setProperty(CST.A_INTERNALINST, CST.V_TRUE);
         apamInstance.getComposite().getCompType().setProperty(CST.A_INTERNALIMPL, CST.V_TRUE);
         System.out.println("set INTERNAL of S5CompEx to true.");

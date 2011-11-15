@@ -1,6 +1,6 @@
 package fr.imag.adele.apam.test.s1Impl;
 
-import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.test.s1.S1;
 
@@ -12,7 +12,7 @@ public class S1Main implements Runnable, ApamComponent {
         System.out.println("End of S1 MAIN");
     }
 
-    public void apamStart(ASMInst inst) {
+    public void apamStart(Instance inst) {
         System.out.println("S1Main Started : " + inst.getName());
         new Thread(this, "APAM test").start();
     }
