@@ -58,10 +58,6 @@ public class CompositeType extends Implementation {
          */
         protected Description(CompositeType factory) {
         	super(factory);
-        	
-            for (String providedInterface : getProvidedInterfaces()) {
-                addProvidedServiceSpecification(providedInterface);
-            }
         }
 
         /**
@@ -81,13 +77,6 @@ public class CompositeType extends Implementation {
          */
         public String getMainImplementation() {
         	return getFactory().getMainImplementation();
-        }
-        
-        /**
-         * Get the list of provided interfaces
-         */
-        public String[] getProvidedInterfaces() {
-        	return getFactory().getProvidedInterfaces();
         }
         
         /**
@@ -141,10 +130,6 @@ public class CompositeType extends Implementation {
      */
     private String		mainImplementation;
     
-    /**
-     * The provided interfaces of the composite
-     */
-    private String[] 	providedInterfaces;
     
     /**
      * The list of models associated to this composite

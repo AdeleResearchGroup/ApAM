@@ -11,11 +11,13 @@ import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.HandlerManager;
 import org.apache.felix.ipojo.IPojoContext;
+import org.apache.felix.ipojo.Pojo;
 import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.util.Logger;
 import org.apache.felix.ipojo.util.Tracker;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -63,6 +65,10 @@ public class Implementation  extends ComponentFactory implements ApformImplement
          */
         protected Description(Implementation factory) {
             super(factory);
+
+            for (String providedInterface : getProvidedInterfaces()) {
+                addProvidedServiceSpecification(providedInterface);
+            }
             
             this.dependencies = new HashSet<DependencyModel>();
         }
@@ -83,7 +89,15 @@ public class Implementation  extends ComponentFactory implements ApformImplement
         public String getSpecification() {
         	return getFactory().getProvidedSpecification();
         }
+
+        /**
+         * Get the list of provided interfaces
+         */
+        public String[] getProvidedInterfaces() {
+        	return getFactory().getProvidedInterfaces();
+        }
         
+
         /**
          * Adds a new dependency model to this description
          */
@@ -147,6 +161,11 @@ public class Implementation  extends ComponentFactory implements ApformImplement
      */
     protected String m_specification;
     
+    /**
+     * The provided interfaces of the implementation
+     */
+    protected String[] 	providedInterfaces;
+
     /**
      * Build a new factory with the specified metadata
      * 
@@ -221,6 +240,109 @@ public class Implementation  extends ComponentFactory implements ApformImplement
         	throw new ConfigurationException("An implementation needs a name : " + element);
     		
     	m_specification = element.getAttribute(COMPONENT_SPECIFICATION_PROPERTY);
+    	
+    	/*
+    	 * Get the list of provided interfaces from the instrumented code
+    	 */
+        Set<String> interfaces = new HashSet<String>();
+        
+        if (hasInstrumentedCode()) {
+        	
+            String[] serviceSpecification	= getPojoMetadata().getInterfaces();
+            String parent 					= getPojoMetadata().getSuperClass();
+
+            try {
+            	Set<String> ancestors = new HashSet<String>();
+            	computeInterfacesAndSuperClasses(serviceSpecification, parent, getBundleContext().getBundle(), interfaces, ancestors);
+                getLogger().log(Logger.INFO, "Collected interfaces from " + element.getAttribute("classname") + " : " + interfaces);
+                getLogger().log(Logger.INFO, "Collected super classes from " + element.getAttribute("classname") + " : " + ancestors);
+                
+                interfaces.remove(Pojo.class.getName()); // Remove POJO.
+
+            } catch (ClassNotFoundException e) {
+                throw new ConfigurationException("An interface or parent class cannot be loaded : " + e.getMessage());
+            }
+        }
+        
+        providedInterfaces = interfaces.toArray(new String[interfaces.size()]);
+    }
+
+    /**
+     * Collect interfaces implemented by the POJO.
+     * @param specs : implemented interfaces.
+     * @param parent : parent class.
+     * @param bundle : Bundle object.
+     * @param interfaces : the set of implemented interfaces
+     * @param classes : the set of extended classes
+     * @throws ClassNotFoundException : occurs when an interface cannot be loaded.
+     */
+    private static void computeInterfacesAndSuperClasses(String[] specs, String parent, Bundle bundle, Set<String> interfaces, Set<String> classes) throws ClassNotFoundException {
+        // First iterate on found specification in manipulation metadata
+        for (int i = 0; i < specs.length; i++) {
+            interfaces.add(specs[i]);
+            // Iterate on interfaces implemented by the current interface
+            Class<?> clazz = bundle.loadClass(specs[i]);
+            collectInterfaces(clazz, interfaces, bundle);
+        }
+
+        // Look for parent class.
+        if (parent != null) {
+            Class<?> clazz = bundle.loadClass(parent);
+            collectInterfacesFromClass(clazz, interfaces, bundle);
+            classes.add(parent);
+            collectParentClassesFromClass(clazz, classes, bundle);
+        }
+    }
+
+    /**
+     * Look for inherited interfaces.
+     * @param clazz : interface name to explore (class object)
+     * @param acc : set (accumulator)
+     * @param bundle : bundle
+     * @throws ClassNotFoundException : occurs when an interface cannot be loaded.
+     */
+    private static void collectInterfaces(Class<?> clazz, Set<String> acc, Bundle bundle) throws ClassNotFoundException {
+        Class<?>[] clazzes = clazz.getInterfaces();
+        for (int i = 0; i < clazzes.length; i++) {
+            acc.add(clazzes[i].getName());
+            collectInterfaces(clazzes[i], acc, bundle);
+        }
+    }
+
+    /**
+     * Collect interfaces for the given class.
+     * This method explores super class to.
+     * @param clazz : class object.
+     * @param acc : set of implemented interface (accumulator)
+     * @param bundle : bundle.
+     * @throws ClassNotFoundException : occurs if an interface cannot be load.
+     */
+    private static void collectInterfacesFromClass(Class<?> clazz, Set<String> acc, Bundle bundle) throws ClassNotFoundException {
+        Class<?>[] clazzes = clazz.getInterfaces();
+        for (int i = 0; i < clazzes.length; i++) {
+            acc.add(clazzes[i].getName());
+            collectInterfaces(clazzes[i], acc, bundle);
+        }
+        // Iterate on parent classes
+        Class<?> sup = clazz.getSuperclass();
+        if (sup != null) {
+            collectInterfacesFromClass(sup, acc, bundle);
+        }
+    }
+
+    /**
+     * Collect parent classes for the given class.
+     * @param clazz : class object.
+     * @param acc : set of extended classes (accumulator)
+     * @param bundle : bundle.
+     * @throws ClassNotFoundException : occurs if an interface cannot be load.
+     */
+    private static void collectParentClassesFromClass(Class<?> clazz, Set<String> acc, Bundle bundle) throws ClassNotFoundException {
+        Class<?> parent = clazz.getSuperclass();
+        if (parent != null) {
+            acc.add(parent.getName());
+            collectParentClassesFromClass(parent, acc, bundle);
+        }
     }
     
     /**
@@ -228,6 +350,13 @@ public class Implementation  extends ComponentFactory implements ApformImplement
      */
     public String getProvidedSpecification() {
     	return m_specification;
+    }
+    
+    /**
+     * Get the implementation provided interfaces
+     */
+    public String[] getProvidedInterfaces() {
+        return providedInterfaces;
     }
     
     /**
