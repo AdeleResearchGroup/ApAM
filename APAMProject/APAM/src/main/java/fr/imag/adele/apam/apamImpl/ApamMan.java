@@ -70,7 +70,7 @@ public class ApamMan implements Manager {
     public Implementation findImplByName(CompositeType compoType, String implName) {
         if (implName == null)
             return null;
-        Implementation impl = CST.ASMImplBroker.getImpl(implName);
+        Implementation impl = CST.ImplBroker.getImpl(implName);
         if (impl == null)
             return null;
         if (Util.checkImplVisible(impl, compoType)) {
@@ -84,9 +84,9 @@ public class ApamMan implements Manager {
             Set<Filter> constraints, List<Filter> preferences) {
         Specification spec = null;
         if (interfaceName != null)
-            spec = CST.ASMSpecBroker.getSpecInterf(interfaceName);
+            spec = CST.SpecBroker.getSpecInterf(interfaceName);
         else
-            spec = CST.ASMSpecBroker.getSpec(interfaces);
+            spec = CST.SpecBroker.getSpec(interfaces);
         if (spec == null)
             return null;
         Set<Implementation> impls = new HashSet<Implementation>();
@@ -107,7 +107,7 @@ public class ApamMan implements Manager {
         Specification spec = null;
         if (specName == null)
             return null;
-        spec = CST.ASMSpecBroker.getSpec(specName);
+        spec = CST.SpecBroker.getSpec(specName);
         if (spec == null)
             return null;
         return spec.getImpl(constraints, preferences);

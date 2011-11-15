@@ -5,7 +5,7 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apamImpl.Wire;
-import fr.imag.adele.apam.apformAPI.ApformInstance;
+import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 
 public interface Instance extends Attributes {

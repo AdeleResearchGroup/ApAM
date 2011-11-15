@@ -68,7 +68,7 @@ public class ApamCommand {
 
     @Descriptor("Display all the Apam specifications")
     public void specs() {
-        Set<Specification> specifications = CST.ASMSpecBroker.getSpecs();
+        Set<Specification> specifications = CST.SpecBroker.getSpecs();
         for (Specification specification : specifications) {
             System.out.println("ASMSpec : " + specification);
         }
@@ -79,7 +79,7 @@ public class ApamCommand {
      */
     @Descriptor("Display of all the implementations of the local machine")
     public void implems() {
-        Set<Implementation> implementations = CST.ASMImplBroker.getImpls();
+        Set<Implementation> implementations = CST.ImplBroker.getImpls();
         for (Implementation implementation : implementations) {
             System.out.println("ASMImpl : " + implementation);
         }
@@ -90,7 +90,7 @@ public class ApamCommand {
      */
     @Descriptor("Display of all the instances of the local machine")
     public void insts() {
-        Set<Instance> instances = CST.ASMInstBroker.getInsts();
+        Set<Instance> instances = CST.InstBroker.getInsts();
         for (Instance instance : instances) {
             System.out.println("ASMInst : " + instance);
         }
@@ -103,7 +103,7 @@ public class ApamCommand {
      */
     @Descriptor("Display informations about the target specification")
     public void spec(@Descriptor("target specification") String specificationName) {
-        Set<Specification> specifications = CST.ASMSpecBroker.getSpecs();
+        Set<Specification> specifications = CST.SpecBroker.getSpecs();
         for (Specification specification : specifications) {
             if ((specification.getName() != null)
                     && (specification.getName().equalsIgnoreCase(specificationName))) {
@@ -127,7 +127,7 @@ public class ApamCommand {
      */
     @Descriptor("Display informations about the target implemetation")
     public void implem(@Descriptor("target implementation") String implementationName) {
-        Implementation implementation = CST.ASMImplBroker.getImpl(implementationName);
+        Implementation implementation = CST.ImplBroker.getImpl(implementationName);
         if (implementation == null) {
             System.out.println("No such implementation : " + implementationName);
             return;
@@ -144,7 +144,7 @@ public class ApamCommand {
     @Descriptor("Display informations about the target instance")
     public void inst(@Descriptor("target implementation") String instanceName) {
         try {
-            Instance instance = CST.ASMInstBroker.getInst(instanceName);
+            Instance instance = CST.InstBroker.getInst(instanceName);
             if (instance == null) {
                 System.out.println("No such instance : " + instanceName);
             } else
@@ -308,7 +308,7 @@ public class ApamCommand {
 
     @Descriptor("Display all the dependencies")
     public void wire(@Descriptor("target instance") String instName) {
-        Instance inst = CST.ASMInstBroker.getInst(instName);
+        Instance inst = CST.InstBroker.getInst(instName);
         if (inst != null)
             dumpState(inst, "  ", null);
     }

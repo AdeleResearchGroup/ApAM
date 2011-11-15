@@ -14,9 +14,9 @@ import fr.imag.adele.apam.ImplementationBroker;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.apformAPI.Apform;
-import fr.imag.adele.apam.apformAPI.ApformImplementation;
-import fr.imag.adele.apam.apformAPI.ApformSpecification;
+import fr.imag.adele.apam.apform.Apform;
+import fr.imag.adele.apam.apform.ApformImplementation;
+import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.ApformImplementation;
@@ -94,12 +94,12 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
         ApformSpecification apfSpec = apfImpl.getSpecification();
         SpecificationImpl spec = null;
         if (apfSpec != null) { // may be null !
-            spec = (SpecificationImpl) CST.ASMSpecBroker.getSpec(apfSpec);
+            spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfSpec);
         }
         if ((spec == null) && (specName != null)) // No ASM spec related to the apf spec.
-            spec = (SpecificationImpl) CST.ASMSpecBroker.getSpec(specName);
+            spec = (SpecificationImpl) CST.SpecBroker.getSpec(specName);
         if (spec == null)
-            spec = (SpecificationImpl) CST.ASMSpecBroker.getSpec(apfImpl.getInterfaceNames());
+            spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfImpl.getInterfaceNames());
         if (spec == null) {
             if (specName == null) { // create an arbitrary name, and give the impl interface.
                 // TODO warning, it is an approximation, impl may have more interfaces than its spec

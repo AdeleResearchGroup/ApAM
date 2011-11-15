@@ -20,7 +20,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 //import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
-import fr.imag.adele.apam.apformAPI.ApformInstance;
+import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.Instance;
@@ -28,7 +28,7 @@ import fr.imag.adele.apam.util.AttributesImpl;
 
 public class InstanceBrokerImpl implements InstanceBroker {
 
-    private static final ImplementationBroker implBroker        = CST.ASMImplBroker;
+    private static final ImplementationBroker implBroker        = CST.ImplBroker;
 
     private final Set<Instance>         instances         = new HashSet<Instance>();
     private final Set<Instance>         sharableInstances = new HashSet<Instance>();
@@ -118,12 +118,12 @@ public class InstanceBrokerImpl implements InstanceBroker {
         }
         Implementation impl = null;
         Instance inst;
-        inst = CST.ASMInstBroker.getInst(apfInst.getName());
+        inst = CST.InstBroker.getInst(apfInst.getName());
         if (inst != null) { // allready existing ! May have been created by
             // DYNAMAN, without all parameters
             return inst;
         }
-        impl = CST.ASMImplBroker.getImpl(apfInst.getImplemName());
+        impl = CST.ImplBroker.getImpl(apfInst.getImplemName());
         if (impl == null) { // create the implem also
             System.err.println("Implementation is not existing in addInst: " + apfInst.getImplemName());
 //            impl = ASMInstBrokerImpl.implBroker.addImpl(instComposite.getCompType(),

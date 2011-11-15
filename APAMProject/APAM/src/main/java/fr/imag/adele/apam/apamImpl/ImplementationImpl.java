@@ -16,8 +16,8 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 //import fr.imag.adele.apam.apamAPI.ASMImplBroker;
-import fr.imag.adele.apam.apformAPI.ApformImplementation;
-import fr.imag.adele.apam.apformAPI.ApformInstance;
+import fr.imag.adele.apam.apform.ApformImplementation;
+import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.apam.util.Util;
@@ -68,7 +68,7 @@ public class ImplementationImpl extends AttributesImpl implements Implementation
         name = impl.getName(); // warning, for composites, it is a different name. Overloaded in createCOmpositeType
         mySpec = spec;
         spec.addImpl(this);
-        ((ImplementationBrokerImpl) CST.ASMImplBroker).addImpl(this);
+        ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
         apfImpl = impl;
         initializeNewImpl(compo, props);
 
@@ -372,7 +372,7 @@ public class ImplementationImpl extends AttributesImpl implements Implementation
         for (Instance inst : instances) {
             ((InstanceImpl) inst).remove();
         }
-        CST.ASMImplBroker.removeImpl(this);
+        CST.ImplBroker.removeImpl(this);
         ((SpecificationImpl) getSpec()).removeImpl(this);
         // remove the APAM specific attributes in SAM
 //        if (apfImpl != null) {

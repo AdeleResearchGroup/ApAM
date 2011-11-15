@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformAPI;
+package fr.imag.adele.apam.apform;
 
 import java.util.Map;
 

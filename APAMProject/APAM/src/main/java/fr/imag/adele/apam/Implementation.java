@@ -7,7 +7,7 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.apam.apformAPI.ApformImplementation;
+import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.util.Attributes;
 
 //import fr.imag.adele.sam.Implementation;

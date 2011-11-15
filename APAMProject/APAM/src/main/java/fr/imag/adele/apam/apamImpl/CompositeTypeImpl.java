@@ -18,7 +18,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
-import fr.imag.adele.apam.apformAPI.ApformImplementation;
+import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 
@@ -107,7 +107,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             setProperties(attributes.getProperties());
         setProperty(Attributes.APAMCOMPO, fromCompo.getName());
         CompositeTypeImpl.compositeTypes.put(name, this);
-        ((ImplementationBrokerImpl) CST.ASMImplBroker).addImpl(this);
+        ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
 
         fromCompo.addImpl(this);
         ((CompositeTypeImpl) fromCompo).addEmbedded(this);
@@ -313,7 +313,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     public static CompositeType createCompositeType(CompositeType fromCompo, String name, Set<ManagerModel> models,
             String implName, URL url, String specName, Attributes properties) {
         Implementation mainImpl;
-        mainImpl = CST.ASMImplBroker.createImpl(null, implName, url, properties);
+        mainImpl = CST.ImplBroker.createImpl(null, implName, url, properties);
         if (fromCompo == null) {
             fromCompo = CompositeTypeImpl.rootCompoType;
             if (properties == null)

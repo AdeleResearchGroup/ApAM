@@ -11,7 +11,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apformAPI.ApformSpecification;
+import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
@@ -49,7 +49,7 @@ public class SpecificationImpl extends AttributesImpl implements Specification {
         } else {
             this.interfaces = interfaces;
         }
-        ((SpecificationBrokerImpl) CST.ASMSpecBroker).addSpec(this);
+        ((SpecificationBrokerImpl) CST.SpecBroker).addSpec(this);
         if (props != null)
             setProperties(props.getProperties());
 //        try {
@@ -193,7 +193,7 @@ public class SpecificationImpl extends AttributesImpl implements Specification {
         for (Implementation impl : implementations) {
             impl.remove();
         }
-        CST.ASMSpecBroker.removeSpec(this);
+        CST.SpecBroker.removeSpec(this);
 
 //        // remove the APAM specific attributes in SAM
 //        if (apfSpec != null) {

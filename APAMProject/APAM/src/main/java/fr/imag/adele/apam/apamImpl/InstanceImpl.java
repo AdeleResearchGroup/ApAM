@@ -12,8 +12,8 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.apformAPI.Apform;
-import fr.imag.adele.apam.apformAPI.ApformInstance;
+import fr.imag.adele.apam.apform.Apform;
+import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 
@@ -54,7 +54,7 @@ public class InstanceImpl extends AttributesImpl implements Instance {
         myComposite = instCompo;
         myComposite.addContainInst(this);
         this.setProperty(Attributes.APAMCOMPO, myComposite.getName());
-        ((InstanceBrokerImpl) CST.ASMInstBroker).addInst(this);
+        ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
     }
 
     public InstanceImpl(Implementation impl, Composite instCompo, Attributes initialproperties, ApformInstance apformInst,

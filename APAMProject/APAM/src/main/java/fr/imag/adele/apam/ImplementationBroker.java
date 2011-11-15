@@ -7,7 +7,7 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.apformAPI.ApformImplementation;
+import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.util.Attributes;
 
 public interface ImplementationBroker {

@@ -31,7 +31,7 @@ import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.ManagerModel;
 //import fr.imag.adele.apam.apamAPI.ManagersMng;
-import fr.imag.adele.apam.apformAPI.Apform;
+import fr.imag.adele.apam.apform.Apform;
 
 public class OBRMan implements Manager, IOBRMAN {
 
@@ -361,7 +361,7 @@ public class OBRMan implements Manager, IOBRMAN {
 //        String specName = getAttributeInResource(res, "apam-component", "apam-specification");
         Implementation asmImpl = null;
 
-        asmImpl = CST.ASMImplBroker.getImpl(implName);
+        asmImpl = CST.ImplBroker.getImpl(implName);
         // samImpl = CST.SAMImplBroker.getImplementation(implName);
         // Check if already deployed
         if (asmImpl == null) {

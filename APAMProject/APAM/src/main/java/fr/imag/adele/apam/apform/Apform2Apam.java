@@ -16,26 +16,23 @@ import fr.imag.adele.apam.apamImpl.ImplementationBrokerImpl;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
-import fr.imag.adele.apam.apformAPI.Apform2Apam;
-import fr.imag.adele.apam.apformAPI.ApformImplementation;
-import fr.imag.adele.apam.apformAPI.ApformInstance;
-import fr.imag.adele.apam.apformAPI.ApformSpecification;
-import fr.imag.adele.apam.apformAPI.Apform;
 
-public class Apform2ApamImpl implements Apform2Apam {
+public class Apform2Apam {
 //    static Set<String>  expectedDeployedImpls = new HashSet<String>();
 
     static final CompositeType rootType      = CompositeTypeImpl.getRootCompositeType();
     static final Composite     rootInst      = CompositeImpl.getRootAllComposites();
-    static Set<Implementation>        unusedImplems = CompositeTypeImpl.getRootCompositeType().getImpls();
+    static Set<Implementation> unusedImplems = CompositeTypeImpl.getRootCompositeType().getImpls();
 
-    @Override
-    public void newInstance(String instanceName, ApformInstance client) {
-        if (CST.ASMInstBroker.getInst(instanceName) != null) {
+    /**
+     * A new instance, represented by object "client" just appeared in the platform.
+     */
+    public static void newInstance(String instanceName, ApformInstance client) {
+        if (CST.InstBroker.getInst(instanceName) != null) {
             System.err.println("Instance already existing: " + instanceName);
             return;
         }
-        Instance inst = CST.ASMInstBroker.addInst(Apform2ApamImpl.rootInst, client, null);
+        Instance inst = CST.InstBroker.addInst(Apform2Apam.rootInst, client, null);
         inst.setProperties(client.getProperties());
     }
 
@@ -71,13 +68,19 @@ public class Apform2ApamImpl implements Apform2Apam {
 //        }
 //    }
 
-    @Override
-    public void newImplementation(String implemName, ApformImplementation client) {
+    /**
+     * A new implementation, represented by object "client" just appeared in the platform.
+     * 
+     * @param implemName : the symbolic name.
+     * @param client
+     */
+    public static void newImplementation(String implemName, ApformImplementation client) {
         if (Apform.getUnusedImplem(implemName) != null) {
             System.err.println("Implementation already existing: " + implemName);
             return;
         }
-        Implementation impl = ((ImplementationBrokerImpl) CST.ASMImplBroker).addImpl(Apform2ApamImpl.rootType, client, null);
+        Implementation impl = ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(Apform2Apam.rootType, client,
+                null);
         impl.setProperties(client.getProperties());
         synchronized (Apform.expectedImpls) {
             if (Apform.expectedImpls.contains(implemName)) { // it is expected
@@ -87,30 +90,46 @@ public class Apform2ApamImpl implements Apform2Apam {
         }
     }
 
-    @Override
-    public void newSpecification(String specName, ApformSpecification client) {
-        if (CST.ASMSpecBroker.getSpec(specName) != null) {
+    /**
+     * A new specification, represented by object "client" just appeared in the platform.
+     * 
+     * @param specName
+     * @param client
+     */
+    public static void newSpecification(String specName, ApformSpecification client) {
+        if (CST.SpecBroker.getSpec(specName) != null) {
             System.err.println("Specification already existing: " + specName);
             return;
         }
-        Specification spec = CST.ASMSpecBroker.addSpec(specName, client, null);
+        Specification spec = CST.SpecBroker.addSpec(specName, client, null);
         spec.setProperties(client.getProperties());
     }
 
-    @Override
-    public void vanishInstance(String instanceName) {
+    /**
+     * The instance called "instance name" just disappeared from the platform.
+     * 
+     * @param instanceName
+     */
+    public static void vanishInstance(String instanceName) {
         // TODO Auto-generated method stub
 
     }
 
-    @Override
-    public void vanishImplementation(String implementationName) {
+    /**
+     * * The implementation called "implementation name" just disappeared from the platform.
+     * 
+     * @param implementationName
+     */
+    public static void vanishImplementation(String implementationName) {
         // TODO Auto-generated method stub
 
     }
 
-    @Override
-    public void vanishSpecification(String specificationName) {
+    /**
+     * 
+     * @param specificationName
+     */
+    public static void vanishSpecification(String specificationName) {
         // TODO Auto-generated method stub
 
     }

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import fr.imag.adele.apam.apamImpl.APAMImpl;
-import fr.imag.adele.apam.apformAPI.Apform;
+import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.util.AttributesImpl;
 
 public class ApamManagers {

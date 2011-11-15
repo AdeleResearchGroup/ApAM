@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformAPI;
+package fr.imag.adele.apam.apform;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,14 +39,14 @@ public class Apform {
     static Set<DynamicManager>              listenLost            = new HashSet<DynamicManager>();
 
     public static Implementation getUnusedImplem(String name) {
-        Implementation impl = CST.ASMImplBroker.getImpl(name);
+        Implementation impl = CST.ImplBroker.getImpl(name);
         if (impl == null)
             return null;
         return (Apform.unusedImplems.contains(impl)) ? impl : null;
     }
 
     public static Instance getUnusedInst(String name) {
-        Instance inst = CST.ASMInstBroker.getInst(name);
+        Instance inst = CST.InstBroker.getInst(name);
         if (inst == null)
             return null;
         return (Apform.unusedInsts.contains(inst)) ? inst : null;
@@ -95,7 +95,7 @@ public class Apform {
         if (expectedImpl == null)
             return null;
         // if allready here
-        Implementation impl = CST.ASMImplBroker.getImpl(expectedImpl);
+        Implementation impl = CST.ImplBroker.getImpl(expectedImpl);
         if (impl != null)
             return impl;
         Apform.expectedImpls.add(expectedImpl);
@@ -107,7 +107,7 @@ public class Apform {
                     Apform.expectedImpls.wait();
                 }
                 // The expected impl arrived. It is in unUsed.
-                impl = CST.ASMImplBroker.getImpl(expectedImpl);
+                impl = CST.ImplBroker.getImpl(expectedImpl);
                 if (impl == null) // should never occur
                     System.out.println("wake up but imlementation is not present " + expectedImpl);
             } catch (InterruptedException e) {
