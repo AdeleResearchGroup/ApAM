@@ -17,8 +17,8 @@ import org.apache.felix.ipojo.parser.ParseUtils;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.apam.apamAPI.ASMImpl.DependencyModel;
-import fr.imag.adele.apam.apamAPI.ASMImpl.TargetKind;
+import fr.imag.adele.apam.ASMImpl.DependencyModel;
+import fr.imag.adele.apam.ASMImpl.TargetKind;
 import fr.imag.adele.apam.implementation.Implementation;
 import fr.imag.adele.apam.implementation.ImplementationHandler;
 import fr.imag.adele.apam.instance.Dependency;

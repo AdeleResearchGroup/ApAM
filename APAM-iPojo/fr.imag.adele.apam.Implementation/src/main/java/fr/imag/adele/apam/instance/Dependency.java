@@ -20,7 +20,7 @@ import org.apache.felix.ipojo.parser.PojoMetadata;
 import org.apache.felix.ipojo.util.Logger;
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.apamAPI.ASMInst;
+import fr.imag.adele.apam.ASMInst;
 
 /**
  * This class keeps track of an APAM dependency, it handles the calculation of the target services based on updates to

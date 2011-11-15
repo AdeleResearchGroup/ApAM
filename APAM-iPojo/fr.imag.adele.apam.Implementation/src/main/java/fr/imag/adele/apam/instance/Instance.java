@@ -15,9 +15,9 @@ import org.apache.felix.ipojo.handlers.configuration.ConfigurationHandlerDescrip
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Apam;
-import fr.imag.adele.apam.apamAPI.ApamResolver;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.implementation.Implementation;
 
@@ -205,7 +205,7 @@ public class Instance extends InstanceManager implements ApformInstance {
 	 */
 	@Override
 	public boolean setWire(ASMInst destInst, String depName) {
-		System.out.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
+	//	System.out.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
 		Dependency dependency = dependencies.get(depName);
 
 		if (dependency == null)

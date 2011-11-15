@@ -21,9 +21,9 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.apamAPI.ASMImpl.DependencyModel;
-import fr.imag.adele.apam.apamAPI.Apam;
+import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.ASMImpl.DependencyModel;
+import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apformAPI.Apform2Apam;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.apformAPI.ApformInstance;

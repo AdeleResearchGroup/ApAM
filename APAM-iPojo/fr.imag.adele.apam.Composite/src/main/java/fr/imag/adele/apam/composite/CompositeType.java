@@ -14,8 +14,8 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.ParseUtils;
 import org.osgi.framework.BundleContext;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.apamImpl.ManagerModel;
 import fr.imag.adele.apam.implementation.Implementation;
 
 public class CompositeType extends Implementation {
