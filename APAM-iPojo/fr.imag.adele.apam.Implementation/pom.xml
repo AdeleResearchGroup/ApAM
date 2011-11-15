@@ -30,7 +30,7 @@
 				<extensions>true</extensions>
 				<configuration>
           			<instructions>
-	       				<Export-Package>fr.imag.adele.apam.implementation.*</Export-Package>
+	       				<Export-Package>fr.imag.adele.apam.implementation.*,fr.imag.adele.apam.instance.*</Export-Package>
 			            <IPOJO-Extension>
 							implementation:fr.imag.adele.apam.implementation.Implementation
 							<!--
