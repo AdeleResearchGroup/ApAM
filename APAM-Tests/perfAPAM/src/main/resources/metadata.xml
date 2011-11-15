@@ -18,14 +18,16 @@
 		<dependency field="instance2" />
 	</implementation>
 
-	<ipojo:component name="Injector" classname="fr.imag.adele.apam.perfAPAM.Injector" immediate="true">
-		<ipojo:requires field="apam" proxy="false" />
-		<ipojo:callback transition="validate" method="start" />
+	<implementation name="Injector" classname="fr.imag.adele.apam.perfAPAM.Injector" >
+		<dependency field="apam" />
+		<dependency field="testPerf" />
+<!--		<ipojo:callback transition="validate" method="start" />
 		<ipojo:callback transition="invalidate" method="stop" />
-	</ipojo:component>
+-->
+	</implementation>
 
 <!--	<ipojo:instance component="TestApam" name="premiereInstanceAPAM" /> -->
-	<ipojo:instance name="TestApam-Instance" component="Injector" />
+	<ipojo:instance name="Injector-Instance" component="Injector" />
 
 </ipojo>
 

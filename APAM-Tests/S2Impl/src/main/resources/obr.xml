@@ -13,7 +13,7 @@
       <p n='shared' v='false' />
       <p n='scope' v='global' />
       <p n='test' v='yes' />
-      <p n='interfaces' v=';fr.imag.adele.apam.test.s2.S2;fr.imag.adele.apam.apamAPI.ApamComponent;' />
+      <p n='interfaces' v=';fr.imag.adele.apam.test.s2.S2;fr.imag.adele.apam.ApamComponent;' />
    </capability>
    <capability name='apam-component'>
       <p n='name' v='S2ImplBis' />
@@ -21,6 +21,6 @@
       <p n='shared' v='true' />
       <p n='scope' v='local' />
       <p n='testbis' v='xyz' />
-      <p n='interfaces' v=';fr.imag.adele.apam.test.s2.S2;fr.imag.adele.apam.apamAPI.ApamComponent;' />
+      <p n='interfaces' v=';fr.imag.adele.apam.test.s2.S2;fr.imag.adele.apam.ApamComponent;' />
    </capability>
 </obr> 

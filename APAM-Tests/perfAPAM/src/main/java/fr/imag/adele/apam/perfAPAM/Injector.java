@@ -27,14 +27,15 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 //import fr.imag.adele.apam.CompositeTypeImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Apam;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.ApamComponent;
+import fr.imag.adele.apam.CompositeType;
 //import fr.imag.adele.apam.apamAPI.ApamComponent;
-import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.perfAPAM.ComponentTestImpl;
 import fr.imag.adele.apam.perfAPAM.Service;
 
-public class Injector implements Runnable, intTestApam {
+public class Injector implements Runnable, ApamComponent {
 
     private Service             testPerf;
 
@@ -42,7 +43,8 @@ public class Injector implements Runnable, intTestApam {
     private static final String targetedNbInstance = "nbInstance";
     int                         limit;
 
-    public void start() {
+    @Override
+    public void apamStart(ASMInst inst) {
         new Thread(this, "APAM perf test").start();
     }
 
@@ -94,11 +96,13 @@ public class Injector implements Runnable, intTestApam {
 
     private void createTreeInstance() {
 
-        CompositeType testPerf = apam.createCompositeType("TestPerfApam", "TestApam",
-                null /* models */, null /* properties */);
-        ASMInst test = testPerf.createInst(null /* composite */, null/* properties */);
-        Service s = (Service) test.getServiceObject();
-        s.callTestPerf();
+//        CompositeType testPerf = apam.createCompositeType("TestPerfApam", "TestApam",
+//                null /* models */, null /* properties */);
+//        ASMInst test = testPerf.createInst(null /* composite */, null/* properties */);
+//        Service s = (Service) test.getServiceObject();
+//        s.callTestPerf();
+
+        testPerf.callTestPerf();
 
 //        int k = 0;
 //        
@@ -126,22 +130,29 @@ public class Injector implements Runnable, intTestApam {
         ComponentTestImpl.startTime = System.nanoTime();
         for (int i = 1; i < 10; i++) {
             nanoTimeStart = System.nanoTime();
-            s.call(limit);
+            testPerf.call(limit);
             long during = (System.nanoTime() - nanoTimeStart) / 1000;
             System.out.println("Instances " + ComponentTestImpl.instances
                         + " / invocation time (µS): " + during);
         }
     }
-//    private int calculateI(double x) {
-//        double ret = 0;
-//        ret = Math.log10((x + 1) * 0.5) / Math.log10(2);
-//
-//        return Double.valueOf(ret).intValue();
-//    }
-//
-//    @Override
-//    public void apamRelease() {
-//        // TODO Auto-generated method stub
-//
-//    }
+
+    private int calculateI(double x) {
+        double ret = 0;
+        ret = Math.log10((x + 1) * 0.5) / Math.log10(2);
+
+        return Double.valueOf(ret).intValue();
+    }
+
+    @Override
+    public void apamRelease() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void apamStop() {
+        // TODO Auto-generated method stub
+
+    }
 }

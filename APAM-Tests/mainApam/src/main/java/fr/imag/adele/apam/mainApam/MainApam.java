@@ -3,11 +3,11 @@ package fr.imag.adele.apam.mainApam;
 import java.util.HashSet;
 import java.util.Set;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Apam;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.test.s1.S1;
 import fr.imag.adele.apam.test.s5.S5;
 import fr.imag.adele.apam.util.Attributes;

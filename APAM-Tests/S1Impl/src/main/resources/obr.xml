@@ -7,4 +7,10 @@
       <p n='zerrt' v='true' />
       <p n='interfaces' v=';fr.imag.adele.apam.test.s1.S1;' />
    </capability>
+   <capability name='apam-component'>
+      <p n='name' v='S1Main' />
+      <p n='shared' v='false' />
+      <p n='s1 main' v='pas d interface' />
+      <p n='interfaces' v=';fr.imag.adele.apam.ApamComponent;' />
+   </capability>
 </obr> 

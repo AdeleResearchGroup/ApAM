@@ -2,10 +2,10 @@ package fr.imag.adele.apam.test.s2Impl;
 
 import java.util.Set;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Apam;
-import fr.imag.adele.apam.apamAPI.ApamComponent;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.ApamComponent;
+import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.test.s2.S2;
 import fr.imag.adele.apam.test.s3.S3_1;
 import fr.imag.adele.apam.test.s4.S4;

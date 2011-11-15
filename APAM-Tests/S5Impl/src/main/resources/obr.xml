@@ -2,6 +2,6 @@
    <capability name='apam-component'>
       <p n='name' v='S5Impl' />
       <p n='apam-specification' v='S5' />
-      <p n='interfaces' v=';fr.imag.adele.apam.test.s5.S5;fr.imag.adele.apam.apamAPI.ApamComponent;' />
+      <p n='interfaces' v=';fr.imag.adele.apam.test.s5.S5;fr.imag.adele.apam.ApamComponent;' />
    </capability>
 </obr> 
