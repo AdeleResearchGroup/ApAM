@@ -119,17 +119,6 @@ public class Dependency implements FieldInterceptor {
             String target, Kind targetKind, Set<Filter> constraints, List<Filter> preferences) {
         
     	this.instance = instance;
-    	
-    	/*
-    	 * If the attached instance is a native APAM instance, register ourselves to be notified of changes in dependency
-    	 * resolution.
-    	 * 
-         * TODO we are only able to receive notifications if the source instance is an APAM native instance. We need
-         * to also handle the case of iPojo component instances with APAM dependencies (e.g. hybrid configurations)
-         */
-    	if (instance instanceof Instance)
-    		((Instance)instance).addDependency(this);
-
         this.instrumentedCodeDescription = instrumentedCodeDescription;
 
         this.name = name;
@@ -144,6 +133,19 @@ public class Dependency implements FieldInterceptor {
         injectedValue = null;
         injectedType = null;
         isResolved = false;
+        
+    	
+    	/*
+    	 * If the attached instance is a native APAM instance, register ourselves to be notified of changes in dependency
+    	 * resolution.
+    	 * 
+         * TODO we are only able to receive notifications if the source instance is an APAM native instance. We need
+         * to also handle the case of iPojo component instances with APAM dependencies (e.g. hybrid configurations)
+         */
+    	if (instance instanceof Instance)
+    		((Instance)instance).addDependency(this);
+
+        
     }
 
     /**
