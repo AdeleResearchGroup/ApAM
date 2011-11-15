@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.ASMImpl;
+package fr.imag.adele.apam.apamImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -9,14 +9,13 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.CST;
 //import fr.imag.adele.apam.CompositeTypeImpl;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
 //import fr.imag.adele.apam.apamAPI.ASMImplBroker;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
@@ -26,7 +25,7 @@ import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.Instance;
 //import fr.imag.adele.sam.broker.ImplementationBroker;
 
-public class ASMImplImpl extends AttributesImpl implements ASMImpl {
+public class ImplementationImpl extends AttributesImpl implements ASMImpl {
 
     protected final Set<ASMImpl>       uses              = new HashSet<ASMImpl>();      // all relations uses
     protected final Set<ASMImpl>       invUses           = new HashSet<ASMImpl>();      // all reverse relations uses
@@ -53,11 +52,11 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
      */
 
     // used ONLY when creating a composite type
-    protected ASMImplImpl() {
+    protected ImplementationImpl() {
 
     }
 
-    public ASMImplImpl(CompositeType compo, ASMSpecImpl spec, ApformImplementation impl, Attributes props) {
+    public ImplementationImpl(CompositeType compo, SpecificationImpl spec, ApformImplementation impl, Attributes props) {
         if (impl == null) {
             new Exception("Sam ApformImplementation cannot be null when creating an imple").printStackTrace();
         }
@@ -69,7 +68,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         name = impl.getName(); // warning, for composites, it is a different name. Overloaded in createCOmpositeType
         mySpec = spec;
         spec.addImpl(this);
-        ((ASMImplBrokerImpl) CST.ASMImplBroker).addImpl(this);
+        ((ImplementationBrokerImpl) CST.ASMImplBroker).addImpl(this);
         apfImpl = impl;
         initializeNewImpl(compo, props);
 
@@ -123,7 +122,7 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         ApformInstance apfInst = apfImpl.createInstance(initialproperties);
         // if it is a composite. Not sure it is ever caller here.
         boolean composite = ((getProperty(CST.A_COMPOSITE) != null) && getProperty(CST.A_COMPOSITE).equals(CST.V_TRUE));
-        ASMInstImpl inst = new ASMInstImpl(this, instCompo, initialproperties, apfInst, composite);
+        InstanceImpl inst = new InstanceImpl(this, instCompo, initialproperties, apfInst, composite);
         return inst;
     }
 
@@ -325,8 +324,8 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
         if (uses.contains(dest))
             return;
         uses.add(dest);
-        ((ASMImplImpl) dest).addInvUses(this);
-        ((ASMSpecImpl) getSpec()).addRequires(dest.getSpec());
+        ((ImplementationImpl) dest).addInvUses(this);
+        ((SpecificationImpl) getSpec()).addRequires(dest.getSpec());
     }
 
     public void removeUses(ASMImpl dest) {
@@ -337,8 +336,8 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
                 }
         }
         uses.remove(dest);
-        ((ASMImplImpl) dest).removeInvUses(this);
-        ((ASMSpecImpl) getSpec()).removeRequires(dest.getSpec());
+        ((ImplementationImpl) dest).removeInvUses(this);
+        ((SpecificationImpl) getSpec()).removeRequires(dest.getSpec());
     }
 
     private void addInvUses(ASMImpl orig) {
@@ -371,10 +370,10 @@ public class ASMImplImpl extends AttributesImpl implements ASMImpl {
     @Override
     public void remove() {
         for (ASMInst inst : instances) {
-            ((ASMInstImpl) inst).remove();
+            ((InstanceImpl) inst).remove();
         }
         CST.ASMImplBroker.removeImpl(this);
-        ((ASMSpecImpl) getSpec()).removeImpl(this);
+        ((SpecificationImpl) getSpec()).removeImpl(this);
         // remove the APAM specific attributes in SAM
 //        if (apfImpl != null) {
 //            try {

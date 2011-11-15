@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.ASMImpl;
+package fr.imag.adele.apam.apamImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -7,22 +7,19 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompositeTypeImpl;
-import fr.imag.adele.apam.Wire;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.ApamComponent;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apform.ApformImpl;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.ApamComponent;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.apformAPI.Apform;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 
 //import fr.imag.adele.sam.Instance;
 
-public class ASMInstImpl extends AttributesImpl implements ASMInst {
+public class InstanceImpl extends AttributesImpl implements ASMInst {
 
     /** The logger. */
     // private static Logger logger = Logger.getLogger(ASMInstImpl.class);
@@ -38,7 +35,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
     private final Set<Wire>  invWires = new HashSet<Wire>();
 
     // WARNING to be used only for creating composites.
-    public ASMInstImpl() {
+    public InstanceImpl() {
     }
 
     protected void instConstructor(ASMImpl impl, Composite instCompo, Attributes initialproperties,
@@ -57,10 +54,10 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         myComposite = instCompo;
         myComposite.addContainInst(this);
         this.setProperty(Attributes.APAMCOMPO, myComposite.getName());
-        ((ASMInstBrokerImpl) CST.ASMInstBroker).addInst(this);
+        ((InstanceBrokerImpl) CST.ASMInstBroker).addInst(this);
     }
 
-    public ASMInstImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, ApformInstance apformInst,
+    public InstanceImpl(ASMImpl impl, Composite instCompo, Attributes initialproperties, ApformInstance apformInst,
             boolean composite) {
         // Create the implementation and initialize
         instConstructor(impl, instCompo, initialproperties, apformInst);
@@ -171,7 +168,7 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
         // creation
         Wire wire = new Wire(this, to, depName);
         wires.add(wire);
-        ((ASMInstImpl) to).invWires.add(wire);
+        ((InstanceImpl) to).invWires.add(wire);
 
         if (!(this instanceof Composite)) { // This is an outgoing link from a composite
             apformInst.setWire(to, depName);
@@ -179,20 +176,20 @@ public class ASMInstImpl extends AttributesImpl implements ASMInst {
 
         // if the instance was in the unUsed pull, move it to the from composite.
         if (!to.isUsed()) {
-            ApformImpl.setUsedInst(to);
+            Apform.setUsedInst(to);
             getComposite().addContainInst(to);
         }
 
         // Other relationships to instantiate
-        ((ASMImplImpl) getImpl()).addUses(to.getImpl());
-        ((ASMSpecImpl) getSpec()).addRequires(to.getSpec());
+        ((ImplementationImpl) getImpl()).addUses(to.getImpl());
+        ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
         return true;
     }
 
     @Override
     public void removeWire(Wire wire) {
         wires.remove(wire);
-        ((ASMImplImpl) getImpl()).removeUses(wire.getDestination().getImpl());
+        ((ImplementationImpl) getImpl()).removeUses(wire.getDestination().getImpl());
     }
 
     public void removeInvWire(Wire wire) {

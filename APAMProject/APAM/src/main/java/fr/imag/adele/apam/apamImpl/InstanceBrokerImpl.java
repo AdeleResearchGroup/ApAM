@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.ASMImpl;
+package fr.imag.adele.apam.apamImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,21 +12,21 @@ import org.osgi.framework.InvalidSyntaxException;
 //import fr.imag.adele.am.eventing.AMEventingHandler;
 //import fr.imag.adele.am.eventing.EventingEngine;
 //import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMImplBroker;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMInstBroker;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMImplBroker;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.ASMInstBroker;
+import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+//import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.Instance;
 //import fr.imag.adele.sam.event.EventProperty;
 
-public class ASMInstBrokerImpl implements ASMInstBroker {
+public class InstanceBrokerImpl implements ASMInstBroker {
 
     private static final ASMImplBroker implBroker        = CST.ASMImplBroker;
 
@@ -34,9 +34,9 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
     private final Set<ASMInst>         sharableInstances = new HashSet<ASMInst>();
 
     // EVENTS
-    private SamInstEventHandler        instEventHandler;
+//    private SamInstEventHandler        instEventHandler;
 
-    public ASMInstBrokerImpl() {
+    public InstanceBrokerImpl() {
 //        try {
 //            Machine machine = LocalMachine.localMachine;
 //            EventingEngine eventingEngine = machine.getEventingEngine();
@@ -139,7 +139,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
             return null;
         }
 
-        inst = new ASMInstImpl(impl, instComposite, null, apfInst, false);
+        inst = new InstanceImpl(impl, instComposite, null, apfInst, false);
         return inst;
     }
 
@@ -147,7 +147,7 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
     public void addInst(ASMInst inst) {
         if ((inst != null) && !instances.contains(inst)) {
             instances.add(inst);
-            ((ASMImplImpl) inst.getImpl()).addInst(inst);
+            ((ImplementationImpl) inst.getImpl()).addInst(inst);
             if (inst.isSharable())
                 sharableInstances.add(inst);
         }
@@ -176,8 +176,8 @@ public class ASMInstBrokerImpl implements ASMInstBroker {
         if (instances.contains(inst)) {
             instances.remove(inst);
             sharableInstances.remove(inst);
-            ((ASMInstImpl) inst).remove(); // wires and sam attributes
-            ((ASMImplImpl) inst.getImpl()).removeInst(inst);
+            ((InstanceImpl) inst).remove(); // wires and sam attributes
+            ((ImplementationImpl) inst.getImpl()).removeInst(inst);
         }
     }
 

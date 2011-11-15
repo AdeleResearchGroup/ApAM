@@ -1,16 +1,17 @@
-package fr.imag.adele.apam;
+package fr.imag.adele.apam.apamImpl;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
-import fr.imag.adele.apam.apamAPI.Manager;
+
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements Manager {

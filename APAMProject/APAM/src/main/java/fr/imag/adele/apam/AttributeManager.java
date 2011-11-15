@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apamAPI;
+package fr.imag.adele.apam;
 /**
  * called when attributes of an ASM object is changed
  * @author Jacky

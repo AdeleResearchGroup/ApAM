@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apamAPI;
+package fr.imag.adele.apam;
 
 import java.util.List;
 import java.util.Set;

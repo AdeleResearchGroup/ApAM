@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apamAPI;
+package fr.imag.adele.apam;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fr.imag.adele.apam.APAMImpl;
-import fr.imag.adele.apam.apform.ApformImpl;
+import fr.imag.adele.apam.apamImpl.APAMImpl;
+import fr.imag.adele.apam.apformAPI.Apform;
 import fr.imag.adele.apam.util.AttributesImpl;
 
 public class ApamManagers {
@@ -93,7 +93,7 @@ public class ApamManagers {
             System.err.println("ERROR : Missing parameter impl or manager in appearedExpected");
             return;
         }
-        ApformImpl.addExpectedImpl(samImplName, manager);
+        Apform.addExpectedImpl(samImplName, manager);
     }
 
     public static void appearedInterfExpected(String interf, DynamicManager manager) {
@@ -101,7 +101,7 @@ public class ApamManagers {
             System.out.println("ERROR : Missing parameter interf or manager in appearedExpected");
             return;
         }
-        ApformImpl.addExpectedInterf(interf, manager);
+        Apform.addExpectedInterf(interf, manager);
     }
 
     public static void appearedImplNotExpected(String samImplName, DynamicManager manager) {
@@ -109,7 +109,7 @@ public class ApamManagers {
             System.out.println("ERROR : Missing parameter impl or manager in appearedNotExpected");
             return;
         }
-        ApformImpl.removeExpectedImpl(samImplName, manager);
+        Apform.removeExpectedImpl(samImplName, manager);
 
     }
 
@@ -118,7 +118,7 @@ public class ApamManagers {
             System.out.println("ERROR : Missing parameter interf or manager in appearedNotExpected");
             return;
         }
-        ApformImpl.removeExpectedInterf(interf, manager);
+        Apform.removeExpectedInterf(interf, manager);
     }
 
     public static void listenLost(DynamicManager manager) {
@@ -126,7 +126,7 @@ public class ApamManagers {
             System.out.println("ERROR : Missing parameter manager in listenLost");
             return;
         }
-        ApformImpl.addLost(manager);
+        Apform.addLost(manager);
     }
 
     /**
@@ -152,7 +152,7 @@ public class ApamManagers {
             System.out.println("ERROR : Missing parameter manager in listenNotLost");
             return;
         }
-        ApformImpl.removeLost(manager);
+        Apform.removeLost(manager);
     }
 
     /**

@@ -1,19 +1,16 @@
-package fr.imag.adele.apam;
+package fr.imag.adele.apam.apamImpl;
 
 //import fr.imag.adele.am.Machine;
 //import fr.imag.adele.am.broker.BrokerBroker;
 //import fr.imag.adele.am.eventing.EventingEngine;
-import fr.imag.adele.apam.ASMImpl.ASMImplBrokerImpl;
-import fr.imag.adele.apam.ASMImpl.ASMInstBrokerImpl;
-import fr.imag.adele.apam.ASMImpl.ASMSpecBrokerImpl;
 //import fr.imag.adele.apam.ASMImpl.SamImplEventHandler;
-import fr.imag.adele.apam.apamAPI.ASMImplBroker;
-import fr.imag.adele.apam.apamAPI.ASMInstBroker;
-import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
+import fr.imag.adele.apam.ASMImplBroker;
+import fr.imag.adele.apam.ASMInstBroker;
+import fr.imag.adele.apam.ASMSpecBroker;
 import fr.imag.adele.apam.apform.Apform2ApamImpl;
-import fr.imag.adele.apam.apform.ApformImpl;
 import fr.imag.adele.apam.apformAPI.Apform;
 import fr.imag.adele.apam.apformAPI.Apform2Apam;
+import fr.imag.adele.apam.apformAPI.Apform;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.apformAPI.ApformSpecification;
@@ -121,10 +118,10 @@ public class CST {
 //    public static SamImplEventHandler  implEventHandler      = null;
 
     public CST(APAMImpl theApam) {
-        CST.ASMSpecBroker = new ASMSpecBrokerImpl();
-        CST.ASMImplBroker = new ASMImplBrokerImpl();
-        CST.ASMInstBroker = new ASMInstBrokerImpl();
-        CST.ASMInstBroker = new ASMInstBrokerImpl();
+        CST.ASMSpecBroker = new SpecificationBrokerImpl();
+        CST.ASMImplBroker = new ImplementationBrokerImpl();
+        CST.ASMInstBroker = new InstanceBrokerImpl();
+        CST.ASMInstBroker = new InstanceBrokerImpl();
 //        CST.apform = new ApformImpl();
         CST.apform2Apam = new Apform2ApamImpl();
         CST.apam = theApam;

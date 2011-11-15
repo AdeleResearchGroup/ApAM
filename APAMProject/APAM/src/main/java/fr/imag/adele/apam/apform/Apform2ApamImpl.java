@@ -5,21 +5,22 @@ import java.util.Set;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.am.query.Query;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompositeImpl;
-import fr.imag.adele.apam.CompositeTypeImpl;
-import fr.imag.adele.apam.ASMImpl.ASMImplBrokerImpl;
-import fr.imag.adele.apam.ASMImpl.SamImplEventHandler;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
-import fr.imag.adele.apam.apamAPI.DynamicManager;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.DynamicManager;
+//import fr.imag.adele.apam.ASMImpl.SamImplEventHandler;
+import fr.imag.adele.apam.apamImpl.ImplementationBrokerImpl;
+import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.apamImpl.CompositeImpl;
+import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
 import fr.imag.adele.apam.apformAPI.Apform2Apam;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.apformAPI.ApformSpecification;
+import fr.imag.adele.apam.apformAPI.Apform;
 
 public class Apform2ApamImpl implements Apform2Apam {
 //    static Set<String>  expectedDeployedImpls = new HashSet<String>();
@@ -30,12 +31,13 @@ public class Apform2ApamImpl implements Apform2Apam {
 
     @Override
     public void newInstance(String instanceName, ApformInstance client) {
-        if (ApformImpl.getUnusedInst(instanceName) != null) {
+        if (CST.ASMInstBroker.getInst(instanceName) != null) {
             System.err.println("Instance already existing: " + instanceName);
             return;
         }
         ASMInst inst = CST.ASMInstBroker.addInst(Apform2ApamImpl.rootInst, client, null);
         inst.setProperties(client.getProperties());
+    }
 
 //        synchronized (ApformImpl.expectedImpls) {
 //            if (ApformImpl.expectedImpls.contains(instanceName)) { // it is expected
@@ -43,41 +45,44 @@ public class Apform2ApamImpl implements Apform2Apam {
 //                ApformImpl.expectedImpls.notifyAll(); // wake up the thread waiting in getImplementation
 //            }
 //        }
-        synchronized (ApformImpl.expectedMngImpls) {
-            if (ApformImpl.expectedMngImpls.containsKey(instanceName)) {
-                if (ApformImpl.expectedMngImpls.keySet().contains(instanceName)) {
-                    for (DynamicManager manager : ApformImpl.expectedMngImpls.get(instanceName)) {
-                        manager.appeared(inst);
-                    }
-                    ApformImpl.expectedMngImpls.remove(instanceName);
-                }
-            }
-        }
 
-        synchronized (ApformImpl.expectedMngInterfaces) {
-            for (String interf : inst.getImpl().getSpec().getInterfaces()) {
-                if (ApformImpl.expectedMngInterfaces.get(interf) != null) {
-                    for (DynamicManager manager : ApformImpl.expectedMngInterfaces.get(interf)) {
-                        manager.appeared(inst);
-                    }
-                }
-                ApformImpl.expectedMngInterfaces.remove(interf);
-            }
-        }
-    }
+//        synchronized (Apform.expectedMngImpls) {
+//            if (Apform.expectedMngImpls.containsKey(instanceName)) {
+//                if (Apform.expectedMngImpls.keySet().contains(instanceName)) {
+//                    for (DynamicManager manager : Apform.expectedMngImpls.get(instanceName)) {
+//                        manager.appeared(inst);
+//                    }
+//                    Apform.expectedMngImpls.remove(instanceName);
+//                }
+//            }
+//        }
+//
+//        synchronized (Apform.expectedMngInterfaces) {
+//            if (inst.getImpl().getSpec() != null) {
+//                for (String interf : inst.getImpl().getSpec().getInterfaces()) {
+//                    if (Apform.expectedMngInterfaces.get(interf) != null) {
+//                        for (DynamicManager manager : Apform.expectedMngInterfaces.get(interf)) {
+//                            manager.appeared(inst);
+//                        }
+//                    }
+//                    Apform.expectedMngInterfaces.remove(interf);
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public void newImplementation(String implemName, ApformImplementation client) {
-        if (ApformImpl.getUnusedImplem(implemName) != null) {
+        if (Apform.getUnusedImplem(implemName) != null) {
             System.err.println("Implementation already existing: " + implemName);
             return;
         }
-        ASMImpl impl = ((ASMImplBrokerImpl) CST.ASMImplBroker).addImpl(Apform2ApamImpl.rootType, client, null);
+        ASMImpl impl = ((ImplementationBrokerImpl) CST.ASMImplBroker).addImpl(Apform2ApamImpl.rootType, client, null);
         impl.setProperties(client.getProperties());
-        synchronized (ApformImpl.expectedImpls) {
-            if (ApformImpl.expectedImpls.contains(implemName)) { // it is expected
-                ApformImpl.expectedImpls.remove(implemName);
-                ApformImpl.expectedImpls.notifyAll(); // wake up the thread waiting in getImplementation
+        synchronized (Apform.expectedImpls) {
+            if (Apform.expectedImpls.contains(implemName)) { // it is expected
+                Apform.expectedImpls.remove(implemName);
+                Apform.expectedImpls.notifyAll(); // wake up the thread waiting in getImplementation
             }
         }
     }

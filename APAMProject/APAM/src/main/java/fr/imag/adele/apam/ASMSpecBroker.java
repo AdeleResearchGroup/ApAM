@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apamAPI;
+package fr.imag.adele.apam;
 
 import java.net.URL;
 //import java.rmi.RemoteException;

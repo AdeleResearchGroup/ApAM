@@ -1,11 +1,11 @@
-package fr.imag.adele.apam.apamAPI;
+package fr.imag.adele.apam;
 
 import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.apamImpl.ManagerModel;
 
 /**
  * Interface that each manager MUST implement. Used by APAM to resolve the dependencies and manage the application.

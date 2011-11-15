@@ -9,13 +9,13 @@ import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompositeTypeImpl;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
 import fr.imag.adele.apam.util.AttributesImpl;
 
 /**
@@ -64,7 +64,7 @@ public class Util {
      * @return
      */
     public static boolean sameInterfaces(String[] i1, String[] i2) {
-        if ((i1 == null) || (i2 == null))
+        if ((i1 == null) || (i2 == null) || (i1.length == 0) || (i2.length == 0))
             return false;
         if (i1.length != i2.length)
             return false;

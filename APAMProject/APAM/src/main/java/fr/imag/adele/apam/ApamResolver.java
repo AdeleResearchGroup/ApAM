@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apamAPI;
+package fr.imag.adele.apam;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,11 +8,11 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.APAMImpl;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompositeImpl;
-import fr.imag.adele.apam.CompositeTypeImpl;
-import fr.imag.adele.apam.apform.ApformImpl;
+import fr.imag.adele.apam.apamImpl.APAMImpl;
+import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.apamImpl.CompositeImpl;
+import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
+import fr.imag.adele.apam.apformAPI.Apform;
 
 public class ApamResolver {
 
@@ -31,7 +31,7 @@ public class ApamResolver {
 
     // if the instance is unused, it will become the main instance of a new composite.
     private static Composite getClientComposite(ASMInst mainInst) {
-        if (!mainInst.isUsed())
+        if (mainInst.isUsed())
             return mainInst.getComposite();
 
         ASMImpl mainImplem = mainInst.getImpl();
@@ -306,7 +306,7 @@ public class ApamResolver {
 
         // it was unused so far. Remove it from unused
         if (!impl.isUsed()) {
-            ApformImpl.setUsedImpl(impl);
+            Apform.setUsedImpl(impl);
         }
         // impl is inside compotype
         compoType.addImpl(impl);

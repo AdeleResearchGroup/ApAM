@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apamAPI;
+package fr.imag.adele.apam;
 
 import java.net.URL;
 import java.util.Collection;
@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.apamImpl.ManagerModel;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Implementation;
 

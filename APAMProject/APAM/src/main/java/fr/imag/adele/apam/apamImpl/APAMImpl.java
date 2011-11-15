@@ -1,4 +1,4 @@
-package fr.imag.adele.apam;
+package fr.imag.adele.apam.apamImpl;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.Apam;
-import fr.imag.adele.apam.apamAPI.ApamManagers;
-import fr.imag.adele.apam.apamAPI.ApamResolver;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
-import fr.imag.adele.apam.apamAPI.Manager;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.ApamResolver;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.util.Attributes;
 
 //import fr.imag.adele.sam.Implementation;

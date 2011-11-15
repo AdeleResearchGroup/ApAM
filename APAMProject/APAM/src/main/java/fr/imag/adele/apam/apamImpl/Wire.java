@@ -1,20 +1,19 @@
-package fr.imag.adele.apam;
+package fr.imag.adele.apam.apamImpl;
 
 import java.util.Set;
 
-import fr.imag.adele.apam.ASMImpl.ASMInstImpl;
-import fr.imag.adele.apam.apamAPI.ASMImpl.DependencyModel;
-import fr.imag.adele.apam.apamAPI.ASMInst;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.ASMImpl.DependencyModel;
 import fr.imag.adele.apam.util.Util;
 
 public class Wire {
-    private final ASMInstImpl source;
-    private final ASMInstImpl destination;
-    private final String      depName;
+    private final InstanceImpl source;
+    private final InstanceImpl destination;
+    private final String       depName;
 
     public Wire(ASMInst from, ASMInst to, String depName) {
-        source = (ASMInstImpl) from;
-        destination = (ASMInstImpl) to;
+        source = (InstanceImpl) from;
+        destination = (InstanceImpl) to;
         this.depName = depName;
     }
 
@@ -33,7 +32,7 @@ public class Wire {
     }
 
     public static boolean checkDependency(ASMInst from, ASMInst to, String depName) {
-        // if should matches a dependency of the "from" implementation.
+        // it should matches a dependency of the "from" implementation.
         boolean found = false;
         Set<DependencyModel> deps = from.getImpl().getDependencies();
         for (DependencyModel dep : deps) {

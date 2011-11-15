@@ -1,10 +1,10 @@
-package fr.imag.adele.apam.apamAPI;
+package fr.imag.adele.apam;
 
 import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.apformAPI.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.sam.Instance;

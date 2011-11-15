@@ -1,4 +1,4 @@
-package fr.imag.adele.apam;
+package fr.imag.adele.apam.apamImpl;
 
 import java.net.URL;
 import java.util.Collection;
@@ -10,24 +10,21 @@ import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.ASMImpl.ASMImplBrokerImpl;
-import fr.imag.adele.apam.ASMImpl.ASMImplImpl;
-import fr.imag.adele.apam.ASMImpl.ASMSpecImpl;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
-import fr.imag.adele.apam.apamAPI.Manager;
-import fr.imag.adele.apam.apamAPI.ApamManagers;
-import fr.imag.adele.apam.apamAPI.ApamResolver;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.ApamResolver;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
-import fr.imag.adele.apam.CompositeImpl;
 
 //import fr.imag.adele.sam.Implementation;
 
-public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
+public class CompositeTypeImpl extends ImplementationImpl implements CompositeType {
 
     // Global variable. The actual content of the ASM
     private static Map<String, CompositeType> compositeTypes = new HashMap<String, CompositeType>();
@@ -61,7 +58,7 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
      * Called once when initializing CompositeImpl. 
      */
     public static CompositeType getRootCompositeType(Composite compo) {
-        ((ASMImplImpl) CompositeTypeImpl.rootCompoType).addInst(compo);
+        ((ImplementationImpl) CompositeTypeImpl.rootCompoType).addInst(compo);
         return CompositeTypeImpl.rootCompoType;
     }
 
@@ -96,21 +93,21 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
                 return;
             }
             if (specName != null)
-                ((ASMSpecImpl) mainImpl.getSpec()).setName(specName);
+                ((SpecificationImpl) mainImpl.getSpec()).setName(specName);
         }
 
         this.models = models;
         mySpec = mainImpl.getSpec();
-        ((ASMSpecImpl) mySpec).addImpl(this);
+        ((SpecificationImpl) mySpec).addImpl(this);
         apfImpl = mainImpl.getApformImpl();
         this.mainImpl = mainImpl;
         name = compositeName;
-        ((ASMImplImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
+        ((ImplementationImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
         if (attributes != null)
             setProperties(attributes.getProperties());
         setProperty(Attributes.APAMCOMPO, fromCompo.getName());
         CompositeTypeImpl.compositeTypes.put(name, this);
-        ((ASMImplBrokerImpl) CST.ASMImplBroker).addImpl(this);
+        ((ImplementationBrokerImpl) CST.ASMImplBroker).addImpl(this);
 
         fromCompo.addImpl(this);
         ((CompositeTypeImpl) fromCompo).addEmbedded(this);
@@ -427,12 +424,12 @@ public class CompositeTypeImpl extends ASMImplImpl implements CompositeType {
     @Override
     public void addImpl(ASMImpl impl) {
         contains.add(impl);
-        ((ASMImplImpl) impl).addInComposites(this);
+        ((ImplementationImpl) impl).addInComposites(this);
     }
 
     public void removeImpl(ASMImpl impl) {
         contains.remove(impl);
-        ((ASMImplImpl) impl).removeInComposites(this);
+        ((ImplementationImpl) impl).removeInComposites(this);
     }
 
     @Override

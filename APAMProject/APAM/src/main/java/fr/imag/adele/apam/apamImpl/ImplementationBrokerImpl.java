@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.ASMImpl;
+package fr.imag.adele.apam.apamImpl;
 
 import java.net.URL;
 import java.util.Collections;
@@ -9,14 +9,12 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 //import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompositeTypeImpl;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMImplBroker;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.CompositeType;
-import fr.imag.adele.apam.apamAPI.ApamResolver;
-import fr.imag.adele.apam.apform.ApformImpl;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMImplBroker;
+import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.ApamResolver;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.apformAPI.Apform;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.apformAPI.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
@@ -25,7 +23,7 @@ import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.ApformSpecification;
 import fr.imag.adele.sam.deployment.DeploymentUnit;
 
-public class ASMImplBrokerImpl implements ASMImplBroker {
+public class ImplementationBrokerImpl implements ASMImplBroker {
 
     // private Logger logger = Logger.getLogger(ASMImplBrokerImpl.class);
 
@@ -88,29 +86,30 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
         if (asmImpl != null) { // do not create twice
             System.err.println("Implementation already existing (in addImpl) " + implName);
             if (specName != null)
-                ((ASMSpecImpl) asmImpl.getSpec()).setName(specName);
+                ((SpecificationImpl) asmImpl.getSpec()).setName(specName);
             return asmImpl;
         }
 
-//        ASMImpl asmImpl = getImpl(implName);
-//        if (asmImpl != null) {
-//            System.err.println("Implementation already existing (in addImpl) " + implName);
-//        }
-        // specification control
+        // specification control. Spec usually does not exist in Apform, but we need to create one anyway.
         ApformSpecification apfSpec = apfImpl.getSpecification();
-        ASMSpecImpl spec = null;
+        SpecificationImpl spec = null;
         if (apfSpec != null) { // may be null !
-            spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(apfSpec);
+            spec = (SpecificationImpl) CST.ASMSpecBroker.getSpec(apfSpec);
         }
         if ((spec == null) && (specName != null)) // No ASM spec related to the apf spec.
-            spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(specName);
+            spec = (SpecificationImpl) CST.ASMSpecBroker.getSpec(specName);
         if (spec == null)
-            spec = (ASMSpecImpl) CST.ASMSpecBroker.getSpec(apfImpl.getInterfaceNames());
-        if (spec == null)
-            spec = new ASMSpecImpl(specName, apfSpec, null, properties);
+            spec = (SpecificationImpl) CST.ASMSpecBroker.getSpec(apfImpl.getInterfaceNames());
+        if (spec == null) {
+            if (specName == null) { // create an arbitrary name, and give the impl interface.
+                // TODO warning, it is an approximation, impl may have more interfaces than its spec
+                specName = implName + "_spec";
+            }
+            spec = new SpecificationImpl(specName, apfSpec, apfImpl.getInterfaceNames(), properties);
+        }
 
-        if (specName != null)
-            spec.setName(specName);
+//        if (specName != null)
+//            spec.setName(specName);
 
         // create a primitive or composite implementation
         if ((apfImpl.getProperty(CST.A_COMPOSITE) != null) &&
@@ -118,7 +117,7 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
             // Allow specifying properties to the composite instance
             asmImpl = CompositeTypeImpl.createCompositeType(compo, apfImpl);
         } else {
-            asmImpl = new ASMImplImpl(compo, spec, apfImpl, properties);
+            asmImpl = new ImplementationImpl(compo, spec, apfImpl, properties);
         }
 
         return asmImpl;
@@ -169,13 +168,11 @@ public class ASMImplBrokerImpl implements ASMImplBroker {
                 System.err.println("Error : Bundle at URL " + url + " does not contain implementation " + implName);
                 return null;
             }
-
-            ApformImpl.addExpected(implName);
             du.activate();
         } catch (Exception e) {
             System.err.println("deployment failed :" + implName + " at URL " + url);
         }
-        asmImpl = ApformImpl.getWaitImplementation(implName);
+        asmImpl = Apform.getWaitImplementation(implName);
         ApamResolver.deployedImpl(compo, asmImpl, true);
         // comment savoir si une instance a été créée dans la foulée,
         // et sous quel nom ?

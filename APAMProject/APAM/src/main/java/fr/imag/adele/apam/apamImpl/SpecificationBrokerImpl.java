@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.ASMImpl;
+package fr.imag.adele.apam.apamImpl;
 
 import java.net.URL;
 import java.util.HashSet;
@@ -8,9 +8,8 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
-import fr.imag.adele.apam.apamAPI.ASMSpecBroker;
+import fr.imag.adele.apam.ASMSpec;
+import fr.imag.adele.apam.ASMSpecBroker;
 import fr.imag.adele.apam.apformAPI.ApformImplementation;
 import fr.imag.adele.apam.apformAPI.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
@@ -20,7 +19,7 @@ import fr.imag.adele.apam.util.Util;
 
 import fr.imag.adele.sam.deployment.DeploymentUnit;
 
-public class ASMSpecBrokerImpl implements ASMSpecBroker {
+public class SpecificationBrokerImpl implements ASMSpecBroker {
 
     private final Set<ASMSpec> specs = new HashSet<ASMSpec>();
 
@@ -59,13 +58,16 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
             return null;
 
         for (ASMSpec spec : specs) {
-            if (spec.getName() == null) {
-                if (spec.getApformSpec().getName().equals(name))
-                    return spec;
-            } else {
-                if (name.equals(spec.getName()))
-                    return spec;
-            }
+            if (name.equals(spec.getName()))
+                return spec;
+
+//            if (spec.getName() == null) {
+//                if (spec.getApformSpec().getName().equals(name))
+//                    return spec;
+//            } else {
+//                if (name.equals(spec.getName()))
+//                    return spec;
+//            }
         }
         return null;
     }
@@ -104,7 +106,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
     public ASMSpec addSpec(String name, ApformSpecification apfSpec, Attributes properties) {
         if ((apfSpec == null))
             return null;
-        ASMSpecImpl spec = new ASMSpecImpl(name, apfSpec, null, properties);
+        SpecificationImpl spec = new SpecificationImpl(name, apfSpec, null, properties);
         specs.add(spec);
         return spec;
     }
@@ -136,7 +138,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
         if (interfaceName == null)
             return null;
         for (ASMSpec spec : specs) {
-            String[] interfs = spec.getApformSpec().getInterfaceNames();
+            String[] interfs = spec.getInterfaceNames();
             for (String interf : interfs) {
                 if (interf.equals(interfaceName))
                     return spec;
@@ -156,8 +158,10 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
         if (samName == null)
             return null;
         for (ASMSpec spec : specs) {
-            if (spec.getApformSpec().getName().equals(samName))
-                return spec;
+            if (spec.getApformSpec() != null) {
+                if (spec.getApformSpec().getName().equals(samName))
+                    return spec;
+            }
         }
         return null;
     }
@@ -167,7 +171,7 @@ public class ASMSpecBrokerImpl implements ASMSpecBroker {
         if (interfaces == null)
             return null;
         ASMSpec ret = null;
-        ret = new ASMSpecImpl(specName, null, interfaces, properties);
+        ret = new SpecificationImpl(specName, null, interfaces, properties);
         return ret;
     }
 

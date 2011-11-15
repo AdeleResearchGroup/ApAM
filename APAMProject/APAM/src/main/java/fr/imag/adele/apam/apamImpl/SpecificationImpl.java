@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.ASMImpl;
+package fr.imag.adele.apam.apamImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -9,9 +9,8 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMSpec;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMSpec;
 import fr.imag.adele.apam.apformAPI.ApformSpecification;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
@@ -19,7 +18,7 @@ import fr.imag.adele.apam.util.Util;
 
 //import fr.imag.adele.sam.ApformSpecification;
 
-public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
+public class SpecificationImpl extends AttributesImpl implements ASMSpec {
 
     private String              name;
     // private final CompositeOLD myComposite;
@@ -35,9 +34,9 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
 
     // private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
 
-    public ASMSpecImpl(String specName, ApformSpecification apfSpec, String[] interfaces, Attributes props) {
-        if (((name == null) && (apfSpec == null))) {
-            new Exception("Both spec name and apfSpec are null in spec constructor");
+    public SpecificationImpl(String specName, ApformSpecification apfSpec, String[] interfaces, Attributes props) {
+        if (((specName == null) && (apfSpec == null))) {
+            new Exception("Both spec name and apfSpec are null in spec constructor").printStackTrace();
             return;
         }
         if (specName == null) {
@@ -50,8 +49,9 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         } else {
             this.interfaces = interfaces;
         }
-        ((ASMSpecBrokerImpl) CST.ASMSpecBroker).addSpec(this);
-        setProperties(props.getProperties());
+        ((SpecificationBrokerImpl) CST.ASMSpecBroker).addSpec(this);
+        if (props != null)
+            setProperties(props.getProperties());
 //        try {
 //            if (props == null) {
 //                props = new AttributesImpl();
@@ -99,16 +99,17 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
 
     @Override
     public String toString() {
-        String ret = "";
-        if (name == null) {
-            ret = " (" + apfSpec.getName() + ") ";
-        } else {
-            if (apfSpec == null)
-                ret = name;
-            else
-                ret = name + " (" + apfSpec.getName() + ") ";
-        }
-        return ret;
+        return name;
+//        String ret = "";
+//        if (name == null) {
+//            ret = " (" + apfSpec.getName() + ") ";
+//        } else {
+//            if (apfSpec == null)
+//                ret = name;
+//            else
+//                ret = name + " (" + apfSpec.getName() + ") ";
+//        }
+//        return ret;
     }
 
     /*
@@ -142,7 +143,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
 
     @Override
     public String[] getInterfaceNames() {
-        return apfSpec.getInterfaceNames();
+        return interfaces;
     }
 
     // relation requires control
@@ -150,7 +151,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
         if (requires.contains(dest))
             return;
         requires.add(dest);
-        ((ASMSpecImpl) dest).addInvRequires(this);
+        ((SpecificationImpl) dest).addInvRequires(this);
     }
 
     public void removeRequires(ASMSpec dest) {
@@ -161,7 +162,7 @@ public class ASMSpecImpl extends AttributesImpl implements ASMSpec {
                 }
         }
         requires.remove(dest);
-        ((ASMSpecImpl) dest).removeInvRequires(this);
+        ((SpecificationImpl) dest).removeInvRequires(this);
     }
 
     private void addInvRequires(ASMSpec orig) {

@@ -15,12 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.ASMImpl.ASMImplImpl;
-import fr.imag.adele.apam.ASMImpl.ASMInstImpl;
-import fr.imag.adele.apam.ASMImpl.ASMSpecImpl;
-import fr.imag.adele.apam.apamAPI.AttributeManager;
-import fr.imag.adele.apam.apamAPI.Manager;
+import fr.imag.adele.apam.AttributeManager;
+import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.apamImpl.ImplementationImpl;
+import fr.imag.adele.apam.apamImpl.InstanceImpl;
+import fr.imag.adele.apam.apamImpl.SpecificationImpl;
+import fr.imag.adele.apam.apamImpl.CST;
 
 public class AttributesImpl extends Dictionary<String, Object> implements Attributes {
 
@@ -51,10 +51,10 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see fr.imag.adele.am.Property#getProperty(java.lang.String)
-     */
+    * (non-Javadoc)
+    * 
+    * @see fr.imag.adele.am.Property#getProperty(java.lang.String)
+    */
     @Override
     public Object getProperty(String key) {
         return properties.get(key);
@@ -82,7 +82,7 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
      */
     @Override
     public synchronized void setProperties(Map<String, Object> newProperties) {
-        properties = newProperties;
+        properties = new HashMap<String, Object>(newProperties);
 //        Map<String, Object> props = new HashMap<String, Object>(newProperties);
 //        for (String prop : props.keySet()) {
 //            setProperty0(prop, props.get(prop), false);

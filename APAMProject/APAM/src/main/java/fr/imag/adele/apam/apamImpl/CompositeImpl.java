@@ -1,4 +1,4 @@
-package fr.imag.adele.apam;
+package fr.imag.adele.apam.apamImpl;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -7,14 +7,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import fr.imag.adele.apam.ASMImpl.ASMInstImpl;
-import fr.imag.adele.apam.apamAPI.ASMImpl;
-import fr.imag.adele.apam.apamAPI.ASMInst;
-import fr.imag.adele.apam.apamAPI.Composite;
-import fr.imag.adele.apam.apamAPI.CompositeType;
+import fr.imag.adele.apam.ASMImpl;
+import fr.imag.adele.apam.ASMInst;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.util.Attributes;
 
-public class CompositeImpl extends ASMInstImpl implements Composite {
+public class CompositeImpl extends InstanceImpl implements Composite {
 
     // Global variable.
     private static Map<String, Composite> composites    = new HashMap<String, Composite>();
