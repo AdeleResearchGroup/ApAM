@@ -26,19 +26,21 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apamAPI.ASMImpl;
 import fr.imag.adele.apam.apamAPI.ASMInst;
+import fr.imag.adele.apam.apamAPI.ApamManagers;
 import fr.imag.adele.apam.apamAPI.CompositeType;
 import fr.imag.adele.apam.apamAPI.Composite;
 import fr.imag.adele.apam.apamAPI.Manager;
-import fr.imag.adele.apam.apamAPI.ManagersMng;
+//import fr.imag.adele.apam.apamAPI.ManagersMng;
 import fr.imag.adele.apam.apform.ApformImpl;
 import fr.imag.adele.sam.Implementation;
-import fr.imag.adele.sam.Instance;
+
+//import fr.imag.adele.sam.Instance;
 
 public class OBRMan implements Manager, IOBRMAN {
 
     // iPOJO injected
     private RepositoryAdmin repoAdmin;
-    private ManagersMng     apam;
+//    private ManagersMng     apam;
 
     private Resolver        resolver;
     private Repository      local;
@@ -49,7 +51,7 @@ public class OBRMan implements Manager, IOBRMAN {
      */
     public void start() {
         System.out.println("Started OBRMAN");
-        apam.addManager(this, 3);
+        ApamManagers.addManager(this, 3);
         // TODO should take its default model : its repositories.
 
         // to test only
@@ -116,7 +118,7 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     public void stop() {
-        apam.removeManager(this);
+        ApamManagers.removeManager(this);
     }
 
     private void printCap(Capability aCap) {
