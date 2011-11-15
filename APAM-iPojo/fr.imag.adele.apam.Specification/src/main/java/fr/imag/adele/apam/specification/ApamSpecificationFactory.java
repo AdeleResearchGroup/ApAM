@@ -23,7 +23,7 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 
-public class Specification  extends ComponentFactory {
+public class ApamSpecificationFactory  extends ComponentFactory {
 
     /**
      * Defines the specification description.
@@ -39,7 +39,7 @@ public class Specification  extends ComponentFactory {
          * @see ComponentTypeDescription#ComponentTypeDescription(Factory)
          */
         public Description() {
-            super(Specification.this);           
+            super(ApamSpecificationFactory.this);           
         }
         
         /**
@@ -108,7 +108,7 @@ public class Specification  extends ComponentFactory {
      * @param metadata
      * @throws ConfigurationException
      */
-    public Specification(BundleContext context, Element metadata) throws ConfigurationException {
+    public ApamSpecificationFactory(BundleContext context, Element metadata) throws ConfigurationException {
         super(context, metadata);
         apam = new ApamReference(context);
     }
