@@ -2,6 +2,7 @@ package fr.imag.adele.apam;
 
 import java.net.URL;
 //import java.rmi.RemoteException;
+import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -9,7 +10,7 @@ import org.osgi.framework.InvalidSyntaxException;
 
 //import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.Attributes;
 
 //import fr.imag.adele.sam.Specification;
 
@@ -20,7 +21,7 @@ public interface SpecificationBroker {
      * @param specName the *logical* name of that specification; different from Apform. May be null.
      * @param samSpec : A Apform specification.
      */
-    public Specification addSpec(String specName, ApformSpecification apfSpec, Attributes properties);
+    public Specification addSpec(String specName, ApformSpecification apfSpec, Map<String, Object> properties);
 
     /**
      * Creates a specification. WARNING : this spec may not have any
@@ -31,7 +32,7 @@ public interface SpecificationBroker {
      * @param properties : The initial properties.
      *            return an ASM Specification
      */
-    public Specification createSpec(String specName, String[] interfaces, Attributes properties);
+    public Specification createSpec(String specName, String[] interfaces, Map<String, Object> properties);
 
     /**
      * Creates and deploys a specification. WARNING : The fact to deploy the
@@ -44,7 +45,7 @@ public interface SpecificationBroker {
      * @param interfaces the list of interfaces this spec implements
      * @param properties : The initial properties. return an ASM Specification
      */
-    public Specification createSpec(String specName, URL url, String[] interfaces, Attributes properties);
+    public Specification createSpec(String specName, URL url, String[] interfaces, Map<String, Object> properties);
 
     /**
      * WARNING : it will also destroy all implems and instances.

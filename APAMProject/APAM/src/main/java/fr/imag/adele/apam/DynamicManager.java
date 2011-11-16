@@ -1,6 +1,6 @@
 package fr.imag.adele.apam;
 
-import fr.imag.adele.sam.Instance;
+//import fr.imag.adele.sam.Instance;
 
 public interface DynamicManager extends Manager {
 

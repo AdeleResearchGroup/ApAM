@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.PatternSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
@@ -19,8 +20,8 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apform.ApformImplementation;
-import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.AttributesImpl;
+//import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.AttributesImpl;
 
 //import fr.imag.adele.sam.Implementation;
 
@@ -31,12 +32,12 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     private static CompositeType              rootCompoType  = new CompositeTypeImpl();
     private int                               instNumber     = -1;
 
-    private Implementation                           mainImpl       = null;
+    private Implementation                    mainImpl       = null;
     private Set<ManagerModel>                 models;
 
     // All the implementations deployed (really or logically) by this composite type!
     // Warning : implems may be deployed (logically) by more than one composite Type.
-    private final Set<Implementation>                contains       = new HashSet<Implementation>();
+    private final Set<Implementation>         contains       = new HashSet<Implementation>();
 
     // The composites types that have been deployed inside the current one.
     private final Set<CompositeType>          embedded       = new HashSet<CompositeType>();
@@ -70,8 +71,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * @param models. the models. Can be null.
      * @param attributes. initial properties. Can be null.
      */
-    private CompositeTypeImpl(CompositeType fromCompo, String compositeName, String mainImplName, Implementation mainImpl,
-            Set<ManagerModel> models, Attributes attributes, String specName) {
+    private CompositeTypeImpl(CompositeType fromCompo, String compositeName, String mainImplName,
+            Implementation mainImpl,
+            Set<ManagerModel> models, Map<String, Object> attributes, String specName) {
         // the composite itself as an ASMImpl. Warning created empty. Must be fully initialized.
         super();
         // The main implem resolution must be interpreted with the new models
@@ -104,8 +106,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         name = compositeName;
         ((ImplementationImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
         if (attributes != null)
-            setProperties(attributes.getProperties());
-        setProperty(Attributes.APAMCOMPO, fromCompo.getName());
+            putAll(attributes);
+        put(CST.A_COMPOSITE, fromCompo.getName());
         CompositeTypeImpl.compositeTypes.put(name, this);
         ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
 
@@ -126,7 +128,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     public static CompositeType createCompositeType(CompositeType fromCompo, String name, String mainImplName,
             String specName,
-            Set<ManagerModel> models, Attributes attributes) {
+            Set<ManagerModel> models, Map<String, Object> attributes) {
 
         if (mainImplName == null) {
             new Exception("ERROR : main implementation Name missing").printStackTrace();
@@ -139,8 +141,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         if (fromCompo == null) {
             fromCompo = CompositeTypeImpl.rootCompoType;
             if (attributes == null)
-                attributes = new AttributesImpl();
-            attributes.setProperty(CST.A_VISIBLE, CST.V_LOCAL);
+                attributes = new ConcurrentHashMap<String, Object>();
+            attributes.put(CST.A_VISIBLE, CST.V_LOCAL);
         }
 
         return new CompositeTypeImpl(fromCompo, name, mainImplName, null, models, attributes, specName);
@@ -160,18 +162,18 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         String mainImplName = null;
         Set<ManagerModel> models = null;
         String[] interfaces = null;
-        Attributes properties = new AttributesImpl();
-        Map<String, Object> p = samImpl.getProperties();
-        for (String prop : p.keySet()) {
-            properties.setProperty(prop, p.get(prop));
-        }
+        Map<String, Object> properties = samImpl.getProperties();
+//        Map<String, Object> p = samImpl.getProperties();
+//        for (String prop : p.keySet()) {
+//            properties.put(prop, p.get(prop));
+//        }
         mainImplName = (String) samImpl.getProperty(CST.A_MAIN_IMPLEMENTATION);
         specName = (String) samImpl.getProperty(CST.A_APAMSPECNAME);
         models = (Set<ManagerModel>) samImpl.getProperty(CST.A_MODELS);
 
         if (implComposite == null) {
             implComposite = CompositeTypeImpl.rootCompoType;
-            properties.setProperty(CST.A_VISIBLE, CST.V_LOCAL);
+            properties.put(CST.A_VISIBLE, CST.V_LOCAL);
         }
 
         return CompositeTypeImpl.createCompositeType(implComposite, samImpl.getName(),
@@ -180,7 +182,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     public String getScopeInComposite(Instance inst) {
         String overload = getScopeOverload(inst);
-        return CompositeTypeImpl.getEffectiveScope((String) inst.getProperty(CST.A_SCOPE), overload);
+        return CompositeTypeImpl.getEffectiveScope((String) inst.get(CST.A_SCOPE), overload);
     }
 
     private String getScopeOverload(Instance inst) {
@@ -188,7 +190,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         String s = "";
         String name = inst.getSpec().getName();
         try {
-            String[] localScope = (String[]) getProperty(CST.A_LOCALSCOPE);
+            String[] localScope = (String[]) get(CST.A_LOCALSCOPE);
             if (localScope != null) {
                 for (String scope : localScope) {
                     s = scope;
@@ -200,7 +202,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                     }
                 }
             }
-            String[] compositeScope = (String[]) getProperty(CST.A_COMPOSITESCOPE);
+            String[] compositeScope = (String[]) get(CST.A_COMPOSITESCOPE);
             if (compositeScope != null) {
                 for (String scope : compositeScope) {
                     s = scope;
@@ -212,7 +214,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                     }
                 }
             }
-            String[] appliScope = (String[]) getProperty(CST.A_APPLISCOPE);
+            String[] appliScope = (String[]) get(CST.A_APPLISCOPE);
             if (appliScope != null) {
                 for (String scope : appliScope) {
                     s = scope;
@@ -232,7 +234,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     public String getVisibleInCompoType(Implementation impl) {
         String overload = getImplOverload(impl);
-        return CompositeTypeImpl.getEffectiveScope((String) impl.getProperty(CST.A_VISIBLE), overload);
+        return CompositeTypeImpl.getEffectiveScope((String) impl.get(CST.A_VISIBLE), overload);
     }
 
     private String getImplOverload(Implementation impl) {
@@ -240,7 +242,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         String s = "";
         String name = impl.getSpec().getName();
         try {
-            String[] localVisible = (String[]) getProperty(CST.A_LOCALVISIBLE);
+            String[] localVisible = (String[]) get(CST.A_LOCALVISIBLE);
             if (localVisible != null) {
                 for (String visible : localVisible) {
                     s = visible;
@@ -252,7 +254,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                     }
                 }
             }
-            String[] compositeVisible = (String[]) getProperty(CST.A_COMPOSITEVISIBLE);
+            String[] compositeVisible = (String[]) get(CST.A_COMPOSITEVISIBLE);
             if (compositeVisible != null) {
                 for (String visible : compositeVisible) {
                     s = visible;
@@ -311,14 +313,14 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * @return
      */
     public static CompositeType createCompositeType(CompositeType fromCompo, String name, Set<ManagerModel> models,
-            String implName, URL url, String specName, Attributes properties) {
+            String implName, URL url, String specName, Map<String, Object> properties) {
         Implementation mainImpl;
         mainImpl = CST.ImplBroker.createImpl(null, implName, url, properties);
         if (fromCompo == null) {
             fromCompo = CompositeTypeImpl.rootCompoType;
             if (properties == null)
-                properties = new AttributesImpl();
-            properties.setProperty(CST.A_VISIBLE, CST.V_LOCAL);
+                properties = new ConcurrentHashMap<String, Object>();
+            properties.put(CST.A_VISIBLE, CST.V_LOCAL);
         }
         if (mainImpl instanceof CompositeType) {
             return (CompositeType) mainImpl;
@@ -340,7 +342,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     // overloads the usual createInst method for ASMImpl
     @Override
-    public Instance createInst(Composite instCompo, Attributes initialproperties) {
+    public Instance createInst(Composite instCompo, Map<String, Object> initialproperties) {
         // Composite comp = CompositeImpl.createComposite(this, instCompo, initialproperties);
         return new CompositeImpl(this, instCompo, null, initialproperties);
     }
@@ -458,14 +460,14 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     @Override
     public boolean isInternal() {
-        String internalImplementations = (String) getProperty(CST.A_INTERNALIMPL);
+        String internalImplementations = (String) get(CST.A_INTERNALIMPL);
         if (internalImplementations == null)
             return false;
         return internalImplementations.equals(CST.V_TRUE);
     }
 
     public boolean getInternalInst() {
-        String internalInstances = (String) getProperty(CST.A_INTERNALINST);
+        String internalInstances = (String) get(CST.A_INTERNALINST);
         if (internalInstances == null)
             return false;
         return internalInstances.equals(CST.V_TRUE);

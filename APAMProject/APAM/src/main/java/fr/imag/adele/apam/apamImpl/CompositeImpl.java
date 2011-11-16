@@ -21,10 +21,10 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
     private final String                  name;
     private final CompositeType           compType;
-    private final Implementation                 mainImpl;
-    private final Instance                 mainInst;
+    private final Implementation          mainImpl;
+    private final Instance                mainInst;
     private final Composite               myRootComposite;
-    private final Set<Instance>            hasInstance   = new HashSet<Instance>();
+    private final Set<Instance>           hasInstance   = new HashSet<Instance>();
 
     // the dependencies between composites
     private final Set<Composite>          depend        = new HashSet<Composite>();
@@ -44,7 +44,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     }
 
     public CompositeImpl(CompositeType compType, Composite instCompo, Instance externalMainInst,
-            Attributes initialproperties) {
+            Map<String, Object> initialproperties) {
         // First create the composite, as an ASMInst empty
         super();
 
@@ -116,7 +116,8 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         return getName();
     }
 
-    public static Composite createComposite(CompositeType compType, Composite instCompo, Attributes initialproperties) {
+    public static Composite createComposite(CompositeType compType, Composite instCompo,
+            Map<String, Object> initialproperties) {
         if (compType == null) {
             System.err.println("ERROR :  missing type in createComposite");
             return null;

@@ -3,17 +3,19 @@ package fr.imag.adele.apam.apamImpl;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Map;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.apam.Map;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.SpecificationBroker;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.AttributesImpl;
+//import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
 //import fr.imag.adele.sam.Specification;
 
@@ -85,7 +87,7 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
 
         Set<Specification> ret = new HashSet<Specification>();
         for (Specification spec : specs) {
-            if (goal.match((AttributesImpl) spec.getProperties()))
+            if (spec.match(goal))
                 ret.add(spec);
         }
         return ret;
@@ -96,14 +98,14 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
         if (goal == null)
             return null;
         for (Specification spec : specs) {
-            if (goal.match((AttributesImpl) spec.getProperties()))
+            if (spec.match(goal))
                 return spec;
         }
         return null;
     }
 
     @Override
-    public Specification addSpec(String name, ApformSpecification apfSpec, Attributes properties) {
+    public Specification addSpec(String name, ApformSpecification apfSpec, Map<String, Object> properties) {
         if ((apfSpec == null))
             return null;
         SpecificationImpl spec = new SpecificationImpl(name, apfSpec, null, properties);
@@ -167,7 +169,7 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
     }
 
     @Override
-    public Specification createSpec(String specName, String[] interfaces, Attributes properties) {
+    public Specification createSpec(String specName, String[] interfaces, Map<String, Object> properties) {
         if (interfaces == null)
             return null;
         Specification ret = null;
@@ -200,7 +202,7 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
      * @param properties : The initial properties. return an ASM Specification
      */
     @Override
-    public Specification createSpec(String specName, URL url, String[] interfaces, Attributes properties) {
+    public Specification createSpec(String specName, URL url, String[] interfaces, Map<String, Object> properties) {
         if ((interfaces == null) || (url == null))
             return null;
 

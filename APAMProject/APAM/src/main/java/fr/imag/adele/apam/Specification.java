@@ -2,17 +2,18 @@ package fr.imag.adele.apam;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.Attributes;
 
 //import fr.imag.adele.sam.Specification;
 
-public interface Specification extends Attributes {
+public interface Specification extends ConcurrentMap<String, Object> {
 
     public String getName();
 
@@ -112,5 +113,7 @@ public interface Specification extends Attributes {
      * @throws ConnectionException the connection exception
      */
     public Set<Specification> getInvRequires();
+
+    public boolean match(Filter goal);
 
 }

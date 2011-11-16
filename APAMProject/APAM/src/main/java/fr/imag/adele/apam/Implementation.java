@@ -2,17 +2,20 @@ package fr.imag.adele.apam;
 
 //import java.util.Properties;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+//import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.apform.ApformImplementation;
-import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.Attributes;
 
 //import fr.imag.adele.sam.Implementation;
 
-public interface Implementation extends Attributes {
+public interface Implementation extends ConcurrentMap<String, Object> {
 
     /**
      * Returns all the composite type that contains this implementation.
@@ -56,7 +59,9 @@ public interface Implementation extends Attributes {
      * @param initialproperties the initial properties
      * @return the instance
      */
-    public Instance createInst(Composite compo, Attributes initialproperties);
+    public Instance createInst(Composite compo, Map<String, Object> initialproperties);
+
+    public boolean match(Filter goal);
 
     /**
      * @return the specification that this ASMImpls implements

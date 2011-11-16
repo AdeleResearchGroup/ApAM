@@ -1,23 +1,22 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
+ * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
+ * regarding copyright ownership. The ASF licenses this file
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 package org.apache.felix.utils.filter;
-
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
@@ -40,46 +39,45 @@ import org.osgi.framework.Version;
 public class FilterImpl implements Filter {
 
     /* filter operators */
-    private static final int            EQUAL       = 1;
-    private static final int            APPROX      = 2;
-    private static final int            GREATER     = 3;
-    private static final int            LESS        = 4;
-    private static final int            PRESENT     = 5;
-    private static final int            SUBSTRING   = 6;
-    private static final int            AND         = 7;
-    private static final int            OR          = 8;
-    private static final int            NOT         = 9;
-    private static final int            SUBSET      = 10;
-    private static final int            SUPERSET    = 11;
+    private static final int          EQUAL     = 1;
+    private static final int          APPROX    = 2;
+    private static final int          GREATER   = 3;
+    private static final int          LESS      = 4;
+    private static final int          PRESENT   = 5;
+    private static final int          SUBSTRING = 6;
+    private static final int          AND       = 7;
+    private static final int          OR        = 8;
+    private static final int          NOT       = 9;
+    private static final int          SUBSET    = 10;
+    private static final int          SUPERSET  = 11;
 
     /** filter operation */
-    private final int                   op;
+    private final int                 op;
     /** filter attribute or null if operation AND, OR or NOT */
-    private final String                attr;
+    private final String              attr;
     /** filter operands */
-    private final Object                value;
+    private final Object              value;
     /** optim in case of version */
-    private final Object                converted;
+    private final Object              converted;
 
     /* normalized filter string for Filter object */
-    private transient volatile String   filterString;
+    private transient volatile String filterString;
 
     /**
      * Constructs a {@link FilterImpl} object. This filter object may be
      * used to match a {@link org.osgi.framework.ServiceReference} or a Dictionary.
-     *
+     * 
      * <p>
-     * If the filter cannot be parsed, an {@link org.osgi.framework.InvalidSyntaxException}
-     * will be thrown with a human readable message where the filter became
-     * unparsable.
-     *
+     * If the filter cannot be parsed, an {@link org.osgi.framework.InvalidSyntaxException} will be thrown with a human
+     * readable message where the filter became unparsable.
+     * 
      * @param filterString the filter string.
      * @exception InvalidSyntaxException If the filter parameter contains an
-     *            invalid filter string that cannot be parsed.
+     *                invalid filter string that cannot be parsed.
      */
     public static FilterImpl newInstance(String filterString)
             throws InvalidSyntaxException {
-        return newInstance(filterString, false);
+        return FilterImpl.newInstance(filterString, false);
     }
 
     public static FilterImpl newInstance(String filterString, boolean ignoreCase)
@@ -88,21 +86,18 @@ public class FilterImpl implements Filter {
     }
 
     FilterImpl(int operation, String attr, Object value) {
-        this.op = operation;
+        op = operation;
         this.attr = attr;
         this.value = value;
         Object conv = null;
         try {
-            if (op == SUBSET || op == SUPERSET)
-            {
+            if ((op == FilterImpl.SUBSET) || (op == FilterImpl.SUPERSET)) {
                 conv = getSet(value);
-            }
-            else if ("version".equalsIgnoreCase(attr))
-            {
+            } else if ("version".equalsIgnoreCase(attr)) {
                 if (value instanceof String) {
                     conv = VersionTable.getVersion((String) value);
                 } else if (value instanceof Version) {
-                    conv = (Version) value;
+                    conv = value;
                 }
             }
         } catch (Throwable t) {
@@ -111,19 +106,18 @@ public class FilterImpl implements Filter {
         converted = conv;
     }
 
-
     /**
      * Filter using a service's properties.
      * <p>
-     * This <code>Filter</code> is executed using the keys and values of the
-     * referenced service's properties. The keys are case insensitively
-     * matched with this <code>Filter</code>.
-     *
+     * This <code>Filter</code> is executed using the keys and values of the referenced service's properties. The keys
+     * are case insensitively matched with this <code>Filter</code>.
+     * 
      * @param reference The reference to the service whose properties are
-     *        used in the match.
-     * @return <code>true</code> if the service's properties match this
-     *         <code>Filter</code>; <code>false</code> otherwise.
+     *            used in the match.
+     * @return <code>true</code> if the service's properties match this <code>Filter</code>; <code>false</code>
+     *         otherwise.
      */
+    @Override
     public boolean match(ServiceReference reference) {
         return match0(new ServiceReferenceDictionary(reference));
     }
@@ -131,32 +125,32 @@ public class FilterImpl implements Filter {
     /**
      * Filter using a <code>Dictionary</code>. This <code>Filter</code> is
      * executed using the specified <code>Dictionary</code>'s keys and
-     * values. The keys are case insensitively matched with this
-     * <code>Filter</code>.
-     *
+     * values. The keys are case insensitively matched with this <code>Filter</code>.
+     * 
      * @param dictionary The <code>Dictionary</code> whose keys are used in
-     *        the match.
+     *            the match.
      * @return <code>true</code> if the <code>Dictionary</code>'s keys and
      *         values match this filter; <code>false</code> otherwise.
      * @throws IllegalArgumentException If <code>dictionary</code> contains
-     *         case variants of the same key name.
+     *             case variants of the same key name.
      */
+    @Override
     public boolean match(Dictionary dictionary) {
         return match0(new CaseInsensitiveDictionary(dictionary));
     }
 
     /**
-     * Filter with case sensitivity using a <code>Dictionary</code>. This
-     * <code>Filter</code> is executed using the specified
-     * <code>Dictionary</code>'s keys and values. The keys are case
+     * Filter with case sensitivity using a <code>Dictionary</code>. This <code>Filter</code> is executed using the
+     * specified <code>Dictionary</code>'s keys and values. The keys are case
      * sensitively matched with this <code>Filter</code>.
-     *
+     * 
      * @param dictionary The <code>Dictionary</code> whose keys are used in
-     *        the match.
+     *            the match.
      * @return <code>true</code> if the <code>Dictionary</code>'s keys and
      *         values match this filter; <code>false</code> otherwise.
      * @since 1.3
      */
+    @Override
     public boolean matchCase(Dictionary dictionary) {
         return match0(dictionary);
     }
@@ -164,28 +158,27 @@ public class FilterImpl implements Filter {
     /**
      * Filter using a <code>Map</code>. This <code>Filter</code> is
      * executed using the specified <code>Map</code>'s keys and
-     * values. The keys are case insensitively matched with this
-     * <code>Filter</code>.
-     *
+     * values. The keys are case insensitively matched with this <code>Filter</code>.
+     * 
      * @param map The <code>Map</code> whose keys are used in
-     *        the match.
+     *            the match.
      * @return <code>true</code> if the <code>Map</code>'s keys and
      *         values match this filter; <code>false</code> otherwise.
      * @throws IllegalArgumentException If <code>map</code> contains
-     *         case variants of the same key name.
+     *             case variants of the same key name.
      */
     public boolean matchCase(Map map) {
-        return match0(map);
+        return matchMap(map);
     }
 
     /**
      * Returns this <code>Filter</code>'s filter string.
      * <p>
-     * The filter string is normalized by removing whitespace which does not
-     * affect the meaning of the filter.
-     *
+     * The filter string is normalized by removing whitespace which does not affect the meaning of the filter.
+     * 
      * @return This <code>Filter</code>'s filter string.
      */
+    @Override
     public String toString() {
         String result = filterString;
         if (result == null) {
@@ -197,9 +190,8 @@ public class FilterImpl implements Filter {
     /**
      * Returns this <code>Filter</code>'s normalized filter string.
      * <p>
-     * The filter string is normalized by removing whitespace which does not
-     * affect the meaning of the filter.
-     *
+     * The filter string is normalized by removing whitespace which does not affect the meaning of the filter.
+     * 
      * @return This <code>Filter</code>'s filter string.
      */
     private String normalize() {
@@ -207,29 +199,29 @@ public class FilterImpl implements Filter {
         sb.append('(');
 
         switch (op) {
-            case AND : {
+            case AND: {
                 sb.append('&');
 
                 FilterImpl[] filters = (FilterImpl[]) value;
-                for (int i = 0, size = filters.length; i < size; i++) {
-                    sb.append(filters[i].normalize());
+                for (FilterImpl filter : filters) {
+                    sb.append(filter.normalize());
                 }
 
                 break;
             }
 
-            case OR : {
+            case OR: {
                 sb.append('|');
 
                 FilterImpl[] filters = (FilterImpl[]) value;
-                for (int i = 0, size = filters.length; i < size; i++) {
-                    sb.append(filters[i].normalize());
+                for (FilterImpl filter : filters) {
+                    sb.append(filter.normalize());
                 }
 
                 break;
             }
 
-            case NOT : {
+            case NOT: {
                 sb.append('!');
                 FilterImpl filter = (FilterImpl) value;
                 sb.append(filter.normalize());
@@ -237,70 +229,67 @@ public class FilterImpl implements Filter {
                 break;
             }
 
-            case SUBSTRING : {
+            case SUBSTRING: {
                 sb.append(attr);
                 sb.append('=');
 
                 String[] substrings = (String[]) value;
 
-                for (int i = 0, size = substrings.length; i < size; i++) {
-                    String substr = substrings[i];
-
+                for (String substr : substrings) {
                     if (substr == null) /* * */{
                         sb.append('*');
-                    }
-                    else /* xxx */{
-                        sb.append(encodeValue(substr));
+                    } else /* xxx */{
+                        sb.append(FilterImpl.encodeValue(substr));
                     }
                 }
 
                 break;
             }
-            case EQUAL : {
+            case EQUAL: {
                 sb.append(attr);
                 sb.append('=');
-                sb.append(encodeValue((String) value));
+                sb.append(FilterImpl.encodeValue((String) value));
 
                 break;
             }
             case GREATER: {
                 sb.append(attr);
                 sb.append(">=");
-                sb.append(encodeValue((String) value));
+                sb.append(FilterImpl.encodeValue((String) value));
 
                 break;
             }
             case LESS: {
                 sb.append(attr);
                 sb.append("<=");
-                sb.append(encodeValue((String) value));
+                sb.append(FilterImpl.encodeValue((String) value));
 
                 break;
             }
-            case APPROX : {
+            case APPROX: {
                 sb.append(attr);
                 sb.append("~=");
-                sb.append(encodeValue(approxString((String) value)));
+                sb.append(FilterImpl.encodeValue(FilterImpl.approxString((String) value)));
 
                 break;
             }
-            case PRESENT : {
+            case PRESENT: {
                 sb.append(attr);
                 sb.append("=*");
 
                 break;
             }
-            case SUBSET : {
+            case SUBSET: {
                 sb.append(attr);
                 sb.append("<*");
-                sb.append(encodeValue(approxString((String) value)));
+                sb.append(FilterImpl.encodeValue(FilterImpl.approxString((String) value)));
 
                 break;
             }
-            case SUPERSET : {
+            case SUPERSET: {
                 sb.append(attr);
                 sb.append("*>");
-                sb.append(encodeValue(approxString((String) value)));
+                sb.append(FilterImpl.encodeValue(FilterImpl.approxString((String) value)));
 
                 break;
             }
@@ -313,17 +302,16 @@ public class FilterImpl implements Filter {
 
     /**
      * Compares this <code>Filter</code> to another <code>Filter</code>.
-     *
+     * 
      * <p>
-     * This implementation returns the result of calling
-     * <code>this.toString().equals(obj.toString()</code>.
-     *
+     * This implementation returns the result of calling <code>this.toString().equals(obj.toString()</code>.
+     * 
      * @param obj The object to compare against this <code>Filter</code>.
      * @return If the other object is a <code>Filter</code> object, then
-     *         returns the result of calling
-     *         <code>this.toString().equals(obj.toString()</code>;
-     *         <code>false</code> otherwise.
+     *         returns the result of calling <code>this.toString().equals(obj.toString()</code>; <code>false</code>
+     *         otherwise.
      */
+    @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -333,33 +321,33 @@ public class FilterImpl implements Filter {
             return false;
         }
 
-        return this.toString().equals(obj.toString());
+        return toString().equals(obj.toString());
     }
 
     /**
      * Returns the hashCode for this <code>Filter</code>.
-     *
+     * 
      * <p>
-     * This implementation returns the result of calling
-     * <code>this.toString().hashCode()</code>.
-     *
+     * This implementation returns the result of calling <code>this.toString().hashCode()</code>.
+     * 
      * @return The hashCode of this <code>Filter</code>.
      */
+    @Override
     public int hashCode() {
-        return this.toString().hashCode();
+        return toString().hashCode();
     }
 
     /**
      * Internal match routine. Dictionary parameter must support
      * case-insensitive get.
-     *
+     * 
      * @param properties A dictionary whose keys are used in the match.
-     * @return If the Dictionary's keys match the filter, return
-     *         <code>true</code>. Otherwise, return <code>false</code>.
+     * @return If the Dictionary's keys match the filter, return <code>true</code>. Otherwise, return <code>false</code>
+     *         .
      */
     private boolean match0(Dictionary properties) {
         switch (op) {
-            case AND : {
+            case AND: {
                 FilterImpl[] filters = (FilterImpl[]) value;
                 for (int i = 0, size = filters.length; i < size; i++) {
                     if (!filters[i].match0(properties)) {
@@ -370,10 +358,10 @@ public class FilterImpl implements Filter {
                 return true;
             }
 
-            case OR : {
+            case OR: {
                 FilterImpl[] filters = (FilterImpl[]) value;
-                for (int i = 0, size = filters.length; i < size; i++) {
-                    if (filters[i].match0(properties)) {
+                for (FilterImpl filter : filters) {
+                    if (filter.match0(properties)) {
                         return true;
                     }
                 }
@@ -381,26 +369,26 @@ public class FilterImpl implements Filter {
                 return false;
             }
 
-            case NOT : {
+            case NOT: {
                 FilterImpl filter = (FilterImpl) value;
 
                 return !filter.match0(properties);
             }
 
-            case SUBSTRING :
-            case EQUAL :
+            case SUBSTRING:
+            case EQUAL:
             case GREATER:
             case LESS:
-            case APPROX :
-            case SUBSET :
-            case SUPERSET : {
+            case APPROX:
+            case SUBSET:
+            case SUPERSET: {
                 Object prop = (properties == null) ? null : properties
                         .get(attr);
 
                 return compare(op, prop, value);
             }
 
-            case PRESENT : {
+            case PRESENT: {
                 Object prop = (properties == null) ? null : properties
                         .get(attr);
 
@@ -411,12 +399,12 @@ public class FilterImpl implements Filter {
         return false;
     }
 
-    private boolean match0(Map properties) {
+    private boolean matchMap(Map properties) {
         switch (op) {
-            case AND : {
+            case AND: {
                 FilterImpl[] filters = (FilterImpl[]) value;
                 for (int i = 0, size = filters.length; i < size; i++) {
-                    if (!filters[i].match0(properties)) {
+                    if (!filters[i].matchMap(properties)) {
                         return false;
                     }
                 }
@@ -424,10 +412,10 @@ public class FilterImpl implements Filter {
                 return true;
             }
 
-            case OR : {
+            case OR: {
                 FilterImpl[] filters = (FilterImpl[]) value;
-                for (int i = 0, size = filters.length; i < size; i++) {
-                    if (filters[i].match0(properties)) {
+                for (FilterImpl filter : filters) {
+                    if (filter.matchMap(properties)) {
                         return true;
                     }
                 }
@@ -435,26 +423,26 @@ public class FilterImpl implements Filter {
                 return false;
             }
 
-            case NOT : {
+            case NOT: {
                 FilterImpl filter = (FilterImpl) value;
 
-                return !filter.match0(properties);
+                return !filter.matchMap(properties);
             }
 
-            case SUBSTRING :
-            case EQUAL :
+            case SUBSTRING:
+            case EQUAL:
             case GREATER:
             case LESS:
-            case APPROX :
-            case SUBSET :
-            case SUPERSET : {
+            case APPROX:
+            case SUBSET:
+            case SUPERSET: {
                 Object prop = (properties == null) ? null : properties
                         .get(attr);
 
                 return compare(op, prop, value);
             }
 
-            case PRESENT : {
+            case PRESENT: {
                 Object prop = (properties == null) ? null : properties
                         .get(attr);
 
@@ -464,9 +452,10 @@ public class FilterImpl implements Filter {
 
         return false;
     }
+
     /**
      * Encode the value string such that '(', '*', ')' and '\' are escaped.
-     *
+     * 
      * @param value unencoded value string.
      * @return encoded value string.
      */
@@ -483,10 +472,10 @@ public class FilterImpl implements Filter {
             char c = output[i];
 
             switch (c) {
-                case '(' :
-                case '*' :
-                case ')' :
-                case '\\' : {
+                case '(':
+                case '*':
+                case ')':
+                case '\\': {
                     output[cursor] = '\\';
                     cursor++;
                     encoded = true;
@@ -502,54 +491,39 @@ public class FilterImpl implements Filter {
         return encoded ? new String(output, 0, cursor) : value;
     }
 
-    private Collection getSet(Object value)
-    {
+    private Collection getSet(Object value) {
         Collection s;
-        if (value instanceof Set)
-        {
+        if (value instanceof Set) {
             s = (Set) value;
-        }
-        else if (value instanceof Collection)
-        {
+        } else if (value instanceof Collection) {
             s = (Collection) value;
             if (s.size() > 1) {
                 s = new HashSet(s);
             }
-        }
-        else if (value != null)
-        {
+        } else if (value != null) {
             String v = value.toString();
-            if (v.indexOf(',') < 0)
-            {
+            if (v.indexOf(',') < 0) {
                 s = Collections.singleton(v);
-            }
-            else {
+            } else {
                 StringTokenizer st = new StringTokenizer(value.toString(), ",");
                 s = new HashSet();
-                while (st.hasMoreTokens())
-                {
+                while (st.hasMoreTokens()) {
                     s.add(st.nextToken().trim());
                 }
             }
-        }
-        else
-        {
+        } else {
             s = Collections.emptySet();
         }
         return s;
     }
 
     private boolean compare(int operation, Object value1, Object value2) {
-        if (op == SUPERSET || op == SUBSET)
-        {
+        if ((op == FilterImpl.SUPERSET) || (op == FilterImpl.SUBSET)) {
             Collection s1 = getSet(value1);
             Collection s2 = converted instanceof Collection ? (Collection) converted : getSet(value2);
-            if (op == SUPERSET)
-            {
+            if (op == FilterImpl.SUPERSET) {
                 return s1.containsAll(s2);
-            }
-            else
-            {
+            } else {
                 return s2.containsAll(s1);
             }
         }
@@ -573,8 +547,8 @@ public class FilterImpl implements Filter {
         if (value1 instanceof Version) {
             if (converted != null) {
                 switch (operation) {
-                    case APPROX :
-                    case EQUAL : {
+                    case APPROX:
+                    case EQUAL: {
                         return ((Version) value1).compareTo(converted) == 0;
                     }
                     case GREATER: {
@@ -633,23 +607,17 @@ public class FilterImpl implements Filter {
 
     private boolean compare_Collection(int operation,
             Collection collection, Object value2) {
-        if (op == SUBSET || op == SUPERSET)
-        {
+        if ((op == FilterImpl.SUBSET) || (op == FilterImpl.SUPERSET)) {
             Set set = new HashSet();
-            if (value2 != null)
-            {
+            if (value2 != null) {
                 StringTokenizer st = new StringTokenizer(value2.toString(), ",");
-                while (st.hasMoreTokens())
-                {
+                while (st.hasMoreTokens()) {
                     set.add(st.nextToken().trim());
                 }
             }
-            if (op == SUBSET)
-            {
+            if (op == FilterImpl.SUBSET) {
                 return set.containsAll(collection);
-            }
-            else
-            {
+            } else {
                 return collection.containsAll(set);
             }
         }
@@ -663,8 +631,8 @@ public class FilterImpl implements Filter {
 
     private boolean compare_ObjectArray(int operation, Object[] array,
             Object value2) {
-        for (int i = 0, size = array.length; i < size; i++) {
-            if (compare(operation, array[i], value2)) {
+        for (Object element : array) {
+            if (compare(operation, element, value2)) {
                 return true;
             }
         }
@@ -675,8 +643,8 @@ public class FilterImpl implements Filter {
             Object primarray, Object value2) {
         if (Integer.TYPE.isAssignableFrom(type)) {
             int[] array = (int[]) primarray;
-            for (int i = 0, size = array.length; i < size; i++) {
-                if (compare_Integer(operation, array[i], value2)) {
+            for (int element : array) {
+                if (compare_Integer(operation, element, value2)) {
                     return true;
                 }
             }
@@ -684,8 +652,8 @@ public class FilterImpl implements Filter {
         }
         if (Long.TYPE.isAssignableFrom(type)) {
             long[] array = (long[]) primarray;
-            for (int i = 0, size = array.length; i < size; i++) {
-                if (compare_Long(operation, array[i], value2)) {
+            for (long element : array) {
+                if (compare_Long(operation, element, value2)) {
                     return true;
                 }
             }
@@ -693,8 +661,8 @@ public class FilterImpl implements Filter {
         }
         if (Byte.TYPE.isAssignableFrom(type)) {
             byte[] array = (byte[]) primarray;
-            for (int i = 0, size = array.length; i < size; i++) {
-                if (compare_Byte(operation, array[i], value2)) {
+            for (byte element : array) {
+                if (compare_Byte(operation, element, value2)) {
                     return true;
                 }
             }
@@ -702,8 +670,8 @@ public class FilterImpl implements Filter {
         }
         if (Short.TYPE.isAssignableFrom(type)) {
             short[] array = (short[]) primarray;
-            for (int i = 0, size = array.length; i < size; i++) {
-                if (compare_Short(operation, array[i], value2)) {
+            for (short element : array) {
+                if (compare_Short(operation, element, value2)) {
                     return true;
                 }
             }
@@ -711,8 +679,8 @@ public class FilterImpl implements Filter {
         }
         if (Character.TYPE.isAssignableFrom(type)) {
             char[] array = (char[]) primarray;
-            for (int i = 0, size = array.length; i < size; i++) {
-                if (compare_Character(operation, array[i], value2)) {
+            for (char element : array) {
+                if (compare_Character(operation, element, value2)) {
                     return true;
                 }
             }
@@ -720,8 +688,8 @@ public class FilterImpl implements Filter {
         }
         if (Float.TYPE.isAssignableFrom(type)) {
             float[] array = (float[]) primarray;
-            for (int i = 0, size = array.length; i < size; i++) {
-                if (compare_Float(operation, array[i], value2)) {
+            for (float element : array) {
+                if (compare_Float(operation, element, value2)) {
                     return true;
                 }
             }
@@ -729,8 +697,8 @@ public class FilterImpl implements Filter {
         }
         if (Double.TYPE.isAssignableFrom(type)) {
             double[] array = (double[]) primarray;
-            for (int i = 0, size = array.length; i < size; i++) {
-                if (compare_Double(operation, array[i], value2)) {
+            for (double element : array) {
+                if (compare_Double(operation, element, value2)) {
                     return true;
                 }
             }
@@ -738,8 +706,8 @@ public class FilterImpl implements Filter {
         }
         if (Boolean.TYPE.isAssignableFrom(type)) {
             boolean[] array = (boolean[]) primarray;
-            for (int i = 0, size = array.length; i < size; i++) {
-                if (compare_Boolean(operation, array[i], value2)) {
+            for (boolean element : array) {
+                if (compare_Boolean(operation, element, value2)) {
                     return true;
                 }
             }
@@ -751,7 +719,7 @@ public class FilterImpl implements Filter {
     private boolean compare_String(int operation, String string,
             Object value2) {
         switch (operation) {
-            case SUBSTRING : {
+            case SUBSTRING: {
                 String[] substrings = (String[]) value2;
                 int pos = 0;
                 for (int i = 0, size = substrings.length; i < size; i++) {
@@ -777,18 +745,15 @@ public class FilterImpl implements Filter {
                                 // to do the last substr
                                 // check
                                 i++;
-                        }
-                        else /* xxx */{
+                        } else /* xxx */{
                             int len = substr.length();
                             if (string.regionMatches(pos, substr, 0, len)) {
                                 pos += len;
-                            }
-                            else {
+                            } else {
                                 return false;
                             }
                         }
-                    }
-                    else /* last substr */{
+                    } else /* last substr */{
                         if (substr == null) /* * */{
                             return true;
                         }
@@ -799,12 +764,12 @@ public class FilterImpl implements Filter {
 
                 return true;
             }
-            case EQUAL : {
+            case EQUAL: {
                 return string.equals(value2);
             }
-            case APPROX : {
-                string = approxString(string);
-                String string2 = approxString((String) value2);
+            case APPROX: {
+                string = FilterImpl.approxString(string);
+                String string2 = FilterImpl.approxString((String) value2);
 
                 return string.equalsIgnoreCase(string2);
             }
@@ -819,19 +784,18 @@ public class FilterImpl implements Filter {
     }
 
     private boolean compare_Integer(int operation, int intval, Object value2) {
-        if (operation == SUBSTRING) {
+        if (operation == FilterImpl.SUBSTRING) {
             return false;
         }
         int intval2;
         try {
             intval2 = Integer.parseInt(((String) value2).trim());
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return false;
         }
         switch (operation) {
-            case APPROX :
-            case EQUAL : {
+            case APPROX:
+            case EQUAL: {
                 return intval == intval2;
             }
             case GREATER: {
@@ -845,20 +809,19 @@ public class FilterImpl implements Filter {
     }
 
     private boolean compare_Long(int operation, long longval, Object value2) {
-        if (operation == SUBSTRING) {
+        if (operation == FilterImpl.SUBSTRING) {
             return false;
         }
         long longval2;
         try {
             longval2 = Long.parseLong(((String) value2).trim());
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return false;
         }
 
         switch (operation) {
-            case APPROX :
-            case EQUAL : {
+            case APPROX:
+            case EQUAL: {
                 return longval == longval2;
             }
             case GREATER: {
@@ -872,20 +835,19 @@ public class FilterImpl implements Filter {
     }
 
     private boolean compare_Byte(int operation, byte byteval, Object value2) {
-        if (operation == SUBSTRING) {
+        if (operation == FilterImpl.SUBSTRING) {
             return false;
         }
         byte byteval2;
         try {
             byteval2 = Byte.parseByte(((String) value2).trim());
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return false;
         }
 
         switch (operation) {
-            case APPROX :
-            case EQUAL : {
+            case APPROX:
+            case EQUAL: {
                 return byteval == byteval2;
             }
             case GREATER: {
@@ -900,20 +862,19 @@ public class FilterImpl implements Filter {
 
     private boolean compare_Short(int operation, short shortval,
             Object value2) {
-        if (operation == SUBSTRING) {
+        if (operation == FilterImpl.SUBSTRING) {
             return false;
         }
         short shortval2;
         try {
             shortval2 = Short.parseShort(((String) value2).trim());
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return false;
         }
 
         switch (operation) {
-            case APPROX :
-            case EQUAL : {
+            case APPROX:
+            case EQUAL: {
                 return shortval == shortval2;
             }
             case GREATER: {
@@ -928,22 +889,21 @@ public class FilterImpl implements Filter {
 
     private boolean compare_Character(int operation, char charval,
             Object value2) {
-        if (operation == SUBSTRING) {
+        if (operation == FilterImpl.SUBSTRING) {
             return false;
         }
         char charval2;
         try {
             charval2 = ((String) value2).charAt(0);
-        }
-        catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
             return false;
         }
 
         switch (operation) {
-            case EQUAL : {
+            case EQUAL: {
                 return charval == charval2;
             }
-            case APPROX : {
+            case APPROX: {
                 return (charval == charval2)
                         || (Character.toUpperCase(charval) == Character
                                 .toUpperCase(charval2))
@@ -962,14 +922,14 @@ public class FilterImpl implements Filter {
 
     private boolean compare_Boolean(int operation, boolean boolval,
             Object value2) {
-        if (operation == SUBSTRING) {
+        if (operation == FilterImpl.SUBSTRING) {
             return false;
         }
         boolean boolval2 = Boolean.valueOf(((String) value2).trim())
                 .booleanValue();
         switch (operation) {
-            case APPROX :
-            case EQUAL :
+            case APPROX:
+            case EQUAL:
             case GREATER:
             case LESS: {
                 return boolval == boolval2;
@@ -980,20 +940,19 @@ public class FilterImpl implements Filter {
 
     private boolean compare_Float(int operation, float floatval,
             Object value2) {
-        if (operation == SUBSTRING) {
+        if (operation == FilterImpl.SUBSTRING) {
             return false;
         }
         float floatval2;
         try {
             floatval2 = Float.parseFloat(((String) value2).trim());
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return false;
         }
 
         switch (operation) {
-            case APPROX :
-            case EQUAL : {
+            case APPROX:
+            case EQUAL: {
                 return Float.compare(floatval, floatval2) == 0;
             }
             case GREATER: {
@@ -1008,20 +967,19 @@ public class FilterImpl implements Filter {
 
     private boolean compare_Double(int operation, double doubleval,
             Object value2) {
-        if (operation == SUBSTRING) {
+        if (operation == FilterImpl.SUBSTRING) {
             return false;
         }
         double doubleval2;
         try {
             doubleval2 = Double.parseDouble(((String) value2).trim());
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return false;
         }
 
         switch (operation) {
-            case APPROX :
-            case EQUAL : {
+            case APPROX:
+            case EQUAL: {
                 return Double.compare(doubleval, doubleval2) == 0;
             }
             case GREATER: {
@@ -1034,18 +992,17 @@ public class FilterImpl implements Filter {
         return false;
     }
 
-    private static final Class[]	constructorType	= new Class[] {String.class};
+    private static final Class[] constructorType = new Class[] { String.class };
 
     private boolean compare_Comparable(int operation, Comparable value1,
             Object value2) {
-        if (operation == SUBSTRING) {
+        if (operation == FilterImpl.SUBSTRING) {
             return false;
         }
         Constructor constructor;
         try {
-            constructor = value1.getClass().getConstructor(constructorType);
-        }
-        catch (NoSuchMethodException e) {
+            constructor = value1.getClass().getConstructor(FilterImpl.constructorType);
+        } catch (NoSuchMethodException e) {
             return false;
         }
         try {
@@ -1053,21 +1010,18 @@ public class FilterImpl implements Filter {
                 AccessController.doPrivileged(new SetAccessibleAction(
                         constructor));
             value2 = constructor
-                    .newInstance(new Object[] {((String) value2).trim()});
-        }
-        catch (IllegalAccessException e) {
+                    .newInstance(new Object[] { ((String) value2).trim() });
+        } catch (IllegalAccessException e) {
             return false;
-        }
-        catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             return false;
-        }
-        catch (InstantiationException e) {
+        } catch (InstantiationException e) {
             return false;
         }
 
         switch (operation) {
-            case APPROX :
-            case EQUAL : {
+            case APPROX:
+            case EQUAL: {
                 return value1.compareTo(value2) == 0;
             }
             case GREATER: {
@@ -1082,14 +1036,13 @@ public class FilterImpl implements Filter {
 
     private boolean compare_Unknown(int operation, Object value1,
             Object value2) {
-        if (operation == SUBSTRING) {
+        if (operation == FilterImpl.SUBSTRING) {
             return false;
         }
         Constructor constructor;
         try {
-            constructor = value1.getClass().getConstructor(constructorType);
-        }
-        catch (NoSuchMethodException e) {
+            constructor = value1.getClass().getConstructor(FilterImpl.constructorType);
+        } catch (NoSuchMethodException e) {
             return false;
         }
         try {
@@ -1097,21 +1050,18 @@ public class FilterImpl implements Filter {
                 AccessController.doPrivileged(new SetAccessibleAction(
                         constructor));
             value2 = constructor
-                    .newInstance(new Object[] {((String) value2).trim()});
-        }
-        catch (IllegalAccessException e) {
+                    .newInstance(new Object[] { ((String) value2).trim() });
+        } catch (IllegalAccessException e) {
             return false;
-        }
-        catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             return false;
-        }
-        catch (InstantiationException e) {
+        } catch (InstantiationException e) {
             return false;
         }
 
         switch (operation) {
-            case APPROX :
-            case EQUAL :
+            case APPROX:
+            case EQUAL:
             case GREATER:
             case LESS: {
                 return value1.equals(value2);
@@ -1122,10 +1072,10 @@ public class FilterImpl implements Filter {
 
     /**
      * Map a string for an APPROX (~=) comparison.
-     *
+     * 
      * This implementation removes white spaces. This is the minimum
      * implementation allowed by the OSGi spec.
-     *
+     * 
      * @param input Input string.
      * @return String ready for APPROX comparison.
      */
@@ -1154,10 +1104,10 @@ public class FilterImpl implements Filter {
      * parent.
      */
     private static class Parser {
-        private final String	filterstring;
-        private final boolean   ignoreCase;
-        private final char[]	filterChars;
-        private int				pos;
+        private final String  filterstring;
+        private final boolean ignoreCase;
+        private final char[]  filterChars;
+        private int           pos;
 
         Parser(String filterstring, boolean ignoreCase) {
             this.filterstring = filterstring;
@@ -1170,8 +1120,7 @@ public class FilterImpl implements Filter {
             FilterImpl filter;
             try {
                 filter = parse_filter();
-            }
-            catch (ArrayIndexOutOfBoundsException e) {
+            } catch (ArrayIndexOutOfBoundsException e) {
                 throw new InvalidSyntaxException("Filter ended abruptly",
                         filterstring);
             }
@@ -1217,15 +1166,15 @@ public class FilterImpl implements Filter {
             char c = filterChars[pos];
 
             switch (c) {
-                case '&' : {
+                case '&': {
                     pos++;
                     return parse_and();
                 }
-                case '|' : {
+                case '|': {
                     pos++;
                     return parse_or();
                 }
-                case '!' : {
+                case '!': {
                     pos++;
                     return parse_not();
                 }
@@ -1301,7 +1250,7 @@ public class FilterImpl implements Filter {
                     }
                     break;
                 }
-                case '~' : {
+                case '~': {
                     if (filterChars[pos + 1] == '=') {
                         pos += 2;
                         return new FilterImpl(FilterImpl.APPROX, attr,
@@ -1309,7 +1258,7 @@ public class FilterImpl implements Filter {
                     }
                     break;
                 }
-                case '>' : {
+                case '>': {
                     if (filterChars[pos + 1] == '=') {
                         pos += 2;
                         return new FilterImpl(FilterImpl.GREATER, attr,
@@ -1317,7 +1266,7 @@ public class FilterImpl implements Filter {
                     }
                     break;
                 }
-                case '<' : {
+                case '<': {
                     if (filterChars[pos + 1] == '=') {
                         pos += 2;
                         return new FilterImpl(FilterImpl.LESS, attr,
@@ -1330,7 +1279,7 @@ public class FilterImpl implements Filter {
                     }
                     break;
                 }
-                case '=' : {
+                case '=': {
                     if (filterChars[pos + 1] == '*') {
                         int oldpos = pos;
                         pos += 2;
@@ -1366,13 +1315,13 @@ public class FilterImpl implements Filter {
 
             char c = filterChars[pos];
 
-            while (c != '~' && c != '<' && c != '>' && c != '=' && c != '('
-                    && c != ')') {
+            while ((c != '~') && (c != '<') && (c != '>') && (c != '=') && (c != '(')
+                    && (c != ')')) {
 
-                if (c == '<' && filterChars[pos+1] == '*') {
+                if ((c == '<') && (filterChars[pos + 1] == '*')) {
                     break;
                 }
-                if (c == '*' && filterChars[pos+1] == '>') {
+                if ((c == '*') && (filterChars[pos + 1] == '>')) {
                     break;
                 }
                 pos++;
@@ -1392,8 +1341,7 @@ public class FilterImpl implements Filter {
             }
 
             String str = new String(filterChars, begin, length);
-            if (ignoreCase)
-            {
+            if (ignoreCase) {
                 str = str.toLowerCase();
             }
             return str;
@@ -1406,22 +1354,22 @@ public class FilterImpl implements Filter {
                 char c = filterChars[pos];
 
                 switch (c) {
-                    case ')' : {
+                    case ')': {
                         break parseloop;
                     }
 
-                    case '(' : {
+                    case '(': {
                         throw new InvalidSyntaxException("Invalid value: "
                                 + filterstring.substring(pos), filterstring);
                     }
 
-                    case '\\' : {
+                    case '\\': {
                         pos++;
                         c = filterChars[pos];
                         /* fall through into default */
                     }
 
-                    default : {
+                    default: {
                         sb.append(c);
                         pos++;
                         break;
@@ -1446,7 +1394,7 @@ public class FilterImpl implements Filter {
                 char c = filterChars[pos];
 
                 switch (c) {
-                    case ')' : {
+                    case ')': {
                         if (sb.length() > 0) {
                             operands.add(sb.toString());
                         }
@@ -1454,12 +1402,12 @@ public class FilterImpl implements Filter {
                         break parseloop;
                     }
 
-                    case '(' : {
+                    case '(': {
                         throw new InvalidSyntaxException("Invalid value: "
                                 + filterstring.substring(pos), filterstring);
                     }
 
-                    case '*' : {
+                    case '*': {
                         if (sb.length() > 0) {
                             operands.add(sb.toString());
                         }
@@ -1472,13 +1420,13 @@ public class FilterImpl implements Filter {
                         break;
                     }
 
-                    case '\\' : {
+                    case '\\': {
                         pos++;
                         c = filterChars[pos];
                         /* fall through into default */
                     }
 
-                    default : {
+                    default: {
                         sb.append(c);
                         pos++;
                         break;
@@ -1518,20 +1466,20 @@ public class FilterImpl implements Filter {
      * Filter implementation.
      */
     private static class CaseInsensitiveDictionary extends Dictionary {
-        private final Dictionary	dictionary;
-        private final String[]		keys;
+        private final Dictionary dictionary;
+        private final String[]   keys;
 
         /**
          * Create a case insensitive dictionary from the specified dictionary.
-         *
+         * 
          * @param dictionary
          * @throws IllegalArgumentException If <code>dictionary</code> contains
-         *         case variants of the same key name.
+         *             case variants of the same key name.
          */
         CaseInsensitiveDictionary(Dictionary dictionary) {
             if (dictionary == null) {
                 this.dictionary = null;
-                this.keys = new String[0];
+                keys = new String[0];
                 return;
             }
             this.dictionary = dictionary;
@@ -1548,13 +1496,13 @@ public class FilterImpl implements Filter {
                     keyList.add(key);
                 }
             }
-            this.keys = (String[]) keyList.toArray(new String[keyList.size()]);
+            keys = (String[]) keyList.toArray(new String[keyList.size()]);
         }
 
+        @Override
         public Object get(Object o) {
             String k = (String) o;
-            for (int i = 0, length = keys.length; i < length; i++) {
-                String key = keys[i];
+            for (String key : keys) {
                 if (key.equalsIgnoreCase(k)) {
                     return dictionary.get(key);
                 }
@@ -1562,26 +1510,32 @@ public class FilterImpl implements Filter {
             return null;
         }
 
+        @Override
         public boolean isEmpty() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Enumeration keys() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Enumeration elements() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Object put(Object key, Object value) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Object remove(Object key) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public int size() {
             throw new UnsupportedOperationException();
         }
@@ -1594,6 +1548,7 @@ public class FilterImpl implements Filter {
             this.accessible = accessible;
         }
 
+        @Override
         public Object run() {
             accessible.setAccessible(true);
             return null;
@@ -1607,12 +1562,13 @@ public class FilterImpl implements Filter {
      * Filter implementation.
      */
     private static class ServiceReferenceDictionary extends Dictionary {
-        private final ServiceReference	reference;
+        private final ServiceReference reference;
 
         ServiceReferenceDictionary(ServiceReference reference) {
             this.reference = reference;
         }
 
+        @Override
         public Object get(Object key) {
             if (reference == null) {
                 return null;
@@ -1620,26 +1576,32 @@ public class FilterImpl implements Filter {
             return reference.getProperty((String) key);
         }
 
+        @Override
         public boolean isEmpty() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Enumeration keys() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Enumeration elements() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Object put(Object key, Object value) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Object remove(Object key) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public int size() {
             throw new UnsupportedOperationException();
         }

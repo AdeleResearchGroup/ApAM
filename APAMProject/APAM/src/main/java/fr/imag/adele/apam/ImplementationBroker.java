@@ -1,6 +1,7 @@
 package fr.imag.adele.apam;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -8,7 +9,8 @@ import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.apform.ApformImplementation;
-import fr.imag.adele.apam.util.Attributes;
+
+//import fr.imag.adele.apam.util.Attributes;
 
 public interface ImplementationBroker {
 
@@ -40,7 +42,7 @@ public interface ImplementationBroker {
      * @param properties . optional : the initial properties for that implementation
      * @return an ASM Implementation
      */
-    public Implementation createImpl(CompositeType compo, String implName, URL url, Attributes properties);
+    public Implementation createImpl(CompositeType compo, String implName, URL url, Map<String, Object> properties);
 
     public void removeImpl(Implementation impl);
 

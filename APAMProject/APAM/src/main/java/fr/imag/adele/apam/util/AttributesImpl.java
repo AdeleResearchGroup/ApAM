@@ -281,29 +281,29 @@ public class AttributesImpl extends Dictionary<String, Object> implements Attrib
 //        }
 //    }
 
-    @Override
-    public void setProperty(Manager manager, String key, Object value) {
-        if ((manager == null) || (key == null) || (value == null))
-            return;
-        if (!checkAttribute(key, value))
-            return;
-
-        if (AttributesImpl.attrChangedManagers.contains(manager)) {
-            properties.put(key, value);
-        }
+//    @Override
+//    public void setProperty(Manager manager, String key, Object value) {
+//        if ((manager == null) || (key == null) || (value == null))
+//            return;
+//        if (!checkAttribute(key, value))
+//            return;
+//
+//        if (AttributesImpl.attrChangedManagers.contains(manager)) {
+//            properties.put(key, value);
+//        }
 //        else {
 //            setProperty0(key, value, false);
 //        }
-    }
+//    }
 
-    @Override
-    public void setProperties(Manager manager, Map<String, Object> properties) {
-        if ((manager == null) || (properties == null))
-            return;
-        if (AttributesImpl.attrChangedManagers.contains(manager)) {
-            this.properties.putAll(properties);
-        }
-    }
+//    @Override
+//    public void setProperties(Manager manager, Map<String, Object> properties) {
+//        if ((manager == null) || (properties == null))
+//            return;
+//        if (AttributesImpl.attrChangedManagers.contains(manager)) {
+//            this.properties.putAll(properties);
+//        }
+//    }
 
     @Override
     public Enumeration<Object> elements() {

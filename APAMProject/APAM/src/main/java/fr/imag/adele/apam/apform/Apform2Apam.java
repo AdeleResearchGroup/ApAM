@@ -3,8 +3,8 @@ package fr.imag.adele.apam.apform;
 import java.util.HashSet;
 import java.util.Set;
 
-import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.am.query.Query;
+//import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.am.query.Query;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
@@ -32,8 +32,8 @@ public class Apform2Apam {
             System.err.println("Instance already existing: " + instanceName);
             return;
         }
-        Instance inst = CST.InstBroker.addInst(Apform2Apam.rootInst, client, null);
-        inst.setProperties(client.getProperties());
+        Instance inst = CST.InstBroker.addInst(Apform2Apam.rootInst, client, client.getProperties());
+        // inst.putAll(client.getProperties());
     }
 
 //        synchronized (ApformImpl.expectedImpls) {
@@ -80,8 +80,8 @@ public class Apform2Apam {
             return;
         }
         Implementation impl = ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(Apform2Apam.rootType, client,
-                null);
-        impl.setProperties(client.getProperties());
+                client.getProperties());
+        // impl.setProperties(client.getProperties());
         synchronized (Apform.expectedImpls) {
             if (Apform.expectedImpls.contains(implemName)) { // it is expected
                 Apform.expectedImpls.remove(implemName);
@@ -101,8 +101,8 @@ public class Apform2Apam {
             System.err.println("Specification already existing: " + specName);
             return;
         }
-        Specification spec = CST.SpecBroker.addSpec(specName, client, null);
-        spec.setProperties(client.getProperties());
+        Specification spec = CST.SpecBroker.addSpec(specName, client, client.getProperties());
+        // spec.setProperties(client.getProperties());
     }
 
     /**

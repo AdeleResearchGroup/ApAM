@@ -1,12 +1,16 @@
 package fr.imag.adele.apam.apamImpl;
 
 import java.util.Collections;
+import java.util.concurrent.ConcurrentHashMap;
+//import java.util.Dictionary;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
@@ -14,31 +18,35 @@ import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.AttributesImpl;
+//import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.AttributesImpl;
 
 //import fr.imag.adele.sam.Instance;
 
-public class InstanceImpl extends AttributesImpl implements Instance {
+public class InstanceImpl extends ConcurrentHashMap<String, Object> implements Instance {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     /** The logger. */
     // private static Logger logger = Logger.getLogger(ASMInstImpl.class);
     // private static ASMInstBroker myBroker = ASM.ASMInstBroker;
 
-    private Implementation          myImpl;
-    private Composite        myComposite;
-    protected ApformInstance apformInst;
-    private boolean          sharable = true;
-    private boolean          used     = false;
+    private Implementation    myImpl;
+    private Composite         myComposite;
+    protected ApformInstance  apformInst;
+    private boolean           sharable         = true;
+    private boolean           used             = false;
 
-    private final Set<Wire>  wires    = new HashSet<Wire>(); // the currently used instances
-    private final Set<Wire>  invWires = new HashSet<Wire>();
+    private final Set<Wire>   wires            = new HashSet<Wire>(); // the currently used instances
+    private final Set<Wire>   invWires         = new HashSet<Wire>();
 
     // WARNING to be used only for creating composites.
     public InstanceImpl() {
     }
 
-    protected void instConstructor(Implementation impl, Composite instCompo, Attributes initialproperties,
+    protected void instConstructor(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
             ApformInstance samInst) {
         if (samInst == null) {
             new Exception("ERROR : sam instance cannot be null on ASM instance constructor").printStackTrace();
@@ -53,11 +61,12 @@ public class InstanceImpl extends AttributesImpl implements Instance {
         myImpl = impl;
         myComposite = instCompo;
         myComposite.addContainInst(this);
-        this.setProperty(Attributes.APAMCOMPO, myComposite.getName());
+        put(CST.A_COMPOSITE, myComposite.getName());
         ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
     }
 
-    public InstanceImpl(Implementation impl, Composite instCompo, Attributes initialproperties, ApformInstance apformInst,
+    public InstanceImpl(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
+            ApformInstance apformInst,
             boolean composite) {
         // Create the implementation and initialize
         instConstructor(impl, instCompo, initialproperties, apformInst);
@@ -77,8 +86,8 @@ public class InstanceImpl extends AttributesImpl implements Instance {
 //            }
 
 //            setProperties(Util.mergeProperties(this, initialproperties, apformInst.getProperties()));
-        setProperties(apformInst.getProperties());
-        setProperty(CST.A_SHARED, getShared());
+        putAll(apformInst.getProperties());
+        put(CST.A_SHARED, getShared());
         sharable = (getShared().equals(CST.V_TRUE));
 
         if ((instCompo != null) && (apformInst.getServiceObject() instanceof ApamComponent))
@@ -254,7 +263,7 @@ public class InstanceImpl extends AttributesImpl implements Instance {
 
     @Override
     public String getShared() {
-        String shared = (String) getProperty(CST.A_SHARED);
+        String shared = (String) get(CST.A_SHARED);
         if (shared == null) {
             shared = getImpl().getShared();
         }
@@ -269,7 +278,8 @@ public class InstanceImpl extends AttributesImpl implements Instance {
         if (goal == null)
             return false;
         try {
-            return goal.match((AttributesImpl) getProperties());
+            return ((FilterImpl) goal).matchCase(this);
+            // return goal.match((AttributesImpl) getProperties());
         } catch (Exception e) {
         }
         return false;

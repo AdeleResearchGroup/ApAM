@@ -34,14 +34,14 @@ public class APAMImpl implements Apam {
 
     @Override
     public CompositeType createCompositeType(String name, String mainImplName,
-            Set<ManagerModel> models, Attributes attributes) {
+            Set<ManagerModel> models, Map<String, Object> attributes) {
         return CompositeTypeImpl.createCompositeType(null, name, mainImplName, null,
                 models, attributes);
     }
 
     @Override
     public CompositeType createCompositeType(String name, String mainImplName, Set<ManagerModel> models,
-            URL mainBundle, String specName, Attributes attributes) {
+            URL mainBundle, String specName, Map<String, Object> attributes) {
         return CompositeTypeImpl.createCompositeType(null, name, models, mainImplName, mainBundle, specName,
                 attributes);
     }

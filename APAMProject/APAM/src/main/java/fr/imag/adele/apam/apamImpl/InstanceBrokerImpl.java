@@ -2,6 +2,7 @@ package fr.imag.adele.apam.apamImpl;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -21,8 +22,8 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 //import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.AttributesImpl;
+//import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.Instance;
 //import fr.imag.adele.sam.event.EventProperty;
 
@@ -30,8 +31,8 @@ public class InstanceBrokerImpl implements InstanceBroker {
 
     private static final ImplementationBroker implBroker        = CST.ImplBroker;
 
-    private final Set<Instance>         instances         = new HashSet<Instance>();
-    private final Set<Instance>         sharableInstances = new HashSet<Instance>();
+    private final Set<Instance>               instances         = new HashSet<Instance>();
+    private final Set<Instance>               sharableInstances = new HashSet<Instance>();
 
     // EVENTS
 //    private SamInstEventHandler        instEventHandler;
@@ -91,7 +92,7 @@ public class InstanceBrokerImpl implements InstanceBroker {
             }
         } else {
             for (Instance inst : instances) {
-                if ((inst.getSpec() == spec) && goal.match((AttributesImpl) inst.getProperties()))
+                if ((inst.getSpec() == spec) && inst.match(goal))
                     ret.add(inst);
             }
         }
@@ -104,14 +105,14 @@ public class InstanceBrokerImpl implements InstanceBroker {
             return getInsts();
         Set<Instance> ret = new HashSet<Instance>();
         for (Instance inst : instances) {
-            if (goal.match((AttributesImpl) inst.getProperties()))
+            if (inst.match(goal))
                 ret.add(inst);
         }
         return ret;
     }
 
     @Override
-    public Instance addInst(Composite instComposite, ApformInstance apfInst, Attributes properties) {
+    public Instance addInst(Composite instComposite, ApformInstance apfInst, Map properties) {
         if (apfInst == null) {
             System.out.println("No instance provided for add Instance");
             return null;

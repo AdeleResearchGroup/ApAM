@@ -3,6 +3,7 @@ package fr.imag.adele.apam.apamImpl;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -17,8 +18,8 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.AttributesImpl;
+//import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.ApformImplementation;
 //import fr.imag.adele.sam.ApformSpecification;
 import fr.imag.adele.sam.deployment.DeploymentUnit;
@@ -65,14 +66,14 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
             return getImpls();
         Set<Implementation> ret = new HashSet<Implementation>();
         for (Implementation impl : implems) {
-            if (goal.match((AttributesImpl) impl.getProperties()))
+            if (impl.match(goal))
                 ret.add(impl);
         }
         return ret;
     }
 
 //    @Override
-    public Implementation addImpl(CompositeType compo, ApformImplementation apfImpl, Attributes properties) {
+    public Implementation addImpl(CompositeType compo, ApformImplementation apfImpl, Map<String, Object> properties) {
         if ((apfImpl == null) || (compo == null)) {
             System.err.println("ERROR : missing apf Implementaion or composite in addImpl");
             return null;
@@ -142,7 +143,7 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
 //    }
 
     @Override
-    public Implementation createImpl(CompositeType compo, String implName, URL url, Attributes properties) {
+    public Implementation createImpl(CompositeType compo, String implName, URL url, Map<String, Object> properties) {
 
         if (url == null)
             return null;

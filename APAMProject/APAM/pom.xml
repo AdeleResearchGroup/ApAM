@@ -126,24 +126,11 @@
 			<artifactId>stax-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.sam</groupId>
-			<artifactId>ServiceAbstractMachine-API
-			</artifactId>
-		</dependency>
-		<dependency>
-                <groupId>fr.imag.adele.sam</groupId>
-                <artifactId>ServiceConcreteMachine-API
-                </artifactId>
-        </dependency>
-        
         <dependency>
                 <groupId>fr.imag.adele.sam</groupId>
                 <artifactId>SAM-Deployment-Core-API
                 </artifactId>
-        </dependency>
-        
-        
+        </dependency>              
         <dependency>
             <groupId>fr.imag.adele.am</groupId>
             <artifactId>AbstractMachine-API</artifactId>

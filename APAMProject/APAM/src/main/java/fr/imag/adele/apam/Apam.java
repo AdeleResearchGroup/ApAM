@@ -2,14 +2,15 @@ package fr.imag.adele.apam;
 
 import java.net.URL;
 import java.util.Collection;
-import java.util.List;
+//import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.Filter;
+//import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apamImpl.ManagerModel;
-import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.sam.Implementation;
+//import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.sam.Implementation;
 
 public interface Apam {
 
@@ -25,7 +26,7 @@ public interface Apam {
      */
 
     public CompositeType createCompositeType(String compositeTypeName, String mainImplName,
-            Set<ManagerModel> models, Attributes attributes);
+            Set<ManagerModel> models, Map<String, Object> attributes);
 
     /**
      * Creates an isolated composite type.
@@ -45,7 +46,7 @@ public interface Apam {
      * @param attributes optional : the initial properties to associate with this composite type (as an implementation).
      */
     public CompositeType createCompositeType(String compositeTypeName, String mainImplName, Set<ManagerModel> models,
-            URL bundle, String specName, Attributes properties);
+            URL bundle, String specName, Map<String, Object> properties);
 
     /**
      * Return the composite type of that name, if existing. Null otherwise.

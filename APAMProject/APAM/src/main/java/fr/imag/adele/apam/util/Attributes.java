@@ -44,15 +44,15 @@ public interface Attributes {
      */
     public void setProperty(String key, Object value);
 
-    /**
-     * Same as previous method, but if the manager is registered, the changes are accepted without check, and sent to
-     * SAM.
-     * 
-     * @param manager
-     * @param key
-     * @param value
-     */
-    public void setProperty(Manager manager, String key, Object value);
+//    /**
+//     * Same as previous method, but if the manager is registered, the changes are accepted without check, and sent to
+//     * SAM.
+//     * 
+//     * @param manager
+//     * @param key
+//     * @param value
+//     */
+//    public void setProperty(Manager manager, String key, Object value);
 
     /**
      * The method is called by Apam managers (when creating ASM entities for example). The method checks which
@@ -66,14 +66,13 @@ public interface Attributes {
      */
     public void setProperties(Map<String, Object> properties);
 
-    /**
-     * Same as previous method, but if the manager is registered, the changes are accepted without check, and sent to
-     * SAM.
-     * 
-     * @param manager
-     * @param properties
-     */
-    public void setProperties(Manager manager, Map<String, Object> properties);
+//    /**
+//     * Same as previous method, but if the manager is registered, the changes are accepted without check
+//     * 
+//     * @param manager
+//     * @param properties
+//     */
+//    public void setProperties(Manager manager, Map<String, Object> properties);
 
 //    /**
 //     * Called when SAM notifies that the properties of an instance have been changed. The method checks which attributes

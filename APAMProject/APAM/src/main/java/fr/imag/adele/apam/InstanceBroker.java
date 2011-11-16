@@ -1,6 +1,7 @@
 package fr.imag.adele.apam;
 
 //import java.util.Properties;
+import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -21,7 +22,7 @@ public interface InstanceBroker {
      * @param properties . optional : the initial properties
      * @return an ASM Instance
      */
-    public Instance addInst(Composite compo, ApformInstance apformInst, Attributes properties);
+    public Instance addInst(Composite compo, ApformInstance apformInst, Map properties);
 
     /**
      * returns the APAM instance related to the provided sam Instance.

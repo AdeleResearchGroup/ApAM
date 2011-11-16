@@ -3,8 +3,11 @@ package fr.imag.adele.apam.apamImpl;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -25,23 +28,24 @@ import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.Instance;
 //import fr.imag.adele.sam.broker.ImplementationBroker;
 
-public class ImplementationImpl extends AttributesImpl implements Implementation {
+public class ImplementationImpl extends ConcurrentHashMap<String, Object> implements Implementation {
 
-    protected final Set<Implementation>       uses              = new HashSet<Implementation>();      // all relations uses
-    protected final Set<Implementation>       invUses           = new HashSet<Implementation>();      // all reverse relations uses
+    protected final Set<Implementation> uses              = new HashSet<Implementation>(); // all relations uses
+    protected final Set<Implementation> invUses           = new HashSet<Implementation>(); // all reverse relations uses
 
-    protected final Set<CompositeType> inComposites      = new HashSet<CompositeType>(); // composite it is contained
-                                                                                         // in.
+    protected final Set<CompositeType>  inComposites      = new HashSet<CompositeType>(); // composite it is contained
+                                                                                           // in.
 
-    protected String                   name;
-    protected Specification                  mySpec;
-    protected ApformImplementation     apfImpl           = null;
-    protected boolean                  used              = false;
+    protected String                    name;
+    protected Specification             mySpec;
+    protected ApformImplementation      apfImpl           = null;
+    protected boolean                   used              = false;
 
-    protected Set<Instance>             instances         = new HashSet<Instance>();      // the instances of that impl.
+    protected Set<Instance>             instances         = new HashSet<Instance>();      // the instances of that
+                                                                                           // impl.
     protected Set<Instance>             sharableInstances = new HashSet<Instance>();      // the sharable instances of
 
-    protected Set<DependencyModel>     dependencyModel;                                 // The dependencies of that
+    protected Set<DependencyModel>      dependencyModel;                                  // The dependencies of that
 
     /**
      * Instantiate a new service implementation.
@@ -56,7 +60,8 @@ public class ImplementationImpl extends AttributesImpl implements Implementation
 
     }
 
-    public ImplementationImpl(CompositeType compo, SpecificationImpl spec, ApformImplementation impl, Attributes props) {
+    public ImplementationImpl(CompositeType compo, SpecificationImpl spec, ApformImplementation impl,
+            Map<String, Object> props) {
         if (impl == null) {
             new Exception("Sam ApformImplementation cannot be null when creating an imple").printStackTrace();
         }
@@ -79,14 +84,14 @@ public class ImplementationImpl extends AttributesImpl implements Implementation
         this.name = name;
     }
 
-    public void initializeNewImpl(CompositeType compo, Attributes props) {
+    public void initializeNewImpl(CompositeType compo, Map<String, Object> props) {
         // myComposites.add(compo);
         compo.addImpl(this);
         if (props != null) {
-            this.setProperties(props.getProperties());
+            putAll(props);
         }
-        setProperty(Attributes.APAMCOMPO, compo.getName());
-        dependencyModel = (Set<DependencyModel>) getProperty(CST.A_DEPENDENCIES);
+        put(CST.A_COMPOSITE, compo.getName());
+        dependencyModel = (Set<DependencyModel>) get(CST.A_DEPENDENCIES);
         // initialize properties. A fusion of SAM and APAM values
 //        try {
 //            this.setProperties(Util.mergeProperties(this, props, getSamImpl().getProperties()));
@@ -114,16 +119,28 @@ public class ImplementationImpl extends AttributesImpl implements Implementation
      * @throws ConnectionException
      */
     @Override
-    public Instance createInst(Composite instCompo, Attributes initialproperties) {
-        if ((getProperty(CST.A_INSTANTIABLE) != null) && getProperty(CST.A_INSTANTIABLE).equals(CST.V_FALSE)) {
+    public Instance createInst(Composite instCompo, Map<String, Object> initialproperties) {
+        if ((get(CST.A_INSTANTIABLE) != null) && get(CST.A_INSTANTIABLE).equals(CST.V_FALSE)) {
             System.out.println("Implementation " + this + " is not instantiable");
             return null;
         }
         ApformInstance apfInst = apfImpl.createInstance(initialproperties);
         // if it is a composite. Not sure it is ever caller here.
-        boolean composite = ((getProperty(CST.A_COMPOSITE) != null) && getProperty(CST.A_COMPOSITE).equals(CST.V_TRUE));
+        boolean composite = ((get(CST.A_COMPOSITE) != null) && get(CST.A_COMPOSITE).equals(CST.V_TRUE));
         InstanceImpl inst = new InstanceImpl(this, instCompo, initialproperties, apfInst, composite);
         return inst;
+    }
+
+    @Override
+    public boolean match(Filter goal) {
+        if (goal == null)
+            return false;
+        try {
+            return ((FilterImpl) goal).matchCase(this);
+            // return goal.match((AttributesImpl) getProperties());
+        } catch (Exception e) {
+        }
+        return false;
     }
 
     // WARNING : no control ! Only called by the instance Broker.
@@ -293,7 +310,7 @@ public class ImplementationImpl extends AttributesImpl implements Implementation
      */
     @Override
     public String getVisible() {
-        String visible = (String) getProperty(CST.A_VISIBLE);
+        String visible = (String) get(CST.A_VISIBLE);
         if (visible == null)
             visible = CST.V_GLOBAL;
 //        String compoVisible;
@@ -307,7 +324,7 @@ public class ImplementationImpl extends AttributesImpl implements Implementation
 
     @Override
     public String getShared() {
-        String shared = (String) getProperty(CST.A_SHARED);
+        String shared = (String) get(CST.A_SHARED);
         if (shared == null)
             shared = CST.V_TRUE;
         return shared;
@@ -397,7 +414,7 @@ public class ImplementationImpl extends AttributesImpl implements Implementation
 
     @Override
     public boolean isInstantiable() {
-        String instantiable = (String) getProperty(CST.A_INSTANTIABLE);
+        String instantiable = (String) get(CST.A_INSTANTIABLE);
         return (instantiable == null) ? true : instantiable.equals(CST.V_TRUE);
     }
 
@@ -408,7 +425,7 @@ public class ImplementationImpl extends AttributesImpl implements Implementation
 
     @Override
     public Set<DependencyModel> getDependencies() {
-        Set<DependencyModel> deps = (Set<DependencyModel>) getProperty(CST.A_DEPENDENCIES);
+        Set<DependencyModel> deps = (Set<DependencyModel>) get(CST.A_DEPENDENCIES);
         if (deps == null)
             return Collections.EMPTY_SET;
         return deps;

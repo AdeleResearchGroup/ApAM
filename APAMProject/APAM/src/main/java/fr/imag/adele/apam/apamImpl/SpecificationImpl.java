@@ -4,7 +4,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -12,19 +15,19 @@ import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.AttributesImpl;
+//import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.util.Util;
 
 //import fr.imag.adele.sam.ApformSpecification;
 
-public class SpecificationImpl extends AttributesImpl implements Specification {
+public class SpecificationImpl extends ConcurrentHashMap<String, Object> implements Specification {
 
-    private String              name;
+    private String                    name;
     // private final CompositeOLD myComposite;
-    private ApformSpecification apfSpec         = null;
-    private final Set<Implementation>  implementations = new HashSet<Implementation>();
-    private String[]            interfaces;
+    private ApformSpecification       apfSpec         = null;
+    private final Set<Implementation> implementations = new HashSet<Implementation>();
+    private String[]                  interfaces;
 
     private final Set<Specification>  requires        = new HashSet<Specification>(); // all relations requires
     private final Set<Specification>  invRequires     = new HashSet<Specification>(); // all reverse relations requires
@@ -34,7 +37,8 @@ public class SpecificationImpl extends AttributesImpl implements Specification {
 
     // private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
 
-    public SpecificationImpl(String specName, ApformSpecification apfSpec, String[] interfaces, Attributes props) {
+    public SpecificationImpl(String specName, ApformSpecification apfSpec, String[] interfaces,
+            Map<String, Object> props) {
         if (((specName == null) && (apfSpec == null))) {
             new Exception("Both spec name and apfSpec are null in spec constructor").printStackTrace();
             return;
@@ -51,7 +55,7 @@ public class SpecificationImpl extends AttributesImpl implements Specification {
         }
         ((SpecificationBrokerImpl) CST.SpecBroker).addSpec(this);
         if (props != null)
-            setProperties(props.getProperties());
+            putAll(props);
 //        try {
 //            if (props == null) {
 //                props = new AttributesImpl();
@@ -134,7 +138,7 @@ public class SpecificationImpl extends AttributesImpl implements Specification {
             return getImpls();
         Set<Implementation> ret = new HashSet<Implementation>();
         for (Implementation impl : implementations) {
-            if (filter.match((AttributesImpl) impl.getProperties())) {
+            if (impl.match(filter)) {
                 ret.add(impl);
             }
         }
@@ -228,7 +232,7 @@ public class SpecificationImpl extends AttributesImpl implements Specification {
         Set<Implementation> ret = new HashSet<Implementation>();
         for (Implementation impl : implementations) {
             for (Filter filter : constraints) {
-                if (filter.match((AttributesImpl) impl.getProperties())) {
+                if (impl.match(filter)) {
                     ret.add(impl);
                 }
             }
@@ -243,7 +247,7 @@ public class SpecificationImpl extends AttributesImpl implements Specification {
         Set<Implementation> ret = new HashSet<Implementation>();
         for (Implementation impl : candidates) {
             for (Filter filter : constraints) {
-                if (filter.match((AttributesImpl) impl)) {
+                if (impl.match(filter)) {
                     ret.add(impl);
                 }
             }
@@ -277,7 +281,7 @@ public class SpecificationImpl extends AttributesImpl implements Specification {
         for (Implementation impl : candidates) {
             int match = 0;
             for (Filter filter : preferences) {
-                if (!filter.match((AttributesImpl) impl))
+                if (!impl.match(filter))
                     break;
                 match++;
             }
@@ -288,6 +292,18 @@ public class SpecificationImpl extends AttributesImpl implements Specification {
         }
         System.out.println("   Selected : " + winner);
         return winner;
+    }
+
+    @Override
+    public boolean match(Filter goal) {
+        if (goal == null)
+            return false;
+        try {
+            return ((FilterImpl) goal).matchCase(this);
+            // return goal.match((AttributesImpl) getProperties());
+        } catch (Exception e) {
+        }
+        return false;
     }
 
 }

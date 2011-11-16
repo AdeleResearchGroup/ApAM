@@ -53,6 +53,8 @@ public class CST {
     public static final String         CAPABILITY_INTERFACE  = "apam-interface";
     // Value boolean
     public static final String         A_COMPOSITE           = "apam-composite";
+    // string
+    public static final String         A_APAMAPPLI           = "ApamApplication";
     // String
     public static final String         A_MAIN_IMPLEMENTATION = "apam-main-implementation";
 

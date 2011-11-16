@@ -330,7 +330,7 @@ public class ApamCommand {
         for (Specification spec : specification.getRequires()) {
             System.out.println(indent + "      " + spec);
         }
-        printProperties(indent + "   ", specification.getProperties());
+        printProperties(indent + "   ", specification);
 
     }
 
@@ -380,7 +380,7 @@ public class ApamCommand {
             System.out.println(indent + "   implementation : " + instance.getImpl());
             System.out.println(indent + "   in composite   : " + instance.getComposite());
             System.out.println(indent + "   in application : " + instance.getRootComposite());
-            printProperties(indent + "   ", instance.getProperties());
+            printProperties(indent + "   ", instance);
         }
 
     }
@@ -429,7 +429,7 @@ public class ApamCommand {
         for (Instance inst : impl.getInsts()) {
             System.out.println(indent + "      " + inst);
         }
-        printProperties(indent + "   ", impl.getProperties());
+        printProperties(indent + "   ", impl);
     }
 
     /**

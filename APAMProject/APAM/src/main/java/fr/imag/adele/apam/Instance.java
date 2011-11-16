@@ -1,6 +1,7 @@
 package fr.imag.adele.apam;
 
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 import org.osgi.framework.Filter;
 
@@ -8,7 +9,7 @@ import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.util.Attributes;
 
-public interface Instance extends Attributes {
+public interface Instance extends ConcurrentMap<String, Object> {
 
     /**
      * Returns the composite to which this instance pertains.
