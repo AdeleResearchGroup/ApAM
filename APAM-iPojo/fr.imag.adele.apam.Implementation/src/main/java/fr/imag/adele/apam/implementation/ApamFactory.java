@@ -2,6 +2,7 @@ package fr.imag.adele.apam.implementation;
 
 import java.util.Dictionary;
 import java.util.HashSet;
+//import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -29,7 +30,8 @@ import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.instance.ApamComponentInstance;
-import fr.imag.adele.apam.util.Attributes;
+
+//import fr.imag.adele.apam.util.Attributes;
 
 public class ApamFactory extends ComponentFactory implements ApformImplementation {
 
@@ -452,15 +454,16 @@ public class ApamFactory extends ComponentFactory implements ApformImplementatio
      * Apform: create an instance
      */
     @Override
-    public ApformInstance createInstance(Attributes initialproperties) {
+    public ApformInstance createInstance(Map<String, Object> initialproperties) {
         try {
 
             ApamComponentInstance instance = null;
 
             try {
                 insideApamCall.set(true);
-                Properties configuration = initialproperties != null ? initialproperties.attr2Properties()
-                        : new Properties();
+                Properties configuration = new Properties();
+                if (initialproperties != null)
+                    configuration.putAll(initialproperties);
                 instance = (ApamComponentInstance) createComponentInstance(configuration);
             } finally {
                 insideApamCall.set(false);
