@@ -32,7 +32,7 @@
           			<instructions>
 	       				<Export-Package>fr.imag.adele.apam.implementation.*,fr.imag.adele.apam.instance.*</Export-Package>
 			            <IPOJO-Extension>
-							implementation:fr.imag.adele.apam.implementation.Implementation
+							implementation:fr.imag.adele.apam.implementation.ApamFactory
 							<!--
 							TODO : In iPojo 1.8.0 component type extension identifiers are matched without considering
 							the namespace.
