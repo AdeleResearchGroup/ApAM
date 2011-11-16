@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   
   <groupId>fr.imag.adele.apam</groupId>
-  <artifactId>Implementation</artifactId>
+  <artifactId>ApamFactory</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>bundle</packaging>
     
-  <name>APAM Implementation</name>
+  <name>APAM Factory</name>
   <description>Handle runtime definition of APAM implementations</description>
   
   
