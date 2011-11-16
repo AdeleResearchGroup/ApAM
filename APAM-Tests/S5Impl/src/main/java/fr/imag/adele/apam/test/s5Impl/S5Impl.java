@@ -20,8 +20,8 @@ public class S5Impl implements S5, ApamComponent {
 
     @Override
     public void apamStart(Instance apamInstance) {
-        apamInstance.getComposite().getCompType().setProperty(CST.A_INTERNALINST, CST.V_TRUE);
-        apamInstance.getComposite().getCompType().setProperty(CST.A_INTERNALIMPL, CST.V_TRUE);
+        apamInstance.getComposite().getCompType().put(CST.A_INTERNALINST, CST.V_TRUE);
+        apamInstance.getComposite().getCompType().put(CST.A_INTERNALIMPL, CST.V_TRUE);
         System.out.println("set INTERNAL of S5CompEx to true.");
     }
 

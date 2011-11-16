@@ -1,6 +1,8 @@
 package fr.imag.adele.apam.mainApam;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.Instance;
@@ -10,8 +12,8 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.test.s1.S1;
 import fr.imag.adele.apam.test.s5.S5;
-import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.AttributesImpl;
+//import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.AttributesImpl;
 
 public class MainApam implements Runnable, intTestApam {
     // iPOJO injected
@@ -43,13 +45,13 @@ public class MainApam implements Runnable, intTestApam {
 
         // setting visibilities
         // composite a3 should not be shared
-        a3.setProperty(CST.A_SHARED, CST.V_FALSE);
+        a3.put(CST.A_SHARED, CST.V_FALSE);
         Composite s2Compo0 = apam.getComposite("S2Compo-0");
         if (s2Compo0 == null)
             System.err.println("s2Compo-0 is null ??!!");
-        s2Compo0.setProperty(CST.A_SHARED, CST.V_FALSE);
+        s2Compo0.put(CST.A_SHARED, CST.V_FALSE);
 
-        Attributes props = new AttributesImpl();
+        Map<String, Object> props = new HashMap<String, Object>();
 
         /* This properties have been declared in the S2Compo metadata definition
          * 
@@ -76,16 +78,16 @@ public class MainApam implements Runnable, intTestApam {
         s11.callS1("createAppli-2");
 
         // properties for S2Compo instances. A different instance for each use.
-        props.setProperty(CST.A_LOCALSCOPE, new String[] { ".*" });
-        props.setProperty(CST.A_INTERNALINST, CST.V_TRUE);
+        props.put(CST.A_LOCALSCOPE, new String[] { ".*" });
+        props.put(CST.A_INTERNALINST, CST.V_TRUE);
         // for s2Compo type
-        props.setProperty(CST.A_LOCALVISIBLE, new String[] { "S*Impl*" });
-        props.setProperty(CST.A_INTERNALIMPL, CST.V_TRUE);
+        props.put(CST.A_LOCALVISIBLE, new String[] { "S*Impl*" });
+        props.put(CST.A_INTERNALIMPL, CST.V_TRUE);
 
         // CompositeType s2Compo = apam.getCompositeType("S2Compo");
         if (s2Compo == null)
             System.err.println("s2Compos is null ??!!");
-        s2Compo.setProperties(props.getProperties());
+        s2Compo.putAll(props);
 
         System.out.println("\n\n\n== troisieme exec ===");
         a3 = appli3.createInst(null /* composite */, null/* properties */);

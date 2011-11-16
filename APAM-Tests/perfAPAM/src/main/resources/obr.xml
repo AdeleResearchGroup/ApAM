@@ -1,7 +1,7 @@
 <obr> 
    <capability name='apam-component'>
       <p n='name' v='TestApam' />
-      <p n='shared' v='FALSE' />
+      <p n='shared' v='false' />
       <p n='interfaces' v=';fr.imag.adele.apam.perfAPAM.Service;' />
    </capability>
    <capability name='apam-component'>
