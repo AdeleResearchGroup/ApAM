@@ -363,7 +363,8 @@ public class ApamResolver {
      *            number of preferences, taken in the order, and stopping at the first failure.
      * @return
      */
-    public static Implementation resolveSpecByName(CompositeType compoTypeFrom, String specName, Set<Filter> constraints,
+    public static Implementation resolveSpecByName(CompositeType compoTypeFrom, String specName,
+            Set<Filter> constraints,
             List<Filter> preferences) {
         if (constraints == null)
             constraints = new HashSet<Filter>();
@@ -460,7 +461,8 @@ public class ApamResolver {
      *            maximum
      * @return
      */
-    public static Instance resolveImpl(Composite compo, Implementation impl, Set<Filter> constraints, List<Filter> preferences) {
+    public static Instance resolveImpl(Composite compo, Implementation impl, Set<Filter> constraints,
+            List<Filter> preferences) {
         if (constraints == null)
             constraints = new HashSet<Filter>();
         if (preferences == null)
@@ -545,13 +547,14 @@ public class ApamResolver {
      * @param inst
      * @param insts
      */
-    public static void notifySelection(Instance client, String resName, String depName, Implementation impl, Instance inst,
+    public static void notifySelection(Instance client, String resName, String depName, Implementation impl,
+            Instance inst,
             Set<Instance> insts) {
         for (Manager manager : APAMImpl.managerList) {
-            System.out.print("  " + manager.getName());
+//            System.out.print("  notify to : " + manager.getName());
             manager.notifySelection(client, resName, depName, impl, inst, insts);
         }
-        System.out.println("");
+//        System.out.println("");
     }
 
 }

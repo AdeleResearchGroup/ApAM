@@ -303,7 +303,7 @@ public class OBRMan implements Manager, IOBRMAN {
                     try {
                         filter = FilterImpl.newInstance(constraint.toString());
                         if (!filter.matchCase(map)) {
-                            System.out.println("contraint not matched : " + constraint);
+                            System.out.println("constraint not matched : " + constraint);
                             return false;
                         }
                     } catch (InvalidSyntaxException e) {
