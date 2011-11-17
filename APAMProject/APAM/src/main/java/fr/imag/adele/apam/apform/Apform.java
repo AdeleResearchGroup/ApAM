@@ -28,8 +28,6 @@ public class Apform {
     static Set<Instance>                     unusedInsts           = CompositeImpl.getRootAllComposites()
                                                                           .getContainInsts();
 
-    public static Set<String>               expectedImpls         = new HashSet<String>();
-
     // The managers are waiting for the apparition of an instance of the ASMImpl or implementing the interface
     // In both case, no ASMInst is created.
     static Map<String, Set<DynamicManager>> expectedMngImpls      = new HashMap<String, Set<DynamicManager>>();
@@ -98,22 +96,13 @@ public class Apform {
         Implementation impl = CST.ImplBroker.getImpl(expectedImpl);
         if (impl != null)
             return impl;
-        Apform.expectedImpls.add(expectedImpl);
-        // not yet here. Wait for it.
-        synchronized (Apform.expectedImpls) {
-
-            try {
-                while (Apform.expectedImpls.contains(expectedImpl)) {
-                    Apform.expectedImpls.wait();
-                }
-                // The expected impl arrived. It is in unUsed.
-                impl = CST.ImplBroker.getImpl(expectedImpl);
-                if (impl == null) // should never occur
-                    System.out.println("wake up but imlementation is not present " + expectedImpl);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        
+        Apform2Apam.waitForImplementation(expectedImpl);
+        // The expected impl arrived. It is in unUsed.
+        impl = CST.ImplBroker.getImpl(expectedImpl);
+        if (impl == null) // should never occur
+           System.out.println("wake up but imlementation is not present " + expectedImpl);
+        
         return impl;
     }
 
