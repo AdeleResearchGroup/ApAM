@@ -12,7 +12,7 @@
   
   	<modules>
 		<module>fr.imag.adele.apam.Specification</module>
-		<module>fr.imag.adele.apam.Implementation</module>
+		<module>fr.imag.adele.apam.ApamFactory</module>
 		<module>fr.imag.adele.apam.Composite</module>
 		<module>fr.imag.adele.apam.dependency</module>
 	</modules>
