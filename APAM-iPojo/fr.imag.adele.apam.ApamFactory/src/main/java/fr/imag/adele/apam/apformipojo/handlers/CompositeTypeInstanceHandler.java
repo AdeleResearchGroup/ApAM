@@ -18,7 +18,7 @@ import fr.imag.adele.apam.apformipojo.ImplementationHandler;
  * @author vega
  * 
  */
-public class CompositeTypeInstancePropertiesHandler extends ImplementationHandler {
+public class CompositeTypeInstanceHandler extends ImplementationHandler {
 
     /**
      * Configuration element to handle APAM composite contextual implementation properties
@@ -55,7 +55,7 @@ public class CompositeTypeInstancePropertiesHandler extends ImplementationHandle
 
     private static final void addProperty(ApformIpojoImplementation.Description implementationDescription, String name,
             String value) {
-        CompositeTypeInstancePropertiesHandler.addProperty(implementationDescription, name, value, String.class
+        CompositeTypeInstanceHandler.addProperty(implementationDescription, name, value, String.class
                 .getName());
     }
 
@@ -85,7 +85,7 @@ public class CompositeTypeInstancePropertiesHandler extends ImplementationHandle
          */
 
         Element propertiesDeclarations[] = componentMetadata.getElements(
-                CompositeTypeInstancePropertiesHandler.INSTANCES_DECLARATION, ImplementationHandler.APAM_NAMESPACE);
+                CompositeTypeInstanceHandler.INSTANCES_DECLARATION, ImplementationHandler.APAM_NAMESPACE);
 
         if (!ImplementationHandler.isSingleton(propertiesDeclarations))
             throw new ConfigurationException("APAM composite type properties "
@@ -98,26 +98,26 @@ public class CompositeTypeInstancePropertiesHandler extends ImplementationHandle
          * Handle APAM composite type specific properties
          */
         String internal = ImplementationHandler.booleanValue(propertiesDeclaration
-                .getAttribute(CompositeTypeInstancePropertiesHandler.PROPERTY_COMPOSITE_INTERNAL));
+                .getAttribute(CompositeTypeInstanceHandler.PROPERTY_COMPOSITE_INTERNAL));
         if (internal != null)
-            CompositeTypeInstancePropertiesHandler.addProperty(compositeTypeDescription, CST.A_INTERNALINST, internal);
+            CompositeTypeInstanceHandler.addProperty(compositeTypeDescription, CST.A_INTERNALINST, internal);
 
         String local = propertiesDeclaration
-                .getAttribute(CompositeTypeInstancePropertiesHandler.PROPERTY_COMPOSITE_LOCAL_SCOPE);
+                .getAttribute(CompositeTypeInstanceHandler.PROPERTY_COMPOSITE_LOCAL_SCOPE);
         if (local != null)
-            CompositeTypeInstancePropertiesHandler.addProperty(compositeTypeDescription, CST.A_LOCALSCOPE, local,
+            CompositeTypeInstanceHandler.addProperty(compositeTypeDescription, CST.A_LOCALSCOPE, local,
                     "String[]");
 
         String composite = propertiesDeclaration
-                .getAttribute(CompositeTypeInstancePropertiesHandler.PROPERTY_COMPOSITE_COMPOSITE_SCOPE);
+                .getAttribute(CompositeTypeInstanceHandler.PROPERTY_COMPOSITE_COMPOSITE_SCOPE);
         if (composite != null)
-            CompositeTypeInstancePropertiesHandler.addProperty(compositeTypeDescription, CST.A_COMPOSITESCOPE,
+            CompositeTypeInstanceHandler.addProperty(compositeTypeDescription, CST.A_COMPOSITESCOPE,
                     composite, "String[]");
 
         String appli = propertiesDeclaration
-                .getAttribute(CompositeTypeInstancePropertiesHandler.PROPERTY_COMPOSITE_APPLI_SCOPE);
+                .getAttribute(CompositeTypeInstanceHandler.PROPERTY_COMPOSITE_APPLI_SCOPE);
         if (appli != null)
-            CompositeTypeInstancePropertiesHandler.addProperty(compositeTypeDescription, CST.A_APPLISCOPE, appli,
+            CompositeTypeInstanceHandler.addProperty(compositeTypeDescription, CST.A_APPLISCOPE, appli,
                     "String[]");
 
     }
