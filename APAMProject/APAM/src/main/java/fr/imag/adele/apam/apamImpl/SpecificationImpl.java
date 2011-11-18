@@ -37,6 +37,11 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
 
     // private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
 
+    @Override
+    public boolean equals(Object o) {
+        return (this == o);
+    }
+
     public SpecificationImpl(String specName, ApformSpecification apfSpec, String[] interfaces,
             Map<String, Object> props) {
         if (((specName == null) && (apfSpec == null))) {

@@ -122,6 +122,7 @@ public class InstanceBrokerImpl implements InstanceBroker {
         inst = CST.InstBroker.getInst(apfInst.getName());
         if (inst != null) { // allready existing ! May have been created by
             // DYNAMAN, without all parameters
+            System.err.println("Instance already existing: " + inst);
             return inst;
         }
         impl = CST.ImplBroker.getImpl(apfInst.getImplemName());
@@ -131,8 +132,7 @@ public class InstanceBrokerImpl implements InstanceBroker {
 //                        apfInst.getImplemName(), properties);
         }
 
-        // Normally composite implementations are visible by SAM, but they can not be instantiated.
-        // Their iPojo instances (although allowed) are not visible in the OSGi registry or by SAM.
+        // Normally composite implementations are visible but they can not be instantiated.
         // The only way to create an instance of a composite should be using APAM.
         if (impl instanceof CompositeType) {
             System.err.println("Error, trying to activate composite instance " + impl
@@ -153,22 +153,6 @@ public class InstanceBrokerImpl implements InstanceBroker {
                 sharableInstances.add(inst);
         }
     }
-
-//    @Override
-//    public synchronized ASMInst getInst(Instance samInst) {
-//        if (samInst == null)
-//            return null;
-//        String samName = samInst.getName();
-//        // Warning : for a composite both the composite and the main instance refer to the same sam instance
-//        for (ASMInst inst : instances) {
-//            if ((inst.getApformInst() == samInst) && !inst.getName().equals(samName)) {
-//                System.err.println("error in name " + samName);
-//            }
-//            if (inst.getName().equals(samName))
-//                return inst;
-//        }
-//        return null;
-//    }
 
     @Override
     public void removeInst(Instance inst) {

@@ -60,6 +60,16 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
 
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return (this == o);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
     public ImplementationImpl(CompositeType compo, SpecificationImpl spec, ApformImplementation impl,
             Map<String, Object> props) {
         if (impl == null) {
@@ -79,7 +89,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
 
     }
 
-    // warning : for setting composite name, which is different from sam name.
+    // warning : for setting composite name, which is different from Apform name.
     public void setName(String name) {
         this.name = name;
     }

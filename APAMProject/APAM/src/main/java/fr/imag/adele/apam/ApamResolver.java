@@ -297,24 +297,21 @@ public class ApamResolver {
             System.out.println(" : selected " + impl);
             return;
         }
+        // it is deployed
 
-        if (!impl.isUsed()) {
-            System.out.println(" : deployed " + impl);
-        } else {
-            System.out.println("Logicaly deployed " + impl);
-        }
-
-        // it was unused so far. Remove it from unused
-        if (!impl.isUsed()) {
-            Apform.setUsedImpl(impl);
-        }
         // impl is inside compotype
         compoType.addImpl(impl);
-        // if impl is a composite type, it is embedded inside compoFrom
-        if (impl instanceof CompositeType) { // it is a composite
-            ((CompositeTypeImpl) compoType).addEmbedded((CompositeType) impl);
+
+        if (impl.isUsed()) {
+            System.out.println("Logicaly deployed " + impl);
+        } else {// it was unused so far.
+            Apform.setUsedImpl(impl); // Remove it from unused
+            if (impl instanceof CompositeType) { // it is a composite type
+                // if impl is a composite type, it is embedded inside compoFrom
+                ((CompositeTypeImpl) compoType).addEmbedded((CompositeType) impl);
+            }
+            System.out.println("   deployed " + impl);
         }
-        // }
     }
 
     /**

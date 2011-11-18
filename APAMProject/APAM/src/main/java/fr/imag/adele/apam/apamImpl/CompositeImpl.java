@@ -53,6 +53,8 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
         // initialize as a composite
         this.compType = compType;
+        name = ((CompositeTypeImpl) compType).getNewInstName();
+
         mainImpl = compType.getMainImpl();
 
         // if it is a composite created from an unused inst that calls Apam
@@ -62,7 +64,6 @@ public class CompositeImpl extends InstanceImpl implements Composite {
             externalMainInst = compType.getMainImpl().createInst(this, initialproperties);
         }
         mainInst = externalMainInst;
-        name = ((CompositeTypeImpl) compType).getNewInstName();
 
         // instCompo is both the father, and the composite that contains the new one, seen as a usual ASMInst.
         ((CompositeImpl) instCompo).addSon(this);

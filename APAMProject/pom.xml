@@ -311,8 +311,8 @@
 		<module>ApamCommand</module>
 		<module>OBRMAN</module>
 		<module>ApamMavenPlugIn</module>
+		<module>ApformIpojo</module>
 		<module>CONFMAN</module>
-		<module>SAMMAN</module>
 		<module>DYNAMAN</module>
 		<module>DISTRIMAN</module>
 	</modules>

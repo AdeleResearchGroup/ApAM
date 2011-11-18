@@ -46,6 +46,16 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     public InstanceImpl() {
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return (this == o);
+    }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode();
+    }
+
     protected void instConstructor(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
             ApformInstance samInst) {
         if (samInst == null) {
@@ -61,13 +71,13 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         myImpl = impl;
         myComposite = instCompo;
         myComposite.addContainInst(this);
+        put("name", samInst.getName());
         put(CST.A_COMPOSITE, myComposite.getName());
         ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
     }
 
     public InstanceImpl(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
-            ApformInstance apformInst,
-            boolean composite) {
+            ApformInstance apformInst, boolean composite) {
         // Create the implementation and initialize
         instConstructor(impl, instCompo, initialproperties, apformInst);
         apformInst.setInst(this);
@@ -88,7 +98,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
 //            setProperties(Util.mergeProperties(this, initialproperties, apformInst.getProperties()));
         putAll(apformInst.getProperties());
         put(CST.A_SHARED, getShared());
-        sharable = (getShared().equals(CST.V_TRUE));
+//        sharable = (getShared().equals(CST.V_TRUE));
 
         if ((instCompo != null) && (apformInst.getServiceObject() instanceof ApamComponent))
             ((ApamComponent) apformInst.getServiceObject()).apamStart(this);
@@ -187,6 +197,9 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         if (!to.isUsed()) {
             Apform.setUsedInst(to);
             getComposite().addContainInst(to);
+        }
+        if (to instanceof Composite) {
+            Apform.setUsedInst(((Composite) to).getMainInst());
         }
 
         // Other relationships to instantiate

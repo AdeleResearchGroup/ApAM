@@ -76,6 +76,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             Set<ManagerModel> models, Map<String, Object> attributes, String specName) {
         // the composite itself as an ASMImpl. Warning created empty. Must be fully initialized.
         super();
+        name = compositeName;
+
         // The main implem resolution must be interpreted with the new models
         if (models != null) {
             Manager man;
@@ -103,7 +105,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         ((SpecificationImpl) mySpec).addImpl(this);
         apfImpl = mainImpl.getApformImpl();
         this.mainImpl = mainImpl;
-        name = compositeName;
+
         ((ImplementationImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
         if (attributes != null)
             putAll(attributes);
