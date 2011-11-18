@@ -15,8 +15,16 @@
 
 -->
 <ipojo>
-	<handler classname="fr.imag.adele.apam.implementation.handler.properties.PropertiesHandler"
+	<handler classname="fr.imag.adele.apam.apformipojo.handlers.PropertiesHandler"
 		name="properties" namespace="fr.imag.adele.apam">
 	</handler>
-
+	<handler classname="fr.imag.adele.apam.apformipojo.handlers.DependencyHandler"
+		name="dependency" namespace="fr.imag.adele.apam">
+	</handler>
+	<handler classname="fr.imag.adele.apam.apformipojo.handlers.CompositeTypeImplementationHandler"
+		name="implementations" namespace="fr.imag.adele.apam">
+	</handler>
+	<handler classname="fr.imag.adele.apam.apformipojo.handlers.CompositeTypeInstanceHandler"
+		name="instances" namespace="fr.imag.adele.apam">
+	</handler>
 </ipojo>
