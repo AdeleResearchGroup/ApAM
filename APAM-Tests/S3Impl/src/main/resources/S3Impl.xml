@@ -21,8 +21,8 @@
 		</properties>
 	</implementation>
 	
-	<instance component="S3Impl"/>
-	<instance component="S3Impl"/>
-	<instance component="S3Impl"/>
+	<ipojo:instance component="S3Impl" name="S3Impl-instance1"/>
+	<ipojo:instance component="S3Impl" name="S3Impl-instance2"/>
+	<ipojo:instance component="S3Impl" name="S3Impl-instance3"/>
 </ipojo>
 
