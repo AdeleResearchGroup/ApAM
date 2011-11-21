@@ -107,12 +107,12 @@
 			<artifactId>org.apache.felix.ipojo</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
+<!-- 		<dependency>
 			<groupId>stax</groupId>
 			<artifactId>stax-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
-         <dependency>
+ -->         <dependency>
          	<groupId>fr.imag.adele.apam</groupId>
          	<artifactId>APAM</artifactId>
          	<version>0.0.1-SNAPSHOT</version>

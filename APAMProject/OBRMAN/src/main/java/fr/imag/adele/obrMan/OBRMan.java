@@ -322,6 +322,10 @@ public class OBRMan implements Manager, IOBRMAN {
      * @return
      */
     public boolean deployInstall(Resource res) {
+        // TODO we should put in a global and synchronized variable that we are currently deploying res.
+        // first check if res is not under deployment by another thread.
+        // and remove when the deployment is done.
+
         boolean deployed = false;
         // the events sent by iPOJO for the previous deployed bundle may interfere and
         // change the state of the local repository, which produces the IllegalStateException.
@@ -427,7 +431,8 @@ public class OBRMan implements Manager, IOBRMAN {
     }
 
     @Override
-    public Instance resolveImpl(Composite composite, Implementation impl, Set<Filter> constraints, List<Filter> preferences) {
+    public Instance resolveImpl(Composite composite, Implementation impl, Set<Filter> constraints,
+            List<Filter> preferences) {
         return null;
     }
 
