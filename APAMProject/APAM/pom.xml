@@ -27,7 +27,6 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-							<Bundle-Activator>fr.imag.adele.apam.apamImpl.APAMImpl</Bundle-Activator>
 						<Bundle-Name>${project.name}</Bundle-Name>
 						<Bundle-Description>
 							SAM Core Implementation of the API

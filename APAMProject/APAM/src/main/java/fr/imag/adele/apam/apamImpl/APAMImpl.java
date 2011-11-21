@@ -19,20 +19,21 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Manager;
 
 //import fr.imag.adele.sam.Implementation;
-import org.osgi.framework.Bundle;
+//import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.BundleActivator;
+//import org.osgi.framework.BundleException;
+//import org.osgi.framework.BundleActivator;
 
-public class APAMImpl implements Apam, BundleActivator {
+public class APAMImpl implements Apam {
 
-    public static BundleContext          context;
-    public static Manager                apamMan;
+    public static BundleContext context;
+    public static Manager       apamMan;
 
-    private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
-    public static List<Manager>          managerList  = new ArrayList<Manager>();
+//    private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
+    public static List<Manager> managerList = new ArrayList<Manager>();
 
-    public APAMImpl() {
+    public APAMImpl(BundleContext context) {
+        APAMImpl.context = context;
         new CST(this);
         APAMImpl.apamMan = new ApamMan();
         ApamManagers.addManager(APAMImpl.apamMan, -1); // -1 to be sure it is not in the main loop
@@ -102,18 +103,6 @@ public class APAMImpl implements Apam, BundleActivator {
     @Override
     public Collection<Composite> getRootComposites() {
         return CompositeImpl.getRootComposites();
-    }
-
-    @Override
-    public void start(BundleContext context) throws Exception {
-        System.out.println("loaded context");
-        APAMImpl.context = context;
-    }
-
-    @Override
-    public void stop(BundleContext context) throws Exception {
-        // TODO Auto-generated method stub
-
     }
 
 }

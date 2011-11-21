@@ -21,8 +21,8 @@ import fr.imag.adele.apam.CompositeType;
 //import fr.imag.adele.apam.apamAPI.ASMImplBroker;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.AttributesImpl;
+//import fr.imag.adele.apam.util.Attributes;
+//import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.apam.util.Util;
 //import fr.imag.adele.sam.Implementation;
 //import fr.imag.adele.sam.Instance;
@@ -212,7 +212,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
             return getInsts();
         Set<Instance> ret = new HashSet<Instance>();
         for (Instance inst : instances) {
-            if (query.match((AttributesImpl) inst))
+            if (inst.match(query))
                 ret.add(inst);
         }
         return ret;
@@ -224,7 +224,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
             return getSharableInsts();
         Set<Instance> ret = new HashSet<Instance>();
         for (Instance inst : sharableInstances) {
-            if (query.match((AttributesImpl) inst))
+            if (inst.match(query))
                 ret.add(inst);
         }
         return ret;
@@ -237,7 +237,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         Set<Instance> ret = new HashSet<Instance>();
         for (Instance inst : instances) {
             for (Filter filter : constraints) {
-                if (filter.match((AttributesImpl) inst)) {
+                if (inst.match(filter)) {
                     ret.add(inst);
                 }
             }
@@ -252,7 +252,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         Set<Instance> ret = new HashSet<Instance>();
         for (Instance inst : sharableInstances) {
             for (Filter filter : constraints) {
-                if (filter.match((AttributesImpl) inst)) {
+                if (inst.match(filter)) {
                     ret.add(inst);
                 }
             }
@@ -296,7 +296,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         for (Instance inst : candidates) {
             int match = 0;
             for (Filter filter : preferences) {
-                if (!filter.match((AttributesImpl) inst))
+                if (!inst.match(filter))
                     break;
                 match++;
             }

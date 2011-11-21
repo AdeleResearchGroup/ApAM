@@ -199,8 +199,13 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
             Apform.setUsedInst(to);
             getComposite().addContainInst(to);
         }
+        if (!isUsed())
+            Apform.setUsedInst(this);
         if (to instanceof Composite) {
             Apform.setUsedInst(((Composite) to).getMainInst());
+        }
+        if (this instanceof Composite) {
+            Apform.setUsedInst(((Composite) this).getMainInst());
         }
 
         // Other relationships to instantiate
