@@ -1,28 +1,33 @@
 package fr.imag.adele.apam.mainApam;
 
 import java.util.HashMap;
-import java.util.HashSet;
+//import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+//import java.util.Set;
 
+import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.test.s1.S1;
-import fr.imag.adele.apam.test.s5.S5;
+//import fr.imag.adele.apam.test.s5.S5;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
+//import org.osgi.framework.BundleContext;
+//import org.osgi.framework.BundleException;
+//import org.osgi.framework.BundleActivator;
 
-public class MainApam implements Runnable, intTestApam {
+public class MainApam implements Runnable, intTestApam, ApamComponent {
     // iPOJO injected
     Apam apam;
+
+//    BundleContext context;
 
     /*
      *  Apam injected
      
-
     S1 s1;
     S5 s5;
     */
@@ -102,7 +107,29 @@ public class MainApam implements Runnable, intTestApam {
         new Thread(this, "APAM test").start();
     }
 
-    public void stop() {
+//    public void stop() {
+//
+//    }
+//
+//    public void start(Instance inst) throws Exception {
+//        this.context = context;
+//        // TODO Auto-generated method stub
+//
+//    }
+//
+//    public void stop() throws Exception {
+//
+//    }
+
+    public void apamStart(Instance apamInstance) {
+        new Thread(this, "APAM test").start();
+    }
+
+    public void apamStop() {
+
+    }
+
+    public void apamRelease() {
 
     }
 }

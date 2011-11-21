@@ -25,9 +25,7 @@
 				<extensions>true</extensions>
 					<configuration>
 						<instructions>
-							<Bundle-SymbolicName>
-								${pom.artifactId}
-						</Bundle-SymbolicName>
+							<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
 						</instructions>
 					</configuration>
 			</plugin>
@@ -49,6 +47,12 @@
 		</plugins>
  	</build>
 	<dependencies>
+       <dependency>
+           <groupId>org.apache.felix</groupId>
+           <artifactId>org.osgi.core</artifactId>
+				<version>1.4.0</version>
+				<scope>provided</scope>
+       </dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>APAM</artifactId>

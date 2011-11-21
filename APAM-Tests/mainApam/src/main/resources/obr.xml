@@ -1,2 +1,6 @@
 <obr> 
+   <capability name='apam-component'>
+      <p n='name' v='MainApam' />
+      <p n='interfaces' v=';fr.imag.adele.apam.mainApam.intTestApam;fr.imag.adele.apam.ApamComponent;' />
+   </capability>
 </obr> 
