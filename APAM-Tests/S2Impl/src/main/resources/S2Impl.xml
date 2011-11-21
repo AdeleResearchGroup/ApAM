@@ -37,17 +37,18 @@
 		<ipojo:requires field="apam" />	
 	</implementation>
 
-	
+  
 	<composite name="S2Compo" specification="S2" mainImplem="S2Impl" interfaces="[fr.imag.adele.apam.test.s2.S2,fr.imag.adele.apam.apamAPI.ApamComponent]">
 		<properties shared="false" />
 		<instances internal="true" local=".*"/>
 		<implementations internal="true" local="S.Im.*"/>
-		<dependency specification="S3" source="{S3}" />
+		<!--<dependency specification="S3" source="{S3}" />-->
 	</composite>
+
 	
-	<instance component="S2Impl"/>
-	<instance component="S2Impl"/>
-	<instance component="S2Impl"/>
+	<ipojo:instance component="S2Impl" name="S2Impl-instance1"/>
+	<ipojo:instance component="S2Impl" name="S2Impl-instance2"/>
+	<ipojo:instance component="S2Impl" name="S2Impl-instance3"/>
 	
 </ipojo>
 
