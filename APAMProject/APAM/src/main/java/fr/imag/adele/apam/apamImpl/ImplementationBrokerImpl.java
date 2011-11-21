@@ -22,7 +22,8 @@ import fr.imag.adele.apam.apform.ApformSpecification;
 //import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.ApformImplementation;
 //import fr.imag.adele.sam.ApformSpecification;
-import fr.imag.adele.sam.deployment.DeploymentUnit;
+//import fr.imag.adele.sam.deployment.DeploymentUnit;
+import fr.imag.adele.apam.util.ApamInstall;
 
 public class ImplementationBrokerImpl implements ImplementationBroker {
 
@@ -156,29 +157,26 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
             return asmImpl;
         }
         try {
-            DeploymentUnit du = CST.SAMDUBroker.install(url, "bundle");
-            Set<String> implementationsNames = du.getImplementationsName();
-            boolean found = false;
-            for (String implInBundle : implementationsNames) {
-                if (implInBundle.equals(implName)) {
-                    found = true;
-                    break;
-                }
-            }
+            boolean found = ApamInstall.intallFromURL(url, implName);
+//            DeploymentUnit du = CST.SAMDUBroker.install(url, "bundle");
+//            Set<String> implementationsNames = du.getImplementationsName();
+//            boolean found = false;
+//            for (String implInBundle : implementationsNames) {
+//                if (implInBundle.equals(implName)) {
+//                    found = true;
+//                    break;
+//                }
+//            }
             if (!found) {
-                System.err.println("Error : Bundle at URL " + url + " does not contain implementation " + implName);
+//                System.err.println("Error : Bundle at URL " + url + " does not contain implementation " + implName);
                 return null;
             }
-            du.activate();
+//            du.activate();
         } catch (Exception e) {
             System.err.println("deployment failed :" + implName + " at URL " + url);
         }
         asmImpl = Apform.getWaitImplementation(implName);
         ApamResolver.deployedImpl(compo, asmImpl, true);
-        // comment savoir si une instance a été créée dans la foulée,
-        // et sous quel nom ?
-
-//        asmImpl = addImpl0(compo, apfImpl, properties);
         return asmImpl;
     }
 

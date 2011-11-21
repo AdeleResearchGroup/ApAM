@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.PatternSyntaxException;
 
-import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ApamManagers;

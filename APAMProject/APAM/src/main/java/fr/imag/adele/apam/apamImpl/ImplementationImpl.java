@@ -11,7 +11,7 @@ import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.am.exception.ConnectionException;
 //import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -34,7 +34,8 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     protected final Set<Implementation> invUses           = new HashSet<Implementation>(); // all reverse relations uses
 
     protected final Set<CompositeType>  inComposites      = new HashSet<CompositeType>(); // composite it is contained
-                                                                                           // in.
+
+    private final Object                id                = new Object();                 // only for hashCode
 
     protected String                    name;
     protected Specification             mySpec;
@@ -67,7 +68,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return id.hashCode();
     }
 
     public ImplementationImpl(CompositeType compo, SpecificationImpl spec, ApformImplementation impl,

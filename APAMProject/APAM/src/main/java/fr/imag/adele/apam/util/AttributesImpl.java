@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.AttributeManager;
 import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.apamImpl.ImplementationImpl;

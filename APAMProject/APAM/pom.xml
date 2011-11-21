@@ -27,6 +27,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
+							<Bundle-Activator>fr.imag.adele.apam.apamImpl.APAMImpl</Bundle-Activator>
 						<Bundle-Name>${project.name}</Bundle-Name>
 						<Bundle-Description>
 							SAM Core Implementation of the API
@@ -121,11 +122,11 @@
 			<artifactId>org.apache.felix.ipojo</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
+	<!-- 	<dependency>
 			<groupId>stax</groupId>
 			<artifactId>stax-api</artifactId>
 			<scope>provided</scope>
-		</dependency>
+		</dependency> 
         <dependency>
                 <groupId>fr.imag.adele.sam</groupId>
                 <artifactId>SAM-Deployment-Core-API
@@ -134,7 +135,7 @@
         <dependency>
             <groupId>fr.imag.adele.am</groupId>
             <artifactId>AbstractMachine-API</artifactId>
-        </dependency>
+        </dependency>-->
  	</dependencies>
 
 </project>

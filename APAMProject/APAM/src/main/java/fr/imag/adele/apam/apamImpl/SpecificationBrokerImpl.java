@@ -8,7 +8,7 @@ import java.util.Map;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.am.exception.ConnectionException;
 //import fr.imag.adele.apam.Map;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.SpecificationBroker;
@@ -16,10 +16,11 @@ import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformSpecification;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
+import fr.imag.adele.apam.util.ApamInstall;
 import fr.imag.adele.apam.util.Util;
 //import fr.imag.adele.sam.Specification;
 
-import fr.imag.adele.sam.deployment.DeploymentUnit;
+//import fr.imag.adele.sam.deployment.DeploymentUnit;
 
 public class SpecificationBrokerImpl implements SpecificationBroker {
 
@@ -207,9 +208,13 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
             return null;
 
         try {
-            DeploymentUnit du = CST.SAMDUBroker.install(url, "bundle");
-            du.getSpecificationsName();
-        } catch (ConnectionException e) {
+            if (!ApamInstall.intallFromURL(url, specName)) {
+                System.out.println("deployment failed for specification " + specName);
+                return null;
+            }
+//            DeploymentUnit du = CST.SAMDUBroker.install(url, "bundle");
+//            du.getSpecificationsName();
+        } catch (Exception e) {
             System.out.println("deployment failed for specification " + specName);
             e.printStackTrace();
             return null;

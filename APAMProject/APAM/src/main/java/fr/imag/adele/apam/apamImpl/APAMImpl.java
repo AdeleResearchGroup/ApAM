@@ -3,7 +3,9 @@ package fr.imag.adele.apam.apamImpl;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,12 +17,16 @@ import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Manager;
-import fr.imag.adele.apam.util.Attributes;
 
 //import fr.imag.adele.sam.Implementation;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.BundleActivator;
 
-public class APAMImpl implements Apam {
+public class APAMImpl implements Apam, BundleActivator {
 
+    public static BundleContext          context;
     public static Manager                apamMan;
 
     private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
@@ -96,6 +102,18 @@ public class APAMImpl implements Apam {
     @Override
     public Collection<Composite> getRootComposites() {
         return CompositeImpl.getRootComposites();
+    }
+
+    @Override
+    public void start(BundleContext context) throws Exception {
+        System.out.println("loaded context");
+        APAMImpl.context = context;
+    }
+
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        // TODO Auto-generated method stub
+
     }
 
 }

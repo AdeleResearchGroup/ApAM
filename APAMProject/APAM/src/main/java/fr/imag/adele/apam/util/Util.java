@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.utils.filter.FilterImpl;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -30,7 +30,7 @@ public class Util {
     };
 
     /** The logger. */
-    private static Logger logger = Logger.getLogger(Util.class);
+//    private static Logger logger = Logger.getLogger(Util.class);
 
     /**
      * Orders the array in lexicographical order.

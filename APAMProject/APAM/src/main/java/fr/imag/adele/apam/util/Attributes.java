@@ -3,7 +3,7 @@ package fr.imag.adele.apam.util;
 import java.util.Map;
 import java.util.Properties;
 
-import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Manager;
 
 //import fr.imag.adele.am.exception.ConnectionException;

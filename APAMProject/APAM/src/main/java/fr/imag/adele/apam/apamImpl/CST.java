@@ -4,7 +4,8 @@ import fr.imag.adele.apam.ImplementationBroker;
 import fr.imag.adele.apam.InstanceBroker;
 import fr.imag.adele.apam.SpecificationBroker;
 import fr.imag.adele.apam.apform.Apform2Apam;
-import fr.imag.adele.sam.deployment.broker.DeploymentUnitBroker;
+
+//import fr.imag.adele.sam.deployment.broker.DeploymentUnitBroker;
 
 public class CST {
 
@@ -88,7 +89,7 @@ public class CST {
     public static InstanceBroker       InstBroker            = null;
 //    public static Apform2Apam          apform2Apam           = null;
 
-    public static DeploymentUnitBroker SAMDUBroker           = null;
+//    public static DeploymentUnitBroker SAMDUBroker           = null;
 
     // the Apam entry point.
     public static APAMImpl             apam                  = null;

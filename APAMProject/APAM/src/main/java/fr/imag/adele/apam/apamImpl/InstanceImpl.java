@@ -33,6 +33,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     // private static Logger logger = Logger.getLogger(ASMInstImpl.class);
     // private static ASMInstBroker myBroker = ASM.ASMInstBroker;
 
+    private final Object      id               = new Object();
     private Implementation    myImpl;
     private Composite         myComposite;
     protected ApformInstance  apformInst;
@@ -53,7 +54,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
 
     @Override
     public int hashCode() {
-        return getName().hashCode();
+        return id.hashCode();
     }
 
     protected void instConstructor(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
