@@ -25,14 +25,6 @@
 		<dependency field="s1" />
 	</implementation>
 
-	<ipojo:component name="S1HybridMain"
-		classname="fr.imag.adele.apam.test.s1Impl.S1HybridMain">
-		<dependency field="s1" />
-		<ipojo:callback transition="validate" method="start" />
-		<ipojo:callback transition="invalidate" method="stop" />
-	</ipojo:component>
-	
-	<ipojo:instance component = "S1HybridMain" name="S1HybridMainInstance" />
-	<!-- <ipojo:instance component = "S1Main" name="S1MainInstance" /> -->
+	<ipojo:instance component="S1Main" name="S1MainInstance" />
 </ipojo>
 
