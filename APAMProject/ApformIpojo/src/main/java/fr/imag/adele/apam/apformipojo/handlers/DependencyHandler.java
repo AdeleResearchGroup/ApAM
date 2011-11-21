@@ -8,21 +8,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.ConfigurationException;
+import org.apache.felix.ipojo.InstanceManager;
 import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
 import org.apache.felix.ipojo.architecture.HandlerDescription;
+import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.ParseUtils;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.Implementation.DependencyModel;
 import fr.imag.adele.apam.Implementation.TargetKind;
-import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
+import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apformipojo.ApformIpojoImplementation;
+import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
 import fr.imag.adele.apam.apformipojo.Dependency;
 import fr.imag.adele.apam.apformipojo.ImplementationHandler;
+import fr.imag.adele.apam.apformipojo.legacy.ApformIpojoLegacyInstance;
 
 public class DependencyHandler extends ImplementationHandler {
 
@@ -86,7 +93,12 @@ public class DependencyHandler extends ImplementationHandler {
 	 */
 	private final static String CONSTRAINT_FILTER_PROPERTY 			= "filter";
 
+	/**
+	 * The apform instance for legacy iPojo components
+	 */
+	private ApformIpojoLegacyInstance apformLegacyInstance;
 
+    
 	/*
 	 * @see
 	 * org.apache.felix.ipojo.Handler#initializeComponentFactory(org.apache.
@@ -120,6 +132,8 @@ public class DependencyHandler extends ImplementationHandler {
 		 * Statically validate the component type dependencies
 		 */
 
+		Set<DependencyModel> dependenciesModel	= new HashSet<DependencyModel>();
+		   
 		Element dependencyDeclarations[] = componentMetadata.getElements(ApformIpojoImplementation.DEPENDENCY_DECLARATION,APAM_NAMESPACE);
 		for (Element dependencyDeclaration : dependencyDeclarations) {
 
@@ -380,10 +394,35 @@ public class DependencyHandler extends ImplementationHandler {
 
 			if (isApamImplementation)
 				implementationDescription.addDependency(dependency);
+			
+			dependenciesModel.add(dependency);
 
 		}
+		
+		/*
+		 * for legacy iPojo components add dependency model as a property
+		 */
+		if (!isApamImplementation) {
+			componentDescriptor.addProperty(new DependencyModelPropertyDescription(dependenciesModel));
+		}
 	}
+	
+	private static class DependencyModelPropertyDescription extends PropertyDescription {
 
+		private final Set<DependencyModel> dependenciesModel;
+		
+		public DependencyModelPropertyDescription(Set<DependencyModel> dependenciesModel) {
+			super(CST.A_DEPENDENCIES, Set.class.getName(), "DependencyModel", true);
+			this.dependenciesModel = dependenciesModel;
+		}
+		
+		@Override
+		public Object getObjectValue(BundleContext context) {
+			return dependenciesModel;
+		}
+	}
+	
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -469,10 +508,21 @@ public class DependencyHandler extends ImplementationHandler {
 				}
 			}
 
+			InstanceManager attachedInstance	= getInstanceManager();
+			Dependency.Resolver resolver 		= null;
+			
+			if (attachedInstance instanceof ApformIpojoInstance) {
+				resolver = (ApformIpojoInstance) attachedInstance;
+			}
+			else {
+				apformLegacyInstance = new ApformIpojoLegacyInstance(attachedInstance);
+				resolver = apformLegacyInstance;
+			}
+			
 			/*
 			 * register the dependency injector to handle all declared fields
 			 */
-			Dependency dependency = new Dependency(getInstanceManager(), getFactory().getPojoMetadata(),
+			Dependency dependency = new Dependency(getFactory(),resolver,
 											dependencyName, Boolean.valueOf(dependencyAggregate),
 											dependencyTarget, dependencyKind, constraints, preferences);
 			
@@ -485,6 +535,34 @@ public class DependencyHandler extends ImplementationHandler {
 
 	}
 
+    /**
+     * This method is called when the component state changed.
+     * 
+     * In the case of hybrid configurations where iPjo components use APAM resolution, handles
+     * synchronization of the component with APAM. 
+     * 
+     * @param state the new instance state {@link ComponentInstance}
+     */
+	@Override
+	public void stateChanged(int state) {
+
+		super.stateChanged(state);
+
+		/*
+		 * Handle only hybrid appearing instances
+		 */
+		if (apformLegacyInstance == null)
+			return;
+
+		System.err.println("Dependecy handler notifying APAM of hybrid instance");
+        if (state == ComponentInstance.VALID)
+            Apform2Apam.newInstance(apformLegacyInstance.getName(), apformLegacyInstance);
+
+        if (state == ComponentInstance.INVALID)
+            Apform2Apam.vanishInstance(apformLegacyInstance.getName());
+
+	}
+	
 	/**
 	 * The description of this handler instance
 	 * 
@@ -511,7 +589,7 @@ public class DependencyHandler extends ImplementationHandler {
 			}
 			return root;
 		}
-
+		
 	}
 
 	@Override
@@ -521,10 +599,6 @@ public class DependencyHandler extends ImplementationHandler {
 
 	@Override
 	public void start() {
-		/*
-		 * The instance is started, nothing to do; we should already be
-		 * registered
-		 */
 	}
 
 	@Override

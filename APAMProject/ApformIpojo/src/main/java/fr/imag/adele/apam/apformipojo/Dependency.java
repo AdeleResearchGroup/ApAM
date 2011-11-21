@@ -11,12 +11,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.felix.ipojo.ComponentFactory;
 import org.apache.felix.ipojo.FieldInterceptor;
-import org.apache.felix.ipojo.InstanceManager;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
-import org.apache.felix.ipojo.parser.PojoMetadata;
 import org.apache.felix.ipojo.util.Logger;
 import org.osgi.framework.Filter;
 
@@ -33,48 +32,72 @@ import fr.imag.adele.apam.Instance;
  */
 public class Dependency implements FieldInterceptor {
 
-    /**
-     * The source instance
-     */
-    private final InstanceManager	instance;
-
+	/**
+	 * The interface of the external resolver that is used to bind this dependency. 
+	 * 
+	 */
+	public static interface Resolver {
+		
+		/**
+		 * Registers a dependency with a resolver.
+		 * 
+		 * The resolver can asynchronously update the dependency to modify the binding.
+	 	 *
+		 *  @see fr.imag.adele.apam.apformipojo.Dependency.addTarget
+		 *  @see fr.imag.adele.apam.apformipojo.Dependency.removeTarget
+		 *  @see fr.imag.adele.apam.apformipojo.Dependency.substituteTarget
+		 *  
+		 */
+		public void addDependency(Dependency dependency);
+		
+		/**
+		 * Request to synchronously resolve a dependency.
+		 * 
+		 *  This method is invoked by a dependency to calculate its initial binding
+		 *  when it is first accessed.
+		 *  
+		 *  The resolver must call back the dependency to modify the resolved target.
+		 *   
+		 *  @see fr.imag.adele.apam.apformipojo.Dependency.addTarget
+		 *  @see fr.imag.adele.apam.apformipojo.Dependency.removeTarget
+		 *  @see fr.imag.adele.apam.apformipojo.Dependency.substituteTarget
+		 *  
+		 */
+		public void resolve(Dependency dependency);
+		
+	} 
+	
+	/**
+	 * The factory of the source component of the dependency
+	 */
+	private final ComponentFactory 	factory;
+	
+	/**
+	 * The associated resolver
+	 */
+	private final Resolver		resolver;
+	
     /**
      * The name of the dependency
      */
-    private final String            name;
+    private final String        name;
 
     /**
      * Whether this dependency is aggregate or scalar
      */
-    private final boolean           isAggregate;
+    private final boolean       isAggregate;
 
     /**
      * The name of the target entity.
      * 
      */
-    private final String            target;
+    private final String        target;
 
     /**
      * The kind of target
      */
-    private final Kind              targetKind;
+    private final Kind          targetKind;
 
-    /**
-     * The optional constraints
-     */
-    private final Set<Filter> 		constraints;
-    
-     /**
-     * The optional preferences
-     */
-    private final List<Filter>		preferences;
-    
-    /**
-     * The description of the injected fields
-     */
-    private final PojoMetadata		instrumentedCodeDescription;
-    
-    
     /**
      * The kind of possible targets for the dependency
      */
@@ -82,6 +105,18 @@ public class Dependency implements FieldInterceptor {
     public static enum Kind {
         INTERFACE, SPECIFICATION, IMPLEMENTATION
     }
+
+    /**
+     * The optional constraints
+     */
+    private final Set<Filter> 	constraints;
+    
+     /**
+     * The optional preferences
+     */
+    private final List<Filter>	preferences;
+    
+    
 
     /**
      * The list of target services.
@@ -93,7 +128,7 @@ public class Dependency implements FieldInterceptor {
      * 
      * This is a cached value that must be recalculated in case of update of the dependency.
      */
-    private Object             injectedValue;
+    private Object             	injectedValue;
 
     /**
      * The last injected value type.
@@ -115,11 +150,11 @@ public class Dependency implements FieldInterceptor {
      * @param pojoMetadata the name of the dependency.
      * 
      */
-    public Dependency(InstanceManager instance, PojoMetadata instrumentedCodeDescription, String name, Boolean isAggregate,
+    public Dependency(ComponentFactory factory, Resolver resolver, String name, Boolean isAggregate,
             String target, Kind targetKind, Set<Filter> constraints, List<Filter> preferences) {
         
-    	this.instance = instance;
-        this.instrumentedCodeDescription = instrumentedCodeDescription;
+    	this.factory = factory;
+        this.resolver = resolver;
 
         this.name = name;
         this.isAggregate = isAggregate;
@@ -134,18 +169,7 @@ public class Dependency implements FieldInterceptor {
         injectedType = null;
         isResolved = false;
         
-    	
-    	/*
-    	 * If the attached instance is a native APAM instance, register ourselves to be notified of changes in dependency
-    	 * resolution.
-    	 * 
-         * TODO we are only able to receive notifications if the source instance is an APAM native instance. We need
-         * to also handle the case of iPojo component instances with APAM dependencies (e.g. hybrid configurations)
-         */
-    	if (instance instanceof ApformIpojoInstance)
-    		((ApformIpojoInstance)instance).addDependency(this);
-
-        
+    	resolver.addDependency(this);
     }
 
     /**
@@ -372,12 +396,8 @@ public class Dependency implements FieldInterceptor {
              * optional dependencies.
              * 
              * Resolution has as side-effect a modification of the target services.
-             * 
-             * TODO we are only able to resolve a dependency if the source instance is an APAM native instance. We need
-             * to also handle the case of iPojo component instances with APAM dependencies (e.g. hybrid configurations)
-             */
-        	if (instance instanceof ApformIpojoInstance)
-        		((ApformIpojoInstance)instance).resolve(this);
+             */ 
+        	resolver.resolve(this);
         }
 
          return getFieldValue(fieldName);
@@ -436,7 +456,7 @@ public class Dependency implements FieldInterceptor {
              * evaluate if it is worth caching all accessed fields.
              */
 
-            FieldMetadata field = instrumentedCodeDescription.getField(fieldName);
+            FieldMetadata field = factory.getPojoMetadata().getField(fieldName);
             String fieldType	= FieldMetadata.getReflectionType(field.getFieldType());
 
         	/*
@@ -468,7 +488,7 @@ public class Dependency implements FieldInterceptor {
             /*
              * return the collection that better fits the field declaration
              */
-            Class<?> fieldClass = instance.getFactory().loadClass(fieldType);
+            Class<?> fieldClass = factory.loadClass(fieldType);
 
             /*
              * For arrays we need to reflectively build a type conforming array 
@@ -509,7 +529,7 @@ public class Dependency implements FieldInterceptor {
             }
 
         } catch (ClassNotFoundException unexpected) {
-            instance.getLogger().log(Logger.ERROR,"error accesing field for APAM dependency " + getName(),unexpected);
+            factory.getLogger().log(Logger.ERROR,"error accesing field for APAM dependency " + getName(),unexpected);
         }
 
         return null;

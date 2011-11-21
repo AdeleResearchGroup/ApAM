@@ -27,4 +27,14 @@
 	<handler classname="fr.imag.adele.apam.apformipojo.handlers.CompositeTypeInstanceHandler"
 		name="instances" namespace="fr.imag.adele.apam">
 	</handler>
+	<component name="ApformIpojoLegacyTracker" classname="fr.imag.adele.apam.apformipojo.legacy.ApformIpojoLegacyTracker">
+		<requires field="apam"/>
+		<callback transition="validate" method="start"/>
+		<callback transition="invalidate" method="stop"/>
+		<requires optional="true" aggregate="true">
+			<callback type="bind" method="factoryBound"/>
+			<callback type="unbind" method="factoryUnbound"/>
+		</requires>
+	</component>
+	<instance name="ApformIpojoLegacyTracker" component="ApformIpojoLegacyTracker"></instance>
 </ipojo>
