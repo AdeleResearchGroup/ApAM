@@ -98,7 +98,7 @@
 				<version>1.4.1</version>
 				<scope>provided</scope>
 			</dependency>
-		<dependency>
+<!-- 		<dependency>
 			<groupId>fr.imag.adele.sam</groupId>
 			<artifactId>ServiceAbstractMachine-API
 			</artifactId>
@@ -117,6 +117,7 @@
             <groupId>fr.imag.adele.am</groupId>
             <artifactId>AbstractMachine-API</artifactId>
         </dependency>
+         -->
          <dependency>
     		<groupId>fr.imag.adele.apam</groupId>
             <artifactId>APAM</artifactId>
