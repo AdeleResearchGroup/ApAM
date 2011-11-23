@@ -44,74 +44,85 @@ public class Wire {
         if (!found) {
             System.err.println("WARNING dependency not declared : " + from + " -" + depName + "-> " + to);
         }
-
-        // if it matches a dependency of the current composite, it is a promotion
-        DependencyModel depFound = null;
-        deps = from.getComposite().getCompType().getDependencies();
-        for (DependencyModel dep : deps) {
-            if (Wire.matchDependencyCompo(dep, from, to, depName)) {
-                depFound = dep;
-                break;
-            }
-        }
-        if (depFound == null)
-            return true;
-        // it is a promotion
-        // check cardinality
-        if (!depFound.isMultiple && (from.getComposite().getWire(to, depFound.dependencyName) != null)) {
-            System.err.println("ERROR : wire " + from.getComposite() + " -" + depFound.dependencyName + "-> " + to
-                    + " allready existing.");
-            return false;
-        }
-        // create wire from composite
-        System.out.println("Promoting " + from + " : " + from.getComposite() + " -" + depFound.dependencyName + "-> "
-                + to);
-        return from.getComposite().createWire(to, depFound.dependencyName);
+        from.getApformInst().setWire(to, depName);
+        return found;
     }
 
-    /**
-     * Checks if the provided composite dependency "dep" matches the provided wire (from, to, depName).
-     * "from" is supposed to be inside the composite.
-     * if true this wire need a promotion.
-     * 
-     * @param dep : a composite dependency. Not interpreted for composites.
-     * @param from
-     * @param to
-     * @param depName
-     * @return
-     */
-    private static boolean matchDependencyCompo(DependencyModel dep, Instance from, Instance to, String depName) {
-        String fromSpec = from.getSpec().getName();
-        switch (dep.targetKind) {
-            case INTERFACE: { // "to" must match the target
-                for (String interf : to.getSpec().getInterfaceNames()) {
-                    if (interf.equals(dep.target)) { // same target
-                        for (String sourceSpec : dep.source) {
-                            if (sourceSpec.equals(fromSpec))
-                                return true;
-                        }
-                    }
-                }
-            }
-            case SPECIFICATION: {
-                if (to.getSpec().getName().equals(dep.target)) {
-                    for (String sourceSpec : dep.source) {
-                        if (sourceSpec.equals(fromSpec))
-                            return true;
-                    }
-                }
-            }
-            case IMPLEMENTATION: {
-                if (to.getImpl().getName().equals(dep.target)) {
-                    for (String sourceSpec : dep.source) {
-                        if (sourceSpec.equals(fromSpec))
-                            return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
+//        // if it matches a dependency of the current composite, it is a promotion
+//        DependencyModel depFound = null;
+//        deps = from.getComposite().getCompType().getDependencies();
+//        for (DependencyModel dep : deps) {
+//            if (Wire.matchDependencyCompo(dep, from, to, depName)) {
+//                depFound = dep;
+//                break;
+//            }
+//        }
+//        if (depFound == null)
+//            return true;
+//        
+//        // it is a declared promotion.
+//        // check cardinality
+//        if (!depFound.isMultiple && (from.getComposite().getWire(to, depFound.dependencyName) != null)) {
+//            System.err.println("ERROR : wire " + from.getComposite() + " -" + depFound.dependencyName + "-> " + to
+//                    + " allready existing.");
+//            return false;
+//        }
+//        System.out.println("Promoting " + from + " : " + from.getComposite() + " -" + depFound.dependencyName + "-> "
+//                + to);
+//        
+//        //The destination implem, if inside current composieType, must be moved to the from.compositeType
+//        //the destination instance, if instantiated inside the current composite, must be moved to the from.composite 
+//        
+//        // create wire from from.composite to destination implem (or composite)
+//        from.getComposite().createWire(to, depFound.dependencyName);
+//        // and set the wire from the promoted implementation.
+//
+//    return from.getApformInst().setWire(to, depName);
+//}
+
+//    /**
+//     * Checks if the provided composite dependency "dep" matches the provided wire (from, to, depName).
+//     * "from" is supposed to be inside the composite.
+//     * if true this wire need a promotion.
+//     * 
+//     * @param dep : a composite dependency. Not interpreted for composites.
+//     * @param from
+//     * @param to
+//     * @param depName
+//     * @return
+//     */
+//    private static boolean matchDependencyCompo(DependencyModel dep, Instance from, Instance to) {
+//        String fromSpec = from.getSpec().getName();
+//        switch (dep.targetKind) {
+//            case INTERFACE: { // "to" must match the target
+//                for (String interf : to.getSpec().getInterfaceNames()) {
+//                    if (interf.equals(dep.target)) { // same target
+//                        for (String sourceSpec : dep.source) {
+//                            if (sourceSpec.equals(fromSpec))
+//                                return true;
+//                        }
+//                    }
+//                }
+//            }
+//            case SPECIFICATION: {
+//                if (to.getSpec().getName().equals(dep.target)) {
+//                    for (String sourceSpec : dep.source) {
+//                        if (sourceSpec.equals(fromSpec))
+//                            return true;
+//                    }
+//                }
+//            }
+//            case IMPLEMENTATION: {
+//                if (to.getImpl().getName().equals(dep.target)) {
+//                    for (String sourceSpec : dep.source) {
+//                        if (sourceSpec.equals(fromSpec))
+//                            return true;
+//                    }
+//                }
+//            }
+//        }
+//        return false;
+//    }
 
     private static boolean matchDependency(DependencyModel dep, Instance from, Instance to, String depName) {
         switch (dep.targetKind) {

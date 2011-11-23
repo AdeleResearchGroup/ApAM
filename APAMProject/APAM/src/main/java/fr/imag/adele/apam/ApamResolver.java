@@ -8,13 +8,17 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
+import fr.imag.adele.apam.Implementation.DependencyModel;
 import fr.imag.adele.apam.apamImpl.APAMImpl;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
+import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.apform.Apform;
 
 public class ApamResolver {
+
+    private static ApamResolver apamResolver = new ApamResolver();
 
     /**
      * In the case a client realizes that a dependency disappeared, it has to call this method. APAM will try to resolve
@@ -27,6 +31,113 @@ public class ApamResolver {
     public static Instance faultWire(Instance client, Instance lostInstance, String depName) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    /**
+     * Checks if the provided composite dependency "dep" matches the provided wire (from, to, depName).
+     * "from" is supposed to be inside the composite.
+     * if true this wire needs a promotion.
+     * 
+     * @param dep : a composite dependency. Not interpreted for composites.
+     * @param from
+     * @param to
+     * @param depName
+     * @return
+     */
+    private static boolean matchDependencyCompo(DependencyModel dep, Instance from, String interf, String specName) {
+        String fromSpec = from.getSpec().getName();
+        switch (dep.targetKind) {
+            case INTERFACE: { // "to" must match the target
+                if (interf == null) {
+                    Specification spec = CST.SpecBroker.getSpec(specName);
+                    if (spec != null)
+                        for (String in : spec.getInterfaces()) {
+                            if (in.equals(dep.target)) {
+                                interf = in;
+                            }
+                        }
+                }
+                if ((interf != null) && interf.equals(dep.target)) { // same target
+                    for (String sourceSpec : dep.source) {
+                        if (sourceSpec.equals(fromSpec))
+                            return true;
+                    }
+                }
+            }
+            case SPECIFICATION: {
+                if (specName == null) {
+                    Specification spec = CST.SpecBroker.getSpecInterf(interf);
+                    if (spec != null)
+                        specName = spec.getName();
+                }
+                if ((specName != null) && specName.equals(dep.target)) {
+                    for (String sourceSpec : dep.source) {
+                        if (sourceSpec.equals(fromSpec))
+                            return true;
+                    }
+                }
+                return false;
+            }
+            case IMPLEMENTATION: {
+//                System.err.println("Should not happen ! Case implementation in matchDependencyCompo; from " + from
+//                        + " dependance " + dep);
+//                if (to.getImpl().getName().equals(dep.target)) {
+//                    for (String sourceSpec : dep.source) {
+//                        if (sourceSpec.equals(fromSpec))
+//                            return true;
+//                    }
+//                }
+            }
+        }
+        return false;
+    }
+
+    private class DepMult {
+        public String        dep   = null;
+        public Set<Instance> insts = null;
+
+        public DepMult(String dep, Set<Instance> insts) {
+            this.dep = dep;
+            this.insts = insts;
+            // System.err.println("new DepMult. dep= " + dep + ". instances= " + insts);
+        }
+    }
+
+    /**
+     * If the client's composite has declared a dependency toward specName; it is a promotion.
+     * The client becomes the embedding composite; visibility and scope become the one of the embedding
+     * 
+     * @param client
+     * @param specName
+     * @param depName
+     * @return the name of the dependency from the composite.
+     */
+    private static DepMult getPromotion(Instance client, String interf, String specName) {
+        DependencyModel depFound = null;
+        Set<DependencyModel> deps = client.getComposite().getCompType().getDependencies();
+        for (DependencyModel dep : deps) {
+            if (ApamResolver.matchDependencyCompo(dep, client, interf, specName)) {
+                depFound = dep;
+                break;
+            }
+        }
+        if (depFound == null)
+            return null;
+
+        // it is a declared promotion.
+        // check cardinality
+        if (!depFound.isMultiple && !(client.getComposite().getWires(depFound.dependencyName).isEmpty())) {
+            if (depFound.source.length == 1) {
+                System.err.println("ERROR : wire " + client.getComposite() + " -" + depFound.dependencyName + "-> "
+                        + " allready existing.");
+                return null;
+            }
+            Set<Instance> insts = client.getComposite().getWireDests(depFound.dependencyName);
+            return ApamResolver.apamResolver.new DepMult(depFound.dependencyName, insts);
+        }
+//        System.err.println("Promoting " + client + " : " + client.getComposite() + " -" + depFound.dependencyName
+//                + "-> ");
+        return ApamResolver.apamResolver.new DepMult(depFound.dependencyName, null);
     }
 
     // if the instance is unused, it will become the main instance of a new composite.
@@ -68,25 +179,47 @@ public class ApamResolver {
         }
 
         Composite compo = ApamResolver.getClientComposite(client);
-        CompositeType compoType = compo.getCompType();
-
-        Implementation impl = null;
-        if (specName != null)
-            impl = ApamResolver.resolveSpecByName(compoType, specName, constraints, preferences);
-        else {
-            impl = ApamResolver.resolveSpecByInterface(compoType, interfaceName, null, constraints, preferences);
-            specName = interfaceName;
+        // if it is a promotion, visibility and scope is the one of the embedding composite.
+        DepMult depMult = ApamResolver.getPromotion(client, interfaceName, specName);
+        Instance inst = null;
+        String superDepName = null;
+        if (depMult != null) {
+            superDepName = depMult.dep;
+            if (depMult.insts != null)
+                inst = (Instance) depMult.insts.toArray()[0]; // the common instance
+            if (superDepName != null) {
+                compo = compo.getComposite();
+            }
         }
-        if (impl == null) {
-            System.out.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
-            ApamResolver.notifySelection(client, specName, depName, null, null, null);
-            return null;
-        }
+        if (inst == null) { // normal case. Try to find the instance.
+            // not null if it is a multiple promotion. Use the same target.
+            CompositeType compoType = compo.getCompType();
 
-        Instance inst = ApamResolver.resolveImpl(compo, impl, constraints, preferences);
-        if (inst != null)
+            Implementation impl = null;
+            if (specName != null)
+                impl = ApamResolver.resolveSpecByName(compoType, specName, constraints, preferences);
+            else {
+                impl = ApamResolver.resolveSpecByInterface(compoType, interfaceName, null, constraints, preferences);
+                specName = interfaceName;
+            }
+            if (impl == null) {
+                System.err.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
+                // ApamResolver.notifySelection(client, specName, depName, null, null, null);
+                return null;
+            }
+
+            inst = ApamResolver.resolveImpl(compo, impl, constraints, preferences);
+        }
+        if (inst != null) {
+            if (superDepName != null) { // it was a promotion, embedding composite must be linked as the source (client)
+                client.getComposite().createWire(inst, superDepName);
+                System.err.println("Promoting " + client + " : " + client.getComposite() + " -" + superDepName + "-> "
+                        + inst);
+            }
+            // in all cases the client must be linked
             client.createWire(inst, depName);
-        ApamResolver.notifySelection(client, specName, depName, impl, inst, null);
+        }
+        ApamResolver.notifySelection(client, specName, depName, inst.getImpl(), inst, null);
         return inst;
     }
 
@@ -111,32 +244,55 @@ public class ApamResolver {
             Set<Filter> constraints, List<Filter> preferences) {
 
         if ((client == null) || ((interfaceName == null) && (specName == null))) {
-            new Exception("missing client, name or interface").printStackTrace();
+            System.err.println("missing client, name or interface");
+            // may succed if an instance starts and not yet registered
+            return null;
         }
 
         Composite compo = ApamResolver.getClientComposite(client);
-        CompositeType compoType = compo.getCompType();
-
-        Implementation impl = null;
-        if (specName != null)
-            impl = ApamResolver.resolveSpecByName(compoType, specName, constraints, preferences);
-        else {
-            impl = ApamResolver.resolveSpecByInterface(compoType, interfaceName, null, constraints, preferences);
-            specName = interfaceName;
+        // if it is a promotion, visibility and scope is the one of the embedding composite.
+        DepMult depMult = ApamResolver.getPromotion(client, interfaceName, specName);
+        Set<Instance> insts = null;
+        String superDepName = null;
+        if (depMult != null) {
+            superDepName = depMult.dep;
+            insts = depMult.insts;
+            if (superDepName != null) {
+                compo = compo.getComposite();
+            }
         }
-        if (impl == null) {
-            System.out.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
-            ApamResolver.notifySelection(client, specName, depName, null, null, null);
-            return Collections.emptySet();
-        }
+        if (insts == null) { // normal case. Try to find the instances.
+            // not null if it is a multiple promotion. Use the same target.
 
-        Set<Instance> insts = ApamResolver.resolveImpls(compo, impl, constraints);
+            CompositeType compoType = compo.getCompType();
+
+            Implementation impl = null;
+            if (specName != null)
+                impl = ApamResolver.resolveSpecByName(compoType, specName, constraints, preferences);
+            else {
+                impl = ApamResolver.resolveSpecByInterface(compoType, interfaceName, null, constraints, preferences);
+                specName = interfaceName;
+            }
+            if (impl == null) {
+                System.err.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
+                // ApamResolver.notifySelection(client, specName, depName, null, null, null);
+                return null;
+            }
+            insts = ApamResolver.resolveImpls(compo, impl, constraints);
+        }
         if ((insts != null) && !insts.isEmpty()) {
             for (Instance inst : insts) {
+                if (superDepName != null) { // it was a promotion, embedding composite must be linked as the source
+                                            // (client)
+                    client.getComposite().createWire(inst, superDepName);
+                    System.err.println("Promoting " + client + " : " + client.getComposite() + " -" + superDepName
+                            + "-> " + inst);
+                }
+                // in all cases the client must be linked
                 client.createWire(inst, depName);
             }
         }
-        ApamResolver.notifySelection(client, specName, depName, impl, null, insts);
+        ApamResolver.notifySelection(client, specName, depName, ((Instance) insts.toArray()[0]).getImpl(), null, insts);
         return insts;
     }
 
@@ -156,13 +312,15 @@ public class ApamResolver {
             System.err.println("missing client or implementation name");
         }
 
+        // TODO Warning, it may be a promotion, but it is not possible to know, at that point,
+        // the spec or interfaces of implName. Should be resolved first, with the current compotype.
         Composite compo = ApamResolver.getClientComposite(client);
         CompositeType compType = client.getComposite().getCompType();
 
         Implementation impl = ApamResolver.findImplByName(compType, implName);
         if (impl == null) {
-            System.out.println("Failed to resolve " + implName + " from " + client + "(" + depName + ")");
-            ApamResolver.notifySelection(client, implName, depName, null, null, null);
+            System.err.println("Failed to resolve " + implName + " from " + client + "(" + depName + ")");
+            // ApamResolver.notifySelection(client, implName, depName, null, null, null);
             return null;
         }
 
@@ -196,8 +354,8 @@ public class ApamResolver {
 
         Implementation impl = ApamResolver.findImplByName(compType, implName);
         if (impl == null) {
-            System.out.println("Failed to resolve " + implName + " from " + client + "(" + depName + ")");
-            ApamResolver.notifySelection(client, implName, depName, null, null, null);
+            System.err.println("Failed to resolve " + implName + " from " + client + "(" + depName + ")");
+            // ApamResolver.notifySelection(client, implName, depName, null, null, null);
             return null;
         }
 
@@ -228,7 +386,7 @@ public class ApamResolver {
     public static List<Manager> computeSelectionPathSpec(CompositeType compTypeFrom, String interfaceName,
             String[] interfaces, String specName, Set<Filter> constraints, List<Filter> preferences) {
         if (APAMImpl.managerList.size() == 0) {
-            System.out.println("No manager available. Cannot resolve ");
+            System.err.println("No manager available. Cannot resolve ");
             return null;
         }
         List<Manager> selectionPath = new ArrayList<Manager>();
@@ -243,7 +401,7 @@ public class ApamResolver {
 
     public static List<Manager> computeSelectionPathImpl(CompositeType compTypeFrom, String implName) {
         if (APAMImpl.managerList.size() == 0) {
-            System.out.println("No manager available. Cannot resolve ");
+            System.err.println("No manager available. Cannot resolve ");
             return null;
         }
 
@@ -270,7 +428,7 @@ public class ApamResolver {
     public static List<Manager> computeSelectionPathInst(Composite compoFrom, Implementation impl,
             Set<Filter> constraints, List<Filter> preferences) {
         if (APAMImpl.managerList.size() == 0) {
-            System.out.println("No manager available. Cannot resolve ");
+            System.err.println("No manager available. Cannot resolve ");
             return null;
         }
 
@@ -325,7 +483,7 @@ public class ApamResolver {
 
         List<Manager> selectionPath = ApamResolver.computeSelectionPathImpl(compoTypeFrom, implName);
         if (selectionPath.isEmpty()) {
-            System.out.println("No manager available. Cannot resolve ");
+            System.err.println("No manager available. Cannot resolve ");
             return null;
         }
 
@@ -371,7 +529,7 @@ public class ApamResolver {
                 constraints,
                 preferences);
         if (selectionPath.isEmpty()) {
-            System.out.println("No manager available. Cannot resolve ");
+            System.err.println("No manager available. Cannot resolve ");
             return null;
         }
 
@@ -420,7 +578,7 @@ public class ApamResolver {
                 null,
                 constraints, preferences);
         if ((selectionPath == null) || selectionPath.isEmpty()) {
-            System.out.println("No manager available. Cannot resolve ");
+            System.err.println("No manager available. Cannot resolve ");
             return null;
         }
 
@@ -466,7 +624,7 @@ public class ApamResolver {
             preferences = new ArrayList<Filter>();
         List<Manager> selectionPath = ApamResolver.computeSelectionPathInst(compo, impl, constraints, preferences);
         if ((selectionPath == null) || selectionPath.isEmpty()) {
-            System.out.println("No manager available. Cannot resolve ");
+            System.err.println("No manager available. Cannot resolve ");
             return null;
         }
 
@@ -509,7 +667,7 @@ public class ApamResolver {
         List<Manager> selectionPath = ApamResolver.computeSelectionPathInst(compo, impl, constraints, null);
 
         if ((selectionPath == null) || selectionPath.isEmpty()) {
-            System.out.println("No manager available. Cannot resolve ");
+            System.err.println("No manager available. Cannot resolve ");
             return null;
         }
         if (compo == null)
@@ -545,13 +703,10 @@ public class ApamResolver {
      * @param insts
      */
     public static void notifySelection(Instance client, String resName, String depName, Implementation impl,
-            Instance inst,
-            Set<Instance> insts) {
+            Instance inst, Set<Instance> insts) {
         for (Manager manager : APAMImpl.managerList) {
-//            System.out.print("  notify to : " + manager.getName());
             manager.notifySelection(client, resName, depName, impl, inst, insts);
         }
-//        System.out.println("");
     }
 
 }

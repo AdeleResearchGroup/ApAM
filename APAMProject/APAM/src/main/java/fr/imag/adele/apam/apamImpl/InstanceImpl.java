@@ -60,7 +60,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     protected void instConstructor(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
             ApformInstance samInst) {
         if (samInst == null) {
-            new Exception("ERROR : sam instance cannot be null on ASM instance constructor").printStackTrace();
+            new Exception("ERROR : apform instance cannot be null on ASM instance constructor").printStackTrace();
             return;
         }
         if (instCompo == null) {
@@ -182,22 +182,19 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         }
 
         // useless when called by Apam. Needed if called by an external program.
-        if (!Wire.checkNewWire(this, to, depName))
-            return false;
+//        if (!Wire.checkNewWire(this, to, depName))
+//            return false;
 
         // creation
         Wire wire = new Wire(this, to, depName);
         wires.add(wire);
         ((InstanceImpl) to).invWires.add(wire);
 
-        if (!(this instanceof Composite)) { // This is an outgoing link from a composite
-            apformInst.setWire(to, depName);
-        }
+        apformInst.setWire(to, depName);
 
         // if the instance was in the unUsed pull, move it to the from composite.
         if (!to.isUsed()) {
             Apform.setUsedInst(to);
-            getComposite().addContainInst(to);
         }
         if (!isUsed())
             Apform.setUsedInst(this);
