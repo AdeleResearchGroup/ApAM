@@ -76,14 +76,51 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 	/**
 	 * Callback to handle instance binding
 	 */
-	public void instanceBound(ComponentInstance instance) {
+	public boolean instanceBound(ComponentInstance ipojoInstance) {
+		/*
+		 * ignore handler instances
+		 */
+		if (ipojoInstance.getFactory() instanceof HandlerFactory)
+			return false;
+
+		/*
+		 * Ignore native APAM components
+		 */
+		if (ipojoInstance instanceof ApformIpojoInstance)
+			return false;
 		
+		/*
+		 * Ignore instances of private factories, as no implementation is available to register in 
+		 * APAM
+		 * 
+		 * TODO should we register iPojo private factories in APAM when their instances are discovered?
+		 * how to know when to unregister them? 
+		 */
+		try {
+			String factoryFilter = "(factory.name="+ipojoInstance.getFactory().getName()+")";
+			if (context.getServiceReferences(Factory.class.getName(),factoryFilter) == null)
+				return false;
+		} catch (InvalidSyntaxException ignored) {
+		}
+		
+		
+		/*
+		 * Ignore  hybrid components already registered by the dependency handler
+		 */
+		if (ipojoInstance.getInstanceDescription().getHandlerDescription("fr.imag.adele.apam:dependency") != null)
+			return false;
+
+		ApformIpojoLegacyInstance apformInstance = new ApformIpojoLegacyInstance(ipojoInstance);
+		Apform2Apam.newInstance(apformInstance.getName(), apformInstance);
+		
+		return true;
 	}
 	
 	/**
 	 * Callback to handle instance unbinding
 	 */
-	public void instanceUnbound(ComponentInstance instance) {
+	public void instanceUnbound(ComponentInstance ipojoInstance) {
+		Apform2Apam.vanishInstance(ipojoInstance.getInstanceName());
 	}
 
 
@@ -112,7 +149,6 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
     
 	@Override
 	public Object addingService(ServiceReference reference) {
-		Object service = context.getService(reference);
 
 		/*
 		 * Ignore events while APAM is not available
@@ -123,34 +159,15 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 		/*
 		 * ignore services that are not iPojo
 		 */
-		if (!(service instanceof Pojo))
-			return  null;
-		
-		ComponentInstance ipojoInstance = ((Pojo)service).getComponentInstance();
-		
-		/*
-		 * ignore handler instances
-		 */
-		if (ipojoInstance.getFactory() instanceof HandlerFactory)
-			return null;
-		
-		/*
-		 * Ignore native APAM components
-		 */
-		if (ipojoInstance instanceof ApformIpojoInstance)
-			return null;
-		
-		
-		/*
-		 * Ignore  hybrid components already registered by the dependency handler
-		 */
-		if (ipojoInstance.getInstanceDescription().getHandlerDescription("fr.imag.adele.apam:dependency") != null)
-			return null;
+		Object service = context.getService(reference);
+		if ( (service instanceof Pojo) && instanceBound(((Pojo)service).getComponentInstance()))
+			return  service;
 
-		
-		ApformIpojoLegacyInstance apformInstance = new ApformIpojoLegacyInstance(ipojoInstance);
-		Apform2Apam.newInstance(apformInstance.getName(), apformInstance);
-		return service;
+		/*
+		 * If service is not a recognized iPojo instance, don't track it
+		 */
+		context.ungetService(reference);
+		return null;
 	}
 
 	@Override
@@ -160,14 +177,12 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 			return;
 		
 		ComponentInstance ipojoInstance = ((Pojo) service).getComponentInstance();
-		Apform2Apam.vanishInstance(ipojoInstance.getInstanceName());
+		instanceUnbound(ipojoInstance);
 		context.ungetService(reference);
 	}
 
 	@Override
 	public void modifiedService(ServiceReference reference, Object service) {
 	}
-
-
 
 }
