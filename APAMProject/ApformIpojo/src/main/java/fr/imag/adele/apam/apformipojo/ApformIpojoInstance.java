@@ -71,6 +71,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     /**
      * Adds a new dependency declaration to this instance
      */
+    @Override
     public void addDependency(Dependency dependency) {
         dependencies.put(dependency.getName(), dependency);
     }
@@ -90,6 +91,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      * 
      * @param dependency
      */
+    @Override
     public void resolve(Dependency dependency) {
 
         /*
@@ -106,7 +108,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
             return;
         }
 
-        System.err.println("resolving " + getInstanceName() + " dependency " + dependency.getName());
+//        System.err.println("resolving " + getInstanceName() + " dependency " + dependency.getName());
         /*
          * Make a copy of constraints and preferences before invoking resolution. This allow resolution managers to modify constraints
          * and preferences are part of their processing.
@@ -208,7 +210,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      */
     @Override
     public boolean setWire(Instance destInst, String depName) {
-        System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
+//        System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
         Dependency dependency = dependencies.get(depName);
 
         if (dependency == null)
@@ -223,7 +225,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      */
     @Override
     public boolean remWire(Instance destInst, String depName) {
-        System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
+//        System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
         Dependency dependency = dependencies.get(depName);
 
         if (dependency == null)
@@ -238,8 +240,8 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      */
     @Override
     public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-        System.err.println("Native instance subs wire " + depName + " :" + getInstanceName() + "from ->" + oldDestInst
-                + " to ->" + newDestInst);
+//        System.err.println("Native instance subs wire " + depName + " :" + getInstanceName() + "from ->" + oldDestInst
+//                + " to ->" + newDestInst);
         Dependency dependency = dependencies.get(depName);
 
         if (dependency == null)
