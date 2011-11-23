@@ -12,10 +12,10 @@ public class S5Impl implements S5, ApamComponent {
     @Override
     public void callS5(String s) {
         System.out.println("S5 called " + s);
-        if (s2_inv != null)
-            s2_inv.callBackS2(" back to S2 from s5");
-        else
-            System.err.println("s2_inv is null");
+//        if (s2_inv != null)
+//            s2_inv.callBackS2(" back to S2 from s5");
+//        else
+//            System.err.println("s2_inv is null");
     }
 
     @Override

@@ -19,10 +19,14 @@
 		<properties shared="true" scope="local">
 			<property name="test" type="string" value="bof"/>
 		</properties>
+		<dependency field="s5" specification="S5"/>
+		<dependency field="s4" specification="S4"/>
 	</implementation>
 	
+<!-- 	
 	<ipojo:instance component="S3Impl" name="S3Impl-instance1"/>
 	<ipojo:instance component="S3Impl" name="S3Impl-instance2"/>
 	<ipojo:instance component="S3Impl" name="S3Impl-instance3"/>
-</ipojo>
+ -->
+ </ipojo>
 

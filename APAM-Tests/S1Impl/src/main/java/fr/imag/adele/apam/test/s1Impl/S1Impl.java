@@ -12,8 +12,7 @@ public class S1Impl implements S1 {
 
     public void callS1(String s) {
         System.out.println("S1 called " + s);
-        s2.callS2("from S1Impl");
-        if (s4 == null)
-            System.out.println("s4 is null in S1Impl");
+        s2.callS2("from S1Impl internal");
+        s4.callS4_final("From S1Impl external");
     }
 }

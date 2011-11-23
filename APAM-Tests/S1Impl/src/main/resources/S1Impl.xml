@@ -17,8 +17,7 @@
 		<dependency field="s4" />
 	</implementation>
 
-	<implementation name="S1Main"
-		classname="fr.imag.adele.apam.test.s1Impl.S1Main">
+	<implementation name="S1Main" classname="fr.imag.adele.apam.test.s1Impl.S1Main">
 		<properties shared="false">
 			<property name="s1 main" type="String" value="pas d interface" />
 		</properties>

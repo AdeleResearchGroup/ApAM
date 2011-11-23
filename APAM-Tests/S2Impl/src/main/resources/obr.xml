@@ -3,7 +3,7 @@
       <p n='name' v='S2Compo' />
       <p n='apam-specification' v='S2' />
       <p n='apam-composite' v='true' />
-      <p n='apam-main-implementation' v='S2Impl' />
+      <p n='apam-main-implementation' v='S2Simple' />
       <p n='shared' v='false' />
       <p n='interfaces' v=';fr.imag.adele.apam.test.s2.S2;fr.imag.adele.apam.apamAPI.ApamComponent;' />
    </capability>
@@ -14,6 +14,13 @@
       <p n='scope' v='global' />
       <p n='test' v='yes' />
       <p n='interfaces' v=';fr.imag.adele.apam.test.s2.S2;fr.imag.adele.apam.ApamComponent;' />
+   </capability>
+   <capability name='apam-component'>
+      <p n='name' v='S2Simple' />
+      <p n='apam-specification' v='S2' />
+      <p n='shared' v='false' />
+      <p n='test22' v='yes' />
+      <p n='interfaces' v=';fr.imag.adele.apam.test.s2.S2;' />
    </capability>
    <capability name='apam-component'>
       <p n='name' v='S2ImplBis' />

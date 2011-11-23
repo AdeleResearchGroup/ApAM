@@ -10,8 +10,8 @@ public class S1Main implements Runnable, ApamComponent {
     public void run() {
         s1.callS1("From S1 Main ");
         System.out.println("End of S1 MAIN");
-        s1 = null; // ne fait rien, reprend la meme valeur
-        s1.callS1("Deuxieme from S1 Main");
+//        s1 = null; // ne fait rien, reprend la meme valeur
+//        s1.callS1("Deuxieme from S1 Main");
     }
 
     public void apamStart(Instance inst) {
