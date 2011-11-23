@@ -186,6 +186,13 @@ public class ApformIpojoImplementation extends ComponentFactory implements Apfor
     public boolean hasInstrumentedCode() {
         return true;
     }
+    
+    /**
+     * Whether this implementation is an abstract specification
+     */
+    public boolean isAbstract() {
+    	return false;
+    }
 
     /**
      * Creates an instance.
@@ -385,7 +392,7 @@ public class ApformIpojoImplementation extends ComponentFactory implements Apfor
     /**
      * Register this implementation with APAM
      */
-    private void bindToApam(Apam apam) {
+    protected void bindToApam(Apam apam) {
         Apform2Apam.newImplementation(getName(), this);
     }
 
@@ -394,7 +401,7 @@ public class ApformIpojoImplementation extends ComponentFactory implements Apfor
      * 
      * @param apam
      */
-    private void unbindFromApam(Apam apam) {
+    protected void unbindFromApam(Apam apam) {
         Apform2Apam.vanishImplementation(getName());
     }
 

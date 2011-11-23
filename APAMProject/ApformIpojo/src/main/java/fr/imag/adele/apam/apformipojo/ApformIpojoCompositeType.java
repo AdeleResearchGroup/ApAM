@@ -230,13 +230,6 @@ public class ApformIpojoCompositeType extends ApformIpojoImplementation {
     }
 
     /**
-     * Get the composites's provided interfaces
-     */
-    public String[] getProvidedInterfaces() {
-        return providedInterfaces;
-    }
-
-    /**
      * Get The list of models associated to this composite
      */
     public Set<ManagerModel> getManagerModels() {

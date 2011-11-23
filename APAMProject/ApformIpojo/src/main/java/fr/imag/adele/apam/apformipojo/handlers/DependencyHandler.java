@@ -127,7 +127,9 @@ public class DependencyHandler extends ImplementationHandler {
 			throw new ConfigurationException("iPojo component "+quote(componentDescriptor.getName())+": " 
 								+ "the component class "+ getFactory().getClassName() + " can not be loaded");
 		}
-			
+
+		boolean isAbstract = (isApamImplementation && implementationDescription.getFactory().isAbstract());
+
 		/*
 		 * Statically validate the component type dependencies
 		 */
@@ -164,7 +166,7 @@ public class DependencyHandler extends ImplementationHandler {
 									+ "a field must be specified");
 			}
 
-			if ((!hasInstrumentedCode) && dependencySourceNames == null) {
+			if ((!hasInstrumentedCode) && (!isAbstract) && dependencySourceNames == null) {
 				throw new ConfigurationException("APAM Dependency "+quote(implementationName)+": "
 									+ "a source must be specified");
 			}
@@ -380,7 +382,7 @@ public class DependencyHandler extends ImplementationHandler {
 			dependency.isMultiple 		= isDependencyAggregate;
 			dependency.target 			= dependencyInterface;
 			dependency.targetKind 		= TargetKind.INTERFACE;
-			dependency.source			= !hasInstrumentedCode ? ParseUtils.parseArrays(dependencySourceNames) : new String[0];
+			dependency.source			= (hasInstrumentedCode || isAbstract) ?  new String[0] : ParseUtils.parseArrays(dependencySourceNames);
 			
 			if (dependencySpecification != null) {
 				dependency.target 		= dependencySpecification;
