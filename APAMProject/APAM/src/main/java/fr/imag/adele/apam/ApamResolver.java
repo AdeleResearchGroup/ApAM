@@ -79,8 +79,8 @@ public class ApamResolver {
                 return false;
             }
             case IMPLEMENTATION: {
-//                System.err.println("Should not happen ! Case implementation in matchDependencyCompo; from " + from
-//                        + " dependance " + dep);
+                System.err.println("Should not happen ! Case implementation in matchDependencyCompo; from " + from
+                        + " dependance " + dep);
 //                if (to.getImpl().getName().equals(dep.target)) {
 //                    for (String sourceSpec : dep.source) {
 //                        if (sourceSpec.equals(fromSpec))

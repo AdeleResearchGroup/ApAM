@@ -53,8 +53,7 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         } else
             name = specName;
         if (apfSpec != null) {
-            this.apfSpec = apfSpec;
-            this.interfaces = apfSpec.getInterfaceNames();
+            setSamSpec(apfSpec);
         } else {
             this.interfaces = interfaces;
         }
@@ -228,6 +227,8 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         if (apfSpec == null)
             return;
         this.apfSpec = apfSpec;
+        interfaces = apfSpec.getInterfaceNames();
+        putAll(apfSpec.getProperties());
     }
 
     @Override
@@ -263,11 +264,14 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
     @Override
     public Implementation getImpl(Set<Filter> constraints, List<Filter> preferences) {
         Set<Implementation> impls = null;
-        if ((preferences != null) && !preferences.isEmpty()) {
+        if ((constraints == null) || constraints.isEmpty()) {
             impls = getImpls(constraints);
         } else
             impls = implementations;
-        if ((constraints == null) || constraints.isEmpty())
+        if ((impls == null) || impls.isEmpty())
+            return null;
+
+        if ((preferences != null) && !preferences.isEmpty())
             return ((Implementation) impls.toArray()[0]);
 
         return getPreferedImpl(impls, preferences);

@@ -18,6 +18,7 @@ import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
 import fr.imag.adele.apam.apamImpl.ImplementationBrokerImpl;
+import fr.imag.adele.apam.apamImpl.SpecificationImpl;
 
 public class Apform2Apam {
 //    static Set<String>  expectedDeployedImpls = new HashSet<String>();
@@ -238,13 +239,13 @@ public class Apform2Apam {
 
             Specification spec = CST.SpecBroker.getSpec(specificationName);
             if (spec != null) {
-                System.err.println("Specification already existing: " + specificationName);
+                System.err.println("Specification already existing: merging with " + specificationName);
+                ((SpecificationImpl) spec).setSamSpec(specification);
                 return;
             }
 
             spec = CST.SpecBroker.addSpec(specificationName, specification, specification.getProperties());
         }
-
     }
 
 //    synchronized (ApformImpl.expectedImpls) {
