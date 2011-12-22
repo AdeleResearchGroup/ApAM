@@ -1,0 +1,19 @@
+<ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+
+	<specification name="S2" interfaces="fr.imag.adele.apam.test.s2.S2">
+		<properties shared="false" scope="global">
+			<property test-spec="coucou" type="string"/>
+		</properties>
+		<definitions>
+			<definition name="b" type="boolean" value="true" />
+			<definition name="c" type="string" />
+		</definitions>
+
+		<dependencies>
+			<specification name="S3" />
+			<interface name="example.S4" />
+			<message name="example.DataType2" />
+		</dependencies>
+	</specification>
+
+</ipojo>

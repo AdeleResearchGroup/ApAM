@@ -52,21 +52,6 @@ public class Injector implements Runnable, ApamComponent {
     public void run() {
         // public void apamStart() {
         System.out.println("starting injector");
-        Integer[] temp = new Integer[] { Integer.valueOf(10),
-                Integer.valueOf(50), Integer.valueOf(100),
-                Integer.valueOf(250), Integer.valueOf(500),
-                Integer.valueOf(1000), Integer.valueOf(2000),
-                Integer.valueOf(3000), Integer.valueOf(4000),
-                Integer.valueOf(5000), Integer.valueOf(6000),
-                Integer.valueOf(7000), Integer.valueOf(8000),
-                Integer.valueOf(9000), Integer.valueOf(10000),
-                Integer.valueOf(11000), Integer.valueOf(12000),
-                Integer.valueOf(13000), Integer.valueOf(14000),
-                Integer.valueOf(15000), Integer.valueOf(16000),
-                Integer.valueOf(17000), Integer.valueOf(18000),
-                Integer.valueOf(19000), Integer.valueOf(20000)
-        };
-        ComponentTestImpl.checkpoints = new HashSet(Arrays.asList(temp));
 
         JFileChooser fileChooser = new JFileChooser();
         FileFilter filter = new FileNameExtensionFilter("*.properties",
@@ -96,36 +81,26 @@ public class Injector implements Runnable, ApamComponent {
 
     private void createTreeInstance() {
 
-//        CompositeType testPerf = apam.createCompositeType("TestPerfApam", "TestApam",
-//                null /* models */, null /* properties */);
-//        ASMInst test = testPerf.createInst(null /* composite */, null/* properties */);
-//        Service s = (Service) test.getServiceObject();
-//        s.callTestPerf();
-
         testPerf.callTestPerf();
+        Runtime r = Runtime.getRuntime();
+        r.gc();
+        long usedMemory = r.totalMemory() - r.freeMemory();
+        usedMemory = usedMemory / 1024;
+        usedMemory = usedMemory / 1024;
+        long duration = (System.nanoTime() - ComponentTestImpl.startTime) / 1000000;
+        System.out.println("NbInstances " + ComponentTestImpl.instances +
+                " / usedMemory: " + usedMemory + "; duration (mili sec): " + duration);
 
-//        int k = 0;
-//        
-//        if (testPerf == null) {
-//            System.out.println("ya un pb, testPerf is null");
-//        }
-//        for (int i = 1; i < 10; i++) {
-//            nanoTimeStart = System.nanoTime();
-//            for (int j = 1; j < 10000; j++) {
-//                k = 1;
-//            }
-//            long during = (System.nanoTime() - nanoTimeStart) / 1000;
-//            System.out.println("loop alone 10 000. Invocation time (µS): " + during);
-//        }
-//        for (int i = 1; i < 10; i++) {
-//            nanoTimeStart = System.nanoTime();
-//            for (int j = 1; j < 10000; j++) {
-//                k = 1;
-//                s.callPerf(1);
-//            }
-//            long during = (System.nanoTime() - nanoTimeStart) / 1000;
-//            System.out.println("10 000 calls loop. Invocation time (µS): " + during);
-//        }
+        testPerf.call(limit);
+        r = Runtime.getRuntime();
+        r.gc();
+        usedMemory = r.totalMemory() - r.freeMemory();
+        usedMemory = usedMemory / 1024;
+        usedMemory = usedMemory / 1024;
+        duration = (System.nanoTime() - ComponentTestImpl.startTime) / 1000000;
+        System.out.println("Final NbInstances " + ComponentTestImpl.instances +
+                " / usedMemory: " + usedMemory + "; duration (mili sec): " + duration);
+
         long nanoTimeStart;
         ComponentTestImpl.startTime = System.nanoTime();
         for (int i = 1; i < 10; i++) {
@@ -137,11 +112,10 @@ public class Injector implements Runnable, ApamComponent {
         }
     }
 
-    private int calculateI(double x) {
-        double ret = 0;
-        ret = Math.log10((x + 1) * 0.5) / Math.log10(2);
+    @Override
+    public void apamStop() {
+        // TODO Auto-generated method stub
 
-        return Double.valueOf(ret).intValue();
     }
 
     @Override
@@ -150,9 +124,4 @@ public class Injector implements Runnable, ApamComponent {
 
     }
 
-    @Override
-    public void apamStop() {
-        // TODO Auto-generated method stub
-
-    }
 }

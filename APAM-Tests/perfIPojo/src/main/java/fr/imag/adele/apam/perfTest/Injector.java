@@ -140,14 +140,6 @@ public class Injector {
             nanoTimeStart = System.nanoTime();
             for (int j = 1; j < 10000; j++) {
                 k = 1;
-            }
-            long during = (System.nanoTime() - nanoTimeStart) / 1000;
-            System.out.println("loop alone 10 000. Invocation time (µS): " + during);
-        }
-        for (int i = 1; i < 10; i++) {
-            nanoTimeStart = System.nanoTime();
-            for (int j = 1; j < 10000; j++) {
-                k = 1;
                 testPerf.callPerf(1);
             }
             long during = (System.nanoTime() - nanoTimeStart) / 1000;

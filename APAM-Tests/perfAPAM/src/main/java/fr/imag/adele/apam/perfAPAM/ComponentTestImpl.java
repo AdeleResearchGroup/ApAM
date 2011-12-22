@@ -14,31 +14,23 @@
  */
 package fr.imag.adele.apam.perfAPAM;
 
-import java.util.Properties;
 import java.util.Set;
-import java.util.UUID;
-
-import org.apache.felix.ipojo.ComponentInstance;
-import org.apache.felix.ipojo.Factory;
-import org.apache.felix.ipojo.InstanceManager;
 
 public class ComponentTestImpl implements Service {
 
-    public static int          instances = 0;
-    public static Set<Integer> checkpoints;
-    public static long         startTime;
-    private final int          miliers;
+    public static int  instances = 0;
+    public static long startTime;
+    private final int  miliers;
 
-    private Service            instance1;
-    private Service            instance2;
+    private Service    instance1;
+    private Service    instance2;
 
-    private Service            testPerf;
+    private Service    testPerf;
 
     public ComponentTestImpl() {
         ComponentTestImpl.instances++;
         miliers = ComponentTestImpl.instances / 1000;
         if (miliers * 1000 == ComponentTestImpl.instances) {
-//        if (ComponentTestImpl.checkpoints.contains(Integer.valueOf(ComponentTestImpl.instances))) {
             Runtime r = Runtime.getRuntime();
             r.gc();
             long usedMemory = r.totalMemory() - r.freeMemory();
@@ -64,76 +56,20 @@ public class ComponentTestImpl implements Service {
 
     @Override
     public void callTestPerf() {
-        int k = 0;
         long nanoTimeStart;
         if (testPerf == null) {
             System.out.println("ya un pb, testPerf is null");
         }
-        for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < 100; i++) {
+            // System.out.println("\n\n" + i * 1000 + " loop");
             nanoTimeStart = System.nanoTime();
-            for (int j = 1; j < 10000; j++) {
-                k = 1;
-            }
-            long during = (System.nanoTime() - nanoTimeStart) / 1000;
-            System.out.println("loop alone 10 000. Invocation time (µS): " + during);
-        }
-        for (int i = 1; i < 10; i++) {
-            nanoTimeStart = System.nanoTime();
-            for (int j = 1; j < 10000; j++) {
-                k = 1;
+            for (int j = 1; j < i * 1000; j++) {
+
                 testPerf.callPerf(1);
             }
             long during = (System.nanoTime() - nanoTimeStart) / 1000;
-            System.out.println("10 000 calls loop. Invocation time (µS): " + during);
+            System.out.println(i * 1000 + "  calls loop. Invocation time (µS): " + during);
         }
-
     }
 
 }
-/*    
-    public void start() {
-        if (currentLevel == null) {
-            throw new NullPointerException("currentLevel is null");
-        }
-        int i = Integer.valueOf(currentLevel).intValue();
-        if (i <= ComponentTestImpl.limit) {
-            try {
-                i++;
-                System.out.println("current level = " + currentLevel);
-                Properties props = new Properties();
-                props.put(ComponentTestImpl.CURRENTLEVELPROPERTY, Integer.valueOf(i).toString());
-                props.put("instance.name", UUID.randomUUID().toString());
-
-                ComponentInstance instanceRef = ComponentTestImpl.factory.createComponentInstance(props);
-                instanceRef.start();
-                instance1 = (ComponentTestImpl) ((InstanceManager) instanceRef).getPojoObject();
-
-                props.put("instance.name", UUID.randomUUID().toString());
-                instanceRef = ComponentTestImpl.factory.createComponentInstance(props);
-                instanceRef.start();
-                instance2 = (ComponentTestImpl) ((InstanceManager) instanceRef).getPojoObject();
-
-                props = null;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            notEnd = false;
-        }
-    }
-
-    public void stop() {
-        instance1 = null;
-        instance2 = null;
-    }
-
-    @Override
-    public void call() {
-        if (notEnd) {
-            instance1.call();
-            instance2.call();
-        }
-
-    }
-}
-*/

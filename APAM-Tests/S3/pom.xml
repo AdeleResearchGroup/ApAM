@@ -28,6 +28,21 @@
 				<version>2.3.4</version>
 				<extensions>true</extensions>
 			</plugin>
+			<plugin>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>ApamMavenPlugIn</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>apam-ipojo-bundle</goal>
+						</goals>						
+						<configuration>
+							<metadata>src/main/resources/S3.xml</metadata>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>		
 		
  	   </plugins>
 	</build>

@@ -47,7 +47,7 @@
 	</implementation>
 
   
-	<composite name="S2Compo" specification="S2" mainImplem="S2Simple" interfaces="[fr.imag.adele.apam.test.s2.S2,fr.imag.adele.apam.apamAPI.ApamComponent]">
+	<composite name="S2Compo" specification="Sxxx" mainImplem="S2Simple" interfaces="[fr.imag.adele.apam.test.s2.Sxxx,fr.imag.adele.apam.apamAPI.ApamComponent]">
 		<properties shared="false" />
 		<instances internal="true" local=".*"/>
 		<implementations internal="true" local="S.Im.*"/>
