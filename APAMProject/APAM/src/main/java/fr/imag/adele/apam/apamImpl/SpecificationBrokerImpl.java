@@ -207,24 +207,14 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
         if ((interfaces == null) || (url == null))
             return null;
 
-        try {
-            if (!ApamInstall.intallFromURL(url, specName)) {
-                System.out.println("deployment failed for specification " + specName);
-                return null;
-            }
-//            DeploymentUnit du = CST.SAMDUBroker.install(url, "bundle");
-//            du.getSpecificationsName();
-        } catch (Exception e) {
+        Specification spec = getSpec(specName);
+        if (spec != null)
+            return spec;
+        spec = ApamInstall.intallSpecFromURL(url, specName);
+        if (spec == null) {
             System.out.println("deployment failed for specification " + specName);
-            e.printStackTrace();
-            return null;
         }
-
-        Specification asmSpec = getSpec(specName);
-        if (asmSpec == null) { // do not create twice
-            asmSpec = createSpec(specName, interfaces, properties);
-        }
-        return asmSpec;
+        return spec;
     }
 
     @Override

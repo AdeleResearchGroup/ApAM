@@ -121,20 +121,6 @@
 			<artifactId>org.apache.felix.ipojo</artifactId>
 			<scope>provided</scope>
 		</dependency>
-	<!-- 	<dependency>
-			<groupId>stax</groupId>
-			<artifactId>stax-api</artifactId>
-			<scope>provided</scope>
-		</dependency> 
-        <dependency>
-                <groupId>fr.imag.adele.sam</groupId>
-                <artifactId>SAM-Deployment-Core-API
-                </artifactId>
-        </dependency>              
-        <dependency>
-            <groupId>fr.imag.adele.am</groupId>
-            <artifactId>AbstractMachine-API</artifactId>
-        </dependency>-->
  	</dependencies>
 
 </project>

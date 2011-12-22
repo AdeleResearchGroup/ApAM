@@ -200,6 +200,22 @@ public interface Implementation extends ConcurrentMap<String, Object> {
         public TargetKind targetKind;    // INTERFACE, SPECIFICATION, IMPLEMENTATION
         public String[]   source;        // for composites, the list of source specifications.
         public boolean    isMultiple;    // cardinality multiple
+
+        @Override
+        public String toString() {
+            String val = "Dependency: \n         target: " + targetKind + "  " + target;
+            if (dependencyName != null)
+                val = val + "; field: " + dependencyName;
+            val = val + "; multiple = " + isMultiple;
+
+            if ((source != null) && (source.length > 0)) {
+                val = val + "\n         source specification: ";
+                for (String sc : source) {
+                    val = val + "  " + sc;
+                }
+            }
+            return val + "\n";
+        }
     }
 
     /**

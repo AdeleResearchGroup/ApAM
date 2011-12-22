@@ -156,27 +156,12 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
         if (asmImpl != null) { // do not create twice
             return asmImpl;
         }
-        try {
-            boolean found = ApamInstall.intallFromURL(url, implName);
-//            DeploymentUnit du = CST.SAMDUBroker.install(url, "bundle");
-//            Set<String> implementationsNames = du.getImplementationsName();
-//            boolean found = false;
-//            for (String implInBundle : implementationsNames) {
-//                if (implInBundle.equals(implName)) {
-//                    found = true;
-//                    break;
-//                }
-//            }
-            if (!found) {
-//                System.err.println("Error : Bundle at URL " + url + " does not contain implementation " + implName);
-                return null;
-            }
-//            du.activate();
-        } catch (Exception e) {
+        asmImpl = ApamInstall.intallImplemFromURL(url, implName);
+        if (asmImpl == null) {
             System.err.println("deployment failed :" + implName + " at URL " + url);
+            return null;
         }
-        asmImpl = Apform.getWaitImplementation(implName);
-        ApamResolver.deployedImpl(compo, asmImpl, true);
+        // ApamResolver.deployedImpl(compo, asmImpl, true);
         return asmImpl;
     }
 

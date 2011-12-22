@@ -28,6 +28,7 @@ import org.apache.felix.service.command.Descriptor;
 
 //import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Implementation.DependencyModel;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Apam;
@@ -108,15 +109,15 @@ public class ApamCommand {
             if ((specification.getName() != null)
                     && (specification.getName().equalsIgnoreCase(specificationName))) {
                 printSpecification("", specification);
-                testImplementations("   ", specification.getImpls());
+                // testImplementations("   ", specification.getImpls());
                 break;
             }
-            if ((specification.getName() != null)
-                    && (specification.getName().equalsIgnoreCase(specificationName))) {
-                printSpecification("", specification);
-                testImplementations("   ", specification.getImpls());
-                break;
-            }
+//            if ((specification.getName() != null)
+//                    && (specification.getName().equalsIgnoreCase(specificationName))) {
+//                printSpecification("", specification);
+//                // testImplementations("   ", specification.getImpls());
+//                break;
+//            }
         }
     }
 
@@ -326,9 +327,28 @@ public class ApamCommand {
             System.out.println(indent + "      " + interf);
         }
 
-        System.out.println(indent + "   Requires:");
+        Set<DependencyModel> deps = (Set<DependencyModel>) specification.get("dependencies");
+        if (deps != null) {
+            System.out.println(indent + "   Declared dependencies:");
+            for (DependencyModel dep : deps) {
+                System.out.println(indent + "      " + dep.targetKind + "  " + dep.target);
+            }
+        }
+
+        System.out.println(indent + "   Effective Required specs:");
         for (Specification spec : specification.getRequires()) {
             System.out.println(indent + "      " + spec);
+        }
+
+        System.out.println(indent + "   Required by:");
+
+        for (Specification spec : specification.getInvRequires()) {
+            System.out.println(indent + "      " + spec);
+        }
+
+        System.out.println(indent + "   Implementations:");
+        for (Implementation impl : specification.getImpls()) {
+            System.out.println(indent + "      " + impl);
         }
         printProperties(indent + "   ", specification);
 

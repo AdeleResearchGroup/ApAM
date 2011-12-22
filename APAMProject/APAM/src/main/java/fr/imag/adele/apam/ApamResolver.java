@@ -163,8 +163,8 @@ public class ApamResolver {
      * 
      * @param client the instance that requires the specification
      * @param interfaceName the name of one of the interfaces of the specification to resolve.
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
-     * @param depName. Optional. Name ot hte dependency between client and the instance to resolve.
+     * @param specName the *logical* name of that specification. May be null.
+     * @param depName. Optional. Name of the dependency between client and the instance to resolve.
      * @param constraints. Optional. To select the right instance.
      * @param preferences. Optional. To select the right instance.
      * @return
@@ -174,7 +174,7 @@ public class ApamResolver {
 
         if ((client == null) || ((interfaceName == null) && (specName == null))) {
             System.err.println("missing client, name or interface");
-            // may succed if an instance starts and not yet registered
+            // may succeed if an instance starts and not yet registered
             return null;
         }
 
@@ -452,23 +452,49 @@ public class ApamResolver {
     public static void deployedImpl(CompositeType compoType, Implementation impl, boolean deployed) {
         // it was not deployed
         if (!deployed && impl.isUsed()) {
-            // System.out.println(" : selected " + impl);
+            System.out.println(" : selected " + impl);
             return;
         }
         // it is deployed
+
+        // check if the implem really implemen,ts its specification
+        // if the spec has been formally defined, check if interfaces are really implemented
+        if (impl.getSpec().getApformSpec() != null) { // This spec has been formally described and deployed.
+            String[] mainInterfs = impl.getApformImpl().getInterfaceNames();
+            for (String interf : impl.getSpec().getInterfaceNames()) {
+                boolean found = false;
+                for (String i : mainInterfs) {
+                    if (i.equals(interf)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    System.err.print("ERROR: Invalid implementation " + impl + " for specification "
+                            + impl.getSpec() + "\nExpected implemented interface:");
+                    for (String i : impl.getSpec().getInterfaceNames())
+                        System.err.print("  " + i);
+                    System.err.print("\n                  Found:");
+                    for (String i : mainInterfs)
+                        System.err.print("  " + i);
+                    System.err.println("\n");
+                    break;
+                }
+            }
+        }
 
         // impl is inside compotype
         compoType.addImpl(impl);
 
         if (impl.isUsed()) {
-            // System.out.println("Logicaly deployed " + impl);
+            System.out.println("Logicaly deployed " + impl);
         } else {// it was unused so far.
             Apform.setUsedImpl(impl); // Remove it from unused
             if (impl instanceof CompositeType) { // it is a composite type
                 // if impl is a composite type, it is embedded inside compoFrom
                 ((CompositeTypeImpl) compoType).addEmbedded((CompositeType) impl);
             }
-            // System.out.println("   deployed " + impl);
+            System.out.println("   deployed " + impl);
         }
     }
 
@@ -490,12 +516,12 @@ public class ApamResolver {
         if (compoTypeFrom == null)
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
         Implementation impl = null;
-        // System.out.println("Looking for implementation " + implName + ": ");
+        System.out.println("Looking for implementation " + implName + ": ");
         boolean deployed = false;
         for (Manager manager : selectionPath) {
             if (!manager.getName().equals(CST.APAMMAN))
                 deployed = true;
-            // System.out.print(manager.getName() + "  ");
+            System.out.print(manager.getName() + "  ");
             impl = manager.findImplByName(compoTypeFrom, implName);
 
             if (impl != null) {
@@ -536,12 +562,12 @@ public class ApamResolver {
         if (compoTypeFrom == null)
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
         Implementation impl = null;
-        // System.out.println("Looking for an implem implementing " + specName + ": ");
+        System.out.println("Looking for an implem implementing " + specName + ": ");
         boolean deployed = false;
         for (Manager manager : selectionPath) {
             if (!manager.getName().equals(CST.APAMMAN))
                 deployed = true;
-            // System.out.println(manager.getName() + "  ");
+            System.out.println(manager.getName() + "  ");
             impl = manager.resolveSpecByName(compoTypeFrom, specName, constraints, preferences);
 
             if (impl != null) {
@@ -586,15 +612,15 @@ public class ApamResolver {
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
         Implementation impl = null;
         if (interfaceName != null) {
-            // System.out.println("Looking for an implem with interface " + interfaceName);
+            System.out.println("Looking for an implem with interface " + interfaceName);
         } else {
-            // System.out.println("Looking for an implem with interfaces " + interfaces);
+            System.out.println("Looking for an implem with interfaces " + interfaces);
         }
         boolean deployed = false;
         for (Manager manager : selectionPath) {
             if (!manager.getName().equals(CST.APAMMAN))
                 deployed = true;
-            // System.out.print(manager.getName() + "  ");
+            System.out.print(manager.getName() + "  ");
             impl = manager.resolveSpecByInterface(compoTypeFrom, interfaceName, interfaces, constraints, preferences);
             if (impl != null) {
                 ApamResolver.deployedImpl(compoTypeFrom, impl, deployed);
@@ -632,17 +658,17 @@ public class ApamResolver {
         if (compo == null)
             compo = CompositeImpl.getRootAllComposites();
         Instance inst = null;
-        // System.out.println("Looking for an instance of " + impl + ": ");
+        System.out.println("Looking for an instance of " + impl + ": ");
         for (Manager manager : selectionPath) {
-            // System.out.print(manager.getName() + "  ");
+            System.out.print(manager.getName() + "  ");
             inst = manager.resolveImpl(compo, impl, constraints, preferences);
             if (inst != null) {
-                // System.out.println("selected : " + inst);
+                System.out.println("selected : " + inst);
                 return inst;
             }
         }
         inst = impl.createInst(compo, null);
-        // System.out.println("instantiated : " + inst);
+        System.out.println("instantiated : " + inst);
         return inst;
     }
 
@@ -675,12 +701,12 @@ public class ApamResolver {
             compo = CompositeImpl.getRootAllComposites();
 
         Set<Instance> insts = null;
-        // System.out.println("Looking for instances of " + impl + ": ");
+        System.out.println("Looking for instances of " + impl + ": ");
         for (Manager manager : selectionPath) {
-            // System.out.print(manager.getName() + "  ");
+            System.out.print(manager.getName() + "  ");
             insts = manager.resolveImpls(compo, impl, constraints);
             if ((insts != null) && !insts.isEmpty()) {
-                // System.out.println("selected " + insts);
+                System.out.println("selected " + insts);
                 return insts;
             }
         }
@@ -689,7 +715,7 @@ public class ApamResolver {
         if (insts.isEmpty()) {
             insts.add(impl.createInst(compo, null));
         }
-        // System.out.println("instantiated " + (insts.toArray()[0]));
+        System.out.println("instantiated " + (insts.toArray()[0]));
         return insts;
     }
 

@@ -32,8 +32,7 @@ public interface Apam {
      * Creates an isolated composite type.
      * A single composite with this name can exist in APAM. Returns null if name conflicts.
      * 
-     * Creates a composite from an URL leading to a bundle containing either the main implem, or the url of the
-     * composite itself.
+     * Creates a composite from an URL leading to a bundle containing either the main implem, or the composite itself.
      * 
      * @param namcompositeTypeNamee. name of the new composite to create. Unique.
      * @param mainImplName. Name of the main implem. To be found in the bundle. If not found, returns null.

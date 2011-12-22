@@ -42,76 +42,108 @@ public class OBRMan implements Manager, IOBRMAN {
     private Repository      local;
     private Resource[]      allResources;
 
+//    private static String   defaultLocalRepo = null;
+
     /**
      * OBRMAN activated, register with APAM
      */
-    public void start() {
-        System.out.println("Started OBRMAN");
-        ApamManagers.addManager(this, 3);
-        // TODO should take its default model : its repositories.
 
-        // to test only
+    // When in maven plug-in
+    public OBRMan(String defaultLocalRepo) {
+        init(defaultLocalRepo);
+    }
+
+    // when in Felix.
+    public void start() {
+        ApamManagers.addManager(this, 3);
+        init(null);
+    }
+
+    public void init(String defaultLocalRepo) {
+        System.out.println("Started OBRMAN");
+
         try {
-            // local =
-            // repoAdmin.addRepository("file:///C:/Program%20Files/Apache%20Software%20Foundation/apache-maven-2.2.1/repository/repository.xml");
-            local = repoAdmin.addRepository("file:///F:/Maven/.m2/repository.xml");
+            if (defaultLocalRepo != null) {
+                local = repoAdmin.addRepository(defaultLocalRepo);
+            } else {
+                local = repoAdmin.getLocalRepository();
+            }
+            System.err.println("Local repo init = " + repoAdmin.getLocalRepository().getName() + " All repos = "
+                    + repoAdmin.listRepositories().toString());
         } catch (Exception e) {
+            System.err.println("Invalid repository address : " + defaultLocalRepo);
             e.printStackTrace();
         }
         System.out.println("local repo : " + local.getURI());
         resolver = repoAdmin.resolver();
         allResources = local.getResources(); // read once for each session, and cached.
-        // for (Resource res : allResources) {
-        // printRes(res);
-        // }
-        // Resource selected;
-        // selected = lookFor("bundle", "(symbolicname=ApamCommand)", null);
-        // selected = lookFor("apam-component", "(name=S2Impl)", null);
-        // selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", null);
-        // selected = lookFor("apam-component", "(apam-specification=S2)", null);
-        // selected = lookFor("apam-component", "(scope=LOCAL)", null);
-        // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", null);
-        // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", null);
-        // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", null);
-        // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.test.s2.S2)", null);
-        // selected = lookFor("apam-component",
-        // "(&(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)(scope=LOCAL))",
-        // null);
-        //
-        // Set<Filter> constraints = new HashSet<Filter>();
-        //
-        // selected = lookFor("bundle", "(symbolicname=ApamCommand)", constraints);
-        //
-        // try {
-        // Filter f = FilterImpl.newInstance("(&(scope=LOCAL)(shared=TRUE))");
-        // constraints.add(f);
-        // } catch (InvalidSyntaxException e) {
-        // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
-        // }
-        //
-        // selected = lookFor("apam-component", "(name=S2Impl)", constraints);
-        // selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", constraints);
-        // selected = lookFor("apam-component", "(apam-specification=S2)", null);
-        //
-        // try {
-        // Filter f = FilterImpl.newInstance("(test=yes)");
-        // constraints.add(f);
-        // } catch (InvalidSyntaxException e) {
-        // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
-        // }
-        //
-        // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", constraints);
-        // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", constraints);
-        // try {
-        // Filter f = FilterImpl.newInstance("(X=Y)");
-        // constraints.add(f);
-        // } catch (InvalidSyntaxException e) {
-        // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
-        // }
-        //
-        // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", constraints);
-
     }
+
+//        System.out.println("Started OBRMAN");
+//        ApamManagers.addManager(this, 3);
+//
+//        try {
+//            local = repoAdmin.getLocalRepository();
+//
+//            System.err.println("Local repo = " + repoAdmin.getLocalRepository().getName() + " All repos = "
+//                    + repoAdmin.listRepositories().toString());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        System.out.println("local repo : " + local.getURI());
+//        resolver = repoAdmin.resolver();
+//        allResources = local.getResources(); // read once for each session, and cached.
+    // for (Resource res : allResources) {
+    // printRes(res);
+    // }
+    // Resource selected;
+    // selected = lookFor("bundle", "(symbolicname=ApamCommand)", null);
+    // selected = lookFor("apam-component", "(name=S2Impl)", null);
+    // selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", null);
+    // selected = lookFor("apam-component", "(apam-specification=S2)", null);
+    // selected = lookFor("apam-component", "(scope=LOCAL)", null);
+    // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", null);
+    // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", null);
+    // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", null);
+    // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.test.s2.S2)", null);
+    // selected = lookFor("apam-component",
+    // "(&(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)(scope=LOCAL))",
+    // null);
+    //
+    // Set<Filter> constraints = new HashSet<Filter>();
+    //
+    // selected = lookFor("bundle", "(symbolicname=ApamCommand)", constraints);
+    //
+    // try {
+    // Filter f = FilterImpl.newInstance("(&(scope=LOCAL)(shared=TRUE))");
+    // constraints.add(f);
+    // } catch (InvalidSyntaxException e) {
+    // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
+    // }
+    //
+    // selected = lookFor("apam-component", "(name=S2Impl)", constraints);
+    // selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", constraints);
+    // selected = lookFor("apam-component", "(apam-specification=S2)", null);
+    //
+    // try {
+    // Filter f = FilterImpl.newInstance("(test=yes)");
+    // constraints.add(f);
+    // } catch (InvalidSyntaxException e) {
+    // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
+    // }
+    //
+    // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", constraints);
+    // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", constraints);
+    // try {
+    // Filter f = FilterImpl.newInstance("(X=Y)");
+    // constraints.add(f);
+    // } catch (InvalidSyntaxException e) {
+    // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
+    // }
+    //
+    // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", constraints);
+
+//    }
 
     public void stop() {
         ApamManagers.removeManager(this);
@@ -240,19 +272,16 @@ public class OBRMan implements Manager, IOBRMAN {
             }
         }
         return match;
-        // }
-        // }
-        // return 0;
     }
 
-    private Selected lookFor(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences) {
+    public Selected lookFor(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences) {
         if ((preferences != null) && !preferences.isEmpty()) {
             return lookForPref(capability, preferences, lookForAll(capability, filterStr, constraints));
         }
         return lookFor(capability, filterStr, constraints);
     }
 
-    private Selected lookFor(String capability, String filterStr, Set<Filter> constraints) {
+    public Selected lookFor(String capability, String filterStr, Set<Filter> constraints) {
         System.out.println("looking for capability : " + capability + "; filter : " + filterStr);
         // Requirement req = repoAdmin.getHelper().requirement(capability, filterStr);
         if (allResources == null)
@@ -586,7 +615,7 @@ public class OBRMan implements Manager, IOBRMAN {
         return null;
     }
 
-    private class Selected {
+    public class Selected {
         public Resource   resource;
         public Capability capability;
 

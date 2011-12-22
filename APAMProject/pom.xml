@@ -59,12 +59,12 @@
 			<organization>LIG / Adele</organization>
 		</developer>
 		<developer>
-			<id>Simon</id>
-			<name>Eric Simon</name>
-			<email>eric.simon@imag.fr</email>
+			<id>Vega</id>
+			<name>German Vega</name>
+			<email>german.vega@imag.fr</email>
 			<roles>
 				<role>Developer</role>
-				<role>Theses student</role>
+				<role>IR CNRS</role>
 			</roles>
 			<organization>LIG / Adele</organization>
 		</developer>
@@ -129,24 +129,24 @@
 				<artifactId>org.osgi.compendium</artifactId>
 				<version>1.4.0</version>
 				<scope>provided</scope>
-				<exclusions>
+<!-- 				<exclusions>
 					<exclusion>
 						<artifactId>org.osgi.foundation</artifactId>
 						<groupId>org.apache.felix</groupId>
 					</exclusion>
 				</exclusions>
-			</dependency>
+ -->			</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.apache.felix.ipojo</artifactId>
-				<version>1.6.2</version>
-				<exclusions>
+				<version>1.8.0</version>
+<!-- 				<exclusions>
 					<exclusion>
 						<artifactId>org.osgi.foundation</artifactId>
 						<groupId>org.apache.felix</groupId>
 					</exclusion>
 				</exclusions>
-				<scope>provided</scope>
+ -->				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
@@ -179,8 +179,8 @@
 				</exclusions>
 				<scope>provided</scope>
 			</dependency>
-			<dependency>
-				<groupId>stax</groupId>
+<!--			<dependency>
+ 				<groupId>stax</groupId>
 				<artifactId>stax-api</artifactId>
 				<version>1.0.1</version>
 				<scope>provided</scope>
@@ -243,7 +243,8 @@
 				<type>bundle</type>
 				<scope>compile</scope>
 			</dependency>
-		</dependencies>
+ -->
+ 		</dependencies>
 	</dependencyManagement>
 
 	<build>
@@ -315,5 +316,6 @@
 		<module>CONFMAN</module>
 		<module>DYNAMAN</module>
 		<module>DISTRIMAN</module>
+		<module>Apam2MavenPlugin</module>
 	</modules>
 </project>

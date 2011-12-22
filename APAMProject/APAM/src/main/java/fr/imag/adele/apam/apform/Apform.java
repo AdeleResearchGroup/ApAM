@@ -11,6 +11,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DynamicManager;
+import fr.imag.adele.apam.Specification;
 //import fr.imag.adele.apam.apamAPI.AttributeManager;
 import fr.imag.adele.apam.apamImpl.ImplementationImpl;
 import fr.imag.adele.apam.apamImpl.InstanceImpl;
@@ -24,8 +25,8 @@ public class Apform {
     static final CompositeType              rootType              = CompositeTypeImpl.getRootCompositeType();
     static final Composite                  rootInst              = CompositeImpl.getRootAllComposites();
 
-    static Set<Implementation>                     unusedImplems         = CompositeTypeImpl.getRootCompositeType().getImpls();
-    static Set<Instance>                     unusedInsts           = CompositeImpl.getRootAllComposites()
+    static Set<Implementation>              unusedImplems         = CompositeTypeImpl.getRootCompositeType().getImpls();
+    static Set<Instance>                    unusedInsts           = CompositeImpl.getRootAllComposites()
                                                                           .getContainInsts();
 
     // The managers are waiting for the apparition of an instance of the ASMImpl or implementing the interface
@@ -96,14 +97,38 @@ public class Apform {
         Implementation impl = CST.ImplBroker.getImpl(expectedImpl);
         if (impl != null)
             return impl;
-        
+
         Apform2Apam.waitForImplementation(expectedImpl);
         // The expected impl arrived. It is in unUsed.
         impl = CST.ImplBroker.getImpl(expectedImpl);
         if (impl == null) // should never occur
-           System.out.println("wake up but imlementation is not present " + expectedImpl);
-        
+            System.out.println("wake up but imlementation is not present " + expectedImpl);
+
         return impl;
+    }
+
+    /**
+     * A bundle is under deployment, in which is located the implementation to wait.
+     * The method waits until the implementation arrives and is notified by Apam-iPOJO.
+     * 
+     * @param expected the symbolic name of that implementation
+     * @return
+     */
+    public static Specification getWaitSpecification(String expected) {
+        if (expected == null)
+            return null;
+        // if allready here
+        Specification spec = CST.SpecBroker.getSpec(expected);
+        if (spec != null)
+            return spec;
+
+        Apform2Apam.waitForImplementation(expected);
+        // The expected impl arrived. It is in unUsed.
+        spec = CST.SpecBroker.getSpec(expected);
+        if (spec == null) // should never occur
+            System.out.println("wake up but specification is not present " + expected);
+
+        return spec;
     }
 
 //    /**

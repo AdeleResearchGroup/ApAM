@@ -18,6 +18,7 @@ import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apform.ApformImplementation;
 //import fr.imag.adele.apam.util.Attributes;
@@ -72,8 +73,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * @param attributes. initial properties. Can be null.
      */
     private CompositeTypeImpl(CompositeType fromCompo, String compositeName, String mainImplName,
-            Implementation mainImpl,
-            Set<ManagerModel> models, Map<String, Object> attributes, String specName) {
+            Implementation mainImpl, Set<ManagerModel> models, Map<String, Object> attributes, String specName) {
         // the composite itself as an ASMImpl. Warning created empty. Must be fully initialized.
         super();
         name = compositeName;
@@ -96,8 +96,43 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                 System.err.println("cannot find main implementation " + mainImplName);
                 return;
             }
-            if (specName != null)
+        }
+
+        // Spec and interface consistency checking
+        if (specName != null) {
+            // check if mainImpl really implements the composite spec;
+            Specification spec = CST.SpecBroker.getSpec(specName);
+            if (spec != mainImpl.getSpec()) {
+                System.err.println("ERROR: Invalid main implementation " + mainImpl + " for composite type "
+                            + compositeName +
+                            ". Specification should be " + specName + " and not " + mainImpl.getSpec());
+            } else
                 ((SpecificationImpl) mainImpl.getSpec()).setName(specName);
+
+            // if the spec has been formally defined, check if interfaces are really implemented
+            if (spec.getApformSpec() != null) { // This spec has been formally described and deployed.
+                String[] mainInterfs = mainImpl.getApformImpl().getInterfaceNames();
+                for (String interf : spec.getInterfaceNames()) {
+                    boolean found = false;
+                    for (String i : mainInterfs) {
+                        if (i.equals(interf)) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        System.err.print("ERROR: Invalid main implementation " + mainImpl + " for composite type "
+                                + compositeName + "\nExpected implemented interface:");
+                        for (String i : spec.getInterfaceNames())
+                            System.err.print("  " + i);
+                        System.err.print("\n                  Found:");
+                        for (String i : mainInterfs)
+                            System.err.print("  " + i);
+                        System.err.println("\n");
+                        break;
+                    }
+                }
+            }
         }
 
         this.models = models;
@@ -151,35 +186,32 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     }
 
     /**
-     * Create a composite type, from its object in sam : samImpl.
+     * Create a composite type, from its object in OSGi bundle : apfImpl.
      * Look for its main implementation, and deploys it if needed.
      * 
-     * @param implComposite : a false implementation that contains the composite type.
-     * @param samImpl
+     * @param implComposite : the composite type that will contain the new one.
+     * @param apfImpl : the object in iPOJO representing the composite type.
      * @return
      */
-    public static CompositeType createCompositeType(CompositeType implComposite, ApformImplementation samImpl) {
+    public static CompositeType createCompositeType(CompositeType implComposite, ApformImplementation apfImpl) {
         // String implName = null;
         String specName = null;
         String mainImplName = null;
         Set<ManagerModel> models = null;
         String[] interfaces = null;
-        Map<String, Object> properties = samImpl.getProperties();
-//        Map<String, Object> p = samImpl.getProperties();
-//        for (String prop : p.keySet()) {
-//            properties.put(prop, p.get(prop));
-//        }
-        mainImplName = (String) samImpl.getProperty(CST.A_MAIN_IMPLEMENTATION);
-        specName = (String) samImpl.getProperty(CST.A_APAMSPECNAME);
-        models = (Set<ManagerModel>) samImpl.getProperty(CST.A_MODELS);
+        Map<String, Object> properties = apfImpl.getProperties();
+        mainImplName = (String) apfImpl.getProperty(CST.A_MAIN_IMPLEMENTATION);
+        specName = (String) apfImpl.getProperty(CST.A_APAMSPECNAME);
+        models = (Set<ManagerModel>) apfImpl.getProperty(CST.A_MODELS);
 
         if (implComposite == null) {
             implComposite = CompositeTypeImpl.rootCompoType;
             properties.put(CST.A_VISIBLE, CST.V_LOCAL);
         }
 
-        return CompositeTypeImpl.createCompositeType(implComposite, samImpl.getName(),
+        return CompositeTypeImpl.createCompositeType(implComposite, apfImpl.getName(),
                     mainImplName, specName, models, properties);
+        // TODO check dependencies : those of apfImpl, and mainImpl.
     }
 
     public String getScopeInComposite(Instance inst) {
@@ -316,14 +348,16 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      */
     public static CompositeType createCompositeType(CompositeType fromCompo, String name, Set<ManagerModel> models,
             String implName, URL url, String specName, Map<String, Object> properties) {
+
         Implementation mainImpl;
-        mainImpl = CST.ImplBroker.createImpl(null, implName, url, properties);
         if (fromCompo == null) {
             fromCompo = CompositeTypeImpl.rootCompoType;
             if (properties == null)
                 properties = new ConcurrentHashMap<String, Object>();
             properties.put(CST.A_VISIBLE, CST.V_LOCAL);
         }
+        mainImpl = CST.ImplBroker.createImpl(null, implName, url, properties);
+
         if (mainImpl instanceof CompositeType) {
             return (CompositeType) mainImpl;
         }

@@ -402,14 +402,6 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         }
         CST.ImplBroker.removeImpl(this);
         ((SpecificationImpl) getSpec()).removeImpl(this);
-        // remove the APAM specific attributes in SAM
-//        if (apfImpl != null) {
-//            try {
-//                apfImpl.removeProperty(Attributes.APAMCOMPO);
-//            } catch (ConnectionException e) {
-//                e.printStackTrace();
-//            }
-//        }
     }
 
     public void removeInst(Instance inst) {

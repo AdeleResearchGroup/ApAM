@@ -118,7 +118,7 @@ public class ApamRepoBuilder {
         // The ipojo name
         obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
 
-        // The name of the APAM provided interface. Optional if not defined the interface will be used
+        // The name of the APAM provided specification. Optional: if not defined, the interfaces will be used
         if (component.getApamSpecification() != null)
             obrContent.append("      <p n='apam-specification' v='" + component.getApamSpecification()
                     + "' />\n");
@@ -278,8 +278,8 @@ public class ApamRepoBuilder {
      */
     private boolean isApamComponent(Element meta) {
 
-    	boolean isApam = meta.getNameSpace() != null && meta.getNameSpace().equals(ApamComponentInfo.APAM_NAMESPACE);
-    	
+        boolean isApam = (meta.getNameSpace() != null) && meta.getNameSpace().equals(ApamComponentInfo.APAM_NAMESPACE);
+
         boolean isImplementation = meta.getName().equalsIgnoreCase("implementation")
                 && (meta.getAttribute("classname") != null);
         boolean isComposite = meta.getName().equalsIgnoreCase("composite");
@@ -298,7 +298,7 @@ public class ApamRepoBuilder {
 
         final static String   APAM_SPECIFICATION_PROPERTY  = "specification";
 
-        final static String   APAM_INTERFACES_PROPERTY  = "interfaces";
+        final static String   APAM_INTERFACES_PROPERTY     = "interfaces";
 
         final static String   APAM_IMPLEMENTATION_PROPERTY = "mainImplem";
 
@@ -340,7 +340,6 @@ public class ApamRepoBuilder {
         public String getApamSpecification() {
             return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_SPECIFICATION_PROPERTY);
         }
-
 
         /**
          * Get the apam implementation of the main specification for a composite.
@@ -391,12 +390,12 @@ public class ApamRepoBuilder {
              */
             if (isComposite()) {
 
-            	String encodedInterfaces = m_componentMetadata.getAttribute(ApamComponentInfo.APAM_INTERFACES_PROPERTY);
-            	if (encodedInterfaces != null) {
-	            	for (String interfaceName : parseArrays(encodedInterfaces)) {
-	                	interfaces.add(interfaceName);
-					}
-            	}
+                String encodedInterfaces = m_componentMetadata.getAttribute(ApamComponentInfo.APAM_INTERFACES_PROPERTY);
+                if (encodedInterfaces != null) {
+                    for (String interfaceName : ApamRepoBuilder.parseArrays(encodedInterfaces)) {
+                        interfaces.add(interfaceName);
+                    }
+                }
             }
 
             return interfaces;
@@ -409,12 +408,14 @@ public class ApamRepoBuilder {
 
             Map<String, String> properties = new HashMap<String, String>();
 
-            for (Element propertiesDeclaration : optional(m_componentMetadata.getElements("properties",ApamComponentInfo.APAM_NAMESPACE))) {
+            for (Element propertiesDeclaration : optional(m_componentMetadata.getElements("properties",
+                    ApamComponentInfo.APAM_NAMESPACE))) {
                 for (Attribute attribute : optional(propertiesDeclaration.getAttributes())) {
-                	 properties.put(attribute.getName(),attribute.getValue());
-				}
-                
-            	for (Element property : optional(propertiesDeclaration.getElements("property",ApamComponentInfo.APAM_NAMESPACE))) {
+                    properties.put(attribute.getName(), attribute.getValue());
+                }
+
+                for (Element property : optional(propertiesDeclaration.getElements("property",
+                        ApamComponentInfo.APAM_NAMESPACE))) {
                     if (property.containsAttribute("value")) {
                         properties.put(property.getAttribute("name"), property.getAttribute("value"));
                     }
@@ -430,7 +431,7 @@ public class ApamRepoBuilder {
     /**
      * Constant to represent undefined elements
      */
-    final static Element[] EMPTY_ELEMENT_LIST = new Element[0];
+    final static Element[]   EMPTY_ELEMENT_LIST   = new Element[0];
 
     /**
      * Constant to represent undefined attributes
