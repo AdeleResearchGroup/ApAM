@@ -18,6 +18,8 @@ import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import org.apache.felix.bundlerepository.Property;
+import org.apache.felix.bundlerepository.impl.PropertyImpl;
 
 import org.apache.felix.ipojo.manipulation.ClassChecker;
 import org.apache.felix.ipojo.metadata.Attribute;
@@ -159,6 +161,19 @@ public class Apam2RepoBuilder {
             obrContent.append("      <p n='" + propertyName + "' v='"
                     + properties.get(propertyName) + "' />\n");
         }
+
+        // defination attributes
+        List<Property> definations = component.getDefinitions();
+        for (Property definition : definations) {
+            String tempContent = "      <p n='" + definition.getName() + "' t='"
+                    + definition.getType()+ "'" ;
+            if  (definition.getValue()!= null){
+                 tempContent = tempContent   + (" v='" + (definition.getValue()) + "'");
+            }
+            tempContent = tempContent   + " />\n";
+            obrContent.append(tempContent);
+        }
+
 
         // interfaces
         List<String> interfaces = component.getInterfaces(jarfile);
@@ -458,7 +473,9 @@ public class Apam2RepoBuilder {
                 for (Element property : optional(propertiesDeclaration.getElements("property",
                         ApamComponentInfo.APAM_NAMESPACE))) {
                     for (Attribute attr : property.getAttributes()) {
-                        properties.put(attr.getName(), attr.getValue());
+                        if (!attr.getName().equalsIgnoreCase("type") && !attr.getName().equalsIgnoreCase("field")){
+                            properties.put(attr.getName(), attr.getValue());
+                        }
                     }
 //                    if (property.containsAttribute("value")) {
 //                        properties.put(property.getAttribute("name"), property.getAttribute("value"));
@@ -471,14 +488,15 @@ public class Apam2RepoBuilder {
         /**
          * Get the list of properties defined for this component
          */
-        public Map<String, String> getDefinitions() {
+        public List<Property> getDefinitions() {
 
-            Map<String, String> properties = new HashMap<String, String>();
+            
+             List<Property> definitions = new ArrayList<Property>();
 
             for (Element propertiesDeclaration : optional(m_componentMetadata.getElements("definitions",
                     ApamComponentInfo.APAM_NAMESPACE))) {
                 for (Attribute attribute : optional(propertiesDeclaration.getAttributes())) {
-                    properties.put(attribute.getName(), attribute.getValue());
+                    definitions.add(new PropertyImpl(attribute.getName(), null, attribute.getValue()));
                 }
 
                 for (Element property : optional(propertiesDeclaration.getElements("definition",
@@ -487,11 +505,11 @@ public class Apam2RepoBuilder {
 //                        properties.put(attr.getName(), attr.getValue());
 //                    }
                     if (property.containsAttribute("name") && property.containsAttribute("type")) {
-                        properties.put(property.getAttribute("name"), property.getAttribute("type"));
+                        definitions.add(new PropertyImpl(property.getAttribute("name"), property.getAttribute("type"),property.getAttribute("value")));
                     }
                 }
             }
-            return properties;
+            return definitions;
         }
     }
 
