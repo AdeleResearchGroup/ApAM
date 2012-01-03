@@ -10,8 +10,13 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 public class CST {
 
     // Constants
+    // String
+    public static final String         A_SPECIFICATION       = "specification";
+    public static final String         A_IMPLEMENTATION      = "implementation";
+    public static final String         A_INSTANCE            = "instance";
+
     // value object : address of the iPOJO apam dependency handler
-    public static final String         A_DEPHANDLER          = "ApamDependencyHandler";
+//    public static final String         A_DEPHANDLER          = "ApamDependencyHandler";
     public static final String         A_APAMSPECNAME        = "ApamSpecName";
 
     // indicate in which scope this object is visible. Scope for instances, implscope for implems.
@@ -67,8 +72,6 @@ public class CST {
     // List<ManagerModel>
     public static final String         A_MODELS              = "apam-models";
     // List<String>
-//    public static final String         A_GLOBALSCOPE         = "globalScope";
-    // List<String>
     public static final String         A_APPLISCOPE          = "appliScope";
     // List<String>
     public static final String         A_COMPOSITESCOPE      = "compositeScope";
@@ -79,17 +82,12 @@ public class CST {
     // List<String>
     public static final String         A_COMPOSITEVISIBLE    = "compositeVisible";
     // List<String>
-//    public static final String         A_GLOBALVISIBLE       = "globalVisible";
-    // List<DependencyModel>
     public static final String         A_DEPENDENCIES        = "dependencies";
 
     // The entry point in the ASM : its brokers
     public static SpecificationBroker  SpecBroker            = null;
     public static ImplementationBroker ImplBroker            = null;
     public static InstanceBroker       InstBroker            = null;
-//    public static Apform2Apam          apform2Apam           = null;
-
-//    public static DeploymentUnitBroker SAMDUBroker           = null;
 
     // the Apam entry point.
     public static APAMImpl             apam                  = null;
@@ -98,7 +96,7 @@ public class CST {
         CST.SpecBroker = new SpecificationBrokerImpl();
         CST.ImplBroker = new ImplementationBrokerImpl();
         CST.InstBroker = new InstanceBrokerImpl();
-        CST.InstBroker = new InstanceBrokerImpl();
+//        CST.InstBroker = new InstanceBrokerImpl();
 //        CST.apform2Apam = new Apform2Apam();
         CST.apam = theApam;
     }
