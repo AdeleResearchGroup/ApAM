@@ -28,7 +28,7 @@ import org.apache.felix.service.command.Descriptor;
 
 //import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Implementation.DependencyModel;
+import fr.imag.adele.apam.apamImpl.Dependency;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Apam;
@@ -327,11 +327,12 @@ public class ApamCommand {
             System.out.println(indent + "      " + interf);
         }
 
-        Set<DependencyModel> deps = (Set<DependencyModel>) specification.get("dependencies");
+        Set<Dependency> deps = (Set<Dependency>) specification.get("dependencies");
         if (deps != null) {
             System.out.println(indent + "   Declared dependencies:");
-            for (DependencyModel dep : deps) {
-                System.out.println(indent + "      " + dep.targetKind + "  " + dep.target);
+            for (Dependency dep : deps) {
+                System.out.println(indent + "      " + dep.getAtomicDependency().targetKind + "  "
+                        + dep.getAtomicDependency().fieldName);
             }
         }
 
