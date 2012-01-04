@@ -1,8 +1,10 @@
 package fr.imag.adele.apam.apform;
 
 import java.util.Map;
+import java.util.Set;
 
 import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.apamImpl.Dependency;
 import fr.imag.adele.apam.util.Attributes;
 
 public interface ApformImplementation {
@@ -18,6 +20,12 @@ public interface ApformImplementation {
      * @return the array of full interface names
      */
     public String[] getInterfaceNames();
+
+    /**
+     * 
+     * @return the set of dependencies
+     */
+    public Set<Dependency> getDependencies();
 
     /**
      * 

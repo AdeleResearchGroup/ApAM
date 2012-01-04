@@ -23,6 +23,8 @@ import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apform.ApformImplementation;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
+import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.apform.ApformSpecification;
 
 //import fr.imag.adele.sam.Implementation;
 
@@ -72,11 +74,12 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * @param models. the models. Can be null.
      * @param attributes. initial properties. Can be null.
      */
-    private CompositeTypeImpl(CompositeType fromCompo, String compositeName, String mainImplName,
+    private CompositeTypeImpl(CompositeType fromCompo, String nameCompo, ApformImplementation apfCompo,
+            String mainImplName,
             Implementation mainImpl, Set<ManagerModel> models, Map<String, Object> attributes, String specName) {
         // the composite itself as an ASMImpl. Warning created empty. Must be fully initialized.
         super();
-        name = compositeName;
+        name = nameCompo;
 
         // The main implem resolution must be interpreted with the new models
         if (models != null) {
@@ -104,7 +107,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             Specification spec = CST.SpecBroker.getSpec(specName);
             if (spec != mainImpl.getSpec()) {
                 System.err.println("ERROR: Invalid main implementation " + mainImpl + " for composite type "
-                            + compositeName +
+                            + name +
                             ". Specification should be " + specName + " and not " + mainImpl.getSpec());
             } else
                 ((SpecificationImpl) mainImpl.getSpec()).setName(specName);
@@ -122,7 +125,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                     }
                     if (!found) {
                         System.err.print("ERROR: Invalid main implementation " + mainImpl + " for composite type "
-                                + compositeName + "\nExpected implemented interface:");
+                                + name + "\nExpected implemented interface:");
                         for (String i : spec.getInterfaceNames())
                             System.err.print("  " + i);
                         System.err.print("\n                  Found:");
@@ -138,7 +141,14 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         this.models = models;
         mySpec = mainImpl.getSpec();
         ((SpecificationImpl) mySpec).addImpl(this);
-        apfImpl = mainImpl.getApformImpl();
+
+        if (apfCompo != null) {
+            apfImpl = apfCompo;
+        } else {
+            apfImpl = new ApformComposite(name, mainImpl.getApformImpl().getInterfaceNames(),
+                    mainImpl.getApformImpl().getSpecification(), attributes);
+        }
+
         this.mainImpl = mainImpl;
 
         ((ImplementationImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
@@ -181,8 +191,12 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                 attributes = new ConcurrentHashMap<String, Object>();
             attributes.put(CST.A_VISIBLE, CST.V_LOCAL);
         }
+//    private CompositeTypeImpl(CompositeType fromCompo, String nameCompo, ApformImplementation apfCompo,
+//        String mainImplName,
+//        Implementation mainImpl, Set<ManagerModel> models, Map<String, Object> attributes, String specName) {
 
-        return new CompositeTypeImpl(fromCompo, name, mainImplName, null, models, attributes, specName);
+        return new CompositeTypeImpl(fromCompo, name, /* apf */null, mainImplName, /* models */null, models,
+                attributes, specName);
     }
 
     /**
@@ -361,7 +375,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         if (mainImpl instanceof CompositeType) {
             return (CompositeType) mainImpl;
         }
-        return new CompositeTypeImpl(fromCompo, name, mainImpl.getName(), mainImpl, models, properties, specName);
+        return new CompositeTypeImpl(fromCompo, name, /* apf */null, mainImpl.getName(), mainImpl, models, properties,
+                specName);
     }
 
     public static Collection<CompositeType> getRootCompositeTypes() {
@@ -512,5 +527,55 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     @Override
     public String toString() {
         return name;
+    }
+
+    private class ApformComposite implements ApformImplementation {
+        private final String              name;
+        private final String[]            interfaces;
+        private final Map<String, Object> attributes;
+        private final ApformSpecification specification;
+
+        public ApformComposite(String name, String[] interfaces, ApformSpecification spec,
+                Map<String, Object> attributes) {
+            this.name = name;
+            this.interfaces = interfaces;
+            specification = spec;
+            this.attributes = attributes;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String[] getInterfaceNames() {
+            return interfaces;
+        }
+
+        @Override
+        public Set<Dependency> getDependencies() {
+            return null;
+        }
+
+        @Override
+        public Map<String, Object> getProperties() {
+            return attributes;
+        }
+
+        @Override
+        public Object getProperty(String key) {
+            return attributes.get(key);
+        }
+
+        @Override
+        public ApformInstance createInstance(Map<String, Object> initialproperties) {
+            return null;
+        }
+
+        @Override
+        public ApformSpecification getSpecification() {
+            return specification;
+        }
     }
 }

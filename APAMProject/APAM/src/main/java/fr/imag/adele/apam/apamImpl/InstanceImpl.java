@@ -301,18 +301,6 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         return false;
     }
 
-//    @Override
-//    public ApamDependencyHandler getDependencyHandler() {
-//        return depHandler;
-//    }
-//
-//    @Override
-//    public void setDependencyHandler(ApamDependencyHandler handler) {
-//        if (handler == null)
-//            return;
-//        depHandler = handler;
-//    }
-
     @Override
     public Set<Wire> getInvWires() {
         return Collections.unmodifiableSet(invWires);
@@ -329,7 +317,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     }
 
     @Override
-    public Wire getWire(Instance destInst) {
+    public Wire getInvWire(Instance destInst) {
         if (destInst == null)
             return null;
         for (Wire wire : invWires) {
@@ -340,7 +328,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     }
 
     @Override
-    public Wire getWire(Instance destInst, String depName) {
+    public Wire getInvWire(Instance destInst, String depName) {
         if (destInst == null)
             return null;
         for (Wire wire : invWires) {
@@ -351,12 +339,24 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     }
 
     @Override
-    public Set<Wire> getWires(Instance destInst) {
+    public Set<Wire> getInvWires(Instance destInst) {
         if (destInst == null)
             return null;
         Set<Wire> w = new HashSet<Wire>();
         for (Wire wire : invWires) {
             if (wire.getDestination() == destInst)
+                w.add(wire);
+        }
+        return w;
+    }
+
+    @Override
+    public Set<Wire> getWires(Specification spec) {
+        if (spec == null)
+            return null;
+        Set<Wire> w = new HashSet<Wire>();
+        for (Wire wire : invWires) {
+            if (wire.getDestination().getSpec() == spec)
                 w.add(wire);
         }
         return w;

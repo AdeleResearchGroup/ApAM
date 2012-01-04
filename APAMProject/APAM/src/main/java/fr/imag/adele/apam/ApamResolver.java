@@ -8,12 +8,13 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.Implementation.DependencyModel;
+import fr.imag.adele.apam.apamImpl.Dependency;
 import fr.imag.adele.apam.apamImpl.APAMImpl;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
-import fr.imag.adele.apam.apamImpl.Wire;
+import fr.imag.adele.apam.apamImpl.Dependency.AtomicDependency;
+//import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.apform.Apform;
 
 public class ApamResolver {
@@ -44,25 +45,44 @@ public class ApamResolver {
      * @param depName
      * @return
      */
-    private static boolean matchDependencyCompo(DependencyModel dep, Instance from, String interf, String specName) {
+    private static boolean matchDependencyCompo(Dependency dep, Instance from, String interf, String specName) {
         String fromSpec = from.getSpec().getName();
+        boolean found = false;
+
+        // if source is mentioned, it is mandatory.
+        if (dep.source != null) {
+            for (String sourceSpec : dep.source) {
+                if (sourceSpec.equals(fromSpec))
+                    found = true;
+                break;
+            }
+            if (!found)
+                return false;
+        }
+
+        for (AtomicDependency adep : dep.dependencies) {
+            found = ApamResolver.matchAtomicDependencyCompo(adep, from, interf, specName);
+            if (found)
+                return true;
+        }
+        return false;
+    }
+
+    private static boolean matchAtomicDependencyCompo(AtomicDependency dep, Instance from, String interf,
+            String specName) {
+        // dep contains only composite dependencies: <targetKind fieldType, [multiple] [{source}]>
         switch (dep.targetKind) {
             case INTERFACE: { // "to" must match the target
                 if (interf == null) {
                     Specification spec = CST.SpecBroker.getSpec(specName);
                     if (spec != null)
-                        for (String in : spec.getInterfaces()) {
-                            if (in.equals(dep.target)) {
+                        for (String in : spec.getInterfaceNames()) {
+                            if (in.equals(dep.fieldType)) {
                                 interf = in;
                             }
                         }
                 }
-                if ((interf != null) && interf.equals(dep.target)) { // same target
-                    for (String sourceSpec : dep.source) {
-                        if (sourceSpec.equals(fromSpec))
-                            return true;
-                    }
-                }
+                return ((interf != null) && interf.equals(dep.fieldType)); // same target
             }
             case SPECIFICATION: {
                 if (specName == null) {
@@ -70,23 +90,16 @@ public class ApamResolver {
                     if (spec != null)
                         specName = spec.getName();
                 }
-                if ((specName != null) && specName.equals(dep.target)) {
-                    for (String sourceSpec : dep.source) {
-                        if (sourceSpec.equals(fromSpec))
-                            return true;
-                    }
-                }
-                return false;
+                return ((specName != null) && specName.equals(dep.fieldType));
             }
-            case IMPLEMENTATION: {
-                System.err.println("Should not happen ! Case implementation in matchDependencyCompo; from " + from
-                        + " dependance " + dep);
-//                if (to.getImpl().getName().equals(dep.target)) {
-//                    for (String sourceSpec : dep.source) {
-//                        if (sourceSpec.equals(fromSpec))
-//                            return true;
-//                    }
-//                }
+            case PULL_MESSAGE: {
+                // TODO check if correct
+                // interf is supposed to contain the message type
+                return (interf.equals(dep.fieldType));
+            }
+            case PUSH_MESSAGE: {
+                // TODO check if correct
+                return (interf.equals(dep.fieldType));
             }
         }
         return false;
@@ -104,7 +117,7 @@ public class ApamResolver {
     }
 
     /**
-     * If the client's composite has declared a dependency toward specName; it is a promotion.
+     * If the client's composite has declared a dependency toward interf or specName; it is a promotion.
      * The client becomes the embedding composite; visibility and scope become the one of the embedding
      * 
      * @param client
@@ -113,9 +126,10 @@ public class ApamResolver {
      * @return the name of the dependency from the composite.
      */
     private static DepMult getPromotion(Instance client, String interf, String specName) {
-        DependencyModel depFound = null;
-        Set<DependencyModel> deps = client.getComposite().getCompType().getDependencies();
-        for (DependencyModel dep : deps) {
+        Dependency depFound = null;
+        Set<Dependency> deps = client.getComposite().getCompType().getApformImpl().getDependencies();
+        // deps contains only composite dependencies: <targetKind fieldType, [multiple] [{source}]>
+        for (Dependency dep : deps) {
             if (ApamResolver.matchDependencyCompo(dep, client, interf, specName)) {
                 depFound = dep;
                 break;
@@ -126,18 +140,19 @@ public class ApamResolver {
 
         // it is a declared promotion.
         // check cardinality
-        if (!depFound.isMultiple && !(client.getComposite().getWires(depFound.dependencyName).isEmpty())) {
-            if (depFound.source.length == 1) {
-                System.err.println("ERROR : wire " + client.getComposite() + " -" + depFound.dependencyName + "-> "
+        String depName = depFound.getAtomicDependency().fieldName;
+        if (!depFound.isMultiple) {
+            if ((depFound.source != null) && (depFound.source.length == 1)) {
+                System.err.println("ERROR : wire " + client.getComposite() + " -" + depName + "-> "
                         + " allready existing.");
                 return null;
             }
-            Set<Instance> insts = client.getComposite().getWireDests(depFound.dependencyName);
-            return ApamResolver.apamResolver.new DepMult(depFound.dependencyName, insts);
+            Set<Instance> insts = client.getComposite().getWireDests(depName);
+            return ApamResolver.apamResolver.new DepMult(depName, insts);
         }
 //        System.err.println("Promoting " + client + " : " + client.getComposite() + " -" + depFound.dependencyName
 //                + "-> ");
-        return ApamResolver.apamResolver.new DepMult(depFound.dependencyName, null);
+        return ApamResolver.apamResolver.new DepMult(depName, null);
     }
 
     // if the instance is unused, it will become the main instance of a new composite.

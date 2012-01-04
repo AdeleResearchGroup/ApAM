@@ -46,7 +46,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
                                                                                            // impl.
     protected Set<Instance>             sharableInstances = new HashSet<Instance>();      // the sharable instances of
 
-    protected Set<DependencyModel>      dependencyModel;                                  // The dependencies of that
+    protected Set<Dependency>           dependencyModel;                                  // The dependencies of that
 
     /**
      * Instantiate a new service implementation.
@@ -102,7 +102,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
             putAll(props);
         }
         put(CST.A_COMPOSITE, compo.getName());
-        dependencyModel = (Set<DependencyModel>) get(CST.A_DEPENDENCIES);
+        dependencyModel = (Set<Dependency>) get(CST.A_DEPENDENCIES);
         // initialize properties. A fusion of SAM and APAM values
 //        try {
 //            this.setProperties(Util.mergeProperties(this, props, getSamImpl().getProperties()));
@@ -426,13 +426,13 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         return Collections.unmodifiableSet(inComposites);
     }
 
-    @Override
-    public Set<DependencyModel> getDependencies() {
-        Set<DependencyModel> deps = (Set<DependencyModel>) get(CST.A_DEPENDENCIES);
-        if (deps == null)
-            return Collections.EMPTY_SET;
-        return deps;
-    }
+//    @Override
+//    public Set<Dependency> getDependencies() {
+//        Set<Dependency> deps = (Set<Dependency>) get(CST.A_DEPENDENCIES);
+//        if (deps == null)
+//            return Collections.EMPTY_SET;
+//        return deps;
+//    }
 
     @Override
     public boolean isUsed() {

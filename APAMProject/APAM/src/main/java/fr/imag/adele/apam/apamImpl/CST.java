@@ -9,14 +9,11 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 
 public class CST {
 
-    // Constants
-    // String
+    // Constants "A_" means attribute name; "V_" means attribute value
     public static final String         A_SPECIFICATION       = "specification";
     public static final String         A_IMPLEMENTATION      = "implementation";
     public static final String         A_INSTANCE            = "instance";
 
-    // value object : address of the iPOJO apam dependency handler
-//    public static final String         A_DEPHANDLER          = "ApamDependencyHandler";
     public static final String         A_APAMSPECNAME        = "ApamSpecName";
 
     // indicate in which scope this object is visible. Scope for instances, implscope for implems.

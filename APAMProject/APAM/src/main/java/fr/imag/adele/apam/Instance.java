@@ -35,7 +35,7 @@ public interface Instance extends ConcurrentMap<String, Object> {
      * @param destInst
      * @return
      */
-    public Wire getWire(Instance destInst);
+    public Wire getInvWire(Instance destInst);
 
     /**
      * returns the wire for hte "depName" dependency toward that destination instance
@@ -44,7 +44,7 @@ public interface Instance extends ConcurrentMap<String, Object> {
      * @param depName : name of the dependency
      * @return
      */
-    public Wire getWire(Instance destInst, String depName);
+    public Wire getInvWire(Instance destInst, String depName);
 
     /**
      * Retruns all hte wires toward that destination.
@@ -52,7 +52,7 @@ public interface Instance extends ConcurrentMap<String, Object> {
      * @param destInst
      * @return
      */
-    public Set<Wire> getWires(Instance destInst);
+    public Set<Wire> getInvWires(Instance destInst);
 
     /**
      * returns all the destinations of that dependency (if multiple cardinality)
@@ -71,7 +71,7 @@ public interface Instance extends ConcurrentMap<String, Object> {
     public Set<Wire> getWires(String dependencyName);
 
     /**
-     * Returns all the wires, for hte provided dependency, leading to the current instance.
+     * Returns all the wires, for the provided dependency, leading to the current instance.
      * 
      * @param depName
      * @return
@@ -84,6 +84,14 @@ public interface Instance extends ConcurrentMap<String, Object> {
      * @return
      */
     public Set<Wire> getWires();
+
+    /**
+     * return all the dependency for which the destination implements the provided specification
+     * 
+     * @param spec
+     * @return
+     */
+    public Set<Wire> getWires(Specification spec);
 
     /**
      * Returns all the wires leading to the current instance.
