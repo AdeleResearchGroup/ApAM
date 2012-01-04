@@ -8,10 +8,8 @@
 	<relativePath>../pom.xml</relativePath>
   </parent>
   
-  <groupId>fr.imag.adele.apam</groupId>
   <artifactId>APAM</artifactId>
   <packaging>bundle</packaging>
-  <version>0.0.1-SNAPSHOT</version>
   
   <name>APAM</name>
   <description>The machine itself</description>
@@ -38,6 +36,7 @@
 							Adele/LIG/ Grenoble University, France
 						</Bundle-Vendor>
 						<Bundle-Version>${project.version}</Bundle-Version>
+						<Embed-Dependency>org.apache.felix.utils</Embed-Dependency>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -68,28 +67,7 @@
                 </executions>
 
             </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.1</version>
-                <executions>
-                    <execution>
-                        <id>create-staging-area</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <copy file="${basedir}/target/${project.artifactId}-${project.version}.jar"
-                                    todir="${exportedFolder}/s-am" />
-                                <copy
-                                    file="${basedir}/target/${project.artifactId}-${project.version}-sources.jar"
-                                    todir="${exportedFolder}/s-am/sources" />
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+           
 		</plugins>
 	</build>
 
