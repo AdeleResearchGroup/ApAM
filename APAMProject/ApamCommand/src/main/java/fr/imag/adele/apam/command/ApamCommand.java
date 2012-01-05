@@ -35,6 +35,8 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.apamImpl.Dependency.AtomicDependency;
+import fr.imag.adele.apam.apamImpl.Dependency.TargetKind;
 import fr.imag.adele.apam.apamImpl.Wire;
 
 /**
@@ -266,6 +268,8 @@ public class ApamCommand {
         for (Instance inst : compo.getInsts()) {
             System.out.print(inst + " ");
         }
+
+        System.out.println(indent + "   Declared dependencies " + compo.getApformImpl().getDependencies());
         System.out.println("");
 
         for (CompositeType comType : compo.getEmbedded()) {
@@ -327,14 +331,7 @@ public class ApamCommand {
             System.out.println(indent + "      " + interf);
         }
 
-        Set<Dependency> deps = (Set<Dependency>) specification.get("dependencies");
-        if (deps != null) {
-            System.out.println(indent + "   Declared dependencies:");
-            for (Dependency dep : deps) {
-                System.out.println(indent + "      " + dep.getAtomicDependency().targetKind + "  "
-                        + dep.getAtomicDependency().fieldName);
-            }
-        }
+        System.out.println(specification.getApformSpec().getDependencies());
 
         System.out.println(indent + "   Effective Required specs:");
         for (Specification spec : specification.getRequires()) {
@@ -445,6 +442,8 @@ public class ApamCommand {
         for (Implementation implem : impl.getInvUses()) {
             System.out.println(indent + "      " + implem);
         }
+
+        System.out.println(indent + "   Declared dependencies " + impl.getApformImpl().getDependencies());
 
         System.out.println(indent + "   Instances:");
         for (Instance inst : impl.getInsts()) {
