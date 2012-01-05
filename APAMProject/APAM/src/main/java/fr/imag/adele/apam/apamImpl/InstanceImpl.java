@@ -144,8 +144,20 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     }
 
     /**
-     * returns the connections towards the service instances actually used. return only APAM wires. for SAM wires the
-     * sam instance
+     * 
+     */
+//    @Override
+//    public Set<Instance> getWireTypeDests(String destType) {
+//        Set<Instance> dests = new HashSet<Instance>();
+//        Class dest = Class.forName(destType);
+//        for (Wire wire : wires) {
+//            if (wire.getDestination().getApformInst().getServiceObject() instanceof dest)
+//                dests.add(wire.getDestination());
+//        }
+//        return dests;
+//    }
+
+    /**
      */
     @Override
     public Set<Instance> getWireDests() {

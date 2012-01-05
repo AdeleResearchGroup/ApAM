@@ -20,6 +20,8 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
+import fr.imag.adele.apam.apamImpl.Dependency.CompositeDependency;
+import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.apform.ApformImplementation;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
@@ -554,7 +556,13 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         }
 
         @Override
-        public Set<Dependency> getDependencies() {
+        public Set<ImplementationDependency> getDependencies() {
+            System.err.println("cannot return implementation dependency in a composite apform");
+            return null;
+        }
+
+        public Set<CompositeDependency> getCompoDependencies() {
+            System.err.println("cannot return implementation dependency in a composite apform");
             return null;
         }
 
@@ -577,5 +585,17 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         public ApformSpecification getSpecification() {
             return specification;
         }
+    }
+
+    @Override
+    public Set<ImplementationDependency> getImplemDependencies() {
+        System.err
+                .println("Cannot return implementation dependency for a composite. Use getCompoDependencies() instead");
+        return null;
+    }
+
+    @Override
+    public Set<CompositeDependency> getCompoDependencies() {
+        return ((ApformComposite) getApformImpl()).getCompoDependencies();
     }
 }

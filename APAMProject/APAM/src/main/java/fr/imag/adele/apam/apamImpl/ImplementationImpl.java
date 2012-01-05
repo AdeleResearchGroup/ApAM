@@ -11,30 +11,21 @@ import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-//import fr.imag.adele.am.exception.ConnectionException;
-//import fr.imag.adele.apam.CompositeTypeImpl;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-//import fr.imag.adele.apam.apamAPI.ASMImplBroker;
+import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
-//import fr.imag.adele.apam.util.Attributes;
-//import fr.imag.adele.apam.util.AttributesImpl;
-//import fr.imag.adele.apam.util.Util;
-//import fr.imag.adele.sam.Implementation;
-//import fr.imag.adele.sam.Instance;
-//import fr.imag.adele.sam.broker.ImplementationBroker;
 
 public class ImplementationImpl extends ConcurrentHashMap<String, Object> implements Implementation {
 
+    private static final long           serialVersionUID  = 1L;
     protected final Set<Implementation> uses              = new HashSet<Implementation>(); // all relations uses
     protected final Set<Implementation> invUses           = new HashSet<Implementation>(); // all reverse relations uses
-
     protected final Set<CompositeType>  inComposites      = new HashSet<CompositeType>(); // composite it is contained
-
     private final Object                id                = new Object();                 // only for hashCode
 
     protected String                    name;
@@ -42,23 +33,14 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     protected ApformImplementation      apfImpl           = null;
     protected boolean                   used              = false;
 
-    protected Set<Instance>             instances         = new HashSet<Instance>();      // the instances of that
-                                                                                           // impl.
-    protected Set<Instance>             sharableInstances = new HashSet<Instance>();      // the sharable instances of
-
-    protected Set<Dependency>           dependencyModel;                                  // The dependencies of that
+    protected Set<Instance>             instances         = new HashSet<Instance>();      // the instances
+    protected Set<Instance>             sharableInstances = new HashSet<Instance>();      // the sharable instances
 
     /**
      * Instantiate a new service implementation.
-     * 
-     * @param instance the ASM instance
-     * 
-     * 
      */
-
     // used ONLY when creating a composite type
     protected ImplementationImpl() {
-
     }
 
     @Override
@@ -74,7 +56,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     public ImplementationImpl(CompositeType compo, SpecificationImpl spec, ApformImplementation impl,
             Map<String, Object> props) {
         if (impl == null) {
-            new Exception("Sam ApformImplementation cannot be null when creating an imple").printStackTrace();
+            new Exception("ApformImplementation cannot be null when creating an implem").printStackTrace();
         }
         if (compo == null) { // compo is null for the root composite AND its main implem.
             // done in create composite type when compo is null
@@ -102,24 +84,11 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
             putAll(props);
         }
         put(CST.A_COMPOSITE, compo.getName());
-        dependencyModel = (Set<Dependency>) get(CST.A_DEPENDENCIES);
-        // initialize properties. A fusion of SAM and APAM values
-//        try {
-//            this.setProperties(Util.mergeProperties(this, props, getSamImpl().getProperties()));
-//        } catch (ConnectionException e) {
-//            e.printStackTrace();
-//        }
     }
 
     @Override
     public String toString() {
         return name;
-        // String ret;
-        // if (name == null)
-        // ret = " (" + samImpl.getName() + ") ";
-        // else
-        // ret = name + " (" + samImpl.getName() + ") ";
-        // return ret;
     }
 
     /**
@@ -324,12 +293,6 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         String visible = (String) get(CST.A_VISIBLE);
         if (visible == null)
             visible = CST.V_GLOBAL;
-//        String compoVisible;
-//        for (CompositeType compoDest : getInCompositeType()) {
-//            // Check if the composite type overloads the implementation scope
-//            compoVisible = ((CompositeTypeImpl) compoDest).getVisibleInCompoType(this);
-//            visible = Util.getEffectiveScope(visible, compoVisible);
-//        }
         return visible;
     }
 
@@ -340,12 +303,6 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
             shared = CST.V_TRUE;
         return shared;
     }
-
-    // @Override
-    // public void setScope(String scope) {
-    // if ((scope.equals(CST.V_TRUE) || (scope.equals(CST.V_FALSE))))
-    // setProperty(CST.A_SCOPE, scope);
-    // }
 
     // relation uses control
     public void addUses(Implementation dest) {
@@ -426,14 +383,6 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         return Collections.unmodifiableSet(inComposites);
     }
 
-//    @Override
-//    public Set<Dependency> getDependencies() {
-//        Set<Dependency> deps = (Set<Dependency>) get(CST.A_DEPENDENCIES);
-//        if (deps == null)
-//            return Collections.EMPTY_SET;
-//        return deps;
-//    }
-
     @Override
     public boolean isUsed() {
         return used;
@@ -441,5 +390,10 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
 
     public void setUsed(boolean used) {
         this.used = used;
+    }
+
+    @Override
+    public Set<ImplementationDependency> getImplemDependencies() {
+        return getApformImpl().getDependencies();
     }
 }

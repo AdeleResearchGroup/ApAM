@@ -14,6 +14,7 @@ import org.osgi.framework.InvalidSyntaxException;
 //import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.apamImpl.Dependency.SpecificationDependency;
 import fr.imag.adele.apam.apform.ApformSpecification;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
@@ -313,6 +314,13 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         } catch (Exception e) {
         }
         return false;
+    }
+
+    @Override
+    public Set<SpecificationDependency> getDependencies() {
+        if (getApformSpec() == null)
+            return null;
+        return getApformSpec().getDependencies();
     }
 
 }

@@ -9,11 +9,11 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apamImpl.Dependency;
+import fr.imag.adele.apam.apamImpl.Dependency.*;
 import fr.imag.adele.apam.apamImpl.APAMImpl;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
-import fr.imag.adele.apam.apamImpl.Dependency.AtomicDependency;
 //import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.apform.Apform;
 
@@ -35,21 +35,20 @@ public class ApamResolver {
     }
 
     /**
-     * Checks if the provided composite dependency "dep" matches the provided wire (from, to, depName).
+     * Checks if the provided composite dependency "dep" matches the requited wire (from, interf | specName).
      * "from" is supposed to be inside the composite.
      * if true this wire needs a promotion.
      * 
-     * @param dep : a composite dependency. Not interpreted for composites.
-     * @param from
-     * @param to
-     * @param depName
+     * @param dep : a composite dependency.
+     * @param from the instance that need a new wire
+     * @param interf or specName the wire destination to resolve
      * @return
      */
-    private static boolean matchDependencyCompo(Dependency dep, Instance from, String interf, String specName) {
+    private static boolean matchDependencyCompo(CompositeDependency dep, Instance from, String interf, String specName) {
         String fromSpec = from.getSpec().getName();
-        boolean found = false;
 
         // if source is mentioned, it is mandatory.
+        boolean found = false;
         if (dep.source != null) {
             for (String sourceSpec : dep.source) {
                 if (sourceSpec.equals(fromSpec))
@@ -59,30 +58,24 @@ public class ApamResolver {
             if (!found)
                 return false;
         }
-
-        for (AtomicDependency adep : dep.dependencies) {
-            found = ApamResolver.matchAtomicDependencyCompo(adep, from, interf, specName);
-            if (found)
-                return true;
-        }
-        return false;
+        return ApamResolver.matchAtomicDependencyCompo(dep.targetKind, dep.fieldType, interf, specName);
     }
 
-    private static boolean matchAtomicDependencyCompo(AtomicDependency dep, Instance from, String interf,
+    private static boolean matchAtomicDependencyCompo(TargetKind targetKind, String fieldType, String interf,
             String specName) {
         // dep contains only composite dependencies: <targetKind fieldType, [multiple] [{source}]>
-        switch (dep.targetKind) {
+        switch (targetKind) {
             case INTERFACE: { // "to" must match the target
                 if (interf == null) {
                     Specification spec = CST.SpecBroker.getSpec(specName);
                     if (spec != null)
                         for (String in : spec.getInterfaceNames()) {
-                            if (in.equals(dep.fieldType)) {
+                            if (in.equals(fieldType)) {
                                 interf = in;
                             }
                         }
                 }
-                return ((interf != null) && interf.equals(dep.fieldType)); // same target
+                return ((interf != null) && interf.equals(fieldType)); // same target
             }
             case SPECIFICATION: {
                 if (specName == null) {
@@ -90,27 +83,27 @@ public class ApamResolver {
                     if (spec != null)
                         specName = spec.getName();
                 }
-                return ((specName != null) && specName.equals(dep.fieldType));
+                return ((specName != null) && specName.equals(fieldType));
             }
             case PULL_MESSAGE: {
                 // TODO check if correct
                 // interf is supposed to contain the message type
-                return (interf.equals(dep.fieldType));
+                return (interf.equals(fieldType));
             }
             case PUSH_MESSAGE: {
                 // TODO check if correct
-                return (interf.equals(dep.fieldType));
+                return (interf.equals(fieldType));
             }
         }
         return false;
     }
 
     private class DepMult {
-        public String        dep   = null;
-        public Set<Instance> insts = null;
+        public String        depType = null;
+        public Set<Instance> insts   = null;
 
         public DepMult(String dep, Set<Instance> insts) {
-            this.dep = dep;
+            depType = dep;
             this.insts = insts;
             // System.err.println("new DepMult. dep= " + dep + ". instances= " + insts);
         }
@@ -121,15 +114,14 @@ public class ApamResolver {
      * The client becomes the embedding composite; visibility and scope become the one of the embedding
      * 
      * @param client
-     * @param specName
-     * @param depName
-     * @return the name of the dependency from the composite.
+     * @param interf or specName
+     * @return the composite dependency from the composite.
      */
     private static DepMult getPromotion(Instance client, String interf, String specName) {
-        Dependency depFound = null;
-        Set<Dependency> deps = client.getComposite().getCompType().getApformImpl().getDependencies();
+        CompositeDependency depFound = null;
+        Set<CompositeDependency> deps = client.getComposite().getCompType().getCompoDependencies();
         // deps contains only composite dependencies: <targetKind fieldType, [multiple] [{source}]>
-        for (Dependency dep : deps) {
+        for (CompositeDependency dep : deps) {
             if (ApamResolver.matchDependencyCompo(dep, client, interf, specName)) {
                 depFound = dep;
                 break;
@@ -140,19 +132,17 @@ public class ApamResolver {
 
         // it is a declared promotion.
         // check cardinality
-        String depName = depFound.getAtomicDependency().fieldName;
-        if (!depFound.isMultiple) {
-            if ((depFound.source != null) && (depFound.source.length == 1)) {
-                System.err.println("ERROR : wire " + client.getComposite() + " -" + depName + "-> "
+        String destType = depFound.fieldType;
+        Set<Instance> dests = client.getComposite().getWireDests(destType); // For composite, the wire name is the dest
+                                                                            // type
+        if (!depFound.isMultiple && (dests != null)) {
+            System.err.println("ERROR : wire " + client.getComposite() + " -" + destType + "-> "
                         + " allready existing.");
-                return null;
-            }
-            Set<Instance> insts = client.getComposite().getWireDests(depName);
-            return ApamResolver.apamResolver.new DepMult(depName, insts);
+            return null;
         }
 //        System.err.println("Promoting " + client + " : " + client.getComposite() + " -" + depFound.dependencyName
 //                + "-> ");
-        return ApamResolver.apamResolver.new DepMult(depName, null);
+        return ApamResolver.apamResolver.new DepMult(destType, dests);
     }
 
     // if the instance is unused, it will become the main instance of a new composite.
@@ -179,7 +169,7 @@ public class ApamResolver {
      * @param client the instance that requires the specification
      * @param interfaceName the name of one of the interfaces of the specification to resolve.
      * @param specName the *logical* name of that specification. May be null.
-     * @param depName. Optional. Name of the dependency between client and the instance to resolve.
+     * @param depName the dependency name. Field for atomic; spec name for complex dep, type for composite.
      * @param constraints. Optional. To select the right instance.
      * @param preferences. Optional. To select the right instance.
      * @return
@@ -197,15 +187,12 @@ public class ApamResolver {
         // if it is a promotion, visibility and scope is the one of the embedding composite.
         DepMult depMult = ApamResolver.getPromotion(client, interfaceName, specName);
         Instance inst = null;
-        String superDepName = null;
-        if (depMult != null) {
-            superDepName = depMult.dep;
+        if (depMult != null) { // it is a promotion
+            compo = compo.getComposite();
             if (depMult.insts != null)
                 inst = (Instance) depMult.insts.toArray()[0]; // the common instance
-            if (superDepName != null) {
-                compo = compo.getComposite();
-            }
         }
+
         if (inst == null) { // normal case. Try to find the instance.
             // not null if it is a multiple promotion. Use the same target.
             CompositeType compoType = compo.getCompType();
@@ -226,9 +213,10 @@ public class ApamResolver {
             inst = ApamResolver.resolveImpl(compo, impl, constraints, preferences);
         }
         if (inst != null) {
-            if (superDepName != null) { // it was a promotion, embedding composite must be linked as the source (client)
-                client.getComposite().createWire(inst, superDepName);
-                System.err.println("Promoting " + client + " : " + client.getComposite() + " -" + superDepName + "-> "
+            if (depMult != null) { // it was a promotion, embedding composite must be linked as the source (client)
+                client.getComposite().createWire(inst, depMult.depType);
+                System.err.println("Promoting " + client + " : " + client.getComposite() + " -" + depMult.depType
+                        + "-> "
                         + inst);
             }
             // in all cases the client must be linked
@@ -250,7 +238,7 @@ public class ApamResolver {
      * @param client the instance that requires the specification
      * @param interfaceName the name of one of the interfaces of the specification to resolve.
      * @param specName the *logical* name of that specification; different from SAM. May be null.
-     * @param depName the name of the dependency; different from SAM. May be null.
+     * @param depName the dependency name. Field for atomic; spec name for complex dep, type for composite.
      * @param constraints The constraints for this resolution.
      * @param preferences The preferences for this resolution.
      * @return
@@ -268,14 +256,12 @@ public class ApamResolver {
         // if it is a promotion, visibility and scope is the one of the embedding composite.
         DepMult depMult = ApamResolver.getPromotion(client, interfaceName, specName);
         Set<Instance> insts = null;
-        String superDepName = null;
-        if (depMult != null) {
-            superDepName = depMult.dep;
-            insts = depMult.insts;
-            if (superDepName != null) {
-                compo = compo.getComposite();
-            }
+        if (depMult != null) { // it is a promotion
+            compo = compo.getComposite();
+            if (depMult.insts != null)
+                insts = depMult.insts;
         }
+
         if (insts == null) { // normal case. Try to find the instances.
             // not null if it is a multiple promotion. Use the same target.
 
@@ -297,10 +283,10 @@ public class ApamResolver {
         }
         if ((insts != null) && !insts.isEmpty()) {
             for (Instance inst : insts) {
-                if (superDepName != null) { // it was a promotion, embedding composite must be linked as the source
-                                            // (client)
-                    client.getComposite().createWire(inst, superDepName);
-                    System.err.println("Promoting " + client + " : " + client.getComposite() + " -" + superDepName
+                if (depMult != null) { // it was a promotion, embedding composite must be linked as the source
+                                       // (client)
+                    client.getComposite().createWire(inst, depMult.depType);
+                    System.err.println("Promoting " + client + " : " + client.getComposite() + " -" + depMult.depType
                             + "-> " + inst);
                 }
                 // in all cases the client must be linked
@@ -318,7 +304,7 @@ public class ApamResolver {
      * @param client the instance that requires the specification
      * @param samImplName the technical name of implementation to resolve, as returned by SAM.
      * @param implName the *logical* name of implementation to resolve. May be different from SAM. May be null.
-     * @param depName the dependency name
+     * @param depName the dependency name. Field for atomic; spec name for complex dep, type for composite.
      * @return
      */
     public static Instance newWireImpl(Instance client, String implName, String depName,

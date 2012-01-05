@@ -5,6 +5,7 @@ import java.util.Set;
 
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.apamImpl.Dependency;
+import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.util.Attributes;
 
 public interface ApformImplementation {
@@ -25,7 +26,7 @@ public interface ApformImplementation {
      * 
      * @return the set of dependencies
      */
-    public Set<Dependency> getDependencies();
+    public Set<ImplementationDependency> getDependencies();
 
     /**
      * 

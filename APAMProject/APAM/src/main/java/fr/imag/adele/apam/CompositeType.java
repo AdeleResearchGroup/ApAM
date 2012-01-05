@@ -2,7 +2,10 @@ package fr.imag.adele.apam;
 
 import java.util.Set;
 
+import fr.imag.adele.apam.apamImpl.Dependency.CompositeDependency;
+import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.apamImpl.ManagerModel;
+import fr.imag.adele.apam.apamImpl.Dependency.SpecificationDependency;
 
 public interface CompositeType extends Implementation {
     /**
@@ -24,6 +27,16 @@ public interface CompositeType extends Implementation {
      * @return
      */
     public Set<ManagerModel> getModels();
+
+    /**
+     * return the associated dependencies
+     * 
+     * @return
+     */
+    public Set<CompositeDependency> getCompoDependencies();
+
+    @Override
+    public Set<ImplementationDependency> getImplemDependencies(); // overloaded to generate an error
 
     /**
      * Adds an "import" relationship towards "destination". Not in the interface

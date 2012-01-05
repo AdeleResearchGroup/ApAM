@@ -12,61 +12,111 @@ import java.util.Set;
  * ----<targetKind fieldType, [multiple] [{source}]>
  * An implementation dependency is of the form
  * ----Atomic : <targetKind fieldName [fieldType] [multiple]> (targetKind != specification)
- * ----Composite <specificationName [multiple] {Atomic} >
+ * ----Complex: <specificationName [multiple] {Atomic} >
  */
 
-public class Dependency {
-    public String                specification;     // for a composite dependency only: the common specification.
-    public String[]              source;            // for composites only, the list of source specifications.
-    public boolean               isMultiple = false; // cardinality multiple (atomic of composite). Optional=false
-    public Set<AtomicDependency> dependencies;      // List of dependencies, even if atomic.
+public abstract class Dependency {
+    public DependencyKind kind;
+    public boolean        isMultiple = false; // cardinality multiple. Optional=false
+
+    public enum DependencyKind {
+        SPECIFICATION, IMPLEMENTATION, COMPLEX, COMPOSITE
+    }
 
     public enum TargetKind {
         INTERFACE, PUSH_MESSAGE, PULL_MESSAGE, SPECIFICATION
     }
 
-    public class AtomicDependency {
+    public static class SpecificationDependency extends Dependency {
+        public TargetKind targetKind; // INTERFACE, PUSH_MESSAGE, PULL_MESSAGE
+        public String     fieldType; // Type of the field: interface name; dataType for Pull and Push msg. Optional
+
+        public SpecificationDependency(TargetKind targetKind, String fieldType) {
+            this.targetKind = targetKind;
+            this.fieldType = fieldType;
+            kind = DependencyKind.SPECIFICATION;
+        }
+
+        @Override
+        public String toString() {
+            if (isMultiple)
+                return targetKind + "  " + fieldType + "  multiple = true";
+            return targetKind + "  " + fieldType;
+        }
+    }
+
+    public static class ImplementationDependency extends Dependency {
+        public String                specification; // for a complex dependency only: the common specification.
+        public Set<AtomicDependency> dependencies; // List of dependencies.
+
+        public ImplementationDependency(String specification, Set<AtomicDependency> dependencies, boolean multiple) {
+            this.specification = specification;
+            this.dependencies = dependencies;
+            isMultiple = multiple;
+            if (specification == null)
+                kind = DependencyKind.IMPLEMENTATION;
+            else
+                kind = DependencyKind.COMPLEX;
+        }
+
+        @Override
+        public String toString() {
+            String ret = "   Dependencies :";
+            if (kind == DependencyKind.COMPLEX)
+                ret = "specification  " + specification + "  ";
+            for (AtomicDependency dep : dependencies) {
+                ret = ret + "\n    " + dep;
+            }
+            if (isMultiple)
+                ret = ret + "   multiple = true \n";
+            return ret;
+        }
+    }
+
+    public static class CompositeDependency extends Dependency {
+        public String[]   source;    // the list of source specifications.
+        public TargetKind targetKind; // INTERFACE, PUSH_MESSAGE, PULL_MESSAGE, SPECIFICATION
+        public String     fieldType; // Type of the field: interface name; spec name, dataType for Pull and Push msg.
+
+        public CompositeDependency(String[] source, TargetKind targetKind, String fieldType,
+                boolean multiple) {
+            this.source = source;
+            this.targetKind = targetKind;
+            this.fieldType = fieldType;
+            isMultiple = multiple;
+            kind = DependencyKind.COMPOSITE;
+        }
+
+        @Override
+        public String toString() {
+            String ret;
+            if (isMultiple)
+                ret = targetKind + "  " + fieldType + ",   multiple = true";
+            ret = targetKind + "  " + fieldType;
+            if (source != null) {
+                ret = ret + "\n   sources = ";
+                for (String sc : source) {
+                    ret = ret + "  " + sc;
+                }
+            }
+            return ret;
+        }
+    }
+
+    public static class AtomicDependency {
         public TargetKind targetKind; // INTERFACE, PUSH_MESSAGE, PULL_MESSAGE
         public String     fieldName; // Variable name for interface, messageField for Pull msg, method for push msg.
         public String     fieldType; // Type of the field: interface name; dataType for Pull and Push msg. Optional
 
+        public AtomicDependency(TargetKind targetKind, String fieldName, String fieldType) {
+            this.targetKind = targetKind;
+            this.fieldName = fieldName;
+            this.fieldType = fieldType;
+        }
+
         @Override
         public String toString() {
-            String val = "Dependency: \n         target: " + targetKind + "  " + fieldType;
-            if (fieldName != null)
-                val = val + "; field: " + fieldName;
-            val = val + "; multiple = " + isMultiple;
-            return val + "\n";
+            return "  target: " + targetKind + "  " + fieldType;
         }
-    }
-
-    @Override
-    public String toString() {
-        if (!isComposite())
-            return getAtomicDependency().toString();
-
-        String val = "Composite Dependency; Specification : " + specification;
-        if ((source != null) && (source.length > 0)) {
-            val = val + "\n         source specification: ";
-            for (String sc : source) {
-                val = val + "  " + sc;
-            }
-        }
-        for (AtomicDependency dep : dependencies) {
-            val = val + dep.toString();
-        }
-        return val + "\n";
-    }
-
-    public boolean isComposite() {
-        return specification != null;
-    }
-
-    public AtomicDependency getAtomicDependency() {
-        if (isComposite()) {
-            System.err.println(" xxx ");
-            return null;
-        }
-        return (AtomicDependency) dependencies.toArray()[0];
     }
 }

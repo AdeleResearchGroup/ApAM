@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
+import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.apform.ApformImplementation;
 //import fr.imag.adele.apam.util.Attributes;
 
@@ -28,11 +29,18 @@ public interface Implementation extends ConcurrentMap<String, Object> {
     public String getName();
 
     /**
-     * return the sam implementation associated with this implementation (same name)
+     * return the apfform implementation associated with this implementation (same name)
      * 
      * @return
      */
     public ApformImplementation getApformImpl();
+
+    /**
+     * return the dependencies associated with this implementation (same name)
+     * 
+     * @return
+     */
+    public Set<ImplementationDependency> getImplemDependencies();
 
     /**
      * return the value of the shared attribute

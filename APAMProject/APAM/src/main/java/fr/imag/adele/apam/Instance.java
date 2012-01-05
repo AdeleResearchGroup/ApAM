@@ -62,6 +62,8 @@ public interface Instance extends ConcurrentMap<String, Object> {
      */
     public Set<Instance> getWireDests(String depName);
 
+//    public Set<Instance> getWireTypeDests(String destType);
+
     /**
      * returns all the wires related to that dependency (if multiple cardinality)
      * 
