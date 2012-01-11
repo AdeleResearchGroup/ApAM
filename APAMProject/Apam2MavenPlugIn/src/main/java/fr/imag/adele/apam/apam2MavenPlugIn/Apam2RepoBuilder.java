@@ -12,14 +12,20 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import org.apache.felix.bundlerepository.Property;
-import org.apache.felix.bundlerepository.impl.PropertyImpl;
+
+//import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
+
+//import org.apache.felix.bundlerepository.SimpleProperty;
+//import org.apache.felix.bundlerepository.Resource;
+//import org.apache.felix.bundlerepository.impl.SimpleProperty;
 
 import org.apache.felix.ipojo.manipulation.ClassChecker;
 import org.apache.felix.ipojo.metadata.Attribute;
@@ -28,13 +34,17 @@ import org.apache.felix.ipojo.xml.parser.SchemaResolver;
 import org.apache.felix.ipojo.xml.parser.XMLMetadataParser;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.objectweb.asm.ClassReader;
+import org.osgi.framework.InvalidSyntaxException;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-//import fr.imag.adele.obrMan.OBRMan;
+import fr.imag.adele.apam.apamImpl.Dependency;
+import fr.imag.adele.apam.apamImpl.Dependency.SpecificationDependency;
+import fr.imag.adele.apam.apamImpl.Dependency.*;
 
-//import fr.imag.adele.obrMan.OBRMan;
+//import fr.imag.adele.obrMan.OBRManager;
+//import fr.imag.adele.obrMan.OBRManager.Selected;
 
 public class Apam2RepoBuilder {
 
@@ -42,7 +52,6 @@ public class Apam2RepoBuilder {
      * Metadata (in internal format).
      */
     private List<Element> m_metadata = new ArrayList<Element>();
-//    private static OBRMan obr;
 
     /**
      * Flag describing if we need or not use local XSD files (i.e. use the {@link SchemaResolver} or not). If
@@ -50,13 +59,17 @@ public class Apam2RepoBuilder {
      */
     private boolean       m_ignoreLocalXSD;
     private File          classDirectory;
+    private JarFile       jarFile;
+
+//    public static ClassChecker ck;
 
     public Apam2RepoBuilder(String defaultOBRRepo) {
-//        Apam2RepoBuilder.obr = new OBRMan(defaultOBRRepo);
+        // OBRManager obr = new OBRManager(defaultOBRRepo);
+        CheckObr.init(defaultOBRRepo + "\\repository.xml");
     }
 
-    public boolean
-            writeOBRFile(String obrFileStr, File metadataFile, InputStream is, File jarFile, File outputDirectory) {
+    public boolean writeOBRFile(String obrFileStr, File metadataFile, InputStream is,
+            File jarFile, File outputDirectory) {
         classDirectory = outputDirectory;
         File obrFile = new File(obrFileStr);
         boolean okMetadata = false;
@@ -64,6 +77,7 @@ public class Apam2RepoBuilder {
         JarFile jar = null;
         try {
             jar = new JarFile(jarFile);
+            this.jarFile = jar;
             okMetadata = writeMetadataOBRFile(obrContent, metadataFile, is, jar);
             jar.close();
         } catch (IOException e2) {
@@ -121,40 +135,26 @@ public class Apam2RepoBuilder {
         return true;
     }
 
-    private void printOBRElement(StringBuffer obrContent, ApamComponentInfo component, String indent, JarFile jarfile) {
-
-        if (component.isImplementation()) {
-            // apam attributes
-            obrContent.append("   <capability name='apam-component'>\n");
-
-        }
-
-        // Information for composites
-        if (component.isComposite()) {
-            obrContent.append("      <p n='apam-composite' v='" + component.isComposite() + "' />\n");
-            obrContent.append("      <p n='apam-main-implementation' v='" + component.getApamMainImplementation()
-                    + "' />\n");
-        }
-
-        if (component.isSpecification()) {
-            obrContent.append("   <capability name='apam-specification'>\n");
-        }
-
-        // The ipojo name
+    private void printProvided(StringBuffer obrContent, ApamComponentInfo component, JarFile jarfile) {
         obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
 
-//        // The name of the APAM provided specification. Optional: if not defined, the interfaces will be used
-//        String implSpecName = component.getApamSpecification();
-//        if (implSpecName != null) {
-//            // look in obr if specification exist; if so check consistency
-//
-//            Resource selected;
-//            // selected = lookFor("bundle", "(symbolicname=ApamCommand)", null);
-//            selected = Apam2RepoBuilder.obr.lookFor("apam-specification", "(name=" + implSpecName + ")", null);
-//
-//            obrContent.append("      <p n='apam-specification' v='" + implSpecName + "' />\n");
-//        }
+        String interfaces = component.getInterfaces();
+        if (!interfaces.isEmpty())
+            obrContent.append("      <p n='provide-interfaces' v='" + interfaces + "' /> \n");
 
+        String messages = component.getMessages();
+        if (messages != null)
+            obrContent.append("      <p n='provide-messages' v='" + messages + "' />\n");
+
+        String spec = component.getSpecification();
+        if (spec != null)
+            obrContent.append("      <p n='provide-specification' v='" + spec + "' />\n");
+
+        // Checking consistency
+        CheckObr.checkProvide(component.getName(), spec, interfaces, messages);
+    }
+
+    private void printProperties(StringBuffer obrContent, ApamComponentInfo component) {
         // property attributes
         Map<String, String> properties = component.getProperties();
         for (String propertyName : properties.keySet()) {
@@ -162,33 +162,84 @@ public class Apam2RepoBuilder {
                     + properties.get(propertyName) + "' />\n");
         }
 
-        // defination attributes
-        List<Property> definations = component.getDefinitions();
-        for (Property definition : definations) {
-            String tempContent = "      <p n='" + definition.getName() + "' t='"
-                    + definition.getType()+ "'" ;
-            if  (definition.getValue()!= null){
-                 tempContent = tempContent   + (" v='" + (definition.getValue()) + "'");
+        // definition attributes
+        List<SimpleProperty> definitions = component.getDefinitions();
+        for (SimpleProperty definition : definitions) {
+            String tempContent = "      <p n='definition-" + definition.name + "'";
+            if (definition.value != null) {
+                tempContent = tempContent + (" v='" + (definition.value) + "'");
             }
-            tempContent = tempContent   + " />\n";
+            tempContent = tempContent + " />\n";
             obrContent.append(tempContent);
         }
 
+        // Check Consistency
+        CheckObr.checkAttributes(component.getName(), component.getSpecification(), component.getProperties());
+    }
 
-        // interfaces
-        List<String> interfaces = component.getInterfaces(jarfile);
-        if (!interfaces.isEmpty()) {
-            obrContent.append("      <p n='interfaces' v='");
-            for (int j = 0; j < interfaces.size(); j++) {
-                if (!interfaces.get(j).startsWith("java.lang.")) {
-                    obrContent.append(";");
-                    obrContent.append(interfaces.get(j));
+    private static void printRequire(StringBuffer obrContent, ApamComponentInfo component) {
+        if (component.isSpecification()) {
+            for (SpecificationDependency dep : component.getSpecDependencies()) {
+                // INTERFACE, PUSH_MESSAGE, PULL_MESSAGE, SPECIFICATION
+
+                switch (dep.targetKind) {
+                    case INTERFACE: {
+                        obrContent.append("      <p n='require-interface' v='" + dep.fieldType + "' /> \n");
+                        break;
+                    }
+                    case SPECIFICATION:
+                        obrContent.append("      <p n='require-specification' v='" + dep.fieldType + "' /> \n");
+                        break;
+                    case PULL_MESSAGE:
+                        obrContent.append("      <p n='require-message' v='" + dep.fieldType + "' /> \n");
+                        break;
+                    case PUSH_MESSAGE:
+                        obrContent.append("      <p n='require-message' v='" + dep.fieldType + "' /> \n");
+                        break;
                 }
             }
-            obrContent.append(";' />\n");
+            return;
+        }
+        // composite and implems
+        if (component.isImplementation())
+            CheckObr.checkImplRequire(component.getName(), component.getSpecification(), component
+                    .getImplemDependencies());
+        if (component.isComposite())
+            CheckObr.checkCompoRequire(component.getName(), component.getSpecification(), component
+                    .getSpecDependencies());
+
+    }
+
+    private void printOBRElement(StringBuffer obrContent, ApamComponentInfo component, String indent, JarFile jarfile) {
+        String spec = component.getSpecification();
+
+        if (component.isImplementation()) {
+            obrContent.append("   <capability name='apam-implementation'>\n");
+            printProvided(obrContent, component, jarfile);
         }
 
+        // Information for composites
+        if (component.isComposite()) {
+            obrContent.append("   <capability name='apam-implementation'>\n");
+            obrContent.append("      <p n='apam-composite' v='" + component.isComposite() + "' />\n");
+            obrContent.append("      <p n='apam-main-implementation' v='" + component.getApamMainImplementation()
+                    + "' />\n");
+            printProvided(obrContent, component, jarfile);
+        }
+
+        if (component.isSpecification()) {
+            obrContent.append("   <capability name='apam-specification'>\n");
+            printProvided(obrContent, component, jarfile);
+        }
+
+        // definition attributes
+        printProperties(obrContent, component);
+
+        // Require
+        Apam2RepoBuilder.printRequire(obrContent, component);
+
         obrContent.append("   </capability>\n");
+
     }
 
     /**
@@ -325,6 +376,18 @@ public class Apam2RepoBuilder {
         return isApam && (isImplementation || isComposite || isSpecification);
     }
 
+    static class SimpleProperty {
+        public String name;
+        public String type;
+        public String value;
+
+        public SimpleProperty(String name, String type, String value) {
+            this.name = name;
+            this.type = type;
+            this.value = value;
+        }
+    }
+
     /**
      * Component Info. Represent a component type to be manipulated.
      * 
@@ -332,18 +395,18 @@ public class Apam2RepoBuilder {
      */
     private final class ApamComponentInfo {
 
-        final static String   APAM_NAMESPACE               = "fr.imag.adele.apam";
+        final static String        APAM_NAMESPACE               = "fr.imag.adele.apam";
+        final static String        APAM_SPECIFICATION_PROPERTY  = "specification";
+        final static String        APAM_INTERFACES_PROPERTY     = "interfaces";
+        final static String        APAM_MESSAGES_PROPERTY       = "messages";
+        final static String        APAM_IMPLEMENTATION_PROPERTY = "mainImplem";
 
-        final static String   APAM_SPECIFICATION_PROPERTY  = "specification";
-
-        final static String   APAM_INTERFACES_PROPERTY     = "interfaces";
-
-        final static String   APAM_IMPLEMENTATION_PROPERTY = "mainImplem";
-
+        private final List<String> interfaces;
+        private final ClassChecker ck;
         /**
          * Component Type metadata.
          */
-        private final Element m_componentMetadata;
+        private final Element      m_componentMetadata;
 
         /**
          * Constructor.
@@ -352,6 +415,36 @@ public class Apam2RepoBuilder {
          */
         public ApamComponentInfo(Element met) {
             m_componentMetadata = met;
+            ck = newComponent();
+            interfaces = _getInterfaceList();
+        }
+
+        public ClassChecker newComponent() {
+            if (!isImplementation())
+                return null;
+            ClassChecker ck = null;
+            String className = null;
+            try {
+                className = m_componentMetadata.getAttribute("classname");
+                if (className == null) {
+                    System.err.println("Invalid implementation component, className missing");
+                    return null;
+                }
+                className = className.replace('.', '/');
+                className += ".class";
+
+                InputStream byteCodeStream = getInputStream(className, jarFile);
+
+                if (byteCodeStream != null) {
+                    ClassReader ckReader = new ClassReader(byteCodeStream);
+                    ck = new ClassChecker();
+                    ckReader.accept(ck, ClassReader.SKIP_FRAMES);
+                    byteCodeStream.close();
+                }
+            } catch (IOException e) {
+                System.err.println("Could not parse " + className);
+            }
+            return ck;
         }
 
         /**
@@ -389,15 +482,6 @@ public class Apam2RepoBuilder {
         }
 
         /**
-         * Get the apam provided specification name. For composites it correspond to the specification
-         * provided by the main implementation.
-         */
-
-        public String getApamSpecification() {
-            return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_SPECIFICATION_PROPERTY);
-        }
-
-        /**
          * Get the apam implementation of the main specification for a composite.
          */
         public String getApamMainImplementation() {
@@ -407,63 +491,250 @@ public class Apam2RepoBuilder {
             return null;
         }
 
+        public String getMessages() {
+            return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_MESSAGES_PROPERTY);
+        }
+
+        public List<String> getMessageList() {
+            List<String> messages = new ArrayList<String>();
+            String message = m_componentMetadata.getAttribute(ApamComponentInfo.APAM_MESSAGES_PROPERTY);
+            if (message != null) {
+                for (String messageName : Apam2RepoBuilder.parseArrays(message)) {
+                    messages.add(messageName);
+                }
+            }
+            return messages;
+        }
+
+        public String getSpecification() {
+            return m_componentMetadata.getAttribute(ApamComponentInfo.APAM_SPECIFICATION_PROPERTY);
+        }
+
         /**
          * Get the list of provided interfaces of this component
          */
-        @SuppressWarnings("unchecked")
-        public List<String> getInterfaces(JarFile jarfile) {
 
-            List<String> interfaces = new ArrayList<String>();
+        public String getInterfaces() {
+            List<String> interfaces = getInterfaceList();
+            String interfs = "{";
+            for (String inter : interfaces) {
+                interfs += inter + ", ";
+            }
+            return (interfs.substring(0, interfs.length() - 2) + "}");
+        }
+
+        public List<String> getInterfaceList() {
+            return interfaces;
+        }
+
+        @SuppressWarnings("unchecked")
+        private List<String> _getInterfaceList() {
 
             /*
              * For primitive components if not specification is explicitly specified,
              * get all the implemented interfaces from the implementation class
              */
             if (isImplementation()) {
-                try {
-
-                    String className = m_componentMetadata.getAttribute("classname");
-                    className = className.replace('.', '/');
-                    className += ".class";
-
-                    InputStream byteCodeStream = getInputStream(className, jarfile);
-
-                    if (byteCodeStream != null) {
-                        ClassReader ckReader = new ClassReader(byteCodeStream);
-                        ClassChecker ck = new ClassChecker();
-                        ckReader.accept(ck, ClassReader.SKIP_FRAMES);
-                        byteCodeStream.close();
-
-                        interfaces.addAll(ck.getInterfaces());
-                    }
-                } catch (IOException e) {
-                }
-
+                return ck.getInterfaces();
             }
 
             /*
              * For composite components get the explicitly specified interfaces
              */
-            if (!isImplementation()) {
-
-                String encodedInterfaces = m_componentMetadata.getAttribute(ApamComponentInfo.APAM_INTERFACES_PROPERTY);
-                if (encodedInterfaces != null) {
-                    for (String interfaceName : Apam2RepoBuilder.parseArrays(encodedInterfaces)) {
-                        interfaces.add(interfaceName);
-                    }
+            List<String> interfaces = new ArrayList<String>();
+            String encodedInterfaces = m_componentMetadata.getAttribute(ApamComponentInfo.APAM_INTERFACES_PROPERTY);
+            if (encodedInterfaces != null) {
+                for (String interfaceName : Apam2RepoBuilder.parseArrays(encodedInterfaces)) {
+                    interfaces.add(interfaceName);
                 }
             }
 
             return interfaces;
         }
 
+//                try {
+//
+//                    String className = m_componentMetadata.getAttribute("classname");
+//                    className = className.replace('.', '/');
+//                    className += ".class";
+//
+//                    InputStream byteCodeStream = getInputStream(className, jarfile);
+//
+//                    if (byteCodeStream != null) {
+//                        ClassReader ckReader = new ClassReader(byteCodeStream);
+//                        ck = new ClassChecker();
+//                        ckReader.accept(ck, ClassReader.SKIP_FRAMES);
+//                        byteCodeStream.close();
+//
+//                        interfaces.addAll(ck.getInterfaces());
+//                    }
+//                } catch (IOException e) {
+//                }
+//
+//            }
+
+        public Set<ImplementationDependency> getImplemDependencies() {
+            Set<ImplementationDependency> implDeps = new HashSet<ImplementationDependency>();
+            // Complex dependencies
+            for (Element deps : optional(m_componentMetadata.getElements("dependencies",
+                    ApamComponentInfo.APAM_NAMESPACE))) {
+
+                for (Element property : optional(deps.getElements("specification",
+                        ApamComponentInfo.APAM_NAMESPACE))) {
+                    Attribute attr = property.getAttributes()[0];
+                    String name = attr.getValue();
+                    Set<AtomicDependency> aDeps = new HashSet<AtomicDependency>();
+                    ImplementationDependency dependency = new ImplementationDependency(name, aDeps, false);
+                    getFilters(property, dependency);
+                    implDeps.add(dependency);
+                    for (Element aDep : optional(property.getElements("interface",
+                            ApamComponentInfo.APAM_NAMESPACE))) {
+                        String field = aDep.getAttribute("field");
+                        String type = getFieldType(aDep.getAttribute("type"), field);
+                        aDeps.add(new AtomicDependency(TargetKind.INTERFACE, field, type));
+                    }
+                    for (Element aDep : optional(property.getElements("message",
+                            ApamComponentInfo.APAM_NAMESPACE))) {
+                        String field = aDep.getAttribute("name");
+                        String type = getFieldType(aDep.getAttribute("type"), field);
+                        if (field != null) {
+                            aDeps.add(new AtomicDependency(TargetKind.PULL_MESSAGE, field, type));
+                        } else {
+                            field = aDep.getAttribute("method");
+                            aDeps.add(new AtomicDependency(TargetKind.PUSH_MESSAGE, field, type));
+                        }
+                    }
+                }
+
+                // Atomic dependencies
+                for (Element property : optional(deps.getElements("interface",
+                            ApamComponentInfo.APAM_NAMESPACE))) {
+                    Set<AtomicDependency> aDeps = new HashSet<AtomicDependency>();
+                    ImplementationDependency dependency = new ImplementationDependency(null, aDeps, false);
+                    getFilters(property, dependency);
+                    implDeps.add(dependency);
+                    String field = property.getAttribute("field");
+                    String type = getFieldType(property.getAttribute("type"), field);
+                    aDeps.add(new AtomicDependency(TargetKind.INTERFACE, field, type));
+                }
+
+                for (Element property : optional(deps.getElements("message",
+                                ApamComponentInfo.APAM_NAMESPACE))) {
+                    Set<AtomicDependency> aDeps = new HashSet<AtomicDependency>();
+                    ImplementationDependency dependency = new ImplementationDependency(null, aDeps, false);
+                    getFilters(property, dependency);
+                    implDeps.add(dependency);
+                    String field = property.getAttribute("name");
+                    String type; // = deps.getAttribute("type");
+                    if (field != null) {
+                        type = getFieldType(property.getAttribute("type"), field);
+                        aDeps.add(new AtomicDependency(TargetKind.PULL_MESSAGE, field, type));
+                    } else {
+                        field = property.getAttribute("method");
+                        type = property.getAttribute("type");
+                        aDeps.add(new AtomicDependency(TargetKind.PUSH_MESSAGE, field, type));
+                    }
+                }
+
+            }
+
+            System.out.println(implDeps);
+            return implDeps;
+        }
+
+        public Set<SpecificationDependency> getSpecDependencies() {
+            Set<SpecificationDependency> specDeps = new HashSet<SpecificationDependency>();
+            for (Element deps : optional(m_componentMetadata.getElements("dependencies",
+                    ApamComponentInfo.APAM_NAMESPACE))) {
+
+                for (Element property : optional(deps.getElements("specification",
+                        ApamComponentInfo.APAM_NAMESPACE))) {
+                    String name = property.getAttribute("name");
+                    SpecificationDependency dependency = new SpecificationDependency(TargetKind.SPECIFICATION, name);
+                    getFilters(property, dependency);
+                    specDeps.add(dependency);
+                }
+
+                for (Element property : optional(deps.getElements("interface",
+                        ApamComponentInfo.APAM_NAMESPACE))) {
+                    String name = property.getAttribute("name");
+                    SpecificationDependency dependency = new SpecificationDependency(TargetKind.INTERFACE, name);
+                    getFilters(property, dependency);
+                    specDeps.add(dependency);
+                }
+
+                for (Element property : optional(deps.getElements("message",
+                        ApamComponentInfo.APAM_NAMESPACE))) {
+                    String name = property.getAttribute("name");
+                    SpecificationDependency dependency = new SpecificationDependency(TargetKind.PUSH_MESSAGE, name);
+                    getFilters(property, dependency);
+                    specDeps.add(dependency);
+                }
+            }
+            System.out.println(specDeps);
+            return specDeps;
+        }
+
+        private void getFilters(Element dependencyMetadata, Dependency dependency) {
+            /*
+             * Get filters on constraints
+             */
+
+            Element constraintsDeclarations[] = dependencyMetadata.getElements(
+                    "constraints", ApamComponentInfo.APAM_NAMESPACE);
+
+            dependency.implementationConstraints = new ArrayList<String>();
+            dependency.instanceConstraints = new ArrayList<String>();
+
+            for (Element constraintsDeclaration : optional(constraintsDeclarations)) {
+
+                Element implementationConstraints[] = constraintsDeclaration.getElements(
+                        "implementation", ApamComponentInfo.APAM_NAMESPACE);
+                for (Element implementationConstraint : optional(implementationConstraints)) {
+
+                    dependency.implementationConstraints.add(implementationConstraint.getAttribute("filter"));
+                }
+
+                Element instanceConstraints[] = constraintsDeclaration.getElements(
+                        "instance", ApamComponentInfo.APAM_NAMESPACE);
+                for (Element instanceConstraint : optional(instanceConstraints)) {
+
+                    dependency.instanceConstraints.add(instanceConstraint.getAttribute("filter"));
+                }
+
+            }
+
+            /*
+             * Get filters on preferences
+             */
+            dependency.implementationPreferences = new ArrayList<String>();
+            dependency.instancePreferences = new ArrayList<String>();
+            Element preferencesDeclarations[] = dependencyMetadata.getElements(
+                    "preferences", ApamComponentInfo.APAM_NAMESPACE);
+
+            for (Element preferencesDeclaration : optional(preferencesDeclarations)) {
+
+                Element implementationPreferences[] = preferencesDeclaration.getElements(
+                        "implementation", ApamComponentInfo.APAM_NAMESPACE);
+                for (Element implementationPreference : optional(implementationPreferences)) {
+                    dependency.implementationPreferences.add(implementationPreference.getAttribute("filter"));
+                }
+
+                Element instancePreferences[] = preferencesDeclaration.getElements(
+                        "instance", ApamComponentInfo.APAM_NAMESPACE);
+                for (Element instancePreference : optional(instancePreferences)) {
+                    dependency.instancePreferences.add(instancePreference.getAttribute("filter"));
+                }
+
+            }
+
+        }
+
         /**
          * Get the list of properties defined for this component
          */
         public Map<String, String> getProperties() {
-
             Map<String, String> properties = new HashMap<String, String>();
-
             for (Element propertiesDeclaration : optional(m_componentMetadata.getElements("properties",
                     ApamComponentInfo.APAM_NAMESPACE))) {
                 for (Attribute attribute : optional(propertiesDeclaration.getAttributes())) {
@@ -473,39 +744,53 @@ public class Apam2RepoBuilder {
                 for (Element property : optional(propertiesDeclaration.getElements("property",
                         ApamComponentInfo.APAM_NAMESPACE))) {
                     for (Attribute attr : property.getAttributes()) {
-                        if (!attr.getName().equalsIgnoreCase("type") && !attr.getName().equalsIgnoreCase("field")){
+                        if (!attr.getName().equalsIgnoreCase("type") && !attr.getName().equalsIgnoreCase("field")) {
                             properties.put(attr.getName(), attr.getValue());
                         }
                     }
-//                    if (property.containsAttribute("value")) {
-//                        properties.put(property.getAttribute("name"), property.getAttribute("value"));
-//                    }
                 }
             }
             return properties;
         }
 
+        private String getFieldType(String fieldType, String fieldName) {
+            String compFieldType = getFieldType(fieldName);
+            if ((fieldType != null) && !fieldType.equals(compFieldType)) {
+                System.err.println("ERROR: type of field " + fieldName + " should be " + compFieldType
+                            + " instead of " + fieldType);
+            }
+            return compFieldType;
+        }
+
+        public String getFieldType(String fieldName) {
+            Map fields = ck.getFields();
+            for (Object field : fields.keySet()) {
+                if (((String) field).equals(fieldName)) {
+                    System.out.println("field " + fieldName + " is of type " + fields.get(field));
+                    return (String) fields.get(field);
+                }
+            }
+            System.err.println("ERROR: Field " + fieldName + " declared but not existing in the code");
+            return null;
+        }
+
         /**
          * Get the list of properties defined for this component
          */
-        public List<Property> getDefinitions() {
-
-            
-             List<Property> definitions = new ArrayList<Property>();
-
+        public List<SimpleProperty> getDefinitions() {
+            List<SimpleProperty> definitions = new ArrayList<SimpleProperty>();
             for (Element propertiesDeclaration : optional(m_componentMetadata.getElements("definitions",
                     ApamComponentInfo.APAM_NAMESPACE))) {
                 for (Attribute attribute : optional(propertiesDeclaration.getAttributes())) {
-                    definitions.add(new PropertyImpl(attribute.getName(), null, attribute.getValue()));
+                    definitions.add(new SimpleProperty(attribute.getName(), null, attribute.getValue()));
                 }
 
                 for (Element property : optional(propertiesDeclaration.getElements("definition",
                         ApamComponentInfo.APAM_NAMESPACE))) {
-//                    for (Attribute attr : property.getAttributes()) {
-//                        properties.put(attr.getName(), attr.getValue());
-//                    }
                     if (property.containsAttribute("name") && property.containsAttribute("type")) {
-                        definitions.add(new PropertyImpl(property.getAttribute("name"), property.getAttribute("type"),property.getAttribute("value")));
+                        definitions.add(new SimpleProperty(property.getAttribute("name"),
+                                property.getAttribute("type"),
+                                property.getAttribute("value")));
                     }
                 }
             }
@@ -639,7 +924,7 @@ public class Apam2RepoBuilder {
      * @return the resulting string array
      */
     public static String[] parseArrays(String str) {
-        if (str.length() == 0) {
+        if ((str == null) || (str.length() == 0)) {
             return new String[0];
         }
 

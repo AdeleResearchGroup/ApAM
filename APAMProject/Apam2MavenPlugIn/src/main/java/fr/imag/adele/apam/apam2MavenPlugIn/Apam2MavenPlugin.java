@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.felix.ipojo.manipulator.Pojoization;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -151,8 +152,14 @@ public class Apam2MavenPlugin extends AbstractMojo {
      */
     @Override
     public void execute() throws MojoExecutionException {
-
+        String obrLocalRepo = localRepository.getBasedir();
         System.err.println("OBR repo : " + localRepository.getBasedir());
+        System.err.println("dependencies : ");
+        for (Object artifact : getProject().getDependencyArtifacts()) {
+            Artifact dependency = (Artifact) artifact;
+            System.err.println(dependency.getGroupId() + " " + dependency.getArtifactId() + " "
+                    + dependency.getVersion() + " base " + dependency.getBaseVersion());
+        }
 
         // ignore project types not supported, useful when the plugin is configured in the parent pom
         if (!m_supportedProjectTypes.contains(getProject().getArtifact().getType())) {
