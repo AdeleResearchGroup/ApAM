@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.apamImpl;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -17,7 +18,12 @@ import java.util.Set;
 
 public abstract class Dependency {
     public DependencyKind kind;
-    public boolean        isMultiple = false; // cardinality multiple. Optional=false
+    public boolean        isMultiple = false;       // cardinality multiple. Optional=false
+
+    public List<String>   implementationConstraints;
+    public List<String>   instanceConstraints;
+    public List<String>   implementationPreferences;
+    public List<String>   instancePreferences;
 
     public enum DependencyKind {
         SPECIFICATION, IMPLEMENTATION, COMPLEX, COMPOSITE
@@ -61,11 +67,11 @@ public abstract class Dependency {
 
         @Override
         public String toString() {
-            String ret = "   Dependencies :";
+            String ret = "   ";
             if (kind == DependencyKind.COMPLEX)
                 ret = "specification  " + specification + "  ";
             for (AtomicDependency dep : dependencies) {
-                ret = ret + "\n    " + dep;
+                ret = ret + dep;
             }
             if (isMultiple)
                 ret = ret + "   multiple = true \n";
@@ -116,7 +122,7 @@ public abstract class Dependency {
 
         @Override
         public String toString() {
-            return "  target: " + targetKind + "  " + fieldType;
+            return "  target: " + targetKind + "  field:" + fieldName + "  type:" + fieldType + "\n";
         }
     }
 }
