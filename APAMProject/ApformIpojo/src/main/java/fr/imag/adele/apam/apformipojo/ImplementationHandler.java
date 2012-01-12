@@ -21,7 +21,7 @@ public abstract class ImplementationHandler extends PrimitiveHandler {
     /**
      * Quote String in message
      */
-    protected static final String quote(String arg) {
+    public static final String quote(String arg) {
         return "\"" + arg + "\"";
     }
 

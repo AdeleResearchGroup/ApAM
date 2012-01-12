@@ -2,7 +2,7 @@ package fr.imag.adele.apam.apformipojo;
 
 import java.util.Dictionary;
 import java.util.HashSet;
-//import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -29,6 +29,7 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.apform.message.impl.MessageConstants;
 
 //import fr.imag.adele.apam.util.Attributes;
 
@@ -192,6 +193,16 @@ public class ApformIpojoImplementation extends ComponentFactory implements Apfor
      */
     public boolean isAbstract() {
     	return false;
+    }
+    
+    @Override
+    public List getRequiredHandlerList() {
+    	
+    	//TODO REverify after creating the handler
+    	List requiredHandlers = super.getRequiredHandlerList();
+    	RequiredHandler messageProvider = new RequiredHandler(MessageConstants.MESSAGE_PROVIDES_DECLARATION,APAM_NAMESPACE);
+    	requiredHandlers.add(messageProvider);
+    	return requiredHandlers;
     }
 
     /**
