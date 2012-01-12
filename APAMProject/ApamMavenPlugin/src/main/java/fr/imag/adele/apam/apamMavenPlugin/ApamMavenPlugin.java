@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apam2MavenPlugIn;
+package fr.imag.adele.apam.apamMavenPlugin;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,26 +27,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.felix.ipojo.manipulator.Pojoization;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.felix.ipojo.manipulator.Pojoization;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-
-//import fr.imag.adele.obrMan.OBRMan;
-
-///**
-// * Packages an OSGi jar "bundle" as an "iPOJO bundle".
-// * 
-// * @author <a href="mailto:dev@felix.apache.org">Felix Project Team</a>
-// * @version $Rev$, $Date$
-// * @goal ipojo-bundle
-// * @phase package
-// * @requiresDependencyResolution runtime
-// * @description manipulate an OSGi bundle jar to build an iPOJO bundle
-// */
 
 /**
  * This plugin does the same as ipojo plugin and adds Apam information to the OBR file associated with an Apam bundle.
@@ -58,7 +45,7 @@ import org.apache.maven.project.MavenProjectHelper;
  * @description manipulate an OSGi bundle jar to build an Apam-iPOJO bundle
  */
 
-public class Apam2MavenPlugin extends AbstractMojo {
+public class ApamMavenPlugin extends AbstractMojo {
 
     /**
      * The directory for the generated JAR.
@@ -155,7 +142,7 @@ public class Apam2MavenPlugin extends AbstractMojo {
      * @throws MojoExecutionException : an exception occurs during the manipulation.
      * @see org.apache.maven.plugin.AbstractMojo#execute()
      */
-    @Override
+    // @Override
     public void execute() throws MojoExecutionException {
 //        String obrLocalRepo = localRepository.getBasedir();
         System.err.println("OBR repo : " + localRepository.getBasedir());
@@ -163,12 +150,9 @@ public class Apam2MavenPlugin extends AbstractMojo {
 
         for (Object artifact : getProject().getDependencyArtifacts()) {
             Artifact dependency = (Artifact) artifact;
-            // S2/0.0.1.SNAPSHOT not S2/0.0.1-SNAPSHOT
+            // 0.0.1.SNAPSHOT not 0.0.1-SNAPSHOT
             String version = dependency.getVersion().replace('-', '.');
-            Apam2MavenPlugin.bundleDependencies.add(dependency.getArtifactId() + "/" + version);
-            for (String dep : Apam2MavenPlugin.bundleDependencies) {
-                System.out.println(dep);
-            }
+            ApamMavenPlugin.bundleDependencies.add(dependency.getArtifactId() + "/" + version);
         }
 //            System.err.println(dependency.getArtifactId() + "/" + dependency.getVersion()
 //                    + "\n    " + dependency.getClassifier() + " group: "
@@ -261,7 +245,7 @@ public class Apam2MavenPlugin extends AbstractMojo {
         }
 
         File out = new File(m_buildDirectory + File.separator + "_out.jar");
-        Apam2RepoBuilder arb = new Apam2RepoBuilder(localRepository.getBasedir());
+        ApamRepoBuilder arb = new ApamRepoBuilder(localRepository.getBasedir());
         Pojoization pojo = new Pojoization();
         if (m_ignoreAnnotations) {
             pojo.disableAnnotationProcessing();
