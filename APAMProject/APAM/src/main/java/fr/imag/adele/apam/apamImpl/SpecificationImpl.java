@@ -14,11 +14,11 @@ import org.osgi.framework.InvalidSyntaxException;
 //import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apamImpl.Dependency.SpecificationDependency;
 import fr.imag.adele.apam.apform.ApformSpecification;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.apam.util.Util;
+import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
 
 //import fr.imag.adele.sam.ApformSpecification;
 

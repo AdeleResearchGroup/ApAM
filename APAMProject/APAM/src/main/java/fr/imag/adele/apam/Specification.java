@@ -8,10 +8,10 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 //import fr.imag.adele.am.exception.ConnectionException;
-import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
-import fr.imag.adele.apam.apamImpl.Dependency.SpecificationDependency;
 import fr.imag.adele.apam.apform.ApformSpecification;
 //import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
+import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
 
 //import fr.imag.adele.sam.Specification;
 

@@ -8,14 +8,14 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.apamImpl.Dependency;
-import fr.imag.adele.apam.apamImpl.Dependency.*;
 import fr.imag.adele.apam.apamImpl.APAMImpl;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
 //import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.apform.Apform;
+import fr.imag.adele.apam.util.Dependency;
+import fr.imag.adele.apam.util.Dependency.*;
 
 public class ApamResolver {
 

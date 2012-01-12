@@ -4,9 +4,9 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.apamImpl.Dependency;
-import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.apam.util.Dependency;
+import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
 
 public interface ApformImplementation {
     /**

@@ -2,10 +2,10 @@ package fr.imag.adele.apam;
 
 import java.util.Set;
 
-import fr.imag.adele.apam.apamImpl.Dependency.CompositeDependency;
-import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.apamImpl.ManagerModel;
-import fr.imag.adele.apam.apamImpl.Dependency.SpecificationDependency;
+import fr.imag.adele.apam.util.Dependency.CompositeDependency;
+import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
+import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
 
 public interface CompositeType extends Implementation {
     /**

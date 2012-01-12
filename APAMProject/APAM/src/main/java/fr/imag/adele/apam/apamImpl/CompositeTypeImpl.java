@@ -20,13 +20,13 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
-import fr.imag.adele.apam.apamImpl.Dependency.CompositeDependency;
-import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.apform.ApformImplementation;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.util.Dependency.CompositeDependency;
+import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
 
 //import fr.imag.adele.sam.Implementation;
 

@@ -16,9 +16,9 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
 
 public class ImplementationImpl extends ConcurrentHashMap<String, Object> implements Implementation {
 

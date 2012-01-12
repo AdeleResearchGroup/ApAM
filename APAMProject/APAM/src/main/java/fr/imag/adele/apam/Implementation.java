@@ -10,9 +10,9 @@ import java.util.concurrent.ConcurrentMap;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.apform.ApformImplementation;
 //import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
 
 //import fr.imag.adele.sam.Implementation;
 

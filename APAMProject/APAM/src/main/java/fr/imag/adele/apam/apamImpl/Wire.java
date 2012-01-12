@@ -5,12 +5,12 @@ import java.util.Set;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.util.Dependency;
 import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.apam.apamImpl.Dependency;
-import fr.imag.adele.apam.apamImpl.Dependency.AtomicDependency;
-import fr.imag.adele.apam.apamImpl.Dependency.DependencyKind;
-import fr.imag.adele.apam.apamImpl.Dependency.TargetKind;
-import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
+import fr.imag.adele.apam.util.Dependency.AtomicDependency;
+import fr.imag.adele.apam.util.Dependency.DependencyKind;
+import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
+import fr.imag.adele.apam.util.Dependency.TargetKind;
 
 public class Wire {
     private final InstanceImpl source;
