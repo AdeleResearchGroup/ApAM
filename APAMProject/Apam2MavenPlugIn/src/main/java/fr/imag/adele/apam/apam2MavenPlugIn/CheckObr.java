@@ -1,22 +1,19 @@
 package fr.imag.adele.apam.apam2MavenPlugIn;
 
 import java.io.File;
-import java.io.ObjectInputStream.GetField;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarFile;
 
-import org.apache.felix.ipojo.manipulation.ClassChecker;
-import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.impl.bundle.obr.resource.RepositoryImpl;
 import org.osgi.service.obr.Capability;
 import org.osgi.service.obr.Resource;
 
+import fr.imag.adele.apam.util.ApamComponentXML;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Dependency.AtomicDependency;
 import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
@@ -51,11 +48,11 @@ public class CheckObr {
         if (spec == null)
             return;
         List<String> implList = new ArrayList<String>();
-        for (String messageName : Apam2RepoBuilder.parseArrays(impl)) {
+        for (String messageName : ApamComponentXML.parseArrays(impl)) {
             implList.add(messageName);
         }
         // each element of sp must be found in implList
-        for (String sp : Apam2RepoBuilder.parseArrays(spec)) {
+        for (String sp : ApamComponentXML.parseArrays(spec)) {
             if (!implList.contains(sp)) {
                 System.err.println(msg + sp + ". Declared: " + impl);
             }
@@ -186,7 +183,7 @@ public class CheckObr {
                             "provide-interfaces");
                     if (interf != null) {
                         boolean found = false;
-                        for (String inter : Apam2RepoBuilder.parseArrays(interf)) {
+                        for (String inter : ApamComponentXML.parseArrays(interf)) {
                             if (inter.equals(fieldType)) {
                                 found = true;
                                 break;

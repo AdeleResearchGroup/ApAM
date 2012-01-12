@@ -13,7 +13,6 @@
 	<name>Apam2MavenPlugIn Maven Mojo</name>
 	<url>http://maven.apache.org</url>
 
-
 	<dependencies>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
