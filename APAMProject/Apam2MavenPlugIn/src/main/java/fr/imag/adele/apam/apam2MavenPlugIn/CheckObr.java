@@ -17,10 +17,10 @@ import org.osgi.impl.bundle.obr.resource.RepositoryImpl;
 import org.osgi.service.obr.Capability;
 import org.osgi.service.obr.Resource;
 
-import fr.imag.adele.apam.apamImpl.Dependency.AtomicDependency;
-import fr.imag.adele.apam.apamImpl.Dependency.ImplementationDependency;
-import fr.imag.adele.apam.apamImpl.Dependency.SpecificationDependency;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Dependency.AtomicDependency;
+import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
+import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
 
 //import fr.imag.adele.obrMan.OBRManager;
 //import fr.imag.adele.obrMan.OBRManager.Selected;
@@ -62,17 +62,37 @@ public class CheckObr {
         }
     }
 
-    public static void checkFilterList(List<String> filters) {
+    public static void checkFilterList(List<String> filters, Set<String> validAttr) {
+        if ((validAttr == null) || (filters == null))
+            return;
         for (String f : filters) {
             try {
                 ApamFilter parsedFilter = ApamFilter.newInstance(f);
                 System.err.println("validating filter " + f);
-                parsedFilter.validateAttr();
+                parsedFilter.validateAttr(validAttr);
             } catch (InvalidSyntaxException e) {
                 e.printStackTrace();
             }
         }
 
+    }
+
+    private static Set<String> getValidAttributes(Capability cap) {
+        if (cap == null)
+            return null;
+        Set<String> validAttrs = new HashSet<String>();
+        for (String predef : CheckObr.predefAttributes) {
+            validAttrs.add(predef);
+        }
+        String attr;
+        for (Object attrObject : cap.getProperties().keySet()) {
+            attr = (String) attrObject;
+            if (attr.startsWith("definition-"))
+                validAttrs.add(attr.substring(10));
+            else
+                validAttrs.add(attr);
+        }
+        return validAttrs;
     }
 
     private static boolean capContainsDefAttr(Capability cap, String attr) {
@@ -149,13 +169,13 @@ public class CheckObr {
         // The dependencies of that implementation
         Set<String> interfDependencies = new HashSet<String>();
         Set<String> msgDependencies = new HashSet<String>();
-
+        Set<String> validAttrs = CheckObr.getValidAttributes(CheckObr.getSpecCapability(spec));
         for (ImplementationDependency dep : deps) {
             System.err.println("validating dependency constraints and preferences....");
-            CheckObr.checkFilterList(dep.implementationConstraints);
-            CheckObr.checkFilterList(dep.instanceConstraints);
-            CheckObr.checkFilterList(dep.implementationPreferences);
-            CheckObr.checkFilterList(dep.instancePreferences);
+            CheckObr.checkFilterList(dep.implementationConstraints, validAttrs);
+            CheckObr.checkFilterList(dep.instanceConstraints, validAttrs);
+            CheckObr.checkFilterList(dep.implementationPreferences, validAttrs);
+            CheckObr.checkFilterList(dep.instancePreferences, validAttrs);
 
             // Checking complex dependencies
             if (dep.specification != null) {
@@ -258,11 +278,14 @@ public class CheckObr {
 
     private static Capability getSpecCapability(String name) {
         for (Resource res : CheckObr.resources) {
-            for (Capability cap : res.getCapabilities()) {
-                if (cap.getName().equals("apam-specification")
-                        && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
-                    System.out.println("Specification " + name + " found in bundle " + res.getId());
-                    return cap;
+//            System.out.println("res id:" + res.getId());
+            if (Apam2MavenPlugin.bundleDependencies.contains(res.getId())) {
+                for (Capability cap : res.getCapabilities()) {
+                    if (cap.getName().equals("apam-specification")
+                            && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
+                        System.out.println("Specification " + name + " found in bundle " + res.getId());
+                        return cap;
+                    }
                 }
             }
         }
@@ -272,10 +295,12 @@ public class CheckObr {
 
     private static Capability getImplCapability(String name) {
         for (Resource res : CheckObr.resources) {
-            for (Capability cap : res.getCapabilities()) {
-                if (cap.getName().equals("apam-implementation")
-                        && (CheckObr.getAttributeInCap(cap, name) != null))
-                    return cap;
+            if (Apam2MavenPlugin.bundleDependencies.contains(res.getId())) {
+                for (Capability cap : res.getCapabilities()) {
+                    if (cap.getName().equals("apam-implementation")
+                            && (CheckObr.getAttributeInCap(cap, name) != null))
+                        return cap;
+                }
             }
         }
         return null;

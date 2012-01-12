@@ -39,9 +39,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import fr.imag.adele.apam.apamImpl.Dependency;
-import fr.imag.adele.apam.apamImpl.Dependency.SpecificationDependency;
-import fr.imag.adele.apam.apamImpl.Dependency.*;
+import fr.imag.adele.apam.util.Dependency;
+import fr.imag.adele.apam.util.Dependency.*;
 
 //import fr.imag.adele.obrMan.OBRManager;
 //import fr.imag.adele.obrMan.OBRManager.Selected;
@@ -551,27 +550,6 @@ public class Apam2RepoBuilder {
 
             return interfaces;
         }
-
-//                try {
-//
-//                    String className = m_componentMetadata.getAttribute("classname");
-//                    className = className.replace('.', '/');
-//                    className += ".class";
-//
-//                    InputStream byteCodeStream = getInputStream(className, jarfile);
-//
-//                    if (byteCodeStream != null) {
-//                        ClassReader ckReader = new ClassReader(byteCodeStream);
-//                        ck = new ClassChecker();
-//                        ckReader.accept(ck, ClassReader.SKIP_FRAMES);
-//                        byteCodeStream.close();
-//
-//                        interfaces.addAll(ck.getInterfaces());
-//                    }
-//                } catch (IOException e) {
-//                }
-//
-//            }
 
         public Set<ImplementationDependency> getImplemDependencies() {
             Set<ImplementationDependency> implDeps = new HashSet<ImplementationDependency>();

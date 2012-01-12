@@ -23,7 +23,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.felix.ipojo.manipulator.Pojoization;
 import org.apache.maven.artifact.Artifact;
@@ -144,6 +146,9 @@ public class Apam2MavenPlugin extends AbstractMojo {
      */
     protected ArtifactRepository localRepository;
 
+    // The list of bundle dependencies of the form "groupId.name.version"
+    public static Set<String>    bundleDependencies = new HashSet<String>();
+
     /**
      * Execute method : this method launches the pojoization.
      * 
@@ -152,14 +157,24 @@ public class Apam2MavenPlugin extends AbstractMojo {
      */
     @Override
     public void execute() throws MojoExecutionException {
-        String obrLocalRepo = localRepository.getBasedir();
+//        String obrLocalRepo = localRepository.getBasedir();
         System.err.println("OBR repo : " + localRepository.getBasedir());
         System.err.println("dependencies : ");
+
         for (Object artifact : getProject().getDependencyArtifacts()) {
             Artifact dependency = (Artifact) artifact;
-            System.err.println(dependency.getGroupId() + " " + dependency.getArtifactId() + " "
-                    + dependency.getVersion() + " base " + dependency.getBaseVersion());
+            // S2/0.0.1.SNAPSHOT not S2/0.0.1-SNAPSHOT
+            String version = dependency.getVersion().replace('-', '.');
+            Apam2MavenPlugin.bundleDependencies.add(dependency.getArtifactId() + "/" + version);
+            for (String dep : Apam2MavenPlugin.bundleDependencies) {
+                System.out.println(dep);
+            }
         }
+//            System.err.println(dependency.getArtifactId() + "/" + dependency.getVersion()
+//                    + "\n    " + dependency.getClassifier() + " group: "
+//                    + dependency.getGroupId() + " " + dependency.getArtifactId() + " "
+//                    + dependency.getVersion() + " base " + dependency.getBaseVersion());
+//       }
 
         // ignore project types not supported, useful when the plugin is configured in the parent pom
         if (!m_supportedProjectTypes.contains(getProject().getArtifact().getType())) {
