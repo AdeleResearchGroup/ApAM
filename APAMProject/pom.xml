@@ -316,6 +316,5 @@
 		<module>CONFMAN</module>
 		<module>DYNAMAN</module>
 		<module>DISTRIMAN</module>
-		<module>Apam2MavenPlugin</module>
 	</modules>
 </project>

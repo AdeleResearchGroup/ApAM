@@ -39,8 +39,12 @@ public class OBRManager implements IOBRMAN {
         init(defaultLocalRepo);
     }
 
+//    public RepositoryAdmin getRepositoryAdmin () {
+//        return repoAdmin ;
+//    }
+
     public void init(String defaultLocalRepo) {
-        System.out.println("Started OBRMAN");
+        System.out.println("Started OBRMAN" + defaultLocalRepo);
         try {
             if (defaultLocalRepo != null) {
                 local = repoAdmin.addRepository(defaultLocalRepo);
@@ -105,7 +109,7 @@ public class OBRManager implements IOBRMAN {
     //
     // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", constraints);
 
-    private void printCap(Capability aCap) {
+    public void printCap(Capability aCap) {
         System.out.println("   Capability name: " + aCap.getName());
         for (Property prop : aCap.getProperties()) {
             System.out.println("     " + prop.getName() + " type= " + prop.getType() + " val= " + prop.getValue());
@@ -119,7 +123,7 @@ public class OBRManager implements IOBRMAN {
         }
     }
 
-    private String printProperties(Property[] props) {
+    public String printProperties(Property[] props) {
         StringBuffer ret = new StringBuffer();
         for (Property prop : props) {
             ret.append(prop.getName() + "=" + prop.getValue() + ",  ");
@@ -128,7 +132,7 @@ public class OBRManager implements IOBRMAN {
     }
 
     // serious stuff now !
-    private String getAttributeInResource(Resource res, String capability, String attr) {
+    public String getAttributeInResource(Resource res, String capability, String attr) {
         for (Capability aCap : res.getCapabilities()) {
             if (aCap.getName().equals(capability)) {
                 return (String) (aCap.getPropertiesAsMap().get(attr));
@@ -173,7 +177,7 @@ public class OBRManager implements IOBRMAN {
         return allRes;
     }
 
-    private Selected lookForPref(String capability, List<Filter> preferences, Set<Resource> candidates) {
+    public Selected lookForPref(String capability, List<Filter> preferences, Set<Resource> candidates) {
         if (candidates.isEmpty())
             return null;
 

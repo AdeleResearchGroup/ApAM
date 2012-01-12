@@ -148,29 +148,6 @@
 			<artifactId>org.apache.felix.ipojo</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>stax</groupId>
-			<artifactId>stax-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.sam</groupId>
-			<artifactId>ServiceAbstractMachine-API
-			</artifactId>
-		</dependency>
-		<dependency>
-                <groupId>fr.imag.adele.sam</groupId>
-                <artifactId>ServiceConcreteMachine-API
-                </artifactId>
-            </dependency>
-        <dependency>
-            <groupId>fr.imag.adele.am</groupId>
-            <artifactId>AbstractMachine-API</artifactId>
-        </dependency>
-         <dependency>
-            <groupId>fr.imag.adele.am</groupId>
-            <artifactId>AbstractMachine-Impl</artifactId>
-        </dependency>
 	</dependencies>
   
   

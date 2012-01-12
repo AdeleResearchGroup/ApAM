@@ -1,8 +1,11 @@
 <ipojo>
 <component name="OBRMAN" classname="fr.imag.adele.obrMan.OBRMan" immediate="true">
-	<requires field="repoAdmin" proxy="false"/>
 	<callback transition="validate" method="start"/>
 	<callback transition="invalidate" method="stop"/>
+</component>
+
+<component name="OBRMANAGER" classname="fr.imag.adele.obrMan.OBRManager" immediate="true">
+	<requires field="repoAdmin" proxy="false"/>
 </component>
 
 <instance name="OBRMAN-Instance" component="OBRMAN"/>
