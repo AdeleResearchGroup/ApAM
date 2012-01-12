@@ -447,7 +447,7 @@ public class ApamComponentXML {
 
             }
 
-            System.out.println(implDeps);
+            // System.out.println(implDeps);
             return implDeps;
         }
 
@@ -480,37 +480,30 @@ public class ApamComponentXML {
                     specDeps.add(dependency);
                 }
             }
-            System.out.println(specDeps);
+            // System.out.println(specDeps);
             return specDeps;
         }
 
         private void getFilters(Element dependencyMetadata, Dependency dependency) {
             /*
-             * Get filters on constraints
+             * Get filters on constraints in global variables
              */
-
             Element constraintsDeclarations[] = dependencyMetadata.getElements(
                     "constraints", ApamComponentInfo.APAM_NAMESPACE);
-
             dependency.implementationConstraints = new ArrayList<String>();
             dependency.instanceConstraints = new ArrayList<String>();
 
             for (Element constraintsDeclaration : optional(constraintsDeclarations)) {
-
                 Element implementationConstraints[] = constraintsDeclaration.getElements(
                         "implementation", ApamComponentInfo.APAM_NAMESPACE);
                 for (Element implementationConstraint : optional(implementationConstraints)) {
-
                     dependency.implementationConstraints.add(implementationConstraint.getAttribute("filter"));
                 }
-
                 Element instanceConstraints[] = constraintsDeclaration.getElements(
                         "instance", ApamComponentInfo.APAM_NAMESPACE);
                 for (Element instanceConstraint : optional(instanceConstraints)) {
-
                     dependency.instanceConstraints.add(instanceConstraint.getAttribute("filter"));
                 }
-
             }
 
             /*
@@ -534,9 +527,7 @@ public class ApamComponentXML {
                 for (Element instancePreference : optional(instancePreferences)) {
                     dependency.instancePreferences.add(instancePreference.getAttribute("filter"));
                 }
-
             }
-
         }
 
         /**
@@ -575,7 +566,7 @@ public class ApamComponentXML {
             Map fields = ck.getFields();
             for (Object field : fields.keySet()) {
                 if (((String) field).equals(fieldName)) {
-                    System.out.println("field " + fieldName + " is of type " + fields.get(field));
+                    // System.out.println("field " + fieldName + " is of type " + fields.get(field));
                     return (String) fields.get(field);
                 }
             }

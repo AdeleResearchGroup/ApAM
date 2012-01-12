@@ -338,19 +338,19 @@ public class ApamFilter implements Filter {
         return toString().hashCode();
     }
 
-    public void validateAttr(Set<String> validAttr) {
+    public void validateAttr(Set<String> validAttr, String f) {
         switch (op) {
             case AND:
             case OR: {
                 ApamFilter[] filters = (ApamFilter[]) value;
                 for (ApamFilter filter : filters) {
-                    filter.validateAttr(validAttr);
+                    filter.validateAttr(validAttr, f);
                 }
             }
 
             case NOT: {
                 ApamFilter filter = (ApamFilter) value;
-                filter.validateAttr(validAttr);
+                filter.validateAttr(validAttr, f);
             }
 
             case SUBSTRING:
@@ -362,8 +362,8 @@ public class ApamFilter implements Filter {
             case SUPERSET:
             case PRESENT: {
                 if (!validAttr.contains(attr)) {
-                    System.err.println("Invalid property " + attr + " in constraint ");
-                    System.out.println(" valid attr = " + validAttr);
+                    System.err.println("Invalid property " + attr + " in constraint " + f);
+//                    System.out.println(" valid attr = " + validAttr);
                 }
             }
 
