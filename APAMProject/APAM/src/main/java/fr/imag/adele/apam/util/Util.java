@@ -1,7 +1,10 @@
 package fr.imag.adele.apam.util;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,8 +32,23 @@ public class Util {
     private Util() {
     };
 
+    public static List<String> splitList(String str) {
+        if ((str == null) || (str.length() == 0)) {
+            return Collections.EMPTY_LIST;
+        }
+        return Arrays.asList(str.split(Util.splitSeparator));
+    }
+
+    public static String[] split(String str) {
+        if ((str == null) || (str.length() == 0)) {
+            return new String[0];
+        }
+        return str.split(Util.splitSeparator);
+    }
+
+    public static final String splitSeparator = ",|\\s|\\{|\\[|\\]|\\}";
     /** The logger. */
-//    private static Logger logger = Logger.getLogger(Util.class);
+    //    private static Logger logger = Logger.getLogger(Util.class);
 
     /**
      * Orders the array in lexicographical order.
@@ -88,39 +106,39 @@ public class Util {
      * @param samProp : the properties found in SAM.
      * @return
      */
-//    public static Map<String, Object> mergeProperties(AttributesImpl asmObj, Attributes initProp,
-//            Map<String, Object> samPropParam) {
-//        if ((initProp == null) && (samPropParam == null))
-//            return new HashMap<String, Object>();
-//        return asmObj.checkPredefinedAttributes(samPropParam);
-//    }
+    //    public static Map<String, Object> mergeProperties(AttributesImpl asmObj, Attributes initProp,
+    //            Map<String, Object> samPropParam) {
+    //        if ((initProp == null) && (samPropParam == null))
+    //            return new HashMap<String, Object>();
+    //        return asmObj.checkPredefinedAttributes(samPropParam);
+    //    }
 
-//       
-//        if ((initProp == null) && (samPropParam == null))
-//            return new HashMap<String, Object>();
-//        Map<String, Object> samProp = new HashMap<String, Object>(samPropParam);
-//        String attr;
-//        Object val;
-//        if ((initProp != null) && (samProp != null)) { // merge
-//            for (Enumeration<String> e = ((AttributesImpl) initProp).keys(); e.hasMoreElements();) {
-//                attr = e.nextElement();
-//                val = initProp.getProperty(attr);
-//                if (samProp.get(attr) == null) {
-//                    samProp.put(attr, val);
-//                } else { // different values, pas normal !
-//                    if (initProp.getProperty(attr) != samProp.get(attr)) {
-//                        System.out.println("Warning ! attribut " + attr + "in " + asmObj
-//                                + " different in SAM and init val : "
-//                                + samProp.get(attr) + ", " + val);
-//                    }
-//                }
-//            }
-//        }
-//
-//        if (samProp == null)
-//            samProp = initProp.getProperties();
-//        return asmObj.checkPredefinedAttributes(samProp);
-//     }
+    //       
+    //        if ((initProp == null) && (samPropParam == null))
+    //            return new HashMap<String, Object>();
+    //        Map<String, Object> samProp = new HashMap<String, Object>(samPropParam);
+    //        String attr;
+    //        Object val;
+    //        if ((initProp != null) && (samProp != null)) { // merge
+    //            for (Enumeration<String> e = ((AttributesImpl) initProp).keys(); e.hasMoreElements();) {
+    //                attr = e.nextElement();
+    //                val = initProp.getProperty(attr);
+    //                if (samProp.get(attr) == null) {
+    //                    samProp.put(attr, val);
+    //                } else { // different values, pas normal !
+    //                    if (initProp.getProperty(attr) != samProp.get(attr)) {
+    //                        System.out.println("Warning ! attribut " + attr + "in " + asmObj
+    //                                + " different in SAM and init val : "
+    //                                + samProp.get(attr) + ", " + val);
+    //                    }
+    //                }
+    //            }
+    //        }
+    //
+    //        if (samProp == null)
+    //            samProp = initProp.getProperties();
+    //        return asmObj.checkPredefinedAttributes(samProp);
+    //     }
 
     public static String ANDLDAP(String... params) {
         StringBuilder sb = new StringBuilder("(&");
@@ -170,12 +188,12 @@ public class Util {
                 return true;
         }
         // failed
-//        if (compoFrom.isInternal()) {
-//            System.out.println("Composite type " + compoFrom.getName()
-//                    + " is internal and does not see implementation " + impl + " in " + impl.getInCompositeType());
-//        } else
-//            System.out.println("Composite type " + compoFrom.getName()
-//                        + " does not see implementation " + impl + " in " + impl.getInCompositeType());
+        //        if (compoFrom.isInternal()) {
+        //            System.out.println("Composite type " + compoFrom.getName()
+        //                    + " is internal and does not see implementation " + impl + " in " + impl.getInCompositeType());
+        //        } else
+        //            System.out.println("Composite type " + compoFrom.getName()
+        //                        + " does not see implementation " + impl + " in " + impl.getInCompositeType());
         return false;
     }
 
@@ -212,15 +230,15 @@ public class Util {
             scope = CST.V_LOCAL;
 
         if ((toInst.getShared().equals(CST.V_FALSE) && (!toInst.getInvWires().isEmpty()))) {
-//            System.out.println(toInst + " is not sharable");
+            //            System.out.println(toInst + " is not sharable");
             return false;
         }
 
         boolean valid = Util.checkVisibility(compoFrom, toInst.getComposite(), scope);
         if (!valid) {
-//            System.out.println("Composite " + compoFrom.getName()
-//                    + " does not see instance " + toInst + " in Composite " + toInst.getComposite().getName()
-//                    + " (scope is " + scope + ")");
+            //            System.out.println("Composite " + compoFrom.getName()
+            //                    + " does not see instance " + toInst + " in Composite " + toInst.getComposite().getName()
+            //                    + " (scope is " + scope + ")");
         }
         return valid;
     }

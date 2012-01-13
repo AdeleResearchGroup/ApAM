@@ -44,7 +44,7 @@
 			
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugIn</artifactId>
+				<artifactId>ApamMavenPlugin</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 				<executions>
 					<execution>

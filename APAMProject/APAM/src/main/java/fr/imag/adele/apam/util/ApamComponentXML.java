@@ -34,6 +34,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 //import fr.imag.adele.apam.util.ComponentXML;
 //import fr.imag.adele.apam.apam2MavenPlugIn.Apam2RepoBuilder.SimpleProperty;
 import fr.imag.adele.apam.util.Dependency.AtomicDependency;
+import fr.imag.adele.apam.util.Dependency.CompositeDependency;
 import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
 import fr.imag.adele.apam.util.Dependency.TargetKind;
@@ -154,9 +155,9 @@ public class ApamComponentXML {
             return getMetadataInfo(metadata);
         else
             return getMetadataInfo(is);
-//        ApamComponentXML.ck = newComponent(jarFile);
-//        interfaces = _getInterfaceList();
-//        return ApamComponentXML.components;
+        //        ApamComponentXML.ck = newComponent(jarFile);
+        //        interfaces = _getInterfaceList();
+        //        return ApamComponentXML.components;
     }
 
     private List<ApamComponentInfo> getMetadataInfo(InputStream metadata) {
@@ -200,7 +201,7 @@ public class ApamComponentXML {
         boolean isApam = (meta.getNameSpace() != null) && meta.getNameSpace().equals(ApamComponentInfo.APAM_NAMESPACE);
 
         boolean isImplementation = meta.getName().equalsIgnoreCase("implementation")
-                && (meta.getAttribute("classname") != null);
+        && (meta.getAttribute("classname") != null);
         boolean isComposite = meta.getName().equalsIgnoreCase("composite");
         boolean isSpecification = meta.getName().equalsIgnoreCase("specification");
         return isApam && (isImplementation || isComposite || isSpecification);
@@ -246,7 +247,14 @@ public class ApamComponentXML {
         public ApamComponentInfo(Element met) {
             m_componentMetadata = met;
             ck = newComponent();
-            interfaces = _getInterfaceList();
+            if (isImplementation()) {
+                interfaces = ck.getInterfaces();
+            } else
+                interfaces = _getInterfaceList();
+        }
+
+        public ClassChecker getClassChecker() {
+            return ck;
         }
 
         public ClassChecker newComponent() {
@@ -328,10 +336,8 @@ public class ApamComponentXML {
         public List<String> getMessageList() {
             List<String> messages = new ArrayList<String>();
             String message = m_componentMetadata.getAttribute(ApamComponentInfo.APAM_MESSAGES_PROPERTY);
-            if (message != null) {
-                for (String messageName : ApamComponentXML.parseArrays(message)) {
-                    messages.add(messageName);
-                }
+            for (String messageName : Util.split(message)) {
+                messages.add(messageName);
             }
             return messages;
         }
@@ -359,22 +365,13 @@ public class ApamComponentXML {
 
         @SuppressWarnings("unchecked")
         private List<String> _getInterfaceList() {
-
-            /*
-             * For primitive components if not specification is explicitly specified,
-             * get all the implemented interfaces from the implementation class
-             */
-            if (isImplementation()) {
-                return ck.getInterfaces();
-            }
-
             /*
              * For composite components get the explicitly specified interfaces
              */
             List<String> interfaces = new ArrayList<String>();
             String encodedInterfaces = m_componentMetadata.getAttribute(ApamComponentInfo.APAM_INTERFACES_PROPERTY);
             if (encodedInterfaces != null) {
-                for (String interfaceName : ApamComponentXML.parseArrays(encodedInterfaces)) {
+                for (String interfaceName : encodedInterfaces.split(Util.splitSeparator)) {
                     interfaces.add(interfaceName);
                 }
             }
@@ -390,22 +387,25 @@ public class ApamComponentXML {
 
                 for (Element property : optional(deps.getElements("specification",
                         ApamComponentInfo.APAM_NAMESPACE))) {
-                    Attribute attr = property.getAttributes()[0];
-                    String name = attr.getValue();
+                    String name = property.getAttribute("name");
                     Set<AtomicDependency> aDeps = new HashSet<AtomicDependency>();
-                    ImplementationDependency dependency = new ImplementationDependency(name, aDeps, false);
+                    boolean multiple = ((property.getAttribute("multiple") != null) && property
+                            .getAttribute("multiple").equals("true"));
+                    ImplementationDependency dependency = new ImplementationDependency(name, aDeps, multiple);
                     getFilters(property, dependency);
                     implDeps.add(dependency);
                     for (Element aDep : optional(property.getElements("interface",
                             ApamComponentInfo.APAM_NAMESPACE))) {
                         String field = aDep.getAttribute("field");
-                        String type = getFieldType(aDep.getAttribute("type"), field);
+                        // String type = getFieldType(aDep.getAttribute("type"), field);
+                        String type = aDep.getAttribute("type");
                         aDeps.add(new AtomicDependency(TargetKind.INTERFACE, field, type));
                     }
                     for (Element aDep : optional(property.getElements("message",
                             ApamComponentInfo.APAM_NAMESPACE))) {
                         String field = aDep.getAttribute("name");
-                        String type = getFieldType(aDep.getAttribute("type"), field);
+                        String type = aDep.getAttribute("type");
+                        //                        String type = getFieldType(aDep.getAttribute("type"), field);
                         if (field != null) {
                             aDeps.add(new AtomicDependency(TargetKind.PULL_MESSAGE, field, type));
                         } else {
@@ -417,26 +417,31 @@ public class ApamComponentXML {
 
                 // Atomic dependencies
                 for (Element property : optional(deps.getElements("interface",
-                         ApamComponentInfo.APAM_NAMESPACE))) {
+                        ApamComponentInfo.APAM_NAMESPACE))) {
                     Set<AtomicDependency> aDeps = new HashSet<AtomicDependency>();
-                    ImplementationDependency dependency = new ImplementationDependency(null, aDeps, false);
+                    boolean multiple = ((property.getAttribute("multiple") != null) && property
+                            .getAttribute("multiple").equals("true"));
+                    ImplementationDependency dependency = new ImplementationDependency(null, aDeps, multiple);
                     getFilters(property, dependency);
                     implDeps.add(dependency);
                     String field = property.getAttribute("field");
-                    String type = getFieldType(property.getAttribute("type"), field);
+                    String type = property.getAttribute("type");
+                    //                    String type = getFieldType(property.getAttribute("type"), field);
                     aDeps.add(new AtomicDependency(TargetKind.INTERFACE, field, type));
                 }
 
                 for (Element property : optional(deps.getElements("message",
-                             ApamComponentInfo.APAM_NAMESPACE))) {
+                        ApamComponentInfo.APAM_NAMESPACE))) {
                     Set<AtomicDependency> aDeps = new HashSet<AtomicDependency>();
-                    ImplementationDependency dependency = new ImplementationDependency(null, aDeps, false);
+                    boolean multiple = ((property.getAttribute("multiple") != null) && property
+                            .getAttribute("multiple").equals("true"));
+                    ImplementationDependency dependency = new ImplementationDependency(null, aDeps, multiple);
                     getFilters(property, dependency);
                     implDeps.add(dependency);
                     String field = property.getAttribute("name");
                     String type; // = deps.getAttribute("type");
                     if (field != null) {
-                        type = getFieldType(property.getAttribute("type"), field);
+                        type = property.getAttribute("type");
                         aDeps.add(new AtomicDependency(TargetKind.PULL_MESSAGE, field, type));
                     } else {
                         field = property.getAttribute("method");
@@ -476,6 +481,57 @@ public class ApamComponentXML {
                         ApamComponentInfo.APAM_NAMESPACE))) {
                     String name = property.getAttribute("name");
                     SpecificationDependency dependency = new SpecificationDependency(TargetKind.PUSH_MESSAGE, name);
+                    getFilters(property, dependency);
+                    specDeps.add(dependency);
+                }
+            }
+            // System.out.println(specDeps);
+            return specDeps;
+        }
+
+        public Set<CompositeDependency> getCompoDependencies() {
+            Set<CompositeDependency> specDeps = new HashSet<CompositeDependency>();
+            for (Element deps : optional(m_componentMetadata.getElements("dependencies",
+                    ApamComponentInfo.APAM_NAMESPACE))) {
+
+                for (Element property : optional(deps.getElements("specification",
+                        ApamComponentInfo.APAM_NAMESPACE))) {
+                    String name = property.getAttribute("name");
+                    // String[] source, TargetKind targetKind, String fieldType, boolean multiple
+                    boolean multiple = ((property.getAttribute("multiple") != null) && property
+                            .getAttribute("multiple").equals("true"));
+                    String source = property.getAttribute("source");
+                    String[] sources = Util.split(source);
+                    CompositeDependency dependency = new CompositeDependency(sources, TargetKind.SPECIFICATION, name,
+                            multiple);
+                    getFilters(property, dependency);
+                    specDeps.add(dependency);
+                }
+
+                for (Element property : optional(deps.getElements("interface",
+                        ApamComponentInfo.APAM_NAMESPACE))) {
+                    String name = property.getAttribute("name");
+                    boolean multiple = ((property.getAttribute("multiple") != null) && property
+                            .getAttribute("multiple").equals("true"));
+                    String source = property.getAttribute("source");
+                    String[] sources = Util.split(source);
+                    CompositeDependency dependency = new CompositeDependency(sources, TargetKind.INTERFACE, name,
+                            multiple);
+                    // CompositeDependency dependency = new CompositeDependency(TargetKind.INTERFACE, name);
+                    getFilters(property, dependency);
+                    specDeps.add(dependency);
+                }
+
+                for (Element property : optional(deps.getElements("message",
+                        ApamComponentInfo.APAM_NAMESPACE))) {
+                    String name = property.getAttribute("name");
+                    boolean multiple = ((property.getAttribute("multiple") != null) && property
+                            .getAttribute("multiple").equals("true"));
+                    String source = property.getAttribute("source");
+                    String[] sources = Util.split(source);
+                    CompositeDependency dependency = new CompositeDependency(sources, TargetKind.PUSH_MESSAGE, name,
+                            multiple);
+                    // CompositeDependency dependency = new CompositeDependency(TargetKind.PUSH_MESSAGE, name);
                     getFilters(property, dependency);
                     specDeps.add(dependency);
                 }
@@ -551,27 +607,6 @@ public class ApamComponentXML {
                 }
             }
             return properties;
-        }
-
-        private String getFieldType(String fieldType, String fieldName) {
-            String compFieldType = getFieldType(fieldName);
-            if ((fieldType != null) && !fieldType.equals(compFieldType)) {
-                System.err.println("ERROR: type of field " + fieldName + " should be " + compFieldType
-                         + " instead of " + fieldType);
-            }
-            return compFieldType;
-        }
-
-        public String getFieldType(String fieldName) {
-            Map fields = ck.getFields();
-            for (Object field : fields.keySet()) {
-                if (((String) field).equals(fieldName)) {
-                    // System.out.println("field " + fieldName + " is of type " + fields.get(field));
-                    return (String) fields.get(field);
-                }
-            }
-            System.err.println("ERROR: Field " + fieldName + " declared but not existing in the code");
-            return null;
         }
 
         /**
@@ -723,25 +758,42 @@ public class ApamComponentXML {
      * @param str the string form
      * @return the resulting string array
      */
+    @Deprecated
     public static String[] parseArrays(String str) {
         if ((str == null) || (str.length() == 0)) {
             return new String[0];
         }
-
-        // Remove { and } or [ and ]
-        if (((str.charAt(0) == '{') && (str.charAt(str.length() - 1) == '}'))
-                || ((str.charAt(0) == '[') && (str.charAt(str.length() - 1) == ']'))) {
-            String internal = (str.substring(1, str.length() - 1)).trim();
-            // Check empty array
-            if (internal.length() == 0) {
-                return new String[0];
-            }
-            return ApamComponentXML.split(internal, ",");
-        } else {
-            return new String[] { str };
-        }
+        //        System.out.println(" split : " + str + " => ");
+        //        ApamComponentXML.pr(str.split(Util.splitSeparator));
+        return str.split(Util.splitSeparator);
+        //        // Remove { and } or [ and ]
+        //        if (((str.charAt(0) == '{') && (str.charAt(str.length() - 1) == '}'))
+        //                || ((str.charAt(0) == '[') && (str.charAt(str.length() - 1) == ']'))) {
+        //            String internal = (str.substring(1, str.length() - 1)).trim();
+        //            // Check empty array
+        //            if (internal.length() == 0) {
+        //                return new String[0];
+        //            }
+        //            System.out.println("comparing parse array and split" + str);
+        //            ApamComponentXML.pr(ApamComponentXML.split(internal, ","));
+        //            System.out.println(" parse=>");
+        //            ApamComponentXML.pr(str.split(","));
+        //            ApamComponentXML.pr(str.split("\\s"));
+        //            ApamComponentXML.pr(str.split("\\{"));
+        //            ApamComponentXML.pr(str.split("(,)|(\\{)"));
+        //            ApamComponentXML.pr(str.split("(,|\\{)"));
+        //            ApamComponentXML.pr(str.split(",|\\s|\\{|\\[|\\]|\\}"));
+        //            return ApamComponentXML.split(internal, ",");
+        //        } else {
+        //            return new String[] { str };
+        //        }
     }
 
+    //    private static void pr(String[] a) {
+    //        for (String s : a)
+    //            System.out.print(s + " ");
+    //        System.out.println();
+    //    }
     /**
      * Split method.
      * This method is equivalent of the String.split in java 1.4

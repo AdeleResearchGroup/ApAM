@@ -338,19 +338,19 @@ public class ApamFilter implements Filter {
         return toString().hashCode();
     }
 
-    public void validateAttr(Set<String> validAttr, String f) {
+    public void validateAttr(Set<String> validAttr, String[] predefAttr, String f) {
         switch (op) {
             case AND:
             case OR: {
                 ApamFilter[] filters = (ApamFilter[]) value;
                 for (ApamFilter filter : filters) {
-                    filter.validateAttr(validAttr, f);
+                    filter.validateAttr(validAttr, predefAttr, f);
                 }
             }
 
             case NOT: {
                 ApamFilter filter = (ApamFilter) value;
-                filter.validateAttr(validAttr, f);
+                filter.validateAttr(validAttr, predefAttr, f);
             }
 
             case SUBSTRING:
@@ -361,7 +361,7 @@ public class ApamFilter implements Filter {
             case SUBSET:
             case SUPERSET:
             case PRESENT: {
-                if (!validAttr.contains(attr)) {
+                if (!ApamFilter.isPredefAttribute(predefAttr, attr) && !validAttr.contains(attr)) {
                     System.err.println("Invalid property " + attr + " in constraint " + f);
 //                    System.out.println(" valid attr = " + validAttr);
                 }
@@ -369,6 +369,14 @@ public class ApamFilter implements Filter {
 
         }
 
+    }
+
+    public static boolean isPredefAttribute(String[] predefAttributes, String attr) {
+        for (String predef : predefAttributes) {
+            if (predef.equalsIgnoreCase(attr))
+                return true;
+        }
+        return false;
     }
 
     /**
