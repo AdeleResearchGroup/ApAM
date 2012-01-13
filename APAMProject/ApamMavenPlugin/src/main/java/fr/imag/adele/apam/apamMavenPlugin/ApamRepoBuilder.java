@@ -166,11 +166,10 @@ public class ApamRepoBuilder {
         }
         // composite and implems
         if (component.isImplementation())
-            CheckObr.checkImplRequire(component.getName(), component.getSpecification(), component
-                    .getImplemDependencies());
+            CheckObr.checkImplRequire(component);
         if (component.isComposite())
             CheckObr.checkCompoRequire(component.getName(), component.getSpecification(), component
-                    .getSpecDependencies());
+                    .getCompoDependencies());
 
     }
 

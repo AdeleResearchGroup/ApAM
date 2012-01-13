@@ -144,9 +144,9 @@ public class ApamMavenPlugin extends AbstractMojo {
      */
     // @Override
     public void execute() throws MojoExecutionException {
-//        String obrLocalRepo = localRepository.getBasedir();
-        System.err.println("OBR repo : " + localRepository.getBasedir());
-        System.err.println("dependencies : ");
+        //        String obrLocalRepo = localRepository.getBasedir();
+        //        System.err.println("OBR repo : " + localRepository.getBasedir());
+        //        System.err.println("dependencies : ");
 
         for (Object artifact : getProject().getDependencyArtifacts()) {
             Artifact dependency = (Artifact) artifact;
@@ -154,26 +154,26 @@ public class ApamMavenPlugin extends AbstractMojo {
             String version = dependency.getVersion().replace('-', '.');
             ApamMavenPlugin.bundleDependencies.add(dependency.getArtifactId() + "/" + version);
         }
-//            System.err.println(dependency.getArtifactId() + "/" + dependency.getVersion()
-//                    + "\n    " + dependency.getClassifier() + " group: "
-//                    + dependency.getGroupId() + " " + dependency.getArtifactId() + " "
-//                    + dependency.getVersion() + " base " + dependency.getBaseVersion());
-//       }
+        //            System.err.println(dependency.getArtifactId() + "/" + dependency.getVersion()
+        //                    + "\n    " + dependency.getClassifier() + " group: "
+        //                    + dependency.getGroupId() + " " + dependency.getArtifactId() + " "
+        //                    + dependency.getVersion() + " base " + dependency.getBaseVersion());
+        //       }
 
         // ignore project types not supported, useful when the plugin is configured in the parent pom
         if (!m_supportedProjectTypes.contains(getProject().getArtifact().getType())) {
             getLog().debug(
                     "Ignoring project " + getProject().getArtifact() + " : type "
-                            + getProject().getArtifact().getType()
-                            + " is not supported by iPOJO plugin, supported types are " + m_supportedProjectTypes);
+                    + getProject().getArtifact().getType()
+                    + " is not supported by iPOJO plugin, supported types are " + m_supportedProjectTypes);
             return;
         }
 
         String obrFileStr = m_project.getBasedir().getAbsolutePath()
-                + File.separator + "src"
-                + File.separator + "main"
-                + File.separator + "resources"
-                + File.separator + "obr.xml";
+        + File.separator + "src"
+        + File.separator + "main"
+        + File.separator + "resources"
+        + File.separator + "obr.xml";
         // System.out.println("obr.xml file : " + obrFileStr);
         // System.out.println("buildDirectory : " + m_buildDirectory);
         // System.out.println("iPOJOMetadata : " + m_metadata);

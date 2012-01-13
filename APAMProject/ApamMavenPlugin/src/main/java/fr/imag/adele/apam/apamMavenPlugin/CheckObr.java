@@ -3,6 +3,8 @@ package fr.imag.adele.apam.apamMavenPlugin;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,8 +17,11 @@ import org.osgi.service.obr.Capability;
 import org.osgi.service.obr.Resource;
 
 import fr.imag.adele.apam.util.ApamComponentXML;
+import fr.imag.adele.apam.util.Util;
+import fr.imag.adele.apam.util.ApamComponentXML.ApamComponentInfo;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Dependency.AtomicDependency;
+import fr.imag.adele.apam.util.Dependency.CompositeDependency;
 import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
 
@@ -25,15 +30,17 @@ import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
 
 public class CheckObr {
 
-    private static RepositoryImpl                repo;
-    private static Resource[]                    resources;
-    private static String[]                      predefAttributes =
-                                                                  { "scope", "shared", "visible", "name",
-                                                                  "apam-composite", "apam-main-implementation",
-                                                                  "require-interface", "require-specification",
-                                                                  "require-message" };
+    private static RepositoryImpl repo;
+    private static Resource[]     resources;
+    private static String[]       predefAttributes = { "scope", "shared", "visible", "name",
+        "apam-composite", "apam-main-implementation", "require-interface",
+        "require-specification", "require-message" };
+
+    private static final String[]                fieldTypeMultiple = { "java.util.Set", "java.util.List",
+        "java.util.Collection", "java.util.Vector" };
 
     private static final Map<String, Capability> readSpecs        = new HashMap<String, Capability>();
+    private static final Set<String>             allFields         = new HashSet<String>();
 
     public static void init(String defaultOBRRepo) {
         File theRepo = new File(defaultOBRRepo);
@@ -42,6 +49,7 @@ public class CheckObr {
             CheckObr.repo.refresh();
             System.out.println("read repo " + defaultOBRRepo);
             CheckObr.resources = CheckObr.repo.getResources();
+
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -49,14 +57,11 @@ public class CheckObr {
     }
 
     private static void checkList(String impl, String spec, String msg) {
-        if (spec == null)
+        if ((spec == null) || (impl == null))
             return;
-        List<String> implList = new ArrayList<String>();
-        for (String messageName : ApamComponentXML.parseArrays(impl)) {
-            implList.add(messageName);
-        }
+        List<String> implList = Util.splitList(impl);
         // each element of sp must be found in implList
-        for (String sp : ApamComponentXML.parseArrays(spec)) {
+        for (String sp : Util.split(spec)) {
             if (!implList.contains(sp)) {
                 System.err.println(msg + sp + ". Declared: " + impl);
             }
@@ -69,8 +74,8 @@ public class CheckObr {
         for (String f : filters) {
             try {
                 ApamFilter parsedFilter = ApamFilter.newInstance(f);
-                System.err.println("validating filter " + f);
-                parsedFilter.validateAttr(validAttr, f);
+                // System.err.println("validating filter " + f);
+                parsedFilter.validateAttr(validAttr, CheckObr.predefAttributes, f);
             } catch (InvalidSyntaxException e) {
                 e.printStackTrace();
             }
@@ -89,9 +94,9 @@ public class CheckObr {
         if (cap == null)
             return null;
         Set<String> validAttrs = new HashSet<String>();
-        for (String predef : CheckObr.predefAttributes) {
-            validAttrs.add(predef);
-        }
+        //        for (String predef : CheckObr.predefAttributes) {
+        //            validAttrs.add(predef);
+        //        }
         String attr;
         for (Object attrObject : cap.getProperties().keySet()) {
             attr = (String) attrObject;
@@ -128,7 +133,7 @@ public class CheckObr {
             return;
         Capability cap = CheckObr.getSpecCapability(spec);
         if (cap == null) {
-//            System.err.println("Warning : Specification " + spec + "  not found in repository");
+            //            System.err.println("Warning : Specification " + spec + "  not found in repository");
             return;
         }
         // each attribute in properties must be declared in spec.
@@ -167,16 +172,15 @@ public class CheckObr {
         return true;
     }
 
-    public static void checkCompoRequire(String implName, String spec, Set<SpecificationDependency> deps) {
+    public static void checkCompoRequire(String implName, String spec, Set<CompositeDependency> deps) {
         // TODO
     }
 
-    public static void checkImplRequire(String implName, String spec, Set<ImplementationDependency> deps) {
-        String fieldType;
-        // The dependencies of that implementation
-//        Set<String> interfDependencies = new HashSet<String>();
-//        Set<String> msgDependencies = new HashSet<String>();
+    public static void checkImplRequire(ApamComponentInfo component) {
+        String spec = component.getSpecification();
+        Set<ImplementationDependency> deps = component.getImplemDependencies();
         Set<String> validAttrs = CheckObr.getValidAttributes(CheckObr.getSpecCapability(spec));
+        CheckObr.allFields.clear();
         for (ImplementationDependency dep : deps) {
             // System.err.println("validating dependency constraints and preferences....");
             CheckObr.checkFilterList(dep.implementationConstraints, validAttrs);
@@ -184,28 +188,8 @@ public class CheckObr {
             CheckObr.checkFilterList(dep.implementationPreferences, validAttrs);
             CheckObr.checkFilterList(dep.instancePreferences, validAttrs);
 
-            // Checking complex dependencies
-            if (dep.specification != null) {
-                for (AtomicDependency aDep : dep.dependencies) {
-                    fieldType = aDep.fieldType;
-                    // Check if field type is really in the specification
-                    String interf = CheckObr.getAttributeInCap(CheckObr.getSpecCapability(dep.specification),
-                            "provide-interfaces");
-                    if (interf != null) {
-                        boolean found = false;
-                        for (String inter : ApamComponentXML.parseArrays(interf)) {
-                            if (inter.equals(fieldType)) {
-                                found = true;
-                                break;
-                            }
-                            if (!found)
-                                System.err.println("ERROR: field " + aDep.fieldName + " is of type " + fieldType
-                                        + " which does not pertain to specification " + dep.specification);
-                        }
-                    }
-                }
-            } // end complex dependency
-              // atomic dependency : spec, interface or message. Allready checked
+            // Checking fields and complex dependencies
+            CheckObr.checkFieldTypeDep(dep, component);
         }
     }
 
@@ -241,7 +225,7 @@ public class CheckObr {
             if (ApamMavenPlugin.bundleDependencies.contains(res.getId())) {
                 for (Capability cap : res.getCapabilities()) {
                     if (cap.getName().equals("apam-specification")
-                                && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
+                            && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
                         System.out.println("Specification " + name + " found in bundle " + res.getId());
                         CheckObr.readSpecs.put(name, cap);
                         return cap;
@@ -279,4 +263,94 @@ public class CheckObr {
         return null;
     }
 
+    private static void checkFieldTypeDep(ImplementationDependency dep, ApamComponentInfo component) {
+        if (dep.specification == null) { // atomic dependency
+            AtomicDependency aDep = (AtomicDependency) dep.dependencies.toArray()[0];
+            boolean mult = CheckObr.getFieldType(aDep, component);
+            if (!mult && (mult != dep.isMultiple)) {
+                System.err.println("ERROR: in " + component.getName() + " field " + aDep.fieldName
+                        + " is a simple field, while declared multiple.");
+            }
+            dep.isMultiple = mult;
+            return;
+        }
+        // complex dependency
+        // All field must have same multiplicity, and must refer to interfaces provided by the specification.
+        String interfs = CheckObr
+        .getAttributeInCap(CheckObr.getSpecCapability(dep.specification), "provide-interfaces");
+        List<String> specInterfaces = Util.splitList(interfs);
+        boolean mult;
+        boolean first = true;
+        for (AtomicDependency aDep : dep.dependencies) {
+            // String fieldType = aDep.fieldType ;
+            mult = CheckObr.getFieldType(aDep, component);
+            if (first) {
+                dep.isMultiple = mult;
+                first = false;
+            }
+            // check multiplicity. All field must have same multiplicity.
+            if (mult != dep.isMultiple) {
+                if (mult)
+                    System.err.println("ERROR: in " + component.getName() + " field " + aDep.fieldName
+                            + " is a collection field, while other fields in same dependency are simple.");
+                else
+                    System.err.println("ERROR: in " + component.getName() + " field " + aDep.fieldName
+                            + " is a simple field, while other fields in same dependency are collection.");
+            }
+            // check specification. All fields must refer to interfaces provided by the specification.
+            if ((aDep.fieldType != null) && (specInterfaces != null) && (!specInterfaces.contains(aDep.fieldType))) {
+                System.err.println("ERROR: in " + component.getName() + " Field " + aDep.fieldName + " is of type "
+                        + aDep.fieldType
+                        + " which is not implemented by specification " + dep.specification);
+            }
+        }
+    }
+
+    /**
+     * Provided an atomic dependency, find the type, and set it into the dependency.
+     * Returns if it is multiple or not.
+     * 
+     * @param dep
+     * @param component
+     * @return
+     */
+    public static boolean getFieldType(AtomicDependency dep, ApamComponentInfo component) {
+        if (CheckObr.allFields.contains(dep.fieldName)) {
+            System.err.println("ERROR: in " + component.getName() + " field " + dep.fieldName + " allready declared");
+        }
+        else {
+            CheckObr.allFields.add(dep.fieldName);
+        }
+        Map fields = component.getClassChecker().getFields();
+        boolean fieldMultiple = false;
+        boolean typeUnknown = false;
+        for (Object field : fields.keySet()) {
+            if (((String) field).equals(dep.fieldName)) {
+                String fieldType = (String) fields.get(field);
+                // for arrays, remove the trailing "[]"
+                if (fieldType.endsWith("[]")) {
+                    fieldType = fieldType.substring(0, fieldType.length() - 2);
+                    fieldMultiple = true;
+                } else {
+                    // check if it is a collection, (set, List, Collection or Vector)
+                    if (Arrays.asList(CheckObr.fieldTypeMultiple).contains(fieldType)) {
+                        fieldMultiple = true;
+                        typeUnknown = true;
+                    }
+                }
+                if ((fieldType != null) && (dep.fieldType != null) && !fieldType.equals(dep.fieldType)) {
+                    System.err.println("ERROR: in " + component.getName() + " field " + dep.fieldName + " is of type "
+                            + fieldType
+                            + " but declared as type " + dep.fieldType);
+                }
+                // if a collection, the real type is unknown; let type be null.
+                if (!typeUnknown)
+                    dep.fieldType = fieldType;
+                return fieldMultiple;
+            }
+        }
+        System.err.println("ERROR: in " + component.getName() + " Field " + dep.fieldName
+                + " declared but not existing in the code");
+        return false;
+    }
 }
