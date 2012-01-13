@@ -1,9 +1,16 @@
 <obr> 
    <capability name='apam-specification'>
       <p n='name' v='S2' />
+      <p n='provide-interfaces' v='{, fr.imag.adele.apam.test.s2.S2, , XXY}' /> 
+      <p n='provide-messages' v='{M1}' />
       <p n='shared' v='false' />
       <p n='scope' v='global' />
       <p n='test-spec' v='coucou' />
-      <p n='interfaces' v=';fr.imag.adele.apam.test.s2.S2;' />
+      <p n='definition-b' v='true' />
+      <p n='definition-c' />
+      <p n='require-message' v='example.DataType2' /> 
+      <p n='require-interface' v='example.S4' /> 
+      <p n='require-specification' v='S3' /> 
+      <p n='require-interface' v='example.S3' /> 
    </capability>
 </obr> 

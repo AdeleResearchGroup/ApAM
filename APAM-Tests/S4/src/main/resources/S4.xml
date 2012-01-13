@@ -1,6 +1,6 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
-	<specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2, XXY}" messages="{M1}" >
+	<specification name="S4" interfaces="{fr.imag.adele.apam.test.s4.S4}" messages="MS4" >
 		<properties shared="false" scope="global">
 			<property test-spec="coucou" type="string"/>
 		</properties>
@@ -10,10 +10,7 @@
 		</definitions>
 
 		<dependencies>
-			<specification name="S3" />
-			<interface name="example.S4" />
-			<interface name="example.S3" />
-			<message name="example.DataType2" />
+			<specification name="S5" />
 		</dependencies>
 	</specification>
 

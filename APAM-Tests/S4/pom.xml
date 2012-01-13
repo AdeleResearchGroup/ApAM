@@ -31,6 +31,21 @@
            			<Export-Package>fr.imag.adele.appam.test.create.*</Export-Package>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>ApamMavenPlugin</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>apam-ipojo-bundle</goal>
+						</goals>						
+						<configuration>
+							<metadata>src/main/resources/S4.xml</metadata>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>		
 		</plugins>
 	</build>
 	<dependencies>

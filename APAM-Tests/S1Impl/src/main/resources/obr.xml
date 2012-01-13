@@ -1,16 +1,17 @@
 <obr> 
-   <capability name='apam-component'>
+   <capability name='apam-implementation'>
       <p n='name' v='S1Impl' />
-      <p n='apam-specification' v='S1' />
+      <p n='provide-interfaces' v='{fr.imag.adele.apam.test.s1.S1}' /> 
+      <p n='provide-specification' v='S1' />
       <p n='shared' v='false' />
       <p n='scope' v='global' />
       <p n='zerrt' v='true' />
-      <p n='interfaces' v=';fr.imag.adele.apam.test.s1.S1;' />
    </capability>
-   <capability name='apam-component'>
+   <capability name='apam-implementation'>
       <p n='name' v='S1Main' />
+      <p n='provide-interfaces' v='{java.lang.Runnable, fr.imag.adele.apam.ApamComponent}' /> 
       <p n='shared' v='false' />
-      <p n='s1 main' v='pas d interface' />
-      <p n='interfaces' v=';fr.imag.adele.apam.ApamComponent;' />
+      <p n='name' v='s1 main' />
+      <p n='value' v='pas d interface' />
    </capability>
 </obr> 

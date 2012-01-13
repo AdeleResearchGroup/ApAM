@@ -2,7 +2,7 @@
 
 	<specification name="S3" interfaces="[fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2]"	>
 		<properties shared="false" scope="global">
-			<property name="test-spec" type="string" value="coucous3"/>
+			<property test-spec="coucous3" type="string" />
 		</properties>
 	
 		<dependency specification="S4"/>

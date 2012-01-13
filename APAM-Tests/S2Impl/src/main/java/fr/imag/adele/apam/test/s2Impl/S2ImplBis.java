@@ -7,7 +7,6 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.test.s2.S2;
-import fr.imag.adele.apam.test.s3.S3_1;
 import fr.imag.adele.apam.test.s4.S4;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
@@ -15,8 +14,8 @@ import fr.imag.adele.apam.util.AttributesImpl;
 public class S2ImplBis implements S2, ApamComponent {
 
     // Apam injected
-    Apam    apam;
-    S4      s4Bis;
+    Apam     apam;
+    S4       s4Bis;
 //    S4      s4_2;
 //    Set<S3> s3s;
 

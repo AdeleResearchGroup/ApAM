@@ -31,22 +31,22 @@
            			<Export-Package>fr.imag.adele.appam.test.create.*</Export-Package>
 				</configuration>
 			</plugin>
-<!-- 			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-ipojo-plugin</artifactId>
-				<version>1.6.0</version>
+			<plugin>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>ApamMavenPlugin</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
 				<executions>
 					<execution>
-			            <goals>
-			                 <goal>ipojo-bundle</goal>
-			            </goals>
+						<goals>
+							<goal>apam-ipojo-bundle</goal>
+						</goals>						
 						<configuration>
-							 <metadata>src/main/resources/s5/S5Impl.ipojo</metadata>
+							<metadata>src/main/resources/S5.xml</metadata>
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
- -->
+			</plugin>		
+
  		</plugins>
 	</build>
 	<dependencies>

@@ -1,69 +1,118 @@
-<!--
+<!-- Copyright Universite Joseph Fourier (www.ujf-grenoble.fr) Licensed under 
+	the Apache License, Version 2.0 (the "License"); you may not use this file 
+	except in compliance with the License. You may obtain a copy of the License 
+	at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable 
+	law or agreed to in writing, software distributed under the License is distributed 
+	on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+	express or implied. See the License for the specific language governing permissions 
+	and limitations under the License. -->
 
-    Copyright Universite Joseph Fourier (www.ujf-grenoble.fr)
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
-         http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
--->
-
-<ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
-
-	<implementation name="S2Impl" classname="fr.imag.adele.apam.test.s2Impl.S2Impl"	specification="S2">
+	<implementation name="S2Impl"
+		classname="fr.imag.adele.apam.test.s2Impl.S2Impl" specification="S2"
+		messages="{M5, M2, M3}">
 		<properties shared="false" scope="global">
-			<property name="test" type="string" value="yes"/>
+			<property test="yes" />
+			<property b="yes" />
+			<property c="xxx" />
+			<property test-spec="anotherValue" />
 		</properties>
-	
-		<dependency specification="S3" fields="{s3s,s3_2}"/>
-		<dependency field="s4_1" />
-		<dependency field="s4_2" />
-		<ipojo:requires field="apam" />	
+		<definitions>
+			<definition name="A1" type="string" />
+			<definition name="A2" type="int" value="5" />
+		</definitions>
+
+		<dependencies>
+			<specification name="S3">
+				<interface field="s3s" />
+				<interface field="s3_2" />
+			</specification>
+			<specification name="S3">
+				<interface field="s3s2" />
+				<interface field="s4_2" />
+			</specification>
+			<specification name="S3">
+				<interface field="s3s" />
+				<interface field="s3" />
+			</specification>
+
+			<interface field="s4_1" />
+			<interface field="s4_2" />
+			<message name="T2" />
+			<message method="getT2" />
+		</dependencies>
+		<ipojo:requires field="apam" />
 	</implementation>
 
-	<implementation name="S2Simple" classname="fr.imag.adele.apam.test.s2Impl.S2Simple"	specification="S2">
+	<implementation name="S2Simple"
+		classname="fr.imag.adele.apam.test.s2Impl.S2Simple" specification="S2">
 		<properties shared="false">
-			<property name="test22" type="string" value="yes"/>
+			<property test22="yes" />
 		</properties>
-		<dependency specification="S3" fields="s3"/>
-		<dependency field="s4" specification="S4"/>
+
+		<dependencies>
+			<specification name="S3">
+				<interface field="s3" />
+				<constraints>
+					<implementation filter="(apam-composite=true)" />
+					<instance filter="(SCOPE=GLOBAL)" />
+					<instance filter="(c=GLOBAL)" />
+					<instance filter="(cccc=GLOBAL)" />
+				</constraints>
+				<preferences>
+					<implementation filter="(x=10)" />
+					<instance filter="(b=false)" />
+				</preferences>
+			</specification>
+
+			<interface field="s4">
+				<constraints>
+					<implementation filter="(apam-composite=true)" />
+					<instance filter="(SCccOPE=GLOBAL)" />
+				</constraints>
+				<preferences>
+					<implementation filter="(x2=10)" />
+					<instance filter="(bxc=false)" />
+				</preferences>
+			</interface>
+		</dependencies>
 	</implementation>
 
 
-	<implementation name="S2ImplBis" classname="fr.imag.adele.apam.test.s2Impl.S2ImplBis" specification="S2">
+	<implementation name="S2ImplBis"
+		classname="fr.imag.adele.apam.test.s2Impl.S2ImplBis" specification="S2">
 
 		<properties shared="true" scope="local">
-			<property name="testbis" type="string" value="xyz"/>
+			<property testbis="xyz" />
 		</properties>
 
-		<dependency field="s4Bis" />
-		<ipojo:requires field="apam" />	
+		<interface field="s4Bis" />
+		<ipojo:requires field="apam" />
+
+
 	</implementation>
 
-  
-	<composite name="S2Compo" specification="Sxxx" mainImplem="S2Simple" interfaces="[fr.imag.adele.apam.test.s2.Sxxx,fr.imag.adele.apam.apamAPI.ApamComponent]">
-		<properties shared="false" />
-		<instances internal="true" local=".*"/>
-		<implementations internal="true" local="S.Im.*"/>
-<!-- 		
-		<dependency interface="fr.imag.adele.apam.test.s4.S4" source="S2" />
-		<dependency specification="S5" source="S3" />
- -->		
- 		<dependency specification="S4" source="{S2,S3}" />
- 
- 	</composite>
 
-	
-<!-- 	
-	<ipojo:instance component="S2Impl" name="S2Impl-instance1"/>
-	<ipojo:instance component="S2Impl" name="S2Impl-instance2"/>
-	<ipojo:instance component="S2Impl" name="S2Impl-instance3"/>
- -->	
-</ipojo>
+	<composite name="S2Compo" specification="Sxxx" mainImplem="S2Simple"
+		interfaces="[fr.imag.adele.apam.test.s2.Sxxx,fr.imag.adele.apam.apamAPI.ApamComponent]">
+		<properties shared="false" />
+		<instances internal="true" local=".*" />
+		<implementations internal="true" local="S.Im.*" />
+		<!-- <dependency interface="fr.imag.adele.apam.test.s4.S4" source="S2" 
+			/> <dependency specification="S5" source="S3" /> -->
+		<dependencies>
+			<specification name="S4" source="{S2,S3}" />
+			<message name="msgType1" />
+			<interface name="S4" />
+
+		</dependencies>
+
+	</composite>
+
+
+	<!-- <ipojo:instance component="S2Impl" name="S2Impl-instance1"/> <ipojo:instance 
+		component="S2Impl" name="S2Impl-instance2"/> <ipojo:instance component="S2Impl" 
+		name="S2Impl-instance3"/> -->
+</apam>
 

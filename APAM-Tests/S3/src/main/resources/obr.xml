@@ -1,2 +1,9 @@
 <obr> 
+   <capability name='apam-specification'>
+      <p n='name' v='S3' />
+      <p n='provide-interfaces' v='{, fr.imag.adele.apam.test.s3.S3_1, fr.imag.adele.apam.test.s3.S3_2}' /> 
+      <p n='shared' v='false' />
+      <p n='scope' v='global' />
+      <p n='test-spec' v='coucous3' />
+   </capability>
 </obr> 

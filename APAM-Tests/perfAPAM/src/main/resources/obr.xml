@@ -1,11 +1,11 @@
 <obr> 
-   <capability name='apam-component'>
+   <capability name='apam-implementation'>
       <p n='name' v='TestApam' />
+      <p n='provide-interfaces' v='{fr.imag.adele.apam.perfAPAM.Service}' /> 
       <p n='shared' v='false' />
-      <p n='interfaces' v=';fr.imag.adele.apam.perfAPAM.Service;' />
    </capability>
-   <capability name='apam-component'>
+   <capability name='apam-implementation'>
       <p n='name' v='Injector' />
-      <p n='interfaces' v=';fr.imag.adele.apam.ApamComponent;' />
+      <p n='provide-interfaces' v='{java.lang.Runnable, fr.imag.adele.apam.ApamComponent}' /> 
    </capability>
 </obr> 

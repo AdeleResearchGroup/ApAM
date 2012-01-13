@@ -11,7 +11,7 @@
 	<implementation name="S1Impl"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1">
 		<properties shared="false" scope="global">
-			<property name="zerrt" type="boolean" value="true" />
+			<property zerrt="true" type="boolean" />
 		</properties>
 		<dependency field="s2" />
 		<dependency field="s4" />

@@ -1,33 +1,39 @@
 <obr> 
-   <capability name='apam-component'>
-      <p n='name' v='S2Compo' />
-      <p n='apam-specification' v='Sxxx' />
+   <capability name='apam-implementation'>
       <p n='apam-composite' v='true' />
       <p n='apam-main-implementation' v='S2Simple' />
+      <p n='name' v='S2Compo' />
+      <p n='provide-interfaces' v='{, fr.imag.adele.apam.test.s2.Sxxx, fr.imag.adele.apam.apamAPI.ApamComponent}' /> 
+      <p n='provide-specification' v='Sxxx' />
       <p n='shared' v='false' />
-      <p n='interfaces' v=';fr.imag.adele.apam.test.s2.Sxxx;fr.imag.adele.apam.apamAPI.ApamComponent;' />
    </capability>
-   <capability name='apam-component'>
+   <capability name='apam-implementation'>
       <p n='name' v='S2Impl' />
-      <p n='apam-specification' v='S2' />
+      <p n='provide-interfaces' v='{fr.imag.adele.apam.test.s2.S2, fr.imag.adele.apam.ApamComponent}' /> 
+      <p n='provide-messages' v='{M5, M2, M3}' />
+      <p n='provide-specification' v='S2' />
       <p n='shared' v='false' />
       <p n='scope' v='global' />
+      <p n='b' v='yes' />
+      <p n='c' v='xxx' />
       <p n='test' v='yes' />
-      <p n='interfaces' v=';fr.imag.adele.apam.test.s2.S2;fr.imag.adele.apam.ApamComponent;' />
+      <p n='test-spec' v='anotherValue' />
+      <p n='definition-A1' />
+      <p n='definition-A2' v='5' />
    </capability>
-   <capability name='apam-component'>
+   <capability name='apam-implementation'>
       <p n='name' v='S2Simple' />
-      <p n='apam-specification' v='S2' />
+      <p n='provide-interfaces' v='{fr.imag.adele.apam.test.s2.S2}' /> 
+      <p n='provide-specification' v='S2' />
       <p n='shared' v='false' />
       <p n='test22' v='yes' />
-      <p n='interfaces' v=';fr.imag.adele.apam.test.s2.S2;' />
    </capability>
-   <capability name='apam-component'>
+   <capability name='apam-implementation'>
       <p n='name' v='S2ImplBis' />
-      <p n='apam-specification' v='S2' />
+      <p n='provide-interfaces' v='{fr.imag.adele.apam.test.s2.S2, fr.imag.adele.apam.ApamComponent}' /> 
+      <p n='provide-specification' v='S2' />
       <p n='shared' v='true' />
       <p n='scope' v='local' />
       <p n='testbis' v='xyz' />
-      <p n='interfaces' v=';fr.imag.adele.apam.test.s2.S2;fr.imag.adele.apam.ApamComponent;' />
    </capability>
 </obr> 

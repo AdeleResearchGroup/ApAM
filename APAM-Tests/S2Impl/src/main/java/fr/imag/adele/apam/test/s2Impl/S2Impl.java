@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.test.s2Impl;
 
+import java.util.List;
 import java.util.Set;
 
 import fr.imag.adele.apam.Instance;
@@ -20,8 +21,9 @@ public class S2Impl implements S2, ApamComponent {
     S4        s4_1;
     S4        s4_2;
     Set<S3_1> s3s;
-    S3_2[]      s3_2;
-
+    List<S3_1> s3s2;
+    S3_2[]     s3_2;
+    S3_2       s3;
     Instance   myInst;
 
     @Override
@@ -40,12 +42,12 @@ public class S2Impl implements S2, ApamComponent {
     @Override
     public void callS2(String s) {
         int i = 1;
-       for (S3_2 s3 : s3_2) {
+        for (S3_2 s3 : s3_2) {
             s3.callS3_2(i + " from S2Impl");
             i++;
- 
+
         }
-       i = 1;
+        i = 1;
         for (S3_1 s3 : s3s) {
             s3.callS3_1(i + " from S2Impl");
             i++;

@@ -1,11 +1,11 @@
 <obr> 
-   <capability name='apam-component'>
-      <p n='name' v='S5CompEx' />
-      <p n='apam-specification' v='S5' />
+   <capability name='apam-implementation'>
       <p n='apam-composite' v='true' />
       <p n='apam-main-implementation' v='S5Impl' />
+      <p n='name' v='S5CompEx' />
+      <p n='provide-interfaces' v='{, fr.imag.adele.apam.test.s5.S5, fr.imag.adele.apam.apamAPI.ApamComponent}' /> 
+      <p n='provide-specification' v='S5' />
       <p n='shared' v='true' />
       <p n='myproperty' v='true' />
-      <p n='interfaces' v=';fr.imag.adele.apam.test.s5.S5;fr.imag.adele.apam.apamAPI.ApamComponent;' />
    </capability>
 </obr> 
