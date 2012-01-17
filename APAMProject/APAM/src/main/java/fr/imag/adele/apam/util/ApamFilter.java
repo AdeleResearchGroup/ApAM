@@ -77,12 +77,12 @@ public class ApamFilter implements Filter {
      *                invalid filter string that cannot be parsed.
      */
     public static ApamFilter newInstance(String filterString)
-            throws InvalidSyntaxException {
+    throws InvalidSyntaxException {
         return ApamFilter.newInstance(filterString, false);
     }
 
     public static ApamFilter newInstance(String filterString, boolean ignoreCase)
-            throws InvalidSyntaxException {
+    throws InvalidSyntaxException {
         return new Parser(filterString, ignoreCase).parse();
     }
 
@@ -338,19 +338,19 @@ public class ApamFilter implements Filter {
         return toString().hashCode();
     }
 
-    public void validateAttr(Set<String> validAttr, String[] predefAttr, String f) {
+    public void validateAttr(Set<String> validAttr, String[] predefAttr, String f, String spec) {
         switch (op) {
             case AND:
             case OR: {
                 ApamFilter[] filters = (ApamFilter[]) value;
                 for (ApamFilter filter : filters) {
-                    filter.validateAttr(validAttr, predefAttr, f);
+                    filter.validateAttr(validAttr, predefAttr, f, spec);
                 }
             }
 
             case NOT: {
                 ApamFilter filter = (ApamFilter) value;
-                filter.validateAttr(validAttr, predefAttr, f);
+                filter.validateAttr(validAttr, predefAttr, f, spec);
             }
 
             case SUBSTRING:
@@ -362,8 +362,8 @@ public class ApamFilter implements Filter {
             case SUPERSET:
             case PRESENT: {
                 if (!ApamFilter.isPredefAttribute(predefAttr, attr) && !validAttr.contains(attr)) {
-                    System.err.println("Invalid property " + attr + " in constraint " + f);
-//                    System.out.println(" valid attr = " + validAttr);
+                    System.err.println("Specification " + spec + " does not define property " + attr
+                            + ". Invalid constraint " + f);
                 }
             }
 
@@ -947,8 +947,8 @@ public class ApamFilter implements Filter {
             }
             case APPROX: {
                 return (charval == charval2)
-                        || (Character.toUpperCase(charval) == Character
-                                .toUpperCase(charval2))
+                || (Character.toUpperCase(charval) == Character
+                        .toUpperCase(charval2))
                         || (Character.toLowerCase(charval) == Character
                                 .toLowerCase(charval2));
             }
@@ -968,7 +968,7 @@ public class ApamFilter implements Filter {
             return false;
         }
         boolean boolval2 = Boolean.valueOf(((String) value2).trim())
-                .booleanValue();
+        .booleanValue();
         switch (operation) {
             case APPROX:
             case EQUAL:
@@ -1052,7 +1052,7 @@ public class ApamFilter implements Filter {
                 AccessController.doPrivileged(new SetAccessibleAction(
                         constructor));
             value2 = constructor
-                    .newInstance(new Object[] { ((String) value2).trim() });
+            .newInstance(new Object[] { ((String) value2).trim() });
         } catch (IllegalAccessException e) {
             return false;
         } catch (InvocationTargetException e) {
@@ -1092,7 +1092,7 @@ public class ApamFilter implements Filter {
                 AccessController.doPrivileged(new SetAccessibleAction(
                         constructor));
             value2 = constructor
-                    .newInstance(new Object[] { ((String) value2).trim() });
+            .newInstance(new Object[] { ((String) value2).trim() });
         } catch (IllegalAccessException e) {
             return false;
         } catch (InvocationTargetException e) {
@@ -1170,7 +1170,7 @@ public class ApamFilter implements Filter {
             if (pos != filterChars.length) {
                 throw new InvalidSyntaxException(
                         "Extraneous trailing characters: "
-                                + filterstring.substring(pos), filterstring);
+                        + filterstring.substring(pos), filterstring);
             }
             return filter;
         }
@@ -1495,7 +1495,7 @@ public class ApamFilter implements Filter {
 
         private void skipWhiteSpace() {
             for (int length = filterChars.length; (pos < length)
-                    && Character.isWhitespace(filterChars[pos]);) {
+            && Character.isWhitespace(filterChars[pos]);) {
                 pos++;
             }
         }

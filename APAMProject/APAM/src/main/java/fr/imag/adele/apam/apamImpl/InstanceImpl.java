@@ -83,23 +83,23 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         instConstructor(impl, instCompo, initialproperties, apformInst);
         apformInst.setInst(this);
         // Compute the handler for apam components
-//        try {
-//            ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(apformInst.getName());
-//
-//            // The Sam event arrived first : it stored the info in the attributes
-//            if (handler == null) {
-//                handler = (ApamDependencyHandler) apformInst.getProperty(CST.A_DEPHANDLER);
-//            }
-//
-//            if (handler != null) { // it is an Apam instance
-//                depHandler = handler;
-//                handler.SetIdentifier(this);
-//            }
+        //        try {
+        //            ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(apformInst.getName());
+        //
+        //            // The Sam event arrived first : it stored the info in the attributes
+        //            if (handler == null) {
+        //                handler = (ApamDependencyHandler) apformInst.getProperty(CST.A_DEPHANDLER);
+        //            }
+        //
+        //            if (handler != null) { // it is an Apam instance
+        //                depHandler = handler;
+        //                handler.SetIdentifier(this);
+        //            }
 
-//            setProperties(Util.mergeProperties(this, initialproperties, apformInst.getProperties()));
+        //            setProperties(Util.mergeProperties(this, initialproperties, apformInst.getProperties()));
         putAll(apformInst.getProperties());
         put(CST.A_SHARED, getShared());
-//        sharable = (getShared().equals(CST.V_TRUE));
+        //        sharable = (getShared().equals(CST.V_TRUE));
 
         if ((instCompo != null) && (apformInst.getServiceObject() instanceof ApamComponent))
             ((ApamComponent) apformInst.getServiceObject()).apamStart(this);
@@ -146,16 +146,16 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     /**
      * 
      */
-//    @Override
-//    public Set<Instance> getWireTypeDests(String destType) {
-//        Set<Instance> dests = new HashSet<Instance>();
-//        Class dest = Class.forName(destType);
-//        for (Wire wire : wires) {
-//            if (wire.getDestination().getApformInst().getServiceObject() instanceof dest)
-//                dests.add(wire.getDestination());
-//        }
-//        return dests;
-//    }
+    //    @Override
+    //    public Set<Instance> getWireTypeDests(String destType) {
+    //        Set<Instance> dests = new HashSet<Instance>();
+    //        Class dest = Class.forName(destType);
+    //        for (Wire wire : wires) {
+    //            if (wire.getDestination().getApformInst().getServiceObject() instanceof dest)
+    //                dests.add(wire.getDestination());
+    //        }
+    //        return dests;
+    //    }
 
     /**
      */
@@ -194,8 +194,8 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         }
 
         // useless when called by Apam. Needed if called by an external program.
-//        if (!Wire.checkNewWire(this, to, depName))
-//            return false;
+        //        if (!Wire.checkNewWire(this, to, depName))
+        //            return false;
 
         // creation
         Wire wire = new Wire(this, to, depName);
@@ -248,7 +248,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         for (Wire wire : wires) {
             wire.remove();
         }
-//        try {
+        //        try {
         // CST.ASMInstBroker.removeInst(this);
         // ((ASMImplImpl) getImpl()).removeInst(this);
         // Should we delete the Sam instance,
@@ -257,9 +257,9 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         // or only remove the Apam attributes, such that SAMMAN knows which objects are APAM?
         // samInst.removeProperty(Attributes.APAMAPPLI);
         // apformInst.removeProperty(Attributes.APAMCOMPO);
-//        } catch (ConnectionException e) {
-//            e.printStackTrace();
-//        }
+        //        } catch (ConnectionException e) {
+        //            e.printStackTrace();
+        //        }
 
     }
 
@@ -304,10 +304,9 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     @Override
     public boolean match(Filter goal) {
         if (goal == null)
-            return false;
+            return true;
         try {
             return ((FilterImpl) goal).matchCase(this);
-            // return goal.match((AttributesImpl) getProperties());
         } catch (Exception e) {
         }
         return false;

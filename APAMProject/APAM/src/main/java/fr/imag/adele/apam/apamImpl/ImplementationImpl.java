@@ -114,7 +114,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     @Override
     public boolean match(Filter goal) {
         if (goal == null)
-            return false;
+            return true;
         try {
             return ((FilterImpl) goal).matchCase(this);
             // return goal.match((AttributesImpl) getProperties());

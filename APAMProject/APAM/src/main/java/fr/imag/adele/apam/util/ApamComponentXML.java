@@ -204,7 +204,8 @@ public class ApamComponentXML {
         && (meta.getAttribute("classname") != null);
         boolean isComposite = meta.getName().equalsIgnoreCase("composite");
         boolean isSpecification = meta.getName().equalsIgnoreCase("specification");
-        return isApam && (isImplementation || isComposite || isSpecification);
+        boolean isInstance = meta.getName().equalsIgnoreCase("instance");
+        return isApam && (isImplementation || isComposite || isSpecification || isInstance);
     }
 
     public static class SimpleProperty {
@@ -320,6 +321,18 @@ public class ApamComponentXML {
         }
 
         /**
+         * Whether this is an intance definition
+         * 
+         * @return
+         */
+        public boolean isInstance() {
+            return m_componentMetadata.getName().equalsIgnoreCase("instance");
+        }
+
+        public String getAttribute(String attrName) {
+            return m_componentMetadata.getAttribute(attrName);
+        }
+        /**
          * Get the apam implementation of the main specification for a composite.
          */
         public String getApamMainImplementation() {
@@ -368,13 +381,14 @@ public class ApamComponentXML {
             /*
              * For composite components get the explicitly specified interfaces
              */
-            List<String> interfaces = new ArrayList<String>();
+            //            List<String> interfaces = new ArrayList<String>();
             String encodedInterfaces = m_componentMetadata.getAttribute(ApamComponentInfo.APAM_INTERFACES_PROPERTY);
-            if (encodedInterfaces != null) {
-                for (String interfaceName : encodedInterfaces.split(Util.splitSeparator)) {
-                    interfaces.add(interfaceName);
-                }
-            }
+            List<String> interfaces = Util.splitList(encodedInterfaces);
+            //            if (encodedInterfaces != null) {
+            //                for (String interfaceName : Util.split(encodedInterfaces)) {
+            //                    interfaces.add(interfaceName);
+            //                }
+            //            }
 
             return interfaces;
         }
@@ -763,55 +777,7 @@ public class ApamComponentXML {
         if ((str == null) || (str.length() == 0)) {
             return new String[0];
         }
-        //        System.out.println(" split : " + str + " => ");
-        //        ApamComponentXML.pr(str.split(Util.splitSeparator));
-        return str.split(Util.splitSeparator);
-        //        // Remove { and } or [ and ]
-        //        if (((str.charAt(0) == '{') && (str.charAt(str.length() - 1) == '}'))
-        //                || ((str.charAt(0) == '[') && (str.charAt(str.length() - 1) == ']'))) {
-        //            String internal = (str.substring(1, str.length() - 1)).trim();
-        //            // Check empty array
-        //            if (internal.length() == 0) {
-        //                return new String[0];
-        //            }
-        //            System.out.println("comparing parse array and split" + str);
-        //            ApamComponentXML.pr(ApamComponentXML.split(internal, ","));
-        //            System.out.println(" parse=>");
-        //            ApamComponentXML.pr(str.split(","));
-        //            ApamComponentXML.pr(str.split("\\s"));
-        //            ApamComponentXML.pr(str.split("\\{"));
-        //            ApamComponentXML.pr(str.split("(,)|(\\{)"));
-        //            ApamComponentXML.pr(str.split("(,|\\{)"));
-        //            ApamComponentXML.pr(str.split(",|\\s|\\{|\\[|\\]|\\}"));
-        //            return ApamComponentXML.split(internal, ",");
-        //        } else {
-        //            return new String[] { str };
-        //        }
-    }
-
-    //    private static void pr(String[] a) {
-    //        for (String s : a)
-    //            System.out.print(s + " ");
-    //        System.out.println();
-    //    }
-    /**
-     * Split method.
-     * This method is equivalent of the String.split in java 1.4
-     * The result array contains 'trimmed' String
-     * 
-     * @param toSplit the String to split
-     * @param separator the separator
-     * @return the split array
-     */
-    public static String[] split(String toSplit, String separator) {
-        StringTokenizer tokenizer = new StringTokenizer(toSplit, separator);
-        String[] result = new String[tokenizer.countTokens()];
-        int index = 0;
-        while (tokenizer.hasMoreElements()) {
-            result[index] = tokenizer.nextToken().trim();
-            index++;
-        }
-        return result;
+        return Util.split(str);
     }
 
 }

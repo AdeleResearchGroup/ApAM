@@ -13,6 +13,7 @@ import org.osgi.framework.InvalidSyntaxException;
 
 //import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformSpecification;
 //import fr.imag.adele.apam.util.Attributes;
@@ -61,18 +62,18 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         ((SpecificationBrokerImpl) CST.SpecBroker).addSpec(this);
         if (props != null)
             putAll(props);
-//        try {
-//            if (props == null) {
-//                props = new AttributesImpl();
-//            }
-//            // initialize properties. A fusion of SAM and APAM values
-//            if (apfSpec != null)
-//                this.setProperties(Util.mergeProperties(this, props, apfSpec.getProperties()));
-//            else
-//                this.setProperties(Util.mergeProperties(this, props, null));
-//        } catch (ConnectionException e) {
-//            e.printStackTrace();
-//        }
+        //        try {
+        //            if (props == null) {
+        //                props = new AttributesImpl();
+        //            }
+        //            // initialize properties. A fusion of SAM and APAM values
+        //            if (apfSpec != null)
+        //                this.setProperties(Util.mergeProperties(this, props, apfSpec.getProperties()));
+        //            else
+        //                this.setProperties(Util.mergeProperties(this, props, null));
+        //        } catch (ConnectionException e) {
+        //            e.printStackTrace();
+        //        }
     }
 
     @Override
@@ -109,16 +110,16 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
     @Override
     public String toString() {
         return name;
-//        String ret = "";
-//        if (name == null) {
-//            ret = " (" + apfSpec.getName() + ") ";
-//        } else {
-//            if (apfSpec == null)
-//                ret = name;
-//            else
-//                ret = name + " (" + apfSpec.getName() + ") ";
-//        }
-//        return ret;
+        //        String ret = "";
+        //        if (name == null) {
+        //            ret = " (" + apfSpec.getName() + ") ";
+        //        } else {
+        //            if (apfSpec == null)
+        //                ret = name;
+        //            else
+        //                ret = name + " (" + apfSpec.getName() + ") ";
+        //        }
+        //        return ret;
     }
 
     /*
@@ -204,15 +205,15 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         }
         CST.SpecBroker.removeSpec(this);
 
-//        // remove the APAM specific attributes in SAM
-//        if (apfSpec != null) {
-//            try {
-//                apfSpec.removeProperty(Attributes.APAMAPPLI);
-//                apfSpec.removeProperty(Attributes.APAMCOMPO);
-//            } catch (ConnectionException e) {
-//                e.printStackTrace();
-//            }
-//        }
+        //        // remove the APAM specific attributes in SAM
+        //        if (apfSpec != null) {
+        //            try {
+        //                apfSpec.removeProperty(Attributes.APAMAPPLI);
+        //                apfSpec.removeProperty(Attributes.APAMCOMPO);
+        //            } catch (ConnectionException e) {
+        //                e.printStackTrace();
+        //            }
+        //        }
     }
 
     public void removeImpl(Implementation impl) {
@@ -272,19 +273,25 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         if ((impls == null) || impls.isEmpty())
             return null;
 
-        if ((preferences != null) && !preferences.isEmpty())
-            return ((Implementation) impls.toArray()[0]);
+        //        if ((preferences != null) && !preferences.isEmpty())
+        //            return ((Implementation) impls.toArray()[0]);
 
         return getPreferedImpl(impls, preferences);
     }
 
+    /**
+     * If no prefered, select
+     * first return the implem that have available instances,
+     * second an instantiable implem,
+     * third, any one.
+     */
     @Override
     public Implementation getPreferedImpl(Set<Implementation> candidates, List<Filter> preferences) {
         if ((preferences == null) || preferences.isEmpty()) {
             if (candidates.isEmpty())
                 return null;
             else
-                return (Implementation) candidates.toArray()[0];
+                return getDefaultImpl(candidates);
         }
         Implementation winner = null;
         int maxMatch = -1;
@@ -300,17 +307,37 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
                 winner = impl;
             }
         }
-        System.out.println("   Selected : " + winner);
+        // System.out.println("   Selected : " + winner);
         return winner;
+    }
+
+    /**
+     * In case more than one implementation are available and no preference are expressed,
+     * first return the implem that have available instances,
+     * second an instantiable implem,
+     * third, any one.
+     * 
+     * @param candidates
+     * @return
+     */
+    private Implementation getDefaultImpl(Set<Implementation> candidates) {
+        for (Implementation impl : candidates) {
+            if (impl.getSharableInst(null, null) != null)
+                return impl;
+        }
+        for (Implementation impl : candidates) {
+            if (impl.isInstantiable())
+                return impl;
+        }
+        return (Implementation) candidates.toArray()[0];
     }
 
     @Override
     public boolean match(Filter goal) {
         if (goal == null)
-            return false;
+            return true;
         try {
             return ((FilterImpl) goal).matchCase(this);
-            // return goal.match((AttributesImpl) getProperties());
         } catch (Exception e) {
         }
         return false;
