@@ -115,7 +115,9 @@ public class ApamRepoBuilder {
             obrContent.append("      <p n='provide-specification' v='" + spec + "' />\n");
 
         // Checking consistency
-        CheckObr.checkProvide(component.getName(), spec, interfaces, messages);
+        if (component.isImplementation()) {
+            CheckObr.checkImplProvide(component.getName(), spec, interfaces, messages);
+        }
     }
 
     private void printProperties(StringBuffer obrContent, ApamComponentInfo component) {
@@ -138,10 +140,10 @@ public class ApamRepoBuilder {
         }
 
         // Check Consistency
-        CheckObr.checkAttributes(component.getName(), component.getSpecification(), component.getProperties());
+        CheckObr.checkImplAttributes(component.getName(), component.getSpecification(), component.getProperties());
     }
 
-    private static void printRequire(StringBuffer obrContent, ApamComponentInfo component) {
+    private void printRequire(StringBuffer obrContent, ApamComponentInfo component) {
         if (component.isSpecification()) {
             for (SpecificationDependency dep : component.getSpecDependencies()) {
                 // INTERFACE, PUSH_MESSAGE, PULL_MESSAGE, SPECIFICATION
@@ -164,42 +166,42 @@ public class ApamRepoBuilder {
             }
             return;
         }
-        // composite and implems
-        if (component.isImplementation())
-            CheckObr.checkImplRequire(component);
-        if (component.isComposite())
-            CheckObr.checkCompoRequire(component.getName(), component.getSpecification(), component
-                    .getCompoDependencies());
 
+        // composite and implems
+        CheckObr.checkRequire(component);
+
+        if (component.isComposite())
+            CheckObr.checkCompoMain(component);
     }
 
     private void printOBRElement(StringBuffer obrContent, ApamComponentInfo component, String indent, JarFile jarfile) {
         String spec = component.getSpecification();
 
+        //headers
         if (component.isImplementation()) {
             obrContent.append("   <capability name='apam-implementation'>\n");
-            printProvided(obrContent, component, jarfile);
         }
-
-        // Information for composites
         if (component.isComposite()) {
             obrContent.append("   <capability name='apam-implementation'>\n");
             obrContent.append("      <p n='apam-composite' v='" + component.isComposite() + "' />\n");
             obrContent.append("      <p n='apam-main-implementation' v='" + component.getApamMainImplementation()
                     + "' />\n");
-            printProvided(obrContent, component, jarfile);
         }
-
         if (component.isSpecification()) {
             obrContent.append("   <capability name='apam-specification'>\n");
-            printProvided(obrContent, component, jarfile);
         }
+
+        if (component.isInstance()) {
+            CheckObr.checkInstance(component);
+        }
+        // provide clause
+        printProvided(obrContent, component, jarfile);
 
         // definition attributes
         printProperties(obrContent, component);
 
-        // Require
-        ApamRepoBuilder.printRequire(obrContent, component);
+        // Require, fields and constraints
+        printRequire(obrContent, component);
 
         obrContent.append("   </capability>\n");
 

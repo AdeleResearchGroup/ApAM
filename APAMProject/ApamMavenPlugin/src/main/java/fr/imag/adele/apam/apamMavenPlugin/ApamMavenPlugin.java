@@ -154,7 +154,13 @@ public class ApamMavenPlugin extends AbstractMojo {
             String version = dependency.getVersion().replace('-', '.');
             ApamMavenPlugin.bundleDependencies.add(dependency.getArtifactId() + "/" + version);
         }
-        //            System.err.println(dependency.getArtifactId() + "/" + dependency.getVersion()
+        System.out.print("Valid dependencies: ");
+        for (String dep : ApamMavenPlugin.bundleDependencies) {
+            System.out.print(" " + dep);
+        }
+        System.out.println("");
+
+        // System.err.println(dependency.getArtifactId() + "/" + dependency.getVersion()
         //                    + "\n    " + dependency.getClassifier() + " group: "
         //                    + dependency.getGroupId() + " " + dependency.getArtifactId() + " "
         //                    + dependency.getVersion() + " base " + dependency.getBaseVersion());
