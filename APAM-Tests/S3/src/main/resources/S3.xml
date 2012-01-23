@@ -1,10 +1,18 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
-	<specification name="S3" interfaces="[fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2]"	>
+	<specification name="S3"
+		interfaces="[fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2]">
 		<properties shared="false" scope="global">
 			<property test-spec="coucous3" type="string" />
+			<property b="yes" />
+			<property c="xxx" />
+			<property test-spec="anotherValue" />
 		</properties>
-	
-		<dependency specification="S4"/>
+		<definitions>
+			<definition name="x" type="string" />
+			<definition name="A2" type="int" value="5" />
+		</definitions>
+		<dependency specification="S4" />
 	</specification>
+
 </ipojo>

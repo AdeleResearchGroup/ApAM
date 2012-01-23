@@ -63,6 +63,7 @@
 				<preferences>
 					<implementation filter="(x=10)" />
 					<instance filter="(b=false)" />
+					<instance filter="(b2=false)" />
 				</preferences>
 			</specification>
 
@@ -82,20 +83,17 @@
 
 	<implementation name="S2ImplBis"
 		classname="fr.imag.adele.apam.test.s2Impl.S2ImplBis" specification="S2">
-
 		<properties shared="true" scope="local">
 			<property testbis="xyz" />
 		</properties>
-
 		<interface field="s4Bis" />
 		<ipojo:requires field="apam" />
-
-
 	</implementation>
 
 
-	<composite name="S2Compo" specification="Sxxx" mainImplem="S2Simple"
-		interfaces="[fr.imag.adele.apam.test.s2.Sxxx,fr.imag.adele.apam.apamAPI.ApamComponent]">
+	<composite name="S2Compo" specification="Syyy" mainImplem="S3Impl"
+		messages="{M5, M6}"
+		interfaces="{fr.imag.adele.apam.test.s2.SZZZ,fr.imag.adele.apam.apamAPI.YYYYYYY}">
 		<properties shared="false" />
 		<instances internal="true" local=".*" />
 		<implementations internal="true" local="S.Im.*" />
@@ -105,14 +103,32 @@
 			<specification name="S4" source="{S2,S3}" />
 			<message name="msgType1" />
 			<interface name="S4" />
-
 		</dependencies>
-
 	</composite>
 
+	<instance implementation="S2Impl" name="toto">
+		<properties shared="false">
+			<property test-spec="coucous4" />
+			<property A2="yes" />
+			<property c3="xxx" />
+		</properties>
+		<dependencies>
+			<specification name="S3">
+				<constraints>
+					<implementation filter="(apam-composite=true)" />
+					<instance filter="(SCccOPE=GLOBAL)" />
+				</constraints>
+				<preferences>
+					<implementation filter="(x=10)" />
+					<instance filter="(bxc=false)" />
+				</preferences>
+			</specification>
+		</dependencies>
+	</instance>
+	<instance name="S2Impl" />
+	
+	<instance implementation="S2Simple" name="toto"/>
+	<instance implementation="S2Compo" name="sdfg"/>
 
-	<!-- <ipojo:instance component="S2Impl" name="S2Impl-instance1"/> <ipojo:instance 
-		component="S2Impl" name="S2Impl-instance2"/> <ipojo:instance component="S2Impl" 
-		name="S2Impl-instance3"/> -->
 </apam>
 

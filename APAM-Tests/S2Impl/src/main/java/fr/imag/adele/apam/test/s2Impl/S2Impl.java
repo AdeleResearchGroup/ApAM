@@ -6,13 +6,10 @@ import java.util.Set;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamComponent;
-import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.test.s2.S2;
 import fr.imag.adele.apam.test.s3.S3_1;
 import fr.imag.adele.apam.test.s3.S3_2;
 import fr.imag.adele.apam.test.s4.S4;
-import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.AttributesImpl;
 
 public class S2Impl implements S2, ApamComponent {
 
@@ -53,13 +50,13 @@ public class S2Impl implements S2, ApamComponent {
             i++;
         }
 
-        Attributes c2Attrs = new AttributesImpl();
-        c2Attrs.setProperty(CST.A_SHARED, CST.V_TRUE);
-        // implBroker.addImpl(compo2, "ApamS4impl", "S4Impl", "S4In", c2Attrs);
-
-        Attributes c3Attrs = new AttributesImpl();
-        c3Attrs.setProperty(CST.A_SHARED, CST.V_FALSE);
-        // implBroker.addImpl(compo3, "ApamS5impl", "S5Impl", "S5", c3Attrs);
+        //        Attributes c2Attrs = new AttributesImpl();
+        //        c2Attrs.setProperty(CST.A_SHARED, CST.V_TRUE);
+        //        // implBroker.addImpl(compo2, "ApamS4impl", "S4Impl", "S4In", c2Attrs);
+        //
+        //        Attributes c3Attrs = new AttributesImpl();
+        //        c3Attrs.setProperty(CST.A_SHARED, CST.V_FALSE);
+        //        // implBroker.addImpl(compo3, "ApamS5impl", "S5Impl", "S5", c3Attrs);
 
         System.out.println("S2 called " + s);
         if (s4_1 != null)

@@ -6,11 +6,8 @@
       <p n='shared' v='false' />
       <p n='scope' v='global' />
       <p n='test-spec' v='coucou' />
-      <p n='shared' v='false' />
-      <p n='scope' v='global' />
-      <p n='test-spec' v='coucou' />
       <p n='definition-b' v='true' />
       <p n='definition-c' />
-<p n='require-specification' v='S5' /> 
+      <p n='require-specification' v='S5' /> 
    </capability>
 </obr> 

@@ -1,10 +1,11 @@
 <obr> 
    <capability name='apam-implementation'>
       <p n='apam-composite' v='true' />
-      <p n='apam-main-implementation' v='S2Simple' />
+      <p n='apam-main-implementation' v='S3Impl' />
       <p n='name' v='S2Compo' />
-      <p n='provide-interfaces' v='{, fr.imag.adele.apam.test.s2.Sxxx, fr.imag.adele.apam.apamAPI.ApamComponent}' /> 
-      <p n='provide-specification' v='Sxxx' />
+      <p n='provide-interfaces' v='{fr.imag.adele.apam.test.s2.SZZZ, fr.imag.adele.apam.apamAPI.YYYYYYY}' /> 
+      <p n='provide-messages' v='{M5, M6}' />
+      <p n='provide-specification' v='Syyy' />
       <p n='shared' v='false' />
    </capability>
    <capability name='apam-implementation'>
