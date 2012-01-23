@@ -14,7 +14,9 @@ import java.util.jar.JarFile;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.xml.parser.SchemaResolver;
 
+import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.util.ApamComponentXML;
+import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.apam.util.ApamComponentXML.ApamComponentInfo;
 import fr.imag.adele.apam.util.ApamComponentXML.SimpleProperty;
 import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
@@ -103,16 +105,16 @@ public class ApamRepoBuilder {
         obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
 
         String interfaces = component.getInterfaces();
-        if (!interfaces.isEmpty())
-            obrContent.append("      <p n='provide-interfaces' v='" + interfaces + "' /> \n");
+        if ((interfaces != null) && !interfaces.isEmpty())
+            obrContent.append("      <p n='" + OBR.A_PROVIDE_INTERFACES + "' v='" + interfaces + "' /> \n");
 
         String messages = component.getMessages();
         if (messages != null)
-            obrContent.append("      <p n='provide-messages' v='" + messages + "' />\n");
+            obrContent.append("      <p n='" + OBR.A_PROVIDE_MESSAGES + "' v='" + messages + "' />\n");
 
         String spec = component.getSpecification();
         if (spec != null)
-            obrContent.append("      <p n='provide-specification' v='" + spec + "' />\n");
+            obrContent.append("      <p n='" + OBR.A_PROVIDE_SPECIFICATION + "' v='" + spec + "' />\n");
 
         // Checking consistency
         if (component.isImplementation()) {
@@ -131,7 +133,7 @@ public class ApamRepoBuilder {
         // definition attributes
         List<SimpleProperty> definitions = component.getDefinitions();
         for (SimpleProperty definition : definitions) {
-            String tempContent = "      <p n='definition-" + definition.name + "'";
+            String tempContent = "      <p n='" + OBR.A_DEFINITION_PREFIX + definition.name + "'";
             if (definition.value != null) {
                 tempContent = tempContent + (" v='" + (definition.value) + "'");
             }
@@ -140,7 +142,7 @@ public class ApamRepoBuilder {
         }
 
         // Check Consistency
-        CheckObr.checkImplAttributes(component.getName(), component.getSpecification(), component.getProperties());
+        CheckObr.checkImplAttributes(component);
     }
 
     private void printRequire(StringBuffer obrContent, ApamComponentInfo component) {
@@ -150,17 +152,19 @@ public class ApamRepoBuilder {
 
                 switch (dep.targetKind) {
                     case INTERFACE: {
-                        obrContent.append("      <p n='require-interface' v='" + dep.fieldType + "' /> \n");
+                        obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + dep.fieldType
+                                + "' /> \n");
                         break;
                     }
                     case SPECIFICATION:
-                        obrContent.append("      <p n='require-specification' v='" + dep.fieldType + "' /> \n");
+                        obrContent.append("      <p n='" + OBR.A_REQUIRE_SPECIFICATION + "' v='" + dep.fieldType
+                                + "' /> \n");
                         break;
                     case PULL_MESSAGE:
-                        obrContent.append("      <p n='require-message' v='" + dep.fieldType + "' /> \n");
+                        obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.fieldType + "' /> \n");
                         break;
                     case PUSH_MESSAGE:
-                        obrContent.append("      <p n='require-message' v='" + dep.fieldType + "' /> \n");
+                        obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.fieldType + "' /> \n");
                         break;
                 }
             }
@@ -179,20 +183,22 @@ public class ApamRepoBuilder {
 
         //headers
         if (component.isImplementation()) {
-            obrContent.append("   <capability name='apam-implementation'>\n");
+            obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
         }
         if (component.isComposite()) {
-            obrContent.append("   <capability name='apam-implementation'>\n");
-            obrContent.append("      <p n='apam-composite' v='" + component.isComposite() + "' />\n");
-            obrContent.append("      <p n='apam-main-implementation' v='" + component.getApamMainImplementation()
+            obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
+            obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='" + component.isComposite() + "' />\n");
+            obrContent.append("      <p n='" + CST.A_MAIN_IMPLEMENTATION + "' v='"
+                    + component.getApamMainImplementation()
                     + "' />\n");
         }
         if (component.isSpecification()) {
-            obrContent.append("   <capability name='apam-specification'>\n");
+            obrContent.append("   <capability name='" + OBR.CAPABILITY_SPECIFICATION + "'>\n");
         }
 
         if (component.isInstance()) {
             CheckObr.checkInstance(component);
+            return;
         }
         // provide clause
         printProvided(obrContent, component, jarfile);

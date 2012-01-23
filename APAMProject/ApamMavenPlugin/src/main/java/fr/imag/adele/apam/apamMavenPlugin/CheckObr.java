@@ -16,28 +16,25 @@ import org.osgi.impl.bundle.obr.resource.RepositoryImpl;
 import org.osgi.service.obr.Capability;
 import org.osgi.service.obr.Resource;
 
+import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.util.ApamComponentXML;
-import fr.imag.adele.apam.util.Dependency;
-import fr.imag.adele.apam.util.Dependency.DependencyKind;
-import fr.imag.adele.apam.util.Dependency.TargetKind;
+import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.ApamComponentXML.ApamComponentInfo;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Dependency;
+import fr.imag.adele.apam.util.Dependency.DependencyKind;
+import fr.imag.adele.apam.util.Dependency.TargetKind;
 import fr.imag.adele.apam.util.Dependency.AtomicDependency;
 import fr.imag.adele.apam.util.Dependency.CompositeDependency;
 import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
 import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
 
-//import fr.imag.adele.obrMan.OBRManager;
-//import fr.imag.adele.obrMan.OBRManager.Selected;
 
 public class CheckObr {
 
     private static RepositoryImpl repo;
     private static Resource[]     resources;
-    private static String[]       predefAttributes = { "scope", "shared", "visible", "name",
-        "apam-composite", "apam-main-implementation", "require-interface",
-        "require-specification", "require-message" };
 
     private static final String[]                fieldTypeMultiple = { "java.util.Set", "java.util.List",
         "java.util.Collection", "java.util.Vector" };
@@ -97,36 +94,75 @@ public class CheckObr {
         Capability cap = CheckObr.getSpecCapability(spec);
         if (cap == null)
             return;
-        Set<String> validAttrs = CheckObr.getValidImplAttributes(CheckObr.getSpecCapability(spec));
+        Set<String> validImplAttrs = CheckObr.getValidImplAttributes(cap);
+        //        Set<String> validInstAttrs = CheckObr.getValidInstAttributes(cap);
 
-        CheckObr.checkFilterList(dep.implementationConstraints, validAttrs, spec);
-        CheckObr.checkFilterList(dep.instanceConstraints, validAttrs, spec);
-        CheckObr.checkFilterList(dep.implementationPreferences, validAttrs, spec);
-        CheckObr.checkFilterList(dep.instancePreferences, validAttrs, spec);
+        CheckObr.checkFilterList(dep.implementationConstraints, validImplAttrs, spec);
+        CheckObr.checkFilterList(dep.implementationPreferences, validImplAttrs, spec);
+        CheckObr.checkInstFilterList(dep.instanceConstraints, validImplAttrs, spec);
+        CheckObr.checkInstFilterList(dep.instancePreferences, validImplAttrs, spec);
     }
 
-    public static void checkFilterList(List<String> filters, Set<String> validAttr, String spec) {
+    /**
+     * In theory we cannot check a constraint on an instance attributes since we do not know the implementation that
+     * will be selected,
+     * however, if the constraints contains "impl-name = xyz" we could do it.
+     * 
+     */
+    public static void checkInstFilterList(List<String> filters, Set<String> validAttr, String spec) {
         if ((validAttr == null) || (filters == null))
             return;
+        // try to see if implementation name "impl-name" is in the constraints
+        String impl = null;
         for (String f : filters) {
             try {
                 ApamFilter parsedFilter = ApamFilter.newInstance(f);
                 // System.err.println("validating filter " + f);
-                parsedFilter.validateAttr(validAttr, CheckObr.predefAttributes, f, spec);
+                impl = parsedFilter.lookForAttr(CST.A_IMPLNAME);
+                if (impl != null)
+                    break ;
+            } catch (InvalidSyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+        // if implementation is found
+        Capability cap = null;
+        if (impl != null) {
+            cap = CheckObr.getImplCapability(impl);
+            if (cap != null) {
+                Map<String, Object> props = cap.getProperties();
+                for (Object attr : cap.getProperties().keySet()) {
+                    if (!((String) attr).startsWith(OBR.A_DEFINITION_PREFIX))
+                        validAttr.add((String) attr);
+                }
+            }
+        }
+        if (cap != null)
+            CheckObr.checkFilterList(filters, validAttr, impl);
+        else
+            CheckObr.checkFilterList(filters, validAttr, spec);
+    }
+
+    public static void checkFilterList(List<String> filters, Set<String> validAttr, String spec) {
+        for (String f : filters) {
+            try {
+                ApamFilter parsedFilter = ApamFilter.newInstance(f);
+                // System.err.println("validating filter " + f);
+                parsedFilter.validateAttr(validAttr, f, spec);
             } catch (InvalidSyntaxException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public static boolean isPredefAttribute(String attr) {
-        for (String predef : CheckObr.predefAttributes) {
-            if (predef.equalsIgnoreCase(attr))
-                return true;
-        }
-        return false;
-    }
 
+    /**
+     * returns all the attributes that can be associated with an implementation:
+     * attribute instantiated on the spec, plus those defined.
+     * 
+     * @param cap : the capability of the associated specification.
+     * @return
+     */
     private static Set<String> getValidImplAttributes(Capability cap) {
         if (cap == null)
             return null;
@@ -134,7 +170,7 @@ public class CheckObr {
         String attr;
         for (Object attrObject : cap.getProperties().keySet()) {
             attr = (String) attrObject;
-            if (attr.startsWith("definition-"))
+            if (attr.startsWith(OBR.A_DEFINITION_PREFIX))
                 validAttrs.add(attr.substring(11));
             else
                 validAttrs.add(attr);
@@ -142,32 +178,42 @@ public class CheckObr {
         return validAttrs;
     }
 
-    //    private static Set<String> getValidInstAttributes(Capability cap) {
-    //        if (cap == null)
-    //            return null;
-    //        Set<String> validAttrs = new HashSet<String>();
-    //        // for (String predef : CheckObr.predefAttributes) {
-    //        // validAttrs.add(predef);
-    //        // }
-    //        String attr;
-    //
-    //        return validAttrs;
-    //        xxx
-    //    }
+    //        private static Set<String> getValidInstAttributes(Capability cap) {
+    //            if (cap == null)
+    //                return null;
+    //            Set<String> validAttrs = new HashSet<String>();
+    //            // for (String predef : CheckObr.predefAttributes) {
+    //            // validAttrs.add(predef);
+    //            // }
+    //            String attr;
+    //    
+    //            return validAttrs;
+    //            xxx
+    //        }
 
-    private static boolean capContainsDefAttr(Capability cap, String attr) {
-        if (CheckObr.isPredefAttribute(attr))
+    /**
+     * Check if attribute "attr" is defined in the list of attributes and definitions found in props
+     * Props contains attribute (Cannot be redefined), and attribute definitions.
+     * All predefined attributes are Ok (scope ...)
+     * Cannot be a reserved attribute
+     */
+    private static boolean capContainsDefAttr(Map<String, Object> props, String attr) {
+        if (Util.isPredefinedAttribute(attr))
             return true;
 
-        Map<String, Object> props = cap.getProperties();
-        for (Object prop : cap.getProperties().keySet()) {
-            if (((String) prop).equals(attr)) {
-                System.err.println("Warning: redefining specification attribute " + attr);
-                return true;
+        if (Util.isReservedAttribute(attr)) {
+            System.err.println("ERROR: " + attr + " is a reserved attribute");
+            return false;
+        }
+
+        for (Object prop : props.keySet()) {
+            if (((String) prop).equalsIgnoreCase(attr)) {
+                System.err.println("ERROR: cannot redefine attribute " + attr);
+                return false;
             }
         }
-        attr = "definition-" + attr;
-        for (Object prop : cap.getProperties().keySet()) {
+        attr = OBR.A_DEFINITION_PREFIX + attr;
+        for (Object prop : props.keySet()) {
             if (((String) prop).equals(attr)) {
                 return true;
             }
@@ -184,18 +230,13 @@ public class CheckObr {
      * @param component
      */
     public static void checkInstance(ApamComponentInfo component) {
-        String impl = component.getAttribute("implementation");
+        String impl = component.getAttribute(CST.A_IMPLEMENTATION);
         String name = component.getAttribute("name");
         if (impl == null) {
             System.err.println("ERROR: implementation name missing");
             return;
         }
-        Capability cap = CheckObr.getImplCapability(impl);
-        if (cap == null) {
-            System.err.println("Warning: implementation " + impl + " not found in " + CheckObr.repo.getURL());
-            return;
-        }
-        CheckObr.checkInstAttributes(impl, name, cap, component);
+        CheckObr.checkInstAttributes(impl, name, component);
         Set<SpecificationDependency> deps = component.getSpecDependencies();
         if (deps == null)
             return;
@@ -204,8 +245,16 @@ public class CheckObr {
         }
     }
 
-    public static void checkImplAttributes(String implName, String spec, Map<String, String> properties) {
-
+    /**
+     * 
+     * @param implName
+     * @param spec
+     * @param properties
+     */
+    public static void checkImplAttributes(ApamComponentInfo component) {
+        String implName = component.getName();
+        String spec = component.getSpecification();
+        Map<String, String> properties = component.getProperties();
         if (spec == null)
             return;
         Capability cap = CheckObr.getSpecCapability(spec);
@@ -213,8 +262,9 @@ public class CheckObr {
             return;
         }
         // each attribute in properties must be declared in spec.
+        Map<String, Object> props = cap.getProperties();
         for (String attr : properties.keySet()) {
-            if (!CheckObr.capContainsDefAttr(cap, attr)) {
+            if (!CheckObr.capContainsDefAttr(props, attr)) {
                 System.err.println("In implementation " + implName + ", attribute " + attr
                         + " used but not defined in "
                         + spec);
@@ -222,14 +272,28 @@ public class CheckObr {
         }
     }
 
-    public static void checkInstAttributes(String impl, String name, Capability cap, ApamComponentInfo component) {
-        Map<String, String> properties = component.getProperties();
-        if (cap == null) {
+    /**
+     * Provided component is an instance "name", and impl its implem in cap, check if the instance attribute are valid.
+     * 
+     * @param impl
+     * @param name
+     * @param cap
+     * @param component
+     */
+    public static void checkInstAttributes(String impl, String name, ApamComponentInfo component) {
+        Capability capImpl = CheckObr.getImplCapability(impl);
+        if (capImpl == null) {
             return;
         }
+
+        Map<String, String> properties = component.getProperties();
+
+        Map<String, Object> props = capImpl.getProperties();
+
+        // Add spec attributes
         // each attribute in properties must be declared in cap.
         for (String attr : properties.keySet()) {
-            if (!CheckObr.capContainsDefAttr(cap, attr)) {
+            if (!CheckObr.capContainsDefAttr(props, attr)) {
                 if (name == null) {
                     System.err.println("In instance, attribute " + attr
                             + " used but not defined in " + impl);
@@ -258,9 +322,9 @@ public class CheckObr {
             return true;
         }
         // CheckObr.printCap(cap);
-        CheckObr.checkList(messages, CheckObr.getAttributeInCap(cap, "provide-messages"),
+        CheckObr.checkList(messages, CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES),
                 "Implementation " + implName + " must produce message ");
-        CheckObr.checkList(interfaces, CheckObr.getAttributeInCap(cap, "provide-interfaces"),
+        CheckObr.checkList(interfaces, CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_INTERFACES),
                 "Implementation " + implName + " must implement interface ");
 
         return true;
@@ -280,13 +344,13 @@ public class CheckObr {
         String messages = component.getMessages();
         String spec = component.getSpecification();
 
-        if (!spec.equals(CheckObr.getAttributeInCap(cap, "provide-specification"))) {
+        if (!spec.equals(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_SPECIFICATION))) {
             System.err.println("In " + name + " Invalid main implementation. " + implName
                     + " must implement specification " + spec);
         }
-        CheckObr.checkList(CheckObr.getAttributeInCap(cap, "provide-messages"), messages,
+        CheckObr.checkList(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES), messages,
                 "In " + name + " Invalid main implementation. " + implName + " must produce message ");
-        CheckObr.checkList(CheckObr.getAttributeInCap(cap, "provide-interfaces"), interfaces,
+        CheckObr.checkList(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_INTERFACES), interfaces,
                 "In " + name + " Invalid main implementation. " + implName + " must implement interface ");
     }
 
@@ -340,7 +404,7 @@ public class CheckObr {
         for (Resource res : CheckObr.resources) {
             if (ApamMavenPlugin.bundleDependencies.contains(res.getId())) {
                 for (Capability cap : res.getCapabilities()) {
-                    if (cap.getName().equals("apam-specification")
+                    if (cap.getName().equals(OBR.CAPABILITY_SPECIFICATION)
                             && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
                         System.out.println("Specification " + name + " found in bundle " + res.getId());
                         CheckObr.readSpecs.put(name, cap);
@@ -359,7 +423,7 @@ public class CheckObr {
         for (Resource res : CheckObr.resources) {
             //            if (ApamMavenPlugin.bundleDependencies.contains(res.getId())) {
             for (Capability cap : res.getCapabilities()) {
-                if (cap.getName().equals("apam-implementation")
+                if (cap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)
                         && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
                     System.out.println("Implementation " + name + " found in bundle " + res.getId());
                     CheckObr.readSpecs.put(name, cap);
@@ -375,9 +439,9 @@ public class CheckObr {
     private static Capability getCompoCapability(String name) {
         for (Resource res : CheckObr.resources) {
             for (Capability cap : res.getCapabilities()) {
-                if (cap.getName().equals("apam-implementation")
-                        && (CheckObr.getAttributeInCap(cap, "apam-composite") != null)
-                        && (CheckObr.getAttributeInCap(cap, "apam-composite").equals("true"))
+                if (cap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)
+                        && (CheckObr.getAttributeInCap(cap, CST.A_COMPOSITE) != null)
+                        && (CheckObr.getAttributeInCap(cap, CST.A_COMPOSITE).equals("true"))
                         && (CheckObr.getAttributeInCap(cap, name) != null))
                     return cap;
             }
@@ -403,7 +467,7 @@ public class CheckObr {
         // complex dependency
         // All field must have same multiplicity, and must refer to interfaces provided by the specification.
         String interfs = CheckObr
-        .getAttributeInCap(CheckObr.getSpecCapability(dep.specification), "provide-interfaces");
+        .getAttributeInCap(CheckObr.getSpecCapability(dep.specification), OBR.A_PROVIDE_INTERFACES);
         List<String> specInterfaces = Util.splitList(interfs);
         boolean mult;
         boolean first = true;
