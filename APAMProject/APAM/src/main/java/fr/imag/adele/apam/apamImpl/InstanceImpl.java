@@ -3,6 +3,7 @@ package fr.imag.adele.apam.apamImpl;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 //import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -58,21 +59,21 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     }
 
     protected void instConstructor(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
-            ApformInstance samInst) {
-        if (samInst == null) {
+            ApformInstance apfInst) {
+        if (apfInst == null) {
             new Exception("ERROR : apform instance cannot be null on ASM instance constructor").printStackTrace();
             return;
         }
         if (instCompo == null) {
-            new Exception("no composite in instance contructor" + samInst);
+            new Exception("no composite in instance contructor" + apfInst);
         }
         if (impl.getShared().equals(CST.V_FALSE))
             sharable = false;
-        apformInst = samInst;
+        apformInst = apfInst;
         myImpl = impl;
         myComposite = instCompo;
         myComposite.addContainInst(this);
-        put("name", samInst.getName());
+        put(CST.A_INSTNAME, apfInst.getName());
         put(CST.A_COMPOSITE, myComposite.getName());
         ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
     }
@@ -248,19 +249,6 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         for (Wire wire : wires) {
             wire.remove();
         }
-        //        try {
-        // CST.ASMInstBroker.removeInst(this);
-        // ((ASMImplImpl) getImpl()).removeInst(this);
-        // Should we delete the Sam instance,
-        // TODO
-        // samInst.delete();
-        // or only remove the Apam attributes, such that SAMMAN knows which objects are APAM?
-        // samInst.removeProperty(Attributes.APAMAPPLI);
-        // apformInst.removeProperty(Attributes.APAMCOMPO);
-        //        } catch (ConnectionException e) {
-        //            e.printStackTrace();
-        //        }
-
     }
 
     @Override
@@ -306,7 +294,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         if (goal == null)
             return true;
         try {
-            return ((FilterImpl) goal).matchCase(this);
+            return ((FilterImpl) goal).matchCase(getAllProperties());
         } catch (Exception e) {
         }
         return false;
@@ -391,4 +379,16 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     public boolean isSharable() {
         return (used) ? sharable : true;
     }
+
+    /**
+     * Here we assume that attributes are valid and do not overlap.
+     */
+    @Override
+    public Map<String, Object> getAllProperties() {
+        Map<String, Object> allProps = new HashMap<String, Object>();
+        allProps.putAll(this);
+        allProps.putAll(getImpl().getAllProperties());
+        return allProps;
+    }
+
 }

@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.apamImpl;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         }
 
         name = impl.getName(); // warning, for composites, it is a different name. Overloaded in createCOmpositeType
+        put(CST.A_IMPLNAME, name);
         mySpec = spec;
         spec.addImpl(this);
         ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
@@ -74,6 +76,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
 
     // warning : for setting composite name, which is different from Apform name.
     public void setName(String name) {
+        put(CST.A_IMPLNAME, name);
         this.name = name;
     }
 
@@ -116,8 +119,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         if (goal == null)
             return true;
         try {
-            return ((FilterImpl) goal).matchCase(this);
-            // return goal.match((AttributesImpl) getProperties());
+            return ((FilterImpl) goal).matchCase(getAllProperties());
         } catch (Exception e) {
         }
         return false;
@@ -395,5 +397,16 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     @Override
     public Set<ImplementationDependency> getImplemDependencies() {
         return getApformImpl().getDependencies();
+    }
+
+    /**
+     * Here we assume that attributes are valid and do not overlap.
+     */
+    @Override
+    public Map<String, Object> getAllProperties() {
+        Map<String, Object> allProps = new HashMap<String, Object>();
+        allProps.putAll(this);
+        allProps.putAll(getSpec());
+        return allProps;
     }
 }

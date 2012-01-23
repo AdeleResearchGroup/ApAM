@@ -54,6 +54,7 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
             name = apfSpec.getName();
         } else
             name = specName;
+        put(CST.A_SPECNAME, name);
         if (apfSpec != null) {
             setSamSpec(apfSpec);
         } else {

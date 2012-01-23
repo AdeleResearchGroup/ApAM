@@ -2,25 +2,20 @@ package fr.imag.adele.apam.util;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.felix.utils.filter.FilterImpl;
-//import org.apache.log4j.Logger;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
-import fr.imag.adele.apam.util.AttributesImpl;
+
+
 
 /**
  * The static Class Util provides a set of static method for the iPOJO service concrete machine.
@@ -61,27 +56,6 @@ public class Util {
             return new String[] { str };
         }
     }
-
-    //    /**
-    //     * Split method.
-    //     * This method is equivalent of the String.split in java 1.4
-    //     * The result array contains 'trimmed' String
-    //     * 
-    //     * @param toSplit the String to split
-    //     * @param separator the separator
-    //     * @return the split array
-    //     */
-    //    public static String[] split(String toSplit, String separator) {
-    //        StringTokenizer tokenizer = new StringTokenizer(toSplit, separator);
-    //        String[] result = new String[tokenizer.countTokens()];
-    //        int index = 0;
-    //        while (tokenizer.hasMoreElements()) {
-    //            result[index] = tokenizer.nextToken().trim();
-    //            index++;
-    //        }
-    //        return result;
-    //    }
-
 
 
     public static final String splitSeparator = ", |\\s|\\{|\\[|\\]|\\}";
@@ -135,48 +109,6 @@ public class Util {
         return true;
     }
 
-    /**
-     * Adds in ASM object the properties found in the associated SAM object.
-     * Checks the predefined attribute : upperCase and valid values.
-     * Either samProp or initProp can be null
-     * 
-     * @param initProp : the initial properties provided in the ASM constructor
-     * @param samProp : the properties found in SAM.
-     * @return
-     */
-    //    public static Map<String, Object> mergeProperties(AttributesImpl asmObj, Attributes initProp,
-    //            Map<String, Object> samPropParam) {
-    //        if ((initProp == null) && (samPropParam == null))
-    //            return new HashMap<String, Object>();
-    //        return asmObj.checkPredefinedAttributes(samPropParam);
-    //    }
-
-    //       
-    //        if ((initProp == null) && (samPropParam == null))
-    //            return new HashMap<String, Object>();
-    //        Map<String, Object> samProp = new HashMap<String, Object>(samPropParam);
-    //        String attr;
-    //        Object val;
-    //        if ((initProp != null) && (samProp != null)) { // merge
-    //            for (Enumeration<String> e = ((AttributesImpl) initProp).keys(); e.hasMoreElements();) {
-    //                attr = e.nextElement();
-    //                val = initProp.getProperty(attr);
-    //                if (samProp.get(attr) == null) {
-    //                    samProp.put(attr, val);
-    //                } else { // different values, pas normal !
-    //                    if (initProp.getProperty(attr) != samProp.get(attr)) {
-    //                        System.out.println("Warning ! attribut " + attr + "in " + asmObj
-    //                                + " different in SAM and init val : "
-    //                                + samProp.get(attr) + ", " + val);
-    //                    }
-    //                }
-    //            }
-    //        }
-    //
-    //        if (samProp == null)
-    //            samProp = initProp.getProperties();
-    //        return asmObj.checkPredefinedAttributes(samProp);
-    //     }
 
     public static String ANDLDAP(String... params) {
         StringBuilder sb = new StringBuilder("(&");
@@ -295,6 +227,30 @@ public class Util {
         return false;
     }
 
+    public static boolean isPredefinedAttribute(String attr) {
+        for (String pred : CST.predefAttributes) {
+            if (pred.equals(attr.toLowerCase()))
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean isFinalAttribute(String attr) {
+        for (String pred : CST.finalAttributes) {
+            if (pred.equals(attr.toLowerCase()))
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean isReservedAttribute(String attr) {
+        for (String pred : OBR.reservedAttributes) {
+            if (pred.equals(attr.toLowerCase()))
+                return true;
+        }
+        return false;
+    }
+
 }
 
 /**
@@ -381,4 +337,46 @@ public class Util {
 // }
 // return false;
 // }
+/**
+ * Adds in ASM object the properties found in the associated SAM object.
+ * Checks the predefined attribute : upperCase and valid values.
+ * Either samProp or initProp can be null
+ * 
+ * @param initProp : the initial properties provided in the ASM constructor
+ * @param samProp : the properties found in SAM.
+ * @return
+ */
+//    public static Map<String, Object> mergeProperties(AttributesImpl asmObj, Attributes initProp,
+//            Map<String, Object> samPropParam) {
+//        if ((initProp == null) && (samPropParam == null))
+//            return new HashMap<String, Object>();
+//        return asmObj.checkPredefinedAttributes(samPropParam);
+//    }
+
+//       
+//        if ((initProp == null) && (samPropParam == null))
+//            return new HashMap<String, Object>();
+//        Map<String, Object> samProp = new HashMap<String, Object>(samPropParam);
+//        String attr;
+//        Object val;
+//        if ((initProp != null) && (samProp != null)) { // merge
+//            for (Enumeration<String> e = ((AttributesImpl) initProp).keys(); e.hasMoreElements();) {
+//                attr = e.nextElement();
+//                val = initProp.getProperty(attr);
+//                if (samProp.get(attr) == null) {
+//                    samProp.put(attr, val);
+//                } else { // different values, pas normal !
+//                    if (initProp.getProperty(attr) != samProp.get(attr)) {
+//                        System.out.println("Warning ! attribut " + attr + "in " + asmObj
+//                                + " different in SAM and init val : "
+//                                + samProp.get(attr) + ", " + val);
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (samProp == null)
+//            samProp = initProp.getProperties();
+//        return asmObj.checkPredefinedAttributes(samProp);
+//     }
 

@@ -5,15 +5,26 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import fr.imag.adele.apam.apamImpl.APAMImpl;
 import fr.imag.adele.apam.apform.Apform;
-import fr.imag.adele.apam.util.AttributesImpl;
 
 public class ApamManagers {
 
     private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
     public static List<Manager>          managerList  = new ArrayList<Manager>();
+
+    private static Set<AttributeManager> attrChangedManagers = new ConcurrentSkipListSet<AttributeManager>();
+
+    public static void addAttrChanged(AttributeManager manager) {
+        ApamManagers.attrChangedManagers.add(manager);
+    }
+
+    public static void removeAttrChanged(AttributeManager manager) {
+        ApamManagers.attrChangedManagers.remove(manager);
+    }
 
     /**
      * Adds a manager to Apam.
@@ -139,7 +150,7 @@ public class ApamManagers {
             System.out.println("ERROR : Missing parameter manager in listenAttrChanged");
             return;
         }
-        AttributesImpl.addAttrChanged(manager);
+        ApamManagers.addAttrChanged(manager);
     }
 
     /**
@@ -165,7 +176,8 @@ public class ApamManagers {
             System.out.println("ERROR : Missing parameter manager in listenNotAttrChanged");
             return;
         }
-        AttributesImpl.removeAttrChanged(manager);
+        ApamManagers.removeAttrChanged(manager);
     }
+
 
 }

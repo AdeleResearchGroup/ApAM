@@ -1,5 +1,6 @@
 package fr.imag.adele.apam;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
@@ -7,7 +8,6 @@ import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.util.Attributes;
 
 public interface Instance extends ConcurrentMap<String, Object> {
 
@@ -62,7 +62,7 @@ public interface Instance extends ConcurrentMap<String, Object> {
      */
     public Set<Instance> getWireDests(String depName);
 
-//    public Set<Instance> getWireTypeDests(String destType);
+    //    public Set<Instance> getWireTypeDests(String destType);
 
     /**
      * returns all the wires related to that dependency (if multiple cardinality)
@@ -172,5 +172,11 @@ public interface Instance extends ConcurrentMap<String, Object> {
      * @return true is the instance matches the goal
      */
     public boolean match(Filter goal);
+
+    /**
+     * 
+     * @return the union of the spec, implementation and instance attributes
+     */
+    public Map<String, Object> getAllProperties();
 
 }

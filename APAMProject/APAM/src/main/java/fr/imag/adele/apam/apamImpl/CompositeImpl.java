@@ -12,7 +12,6 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apform.Apform;
-import fr.imag.adele.apam.util.Attributes;
 
 public class CompositeImpl extends InstanceImpl implements Composite {
 

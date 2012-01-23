@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.Dependency;
 import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
 

@@ -69,6 +69,17 @@ public interface Implementation extends ConcurrentMap<String, Object> {
      */
     public Instance createInst(Composite compo, Map<String, Object> initialproperties);
 
+    /**
+     * 
+     * @return the union of the spec, implementation and instance attributes
+     */
+    public Map<String, Object> getAllProperties();
+
+    /**
+     * 
+     * @param goal
+     * @return true if the implem matches that filter
+     */
     public boolean match(Filter goal);
 
     /**
@@ -193,42 +204,42 @@ public interface Implementation extends ConcurrentMap<String, Object> {
 
     public boolean isUsed();
 
-//    /**
-//     * A minimal model of the information known by the handler about the potential dependencies
-//     * of its managed instance.
-//     */
-//
-//    public enum TargetKind {
-//        INTERFACE, SPECIFICATION, IMPLEMENTATION
-//    }
-//
-//    public static class DependencyModel {
-//        public String     dependencyName; // depName. field inside source code. Not relevant for composites.
-//        public String     target;        // spec name, interface or implem
-//        public TargetKind targetKind;    // INTERFACE, SPECIFICATION, IMPLEMENTATION
-//        public String[]   source;        // for composites, the list of source specifications.
-//        public boolean    isMultiple;    // cardinality multiple
-//
-//        @Override
-//        public String toString() {
-//            String val = "Dependency: \n         target: " + targetKind + "  " + target;
-//            if (dependencyName != null)
-//                val = val + "; field: " + dependencyName;
-//            val = val + "; multiple = " + isMultiple;
-//
-//            if ((source != null) && (source.length > 0)) {
-//                val = val + "\n         source specification: ";
-//                for (String sc : source) {
-//                    val = val + "  " + sc;
-//                }
-//            }
-//            return val + "\n";
-//        }
-//    }
+    //    /**
+    //     * A minimal model of the information known by the handler about the potential dependencies
+    //     * of its managed instance.
+    //     */
+    //
+    //    public enum TargetKind {
+    //        INTERFACE, SPECIFICATION, IMPLEMENTATION
+    //    }
+    //
+    //    public static class DependencyModel {
+    //        public String     dependencyName; // depName. field inside source code. Not relevant for composites.
+    //        public String     target;        // spec name, interface or implem
+    //        public TargetKind targetKind;    // INTERFACE, SPECIFICATION, IMPLEMENTATION
+    //        public String[]   source;        // for composites, the list of source specifications.
+    //        public boolean    isMultiple;    // cardinality multiple
+    //
+    //        @Override
+    //        public String toString() {
+    //            String val = "Dependency: \n         target: " + targetKind + "  " + target;
+    //            if (dependencyName != null)
+    //                val = val + "; field: " + dependencyName;
+    //            val = val + "; multiple = " + isMultiple;
+    //
+    //            if ((source != null) && (source.length > 0)) {
+    //                val = val + "\n         source specification: ";
+    //                for (String sc : source) {
+    //                    val = val + "  " + sc;
+    //                }
+    //            }
+    //            return val + "\n";
+    //        }
+    //    }
 
     /**
      * Get the list of dependencies known by the handler
      */
-//    public Set<DependencyModel> getDependencies();
+    //    public Set<DependencyModel> getDependencies();
 
 }

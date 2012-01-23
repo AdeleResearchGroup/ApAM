@@ -365,6 +365,8 @@ public class ApamComponentXML {
 
         public String getInterfaces() {
             List<String> interfaces = getInterfaceList();
+            if ((interfaces == null) || interfaces.isEmpty())
+                return null;
             String interfs = "{";
             for (String inter : interfaces) {
                 interfs += inter + ", ";

@@ -338,19 +338,19 @@ public class ApamFilter implements Filter {
         return toString().hashCode();
     }
 
-    public void validateAttr(Set<String> validAttr, String[] predefAttr, String f, String spec) {
+    public void validateAttr(Set<String> validAttr, String f, String spec) {
         switch (op) {
             case AND:
             case OR: {
                 ApamFilter[] filters = (ApamFilter[]) value;
                 for (ApamFilter filter : filters) {
-                    filter.validateAttr(validAttr, predefAttr, f, spec);
+                    filter.validateAttr(validAttr, f, spec);
                 }
             }
 
             case NOT: {
                 ApamFilter filter = (ApamFilter) value;
-                filter.validateAttr(validAttr, predefAttr, f, spec);
+                filter.validateAttr(validAttr, f, spec);
             }
 
             case SUBSTRING:
@@ -361,7 +361,7 @@ public class ApamFilter implements Filter {
             case SUBSET:
             case SUPERSET:
             case PRESENT: {
-                if (!ApamFilter.isPredefAttribute(predefAttr, attr) && !validAttr.contains(attr)) {
+                if (!Util.isPredefinedAttribute(attr) && !validAttr.contains(attr)) {
                     System.err.println("Specification " + spec + " does not define property " + attr
                             + ". Invalid constraint " + f);
                 }
@@ -371,13 +371,42 @@ public class ApamFilter implements Filter {
 
     }
 
-    public static boolean isPredefAttribute(String[] predefAttributes, String attr) {
-        for (String predef : predefAttributes) {
-            if (predef.equalsIgnoreCase(attr))
-                return true;
+    /**
+     * Tries to see if the attribute "attrName" is imposed by the constraint, in which case it returns its value.
+     * 
+     * @param attrName
+     * @return
+     */
+    public String lookForAttr(String attrName) {
+        switch (op) {
+            case AND:
+            case OR: {
+                ApamFilter[] filters = (ApamFilter[]) value;
+                for (ApamFilter filter : filters) {
+                    filter.lookForAttr(attr);
+                }
+            }
+
+            case NOT: {
+                // ApamFilter filter = (ApamFilter) value;
+                break; // filter.lookForAttr(attr);
+            }
+
+            case SUBSTRING:
+            case EQUAL:
+            case GREATER:
+            case LESS:
+            case APPROX:
+            case SUBSET:
+            case SUPERSET:
+            case PRESENT: {
+                if (attr.equals(attrName))
+                    return (String) value;
+            }
         }
-        return false;
+        return null;
     }
+
 
     /**
      * Internal match routine. Dictionary parameter must support
