@@ -22,6 +22,7 @@ import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.ManagerModel;
 import fr.imag.adele.apam.apform.Apform;
+import fr.imag.adele.apam.util.OBR;
 
 public class OBRMan implements Manager {
 
@@ -56,7 +57,7 @@ public class OBRMan implements Manager {
      */
     private Implementation installInstantiate(Resource res, String implName) {
 
-//        String specName = getAttributeInResource(res, "apam-component", "apam-specification");
+        //        String specName = getAttributeInResource(res, "apam-implementation", "apam-specification");
         Implementation asmImpl = null;
 
         asmImpl = CST.ImplBroker.getImpl(implName);
@@ -73,9 +74,9 @@ public class OBRMan implements Manager {
             // waiting for the implementation to be ready in Apam.
             asmImpl = Apform.getWaitImplementation(implName);
         } else { // do not install twice.
-                 // It is a logical deployement. The allready existing impl is not visible !
-//            System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
-//            asmImpl = CST.ASMImplBroker.addImpl(implComposite, asmImpl, null);
+            // It is a logical deployement. The allready existing impl is not visible !
+            //            System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
+            //            asmImpl = CST.ASMImplBroker.addImpl(implComposite, asmImpl, null);
         }
 
         // Activate implementation in APAM
@@ -171,12 +172,12 @@ public class OBRMan implements Manager {
         fr.imag.adele.obrMan.OBRManager.Selected selected = null;
         Implementation impl = null;
         if (specName != null) {
-            selected = OBRMan.obr.lookFor(CST.CAPABILITY_COMPONENT, "(apam-specification=" + specName + ")",
+            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_COMPONENT, "(apam-specification=" + specName + ")",
                     constraints,
                     preferences);
         }
         if ((selected == null) && (interfaceName != null)) {
-            selected = OBRMan.obr.lookFor(CST.CAPABILITY_COMPONENT, "(interfaces=*;" + interfaceName + ";*)",
+            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_COMPONENT, "(interfaces=*;" + interfaceName + ";*)",
                     constraints,
                     preferences);
         }
@@ -212,10 +213,10 @@ public class OBRMan implements Manager {
             filterStr = "(name=" + implName + ")";
 
         if (selected == null) { // look by bundle name. First apam component by bundle name
-            selected = OBRMan.obr.lookFor(CST.CAPABILITY_COMPONENT, filterStr, null, null);
+            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, filterStr, null, null);
         }
         if (selected == null) { // legacy iPOJO component
-            selected = OBRMan.obr.lookFor("component", filterStr, null, null);
+            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_COMPONENT, filterStr, null, null);
         }
         if (selected == null) { // legacy OSGi component
             selected = OBRMan.obr.lookFor("bundle", filterStr, null, null);
