@@ -34,17 +34,18 @@ public class OBRManager implements IOBRMAN {
      * OBRMAN activated, register with APAM
      */
 
-    // When in maven plug-in
-    public OBRManager(String defaultLocalRepo) {
-        init(defaultLocalRepo);
-    }
+    //    // When in maven plug-in
+    //    public OBRManager(String defaultLocalRepo) {
+    //        init(defaultLocalRepo);
+    //    }
 
-//    public RepositoryAdmin getRepositoryAdmin () {
-//        return repoAdmin ;
-//    }
+    //    public RepositoryAdmin getRepositoryAdmin () {
+    //        return repoAdmin ;
+    //    }
 
-    public void init(String defaultLocalRepo) {
+    public OBRManager(String defaultLocalRepo, RepositoryAdmin repoAdmin) {
         System.out.println("Started OBRMAN" + defaultLocalRepo);
+        this.repoAdmin = repoAdmin;
         try {
             if (defaultLocalRepo != null) {
                 local = repoAdmin.addRepository(defaultLocalRepo);
@@ -146,7 +147,7 @@ public class OBRManager implements IOBRMAN {
     }
 
     public Set<Resource>
-            lookForAll(String capability, String filterStr, Set<Filter> constraints) {
+    lookForAll(String capability, String filterStr, Set<Filter> constraints) {
         Set<Resource> allRes = new HashSet<Resource>();
         System.out.println("looking for all resources : " + capability + "; filter : " + filterStr);
         if (allResources == null)
@@ -382,7 +383,7 @@ public class OBRManager implements IOBRMAN {
     // Interface IOBRMAN
     @Override
     public Set<Resource> getResources(String capability, String filterStr, Set<Filter> constraints) {
-//        Set<Resource> allRes = new HashSet<Resource>();
+        //        Set<Resource> allRes = new HashSet<Resource>();
         return lookForAll(capability, filterStr, constraints);
     }
 

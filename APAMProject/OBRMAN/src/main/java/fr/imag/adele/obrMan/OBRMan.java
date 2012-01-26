@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
@@ -26,7 +27,9 @@ import fr.imag.adele.apam.util.OBR;
 
 public class OBRMan implements Manager {
 
-    private static final OBRManager obr = new OBRManager(null);
+    private static OBRManager obr;
+    // iPOJO injected
+    private RepositoryAdmin   repoAdmin;
 
     /**
      * OBRMAN activated, register with APAM
@@ -35,7 +38,7 @@ public class OBRMan implements Manager {
     // when in Felix.
     public void start() {
         ApamManagers.addManager(this, 3);
-        OBRMan.obr.init(null);
+        OBRMan.obr = new OBRManager(null, repoAdmin);
     }
 
     public void stop() {
