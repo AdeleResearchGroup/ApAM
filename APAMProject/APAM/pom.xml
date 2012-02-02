@@ -110,7 +110,14 @@
 			<version>1.8.0</version>
 		</dependency>
 
- 	</dependencies>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>ApamCore</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
 
 </project>
 

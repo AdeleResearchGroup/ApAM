@@ -24,6 +24,7 @@ import org.osgi.framework.ServiceReference;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.Implementation.DependencyModel;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
@@ -163,11 +164,13 @@ public class ApformIpojoImplementation extends ComponentFactory implements Apfor
      * The specification implemented by this implementation
      */
     protected String   m_specification;
+	private ApformSpecification specification;
 
     /**
      * The provided interfaces of the implementation
      */
     protected String[] providedInterfaces;
+
 
     /**
      * Build a new factory with the specified metadata
@@ -260,6 +263,8 @@ public class ApformIpojoImplementation extends ComponentFactory implements Apfor
             throw new ConfigurationException("An implementation needs a name : " + element);
 
         m_specification = element.getAttribute(ApformIpojoImplementation.COMPONENT_SPECIFICATION_PROPERTY);
+        specification = null;
+        
 
         /*
          * Get the list of provided interfaces from the instrumented code
@@ -404,6 +409,10 @@ public class ApformIpojoImplementation extends ComponentFactory implements Apfor
      * Register this implementation with APAM
      */
     protected void bindToApam(Apam apam) {
+    	Specification provided = CST.SpecBroker.getSpec(getProvidedSpecification());
+    	if (provided != null && provided.getApformSpec() != null)
+    		specification = provided.getApformSpec();
+    	
         Apform2Apam.newImplementation(getName(), this);
     }
 
@@ -499,7 +508,7 @@ public class ApformIpojoImplementation extends ComponentFactory implements Apfor
      */
     @Override
     public ApformSpecification getSpecification() {
-        return null;
+        return specification;
     }
 
     /**

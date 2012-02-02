@@ -316,5 +316,6 @@
 		<module>CONFMAN</module>
 		<module>DYNAMAN</module>
 		<module>DISTRIMAN</module>
+		<module>fr.imag.adele.apam.ApamCore</module>
 	</modules>
 </project>

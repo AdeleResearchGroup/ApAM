@@ -25,6 +25,11 @@ import fr.imag.adele.apam.apform.ApformImplementation;
 //import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.core.CompositeDeclaration;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.core.InterfaceReference;
+import fr.imag.adele.apam.core.ProvidedResourceReference;
+import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.Dependency.CompositeDependency;
 import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
 
@@ -114,20 +119,16 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             } else
                 ((SpecificationImpl) mainImpl.getSpec()).setName(specName);
 
-            // if the spec has been formally defined, check if interfaces are really implemented
+            // if the spec has been formally defined, check if the provided resources of the specification
+            // are really provided by the mainImplementation
             if (spec.getApformSpec() != null) { // This spec has been formally described and deployed.
-                String[] mainInterfs = mainImpl.getApformImpl().getInterfaceNames();
-                for (String interf : spec.getInterfaceNames()) {
-                    boolean found = false;
-                    for (String i : mainInterfs) {
-                        if (i.equals(interf)) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
+ 
+            	for (ProvidedResourceReference specProvided : spec.getApformSpec().getModel().getProvidedResources()) {
+
+            		if (! mainImpl.getApformImpl().getModel().isProvided(specProvided)) {
+                    	
                         System.err.print("ERROR: Invalid main implementation " + mainImpl + " for composite type "
-                                + name + "\nExpected implemented interface:");
+                                + name + "\nExpected provided resources:");
                         for (String i : spec.getInterfaceNames())
                             System.err.print("  " + i);
                         System.err.print("\n                  Found:");
@@ -215,17 +216,17 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         String mainImplName = null;
         Set<ManagerModel> models = null;
         String[] interfaces = null;
-        Map<String, Object> properties = apfImpl.getProperties();
-        mainImplName = (String) apfImpl.getProperty(CST.A_MAIN_IMPLEMENTATION);
-        specName = (String) apfImpl.getProperty(CST.A_APAMSPECNAME);
-        models = (Set<ManagerModel>) apfImpl.getProperty(CST.A_MODELS);
+        Map<String, Object> properties = apfImpl.getModel().getProperties();
+        mainImplName = (String) apfImpl.getModel().getProperty(CST.A_MAIN_IMPLEMENTATION);
+        specName = (String) apfImpl.getModel().getProperty(CST.A_APAMSPECNAME);
+        models = (Set<ManagerModel>) apfImpl.getModel().getProperty(CST.A_MODELS);
 
         if (implComposite == null) {
             implComposite = CompositeTypeImpl.rootCompoType;
             properties.put(CST.A_VISIBLE, CST.V_LOCAL);
         }
 
-        return CompositeTypeImpl.createCompositeType(implComposite, apfImpl.getName(),
+        return CompositeTypeImpl.createCompositeType(implComposite, apfImpl.getModel().getName(),
                     mainImplName, specName, models, properties);
         // TODO check dependencies : those of apfImpl, and mainImpl.
     }
@@ -532,48 +533,27 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     }
 
     private class ApformComposite implements ApformImplementation {
-        private final String              name;
-        private final String[]            interfaces;
-        private final Map<String, Object> attributes;
+
+    	private final CompositeDeclaration model;
         private final ApformSpecification specification;
 
         public ApformComposite(String name, String[] interfaces, ApformSpecification spec,
                 Map<String, Object> attributes) {
-            this.name = name;
-            this.interfaces = interfaces;
             specification = spec;
-            this.attributes = attributes;
+            
+            model = new CompositeDeclaration(name, new SpecificationReference(spec.getModel().getName()), null);
+            model.getProperties().putAll(attributes);
+            for (String interfaceName : interfaces) {
+            	model.getProvidedResources().add(new InterfaceReference(interfaceName));
+			}
+            
+
         }
 
         @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public String[] getInterfaceNames() {
-            return interfaces;
-        }
-
-        @Override
-        public Set<ImplementationDependency> getDependencies() {
-            System.err.println("cannot return implementation dependency in a composite apform");
-            return null;
-        }
-
-        public Set<CompositeDependency> getCompoDependencies() {
-            System.err.println("cannot return implementation dependency in a composite apform");
-            return null;
-        }
-
-        @Override
-        public Map<String, Object> getProperties() {
-            return attributes;
-        }
-
-        @Override
-        public Object getProperty(String key) {
-            return attributes.get(key);
+        public ImplementationDeclaration getModel() {
+        	
+        	return model;
         }
 
         @Override

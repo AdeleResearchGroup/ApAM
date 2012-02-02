@@ -119,15 +119,17 @@ public class InstanceBrokerImpl implements InstanceBroker {
         }
         Implementation impl = null;
         Instance inst;
-        inst = CST.InstBroker.getInst(apfInst.getName());
+        inst = CST.InstBroker.getInst(apfInst.getModel().getName());
         if (inst != null) { // allready existing ! May have been created by
             // DYNAMAN, without all parameters
             System.err.println("Instance already existing: " + inst);
             return inst;
         }
-        impl = CST.ImplBroker.getImpl(apfInst.getImplemName());
+        
+        String implementationName = apfInst.getModel().getImplementation().getName();
+        impl = CST.ImplBroker.getImpl(implementationName);
         if (impl == null) { // create the implem also
-            System.err.println("Implementation is not existing in addInst: " + apfInst.getImplemName());
+            System.err.println("Implementation is not existing in addInst: " + implementationName);
 //            impl = ASMInstBrokerImpl.implBroker.addImpl(instComposite.getCompType(),
 //                        apfInst.getImplemName(), properties);
         }

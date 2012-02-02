@@ -3,16 +3,11 @@ package fr.imag.adele.apam.apform;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
@@ -171,9 +166,11 @@ public class Apform2Apam {
 //                System.err.println("Instance already existing: " + instanceName);
 //                return;
 //            }
-            if (CST.ImplBroker.getImpl(instance.getImplemName()) == null)
-                Apform2Apam.waitForImplementation(instance.getImplemName());
-            CST.InstBroker.addInst(Apform2Apam.rootInst, instance, instance.getProperties());
+        	
+        	String implementationName = instance.getModel().getImplementation().getName();
+            if (CST.ImplBroker.getImpl(implementationName) == null)
+                Apform2Apam.waitForImplementation(implementationName);
+            CST.InstBroker.addInst(Apform2Apam.rootInst, instance, instance.getModel().getProperties());
         }
 
     }
@@ -204,7 +201,7 @@ public class Apform2Apam {
             }
 
             impl = ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(Apform2Apam.rootType, implementation,
-                    implementation.getProperties());
+                    implementation.getModel().getProperties());
 
             // wake up any threads waiting for this implementation
             synchronized (Apform2Apam.expectedImpls) {
@@ -244,7 +241,7 @@ public class Apform2Apam {
                 return;
             }
 
-            spec = CST.SpecBroker.addSpec(specificationName, specification, specification.getProperties());
+            spec = CST.SpecBroker.addSpec(specificationName, specification, specification.getModel().getProperties());
         }
     }
 

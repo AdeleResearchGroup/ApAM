@@ -1,16 +1,14 @@
 package fr.imag.adele.apam.apform;
 
-import java.util.Map;
-
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.core.InstanceDeclaration;
 
 public interface ApformInstance {
 
-    /**
-     * 
-     * @return the symbolic name of that instance. Provided by the platform.
-     */
-    public String getName();
+	/**
+	 * Get the development model associated with the the instance
+	 */
+	public InstanceDeclaration getModel();
 
     /**
      * 
@@ -18,19 +16,6 @@ public interface ApformInstance {
      */
 
     public Object getServiceObject();
-
-    /**
-     * 
-     * @return the name of the corresponding implementation. Cannot return null.
-     */
-    public String getImplemName();
-
-    /**
-     * returns the array of attributes.
-     * 
-     * @return
-     */
-    public Map<String, Object> getProperties();
 
     /**
      * provide the destination real address for the provided dependency.

@@ -1,44 +1,16 @@
 package fr.imag.adele.apam.apform;
 
 import java.util.Map;
-import java.util.Set;
 
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.util.Dependency;
-import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
 
 public interface ApformImplementation {
-    /**
-     * Return the symbolic name of that implementation.
-     * 
-     * @return
-     */
-    public String getName();
-
-    /**
-     * 
-     * @return the array of full interface names
-     */
-    public String[] getInterfaceNames();
-
-    /**
-     * 
-     * @return the set of dependencies
-     */
-    public Set<ImplementationDependency> getDependencies();
-
-    /**
-     * 
-     * @return the map of properties
-     */
-    public Map<String, Object> getProperties();
-
-    /**
-     * 
-     * @return the map of properties
-     */
-    public Object getProperty(String key);
-
+	
+	/**
+	 * Get the development model associated with the the implementation
+	 */
+	public ImplementationDeclaration getModel();
+	
     /**
      * Creates an instance of that implementation, and initialize its properties with the set of provided properties.
      * <p>

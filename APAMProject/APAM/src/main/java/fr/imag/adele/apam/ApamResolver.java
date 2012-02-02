@@ -174,14 +174,7 @@ public class ApamResolver {
      * @param preferences. Optional. To select the right instance.
      * @return
      */
-    public static Instance newWireSpec(Instance client, String interfaceName, String specName, String depName,
-            Set<Filter> constraints, List<Filter> preferences) {
-
-        if ((client == null) || ((interfaceName == null) && (specName == null))) {
-            System.err.println("missing client, name or interface");
-            // may succeed if an instance starts and not yet registered
-            return null;
-        }
+    public static Instance newWireSpec(Instance client, String depName) {
 
         Composite compo = ApamResolver.getClientComposite(client);
         // if it is a promotion, visibility and scope is the one of the embedding composite.
@@ -243,14 +236,7 @@ public class ApamResolver {
      * @param preferences The preferences for this resolution.
      * @return
      */
-    public static Set<Instance> newWireSpecs(Instance client, String interfaceName, String specName, String depName,
-            Set<Filter> constraints, List<Filter> preferences) {
-
-        if ((client == null) || ((interfaceName == null) && (specName == null))) {
-            System.err.println("missing client, name or interface");
-            // may succed if an instance starts and not yet registered
-            return null;
-        }
+    public static Set<Instance> newWireSpecs(Instance client, String depName) {
 
         Composite compo = ApamResolver.getClientComposite(client);
         // if it is a promotion, visibility and scope is the one of the embedding composite.
@@ -307,11 +293,7 @@ public class ApamResolver {
      * @param depName the dependency name. Field for atomic; spec name for complex dep, type for composite.
      * @return
      */
-    public static Instance newWireImpl(Instance client, String implName, String depName,
-            Set<Filter> constraints, List<Filter> preferences) {
-        if ((implName == null) || (client == null)) {
-            System.err.println("missing client or implementation name");
-        }
+    public static Instance newWireImpl(Instance client, String implName, String depName) {
 
         // TODO Warning, it may be a promotion, but it is not possible to know, at that point,
         // the spec or interfaces of implName. Should be resolved first, with the current compotype.
@@ -343,8 +325,7 @@ public class ApamResolver {
      * @param constraints The constraints for this resolution.
      * @return
      */
-    public static Set<Instance> newWireImpls(Instance client, String implName, String depName,
-            Set<Filter> constraints) {
+    public static Set<Instance> newWireImpls(Instance client, String implName, String depName) {
 
         if ((implName == null) || (client == null)) {
             System.err.println("missing client or implementation name");

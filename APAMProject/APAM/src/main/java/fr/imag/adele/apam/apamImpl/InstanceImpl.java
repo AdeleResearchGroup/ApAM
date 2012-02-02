@@ -73,7 +73,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         myImpl = impl;
         myComposite = instCompo;
         myComposite.addContainInst(this);
-        put(CST.A_INSTNAME, apfInst.getName());
+        put(CST.A_INSTNAME, apfInst.getModel().getName());
         put(CST.A_COMPOSITE, myComposite.getName());
         ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
     }
@@ -98,7 +98,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         //            }
 
         //            setProperties(Util.mergeProperties(this, initialproperties, apformInst.getProperties()));
-        putAll(apformInst.getProperties());
+        putAll(apformInst.getModel().getProperties());
         put(CST.A_SHARED, getShared());
         //        sharable = (getShared().equals(CST.V_TRUE));
 
@@ -108,7 +108,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
 
     @Override
     public String toString() {
-        return apformInst.getName();
+        return apformInst.getModel().getName();
     }
 
     /*
