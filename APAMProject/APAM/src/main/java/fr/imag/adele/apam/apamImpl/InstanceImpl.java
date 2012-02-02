@@ -258,7 +258,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
 
     @Override
     public String getName() {
-        return apformInst.getName();
+        return apformInst.getModel().getName();
     }
 
     @Override

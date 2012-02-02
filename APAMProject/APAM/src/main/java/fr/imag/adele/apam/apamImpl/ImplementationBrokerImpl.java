@@ -114,8 +114,8 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
 //            spec.setName(specName);
 
         // create a primitive or composite implementation
-        if ((apfImpl.getProperty(CST.A_COMPOSITE) != null) &&
-                    ((Boolean) apfImpl.getProperty(CST.A_COMPOSITE) == true)) {
+        if ((apfImpl.getModel().getProperty(CST.A_COMPOSITE) != null) &&
+                    ((Boolean) apfImpl.getModel().getProperty(CST.A_COMPOSITE) == true)) {
             // Allow specifying properties to the composite instance
             asmImpl = CompositeTypeImpl.createCompositeType(compo, apfImpl);
         } else {

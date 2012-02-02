@@ -344,11 +344,4 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         return false;
     }
 
-    @Override
-    public Set<SpecificationDependency> getDependencies() {
-        if (getApformSpec() == null)
-            return null;
-        return getApformSpec().getDependencies();
-    }
-
 }

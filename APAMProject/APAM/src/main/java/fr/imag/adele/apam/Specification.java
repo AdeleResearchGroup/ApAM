@@ -29,13 +29,6 @@ public interface Specification extends ConcurrentMap<String, Object> {
     public ApformSpecification getApformSpec();
 
     /**
-     * return the associated dependencies
-     * 
-     * @return
-     */
-    public Set<SpecificationDependency> getDependencies();
-
-    /**
      * remove from ASM but does not try to delete in SAM. It deletes all its
      * Implementations. No change of state. May be selected again later.
      */

@@ -14,6 +14,11 @@ import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
 //import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.apform.Apform;
+import fr.imag.adele.apam.core.DependencyDeclaration;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.core.ProvidedResourceReference;
+import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Dependency;
 import fr.imag.adele.apam.util.Dependency.*;
 
@@ -176,7 +181,51 @@ public class ApamResolver {
      */
     public static Instance newWireSpec(Instance client, String depName) {
 
+        // Get required resource from dependency declaration, take the declaration declared at the most concrete level
+        DependencyDeclaration dependency = client.getApformInst().getModel().getDependency(depName); 
+        if (dependency == null)
+        	dependency = client.getImpl().getApformImpl().getModel().getDependency(depName);
+
+        if (dependency == null && client.getImpl().getSpec().getApformSpec() != null)
+        	dependency = client.getImpl().getSpec().getApformSpec().getModel().getDependency(depName);
+        
+        if (dependency == null) {
+            System.err.println("dependency declaration not found "+depName);
+            return null;
+        }
+        
+        // Get the constraints and preferences by merging declarations  
+        Set<Filter>  implementationConstraints 	= new HashSet<Filter>();    
+		List<Filter> implementationPreferences 	= new ArrayList<Filter>();
+        Set<Filter>  instanceConstraints 		= new HashSet<Filter>();    
+		List<Filter> instancePreferences 		= new ArrayList<Filter>();
+		
+		// TODO merge constraints from instance, implem and spec when not overriden
+		for (String filter : dependency.getImplementationConstraints()) {
+			implementationConstraints.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getImplementationPreferences()) {
+			implementationPreferences.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getInstanceConstraints()) {
+			instanceConstraints.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getInstancePreferences()) {
+			instancePreferences.add(ApamFilter.newInstance(filter));
+		}
+
+		// Get the required resource
+		// TODO modify to handle messages
+		String interfaceName	= null;
+		String specName		 	= null;
+		if (dependency.getResource() instanceof SpecificationReference)
+			specName = dependency.getResource().getName();
+		else
+			interfaceName	= dependency.getResource().getName();
+
         Composite compo = ApamResolver.getClientComposite(client);
+        
+
         // if it is a promotion, visibility and scope is the one of the embedding composite.
         DepMult depMult = ApamResolver.getPromotion(client, interfaceName, specName);
         Instance inst = null;
@@ -191,7 +240,8 @@ public class ApamResolver {
             CompositeType compoType = compo.getCompType();
 
             Implementation impl = null;
-            if (specName != null)
+
+			if (specName != null)
                 impl = ApamResolver.resolveSpecByName(compoType, specName, constraints, preferences);
             else {
                 impl = ApamResolver.resolveSpecByInterface(compoType, interfaceName, null, constraints, preferences);
@@ -238,6 +288,48 @@ public class ApamResolver {
      */
     public static Set<Instance> newWireSpecs(Instance client, String depName) {
 
+        // Get required resource from dependency declaration, take the declaration declared at the most concrete level
+        DependencyDeclaration dependency = client.getApformInst().getModel().getDependency(depName); 
+        if (dependency == null)
+        	dependency = client.getImpl().getApformImpl().getModel().getDependency(depName);
+
+        if (dependency == null && client.getImpl().getSpec().getApformSpec() != null)
+        	dependency = client.getImpl().getSpec().getApformSpec().getModel().getDependency(depName);
+        
+        if (dependency == null) {
+            System.err.println("dependency declaration not found "+depName);
+            return null;
+        }
+        
+        // Get the constraints and preferences by merging declarations  
+        Set<Filter>  implementationConstraints 	= new HashSet<Filter>();    
+		List<Filter> implementationPreferences 	= new ArrayList<Filter>();
+        Set<Filter>  instanceConstraints 		= new HashSet<Filter>();    
+		List<Filter> instancePreferences 		= new ArrayList<Filter>();
+		
+		// TODO merge constraints from instance, implem and spec when not overriden
+		for (String filter : dependency.getImplementationConstraints()) {
+			implementationConstraints.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getImplementationPreferences()) {
+			implementationPreferences.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getInstanceConstraints()) {
+			instanceConstraints.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getInstancePreferences()) {
+			instancePreferences.add(ApamFilter.newInstance(filter));
+		}
+
+		// Get the required resource
+		// TODO modify to handle messages
+		String interfaceName	= null;
+		String specName		 	= null;
+		if (dependency.getResource() instanceof SpecificationReference)
+			specName = dependency.getResource().getName();
+		else
+			interfaceName	= dependency.getResource().getName();
+    	
         Composite compo = ApamResolver.getClientComposite(client);
         // if it is a promotion, visibility and scope is the one of the embedding composite.
         DepMult depMult = ApamResolver.getPromotion(client, interfaceName, specName);
@@ -294,6 +386,51 @@ public class ApamResolver {
      * @return
      */
     public static Instance newWireImpl(Instance client, String implName, String depName) {
+        if ((implName == null) || (client == null)) {
+            System.err.println("missing client or implementation name");
+        }
+
+        // Get required resource from dependency declaration, take the declaration declared at the most concrete level
+        DependencyDeclaration dependency = client.getApformInst().getModel().getDependency(depName); 
+        if (dependency == null)
+        	dependency = client.getImpl().getApformImpl().getModel().getDependency(depName);
+
+        if (dependency == null && client.getImpl().getSpec().getApformSpec() != null)
+        	dependency = client.getImpl().getSpec().getApformSpec().getModel().getDependency(depName);
+        
+        if (dependency == null) {
+            System.err.println("dependency declaration not found "+depName);
+            return null;
+        }
+        
+        // Get the constraints and preferences by merging declarations  
+        Set<Filter>  implementationConstraints 	= new HashSet<Filter>();    
+		List<Filter> implementationPreferences 	= new ArrayList<Filter>();
+        Set<Filter>  instanceConstraints 		= new HashSet<Filter>();    
+		List<Filter> instancePreferences 		= new ArrayList<Filter>();
+		
+		// TODO merge constraints from instance, implem and spec when not overriden
+		for (String filter : dependency.getImplementationConstraints()) {
+			implementationConstraints.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getImplementationPreferences()) {
+			implementationPreferences.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getInstanceConstraints()) {
+			instanceConstraints.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getInstancePreferences()) {
+			instancePreferences.add(ApamFilter.newInstance(filter));
+		}
+
+		// Get the required resource
+		// TODO modify to handle messages
+		String interfaceName	= null;
+		String specName		 	= null;
+		if (dependency.getResource() instanceof SpecificationReference)
+			specName = dependency.getResource().getName();
+		else
+			interfaceName	= dependency.getResource().getName();
 
         // TODO Warning, it may be a promotion, but it is not possible to know, at that point,
         // the spec or interfaces of implName. Should be resolved first, with the current compotype.
@@ -330,6 +467,48 @@ public class ApamResolver {
         if ((implName == null) || (client == null)) {
             System.err.println("missing client or implementation name");
         }
+
+        // Get required resource from dependency declaration, take the declaration declared at the most concrete level
+        DependencyDeclaration dependency = client.getApformInst().getModel().getDependency(depName); 
+        if (dependency == null)
+        	dependency = client.getImpl().getApformImpl().getModel().getDependency(depName);
+
+        if (dependency == null && client.getImpl().getSpec().getApformSpec() != null)
+        	dependency = client.getImpl().getSpec().getApformSpec().getModel().getDependency(depName);
+        
+        if (dependency == null) {
+            System.err.println("dependency declaration not found "+depName);
+            return null;
+        }
+        
+        // Get the constraints and preferences by merging declarations  
+        Set<Filter>  implementationConstraints 	= new HashSet<Filter>();    
+		List<Filter> implementationPreferences 	= new ArrayList<Filter>();
+        Set<Filter>  instanceConstraints 		= new HashSet<Filter>();    
+		List<Filter> instancePreferences 		= new ArrayList<Filter>();
+		
+		// TODO merge constraints from instance, implem and spec when not overriden
+		for (String filter : dependency.getImplementationConstraints()) {
+			implementationConstraints.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getImplementationPreferences()) {
+			implementationPreferences.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getInstanceConstraints()) {
+			instanceConstraints.add(ApamFilter.newInstance(filter));
+		}
+		for (String filter : dependency.getInstancePreferences()) {
+			instancePreferences.add(ApamFilter.newInstance(filter));
+		}
+
+		// Get the required resource
+		// TODO modify to handle messages
+		String interfaceName	= null;
+		String specName		 	= null;
+		if (dependency.getResource() instanceof SpecificationReference)
+			specName = dependency.getResource().getName();
+		else
+			interfaceName	= dependency.getResource().getName();
 
         Composite compo = ApamResolver.getClientComposite(client);
         CompositeType compType = compo.getCompType();
@@ -442,16 +621,11 @@ public class ApamResolver {
         // check if the implem really implemen,ts its specification
         // if the spec has been formally defined, check if interfaces are really implemented
         if (impl.getSpec().getApformSpec() != null) { // This spec has been formally described and deployed.
-            String[] mainInterfs = impl.getApformImpl().getInterfaceNames();
-            for (String interf : impl.getSpec().getInterfaceNames()) {
-                boolean found = false;
-                for (String i : mainInterfs) {
-                    if (i.equals(interf)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
+        	
+        	
+            for (ProvidedResourceReference resource : impl.getSpec().getApformSpec().getModel().getProvidedResources()) {
+            	
+                if (!impl.getApformImpl().getModel().isProvided(resource)) {
                     System.err.print("ERROR: Invalid implementation " + impl + " for specification "
                             + impl.getSpec() + "\nExpected implemented interface:");
                     for (String i : impl.getSpec().getInterfaceNames())

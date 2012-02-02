@@ -394,11 +394,6 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         this.used = used;
     }
 
-    @Override
-    public Set<ImplementationDependency> getImplemDependencies() {
-        return getApformImpl().getDependencies();
-    }
-
     /**
      * Here we assume that attributes are valid and do not overlap.
      */

@@ -36,13 +36,6 @@ public interface Implementation extends ConcurrentMap<String, Object> {
     public ApformImplementation getApformImpl();
 
     /**
-     * return the dependencies associated with this implementation (same name)
-     * 
-     * @return
-     */
-    public Set<ImplementationDependency> getImplemDependencies();
-
-    /**
      * return the value of the shared attribute
      * 
      * @return

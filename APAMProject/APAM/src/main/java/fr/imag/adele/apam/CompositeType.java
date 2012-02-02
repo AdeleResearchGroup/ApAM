@@ -28,15 +28,6 @@ public interface CompositeType extends Implementation {
      */
     public Set<ManagerModel> getModels();
 
-    /**
-     * return the associated dependencies
-     * 
-     * @return
-     */
-    public Set<CompositeDependency> getCompoDependencies();
-
-    @Override
-    public Set<ImplementationDependency> getImplemDependencies(); // overloaded to generate an error
 
     /**
      * Adds an "import" relationship towards "destination". Not in the interface
