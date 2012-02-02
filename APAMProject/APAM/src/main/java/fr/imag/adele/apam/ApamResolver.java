@@ -182,12 +182,12 @@ public class ApamResolver {
     public static Instance newWireSpec(Instance client, String depName) {
 
         // Get required resource from dependency declaration, take the declaration declared at the most concrete level
-        DependencyDeclaration dependency = client.getApformInst().getModel().getDependency(depName); 
+        DependencyDeclaration dependency = client.getApformInst().getDeclaration().getDependency(depName); 
         if (dependency == null)
-        	dependency = client.getImpl().getApformImpl().getModel().getDependency(depName);
+        	dependency = client.getImpl().getApformImpl().getDeclaration().getDependency(depName);
 
         if (dependency == null && client.getImpl().getSpec().getApformSpec() != null)
-        	dependency = client.getImpl().getSpec().getApformSpec().getModel().getDependency(depName);
+        	dependency = client.getImpl().getSpec().getApformSpec().getDeclaration().getDependency(depName);
         
         if (dependency == null) {
             System.err.println("dependency declaration not found "+depName);
@@ -289,12 +289,12 @@ public class ApamResolver {
     public static Set<Instance> newWireSpecs(Instance client, String depName) {
 
         // Get required resource from dependency declaration, take the declaration declared at the most concrete level
-        DependencyDeclaration dependency = client.getApformInst().getModel().getDependency(depName); 
+        DependencyDeclaration dependency = client.getApformInst().getDeclaration().getDependency(depName); 
         if (dependency == null)
-        	dependency = client.getImpl().getApformImpl().getModel().getDependency(depName);
+        	dependency = client.getImpl().getApformImpl().getDeclaration().getDependency(depName);
 
         if (dependency == null && client.getImpl().getSpec().getApformSpec() != null)
-        	dependency = client.getImpl().getSpec().getApformSpec().getModel().getDependency(depName);
+        	dependency = client.getImpl().getSpec().getApformSpec().getDeclaration().getDependency(depName);
         
         if (dependency == null) {
             System.err.println("dependency declaration not found "+depName);
@@ -391,12 +391,12 @@ public class ApamResolver {
         }
 
         // Get required resource from dependency declaration, take the declaration declared at the most concrete level
-        DependencyDeclaration dependency = client.getApformInst().getModel().getDependency(depName); 
+        DependencyDeclaration dependency = client.getApformInst().getDeclaration().getDependency(depName); 
         if (dependency == null)
-        	dependency = client.getImpl().getApformImpl().getModel().getDependency(depName);
+        	dependency = client.getImpl().getApformImpl().getDeclaration().getDependency(depName);
 
         if (dependency == null && client.getImpl().getSpec().getApformSpec() != null)
-        	dependency = client.getImpl().getSpec().getApformSpec().getModel().getDependency(depName);
+        	dependency = client.getImpl().getSpec().getApformSpec().getDeclaration().getDependency(depName);
         
         if (dependency == null) {
             System.err.println("dependency declaration not found "+depName);
@@ -469,12 +469,12 @@ public class ApamResolver {
         }
 
         // Get required resource from dependency declaration, take the declaration declared at the most concrete level
-        DependencyDeclaration dependency = client.getApformInst().getModel().getDependency(depName); 
+        DependencyDeclaration dependency = client.getApformInst().getDeclaration().getDependency(depName); 
         if (dependency == null)
-        	dependency = client.getImpl().getApformImpl().getModel().getDependency(depName);
+        	dependency = client.getImpl().getApformImpl().getDeclaration().getDependency(depName);
 
         if (dependency == null && client.getImpl().getSpec().getApformSpec() != null)
-        	dependency = client.getImpl().getSpec().getApformSpec().getModel().getDependency(depName);
+        	dependency = client.getImpl().getSpec().getApformSpec().getDeclaration().getDependency(depName);
         
         if (dependency == null) {
             System.err.println("dependency declaration not found "+depName);
@@ -623,9 +623,9 @@ public class ApamResolver {
         if (impl.getSpec().getApformSpec() != null) { // This spec has been formally described and deployed.
         	
         	
-            for (ProvidedResourceReference resource : impl.getSpec().getApformSpec().getModel().getProvidedResources()) {
+            for (ProvidedResourceReference resource : impl.getSpec().getApformSpec().getDeclaration().getProvidedResources()) {
             	
-                if (!impl.getApformImpl().getModel().isProvided(resource)) {
+                if (!impl.getApformImpl().getDeclaration().isProvided(resource)) {
                     System.err.print("ERROR: Invalid implementation " + impl + " for specification "
                             + impl.getSpec() + "\nExpected implemented interface:");
                     for (String i : impl.getSpec().getInterfaceNames())

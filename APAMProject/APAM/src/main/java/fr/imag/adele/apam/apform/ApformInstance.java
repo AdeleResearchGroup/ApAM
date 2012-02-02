@@ -8,7 +8,7 @@ public interface ApformInstance {
 	/**
 	 * Get the development model associated with the the instance
 	 */
-	public InstanceDeclaration getModel();
+	public InstanceDeclaration getDeclaration();
 
     /**
      * 

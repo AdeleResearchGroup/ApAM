@@ -6,6 +6,6 @@ public interface ApformSpecification {
 	/**
 	 * Get the development model associated with the the specification
 	 */
-	public SpecificationDeclaration getModel();
+	public SpecificationDeclaration getDeclaration();
 
 }

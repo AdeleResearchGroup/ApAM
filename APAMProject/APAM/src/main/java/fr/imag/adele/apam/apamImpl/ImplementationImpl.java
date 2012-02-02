@@ -64,7 +64,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
             new Exception("compo is null").printStackTrace();
         }
 
-        name = impl.getModel().getName(); // warning, for composites, it is a different name. Overloaded in createCOmpositeType
+        name = impl.getDeclaration().getName(); // warning, for composites, it is a different name. Overloaded in createCOmpositeType
         put(CST.A_IMPLNAME, name);
         mySpec = spec;
         spec.addImpl(this);

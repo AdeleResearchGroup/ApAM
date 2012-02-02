@@ -51,7 +51,7 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
             return;
         }
         if (specName == null) {
-            name = apfSpec.getModel().getName();
+            name = apfSpec.getDeclaration().getName();
         } else
             name = specName;
         put(CST.A_SPECNAME, name);
@@ -100,7 +100,7 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         }
         if (name.equals(logicalName))
             return;
-        if ((apfSpec != null) && name.equals(apfSpec.getModel().getName())) {
+        if ((apfSpec != null) && name.equals(apfSpec.getDeclaration().getName())) {
             System.out.println("changing logical name, from " + name + " to " + logicalName);
             name = logicalName;
             return;
@@ -231,7 +231,7 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
             return;
         this.apfSpec = apfSpec;
         interfaces = apfSpec.getInterfaceNames();
-        putAll(apfSpec.getModel().getProperties());
+        putAll(apfSpec.getDeclaration().getProperties());
     }
 
     @Override

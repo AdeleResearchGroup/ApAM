@@ -9,7 +9,7 @@ public interface ApformImplementation {
 	/**
 	 * Get the development model associated with the the implementation
 	 */
-	public ImplementationDeclaration getModel();
+	public ImplementationDeclaration getDeclaration();
 	
     /**
      * Creates an instance of that implementation, and initialize its properties with the set of provided properties.

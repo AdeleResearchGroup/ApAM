@@ -167,10 +167,10 @@ public class Apform2Apam {
 //                return;
 //            }
         	
-        	String implementationName = instance.getModel().getImplementation().getName();
+        	String implementationName = instance.getDeclaration().getImplementation().getName();
             if (CST.ImplBroker.getImpl(implementationName) == null)
                 Apform2Apam.waitForImplementation(implementationName);
-            CST.InstBroker.addInst(Apform2Apam.rootInst, instance, instance.getModel().getProperties());
+            CST.InstBroker.addInst(Apform2Apam.rootInst, instance, instance.getDeclaration().getProperties());
         }
 
     }
@@ -201,7 +201,7 @@ public class Apform2Apam {
             }
 
             impl = ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(Apform2Apam.rootType, implementation,
-                    implementation.getModel().getProperties());
+                    implementation.getDeclaration().getProperties());
 
             // wake up any threads waiting for this implementation
             synchronized (Apform2Apam.expectedImpls) {
@@ -241,7 +241,7 @@ public class Apform2Apam {
                 return;
             }
 
-            spec = CST.SpecBroker.addSpec(specificationName, specification, specification.getModel().getProperties());
+            spec = CST.SpecBroker.addSpec(specificationName, specification, specification.getDeclaration().getProperties());
         }
     }
 

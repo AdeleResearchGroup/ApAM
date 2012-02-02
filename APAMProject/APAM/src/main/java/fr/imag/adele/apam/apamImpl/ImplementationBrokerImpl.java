@@ -80,8 +80,8 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
             return null;
         }
 
-        String implName = apfImpl.getModel().getName();
-        String specName = (String) apfImpl.getModel().getProperty(CST.A_APAMSPECNAME);
+        String implName = apfImpl.getDeclaration().getName();
+        String specName = (String) apfImpl.getDeclaration().getProperty(CST.A_APAMSPECNAME);
 
         // if allready existing do not duplicate
         Implementation asmImpl = getImpl(implName);
@@ -114,8 +114,8 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
 //            spec.setName(specName);
 
         // create a primitive or composite implementation
-        if ((apfImpl.getModel().getProperty(CST.A_COMPOSITE) != null) &&
-                    ((Boolean) apfImpl.getModel().getProperty(CST.A_COMPOSITE) == true)) {
+        if ((apfImpl.getDeclaration().getProperty(CST.A_COMPOSITE) != null) &&
+                    ((Boolean) apfImpl.getDeclaration().getProperty(CST.A_COMPOSITE) == true)) {
             // Allow specifying properties to the composite instance
             asmImpl = CompositeTypeImpl.createCompositeType(compo, apfImpl);
         } else {
@@ -167,7 +167,7 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
 
     @Override
     public Implementation getImpl(ApformImplementation apfImpl) {
-        String apfName = apfImpl.getModel().getName();
+        String apfName = apfImpl.getDeclaration().getName();
         // Warning : for a composite main implem, both the composite type and the main implem refer to the same apf
         // implem
         for (Implementation implem : implems) {

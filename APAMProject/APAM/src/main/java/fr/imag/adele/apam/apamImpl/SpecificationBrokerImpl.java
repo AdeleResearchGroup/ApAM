@@ -162,7 +162,7 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
             return null;
         for (Specification spec : specs) {
             if (spec.getApformSpec() != null) {
-                if (spec.getApformSpec().getModel().getName().equals(samName))
+                if (spec.getApformSpec().getDeclaration().getName().equals(samName))
                     return spec;
             }
         }
