@@ -8,8 +8,8 @@ package fr.imag.adele.apam.core;
  */
 public class SpecificationReference extends ResourceReference {
 
-	public SpecificationReference(String name) {
-		super(name);
-	}
+    public SpecificationReference(String name) {
+        super(name, ResourceType.SPECIFICATION);
+    }
 
 }

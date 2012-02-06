@@ -14,29 +14,29 @@ import java.util.List;
  * @author vega
  *
  */
-public class SpecificationDeclaration extends ComponentDeclaration implements PropertyScope {
+public class SpecificationDeclaration extends ComponentDeclaration {
 
-	private final PropertyScopeImplementation defintions;
-	
-	protected SpecificationDeclaration(String name) {
-		super(name);
-		this.defintions = new PropertyScopeImplementation();
-	}
-
-	@Override
-	public List<PropertyDefinition> getPropertyDefinitions() {
-		return defintions.getPropertyDefinitions();
-	}
-
-	@Override
-	public boolean isDefined(String propertyName) {
-		return defintions.isDefined(propertyName);
-	}
-
-	@Override
-	public PropertyDefinition getPropertyDefinition(String propertyName) {
-		return defintions.getPropertyDefinition(propertyName);
-	}
+    //    private final PropertyScopeImplementation definitions;
+    //
+    public SpecificationDeclaration(String name) {
+        super(name);
+        //        definitions = new PropertyScopeImplementation();
+    }
+    //
+    //    @Override
+    //    public List<PropertyDefinition> getPropertyDefinitions() {
+    //        return definitions.getPropertyDefinitions();
+    //    }
+    //
+    //    @Override
+    //    public boolean isDefined(String propertyName) {
+    //        return definitions.isDefined(propertyName);
+    //    }
+    //
+    //    @Override
+    //    public PropertyDefinition getPropertyDefinition(String propertyName) {
+    //        return definitions.getPropertyDefinition(propertyName);
+    //    }
 
 
 }

@@ -9,50 +9,50 @@ import java.util.List;
  * @author vega
  *
  */
-public abstract class ImplementationDeclaration extends ComponentDeclaration implements PropertyScope {
+public abstract class ImplementationDeclaration extends ComponentDeclaration /*implements PropertyScope*/{
 
-	/**
-	 * The specification implemented by this implementation
-	 */
-	private final SpecificationReference specification;
-	
-	/**
-	 * The definition of properties used to distinguish instances of this implementation 
-	 */
-	private ImplementationDeclaration defintions;
-	
-	protected ImplementationDeclaration(String name, SpecificationReference specification) {
-		super(name);
-		
-		assert specification != null;
-		
-		this.specification = specification;
-	}
-	
-	
-	/**
-	 * Get the specification implemented by this implementation
-	 * @return
-	 */
-	public SpecificationReference getSpecification() {
-		return specification;
-	}
-	
+    /**
+     * The specification implemented by this implementation
+     */
+    private final SpecificationReference specification;
 
-	@Override
-	public List<PropertyDefinition> getPropertyDefinitions() {
-		return defintions.getPropertyDefinitions();
-	}
+    /**
+     * The definition of properties used to distinguish instances of this implementation 
+     */
+    private ImplementationDeclaration definitions;
 
-	@Override
-	public boolean isDefined(String propertyName) {
-		return defintions.isDefined(propertyName);
-	}
+    protected ImplementationDeclaration(String name, SpecificationReference specification) {
+        super(name);
 
-	@Override
-	public PropertyDefinition getPropertyDefinition(String propertyName) {
-		return defintions.getPropertyDefinition(propertyName);
-	}
-	
+        assert specification != null;
+
+        this.specification = specification;
+    }
+
+
+    /**
+     * Get the specification implemented by this implementation
+     * @return
+     */
+    public SpecificationReference getSpecification() {
+        return specification;
+    }
+
+
+    //    @Override
+    //    public List<PropertyDefinition> getPropertyDefinitions() {
+    //        return definitions.getPropertyDefinitions();
+    //    }
+    //
+    //    @Override
+    //    public boolean isDefined(String propertyName) {
+    //        return definitions.isDefined(propertyName);
+    //    }
+    //
+    //    @Override
+    //    public PropertyDefinition getPropertyDefinition(String propertyName) {
+    //        return definitions.getPropertyDefinition(propertyName);
+    //    }
+
 
 }

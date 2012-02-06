@@ -8,8 +8,8 @@ package fr.imag.adele.apam.core;
  */
 public class InterfaceReference extends ProvidedResourceReference {
 
-	public InterfaceReference(String name) {
-		super(name);
-	}
+    public InterfaceReference(String name) {
+        super(name, ResourceType.INTERFACE);
+    }
 
 }

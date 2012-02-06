@@ -1,64 +1,82 @@
 package fr.imag.adele.apam.core;
 
+import java.util.Set;
+
 /**
- * This class represents a reference to a required or provide resource.
+ * This class represents a reference to a required or provided resource.
  * 
  * To represent different kinds of resources this class can be extended
  * 
  * @author vega
- *
+ * 
  */
 public abstract class ResourceReference {
 
-	/**
-	 * The identifier of the referenced resource
-	 */
-	protected final String name;
-	
-	
-	/**
-	 * Default constructor
-	 */
-	protected ResourceReference(String name) {
-		assert name != null;
-		
-		this.name = name;
-	}
-	
-	/**
-	 * Get the name identifying the referenced resource
-	 */
-	public String getName() {
-		return name;
-	}
-	
-	
-	/**
-	 * Resources are uniquely identified by name.
-	 * 
-	 * TODO Maybe we should support an optional name space for different kinds
-	 * of resources
-	 */
-	@Override
-	public final boolean equals(Object object) {
-		if (this == object)
-			return true;
-		
-		if (! (object instanceof ResourceReference))
-			return false;
-		
-		ResourceReference that = (ResourceReference) object;
-		
-		return this.name.equals(that.name); 
-		
-	}
-	
-	/**
-	 * Hash code is based on identity
-	 */
-	@Override
-	public final int hashCode() {
-		return this.name.hashCode();
-	}
-	
+    /**
+     * The identifier of the referenced resource
+     */
+    protected final String name;
+    public final ResourceType resourceType;
+
+    public enum ResourceType {
+        SPECIFICATION, INTERFACE, MESSAGE, IMPLEMENTATION
+    };
+    /**
+     * Default constructor
+     */
+    protected ResourceReference(String name, ResourceType type) {
+        assert name != null;
+        assert type != null;
+
+        this.name = name;
+        resourceType = type;
+    }
+
+    /**
+     * Get the name identifying the referenced resource
+     */
+    public String getName() {
+        return name;
+    }
+
+    public boolean isSpecificationReference() {
+        return resourceType == ResourceType.SPECIFICATION;
+    }
+
+    public boolean isInterfaceReference() {
+        return resourceType == ResourceType.INTERFACE;
+    }
+
+    public boolean isMessageReference() {
+        return resourceType == ResourceType.MESSAGE;
+    }
+
+    public boolean isImplementationReference() {
+        return resourceType == ResourceType.IMPLEMENTATION;
+    }
+
+    /**
+     * Resources are uniquely identified by name and type.
+     * 
+     * We support a different name space for different kinds of resources
+     */
+    public final boolean equals(ResourceReference that) {
+        System.out.println("equals resource");
+        if (this == that)
+            return true;
+        //        if (! (object instanceof ResourceReference))
+        //            return false;
+
+        //        ResourceReference that = object;
+        return (name.equals(that.name) && (resourceType == that.resourceType));
+    }
+
+    /**
+     * Hash code is based on identity
+     */
+    @Override
+    public final int hashCode() {
+        return resourceType.hashCode() + name.hashCode();
+    }
+
 }

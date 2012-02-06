@@ -14,7 +14,7 @@ import fr.imag.adele.apam.core.MethodCallback.PushConsumer;
  * @author vega
  *
  */
-public class JavaImplementationDeclaration extends ImplementationDeclaration {
+public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 
 	/**
 	 * The class name of the object implementing the component
@@ -25,7 +25,7 @@ public class JavaImplementationDeclaration extends ImplementationDeclaration {
 	
 	private final Set<MethodCallback> callbacks;
 	
-	public JavaImplementationDeclaration(String name, SpecificationReference specification, String className) {
+	public AtomicImplementationDeclaration(String name, SpecificationReference specification, String className) {
 			super(name, specification);
 			
 			assert className != null;

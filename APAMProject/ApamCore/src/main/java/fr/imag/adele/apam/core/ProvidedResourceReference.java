@@ -8,8 +8,8 @@ package fr.imag.adele.apam.core;
  */
 public abstract class ProvidedResourceReference extends ResourceReference {
 
-	protected ProvidedResourceReference(String name) {
-		super(name);
-	}
+    protected ProvidedResourceReference(String name, ResourceType type) {
+        super(name, type);
+    }
 
 }

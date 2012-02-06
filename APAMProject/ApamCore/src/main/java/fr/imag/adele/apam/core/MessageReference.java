@@ -9,8 +9,8 @@ package fr.imag.adele.apam.core;
  */
 public class MessageReference extends ProvidedResourceReference {
 
-	public MessageReference(String name) {
-		super(name);
-	}
+    public MessageReference(String name) {
+        super(name, ResourceType.MESSAGE);
+    }
 
 }
