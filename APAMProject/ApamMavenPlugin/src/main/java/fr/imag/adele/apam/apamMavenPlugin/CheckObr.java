@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,19 +16,12 @@ import org.osgi.service.obr.Capability;
 import org.osgi.service.obr.Resource;
 
 import fr.imag.adele.apam.apamImpl.CST;
-import fr.imag.adele.apam.util.ApamComponentXML;
+import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.apam.util.ApamComponentXML.ApamComponentInfo;
-import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.Dependency;
-import fr.imag.adele.apam.util.Dependency.DependencyKind;
-import fr.imag.adele.apam.util.Dependency.TargetKind;
-import fr.imag.adele.apam.util.Dependency.AtomicDependency;
-import fr.imag.adele.apam.util.Dependency.CompositeDependency;
-import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
-import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
 
+import fr.imag.adele.apam.core.*;
+import fr.imag.adele.apam.core.ResourceReference.ResourceType;
 
 public class CheckObr {
 
@@ -67,40 +59,48 @@ public class CheckObr {
         }
     }
 
-    public static void checkConstraints(Dependency dep) {
-        if (dep == null)
+    /**
+     * 
+     * @param dep
+     */
+    public static void checkConstraints(DependencyDeclaration dep) {
+        if ((dep == null) || (dep.getResource().resourceType != ResourceType.SPECIFICATION))
             return;
-        String spec = null;
-        switch (dep.kind) {
-            case COMPLEX:
-                spec = ((Dependency.ImplementationDependency) dep).specification;
-                break;
-            case IMPLEMENTATION:
-                AtomicDependency adep = (AtomicDependency)((Dependency.ImplementationDependency) dep).dependencies.toArray()[0];
-                if (adep.targetKind == TargetKind.SPECIFICATION) 
-                    spec = adep.fieldName ;
-                break ;
-            case COMPOSITE :
-                if (((Dependency.CompositeDependency) dep).targetKind == TargetKind.SPECIFICATION)
-                    spec = ((Dependency.CompositeDependency) dep).fieldType;
-                break;
-            case SPECIFICATION:
-                if (((Dependency.SpecificationDependency) dep).targetKind == TargetKind.SPECIFICATION)
-                    spec = ((Dependency.SpecificationDependency) dep).fieldType;
-                break ;
-        }
-        if (spec == null)
-            return;
+        String spec = dep.getResource().getName();
+
+        //        return;
+        //        String spec = null;
+        //        switch (dep.getResource().resourceType) {
+        //            case COMPLEX:
+        //                spec = ((DependencyDeclaration.ImplementationDeclaration) dep).specification;
+        //                break;
+        //            case IMPLEMENTATION:
+        //                AtomicDependencyDeclaration adep = (AtomicDependencyDeclaration) ((DependencyDeclaration.ImplementationDependencyDeclaration) dep).dependencies
+        //                .toArray()[0];
+        //                if (adep.targetKind == TargetKind.SPECIFICATION) 
+        //                    spec = adep.fieldName ;
+        //                break ;
+        //            case COMPOSITE :
+        //                if (((Dependency.CompositeDependency) dep).targetKind == TargetKind.SPECIFICATION)
+        //                    spec = ((Dependency.CompositeDependency) dep).fieldType;
+        //                break;
+        //            case SPECIFICATION:
+        //                if (((DependencyDeclaration.SpecificationDependencyDeclaration) dep).targetKind == TargetKind.SPECIFICATION)
+        //                    spec = ((DependencyDeclaration.SpecificationDependencyDeclaration) dep).fieldType;
+        //                break ;
+        //        }
+        //        if (spec == null)
+        //            return;
         Capability cap = CheckObr.getSpecCapability(spec);
         if (cap == null)
             return;
         Set<String> validImplAttrs = CheckObr.getValidImplAttributes(cap);
         //        Set<String> validInstAttrs = CheckObr.getValidInstAttributes(cap);
 
-        CheckObr.checkFilterList(dep.implementationConstraints, validImplAttrs, spec);
-        CheckObr.checkFilterList(dep.implementationPreferences, validImplAttrs, spec);
-        CheckObr.checkInstFilterList(dep.instanceConstraints, validImplAttrs, spec);
-        CheckObr.checkInstFilterList(dep.instancePreferences, validImplAttrs, spec);
+        CheckObr.checkFilterSet(dep.getImplementationConstraints(), validImplAttrs, spec);
+        CheckObr.checkFilterList(dep.getImplementationPreferences(), validImplAttrs, spec);
+        CheckObr.checkInstFilterSet(dep.getInstanceConstraints(), validImplAttrs, spec);
+        CheckObr.checkInstFilterList(dep.getInstancePreferences(), validImplAttrs, spec);
     }
 
     /**
@@ -112,25 +112,22 @@ public class CheckObr {
     public static void checkInstFilterList(List<String> filters, Set<String> validAttr, String spec) {
         if ((validAttr == null) || (filters == null))
             return;
+
         // try to see if implementation name "impl-name" is in the constraints
         String impl = null;
         for (String f : filters) {
-            try {
-                ApamFilter parsedFilter = ApamFilter.newInstance(f);
-                // System.err.println("validating filter " + f);
-                impl = parsedFilter.lookForAttr(CST.A_IMPLNAME);
-                if (impl != null)
-                    break ;
-            } catch (InvalidSyntaxException e) {
-                e.printStackTrace();
-            }
+            ApamFilter parsedFilter = ApamFilter.newInstance(f);
+            // System.err.println("validating filter " + f);
+            impl = parsedFilter.lookForAttr(CST.A_IMPLNAME);
+            if (impl != null)
+                break ;
         }
         // if implementation is found
         Capability cap = null;
         if (impl != null) {
             cap = CheckObr.getImplCapability(impl);
             if (cap != null) {
-                Map<String, Object> props = cap.getProperties();
+                // Map<String, Object> props = cap.getProperties();
                 for (Object attr : cap.getProperties().keySet()) {
                     if (!((String) attr).startsWith(OBR.A_DEFINITION_PREFIX))
                         validAttr.add((String) attr);
@@ -143,18 +140,26 @@ public class CheckObr {
             CheckObr.checkFilterList(filters, validAttr, spec);
     }
 
+    public static void checkInstFilterSet(Set<String> filters, Set<String> validAttr, String spec) {
+        List<String> filterSet = new ArrayList<String>(filters);
+        CheckObr.checkInstFilterList(filterSet, validAttr, spec);
+    }
+
     public static void checkFilterList(List<String> filters, Set<String> validAttr, String spec) {
         for (String f : filters) {
-            try {
-                ApamFilter parsedFilter = ApamFilter.newInstance(f);
-                // System.err.println("validating filter " + f);
-                parsedFilter.validateAttr(validAttr, f, spec);
-            } catch (InvalidSyntaxException e) {
-                e.printStackTrace();
-            }
+            ApamFilter parsedFilter = ApamFilter.newInstance(f);
+            // System.err.println("validating filter " + f);
+            parsedFilter.validateAttr(validAttr, f, spec);
         }
     }
 
+    public static void checkFilterSet(Set<String> filters, Set<String> validAttr, String spec) {
+        for (String f : filters) {
+            ApamFilter parsedFilter = ApamFilter.newInstance(f);
+            // System.err.println("validating filter " + f);
+            parsedFilter.validateAttr(validAttr, f, spec);
+        }
+    }
 
     /**
      * returns all the attributes that can be associated with an implementation:
@@ -229,18 +234,18 @@ public class CheckObr {
      * 
      * @param component
      */
-    public static void checkInstance(ApamComponentInfo component) {
+    public static void checkInstance(ComponentDeclaration component) {
         String impl = component.getAttribute(CST.A_IMPLEMENTATION);
         String name = component.getAttribute("name");
         if (impl == null) {
-            System.err.println("ERROR: implementation name missing");
+            System.err.println("ERROR: implementation name missing for instance " + name);
             return;
         }
         CheckObr.checkInstAttributes(impl, name, component);
-        Set<SpecificationDependency> deps = component.getSpecDependencies();
+        Set<DependencyDeclaration> deps = component.getDependencies();
         if (deps == null)
             return;
-        for (Dependency dep : deps) {
+        for (DependencyDeclaration dep : deps) {
             CheckObr.checkConstraints(dep);
         }
     }
@@ -251,10 +256,10 @@ public class CheckObr {
      * @param spec
      * @param properties
      */
-    public static void checkImplAttributes(ApamComponentInfo component) {
+    public static void checkImplAttributes(ImplementationDeclaration component) {
         String implName = component.getName();
-        String spec = component.getSpecification();
-        Map<String, String> properties = component.getProperties();
+        String spec = component.getSpecification().getName();
+        Map<String, Object> properties = component.getProperties();
         if (spec == null)
             return;
         Capability cap = CheckObr.getSpecCapability(spec);
@@ -280,13 +285,13 @@ public class CheckObr {
      * @param cap
      * @param component
      */
-    public static void checkInstAttributes(String impl, String name, ApamComponentInfo component) {
+    public static void checkInstAttributes(String impl, String name, ComponentDeclaration component) {
         Capability capImpl = CheckObr.getImplCapability(impl);
         if (capImpl == null) {
             return;
         }
 
-        Map<String, String> properties = component.getProperties();
+        Map<String, Object> properties = component.getProperties();
 
         Map<String, Object> props = capImpl.getProperties();
 
@@ -331,18 +336,16 @@ public class CheckObr {
     }
 
 
-    public static void checkCompoMain(ApamComponentInfo component) {
-        if (!component.isComposite())
-            return;
-        String name = component.getName();
+    public static void checkCompoMain(CompositeDeclaration composite) {
+        String name = composite.getName();
         // System.err.println("in checkCompoMain ");
-        String implName = component.getApamMainImplementation();
-        Capability cap = CheckObr.getImplCapability(component.getApamMainImplementation());
+        String implName = composite.getMainImplementation().getName();
+        Capability cap = CheckObr.getImplCapability(composite.getMainImplementation().getName());
         if (cap == null)
             return;
-        String interfaces = component.getInterfaces();
-        String messages = component.getMessages();
-        String spec = component.getSpecification();
+        String interfaces = composite.getProvidedRessourceString(ResourceType.INTERFACE);
+        String messages = composite.getProvidedRessourceString(ResourceType.MESSAGE);
+        String spec = composite.getProvidedRessourceString(ResourceType.SPECIFICATION);
 
         if (!spec.equals(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_SPECIFICATION))) {
             System.err.println("In " + name + " Invalid main implementation. " + implName
@@ -359,12 +362,12 @@ public class CheckObr {
      * 
      * @param component
      */
-    public static void checkRequire(ApamComponentInfo component) {
-        Set<ImplementationDependency> deps = component.getImplemDependencies();
+    public static void checkRequire(ComponentDeclaration component) {
+        Set<DependencyDeclaration> deps = component.getDependencies();
         if (deps == null)
             return;
         CheckObr.allFields.clear();
-        for (ImplementationDependency dep : deps) {
+        for (DependencyDeclaration dep : deps) {
             // validating dependency constraints and preferences..
             CheckObr.checkConstraints(dep);
             // Checking fields and complex dependencies
@@ -402,7 +405,7 @@ public class CheckObr {
         if (CheckObr.readSpecs.containsKey(name))
             return CheckObr.readSpecs.get(name);
         for (Resource res : CheckObr.resources) {
-            if (ApamMavenPlugin.bundleDependencies.contains(res.getId())) {
+            if (OBRGeneratorMojo.bundleDependencies.contains(res.getId())) {
                 for (Capability cap : res.getCapabilities()) {
                     if (cap.getName().equals(OBR.CAPABILITY_SPECIFICATION)
                             && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
@@ -449,13 +452,13 @@ public class CheckObr {
         return null;
     }
 
-    private static void checkFieldTypeDep(ImplementationDependency dep, ApamComponentInfo component) {
+    private static void checkFieldTypeDep(DependencyDeclaration dep, ComponentDeclaration component) {
         // only implementations have fields
-        if ((dep.kind != DependencyKind.IMPLEMENTATION) || (dep.kind != DependencyKind.COMPLEX))
+        if ((dep.kind != DependencyDeclarationKind.IMPLEMENTATION) || (dep.kind != DependencyDeclarationKind.COMPLEX))
             return;
 
         if (dep.specification == null) { // atomic dependency
-            AtomicDependency aDep = (AtomicDependency) dep.dependencies.toArray()[0];
+            AtomicDependencyDeclaration aDep = (AtomicDependencyDeclaration) dep.dependencies.toArray()[0];
             boolean mult = CheckObr.getFieldType(aDep, component);
             if (!mult && (mult != dep.isMultiple)) {
                 System.err.println("ERROR: in " + component.getName() + " field " + aDep.fieldName
@@ -471,7 +474,7 @@ public class CheckObr {
         List<String> specInterfaces = Util.splitList(interfs);
         boolean mult;
         boolean first = true;
-        for (AtomicDependency aDep : dep.dependencies) {
+        for (AtomicDependencyDeclaration aDep : dep.dependencies) {
             // String fieldType = aDep.fieldType ;
             mult = CheckObr.getFieldType(aDep, component);
             if (first) {
@@ -504,7 +507,8 @@ public class CheckObr {
      * @param component
      * @return
      */
-    public static boolean getFieldType(AtomicDependency dep, ApamComponentInfo component) {
+    public static boolean
+    getFieldType(DependencyDeclaration dep, fr.imag.adele.apam.core.ComponentDeclaration component) {
         if (CheckObr.allFields.contains(dep.fieldName)) {
             System.err.println("ERROR: in " + component.getName() + " field " + dep.fieldName + " allready declared");
         }

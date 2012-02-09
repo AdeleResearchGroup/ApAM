@@ -7,26 +7,41 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
 
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.xml.parser.SchemaResolver;
 
 import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.core.CompositeDeclaration;
+import fr.imag.adele.apam.core.DependencyDeclaration;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.core.InterfaceReference;
+import fr.imag.adele.apam.core.MessageReference;
+import fr.imag.adele.apam.core.PropertyDefinition;
+import fr.imag.adele.apam.core.ResourceReference.ResourceType;
+import fr.imag.adele.apam.core.SpecificationDeclaration;
+import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamComponentXML;
 import fr.imag.adele.apam.util.OBR;
-import fr.imag.adele.apam.util.ApamComponentXML.ApamComponentInfo;
-import fr.imag.adele.apam.util.ApamComponentXML.SimpleProperty;
-import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
+//import fr.imag.adele.apam.util.ApamComponentXML.ComponentDeclaration;
+//import fr.imag.adele.apam.util.ApamComponentXML.SimpleProperty;
+//import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
+import fr.imag.adele.apam.util.Util;
 
 public class ApamRepoBuilder {
 
     /**
      * Metadata (in internal format).
      */
-    private final List<Element> m_metadata = new ArrayList<Element>();
+
+    private final StringBuffer obrContent = new StringBuffer("<obr> \n");
 
     /**
      * Flag describing if we need or not use local XSD files (i.e. use the {@link SchemaResolver} or not). If
@@ -38,135 +53,146 @@ public class ApamRepoBuilder {
         CheckObr.init(defaultOBRRepo + "\\repository.xml");
     }
 
-    public boolean writeOBRFile(String obrFileStr, File metadataFile, InputStream is,
-            File jarFile, File outputDirectory) {
-        File obrFile = new File(obrFileStr);
-        boolean okMetadata = false;
-        StringBuffer obrContent = new StringBuffer("<obr> \n");
-        JarFile jar = null;
-        try {
-            jar = new JarFile(jarFile);
-            okMetadata = writeMetadataOBRFile(obrContent, metadataFile, is, jar, outputDirectory);
-            jar.close();
-        } catch (IOException e2) {
-            System.err.println("cannot read the jar file : " + jarFile.getAbsolutePath());
-            return false;
-        }
-        // System.out.println(obrContent);
+    public StringBuffer writeOBRFile(Set<ComponentDeclaration> components) {
+        //
+        //        File obrFile = new File(obrFileStr);
+        //        boolean okMetadata = false;
+        //        JarFile jar = null;
+        //        try {
+        //            jar = new JarFile(jarFile);
+        //            okMetadata = writeMetadataOBRFile(obrContent, metadataFile, is, jar, outputDirectory);
+        //            jar.close();
+        //        } catch (IOException e2) {
+        //            System.err.println("cannot read the jar file : " + jarFile.getAbsolutePath());
+        //            return false;
+        //        }
+        //        // System.out.println(obrContent);
+        //
+        //        if (!okMetadata)
+        //            return false;
+        //        obrContent.append("</obr> \n");
+        //
+        //        OutputStream obr;
+        //        try {
+        //            obr = new FileOutputStream(obrFile);
+        //        } catch (FileNotFoundException e) {
+        //            // System.err.println("Cannot open for writing : " + obrFile.getAbsolutePath());
+        //            return false;
+        //        }
+        //        try {
+        //            obr.write(obrContent.toString().getBytes());
+        //        } catch (IOException e) {
+        //            // System.err.println("Cannot write into : " + obrFile.getAbsolutePath());
+        //            try {
+        //                obr.close();
+        //            } catch (IOException e1) {
+        //            }
+        //            return false;
+        //        }
+        //        try {
+        //            obr.flush();
+        //            obr.close();
+        //        } catch (IOException e) {
+        //            // System.err.println("Cannot close : " + obrFile.getAbsolutePath());
+        //            return false;
+        //        }
+        //        return true;
+        //    }
+        //
+        //    public boolean writeMetadataOBRFile(StringBuffer obrContent, File metadata, InputStream is, JarFile jarFile,
+        //            File outputDirectory) {
+        //        if (metadata == null) {
+        //            System.out.println(" no metadata");
+        //            return false;
+        //        }
+        //
+        // ApamComponentXML compXML = new ApamComponentXML(outputDirectory, metadata, is, jarFile);
+        // Set<ComponentDeclaration> components = Util.getComponents(root);
 
-        if (!okMetadata)
-            return false;
-        obrContent.append("</obr> \n");
-
-        OutputStream obr;
-        try {
-            obr = new FileOutputStream(obrFile);
-        } catch (FileNotFoundException e) {
-            // System.err.println("Cannot open for writing : " + obrFile.getAbsolutePath());
-            return false;
-        }
-        try {
-            obr.write(obrContent.toString().getBytes());
-        } catch (IOException e) {
-            // System.err.println("Cannot write into : " + obrFile.getAbsolutePath());
-            try {
-                obr.close();
-            } catch (IOException e1) {
-            }
-            return false;
-        }
-        try {
-            obr.flush();
-            obr.close();
-        } catch (IOException e) {
-            // System.err.println("Cannot close : " + obrFile.getAbsolutePath());
-            return false;
-        }
-        return true;
-    }
-
-    public boolean writeMetadataOBRFile(StringBuffer obrContent, File metadata, InputStream is, JarFile jarFile,
-            File outputDirectory) {
-        if (metadata == null) {
-            System.out.println(" no metadata");
-            return false;
-        }
-        ApamComponentXML compXML = new ApamComponentXML(outputDirectory, metadata, is, jarFile);
-        List<ApamComponentInfo> components = compXML.getComponents();
-
-        for (ApamComponentInfo comp : components) {
+        for (ComponentDeclaration comp : components) {
             // printElement(comp.m_componentMetadata, "");
-            printOBRElement(obrContent, comp, "", jarFile);
+            printOBRElement(obrContent, comp, "");
         }
-        return true;
+        return obrContent;
     }
 
-    private void printProvided(StringBuffer obrContent, ApamComponentInfo component, JarFile jarfile) {
+    private void printProvided(StringBuffer obrContent, ComponentDeclaration component) {
         obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
 
-        String interfaces = component.getInterfaces();
+        String interfaces = component.getProvidedRessourceString(ResourceType.INTERFACE);
         if ((interfaces != null) && !interfaces.isEmpty())
             obrContent.append("      <p n='" + OBR.A_PROVIDE_INTERFACES + "' v='" + interfaces + "' /> \n");
 
-        String messages = component.getMessages();
+        String messages = component.getProvidedRessourceString(ResourceType.MESSAGE);
         if (messages != null)
             obrContent.append("      <p n='" + OBR.A_PROVIDE_MESSAGES + "' v='" + messages + "' />\n");
 
-        String spec = component.getSpecification();
+        String spec = component.getProvidedRessourceString(ResourceType.SPECIFICATION);
         if (spec != null)
             obrContent.append("      <p n='" + OBR.A_PROVIDE_SPECIFICATION + "' v='" + spec + "' />\n");
 
         // Checking consistency
-        if (component.isImplementation()) {
+        if (component instanceof ImplementationDeclaration) {
             CheckObr.checkImplProvide(component.getName(), spec, interfaces, messages);
         }
     }
 
-    private void printProperties(StringBuffer obrContent, ApamComponentInfo component) {
+    private void printProperties(StringBuffer obrContent, ComponentDeclaration component) {
         // property attributes
-        Map<String, String> properties = component.getProperties();
+        Map<String, Object> properties = component.getProperties();
         for (String propertyName : properties.keySet()) {
             obrContent.append("      <p n='" + propertyName + "' v='"
                     + properties.get(propertyName) + "' />\n");
         }
 
         // definition attributes
-        List<SimpleProperty> definitions = component.getDefinitions();
-        for (SimpleProperty definition : definitions) {
-            String tempContent = "      <p n='" + OBR.A_DEFINITION_PREFIX + definition.name + "'";
-            if (definition.value != null) {
-                tempContent = tempContent + (" v='" + (definition.value) + "'");
+
+        List<PropertyDefinition> definitions = component.getPropertyDefinitions();
+        for (PropertyDefinition definition : definitions) {
+            String tempContent = "      <p n='" + OBR.A_DEFINITION_PREFIX + definition.getName() + "'";
+            if (definition.getDefaultValue() != null) {
+                tempContent = tempContent + (" v='" + (definition.getDefaultValue()) + "'");
             }
             tempContent = tempContent + " />\n";
             obrContent.append(tempContent);
         }
 
         // Check Consistency
-        CheckObr.checkImplAttributes(component);
+        CheckObr.checkImplAttributes((ImplementationDeclaration) component);
     }
 
-    private void printRequire(StringBuffer obrContent, ApamComponentInfo component) {
-        if (component.isSpecification()) {
-            for (SpecificationDependency dep : component.getSpecDependencies()) {
-                // INTERFACE, PUSH_MESSAGE, PULL_MESSAGE, SPECIFICATION
-
-                switch (dep.targetKind) {
-                    case INTERFACE: {
-                        obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + dep.fieldType
-                                + "' /> \n");
-                        break;
-                    }
-                    case SPECIFICATION:
-                        obrContent.append("      <p n='" + OBR.A_REQUIRE_SPECIFICATION + "' v='" + dep.fieldType
-                                + "' /> \n");
-                        break;
-                    case PULL_MESSAGE:
-                        obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.fieldType + "' /> \n");
-                        break;
-                    case PUSH_MESSAGE:
-                        obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.fieldType + "' /> \n");
-                        break;
+    private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {
+        if (component instanceof SpecificationDeclaration) {
+            for (DependencyDeclaration dep : component.getDependencies()) {
+                if (dep.getResource() instanceof InterfaceReference) {
+                    obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + dep.getResource().getName()
+                            + "' /> \n");
+                } else if (dep.getResource() instanceof SpecificationReference) {
+                    obrContent.append("      <p n='" + OBR.A_REQUIRE_SPECIFICATION + "' v='"
+                            + dep.getResource().getName()
+                            + "' /> \n");
+                } else if (dep.getResource() instanceof MessageReference) {
+                    obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.getResource().getName()
+                            + "' /> \n");
                 }
+
+                //                switch (dep.targetKind) {
+                //                    case INTERFACE: {
+                //                        obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + dep.fieldType
+                //                                + "' /> \n");
+                //                        break;
+                //                    }
+                //                    case SPECIFICATION:
+                //                        obrContent.append("      <p n='" + OBR.A_REQUIRE_SPECIFICATION + "' v='" + dep.fieldType
+                //                                + "' /> \n");
+                //                        break;
+                //                    case PULL_MESSAGE:
+                //                        obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.fieldType + "' /> \n");
+                //                        break;
+                //                    case PUSH_MESSAGE:
+                //                        obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.fieldType + "' /> \n");
+                //                        break;
+                //                }
             }
             return;
         }
@@ -174,34 +200,47 @@ public class ApamRepoBuilder {
         // composite and implems
         CheckObr.checkRequire(component);
 
-        if (component.isComposite())
-            CheckObr.checkCompoMain(component);
+        if (component instanceof CompositeDeclaration)
+            CheckObr.checkCompoMain((CompositeDeclaration) component);
     }
 
-    private void printOBRElement(StringBuffer obrContent, ApamComponentInfo component, String indent, JarFile jarfile) {
-        String spec = component.getSpecification();
+    private void
+    printOBRElement(StringBuffer obrContent, ComponentDeclaration component, String indent) {
+        // String spec = component.getSpecification();
+        // messages
+        System.out.print("Checking ");
+        if (component instanceof ImplementationDeclaration)
+            System.out.print("implementation ");
+        if (component instanceof CompositeDeclaration)
+            System.out.print("composite ");
+        if (component instanceof InstanceDeclaration)
+            System.out.print("instance ");
+        if (component instanceof SpecificationDeclaration)
+            System.out.print("specification ");
+        System.out.println(component.getName() + " ...");
 
         //headers
-        if (component.isImplementation()) {
+        if (component instanceof ImplementationDeclaration) {
             obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
         }
-        if (component.isComposite()) {
+        if (component instanceof CompositeDeclaration) {
             obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
-            obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='" + component.isComposite() + "' />\n");
+            obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='" + (component instanceof CompositeDeclaration)
+                    + "' />\n");
             obrContent.append("      <p n='" + CST.A_MAIN_IMPLEMENTATION + "' v='"
-                    + component.getApamMainImplementation()
+                    + ((CompositeDeclaration) component).getMainImplementation()
                     + "' />\n");
         }
-        if (component.isSpecification()) {
+        if (component instanceof SpecificationDeclaration) {
             obrContent.append("   <capability name='" + OBR.CAPABILITY_SPECIFICATION + "'>\n");
         }
 
-        if (component.isInstance()) {
+        if (component instanceof InstanceDeclaration) {
             CheckObr.checkInstance(component);
             return;
         }
         // provide clause
-        printProvided(obrContent, component, jarfile);
+        printProvided(obrContent, component);
 
         // definition attributes
         printProperties(obrContent, component);
