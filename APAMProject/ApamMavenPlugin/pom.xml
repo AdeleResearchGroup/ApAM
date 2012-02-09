@@ -1,17 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-<!--  	<parent>
-		<artifactId>APAMProject</artifactId>
-		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
- -->	<groupId>fr.imag.adele.apam</groupId>
+	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>ApamMavenPlugin</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 	<name>ApamMavenPlugin Maven Mojo</name>
-	<url>http://maven.apache.org</url>
+	<description>
+    An maven plugin that extends an OSGi Bundle Repository (compliant with OSGi RFC 0112)
+    for the management of Apam components.
+  </description>
 
 	<dependencies>
 		<dependency>
@@ -22,10 +20,11 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>OBRMAN</artifactId>
+			<artifactId>ApamCore</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
@@ -33,24 +32,16 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>maven-obr-plugin</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+			<type>maven-plugin</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-archiver</artifactId>
 			<version>2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.plexus</groupId>
-			<artifactId>plexus-utils</artifactId>
-			<version>1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-artifact</artifactId>
-			<version>2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>xerces</groupId>
-			<artifactId>xercesImpl</artifactId>
-			<version>2.9.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -63,11 +54,9 @@
 			<version>1.8.0</version>
 		</dependency>
 		<dependency>
+			<artifactId>org.apache.felix.ipojo</artifactId>
 			<groupId>org.apache.felix</groupId>
-			<artifactId>maven-obr-plugin</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
-			<type>maven-plugin</type>
-			<scope>compile</scope>
+			<version>1.8.0</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -77,59 +66,45 @@
 			</resource>
 			<resource>
 				<directory>.</directory>
-				<targetPath>META-INF</targetPath>
 				<includes>
 					<include>LICENSE*</include>
 					<include>NOTICE*</include>
-					<include>DEPENDENCIES*</include>
+					<!-- <include>DEPENDENCIES*</include> -->
 				</includes>
 			</resource>
 		</resources>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.1</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-		
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>rat-maven-plugin</artifactId>
-				<configuration>
-					<excludeSubProjects>false</excludeSubProjects>
-					<useEclipseDefaultExcludes>true</useEclipseDefaultExcludes>
-					<useMavenDefaultExcludes>true</useMavenDefaultExcludes>
-					<excludes>
-						<param>doc/**/*</param>
-						<param>maven-eclipse.xml</param>
-						<param>.checkstyle</param>
-						<param>.externalToolBuilders/*</param>
-						<param>LICENSE.asm</param>
-						<param>**/archetype-resources/**/*</param>
-						<param>**/archetype.xml</param>
-					</excludes>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<configuration>
-					<enableRulesSummary>false</enableRulesSummary>
-					<violationSeverity>warning</violationSeverity>
-					<configLocation>http://felix.apache.org/ipojo/dev/checkstyle_ipojo.xml</configLocation>
-				</configuration>
-			</plugin>
-		</plugins>
 	</build>
 
-	<scm>
-		<connection>scm:svn:https://svn.apache.org/repos/asf/felix/releases/maven-ipojo-plugin-1.8.0</connection>
-		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/felix/releases/maven-ipojo-plugin-1.8.0</developerConnection>
-		<url>scm:svn:https://svn.apache.org/repos/asf/felix/releases/maven-ipojo-plugin-1.8.0</url>
-	</scm>
 </project>
+
+<!-- <dependency> <groupId>org.apache.maven</groupId> <artifactId>maven-plugin-api</artifactId> 
+	<version>2.0</version> <scope>compile</scope> </dependency> <dependency> 
+	<groupId>org.apache.maven</groupId> <artifactId>maven-archiver</artifactId> 
+	<version>2.0</version> </dependency> <dependency> <groupId>org.codehaus.plexus</groupId> 
+	<artifactId>plexus-utils</artifactId> <version>1.1</version> </dependency> 
+	<dependency> <groupId>org.apache.maven</groupId> <artifactId>maven-artifact</artifactId> 
+	<version>2.0</version> </dependency> <dependency> <groupId>xerces</groupId> 
+	<artifactId>xercesImpl</artifactId> <version>2.9.1</version> </dependency> 
+	<dependency> <groupId>org.apache.felix</groupId> <artifactId>org.apache.felix.ipojo.metadata</artifactId> 
+	<version>1.4.0</version> </dependency> <dependency> <groupId>org.apache.felix</groupId> 
+	<artifactId>org.apache.felix.ipojo.manipulator</artifactId> <version>1.8.0</version> 
+	</dependency> <dependency> <groupId>org.apache.felix</groupId> <artifactId>maven-obr-plugin</artifactId> 
+	<version>1.2.1-SNAPSHOT</version> <type>maven-plugin</type> <scope>compile</scope> 
+	</dependency> </dependencies> <build> <resources> <resource> <directory>src/main/resources</directory> 
+	</resource> <resource> <directory>.</directory> <targetPath>META-INF</targetPath> 
+	<includes> <include>LICENSE*</include> <include>NOTICE*</include> <include>DEPENDENCIES*</include> 
+	</includes> </resource> </resources> <plugins> <plugin> <groupId>org.codehaus.mojo</groupId> 
+	<artifactId>rat-maven-plugin</artifactId> <configuration> <excludeSubProjects>false</excludeSubProjects> 
+	<useEclipseDefaultExcludes>true</useEclipseDefaultExcludes> <useMavenDefaultExcludes>true</useMavenDefaultExcludes> 
+	<excludes> <param>doc/**/*</param> <param>maven-eclipse.xml</param> <param>.checkstyle</param> 
+	<param>.externalToolBuilders/*</param> <param>LICENSE.asm</param> <param>**/archetype-resources/**/*</param> 
+	<param>**/archetype.xml</param> </excludes> </configuration> </plugin> <plugin> 
+	<groupId>org.apache.maven.plugins</groupId> <artifactId>maven-checkstyle-plugin</artifactId> 
+	<configuration> <enableRulesSummary>false</enableRulesSummary> <violationSeverity>warning</violationSeverity> 
+	<configLocation>http://felix.apache.org/ipojo/dev/checkstyle_ipojo.xml</configLocation> 
+	</configuration> </plugin> </plugins> </build> <scm> <connection>scm:svn:https://svn.apache.org/repos/asf/felix/releases/maven-ipojo-plugin-1.8.0</connection> 
+	<developerConnection>scm:svn:https://svn.apache.org/repos/asf/felix/releases/maven-ipojo-plugin-1.8.0</developerConnection> 
+	<url>scm:svn:https://svn.apache.org/repos/asf/felix/releases/maven-ipojo-plugin-1.8.0</url> 
+	</scm> -->
+ 
  
