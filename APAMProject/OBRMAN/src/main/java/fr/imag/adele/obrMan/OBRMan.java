@@ -23,6 +23,10 @@ import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.ManagerModel;
 import fr.imag.adele.apam.apform.Apform;
+import fr.imag.adele.apam.core.InterfaceReference;
+import fr.imag.adele.apam.core.MessageReference;
+import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.OBR;
 
 public class OBRMan implements Manager {
@@ -94,8 +98,8 @@ public class OBRMan implements Manager {
 
     // at the end
     @Override
-    public void getSelectionPathSpec(CompositeType compTypeFrom, String interfaceName, String[] interfaces,
-            String specName, Set<Filter> constraints, List<Filter> preferences, List<Manager> involved) {
+    public void getSelectionPathSpec(CompositeType compTypeFrom, ResourceReference resource,
+            Set<Filter> constraints, List<Filter> preferences, List<Manager> involved) {
         involved.add(involved.size(), this);
     }
 
@@ -158,7 +162,8 @@ public class OBRMan implements Manager {
     }
 
     // interface manager
-    private Implementation resolveSpec(CompositeType compoType, String interfaceName, String specName,
+    private Implementation resolveSpec(CompositeType compoType, ResourceReference resource, // String interfaceName,
+            // String specName,
             Set<Filter> constraints, List<Filter> preferences) {
 
         // temporary
@@ -174,15 +179,17 @@ public class OBRMan implements Manager {
 
         fr.imag.adele.obrMan.OBRManager.Selected selected = null;
         Implementation impl = null;
-        if (specName != null) {
-            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_COMPONENT, "(apam-specification=" + specName + ")",
-                    constraints,
-                    preferences);
+        if (resource instanceof SpecificationReference) {
+            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_COMPONENT, "(apam-specification=" + resource.getName() + ")",
+                    constraints, preferences);
         }
-        if ((selected == null) && (interfaceName != null)) {
-            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_COMPONENT, "(interfaces=*;" + interfaceName + ";*)",
-                    constraints,
-                    preferences);
+        if (resource instanceof InterfaceReference) {
+            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_COMPONENT, "(interfaces=*;" + resource.getName() + ";*)",
+                    constraints, preferences);
+        }
+        if (resource instanceof MessageReference) {
+            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_COMPONENT, "(messages=*;" + resource.getName() + ";*)",
+                    constraints, preferences);
         }
         if (selected != null) {
             String implName = OBRMan.obr.getAttributeInCapability(selected.capability, "name");
@@ -194,16 +201,16 @@ public class OBRMan implements Manager {
         return null;
     }
 
-    @Override
-    public Implementation resolveSpecByName(CompositeType compoType, String specName,
-            Set<Filter> constraints, List<Filter> preferences) {
-        return resolveSpec(compoType, null, specName, constraints, preferences);
-    }
+    //    @Override
+    //    public Implementation resolveSpecByName(CompositeType compoType, String specName,
+    //            Set<Filter> constraints, List<Filter> preferences) {
+    //        return resolveSpec(compoType, null, specName, constraints, preferences);
+    //    }
 
     @Override
-    public Implementation resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
+    public Implementation resolveSpecByResource(CompositeType compoType, ResourceReference resource,
             Set<Filter> constraints, List<Filter> preferences) {
-        return resolveSpec(compoType, interfaceName, null, constraints, preferences);
+        return resolveSpec(compoType, resource, constraints, preferences);
     }
 
     @Override
