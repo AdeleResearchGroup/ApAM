@@ -9,6 +9,15 @@ package fr.imag.adele.apam.core;
 public abstract class InjectedField {
 
     /**
+     * Allows to know what is the type of resource dependency, in order to synthesize.
+     * 
+     */
+    public enum InjectedType {
+        INTERFACE, PUSHPRODUCER, PULLCONSUMER
+    }
+
+    protected final InjectedType                  injectedType;
+    /**
      * The implementation declaring this field injection
      */
     private final AtomicImplementationDeclaration implementation;
@@ -23,8 +32,14 @@ public abstract class InjectedField {
      */
     private final String fieldName;
 
+    /**
+     * The dependency that must be resolved to get the provider of the required resource. Not for pull.
+     */
+    private final DependencyDeclaration           dependency;
 
-    protected InjectedField(AtomicImplementationDeclaration implementation, String fieldName, ResourceReference resource) {
+
+    protected InjectedField(AtomicImplementationDeclaration implementation, String fieldName,
+            ResourceReference resource, DependencyDeclaration dependency, InjectedType injectedType) {
 
         assert implementation != null;
         assert fieldName != null;
@@ -33,7 +48,8 @@ public abstract class InjectedField {
         this.implementation = implementation;
         this.fieldName		= fieldName;
         this.resource		= resource;
-
+        this.dependency = dependency;
+        this.injectedType = injectedType;
     }
 
     /**
@@ -57,6 +73,13 @@ public abstract class InjectedField {
         return resource;
     }
 
+    /**
+     * The dependency that needs to be resolved to inject this field
+     */
+    public DependencyDeclaration getDependency() {
+        assert injectedType != InjectedType.PUSHPRODUCER;
+        return dependency;
+    }
 
     /**
      * The declaration of a field that must be injected when a dependency is resolved
@@ -64,26 +87,20 @@ public abstract class InjectedField {
      */
     public static class RequiredInterface extends InjectedField {
 
-        /**
-         * The dependency that must be resolved to get the provider of the required resource
-         */
-        private final DependencyDeclaration dependency;
-
         protected RequiredInterface(AtomicImplementationDeclaration implementation, String fieldName, DependencyDeclaration dependency, InterfaceReference resource) {
-            super(implementation,fieldName,resource);
+            super(implementation, fieldName, resource, dependency, InjectedType.INTERFACE);
 
             assert dependency != null;
             assert implementation.getDependencies().contains(dependency);
             assert (dependency.getResource().isSpecificationReference()) || dependency.getResource().equals(resource);
-
-            this.dependency = dependency;
         }
 
         /**
          * The dependency that needs to be resolved to inject this field
          */
+        @Override
         public DependencyDeclaration getDependency() {
-            return dependency;
+            return super.getDependency();
         }
 
         @Override
@@ -99,26 +116,25 @@ public abstract class InjectedField {
      */
     public static class PullConsumer extends InjectedField {
 
-        /**
-         * The dependency that must be resolved to get the provider of the required resource
-         */
-        private final DependencyDeclaration dependency;
+        //        /**
+        //         * The dependency that must be resolved to get the provider of the required resource
+        //         */
+        //        private final DependencyDeclaration dependency;
 
         protected PullConsumer(AtomicImplementationDeclaration implementation, String fieldName, DependencyDeclaration dependency, MessageReference resource) {
-            super(implementation,fieldName,resource);
+            super(implementation, fieldName, resource, dependency, InjectedType.PULLCONSUMER);
 
             assert dependency != null;
             assert implementation.getDependencies().contains(dependency);
             assert (dependency.getResource() instanceof SpecificationReference) || dependency.getResource().equals(resource);
-
-            this.dependency = dependency;
         }
 
         /**
          * The dependency that needs to be resolved to inject this field
          */
+        @Override
         public DependencyDeclaration getDependency() {
-            return dependency;
+            return super.getDependency();
         }
 
         @Override
@@ -136,7 +152,7 @@ public abstract class InjectedField {
 
         public PushProducer(AtomicImplementationDeclaration implementation, String fieldName, MessageReference resource) {
 
-            super(implementation,fieldName,resource);
+            super(implementation, fieldName, resource, null, InjectedType.PUSHPRODUCER);
 
             assert implementation.getProvidedResources().contains(resource);
         }

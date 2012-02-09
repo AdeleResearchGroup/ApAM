@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.core.ResourceReference.ResourceType;
+
 /**
  * This class represents the common description of a component at all levels of abstraction
  * (specification, implementation, composite or instance)
@@ -62,6 +64,9 @@ public abstract class ComponentDeclaration {
         return properties;
     }
 
+    public String getAttribute(String name) {
+        return (String) properties.get(name);
+    }
     /**
      * Get the value of a property
      */
@@ -128,14 +133,47 @@ public abstract class ComponentDeclaration {
         return false;
     }
 
-    public Set<String> getProvidedRessourceNames(Class<? extends ProvidedResourceReference> clazz) {
+    public Set<String> getProvidedRessourceNames(ResourceType type) {
         Set<String> providedRes = new HashSet<String>();
         for (ProvidedResourceReference resRef : providedResources) {
-            if (clazz.isInstance(resRef)) {
+            if (resRef.resourceType == type) {
                 providedRes.add(resRef.getName());
             }
         }
         return providedRes;
     }
+
+    public String getProvidedRessourceString(ResourceType type) {
+        return ComponentDeclaration.toStringResources(getProvidedRessourceNames(type));
+    }
+
+    /**
+     * takes a list of string "A" "B" "C" ... and produces "{A, B, C, ...}"
+     * 
+     * @param names
+     * @return
+     */
+    private static String toStringResources(Set<String> names) {
+        if ((names == null) || (names.size() == 0))
+            return null;
+        String ret = "{";
+        for (String name : names) {
+            ret += name + ", ";
+        }
+        return ret.substring(0, ret.length() - 2) + "}";
+    }
+
+    //    public String getSpecification() {
+    //        if (this instanceof SpecificationDeclaration)
+    //            return this.getName();
+    //        if (this instanceof ImplementationDeclaration) {
+    //            return ((ImplementationDeclaration)this).getSpecification().getName();
+    //        }
+    //        if (this instanceof InstanceDeclaration) {
+    //            return ((InstanceDeclaration)this).getImplementation().getName();
+    //        }
+    //        
+    //            return null;
+    //    }
 
 }

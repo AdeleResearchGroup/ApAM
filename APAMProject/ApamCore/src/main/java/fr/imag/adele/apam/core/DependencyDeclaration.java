@@ -28,7 +28,7 @@ public class DependencyDeclaration {
     private final boolean isMultiple;
 
     /**
-     * The reference to the required resource 
+     * The reference to the required resource. For complex dependencies, it is the specification.
      */
     private final ResourceReference resource;
 
@@ -57,7 +57,6 @@ public class DependencyDeclaration {
 
         assert name != null;
         assert resource != null;
-
         this.name			= name;
         this.resource 		= resource;
         this.isMultiple 	= isMultiple;
@@ -67,6 +66,7 @@ public class DependencyDeclaration {
         implementationPreferences = new ArrayList<String>();
         instancePreferences = new ArrayList<String>();
     }
+
 
     /**
      * Get the name of the dependency
