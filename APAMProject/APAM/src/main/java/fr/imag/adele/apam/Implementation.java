@@ -1,20 +1,16 @@
 package fr.imag.adele.apam;
 
-//import java.util.Properties;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-//import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.apform.ApformImplementation;
-//import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
 
-//import fr.imag.adele.sam.Implementation;
 
 public interface Implementation extends ConcurrentMap<String, Object> {
 
@@ -43,7 +39,7 @@ public interface Implementation extends ConcurrentMap<String, Object> {
     public String getShared();
 
     /**
-     * returns the vazlue of the scope attribute
+     * returns the value of the scope attribute
      * 
      * @return
      */
@@ -79,6 +75,12 @@ public interface Implementation extends ConcurrentMap<String, Object> {
      * @return the specification that this ASMImpls implements
      */
     public Specification getSpec();
+
+    /**
+     * 
+     * @return the associated ImplementationDeclaration
+     */
+    public ImplementationDeclaration getImplDeclaration();
 
     /**
      * Returns the implementation currently used by this implementation.

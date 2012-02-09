@@ -6,6 +6,8 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apamImpl.ManagerModel;
+import fr.imag.adele.apam.core.DependencyDeclaration;
+import fr.imag.adele.apam.core.ResourceReference;
 
 /**
  * Interface that each manager MUST implement. Used by APAM to resolve the dependencies and manage the application.
@@ -30,15 +32,13 @@ public interface Manager {
      * WARNING: Either interfaceName, interfaces or specName are needed;
      * 
      * @param compTypeFrom the composite type origin of the future wire. Can be null.
-     * @param interfaceName the name of one of the interfaces of the specification to resolve. May be null.
-     * @param interfaces the complete list of interface for that specification. May be null.
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
+     * @param resource the name of one of the interfaces of the specification to resolve. May be null.
      * @param constraints The constraints for this resolution.
      * @param preferences The preferences for this resolution.
      * @param selPath the managers currently involved in this resolution.
      */
-    public void getSelectionPathSpec(CompositeType compTypeFrom, String interfaceName, String[] interfaces,
-            String specName, Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath);
+    public void getSelectionPathSpec(CompositeType compTypeFrom, ResourceReference resource, Set<Filter> constraints,
+            List<Filter> preferences, List<Manager> selPath);
 
     /**
      * Provided that an implementation, known by its name, is required, each manager is asked if it want to be involved.
@@ -91,23 +91,27 @@ public interface Manager {
      * @param preferences The preferences for this resolution.
      * @return the implementations if resolved, null otherwise
      */
-    public Implementation resolveSpecByName(CompositeType compoType, String specName,
-            Set<Filter> constraints, List<Filter> preferences);
+    //    public Implementation resolveSpecByName(CompositeType compoType, String specName,
+    //            Set<Filter> constraints, List<Filter> preferences);
 
     /**
-     * The manager is asked to find the "right" implementation for the provided specification, given its interfaces.
+     * The manager is asked to find the "right" implementation for the specification defined by the ressource it
+     * implements.
+     * WARNING : since a specification may implement more than one resource, it can be ambiguous.
      * If an implementation has to be created, it must be inside compoType.
      * 
      * @param compoType the composite in which is located the calling implem (and where to create implementation, if
      *            needed). Cannot be null.
-     * @param interfaceName the name of one of one of the interfaces of the specification to resolve.
-     *            WARNING : since a specification may implement more than one interface, it can be ambiguous.
-     * @param interfaces the complete list of interfaces of the specification to resolve.
+     * @param reource the resource that specification must implement. It can be
+     *            -the specification Name (new SpecificationReference (specName))
+     *            -an interface name (new InterfaceReference (interfaceName))
+     *            -a message name (new MessageReference (dataTypeName))
+     *            - or any future resource ...
      * @param constraints The constraints for this resolution.
      * @param preferences The preferences for this resolution.
      * @return the implementations if resolved, null otherwise
      */
-    public Implementation resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
+    public Implementation resolveSpecByResource(CompositeType compoType, ResourceReference ressource,
             Set<Filter> constraints, List<Filter> preferences);
 
     /**

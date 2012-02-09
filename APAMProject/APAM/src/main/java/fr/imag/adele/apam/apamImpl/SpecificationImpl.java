@@ -3,39 +3,36 @@ package fr.imag.adele.apam.apamImpl;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformSpecification;
-//import fr.imag.adele.apam.util.Attributes;
-//import fr.imag.adele.apam.util.AttributesImpl;
-//import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
+import fr.imag.adele.apam.core.InterfaceReference;
+import fr.imag.adele.apam.core.MessageReference;
+import fr.imag.adele.apam.core.ProvidedResourceReference;
+import fr.imag.adele.apam.core.SpecificationDeclaration;
+import fr.imag.adele.apam.core.ResourceReference.ResourceType;
 
-//import fr.imag.adele.sam.ApformSpecification;
 
 public class SpecificationImpl extends ConcurrentHashMap<String, Object> implements Specification {
 
     private String                    name;
     // private final CompositeOLD myComposite;
     private ApformSpecification       apfSpec         = null;
+    private SpecificationDeclaration  declaration;
     private final Set<Implementation> implementations = new HashSet<Implementation>();
-    private String[]                  interfaces;
+    //    private String[]                  interfaces;
+    //    private String[]                  messages;
 
     private final Set<Specification>  requires        = new HashSet<Specification>(); // all relations requires
     private final Set<Specification>  invRequires     = new HashSet<Specification>(); // all reverse relations requires
-
-    // private int shared = ASM.SHAREABLE;
-    // private final int clonable = ASM.TRUE;
 
     // private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
 
@@ -44,43 +41,30 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         return (this == o);
     }
 
-    public SpecificationImpl(String specName, ApformSpecification apfSpec, String[] interfaces,
+    public SpecificationImpl(String specName, ApformSpecification apfSpec, Set<ProvidedResourceReference> resources,
             Map<String, Object> props) {
-        if (((specName == null) && (apfSpec == null))) {
-            new Exception("Both spec name and apfSpec are null in spec constructor").printStackTrace();
-            return;
-        }
+        assert  (((specName != null) || (apfSpec != null))) ;
+
         if (specName == null) {
             name = apfSpec.getDeclaration().getName();
         } else
             name = specName;
         put(CST.A_SPECNAME, name);
-        if (apfSpec != null) {
-            setSamSpec(apfSpec);
-        } else {
-            this.interfaces = interfaces;
+        if (apfSpec == null) {
+            apfSpec = new ApformEmptySpec(resources, props);
         }
+        this.apfSpec = apfSpec;
+        declaration = apfSpec.getDeclaration();
+
+        //        interfaces = declaration.getProvidedInterfaces();
+        //        messages =
+
+        putAll(apfSpec.getDeclaration().getProperties());
         ((SpecificationBrokerImpl) CST.SpecBroker).addSpec(this);
         if (props != null)
             putAll(props);
-        //        try {
-        //            if (props == null) {
-        //                props = new AttributesImpl();
-        //            }
-        //            // initialize properties. A fusion of SAM and APAM values
-        //            if (apfSpec != null)
-        //                this.setProperties(Util.mergeProperties(this, props, apfSpec.getProperties()));
-        //            else
-        //                this.setProperties(Util.mergeProperties(this, props, null));
-        //        } catch (ConnectionException e) {
-        //            e.printStackTrace();
-        //        }
     }
 
-    @Override
-    public String[] getInterfaces() {
-        return interfaces;
-    }
 
     @Override
     public String getName() {
@@ -152,10 +136,10 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         return ret;
     }
 
-    @Override
-    public String[] getInterfaceNames() {
-        return interfaces;
-    }
+    //    @Override
+    //    public Set<String> getInterfaceNames() {
+    //        return declaration.getProvidedRessourceNames(ResourceType.INTERFACE);
+    //    }
 
     // relation requires control
     public void addRequires(Specification dest) {
@@ -226,12 +210,13 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         return Collections.unmodifiableSet(implementations);
     }
 
-    public void setSamSpec(ApformSpecification apfSpec) {
-        if (apfSpec == null)
-            return;
+    public void setSpecApform(ApformSpecification apfSpec) {
         this.apfSpec = apfSpec;
-        interfaces = apfSpec.getInterfaceNames();
-        putAll(apfSpec.getDeclaration().getProperties());
+        //            
+        //            for (ProvidedResourceReference interfRef : apfSpec.getDeclaration().getProvidedResources()) {
+        //            interfaces.add  = apfSpec.getInterfaceNames();
+        //            }
+        //            putAll(apfSpec.getDeclaration().getProperties());
     }
 
     @Override
@@ -342,6 +327,32 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         } catch (Exception e) {
         }
         return false;
+    }
+
+    @Override
+    public SpecificationDeclaration getDeclaration() {
+        return declaration;
+    }
+
+    private class ApformEmptySpec implements ApformSpecification {
+
+        private final SpecificationDeclaration declaration;
+
+        public ApformEmptySpec(Set<ProvidedResourceReference> resources, Map<String, Object> attributes) {
+            super () ;
+            declaration = new EmptySpecificationDeclaration(name, resources);
+        }
+
+        @Override
+        public SpecificationDeclaration getDeclaration() {
+            return declaration;
+        }
+    }
+    private class EmptySpecificationDeclaration extends SpecificationDeclaration {
+        public EmptySpecificationDeclaration(String name, Set<ProvidedResourceReference> resources) {
+            super(name);
+            providedResources.addAll(resources);
+        }
     }
 
 }

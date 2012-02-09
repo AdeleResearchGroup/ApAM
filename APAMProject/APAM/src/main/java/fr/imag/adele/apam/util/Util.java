@@ -1,10 +1,13 @@
 package fr.imag.adele.apam.util;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -14,6 +17,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
+import fr.imag.adele.apam.core.ComponentDeclaration;
 
 
 
@@ -26,6 +30,44 @@ public class Util {
 
     private Util() {
     };
+
+    public static Set<ComponentDeclaration> getComponents(Element root) {
+        Set<ComponentDeclaration> components = new HashSet<ComponentDeclaration>();
+        // TODO German
+        return components;
+    }
+
+    /**
+     * takes a list of string "A" "B" "C" ... and produces "{A, B, C, ...}"
+     * 
+     * @param names
+     * @return
+     */
+    public static String toStringResources(Set<String> names) {
+        if ((names == null) || (names.size() == 0))
+            return null;
+        String ret = "{";
+        for (String name : names) {
+            ret += name + ", ";
+        }
+        return ret.substring(0, ret.length() - 2) + "}";
+    }
+
+    public static Set<Filter> toFilter(Set<String> filterString) {
+        Set<Filter> filters = new HashSet<Filter>();
+        for (String f : filterString) {
+            filters.add(ApamFilter.newInstance(f));
+        }
+        return filters;
+    }
+
+    public static List<Filter> toFilterList(List<String> filterString) {
+        List<Filter> filters = new ArrayList<Filter>();
+        for (String f : filterString) {
+            filters.add(ApamFilter.newInstance(f));
+        }
+        return filters;
+    }
 
     public static List<String> splitList(String str) {
         if ((str == null) || (str.length() == 0)) {

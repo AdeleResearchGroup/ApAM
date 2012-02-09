@@ -3,9 +3,7 @@ package fr.imag.adele.apam;
 import java.util.Set;
 
 import fr.imag.adele.apam.apamImpl.ManagerModel;
-import fr.imag.adele.apam.util.Dependency.CompositeDependency;
-import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
-import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
+import fr.imag.adele.apam.core.CompositeDeclaration;
 
 public interface CompositeType extends Implementation {
     /**
@@ -13,6 +11,12 @@ public interface CompositeType extends Implementation {
      * @return the main implementation
      */
     public Implementation getMainImpl();
+
+    /**
+     * 
+     * @return the declaration of this composite
+     */
+    public CompositeDeclaration getCompoDeclaration();
 
     /**
      * 

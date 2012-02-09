@@ -18,6 +18,7 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.core.InterfaceReference;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.ApformImplementation;
@@ -73,7 +74,7 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
         return ret;
     }
 
-//    @Override
+    //    @Override
     public Implementation addImpl(CompositeType compo, ApformImplementation apfImpl, Map<String, Object> properties) {
         if ((apfImpl == null) || (compo == null)) {
             System.err.println("ERROR : missing apf Implementaion or composite in addImpl");
@@ -101,21 +102,21 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
         if ((spec == null) && (specName != null)) // No ASM spec related to the apf spec.
             spec = (SpecificationImpl) CST.SpecBroker.getSpec(specName);
         if (spec == null)
-            spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfImpl.getInterfaceNames());
+            spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfImpl.getDeclaration().getProvidedResources());
         if (spec == null) {
             if (specName == null) { // create an arbitrary name, and give the impl interface.
                 // TODO warning, it is an approximation, impl may have more interfaces than its spec
                 specName = implName + "_spec";
             }
-            spec = new SpecificationImpl(specName, apfSpec, apfImpl.getInterfaceNames(), properties);
+            spec = new SpecificationImpl(specName, apfSpec, apfImpl.getDeclaration().getProvidedResources(), properties);
         }
 
-//        if (specName != null)
-//            spec.setName(specName);
+        //        if (specName != null)
+        //            spec.setName(specName);
 
         // create a primitive or composite implementation
         if ((apfImpl.getDeclaration().getProperty(CST.A_COMPOSITE) != null) &&
-                    ((Boolean) apfImpl.getDeclaration().getProperty(CST.A_COMPOSITE) == true)) {
+                ((Boolean) apfImpl.getDeclaration().getProperty(CST.A_COMPOSITE) == true)) {
             // Allow specifying properties to the composite instance
             asmImpl = CompositeTypeImpl.createCompositeType(compo, apfImpl);
         } else {
@@ -125,23 +126,23 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
         return asmImpl;
     }
 
-//    @Override
-//    public ASMImpl addImpl(CompositeType compo, String apfImplName, Attributes properties) {
-//        if (apfImplName == null) {
-//            System.out.println("ERROR : parameter ApformImplementation " + apfImplName
-//                    + " or composite : " + compo + " missing. In addimpl.");
-//            return null;
-//        }
-//        ApformImplementation apfImpl;
-//        ASMImpl impl = ApformImpl.getUnusedImplem(apfImplName);
-//        if (impl == null) {
-//            System.out.println("ERROR : Sam ApformImplementation " + apfImplName + " cannot be found");
-//            return null;
-//        }
-//        // TODO probably BUG
-//        apfImpl = impl.getApformImpl();
-//        return addImpl(compo, apfImpl, properties);
-//    }
+    //    @Override
+    //    public ASMImpl addImpl(CompositeType compo, String apfImplName, Attributes properties) {
+    //        if (apfImplName == null) {
+    //            System.out.println("ERROR : parameter ApformImplementation " + apfImplName
+    //                    + " or composite : " + compo + " missing. In addimpl.");
+    //            return null;
+    //        }
+    //        ApformImplementation apfImpl;
+    //        ASMImpl impl = ApformImpl.getUnusedImplem(apfImplName);
+    //        if (impl == null) {
+    //            System.out.println("ERROR : Sam ApformImplementation " + apfImplName + " cannot be found");
+    //            return null;
+    //        }
+    //        // TODO probably BUG
+    //        apfImpl = impl.getApformImpl();
+    //        return addImpl(compo, apfImpl, properties);
+    //    }
 
     @Override
     public Implementation createImpl(CompositeType compo, String implName, URL url, Map<String, Object> properties) {

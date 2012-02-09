@@ -7,22 +7,22 @@ import java.util.concurrent.ConcurrentMap;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.apform.ApformSpecification;
-//import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
-import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
-
-//import fr.imag.adele.sam.Specification;
+import fr.imag.adele.apam.core.SpecificationDeclaration;
 
 public interface Specification extends ConcurrentMap<String, Object> {
 
     public String getName();
 
-    public String[] getInterfaces();
 
     /**
-     * return the apform specificatrion (if existing !!) associated with this specification.
+     * 
+     * @return the associated SpecificationDeclaration
+     */
+    public SpecificationDeclaration getDeclaration();
+
+    /**
+     * return the apform specification (if existing !!) associated with this specification.
      * 
      * @return
      */
@@ -94,15 +94,23 @@ public interface Specification extends ConcurrentMap<String, Object> {
      */
     public Implementation getPreferedImpl(Set<Implementation> candidates, List<Filter> preferences);
 
-    /**
-     * Get the service interface.
-     * 
-     * @return the interface
-     */
-    public String[] getInterfaceNames();
+    //    /**
+    //     * Get the spec interfaces.
+    //     * 
+    //     * @return the interfaces name
+    //     */
+    //    public Set<String> getInterfaceNames();
+    //
+    //    /**
+    //     * Get the spec interfaces.
+    //     * 
+    //     * @return the interfaces name
+    //     */
+    //    public Set<String> getMessageTypeNames();
 
     /**
      * Return the list of currently required specification.
+     * WARNING : does not include required interfaces and messages.
      * 
      * @return the list of currently required specification. Null if none
      */

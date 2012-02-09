@@ -2,25 +2,19 @@ package fr.imag.adele.apam.apamImpl;
 
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-//import fr.imag.adele.am.exception.ConnectionException;
-//import fr.imag.adele.apam.Map;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.SpecificationBroker;
-import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformSpecification;
-//import fr.imag.adele.apam.util.Attributes;
-//import fr.imag.adele.apam.util.AttributesImpl;
+import fr.imag.adele.apam.core.ProvidedResourceReference;
+import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamInstall;
-import fr.imag.adele.apam.util.Util;
-//import fr.imag.adele.sam.Specification;
-
-//import fr.imag.adele.sam.deployment.DeploymentUnit;
 
 public class SpecificationBrokerImpl implements SpecificationBroker {
 
@@ -42,18 +36,18 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
         specs.add(spec);
     }
 
-    @Override
-    public Specification getSpec(String[] interfaces) {
-        if (interfaces == null)
-            return null;
-
-        interfaces = Util.orderInterfaces(interfaces);
-        for (Specification spec : specs) {
-            if (Util.sameInterfaces(spec.getInterfaceNames(), interfaces))
-                return spec;
-        }
-        return null;
-    }
+    //    @Override
+    //    public Specification getSpec(String[] interfaces) {
+    //        if (interfaces == null)
+    //            return null;
+    //
+    //        interfaces = Util.orderInterfaces(interfaces);
+    //        for (Specification spec : specs) {
+    //            if (Util.sameInterfaces(spec.getInterfaceNames(), interfaces))
+    //                return spec;
+    //        }
+    //        return null;
+    //    }
 
     @Override
     public Specification getSpec(String name) {
@@ -63,14 +57,6 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
         for (Specification spec : specs) {
             if (name.equals(spec.getName()))
                 return spec;
-
-//            if (spec.getName() == null) {
-//                if (spec.getApformSpec().getName().equals(name))
-//                    return spec;
-//            } else {
-//                if (name.equals(spec.getName()))
-//                    return spec;
-//            }
         }
         return null;
     }
@@ -136,19 +122,16 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
      * @throws ConnectionException the connection exception Returns the ExportedSpecification exported by this Machine
      *             that satisfies the interfaces.
      */
-    @Override
-    public Specification getSpecInterf(String interfaceName) {
-        if (interfaceName == null)
-            return null;
-        for (Specification spec : specs) {
-            String[] interfs = spec.getInterfaceNames();
-            for (String interf : interfs) {
-                if (interf.equals(interfaceName))
-                    return spec;
-            }
-        }
-        return null;
-    }
+    //    @Override
+    //    public Specification getSpecResource(ResourceReference resource) {
+    //        if (resource == null)
+    //            return null;
+    //        for (Specification spec : specs) {
+    //            if (spec.getDeclaration().getProvidedResources().contains(resource))
+    //                return spec;
+    //        }
+    //        return null;
+    //    }
 
     /**
      * Returns the specification with the given sam name.
@@ -170,42 +153,25 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
     }
 
     @Override
-    public Specification createSpec(String specName, String[] interfaces, Map<String, Object> properties) {
-        if (interfaces == null)
+    public Specification createSpec(String specName, Set<ProvidedResourceReference> resources,
+            Map<String, Object> properties) {
+        if (resources == null)
             return null;
         Specification ret = null;
-        ret = new SpecificationImpl(specName, null, interfaces, properties);
+        ret = new SpecificationImpl(specName, null, resources, properties);
         return ret;
     }
 
-//        try {
-//            if (CST.SAMSpecBroker.getSpecification(interfaces) != null) {
-//                ret = addSpec(specName, CST.SAMSpecBroker.getSpecification(interfaces), properties);
-//            } else {
-//                ret = new ASMSpecImpl(specName, null, properties);
-//            }
-//        } catch (ConnectionException e) {
-//            e.printStackTrace();
-//        }
-//        return ret;
-//    }
-
     /**
-     * Creates and deploys a specification. WARNING : The fact to deploy the specification (the packages containing the
-     * interfaces) does not create any spec in SAM. This spec may not have any corresponding spec in SAM. It does not
-     * try to create one in SAM. WARNING : xwhat to do if the spec already exists in SAM : Deploy anyway ?
+     * Creates and deploys a specification.
      * 
      * @param compo the composite in which to create that spec.
      * @param specName the *logical* name of that specification; different from SAM. May be null.
      * @param url the location of the executable to deploy
-     * @param type type of executable to deploy (bundle, jar, war, exe ...)
-     * @param interfaces the list of interfaces this spec implements
-     * @param properties : The initial properties. return an ASM Specification
      */
     @Override
-    public Specification createSpec(String specName, URL url, String[] interfaces, Map<String, Object> properties) {
-        if ((interfaces == null) || (url == null))
-            return null;
+    public Specification createSpec(String specName, URL url) {
+        assert (url != null);
 
         Specification spec = getSpec(specName);
         if (spec != null)
@@ -219,7 +185,31 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
 
     @Override
     public Set<Specification> getRequires(Specification specification) {
-        // TODO Auto-generated method stub
+        SpecificationReference specRef = new SpecificationReference(specification.getName());
+        Set<Specification> specs = new HashSet<Specification>();
+        for (Specification spec : specs) {
+            if (spec.getDeclaration().getProvidedResources().contains(specRef))
+                specs.add(spec);
+        }
+        return specs;
+    }
+
+    @Override
+    public Specification getSpec(Set<ProvidedResourceReference> providedResources) {
+        for (Specification spec : specs) {
+            if (spec.getDeclaration().getProvidedResources().equals(providedResources))
+                return spec;
+        }
+        return null;
+    }
+
+    @Override
+    public Specification getSpecResource(ResourceReference resource) {
+        Set<Specification> specs = new HashSet<Specification>();
+        for (Specification spec : specs) {
+            if (spec.getDeclaration().getProvidedResources().contains(resource))
+                return spec;
+        }
         return null;
     }
 

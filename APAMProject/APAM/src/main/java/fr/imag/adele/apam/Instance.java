@@ -8,6 +8,7 @@ import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.core.InstanceDeclaration;
 
 public interface Instance extends ConcurrentMap<String, Object> {
 
@@ -21,7 +22,13 @@ public interface Instance extends ConcurrentMap<String, Object> {
 
     public String getName();
 
-    // The SAM instance associated with this Apam one.
+    /**
+     * 
+     * @return the associated InstanceDeclaration
+     */
+    public InstanceDeclaration getDeclaration();
+
+    // The Apform instance associated with this Apam one.
     public ApformInstance getApformInst();
 
     /**

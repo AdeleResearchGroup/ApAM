@@ -11,6 +11,8 @@ import org.osgi.framework.InvalidSyntaxException;
 //import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.apform.ApformSpecification;
 //import fr.imag.adele.apam.util.Attributes;
+import fr.imag.adele.apam.core.ProvidedResourceReference;
+import fr.imag.adele.apam.core.ResourceReference;
 
 //import fr.imag.adele.sam.Specification;
 
@@ -32,20 +34,16 @@ public interface SpecificationBroker {
      * @param properties : The initial properties.
      *            return an ASM Specification
      */
-    public Specification createSpec(String specName, String[] interfaces, Map<String, Object> properties);
+    public Specification createSpec(String specName, Set<ProvidedResourceReference> resources,
+            Map<String, Object> properties);
 
     /**
-     * Creates and deploys a specification. WARNING : The fact to deploy the
-     * specification (the packages containing the interfaces) does not create
-     * any spec in Apform. This spec may not have any corresponding spec in Apform. It
-     * does not try to create one in Apform.
+     * Creates and deploys a specification.
      * 
      * @param specName the *logical* name of that specification; different from Apform. May be null.
      * @param url the location of the executable to deploy
-     * @param interfaces the list of interfaces this spec implements
-     * @param properties : The initial properties. return an ASM Specification
      */
-    public Specification createSpec(String specName, URL url, String[] interfaces, Map<String, Object> properties);
+    public Specification createSpec(String specName, URL url);
 
     /**
      * WARNING : it will also destroy all implems and instances.
@@ -83,16 +81,20 @@ public interface SpecificationBroker {
      * interfaces. At most one specification can satisfy that requirement (by
      * definition of specification)
      * 
-     * @param interfaces : the interfaces of the required specification. The returned
-     *            specification must support all the interfaces in the array.
-     *            The order in which the interfaces are provided in the array is
-     *            not relevant. NOTE : the Apform specification name is the
-     *            concatenation separated by ";" of all the interfaces, ordered
-     *            lexicographically. Cannot be null nor empty.
+     * @param providedResources : the interfaces and messages of the required specification. The returned
+     *            specification must support all the interfaces and messages.
+     *            providedResources cannot be null nor empty.
      * 
      * @return the specification
      */
-    public Specification getSpec(String[] interfaces);
+    public Specification getSpec(Set<ProvidedResourceReference> providedResources);
+
+    /**
+     * 
+     * @param resource
+     * @return the first specification that implements the provided resource ! WARNING this is peligrous.
+     */
+    public Specification getSpecResource(ResourceReference resource);
 
     /**
      * Returns *the first* specification that implements the provided
@@ -104,7 +106,8 @@ public interface SpecificationBroker {
      * @param interfaceName : the name of the interface of the required specification.
      * @return the specification
      */
-    public Specification getSpecInterf(String interfaceName);
+    //    public Specification getSpecInterf(String interfaceName);
+
 
     /**
      * Returns the specification with the given logical name. WARNING: Name is

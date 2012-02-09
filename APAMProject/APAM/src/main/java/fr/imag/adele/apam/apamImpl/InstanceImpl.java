@@ -21,6 +21,7 @@ import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformInstance;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
+import fr.imag.adele.apam.core.InstanceDeclaration;
 
 //import fr.imag.adele.sam.Instance;
 
@@ -40,6 +41,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     protected ApformInstance  apformInst;
     private boolean           sharable         = true;
     private boolean           used             = false;
+    private InstanceDeclaration declaration;
 
     private final Set<Wire>   wires            = new HashSet<Wire>(); // the currently used instances
     private final Set<Wire>   invWires         = new HashSet<Wire>();
@@ -60,16 +62,13 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
 
     protected void instConstructor(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
             ApformInstance apfInst) {
-        if (apfInst == null) {
-            new Exception("ERROR : apform instance cannot be null on ASM instance constructor").printStackTrace();
-            return;
-        }
-        if (instCompo == null) {
-            new Exception("no composite in instance contructor" + apfInst);
-        }
+        assert (apfInst != null);
+        assert (instCompo != null);
+
         if (impl.getShared().equals(CST.V_FALSE))
             sharable = false;
         apformInst = apfInst;
+        declaration = apfInst.getDeclaration();
         myImpl = impl;
         myComposite = instCompo;
         myComposite.addContainInst(this);
@@ -83,24 +82,8 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         // Create the implementation and initialize
         instConstructor(impl, instCompo, initialproperties, apformInst);
         apformInst.setInst(this);
-        // Compute the handler for apam components
-        //        try {
-        //            ApamDependencyHandler handler = SamInstEventHandler.getHandlerInstance(apformInst.getName());
-        //
-        //            // The Sam event arrived first : it stored the info in the attributes
-        //            if (handler == null) {
-        //                handler = (ApamDependencyHandler) apformInst.getProperty(CST.A_DEPHANDLER);
-        //            }
-        //
-        //            if (handler != null) { // it is an Apam instance
-        //                depHandler = handler;
-        //                handler.SetIdentifier(this);
-        //            }
-
-        //            setProperties(Util.mergeProperties(this, initialproperties, apformInst.getProperties()));
         putAll(apformInst.getDeclaration().getProperties());
         put(CST.A_SHARED, getShared());
-        //        sharable = (getShared().equals(CST.V_TRUE));
 
         if ((instCompo != null) && (apformInst.getServiceObject() instanceof ApamComponent))
             ((ApamComponent) apformInst.getServiceObject()).apamStart(this);
@@ -389,6 +372,11 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         allProps.putAll(this);
         allProps.putAll(getImpl().getAllProperties());
         return allProps;
+    }
+
+    @Override
+    public InstanceDeclaration getDeclaration() {
+        return declaration;
     }
 
 }

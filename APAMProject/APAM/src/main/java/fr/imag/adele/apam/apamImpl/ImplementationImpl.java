@@ -19,7 +19,8 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.util.Dependency.ImplementationDependency;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 
 public class ImplementationImpl extends ConcurrentHashMap<String, Object> implements Implementation {
 
@@ -28,6 +29,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     protected final Set<Implementation> invUses           = new HashSet<Implementation>(); // all reverse relations uses
     protected final Set<CompositeType>  inComposites      = new HashSet<CompositeType>(); // composite it is contained
     private final Object                id                = new Object();                 // only for hashCode
+    protected ImplementationDeclaration declaration;
 
     protected String                    name;
     protected Specification             mySpec;
@@ -56,13 +58,8 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
 
     public ImplementationImpl(CompositeType compo, SpecificationImpl spec, ApformImplementation impl,
             Map<String, Object> props) {
-        if (impl == null) {
-            new Exception("ApformImplementation cannot be null when creating an implem").printStackTrace();
-        }
-        if (compo == null) { // compo is null for the root composite AND its main implem.
-            // done in create composite type when compo is null
-            new Exception("compo is null").printStackTrace();
-        }
+        assert (impl != null);
+        assert (compo != null);
 
         name = impl.getDeclaration().getName(); // warning, for composites, it is a different name. Overloaded in createCOmpositeType
         put(CST.A_IMPLNAME, name);
@@ -81,7 +78,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     }
 
     public void initializeNewImpl(CompositeType compo, Map<String, Object> props) {
-        // myComposites.add(compo);
+        declaration = apfImpl.getDeclaration();
         compo.addImpl(this);
         if (props != null) {
             putAll(props);
@@ -403,5 +400,10 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         allProps.putAll(this);
         allProps.putAll(getSpec());
         return allProps;
+    }
+
+    @Override
+    public AtomicImplementationDeclaration getImplDeclaration() {
+        return (AtomicImplementationDeclaration) declaration;
     }
 }

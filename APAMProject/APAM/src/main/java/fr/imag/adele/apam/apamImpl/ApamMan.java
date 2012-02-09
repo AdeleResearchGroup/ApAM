@@ -12,6 +12,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements Manager {
@@ -22,8 +23,8 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public void getSelectionPathSpec(CompositeType compTypeFrom, String interfaceName, String[] interfaces,
-            String specName, Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath) {
+    public void getSelectionPathSpec(CompositeType compTypeFrom, ResourceReference resource,
+            Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath) {
     }
 
     @Override
@@ -80,13 +81,11 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public Implementation resolveSpecByInterface(CompositeType compoType, String interfaceName, String[] interfaces,
+    public Implementation resolveSpecByResource(CompositeType compoType, ResourceReference resource,
             Set<Filter> constraints, List<Filter> preferences) {
-        Specification spec = null;
-        if (interfaceName != null)
-            spec = CST.SpecBroker.getSpecInterf(interfaceName);
-        else
-            spec = CST.SpecBroker.getSpec(interfaces);
+        assert (resource != null);
+
+        Specification spec = CST.SpecBroker.getSpecResource(resource);
         if (spec == null)
             return null;
         Set<Implementation> impls = new HashSet<Implementation>();
@@ -101,17 +100,17 @@ public class ApamMan implements Manager {
         return spec.getPreferedImpl(impls, preferences);
     }
 
-    @Override
-    public Implementation resolveSpecByName(CompositeType compoType, String specName,
-            Set<Filter> constraints, List<Filter> preferences) {
-        Specification spec = null;
-        if (specName == null)
-            return null;
-        spec = CST.SpecBroker.getSpec(specName);
-        if (spec == null)
-            return null;
-        return spec.getImpl(constraints, preferences);
-    }
+    //    @Override
+    //    public Implementation resolveSpecByName(CompositeType compoType, String specName,
+    //            Set<Filter> constraints, List<Filter> preferences) {
+    //        Specification spec = null;
+    //        if (specName == null)
+    //            return null;
+    //        spec = CST.SpecBroker.getSpec(specName);
+    //        if (spec == null)
+    //            return null;
+    //        return spec.getImpl(constraints, preferences);
+    //    }
 
     @Override
     public void notifySelection(Instance client, String resName, String depName, Implementation impl, Instance inst,

@@ -32,6 +32,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 
+
 /**
  * This filter implementation is based on the official OSGi filter with additional
  * support for the SUPERSET (&gt;*) and SUBSET (&lt;*) operators.
@@ -76,9 +77,13 @@ public class ApamFilter implements Filter {
      * @exception InvalidSyntaxException If the filter parameter contains an
      *                invalid filter string that cannot be parsed.
      */
-    public static ApamFilter newInstance(String filterString)
-    throws InvalidSyntaxException {
-        return ApamFilter.newInstance(filterString, false);
+    public static ApamFilter newInstance(String filterString) {
+        try {
+            return ApamFilter.newInstance(filterString, false);
+        } catch  (InvalidSyntaxException e) {
+            System.err.println(e.getMessage());
+        }
+        return null;
     }
 
     public static ApamFilter newInstance(String filterString, boolean ignoreCase)

@@ -237,7 +237,7 @@ public class Apform2Apam {
             Specification spec = CST.SpecBroker.getSpec(specificationName);
             if (spec != null) {
                 System.err.println("Specification already existing: merging with " + specificationName);
-                ((SpecificationImpl) spec).setSamSpec(specification);
+                ((SpecificationImpl) spec).setSpecApform(specification);
                 return;
             }
 
