@@ -111,6 +111,7 @@
 			<property test-spec="coucous4" />
 			<property A2="yes" />
 			<property c3="xxx" />
+			<property xyz="xxx" />
 		</properties>
 		<dependencies>
 			<specification name="S3">
@@ -125,10 +126,11 @@
 			</specification>
 		</dependencies>
 	</instance>
-	<instance name="S2Impl" />
 	
-	<instance implementation="S2Simple" name="toto"/>
-	<instance implementation="S2Compo" name="sdfg"/>
+	<instance name="InstS2Impl" />
+    <instance implementation="S2Simple" />
+	<instance implementation="S3Impl" name="toto"/>
+	<instance implementation="SXYZT" name="sdfg"/>
 
 </apam>
 
