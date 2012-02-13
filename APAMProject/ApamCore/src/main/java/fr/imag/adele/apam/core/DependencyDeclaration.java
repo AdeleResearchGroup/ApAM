@@ -27,7 +27,7 @@ public class DependencyDeclaration {
 	/**
 	 * If this dependency requires several providers of the resource
 	 */
-	private final boolean 			isMultiple;
+	private Boolean 			isMultiple;
 	
 	/**
      * The reference to the required resource. For complex dependencies, it is the specification.
@@ -64,7 +64,7 @@ public class DependencyDeclaration {
 	 */
 	private final List<DependencyPromotion> promotions;
 
-	public DependencyDeclaration(ComponentDeclaration component, String name, ResourceReference resource, boolean isMultiple) {
+	public DependencyDeclaration(ComponentDeclaration component, String name, ResourceReference resource, Boolean isMultiple) {
 		
 		assert component != null;
 		assert name != null;
@@ -111,8 +111,12 @@ public class DependencyDeclaration {
 	/**
 	 * If this dependency requires multiple resource providers
 	 */
-	public boolean isMultiple() {
+	public Boolean isMultiple() {
 		return isMultiple;
+	}
+	
+	public void setMultiple(boolean isMultiple) {
+		this.isMultiple = isMultiple;
 	}
 	
 	/**
