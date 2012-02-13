@@ -3,8 +3,11 @@ package fr.imag.adele.apam.util;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
+import org.apache.felix.ipojo.parser.FieldMetadata;
+import org.apache.felix.ipojo.parser.PojoMetadata;
 
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ComponentDeclaration;
@@ -389,7 +392,20 @@ public class CoreMetadataParser implements CoreParser {
 	/**
 	 * parse the injected dependencies of a primitive
 	 */
-	private <C extends AtomicImplementationDeclaration> C parseDependencyInjections(Element element, C primitive) {
+	private AtomicImplementationDeclaration parseDependencyInjections(Element element, AtomicImplementationDeclaration primitive) {
+		
+		/*
+		 * load Pojo instrumentation metadata
+		 */
+		PojoMetadata pojo = null;
+		try {
+			pojo = new PojoMetadata(element);
+		} catch (ConfigurationException e) {
+			errorHandler.error(Severity.ERROR,"Instrumentation metadata can not be loaded "+element);
+		}
+		
+		if (pojo == null)
+			return primitive;
 		
 		for (Element dependencies : element.getElements(DEPENDENCIES, APAM)) {
 			for (Element dependency : dependencies.getElements()) {
@@ -400,26 +416,20 @@ public class CoreMetadataParser implements CoreParser {
 				if (!isApamDefinition(dependency))
 					continue;
 
-				//TODO recurse in case of specification
 				/*
 				 * ignore dependencies without identifier or not successfully parsed. 
 				 */
 				String name		= parseString(dependency,ATT_NAME,false);
 				String field 	= parseString(element, ATT_FIELD,false);
 				
-				//TODO get type from field
-				String fieldType = null;
-
-				if (fieldType.equals(""))
-					continue;
-
-				// TODO message reference
-				ResourceReference resource = new InterfaceReference(fieldType);
 				/*
-				 * Infer a dependency name from a field injection, this is a facility for
-				 * people writing the metadata 
+				 * Infer a dependency declaration from the injection declaration
 				 */
 				if (name.equals("") && ! field.equals("")) {
+					String fieldType = getFieldType(field,pojo);
+					if (fieldType  == null)
+						errorHandler.error(Severity.ERROR,"field "+field+" is not instrumented in Pojo");
+					
 					name = fieldType;
 					parseDependency(dependency,primitive,name);
 				}
@@ -433,18 +443,36 @@ public class CoreMetadataParser implements CoreParser {
 				DependencyDeclaration dependencyDeclaration = primitive.getDependency(name);
 				if (dependencyDeclaration == null)
 					continue;
-				
+
 				/*
-				 * Verify a field is specified
+				 * Complex dependencies has nested fields
 				 */
-				if (field.equals(""))
-					continue;
-				
-				
+				if (element.getName().equals(SPECIFICATION)) {
+					for (Element injection : dependency.getElements()) {
+						
+						/*
+						 * ignore elements that are not from APAM
+						 */
+						if (!isApamDefinition(injection))
+							continue;
+
+						if (injection.getName().equals(INTERFACE))
+							parseDependencyInjection(injection,primitive,pojo,dependencyDeclaration);
+						
+						if (injection.getName().equals(MESSAGE))
+							parseDependencyInjection(injection,primitive,pojo,dependencyDeclaration);
+					}
+					
+				}
+
 				/*
-				 *	Create the injection and add to primitive
+				 * simple dependencies has field injection directly defined
 				 */
-				DependencyInjection injection = new DependencyInjection(primitive, dependencyDeclaration, field, resource);
+				if (element.getName().equals(INTERFACE))
+					parseDependencyInjection(dependency,primitive,pojo,dependencyDeclaration);
+				
+				if (element.getName().equals(MESSAGE))
+					parseDependencyInjection(dependency,primitive,pojo,dependencyDeclaration);
 			}
 		}
 		
@@ -452,6 +480,48 @@ public class CoreMetadataParser implements CoreParser {
 	}
 
 
+	/**
+	 * parse the injected dependencies of a primitive
+	 */
+	private AtomicImplementationDeclaration parseDependencyInjection(Element element, AtomicImplementationDeclaration primitive, PojoMetadata pojo, DependencyDeclaration dependency) {
+		
+		/*
+		 * Verify a field is specified
+		 */
+
+		String field = parseString(element, ATT_FIELD,false);
+		if (field.equals(""))
+			return primitive;
+
+		String fieldType = getFieldType(field,pojo);
+		if (fieldType  == null)
+			errorHandler.error(Severity.ERROR,"field "+field+" is not instrumented in Pojo");
+		
+		ResourceReference resource = null;
+		
+		if (element.getName().equals(INTERFACE))
+			resource = new InterfaceReference(fieldType);
+		
+		if (element.getName().equals(MESSAGE))
+			resource = new MessageReference(fieldType);
+
+		new DependencyInjection(primitive, dependency, field, resource);
+		
+		return primitive;
+	}
+
+	/**
+	 * Get the field type from the instrumentation metadata
+	 */
+	private static String getFieldType(String field, PojoMetadata pojo) {
+	
+		FieldMetadata fieldData = pojo.getField(field);
+		if (fieldData == null)
+			return null;
+		
+		return fieldData.getFieldType();
+		
+	}
 	/**
 	 * parse a constraints declaration
 	 */
