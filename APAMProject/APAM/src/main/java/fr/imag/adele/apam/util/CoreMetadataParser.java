@@ -578,7 +578,7 @@ public class CoreMetadataParser implements CoreParser {
             for (Element definition : optional(definitions.getElements(CoreMetadataParser.DEFINITION,
                     CoreMetadataParser.APAM))) {
 
-                String name 		= parseString(definition,CoreMetadataParser.ATT_NAME);
+                String name 		= parseString(definition,CoreMetadataParser.ATT_NAME).toLowerCase();
                 String type			= parseString(definition,CoreMetadataParser.ATT_TYPE) ;
                 String defaultValue = parseString(definition,CoreMetadataParser.ATT_VALUE,false);
 
