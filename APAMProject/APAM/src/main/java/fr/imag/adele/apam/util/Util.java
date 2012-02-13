@@ -18,6 +18,8 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
 import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
+import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
 
 
 
@@ -32,9 +34,15 @@ public class Util {
     };
 
     public static Set<ComponentDeclaration> getComponents(Element root) {
-        Set<ComponentDeclaration> components = new HashSet<ComponentDeclaration>();
-        // TODO German
-        return components;
+        CoreParser parser = new CoreMetadataParser(root);
+        return parser.getDeclarations(new ErrorHandler() {
+			
+			@Override
+			public void error(Severity severity, String message) {
+				System.err.println("error parsing xml "+message);
+				
+			}
+		});
     }
 
     /**
