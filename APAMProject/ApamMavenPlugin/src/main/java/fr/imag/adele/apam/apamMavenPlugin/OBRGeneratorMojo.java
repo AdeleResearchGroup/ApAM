@@ -45,7 +45,7 @@ import fr.imag.adele.apam.util.Util;
  * Packages an OSGi jar "bundle" as an "iPOJO bundle".
  * 
  * @version $Rev$, $Date$
- * @goal obr-ipojo-generation
+ * @goal apam-ipojo-bundle
  * @phase package
  * @requiresDependencyResolution runtime
  * @description manipulate an Apam bundle jar to include the obr.xml file
@@ -155,6 +155,9 @@ public class OBRGeneratorMojo extends AbstractMojo {
             ApamRepoBuilder arb = new ApamRepoBuilder(localRepository.getBasedir());
             Set<ComponentDeclaration> components = Util.getComponents (root) ;
             StringBuffer obrContent = arb.writeOBRFile(components);
+            if (ApamRepoBuilder.getFailedParsing()) {
+                throw new MojoExecutionException("Failed Metadata Parsing");
+            }
 
             OutputStream obr;
             String obrFileStr = m_project.getBasedir().getAbsolutePath()
@@ -164,7 +167,7 @@ public class OBRGeneratorMojo extends AbstractMojo {
             + File.separator + "obr.xml";
             File obrFile = new File(obrFileStr);
             if (!obrFile.exists()) {
-                obrFile.mkdirs();
+                obrFile.getParentFile().mkdirs();
             }
             obr = new FileOutputStream(obrFile);
             obr.write(obrContent.toString().getBytes());

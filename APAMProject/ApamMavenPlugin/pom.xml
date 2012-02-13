@@ -60,6 +60,14 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<!-- For maven to understand that packaging bundle is ".jar" -->
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>

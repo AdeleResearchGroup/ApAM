@@ -3,14 +3,12 @@ package fr.imag.adele.apam.apamMavenPlugin;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.impl.bundle.obr.resource.RepositoryImpl;
 import org.osgi.service.obr.Capability;
 import org.osgi.service.obr.Resource;
@@ -19,7 +17,6 @@ import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.apam.util.Util;
-
 import fr.imag.adele.apam.core.*;
 import fr.imag.adele.apam.core.ResourceReference.ResourceType;
 
@@ -27,9 +24,6 @@ public class CheckObr {
 
     private static RepositoryImpl repo;
     private static Resource[]     resources;
-
-    private static final String[]                fieldTypeMultiple = { "java.util.Set", "java.util.List",
-        "java.util.Collection", "java.util.Vector" };
 
     private static final Map<String, Capability> readSpecs        = new HashMap<String, Capability>();
     private static final Set<String>             allFields         = new HashSet<String>();
@@ -47,14 +41,22 @@ public class CheckObr {
         }
     }
 
-    private static void checkList(String impl, String spec, String msg) {
-        if (spec == null)
+    /**
+     * Checks that list in spec, is contained in Impl.
+     * both impl and spec are under the form "{A, B, .... }"
+     * 
+     * @param set
+     * @param subSet
+     * @param msg
+     */
+    private static void checkList(String set, String subSet, String msg) {
+        if (subSet == null)
             return;
-        List<String> implList = Util.splitList(impl);
+        List<String> implList = Util.splitList(set);
         // each element of sp must be found in implList
-        for (String sp : Util.split(spec)) {
+        for (String sp : Util.split(subSet)) {
             if (!implList.contains(sp)) {
-                System.err.println(msg + sp + ". Declared: " + impl);
+                System.err.println(msg + sp + ". Declared: " + set);
             }
         }
     }
@@ -232,17 +234,17 @@ public class CheckObr {
      * -Validity of its attributes,
      * -Validity of its constraints.
      * 
-     * @param component
+     * @param instance
      */
-    public static void checkInstance(ComponentDeclaration component) {
-        String impl = component.getAttribute(CST.A_IMPLEMENTATION);
-        String name = component.getAttribute("name");
+    public static void checkInstance(InstanceDeclaration instance) {
+        ImplementationReference impl = instance.getImplementation();
+        String name = instance.getName();
         if (impl == null) {
             System.err.println("ERROR: implementation name missing for instance " + name);
             return;
         }
-        CheckObr.checkInstAttributes(impl, name, component);
-        Set<DependencyDeclaration> deps = component.getDependencies();
+        CheckObr.checkInstAttributes(impl.getName(), name, instance);
+        Set<DependencyDeclaration> deps = instance.getDependencies();
         if (deps == null)
             return;
         for (DependencyDeclaration dep : deps) {
@@ -283,15 +285,15 @@ public class CheckObr {
      * @param impl
      * @param name
      * @param cap
-     * @param component
+     * @param instance
      */
-    public static void checkInstAttributes(String impl, String name, ComponentDeclaration component) {
+    public static void checkInstAttributes(String impl, String name, InstanceDeclaration instance) {
         Capability capImpl = CheckObr.getImplCapability(impl);
         if (capImpl == null) {
             return;
         }
 
-        Map<String, Object> properties = component.getProperties();
+        Map<String, Object> properties = instance.getProperties();
 
         Map<String, Object> props = capImpl.getProperties();
 
@@ -346,8 +348,10 @@ public class CheckObr {
         String interfaces = composite.getProvidedRessourceString(ResourceType.INTERFACE);
         String messages = composite.getProvidedRessourceString(ResourceType.MESSAGE);
         String spec = composite.getProvidedRessourceString(ResourceType.SPECIFICATION);
-
-        if (!spec.equals(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_SPECIFICATION))) {
+        if (spec == null)
+            return;
+        String capSpec = CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_SPECIFICATION);
+        if ((capSpec != null) && !spec.equals(capSpec)) {
             System.err.println("In " + name + " Invalid main implementation. " + implName
                     + " must implement specification " + spec);
         }
@@ -394,6 +398,8 @@ public class CheckObr {
     }
 
     private static String getAttributeInCap(Capability cap, String name) {
+        if (cap == null)
+            return null;
         Map<String, Object> props = cap.getProperties();
         List<String> prop = (List<String>) props.get(name);
         if (prop == null)
@@ -452,99 +458,68 @@ public class CheckObr {
         return null;
     }
 
+    /**
+     * Provided a dependency "dep" (simple or complex) checks if the field type and attribute multip^le are compatible.
+     * For complex dependency, for each field, checks if the target specification implements the field resource.
+     * 
+     * @param dep : a dependency
+     * @param component : the component currently analyzed
+     */
     private static void checkFieldTypeDep(DependencyDeclaration dep, ComponentDeclaration component) {
-        // only implementations have fields
-        if ((dep.kind != DependencyDeclarationKind.IMPLEMENTATION) || (dep.kind != DependencyDeclarationKind.COMPLEX))
-            return;
+        if (!(component instanceof AtomicImplementationDeclaration)) return ;
 
-        if (dep.specification == null) { // atomic dependency
-            AtomicDependencyDeclaration aDep = (AtomicDependencyDeclaration) dep.dependencies.toArray()[0];
-            boolean mult = CheckObr.getFieldType(aDep, component);
-            if (!mult && (mult != dep.isMultiple)) {
-                System.err.println("ERROR: in " + component.getName() + " field " + aDep.fieldName
-                        + " is a simple field, while declared multiple.");
+        // All field must have same multiplicity, and must refer to interfaces and messages provided by the specification.
+        String interfs = CheckObr.getAttributeInCap(CheckObr.getSpecCapability(dep.getName()), OBR.A_PROVIDE_INTERFACES);
+        List<String> specResources = Util.splitList(interfs);
+        String messages = CheckObr.getAttributeInCap(CheckObr.getSpecCapability(dep.getName()), OBR.A_PROVIDE_MESSAGES);
+        specResources.addAll( Util.splitList(messages));
+        Boolean mult = dep.isMultiple();
+        for (DependencyInjection innerDep : dep.getInjections()) {
+            // check if attribute "multiple" matches the fields type (Set, List Array)
+            // if multiple is not explicitly defined, assume the first field multiplicity
+            if (mult == null) {
+                dep.setMultiple(CheckObr.isFieldMultiple(innerDep, component));
+                mult = dep.isMultiple();
             }
-            dep.isMultiple = mult;
-            return;
-        }
-        // complex dependency
-        // All field must have same multiplicity, and must refer to interfaces provided by the specification.
-        String interfs = CheckObr
-        .getAttributeInCap(CheckObr.getSpecCapability(dep.specification), OBR.A_PROVIDE_INTERFACES);
-        List<String> specInterfaces = Util.splitList(interfs);
-        boolean mult;
-        boolean first = true;
-        for (AtomicDependencyDeclaration aDep : dep.dependencies) {
-            // String fieldType = aDep.fieldType ;
-            mult = CheckObr.getFieldType(aDep, component);
-            if (first) {
-                dep.isMultiple = mult;
-                first = false;
-            }
-            // check multiplicity. All field must have same multiplicity.
-            if (mult != dep.isMultiple) {
+            if (mult != CheckObr.isFieldMultiple(innerDep, component)) {
                 if (mult)
-                    System.err.println("ERROR: in " + component.getName() + " field " + aDep.fieldName
+                    System.err.println("ERROR: in " + component.getName() + " field "
+                            + innerDep.getResource().getName()
                             + " is a collection field, while other fields in same dependency are simple.");
                 else
-                    System.err.println("ERROR: in " + component.getName() + " field " + aDep.fieldName
+                    System.err.println("ERROR: in " + component.getName() + " field "
+                            + innerDep.getResource().getName()
                             + " is a simple field, while other fields in same dependency are collection.");
             }
-            // check specification. All fields must refer to interfaces provided by the specification.
-            if ((aDep.fieldType != null) && (specInterfaces != null) && (!specInterfaces.contains(aDep.fieldType))) {
-                System.err.println("ERROR: in " + component.getName() + " Field " + aDep.fieldName + " is of type "
-                        + aDep.fieldType
-                        + " which is not implemented by specification " + dep.specification);
+            if (!(specResources.contains(innerDep.getResource().getName()))) {
+                System.err.println("ERROR: in " + component.getName() + " Field " + innerDep.getFieldName()
+                        + " is of type "
+                        + innerDep.getResource()
+                        + " which is not implemented by specification " + dep.getName());
             }
         }
     }
 
     /**
-     * Provided an atomic dependency, find the type, and set it into the dependency.
-     * Returns if it is multiple or not.
+     * Provided an atomic dependency, returns if it is multiple or not.
+     * Checks if the same field is declared twice.
      * 
      * @param dep
      * @param component
      * @return
      */
-    public static boolean
-    getFieldType(DependencyDeclaration dep, fr.imag.adele.apam.core.ComponentDeclaration component) {
-        if (CheckObr.allFields.contains(dep.fieldName)) {
-            System.err.println("ERROR: in " + component.getName() + " field " + dep.fieldName + " allready declared");
+    public static boolean isFieldMultiple(DependencyInjection dep, ComponentDeclaration component) {
+        if (CheckObr.allFields.contains(dep.getFieldName())) {
+            System.err.println("ERROR: in " + component.getName() + " field " + dep.getFieldName()
+                    + " allready declared");
         }
         else {
-            CheckObr.allFields.add(dep.fieldName);
+            CheckObr.allFields.add(dep.getFieldName());
         }
-        Map fields = component.getClassChecker().getFields();
-        boolean fieldMultiple = false;
-        boolean typeUnknown = false;
-        for (Object field : fields.keySet()) {
-            if (((String) field).equals(dep.fieldName)) {
-                String fieldType = (String) fields.get(field);
-                // for arrays, remove the trailing "[]"
-                if (fieldType.endsWith("[]")) {
-                    fieldType = fieldType.substring(0, fieldType.length() - 2);
-                    fieldMultiple = true;
-                } else {
-                    // check if it is a collection, (set, List, Collection or Vector)
-                    if (Arrays.asList(CheckObr.fieldTypeMultiple).contains(fieldType)) {
-                        fieldMultiple = true;
-                        typeUnknown = true;
-                    }
-                }
-                if ((fieldType != null) && (dep.fieldType != null) && !fieldType.equals(dep.fieldType)) {
-                    System.err.println("ERROR: in " + component.getName() + " field " + dep.fieldName + " is of type "
-                            + fieldType
-                            + " but declared as type " + dep.fieldType);
-                }
-                // if a collection, the real type is unknown; let type be null.
-                if (!typeUnknown)
-                    dep.fieldType = fieldType;
-                return fieldMultiple;
-            }
-        }
-        System.err.println("ERROR: in " + component.getName() + " Field " + dep.fieldName
-                + " declared but not existing in the code");
-        return false;
+        //        private static final String[] fieldTypeMultiple = { "java.util.Set", "java.util.List",
+        //            "java.util.Collection", "java.util.Vector" };
+
+        String type = dep.getResource().getName();
+        return (type.equals("java.util.Set") || type.equals("java.util.List") || type.endsWith("[]"));
     }
 }

@@ -42,7 +42,15 @@ public class ApamRepoBuilder {
      */
 
     private final StringBuffer obrContent = new StringBuffer("<obr> \n");
+    private static boolean     failedParsing = false;
 
+    public static boolean getFailedParsing() {
+        return ApamRepoBuilder.failedParsing;
+    }
+
+    public static void setFailedParsing(boolean failed) {
+        ApamRepoBuilder.failedParsing = failed;
+    }
     /**
      * Flag describing if we need or not use local XSD files (i.e. use the {@link SchemaResolver} or not). If
      * <code>true</code> the local XSD are not used.
@@ -236,7 +244,7 @@ public class ApamRepoBuilder {
         }
 
         if (component instanceof InstanceDeclaration) {
-            CheckObr.checkInstance(component);
+            CheckObr.checkInstance((InstanceDeclaration) component);
             return;
         }
         // provide clause
