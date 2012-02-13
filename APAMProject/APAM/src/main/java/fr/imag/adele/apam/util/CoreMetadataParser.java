@@ -310,7 +310,7 @@ public class CoreMetadataParser implements CoreParser {
 		assert name != null && ! name.equals("");
 		
 		String multiple = parseString(element, ATT_MULTIPLE, false);
-		boolean isMultiple = Boolean.parseBoolean(multiple);
+		Boolean isMultiple = multiple != null? Boolean.parseBoolean(multiple) : null;
 		
 
 			
