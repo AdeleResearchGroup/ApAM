@@ -56,7 +56,7 @@
 			</plugin>
 			
  -->			
-						<plugin>
+			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-ipojo-plugin</artifactId>
 				<executions>
