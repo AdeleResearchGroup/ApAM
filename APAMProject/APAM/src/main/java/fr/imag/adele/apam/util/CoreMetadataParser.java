@@ -519,7 +519,13 @@ public class CoreMetadataParser implements CoreParser {
 		if (fieldData == null)
 			return null;
 		
-		return fieldData.getFieldType();
+		String fieldType = fieldData.getFieldType();
+		
+		if (fieldType.endsWith("[]")) {
+			int index = fieldType.indexOf('[');
+			fieldType = fieldType.substring(0, index);
+		}
+		return fieldType;
 		
 	}
 	/**
