@@ -22,6 +22,7 @@ public class CST {
         CST.A_COMPOSITESCOPE, CST.A_LOCALSCOPE,
         CST.A_LOCALVISIBLE, CST.A_COMPOSITEVISIBLE, CST.A_DEPENDENCIES };
 
+
     // indicate in which scope this object is visible. Scope for instances, implscope for implems.
     public static final String         A_SCOPE               = "scope";
     public static final String         A_VISIBLE             = "visible";

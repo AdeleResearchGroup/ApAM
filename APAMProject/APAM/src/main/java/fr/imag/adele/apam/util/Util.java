@@ -36,13 +36,13 @@ public class Util {
     public static Set<ComponentDeclaration> getComponents(Element root) {
         CoreParser parser = new CoreMetadataParser(root);
         return parser.getDeclarations(new ErrorHandler() {
-			
-			@Override
-			public void error(Severity severity, String message) {
-				System.err.println("error parsing xml "+message);
-				
-			}
-		});
+
+            @Override
+            public void error(Severity severity, String message) {
+                System.err.println("error parsing xml "+message);
+
+            }
+        });
     }
 
     /**
@@ -279,6 +279,10 @@ public class Util {
 
     public static boolean isPredefinedAttribute(String attr) {
         for (String pred : CST.predefAttributes) {
+            if (pred.equals(attr.toLowerCase()))
+                return true;
+        }
+        for (String pred : CST.finalAttributes) {
             if (pred.equals(attr.toLowerCase()))
                 return true;
         }
