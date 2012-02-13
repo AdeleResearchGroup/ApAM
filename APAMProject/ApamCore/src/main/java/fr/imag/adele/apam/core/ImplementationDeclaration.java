@@ -1,6 +1,5 @@
 package fr.imag.adele.apam.core;
 
-import java.util.List;
 
 /**
  * This class represents all the common declarations for an implementation of a service 
@@ -9,17 +8,13 @@ import java.util.List;
  * @author vega
  *
  */
-public abstract class ImplementationDeclaration extends ComponentDeclaration /*implements PropertyScope*/{
+public abstract class ImplementationDeclaration extends ComponentDeclaration {
 
     /**
      * The specification implemented by this implementation
      */
     private final SpecificationReference specification;
 
-    /**
-     * The definition of properties used to distinguish instances of this implementation 
-     */
-    private ImplementationDeclaration definitions;
 
     protected ImplementationDeclaration(String name, SpecificationReference specification) {
         super(name);
@@ -29,6 +24,10 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration /*i
         this.specification = specification;
     }
 
+    @Override
+    protected ResourceReference generateReference() {
+    	return new ImplementationReference(getName());
+    }
 
     /**
      * Get the specification implemented by this implementation
@@ -37,22 +36,6 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration /*i
     public SpecificationReference getSpecification() {
         return specification;
     }
-
-
-    //    @Override
-    //    public List<PropertyDefinition> getPropertyDefinitions() {
-    //        return definitions.getPropertyDefinitions();
-    //    }
-    //
-    //    @Override
-    //    public boolean isDefined(String propertyName) {
-    //        return definitions.isDefined(propertyName);
-    //    }
-    //
-    //    @Override
-    //    public PropertyDefinition getPropertyDefinition(String propertyName) {
-    //        return definitions.getPropertyDefinition(propertyName);
-    //    }
 
 
 }

@@ -24,6 +24,11 @@ public abstract class ComponentDeclaration {
     private final String name;
 
     /**
+     * The reference to this component declaration
+     */
+    private final ResourceReference reference;
+    
+    /**
      * The resources provided by this service
      */
     protected final Set<ProvidedResourceReference> providedResources;
@@ -31,23 +36,24 @@ public abstract class ComponentDeclaration {
     /**
      * The resources required by this service
      */
-    private final Set<DependencyDeclaration> dependencies;
+    private final Set<DependencyDeclaration> 	dependencies;
 
     /**
      * The properties describing this service provider
      */
-    private Map<String,Object> properties;
-    private final List<PropertyDefinition>         definitions;
+    private Map<String,Object> 					properties;
+    private final List<PropertyDefinition>		definitions;
 
     protected ComponentDeclaration(String name) {
 
         assert name != null;
 
-        this.name				= name;
+        this.name			= name;
+        this.reference		= generateReference();
         properties			= new HashMap<String,Object>();
         providedResources	= new HashSet<ProvidedResourceReference>();
         dependencies		= new HashSet<DependencyDeclaration>();
-        definitions = new ArrayList<PropertyDefinition>();
+        definitions 		= new ArrayList<PropertyDefinition>();
     }
 
     /**
@@ -56,7 +62,19 @@ public abstract class ComponentDeclaration {
     public String getName() {
         return name;
     }
-
+    
+    /**
+     * Get the reference to this declaration
+     */
+    public ResourceReference getReference() {
+    	return reference;
+    }
+    
+    /**
+     * Generates a unique resource identifier to reference this declaration
+     */
+    protected  abstract ResourceReference generateReference();
+    
     /**
      * Get the properties describing this provider
      */
@@ -163,17 +181,4 @@ public abstract class ComponentDeclaration {
         return ret.substring(0, ret.length() - 2) + "}";
     }
 
-    //    public String getSpecification() {
-    //        if (this instanceof SpecificationDeclaration)
-    //            return this.getName();
-    //        if (this instanceof ImplementationDeclaration) {
-    //            return ((ImplementationDeclaration)this).getSpecification().getName();
-    //        }
-    //        if (this instanceof InstanceDeclaration) {
-    //            return ((InstanceDeclaration)this).getImplementation().getName();
-    //        }
-    //        
-    //            return null;
-    //    }
-
-}
+ }

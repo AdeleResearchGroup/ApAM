@@ -1,6 +1,5 @@
 package fr.imag.adele.apam.core;
 
-import java.util.List;
 
 /**
  * This class represents the declaration of a service provider specification.
@@ -16,27 +15,12 @@ import java.util.List;
  */
 public class SpecificationDeclaration extends ComponentDeclaration {
 
-    //    private final PropertyScopeImplementation definitions;
-    //
     public SpecificationDeclaration(String name) {
         super(name);
-        //        definitions = new PropertyScopeImplementation();
     }
-    //
-    //    @Override
-    //    public List<PropertyDefinition> getPropertyDefinitions() {
-    //        return definitions.getPropertyDefinitions();
-    //    }
-    //
-    //    @Override
-    //    public boolean isDefined(String propertyName) {
-    //        return definitions.isDefined(propertyName);
-    //    }
-    //
-    //    @Override
-    //    public PropertyDefinition getPropertyDefinition(String propertyName) {
-    //        return definitions.getPropertyDefinition(propertyName);
-    //    }
-
-
+    
+    @Override
+    protected SpecificationReference generateReference() {
+    	return new SpecificationReference(getName());
+    }
 }

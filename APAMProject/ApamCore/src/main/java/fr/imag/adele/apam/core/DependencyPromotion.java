@@ -33,11 +33,19 @@ public class DependencyPromotion {
 		
 		assert composite != null;
 		assert dependency != null;
-		assert composite.getDependencies().contains(dependency);
+		assert dependency.getComponent() == composite;
 		
+        // bidirectional reference to declaration
 		this.composite	= composite;
-		this.dependency = dependency;
+        this.composite.getPromotions().add(this);
+		
+        // bidirectional reference to dependency
+        assert dependency.getComponent() == composite;
+        this.dependency 	= dependency;
+        this.dependency.getPromotions().add(this);
+
 		this.sources	= new HashSet<SpecificationReference>();
+
 	}
 	
 	/**

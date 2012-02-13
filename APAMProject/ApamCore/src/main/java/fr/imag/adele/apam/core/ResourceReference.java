@@ -1,6 +1,5 @@
 package fr.imag.adele.apam.core;
 
-import java.util.Set;
 
 /**
  * This class represents a reference to a required or provided resource.
@@ -61,7 +60,6 @@ public abstract class ResourceReference {
      * We support a different name space for different kinds of resources
      */
     public final boolean equals(ResourceReference that) {
-        System.out.println("equals resource");
         if (this == that)
             return true;
         //        if (! (object instanceof ResourceReference))

@@ -26,5 +26,10 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	public ImplementationReference getImplementation() {
 		return implementation;
 	}
+	
+	@Override
+	protected ResourceReference generateReference() {
+		throw new UnsupportedOperationException("instance declarations can not be referenced");
+	}
 
 }
