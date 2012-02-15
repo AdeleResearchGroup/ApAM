@@ -7,11 +7,11 @@ package fr.imag.adele.apam.core;
  * 
  */
 public class DependencyInjection {
-	
-	/**
-	 * The atomic implementation declaring this injection
-	 */
-	private final AtomicImplementationDeclaration implementation;
+
+    /**
+     * The atomic implementation declaring this injection
+     */
+    private final AtomicImplementationDeclaration implementation;
 
     /**
      * The dependency that must be resolved to get the provider of the required resource.
@@ -27,40 +27,45 @@ public class DependencyInjection {
      * The type of the resource that must be injected
      */
     private final ResourceReference 	resource;
-    
+
+    @Override
+    public String toString() {
+        return "Field name: " + fieldName + ". Type: " + resource;
+    }
+
     public DependencyInjection(AtomicImplementationDeclaration implementation, DependencyDeclaration dependency, String fieldName, ResourceReference resource) {
 
-    	assert implementation != null;
-    	assert dependency != null;
+        assert implementation != null;
+        assert dependency != null;
         assert fieldName != null;
         assert resource != null;
 
         // bidirectional reference to declaration
         this.implementation = implementation;
         this.implementation.getDependencyInjections().add(this);
-        
+
         this.fieldName		= fieldName;
         this.resource		= resource;
-        
+
         // bidirectional reference to dependency
         assert dependency.getComponent() == implementation;
         this.dependency 	= dependency;
         this.dependency.getInjections().add(this);
-        
+
     }
 
     /**
      * The component declaring this injection
      */
     public AtomicImplementationDeclaration getImplementation() {
-    	return implementation;
+        return implementation;
     }
     /**
      * The dependency that must be resolved to inject this field
      */
     public DependencyDeclaration getDependency() {
-		return dependency;
-	}
+        return dependency;
+    }
 
     /**
      * The name of the field to inject
@@ -76,4 +81,4 @@ public class DependencyInjection {
         return resource;
     }
 
- }
+}

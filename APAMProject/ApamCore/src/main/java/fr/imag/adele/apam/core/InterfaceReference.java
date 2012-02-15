@@ -12,4 +12,9 @@ public class InterfaceReference extends ProvidedResourceReference {
         super(name, ResourceType.INTERFACE);
     }
 
+    @Override
+    public String toString() {
+        return "interface " + name;
+    }
+
 }

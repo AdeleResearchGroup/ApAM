@@ -43,7 +43,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         return injectedFields;
     }
 
- 
+
     /**
      * The list of callbacks that must be invoked
      */
@@ -51,6 +51,18 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         return callbacks;
     }
 
+    @Override
+    public String toString() {
+        String ret = super.toString();
+        ret += "\n   Class Name: " + className;
+        if (callbacks.size() != 0) {
+            ret += "\n    Callbacks : ";
+            for (MethodCallback call : callbacks) {
+                ret += " " + call.getMethodName();
+            }
+        }
+        return ret;
+    }
 
 
 }

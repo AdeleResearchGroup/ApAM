@@ -12,4 +12,9 @@ public class ImplementationReference extends ResourceReference {
         super(name, ResourceType.IMPLEMENTATION);
     }
 
+    @Override
+    public String toString() {
+        return "Implementation " + name;
+    }
+
 }

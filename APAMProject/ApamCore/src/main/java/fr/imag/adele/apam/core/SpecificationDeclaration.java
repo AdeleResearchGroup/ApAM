@@ -18,9 +18,15 @@ public class SpecificationDeclaration extends ComponentDeclaration {
     public SpecificationDeclaration(String name) {
         super(name);
     }
-    
+
     @Override
     protected SpecificationReference generateReference() {
-    	return new SpecificationReference(getName());
+        return new SpecificationReference(getName());
     }
+
+    @Override
+    public String toString() {
+        return "Specification " + super.toString();
+    }
+
 }

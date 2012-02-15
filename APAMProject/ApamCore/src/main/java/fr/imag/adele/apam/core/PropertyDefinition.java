@@ -25,6 +25,11 @@ public class PropertyDefinition {
      */
     private final Object defaultValue;
 
+    @Override
+    public String toString() {
+        return "name: " + name + ". Type: " + type + ". default value: " + defaultValue;
+    }
+
     public PropertyDefinition(String name, String type, String defaultValue) {
 
         assert name != null;

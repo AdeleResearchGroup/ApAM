@@ -26,7 +26,7 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
 
     @Override
     protected ResourceReference generateReference() {
-    	return new ImplementationReference(getName());
+        return new ImplementationReference(getName());
     }
 
     /**
@@ -37,5 +37,11 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
         return specification;
     }
 
+    @Override
+    public String toString() {
+        String ret = "Implementation declaration " + super.toString();
+        ret += "\n   Specification: " + specification.getName();
+        return ret;
+    }
 
 }

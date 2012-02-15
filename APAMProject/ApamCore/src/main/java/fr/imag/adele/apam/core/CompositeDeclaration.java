@@ -11,37 +11,51 @@ import java.util.Set;
  */
 public class CompositeDeclaration extends ImplementationDeclaration {
 
-	/**
-	 * The main implementation of the composite
-	 */
-	private final ImplementationReference mainImplementation;
-	
-	/**
-	 * The list of promotions for this composite
-	 */
-	private final Set<DependencyPromotion> promotions;
+    /**
+     * The main implementation of the composite
+     */
+    private final ImplementationReference mainImplementation;
 
-	public CompositeDeclaration(String name, SpecificationReference specification, ImplementationReference mainImplementation) {
-		super(name, specification);
+    /**
+     * The list of promotions for this composite
+     */
+    private final Set<DependencyPromotion> promotions;
 
-		assert mainImplementation != null;
+    public CompositeDeclaration(String name, SpecificationReference specification, ImplementationReference mainImplementation) {
+        super(name, specification);
 
-		this.mainImplementation = mainImplementation;
-		this.promotions			= new HashSet<DependencyPromotion>();
-	}
+        assert mainImplementation != null;
 
-	
-	/**
-	 * Get the main implementation
-	 */
-	public ImplementationReference getMainImplementation() {
-		return mainImplementation;
-	}
-	
-	/**
-	 * Get the declared promotions for dependencies of components inside this composite
-	 */
-	public Set<DependencyPromotion> getPromotions() {
-		return promotions;
-	}
+        this.mainImplementation = mainImplementation;
+        promotions			= new HashSet<DependencyPromotion>();
+    }
+
+
+    /**
+     * Get the main implementation
+     */
+    public ImplementationReference getMainImplementation() {
+        return mainImplementation;
+    }
+
+    /**
+     * Get the declared promotions for dependencies of components inside this composite
+     */
+    public Set<DependencyPromotion> getPromotions() {
+        return promotions;
+    }
+
+    @Override
+    public String toString() {
+        String ret = "\nComposite declaration " + super.toString();
+        ret += "\n   Main Implementation: " + mainImplementation.getName();
+        if (promotions.size() != 0) {
+            ret += "\n   Promotions : ";
+            for (DependencyPromotion promotion : promotions) {
+                ret += "\n      " + promotion;
+            }
+        }
+        return ret;
+    }
+
 }

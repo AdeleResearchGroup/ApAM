@@ -27,7 +27,7 @@ public abstract class ComponentDeclaration {
      * The reference to this component declaration
      */
     private final ResourceReference reference;
-    
+
     /**
      * The resources provided by this service
      */
@@ -44,12 +44,42 @@ public abstract class ComponentDeclaration {
     private Map<String,Object> 					properties;
     private final List<PropertyDefinition>		definitions;
 
+    @Override
+    public String toString() {
+        String ret = name;
+        if (providedResources.size() != 0) {
+            ret += "\n   Provided resources: ";
+            for (ProvidedResourceReference resRef : providedResources) {
+                ret += "\n      " + resRef;
+            }
+        }
+        if (dependencies.size() != 0) {
+            ret += "\n   Dependencies: ";
+            for (DependencyDeclaration resRef : dependencies) {
+                ret += resRef;
+            }
+        }
+        if (properties.size() != 0) {
+            ret += "\n   Properties: ";
+            for (Object resRef : properties.keySet()) {
+                ret += "\n      " + (String) resRef + " = " + (String) properties.get(resRef);
+            }
+        }
+        if (definitions.size() != 0) {
+            ret += "\n   Attribute definitions: ";
+            for (PropertyDefinition resRef : definitions) {
+                ret += "\n      " + resRef;
+            }
+        }
+        return ret;
+    }
+
     protected ComponentDeclaration(String name) {
 
         assert name != null;
 
         this.name			= name;
-        this.reference		= generateReference();
+        reference		= generateReference();
         properties			= new HashMap<String,Object>();
         providedResources	= new HashSet<ProvidedResourceReference>();
         dependencies		= new HashSet<DependencyDeclaration>();
@@ -62,19 +92,19 @@ public abstract class ComponentDeclaration {
     public String getName() {
         return name;
     }
-    
+
     /**
      * Get the reference to this declaration
      */
     public ResourceReference getReference() {
-    	return reference;
+        return reference;
     }
-    
+
     /**
      * Generates a unique resource identifier to reference this declaration
      */
     protected  abstract ResourceReference generateReference();
-    
+
     /**
      * Get the properties describing this provider
      */
@@ -181,4 +211,5 @@ public abstract class ComponentDeclaration {
         return ret.substring(0, ret.length() - 2) + "}";
     }
 
- }
+
+}

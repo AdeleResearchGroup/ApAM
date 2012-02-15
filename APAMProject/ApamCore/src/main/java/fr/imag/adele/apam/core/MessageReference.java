@@ -13,4 +13,8 @@ public class MessageReference extends ProvidedResourceReference {
         super(name, ResourceType.MESSAGE);
     }
 
+    @Override
+    public String toString() {
+        return "message " + name;
+    }
 }

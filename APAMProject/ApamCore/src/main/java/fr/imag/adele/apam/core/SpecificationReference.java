@@ -12,4 +12,9 @@ public class SpecificationReference extends ResourceReference {
         super(name, ResourceType.SPECIFICATION);
     }
 
+    @Override
+    public String toString() {
+        return " specification " + name;
+    }
+
 }

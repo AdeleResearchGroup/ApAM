@@ -32,4 +32,10 @@ public class InstanceDeclaration extends ComponentDeclaration {
         return null;
     }
 
+    @Override
+    public String toString() {
+        String ret = "Instance declaration " + super.toString();
+        ret += "\n    Implementation: " + implementation.getName();
+        return ret;
+    }
 }
