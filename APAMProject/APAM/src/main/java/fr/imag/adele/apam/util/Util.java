@@ -30,19 +30,26 @@ import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
  */
 public class Util {
 
+    static boolean failed;
+
     private Util() {
     };
 
     public static Set<ComponentDeclaration> getComponents(Element root) {
+        Util.failed = false;
         CoreParser parser = new CoreMetadataParser(root);
         return parser.getDeclarations(new ErrorHandler() {
 
             @Override
             public void error(Severity severity, String message) {
                 System.err.println("error parsing xml "+message);
-
+                Util.failed = true;
             }
         });
+    }
+
+    public static boolean getFailedParsing() {
+        return Util.failed;
     }
 
     /**

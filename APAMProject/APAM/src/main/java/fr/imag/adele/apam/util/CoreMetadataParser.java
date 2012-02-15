@@ -197,7 +197,6 @@ public class CoreMetadataParser implements CoreParser {
             value = "";
 
         return value;
-
     }
 
 
@@ -238,7 +237,10 @@ public class CoreMetadataParser implements CoreParser {
      * Get an specification reference coded in an attribute
      */
     private SpecificationReference parseSpecificationReference(Element element, String attibute) {
-        return new SpecificationReference(parseString(element,attibute));
+        String specRef = parseString(element, attibute, false);
+        if (specRef == null)
+            return null;
+        return new SpecificationReference(specRef);
     }
 
     /**
@@ -269,10 +271,27 @@ public class CoreMetadataParser implements CoreParser {
         for (String interfaceName : parseStringList(element,CoreMetadataParser.ATT_INTERFACES,false)) {
             component.getProvidedResources().add(new InterfaceReference(interfaceName));
         }
+        // if not explicitly provided, get all the implemented interfaces.
+        if (component.getProvidedResources().size() == 0) {
+            Element[] manipulation = element.getElements("manipulation"); // only one
+            if ((manipulation != null) && (manipulation.length != 0)) {
+                Element[] interfaces = manipulation[0].getElements(CoreMetadataParser.INTERFACE);
+                String interfaceName;
+                for (Element interf : interfaces) {
+                    interfaceName = interf.getAttribute(CoreMetadataParser.ATT_NAME);
+                    if (!interfaceName.startsWith("java.lang"))
+                        component.getProvidedResources().add(new InterfaceReference(interfaceName));
+                }
+            }
+        }
 
         for (String message : parseStringList(element,CoreMetadataParser.ATT_MESSAGES,false)) {
             component.getProvidedResources().add(new MessageReference(message));
         }
+
+        //        for (String spec : parseStringList(element, CoreMetadataParser.ATT_SPECIFICATION, false)) {
+        //            component.getProvidedResources().add(new SpecificationReference(spec));
+        //        }
 
     }
 
@@ -308,6 +327,16 @@ public class CoreMetadataParser implements CoreParser {
     }
 
     /**
+     * Finds the implemented interfaces in the metadata and fills the provided interfaces.
+     * 
+     * @param element
+     * @param component
+     */
+    private void parseImplementedInterface(Element element, ComponentDeclaration component) {
+
+    }
+
+    /**
      * parse a dependency declaration
      */
     private void parseDependency(Element element, ComponentDeclaration component, String name) {
@@ -316,10 +345,7 @@ public class CoreMetadataParser implements CoreParser {
         String multiple = parseString(element, CoreMetadataParser.ATT_MULTIPLE, false);
         Boolean isMultiple = (multiple == null) || multiple.isEmpty() ? null : Boolean.parseBoolean(multiple);
 
-
-
         // create a typed dependency based on the target kind
-
         ResourceReference target = null;
 
         if (element.getName().equals(CoreMetadataParser.SPECIFICATION))
@@ -450,7 +476,7 @@ public class CoreMetadataParser implements CoreParser {
                 /*
                  * Complex dependencies has nested fields
                  */
-                if (element.getName().equals(CoreMetadataParser.SPECIFICATION)) {
+                if (dependency.getName().equals(CoreMetadataParser.SPECIFICATION)) {
                     for (Element injection : optional(dependency.getElements())) {
 
                         /*
@@ -578,14 +604,17 @@ public class CoreMetadataParser implements CoreParser {
             for (Element definition : optional(definitions.getElements(CoreMetadataParser.DEFINITION,
                     CoreMetadataParser.APAM))) {
 
-                String name 		= parseString(definition,CoreMetadataParser.ATT_NAME).toLowerCase();
+                String name = parseString(definition, CoreMetadataParser.ATT_NAME, false).toLowerCase();
+                if (!(component instanceof InstanceDeclaration) && ((name == null) || name.isEmpty())) {
+                    errorHandler.error(Severity.ERROR, "attribute " + CoreMetadataParser.ATT_NAME
+                            + " must be specified in " + definition);
+                }
                 String type			= parseString(definition,CoreMetadataParser.ATT_TYPE) ;
                 String defaultValue = parseString(definition,CoreMetadataParser.ATT_VALUE,false);
 
                 component.getPropertyDefinitions().add(new PropertyDefinition(name, type, defaultValue));
             }
         }
-
         return component;
     }
 
