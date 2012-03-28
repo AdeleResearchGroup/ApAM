@@ -91,7 +91,7 @@
 	</implementation>
 
 
-	<composite name="S2Compo" specification="Syyy" mainImplem="S3Impl"
+	<composite name="S2Compo" specification="S2" mainImplem="S3Impl"
 		messages="{M5, M6}"
 		interfaces="{fr.imag.adele.apam.test.s2.SZZZ,fr.imag.adele.apam.apamAPI.YYYYYYY}">
 		<properties shared="false" />
@@ -111,7 +111,8 @@
 			<property test-spec="coucous4" />
 			<property A2="yes" />
 			<property c3="xxx" />
-			<property xyz="xxx" />
+			<property b="bbb" />
+			<property xyz="yyy" />
 		</properties>
 		<dependencies>
 			<specification name="S3">

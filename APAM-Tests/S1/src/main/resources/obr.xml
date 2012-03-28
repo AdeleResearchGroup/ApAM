@@ -6,6 +6,7 @@
       <p n='shared' v='false' />
       <p n='scope' v='global' />
       <p n='definition-s1b' v='true' />
-      <p n='definition-s1c' />
+      <p n='definition-s1c' v='' />
    </capability>
+
 </obr> 

@@ -7,7 +7,7 @@
       <p n='b' v='yes' />
       <p n='c' v='xxx' />
       <p n='test-spec' v='anotherValue' />
-      <p n='definition-x' />
-      <p n='definition-A2' v='5' />
+      <p n='definition-x' v='' />
+      <p n='definition-a2' v='5' />
    </capability>
 </obr> 

@@ -16,21 +16,6 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>apam-ipojo-bundle</goal>
-						</goals>
-						<configuration>
-							<metadata>src/main/resources/S1.xml</metadata>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.0.1</version>
@@ -47,6 +32,32 @@
 				<configuration>
 					<Export-Package>fr.imag.adele.appam.test.s1</Export-Package>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-ipojo-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>ipojo-bundle</goal>
+						</goals>
+						<configuration>
+							<metadata>src/main/resources/S1.xml</metadata>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>ApamMavenPlugin</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>apam-ipojo-bundle</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

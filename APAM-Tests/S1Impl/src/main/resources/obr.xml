@@ -9,7 +9,8 @@
    </capability>
    <capability name='apam-implementation'>
       <p n='name' v='S1Main' />
-      <p n='provide-interfaces' v='{java.lang.Runnable, fr.imag.adele.apam.ApamComponent}' /> 
+      <p n='provide-interfaces' v='{ApamComponent}' /> 
+      <p n='provide-specification' v='' />
       <p n='shared' v='false' />
       <p n='name' v='s1 main' />
       <p n='value' v='pas d interface' />
