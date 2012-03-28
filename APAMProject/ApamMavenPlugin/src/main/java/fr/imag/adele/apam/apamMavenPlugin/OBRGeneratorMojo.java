@@ -155,7 +155,7 @@ public class OBRGeneratorMojo extends AbstractMojo {
             ApamRepoBuilder arb = new ApamRepoBuilder(localRepository.getBasedir());
             Set<ComponentDeclaration> components = Util.getComponents (root) ;
             StringBuffer obrContent = arb.writeOBRFile(components);
-            if (ApamRepoBuilder.getFailedParsing()) {
+            if (CheckObr.getFailedChecking() || Util.getFailedParsing()) {
                 throw new MojoExecutionException("Failed Metadata Parsing");
             }
 

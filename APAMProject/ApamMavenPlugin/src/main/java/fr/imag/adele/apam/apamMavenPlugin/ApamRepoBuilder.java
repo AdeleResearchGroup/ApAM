@@ -17,6 +17,7 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.xml.parser.SchemaResolver;
 
 import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.DependencyDeclaration;
@@ -41,16 +42,7 @@ public class ApamRepoBuilder {
      * Metadata (in internal format).
      */
 
-    private final StringBuffer obrContent = new StringBuffer("<obr> \n");
-    private static boolean     failedParsing = false;
 
-    public static boolean getFailedParsing() {
-        return ApamRepoBuilder.failedParsing;
-    }
-
-    public static void setFailedParsing(boolean failed) {
-        ApamRepoBuilder.failedParsing = failed;
-    }
     /**
      * Flag describing if we need or not use local XSD files (i.e. use the {@link SchemaResolver} or not). If
      * <code>true</code> the local XSD are not used.
@@ -62,65 +54,12 @@ public class ApamRepoBuilder {
     }
 
     public StringBuffer writeOBRFile(Set<ComponentDeclaration> components) {
-        //
-        //        File obrFile = new File(obrFileStr);
-        //        boolean okMetadata = false;
-        //        JarFile jar = null;
-        //        try {
-        //            jar = new JarFile(jarFile);
-        //            okMetadata = writeMetadataOBRFile(obrContent, metadataFile, is, jar, outputDirectory);
-        //            jar.close();
-        //        } catch (IOException e2) {
-        //            System.err.println("cannot read the jar file : " + jarFile.getAbsolutePath());
-        //            return false;
-        //        }
-        //        // System.out.println(obrContent);
-        //
-        //        if (!okMetadata)
-        //            return false;
-        //        obrContent.append("</obr> \n");
-        //
-        //        OutputStream obr;
-        //        try {
-        //            obr = new FileOutputStream(obrFile);
-        //        } catch (FileNotFoundException e) {
-        //            // System.err.println("Cannot open for writing : " + obrFile.getAbsolutePath());
-        //            return false;
-        //        }
-        //        try {
-        //            obr.write(obrContent.toString().getBytes());
-        //        } catch (IOException e) {
-        //            // System.err.println("Cannot write into : " + obrFile.getAbsolutePath());
-        //            try {
-        //                obr.close();
-        //            } catch (IOException e1) {
-        //            }
-        //            return false;
-        //        }
-        //        try {
-        //            obr.flush();
-        //            obr.close();
-        //        } catch (IOException e) {
-        //            // System.err.println("Cannot close : " + obrFile.getAbsolutePath());
-        //            return false;
-        //        }
-        //        return true;
-        //    }
-        //
-        //    public boolean writeMetadataOBRFile(StringBuffer obrContent, File metadata, InputStream is, JarFile jarFile,
-        //            File outputDirectory) {
-        //        if (metadata == null) {
-        //            System.out.println(" no metadata");
-        //            return false;
-        //        }
-        //
-        // ApamComponentXML compXML = new ApamComponentXML(outputDirectory, metadata, is, jarFile);
-        // Set<ComponentDeclaration> components = Util.getComponents(root);
-
+        StringBuffer obrContent = new StringBuffer("<obr> \n");
         for (ComponentDeclaration comp : components) {
             // printElement(comp.m_componentMetadata, "");
             printOBRElement(obrContent, comp, "");
         }
+        obrContent.append("</obr> \n");
         return obrContent;
     }
 
@@ -135,15 +74,15 @@ public class ApamRepoBuilder {
         if (messages != null)
             obrContent.append("      <p n='" + OBR.A_PROVIDE_MESSAGES + "' v='" + messages + "' />\n");
 
-        String spec = component.getProvidedRessourceString(ResourceType.SPECIFICATION);
-        if (spec != null)
-            obrContent.append("      <p n='" + OBR.A_PROVIDE_SPECIFICATION + "' v='" + spec + "' />\n");
-
-        // Checking consistency
         if (component instanceof ImplementationDeclaration) {
-            CheckObr.checkImplProvide(component.getName(), spec, interfaces, messages);
+            String spec = ((ImplementationDeclaration) component).getSpecification().getName();
+            if ((spec != null) && !spec.isEmpty()) {
+                obrContent.append("      <p n='" + OBR.A_PROVIDE_SPECIFICATION + "' v='" + spec + "' />\n");
+                CheckObr.checkImplProvide(component.getName(), spec, interfaces, messages);
+            }
         }
     }
+
 
     private void printProperties(StringBuffer obrContent, ComponentDeclaration component) {
         // property attributes
@@ -166,7 +105,8 @@ public class ApamRepoBuilder {
         }
 
         // Check Consistency
-        CheckObr.checkImplAttributes((ImplementationDeclaration) component);
+        if (component instanceof ImplementationDeclaration)
+            CheckObr.checkImplAttributes((ImplementationDeclaration) component);
     }
 
     private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {
@@ -183,33 +123,12 @@ public class ApamRepoBuilder {
                     obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.getResource().getName()
                             + "' /> \n");
                 }
-
-                //                switch (dep.targetKind) {
-                //                    case INTERFACE: {
-                //                        obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + dep.fieldType
-                //                                + "' /> \n");
-                //                        break;
-                //                    }
-                //                    case SPECIFICATION:
-                //                        obrContent.append("      <p n='" + OBR.A_REQUIRE_SPECIFICATION + "' v='" + dep.fieldType
-                //                                + "' /> \n");
-                //                        break;
-                //                    case PULL_MESSAGE:
-                //                        obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.fieldType + "' /> \n");
-                //                        break;
-                //                    case PUSH_MESSAGE:
-                //                        obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.fieldType + "' /> \n");
-                //                        break;
-                //                }
             }
             return;
         }
 
         // composite and implems
         CheckObr.checkRequire(component);
-
-        if (component instanceof CompositeDeclaration)
-            CheckObr.checkCompoMain((CompositeDeclaration) component);
     }
 
     private void
@@ -228,7 +147,7 @@ public class ApamRepoBuilder {
         System.out.println(component.getName() + " ...");
 
         //headers
-        if (component instanceof ImplementationDeclaration) {
+        if (component instanceof AtomicImplementationDeclaration) {
             obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
         }
         if (component instanceof CompositeDeclaration) {
@@ -236,8 +155,9 @@ public class ApamRepoBuilder {
             obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='" + (component instanceof CompositeDeclaration)
                     + "' />\n");
             obrContent.append("      <p n='" + CST.A_MAIN_IMPLEMENTATION + "' v='"
-                    + ((CompositeDeclaration) component).getMainImplementation()
+                    + ((CompositeDeclaration) component).getMainImplementation().getName()
                     + "' />\n");
+            CheckObr.checkCompoMain((CompositeDeclaration) component);
         }
         if (component instanceof SpecificationDeclaration) {
             obrContent.append("   <capability name='" + OBR.CAPABILITY_SPECIFICATION + "'>\n");
@@ -247,6 +167,7 @@ public class ApamRepoBuilder {
             CheckObr.checkInstance((InstanceDeclaration) component);
             return;
         }
+
         // provide clause
         printProvided(obrContent, component);
 

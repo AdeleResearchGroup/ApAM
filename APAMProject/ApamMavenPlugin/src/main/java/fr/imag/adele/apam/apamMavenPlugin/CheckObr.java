@@ -28,15 +28,35 @@ public class CheckObr {
     private static final Map<String, Capability> readSpecs        = new HashMap<String, Capability>();
     private static final Set<String>             allFields         = new HashSet<String>();
 
+    private static boolean                       failedChecking = false;
+
+    public static boolean getFailedChecking() {
+        return CheckObr.failedChecking;
+    }
+
+    public static void error(String msg) {
+        CheckObr.failedChecking = true;
+        System.err.println(msg);
+    }
+
+    public static void warning(String msg) {
+        System.out.println(msg);
+    }
+
+    public static void setFailedParsing(boolean failed) {
+        CheckObr.failedChecking = failed;
+    }
+
     public static void init(String defaultOBRRepo) {
-        File theRepo = new File(defaultOBRRepo);
+        System.out.println("start CheckOBR. Default repo= " + defaultOBRRepo);
         try {
+            File theRepo = new File(defaultOBRRepo);
             CheckObr.repo = new RepositoryImpl(theRepo.toURI().toURL());
             CheckObr.repo.refresh();
             // System.out.println("read repo " + defaultOBRRepo);
             CheckObr.resources = CheckObr.repo.getResources();
 
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -56,7 +76,7 @@ public class CheckObr {
         // each element of sp must be found in implList
         for (String sp : Util.split(subSet)) {
             if (!implList.contains(sp)) {
-                System.err.println(msg + sp + ". Declared: " + set);
+                CheckObr.error(msg + sp + ". Declared: " + set);
             }
         }
     }
@@ -209,13 +229,13 @@ public class CheckObr {
             return true;
 
         if (Util.isReservedAttribute(attr)) {
-            System.err.println("ERROR: " + attr + " is a reserved attribute");
+            CheckObr.error("ERROR: " + attr + " is a reserved attribute");
             return false;
         }
 
         for (Object prop : props.keySet()) {
             if (((String) prop).equalsIgnoreCase(attr)) {
-                System.err.println("ERROR: cannot redefine attribute " + attr);
+                CheckObr.error("ERROR: cannot redefine attribute " + attr);
                 return false;
             }
         }
@@ -240,7 +260,7 @@ public class CheckObr {
         ImplementationReference impl = instance.getImplementation();
         String name = instance.getName();
         if (impl == null) {
-            System.err.println("ERROR: implementation name missing for instance " + name);
+            CheckObr.error("ERROR: implementation name missing for instance " + name);
             return;
         }
         CheckObr.checkInstAttributes(impl.getName(), name, instance);
@@ -347,12 +367,12 @@ public class CheckObr {
             return;
         String interfaces = composite.getProvidedRessourceString(ResourceType.INTERFACE);
         String messages = composite.getProvidedRessourceString(ResourceType.MESSAGE);
-        String spec = composite.getProvidedRessourceString(ResourceType.SPECIFICATION);
+        String spec = composite.getSpecification().getName();
         if (spec == null)
             return;
         String capSpec = CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_SPECIFICATION);
         if ((capSpec != null) && !spec.equals(capSpec)) {
-            System.err.println("In " + name + " Invalid main implementation. " + implName
+            CheckObr.error("In " + name + " Invalid main implementation. " + implName
                     + " must implement specification " + spec);
         }
         CheckObr.checkList(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES), messages,
@@ -415,14 +435,15 @@ public class CheckObr {
                 for (Capability cap : res.getCapabilities()) {
                     if (cap.getName().equals(OBR.CAPABILITY_SPECIFICATION)
                             && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
-                        System.out.println("Specification " + name + " found in bundle " + res.getId());
+                        System.out.println("     Specification " + name + " found in bundle " + res.getId());
                         CheckObr.readSpecs.put(name, cap);
                         return cap;
                     }
                 }
             }
         }
-        System.out.println("Warning: Specification " + name + " not found in repository " + CheckObr.repo.getURL());
+        System.out
+        .println("     Warning: Specification " + name + " not found in repository " + CheckObr.repo.getURL());
         return null;
     }
 
@@ -434,14 +455,14 @@ public class CheckObr {
             for (Capability cap : res.getCapabilities()) {
                 if (cap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)
                         && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
-                    System.out.println("Implementation " + name + " found in bundle " + res.getId());
+                    System.out.println("     Implementation " + name + " found in bundle " + res.getId());
                     CheckObr.readSpecs.put(name, cap);
                     return cap;
                 }
                 //                }
             }
         }
-        System.err.println("Implementation " + name + " not found in repository " + CheckObr.repo.getURL());
+        System.err.println("     Implementation " + name + " not found in repository " + CheckObr.repo.getURL());
         return null;
     }
 
@@ -459,7 +480,7 @@ public class CheckObr {
     }
 
     /**
-     * Provided a dependency "dep" (simple or complex) checks if the field type and attribute multip^le are compatible.
+     * Provided a dependency "dep" (simple or complex) checks if the field type and attribute multiple are compatible.
      * For complex dependency, for each field, checks if the target specification implements the field resource.
      * 
      * @param dep : a dependency
@@ -483,16 +504,16 @@ public class CheckObr {
             }
             if (mult != CheckObr.isFieldMultiple(innerDep, component)) {
                 if (mult)
-                    System.err.println("ERROR: in " + component.getName() + " field "
+                    CheckObr.error("ERROR: in " + component.getName() + " field "
                             + innerDep.getResource().getName()
                             + " is a collection field, while other fields in same dependency are simple.");
                 else
-                    System.err.println("ERROR: in " + component.getName() + " field "
+                    CheckObr.error("ERROR: in " + component.getName() + " field "
                             + innerDep.getResource().getName()
                             + " is a simple field, while other fields in same dependency are collection.");
             }
             if (!(specResources.contains(innerDep.getResource().getName()))) {
-                System.err.println("ERROR: in " + component.getName() + " Field " + innerDep.getFieldName()
+                CheckObr.error("ERROR: in " + component.getName() + " Field " + innerDep.getFieldName()
                         + " is of type "
                         + innerDep.getResource()
                         + " which is not implemented by specification " + dep.getName());
@@ -510,7 +531,7 @@ public class CheckObr {
      */
     public static boolean isFieldMultiple(DependencyInjection dep, ComponentDeclaration component) {
         if (CheckObr.allFields.contains(dep.getFieldName())) {
-            System.err.println("ERROR: in " + component.getName() + " field " + dep.getFieldName()
+            CheckObr.error("ERROR: in " + component.getName() + " field " + dep.getFieldName()
                     + " allready declared");
         }
         else {
