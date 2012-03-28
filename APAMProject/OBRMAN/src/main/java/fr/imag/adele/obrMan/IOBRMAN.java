@@ -3,7 +3,6 @@ package fr.imag.adele.obrMan;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Filter;
 

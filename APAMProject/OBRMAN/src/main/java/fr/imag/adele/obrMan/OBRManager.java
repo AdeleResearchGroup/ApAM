@@ -1,6 +1,7 @@
 package fr.imag.adele.obrMan;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -34,19 +35,24 @@ public class OBRManager implements IOBRMAN {
      * OBRMAN activated, register with APAM
      */
 
-    //    // When in maven plug-in
-    //    public OBRManager(String defaultLocalRepo) {
-    //        init(defaultLocalRepo);
-    //    }
-
-    //    public RepositoryAdmin getRepositoryAdmin () {
-    //        return repoAdmin ;
-    //    }
 
     public OBRManager(String defaultLocalRepo, RepositoryAdmin repoAdmin) {
-        System.out.println("Started OBRMAN" + defaultLocalRepo);
+
         this.repoAdmin = repoAdmin;
         try {
+            if (defaultLocalRepo == null) {
+                // use Maven settings to find maven repository
+                File settings = searchSettingsFromUserHome();
+                if (settings == null) {
+                    settings = searchSettingsFromM2Home();
+                }
+                System.out.println("used maven settings: " + settings);
+                if (settings != null) {
+                    defaultLocalRepo = settings.getAbsolutePath();
+                }
+            }
+
+            System.out.println("Started OBRMAN" + defaultLocalRepo);
             if (defaultLocalRepo != null) {
                 local = repoAdmin.addRepository(defaultLocalRepo);
             } else {
@@ -331,7 +337,6 @@ public class OBRManager implements IOBRMAN {
                 deployed = true;
             } catch (IllegalStateException e) {
                 System.out.println("OBR changed state. Resolving again " + res.getSymbolicName());
-                // Thread.sleep(10) ;
             }
         }
 
@@ -424,6 +429,38 @@ public class OBRManager implements IOBRMAN {
             resource = res;
             capability = cap;
         }
+    }
+
+    //
+
+    private File searchSettingsFromM2Home() {
+        String m2_home = System.getProperty("M2_HOME");
+        if (m2_home == null) {
+            return null;
+        }
+        File m2_Home_file = new File(m2_home);
+        File settings = new File(new File(m2_Home_file, "conf"), "settings.xml");
+        if (settings.exists()) {
+            return settings;
+        }
+        return null;
+    }
+
+    private File searchSettingsFromUserHome() {
+        String user_home = System.getProperty("user.home");
+        if (user_home == null) {
+            user_home = System.getProperty("HOME");
+            if (user_home == null) {
+                return null;
+            }
+        }
+        File user_home_file = new File(user_home);
+        File settings = new File(new File(user_home_file, ".m2"),
+        "settings.xml");
+        if (settings.exists()) {
+            return settings;
+        }
+        return null;
     }
 
 }

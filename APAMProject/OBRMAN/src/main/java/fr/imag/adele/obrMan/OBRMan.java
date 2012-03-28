@@ -49,11 +49,6 @@ public class OBRMan implements Manager {
         ApamManagers.removeManager(this);
     }
 
-    //
-    // Apam dependent
-    //
-    //
-
     /**
      * Given the res OBR resource, supposed to match an Apam requirement when resolving a wire from "from".
      * Install and start from the OBR repository, and creates the associated ASM impl and inst.

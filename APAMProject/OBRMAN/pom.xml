@@ -43,7 +43,24 @@
 					</instructions>
 				</configuration>
 			</plugin>
-			<plugin>
+			
+						<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-ipojo-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>ipojo-bundle</goal>
+						</goals>
+<!-- 						<configuration>
+							 <metadata>src/main/resources/</metadata>
+						</configuration>
+ -->					</execution>
+				</executions>
+			</plugin>
+			
+			
+<!-- 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>ApamMavenPlugin</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
@@ -58,6 +75,8 @@
 					</execution>
 				</executions>
 			</plugin>
+			
+ -->			
 			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -107,14 +126,15 @@
 			<artifactId>org.apache.felix.ipojo</artifactId>
 			<scope>provided</scope>
 		</dependency>
-<!-- 		<dependency>
-			<groupId>stax</groupId>
-			<artifactId>stax-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
- -->         <dependency>
+        <dependency>
          	<groupId>fr.imag.adele.apam</groupId>
          	<artifactId>APAM</artifactId>
+         	<version>0.0.1-SNAPSHOT</version>
+         	<scope>compile</scope>
+         </dependency>
+        <dependency>
+         	<groupId>fr.imag.adele.apam</groupId>
+         	<artifactId>ApamCore</artifactId>
          	<version>0.0.1-SNAPSHOT</version>
          	<scope>compile</scope>
          </dependency>
