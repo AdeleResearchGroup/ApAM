@@ -26,7 +26,6 @@ import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.ServiceProperty;
 import org.apache.felix.service.command.Descriptor;
 
-//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
@@ -35,9 +34,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.Wire;
-import fr.imag.adele.apam.util.Dependency;
-import fr.imag.adele.apam.util.Dependency.AtomicDependency;
-import fr.imag.adele.apam.util.Dependency.TargetKind;
+import fr.imag.adele.apam.core.ResourceReference;
 
 /**
  * 
@@ -59,7 +56,7 @@ public class ApamCommand {
      */
     @ServiceProperty(name = "osgi.command.function", value = "{}")
     String[] m_function = new String[] { "specs", "implems", "insts", "spec", "implem", "inst", "dump",
-                        "compoTypes", "compoType", "compos", "compo", "wire" };
+        "compoTypes", "compoType", "compos", "compo", "wire" };
 
     // ipojo injected
     @Requires
@@ -114,12 +111,12 @@ public class ApamCommand {
                 // testImplementations("   ", specification.getImpls());
                 break;
             }
-//            if ((specification.getName() != null)
-//                    && (specification.getName().equalsIgnoreCase(specificationName))) {
-//                printSpecification("", specification);
-//                // testImplementations("   ", specification.getImpls());
-//                break;
-//            }
+            //            if ((specification.getName() != null)
+            //                    && (specification.getName().equalsIgnoreCase(specificationName))) {
+            //                printSpecification("", specification);
+            //                // testImplementations("   ", specification.getImpls());
+            //                break;
+            //            }
         }
     }
 
@@ -186,10 +183,10 @@ public class ApamCommand {
         dumpApam();
     }
 
-//    @Descriptor("Display the state model of the target application")
-//    public void state(@Descriptor("target application") String appliName) {
-//        dumpCompoType(appliName);
-//    }
+    //    @Descriptor("Display the state model of the target application")
+    //    public void state(@Descriptor("target application") String appliName) {
+    //        dumpCompoType(appliName);
+    //    }
 
     @Descriptor("Display all the Apam composites types")
     public void compoTypes() {
@@ -234,6 +231,12 @@ public class ApamCommand {
                 + ". Main implementation : " + compo.getMainImpl()
                 + ". Models : " + compo.getModels());
 
+        System.out.print(indent + "   Provides resources : ");
+        for (ResourceReference ref : compo.getCompoDeclaration().getProvidedResources()) {
+            System.out.print(ref + " ");
+        }
+        System.out.println("");
+
         System.out.print(indent + "   Embedded in composite types : ");
         for (CompositeType comType : compo.getInvEmbedded()) {
             System.out.print(comType.getName() + " ");
@@ -269,7 +272,7 @@ public class ApamCommand {
             System.out.print(inst + " ");
         }
 
-        System.out.println(indent + "   Declared dependencies " + compo.getApformImpl().getDependencies());
+        System.out.println(indent + "   Declared dependencies " + compo.getCompoDeclaration().getDependencies());
         System.out.println("");
 
         for (CompositeType comType : compo.getEmbedded()) {
@@ -327,11 +330,11 @@ public class ApamCommand {
     private void printSpecification(String indent, Specification specification) {
         System.out.println(indent + "----- [ ASMSpec : " + specification.getName() + " ] -----");
         System.out.println(indent + "   Interfaces:");
-        for (String interf : specification.getInterfaceNames()) {
-            System.out.println(indent + "      " + interf);
+        for (ResourceReference res : specification.getDeclaration().getProvidedResources()) {
+            System.out.println(indent + "      " + res);
         }
 
-        System.out.println(specification.getApformSpec().getDependencies());
+        System.out.println(specification.getDeclaration().getDependencies());
 
         System.out.println(indent + "   Effective Required specs:");
         for (Specification spec : specification.getRequires()) {
@@ -398,7 +401,7 @@ public class ApamCommand {
             System.out.println(indent + "   implementation : " + instance.getImpl());
             System.out.println(indent + "   in composite   : " + instance.getComposite());
             System.out.println(indent + "   in application : " + instance.getRootComposite());
-            printProperties(indent + "   ", instance);
+            printProperties(indent + "   ", instance.getAllProperties());
         }
 
     }
@@ -443,13 +446,13 @@ public class ApamCommand {
             System.out.println(indent + "      " + implem);
         }
 
-        System.out.println(indent + "   Declared dependencies " + impl.getApformImpl().getDependencies());
+        System.out.println(indent + "   Declared dependencies " + impl.getImplDeclaration().getDependencies());
 
         System.out.println(indent + "   Instances:");
         for (Instance inst : impl.getInsts()) {
             System.out.println(indent + "      " + inst);
         }
-        printProperties(indent + "   ", impl);
+        printProperties(indent + "   ", impl.getAllProperties());
     }
 
     /**
@@ -475,9 +478,9 @@ public class ApamCommand {
         for (Instance compo : compType.getInsts()) {
             printComposite((Composite) compo, "   ");
         }
-//        for (ASMImpl compo : compType.getUses()) {
-//            printCompositeType((CompositeType) compo, "");
-//        }
+        //        for (ASMImpl compo : compType.getUses()) {
+        //            printCompositeType((CompositeType) compo, "");
+        //        }
     }
 
     private void dumpCompo(Composite comp) {
