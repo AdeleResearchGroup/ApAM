@@ -25,10 +25,6 @@ public class PropertyDefinition {
      */
     private final Object defaultValue;
 
-    @Override
-    public String toString() {
-        return "name: " + name + ". Type: " + type + ". default value: " + defaultValue;
-    }
 
     public PropertyDefinition(String name, String type, String defaultValue) {
 
@@ -61,7 +57,7 @@ public class PropertyDefinition {
     }
 
     /**
-     * Verifies if the value is valid for the type of this property and
+     * Verifies if the value is valid for the type of this property definition and
      * converts it to an object.
      * 
      * If the serialized value is null, returns the default value associated
@@ -87,4 +83,10 @@ public class PropertyDefinition {
         // TODO
         return serializedValue;
     }
+    
+    @Override
+    public String toString() {
+        return "name: " + name + ". Type: " + type + ". default value: " + defaultValue;
+    }
+
 }

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fr.imag.adele.apam.core.ResourceReference.ResourceType;
 
 /**
  * This class represents the common description of a component at all levels of abstraction
@@ -26,12 +25,12 @@ public abstract class ComponentDeclaration {
     /**
      * The reference to this component declaration
      */
-    private final ResourceReference reference;
+    private final ComponentReference<?> reference;
 
     /**
      * The resources provided by this service
      */
-    protected final Set<ProvidedResourceReference> providedResources;
+    protected final Set<ResourceReference> providedResources;
 
     /**
      * The resources required by this service
@@ -44,12 +43,151 @@ public abstract class ComponentDeclaration {
     private Map<String,Object> 					properties;
     private final List<PropertyDefinition>		definitions;
 
+    protected ComponentDeclaration(String name) {
+
+        assert name != null;
+
+        this.name			= name;
+        reference			= generateReference();
+        properties			= new HashMap<String,Object>();
+        providedResources	= new HashSet<ResourceReference>();
+        dependencies		= new HashSet<DependencyDeclaration>();
+        definitions 		= new ArrayList<PropertyDefinition>();
+    }
+
+    /**
+     * Get the name of the provider
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Get the reference to this declaration
+     */
+    public ComponentReference<?> getReference() {
+        return reference;
+    }
+
+    /**
+     * Generates a unique resource identifier to reference this declaration
+     */
+    protected  abstract ComponentReference<?> generateReference();
+
+    /**
+     * Get the properties describing this provider
+     */
+    public Map<String,Object> getProperties() {
+        return properties;
+    }
+
+    /**
+     * Get the value of a property
+     */
+    public Object getProperty(String property) {
+        return properties.get(property);
+    }
+
+    /**
+     * Get the property definitions defined by this component
+     */
+    public List<PropertyDefinition> getPropertyDefinitions() {
+        return definitions;
+    }
+
+    /**
+     * Get the named property definition, if declared
+     */
+    public PropertyDefinition getPropertyDefinition(String propertyName) {
+        for (PropertyDefinition definition : definitions) {
+            if (definition.getName().equals(propertyName))
+                return definition;
+        }
+        return null;
+    }
+
+    public boolean isDefined(String propertyName) {
+        return getPropertyDefinition(propertyName) != null;
+    }
+
+    /**
+     * Get the provided resources
+     */
+    public Set<ResourceReference> getProvidedResources() {
+        return providedResources;
+    }
+
+    /**
+     * Get the provided resources of a given kind, for example Services or Messages. 
+     * 
+     * We use subclasses of ResourceReference as tags to identify kinds of resources. To add a new kind
+     * of resource a new subclass must be added.
+     * 
+     * Because we cannot know the actual class of the elements of the returned collection until invocation,
+     * we need to do unsafe castings.
+     */
+    @SuppressWarnings("unchecked")
+	public <T extends ResourceReference> Set<T> getProvidedResources(Class<T> kind) {
+    	Set<ResourceReference> resources = new HashSet<ResourceReference>();
+    	for (ResourceReference resourceReference : providedResources) {
+			if (kind.isInstance(resourceReference))
+				resources.add(resourceReference);
+		}
+        return (Set<T>) resources;
+    }
+   
+
+    /**
+     * Check if the specified resource is provided by this provider
+     * 
+     * TODO Notice that we can ask for any ResolvableReference which is less restrictive than a ResourceReference. 
+     * 
+     * This is to avoid castings when invoking this method in the context of a dependency resolution that can reference a
+     * specification. Perhaps we should unify the concepts of provided resources and provided specification for implementations,
+     * but it is awkward to generalize to all component descriptions (e.g Specifications provides themselves?)
+     */
+    public boolean isProvided(ResolvableReference resource) {
+        return providedResources.contains(resource);
+    }
+
+    /**
+     * Get the declared dependencies of this component
+     */
+    public Set<DependencyDeclaration> getDependencies() {
+        return dependencies;
+    }
+
+    /**
+     * Get a dependency declaration by name
+     */
+    public DependencyDeclaration getDependency(String id) {
+        for (DependencyDeclaration dependency : dependencies) {
+            if (dependency.getIdentifier().equals(id))
+                return dependency;
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if this component requires the specified resource
+     */
+    public boolean isRequired(ResourceReference resource) {
+        for (DependencyDeclaration dependency : dependencies) {
+            if ( dependency.getResource().equals(resource))
+                return true;
+        }
+
+        return false;
+    }
+
+
     @Override
     public String toString() {
         String ret = name;
         if (providedResources.size() != 0) {
             ret += "\n   Provided resources: ";
-            for (ProvidedResourceReference resRef : providedResources) {
+            for (ResourceReference resRef : providedResources) {
                 ret += "\n      " + resRef;
             }
         }
@@ -73,143 +211,5 @@ public abstract class ComponentDeclaration {
         }
         return ret;
     }
-
-    protected ComponentDeclaration(String name) {
-
-        assert name != null;
-
-        this.name			= name;
-        reference		= generateReference();
-        properties			= new HashMap<String,Object>();
-        providedResources	= new HashSet<ProvidedResourceReference>();
-        dependencies		= new HashSet<DependencyDeclaration>();
-        definitions 		= new ArrayList<PropertyDefinition>();
-    }
-
-    /**
-     * Get the name of the provider
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Get the reference to this declaration
-     */
-    public ResourceReference getReference() {
-        return reference;
-    }
-
-    /**
-     * Generates a unique resource identifier to reference this declaration
-     */
-    protected  abstract ResourceReference generateReference();
-
-    /**
-     * Get the properties describing this provider
-     */
-    public Map<String,Object> getProperties() {
-        return properties;
-    }
-
-    public String getAttribute(String name) {
-        return (String) properties.get(name);
-    }
-    /**
-     * Get the value of a property
-     */
-    public Object getProperty(String property) {
-        return properties.get(property);
-    }
-
-    public List<PropertyDefinition> getPropertyDefinitions() {
-        return definitions;
-    }
-
-    public PropertyDefinition getPropertyDefinition(String propertyName) {
-        for (PropertyDefinition definition : definitions) {
-            if (definition.getName().equals(propertyName))
-                return definition;
-        }
-        return null;
-    }
-
-    public boolean isDefined(String propertyName) {
-        return getPropertyDefinition(propertyName) != null;
-    }
-
-    /**
-     * Get the provided resources
-     */
-    public Set<ProvidedResourceReference> getProvidedResources() {
-        return providedResources;
-    }
-
-    /**
-     * Check if the specified resource is provided by this provider
-     */
-    public boolean isProvided(ResourceReference resource) {
-        return providedResources.contains(resource);
-    }
-
-
-    /**
-     * Get the required resources of this provider
-     */
-    public Set<DependencyDeclaration> getDependencies() {
-        return dependencies;
-    }
-
-    public DependencyDeclaration getDependency(String name) {
-        for (DependencyDeclaration dependency : dependencies) {
-            if (dependency.getName().equals(name))
-                return dependency;
-        }
-
-        return null;
-    }
-
-    /**
-     * Check if this provider requires the specified resource
-     */
-    public boolean isRequired(ResourceReference resource) {
-        for (DependencyDeclaration dependency : dependencies) {
-            if ( dependency.getResource().equals(resource))
-                return true;
-        }
-
-        return false;
-    }
-
-    public Set<String> getProvidedRessourceNames(ResourceType type) {
-        Set<String> providedRes = new HashSet<String>();
-        for (ProvidedResourceReference resRef : providedResources) {
-            if (resRef.resourceType == type) {
-                providedRes.add(resRef.getName());
-            }
-        }
-        return providedRes;
-    }
-
-    public String getProvidedRessourceString(ResourceType type) {
-        return ComponentDeclaration.toStringResources(getProvidedRessourceNames(type));
-    }
-
-    /**
-     * takes a list of string "A" "B" "C" ... and produces "{A, B, C, ...}"
-     * 
-     * @param names
-     * @return
-     */
-    private static String toStringResources(Set<String> names) {
-        if ((names == null) || (names.size() == 0))
-            return null;
-        String ret = "{";
-        for (String name : names) {
-            ret += name + ", ";
-        }
-        return ret.substring(0, ret.length() - 2) + "}";
-    }
-
 
 }

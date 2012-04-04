@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.core;
 
 
+
 /**
  * This class represents the declaration of a service provider specification.
  * 
@@ -24,6 +25,25 @@ public class SpecificationDeclaration extends ComponentDeclaration {
         return new SpecificationReference(getName());
     }
 
+    /**
+     * Override the return type to a most specific class in order to avoid unchecked casting when used
+     */
+    @Override
+    public final SpecificationReference getReference() {
+        return (SpecificationReference) super.getReference();
+    }
+
+    /**
+     * Verifies if this specification resolves the given dependency.
+     * 
+     * Either the dependency explicitly requires this specification or it requires one of
+     * the provided resources of this specification
+     */
+    public boolean resolves(DependencyDeclaration dependency) {
+    	ResolvableReference requiredResource = dependency.getResource();
+    	return this.getReference().equals(requiredResource) || this.isProvided(requiredResource);
+    }
+    
     @Override
     public String toString() {
         return "Specification " + super.toString();

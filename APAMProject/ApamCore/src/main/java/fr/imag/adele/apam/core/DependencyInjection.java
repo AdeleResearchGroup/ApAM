@@ -14,44 +14,22 @@ public class DependencyInjection {
     private final AtomicImplementationDeclaration implementation;
 
     /**
-     * The dependency that must be resolved to get the provider of the required resource.
-     */
-    private final DependencyDeclaration           dependency;
-
-    /**
      * The name of the field that must be injected
      */
-    private final String fieldName;
+    private final String 				fieldName;
 
-    /**
-     * The type of the resource that must be injected
-     */
-    private final ResourceReference 	resource;
 
-    @Override
-    public String toString() {
-        return "Field name: " + fieldName + ". Type: " + resource;
-    }
 
-    public DependencyInjection(AtomicImplementationDeclaration implementation, DependencyDeclaration dependency, String fieldName, ResourceReference resource) {
+    public DependencyInjection(AtomicImplementationDeclaration implementation, String fieldName) {
 
         assert implementation != null;
-        assert dependency != null;
         assert fieldName != null;
-        assert resource != null;
-
+        
         // bidirectional reference to declaration
         this.implementation = implementation;
         this.implementation.getDependencyInjections().add(this);
 
-        this.fieldName		= fieldName;
-        this.resource		= resource;
-
-        // bidirectional reference to dependency
-        assert dependency.getComponent() == implementation;
-        this.dependency 	= dependency;
-        this.dependency.getInjections().add(this);
-
+        this.fieldName			= fieldName;
     }
 
     /**
@@ -60,6 +38,25 @@ public class DependencyInjection {
     public AtomicImplementationDeclaration getImplementation() {
         return implementation;
     }
+
+    /**
+     * The dependency that must be resolved to get the injected resource.
+     */
+    private DependencyDeclaration		dependency;
+
+    /**
+     * Sets the dependency that will be injected in this field
+     */
+    public void setDependency(DependencyDeclaration dependency) {
+
+    	assert dependency.getComponent() == implementation;
+        
+        // bidirectional reference to dependency
+        this.dependency = dependency;
+        this.dependency.getInjections().add(this);
+    }
+    
+    
     /**
      * The dependency that must be resolved to inject this field
      */
@@ -75,10 +72,22 @@ public class DependencyInjection {
     }
 
     /**
-     * The name of the resource that will be injected in the field
+     * The type of the resource that will be injected in the field
      */
     public ResourceReference getResource() {
-        return resource;
+        return implementation.getInstrumentation().getType(fieldName);
+    }
+    
+    /**
+     * whether this field is a collection or not
+     */
+    public boolean isCollection() {
+    	return implementation.getInstrumentation().isCollection(fieldName);
+    }
+
+    @Override
+    public String toString() {
+        return "Field name: " + fieldName + ". Type: " + getResource().getJavaType() +(isCollection()?"[]":"");
     }
 
 }

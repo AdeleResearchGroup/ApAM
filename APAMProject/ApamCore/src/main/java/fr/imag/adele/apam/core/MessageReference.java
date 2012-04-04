@@ -1,20 +1,24 @@
 package fr.imag.adele.apam.core;
 
-
 /**
  * A reference to a produced or consumed message type
  * 
  * @author vega
  *
  */
-public class MessageReference extends ProvidedResourceReference {
+public class MessageReference extends ResourceReference {
 
     public MessageReference(String name) {
-        super(name, ResourceType.MESSAGE);
+        super(name);
     }
 
     @Override
+    public Type getType() {
+    	return Type.MESSAGE;
+	}   
+
+    @Override
     public String toString() {
-        return "message " + name;
+        return "message " + getIdentifier();
     }
 }

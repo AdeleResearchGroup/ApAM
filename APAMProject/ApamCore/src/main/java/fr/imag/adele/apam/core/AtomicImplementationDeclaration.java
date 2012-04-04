@@ -10,30 +10,79 @@ import java.util.Set;
  */
 public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 
+
     /**
-     * The class name of the object implementing the component
+     * An interface giving access to instrumentation data associated with this implementation
      */
-    private final String className;
-
-    private final Set<DependencyInjection> injectedFields;
-
-    private final Set<MethodCallback> callbacks;
-
-    public AtomicImplementationDeclaration(String name, SpecificationReference specification, String className) {
-        super(name, specification);
-
-        assert className != null;
-
-        this.className 	= className;
-        injectedFields	= new HashSet<DependencyInjection>();
-        callbacks		= new HashSet<MethodCallback>();
+    public interface Instrumentation {
+    	
+    	/**
+    	 * The name of the associated java class
+    	 */
+    	public String getClassName();
+    	
+    	/**
+    	 * The type of the specified java field
+    	 */
+    	public ResourceReference getType(String field);
+    	
+    	/**
+    	 * The cardinality of the specified java field
+    	 */
+    	public boolean isCollection(String field);
     }
 
+    /**
+     * A reference to the instrumentation data associated with this implementation
+     */
+    private final Instrumentation instrumentation;
+
+    /**
+     * The list of injected fields declared for this implementation
+     */
+    private final Set<DependencyInjection> injectedFields;
+
+
+    public AtomicImplementationDeclaration(String name, SpecificationReference specification, Instrumentation instrumentation) {
+        super(name, specification);
+
+        assert instrumentation != null;
+
+        this.instrumentation 	= instrumentation;
+        this.injectedFields		= new HashSet<DependencyInjection>();
+    }
+
+	/**
+	 * A reference to an atomic implementation
+	 */
+    private static class Reference extends ImplementationReference<AtomicImplementationDeclaration> {
+
+		public Reference(String name) {
+			super(name);
+		}
+
+	}
+
+    /**
+     * Generates the reference to this implementation
+     */
+    @Override
+    protected ImplementationReference<AtomicImplementationDeclaration> generateReference() {
+    	return new Reference(getName());
+    }
+    
+    /**
+     * The instrumentation data associated with this implementation
+     */
+    public Instrumentation getInstrumentation() {
+    	return instrumentation;
+    }
+    
     /**
      * The name of the class implementing the service provider
      */
     public String getClassName() {
-        return className;
+        return instrumentation.getClassName();
     }
 
     /**
@@ -44,23 +93,16 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
     }
 
 
-    /**
-     * The list of callbacks that must be invoked
-     */
-    public Set<MethodCallback> getCallbacks() {
-        return callbacks;
-    }
-
     @Override
     public String toString() {
         String ret = super.toString();
-        ret += "\n   Class Name: " + className;
-        if (callbacks.size() != 0) {
-            ret += "\n    Callbacks : ";
-            for (MethodCallback call : callbacks) {
-                ret += " " + call.getMethodName();
+        if (injectedFields.size() != 0) {
+            ret += "\n    Injected fields : ";
+            for (DependencyInjection injection : injectedFields) {
+                ret += " " + injection.getFieldName();
             }
         }
+        ret += "\n   Class Name: " + getClassName();
         return ret;
     }
 

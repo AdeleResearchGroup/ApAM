@@ -11,9 +11,9 @@ package fr.imag.adele.apam.core;
 public class InstanceDeclaration extends ComponentDeclaration {
 
 
-    private final ImplementationReference implementation;
+    private final ImplementationReference<?> implementation;
 
-    public InstanceDeclaration(ImplementationReference implementation, String name) {
+    public InstanceDeclaration(ImplementationReference<?> implementation, String name) {
         super(name);
 
         assert implementation != null;
@@ -23,19 +23,22 @@ public class InstanceDeclaration extends ComponentDeclaration {
     /**
      * The implementation of this instance
      */
-    public ImplementationReference getImplementation() {
+    public ImplementationReference<?> getImplementation() {
         return implementation;
     }
 
+    /**
+     * Instances are never directly referenced
+     */
     @Override
-    protected ResourceReference generateReference() {
+    protected ComponentReference<?> generateReference() {
         return null;
     }
 
     @Override
     public String toString() {
         String ret = "Instance declaration " + super.toString();
-        ret += "\n    Implementation: " + implementation.getName();
+        ret += "\n    Implementation: " + implementation.getIdentifier();
         return ret;
     }
 }

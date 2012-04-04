@@ -18,20 +18,25 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
 
     protected ImplementationDeclaration(String name, SpecificationReference specification) {
         super(name);
-
-        assert specification != null;
-
         this.specification = specification;
     }
 
+    /**
+     * Override with a narrower return type
+     */
     @Override
-    protected ResourceReference generateReference() {
-        return new ImplementationReference(getName());
-    }
+    protected abstract ImplementationReference<?> generateReference();
 
     /**
+     * Override the return type to a most specific class in order to avoid unchecked casting when used
+     */
+    @Override
+    public final ImplementationReference<?> getReference() {
+        return (ImplementationReference<?>) super.getReference();
+    }
+    
+    /**
      * Get the specification implemented by this implementation
-     * @return
      */
     public SpecificationReference getSpecification() {
         return specification;
@@ -40,7 +45,7 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
     @Override
     public String toString() {
         String ret = "Implementation declaration " + super.toString();
-        ret += "\n   Specification: " + specification.getName();
+        ret += "\n   Specification: " + specification.getIdentifier();
         return ret;
     }
 
