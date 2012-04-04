@@ -1,20 +1,24 @@
 package fr.imag.adele.apam.util;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
-import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.apache.felix.ipojo.parser.PojoMetadata;
 
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.core.AtomicImplementationDeclaration.Instrumentation;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.DependencyInjection;
-import fr.imag.adele.apam.core.DependencyPromotion;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.InterfaceReference;
@@ -23,10 +27,16 @@ import fr.imag.adele.apam.core.PropertyDefinition;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
 import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.message.AbstractConsumer;
+import fr.imag.adele.apam.message.AbstractProducer;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
 
 /**
- * Parse an APAM declaration from its iPojo metadata representation
+ * Parse an APAM declaration from its iPojo metadata representation. 
+ * 
+ * Notice that this parser tries to build a representation of the metadata declarations even in the presence of 
+ * errors. It is up to the error handler to abort parsing if necessary by throwing unrecoverable parsing exceptions.
+ * It will add place holders for missing information that can be verified after parsing by another tool.
  * 
  * @author vega
  *
@@ -64,7 +74,6 @@ public class CoreMetadataParser implements CoreParser {
     public static final String ATT_ID 					= 	"id";
     public static final String ATT_MULTIPLE				= 	"multiple";
     public static final String ATT_FILTER				= 	"filter";
-    public static final String ATT_SOURCE				= 	"source";
 
 
     /**
@@ -82,15 +91,16 @@ public class CoreMetadataParser implements CoreParser {
      */
     private ErrorHandler errorHandler;
 
+
     public CoreMetadataParser(Element metadata) {
         setMetadata(metadata);
     }
 
     /**
-     * Initialize parser with the given metadata
+     * Initialize parser with the given metadata and instrumentation code
      */
     public synchronized void setMetadata(Element metadata) {
-        this.metadata 			= metadata;
+        this.metadata 		= metadata;
         declaredElements	= null;
     }
 
@@ -112,24 +122,28 @@ public class CoreMetadataParser implements CoreParser {
             if (! CoreMetadataParser.isApamDefinition(element))
                 continue;
 
+            ComponentDeclaration component = null;
             /*
              * switch depending on component type
              */
             if (CoreMetadataParser.isSpecification(element))
-                declaredElements.add(parseSpecification(element));
+            	component = parseSpecification(element);
 
             if (CoreMetadataParser.isPrimitiveImplementation(element))
-                declaredElements.add(parsePrimitive(element));
+            	component = parsePrimitive(element);
 
             if (CoreMetadataParser.isCompositeImplementation(element))
-                declaredElements.add(parseComposite(element));
+            	component = parseComposite(element);
 
             if (CoreMetadataParser.isInstance(element))
-                declaredElements.add(parseInstance(element));
+            	component = parseInstance(element);
+            
+            if (component != null)
+            	declaredElements.add(component);
         }
 
         // Release references once the parsed data is cached
-        metadata 		= null;
+        metadata 			= null;
         this.errorHandler 	= null;
 
         return declaredElements;
@@ -139,33 +153,9 @@ public class CoreMetadataParser implements CoreParser {
      * Parse an specification declaration
      */
     private SpecificationDeclaration parseSpecification(Element element) {
+    	
         SpecificationDeclaration declaration = new SpecificationDeclaration(parseName(element));
-        parseComponent(element, declaration);
-        return declaration;
-    }
-
-    /**
-     * Parse a composite declaration
-     */
-    private CompositeDeclaration parseComposite(Element element) {
-        CompositeDeclaration declaration = new CompositeDeclaration(parseName(element),
-                parseSpecificationReference(element,CoreMetadataParser.ATT_SPECIFICATION),
-                parseImplementationReference(element,CoreMetadataParser.ATT_MAIN_IMPLEMENTATION));
-
         parseComponent(element,declaration);
-        parseDependencyPromotions(element,declaration);
-
-        return declaration;
-    }
-
-    /**
-     * Parse an instance declaration
-     */
-    private InstanceDeclaration parseInstance(Element element) {
-        InstanceDeclaration declaration = new InstanceDeclaration(parseImplementationReference(element,CoreMetadataParser.ATT_IMPLEMENTATION),
-                parseName(element));
-
-        parseComponent(element, declaration);
         return declaration;
     }
 
@@ -173,28 +163,171 @@ public class CoreMetadataParser implements CoreParser {
      * Parse an atomic implementation declaration
      */
     private AtomicImplementationDeclaration parsePrimitive(Element element) {
-        AtomicImplementationDeclaration declaration = new AtomicImplementationDeclaration(parseName(element),
-                parseSpecificationReference(element,CoreMetadataParser.ATT_SPECIFICATION),
-                parseClassName(element));
+    	
+    	String name 							= parseName(element);
+    	SpecificationReference specification	= parseSpecificationReference(element,CoreMetadataParser.ATT_SPECIFICATION,false);
+    	
+    	String className						= parseString(element,ATT_CLASSNAME,true);
+
+    	/*
+         * load Pojo instrumentation metadata
+         */
+        PojoMetadata pojoMetadata	= null;
+        try {
+        	pojoMetadata = new PojoMetadata(element);
+        } catch (Exception ignoredException) {
+        }
+
+
+		Instrumentation instrumentation = new ApamIpojoInstrumentation(className,pojoMetadata); 
+    	
+        AtomicImplementationDeclaration declaration = new AtomicImplementationDeclaration(name,specification,instrumentation);
         parseComponent(element,declaration);
-        parseDependencyInjections(element,declaration);
+
+        // if not explicitly provided, get all the implemented interfaces.
+        if (declaration.getProvidedResources().isEmpty() && pojoMetadata != null ) {
+            for (String implementedInterface : pojoMetadata.getInterfaces()) {
+                if (!implementedInterface.startsWith("java.lang"))
+                	declaration.getProvidedResources().add(new InterfaceReference(implementedInterface));
+            }
+        }
 
         return declaration;
     }
 
     /**
+     * A class to obtain metadata about instrumented code
+     * @author vega
+     *
+     */
+    private static class ApamIpojoInstrumentation implements Instrumentation {
+
+    	/**
+    	 * The iPojo generate metadata
+    	 */
+    	private final PojoMetadata pojoMetadata;
+
+    	/**
+    	 * The name of the instrumented class
+    	 */
+		private final String className; 
+
+
+    	
+    	public ApamIpojoInstrumentation(String className, PojoMetadata pojoMetadata) {
+    		this.className		= (className == null) ? UNDEFINED : className;
+    		this.pojoMetadata	= pojoMetadata;
+    	}
+
+    	
+		@Override
+		public String getClassName() {
+			return className;
+		}
+
+		/**
+		 * The list of supported collections for aggregate dependencies
+		 */
+		private static final List<String> supportedCollections = Arrays.asList( new String[] {
+												Collection.class.getName(),
+												List.class.getName(),
+												Vector.class.getName(), 
+												Set.class.getName()
+											});
+
+		/**
+		 * Get the type of reference from the instrumented metadata of the field
+		 */
+		@Override
+		public ResourceReference getType(String field) {
+			
+			ResourceReference type = new InterfaceReference("<Unavailable type for field "+field+">");
+			FieldMetadata metadata = pojoMetadata.getField(field);
+			
+			if (metadata != null) {
+				
+		        /*
+		         * Try to get the type from metadata, this is not always available because the iPojo manipulator
+		         * doesn't handle java generics in collections and messages
+		         */
+
+				String fieldType = metadata.getFieldType();
+		        if (fieldType.endsWith("[]")) {
+		            int index = fieldType.indexOf('[');
+		            type = new InterfaceReference(fieldType.substring(0, index));
+		        }
+		        else  if (supportedCollections.contains(fieldType)) {
+		        	type = new InterfaceReference("<Unavailable type for elements of collection field "+field+" >");
+		        }
+		        else if (fieldType.equals(AbstractProducer.class.getName())) {
+					type = new MessageReference("<Unavailable type for message field "+field+" >");
+				}
+		        else if (fieldType.equals(AbstractConsumer.class.getName())) {
+					type = new MessageReference("<Unavailable type for message field "+field+" >");
+				}
+				else {
+		            type = new InterfaceReference(fieldType);
+				}
+			}
+			return type;
+		}
+
+		@Override
+		public boolean isCollection(String field) {
+			boolean isCollection = false;
+			FieldMetadata metadata = pojoMetadata.getField(field);
+			if (metadata != null) {
+				String fieldType = metadata.getFieldType();
+				isCollection = fieldType.endsWith("[]") || supportedCollections.contains(fieldType);
+			}
+			return isCollection;
+		}
+    	
+    }
+    /**
+     * Parse a composite declaration
+     */
+    private CompositeDeclaration parseComposite(Element element) {
+
+    	String name 								= parseName(element);
+    	SpecificationReference specification		= parseSpecificationReference(element,CoreMetadataParser.ATT_SPECIFICATION,false);
+    	ImplementationReference<?> implementation	= parseImplementationReference(element,CoreMetadataParser.ATT_MAIN_IMPLEMENTATION,true);
+
+        CompositeDeclaration declaration = new CompositeDeclaration(name,specification,implementation);
+        parseComponent(element,declaration);
+        return declaration;
+    }
+
+    /**
+     * Parse an instance declaration
+     */
+    private InstanceDeclaration parseInstance(Element element) {
+
+    	String name 								= parseName(element);
+    	ImplementationReference<?> implementation	= parseImplementationReference(element,CoreMetadataParser.ATT_IMPLEMENTATION,true);
+    	
+        InstanceDeclaration declaration = new InstanceDeclaration(implementation,name);
+        parseComponent(element,declaration);
+        return declaration;
+    }
+
+
+    
+    /**
      * Get a string attribute value
      */
     private final String parseString(Element element, String attributeName, boolean mandatory) {
         String value = element.getAttribute(attributeName);
-        if (mandatory && (value == null))
-            errorHandler.error(Severity.ERROR, "attribute "+attributeName+" must be specified in "+element);
-
-        if (mandatory && (value != null) && value.trim().equals(""))
-            errorHandler.error(Severity.ERROR, "attribute "+attributeName+" cannot be empty in "+element);
-
-        if (value == null)
-            value = "";
+        
+        if (mandatory && (value == null)) {
+        	errorHandler.error(Severity.ERROR, "attribute \""+attributeName+"\" must be specified in "+element);
+        	value = UNDEFINED;
+        }
+        
+        if (mandatory && (value != null) && value.trim().isEmpty()) {
+        	errorHandler.error(Severity.ERROR, "attribute \""+attributeName+"\" cannot be empty in "+element);
+        	value = UNDEFINED;
+        }
 
         return value;
     }
@@ -204,20 +337,6 @@ public class CoreMetadataParser implements CoreParser {
         return parseString(element,attributeName,true);
     }
 
-    /**
-     * Get a string list attribute value
-     */
-    private final String[] parseStringList(Element element, String attributeName, boolean mandatory) {
-        String encodedList = parseString(element,attributeName,mandatory);
-        if (mandatory && (encodedList == null))
-            errorHandler.error(Severity.ERROR, "attribute "+attributeName+" must be specified");
-
-        if (mandatory && encodedList.trim().equals(""))
-            errorHandler.error(Severity.ERROR, "attribute "+attributeName+" cannot be empty");
-
-        return Util.split(encodedList);
-
-    }
 
     /**
      * Get the element name
@@ -226,29 +345,52 @@ public class CoreMetadataParser implements CoreParser {
         return parseString(element,CoreMetadataParser.ATT_NAME);
     }
 
-    /**
-     * Get the component class name, 
-     */
-    private final String parseClassName(Element element) {
-        return parseString(element,CoreMetadataParser.ATT_CLASSNAME);
-    }
 
     /**
      * Get an specification reference coded in an attribute
      */
-    private SpecificationReference parseSpecificationReference(Element element, String attibute) {
-        String specRef = parseString(element, attibute, false);
-        if (specRef == null)
-            return null;
-        return new SpecificationReference(specRef);
+    private SpecificationReference parseSpecificationReference(Element element, String attibute, boolean mandatory) {
+        String specification = parseString(element,attibute,mandatory);
+        return (specification == null && ! mandatory) ? null : new SpecificationReference(specification);
     }
 
     /**
-     * Get an specification reference coded in an attribute
+     * Get an implementation reference coded in an attribute
      */
-    private ImplementationReference parseImplementationReference(Element element, String attibute) {
-        return new ImplementationReference(parseString(element,attibute));
+    private ImplementationReference<?> parseImplementationReference(Element element, String attibute, boolean mandatory) {
+    	String implementation = parseString(element,attibute,mandatory);
+        return (implementation == null && ! mandatory) ? null : new ImplementationReference<ImplementationDeclaration>(implementation);
+    }
 
+    /**
+     * Get an interface reference coded in an attribute
+     */
+    private InterfaceReference parseInterfaceReference(Element element, String attibute, boolean mandatory) {
+    	String interfaceName = parseString(element,attibute,mandatory);
+        return (interfaceName == null && ! mandatory) ? null : new InterfaceReference(interfaceName);
+    }
+
+    /**
+     * Get a message reference coded in an attribute
+     */
+    private MessageReference parseMessageReference(Element element, String attibute, boolean mandatory) {
+    	String messageName = parseString(element,attibute,mandatory);
+        return (messageName == null && ! mandatory) ? null : new MessageReference(messageName);
+    }
+
+    /**
+     * Get a resource reference coded in an attribute
+     */
+    private ResourceReference parseResourceReference(Element element, String attibute, boolean mandatory) {
+    	
+    	if (element.getName().equals(CoreMetadataParser.INTERFACE))
+    		return parseInterfaceReference(element,attibute,mandatory);
+    	
+    	if (element.getName().equals(CoreMetadataParser.MESSAGE))
+    		return parseMessageReference(element,attibute,mandatory);
+    	
+    	return null;
+    	
     }
 
     /**
@@ -258,8 +400,8 @@ public class CoreMetadataParser implements CoreParser {
 
         parseProvidedResources(element,component);
         parsePropertyDefinitions(element,component);
-        parseProperties(element, component);
-        parseDependencies(element, component);
+        parseProperties(element,component);
+        parseDependencies(element,component);
 
     }
 
@@ -268,30 +410,16 @@ public class CoreMetadataParser implements CoreParser {
      */
     private void parseProvidedResources(Element element, ComponentDeclaration component) {
 
-        for (String interfaceName : parseStringList(element,CoreMetadataParser.ATT_INTERFACES,false)) {
+    	String interfaces	= parseString(element,CoreMetadataParser.ATT_INTERFACES,false);
+    	String messages		= parseString(element,CoreMetadataParser.ATT_MESSAGES,false);
+
+    	for (String interfaceName : Util.split(interfaces)) {
             component.getProvidedResources().add(new InterfaceReference(interfaceName));
         }
-        // if not explicitly provided, get all the implemented interfaces.
-        if (component.getProvidedResources().size() == 0) {
-            Element[] manipulation = element.getElements("manipulation"); // only one
-            if ((manipulation != null) && (manipulation.length != 0)) {
-                Element[] interfaces = manipulation[0].getElements(CoreMetadataParser.INTERFACE);
-                String interfaceName;
-                for (Element interf : interfaces) {
-                    interfaceName = interf.getAttribute(CoreMetadataParser.ATT_NAME);
-                    if (!interfaceName.startsWith("java.lang"))
-                        component.getProvidedResources().add(new InterfaceReference(interfaceName));
-                }
-            }
-        }
 
-        for (String message : parseStringList(element,CoreMetadataParser.ATT_MESSAGES,false)) {
+        for (String message : Util.split(messages)) {
             component.getProvidedResources().add(new MessageReference(message));
         }
-
-        //        for (String spec : parseStringList(element, CoreMetadataParser.ATT_SPECIFICATION, false)) {
-        //            component.getProvidedResources().add(new SpecificationReference(spec));
-        //        }
 
     }
 
@@ -300,8 +428,7 @@ public class CoreMetadataParser implements CoreParser {
      */
     private void parseDependencies(Element element, ComponentDeclaration component) {
 
-        for (Element dependencies : optional(element.getElements(CoreMetadataParser.DEPENDENCIES,
-                CoreMetadataParser.APAM))) {
+        for (Element dependencies : optional(element.getElements(CoreMetadataParser.DEPENDENCIES,CoreMetadataParser.APAM))) {
             for (Element dependency : optional(dependencies.getElements())) {
 
                 /*
@@ -310,252 +437,119 @@ public class CoreMetadataParser implements CoreParser {
                 if (!CoreMetadataParser.isApamDefinition(dependency))
                     continue;
 
-                /*
-                 * ignore dependencies without identifier. 
-                 * 
-                 * Notice that in some cases it is possible to infer a dependency Id from injected fields or methods,
-                 * these cases are treated apart in the specialized parse methods 
-                 */
-                String name = parseString(dependency,CoreMetadataParser.ATT_NAME,false);
-                if (name.equals(""))
-                    continue;
-
-                parseDependency(dependency,component,name);
+                parseDependency(dependency,component);
             }
         }
 
     }
 
-    /**
-     * Finds the implemented interfaces in the metadata and fills the provided interfaces.
-     * 
-     * @param element
-     * @param component
-     */
-    private void parseImplementedInterface(Element element, ComponentDeclaration component) {
-
-    }
-
+ 
     /**
      * parse a dependency declaration
      */
-    private void parseDependency(Element element, ComponentDeclaration component, String name) {
-        assert (name != null) && ! name.equals("");
+    private void parseDependency(Element element, ComponentDeclaration component) {
+    	
+    	/*
+    	 * All dependencies have an optional identifier 
+    	 */
+        String id = parseString(element,CoreMetadataParser.ATT_ID,false);
+        DependencyDeclaration dependency = null;
+        
+        /*
+         * Complex dependencies reference a single mandatory specification, and in the case of atomic components
+         * may optionally have a number field injection declarations
+         */
+        if (element.getName().equals(CoreMetadataParser.SPECIFICATION)) {
 
-        String multiple = parseString(element, CoreMetadataParser.ATT_MULTIPLE, false);
-        Boolean isMultiple = (multiple == null) || multiple.isEmpty() ? null : Boolean.parseBoolean(multiple);
+        	SpecificationReference target = parseSpecificationReference(element,CoreMetadataParser.ATT_NAME,true);
+            dependency = new DependencyDeclaration(component,id,target);
 
-        // create a typed dependency based on the target kind
-        ResourceReference target = null;
+            if (component instanceof AtomicImplementationDeclaration) {
+            	
+            	AtomicImplementationDeclaration atomic = (AtomicImplementationDeclaration) component;
+                for (Element injection : optional(element.getElements())) {
 
-        if (element.getName().equals(CoreMetadataParser.SPECIFICATION))
-            target = new SpecificationReference(name);
+                    /*
+                     * ignore elements that are not from APAM
+                     */
+                    if (!CoreMetadataParser.isApamDefinition(injection))
+                        continue;
 
-        if (element.getName().equals(CoreMetadataParser.INTERFACE))
-            target = new InterfaceReference(name);
+                    if (!CoreMetadataParser.isResourceDependency(injection))
+                    	continue;
 
-        if (element.getName().equals(CoreMetadataParser.MESSAGE))
-            target = new MessageReference(name);
+                    DependencyInjection dependencyInjection = parseDependencyInjection(injection,atomic);
+                    dependencyInjection.setDependency(dependency);
+                    
+                }
+            }
+        }
 
-        DependencyDeclaration dependency = new DependencyDeclaration(component,name,target,isMultiple);
-        for (Element constraints : optional(element
-                .getElements(CoreMetadataParser.CONSTRAINTS, CoreMetadataParser.APAM))) {
+        /*
+         * Simple dependencies reference a single resource. 
+         */
+        if (isResourceDependency(element)){
+        	
+        	ResourceReference target = parseResourceReference(element,CoreMetadataParser.ATT_NAME,false);
+        	
+        	if (component instanceof AtomicImplementationDeclaration) {
+            	/*
+            	 * For atomic components the declaration also defines a field injection and we can infer the target from it
+            	 * if not explicitly declared
+            	 */
+        		
+            	AtomicImplementationDeclaration atomic = (AtomicImplementationDeclaration) component;
+                DependencyInjection dependencyInjection = parseDependencyInjection(element,atomic);
+                
+        		/*
+        		 * If both an explicit target and an injection are specified they must match 
+        		 */
+        		if (target != null &&  !target.equals(dependencyInjection.getResource())) {
+        			errorHandler.error(Severity.ERROR, "dependency target doesn't match the type of the field in "+element);
+        		}
+        		
+        		/*
+        		 * If a target is not explicitly declared use the injected field metadata
+        		 */
+        		if (target == null)
+        			target = dependencyInjection.getResource();
+        		
+                dependency = new DependencyDeclaration(component,id,target);
+                dependencyInjection.setDependency(dependency);
+
+        	} 
+        	else {
+            	/*
+            	 * For other components a target must be explicitly specified
+            	 */
+        		target = parseInterfaceReference(element,CoreMetadataParser.ATT_NAME,true);
+        		dependency = new DependencyDeclaration(component,id,target);
+        	}
+         	
+        }
+
+        
+        for (Element constraints : optional(element.getElements(CoreMetadataParser.CONSTRAINTS,CoreMetadataParser.APAM))) {
             parseConstraints(constraints, dependency);
         }
 
-        for (Element preferences : optional(element
-                .getElements(CoreMetadataParser.PREFERENCES, CoreMetadataParser.APAM))) {
+        for (Element preferences : optional(element.getElements(CoreMetadataParser.PREFERENCES,CoreMetadataParser.APAM))) {
             parsePreferences(preferences, dependency);
         }
 
-        component.getDependencies().add(dependency);
-
-    }
-
-    /**
-     * parse the promoted dependencies of a composite
-     */
-    private void parseDependencyPromotions(Element element, CompositeDeclaration composite) {
-
-        for (Element dependencies : optional(element.getElements(CoreMetadataParser.DEPENDENCIES,
-                CoreMetadataParser.APAM))) {
-            for (Element dependency : optional(dependencies.getElements())) {
-
-                /*
-                 * ignore elements that are not from APAM
-                 */
-                if (!CoreMetadataParser.isApamDefinition(dependency))
-                    continue;
-
-                /*
-                 * ignore dependencies without identifier or not successfully parsed. 
-                 */
-                String name = parseString(dependency,CoreMetadataParser.ATT_NAME,false);
-                if (name.equals(""))
-                    continue;
-
-                DependencyDeclaration dependencyDeclaration = composite.getDependency(name);
-                if (dependencyDeclaration == null)
-                    continue;
-
-                /*
-                 * avoid creating unnecessary promotions
-                 */
-                String sources[] = parseStringList(dependency,CoreMetadataParser.ATT_SOURCE,false);
-                if (sources.length == 0)
-                    continue;
-
-                /*
-                 *	Create the promotion and set sources 
-                 */
-                DependencyPromotion promotion = new DependencyPromotion(composite, dependencyDeclaration);
-                for (String source : sources) {
-                    promotion.getSources().add(new SpecificationReference(source));
-                }
-            }
-        }
-
-    }
-
-    /**
-     * parse the injected dependencies of a primitive
-     */
-    private void parseDependencyInjections(Element element, AtomicImplementationDeclaration primitive) {
-
-        /*
-         * load Pojo instrumentation metadata
-         */
-        PojoMetadata pojo = null;
-        try {
-            pojo = new PojoMetadata(element);
-        } catch (ConfigurationException e) {
-            errorHandler.error(Severity.ERROR,"Instrumentation metadata can not be loaded "+element);
-        }
-
-        if (pojo == null)
-            return;
-
-        for (Element dependencies : optional(element.getElements(CoreMetadataParser.DEPENDENCIES,
-                CoreMetadataParser.APAM))) {
-            for (Element dependency : optional(dependencies.getElements())) {
-
-                /*
-                 * ignore elements that are not from APAM
-                 */
-                if (!CoreMetadataParser.isApamDefinition(dependency))
-                    continue;
-
-                /*
-                 * ignore dependencies without identifier or not successfully parsed. 
-                 */
-                String name		= parseString(dependency,CoreMetadataParser.ATT_NAME,false);
-                String field 	= parseString(element, CoreMetadataParser.ATT_FIELD,false);
-
-                /*
-                 * Infer a dependency declaration from the injection declaration
-                 */
-                if (name.equals("") && ! field.equals("")) {
-                    String fieldType = CoreMetadataParser.getFieldType(field,pojo);
-                    if (fieldType  == null)
-                        errorHandler.error(Severity.ERROR,"field "+field+" is not instrumented in Pojo");
-
-                    name = fieldType;
-                    parseDependency(dependency,primitive,name);
-                }
-
-                /*
-                 * ignore not named or unsuccessfully parsed dependencies
-                 */
-                if (name.equals(""))
-                    continue;
-
-                DependencyDeclaration dependencyDeclaration = primitive.getDependency(name);
-                if (dependencyDeclaration == null)
-                    continue;
-
-                /*
-                 * Complex dependencies has nested fields
-                 */
-                if (dependency.getName().equals(CoreMetadataParser.SPECIFICATION)) {
-                    for (Element injection : optional(dependency.getElements())) {
-
-                        /*
-                         * ignore elements that are not from APAM
-                         */
-                        if (!CoreMetadataParser.isApamDefinition(injection))
-                            continue;
-
-                        if (injection.getName().equals(CoreMetadataParser.INTERFACE))
-                            parseDependencyInjection(injection,primitive,pojo,dependencyDeclaration);
-
-                        if (injection.getName().equals(CoreMetadataParser.MESSAGE))
-                            parseDependencyInjection(injection,primitive,pojo,dependencyDeclaration);
-                    }
-
-                }
-
-                /*
-                 * simple dependencies has field injection directly defined
-                 */
-                if (element.getName().equals(CoreMetadataParser.INTERFACE))
-                    parseDependencyInjection(dependency,primitive,pojo,dependencyDeclaration);
-
-                if (element.getName().equals(CoreMetadataParser.MESSAGE))
-                    parseDependencyInjection(dependency,primitive,pojo,dependencyDeclaration);
-            }
-        }
-
     }
 
 
     /**
      * parse the injected dependencies of a primitive
      */
-    private AtomicImplementationDeclaration parseDependencyInjection(Element element, AtomicImplementationDeclaration primitive, PojoMetadata pojo, DependencyDeclaration dependency) {
+    private DependencyInjection parseDependencyInjection(Element element, AtomicImplementationDeclaration primitive) {
 
-        /*
-         * Verify a field is specified
-         */
-
-        String field = parseString(element, CoreMetadataParser.ATT_FIELD,false);
-        if (field.equals(""))
-            return primitive;
-
-        String fieldType = CoreMetadataParser.getFieldType(field,pojo);
-        if (fieldType  == null)
-            errorHandler.error(Severity.ERROR,"field "+field+" is not instrumented in Pojo");
-
-        ResourceReference resource = null;
-
-        if (element.getName().equals(CoreMetadataParser.INTERFACE))
-            resource = new InterfaceReference(fieldType);
-
-        if (element.getName().equals(CoreMetadataParser.MESSAGE))
-            resource = new MessageReference(fieldType);
-
-        new DependencyInjection(primitive, dependency, field, resource);
-
-        return primitive;
-    }
-
-    /**
-     * Get the field type from the instrumentation metadata
-     */
-    private static String getFieldType(String field, PojoMetadata pojo) {
-
-        FieldMetadata fieldData = pojo.getField(field);
-        if (fieldData == null)
-            return null;
-
-        String fieldType = fieldData.getFieldType();
-
-        if (fieldType.endsWith("[]")) {
-            int index = fieldType.indexOf('[');
-            fieldType = fieldType.substring(0, index);
-        }
-        return fieldType;
+    	String field = parseString(element, CoreMetadataParser.ATT_FIELD,true);
+        return new DependencyInjection(primitive, field);
 
     }
+
     /**
      * parse a constraints declaration
      */
@@ -597,40 +591,30 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * parse the property definitions of the component
      */
-    private <C extends ComponentDeclaration> C parsePropertyDefinitions(Element element, C component) {
+    private void parsePropertyDefinitions(Element element, ComponentDeclaration component) {
+    	
+    	if (component instanceof InstanceDeclaration)
+    		return; 
+    	
+        for (Element definitions : optional(element.getElements(CoreMetadataParser.DEFINITIONS, CoreMetadataParser.APAM))) {
+            for (Element definition : optional(definitions.getElements(CoreMetadataParser.DEFINITION, CoreMetadataParser.APAM))) {
 
-        for (Element definitions : optional(element
-                .getElements(CoreMetadataParser.DEFINITIONS, CoreMetadataParser.APAM))) {
-            for (Element definition : optional(definitions.getElements(CoreMetadataParser.DEFINITION,
-                    CoreMetadataParser.APAM))) {
-
-                String name = parseString(definition, CoreMetadataParser.ATT_NAME, false).toLowerCase();
-                if (!(component instanceof InstanceDeclaration) && ((name == null) || name.isEmpty())) {
-                    errorHandler.error(Severity.ERROR, "attribute " + CoreMetadataParser.ATT_NAME
-                            + " must be specified in " + definition);
-                }
+                String name 		= parseString(definition, CoreMetadataParser.ATT_NAME).toLowerCase();
                 String type			= parseString(definition,CoreMetadataParser.ATT_TYPE) ;
                 String defaultValue = parseString(definition,CoreMetadataParser.ATT_VALUE,false);
 
                 component.getPropertyDefinitions().add(new PropertyDefinition(name, type, defaultValue));
             }
         }
-        return component;
     }
 
 
     /**
      * parse the properties of the component
      */
-    private <C extends ComponentDeclaration> C parseProperties(Element element, C component) {
+    private void parseProperties(Element element, ComponentDeclaration component) {
 
         for (Element properties : optional(element.getElements(CoreMetadataParser.PROPERTIES, CoreMetadataParser.APAM))) {
-
-            // parse global predefined properties
-            for (Attribute attribute : properties.getAttributes()) {
-                component.getProperties().put(attribute.getName(), attribute.getValue());
-
-            }
 
             // parse user defined properties
             for (Element property : optional(properties.getElements(CoreMetadataParser.PROPERTY,
@@ -646,6 +630,7 @@ public class CoreMetadataParser implements CoreParser {
                     if (attribute.getName().equals(CoreMetadataParser.ATT_FIELD))
                         continue;
 
+                    // add all other properties
                     component.getProperties().put(attribute.getName(), attribute.getValue());
 
                 }
@@ -653,9 +638,11 @@ public class CoreMetadataParser implements CoreParser {
             }
         }
 
-        return component;
     }
 
+    /**
+     * Handle transparently optional elements in the metadata
+     */
     private Element[] EMPTY_ELEMENTS = new Element[0];
 
     private Element[] optional(Element[] elements) {
@@ -673,32 +660,41 @@ public class CoreMetadataParser implements CoreParser {
     }
 
     /**
+     * Determines if the element represents a resource dependency
+     */
+    private static final boolean isResourceDependency(Element element) {
+        return	CoreMetadataParser.INTERFACE.equals(element.getName()) ||
+        		CoreMetadataParser.MESSAGE.equals(element.getName());
+    }
+    
+    /**
      * Determines if this element represents an specification declaration
      */
-    public static final boolean isSpecification(Element element) {
+    private static final boolean isSpecification(Element element) {
         return CoreMetadataParser.SPECIFICATION.equals(element.getName());
     }
 
     /**
      * Determines if this element represents a primitive declaration
      */
-    public static final boolean isPrimitiveImplementation(Element element) {
+    private static final boolean isPrimitiveImplementation(Element element) {
         return CoreMetadataParser.IMPLEMENTATION.equals(element.getName());
     }
 
     /**
      * Determines if this element represents a composite declaration
      */
-    public static final boolean isCompositeImplementation(Element element) {
+    private static final boolean isCompositeImplementation(Element element) {
         return CoreMetadataParser.COMPOSITE.equals(element.getName());
     }
 
     /**
      * Determines if this element represents a composite declaration
      */
-    public static final boolean isInstance(Element element) {
+    private static final boolean isInstance(Element element) {
         return CoreMetadataParser.INSTANCE.equals(element.getName());
     }
+    
 
 
 }

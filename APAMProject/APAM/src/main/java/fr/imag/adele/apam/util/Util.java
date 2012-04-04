@@ -42,7 +42,7 @@ public class Util {
 
             @Override
             public void error(Severity severity, String message) {
-                System.err.println("error parsing xml "+message);
+                System.err.println("error parsing component declaration : "+message);
                 Util.failed = true;
             }
         });

@@ -11,7 +11,8 @@ import org.osgi.framework.InvalidSyntaxException;
 //import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.apform.ApformSpecification;
 //import fr.imag.adele.apam.util.Attributes;
-import fr.imag.adele.apam.core.ProvidedResourceReference;
+import fr.imag.adele.apam.core.ResolvableReference;
+import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.ResourceReference;
 
 //import fr.imag.adele.sam.Specification;
@@ -34,7 +35,7 @@ public interface SpecificationBroker {
      * @param properties : The initial properties.
      *            return an ASM Specification
      */
-    public Specification createSpec(String specName, Set<ProvidedResourceReference> resources,
+    public Specification createSpec(String specName, Set<ResourceReference> resources,
             Map<String, Object> properties);
 
     /**
@@ -87,14 +88,14 @@ public interface SpecificationBroker {
      * 
      * @return the specification
      */
-    public Specification getSpec(Set<ProvidedResourceReference> providedResources);
+    public Specification getSpec(Set<ResourceReference> providedResources);
 
     /**
      * 
      * @param resource
      * @return the first specification that implements the provided resource ! WARNING this is peligrous.
      */
-    public Specification getSpecResource(ResourceReference resource);
+    public Specification getSpecResource(ResolvableReference resource);
 
     /**
      * Returns *the first* specification that implements the provided

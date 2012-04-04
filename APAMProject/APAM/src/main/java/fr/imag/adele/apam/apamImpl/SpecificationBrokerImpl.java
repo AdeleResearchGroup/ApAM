@@ -11,7 +11,8 @@ import org.osgi.framework.InvalidSyntaxException;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.SpecificationBroker;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.core.ProvidedResourceReference;
+import fr.imag.adele.apam.core.ResolvableReference;
+import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamInstall;
@@ -153,7 +154,7 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
     }
 
     @Override
-    public Specification createSpec(String specName, Set<ProvidedResourceReference> resources,
+    public Specification createSpec(String specName, Set<ResourceReference> resources,
             Map<String, Object> properties) {
         if (resources == null)
             return null;
@@ -195,7 +196,7 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
     }
 
     @Override
-    public Specification getSpec(Set<ProvidedResourceReference> providedResources) {
+    public Specification getSpec(Set<ResourceReference> providedResources) {
         for (Specification spec : specs) {
             if (spec.getDeclaration().getProvidedResources().equals(providedResources))
                 return spec;
@@ -204,9 +205,12 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
     }
 
     @Override
-    public Specification getSpecResource(ResourceReference resource) {
-        Set<Specification> specs = new HashSet<Specification>();
+    public Specification getSpecResource(ResolvableReference resource) {
         for (Specification spec : specs) {
+        	// Verify if the requested resource is the spec itself
+        	if (spec.getDeclaration().getReference().equals(resource))
+        		return spec;
+        	// Verify if the requested resource is provided by the spec
             if (spec.getDeclaration().getProvidedResources().contains(resource))
                 return spec;
         }

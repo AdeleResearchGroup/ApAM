@@ -13,8 +13,7 @@ import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.DependencyPromotion;
-import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.Util;
 
@@ -34,74 +33,6 @@ public class ApamResolver {
         // TODO Auto-generated method stub
         return null;
     }
-
-    /**
-     * Checks if the provided composite dependency "dep" matches the requited wire (from, interf | specName).
-     * "from" is supposed to be inside the composite.
-     * if true this wire needs a promotion.
-     * 
-     * @param dep : a composite dependency.
-     * @param from the instance that need a new wire
-     * @param interf or specName the wire destination to resolve
-     * @return
-     */
-    private static boolean
-    matchDependencyCompo(DependencyPromotion promo, Instance from, DependencyDeclaration dep) {
-        String fromSpec = from.getSpec().getName();
-
-        // if source is mentioned, it is mandatory.
-        boolean found = false;
-        if (promo.getSources() != null) {
-            for (SpecificationReference sourceSpecRef : promo.getSources()) {
-                if (sourceSpecRef.getName().equals(fromSpec))
-                    found = true;
-                break;
-            }
-            if (!found)
-                return false;
-        }
-        return promo.getDependency().getResource().equals(dep.getResource());
-        // return ApamResolver.matchAtomicDependencyCompo(promo.getDependency().getResource(), dep);
-    }
-
-    //    private static boolean matchAtomicDependencyCompo(ResourceReference targetComposite, Dependency dep) {
-    //        // dep contains only composite dependencies: <targetKind fieldType, [multiple] [{source}]>
-    //        String fieldType = targetComposite.getName();
-    //        if (targetComposite instanceof InterfaceReference) {
-    //            if (interf == null) {
-    //                Specification spec = CST.SpecBroker.getSpec(specName);
-    //                if (spec != null)
-    //                    for (String in : spec.getInterfaceNames()) {
-    //                        if (in.equals(fieldType)) {
-    //                            interf = in;
-    //                        }
-    //                    }
-    //            }
-    //            return ((interf != null) && interf.equals(fieldType)); // same target            
-    //        }
-    //        if (targetComposite instanceof SpecificationReference) {
-    //            if (specName == null) {
-    //                Specification spec = CST.SpecBroker.getSpecInterf(interf);
-    //                if (spec != null)
-    //                    specName = spec.getName();
-    //            }
-    //            return ((specName != null) && specName.equals(fieldType));
-    //        }
-    //
-    //        if (target instanceof MessageReference) {
-    //
-    //            case PULL_MESSAGE: {
-    // // check if correct
-    //                // interf is supposed to contain the message type
-    //                return (interf.equals(fieldType));
-    //            }
-    //            case PUSH_MESSAGE: {
-    // // check if correct
-    //                return (interf.equals(fieldType));
-    //            }
-    //        }
-    //        return false;
-    //    }
 
     private class DepMult {
         public String        depType = null;
@@ -123,32 +54,32 @@ public class ApamResolver {
      * @return the composite dependency from the composite.
      */
     private static DepMult getPromotion(Instance client, DependencyDeclaration dependency) {
-        DependencyPromotion depFound = null;
-        Set<DependencyPromotion> promos = client.getComposite().getCompType().getCompoDeclaration()
-        .getPromotions();
-        // deps contains only composite dependencies: <targetKind fieldType, [multiple] [{source}]>
-        for (DependencyPromotion promo : promos) {
-            if (ApamResolver.matchDependencyCompo(promo, client, dependency)) {
-                depFound = promo;
-                break;
-            }
-        }
-        if (depFound == null)
+    	
+    	// look for a matching dependency in the enclosing composite definition
+    	DependencyDeclaration promotion = null;
+    	for (DependencyDeclaration enclosingDependency : client.getComposite().getCompType().getCompoDeclaration().getDependencies()) {
+    		
+    		// TODO Should we have other criteria to match ?
+			if (enclosingDependency.getResource().equals(dependency.getResource()))
+					promotion = enclosingDependency;
+		}
+    	
+        if (promotion == null)
             return null;
 
         // it is a declared promotion.
         // check cardinality
-        String destType = depFound.getDependency().getResource().getName();
-        Set<Instance> dests = client.getComposite().getWireDests(destType); // For composite, the wire name is the dest
-        // type
-        if (!depFound.getDependency().isMultiple() && (dests != null)) {
-            System.err.println("ERROR : wire " + client.getComposite() + " -" + destType + "-> "
+        String depId = promotion.getIdentifier();
+        Set<Instance> dests = client.getComposite().getWireDests(depId); // For composite, the wire name is the dest
+        
+        if (!promotion.isMultiple() && (dests != null)) {
+            System.err.println("ERROR : wire " + client.getComposite() + " -" + depId + "-> "
                     + " allready existing.");
             return null;
         }
         //        System.err.println("Promoting " + client + " : " + client.getComposite() + " -" + depFound.dependencyName
         //                + "-> ");
-        return ApamResolver.apamResolver.new DepMult(destType, dests);
+        return ApamResolver.apamResolver.new DepMult(depId, dests);
     }
 
     // if the instance is unused, it will become the main instance of a new composite.
@@ -195,15 +126,6 @@ public class ApamResolver {
             return null;
         }
 
-        // Get the required resource
-        // TODO modify to handle messages
-        String interfaceName	= null;
-        String specName		 	= null;
-        if (dependency.getResource() instanceof SpecificationReference)
-            specName = dependency.getResource().getName();
-        else
-            interfaceName	= dependency.getResource().getName();
-
         Composite compo = ApamResolver.getClientComposite(client);
 
 
@@ -222,7 +144,7 @@ public class ApamResolver {
             Implementation impl = ApamResolver.resolveSpecByResource(compoType, dependency);
 
             if (impl == null) {
-                System.err.println("Failed to resolve " + specName + " from " + client + "(" + depName + ")");
+                System.err.println("Failed to resolve " + dependency.getResource() + " from " + client + "(" + depName + ")");
                 // ApamResolver.notifySelection(client, specName, depName, null, null, null);
                 return null;
             }
@@ -242,7 +164,7 @@ public class ApamResolver {
             // in all cases the "real" client instance must be linked
             client.createWire(inst, depName);
         }
-        ApamResolver.notifySelection(client, specName, depName, inst.getImpl(), inst, null);
+        ApamResolver.notifySelection(client, dependency.getResource() , depName, inst.getImpl(), inst, null);
         return inst;
     }
 
@@ -256,11 +178,7 @@ public class ApamResolver {
      * If found, the instance is returned.
      * 
      * @param client the instance that requires the specification
-     * @param interfaceName the name of one of the interfaces of the specification to resolve.
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
      * @param depName the dependency name. Field for atomic; spec name for complex dep, type for composite.
-     * @param constraints The constraints for this resolution.
-     * @param preferences The preferences for this resolution.
      * @return
      */
     public static Set<Instance> newWireSpecs(Instance client, String depName) {
@@ -324,7 +242,7 @@ public class ApamResolver {
                 client.createWire(inst, depName);
             }
         }
-        ApamResolver.notifySelection(client, dependency.getResource().getName(), depName,
+        ApamResolver.notifySelection(client, dependency.getResource(), depName,
                 ((Instance) insts.toArray()[0]).getImpl(), null, insts);
         return insts;
     }
@@ -373,7 +291,7 @@ public class ApamResolver {
         // instanceConstraints, instancePreferences);
         if (inst != null)
             client.createWire(inst, depName);
-        ApamResolver.notifySelection(client, implName, depName, impl, inst, null);
+        ApamResolver.notifySelection(client, impl.getImplDeclaration().getReference(), depName, impl, inst, null);
         return inst;
     }
 
@@ -424,7 +342,7 @@ public class ApamResolver {
                 client.createWire(inst, depName);
             }
         }
-        ApamResolver.notifySelection(client, implName, depName, impl, null, insts);
+        ApamResolver.notifySelection(client, impl.getImplDeclaration().getReference(), depName, impl, null, insts);
         return insts;
     }
 
@@ -442,7 +360,7 @@ public class ApamResolver {
      * @param preferences : the preferences added by the managers. A (empty) list must be provided as parameter.
      * @return : the managers that will be called for that resolution.
      */
-    public static List<Manager> computeSelectionPathSpec(CompositeType compTypeFrom, ResourceReference resource,
+    public static List<Manager> computeSelectionPathSpec(CompositeType compTypeFrom, ResolvableReference resource,
             Set<Filter> constraints, List<Filter> preferences) {
         if (APAMImpl.managerList.size() == 0) {
             System.err.println("No manager available. Cannot resolve ");
@@ -520,7 +438,7 @@ public class ApamResolver {
         //        if (impl.getSpec().getApformSpec() != null) { // This spec has been formally described and deployed.
         //
         //
-        //            for (ProvidedResourceReference resource : impl.getSpec().getApformSpec().getDeclaration().getProvidedResources()) {
+        //            for (ResourceReference resource : impl.getSpec().getApformSpec().getDeclaration().getProvidedResources()) {
         //
         //                if (!impl.getApformImpl().getDeclaration().isProvided(resource)) {
         //                    System.err.print("ERROR: Invalid implementation " + impl + " for specification "
@@ -775,7 +693,7 @@ public class ApamResolver {
      * @param inst
      * @param insts
      */
-    public static void notifySelection(Instance client, String resName, String depName, Implementation impl,
+    public static void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl,
             Instance inst, Set<Instance> insts) {
         for (Manager manager : APAMImpl.managerList) {
             manager.notifySelection(client, resName, depName, impl, inst, insts);

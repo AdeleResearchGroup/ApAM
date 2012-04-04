@@ -122,7 +122,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         //            	// we could do this
         //            	//mainImpl.getApformImpl().getModel().getProvidedResources().containsAll( spec.getApformSpec().getModel().getProvidedResources());
         //            	
-        //            	for (ProvidedResourceReference specProvided : spec.getApformSpec().getDeclaration().getProvidedResources()) {
+        //            	for (ResourceReference specProvided : spec.getApformSpec().getDeclaration().getProvidedResources()) {
         //
         //            		if (! mainImpl.getApformImpl().getDeclaration().isProvided(specProvided)) {
         //                    	
@@ -216,7 +216,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         String[] interfaces = null;
         Map<String, Object> properties = apfImpl.getDeclaration().getProperties();
         mainImplName = (String) apfImpl.getDeclaration().getProperty(CST.A_MAIN_IMPLEMENTATION);
-        specName = (String) apfImpl.getDeclaration().getProperty(CST.A_APAMSPECNAME);
+        //TODO MIGRATION DECLARATION change handling of sepec names
+        //specName = (String) apfImpl.getDeclaration().getSpecification().getName();
         models = (Set<ManagerModel>) apfImpl.getDeclaration().getProperty(CST.A_MODELS);
 
         if (implComposite == null) {
@@ -540,7 +541,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
             specification = mainImplem.getSpec().getApformSpec();
 
-            declaration = new CompositeDeclaration(name, new SpecificationReference(specification.getDeclaration().getName()), new ImplementationReference(mainImplem.getName()));
+            declaration = new CompositeDeclaration(name, specification.getDeclaration().getReference(), mainImplem.getApformImpl().getDeclaration().getReference());
             declaration.getProperties().putAll(attributes);
             declaration.getProvidedResources().addAll(specification.getDeclaration().getProvidedResources());
 

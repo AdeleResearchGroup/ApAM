@@ -22,7 +22,7 @@ public interface CoreParser {
 	 */
 	public interface ErrorHandler {
 		
-		public enum Severity { SUSPECT, WARNING, ERROR;}
+		public enum Severity {SUSPECT, WARNING, ERROR;}
 		
 		/**
 		 * Notifies of an error in a declaration
@@ -30,5 +30,9 @@ public interface CoreParser {
 		public void error(Severity severity, String message);
 	}
 
+    /**
+     * An string value that will be used to represent mandatory attributes not specified
+     */
+    public final static String UNDEFINED = new String("<undefined value>");
 	
 }

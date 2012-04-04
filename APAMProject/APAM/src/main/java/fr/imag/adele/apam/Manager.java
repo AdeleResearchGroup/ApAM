@@ -6,8 +6,8 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apamImpl.ManagerModel;
-import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.core.Reference;
+import fr.imag.adele.apam.core.ResolvableReference;
 
 /**
  * Interface that each manager MUST implement. Used by APAM to resolve the dependencies and manage the application.
@@ -37,7 +37,7 @@ public interface Manager {
      * @param preferences The preferences for this resolution.
      * @param selPath the managers currently involved in this resolution.
      */
-    public void getSelectionPathSpec(CompositeType compTypeFrom, ResourceReference resource, Set<Filter> constraints,
+    public void getSelectionPathSpec(CompositeType compTypeFrom, ResolvableReference resource, Set<Filter> constraints,
             List<Filter> preferences, List<Manager> selPath);
 
     /**
@@ -111,7 +111,7 @@ public interface Manager {
      * @param preferences The preferences for this resolution.
      * @return the implementations if resolved, null otherwise
      */
-    public Implementation resolveSpecByResource(CompositeType compoType, ResourceReference ressource,
+    public Implementation resolveSpecByResource(CompositeType compoType, ResolvableReference ressource,
             Set<Filter> constraints, List<Filter> preferences);
 
     /**
@@ -163,7 +163,7 @@ public interface Manager {
      * @param inst : the instance selected (null if cardinality multiple)
      * @param insts : the set of instances selected (null if simple cardinality)
      */
-    public void notifySelection(Instance client, String resName, String depName, Implementation impl, Instance inst,
+    public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
             Set<Instance> insts);
 
 }

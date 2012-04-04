@@ -14,11 +14,8 @@ import org.osgi.framework.InvalidSyntaxException;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.core.InterfaceReference;
-import fr.imag.adele.apam.core.MessageReference;
-import fr.imag.adele.apam.core.ProvidedResourceReference;
+import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
-import fr.imag.adele.apam.core.ResourceReference.ResourceType;
 
 
 public class SpecificationImpl extends ConcurrentHashMap<String, Object> implements Specification {
@@ -41,7 +38,7 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         return (this == o);
     }
 
-    public SpecificationImpl(String specName, ApformSpecification apfSpec, Set<ProvidedResourceReference> resources,
+    public SpecificationImpl(String specName, ApformSpecification apfSpec, Set<ResourceReference> resources,
             Map<String, Object> props) {
         assert  (((specName != null) || (apfSpec != null))) ;
 
@@ -213,7 +210,7 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
     public void setSpecApform(ApformSpecification apfSpec) {
         this.apfSpec = apfSpec;
         //            
-        //            for (ProvidedResourceReference interfRef : apfSpec.getDeclaration().getProvidedResources()) {
+        //            for (ResourceReference interfRef : apfSpec.getDeclaration().getProvidedResources()) {
         //            interfaces.add  = apfSpec.getInterfaceNames();
         //            }
         //            putAll(apfSpec.getDeclaration().getProperties());
@@ -338,7 +335,7 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
 
         private final SpecificationDeclaration declaration;
 
-        public ApformEmptySpec(Set<ProvidedResourceReference> resources, Map<String, Object> attributes) {
+        public ApformEmptySpec(Set<ResourceReference> resources, Map<String, Object> attributes) {
             super () ;
             declaration = new EmptySpecificationDeclaration(name, resources);
         }
@@ -349,9 +346,9 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         }
     }
     private class EmptySpecificationDeclaration extends SpecificationDeclaration {
-        public EmptySpecificationDeclaration(String name, Set<ProvidedResourceReference> resources) {
+        public EmptySpecificationDeclaration(String name, Set<ResourceReference> resources) {
             super(name);
-            providedResources.addAll(resources);
+            getProvidedResources().addAll(resources);
         }
     }
 

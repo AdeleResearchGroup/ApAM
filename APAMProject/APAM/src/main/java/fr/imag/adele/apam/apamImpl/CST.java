@@ -14,8 +14,6 @@ public class CST {
     public static final String         A_IMPLEMENTATION      = "implementation";
     public static final String         A_INSTANCE            = "instance";
 
-    public static final String         A_APAMSPECNAME        = "ApamSpecName";
-
     public static String[]             predefAttributes      = { CST.A_SCOPE, CST.A_VISIBLE, CST.A_INSTANTIABLE,
         CST.A_MULTIPLE, CST.A_REMOTABLE, CST.A_SHARED,
         CST.A_INTERNALIMPL, CST.A_INTERNALINST, CST.A_MODELS, CST.A_APPLISCOPE,

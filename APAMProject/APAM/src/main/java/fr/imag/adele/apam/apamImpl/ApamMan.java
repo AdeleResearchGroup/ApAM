@@ -6,13 +6,13 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Manager;
-import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements Manager {
@@ -23,7 +23,7 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public void getSelectionPathSpec(CompositeType compTypeFrom, ResourceReference resource,
+    public void getSelectionPathSpec(CompositeType compTypeFrom, ResolvableReference resource,
             Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath) {
     }
 
@@ -81,7 +81,7 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public Implementation resolveSpecByResource(CompositeType compoType, ResourceReference resource,
+    public Implementation resolveSpecByResource(CompositeType compoType, ResolvableReference resource,
             Set<Filter> constraints, List<Filter> preferences) {
         assert (resource != null);
 
@@ -113,7 +113,7 @@ public class ApamMan implements Manager {
     //    }
 
     @Override
-    public void notifySelection(Instance client, String resName, String depName, Implementation impl, Instance inst,
+    public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
             Set<Instance> insts) {
         // do not care
     }

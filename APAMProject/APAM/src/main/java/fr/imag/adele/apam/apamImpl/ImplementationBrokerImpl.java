@@ -82,7 +82,8 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
         }
 
         String implName = apfImpl.getDeclaration().getName();
-        String specName = (String) apfImpl.getDeclaration().getProperty(CST.A_APAMSPECNAME);
+        //TODO MIGRATION DECLARATION change handling of sepec names
+        String specName = null ; //apfImpl.getDeclaration().getSpecification().getName();
 
         // if allready existing do not duplicate
         Implementation asmImpl = getImpl(implName);
