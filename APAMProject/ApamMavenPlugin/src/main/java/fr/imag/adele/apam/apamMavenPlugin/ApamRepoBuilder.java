@@ -1,19 +1,9 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.jar.JarFile;
 
-import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.xml.parser.SchemaResolver;
 
 import fr.imag.adele.apam.apamImpl.CST;
@@ -26,15 +16,9 @@ import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.PropertyDefinition;
-import fr.imag.adele.apam.core.ResourceReference.ResourceType;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
 import fr.imag.adele.apam.core.SpecificationReference;
-import fr.imag.adele.apam.util.ApamComponentXML;
 import fr.imag.adele.apam.util.OBR;
-//import fr.imag.adele.apam.util.ApamComponentXML.ComponentDeclaration;
-//import fr.imag.adele.apam.util.ApamComponentXML.SimpleProperty;
-//import fr.imag.adele.apam.util.Dependency.SpecificationDependency;
-import fr.imag.adele.apam.util.Util;
 
 public class ApamRepoBuilder {
 
@@ -66,11 +50,11 @@ public class ApamRepoBuilder {
     private void printProvided(StringBuffer obrContent, ComponentDeclaration component) {
         obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
 
-        String interfaces = component.getProvidedRessourceString(ResourceType.INTERFACE);
+        Set<InterfaceReference> interfaces = component.getProvidedResources(InterfaceReference.class);
         if ((interfaces != null) && !interfaces.isEmpty())
             obrContent.append("      <p n='" + OBR.A_PROVIDE_INTERFACES + "' v='" + interfaces + "' /> \n");
 
-        String messages = component.getProvidedRessourceString(ResourceType.MESSAGE);
+        Set<MessageReference> messages = component.getProvidedResources(MessageReference.class);
         if (messages != null)
             obrContent.append("      <p n='" + OBR.A_PROVIDE_MESSAGES + "' v='" + messages + "' />\n");
 
@@ -110,17 +94,18 @@ public class ApamRepoBuilder {
     }
 
     private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {
-        if (component instanceof SpecificationDeclaration) {
+    	if (component instanceof SpecificationDeclaration) {
             for (DependencyDeclaration dep : component.getDependencies()) {
+               	//TODO MIGRATION DECLARATION change to declaration serialization
                 if (dep.getResource() instanceof InterfaceReference) {
-                    obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + dep.getResource().getName()
+                    obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + dep.getResource().as(InterfaceReference.class).getJavaType()
                             + "' /> \n");
                 } else if (dep.getResource() instanceof SpecificationReference) {
                     obrContent.append("      <p n='" + OBR.A_REQUIRE_SPECIFICATION + "' v='"
-                            + dep.getResource().getName()
+                            + "SPECNAME RESSOURCE"//dep.getResource().as(SpecificationReference.class).getName()
                             + "' /> \n");
                 } else if (dep.getResource() instanceof MessageReference) {
-                    obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.getResource().getName()
+                    obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.getResource().as(InterfaceReference.class).getJavaType()
                             + "' /> \n");
                 }
             }
@@ -150,12 +135,14 @@ public class ApamRepoBuilder {
         if (component instanceof AtomicImplementationDeclaration) {
             obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
         }
+       	//TODO MIGRATION DECLARATION change to declaration serialization
+
         if (component instanceof CompositeDeclaration) {
             obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
             obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='" + (component instanceof CompositeDeclaration)
                     + "' />\n");
             obrContent.append("      <p n='" + CST.A_MAIN_IMPLEMENTATION + "' v='"
-                    + ((CompositeDeclaration) component).getMainImplementation().getName()
+                    + "MAIN IMPLE"//((CompositeDeclaration) component).getMainImplementation().getName()
                     + "' />\n");
             CheckObr.checkCompoMain((CompositeDeclaration) component);
         }

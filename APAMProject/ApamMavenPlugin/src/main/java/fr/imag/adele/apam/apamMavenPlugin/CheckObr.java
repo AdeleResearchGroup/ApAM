@@ -1,7 +1,6 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,7 +17,6 @@ import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.core.*;
-import fr.imag.adele.apam.core.ResourceReference.ResourceType;
 
 public class CheckObr {
 
@@ -61,24 +59,16 @@ public class CheckObr {
         }
     }
 
-    /**
-     * Checks that list in spec, is contained in Impl.
-     * both impl and spec are under the form "{A, B, .... }"
-     * 
-     * @param set
-     * @param subSet
-     * @param msg
-     */
-    private static void checkList(String set, String subSet, String msg) {
-        if (subSet == null)
-            return;
-        List<String> implList = Util.splitList(set);
-        // each element of sp must be found in implList
-        for (String sp : Util.split(subSet)) {
-            if (!implList.contains(sp)) {
-                CheckObr.error(msg + sp + ". Declared: " + set);
-            }
-        }
+    @SuppressWarnings("unchecked")
+	private static <R extends ResourceReference> Set<R> asSet(String set, Class<R> kind) {
+    	Set<ResourceReference> references = new HashSet<ResourceReference>();
+    	for (String  id : Util.split(set)) {
+    		if (InterfaceReference.class.isAssignableFrom(kind))
+    			references.add(new InterfaceReference(id));
+    		if (MessageReference.class.isAssignableFrom(kind))
+    			references.add(new MessageReference(id));
+		}
+    	return (Set<R>) references;
     }
 
     /**
@@ -86,9 +76,11 @@ public class CheckObr {
      * @param dep
      */
     public static void checkConstraints(DependencyDeclaration dep) {
-        if ((dep == null) || (dep.getResource().resourceType != ResourceType.SPECIFICATION))
+        if ((dep == null) || !(dep.getResource() instanceof SpecificationReference))
             return;
-        String spec = dep.getResource().getName();
+        
+        SpecificationReference reference = dep.getResource().as(SpecificationReference.class);
+        String spec = reference.getName();
 
         //        return;
         //        String spec = null;
@@ -113,7 +105,7 @@ public class CheckObr {
         //        }
         //        if (spec == null)
         //            return;
-        Capability cap = CheckObr.getSpecCapability(spec);
+        Capability cap = CheckObr.getSpecCapability(reference);
         if (cap == null)
             return;
         Set<String> validImplAttrs = CheckObr.getValidImplAttributes(cap);
@@ -147,7 +139,7 @@ public class CheckObr {
         // if implementation is found
         Capability cap = null;
         if (impl != null) {
-            cap = CheckObr.getImplCapability(impl);
+            cap = CheckObr.getImplCapability(new ImplementationReference<ImplementationDeclaration>(impl));
             if (cap != null) {
                 // Map<String, Object> props = cap.getProperties();
                 for (Object attr : cap.getProperties().keySet()) {
@@ -284,7 +276,7 @@ public class CheckObr {
         Map<String, Object> properties = component.getProperties();
         if (spec == null)
             return;
-        Capability cap = CheckObr.getSpecCapability(spec);
+        Capability cap = CheckObr.getSpecCapability(component.getSpecification());
         if (cap == null) {
             return;
         }
@@ -308,7 +300,7 @@ public class CheckObr {
      * @param instance
      */
     public static void checkInstAttributes(String impl, String name, InstanceDeclaration instance) {
-        Capability capImpl = CheckObr.getImplCapability(impl);
+        Capability capImpl = CheckObr.getImplCapability(instance.getImplementation());
         if (capImpl == null) {
             return;
         }
@@ -341,18 +333,23 @@ public class CheckObr {
      * @param messages= "{M1, M2, M3}" or M1 or null
      * @return
      */
-    public static boolean checkImplProvide(String implName, String spec, String interfaces, String messages) {
+    public static boolean checkImplProvide(String implName, String spec, Set<InterfaceReference> interfaces, Set<MessageReference> messages) {
         if (spec == null)
             return true;
-        Capability cap = CheckObr.getSpecCapability(spec);
+        Capability cap = CheckObr.getSpecCapability(new SpecificationReference(spec));
         if (cap == null) {
             return true;
         }
         // CheckObr.printCap(cap);
-        CheckObr.checkList(messages, CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES),
-                "Implementation " + implName + " must produce message ");
-        CheckObr.checkList(interfaces, CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_INTERFACES),
-                "Implementation " + implName + " must implement interface ");
+        
+        Set<MessageReference> specMessages = asSet(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES),MessageReference.class); 
+        Set<InterfaceReference> specInterfaces = asSet(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_INTERFACES),InterfaceReference.class);
+        
+        if ( !(messages.containsAll(specMessages)))
+                System.err.println("Implementation " + implName + " must produce messages "+specMessages);
+        
+        if (! (interfaces.containsAll(specInterfaces)))
+        		System.err.println("Implementation " + implName + " must implement interfaces "+specInterfaces);
 
         return true;
     }
@@ -362,11 +359,9 @@ public class CheckObr {
         String name = composite.getName();
         // System.err.println("in checkCompoMain ");
         String implName = composite.getMainImplementation().getName();
-        Capability cap = CheckObr.getImplCapability(composite.getMainImplementation().getName());
+        Capability cap = CheckObr.getImplCapability(composite.getMainImplementation());
         if (cap == null)
             return;
-        String interfaces = composite.getProvidedRessourceString(ResourceType.INTERFACE);
-        String messages = composite.getProvidedRessourceString(ResourceType.MESSAGE);
         String spec = composite.getSpecification().getName();
         if (spec == null)
             return;
@@ -375,10 +370,13 @@ public class CheckObr {
             CheckObr.error("In " + name + " Invalid main implementation. " + implName
                     + " must implement specification " + spec);
         }
-        CheckObr.checkList(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES), messages,
-                "In " + name + " Invalid main implementation. " + implName + " must produce message ");
-        CheckObr.checkList(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_INTERFACES), interfaces,
-                "In " + name + " Invalid main implementation. " + implName + " must implement interface ");
+        
+        Set<MessageReference> mainMessages = asSet(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES), MessageReference.class);
+        Set<InterfaceReference> mainInterfaces = asSet(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_INTERFACES),InterfaceReference.class);
+        if (! mainMessages.containsAll(composite.getProvidedResources(MessageReference.class)))
+                System.err.println("In " + name + " Invalid main implementation. " + implName + " must produce message ");
+        if (! mainInterfaces.containsAll(composite.getProvidedResources(InterfaceReference.class)))
+                System.err.println("In " + name + " Invalid main implementation. " + implName + " must implement interface ");
     }
 
     /**
@@ -427,7 +425,8 @@ public class CheckObr {
         return (String) prop.toArray()[0];
     }
 
-    private static Capability getSpecCapability(String name) {
+    private static Capability getSpecCapability(SpecificationReference reference) {
+    	String name = reference.getName();
         if (CheckObr.readSpecs.containsKey(name))
             return CheckObr.readSpecs.get(name);
         for (Resource res : CheckObr.resources) {
@@ -447,7 +446,8 @@ public class CheckObr {
         return null;
     }
 
-    private static Capability getImplCapability(String name) {
+    private static Capability getImplCapability(ImplementationReference<?> reference) {
+    	String name = reference.getName();
         if (CheckObr.readSpecs.containsKey(name))
             return CheckObr.readSpecs.get(name);
         for (Resource res : CheckObr.resources) {
@@ -466,7 +466,8 @@ public class CheckObr {
         return null;
     }
 
-    private static Capability getCompoCapability(String name) {
+    private static Capability getCompoCapability(ImplementationReference<? extends CompositeDeclaration> reference) {
+    	String name = reference.getName();
         for (Resource res : CheckObr.resources) {
             for (Capability cap : res.getCapabilities()) {
                 if (cap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)
@@ -490,33 +491,42 @@ public class CheckObr {
         if (!(component instanceof AtomicImplementationDeclaration)) return ;
 
         // All field must have same multiplicity, and must refer to interfaces and messages provided by the specification.
-        String interfs = CheckObr.getAttributeInCap(CheckObr.getSpecCapability(dep.getName()), OBR.A_PROVIDE_INTERFACES);
-        List<String> specResources = Util.splitList(interfs);
-        String messages = CheckObr.getAttributeInCap(CheckObr.getSpecCapability(dep.getName()), OBR.A_PROVIDE_MESSAGES);
-        specResources.addAll( Util.splitList(messages));
+        
+        SpecificationReference spec = dep.getResource().as(SpecificationReference.class);
+        Set<ResourceReference> specResources = new HashSet<ResourceReference>();
+        
+        if (spec != null) {
+        	specResources.addAll( asSet(CheckObr.getAttributeInCap(CheckObr.getSpecCapability(spec), OBR.A_PROVIDE_INTERFACES), InterfaceReference.class));
+        	specResources.addAll( asSet(CheckObr.getAttributeInCap(CheckObr.getSpecCapability(spec), OBR.A_PROVIDE_MESSAGES), MessageReference.class));
+        } else {
+        	specResources.add(dep.getResource().as(ResourceReference.class));
+        }
+        
         Boolean mult = dep.isMultiple();
         for (DependencyInjection innerDep : dep.getInjections()) {
             // check if attribute "multiple" matches the fields type (Set, List Array)
             // if multiple is not explicitly defined, assume the first field multiplicity
+        	
+        	// TODO MIGRATION DECLARATAION change ineference
             if (mult == null) {
-                dep.setMultiple(CheckObr.isFieldMultiple(innerDep, component));
+                //dep.setMultiple(CheckObr.isFieldMultiple(innerDep, component));
                 mult = dep.isMultiple();
             }
             if (mult != CheckObr.isFieldMultiple(innerDep, component)) {
                 if (mult)
                     CheckObr.error("ERROR: in " + component.getName() + " field "
-                            + innerDep.getResource().getName()
+                            + innerDep.getFieldName()
                             + " is a collection field, while other fields in same dependency are simple.");
                 else
                     CheckObr.error("ERROR: in " + component.getName() + " field "
-                            + innerDep.getResource().getName()
+                            + innerDep.getFieldName()
                             + " is a simple field, while other fields in same dependency are collection.");
             }
-            if (!(specResources.contains(innerDep.getResource().getName()))) {
+            if (!(specResources.contains(innerDep.getResource()))) {
                 CheckObr.error("ERROR: in " + component.getName() + " Field " + innerDep.getFieldName()
                         + " is of type "
                         + innerDep.getResource()
-                        + " which is not implemented by specification " + dep.getName());
+                        + " which is not implemented by specification " + dep);
             }
         }
     }
@@ -540,7 +550,11 @@ public class CheckObr {
         //        private static final String[] fieldTypeMultiple = { "java.util.Set", "java.util.List",
         //            "java.util.Collection", "java.util.Vector" };
 
+        return dep.isCollection();
+        
+        /* MIGRATION DECLARATION Complete collection information
         String type = dep.getResource().getName();
         return (type.equals("java.util.Set") || type.equals("java.util.List") || type.endsWith("[]"));
+        */
     }
 }
