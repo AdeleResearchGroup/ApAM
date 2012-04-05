@@ -37,7 +37,7 @@ public class ApamRepoBuilder {
         CheckObr.init(defaultOBRRepo + "\\repository.xml");
     }
 
-    public StringBuffer writeOBRFile(Set<ComponentDeclaration> components) {
+    public StringBuffer writeOBRFile(List<ComponentDeclaration> components) {
         StringBuffer obrContent = new StringBuffer("<obr> \n");
         for (ComponentDeclaration comp : components) {
             // printElement(comp.m_componentMetadata, "");
@@ -94,9 +94,9 @@ public class ApamRepoBuilder {
     }
 
     private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {
-    	if (component instanceof SpecificationDeclaration) {
+        if (component instanceof SpecificationDeclaration) {
             for (DependencyDeclaration dep : component.getDependencies()) {
-               	//TODO MIGRATION DECLARATION change to declaration serialization
+                //TODO MIGRATION DECLARATION change to declaration serialization
                 if (dep.getResource() instanceof InterfaceReference) {
                     obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + dep.getResource().as(InterfaceReference.class).getJavaType()
                             + "' /> \n");
@@ -135,7 +135,7 @@ public class ApamRepoBuilder {
         if (component instanceof AtomicImplementationDeclaration) {
             obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
         }
-       	//TODO MIGRATION DECLARATION change to declaration serialization
+        //TODO MIGRATION DECLARATION change to declaration serialization
 
         if (component instanceof CompositeDeclaration) {
             obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");

@@ -35,7 +35,7 @@ public class Util {
     private Util() {
     };
 
-    public static Set<ComponentDeclaration> getComponents(Element root) {
+    public static List<ComponentDeclaration> getComponents(Element root) {
         Util.failed = false;
         CoreParser parser = new CoreMetadataParser(root);
         return parser.getDeclarations(new ErrorHandler() {
