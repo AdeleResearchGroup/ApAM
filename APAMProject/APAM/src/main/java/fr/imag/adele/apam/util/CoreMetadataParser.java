@@ -47,34 +47,34 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * Constants defining the different element and attributes
      */
-    public static final String APAM 				= 	"fr.imag.adele.apam";
-    public static final String SPECIFICATION 		= 	"specification";
-    public static final String IMPLEMENTATION 		= 	"implementation";
-    public static final String COMPOSITE 			= 	"composite";
-    public static final String INSTANCE 			= 	"instance";
-    public static final String DEFINITIONS 			= 	"definitions";
-    public static final String DEFINITION 			= 	"definition";
-    public static final String PROPERTIES 			= 	"properties";
-    public static final String PROPERTY 			= 	"property";
-    public static final String DEPENDENCIES 		= 	"dependencies";
-    public static final String INTERFACE 			= 	"interface";
-    public static final String MESSAGE 				= 	"message";
-    public static final String CONSTRAINTS 			= 	"constraints";
-    public static final String PREFERENCES 			= 	"preferences";
+    private static final String        APAM                    = "fr.imag.adele.apam";
+    private static final String        SPECIFICATION           = "specification";
+    private static final String        IMPLEMENTATION          = "implementation";
+    private static final String        COMPOSITE               = "composite";
+    private static final String        INSTANCE                = "instance";
+    private static final String        DEFINITIONS             = "definitions";
+    private static final String        DEFINITION              = "definition";
+    private static final String        PROPERTIES              = "properties";
+    private static final String        PROPERTY                = "property";
+    private static final String        DEPENDENCIES            = "dependencies";
+    private static final String        INTERFACE               = "interface";
+    private static final String        MESSAGE                 = "message";
+    private static final String        CONSTRAINTS             = "constraints";
+    private static final String        PREFERENCES             = "preferences";
 
-    public static final String ATT_NAME 				= 	"name";
-    public static final String ATT_CLASSNAME 			= 	"classname";
-    public static final String ATT_SPECIFICATION		= 	"specification";
-    public static final String ATT_MAIN_IMPLEMENTATION	= 	"mainImplem";
-    public static final String ATT_IMPLEMENTATION		= 	"implementation";
-    public static final String ATT_INTERFACES 			= 	"interfaces";
-    public static final String ATT_MESSAGES 			= 	"messages";
-    public static final String ATT_TYPE 				= 	"type";
-    public static final String ATT_VALUE 				= 	"value";
-    public static final String ATT_FIELD 				= 	"field";
-    public static final String ATT_ID 					= 	"id";
-    public static final String ATT_MULTIPLE				= 	"multiple";
-    public static final String ATT_FILTER				= 	"filter";
+    private static final String        ATT_NAME                = "name";
+    private static final String        ATT_CLASSNAME           = "classname";
+    private static final String        ATT_SPECIFICATION       = "specification";
+    private static final String        ATT_MAIN_IMPLEMENTATION = "mainImplem";
+    private static final String        ATT_IMPLEMENTATION      = "implementation";
+    private static final String        ATT_INTERFACES          = "interfaces";
+    private static final String        ATT_MESSAGES            = "messages";
+    private static final String        ATT_TYPE                = "type";
+    private static final String        ATT_VALUE               = "value";
+    private static final String        ATT_FIELD               = "field";
+    private static final String        ATT_ID                  = "id";
+    private static final String        ATT_MULTIPLE            = "multiple";
+    private static final String        ATT_FILTER              = "filter";
 
 
     /**

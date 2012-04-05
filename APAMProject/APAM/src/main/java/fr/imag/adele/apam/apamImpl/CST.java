@@ -69,6 +69,7 @@ public class CST {
     public static final String         V_COMPOSITE           = "composite";
     // visible in the current composite only
     public static final String         V_LOCAL               = "local";
+
     public static final String         V_TRUE                = "true";
     public static final String         V_FALSE               = "false";
 
