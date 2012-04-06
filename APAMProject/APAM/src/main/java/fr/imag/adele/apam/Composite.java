@@ -108,10 +108,10 @@ public interface Composite extends Instance {
      */
     public Set<Instance> getContainInsts();
 
-    /**
-     * 
-     * @return true if the attribute "internalInstances" is set to "true"
-     */
-    public boolean isInternal();
+    //    /**
+    //     * 
+    //     * @return true if the attribute "internalInstances" is set to "true"
+    //     */
+    //    public boolean isInternal();
 
 }

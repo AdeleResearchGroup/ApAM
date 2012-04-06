@@ -38,12 +38,12 @@ public interface Implementation extends ConcurrentMap<String, Object> {
      */
     public String getShared();
 
-    /**
-     * returns the value of the scope attribute
-     * 
-     * @return
-     */
-    public String getVisible();
+    //    /**
+    //     * returns the value of the scope attribute
+    //     * 
+    //     * @return
+    //     */
+    //    public String getVisible();
 
     public void remove();
 
@@ -198,43 +198,5 @@ public interface Implementation extends ConcurrentMap<String, Object> {
     public boolean isInstantiable();
 
     public boolean isUsed();
-
-    //    /**
-    //     * A minimal model of the information known by the handler about the potential dependencies
-    //     * of its managed instance.
-    //     */
-    //
-    //    public enum TargetKind {
-    //        INTERFACE, SPECIFICATION, IMPLEMENTATION
-    //    }
-    //
-    //    public static class DependencyModel {
-    //        public String     dependencyName; // depName. field inside source code. Not relevant for composites.
-    //        public String     target;        // spec name, interface or implem
-    //        public TargetKind targetKind;    // INTERFACE, SPECIFICATION, IMPLEMENTATION
-    //        public String[]   source;        // for composites, the list of source specifications.
-    //        public boolean    isMultiple;    // cardinality multiple
-    //
-    //        @Override
-    //        public String toString() {
-    //            String val = "Dependency: \n         target: " + targetKind + "  " + target;
-    //            if (dependencyName != null)
-    //                val = val + "; field: " + dependencyName;
-    //            val = val + "; multiple = " + isMultiple;
-    //
-    //            if ((source != null) && (source.length > 0)) {
-    //                val = val + "\n         source specification: ";
-    //                for (String sc : source) {
-    //                    val = val + "  " + sc;
-    //                }
-    //            }
-    //            return val + "\n";
-    //        }
-    //    }
-
-    /**
-     * Get the list of dependencies known by the handler
-     */
-    //    public Set<DependencyModel> getDependencies();
 
 }

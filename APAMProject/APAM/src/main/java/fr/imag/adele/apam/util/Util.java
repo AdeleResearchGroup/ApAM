@@ -201,87 +201,104 @@ public class Util {
         return ret;
     }
 
-    /**
-     * Checks if implementation impl is visible from composite type compoFrom.
-     * An implementation can pertain to more than one composite type.
-     * Each composite type can overload the scope attribute. Returns true if impl is visible
-     * through at least one of the composite types in which it is contained.
-     * 
-     * Otherwise the scope rules are the same.
-     */
-    public static boolean checkImplVisible(Implementation impl, CompositeType compoFrom) {
-        for (CompositeType compoTo : impl.getInCompositeType()) {
-            if (Util.checkVisibilityImpl(compoFrom, compoTo, impl))
-                return true;
-        }
-        // failed
-        //        if (compoFrom.isInternal()) {
-        //            System.out.println("Composite type " + compoFrom.getName()
-        //                    + " is internal and does not see implementation " + impl + " in " + impl.getInCompositeType());
-        //        } else
-        //            System.out.println("Composite type " + compoFrom.getName()
-        //                        + " does not see implementation " + impl + " in " + impl.getInCompositeType());
-        return false;
+
+    public static boolean checkImplVisibilityExpression(String expre, Implementation impl) {
+        if ((expre == null) || expre.equals(CST.V_TRUE))
+            return true;
+        if (expre.equals(CST.V_FALSE))
+            return false;
+        Filter f = ApamFilter.newInstance(expre);
+        if (f == null)
+            return false;
+        return impl.match(f);
     }
 
     /**
-     * Provided that scope is the wider possible visibility value of an implementation pertaining to compoTo,
-     * return true if the implementation in compoTo is visible from compoFrom.
+     * Implementation toImpl can be borrowed by composite type compoFrom if :
+     * compoFrom accepts to borrow the attribute
+     * toImpl is inside compoFrom.
+     * attribute friendImplementation is set, and toImpl is inside a friend and matches the attribute.
+     * toImpl does not matches the attribute localImplementation.
      * 
-     * @param compoFrom : the composite that wants to see an implementation in compoTo
-     * @param compoTo : the composite type containing the implementation to see.
+     * @param compoFrom
+     * @param toImpl
      * @return
      */
-    private static boolean checkVisibilityImpl(CompositeType compoFrom, CompositeType compoTo, Implementation impl) {
-        String visible = (compoFrom.isInternal()) ? CST.V_LOCAL : ((CompositeTypeImpl) compoTo)
-                .getVisibleInCompoType(impl);
-
-        if (visible.equals(CST.V_GLOBAL))
-            return true;
-        if (visible.equals(CST.V_COMPOSITE))
-            return ((compoFrom == compoTo) || (compoFrom.imports(compoTo)));
-        if (visible.equals(CST.V_LOCAL))
-            return (compoFrom == compoTo);
-
-        System.err.println("CheckAccess : Invalid Scope value :  " + visible);
-        return false;
-    }
-
-    public static boolean checkInstVisible(Composite compoFrom, Instance toInst) {
-        String scope = toInst.getScope();
-        if ((compoFrom == null) || (toInst.getComposite() == null)) { // compoFrom or impl are root composite
-            return scope.equals(CST.V_GLOBAL);
-        }
-
-        if (compoFrom.isInternal())
-            scope = CST.V_LOCAL;
-
-        if ((toInst.getShared().equals(CST.V_FALSE) && (!toInst.getInvWires().isEmpty()))) {
-            //            System.out.println(toInst + " is not sharable");
+    public static boolean checkImplVisible(CompositeType compoFrom, Implementation toImpl) {
+        // First check inst can be borrowed
+        String borrow = ((String) compoFrom.get(CST.A_BORROWIMPLEM));
+        if ((borrow != null) && (Util.checkImplVisibilityExpression(borrow, toImpl) == false))
             return false;
-        }
 
-        boolean valid = Util.checkVisibility(compoFrom, toInst.getComposite(), scope);
-        if (!valid) {
-            //            System.out.println("Composite " + compoFrom.getName()
-            //                    + " does not see instance " + toInst + " in Composite " + toInst.getComposite().getName()
-            //                    + " (scope is " + scope + ")");
+        // true if at least one composite type that own toImpl accepts to lend it to compoFrom.
+        for (CompositeType compoTo : toImpl.getInCompositeType()) {
+            if (Util.checkImplVisibleInCompo(compoFrom, toImpl, compoTo))
+                return true;
         }
-        return valid;
+        return false;
     }
 
-    private static boolean checkVisibility(Composite compoFrom, Composite compoTo, String scope) {
-        if ((scope == null) || (scope.equals(CST.V_GLOBAL)))
+    public static boolean
+    checkImplVisibleInCompo(CompositeType compoFrom, Implementation toImpl, CompositeType compoTo) {
+        if (compoFrom == compoTo)
             return true;
-        if (scope.equals(CST.V_APPLI))
-            return (compoFrom.getRootComposite() == compoTo.getRootComposite());
-        if (scope.equals(CST.V_COMPOSITE))
-            return ((compoFrom == compoTo) || (compoFrom.dependsOn(compoTo)));
-        if (scope.equals(CST.V_LOCAL))
-            return (compoFrom == compoTo);
+        if (compoFrom.isFriend(compoTo)) {
+            String friend = ((String) compoFrom.get(CST.A_FRIENDINSTANCE));
+            if ((friend != null) && Util.checkImplVisibilityExpression(friend, toImpl))
+                return true;
+        }
+        String local = ((String) compoFrom.get(CST.A_LOCALINSTANCE));
+        if ((local != null) && Util.checkImplVisibilityExpression(local, toImpl))
+            return false;
+        return true;
+    }
 
-        System.err.println("CheckAccess : Invalid Scope value :  " + scope);
-        return false;
+    public static boolean checkInstVisibilityExpression(String expre, Instance inst) {
+        if ((expre == null) || expre.equals(CST.V_TRUE))
+            return true;
+        if (expre.equals(CST.V_FALSE))
+            return false;
+        Filter f = ApamFilter.newInstance(expre);
+        if (f == null)
+            return false;
+        return inst.match(f);
+    }
+
+    /**
+     * Instance toInst can be borrowed by composite compoFrom if :
+     * compoFrom accpets to borroxww the attribute
+     * toInst is inside compoFrom.
+     * attribute friendInstance is set, and toInst is inside a friend and matches the attribute.
+     * attribute appliInstance is set, and toInst is in same appli and matches the attribute.
+     * toInst does not matches the attribute localInstance.
+     * 
+     * @param compoFrom
+     * @param toInst
+     * @return
+     */
+    public static boolean checkInstVisible(Composite compoFrom, Instance toInst) {
+        // First check inst can be borrowed
+        String borrow = ((String) compoFrom.get(CST.A_BORROWINSTANCE));
+        if ((borrow != null) && (Util.checkInstVisibilityExpression(borrow, toInst) == false))
+            return false;
+
+        Composite toCompo = toInst.getComposite();
+        if (compoFrom == toCompo)
+            return true;
+        if (compoFrom.dependsOn(toCompo)) {
+            String friend = ((String) compoFrom.get(CST.A_FRIENDINSTANCE));
+            if ((friend != null) && Util.checkInstVisibilityExpression(friend, toInst))
+                return true;
+        }
+        if (compoFrom.getRootComposite() == toCompo.getRootComposite()) {
+            String appli = ((String) compoFrom.get(CST.A_APPLIINSTANCE));
+            if ((appli != null) && Util.checkInstVisibilityExpression(appli, toInst))
+                return true;
+        }
+        String local = ((String) compoFrom.get(CST.A_LOCALINSTANCE));
+        if ((local != null) && Util.checkInstVisibilityExpression(local, toInst))
+            return false;
+        return true;
     }
 
     public static boolean isPredefinedAttribute(String attr) {
@@ -314,130 +331,4 @@ public class Util {
 
 }
 
-/**
- * Builds a dictionary from a map attribute = value(s).
- * 
- * @param properties the properties, if values can be translated to strings
- * @return the dictionary< string, string>
- */
-// public static Dictionary<String, String> properties2Dictionary(Map<String, Object> properties) {
-// if (properties == null)
-// return null;
-// Dictionary<String, String> retMap = new Hashtable<String, String>();
-// Set<String> keys = properties.keySet();
-// for (String key : keys) {
-// if (!(properties.get(key) instanceof String)) {
-// retMap.put(key, properties.get(key).toString());
-// } else {
-// retMap.put(key, (String) properties.get(key));
-// }
-// }
-// return retMap;
-// }
-
-// public static Map<String, Object> properties2Map(Properties props) {
-// if (props == null)
-// return null;
-// Map<String, Object> propsMap = new HashMap<String, Object>();
-// for (Object attr : props.keySet()) {
-// if (attr instanceof String)
-// propsMap.put((String) attr, props.get(attr));
-// else
-// propsMap.put(attr.toString(), props.get(attr));
-// }
-// return propsMap;
-// }
-/**
- * check if a property list matches a given query
- * 
- * @param query
- * @param name : if it is a query by name, it should match "name". Can be null if
- * @param prop : if query LDAP, it should match the property map.
- * @return
- */
-// public static boolean matchQuery(Query query, String matchName, Map<String, Object> prop) {
-// if ((query == null) || (matchName == null) || (prop == null))
-// return false;
-// int typeQuery = query.getType();
-// switch (typeQuery) {
-// case Query.T_BY_NAME:
-// String name = ((QueryByName) query).getName();
-// if ((name != null) && (name.equals(matchName))) {
-// return true;
-// } else
-// return false;
-// case Query.T_LDAP:
-// Filter fGoal = null;
-// try {
-// fGoal = FrameworkUtil.createFilter(((QueryLDAP) query).getLDAP());
-// if ((fGoal != null) && (fGoal.match(Util.properties2Dictionary(prop)))) { // match
-// // dictionary
-// // filter
-// return true;
-// }
-// } catch (Exception e) {
-// Util.logger.error("invalid LDAP query : " + fGoal);
-// return false;
-// }
-// }
-// return false;
-// }
-
-// public static boolean matchLDAP(Filter filter, String matchName, Map<String, Object> prop) {
-// if ((filter == null) || (matchName == null) || (prop == null))
-// return false;
-//
-// try {
-// if ((filter != null) && (filter.match(Util.properties2Dictionary(prop)))) { // match
-// // dictionary
-// // filter
-// return true;
-// }
-// } catch (Exception e) {
-// Util.logger.error("invalid LDAP query : " + filter);
-// }
-// return false;
-// }
-/**
- * Adds in ASM object the properties found in the associated SAM object.
- * Checks the predefined attribute : upperCase and valid values.
- * Either samProp or initProp can be null
- * 
- * @param initProp : the initial properties provided in the ASM constructor
- * @param samProp : the properties found in SAM.
- * @return
- */
-//    public static Map<String, Object> mergeProperties(AttributesImpl asmObj, Attributes initProp,
-//            Map<String, Object> samPropParam) {
-//        if ((initProp == null) && (samPropParam == null))
-//            return new HashMap<String, Object>();
-//        return asmObj.checkPredefinedAttributes(samPropParam);
-//    }
-
-//       
-//        if ((initProp == null) && (samPropParam == null))
-//            return new HashMap<String, Object>();
-//        Map<String, Object> samProp = new HashMap<String, Object>(samPropParam);
-//        String attr;
-//        Object val;
-//        if ((initProp != null) && (samProp != null)) { // merge
-//            for (Enumeration<String> e = ((AttributesImpl) initProp).keys(); e.hasMoreElements();) {
-//                attr = e.nextElement();
-//                val = initProp.getProperty(attr);
-//                if (samProp.get(attr) == null) {
-//                    samProp.put(attr, val);
-//                } else { // different values, pas normal !
-//                    if (initProp.getProperty(attr) != samProp.get(attr)) {
-//                        System.out.println("Warning ! attribut " + attr + "in " + asmObj
-//                                + " different in SAM and init val : "
-//                                + samProp.get(attr) + ", " + val);
-//                    }
-//                }
-//            }
-//        }
-//
-//        if (samProp == null)
-//            samProp = initProp.getProperties();
-//        return asmObj.checkPredefinedAttributes(samProp);
-//     }
 

@@ -87,10 +87,10 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     /**
      * Get access to the internal implementation of the wrapped instance
      */
-//    @Override
-//    public Internal asInternal() {
-//        return this;
-//    }
+    //    @Override
+    //    public Internal asInternal() {
+    //        return this;
+    //    }
 
     public static Composite getRootAllComposites() {
         return CompositeImpl.rootComposite;
@@ -302,9 +302,9 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         hasInstance.remove(inst);
     }
 
-    @Override
-    public boolean isInternal() {
-        return ((CompositeTypeImpl) compType).getInternalInst();
-    }
+    //    @Override
+    //    public boolean isInternal() {
+    //        return ((CompositeTypeImpl) compType).getInternalInst();
+    //    }
 
 }

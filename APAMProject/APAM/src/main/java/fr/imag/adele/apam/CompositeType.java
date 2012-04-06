@@ -61,7 +61,7 @@ public interface CompositeType extends Implementation {
      * @param destination
      * @return
      */
-    public boolean imports(CompositeType destination);
+    public boolean isFriend(CompositeType destination);
 
     /**
      * adds an implementation in the current composite type
@@ -99,10 +99,10 @@ public interface CompositeType extends Implementation {
      */
     public Set<CompositeType> getInvEmbedded();
 
-    /**
-     * 
-     * @return true if the attribute "internamImplementations" is set to "true"
-     */
-    public boolean isInternal();
+    //    /**
+    //     * 
+    //     * @return true if the attribute "internamImplementations" is set to "true"
+    //     */
+    //    public boolean isInternal();
 
 }

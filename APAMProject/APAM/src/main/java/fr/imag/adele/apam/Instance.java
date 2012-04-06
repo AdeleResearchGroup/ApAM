@@ -143,10 +143,10 @@ public interface Instance extends ConcurrentMap<String, Object> {
 
     public boolean isUsed();
 
-    /*
-     * returns the value of hte scope attribute
-     */
-    public String getScope();
+    //    /*
+    //     * returns the value of hte scope attribute
+    //     */
+    //    public String getScope();
 
     /**
      * returns the specification of that instance

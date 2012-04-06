@@ -287,13 +287,13 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
      * WARNING : an implem can pertain to various composite types that can overload (reduce) the visibility.
      * Is returned only the intrinsic visibility.
      */
-    @Override
-    public String getVisible() {
-        String visible = (String) get(CST.A_VISIBLE);
-        if (visible == null)
-            visible = CST.V_GLOBAL;
-        return visible;
-    }
+    //    @Override
+    //    public String getVisible() {
+    //        String visible = (String) get(CST.A_VISIBLE);
+    //        if (visible == null)
+    //            visible = CST.V_GLOBAL;
+    //        return visible;
+    //    }
 
     @Override
     public String getShared() {

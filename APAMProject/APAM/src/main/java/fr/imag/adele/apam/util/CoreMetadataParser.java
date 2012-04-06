@@ -250,7 +250,7 @@ public class CoreMetadataParser implements CoreParser {
         @Override
         public ResourceReference getType(String field) {
 
-            ResourceReference type = new InterfaceReference("<Unavailable type for field "+field+">");
+            ResourceReference type = new InterfaceReference("<Unavailable>", false); // type for field "+field+"
             FieldMetadata metadata = pojoMetadata.getField(field);
 
             if (metadata != null) {
@@ -266,13 +266,13 @@ public class CoreMetadataParser implements CoreParser {
                     type = new InterfaceReference(fieldType.substring(0, index));
                 }
                 else  if (ApamIpojoInstrumentation.supportedCollections.contains(fieldType)) {
-                    type = new InterfaceReference("<Unavailable type for elements of collection field "+field+" >");
+                    type = new InterfaceReference("<Collection ? " + field + " >", false);
                 }
                 else if (fieldType.equals(AbstractProducer.class.getName())) {
-                    type = new MessageReference("<Unavailable type for message field "+field+" >");
+                    type = new MessageReference("<Unavailable>", false); // type for message field "+field+"
                 }
                 else if (fieldType.equals(AbstractConsumer.class.getName())) {
-                    type = new MessageReference("<Unavailable type for message field "+field+" >");
+                    type = new MessageReference("<Unavailable>", false); // type for message field "+field+"
                 }
                 else {
                     type = new InterfaceReference(fieldType);

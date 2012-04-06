@@ -74,7 +74,7 @@ public class ApamMan implements Manager {
         Implementation impl = CST.ImplBroker.getImpl(implName);
         if (impl == null)
             return null;
-        if (Util.checkImplVisible(impl, compoType)) {
+        if (Util.checkImplVisible(compoType, impl)) {
             return impl;
         }
         return null;
@@ -91,7 +91,7 @@ public class ApamMan implements Manager {
         Set<Implementation> impls = new HashSet<Implementation>();
         // select those that are visible
         for (Implementation impl : spec.getImpls()) {
-            if (Util.checkImplVisible(impl, compoType))
+            if (Util.checkImplVisible(compoType, impl))
                 impls.add(impl);
         }
         // AND those that match the constraints

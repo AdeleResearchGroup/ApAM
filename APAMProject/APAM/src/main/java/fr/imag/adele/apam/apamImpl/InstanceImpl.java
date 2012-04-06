@@ -254,11 +254,11 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         return apformInst;
     }
 
-    @Override
-    public String getScope() {
-        // Check if the composite type overloads the implementation scope
-        return ((CompositeTypeImpl) myComposite.getCompType()).getScopeInComposite(this);
-    }
+    //    @Override
+    //    public String getScope() {
+    //        // Check if the composite type overloads the implementation scope
+    //        return ((CompositeTypeImpl) myComposite.getCompType()).getScopeInComposite(this);
+    //    }
 
     @Override
     public String getShared() {

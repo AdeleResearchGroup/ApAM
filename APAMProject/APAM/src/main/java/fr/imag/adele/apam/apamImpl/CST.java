@@ -10,20 +10,32 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 public class CST {
 
     // Constants "A_" means attribute name; "V_" means attribute value
-    public static final String         A_SPECIFICATION       = "specification";
-    public static final String         A_IMPLEMENTATION      = "implementation";
-    public static final String         A_INSTANCE            = "instance";
 
-    public static String[]             predefAttributes      = { CST.A_SCOPE, CST.A_VISIBLE, CST.A_INSTANTIABLE,
+    //    public static final String         A_SPECIFICATION       = "specification";
+    //    public static final String         A_IMPLEMENTATION      = "implementation";
+    //    public static final String         A_INSTANCE            = "instance";
+
+    public static String[]             predefAttributes      = {
+        CST.A_BORROWIMPLEM, CST.A_LOCALIMPLEM,
+        CST.A_FRIENDIMPLEM, CST.A_BORROWINSTANCE,
+        CST.A_LOCALINSTANCE, CST.A_FRIENDINSTANCE, CST.A_APPLIINSTANCE,
+        CST.A_INSTANTIABLE,
         CST.A_MULTIPLE, CST.A_REMOTABLE, CST.A_SHARED,
-        CST.A_INTERNALIMPL, CST.A_INTERNALINST, CST.A_MODELS, CST.A_APPLISCOPE,
-        CST.A_COMPOSITESCOPE, CST.A_LOCALSCOPE,
-        CST.A_LOCALVISIBLE, CST.A_COMPOSITEVISIBLE, CST.A_DEPENDENCIES };
+        CST.A_MODELS, CST.A_DEPENDENCIES
+    };
 
+    // Borrow / lend properties of composites.
+    // Expression | true | false
+    public static final String         A_BORROWIMPLEM        = "borrowimplementation";
+    public static final String         A_LOCALIMPLEM         = "localimplementation";
+    public static final String         A_FRIENDIMPLEM        = "friendimplementation";
 
-    // indicate in which scope this object is visible. Scope for instances, implscope for implems.
-    public static final String         A_SCOPE               = "scope";
-    public static final String         A_VISIBLE             = "visible";
+    public static final String         A_BORROWINSTANCE      = "borrowinstance";
+    public static final String         A_LOCALINSTANCE       = "localinstance";
+    public static final String         A_FRIENDINSTANCE      = "friendinstance";
+    public static final String         A_APPLIINSTANCE       = "appliInstance";
+
+    // Value boolean
     public static final String         A_INSTANTIABLE        = "instantiable";
     // multiple on a group head indicates if more than one resolution is allowed in the scope
     public static final String         A_MULTIPLE            = "multiple";
@@ -31,44 +43,28 @@ public class CST {
     public static final String         A_REMOTABLE           = "remotable";
     // shared on an implementation indicates if its instances can have more than one incoming wire
     public static final String         A_SHARED              = "shared";
-    // Composite properties
-    // boolean
-    public static final String         A_INTERNALIMPL        = "internalImplementations";
-    // boolean
-    public static final String         A_INTERNALINST        = "internalInstances";
     // List<ManagerModel>
     public static final String         A_MODELS              = "apam-models";
     // List<String>
-    public static final String         A_APPLISCOPE          = "appliScope";
-    // List<String>
-    public static final String         A_COMPOSITESCOPE      = "compositeScope";
-    // List<String>
-    public static final String         A_LOCALSCOPE          = "localScope";
-    // List<String>
-    public static final String         A_LOCALVISIBLE        = "localVisible";
-    // List<String>
-    public static final String         A_COMPOSITEVISIBLE    = "compositeVisible";
-    // List<String>
     public static final String         A_DEPENDENCIES        = "dependencies";
 
+
     // Attributes that cannot be changed by users
-    public static final String[]       finalAttributes       = { CST.A_SPECNAME, CST.A_IMPLNAME, CST.A_INSTNAME,
-        CST.A_COMPOSITE, CST.A_MAIN_IMPLEMENTATION };
+    public static final String[]       finalAttributes       = {
+        CST.A_SPECNAME, CST.A_IMPLNAME, CST.A_INSTNAME,
+        CST.A_COMPOSITE, CST.A_MAIN_IMPLEMENTATION,
+        CST.A_INTERFACE, CST.A_MESSAGE
+    };
+
     public static final String         A_SPECNAME            = "spec-name";
     public static final String         A_IMPLNAME            = "impl-name";
     public static final String         A_INSTNAME            = "ins-name";
+    public static final String         A_INTERFACE           = "interface";
+    public static final String         A_MESSAGE             = "message";
     public static final String         A_MAIN_IMPLEMENTATION = "apam-main-implementation";
     // Value boolean
     public static final String         A_COMPOSITE           = "apam-composite";
 
-    // for Visible and scope attributes attributes
-    public static final String         V_GLOBAL              = "global";
-    // visible in the current appli only
-    public static final String         V_APPLI               = "appli";
-    // visible in the current composite and on composites that depend on the current composite
-    public static final String         V_COMPOSITE           = "composite";
-    // visible in the current composite only
-    public static final String         V_LOCAL               = "local";
 
     public static final String         V_TRUE                = "true";
     public static final String         V_FALSE               = "false";
@@ -81,18 +77,6 @@ public class CST {
     public static final String         OBRMAN                = "OBRMAN";
 
     public static final String         ROOTCOMPOSITETYPE     = "rootCompositeType";
-
-    // Property names of composites
-    //    // Capability
-    //    public static final String         CAPABILITY_IMPLEMENTATION  = "apam-implementation";
-    //    // Capability
-    //    public static final String         CAPABILITY_SPECIFICATION  = "apam-specification";
-    //    // Value boolean
-    //    public static final String         CAPABILITY_COMPONENT  = "apam-component";
-    //    // string
-    //    public static final String         A_APAMAPPLI           = "ApamApplication";
-    //    // String
-    //    public static final String         A_MAIN_IMPLEMENTATION = "apam-main-implementation";
 
 
     // The entry point in the ASM : its brokers
