@@ -14,8 +14,8 @@ import java.util.Set;
  */
 public class DependencyDeclaration {
 
-	
-	
+
+
     /**
      * The component in which this dependency is declared
      */
@@ -87,9 +87,9 @@ public class DependencyDeclaration {
      * Get the id of the dependency
      */
     public String getIdentifier() {
-    	return id != null? id : resource.as(Reference.class).getIdentifier();
+        return id != null? id : resource.as(Reference.class).getIdentifier();
     }
-    
+
     /**
      * The multiplicity of a dependency is calculated from the declaration of injected fields.
      * 
@@ -97,19 +97,19 @@ public class DependencyDeclaration {
      * potentially multiple
      */
     public boolean isMultiple() {
-    	
-    	if (getInjections().isEmpty())
-    		return true;
-    	
-    	// If there is at least one field declared collection the dependency is considered multiple
-    	for (DependencyInjection injection : getInjections()) {
-			if (injection.isCollection())
-				return true;
-		}
-    	
-    	return false;
+
+        if (getInjections().isEmpty())
+            return true;
+
+        // If there is at least one field declared collection the dependency is considered multiple
+        for (DependencyInjection injection : getInjections()) {
+            if (injection.isCollection())
+                return true;
+        }
+
+        return false;
     }
-    
+
     /**
      * Get the reference to the required resource
      */
@@ -157,13 +157,13 @@ public class DependencyDeclaration {
 
     @Override
     public String toString() {
-        String ret = "\n      dependency id: " + getIdentifier() + ". toward " + resource;
+        String ret = " dependency id: " + getIdentifier() + ". toward " + resource;
         if (injections.size() != 0) {
             for (DependencyInjection inj : injections) {
                 ret += "\n         " + inj;
             }
         }
-        
+
         if (implementationConstraints.size() != 0) {
             ret += "\n         Implementation Constraints";
             for (String inj : implementationConstraints) {
