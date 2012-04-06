@@ -101,8 +101,14 @@ public class ApamRepoBuilder {
         List<PropertyDefinition> definitions = component.getPropertyDefinitions();
         for (PropertyDefinition definition : definitions) {
             String tempContent = "      <p n='" + OBR.A_DEFINITION_PREFIX + definition.getName() + "'";
-            if (definition.getDefaultValue() != null) {
-                tempContent = tempContent + (" v='" + (definition.getDefaultValue()) + "'");
+            String type = definition.getType();
+            if (type != null) {
+                if (type.equals("string") || type.equals("int") || type.equals("bool")) {
+                    tempContent = tempContent + (" v='" + (definition.getType()) + "'");
+                    CheckObr.checkAttrType(definition.getName(), (String) definition.getDefaultValue(), type);
+                } else
+                    CheckObr.error("Invalid type " + type + " in attribute definition " + definition.getName()
+                            + ". Supported: string, int, bool.");
             }
             tempContent = tempContent + " />\n";
             obrContent.append(tempContent);

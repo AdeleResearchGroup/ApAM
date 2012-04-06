@@ -2,6 +2,7 @@ package fr.imag.adele.apam.apamMavenPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -77,6 +78,39 @@ public class CheckObr {
     }
 
     /**
+     * only string, int and bool attributes are accepted.
+     * 
+     * @param value
+     * @param type
+     */
+    public static void checkAttrType(String attr, Object val, String type) {
+        if ((type == null) || (val == null))
+            return;
+
+        if (!(val instanceof String)) {
+            CheckObr.error("Invalid attribute value " + val + " for attribute " + attr
+                    + ". String value expected.");
+        }
+        String value = (String) val;
+        if (type.equals("bool") && !value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")) {
+            CheckObr.error("Invalid attribute value " + value + " for attribute " + attr + ". Boolean value expected.");
+            return;
+        }
+        if (type.equals("int")) {
+            try {
+                int valint = Integer.parseInt(value);
+                return;
+            } catch (Exception e) {
+                CheckObr.error("Invalid attribute value " + value + " for attribute " + attr
+                        + ". Integer value expected.");
+            }
+        }
+        if (!(value instanceof String)) {
+            CheckObr.error("Invalid attribute value " + value + " for attribute " + attr
+                    + ". String value expected.");
+        }
+    }
+    /**
      * 
      * @param dep
      */
@@ -87,29 +121,6 @@ public class CheckObr {
         SpecificationReference reference = dep.getResource().as(SpecificationReference.class);
         String spec = reference.getName();
 
-        //        return;
-        //        String spec = null;
-        //        switch (dep.getResource().resourceType) {
-        //            case COMPLEX:
-        //                spec = ((DependencyDeclaration.ImplementationDeclaration) dep).specification;
-        //                break;
-        //            case IMPLEMENTATION:
-        //                AtomicDependencyDeclaration adep = (AtomicDependencyDeclaration) ((DependencyDeclaration.ImplementationDependencyDeclaration) dep).dependencies
-        //                .toArray()[0];
-        //                if (adep.targetKind == TargetKind.SPECIFICATION) 
-        //                    spec = adep.fieldName ;
-        //                break ;
-        //            case COMPOSITE :
-        //                if (((Dependency.CompositeDependency) dep).targetKind == TargetKind.SPECIFICATION)
-        //                    spec = ((Dependency.CompositeDependency) dep).fieldType;
-        //                break;
-        //            case SPECIFICATION:
-        //                if (((DependencyDeclaration.SpecificationDependencyDeclaration) dep).targetKind == TargetKind.SPECIFICATION)
-        //                    spec = ((DependencyDeclaration.SpecificationDependencyDeclaration) dep).fieldType;
-        //                break ;
-        //        }
-        //        if (spec == null)
-        //            return;
         Capability cap = CheckObr.getSpecCapability(reference);
         if (cap == null)
             return;
@@ -123,9 +134,10 @@ public class CheckObr {
     }
 
     /**
-     * In theory we cannot check a constraint on an instance attributes since we do not know the implementation that
-     * will be selected,
-     * however, if the constraints contains "impl-name = xyz" we could do it.
+     * In theory we cannot check a constraint on instance attributes since we do not know the implementation that
+     * will be selected, however, if the constraints contains "impl-name = xyz" we could do it.
+     * 
+     * At least we can check the spec and implem attributes
      * 
      */
     public static void checkInstFilterList(List<String> filters, Set<String> validAttr, String spec) {
@@ -135,9 +147,15 @@ public class CheckObr {
         // try to see if implementation name "impl-name" is in the constraints
         String impl = null;
         for (String f : filters) {
-            ApamFilter parsedFilter = ApamFilter.newInstance(f);
-            // System.err.println("validating filter " + f);
-            impl = parsedFilter.lookForAttr(CST.A_IMPLNAME);
+            try {
+                ApamFilter parsedFilter = ApamFilter.newInstance(f);
+                if (parsedFilter == null)
+                    System.err.println("String " + f + " returns null filter.");
+                else
+                    impl = parsedFilter.lookForAttr(CST.A_IMPLNAME);
+            } catch (Exception e) {
+                CheckObr.error("Invalid filter " + f);
+            }
             if (impl != null)
                 break ;
         }
@@ -218,10 +236,11 @@ public class CheckObr {
     /**
      * Check if attribute "attr" is defined in the list of attributes and definitions found in props
      * Props contains attribute (Cannot be redefined), and attribute definitions.
+     * Check if the value is consistent with the type.
      * All predefined attributes are Ok (scope ...)
      * Cannot be a reserved attribute
      */
-    private static boolean capContainsDefAttr(Map<String, Object> props, String attr) {
+    private static boolean capContainsDefAttr(Map<String, Object> props, String attr, Object value) {
         if (Util.isPredefinedAttribute(attr))
             return true;
 
@@ -236,10 +255,21 @@ public class CheckObr {
                 return false;
             }
         }
-        attr = OBR.A_DEFINITION_PREFIX + attr;
+        String defattr = OBR.A_DEFINITION_PREFIX + attr;
         for (Object prop : props.keySet()) {
-            if (((String) prop).equals(attr)) {
-                return true;
+            if (((String) prop).equals(defattr)) {
+                // for definitions, value is the type: "string", "int", "bool"
+                Object val = props.get(prop);
+                if (val instanceof Collection) {
+                    for (Object aVal : (Collection) val) {
+                        CheckObr.checkAttrType(attr, value, (String) aVal);
+                    }
+                    return true;
+                }
+                if (val instanceof String) {
+                    CheckObr.checkAttrType(attr, value, (String) val);
+                    return true;
+                }
             }
         }
         return false;
@@ -260,7 +290,10 @@ public class CheckObr {
             CheckObr.error("ERROR: implementation name missing for instance " + name);
             return;
         }
+
+        // Capability capImpl = CheckObr.getImplCapability(instance.getImplementation());
         CheckObr.checkInstAttributes(impl.getName(), name, instance);
+
         Set<DependencyDeclaration> deps = instance.getDependencies();
         if (deps == null)
             return;
@@ -288,7 +321,7 @@ public class CheckObr {
         // each attribute in properties must be declared in spec.
         Map<String, Object> props = cap.getProperties();
         for (String attr : properties.keySet()) {
-            if (!CheckObr.capContainsDefAttr(props, attr)) {
+            if (!CheckObr.capContainsDefAttr(props, attr, properties.get(attr))) {
                 System.err.println("In implementation " + implName + ", attribute " + attr
                         + " used but not defined in "
                         + spec);
@@ -317,7 +350,7 @@ public class CheckObr {
         // Add spec attributes
         // each attribute in properties must be declared in cap.
         for (String attr : properties.keySet()) {
-            if (!CheckObr.capContainsDefAttr(props, attr)) {
+            if (!CheckObr.capContainsDefAttr(props, attr, properties.get(attr))) {
                 if (name == null) {
                     System.err.println("In instance, attribute " + attr
                             + " used but not defined in " + impl);
