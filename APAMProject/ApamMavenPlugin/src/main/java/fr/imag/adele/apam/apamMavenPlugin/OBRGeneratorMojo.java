@@ -155,8 +155,11 @@ public class OBRGeneratorMojo extends AbstractMojo {
             ApamRepoBuilder arb = new ApamRepoBuilder(localRepository.getBasedir());
             List<ComponentDeclaration> components = Util.getComponents(root);
             StringBuffer obrContent = arb.writeOBRFile(components);
-            if (CheckObr.getFailedChecking() || Util.getFailedParsing()) {
-                throw new MojoExecutionException("Failed Metadata Parsing");
+            if (CheckObr.getFailedChecking()) {
+                throw new MojoExecutionException("Inconsistent Metadata");
+            }
+            if (Util.getFailedParsing()) {
+                throw new MojoExecutionException("Invalid xml Metadata syntax");
             }
 
             OutputStream obr;

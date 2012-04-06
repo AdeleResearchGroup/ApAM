@@ -51,12 +51,32 @@ public class ApamRepoBuilder {
         obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
 
         Set<InterfaceReference> interfaces = component.getProvidedResources(InterfaceReference.class);
-        if ((interfaces != null) && !interfaces.isEmpty())
-            obrContent.append("      <p n='" + OBR.A_PROVIDE_INTERFACES + "' v='" + interfaces + "' /> \n");
+        if ((interfaces != null) && !interfaces.isEmpty()) {
+            int l = interfaces.size();
+            int i = 1;
+            obrContent.append("      <p n='" + OBR.A_PROVIDE_INTERFACES + "' v='[");
+            for (InterfaceReference interf : interfaces) {
+                if (i<l)
+                    obrContent.append(interf.getJavaType() + ", ");
+                else
+                    obrContent.append(interf.getJavaType() + "]' /> \n");
+                i++ ;
+            }
+        }
 
         Set<MessageReference> messages = component.getProvidedResources(MessageReference.class);
-        if (messages != null)
-            obrContent.append("      <p n='" + OBR.A_PROVIDE_MESSAGES + "' v='" + messages + "' />\n");
+        if ((messages != null) && !messages.isEmpty()) {
+            int l = messages.size();
+            int i = 1;
+            obrContent.append("      <p n='" + OBR.A_PROVIDE_MESSAGES + "' v='[");
+            for (MessageReference mess : messages) {
+                if (i < l)
+                    obrContent.append(mess.getJavaType() + ", ");
+                else
+                    obrContent.append(mess.getJavaType() + "]' /> \n");
+                i++;
+            }
+        }
 
         if (component instanceof ImplementationDeclaration) {
             String spec = ((ImplementationDeclaration) component).getSpecification().getName();
