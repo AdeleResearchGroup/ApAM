@@ -93,7 +93,10 @@ public class ApamFilter implements Filter {
 
     ApamFilter(int operation, String attr, Object value) {
         op = operation;
-        this.attr = attr;
+        if (attr != null) {
+            this.attr = attr.toLowerCase();
+        } else
+            this.attr = null;
         this.value = value;
         Object conv = null;
         try {
@@ -351,11 +354,13 @@ public class ApamFilter implements Filter {
                 for (ApamFilter filter : filters) {
                     filter.validateAttr(validAttr, f, spec);
                 }
+                return;
             }
 
             case NOT: {
                 ApamFilter filter = (ApamFilter) value;
                 filter.validateAttr(validAttr, f, spec);
+                return;
             }
 
             case SUBSTRING:
@@ -387,9 +392,13 @@ public class ApamFilter implements Filter {
             case AND:
             case OR: {
                 ApamFilter[] filters = (ApamFilter[]) value;
+                String ret = null;
                 for (ApamFilter filter : filters) {
-                    filter.lookForAttr(attr);
+                    ret = filter.lookForAttr(attr);
+                    if (ret != null)
+                        return ret;
                 }
+                return null;
             }
 
             case NOT: {
