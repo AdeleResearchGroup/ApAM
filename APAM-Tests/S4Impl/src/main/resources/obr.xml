@@ -1,9 +1,7 @@
 <obr> 
    <capability name='apam-implementation'>
       <p n='name' v='S4Impl' />
-      <p n='provide-interfaces' v='{fr.imag.adele.apam.test.s4.S4}' /> 
+      <p n='provide-interfaces' v='[fr.imag.adele.apam.test.s4.S4]' /> 
       <p n='provide-specification' v='S4' />
-      <p n='shared' v='false' />
-      <p n='scope' v='local' />
    </capability>
 </obr> 

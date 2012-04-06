@@ -1,12 +1,10 @@
 <obr> 
    <capability name='apam-specification'>
       <p n='name' v='S1' />
-      <p n='provide-interfaces' v='{fr.imag.adele.apam.test.s1.S1}' /> 
+      <p n='provide-interfaces' v='[interface fr.imag.adele.apam.test.s1.S1]' /> 
+      <p n='provide-messages' v='[]' />
       <p n='s1-attr' v='coucou' />
-      <p n='shared' v='false' />
-      <p n='scope' v='global' />
       <p n='definition-s1b' v='true' />
-      <p n='definition-s1c' v='' />
+      <p n='definition-s1c' />
    </capability>
-
 </obr> 

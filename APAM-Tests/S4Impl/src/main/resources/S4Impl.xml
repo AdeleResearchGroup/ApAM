@@ -1,7 +1,10 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 	<implementation name="S4Impl"
 		classname="fr.imag.adele.apam.test.s4Impl.S4Impl" specification="S4">
-		<properties shared="false" scope="local"/>
+		<properties>
+			<property shared="false"/>
+			<property scope="local"/>
+		</properties>
 			<dependency field="s5">
 				<constraints>
 					<constraint filter="(apam-composite=true)" />
