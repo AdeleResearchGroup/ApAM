@@ -1,7 +1,6 @@
 package fr.imag.adele.apam.util;
 
 import java.util.List;
-import java.util.Set;
 
 import fr.imag.adele.apam.core.ComponentDeclaration;
 

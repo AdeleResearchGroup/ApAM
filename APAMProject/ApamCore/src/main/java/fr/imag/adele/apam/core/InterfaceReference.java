@@ -12,11 +12,7 @@ public class InterfaceReference extends ResourceReference {
         super(name);
     }
 
-    public InterfaceReference(String name, boolean defined) {
-        super(name, defined);
-    }
-
-    @Override
+   @Override
     public Type getType() {
         return Type.INTERFACE;
     }   

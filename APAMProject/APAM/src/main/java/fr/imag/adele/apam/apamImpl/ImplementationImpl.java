@@ -19,6 +19,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 
@@ -106,7 +107,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         }
         ApformInstance apfInst = apfImpl.createInstance(initialproperties);
         // if it is a composite. Not sure it is ever caller here.
-        boolean composite = ((get(CST.A_COMPOSITE) != null) && get(CST.A_COMPOSITE).equals(CST.V_TRUE));
+        boolean composite = getApformImpl().getDeclaration() instanceof CompositeDeclaration;
         InstanceImpl inst = new InstanceImpl(this, instCompo, initialproperties, apfInst, composite);
         return inst;
     }
@@ -248,6 +249,10 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
             insts = getSharableInsts(constraints);
         } else
             insts = sharableInstances;
+        
+        if (insts.isEmpty())
+        	return null;
+        
         if ((constraints == null) || constraints.isEmpty())
             return ((Instance) insts.toArray()[0]);
 
@@ -403,7 +408,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     }
 
     @Override
-    public AtomicImplementationDeclaration getImplDeclaration() {
-        return (AtomicImplementationDeclaration) declaration;
+    public ImplementationDeclaration getImplDeclaration() {
+        return (ImplementationDeclaration) declaration;
     }
 }

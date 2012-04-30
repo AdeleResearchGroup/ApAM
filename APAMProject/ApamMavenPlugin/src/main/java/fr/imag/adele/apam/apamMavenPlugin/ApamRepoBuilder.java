@@ -79,10 +79,10 @@ public class ApamRepoBuilder {
         }
 
         if (component instanceof ImplementationDeclaration) {
-            String spec = ((ImplementationDeclaration) component).getSpecification().getName();
-            if ((spec != null) && !spec.isEmpty()) {
+            SpecificationReference spec = ((ImplementationDeclaration) component).getSpecification();
+            if ((spec != null) && !spec.getName().isEmpty()) {
                 obrContent.append("      <p n='" + OBR.A_PROVIDE_SPECIFICATION + "' v='" + spec + "' />\n");
-                CheckObr.checkImplProvide(component.getName(), spec, interfaces, messages);
+                CheckObr.checkImplProvide(component.getName(), spec.getName(), interfaces, messages);
             }
         }
     }

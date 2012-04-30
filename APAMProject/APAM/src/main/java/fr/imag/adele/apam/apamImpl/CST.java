@@ -3,7 +3,6 @@ package fr.imag.adele.apam.apamImpl;
 import fr.imag.adele.apam.ImplementationBroker;
 import fr.imag.adele.apam.InstanceBroker;
 import fr.imag.adele.apam.SpecificationBroker;
-import fr.imag.adele.apam.apform.Apform2Apam;
 
 //import fr.imag.adele.sam.deployment.broker.DeploymentUnitBroker;
 
@@ -21,7 +20,7 @@ public class CST {
         CST.A_LOCALINSTANCE, CST.A_FRIENDINSTANCE, CST.A_APPLIINSTANCE,
         CST.A_INSTANTIABLE,
         CST.A_MULTIPLE, CST.A_REMOTABLE, CST.A_SHARED,
-        CST.A_MODELS, CST.A_DEPENDENCIES
+        CST.A_MODELS
     };
 
     // Borrow / lend properties of composites.
@@ -45,9 +44,6 @@ public class CST {
     public static final String         A_SHARED              = "shared";
     // List<ManagerModel>
     public static final String         A_MODELS              = "apam-models";
-    // List<String>
-    public static final String         A_DEPENDENCIES        = "dependencies";
-
 
     // Attributes that cannot be changed by users
     public static final String[]       finalAttributes       = {

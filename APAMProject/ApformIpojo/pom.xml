@@ -31,12 +31,15 @@
 						<IPOJO-Extension>
 							implementation:fr.imag.adele.apam.apformipojo.ApformIpojoImplementation,
 							composite:fr.imag.adele.apam.apformipojo.ApformIpojoCompositeType,
-							specification:fr.imag.adele.apam.apformipojo.ApformIpojoSpecification							
+							specification:fr.imag.adele.apam.apformipojo.ApformIpojoSpecification,							
+							instance:fr.imag.adele.apam.apformipojo.ApformIpojoInstanceDeclaration							
 							<!-- TODO 
 								: In iPojo 1.8.0 component type extension identifiers are matched without 
 								considering the namespace. This definition will then conflict with iPojo 
 								composites. From iPojo 1.8.2 this issue will be resolved and the extension 
-								definition must include a namespace qualifier. fr.imag.adele.apam composite:fr.imag.adele.apam.composite.CompositeType -->
+								definition must include a namespace qualifier. 
+								fr.imag.adele.apam composite:fr.imag.adele.apam.composite.CompositeType 
+							-->
 						</IPOJO-Extension>
 					</instructions>
 				</configuration>

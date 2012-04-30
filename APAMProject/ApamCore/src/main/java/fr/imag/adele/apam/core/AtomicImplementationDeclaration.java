@@ -20,16 +20,21 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
     	 * The name of the associated java class
     	 */
     	public String getClassName();
-    	
+
+    	/**
+    	 * The type of the specified java message call back method
+    	 */
+    	public ResourceReference getCallbackType(String callbackName) throws NoSuchMethodException;
+
     	/**
     	 * The type of the specified java field
     	 */
-    	public ResourceReference getType(String field);
+    	public ResourceReference getFieldType(String fieldName) throws NoSuchFieldException;
     	
     	/**
     	 * The cardinality of the specified java field
     	 */
-    	public boolean isCollection(String field);
+    	public boolean isCollectionField(String fieldName) throws NoSuchFieldException;
     }
 
     /**
@@ -38,18 +43,23 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
     private final Instrumentation instrumentation;
 
     /**
-     * The list of injected fields declared for this implementation
+     * The list of injected fields declared for dependencies of this implementation
      */
-    private final Set<DependencyInjection> injectedFields;
+    private final Set<DependencyInjection> dependencyInjections;
 
+    /**
+     * The list of injected fields declared for message producers of this implementation
+     */
+    private final Set<FieldInjection> producerInjections;
 
     public AtomicImplementationDeclaration(String name, SpecificationReference specification, Instrumentation instrumentation) {
         super(name, specification);
 
         assert instrumentation != null;
 
-        this.instrumentation 	= instrumentation;
-        this.injectedFields		= new HashSet<DependencyInjection>();
+        this.instrumentation 		= instrumentation;
+        this.dependencyInjections	= new HashSet<DependencyInjection>();
+        this.producerInjections		= new HashSet<FieldInjection>();
     }
 
 	/**
@@ -86,22 +96,35 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
     }
 
     /**
-     * The list of fields that must be injected in this implementation
+     * The list of fields that must be injected in this implementation for handling dependencies
      */
     public Set<DependencyInjection> getDependencyInjections() {
-        return injectedFields;
+        return dependencyInjections;
     }
 
+    /**
+     * The list of fields that must be injected in this implementation for handling message producers
+     */
+    public Set<FieldInjection> getProducerInjections() {
+        return producerInjections;
+    }
 
     @Override
     public String toString() {
         String ret = super.toString();
-        if (injectedFields.size() != 0) {
-            ret += "\n    Injected fields : ";
-            for (DependencyInjection injection : injectedFields) {
+        if (dependencyInjections.size() != 0) {
+            ret += "\n    Injected fields/methods : ";
+            for (DependencyInjection injection : dependencyInjections) {
+                ret += " " + injection.getName();
+            }
+        }
+        if (producerInjections.size() != 0) {
+            ret += "\n    Injected message producer fields : ";
+            for (FieldInjection injection : producerInjections) {
                 ret += " " + injection.getFieldName();
             }
         }
+        
         ret += "\n   Class Name: " + getClassName();
         return ret;
     }

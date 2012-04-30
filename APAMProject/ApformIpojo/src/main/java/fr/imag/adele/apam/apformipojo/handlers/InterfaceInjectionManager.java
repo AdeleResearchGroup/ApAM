@@ -1,9 +1,6 @@
-package fr.imag.adele.apam.apformipojo;
+package fr.imag.adele.apam.apformipojo.handlers;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,60 +9,25 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.felix.ipojo.ComponentFactory;
-import org.apache.felix.ipojo.FieldInterceptor;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.apache.felix.ipojo.util.Logger;
-import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
+import fr.imag.adele.apam.core.DependencyInjection;
+import fr.imag.adele.apam.core.InterfaceReference;
 
 /**
- * This class keeps track of an APAM dependency, it handles the calculation of the target services based on updates to
- * the application model.
- * 
- * The target of a dependency can specify
+ * This class keeps track of an APAM interface dependency, it handles the calculation of the target 
+ * services based on updates to the application model.
  * 
  * @author vega
  * 
  */
-public class Dependency implements FieldInterceptor {
+public class InterfaceInjectionManager implements DependencyInjectionManager {
 
-	/**
-	 * The interface of the external resolver that is used to bind this dependency. 
-	 * 
-	 */
-	public static interface Resolver {
-		
-		/**
-		 * Registers a dependency with a resolver.
-		 * 
-		 * The resolver can asynchronously update the dependency to modify the binding.
-	 	 *
-		 *  @see fr.imag.adele.apam.apformipojo.Dependency.addTarget
-		 *  @see fr.imag.adele.apam.apformipojo.Dependency.removeTarget
-		 *  @see fr.imag.adele.apam.apformipojo.Dependency.substituteTarget
-		 *  
-		 */
-		public void addDependency(Dependency dependency);
-		
-		/**
-		 * Request to synchronously resolve a dependency.
-		 * 
-		 *  This method is invoked by a dependency to calculate its initial binding
-		 *  when it is first accessed.
-		 *  
-		 *  The resolver must call back the dependency to modify the resolved target.
-		 *   
-		 *  @see fr.imag.adele.apam.apformipojo.Dependency.addTarget
-		 *  @see fr.imag.adele.apam.apformipojo.Dependency.removeTarget
-		 *  @see fr.imag.adele.apam.apformipojo.Dependency.substituteTarget
-		 *  
-		 */
-		public void resolve(Dependency dependency);
-		
-	} 
 	
 	/**
 	 * The factory of the source component of the dependency
@@ -77,47 +39,12 @@ public class Dependency implements FieldInterceptor {
 	 */
 	private final Resolver		resolver;
 	
-    /**
-     * The name of the dependency
-     */
-    private final String        name;
 
-    /**
-     * Whether this dependency is aggregate or scalar
-     */
-    private final boolean       isAggregate;
-
-    /**
-     * The name of the target entity.
-     * 
-     */
-    private final String        target;
-
-    /**
-     * The kind of target
-     */
-    private final Kind          targetKind;
-
-    /**
-     * The kind of possible targets for the dependency
-     */
-
-    public static enum Kind {
-        INTERFACE, SPECIFICATION, IMPLEMENTATION
-    }
-
-    /**
-     * The optional constraints
-     */
-    private final Set<Filter> 	constraints;
-    
-     /**
-     * The optional preferences
-     */
-    private final List<Filter>	preferences;
-    
-    
-
+	/**
+	 * The dependency injection managed by this dependency
+	 */
+	private final DependencyInjection injection;
+	
     /**
      * The list of target services.
      */
@@ -144,149 +71,59 @@ public class Dependency implements FieldInterceptor {
      */
     private boolean            isResolved;
 
-    /**
-     * Dependency constructor.
-     * 
-     * @param pojoMetadata the name of the dependency.
-     * 
-     */
-    public Dependency(ComponentFactory factory, Resolver resolver, String name, Boolean isAggregate,
-            String target, Kind targetKind, Set<Filter> constraints, List<Filter> preferences) {
+    public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, DependencyInjection injection) {
         
-    	this.factory = factory;
-        this.resolver = resolver;
-
-        this.name = name;
-        this.isAggregate = isAggregate;
-        this.target = target;
-        this.targetKind = targetKind;
+    	assert injection.getResource() instanceof InterfaceReference;
+    	
+    	this.factory	= factory;
+        this.resolver 	= resolver;
+        this.injection	= injection;
         
-        this.constraints = constraints;
-        this.preferences = preferences;
-
-        targetServices = new HashSet<Instance>();
-        injectedValue = null;
-        injectedType = null;
-        isResolved = false;
+        targetServices 	= new HashSet<Instance>();
+        injectedValue 	= null;
+        injectedType 	= null;
+        isResolved 		= false;
         
-    	resolver.addDependency(this);
+    	resolver.addInjection(this);
     }
 
     /**
-     * The dependency name.
+     * The dependency injection associated to this manager
      */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Whether this dependency is aggregate
-     */
-    public boolean isAggregate() {
-        return isAggregate;
-    }
-
-    /**
-     * Whether this dependency is scalar
-     */
-    public boolean isScalar() {
-        return !isAggregate();
-    }
-
-    /**
-     * The name of the target entity
-     */
-    public String getTarget() {
-        return target;
-    }
-
-    /**
-     * The kind of target
-     */
-    public Kind getKind() {
-        return targetKind;
-    }
-
-    /**
-     * The constraints
-     */
-    public Set<Filter> getConstraints() {
-    	return constraints;
+    @Override
+    public DependencyInjection getDependencyInjection() {
+    	return injection;
     }
     
-    /**
-     * The preferences
-     */
-    public List<Filter> getPreferences() {
-    	return preferences;
-    }
-   
     /**
      * Get an XML representation of the state of this dependency
      */
     public Element getDescription() {
     	
-		Element dependencyDescription = new Element("dependency", "");
-		dependencyDescription.addAttribute(new Attribute("name", getName()));
-		dependencyDescription.addAttribute(new Attribute("isAggregate",	Boolean.toString(isAggregate())));
-		dependencyDescription.addAttribute(new Attribute("target", getTarget()));
-		dependencyDescription.addAttribute(new Attribute("kind", getKind().toString()));
-
-		boolean firstElement = false;
-
-		StringBuffer constraints = new StringBuffer();
-		constraints.append("{");
-		firstElement = true;
-		for (Filter filter : getConstraints()) {
-			if (!firstElement)
-				constraints.append(",");
-			constraints.append(filter.toString());
-			firstElement = false;
-		}
-		constraints.append("}");
-		dependencyDescription.addAttribute(new Attribute("constraints", constraints.toString()));
-
-		StringBuffer preferences = new StringBuffer();
-		preferences.append("{");
-		firstElement = true;
-		for (Filter filter : getPreferences()) {
-			if (!firstElement)
-				preferences.append(",");
-			preferences.append(filter.toString());
-			firstElement = false;
-		}
-		preferences.append("}");
-		dependencyDescription.addAttribute(new Attribute("preferences",	preferences.toString()));
-
+		Element dependencyDescription = new Element("injection", ApformIpojoComponent.APAM_NAMESPACE);
+		dependencyDescription.addAttribute(new Attribute("dependency", injection.getDependency().getIdentifier()));
+		dependencyDescription.addAttribute(new Attribute("target", injection.getDependency().getResource().toString()));
+		dependencyDescription.addAttribute(new Attribute("name", injection.getName()));
+		dependencyDescription.addAttribute(new Attribute("type", injection.getResource().toString()));
+		dependencyDescription.addAttribute(new Attribute("isAggregate",	Boolean.toString(injection.isCollection())));
 		dependencyDescription.addAttribute(new Attribute("resolved",Boolean.toString(isResolved())));
 
 		if (isResolved()) {
-			StringBuffer resolution = new StringBuffer();
-			if (targetServices.size() > 1)
-				resolution.append("{");
-
-			firstElement = true;
-
 			for (Instance target : targetServices) {
-				if (!firstElement)
-					resolution.append(",");
-				resolution.append(target.getName());
-				firstElement = false;
+				Element bindingDescription = new Element("binding", ApformIpojoComponent.APAM_NAMESPACE);
+				bindingDescription.addAttribute(new Attribute("target", target.getName()));
+				dependencyDescription.addElement(bindingDescription);
 			}
-
-			if (targetServices.size() > 1)
-				resolution.append("}");
-
-			dependencyDescription.addAttribute(new Attribute("resolution", resolution.toString()));
 		}
 		
 		return dependencyDescription;
 	
     }
-    /**
-     * Adds a new target to this dependency
-     */
-    public void addTarget(Instance target) {
+    /* (non-Javadoc)
+	 * @see fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager#addTarget(fr.imag.adele.apam.Instance)
+	 */
+    @Override
+	public void addTarget(Instance target) {
 
         /*
          * Add this target and invalidate cache
@@ -317,12 +154,11 @@ public class Dependency implements FieldInterceptor {
 
     }
 
-    /**
-     * Removes a target from the dependency
-     * 
-     * @param target
-     */
-    public void removeTarget(Instance target) {
+    /* (non-Javadoc)
+	 * @see fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager#removeTarget(fr.imag.adele.apam.Instance)
+	 */
+    @Override
+	public void removeTarget(Instance target) {
 
         /*
          * Remove this target and invalidate cache
@@ -333,13 +169,11 @@ public class Dependency implements FieldInterceptor {
         }
     }
 
-    /**
-     * Substitutes an existing target by a new one
-     * 
-     * @param oldTarget
-     * @param newTarget
-     */
-    public void substituteTarget(Instance oldTarget, Instance newTarget) {
+    /* (non-Javadoc)
+	 * @see fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager#substituteTarget(fr.imag.adele.apam.Instance, fr.imag.adele.apam.Instance)
+	 */
+    @Override
+	public void substituteTarget(Instance oldTarget, Instance newTarget) {
 
         /*
          * substitute the target atomically and invalidate the cache
@@ -435,7 +269,7 @@ public class Dependency implements FieldInterceptor {
             /*
              * Handle first the most common case of scalar dependencies.
              */
-        	if (isScalar()) {
+        	if (! injection.isCollection()) {
             	/*
                  * Return the cached value, if it has not been invalidated.
                  */ 
@@ -529,78 +363,11 @@ public class Dependency implements FieldInterceptor {
             }
 
         } catch (ClassNotFoundException unexpected) {
-            factory.getLogger().log(Logger.ERROR,"error accesing field for APAM dependency " + getName(),unexpected);
+            factory.getLogger().log(Logger.ERROR,"error accesing field for APAM dependency " + injection.getDependency().getIdentifier(),unexpected);
         }
 
         return null;
     }
 
-    private final static Class<?>[] supportedCollections      = new Class<?>[] { Collection.class, List.class,Vector.class, Set.class };
-    private final static String     supportedCollectionsNames = "array or Collection or List or Vector or Set";
-
-    /**
-     * Return the list of supported collections
-     */
-    public static String supportedCollectionClasses() {
-        return Dependency.supportedCollectionsNames;
-    }
-
-    /**
-     * Validates if the field class specified is compatible with the service collections that we know
-     */
-    public static boolean isSupportedCollection(Field field) {
-
-        Class<?> fieldClass = field.getType();
-
-        if (fieldClass.isArray())
-            return true;
-
-        for (Class<?> supportedCollection : Dependency.supportedCollections) {
-            if (fieldClass.isAssignableFrom(supportedCollection))
-                return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Get the type of elements of the specified supported collection. It may not be possible to have this information
-     * in case of erased collections.
-     */
-    public static Class<?> getCollectionElement(Field field) {
-
-        Type fieldType = field.getGenericType();
-
-        /*
-         * The field is declared as a raw type, we can only infer element types for arrays
-         */
-        if (fieldType instanceof Class) {
-            Class<?> fieldClass = (Class<?>) fieldType;
-
-            if (fieldClass.isArray())
-                return fieldClass.getComponentType();
-
-        }
-
-        /*
-         * verify if the field is declared as one of the supported parameterized collections, and an actual type
-         * parameter was specified
-         */
-        if (fieldType instanceof ParameterizedType) {
-
-            ParameterizedType fieldParametizedType = (ParameterizedType) field.getGenericType();
-
-            for (Class<?> supportedCollection : Dependency.supportedCollections) {
-                if (supportedCollection.equals(fieldParametizedType.getRawType())) {
-                    Type[] parameters = fieldParametizedType.getActualTypeArguments();
-                    if ((parameters.length == 1) && (parameters[0] instanceof Class))
-                        return (Class<?>) parameters[0];
-                }
-            }
-        }
-
-        return null;
-
-    }
 
 }

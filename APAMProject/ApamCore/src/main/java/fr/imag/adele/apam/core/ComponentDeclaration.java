@@ -123,10 +123,10 @@ public abstract class ComponentDeclaration {
      * We use subclasses of ResourceReference as tags to identify kinds of resources. To add a new kind
      * of resource a new subclass must be added.
      * 
-     * Because we cannot know the actual class of the elements of the returned collection until invocation,
-     * we need to do unsafe castings.
+     * Notice that we return a set of resource references but typed to particular subtype of references,
+     * the unchecked downcast is then safe at runtime.
      */
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public <T extends ResourceReference> Set<T> getProvidedResources(Class<T> kind) {
     	Set<ResourceReference> resources = new HashSet<ResourceReference>();
     	for (ResourceReference resourceReference : providedResources) {
@@ -200,7 +200,7 @@ public abstract class ComponentDeclaration {
         if (properties.size() != 0) {
             ret += "\n   Properties: ";
             for (Object resRef : properties.keySet()) {
-                ret += "\n      " + (String) resRef + " = " + (String) properties.get(resRef);
+                ret += "\n      " + (String) resRef + " = " + properties.get(resRef);
             }
         }
         if (definitions.size() != 0) {

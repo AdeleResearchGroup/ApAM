@@ -1,17 +1,12 @@
 package fr.imag.adele.apam.apformipojo;
 
 import java.net.URL;
-import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.felix.ipojo.ConfigurationException;
-import org.apache.felix.ipojo.Factory;
-import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
-import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
-import org.apache.felix.ipojo.parser.ParseUtils;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.apamImpl.CST;
@@ -19,121 +14,11 @@ import fr.imag.adele.apam.apamImpl.ManagerModel;
 
 public class ApformIpojoCompositeType extends ApformIpojoImplementation {
 
-
-    /**
-     * Configuration property to specify the composites's main implementation
-     */
-    private final static String COMPOSITE_IMPLEMENTATION_PROPERTY 	= "mainImplem";
-
-
-    /**
-     * Configuration property to specify the composites's implemented interfaces
-     */
-    private final static String COMPOSITE_INTERFACES_PROPERTY 		= "interfaces";
-
-    /**
-     * Configuration property to specify the composites's registered models
-     */
-    private final static String COMPOSITE_MODELS_DECLARATION		= "models";
-    
-
-    /**
-     * Configuration property to specify the composites's registered model
-     */
-    private final static String COMPOSITE_MODEL_DECLARATION 		= "model";
-
-    /**
-     * Defines the composite type description.
-     * 
-     * @see ComponentTypeDescription
-     */
-    public static class Description extends ApformIpojoImplementation.Description {
-
-        /**
-         * Creates the ApamCompositeDescription.
-         * 
-         * @param factory the factory.
-         * @see ComponentTypeDescription#ComponentTypeDescription(Factory)
-         */
-        protected Description(ApformIpojoCompositeType factory) {
-        	super(factory);
-        }
-
-        /**
-         * Gets the attached factory.
-         * 
-       	 * Redefines with covariant result type.
-         *
-         **/
-        @Override
-        public ApformIpojoCompositeType getFactory() {
-        	return (ApformIpojoCompositeType) super.getFactory();
-        }
-
-        
-        /**
-         * Get the name of the main implementation of the composite
-         */
-        public String getMainImplementation() {
-        	return getFactory().getMainImplementation();
-        }
-        
-        /**
-         * Get The list of models associated to this composite
-         */
-        public Set<ManagerModel> getManagerModels() {
-            return getFactory().getManagerModels();
-        }
-        
-        /**
-         * Computes the default service properties to publish the factory.
-         */
-        @Override
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        public Dictionary getPropertiesToPublish() {
-            Dictionary properties = super.getPropertiesToPublish();
-            
-            properties.put(CST.A_COMPOSITE, true);
-            properties.put(CST.A_MAIN_IMPLEMENTATION,getMainImplementation());
-            properties.put(CST.A_MODELS,getManagerModels());
-            
-            return properties;
-        }
-
-	    /**
-	     * Gets the component type description.
-	     */
-        @Override
-        public Element getDescription() {
-
-            Element description = super.getDescription();
-            description.addAttribute(new Attribute("implementation", getMainImplementation()));
-            
-            Element models = new Element(COMPOSITE_MODELS_DECLARATION,APAM_NAMESPACE);
-            description.addElement(models);
-            
-            for (ManagerModel managerModel : getManagerModels()) {
-                Element modelDescription = new Element(COMPOSITE_MODEL_DECLARATION,APAM_NAMESPACE);
-                modelDescription.addAttribute(new Attribute("manager", managerModel.getManagerName()));
-                modelDescription.addAttribute(new Attribute("url", managerModel.getURL().toExternalForm()));
-                models.addElement(modelDescription);
-            }
-
-            return description;
-        }
-
-    }
-
-    /**
-     * The name of the APAM implementation for the main instance of the composite
-     */
-    private String		mainImplementation;
-    
-    
+   
     /**
      * The list of models associated to this composite
      */
-    private final Set<ManagerModel> managerModels;
+    private final Set<ManagerModel> managerModels =  new HashSet<ManagerModel>();
 
     /**
      * Build a new factory with the specified metadata
@@ -144,21 +29,6 @@ public class ApformIpojoCompositeType extends ApformIpojoImplementation {
      */
     public ApformIpojoCompositeType(BundleContext context, Element metadata) throws ConfigurationException {
         super(context, metadata);
-
-        /*
-         * Get the composite's main implementation
-         */
-        mainImplementation = metadata.getAttribute(ApformIpojoCompositeType.COMPOSITE_IMPLEMENTATION_PROPERTY);
-
-        /*
-         * Get the composite's provided interfaces
-         */
-        providedInterfaces = ParseUtils.parseArrays(metadata.getAttribute(COMPOSITE_INTERFACES_PROPERTY));
-
-        /*
-         * look for manager models in the root directory of the bundle
-         */
-        managerModels = new HashSet<ManagerModel>();
 
         @SuppressWarnings("unchecked")
         Enumeration<String> paths = context.getBundle().getEntryPaths("/");
@@ -172,8 +42,18 @@ public class ApformIpojoCompositeType extends ApformIpojoImplementation {
             String managerName = modelName;
             managerModels.add(new ManagerModel(modelName, managerName, modelURL, 0));
         }
+        
+    	
+    	// add models to properties
+    	getDeclaration().getProperties().put(CST.A_MODELS, getManagerModels());
+
     }
 
+    @Override
+	public void check(Element element) throws ConfigurationException {
+    	super.check(element);
+	}
+	
     /**
      * This factory doesn't have an associated instrumented class
      */
@@ -183,24 +63,6 @@ public class ApformIpojoCompositeType extends ApformIpojoImplementation {
     }
     
     /**
-     * Check if the metadata are well formed.
-     */
-    @Override
-    public void check(Element metadata) throws ConfigurationException {
-    	
-    	super.check(metadata);
-    	
-    	/*
-    	 * composite provided interfaces are optional
-    	 */
-        String encodedInterfaces = metadata.getAttribute(COMPOSITE_INTERFACES_PROPERTY);
-        if (encodedInterfaces == null) {
-        	metadata.addAttribute(new Attribute(COMPOSITE_INTERFACES_PROPERTY,null,""));
-        }
-
-    }
-
-    /**
      * Gets the class name.
      * 
      * @return the class name.
@@ -208,25 +70,7 @@ public class ApformIpojoCompositeType extends ApformIpojoImplementation {
      */
     @Override
     public String getClassName() {
-        return this.getClass().getName();
-    }
-
-    /**
-     * Gets the component type description.
-     * 
-     * @return the component type description
-     * @see org.apache.felix.ipojo.ComponentFactory#getComponentTypeDescription()
-     */
-    @Override
-    public ComponentTypeDescription getComponentTypeDescription() {
-        return new Description(this);
-    }
-
-    /**
-     * Get the composites's main implementation
-     */
-    public String getMainImplementation() {
-        return mainImplementation;
+        return getDeclaration().getName();
     }
 
     /**
@@ -235,6 +79,5 @@ public class ApformIpojoCompositeType extends ApformIpojoImplementation {
     public Set<ManagerModel> getManagerModels() {
         return managerModels;
     }
-
 
 }

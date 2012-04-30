@@ -167,8 +167,7 @@ public class Apform2Apam {
 //                return;
 //            }
         	
-            // TODO MIGRATION DECLARATION use references whenever possible
-            String implementationName = null;//        	String implementationName = instance.getDeclaration().getImplementation().getName();
+            String implementationName = instance.getDeclaration().getImplementation().getName();
             if (CST.ImplBroker.getImpl(implementationName) == null)
                 Apform2Apam.waitForImplementation(implementationName);
             CST.InstBroker.addInst(Apform2Apam.rootInst, instance, instance.getDeclaration().getProperties());

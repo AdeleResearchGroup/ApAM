@@ -16,10 +16,8 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apamImpl.CST;
-import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
-import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
 
 
 

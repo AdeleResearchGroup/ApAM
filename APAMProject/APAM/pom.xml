@@ -38,6 +38,8 @@
 							Adele/LIG/ Grenoble University, France
 						</Bundle-Vendor>
 						<Bundle-Version>${project.version}</Bundle-Version>
+        				<Export-Package>fr.imag.adele.apam.*</Export-Package>
+        				<Private-Package>org.apache.felix.utils.*</Private-Package>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -104,9 +106,10 @@
 		<dependency>
 	      <groupId>org.apache.felix</groupId>
 	      <artifactId>org.apache.felix.utils</artifactId>
-	      <version>1.1.0</version>
+	      <version>1.1.2</version>
 	      <optional>true</optional>
 	    </dependency>
+	    
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>

@@ -126,8 +126,7 @@ public class InstanceBrokerImpl implements InstanceBroker {
             return inst;
         }
         
-        // TODO MIGRATION DECLARATION use references whenever possible
-        String implementationName = null;//apfInst.getDeclaration().getImplementation().getName();
+        String implementationName = apfInst.getDeclaration().getImplementation().getName();
         impl = CST.ImplBroker.getImpl(implementationName);
         if (impl == null) { // create the implem also
             System.err.println("Implementation is not existing in addInst: " + implementationName);

@@ -310,7 +310,7 @@ public class CheckObr {
      */
     public static void checkImplAttributes(ImplementationDeclaration component) {
         String implName = component.getName();
-        String spec = component.getSpecification().getName();
+        SpecificationReference spec = component.getSpecification();
         Map<String, Object> properties = component.getProperties();
         if (spec == null)
             return;
@@ -324,7 +324,7 @@ public class CheckObr {
             if (!CheckObr.capContainsDefAttr(props, attr, properties.get(attr))) {
                 System.err.println("In implementation " + implName + ", attribute " + attr
                         + " used but not defined in "
-                        + spec);
+                        + spec.getName());
             }
         }
     }
@@ -560,20 +560,20 @@ public class CheckObr {
             if (mult != CheckObr.isFieldMultiple(innerDep, component)) {
                 if (!mult)
                     CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
-                            + innerDep.getFieldName()
+                            + innerDep.getName()
                             + " is a collection field, while other fields in same dependency are simple.");
                 else
                     CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
-                            + innerDep.getFieldName()
+                            + innerDep.getName()
                             + " is a simple field, while other fields in same dependency are collection.");
             }
             String type = innerDep.getResource().getJavaType();
             //            if (!type.startsWith("<")) {
             //                for (ResourceReference res : specResources) {
 
-            if (innerDep.getResource().isDefined() && !(specResources.contains(innerDep.getResource()))) {
+            if (innerDep.getResource() != ResourceReference.UNDEFINED && !(specResources.contains(innerDep.getResource()))) {
                 CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
-                        + innerDep.getFieldName()
+                        + innerDep.getName()
                         + " is of type " + type
                         + " which is not implemented by specification " + dep.getIdentifier());
             }
@@ -589,12 +589,12 @@ public class CheckObr {
      * @return
      */
     public static boolean isFieldMultiple(DependencyInjection dep, ComponentDeclaration component) {
-        if (CheckObr.allFields.contains(dep.getFieldName()) && !dep.getFieldName().equals(CheckObr.UNDEFINED)) {
-            CheckObr.error("ERROR: in " + component.getName() + " field " + dep.getFieldName()
+        if (CheckObr.allFields.contains(dep.getName()) && !dep.getName().equals(CheckObr.UNDEFINED)) {
+            CheckObr.error("ERROR: in " + component.getName() + " field/method " + dep.getName()
                     + " allready declared");
         }
         else {
-            CheckObr.allFields.add(dep.getFieldName());
+            CheckObr.allFields.add(dep.getName());
         }
         //        private static final String[] fieldTypeMultiple = { "java.util.Set", "java.util.List",
         //            "java.util.Collection", "java.util.Vector" };

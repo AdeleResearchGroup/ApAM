@@ -10,65 +10,22 @@
 	xsi:schemaLocation="org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd"
 	xmlns="org.apache.felix.ipojo">
 
-	<handler classname="fr.imag.adele.apam.apformipojo.handlers.MessageProviderHandler"
-		name="message-provides" namespace="fr.imag.adele.apam" level="10">
-		<requires field="wireAdminProducer"
-			filter="(factory.name=APAM-WireAdmin-Producer)"></requires>
-	</handler>
-
-	<handler classname="fr.imag.adele.apam.apformipojo.handlers.MessageConsumerHandler"
-		name="message" namespace="fr.imag.adele.apam" level="11">
-			<requires field="wireAdminConsumer"
-			filter="(factory.name=APAM-WireAdmin-Consumer)"></requires>
+	<!-- 
+	<instance name="ApformIpojoLegacyTracker" component="ApformIpojoLegacyTracker"></instance>
+	 -->
+	 
+	 <handler classname="fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionHandler"
+		name="injection" namespace="fr.imag.adele.apam">
+		<requires field="wireAdmin"  proxy="false" nullable="false"/>
 	</handler>
 	
-	<handler classname="fr.imag.adele.apam.apformipojo.handlers.PropertiesHandler"
-		name="properties" namespace="fr.imag.adele.apam">
-	</handler>
-	<handler classname="fr.imag.adele.apam.apformipojo.handlers.DependencyHandler"
-		name="dependency" namespace="fr.imag.adele.apam">
-	</handler>
-	<handler
-		classname="fr.imag.adele.apam.apformipojo.handlers.CompositeTypeImplementationHandler"
-		name="implementations" namespace="fr.imag.adele.apam">
-	</handler>
-	<handler
-		classname="fr.imag.adele.apam.apformipojo.handlers.CompositeTypeInstanceHandler"
-		name="instances" namespace="fr.imag.adele.apam">
-	</handler>
-
-	<component name="APAM-WireAdmin-Consumer"
-		classname="fr.imag.adele.apam.apform.message.impl.WAConsumerImpl">
-		<provides specifications="org.osgi.service.wireadmin.Consumer">
-			<property name="wireadmin.consumer.flavors" field="flavors" />
-			<property name="wireadmin.consumer.pid" field="consumerPid" />
-			<property name="flavor.for.abstract.producers" field="flavorForAbstractProducer" />
-		</provides>
-		<callback transition="validate" method="start" />
-		<callback transition="invalidate" method="stop" />
-	</component>
-
-	<component name="APAM-WireAdmin-Producer"
-		classname="fr.imag.adele.apam.apform.message.impl.WAProducerImpl">
+	<handler classname="fr.imag.adele.apam.apformipojo.handlers.MessageProviderHandler"
+		name="producer" namespace="fr.imag.adele.apam">
 		<provides specifications="org.osgi.service.wireadmin.Producer">
-			<property name="wireadmin.producer.flavors" field="flavors" />
-			<property name="wireadmin.producer.pid" field="producerPid" />
+			<property name="wireadmin.producer.flavors" field="messageFlavors"/>
+			<property name="service.pid" field="producerId"/>
 		</provides>
-		<callback transition="validate" method="start" />
-		<callback transition="invalidate" method="stop" />
-	</component>
-
-
-
-	<component name="ApformIpojoLegacyTracker"
-		classname="fr.imag.adele.apam.apformipojo.legacy.ApformIpojoLegacyTracker">
-		<requires field="apam" />
-		<callback transition="validate" method="start" />
-		<callback transition="invalidate" method="stop" />
-		<requires optional="true" aggregate="true">
-			<callback type="bind" method="factoryBound" />
-			<callback type="unbind" method="factoryUnbound" />
-		</requires>
-	</component>
-	<instance name="ApformIpojoLegacyTracker" component="ApformIpojoLegacyTracker"></instance>
+		<requires field="wireAdmin"  proxy="false" nullable="false"/>
+	</handler>
+	
 </ipojo>

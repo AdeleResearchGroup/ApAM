@@ -2,7 +2,8 @@ package fr.imag.adele.apam.core;
 
 /**
  * This class declares a method in a java implementation that must be called by
- * the runtime
+ * the runtime.
+ * 
  * The method has a single parameter of type "resource"
  * 
  * @author vega

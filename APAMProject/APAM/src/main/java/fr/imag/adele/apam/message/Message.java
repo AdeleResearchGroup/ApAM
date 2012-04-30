@@ -6,7 +6,9 @@
 package fr.imag.adele.apam.message;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.Properties;
 
 import org.osgi.service.wireadmin.WireConstants;
@@ -15,45 +17,50 @@ public class Message<D> implements Serializable {
 
 	private static final long serialVersionUID = -5521385171858034995L;
 
-	private D data;
 
-	private Long sendTimeStamp;
+	/**
+	 * The time stamps for producer and consumer
+	 */
+	private long sendTimeStamp;
+	private long receiveTimeStamp;
 
-	private Properties properties;
+	/**
+	 * The message payload and its associated description
+	 */
+	private D 			data;
+	private Properties 	properties;
 
-	private String dataType;
 
-	private Long receiveTimeStamp;
-
-	@SuppressWarnings("unchecked")
-	public Message(Long sendTimeStamp, Object value){
-		properties = new Properties();
-		data = (D) value;
-		this.sendTimeStamp = sendTimeStamp;
+	public Message(D value){
+		this.data 				= value;
+		this.properties 		= new Properties();
+		this.sendTimeStamp		= -1L;
+		this.receiveTimeStamp	= -1L;
 	}
 
 	public D getData() {
 		return data;
 	}
-
-	public Long getSendTimeStamp() {
+	
+	public void markAsSent() {
+		this.sendTimeStamp = new Date().getTime();
+	}
+	
+	public void markAsReceived(Dictionary<Object,Object> wireProperties) {
+		this.receiveTimeStamp = new Date().getTime();
+		for (Enumeration<Object>  keys = wireProperties.keys(); keys.hasMoreElements();) {
+			Object key		=  keys.nextElement();
+			Object value 	= wireProperties.get(key);
+			this.properties.put(key, value);
+		}
+	}
+	
+	public long getSendTimeStamp() {
 		return sendTimeStamp;
 	}
 	
-	public Long getReceiveTimeStamp() {
+	public long getReceiveTimeStamp() {
 		return receiveTimeStamp;
-	}
-
-	public void setReceiveTimeStamp(Long receivedTime) {
-		 this.receiveTimeStamp =receivedTime ;
-	}
-
-	public void addProperties(Dictionary properties) {
-		this.properties.putAll(this.properties);
-	}
-	
-	public void addProperties(Properties properties) {
-		this.properties.putAll(this.properties);
 	}
 
 	public String getWireAdminPID() {
@@ -68,24 +75,9 @@ public class Message<D> implements Serializable {
 		return (String) properties.get(WireConstants.WIREADMIN_CONSUMER_PID);
 	}
 
-	//Have to do more test to verify if the value is an instanceof D
-//	public D getPreviousValue() {
-//		return (D) properties.get(WireConstants.WIREVALUE_PREVIOUS);
-//	}
-
-	public Object getElapsedTime() {
-		return properties.get(WireConstants.WIREVALUE_ELAPSED);
-	}
-
 	public Properties getProperties() {
 		return properties;
 	}
 
-	public String getDataType() {
-		return data.getClass().getCanonicalName();
-	}
-
-
-	
 	
 }

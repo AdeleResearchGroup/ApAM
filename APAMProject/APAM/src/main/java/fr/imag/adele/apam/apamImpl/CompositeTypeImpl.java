@@ -54,6 +54,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     private CompositeTypeImpl() {
         name = CST.ROOTCOMPOSITETYPE;
+        declaration = new CompositeDeclaration(name,null,null);
     }
 
     public static CompositeType getRootCompositeType() {
@@ -150,18 +151,23 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             apfImpl = new ApformComposite(name, mainImpl, attributes);
         }
 
-        this.mainImpl = mainImpl;
+        this.declaration = apfImpl.getDeclaration(); 
 
+        this.mainImpl = mainImpl;
         ((ImplementationImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
+       
+
         if (attributes != null)
             putAll(attributes);
         put(CST.A_COMPOSITE, fromCompo.getName());
+        
         CompositeTypeImpl.compositeTypes.put(name, this);
         ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
 
         fromCompo.addImpl(this);
         ((CompositeTypeImpl) fromCompo).addEmbedded(this);
         inComposites.add(fromCompo);
+        
     }
 
     /**
@@ -196,7 +202,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         //        String mainImplName,
         //        Implementation mainImpl, Set<ManagerModel> models, Map<String, Object> attributes, String specName) {
 
-        return new CompositeTypeImpl(fromCompo, name, /* apf */null, mainImplName, /* models */null, models,
+        return new CompositeTypeImpl(fromCompo, name, (ApformImplementation)null, mainImplName, (Implementation)null, models,
                 attributes, specName);
     }
 
@@ -209,24 +215,46 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * @return
      */
     public static CompositeType createCompositeType(CompositeType implComposite, ApformImplementation apfImpl) {
-        // String implName = null;
-        String specName = null;
-        String mainImplName = null;
-        Set<ManagerModel> models = null;
-        //        String[] interfaces = null;
-        Map<String, Object> properties = apfImpl.getDeclaration().getProperties();
-        mainImplName = (String) apfImpl.getDeclaration().getProperty(CST.A_MAIN_IMPLEMENTATION);
-        //TODO MIGRATION DECLARATION change handling of sepec names
-        //specName = (String) apfImpl.getDeclaration().getSpecification().getName();
-        models = (Set<ManagerModel>) apfImpl.getDeclaration().getProperty(CST.A_MODELS);
+        
+    	if (apfImpl == null) {
+            new Exception("ERROR : the composite apform object is null").printStackTrace();
+            return null;
+    	}
+    	
+    	if (! (apfImpl.getDeclaration() instanceof CompositeDeclaration)) {
+            new Exception("ERROR : the apform object is not a composite "+apfImpl).printStackTrace();
+            return null;
+    	}
+    	
+    	CompositeDeclaration declaration = (CompositeDeclaration) apfImpl.getDeclaration();
+    	
+    	String name						= declaration.getName();
+    	String implName 				= declaration.getMainImplementation().getName();
+        String specName 				= declaration.getSpecification().getName();
+        Map<String, Object> properties	= declaration.getProperties();
+        
+        @SuppressWarnings("unchecked")
+		Set<ManagerModel> models 		= (Set<ManagerModel>) declaration.getProperty(CST.A_MODELS);
 
         if (implComposite == null) {
             implComposite = CompositeTypeImpl.rootCompoType;
             //            properties.put(CST.A_VISIBLE, CST.V_LOCAL);
         }
 
-        return CompositeTypeImpl.createCompositeType(implComposite, apfImpl.getDeclaration().getName(),
-                mainImplName, specName, models, properties);
+        if (properties == null) {
+            properties = new ConcurrentHashMap<String, Object>();
+        }
+        
+        if (implName == null) {
+            new Exception("ERROR : main implementation Name missing").printStackTrace();
+            return null;
+        }
+        if (CompositeTypeImpl.compositeTypes.get(name) != null) {
+            System.err.println("Composite type " + name + " allready existing");
+            return null;
+        }
+        
+        return new CompositeTypeImpl(implComposite, apfImpl.getDeclaration().getName(), apfImpl, implName, (Implementation)null, models, properties, specName);
         // TODO check dependencies : those of apfImpl, and mainImpl.
     }
 

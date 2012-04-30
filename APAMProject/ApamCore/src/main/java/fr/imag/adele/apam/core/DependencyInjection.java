@@ -1,48 +1,30 @@
 package fr.imag.adele.apam.core;
 
 /**
- * This class declares a field in a java implementation that must be injected with a resource by the runtime
+ * This class declares a field or method in a java implementation that must be injected with a resource by the runtime
+ * when resolving dependencies.
  * 
  * @author vega
  * 
  */
-public class DependencyInjection {
+public abstract class DependencyInjection  {
 
-    /**
-     * The atomic implementation declaring this injection
-     */
-    private final AtomicImplementationDeclaration implementation;
-
-    /**
-     * The name of the field that must be injected
-     */
-    private final String 				fieldName;
-
-
-
-    public DependencyInjection(AtomicImplementationDeclaration implementation, String fieldName) {
-
-        assert implementation != null;
-        assert fieldName != null;
-        
-        // bidirectional reference to declaration
-        this.implementation = implementation;
-        this.implementation.getDependencyInjections().add(this);
-
-        this.fieldName			= fieldName;
-    }
-
-    /**
-     * The component declaring this injection
-     */
-    public AtomicImplementationDeclaration getImplementation() {
-        return implementation;
-    }
+	/**
+	 * The implementation associated to this injection
+	 */
+	protected final AtomicImplementationDeclaration implementation;
 
     /**
      * The dependency that must be resolved to get the injected resource.
      */
-    private DependencyDeclaration		dependency;
+	protected DependencyDeclaration		dependency;
+
+    protected DependencyInjection(AtomicImplementationDeclaration implementation) {
+
+    	// bidirectional reference to declaration
+    	this.implementation = implementation;
+        this.implementation.getDependencyInjections().add(this);
+    }
 
     /**
      * Sets the dependency that will be injected in this field
@@ -63,31 +45,105 @@ public class DependencyInjection {
     public DependencyDeclaration getDependency() {
         return dependency;
     }
-
-    /**
-     * The name of the field to inject
-     */
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    /**
-     * The type of the resource that will be injected in the field
-     */
-    public ResourceReference getResource() {
-        return implementation.getInstrumentation().getType(fieldName);
-    }
     
     /**
-     * whether this field is a collection or not
+     * The type of the resource that will be injected
      */
-    public boolean isCollection() {
-    	return implementation.getInstrumentation().isCollection(fieldName);
+    public abstract ResourceReference getResource();
+    
+    /**
+     * An unique identifier for this injection, within the scope of the declaring implementation
+     * and dependency
+     */
+    public abstract String getName();
+    
+    /**
+     * Whether this injection accepts collection dependencies
+     */
+    public abstract boolean isCollection();
+    
+    
+    /**
+     * An injected field declaration
+     */
+    public static class Field extends DependencyInjection {
+    	
+    	private final String fieldName;
+    	
+    	public Field(AtomicImplementationDeclaration implementation, String fieldName) {
+    		super(implementation);
+    		this.fieldName = fieldName;
+    	}
+
+    	/**
+    	 * The name of the field to inject
+    	 */
+    	public String getName() {
+    	    return fieldName;
+    	}
+
+    	/**
+    	 * The type of the resource that will be injected in the field
+    	 */
+    	public ResourceReference getResource() {
+    	    try {
+    			return implementation.getInstrumentation().getFieldType(fieldName);
+    		} catch (NoSuchFieldException e) {
+    			return ResourceReference.UNDEFINED;
+    		}
+    	}
+
+    	/**
+    	 * whether this field is a collection or not
+    	 */
+    	public boolean isCollection() {
+    		try {
+    			return implementation.getInstrumentation().isCollectionField(fieldName);
+    		} catch (NoSuchFieldException e) {
+    			return false;
+    		}
+    	}
+		
     }
 
-    @Override
-    public String toString() {
-        return "Field name: " + fieldName + ". Type: " + getResource().getJavaType() +(isCollection()?"[]":"");
+    /**
+     * An message callback declaration
+     */
+    
+    public static class Callback extends DependencyInjection {
+    	
+    	private final String methodName;
+    	
+    	public Callback(AtomicImplementationDeclaration implementation, String methodName) {
+    		super(implementation);
+    		this.methodName = methodName;
+    	}
+
+    	/**
+    	 * The name of the field to inject
+    	 */
+    	public String getName() {
+    	    return methodName;
+    	}
+
+    	/**
+    	 * The type of the resource that will be injected in the field
+    	 */
+    	public ResourceReference getResource() {
+    	    try {
+    			return implementation.getInstrumentation().getCallbackType(methodName);
+    		} catch (NoSuchMethodException e) {
+    			return ResourceReference.UNDEFINED;
+    		}
+    	}
+
+    	/**
+    	 * whether this field is a collection or not
+    	 */
+    	public boolean isCollection() {
+    		return false;
+    	}
+		
     }
 
 }

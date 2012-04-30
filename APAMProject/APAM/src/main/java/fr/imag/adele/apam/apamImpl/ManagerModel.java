@@ -33,7 +33,7 @@ public class ManagerModel {
 
     @Override
     public String toString() {
-        return name;
+        return name+" -> "+url;
     }
 
     /**
@@ -42,7 +42,7 @@ public class ManagerModel {
      * @return
      */
     public String getManagerName() {
-        return name;
+        return managerName;
     }
 
     /**

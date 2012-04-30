@@ -12,10 +12,6 @@ public class MessageReference extends ResourceReference {
         super(name);
     }
 
-    public MessageReference(String name, boolean defined) {
-        super(name, defined);
-    }
-
     @Override
     public Type getType() {
         return Type.MESSAGE;

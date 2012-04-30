@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.core;
 
+
 /**
  * This class represents references to resources that are named using java identifiers,
  * like for example Services and Messages.
@@ -13,24 +14,22 @@ public abstract class ResourceReference extends Reference implements ResolvableR
 
     private final static Namespace JAVA_RESOURCE = new Namespace() {};
 
+	/**
+	 * A singleton object to represent undefined references
+	 */
+	public final static ResourceReference UNDEFINED = new ResourceReference("<Unavailable>") {
+		
+		@Override
+		public Type getType() {
+			return null;
+		}
+	};
+	
     private final String type;
-    private final boolean          defined;
-
-    protected ResourceReference(String type, boolean defined) {
-        super(ResourceReference.JAVA_RESOURCE);
-
-        this.type = type;
-        this.defined = defined;
-    }
 
     protected ResourceReference(String type) {
         super(ResourceReference.JAVA_RESOURCE);
-        defined = true;
         this.type = type;
-    }
-
-    public boolean isDefined() {
-        return defined;
     }
 
     /**

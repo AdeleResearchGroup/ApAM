@@ -18,7 +18,9 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.InterfaceReference;
+import fr.imag.adele.apam.core.SpecificationReference;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.ApformImplementation;
@@ -82,8 +84,8 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
         }
 
         String implName = apfImpl.getDeclaration().getName();
-        //TODO MIGRATION DECLARATION change handling of sepec names
-        String specName = null ; //apfImpl.getDeclaration().getSpecification().getName();
+        SpecificationReference providedSpec = apfImpl.getDeclaration().getSpecification();
+        String specName = providedSpec != null ? providedSpec.getName() : null;
 
         // if allready existing do not duplicate
         Implementation asmImpl = getImpl(implName);
@@ -116,8 +118,7 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
         //            spec.setName(specName);
 
         // create a primitive or composite implementation
-        if ((apfImpl.getDeclaration().getProperty(CST.A_COMPOSITE) != null) &&
-                ((Boolean) apfImpl.getDeclaration().getProperty(CST.A_COMPOSITE) == true)) {
+        if (apfImpl.getDeclaration() instanceof CompositeDeclaration) {
             // Allow specifying properties to the composite instance
             asmImpl = CompositeTypeImpl.createCompositeType(compo, apfImpl);
         } else {
