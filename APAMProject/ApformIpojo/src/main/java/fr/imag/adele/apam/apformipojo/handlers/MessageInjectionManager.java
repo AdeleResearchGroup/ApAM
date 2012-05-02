@@ -1,9 +1,7 @@
 package fr.imag.adele.apam.apformipojo.handlers;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -259,18 +257,36 @@ import fr.imag.adele.apam.message.Message;
 	}
     
     /**
-     * The producer Id associated to the given target instance
+     * The identification of the APAM message producer. It is composed of the identification of the
+     * provider and the WireAdmin consumer identifier
+     * @author vega
+     *
+     */
+    private class MessageProducerIdentifier {
+    	public final String providerId;
+    	public final String producerId;
+    	
+    	public MessageProducerIdentifier(String providerId, String producerId) {
+			this.providerId = providerId;
+			this.producerId	= producerId;
+		}
+    	
+    }
+    /**
+     * The message producer associated to the given target instance
      * 
      * NOTE This performs an unchecked down casts, as it assumes the target instance  is an Apform-iPojo provided
      * instance
      */
-    public String getProducerId(Instance target) {
+    public MessageProducerIdentifier getMessageProducer(Instance target) {
     	String providerHandlerId = ApformIpojoComponent.APAM_NAMESPACE+":"+MessageProviderHandler.NAME;
         ApformIpojoInstance producer = (ApformIpojoInstance) target.getApformInst();
     	MessageProviderHandler providerHandler = (MessageProviderHandler) producer.getHandler(providerHandlerId);
-    	return providerHandler.getProducerId();
+    	
+    	return new MessageProducerIdentifier(providerHandler.getProviderId(),providerHandler.getProducerId());
     }
     
+     
     /* (non-Javadoc)
 	 * @see fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager#addTarget(fr.imag.adele.apam.Instance)
 	 */
@@ -299,7 +315,10 @@ import fr.imag.adele.apam.message.Message;
              */
             WireAdmin wireAdmin = getWireAdmin();
             if (wireAdmin != null) {
-            	Wire wire = wireAdmin.createWire(getProducerId(target), getConsumerId(), (Dictionary<Object,Object>) null);
+            	MessageProducerIdentifier messageProducer = getMessageProducer(target);
+            	Properties wireProperties = new Properties();
+            	wireProperties.put(MessageProviderHandler.ATT_PROVIDER_ID, messageProducer.providerId);
+            	Wire wire = wireAdmin.createWire(messageProducer.producerId, getConsumerId(), wireProperties);
             	wires.put(target.getName(),wire);
             }
         }
@@ -321,7 +340,7 @@ import fr.imag.adele.apam.message.Message;
              * Remove the wire at the WireAdmin level
              */
             WireAdmin wireAdmin = getWireAdmin();
-            Wire wire			= wires.get(target.getName());
+            Wire wire			= wires.remove(target.getName());
             if (wireAdmin != null && wire != null)
             	wireAdmin.deleteWire(wire);
         	
@@ -357,12 +376,15 @@ import fr.imag.adele.apam.message.Message;
              */
             WireAdmin wireAdmin = getWireAdmin();
             
-            Wire wire	= wires.get(oldTarget.getName());
+            Wire wire	= wires.remove(oldTarget.getName());
             if (wireAdmin != null && wire != null)
             	wireAdmin.deleteWire(wire);
 
             if (wireAdmin != null) {
-            	wire = wireAdmin.createWire(getProducerId(newTarget), getConsumerId(), (Dictionary<Object,Object>) null);
+            	MessageProducerIdentifier messageProducer = getMessageProducer(newTarget);
+            	Properties wireProperties = new Properties();
+            	wireProperties.put(MessageProviderHandler.ATT_PROVIDER_ID, messageProducer.providerId);
+            	wire = wireAdmin.createWire(messageProducer.producerId, getConsumerId(), wireProperties);
             	wires.put(newTarget.getName(),wire);
             }
 

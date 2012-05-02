@@ -54,9 +54,19 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 	private Class<?>[] messageFlavors;
 
 	/**
+	 * Represent the provider execution id
+	 */
+	private String providerId;
+
+	/**
 	 * Represent the producer persistent id
 	 */
 	private String producerId;
+	
+	/**
+	 * The name of the wire property used to tag it with the provider identification
+	 */
+	public final static String ATT_PROVIDER_ID = "provider.id";
 	
 	/**
 	 * A reference to the WireAdmin
@@ -97,6 +107,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 			}
 		}
     	
+    	providerId		= Long.toString(System.currentTimeMillis());
     	messageFlavors	= providedFlavors.toArray(new Class[providedFlavors.size()]);
     	producerId 		= NAME+"["+getInstanceManager().getInstanceName()+"]";
     	wires			= new ArrayList<Wire>();
@@ -128,6 +139,18 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
     public String getProducerId() {
 		return producerId;
 	}
+    
+    /**
+     * The identifier of this provider. This is a non-persistent, volatile identifier.
+     * 
+     * APAM wires are not persistent and are recreated by the resolution process at each execution. On the
+     * other hand, WireAdmin wires are persistent across executions of the platform, so we use this identifier
+     * to tag the wires so that we can garbage collect old wires at the next execution.
+     * 
+     */
+    public String getProviderId() {
+    	return providerId;
+    }
     
     /**
      * The description of the state of the handler
@@ -186,24 +209,20 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 		 *  do some basic garbage collection here.
 		 *  
 		 *  NOTE The APAM message provider handler only manages wires created indirectly by mapping APAM
-		 * 	resolution into WireAdmin events, so we can assume consumerIds are unique to sinlge dependency
-		 * injection.
+		 * 	resolution into WireAdmin events, so we can assume providerIds are unique.
 		 */
-		Set<String> consumers = new HashSet<String>();
 		for (Wire wire : newWires) {
 			
-			String consumerID = (String) wire.getProperties().get(WireConstants.WIREADMIN_CONSUMER_PID);
+			String wireProvider = (String) wire.getProperties().get(ATT_PROVIDER_ID);
 			
-			// delete duplicates
-			if (consumers.contains(consumerID)) {
+			// delete old wires or not apam wires
+			if (wireProvider == null || ! wireProvider.equals(getProviderId())) {
 				if (wireAdmin != null) wireAdmin.deleteWire(wire);
 				continue;
 			}
 			
 			// register new wire
 			wires.add(wire);
-			consumers.add(consumerID);
-			
 		}
 	}
 
