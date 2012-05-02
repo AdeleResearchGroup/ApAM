@@ -45,7 +45,8 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
     @Override
     public String toString() {
         String ret = "Implementation declaration " + super.toString();
-        ret += "\n   Specification: " + specification != null? specification.getIdentifier() : null;
+        String specificationName = (specification != null? specification.getIdentifier() : "null");
+        ret += "\n   Specification: " + specificationName;
         return ret;
     }
 
