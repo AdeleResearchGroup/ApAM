@@ -10,10 +10,7 @@
 	xsi:schemaLocation="org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd"
 	xmlns="org.apache.felix.ipojo">
 
-	<!-- 
-	<instance name="ApformIpojoLegacyTracker" component="ApformIpojoLegacyTracker"></instance>
-	 -->
-	 
+ 
 	 <handler classname="fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionHandler"
 		name="injection" namespace="fr.imag.adele.apam">
 		<requires field="wireAdmin"  proxy="false" nullable="false"/>
@@ -27,5 +24,17 @@
 		</provides>
 		<requires field="wireAdmin"  proxy="false" nullable="false"/>
 	</handler>
+
+	<component name="ApformIpojoLegacyTracker"
+		classname="fr.imag.adele.apam.apformipojo.legacy.ApformIpojoLegacyTracker">
+		<requires field="apam" />
+		<callback transition="validate" method="start" />
+		<callback transition="invalidate" method="stop" />
+		<requires optional="true" aggregate="true">
+			<callback type="bind" method="factoryBound" />
+			<callback type="unbind" method="factoryUnbound" />
+		</requires>
+	</component>
+	<instance name="ApformIpojoLegacyTracker" component="ApformIpojoLegacyTracker"></instance>
 	
 </ipojo>
