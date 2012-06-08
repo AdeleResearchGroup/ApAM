@@ -5,9 +5,11 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
@@ -23,31 +25,10 @@ public class Apform2Apam {
     static Set<Implementation>    unusedImplems = CompositeTypeImpl.getRootCompositeType().getImpls();
 
     /**
-     * The event executor. We use a pool of a single thread to process events in their arrival
-     * order and never block the underlying platform thread that is invoking Apform.
+     * The event executor. We use a pool of a threads to handle notification to APAM of underlying platform
+     * events, without blocking the platform thread.
      */
     static private final Executor executor      = Executors.newCachedThreadPool();
-
-    /*new ThreadPoolExecutor(1, 1,
-              0L, TimeUnit.MILLISECONDS,
-              new LinkedBlockingQueue<Runnable>());*/
-
-    /**
-     * Execution context of the currently processed event
-     */
-
-    private static class ProcessingContext {
-    }
-
-    /**
-     * The execution context of the currently processed event.
-     * Null if this thread is not the event processing thread.
-     */
-    public static final ProcessingContext getContext() {
-        return Apform2Apam.context.get();
-    }
-
-    private static final ThreadLocal<ProcessingContext> context = new ThreadLocal<ProcessingContext>();
 
     /**
      * The base class of all the event processors. This handle exception and context management
@@ -60,13 +41,11 @@ public class Apform2Apam {
         @Override
         public void run() {
             try {
-                Apform2Apam.context.set(new ProcessingContext());
                 process();
             } catch (Exception unhandledException) {
                 System.err.println("Error handling Apform event :");
                 unhandledException.printStackTrace(System.err);
             } finally {
-                Apform2Apam.context.set(null);
             }
 
         }
@@ -79,15 +58,10 @@ public class Apform2Apam {
     }
 
     /**
-     * Wait for a future implementation to be registered
+     * Wait for a future implementation to be deployed
      */
-    public static void waitForImplementation(String implementationName) {
+    public static void waitForDeployedImplementation(String implementationName) {
 
-        /*
-         * If the calling thread is not the event processing thread just block it waiting for the
-         * event to arrive. It is the normal case.
-         */
-        // if (Apform2Apam.getContext() == null) {
         synchronized (Apform2Apam.expectedImpls) {
             Apform2Apam.expectedImpls.add(implementationName);
             try {
@@ -98,95 +72,72 @@ public class Apform2Apam {
             }
             return;
         }
-        // }
-
-//        /*
-//         * Otherwise we have a problem : the current event processing needs to wait for a future event,
-//         * this reflects some implicit event correlation that can not be handled by our simple policy
-//         * of processing events sequentially in arrival order.
-//         * 
-//         * As a workaround we try to see if the expected event is already queued and process it synchronously
-//         * without blocking.
-//         * 
-//         * If the event is not already queued the situation can not be handled by our current implementation.
-//         */
-//        /*
-//        ImplementationRegistrationProcessing expectedEvent = null;
-//        for (Runnable pendingEvent : Apform2Apam.executor.getQueue()) {
-//
-//            if (!(pendingEvent instanceof ImplementationRegistrationProcessing))
-//                continue;
-//
-//            /*
-//             * Check if it is the expected implementation
-//             */
-//            ImplementationRegistrationProcessing pendingRegistration = (ImplementationRegistrationProcessing) pendingEvent;
-//            if (pendingRegistration.implementationName.equals(implementationName)) {
-//                expectedEvent = pendingRegistration;
-//                break;
-//            }
-//        }
-//*/
-//        /*
-//         * We could not find the expected event, just abort as we can not process this event
-//         */
-//        if (expectedEvent == null)
-//            throw new UnsupportedOperationException("Deadlock while processing apform event");
-//
-//        /*
-//         * remove event from the pending queue and process it synchronously
-//         */
-//        Apform2Apam.executor.getQueue().remove(expectedEvent);
-//        expectedEvent.run();
-//        */
     }
 
-    public static Set<String> expectedImpls = new HashSet<String>();
+    /**
+     * Wait for a future specification to be deployed
+     */
+    public static void waitForDeployedSpecification(String specificationName) {
+
+        synchronized (Apform2Apam.expectedSpecs) {
+            Apform2Apam.expectedSpecs.add(specificationName);
+            try {
+                while (Apform2Apam.expectedSpecs.contains(specificationName))
+                    Apform2Apam.expectedSpecs.wait();
+            } catch (InterruptedException interrupted) {
+                interrupted.printStackTrace();
+            }
+            return;
+        }
+    }
+
+
+    private static Set<String> expectedImpls = new HashSet<String>();
+    private static Set<String> expectedSpecs = new HashSet<String>();
 
     /**
-     * Task to handle instance registration
+     * Task to handle instance appearance
      * 
      * @author vega
      * 
      */
-    private static class InstanceRegistrationProcessing extends ApformEventProcessing {
+    private static class InstanceAppearenceProcessing extends ApformEventProcessing {
 
-        private final String         instanceName;
         private final ApformInstance instance;
 
-        public InstanceRegistrationProcessing(String instanceName, ApformInstance instance) {
-            this.instanceName = instanceName;
+        public InstanceAppearenceProcessing(ApformInstance instance) {
             this.instance = instance;
         }
 
         @Override
         public void process() {
-//            Instance inst = CST.InstBroker.getInst(instanceName);
-//            if (inst != null) {
-//                System.err.println("Instance already existing: " + instanceName);
-//                return;
-//            }
         	
             String implementationName = instance.getDeclaration().getImplementation().getName();
             if (CST.ImplBroker.getImpl(implementationName) == null)
-                Apform2Apam.waitForImplementation(implementationName);
-            CST.InstBroker.addInst(Apform2Apam.rootInst, instance, instance.getDeclaration().getProperties());
+                Apform2Apam.waitForDeployedImplementation(implementationName);
+            
+            Instance inst = CST.InstBroker.addInst(Apform2Apam.rootInst, instance, instance.getDeclaration().getProperties());
+            
+            /*
+             * Notify dynamic manager of instance appearance
+             */
+            ApamManagers.appeared(inst);
         }
 
     }
 
     /**
-     * Task to handle implementation registration
+     * Task to handle implementation deployment
      * 
      * @author vega
      * 
      */
-    private static class ImplementationRegistrationProcessing extends ApformEventProcessing {
+    private static class ImplementationDeploymentProcessing extends ApformEventProcessing {
 
         private final String               implementationName;
         private final ApformImplementation implementation;
 
-        public ImplementationRegistrationProcessing(String implementationName, ApformImplementation implementation) {
+        public ImplementationDeploymentProcessing(String implementationName, ApformImplementation implementation) {
             this.implementationName = implementationName;
             this.implementation = implementation;
         }
@@ -203,30 +154,37 @@ public class Apform2Apam {
             impl = ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(Apform2Apam.rootType, implementation,
                     implementation.getDeclaration().getProperties());
 
-            // wake up any threads waiting for this implementation
+            // wake up any threads waiting for this implementation to be deployed
             synchronized (Apform2Apam.expectedImpls) {
                 if (Apform2Apam.expectedImpls.contains(implementationName)) { // it is expected
                     Apform2Apam.expectedImpls.remove(implementationName);
-                    Apform2Apam.expectedImpls.notifyAll(); // wake up the thread waiting in waitForImplementation
+                    Apform2Apam.expectedImpls.notifyAll(); // wake up the thread waiting in waitForDeployedImplementation
                 }
             }
 
+            /*
+             * Notify dynamic manager of implementation deployment
+             * 
+             * TODO How to know in which composite type the implementation was deployed
+             */
+            ApamManagers.deployed(impl.getInCompositeType().iterator().next(), impl);
+            
         }
 
     }
 
     /**
-     * Task to handle specification registration
+     * Task to handle specification deployment
      * 
      * @author vega
      * 
      */
-    private static class SpecificationRegistrationProcessing extends ApformEventProcessing {
+    private static class SpecificationDeploymentProcessing extends ApformEventProcessing {
 
         private final String              specificationName;
         private final ApformSpecification specification;
 
-        public SpecificationRegistrationProcessing(String specificationName, ApformSpecification specification) {
+        public SpecificationDeploymentProcessing(String specificationName, ApformSpecification specification) {
             this.specificationName = specificationName;
             this.specification = specification;
         }
@@ -242,46 +200,22 @@ public class Apform2Apam {
             }
 
             spec = CST.SpecBroker.addSpec(specificationName, specification, specification.getDeclaration().getProperties());
+            
+            // wake up any threads waiting for this specification to be deployed
+            synchronized (Apform2Apam.expectedSpecs) {
+                if (Apform2Apam.expectedSpecs.contains(specificationName)) { // it is expected
+                    Apform2Apam.expectedSpecs.remove(specificationName);
+                    Apform2Apam.expectedSpecs.notifyAll(); // wake up the thread waiting in waitForDeployedSpecification
+                }
+            }          
         }
     }
-
-//    synchronized (ApformImpl.expectedImpls) {
-//  if (ApformImpl.expectedImpls.contains(instanceName)) { // it is expected
-//      ApformImpl.expectedImpls.remove(instanceName);
-//      ApformImpl.expectedImpls.notifyAll(); // wake up the thread waiting in getImplementation
-//  }
-//}
-
-//synchronized (Apform.expectedMngImpls) {
-//  if (Apform.expectedMngImpls.containsKey(instanceName)) {
-//      if (Apform.expectedMngImpls.keySet().contains(instanceName)) {
-//          for (DynamicManager manager : Apform.expectedMngImpls.get(instanceName)) {
-//              manager.appeared(inst);
-//          }
-//          Apform.expectedMngImpls.remove(instanceName);
-//      }
-//  }
-//}
-//
-//synchronized (Apform.expectedMngInterfaces) {
-//  if (inst.getImpl().getSpec() != null) {
-//      for (String interf : inst.getImpl().getSpec().getInterfaces()) {
-//          if (Apform.expectedMngInterfaces.get(interf) != null) {
-//              for (DynamicManager manager : Apform.expectedMngInterfaces.get(interf)) {
-//                  manager.appeared(inst);
-//              }
-//          }
-//          Apform.expectedMngInterfaces.remove(interf);
-//      }
-//  }
-//}
-//}
 
     /**
      * A new instance, represented by object "client" just appeared in the platform.
      */
     public static void newInstance(String instanceName, ApformInstance client) {
-        Apform2Apam.executor.execute(new InstanceRegistrationProcessing(instanceName, client));
+        Apform2Apam.executor.execute(new InstanceAppearenceProcessing(client));
     }
 
     /**
@@ -291,7 +225,7 @@ public class Apform2Apam {
      * @param client
      */
     public static void newImplementation(String implemName, ApformImplementation client) {
-        Apform2Apam.executor.execute(new ImplementationRegistrationProcessing(implemName, client));
+        Apform2Apam.executor.execute(new ImplementationDeploymentProcessing(implemName, client));
     }
 
     /**
@@ -301,7 +235,7 @@ public class Apform2Apam {
      * @param client
      */
     public static void newSpecification(String specName, ApformSpecification client) {
-        Apform2Apam.executor.execute(new SpecificationRegistrationProcessing(specName, client));
+        Apform2Apam.executor.execute(new SpecificationDeploymentProcessing(specName, client));
     }
 
     /**
@@ -310,8 +244,16 @@ public class Apform2Apam {
      * @param instanceName
      */
     public static void vanishInstance(String instanceName) {
-        // TODO Auto-generated method stub
-
+        /*
+         * Notify dynamic manager of instance disappearance
+         */
+    	
+    	Instance inst = CST.InstBroker.getInst(instanceName);
+    	if (inst == null) {
+            System.err.println("Vanish instance does not exists: " + instanceName);
+    		return;
+    	}
+        ApamManagers.disappeared(inst);
     }
 
     /**
@@ -320,7 +262,16 @@ public class Apform2Apam {
      * @param implementationName
      */
     public static void vanishImplementation(String implementationName) {
-        // TODO Auto-generated method stub
+        /*
+         * Notify dynamic manager of implementation uninstall
+         */
+    	Implementation impl = CST.ImplBroker.getImpl(implementationName);
+    	if (impl == null) {
+            System.err.println("Vanish implementation does not exists: " + implementationName);
+    		return;
+    	}
+    	
+        ApamManagers.uninstalled(impl.getInCompositeType().iterator().next(), impl);
 
     }
 

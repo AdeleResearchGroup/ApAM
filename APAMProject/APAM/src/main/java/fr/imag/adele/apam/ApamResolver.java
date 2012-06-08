@@ -62,7 +62,7 @@ public class ApamResolver {
     	for (DependencyDeclaration enclosingDependency : client.getComposite().getCompType().getCompoDeclaration().getDependencies()) {
     		
     		// TODO Should we have other criteria to match ?
-			if (enclosingDependency.getResource().equals(dependency.getResource()))
+			if (enclosingDependency.getTarget().equals(dependency.getTarget()))
 					promotion = enclosingDependency;
 		}
     	
@@ -146,7 +146,7 @@ public class ApamResolver {
             Implementation impl = ApamResolver.resolveSpecByResource(compoType, dependency);
 
             if (impl == null) {
-                System.err.println("Failed to resolve " + dependency.getResource() + " from " + client + "(" + depName + ")");
+                System.err.println("Failed to resolve " + dependency.getTarget() + " from " + client + "(" + depName + ")");
                 // ApamResolver.notifySelection(client, specName, depName, null, null, null);
                 return null;
             }
@@ -166,7 +166,7 @@ public class ApamResolver {
             // in all cases the "real" client instance must be linked
             client.createWire(inst, depName);
         }
-        ApamResolver.notifySelection(client, dependency.getResource() , depName, inst.getImpl(), inst, null);
+        ApamResolver.notifySelection(client, dependency.getTarget() , depName, inst.getImpl(), inst, null);
         return inst;
     }
 
@@ -225,7 +225,7 @@ public class ApamResolver {
             //                specName = interfaceName;
             //            }
             if (impl == null) {
-                System.err.println("Failed to resolve " + dependency.getResource() + " from " + client + "(" + depName
+                System.err.println("Failed to resolve " + dependency.getTarget() + " from " + client + "(" + depName
                         + ")");
                 // ApamResolver.notifySelection(client, specName, depName, null, null, null);
                 return null;
@@ -244,7 +244,7 @@ public class ApamResolver {
                 client.createWire(inst, depName);
             }
         }
-        ApamResolver.notifySelection(client, dependency.getResource(), depName,
+        ApamResolver.notifySelection(client, dependency.getTarget(), depName,
                 ((Instance) insts.toArray()[0]).getImpl(), null, insts);
         return insts;
     }
@@ -573,7 +573,7 @@ public class ApamResolver {
         Set<Filter> implementationConstraints = Util.toFilter(dependency.getImplementationConstraints());
         List<Filter> implementationPreferences = Util.toFilterList(dependency.getImplementationPreferences());
 
-        List<Manager> selectionPath = ApamResolver.computeSelectionPathSpec(compoTypeFrom, dependency.getResource(),
+        List<Manager> selectionPath = ApamResolver.computeSelectionPathSpec(compoTypeFrom, dependency.getTarget(),
                 implementationConstraints, implementationPreferences);
         if ((selectionPath == null) || selectionPath.isEmpty()) {
             System.err.println("No manager available. Cannot resolve ");
@@ -589,7 +589,7 @@ public class ApamResolver {
             if (!manager.getName().equals(CST.APAMMAN))
                 deployed = true;
             System.out.print(manager.getName() + "  ");
-            impl = manager.resolveSpecByResource(compoTypeFrom, dependency.getResource(),
+            impl = manager.resolveSpecByResource(compoTypeFrom, dependency.getTarget(),
                     implementationConstraints, implementationPreferences);
             if (impl != null) {
                 ApamResolver.deployedImpl(compoTypeFrom, impl, deployed);

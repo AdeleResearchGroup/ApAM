@@ -3,28 +3,18 @@ package fr.imag.adele.apam;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import fr.imag.adele.apam.apamImpl.APAMImpl;
-import fr.imag.adele.apam.apform.Apform;
 
 public class ApamManagers {
 
     private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
-    public static List<Manager>          managerList  = new ArrayList<Manager>();
-
-    private static Set<AttributeManager> attrChangedManagers = new ConcurrentSkipListSet<AttributeManager>();
-
-    public static void addAttrChanged(AttributeManager manager) {
-        ApamManagers.attrChangedManagers.add(manager);
-    }
-
-    public static void removeAttrChanged(AttributeManager manager) {
-        ApamManagers.attrChangedManagers.remove(manager);
-    }
+    private static List<Manager>          managerList  = new ArrayList<Manager>();
 
     /**
      * Adds a manager to Apam.
@@ -92,92 +82,167 @@ public class ApamManagers {
     }
 
     /**
-     * This manager is expecting the provided implementation or interface to appear. Warning : it is an
-     * interface name.
+     * The list of dynamic manager listeners
      * 
-     * @param impl : The APAM implementation for which an instance is expected
-     * @param impl : The interface name for which an instance is expected. It may correspond to more than one Spec
-     * @param manager
+     * TODO this is a global list that is not filtered by the event that is expected, so that managers can
+     * get spurious notifications. We should add some way to classify listeners according to the expected
+     * event.
      */
-    public static void appearedImplExpected(String samImplName, DynamicManager manager) {
-        if ((samImplName == null) || (manager == null)) {
-            System.err.println("ERROR : Missing parameter impl or manager in appearedExpected");
+    private static Set<DynamicManager> dynamicManagers = new ConcurrentSkipListSet<DynamicManager>();
+
+    /**
+     * Adds a new manager to listen for dynamic events
+     * 
+     */
+    public static void addDynamicManager(DynamicManager manager) {
+        if (manager == null) {
+            System.err.println("ERROR : Missing parameter manager in addDynamicManager");
             return;
         }
-        Apform.addExpectedImpl(samImplName, manager);
+        dynamicManagers.add(manager);
     }
 
-    public static void appearedInterfExpected(String interf, DynamicManager manager) {
-        if ((interf == null) || (manager == null)) {
+    public static void removeDynamicManager(DynamicManager manager) {
+        if  (manager == null) {
             System.out.println("ERROR : Missing parameter interf or manager in appearedExpected");
             return;
         }
-        Apform.addExpectedInterf(interf, manager);
-    }
-
-    public static void appearedImplNotExpected(String samImplName, DynamicManager manager) {
-        if ((samImplName == null) || (manager == null)) {
-            System.out.println("ERROR : Missing parameter impl or manager in appearedNotExpected");
-            return;
-        }
-        Apform.removeExpectedImpl(samImplName, manager);
-
-    }
-
-    public static void appearedInterfNotExpected(String interf, DynamicManager manager) {
-        if ((interf == null) || (manager == null)) {
-            System.out.println("ERROR : Missing parameter interf or manager in appearedNotExpected");
-            return;
-        }
-        Apform.removeExpectedInterf(interf, manager);
-    }
-
-    public static void listenLost(DynamicManager manager) {
-        if (manager == null) {
-            System.out.println("ERROR : Missing parameter manager in listenLost");
-            return;
-        }
-        Apform.addLost(manager);
+        dynamicManagers.remove(manager);
     }
 
     /**
-     * This manager is interested in knowing when instance properties have been changed in SAM.
-     * 
-     * @param manager
+     * The list of component property listeners
      */
-    public static void listenAttrChanged(AttributeManager manager) {
-        if (manager == null) {
-            System.out.println("ERROR : Missing parameter manager in listenAttrChanged");
-            return;
-        }
-        ApamManagers.addAttrChanged(manager);
-    }
-
+    private static Set<AttributeManager> attributeListeners = new ConcurrentSkipListSet<AttributeManager>();
+    
     /**
-     * The manager is no longer interested in the disparitions
+     * This manager is interested in knowing when instance properties have been changed.
      * 
      * @param manager
      */
-    public static void listenNotLost(DynamicManager manager) {
+    public static void addAttributeListener(AttributeManager manager) {
         if (manager == null) {
-            System.out.println("ERROR : Missing parameter manager in listenNotLost");
+            System.out.println("ERROR : Missing parameter manager in addAttributeListener");
             return;
         }
-        Apform.removeLost(manager);
+        attributeListeners.add(manager);
     }
-
+    
     /**
      * The manager is no longer interested in knowing when instance properties have been changed
      * 
      * @param manager
      */
-    public static void listenNotAttrChanged(AttributeManager manager) {
+    public static void removeAttributeListener(AttributeManager manager) {
         if (manager == null) {
-            System.out.println("ERROR : Missing parameter manager in listenNotAttrChanged");
+            System.out.println("ERROR : Missing parameter manager in removeAttributeListener");
             return;
         }
-        ApamManagers.removeAttrChanged(manager);
+        
+        attributeListeners.remove(manager);
     }
 
+    /*
+     * Notification events for property changes
+     */
+	public static void attributeChanged(Instance inst, String attr, Object newValue) {
+		for (AttributeManager manager : attributeListeners) {
+			manager.attributeAdded(inst, attr, newValue);
+		}	
+	}
+	
+	public static void attributeRemoved(Instance inst, String attr, Object oldValue){
+		for (AttributeManager manager : attributeListeners) {
+			manager.attributeRemoved(inst, attr, oldValue);
+		}	
+	}
 
+	public static void attributeAdded(Instance inst, String attr, Object value) {
+		for (AttributeManager manager : attributeListeners) {
+			manager.attributeAdded(inst, attr, value);
+		}	
+	}
+
+	public static void attributeChanged(Implementation impl, String attr, Object newValue) {
+		for (AttributeManager manager : attributeListeners) {
+			manager.attributeAdded(impl, attr, newValue);
+		}	
+	}
+	
+	public static void attributeRemoved(Implementation impl, String attr, Object oldValue) {
+		for (AttributeManager manager : attributeListeners) {
+			manager.attributeRemoved(impl, attr, oldValue);
+		}	
+	}
+
+	public static void attributeAdded(Implementation impl, String attr, Object value) {
+		for (AttributeManager manager : attributeListeners) {
+			manager.attributeAdded(impl, attr, value);
+		}	
+	}
+
+	public static void attributeChanged(Specification spec, String attr, Object newValue){
+		for (AttributeManager manager : attributeListeners) {
+			manager.attributeAdded(spec, attr, newValue);
+		}	
+	}
+
+	public static void attributeRemoved(Specification spec, String attr, Object oldValue) {
+		for (AttributeManager manager : attributeListeners) {
+			manager.attributeRemoved(spec, attr, oldValue);
+		}	
+	}
+
+	public static void attributeAdded(Specification spec, String attr, Object value) {
+		for (AttributeManager manager : attributeListeners) {
+			manager.attributeAdded(spec, attr, value);
+		}	
+	}
+	
+    /*
+     * Notification events for dynamic events
+     */
+    public static void appeared(Instance inst) {
+    	for (DynamicManager manager : dynamicManagers) {
+			manager.appeared(inst);
+		}
+    }
+    
+    public static void instantiated(Instance inst) {
+    	for (DynamicManager manager : dynamicManagers) {
+			manager.instantiated(inst);
+		}
+    }
+
+    public static void disappeared(Instance lost) {
+    	for (DynamicManager manager : dynamicManagers) {
+			manager.disappeared(lost);
+		}
+    }
+    
+    public static void deleted(Instance lost) {
+    	for (DynamicManager manager : dynamicManagers) {
+			manager.deleted(lost);
+		}
+    }
+    
+    public static void deployed(CompositeType composite, Implementation implementation) {
+    	for (DynamicManager manager : dynamicManagers) {
+			manager.deployed(composite,implementation);
+		}
+    }
+    
+    public static void uninstalled(CompositeType composite, Implementation implementation) {
+    	for (DynamicManager manager : dynamicManagers) {
+			manager.uninstalled(composite,implementation);
+		}
+    }
+    
+    public static void hidden(CompositeType composite, Implementation implementation){
+    	for (DynamicManager manager : dynamicManagers) {
+			manager.hidden(composite,implementation);
+		}
+    }
+    
+	
 }

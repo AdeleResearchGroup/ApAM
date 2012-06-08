@@ -1,41 +1,26 @@
 package fr.imag.adele.apam.apform;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
-//import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.DynamicManager;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-//import fr.imag.adele.apam.apamAPI.AttributeManager;
-import fr.imag.adele.apam.apamImpl.ImplementationImpl;
-import fr.imag.adele.apam.apamImpl.InstanceImpl;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
-//import fr.imag.adele.apam.util.Attributes;
-//import fr.imag.adele.apam.util.AttributesImpl;
+import fr.imag.adele.apam.apamImpl.ImplementationImpl;
+import fr.imag.adele.apam.apamImpl.InstanceImpl;
 
 public class Apform {
-    static final CompositeType              rootType              = CompositeTypeImpl.getRootCompositeType();
-    static final Composite                  rootInst              = CompositeImpl.getRootAllComposites();
+   
+	private static final CompositeType              rootType              = CompositeTypeImpl.getRootCompositeType();
+	private static final Composite                  rootInst              = CompositeImpl.getRootAllComposites();
 
-    static Set<Implementation>              unusedImplems         = CompositeTypeImpl.getRootCompositeType().getImpls();
-    static Set<Instance>                    unusedInsts           = CompositeImpl.getRootAllComposites()
+	private static Set<Implementation>              unusedImplems         = CompositeTypeImpl.getRootCompositeType().getImpls();
+	private static Set<Instance>                    unusedInsts           = CompositeImpl.getRootAllComposites()
                                                                           .getContainInsts();
-
-    // The managers are waiting for the apparition of an instance of the ASMImpl or implementing the interface
-    // In both case, no ASMInst is created.
-    static Map<String, Set<DynamicManager>> expectedMngImpls      = new HashMap<String, Set<DynamicManager>>();
-    static Map<String, Set<DynamicManager>> expectedMngInterfaces = new HashMap<String, Set<DynamicManager>>();
-
-    // registers the managers that are interested in services that disappear.
-    static Set<DynamicManager>              listenLost            = new HashSet<DynamicManager>();
 
     public static Implementation getUnusedImplem(String name) {
         Implementation impl = CST.ImplBroker.getImpl(name);
@@ -98,7 +83,7 @@ public class Apform {
         if (impl != null)
             return impl;
 
-        Apform2Apam.waitForImplementation(expectedImpl);
+        Apform2Apam.waitForDeployedImplementation(expectedImpl);
         // The expected impl arrived. It is in unUsed.
         impl = CST.ImplBroker.getImpl(expectedImpl);
         if (impl == null) // should never occur
@@ -122,96 +107,13 @@ public class Apform {
         if (spec != null)
             return spec;
 
-        Apform2Apam.waitForImplementation(expected);
+        Apform2Apam.waitForDeployedSpecification(expected);
         // The expected impl arrived. It is in unUsed.
         spec = CST.SpecBroker.getSpec(expected);
         if (spec == null) // should never occur
             System.out.println("wake up but specification is not present " + expected);
 
         return spec;
-    }
-
-//    /**
-//     * 
-//     * @param expected
-//     */
-//    public static void addExpected(String expected) {
-//        synchronized (ApformImpl.expectedImpls) {
-//            ApformImpl.expectedImpls.add(expected);
-//        }
-//    }
-
-    public static void addExpectedImpl(String samImplName, DynamicManager manager) {
-        if ((samImplName == null) || (manager == null))
-            return;
-
-        synchronized (Apform.expectedMngImpls) {
-            Set<DynamicManager> mans = Apform.expectedMngImpls.get(samImplName);
-            if (mans == null) {
-                mans = new HashSet<DynamicManager>();
-                mans.add(manager);
-                Apform.expectedMngImpls.put(samImplName, mans);
-            } else {
-                mans.add(manager);
-            }
-        }
-
-    }
-
-    public static synchronized void removeExpectedImpl(String samImplName, DynamicManager manager) {
-        if ((samImplName == null) || (manager == null))
-            return;
-
-        synchronized (Apform.expectedMngImpls) {
-            Set<DynamicManager> mans = Apform.expectedMngImpls.get(samImplName);
-            if (mans != null) {
-                mans.remove(manager);
-            }
-        }
-    }
-
-    public static synchronized void addExpectedInterf(String interf, DynamicManager manager) {
-        if ((interf == null) || (manager == null))
-            return;
-
-        synchronized (Apform.expectedMngInterfaces) {
-            Set<DynamicManager> mans = Apform.expectedMngInterfaces.get(interf);
-            if (mans == null) {
-                mans = new HashSet<DynamicManager>();
-                mans.add(manager);
-                Apform.expectedMngInterfaces.put(interf, mans);
-            } else {
-                mans.add(manager);
-            }
-        }
-    }
-
-    public static synchronized void removeExpectedInterf(String interf, DynamicManager manager) {
-        if ((interf == null) || (manager == null))
-            return;
-        synchronized (Apform.expectedMngInterfaces) {
-            Set<DynamicManager> mans = Apform.expectedMngInterfaces.get(interf);
-            if (mans != null) {
-                mans.remove(manager);
-            }
-        }
-    }
-
-    public static synchronized void addLost(DynamicManager manager) {
-        if (manager == null)
-            return;
-
-        synchronized (Apform.listenLost) {
-            Apform.listenLost.add(manager);
-        }
-    }
-
-    public static synchronized void removeLost(DynamicManager manager) {
-        if (manager == null)
-            return;
-        synchronized (Apform.listenLost) {
-            Apform.listenLost.remove(manager);
-        }
     }
 
 }

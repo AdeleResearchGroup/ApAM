@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.apamImpl;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     private CompositeTypeImpl() {
         name = CST.ROOTCOMPOSITETYPE;
-        declaration = new CompositeDeclaration(name,null,null);
+        declaration = new CompositeDeclaration(name,null,null,null,new ArrayList<String>());
     }
 
     public static CompositeType getRootCompositeType() {
@@ -575,7 +576,10 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
             specification = mainImplem.getSpec().getApformSpec();
 
-            declaration = new CompositeDeclaration(name, specification.getDeclaration().getReference(), mainImplem.getApformImpl().getDeclaration().getReference());
+            declaration = new CompositeDeclaration(name,
+            					specification.getDeclaration().getReference(),
+            					mainImplem.getApformImpl().getDeclaration().getReference(),
+            					null, new ArrayList<String>());
             declaration.getProperties().putAll(attributes);
             declaration.getProvidedResources().addAll(specification.getDeclaration().getProvidedResources());
 
