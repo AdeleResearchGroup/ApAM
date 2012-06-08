@@ -71,7 +71,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     	declaration 		= (InstanceDeclaration) configuration.get(ATT_DECLARATION);
     	
     	if (isApamCreated || declaration == null) {
-    		declaration = new InstanceDeclaration(getFactory().getDeclaration().getReference(),instanceName);
+    		declaration = new InstanceDeclaration(getFactory().getDeclaration().getReference(),instanceName,null);
     		for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
     			String property = properties.nextElement();
 				declaration.getProperties().put(property, configuration.get(property));
@@ -151,7 +151,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
          */
         
         DependencyDeclaration dependency 	= injection.getDependencyInjection().getDependency();
-        ResolvableReference target			= dependency.getResource();
+        ResolvableReference target			= dependency.getTarget();
 
         /*
          * Resolve implementation dependencies explicitly

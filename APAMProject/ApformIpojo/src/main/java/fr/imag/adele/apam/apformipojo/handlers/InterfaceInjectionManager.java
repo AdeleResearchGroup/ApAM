@@ -102,7 +102,7 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     	
 		Element dependencyDescription = new Element("injection", ApformIpojoComponent.APAM_NAMESPACE);
 		dependencyDescription.addAttribute(new Attribute("dependency", injection.getDependency().getIdentifier()));
-		dependencyDescription.addAttribute(new Attribute("target", injection.getDependency().getResource().toString()));
+		dependencyDescription.addAttribute(new Attribute("target", injection.getDependency().getTarget().toString()));
 		dependencyDescription.addAttribute(new Attribute("name", injection.getName()));
 		dependencyDescription.addAttribute(new Attribute("type", injection.getResource().toString()));
 		dependencyDescription.addAttribute(new Attribute("isAggregate",	Boolean.toString(injection.isCollection())));

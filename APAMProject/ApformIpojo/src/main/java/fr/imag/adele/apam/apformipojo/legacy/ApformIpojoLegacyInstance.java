@@ -32,7 +32,7 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
 	public ApformIpojoLegacyInstance(ComponentInstance ipojoInstance) {
 		this.ipojoInstance	= ipojoInstance;
 		ImplementationReference<?> implementation = new ApformIPojoLegacyImplementation.Reference(ipojoInstance.getFactory().getName());
-		this.declaration	= new InstanceDeclaration(implementation,ipojoInstance.getInstanceName());
+		this.declaration	= new InstanceDeclaration(implementation,ipojoInstance.getInstanceName(),null);
 	}
 	
 	@Override

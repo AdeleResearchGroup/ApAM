@@ -141,7 +141,7 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements I
 	        	for (DependencyDeclaration dependencyDeclaration : declaration.getDependencies()) {
 					Element dependencyDescription = new Element("dependency", APAM_NAMESPACE);
 					dependencyDescription.addAttribute(new Attribute("id", dependencyDeclaration.getIdentifier()));
-					dependencyDescription.addAttribute(new Attribute("resource", dependencyDeclaration.getResource().toString()));
+					dependencyDescription.addAttribute(new Attribute("resource", dependencyDeclaration.getTarget().toString()));
 					dependencyDescription.addAttribute(new Attribute("multiple", Boolean.toString(dependencyDeclaration.isMultiple())));
 					
 					

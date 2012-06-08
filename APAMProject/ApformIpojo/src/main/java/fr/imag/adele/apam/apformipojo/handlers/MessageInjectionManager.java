@@ -171,7 +171,7 @@ import fr.imag.adele.apam.message.Message;
 
     	Element consumerDescription = new Element("injection", ApformIpojoComponent.APAM_NAMESPACE);
     	consumerDescription.addAttribute(new Attribute("dependency", injection.getDependency().getIdentifier()));
-    	consumerDescription.addAttribute(new Attribute("target", injection.getDependency().getResource().toString()));
+    	consumerDescription.addAttribute(new Attribute("target", injection.getDependency().getTarget().toString()));
     	consumerDescription.addAttribute(new Attribute("field", injection.getName()));
     	consumerDescription.addAttribute(new Attribute("type", injection.getResource().toString()));
     	consumerDescription.addAttribute(new Attribute("isAggregate",	Boolean.toString(injection.isCollection())));
