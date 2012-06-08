@@ -122,16 +122,22 @@ public class ApamRepoBuilder {
     private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {
         if (component instanceof SpecificationDeclaration) {
             for (DependencyDeclaration dep : component.getDependencies()) {
-                //TODO MIGRATION DECLARATION change to declaration serialization
-                if (dep.getResource() instanceof InterfaceReference) {
-                    obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + dep.getResource().as(InterfaceReference.class).getJavaType()
+            	
+            	InterfaceReference refInterface			= dep.getTarget().as(InterfaceReference.class);
+            	MessageReference refMessage 			= dep.getTarget().as(MessageReference.class);	
+            	SpecificationReference refSpecification = dep.getTarget().as(SpecificationReference.class);;
+            	
+                if (refInterface != null) {
+                    obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + refInterface.getJavaType()
                             + "' /> \n");
-                } else if (dep.getResource() instanceof SpecificationReference) {
+                }
+                else if (refSpecification != null) {
                     obrContent.append("      <p n='" + OBR.A_REQUIRE_SPECIFICATION + "' v='"
-                            + "SPECNAME RESSOURCE"//dep.getResource().as(SpecificationReference.class).getName()
+                            + refSpecification.getName()
                             + "' /> \n");
-                } else if (dep.getResource() instanceof MessageReference) {
-                    obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + dep.getResource().as(InterfaceReference.class).getJavaType()
+                }
+                else if (refMessage != null) {
+                    obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + refMessage.getJavaType()
                             + "' /> \n");
                 }
             }
@@ -161,14 +167,14 @@ public class ApamRepoBuilder {
         if (component instanceof AtomicImplementationDeclaration) {
             obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
         }
-        //TODO MIGRATION DECLARATION change to declaration serialization
 
         if (component instanceof CompositeDeclaration) {
+        	
+        	CompositeDeclaration composite = (CompositeDeclaration) component;
             obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
-            obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='" + (component instanceof CompositeDeclaration)
-                    + "' />\n");
+            obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='true' />\n");
             obrContent.append("      <p n='" + CST.A_MAIN_IMPLEMENTATION + "' v='"
-                    + "MAIN IMPLE"//((CompositeDeclaration) component).getMainImplementation().getName()
+                    + composite.getMainImplementation().getName()
                     + "' />\n");
             CheckObr.checkCompoMain((CompositeDeclaration) component);
         }

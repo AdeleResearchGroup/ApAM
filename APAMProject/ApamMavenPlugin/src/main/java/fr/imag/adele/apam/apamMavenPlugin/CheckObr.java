@@ -115,10 +115,10 @@ public class CheckObr {
      * @param dep
      */
     public static void checkConstraints(DependencyDeclaration dep) {
-        if ((dep == null) || !(dep.getResource() instanceof SpecificationReference))
+        if ((dep == null) || !(dep.getTarget() instanceof SpecificationReference))
             return;
 
-        SpecificationReference reference = dep.getResource().as(SpecificationReference.class);
+        SpecificationReference reference = dep.getTarget().as(SpecificationReference.class);
         String spec = reference.getName();
 
         Capability cap = CheckObr.getSpecCapability(reference);
@@ -537,14 +537,14 @@ public class CheckObr {
 
         // All field must have same multiplicity, and must refer to interfaces and messages provided by the specification.
 
-        SpecificationReference spec = dep.getResource().as(SpecificationReference.class);
+        SpecificationReference spec = dep.getTarget().as(SpecificationReference.class);
         Set<ResourceReference> specResources = new HashSet<ResourceReference>();
 
         if (spec != null) {
             specResources.addAll( CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getSpecCapability(spec), OBR.A_PROVIDE_INTERFACES), InterfaceReference.class));
             specResources.addAll( CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getSpecCapability(spec), OBR.A_PROVIDE_MESSAGES), MessageReference.class));
         } else {
-            specResources.add(dep.getResource().as(ResourceReference.class));
+            specResources.add(dep.getTarget().as(ResourceReference.class));
         }
 
         Boolean mult = dep.isMultiple();
