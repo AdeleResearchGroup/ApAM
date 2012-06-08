@@ -14,19 +14,4 @@ public interface ResolvableReference {
 	 */
 	public <R extends Reference> R as(Class<R> kind);
 	
-	/**
-	 * The type of reference
-	 */
-	public enum Type {
-		SPECIFICATION,
-		IMPLEMENTATION,
-		INTERFACE,
-		MESSAGE
-	}
-	
-	/**
-	 * The type of reference
-	 */
-	public Type getType();
-	
 }

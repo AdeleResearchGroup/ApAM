@@ -12,23 +12,21 @@ package fr.imag.adele.apam.core;
  */
 public abstract class ResourceReference extends Reference implements ResolvableReference {
 
-    private final static Namespace JAVA_RESOURCE = new Namespace() {};
+	/**
+	 * The namespace for all references to resources identified by java class names
+	 */
+    private final static Namespace JAVA_NAMESPACE = new Namespace() {};
 
 	/**
 	 * A singleton object to represent undefined references
 	 */
 	public final static ResourceReference UNDEFINED = new ResourceReference("<Unavailable>") {
-		
-		@Override
-		public Type getType() {
-			return null;
-		}
 	};
 	
     private final String type;
 
     protected ResourceReference(String type) {
-        super(ResourceReference.JAVA_RESOURCE);
+        super(ResourceReference.JAVA_NAMESPACE);
         this.type = type;
     }
 

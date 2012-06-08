@@ -13,11 +13,6 @@ public class MessageReference extends ResourceReference {
     }
 
     @Override
-    public Type getType() {
-        return Type.MESSAGE;
-    }   
-
-    @Override
     public String toString() {
         return "message " + getIdentifier();
     }

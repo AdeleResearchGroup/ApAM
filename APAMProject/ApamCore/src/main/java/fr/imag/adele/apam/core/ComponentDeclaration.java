@@ -170,11 +170,21 @@ public abstract class ComponentDeclaration {
     }
 
     /**
+     * Get a dependency declaration by reference
+     */
+    public DependencyDeclaration getDependency(DependencyDeclaration.Reference dependency) {
+    	if (! this.getReference().equals(dependency.getDeclaringComponent()))
+    		return null;
+    	
+    	return getDependency(dependency.getIdentifier());
+    }
+
+    /**
      * Check if this component requires the specified resource
      */
     public boolean isRequired(ResourceReference resource) {
         for (DependencyDeclaration dependency : dependencies) {
-            if ( dependency.getResource().equals(resource))
+            if ( dependency.getTarget().equals(resource))
                 return true;
         }
 

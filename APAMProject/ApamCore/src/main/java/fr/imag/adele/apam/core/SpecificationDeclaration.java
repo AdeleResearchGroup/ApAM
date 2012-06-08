@@ -40,7 +40,7 @@ public class SpecificationDeclaration extends ComponentDeclaration {
      * the provided resources of this specification
      */
     public boolean resolves(DependencyDeclaration dependency) {
-    	ResolvableReference requiredResource = dependency.getResource();
+    	ResolvableReference requiredResource = dependency.getTarget();
     	return this.getReference().equals(requiredResource) || this.isProvided(requiredResource);
     }
     

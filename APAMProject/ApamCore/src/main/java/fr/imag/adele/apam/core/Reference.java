@@ -21,7 +21,7 @@ public abstract class Reference {
 	 * Notice that namespaces must be unique objects, this is not verified but must be enforced by 
 	 * concrete subclasses of this base class.
 	 */
-	protected interface Namespace {
+	public interface Namespace {
 		
 	}
 	
@@ -33,7 +33,7 @@ public abstract class Reference {
 	/**
 	 * The namespace associated to the identifier
 	 */
-    private final Namespace namespace;
+    protected final Namespace namespace;
 
     /**
      * Default constructor
@@ -71,7 +71,7 @@ public abstract class Reference {
         	return false;
 
         Reference that = (Reference)object;
-        return (this.namespace == that.namespace) && this.getIdentifier().equals(that.getIdentifier());
+        return this.namespace.equals(that.namespace) && this.getIdentifier().equals(that.getIdentifier());
     }
 
     /**

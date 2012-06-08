@@ -12,11 +12,6 @@ public class InterfaceReference extends ResourceReference {
         super(name);
     }
 
-   @Override
-    public Type getType() {
-        return Type.INTERFACE;
-    }   
-
     @Override
     public String toString() {
         return "interface " + getIdentifier();

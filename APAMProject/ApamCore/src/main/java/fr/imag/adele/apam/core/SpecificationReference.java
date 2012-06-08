@@ -9,21 +9,10 @@ package fr.imag.adele.apam.core;
  */
 public class SpecificationReference extends ComponentReference<SpecificationDeclaration> implements ResolvableReference {
 
-	/**
-	 * The namespace associated with specifications
-	 */
-	private final static Namespace APAM_SPECIFICATION = new Namespace() {};
-	
-    public SpecificationReference(String name) {
-        super(APAM_SPECIFICATION,name);
+   public SpecificationReference(String name) {
+        super(name);
     }
 
-
-    @Override
-    public Type getType() {
-    	return Type.SPECIFICATION;
-	}
-    
     @Override
     public String toString() {
         return " specification " + getIdentifier();

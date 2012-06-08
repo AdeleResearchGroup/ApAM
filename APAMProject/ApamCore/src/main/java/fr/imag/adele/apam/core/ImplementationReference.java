@@ -12,21 +12,9 @@ package fr.imag.adele.apam.core;
  */
 public class ImplementationReference<D extends ImplementationDeclaration> extends ComponentReference<D> implements ResolvableReference {
 
-	/**
-	 * The namespace associated with implementations
-	 */
-	private final static Namespace APAM_IMPLEMENTATION = new Namespace() {};
-	
-	
-	
     public ImplementationReference(String name) {
-        super(APAM_IMPLEMENTATION,name);
+        super(name);
     }
-
-    @Override
-    public Type getType() {
-    	return Type.IMPLEMENTATION;
-	}
 
     @Override
     public String toString() {

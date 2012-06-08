@@ -11,13 +11,23 @@ package fr.imag.adele.apam.core;
 public class InstanceDeclaration extends ComponentDeclaration {
 
 
+	/**
+	 * A reference to the implementation
+	 */
     private final ImplementationReference<?> implementation;
 
-    public InstanceDeclaration(ImplementationReference<?> implementation, String name) {
+    /**
+     * A description of an optional instance that must be present in the platform to trigger
+     * the actual instantiation for this declaration
+     */
+    private final TargetDeclaration trigger;
+    
+    public InstanceDeclaration(ImplementationReference<?> implementation, String name, TargetDeclaration trigger) {
         super(name);
 
         assert implementation != null;
         this.implementation	= implementation;
+        this.trigger = trigger;
     }
 
     /**
@@ -27,6 +37,13 @@ public class InstanceDeclaration extends ComponentDeclaration {
         return implementation;
     }
 
+    /**
+     * The triggering specification
+     */
+    public TargetDeclaration getTrigger() {
+		return trigger;
+	}
+    
     /**
      * Instances are never directly referenced
      */

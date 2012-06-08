@@ -1,9 +1,7 @@
 package fr.imag.adele.apam.core;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This class represents the declaration of a required resources needed by a component, that will be resolved at
@@ -12,10 +10,32 @@ import java.util.Set;
  * @author vega
  *
  */
-public class DependencyDeclaration {
+public class DependencyDeclaration extends TargetDeclaration {
 
+	/**
+	 * A reference to a dependency declaration. Notice that dependency identifiers must be only
+	 * unique in the context of their defining component declaration.
+	 */
+	public static class Reference extends fr.imag.adele.apam.core.Reference {
 
+		private final String identifier;
+		
+		public Reference(ComponentReference<?> definingComponent, String identifier) {
+			super(definingComponent);
+			this.identifier = identifier;
+		}
 
+		@Override
+		public String getIdentifier() {
+			return identifier;
+		}
+	
+		public ComponentReference<?> getDeclaringComponent() {
+			return (ComponentReference<?>) namespace;
+		}
+		
+	}
+	
     /**
      * The component in which this dependency is declared
      */
@@ -25,55 +45,49 @@ public class DependencyDeclaration {
      * The identification of the dependency in its declaring component
      */
     private final String 			id;
-
+    
     /**
-     * The reference to the required resource. For complex dependencies, it is the specification.
+     * The reference to this declaration
      */
-    private final ResolvableReference resource;
-
-    /**
-     * The set of constraints that must be satisfied by the resource provider implementation
-     */
-    private final Set<String>       implementationConstraints;
-
-    /**
-     * The set of constraints that must be satisfied by the resource provider instance
-     */
-    private final Set<String> 		instanceConstraints;
-
-    /**
-     * The list of preferences to choose among candidate service provider implementation
-     */
-    private final List<String>      implementationPreferences;
-
-    /**
-     * The list of preferences to choose among candidate service provider instances
-     */
-    private final List<String> 		instancePreferences;
-
+    private final Reference			reference;
+    
+	/**
+	 * The list of preferences to choose among candidate service provider implementation
+	 */
+	private final List<String> implementationPreferences;
+	
+	/**
+	 * The list of preferences to choose among candidate service provider instances
+	 */
+	private final List<String> instancePreferences;
+    
     /**
      * The list of fields that will be injected with this dependency in a primitive component
      */
     private final List<DependencyInjection> injections;
 
+    /**
+     * The policy to handle unresolved dependencies
+     */
+
+    private MissingPolicy missingPolicy;
+    
     public DependencyDeclaration(ComponentDeclaration component, String id, ResolvableReference resource) {
 
-        assert component != null;
-        assert resource != null;
+    	super(resource);
+    	
 
         // Bidirectional reference to encompassing declaration
+        assert component != null;
         this.component		= component;
         this.component.getDependencies().add(this);
 
         this.id				= id;
-        this.resource 		= resource;
-
-        implementationConstraints 	= new HashSet<String>();
-        instanceConstraints 		= new HashSet<String>();
-        implementationPreferences 	= new ArrayList<String>();
-        instancePreferences 		= new ArrayList<String>();
-
-        injections			= new ArrayList<DependencyInjection>();
+        this.reference		= new Reference(component.getReference(),getIdentifier());
+        
+        this.implementationPreferences 	= new ArrayList<String>();
+        this.instancePreferences 		= new ArrayList<String>();
+        this.injections					= new ArrayList<DependencyInjection>();
     }
 
     /**
@@ -84,12 +98,19 @@ public class DependencyDeclaration {
     }
 
     /**
-     * Get the id of the dependency
+     * Get the id of the dependency in the declaring component declaration
      */
     public String getIdentifier() {
-        return id != null? id : resource.as(Reference.class).getIdentifier();
+        return id != null? id : getTarget().as(fr.imag.adele.apam.core.Reference.class).getIdentifier();
     }
 
+    /**
+     * Get the reference to this declaration
+     */
+    public Reference getReference() {
+    	return reference;
+    }
+    
     /**
      * The multiplicity of a dependency is calculated from the declaration of injected fields.
      * 
@@ -111,42 +132,34 @@ public class DependencyDeclaration {
     }
 
     /**
-     * Get the reference to the required resource
+     * Get the policy associated with this dependency
      */
-    public ResolvableReference getResource() {
-        return resource;
-    }
+    public MissingPolicy getMissingPolicy() {
+		return missingPolicy;
+	}
 
     /**
-     * Get the resource provider constraints
+     * Set the missing policy used for this dependency
+     * @param missingPolicy
      */
-    public Set<String> getImplementationConstraints() {
-        return implementationConstraints;
-    }
+    public void setMissingPolicy(MissingPolicy missingPolicy) {
+		this.missingPolicy = missingPolicy;
+	}
+ 
+	/**
+	 * Get the resource provider preferences
+	 */
+	public List<String> getImplementationPreferences() {
+	    return implementationPreferences;
+	}
 
-    /**
-     * Get the instance provider constraints
-     */
-    public Set<String> getInstanceConstraints() {
-        return instanceConstraints;
-    }
-
-
-    /**
-     * Get the resource provider preferences
-     */
-    public List<String> getImplementationPreferences() {
-        return implementationPreferences;
-    }
-
-
-    /**
-     * Get the instance provider preferences
-     */
-    public List<String> getInstancePreferences() {
-        return instancePreferences;
-    }
-
+	/**
+	 * Get the instance provider preferences
+	 */
+	public List<String> getInstancePreferences() {
+	    return instancePreferences;
+	}
+    
     /**
      * Get the injections associated to this dependency declaration
      */
@@ -157,34 +170,34 @@ public class DependencyDeclaration {
 
     @Override
     public String toString() {
-        String ret = " dependency id: " + getIdentifier() + ". toward " + resource;
-        if (injections.size() != 0) {
+        String ret = " dependency id: " + getIdentifier() + ". toward " + getTarget();
+        if (! injections.isEmpty()) {
             for (DependencyInjection inj : injections) {
                 ret += "\n         " + inj;
             }
         }
 
-        if (implementationConstraints.size() != 0) {
+        if (! getImplementationConstraints().isEmpty()) {
             ret += "\n         Implementation Constraints";
-            for (String inj : implementationConstraints) {
+            for (String inj : getImplementationConstraints()) {
                 ret += "\n            " + inj;
             }
         }
-        if (instanceConstraints.size() != 0) {
+        if (! getInstanceConstraints().isEmpty()) {
             ret += "\n         Instance Constraints";
-            for (String inj : instanceConstraints) {
+            for (String inj : getInstanceConstraints()) {
                 ret += "\n            " + inj;
             }
         }
-        if (implementationPreferences.size() != 0) {
+        if (! getImplementationPreferences().isEmpty()) {
             ret += "\n         Implementation Preferences";
-            for (String inj : implementationPreferences) {
+            for (String inj : getImplementationPreferences()) {
                 ret += "\n            " + inj;
             }
         }
-        if (instancePreferences.size() != 0) {
+        if (! getInstancePreferences().isEmpty()) {
             ret += "\n         Instance Preferences";
-            for (String inj : instancePreferences) {
+            for (String inj : getInstancePreferences()) {
                 ret += "\n            " + inj;
             }
         }
