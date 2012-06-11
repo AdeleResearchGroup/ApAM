@@ -11,27 +11,27 @@ public interface DynamicManager extends Manager {
     public abstract void external(Instance inst);
 
 
-//    /**
+    //    /**
     //     * The manager is notified of the creation of a new instance
     //     * 
     //     */
     //    public abstract void instantiated(Instance inst);
 
     /**
-     * The manager is notified of the disappearance of a an instance or implem
+     * The manager asks to be notified of the creation of an instance or implem in the ASM (or un-hidden)
      * 
      */
-    public abstract void appeared(Instance newInstance);
+    public abstract void addedInApam(Instance newInstance);
 
-    public abstract void appeared(Implementation newImplem);
+    public abstract void addedInApam(Implementation newImplem);
 
     /**
-     * The manager is notified of the destruction of a an instance or implem
+     * The manager asks to be notified of the removing of a an instance or implem (or hidden)from the ASM
      * 
      */
-    public abstract void deleted(Instance lostInstance);
+    public abstract void removedFromApam(Instance lostInstance);
 
-    public abstract void deleted(Implementation lostImplem);
+    public abstract void removedFromApam(Implementation lostImplem);
 
     //    /**
     //     * The manager is notified of the deployment of an implementation
