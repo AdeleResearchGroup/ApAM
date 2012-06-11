@@ -16,8 +16,10 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
+import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
 
 
 
@@ -223,6 +225,9 @@ public class Util {
      * @return
      */
     public static boolean checkImplVisible(CompositeType compoFrom, Implementation toImpl) {
+        if (toImpl.getInCompositeType().contains(compoFrom))
+            return true;
+
         // First check inst can be borrowed
         String borrow = ((String) compoFrom.get(CST.A_BORROWIMPLEM));
         if ((borrow != null) && (Util.checkImplVisibilityExpression(borrow, toImpl) == false))
@@ -264,7 +269,7 @@ public class Util {
 
     /**
      * Instance toInst can be borrowed by composite compoFrom if :
-     * compoFrom accpets to borroxww the attribute
+     * compoFrom accepts to borrow the attribute
      * toInst is inside compoFrom.
      * attribute friendInstance is set, and toInst is inside a friend and matches the attribute.
      * attribute appliInstance is set, and toInst is in same appli and matches the attribute.
@@ -275,14 +280,15 @@ public class Util {
      * @return
      */
     public static boolean checkInstVisible(Composite compoFrom, Instance toInst) {
+        Composite toCompo = toInst.getComposite();
+        if (compoFrom == toCompo)
+            return true;
+
         // First check inst can be borrowed
         String borrow = ((String) compoFrom.get(CST.A_BORROWINSTANCE));
         if ((borrow != null) && (Util.checkInstVisibilityExpression(borrow, toInst) == false))
             return false;
 
-        Composite toCompo = toInst.getComposite();
-        if (compoFrom == toCompo)
-            return true;
         if (compoFrom.dependsOn(toCompo)) {
             String friend = ((String) compoFrom.get(CST.A_FRIENDINSTANCE));
             if ((friend != null) && Util.checkInstVisibilityExpression(friend, toInst))

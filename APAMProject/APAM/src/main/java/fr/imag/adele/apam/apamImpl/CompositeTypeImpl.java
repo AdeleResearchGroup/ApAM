@@ -152,23 +152,23 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             apfImpl = new ApformComposite(name, mainImpl, attributes);
         }
 
-        this.declaration = apfImpl.getDeclaration(); 
+        declaration = apfImpl.getDeclaration(); 
 
         this.mainImpl = mainImpl;
         ((ImplementationImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
-       
+
 
         if (attributes != null)
             putAll(attributes);
         put(CST.A_COMPOSITE, fromCompo.getName());
-        
+
         CompositeTypeImpl.compositeTypes.put(name, this);
         ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
 
         fromCompo.addImpl(this);
         ((CompositeTypeImpl) fromCompo).addEmbedded(this);
         inComposites.add(fromCompo);
-        
+
     }
 
     /**
@@ -216,26 +216,26 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * @return
      */
     public static CompositeType createCompositeType(CompositeType implComposite, ApformImplementation apfImpl) {
-        
-    	if (apfImpl == null) {
+
+        if (apfImpl == null) {
             new Exception("ERROR : the composite apform object is null").printStackTrace();
             return null;
-    	}
-    	
-    	if (! (apfImpl.getDeclaration() instanceof CompositeDeclaration)) {
+        }
+
+        if (! (apfImpl.getDeclaration() instanceof CompositeDeclaration)) {
             new Exception("ERROR : the apform object is not a composite "+apfImpl).printStackTrace();
             return null;
-    	}
-    	
-    	CompositeDeclaration declaration = (CompositeDeclaration) apfImpl.getDeclaration();
-    	
-    	String name						= declaration.getName();
-    	String implName 				= declaration.getMainImplementation().getName();
+        }
+
+        CompositeDeclaration declaration = (CompositeDeclaration) apfImpl.getDeclaration();
+
+        String name						= declaration.getName();
+        String mainComponentName = declaration.getMainComponent().getName();
         String specName 				= declaration.getSpecification().getName();
         Map<String, Object> properties	= declaration.getProperties();
-        
+
         @SuppressWarnings("unchecked")
-		Set<ManagerModel> models 		= (Set<ManagerModel>) declaration.getProperty(CST.A_MODELS);
+        Set<ManagerModel> models 		= (Set<ManagerModel>) declaration.getProperty(CST.A_MODELS);
 
         if (implComposite == null) {
             implComposite = CompositeTypeImpl.rootCompoType;
@@ -245,8 +245,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         if (properties == null) {
             properties = new ConcurrentHashMap<String, Object>();
         }
-        
-        if (implName == null) {
+
+        if (mainComponentName == null) {
             new Exception("ERROR : main implementation Name missing").printStackTrace();
             return null;
         }
@@ -254,8 +254,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             System.err.println("Composite type " + name + " allready existing");
             return null;
         }
-        
-        return new CompositeTypeImpl(implComposite, apfImpl.getDeclaration().getName(), apfImpl, implName, (Implementation)null, models, properties, specName);
+
+        return new CompositeTypeImpl(implComposite, apfImpl.getDeclaration().getName(), apfImpl, mainComponentName,
+                (Implementation) null, models, properties, specName);
         // TODO check dependencies : those of apfImpl, and mainImpl.
     }
 
@@ -577,9 +578,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             specification = mainImplem.getSpec().getApformSpec();
 
             declaration = new CompositeDeclaration(name,
-            					specification.getDeclaration().getReference(),
-            					mainImplem.getApformImpl().getDeclaration().getReference(),
-            					null, new ArrayList<String>());
+                    specification.getDeclaration().getReference(),
+                    mainImplem.getApformImpl().getDeclaration().getReference(),
+                    null, new ArrayList<String>());
             declaration.getProperties().putAll(attributes);
             declaration.getProvidedResources().addAll(specification.getDeclaration().getProvidedResources());
 

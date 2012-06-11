@@ -3,7 +3,6 @@ package fr.imag.adele.apam;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -12,7 +11,6 @@ import fr.imag.adele.apam.apamImpl.APAMImpl;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
-import fr.imag.adele.apam.apamImpl.ManagerModel;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ResolvableReference;
@@ -56,16 +54,16 @@ public class ApamResolver {
      * @return the composite dependency from the composite.
      */
     private static DepMult getPromotion(Instance client, DependencyDeclaration dependency) {
-    	
-    	// look for a matching dependency in the enclosing composite definition
-    	DependencyDeclaration promotion = null;
-    	for (DependencyDeclaration enclosingDependency : client.getComposite().getCompType().getCompoDeclaration().getDependencies()) {
-    		
-    		// TODO Should we have other criteria to match ?
-			if (enclosingDependency.getTarget().equals(dependency.getTarget()))
-					promotion = enclosingDependency;
-		}
-    	
+
+        // look for a matching dependency in the enclosing composite definition
+        DependencyDeclaration promotion = null;
+        for (DependencyDeclaration enclosingDependency : client.getComposite().getCompType().getCompoDeclaration().getDependencies()) {
+
+            // TODO Should we have other criteria to match ?
+            if (enclosingDependency.getTarget().equals(dependency.getTarget()))
+                promotion = enclosingDependency;
+        }
+
         if (promotion == null)
             return null;
 
@@ -73,7 +71,7 @@ public class ApamResolver {
         // check cardinality
         String depId = promotion.getIdentifier();
         Set<Instance> dests = client.getComposite().getWireDests(depId); // For composite, the wire name is the dest
-        
+
         if (!promotion.isMultiple() && (dests != null)) {
             System.err.println("ERROR : wire " + client.getComposite() + " -" + depId + "-> "
                     + " allready existing.");
@@ -92,8 +90,8 @@ public class ApamResolver {
         Implementation mainImplem = mainInst.getImpl();
         String newName = mainImplem.getName() + "_Appli";
 
-        CompositeType newCompoT = CompositeTypeImpl.createCompositeType((CompositeType)null, newName, mainImplem.getName(),(String) null,
-                (Set<ManagerModel>)null, (Map<String,Object>)null);
+        CompositeType newCompoT = CompositeTypeImpl.createCompositeType(null, newName, mainImplem.getName(), null,
+                null, null);
         return new CompositeImpl(newCompoT, null, mainInst, null);
     }
 
@@ -146,7 +144,8 @@ public class ApamResolver {
             Implementation impl = ApamResolver.resolveSpecByResource(compoType, dependency);
 
             if (impl == null) {
-                System.err.println("Failed to resolve " + dependency.getTarget() + " from " + client + "(" + depName + ")");
+                System.err.println("Failed to resolve " + dependency.getTarget() + " from " + client + "(" + depName
+                        + ")");
                 // ApamResolver.notifySelection(client, specName, depName, null, null, null);
                 return null;
             }
@@ -166,7 +165,7 @@ public class ApamResolver {
             // in all cases the "real" client instance must be linked
             client.createWire(inst, depName);
         }
-        ApamResolver.notifySelection(client, dependency.getTarget() , depName, inst.getImpl(), inst, null);
+        ApamResolver.notifySelection(client, dependency.getTarget(), depName, inst.getImpl(), inst, null);
         return inst;
     }
 
@@ -289,10 +288,12 @@ public class ApamResolver {
             return null;
         }
 
-        Instance inst = ApamResolver.resolveImpl(compo, impl, dependency);
+        Instance inst = ApamResolver.resolveImpl(client, compo, impl, dependency);
         // instanceConstraints, instancePreferences);
-        if (inst != null)
-            client.createWire(inst, depName);
+        //        if (inst != null)
+        //            client.createWire(inst, depName);
+
+        //
         ApamResolver.notifySelection(client, impl.getImplDeclaration().getReference(), depName, impl, inst, null);
         return inst;
     }
@@ -434,27 +435,6 @@ public class ApamResolver {
             return;
         }
         // it is deployed
-
-        // check if the implem really implemen,ts its specification
-        // if the spec has been formally defined, check if interfaces are really implemented
-        //        if (impl.getSpec().getApformSpec() != null) { // This spec has been formally described and deployed.
-        //
-        //
-        //            for (ResourceReference resource : impl.getSpec().getApformSpec().getDeclaration().getProvidedResources()) {
-        //
-        //                if (!impl.getApformImpl().getDeclaration().isProvided(resource)) {
-        //                    System.err.print("ERROR: Invalid implementation " + impl + " for specification "
-        //                            + impl.getSpec() + "\nExpected implemented interface:");
-        //                    for (String i : impl.getSpec().getInterfaceNames())
-        //                        System.err.print("  " + i);
-        //                    System.err.print("\n                  Found:");
-        //                    for (String i : mainInterfs)
-        //                        System.err.print("  " + i);
-        //                    System.err.println("\n");
-        //                    break;
-        //                }
-        //            }
-        //        }
 
         // impl is inside compotype
         compoType.addImpl(impl);
@@ -600,9 +580,9 @@ public class ApamResolver {
     }
 
     /**
-     * Look for an instance of "impl" that satisfies the constraints. That instance must be either shared and visible
-     * from "compo",
-     * or instantiated if impl is visible from the composite type.
+     * Look for an instance of "impl" that satisfies the constraints. That instance must be either
+     * - shared and visible from "compo", or
+     * - instantiated if impl is visible from the composite type.
      * 
      * @param compo. the composite that will contain the instance, if created, or from which the shared instance is
      *            visible.
@@ -612,7 +592,8 @@ public class ApamResolver {
      *            maximum
      * @return
      */
-    public static Instance resolveImpl(Composite compo, Implementation impl, DependencyDeclaration dependency) {
+    public static Instance resolveImpl(Instance client, Composite compo, Implementation impl,
+            DependencyDeclaration dependency) {
         Set<Filter> constraints = Util.toFilter(dependency.getImplementationConstraints());
         List<Filter> preferences = Util.toFilterList(dependency.getImplementationPreferences());
         List<Manager> selectionPath = ApamResolver.computeSelectionPathInst(compo, impl, constraints, preferences);
@@ -630,11 +611,15 @@ public class ApamResolver {
             inst = manager.resolveImpl(compo, impl, constraints, preferences);
             if (inst != null) {
                 System.out.println("selected : " + inst);
+                client.createWire(inst, dependency.getIdentifier());
                 return inst;
             }
         }
         inst = impl.createInst(compo, null);
         System.out.println("instantiated : " + inst);
+        client.createWire(inst, dependency.getIdentifier());
+        // TODO Notify dynaman
+
         return inst;
     }
 

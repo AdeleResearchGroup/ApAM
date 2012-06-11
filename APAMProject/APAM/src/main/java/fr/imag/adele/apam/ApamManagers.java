@@ -99,7 +99,7 @@ public class ApamManagers {
             System.err.println("ERROR : Missing parameter manager in addDynamicManager");
             return;
         }
-        dynamicManagers.add(manager);
+        ApamManagers.dynamicManagers.add(manager);
     }
 
     public static void removeDynamicManager(DynamicManager manager) {
@@ -107,14 +107,14 @@ public class ApamManagers {
             System.out.println("ERROR : Missing parameter interf or manager in appearedExpected");
             return;
         }
-        dynamicManagers.remove(manager);
+        ApamManagers.dynamicManagers.remove(manager);
     }
 
     /**
      * The list of component property listeners
      */
     private static Set<AttributeManager> attributeListeners = new ConcurrentSkipListSet<AttributeManager>();
-    
+
     /**
      * This manager is interested in knowing when instance properties have been changed.
      * 
@@ -125,9 +125,9 @@ public class ApamManagers {
             System.out.println("ERROR : Missing parameter manager in addAttributeListener");
             return;
         }
-        attributeListeners.add(manager);
+        ApamManagers.attributeListeners.add(manager);
     }
-    
+
     /**
      * The manager is no longer interested in knowing when instance properties have been changed
      * 
@@ -138,111 +138,111 @@ public class ApamManagers {
             System.out.println("ERROR : Missing parameter manager in removeAttributeListener");
             return;
         }
-        
-        attributeListeners.remove(manager);
+
+        ApamManagers.attributeListeners.remove(manager);
     }
 
     /*
      * Notification events for property changes
      */
-	public static void attributeChanged(Instance inst, String attr, Object newValue) {
-		for (AttributeManager manager : attributeListeners) {
-			manager.attributeAdded(inst, attr, newValue);
-		}	
-	}
-	
-	public static void attributeRemoved(Instance inst, String attr, Object oldValue){
-		for (AttributeManager manager : attributeListeners) {
-			manager.attributeRemoved(inst, attr, oldValue);
-		}	
-	}
+    public static void notifyAttributeChanged(Instance inst, String attr, Object newValue) {
+        for (AttributeManager manager : ApamManagers.attributeListeners) {
+            manager.attributeAdded(inst, attr, newValue);
+        }	
+    }
 
-	public static void attributeAdded(Instance inst, String attr, Object value) {
-		for (AttributeManager manager : attributeListeners) {
-			manager.attributeAdded(inst, attr, value);
-		}	
-	}
+    public static void notifyAttributeRemoved(Instance inst, String attr, Object oldValue) {
+        for (AttributeManager manager : ApamManagers.attributeListeners) {
+            manager.attributeRemoved(inst, attr, oldValue);
+        }	
+    }
 
-	public static void attributeChanged(Implementation impl, String attr, Object newValue) {
-		for (AttributeManager manager : attributeListeners) {
-			manager.attributeAdded(impl, attr, newValue);
-		}	
-	}
-	
-	public static void attributeRemoved(Implementation impl, String attr, Object oldValue) {
-		for (AttributeManager manager : attributeListeners) {
-			manager.attributeRemoved(impl, attr, oldValue);
-		}	
-	}
+    public static void notifyAttributeAdded(Instance inst, String attr, Object value) {
+        for (AttributeManager manager : ApamManagers.attributeListeners) {
+            manager.attributeAdded(inst, attr, value);
+        }	
+    }
 
-	public static void attributeAdded(Implementation impl, String attr, Object value) {
-		for (AttributeManager manager : attributeListeners) {
-			manager.attributeAdded(impl, attr, value);
-		}	
-	}
+    public static void notifyAttributeChanged(Implementation impl, String attr, Object newValue) {
+        for (AttributeManager manager : ApamManagers.attributeListeners) {
+            manager.attributeAdded(impl, attr, newValue);
+        }	
+    }
 
-	public static void attributeChanged(Specification spec, String attr, Object newValue){
-		for (AttributeManager manager : attributeListeners) {
-			manager.attributeAdded(spec, attr, newValue);
-		}	
-	}
+    public static void notifyAttributeRemoved(Implementation impl, String attr, Object oldValue) {
+        for (AttributeManager manager : ApamManagers.attributeListeners) {
+            manager.attributeRemoved(impl, attr, oldValue);
+        }	
+    }
 
-	public static void attributeRemoved(Specification spec, String attr, Object oldValue) {
-		for (AttributeManager manager : attributeListeners) {
-			manager.attributeRemoved(spec, attr, oldValue);
-		}	
-	}
+    public static void notifyAttributeAdded(Implementation impl, String attr, Object value) {
+        for (AttributeManager manager : ApamManagers.attributeListeners) {
+            manager.attributeAdded(impl, attr, value);
+        }	
+    }
 
-	public static void attributeAdded(Specification spec, String attr, Object value) {
-		for (AttributeManager manager : attributeListeners) {
-			manager.attributeAdded(spec, attr, value);
-		}	
-	}
-	
+    public static void notifyAttributeChanged(Specification spec, String attr, Object newValue) {
+        for (AttributeManager manager : ApamManagers.attributeListeners) {
+            manager.attributeAdded(spec, attr, newValue);
+        }	
+    }
+
+    public static void notifyAttributeRemoved(Specification spec, String attr, Object oldValue) {
+        for (AttributeManager manager : ApamManagers.attributeListeners) {
+            manager.attributeRemoved(spec, attr, oldValue);
+        }	
+    }
+
+    public static void notifyAttributeAdded(Specification spec, String attr, Object value) {
+        for (AttributeManager manager : ApamManagers.attributeListeners) {
+            manager.attributeAdded(spec, attr, value);
+        }	
+    }
+
     /*
      * Notification events for dynamic events
      */
-    public static void appeared(Instance inst) {
-    	for (DynamicManager manager : dynamicManagers) {
-			manager.appeared(inst);
-		}
-    }
-    
-    public static void instantiated(Instance inst) {
-    	for (DynamicManager manager : dynamicManagers) {
-			manager.instantiated(inst);
-		}
+    public static void notifyExternal(Instance inst) {
+        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+            manager.external(inst);
+        }
     }
 
-    public static void disappeared(Instance lost) {
-    	for (DynamicManager manager : dynamicManagers) {
-			manager.disappeared(lost);
-		}
+    public static void notifyInstantiated(Instance inst) {
+        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+            manager.instantiated(inst);
+        }
     }
-    
-    public static void deleted(Instance lost) {
-    	for (DynamicManager manager : dynamicManagers) {
-			manager.deleted(lost);
-		}
+
+    public static void notifyDisappeared(Instance lost) {
+        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+            manager.disappeared(lost);
+        }
     }
-    
-    public static void deployed(CompositeType composite, Implementation implementation) {
-    	for (DynamicManager manager : dynamicManagers) {
-			manager.deployed(composite,implementation);
-		}
+
+    public static void notifyDeleted(Instance lost) {
+        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+            manager.deleted(lost);
+        }
     }
-    
-    public static void uninstalled(CompositeType composite, Implementation implementation) {
-    	for (DynamicManager manager : dynamicManagers) {
-			manager.uninstalled(composite,implementation);
-		}
+
+    public static void notifyDeployed(CompositeType composite, Implementation implementation) {
+        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+            manager.deployed(composite,implementation);
+        }
     }
-    
-    public static void hidden(CompositeType composite, Implementation implementation){
-    	for (DynamicManager manager : dynamicManagers) {
-			manager.hidden(composite,implementation);
-		}
+
+    public static void notifyUninstalled(CompositeType composite, Implementation implementation) {
+        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+            manager.uninstalled(composite,implementation);
+        }
     }
-    
-	
+
+    public static void notifyHidden(CompositeType composite, Implementation implementation){
+        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+            manager.hidden(composite,implementation);
+        }
+    }
+
+
 }

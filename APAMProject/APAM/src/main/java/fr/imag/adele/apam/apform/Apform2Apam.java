@@ -121,7 +121,7 @@ public class Apform2Apam {
             /*
              * Notify dynamic manager of instance appearance
              */
-            ApamManagers.appeared(inst);
+            ApamManagers.notifyExternal(inst);
         }
 
     }
@@ -167,7 +167,7 @@ public class Apform2Apam {
              * 
              * TODO How to know in which composite type the implementation was deployed
              */
-            ApamManagers.deployed(impl.getInCompositeType().iterator().next(), impl);
+            ApamManagers.notifyDeployed(impl.getInCompositeType().iterator().next(), impl);
             
         }
 
@@ -253,7 +253,7 @@ public class Apform2Apam {
             System.err.println("Vanish instance does not exists: " + instanceName);
     		return;
     	}
-        ApamManagers.disappeared(inst);
+        ApamManagers.notifyDisappeared(inst);
     }
 
     /**
@@ -271,7 +271,7 @@ public class Apform2Apam {
     		return;
     	}
     	
-        ApamManagers.uninstalled(impl.getInCompositeType().iterator().next(), impl);
+        ApamManagers.notifyUninstalled(impl.getInCompositeType().iterator().next(), impl);
 
     }
 

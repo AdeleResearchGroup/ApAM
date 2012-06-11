@@ -12,6 +12,7 @@ import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
 
 //import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
@@ -47,8 +48,8 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     private final Set<Wire>   invWires         = new HashSet<Wire>();
 
     // WARNING to be used only for creating composites.
-    public InstanceImpl() {
-    }
+    //    public InstanceImpl() {
+    //    }
 
     @Override
     public boolean equals(Object o) {
@@ -60,7 +61,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         return id.hashCode();
     }
 
-    protected void instConstructor(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
+    private void instConstructor(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
             ApformInstance apfInst) {
         assert (apfInst != null);
         assert (instCompo != null);
@@ -85,8 +86,14 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         putAll(apformInst.getDeclaration().getProperties());
         put(CST.A_SHARED, getShared());
 
-        if ((instCompo != null) && (apformInst.getServiceObject() instanceof ApamComponent))
+        // not for composite instances, since getServiceObject is the main instance (allready started)
+        if ((!(this instanceof Composite)) && (apformInst.getServiceObject() instanceof ApamComponent)) {
             ((ApamComponent) apformInst.getServiceObject()).apamStart(this);
+        }
+        //calls Dynaman, for own ....
+        if (instCompo == CompositeImpl.getRootAllComposites()) { //it is an external composite
+            ApamManagers.notifyExternal(this) ;           
+        }
     }
 
     @Override
