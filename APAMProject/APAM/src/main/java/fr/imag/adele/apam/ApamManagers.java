@@ -208,41 +208,54 @@ public class ApamManagers {
         }
     }
 
-    public static void notifyInstantiated(Instance inst) {
+    public static void notifyAddedInApam(Instance newInst) {
         for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.instantiated(inst);
+            manager.addedInApam(newInst);
         }
     }
 
-    public static void notifyDisappeared(Instance lost) {
+    public static void notifyDisappeared(Instance lostInst) {
         for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.disappeared(lost);
+            manager.removedFromApam(lostInst);
         }
     }
 
-    public static void notifyDeleted(Instance lost) {
+    public static void notifyAddedInApam(Implementation newImpl) {
         for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.deleted(lost);
+            manager.addedInApam(newImpl);
         }
     }
 
-    public static void notifyDeployed(CompositeType composite, Implementation implementation) {
+    public static void notifyDisappeared(Implementation lostImpl) {
         for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.deployed(composite,implementation);
+            manager.removedFromApam(lostImpl);
         }
     }
-
-    public static void notifyUninstalled(CompositeType composite, Implementation implementation) {
-        for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.uninstalled(composite,implementation);
-        }
-    }
-
-    public static void notifyHidden(CompositeType composite, Implementation implementation){
-        for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.hidden(composite,implementation);
-        }
-    }
+    //
+    //
+    //    public static void notifyDeleted(Instance lost) {
+    //        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+    //            manager.deleted(lost);
+    //        }
+    //    }
+    //
+    //    public static void notifyDeployed(CompositeType composite, Implementation implementation) {
+    //        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+    //            manager.deployed(composite,implementation);
+    //        }
+    //    }
+    //
+    //    public static void notifyUninstalled(CompositeType composite, Implementation implementation) {
+    //        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+    //            manager.uninstalled(composite,implementation);
+    //        }
+    //    }
+    //
+    //    public static void notifyHidden(CompositeType composite, Implementation implementation){
+    //        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+    //            manager.hidden(composite,implementation);
+    //        }
+    //    }
 
 
 }
