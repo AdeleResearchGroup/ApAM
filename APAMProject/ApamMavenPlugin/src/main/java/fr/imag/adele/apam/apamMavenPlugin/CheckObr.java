@@ -24,7 +24,7 @@ public class CheckObr {
     private static RepositoryImpl repo;
     private static Resource[]     resources;
 
-    private static final Map<String, Capability> readSpecs        = new HashMap<String, Capability>();
+    private static final Map<String, Capability> readCapabilities        = new HashMap<String, Capability>();
     private static final Set<String>             allFields         = new HashSet<String>();
 
     private static boolean                       failedChecking = false;
@@ -398,10 +398,13 @@ public class CheckObr {
     public static void checkCompoMain(CompositeDeclaration composite) {
         String name = composite.getName();
         // System.err.println("in checkCompoMain ");
-        String implName = composite.getMainImplementation().getName();
-        Capability cap = CheckObr.getImplCapability(composite.getMainImplementation());
-        if (cap == null)
-            return;
+        String implName = composite.getMainComponent().getName();
+        Capability cap = CheckObr.getImplCapability(composite.getMainComponent());
+        if (cap == null) {
+            cap = CheckObr.getSpecCapability(composite.getMainComponent());
+            if (cap == null)
+                return;
+        }
         String spec = composite.getSpecification().getName();
         if (spec == null)
             return;
@@ -470,17 +473,17 @@ public class CheckObr {
         return (String) prop.toArray()[0];
     }
 
-    private static Capability getSpecCapability(SpecificationReference reference) {
+    private static Capability getSpecCapability(ComponentReference<?> reference) {
         String name = reference.getName();
-        if (CheckObr.readSpecs.containsKey(name))
-            return CheckObr.readSpecs.get(name);
+        if (CheckObr.readCapabilities.containsKey(name))
+            return CheckObr.readCapabilities.get(name);
         for (Resource res : CheckObr.resources) {
             if (OBRGeneratorMojo.bundleDependencies.contains(res.getId())) {
                 for (Capability cap : res.getCapabilities()) {
                     if (cap.getName().equals(OBR.CAPABILITY_SPECIFICATION)
                             && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
                         System.out.println("     Specification " + name + " found in bundle " + res.getId());
-                        CheckObr.readSpecs.put(name, cap);
+                        CheckObr.readCapabilities.put(name, cap);
                         return cap;
                     }
                 }
@@ -491,17 +494,17 @@ public class CheckObr {
         return null;
     }
 
-    private static Capability getImplCapability(ImplementationReference<?> reference) {
+    private static Capability getImplCapability(ComponentReference<?> reference) {
         String name = reference.getName();
-        if (CheckObr.readSpecs.containsKey(name))
-            return CheckObr.readSpecs.get(name);
+        if (CheckObr.readCapabilities.containsKey(name))
+            return CheckObr.readCapabilities.get(name);
         for (Resource res : CheckObr.resources) {
             //            if (ApamMavenPlugin.bundleDependencies.contains(res.getId())) {
             for (Capability cap : res.getCapabilities()) {
                 if (cap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)
                         && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
                     System.out.println("     Implementation " + name + " found in bundle " + res.getId());
-                    CheckObr.readSpecs.put(name, cap);
+                    CheckObr.readCapabilities.put(name, cap);
                     return cap;
                 }
                 //                }
@@ -571,7 +574,7 @@ public class CheckObr {
             //            if (!type.startsWith("<")) {
             //                for (ResourceReference res : specResources) {
 
-            if (innerDep.getResource() != ResourceReference.UNDEFINED && !(specResources.contains(innerDep.getResource()))) {
+            if ((innerDep.getResource() != ResourceReference.UNDEFINED) && !(specResources.contains(innerDep.getResource()))) {
                 CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
                         + innerDep.getName()
                         + " is of type " + type

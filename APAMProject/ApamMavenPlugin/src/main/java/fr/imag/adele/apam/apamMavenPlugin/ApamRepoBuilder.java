@@ -105,7 +105,7 @@ public class ApamRepoBuilder {
             if (type != null) {
                 if (type.equals("string") || type.equals("int") || type.equals("bool")) {
                     tempContent = tempContent + (" v='" + (definition.getType()) + "'");
-                    CheckObr.checkAttrType(definition.getName(), (String) definition.getDefaultValue(), type);
+                    CheckObr.checkAttrType(definition.getName(), definition.getDefaultValue(), type);
                 } else
                     CheckObr.error("Invalid type " + type + " in attribute definition " + definition.getName()
                             + ". Supported: string, int, bool.");
@@ -122,11 +122,11 @@ public class ApamRepoBuilder {
     private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {
         if (component instanceof SpecificationDeclaration) {
             for (DependencyDeclaration dep : component.getDependencies()) {
-            	
-            	InterfaceReference refInterface			= dep.getTarget().as(InterfaceReference.class);
-            	MessageReference refMessage 			= dep.getTarget().as(MessageReference.class);	
-            	SpecificationReference refSpecification = dep.getTarget().as(SpecificationReference.class);;
-            	
+
+                InterfaceReference refInterface			= dep.getTarget().as(InterfaceReference.class);
+                MessageReference refMessage 			= dep.getTarget().as(MessageReference.class);	
+                SpecificationReference refSpecification = dep.getTarget().as(SpecificationReference.class);;
+
                 if (refInterface != null) {
                     obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + refInterface.getJavaType()
                             + "' /> \n");
@@ -169,12 +169,12 @@ public class ApamRepoBuilder {
         }
 
         if (component instanceof CompositeDeclaration) {
-        	
-        	CompositeDeclaration composite = (CompositeDeclaration) component;
+
+            CompositeDeclaration composite = (CompositeDeclaration) component;
             obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
             obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='true' />\n");
-            obrContent.append("      <p n='" + CST.A_MAIN_IMPLEMENTATION + "' v='"
-                    + composite.getMainImplementation().getName()
+            obrContent.append("      <p n='" + CST.A_MAIN_COMPONENT + "' v='"
+                    + composite.getMainComponent().getName()
                     + "' />\n");
             CheckObr.checkCompoMain((CompositeDeclaration) component);
         }
