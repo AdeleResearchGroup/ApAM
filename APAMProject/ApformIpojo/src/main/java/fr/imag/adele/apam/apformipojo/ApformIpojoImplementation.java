@@ -87,15 +87,6 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
     }
     
 
-   
-
-    /**
-     * Creates an instance of the implementation, and initialize its properties with the set of
-     * provided properties.
-     * 
-     * NOTE this method is called when an instance is created by the APAM platform (explicitly by
-     * the API or implicitly by a dependency resolution)
-     */	
     private final ThreadLocal<Boolean> insideApamCall = new ThreadLocal<Boolean>() {
                                                           @Override
                                                           protected Boolean initialValue() {
@@ -108,8 +99,12 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
     }
 
     /**
-     * Apform: create an instance
-     */
+     * Creates an instance of the implementation, and initialize its properties with the set of
+     * provided properties.
+     * 
+     * NOTE this method is called when an instance is created by the APAM platform (explicitly by
+     * the API or implicitly by a dependency resolution)
+     */	
     @Override
     public ApformInstance createInstance(Map<String, Object> initialproperties) {
         try {
@@ -133,6 +128,8 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
         }
 
     }
+    
+    
 	/**
 	 * Creates the iPOjo instance corresponding to a newly created native APAM instance.
 	 * 
