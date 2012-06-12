@@ -937,6 +937,9 @@ public class CoreMetadataParser implements CoreParser {
      */
     private ResolvableReference parseResolvableReference(Element element, String referenceKind, String attribute, boolean mandatory) {
 
+        if (referenceKind == null)
+            return null;
+
         if (CoreMetadataParser.isComponentTarget(referenceKind))
             return parseComponentReference(element, referenceKind, attribute, mandatory);
 
@@ -950,8 +953,11 @@ public class CoreMetadataParser implements CoreParser {
      * Get a resource reference coded in an attribute
      */
     private ResourceReference parseResourceReference(Element element, String referenceKind, String attribute, boolean mandatory) {
-        
-    	if (CoreMetadataParser.isInterfaceReference(referenceKind))
+
+        if (referenceKind == null)
+            return null;
+
+        if (CoreMetadataParser.isInterfaceReference(referenceKind))
             return parseInterfaceReference(element,attribute,mandatory);
 
         if (CoreMetadataParser.isMessageReference(referenceKind))
@@ -965,6 +971,9 @@ public class CoreMetadataParser implements CoreParser {
      * Get a component reference coded in an attribute
      */
     private ComponentReference<?> parseComponentReference(Element element, String referenceKind, String attribute, boolean mandatory) {
+
+        if (referenceKind == null)
+            return null;
 
         if (CoreMetadataParser.isSpecificationReference(referenceKind))
             return parseSpecificationReference(element,attribute,mandatory);
@@ -1087,7 +1096,6 @@ public class CoreMetadataParser implements CoreParser {
     private void parseDependency(Element element, ComponentDeclaration component) {
 
         String targetKind		= CoreMetadataParser.getTargetKind(element);
-        String attributeTarget	= CoreMetadataParser.getTargetAttribute(element,targetKind);
         /*
          * All dependencies have an optional identifier 
          */
@@ -1099,8 +1107,9 @@ public class CoreMetadataParser implements CoreParser {
          * Complex dependencies reference a single mandatory specification, and in the case of atomic components
          * may optionally have a number field injection declarations
          */
-        if (CoreMetadataParser.isComponentTarget(targetKind)) {
+        if ((targetKind != null) && CoreMetadataParser.isComponentTarget(targetKind)) {
 
+            String attributeTarget = CoreMetadataParser.getTargetAttribute(element, targetKind);
             ResolvableReference target = parseComponentReference(element,targetKind,attributeTarget,true);
             dependency = new DependencyDeclaration(component,id,target);
 
@@ -1132,8 +1141,9 @@ public class CoreMetadataParser implements CoreParser {
         /*
          * Simple dependencies reference a single resource. 
          */
-        if (CoreMetadataParser.isResourceTarget(targetKind)){
+        if ((targetKind == null) || CoreMetadataParser.isResourceTarget(targetKind)) {
 
+            String attributeTarget = CoreMetadataParser.getTargetAttribute(element, targetKind);
             ResourceReference target = parseResourceReference(element,targetKind,attributeTarget,false);
 
             if (component instanceof AtomicImplementationDeclaration) {
@@ -1465,7 +1475,7 @@ public class CoreMetadataParser implements CoreParser {
      * Get the attribute specifying the target of dependency
      */
     private static final String getTargetAttribute(Element element, String targetKind) {
-        return targetKind.equals(element.getName()) ? CoreMetadataParser.ATT_NAME : targetKind;
+        return (targetKind != null) && targetKind.equals(element.getName()) ? CoreMetadataParser.ATT_NAME : targetKind;
     }
 
 

@@ -61,28 +61,40 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         return id.hashCode();
     }
 
-    private void instConstructor(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
-            ApformInstance apfInst) {
-        assert (apfInst != null);
-        assert (instCompo != null);
-
-        if (impl.getShared().equals(CST.V_FALSE))
-            sharable = false;
-        apformInst = apfInst;
-        declaration = apfInst.getDeclaration();
-        myImpl = impl;
-        myComposite = instCompo;
-        myComposite.addContainInst(this);
-        put(CST.A_INSTNAME, apfInst.getDeclaration().getName());
-        put(CST.A_COMPOSITE, myComposite.getName());
-        ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
-    }
+    //    private void instConstructor(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
+    //            ApformInstance apfInst) {
+    //        assert (apfInst != null);
+    //        assert (instCompo != null);
+    //
+    //        if (impl.getShared().equals(CST.V_FALSE))
+    //            sharable = false;
+    //        apformInst = apfInst;
+    //        declaration = apfInst.getDeclaration();
+    //        myImpl = impl;
+    //        myComposite = instCompo;
+    //        myComposite.addContainInst(this);
+    //        put(CST.A_INSTNAME, apfInst.getDeclaration().getName());
+    //        put(CST.A_COMPOSITE, myComposite.getName());
+    //        ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
+    //    }
 
     public InstanceImpl(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
             ApformInstance apformInst) {
         // Create the implementation and initialize
-        instConstructor(impl, instCompo, initialproperties, apformInst);
+
+        if (impl.getShared().equals(CST.V_FALSE))
+            sharable = false;
+        this.apformInst = apformInst;
+        declaration = apformInst.getDeclaration();
+        myImpl = impl;
+        myComposite = instCompo;
+        myComposite.addContainInst(this);
         apformInst.setInst(this);
+        put(CST.A_INSTNAME, apformInst.getDeclaration().getName());
+        put(CST.A_COMPOSITE, myComposite.getName());
+        ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
+
+        //        instConstructor(impl, instCompo, initialproperties, apformInst);
         putAll(apformInst.getDeclaration().getProperties());
         put(CST.A_SHARED, getShared());
 

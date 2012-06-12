@@ -47,7 +47,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     public CompositeImpl(CompositeType compType, Composite instCompo, Instance externalMainInst,
             Map<String, Object> initialproperties, ApformInstance apfInst) {
         // First create the composite, as a normal instance
-        super(compType, instCompo, initialproperties, apfInst);
+        super(compType, instCompo == null ? CompositeImpl.rootComposite : instCompo, initialproperties, apfInst);
         // super () ;
 
         if (instCompo == null)
@@ -70,7 +70,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
         // instCompo is both the father, and the composite that contains the new one, seen as a usual ASMInst.
         ((CompositeImpl) instCompo).addSon(this);
-        CompositeImpl.composites.put(name, this);
+        CompositeImpl.composites.put(getName(), this);
 
         // initialize the composite as ASMInst
         hasInstance.add(mainInst);
@@ -156,10 +156,8 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
     @Override
     public void addContainInst(Instance inst) {
-        if (inst == null) {
-            System.err.println("ERROR : shoudl provide a real instance to addInst in composite");
-            return;
-        }
+        assert (inst != null);
+
         hasInstance.add(inst);
     }
 
@@ -313,10 +311,5 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     public void removeInst(Instance inst) {
         hasInstance.remove(inst);
     }
-
-    //    @Override
-    //    public boolean isInternal() {
-    //        return ((CompositeTypeImpl) compType).getInternalInst();
-    //    }
 
 }

@@ -3,6 +3,7 @@ package fr.imag.adele.apam;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -92,7 +93,9 @@ public class ApamResolver {
 
         CompositeType newCompoT = CompositeTypeImpl.createCompositeType(null, newName, mainImplem.getName(), null,
                 null, null);
-        return new CompositeImpl(newCompoT, null, mainInst, null, newCompoT.getApformImpl().createInstance(null));
+        // Composite intCompo = CompositeImpl.rootComposite ;
+        return new CompositeImpl(newCompoT, null, mainInst, (Map<String, Object>) null,
+                newCompoT.getApformImpl().createInstance(null));
     }
 
     /**

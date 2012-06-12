@@ -48,7 +48,7 @@ public class CST {
     // Attributes that cannot be changed by users
     public static final String[]       finalAttributes       = {
         CST.A_SPECNAME, CST.A_IMPLNAME, CST.A_INSTNAME,
-        CST.A_COMPOSITE, CST.A_MAIN_IMPLEMENTATION,
+        CST.A_COMPOSITE, CST.A_MAIN_COMPONENT,
         CST.A_INTERFACE, CST.A_MESSAGE
     };
 
@@ -57,7 +57,7 @@ public class CST {
     public static final String         A_INSTNAME            = "ins-name";
     public static final String         A_INTERFACE           = "interface";
     public static final String         A_MESSAGE             = "message";
-    public static final String         A_MAIN_IMPLEMENTATION = "apam-main-implementation";
+    public static final String         A_MAIN_COMPONENT  = "apam-main-component";
     // Value boolean
     public static final String         A_COMPOSITE           = "apam-composite";
 

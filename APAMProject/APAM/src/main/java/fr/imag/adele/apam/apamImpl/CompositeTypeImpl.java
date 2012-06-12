@@ -9,9 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.PatternSyntaxException;
 
-//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ApamManagers;
@@ -26,11 +24,8 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.ResourceReference;
-import fr.imag.adele.apam.core.SpecificationReference;
-import fr.imag.adele.apam.core.TargetDeclaration;
 
 //import fr.imag.adele.sam.Implementation;
 
@@ -442,32 +437,38 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         @Override
         public Object getServiceObject() {
             // TODO Auto-generated method stub
+            assert (false);
             return null;
         }
 
         @Override
         public boolean setWire(Instance destInst, String depName) {
             // TODO Auto-generated method stub
+            assert (false);
             return false;
         }
 
         @Override
         public boolean remWire(Instance destInst, String depName) {
             // TODO Auto-generated method stub
+            assert (false);
             return false;
         }
 
         @Override
         public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
             // TODO Auto-generated method stub
+            assert (false);
             return false;
         }
 
         @Override
         public void setInst(Instance asmInstImpl) {
             instance = asmInstImpl;
+
+            String name = ((CompositeTypeImpl) instance.getImpl()).getNewInstName();
             declaration = new InstanceDeclaration(instance.getImpl().getApformImpl().getDeclaration().getReference(),
-                    instance.getName(), null);
+                    name, null);
         }
     }
 
