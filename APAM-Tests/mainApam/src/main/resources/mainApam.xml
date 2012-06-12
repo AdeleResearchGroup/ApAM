@@ -1,16 +1,8 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
 <implementation name="MainApam" classname="fr.imag.adele.apam.mainApam.MainApam" >
-
-	<!-- dependency field="s1"/> -->
-	<!-- <dependency field="s5"/>-->
-
 	<dependency field="apam" />
-<!-- 	<ipojo:callback transition="validate" method="start"/>
-	<ipojo:callback transition="invalidate" method="stop"/>
- -->
  </implementation>
 
 <ipojo:instance name="MainApam-Instance" component="MainApam"/>
-
 </ipojo>

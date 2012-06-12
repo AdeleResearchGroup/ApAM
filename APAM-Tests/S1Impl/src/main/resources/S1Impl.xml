@@ -1,20 +1,27 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 	<implementation name="S1Impl"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1">
-		<properties shared="false" scope="global">
-			<property zerrt="true" type="boolean" />
-		</properties>
+		<properties>
+			<property shared="false" />
+			<property zerrt="true" />
+		</properties> 
+		<definitions>
+			<definition name="cczerrt" type="bool" />
+		</definitions>
 		<dependency field="s2" />
 		<dependency field="s4" />
 	</implementation>
 
-	<implementation name="S1Main" classname="fr.imag.adele.apam.test.s1Impl.S1Main" interfaces="{ApamComponent}">
-		<properties shared="false">
-			<property name="s1 main" type="String" value="pas d interface" />
-		</properties>
+	<implementation name="S1Main" classname="fr.imag.adele.apam.test.s1Impl.S1Main" >
+		<properties>
+			<property shared="false" />
+		</properties> 
+		<definitions>
+			<definition name="s1 main" type="string" value="pas d interface" />
+		</definitions>
 		<dependency field="s1" />
 	</implementation>
 
-	<ipojo:instance component="S1Main" name="S1MainInstance" />
+	<apam-instance implementation="S1Main" name="S1MainInstance" />
 </apam>
 
