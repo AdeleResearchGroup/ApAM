@@ -65,11 +65,12 @@ public class CoreMetadataParser implements CoreParser {
      * Constants defining the different element and attributes
      */
     private static final String        APAM                    = "fr.imag.adele.apam";
-    private static final String  COMPONENT               = "component";
+    private static final String        COMPONENT               = "component";
     private static final String        SPECIFICATION           = "specification";
     private static final String        IMPLEMENTATION          = "implementation";
     private static final String        COMPOSITE               = "composite";
     private static final String        INSTANCE                = "instance";
+    private static final String        INSTANCE_ALT            = "apam-instance";
     private static final String        DEFINITIONS             = "definitions";
     private static final String        DEFINITION              = "definition";
     private static final String        PROPERTIES              = "properties";
@@ -84,7 +85,7 @@ public class CoreMetadataParser implements CoreParser {
     private static final String        WAIT                    = "wait";
     private static final String        DELETE                  = "delete";
     private static final String        MANDATORY               = "mandatory";
-    private static final String        NOTHING                 = "nothing";
+    private static final String        OPTIONAL                = "optional";
     private static final String        GRANT                   = "grant";
     private static final String        RELEASE                 = "release";
     private static final String        STATES                  = "states";
@@ -779,9 +780,7 @@ public class CoreMetadataParser implements CoreParser {
 
         String name 								= parseName(element);
         SpecificationReference specification		= parseSpecificationReference(element,CoreMetadataParser.ATT_SPECIFICATION,false);
-        ComponentReference<?> implementation = (ComponentReference<?>) parseComponentReference(element,
-                CoreMetadataParser.COMPONENT,
-                CoreMetadataParser.ATT_MAIN_IMPLEMENTATION, true);
+        ComponentReference<?> implementation 		= parseComponentReference(element,CoreMetadataParser.COMPONENT,CoreMetadataParser.ATT_MAIN_IMPLEMENTATION, true);
 
         Element states[]	= optional(element.getElements(CoreMetadataParser.STATES, CoreMetadataParser.APAM));
 
@@ -951,7 +950,8 @@ public class CoreMetadataParser implements CoreParser {
      * Get a resource reference coded in an attribute
      */
     private ResourceReference parseResourceReference(Element element, String referenceKind, String attribute, boolean mandatory) {
-        if (CoreMetadataParser.isInterfaceReference(referenceKind))
+        
+    	if (CoreMetadataParser.isInterfaceReference(referenceKind))
             return parseInterfaceReference(element,attribute,mandatory);
 
         if (CoreMetadataParser.isMessageReference(referenceKind))
@@ -964,7 +964,7 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * Get a component reference coded in an attribute
      */
-    private ResolvableReference parseComponentReference(Element element, String referenceKind, String attribute, boolean mandatory) {
+    private ComponentReference<?> parseComponentReference(Element element, String referenceKind, String attribute, boolean mandatory) {
 
         if (CoreMetadataParser.isSpecificationReference(referenceKind))
             return parseSpecificationReference(element,attribute,mandatory);
@@ -973,7 +973,7 @@ public class CoreMetadataParser implements CoreParser {
             return parseImplementationReference(element,attribute,mandatory);
 
         if (CoreMetadataParser.isAnyComponentReference(referenceKind))
-            parseAnyComponentReference(element,attribute,mandatory);
+            return parseAnyComponentReference(element,attribute,mandatory);
 
 
         return null;
@@ -1185,7 +1185,7 @@ public class CoreMetadataParser implements CoreParser {
          * Get the optional missing policy
          */
         String encodedPolicy = parseString(element,CoreMetadataParser.ATT_MISSING,false);
-        MissingPolicy policy = encodedPolicy != null ? parsePolicy(encodedPolicy) : MissingPolicy.NOTHING;
+        MissingPolicy policy = encodedPolicy != null ? parsePolicy(encodedPolicy) : MissingPolicy.OPTIONAL;
 
         dependency.setMissingPolicy(policy);
     }
@@ -1204,8 +1204,8 @@ public class CoreMetadataParser implements CoreParser {
         if (CoreMetadataParser.MANDATORY.equalsIgnoreCase(encodedPolicy))
             return MissingPolicy.MANDATORY;
 
-        if (CoreMetadataParser.NOTHING.equalsIgnoreCase(encodedPolicy))
-            return MissingPolicy.NOTHING;
+        if (CoreMetadataParser.OPTIONAL.equalsIgnoreCase(encodedPolicy))
+            return MissingPolicy.OPTIONAL;
 
         errorHandler.error(Severity.ERROR, "invalid value for miising policy : \""+encodedPolicy+"\",  accepted values are "+CoreMetadataParser.MISSING_VALUES.toString());
         return null;
@@ -1515,10 +1515,10 @@ public class CoreMetadataParser implements CoreParser {
      * Determines if this element represents a composite declaration
      */
     private static final boolean isInstance(Element element) {
-        return CoreMetadataParser.INSTANCE.equals(element.getName());
+        return CoreMetadataParser.INSTANCE.equals(element.getName()) || CoreMetadataParser.INSTANCE_ALT.equals(element.getName());
     }
 
-    private static final List<String> MISSING_VALUES 			= Arrays.asList(CoreMetadataParser.WAIT,CoreMetadataParser.DELETE,CoreMetadataParser.MANDATORY,CoreMetadataParser.NOTHING);
+    private static final List<String> MISSING_VALUES 			= Arrays.asList(CoreMetadataParser.WAIT,CoreMetadataParser.DELETE,CoreMetadataParser.MANDATORY,CoreMetadataParser.OPTIONAL);
 
     /**
      * Whether this element represents a contextual policy definition
