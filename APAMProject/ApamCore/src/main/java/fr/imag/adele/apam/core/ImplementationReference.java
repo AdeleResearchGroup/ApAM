@@ -10,7 +10,7 @@ package fr.imag.adele.apam.core;
  * @author vega
  *
  */
-public class ImplementationReference<D extends ImplementationDeclaration> extends ComponentReference<D> implements ResolvableReference {
+public class ImplementationReference<D extends ImplementationDeclaration> extends ComponentReference<D> {
 
     public ImplementationReference(String name) {
         super(name);

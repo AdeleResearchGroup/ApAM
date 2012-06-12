@@ -7,7 +7,7 @@ package fr.imag.adele.apam.core;
  * @author vega
  *
  */
-public class SpecificationReference extends ComponentReference<SpecificationDeclaration> implements ResolvableReference {
+public class SpecificationReference extends ComponentReference<SpecificationDeclaration>  {
 
    public SpecificationReference(String name) {
         super(name);

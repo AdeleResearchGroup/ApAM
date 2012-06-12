@@ -11,7 +11,7 @@ package fr.imag.adele.apam.core;
  * @author vega
  *
  */
-public class ComponentReference <D extends ComponentDeclaration> extends Reference implements Reference.Namespace {
+public class ComponentReference <D extends ComponentDeclaration> extends Reference implements Reference.Namespace, ResolvableReference {
 
 	/**
 	 * The global name space associated with all APAM components. 

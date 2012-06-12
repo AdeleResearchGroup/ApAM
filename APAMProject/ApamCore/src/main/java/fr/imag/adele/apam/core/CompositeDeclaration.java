@@ -17,7 +17,7 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     /**
      * The main implementation of the composite
      */
-    private final ImplementationReference<?> mainImplementation;
+    private final ComponentReference<?> mainComponent;
     
     /**
      * The list of owned components
@@ -54,12 +54,12 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	 */
 	private final List<ReleaseDeclaration> releases;
 	
-    public CompositeDeclaration(String name, SpecificationReference specification, ImplementationReference<?> mainImplementation, String initialState, List<String> states) {
+    public CompositeDeclaration(String name, SpecificationReference specification, ComponentReference<?> mainComponent, String initialState, List<String> states) {
         super(name, specification);
 
-        assert mainImplementation != null;
+        assert mainComponent != null;
 
-        this.mainImplementation = mainImplementation;
+        this.mainComponent 		= mainComponent;
         this.states				= states;
         this.initialState		= initialState;
 
@@ -93,8 +93,8 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     /**
      * Get the main implementation
      */
-    public ImplementationReference<?> getMainImplementation() {
-        return mainImplementation;
+    public ComponentReference<?> getMainComponent() {
+        return mainComponent;
     }
 
     /**
@@ -149,7 +149,7 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     @Override
     public String toString() {
         String ret = "\nComposite declaration " + super.toString();
-        ret += "\n   Main Implementation: " + mainImplementation.getIdentifier();
+        ret += "\n   Main Implementation: " + mainComponent.getIdentifier();
         return ret;
     }
 

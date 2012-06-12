@@ -13,7 +13,7 @@ public enum MissingPolicy {
 	 * The default policy is just to ignore this event. If a client uses the dependency a null 
 	 * reference will be returned to the calling thread.
 	 */
-	NOTHING,
+	OPTIONAL,
 	
 	/**
 	 * Automatically recreates the wire for resolving the dependency when a suitable instance is
