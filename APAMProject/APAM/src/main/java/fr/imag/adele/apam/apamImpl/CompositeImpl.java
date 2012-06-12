@@ -12,6 +12,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apform.Apform;
+import fr.imag.adele.apam.apform.ApformInstance;
 
 public class CompositeImpl extends InstanceImpl implements Composite {
 
@@ -44,9 +45,10 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     }
 
     public CompositeImpl(CompositeType compType, Composite instCompo, Instance externalMainInst,
-            Map<String, Object> initialproperties) {
-        // First create the composite, as an ASMInst empty
-        super();
+            Map<String, Object> initialproperties, ApformInstance apfInst) {
+        // First create the composite, as a normal instance
+        super(compType, instCompo, initialproperties, apfInst);
+        // super () ;
 
         if (instCompo == null)
             instCompo = CompositeImpl.rootComposite;
@@ -81,7 +83,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
             myRootComposite = instCompo.getRootComposite();
 
         // terminate the ASMInst initialisation
-        instConstructor(compType, instCompo, initialproperties, mainInst.getApformInst());
+        // instConstructor(compType, instCompo, initialproperties, mainInst.getApformInst());
     }
 
     /**
@@ -108,6 +110,15 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         return CompositeImpl.composites.get(name);
     }
 
+    /**
+     * Overrides the instance method. A composite has no object, returns the main instance object
+     */
+    @Override
+    public Object getServiceObject() {
+        assert (mainInst != null);
+        return mainInst.getApformInst().getServiceObject();
+    }
+
     @Override
     public String getName() {
         return name;
@@ -120,11 +131,12 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
     public static Composite createComposite(CompositeType compType, Composite instCompo,
             Map<String, Object> initialproperties) {
-        if (compType == null) {
-            System.err.println("ERROR :  missing type in createComposite");
-            return null;
-        }
-        return new CompositeImpl(compType, instCompo, null, initialproperties);
+        assert (compType != null);
+
+        if (instCompo == null)
+            instCompo = CompositeImpl.rootComposite;
+        ApformInstance apfInst = compType.getApformImpl().createInstance(initialproperties);
+        return new CompositeImpl(compType, instCompo, null, initialproperties, apfInst);
     }
 
     @Override

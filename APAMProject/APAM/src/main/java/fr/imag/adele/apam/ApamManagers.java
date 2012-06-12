@@ -214,19 +214,19 @@ public class ApamManagers {
         }
     }
 
-    public static void notifyDisappeared(Instance lostInst) {
-        for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.removedFromApam(lostInst);
-        }
-    }
-
     public static void notifyAddedInApam(Implementation newImpl) {
         for (DynamicManager manager : ApamManagers.dynamicManagers) {
             manager.addedInApam(newImpl);
         }
     }
 
-    public static void notifyDisappeared(Implementation lostImpl) {
+    public static void notifyRemovedFromApam(Instance lostInst) {
+        for (DynamicManager manager : ApamManagers.dynamicManagers) {
+            manager.removedFromApam(lostInst);
+        }
+    }
+
+    public static void notifyRemovedFromApam(Implementation lostImpl) {
         for (DynamicManager manager : ApamManagers.dynamicManagers) {
             manager.removedFromApam(lostImpl);
         }

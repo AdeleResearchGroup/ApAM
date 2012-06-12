@@ -27,7 +27,10 @@ import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
+import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.core.TargetDeclaration;
 
 //import fr.imag.adele.sam.Implementation;
 
@@ -74,14 +77,14 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * 
      * @param fromCompo. the father composite type. is null for root composites.
      * @param compositeName. unique name.
-     * @param mainImpl. the main implementation.
+     * @param mainImplName. the name of either the main implementation or the spec of its main implem.
      * @param models. the models. Can be null.
      * @param attributes. initial properties. Can be null.
      */
     private CompositeTypeImpl(CompositeType fromCompo, String nameCompo, ApformImplementation apfCompo,
             String mainImplName,
             Implementation mainImpl, Set<ManagerModel> models, Map<String, Object> attributes, String specName) {
-        // the composite itself as an ASMImpl. Warning created empty. Must be fully initialized.
+        // the composite itself as an implementation. Warning created empty. Must be fully initialized.
         super();
         name = nameCompo;
 
@@ -97,50 +100,34 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         } else
             models = Collections.emptySet();
 
-        if (mainImpl == null) {
+        if (mainImpl == null) { // normal case
             mainImpl = ApamResolver.findImplByName(this, mainImplName);
             if (mainImpl == null) {
-                System.err.println("cannot find main implementation " + mainImplName);
-                return;
+                mainImpl = ApamResolver.resolveSpecByName(this, mainImplName, null, null);
+                if (mainImpl == null) {
+                    System.err.println("cannot find main implementation " + mainImplName);
+                    return;
+                }
             }
         }
 
         // Spec and interface consistency checking
         if (specName != null) {
-            // check if mainImpl really implements the composite spec;
             Specification spec = CST.SpecBroker.getSpec(specName);
-            if (spec != mainImpl.getSpec()) {
+            if (spec == null) {
+                System.err.println("No specification for composite " + nameCompo);
+                new Exception("No specification for composite " + nameCompo).printStackTrace();
+            }
+            // check if mainImpl really implements the composite type resources;
+            Set<ResourceReference> mainImplSpec = mainImpl.getApformImpl().getDeclaration().getProvidedResources();
+            // Should never happen, checked at compile time.
+            if (!mainImplSpec.containsAll(spec.getDeclaration().getProvidedResources())) {
                 System.err.println("ERROR: Invalid main implementation " + mainImpl + " for composite type "
-                        + name +
-                        ". Specification should be " + specName + " and not " + mainImpl.getSpec());
+                        + name + "Main implementation Provided resources " + mainImplSpec
+                        + "do no provide all the expected resources : " + spec.getDeclaration().getProvidedResources());
             } else
                 ((SpecificationImpl) mainImpl.getSpec()).setName(specName);
         }
-
-        // if the spec has been formally defined, check if the provided resources of the specification
-        // are really provided by the mainImplementation
-        //            if (spec.getApformSpec() != null) { // This spec has been formally described and deployed.
-        // 
-        //            	// we could do this
-        //            	//mainImpl.getApformImpl().getModel().getProvidedResources().containsAll( spec.getApformSpec().getModel().getProvidedResources());
-        //            	
-        //            	for (ResourceReference specProvided : spec.getApformSpec().getDeclaration().getProvidedResources()) {
-        //
-        //            		if (! mainImpl.getApformImpl().getDeclaration().isProvided(specProvided)) {
-        //                    	
-        //                        System.err.print("ERROR: Invalid main implementation " + mainImpl + " for composite type "
-        //                                + name + "\nExpected provided resources:");
-        //                        for (String i : spec.getInterfaceNames())
-        //                            System.err.print("  " + i);
-        //                        System.err.print("\n                  Found:");
-        //                        for (String i : mainInterfs)
-        //                            System.err.print("  " + i);
-        //                        System.err.println("\n");
-        //                        break;
-        //                    }
-        //                }
-        //            }
-        //        }
 
         this.models = models;
         mySpec = mainImpl.getSpec();
@@ -149,7 +136,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         if (apfCompo != null) {
             apfImpl = apfCompo;
         } else {
-            apfImpl = new ApformComposite(name, mainImpl, attributes);
+            apfImpl = new ApformCompositeImpl(name, mainImpl, attributes);
         }
 
         declaration = apfImpl.getDeclaration(); 
@@ -182,13 +169,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      */
 
     public static CompositeType createCompositeType(CompositeType fromCompo, String name, String mainImplName,
-            String specName,
-            Set<ManagerModel> models, Map<String, Object> attributes) {
+            String specName, Set<ManagerModel> models, Map<String, Object> attributes) {
 
-        if (mainImplName == null) {
-            new Exception("ERROR : main implementation Name missing").printStackTrace();
-            return null;
-        }
+        assert (mainImplName != null) ;
         if (CompositeTypeImpl.compositeTypes.get(name) != null) {
             System.err.println("Composite type " + name + " allready existing");
             return null;
@@ -197,12 +180,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             fromCompo = CompositeTypeImpl.rootCompoType;
             if (attributes == null)
                 attributes = new ConcurrentHashMap<String, Object>();
-            //            attributes.put(CST.A_VISIBLE, CST.V_LOCAL);
         }
-        //    private CompositeTypeImpl(CompositeType fromCompo, String nameCompo, ApformImplementation apfCompo,
-        //        String mainImplName,
-        //        Implementation mainImpl, Set<ManagerModel> models, Map<String, Object> attributes, String specName) {
-
         return new CompositeTypeImpl(fromCompo, name, (ApformImplementation)null, mainImplName, (Implementation)null, models,
                 attributes, specName);
     }
@@ -216,11 +194,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * @return
      */
     public static CompositeType createCompositeType(CompositeType implComposite, ApformImplementation apfImpl) {
-
-        if (apfImpl == null) {
-            new Exception("ERROR : the composite apform object is null").printStackTrace();
-            return null;
-        }
+        assert (apfImpl != null);
 
         if (! (apfImpl.getDeclaration() instanceof CompositeDeclaration)) {
             new Exception("ERROR : the apform object is not a composite "+apfImpl).printStackTrace();
@@ -239,7 +213,6 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
         if (implComposite == null) {
             implComposite = CompositeTypeImpl.rootCompoType;
-            //            properties.put(CST.A_VISIBLE, CST.V_LOCAL);
         }
 
         if (properties == null) {
@@ -257,131 +230,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
         return new CompositeTypeImpl(implComposite, apfImpl.getDeclaration().getName(), apfImpl, mainComponentName,
                 (Implementation) null, models, properties, specName);
-        // TODO check dependencies : those of apfImpl, and mainImpl.
     }
 
-    //    public String getScopeInComposite(Instance inst) {
-    //        String overload = getScopeOverload(inst);
-    //        return CompositeTypeImpl.getEffectiveScope((String) inst.get(CST.A_SCOPE), overload);
-    //    }
-
-    //    private String getScopeOverload(Instance inst) {
-    //        // the last scope for error message
-    //        String s = "";
-    //        String name = inst.getSpec().getName();
-    //        try {
-    //            String[] localScope = (String[]) get(CST.A_LOCALSCOPE);
-    //            if (localScope != null) {
-    //                for (String scope : localScope) {
-    //                    s = scope;
-    //                    if (name.matches(scope)) {
-    //                        System.out.println("overloaded local scope for " + name + " (" + inst + ") in composite type "
-    //                                + this
-    //                                + "  matching \"" + s + "\"");
-    //                        return CST.V_LOCAL;
-    //                    }
-    //                }
-    //            }
-    //            String[] compositeScope = (String[]) get(CST.A_COMPOSITESCOPE);
-    //            if (compositeScope != null) {
-    //                for (String scope : compositeScope) {
-    //                    s = scope;
-    //                    if (name.matches(scope)) {
-    //                        System.out.println("overloaded composite scope for " + name + " (" + inst
-    //                                + ") in composite type " + this
-    //                                + "  matching \"" + s + "\"");
-    //                        return CST.V_COMPOSITE;
-    //                    }
-    //                }
-    //            }
-    //            String[] appliScope = (String[]) get(CST.A_APPLISCOPE);
-    //            if (appliScope != null) {
-    //                for (String scope : appliScope) {
-    //                    s = scope;
-    //                    if (name.matches(scope)) {
-    //                        System.out.println("overloaded appli scope for " + name + " (" + inst + ") in composite type "
-    //                                + this
-    //                                + "  matching \"" + s + "\"");
-    //                        return CST.V_APPLI;
-    //                    }
-    //                }
-    //            }
-    //        } catch (PatternSyntaxException e) {
-    //            System.err.println("invalid scope expression : " + s);
-    //        }
-    //        return null;
-    //    }
-
-    /**
-     * return the
-     * 
-     * @param impl
-     * @return
-     */
-    //    public String getVisibleInCompoType(Implementation impl) {
-    //        String overload = getImplOverload(impl);
-    //        return CompositeTypeImpl.getEffectiveScope((String) impl.get(CST.A_VISIBLE), overload);
-    //    }
-    //
-    //    private String getImplOverload(Implementation impl) {
-    //        // the last scope for error message
-    //        String s = "";
-    //        String name = impl.getSpec().getName();
-    //        try {
-    //            String[] localVisible = (String[]) get(CST.A_LOCALVISIBLE);
-    //            if (localVisible != null) {
-    //                for (String visible : localVisible) {
-    //                    s = visible;
-    //                    if (name.matches(visible)) {
-    //                        System.out.println("overloaded local visible for " + name + " (" + impl
-    //                                + ") in composite type " + this
-    //                                + "  matching \"" + s + "\"");
-    //                        return CST.V_LOCAL;
-    //                    }
-    //                }
-    //            }
-    //            String[] compositeVisible = (String[]) get(CST.A_COMPOSITEVISIBLE);
-    //            if (compositeVisible != null) {
-    //                for (String visible : compositeVisible) {
-    //                    s = visible;
-    //                    if (name.matches(visible)) {
-    //                        System.out.println("overloaded composite visible for " + name + " (" + impl
-    //                                + ") in composite type " + this
-    //                                + "  matching \"" + s + "\"");
-    //                        return CST.V_COMPOSITE;
-    //                    }
-    //                }
-    //            }
-    //        } catch (PatternSyntaxException e) {
-    //            System.err.println("invalid visibility expression : " + s);
-    //        }
-    //        return null;
-    //    }
-
-    //    /**
-    //     * Provided the scope of an object, and the value that can overload it (from the composite)
-    //     * return what has to be the effective scope.
-    //     * The overload can only reduce the object scope.
-    //     * If scope is null it is assumed to be global; if overload is null it is assumed to be missing.
-    //     */
-    //    private static String getEffectiveScope(String scope, String overload) {
-    //        if (scope == null)
-    //            scope = CST.V_GLOBAL;
-    //
-    //        if ((overload == null) || overload.equals(CST.V_GLOBAL))
-    //            return scope;
-    //
-    //        if (overload.equals(CST.V_LOCAL) || scope.equals(CST.V_LOCAL))
-    //            return CST.V_LOCAL;
-    //
-    //        if (overload.equals(CST.V_APPLI))
-    //            return (scope.equals(CST.V_GLOBAL)) ? CST.V_APPLI : scope;
-    //
-    //        if (overload.equals(CST.V_COMPOSITE))
-    //            return CST.V_COMPOSITE;
-    //
-    //        return CST.V_GLOBAL;
-    //    }
 
     /**
      * Creates a composite from an URL leading to a bundle containing either the main implem, or the url of the
@@ -400,6 +250,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      */
     public static CompositeType createCompositeType(CompositeType fromCompo, String name, Set<ManagerModel> models,
             String implName, URL url, String specName, Map<String, Object> properties) {
+        assert (specName != null);
 
         Implementation mainImpl;
         if (fromCompo == null) {
@@ -433,7 +284,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     @Override
     public Instance createInst(Composite instCompo, Map<String, Object> initialproperties) {
         // Composite comp = CompositeImpl.createComposite(this, instCompo, initialproperties);
-        return new CompositeImpl(this, instCompo, null, initialproperties);
+        assert (instCompo != null);
+        // TODO check if apfImpl.createInstance(initialproperties)); is correct
+        return new CompositeImpl(this, instCompo, null, initialproperties, apfImpl.createInstance(initialproperties));
     }
 
     @Override
@@ -463,11 +316,17 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         return imports.remove(destination);
     }
 
+    /**
+     * A new implementation is added in the composite type.
+     * It has to be notified to the dynamic managers (an implementaiton appeared).
+     * 
+     * @param destination
+     */
     public void addEmbedded(CompositeType destination) {
         embedded.add(destination);
-        if (this == CompositeTypeImpl.rootCompoType)
-            return;
-        ((CompositeTypeImpl) destination).addInvEmbedded(this);
+        if (this != CompositeTypeImpl.rootCompoType)
+            ((CompositeTypeImpl) destination).addInvEmbedded(this);
+        ApamManagers.notifyAddedInApam(this);
     }
 
     public boolean removeEmbedded(CompositeType destination) {
@@ -567,12 +426,57 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         return name;
     }
 
-    private class ApformComposite implements ApformImplementation {
+    private class ApformComposite implements ApformInstance {
+
+        private InstanceDeclaration declaration;
+        private Instance            instance;
+
+        public ApformComposite() {
+        }
+
+        @Override
+        public InstanceDeclaration getDeclaration() {
+            return declaration;
+        }
+
+        @Override
+        public Object getServiceObject() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public boolean setWire(Instance destInst, String depName) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public boolean remWire(Instance destInst, String depName) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void setInst(Instance asmInstImpl) {
+            instance = asmInstImpl;
+            declaration = new InstanceDeclaration(instance.getImpl().getApformImpl().getDeclaration().getReference(),
+                    instance.getName(), null);
+        }
+    }
+
+    private class ApformCompositeImpl implements ApformImplementation {
 
         private final CompositeDeclaration declaration;
         private final ApformSpecification specification;
 
-        public ApformComposite(String name, Implementation mainImplem,
+        public ApformCompositeImpl(String name, Implementation mainImplem,
                 Map<String, Object> attributes) {
 
             specification = mainImplem.getSpec().getApformSpec();
@@ -594,7 +498,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
         @Override
         public ApformInstance createInstance(Map<String, Object> initialproperties) {
-            return null;
+            return new ApformComposite();
         }
 
         @Override

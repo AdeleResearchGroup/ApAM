@@ -92,7 +92,7 @@ public class ApamResolver {
 
         CompositeType newCompoT = CompositeTypeImpl.createCompositeType(null, newName, mainImplem.getName(), null,
                 null, null);
-        return new CompositeImpl(newCompoT, null, mainInst, null);
+        return new CompositeImpl(newCompoT, null, mainInst, null, newCompoT.getApformImpl().createInstance(null));
     }
 
     /**
@@ -150,7 +150,7 @@ public class ApamResolver {
                 return null;
             }
 
-            inst = ApamResolver.resolveImpl(compo, impl, dependency);
+            inst = ApamResolver.resolveImpl(client, compo, impl, dependency);
         }
         //                    Util.toFilter(dependency.getInstanceConstraints()),
         //                    Util.toFilterList(dependency.getInstancePreferences()));

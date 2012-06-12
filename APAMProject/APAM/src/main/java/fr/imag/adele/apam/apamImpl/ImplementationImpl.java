@@ -19,6 +19,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
@@ -40,13 +41,6 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     protected Set<Instance>             instances         = new HashSet<Instance>();      // the instances
     protected Set<Instance>             sharableInstances = new HashSet<Instance>();      // the sharable instances
 
-    /**
-     * Instantiate a new service implementation.
-     */
-    // used ONLY when creating a composite type
-    protected ImplementationImpl() {
-    }
-
     @Override
     public boolean equals(Object o) {
         return (this == o);
@@ -57,17 +51,46 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         return id.hashCode();
     }
 
-    public ImplementationImpl(CompositeType compo, SpecificationImpl spec, ApformImplementation impl,
-            Map<String, Object> props) {
-        assert (impl != null);
+    /**
+     * Instantiate a new service implementation.
+     */
+    // used ONLY when creating a composite type
+    protected ImplementationImpl() {
+    }
+
+    public ImplementationImpl(CompositeType compo, String specName, ApformImplementation apfImpl, Map<String, Object> props) {
+        assert ((apfImpl  != null) || (specName != null));
         assert (compo != null);
 
-        name = impl.getDeclaration().getName(); // warning, for composites, it is a different name. Overloaded in createCOmpositeType
+        // specification control. Spec usually does not exist in Apform, but we need to create one anyway.
+        SpecificationImpl spec = null;
+        ApformSpecification apfSpec = null;
+        if (apfImpl != null) {
+            apfSpec = apfImpl.getSpecification();
+            if (apfSpec != null) { // may be null !
+                spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfSpec);
+            }
+        } else {
+            spec = (SpecificationImpl) CST.SpecBroker.getSpec(specName) ;
+        }
+        if ((spec == null) && (specName != null)) // No ASM spec related to the apf spec.
+            spec = (SpecificationImpl) CST.SpecBroker.getSpec(specName);
+        if (spec == null)
+            spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfImpl.getDeclaration().getProvidedResources());
+        if (spec == null) {
+            if (specName == null) { // create an arbitrary name, and give the impl interface.
+                // TODO warning, it is an approximation, impl may have more interfaces than its spec
+                specName = apfImpl.getDeclaration().getName() + "_spec";
+            }
+            spec = new SpecificationImpl(specName, apfSpec, apfImpl.getDeclaration().getProvidedResources(), props);
+        }
+
+        name = apfImpl.getDeclaration().getName(); // warning, for composites, it is a different name. Overloaded in createCompositeType
         put(CST.A_IMPLNAME, name);
         mySpec = spec;
         spec.addImpl(this);
         ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
-        apfImpl = impl;
+        this.apfImpl = apfImpl;
         initializeNewImpl(compo, props);
 
     }
@@ -93,7 +116,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     }
 
     /**
-     * From an implementation, create an instance. Creates both the SAM and ASM instances with the same properties.
+     * From an implementation, create an instance. Creates both the apform and ASM instances.
      * 
      * @throws IllegalArgumentException
      * @throws UnsupportedOperationException
@@ -106,9 +129,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
             return null;
         }
         ApformInstance apfInst = apfImpl.createInstance(initialproperties);
-        // if it is a composite. Not sure it is ever caller here.
-        boolean composite = getApformImpl().getDeclaration() instanceof CompositeDeclaration;
-        InstanceImpl inst = new InstanceImpl(this, instCompo, initialproperties, apfInst, composite);
+        InstanceImpl inst = new InstanceImpl(this, instCompo, initialproperties, apfInst);
         return inst;
     }
 
@@ -249,10 +270,10 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
             insts = getSharableInsts(constraints);
         } else
             insts = sharableInstances;
-        
+
         if (insts.isEmpty())
-        	return null;
-        
+            return null;
+
         if ((constraints == null) || constraints.isEmpty())
             return ((Instance) insts.toArray()[0]);
 
@@ -409,6 +430,6 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
 
     @Override
     public ImplementationDeclaration getImplDeclaration() {
-        return (ImplementationDeclaration) declaration;
+        return declaration;
     }
 }

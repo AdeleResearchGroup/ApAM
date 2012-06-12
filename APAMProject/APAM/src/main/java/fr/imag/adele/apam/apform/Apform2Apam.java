@@ -18,7 +18,7 @@ import fr.imag.adele.apam.apamImpl.ImplementationBrokerImpl;
 import fr.imag.adele.apam.apamImpl.SpecificationImpl;
 
 public class Apform2Apam {
-//    static Set<String>  expectedDeployedImpls = new HashSet<String>();
+    //    static Set<String>  expectedDeployedImpls = new HashSet<String>();
 
     static final CompositeType    rootType      = CompositeTypeImpl.getRootCompositeType();
     static final Composite        rootInst      = CompositeImpl.getRootAllComposites();
@@ -111,13 +111,13 @@ public class Apform2Apam {
 
         @Override
         public void process() {
-        	
+
             String implementationName = instance.getDeclaration().getImplementation().getName();
             if (CST.ImplBroker.getImpl(implementationName) == null)
                 Apform2Apam.waitForDeployedImplementation(implementationName);
-            
+
             Instance inst = CST.InstBroker.addInst(Apform2Apam.rootInst, instance, instance.getDeclaration().getProperties());
-            
+
             /*
              * Notify dynamic manager of instance appearance
              */
@@ -167,8 +167,9 @@ public class Apform2Apam {
              * 
              * TODO How to know in which composite type the implementation was deployed
              */
-            ApamManagers.notifyDeployed(impl.getInCompositeType().iterator().next(), impl);
-            
+            //            ApamManagers.notifyDeployed(impl.getInCompositeType().iterator().next(), impl);
+            //            ApamManagers.notifyR(impl.getInCompositeType().iterator().next(), impl);
+
         }
 
     }
@@ -200,7 +201,7 @@ public class Apform2Apam {
             }
 
             spec = CST.SpecBroker.addSpec(specificationName, specification, specification.getDeclaration().getProperties());
-            
+
             // wake up any threads waiting for this specification to be deployed
             synchronized (Apform2Apam.expectedSpecs) {
                 if (Apform2Apam.expectedSpecs.contains(specificationName)) { // it is expected
@@ -247,13 +248,13 @@ public class Apform2Apam {
         /*
          * Notify dynamic manager of instance disappearance
          */
-    	
-    	Instance inst = CST.InstBroker.getInst(instanceName);
-    	if (inst == null) {
+
+        Instance inst = CST.InstBroker.getInst(instanceName);
+        if (inst == null) {
             System.err.println("Vanish instance does not exists: " + instanceName);
-    		return;
-    	}
-        ApamManagers.notifyDisappeared(inst);
+            return;
+        }
+        ApamManagers.notifyRemovedFromApam(inst);
     }
 
     /**
@@ -265,13 +266,15 @@ public class Apform2Apam {
         /*
          * Notify dynamic manager of implementation uninstall
          */
-    	Implementation impl = CST.ImplBroker.getImpl(implementationName);
-    	if (impl == null) {
+        Implementation impl = CST.ImplBroker.getImpl(implementationName);
+        if (impl == null) {
             System.err.println("Vanish implementation does not exists: " + implementationName);
-    		return;
-    	}
-    	
-        ApamManagers.notifyUninstalled(impl.getInCompositeType().iterator().next(), impl);
+            return;
+        }
+
+
+//        ApamManagers.notifyVanished(impl.getInCompositeType().iterator().next(), impl);
+        ApamManagers.notifyRemovedFromApam(impl);
 
     }
 

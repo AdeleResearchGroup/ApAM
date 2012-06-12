@@ -26,6 +26,12 @@ public interface Composite extends Instance {
     public CompositeType getCompType();
 
     /**
+     * Overrides the instance method. Instead to return apfor.getserviceobject, return the main instance object
+     */
+    @Override
+    public Object getServiceObject();
+
+    /**
      * Adds a new depend relationship toward "destination"
      * 
      * @param destination

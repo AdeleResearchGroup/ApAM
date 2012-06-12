@@ -13,6 +13,7 @@ import org.osgi.framework.InvalidSyntaxException;
 //import fr.imag.adele.am.eventing.AMEventingHandler;
 //import fr.imag.adele.am.eventing.EventingEngine;
 //import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ImplementationBroker;
 import fr.imag.adele.apam.Instance;
@@ -35,26 +36,26 @@ public class InstanceBrokerImpl implements InstanceBroker {
     private final Set<Instance>               sharableInstances = new HashSet<Instance>();
 
     // EVENTS
-//    private SamInstEventHandler        instEventHandler;
+    //    private SamInstEventHandler        instEventHandler;
 
     public InstanceBrokerImpl() {
-//        try {
-//            Machine machine = LocalMachine.localMachine;
-//            EventingEngine eventingEngine = machine.getEventingEngine();
-//            instEventHandler = new SamInstEventHandler();
-//            eventingEngine.subscribe(instEventHandler, EventProperty.TOPIC_INSTANCE);
-//        } catch (Exception e) {
-//        }
+        //        try {
+        //            Machine machine = LocalMachine.localMachine;
+        //            EventingEngine eventingEngine = machine.getEventingEngine();
+        //            instEventHandler = new SamInstEventHandler();
+        //            eventingEngine.subscribe(instEventHandler, EventProperty.TOPIC_INSTANCE);
+        //        } catch (Exception e) {
+        //        }
     }
 
-//    public void stopSubscribe(AMEventingHandler handler) {
-//        try {
-//            Machine machine = LocalMachine.localMachine;
-//            EventingEngine eventingEngine = machine.getEventingEngine();
-//            eventingEngine.unsubscribe(handler, EventProperty.TOPIC_INSTANCE);
-//        } catch (Exception e) {
-//        }
-//    }
+    //    public void stopSubscribe(AMEventingHandler handler) {
+    //        try {
+    //            Machine machine = LocalMachine.localMachine;
+    //            EventingEngine eventingEngine = machine.getEventingEngine();
+    //            eventingEngine.unsubscribe(handler, EventProperty.TOPIC_INSTANCE);
+    //        } catch (Exception e) {
+    //        }
+    //    }
 
     @Override
     public Instance getInst(String instName) {
@@ -113,10 +114,8 @@ public class InstanceBrokerImpl implements InstanceBroker {
 
     @Override
     public Instance addInst(Composite instComposite, ApformInstance apfInst, Map properties) {
-        if (apfInst == null) {
-            System.out.println("No instance provided for add Instance");
-            return null;
-        }
+        assert (apfInst != null);
+
         Implementation impl = null;
         Instance inst;
         inst = CST.InstBroker.getInst(apfInst.getDeclaration().getName());
@@ -125,24 +124,24 @@ public class InstanceBrokerImpl implements InstanceBroker {
             System.err.println("Instance already existing: " + inst);
             return inst;
         }
-        
+
         String implementationName = apfInst.getDeclaration().getImplementation().getName();
         impl = CST.ImplBroker.getImpl(implementationName);
         if (impl == null) { // create the implem also
             System.err.println("Implementation is not existing in addInst: " + implementationName);
-//            impl = ASMInstBrokerImpl.implBroker.addImpl(instComposite.getCompType(),
-//                        apfInst.getImplemName(), properties);
+            //            impl = ASMInstBrokerImpl.implBroker.addImpl(instComposite.getCompType(),
+            //                        apfInst.getImplemName(), properties);
         }
 
         // Normally composite implementations are visible but they can not be instantiated.
         // The only way to create an instance of a composite should be using APAM.
         if (impl instanceof CompositeType) {
             System.err.println("Error, trying to activate composite instance " + impl
-                        + " without using the APAM API");
+                    + " without using the APAM API");
             return null;
         }
 
-        inst = new InstanceImpl(impl, instComposite, null, apfInst, false);
+        inst = new InstanceImpl(impl, instComposite, null, apfInst);
         return inst;
     }
 
@@ -150,6 +149,7 @@ public class InstanceBrokerImpl implements InstanceBroker {
     public void addInst(Instance inst) {
         if ((inst != null) && !instances.contains(inst)) {
             instances.add(inst);
+            ApamManagers.notifyAddedInApam(inst);
             ((ImplementationImpl) inst.getImpl()).addInst(inst);
             if (inst.isSharable())
                 sharableInstances.add(inst);
@@ -162,6 +162,7 @@ public class InstanceBrokerImpl implements InstanceBroker {
             return;
         if (instances.contains(inst)) {
             instances.remove(inst);
+            ApamManagers.notifyRemovedFromApam(inst);
             sharableInstances.remove(inst);
             ((InstanceImpl) inst).remove(); // wires and sam attributes
             ((ImplementationImpl) inst.getImpl()).removeInst(inst);

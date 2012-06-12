@@ -47,9 +47,9 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     private final Set<Wire>   wires            = new HashSet<Wire>(); // the currently used instances
     private final Set<Wire>   invWires         = new HashSet<Wire>();
 
-    // WARNING to be used only for creating composites.
-    //    public InstanceImpl() {
-    //    }
+    // WARNING to be used only for empty root composite.
+    public InstanceImpl() {
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -79,7 +79,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     }
 
     public InstanceImpl(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
-            ApformInstance apformInst, boolean composite) {
+            ApformInstance apformInst) {
         // Create the implementation and initialize
         instConstructor(impl, instCompo, initialproperties, apformInst);
         apformInst.setInst(this);

@@ -10,6 +10,8 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 //import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ImplementationBroker;
 import fr.imag.adele.apam.Specification;
@@ -43,8 +45,10 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
     // Not in the interface. No control
     @Override
     public void removeImpl(Implementation impl) {
-        if (impl != null)
-            implems.remove(impl);
+        assert (impl != null);
+
+        implems.remove(impl);
+        ApamManagers.notifyRemovedFromApam(impl);
     }
 
     @Override
@@ -96,33 +100,30 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
             return asmImpl;
         }
 
-        // specification control. Spec usually does not exist in Apform, but we need to create one anyway.
-        ApformSpecification apfSpec = apfImpl.getSpecification();
-        SpecificationImpl spec = null;
-        if (apfSpec != null) { // may be null !
-            spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfSpec);
-        }
-        if ((spec == null) && (specName != null)) // No ASM spec related to the apf spec.
-            spec = (SpecificationImpl) CST.SpecBroker.getSpec(specName);
-        if (spec == null)
-            spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfImpl.getDeclaration().getProvidedResources());
-        if (spec == null) {
-            if (specName == null) { // create an arbitrary name, and give the impl interface.
-                // TODO warning, it is an approximation, impl may have more interfaces than its spec
-                specName = implName + "_spec";
-            }
-            spec = new SpecificationImpl(specName, apfSpec, apfImpl.getDeclaration().getProvidedResources(), properties);
-        }
-
-        //        if (specName != null)
-        //            spec.setName(specName);
+        //        // specification control. Spec usually does not exist in Apform, but we need to create one anyway.
+        //        ApformSpecification apfSpec = apfImpl.getSpecification();
+        //        SpecificationImpl spec = null;
+        //        if (apfSpec != null) { // may be null !
+        //            spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfSpec);
+        //        }
+        //        if ((spec == null) && (specName != null)) // No ASM spec related to the apf spec.
+        //            spec = (SpecificationImpl) CST.SpecBroker.getSpec(specName);
+        //        if (spec == null)
+        //            spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfImpl.getDeclaration().getProvidedResources());
+        //        if (spec == null) {
+        //            if (specName == null) { // create an arbitrary name, and give the impl interface.
+        //                // TODO warning, it is an approximation, impl may have more interfaces than its spec
+        //                specName = implName + "_spec";
+        //            }
+        //            spec = new SpecificationImpl(specName, apfSpec, apfImpl.getDeclaration().getProvidedResources(), properties);
+        //        }
 
         // create a primitive or composite implementation
         if (apfImpl.getDeclaration() instanceof CompositeDeclaration) {
             // Allow specifying properties to the composite instance
             asmImpl = CompositeTypeImpl.createCompositeType(compo, apfImpl);
         } else {
-            asmImpl = new ImplementationImpl(compo, spec, apfImpl, properties);
+            asmImpl = new ImplementationImpl(compo, specName, apfImpl, properties);
         }
 
         return asmImpl;
@@ -164,7 +165,8 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
             System.err.println("deployment failed :" + implName + " at URL " + url);
             return null;
         }
-        // ApamResolver.deployedImpl(compo, asmImpl, true);
+
+        // The notification the apparition for the dynamic managers is performed when chained in a composite type.
         return asmImpl;
     }
 
