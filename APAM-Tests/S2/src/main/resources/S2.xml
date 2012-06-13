@@ -1,6 +1,9 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
-	<specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2, xx, tt}" messages="{M1}" >
+<!-- 	
+<specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2, xx, tt}" messages="{M1}" >
+ -->	
+ <specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2}" >
 		<properties>
 		    <property shared="false"/>
 		    <property scope="global"/>
