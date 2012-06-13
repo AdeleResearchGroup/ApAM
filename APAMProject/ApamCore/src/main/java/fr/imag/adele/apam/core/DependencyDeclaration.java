@@ -172,6 +172,7 @@ public class DependencyDeclaration extends TargetDeclaration {
     public String toString() {
         String ret = " dependency id: " + getIdentifier() + ". toward " + getTarget();
         if (! injections.isEmpty()) {
+            ret += "\n         Injected dependencies";
             for (DependencyInjection inj : injections) {
                 ret += "\n         " + inj;
             }

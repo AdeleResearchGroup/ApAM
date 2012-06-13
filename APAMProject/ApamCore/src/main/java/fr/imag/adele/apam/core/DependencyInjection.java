@@ -103,6 +103,11 @@ public abstract class DependencyInjection  {
     			return false;
     		}
     	}
+    	
+    	@Override
+    	public String toString() {
+    		return "field "+getName();
+    	}
 		
     }
 
@@ -143,6 +148,12 @@ public abstract class DependencyInjection  {
     	public boolean isCollection() {
     		return false;
     	}
+    	
+    	@Override
+    	public String toString() {
+    		return "method "+getName();
+    	}
+    	
 		
     }
 
