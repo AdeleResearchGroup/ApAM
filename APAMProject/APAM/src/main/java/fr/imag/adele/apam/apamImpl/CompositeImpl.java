@@ -18,13 +18,13 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
     // Global variable.
     private static Map<String, Composite> composites    = new HashMap<String, Composite>();
-    private static Composite              rootComposite = new CompositeImpl();
+    public static Composite               rootComposite = new CompositeImpl();
 
     private final String                  name;
     private final CompositeType           compType;
     private final Implementation          mainImpl;
     private final Instance                mainInst;
-    private final Composite               myRootComposite;
+    private final Composite               appliComposite;                                  // root of father rel
     private final Set<Instance>           hasInstance   = new HashSet<Instance>();
 
     // the dependencies between composites
@@ -41,17 +41,21 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         mainImpl = null;
         mainInst = null;
         compType = CompositeTypeImpl.getRootCompositeType(this);
-        myRootComposite = null;
+        appliComposite = null;
     }
+
+    //    public static Composite getRootComposite() {
+    //        return CompositeImpl.rootComposite;
+    //    }
 
     public CompositeImpl(CompositeType compType, Composite instCompo, Instance externalMainInst,
             Map<String, Object> initialproperties, ApformInstance apfInst) {
         // First create the composite, as a normal instance
-        super(compType, instCompo == null ? CompositeImpl.rootComposite : instCompo, initialproperties, apfInst);
+        super(compType, instCompo, initialproperties, apfInst);
         // super () ;
 
-        if (instCompo == null)
-            instCompo = CompositeImpl.rootComposite;
+        //        if (instCompo == null)
+        //            instCompo = CompositeImpl.rootComposite;
 
         // initialize as a composite
         this.compType = compType;
@@ -76,11 +80,11 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         hasInstance.add(mainInst);
 
         // if it is a root composite
-        if (instCompo.getRootComposite() == null) {
-            myRootComposite = this;
+        if (instCompo.getAppliComposite() == null) {
+            appliComposite = this;
             father = null;
         } else
-            myRootComposite = instCompo.getRootComposite();
+            appliComposite = instCompo.getAppliComposite();
 
         // terminate the ASMInst initialisation
         // instConstructor(compType, instCompo, initialproperties, mainInst.getApformInst());
@@ -198,8 +202,8 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     }
 
     @Override
-    public Composite getRootComposite() {
-        return myRootComposite;
+    public Composite getAppliComposite() {
+        return appliComposite;
     }
 
     // Composite Dependency management ===============

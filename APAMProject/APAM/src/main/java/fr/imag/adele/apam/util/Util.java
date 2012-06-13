@@ -294,7 +294,7 @@ public class Util {
             if ((friend != null) && Util.checkInstVisibilityExpression(friend, toInst))
                 return true;
         }
-        if (compoFrom.getRootComposite() == toCompo.getRootComposite()) {
+        if (compoFrom.getAppliComposite() == toCompo.getAppliComposite()) {
             String appli = ((String) compoFrom.get(CST.A_APPLIINSTANCE));
             if ((appli != null) && Util.checkInstVisibilityExpression(appli, toInst))
                 return true;

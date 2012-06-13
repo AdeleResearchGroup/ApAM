@@ -364,8 +364,8 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     }
 
     @Override
-    public Composite getRootComposite() {
-        return myComposite.getRootComposite();
+    public Composite getAppliComposite() {
+        return myComposite.getAppliComposite();
     }
 
     @Override

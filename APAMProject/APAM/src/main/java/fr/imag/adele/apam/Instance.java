@@ -18,7 +18,7 @@ public interface Instance extends ConcurrentMap<String, Object> {
     public Composite getComposite();
 
     // The composite at the end of the "father" relationship chain.
-    public Composite getRootComposite();
+    public Composite getAppliComposite();
 
     public String getName();
 
