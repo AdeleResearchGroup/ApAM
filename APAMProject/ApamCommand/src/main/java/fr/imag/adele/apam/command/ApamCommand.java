@@ -284,7 +284,7 @@ public class ApamCommand {
         System.out.println(indent + "Composite " + compo.getName() + " Composite Type : "
                 + compo.getCompType().getName() + " Father : "
                 + compo.getFather());
-        System.out.println(indent + "   In application : " + compo.getRootComposite());
+        System.out.println(indent + "   In application : " + compo.getAppliComposite());
         System.out.print(indent + "   Son composite : ");
         for (Composite comDep : compo.getSons()) {
             System.out.print(comDep.getName() + " ");
@@ -400,7 +400,7 @@ public class ApamCommand {
             System.out.println(indent + "   specification  : " + instance.getSpec());
             System.out.println(indent + "   implementation : " + instance.getImpl());
             System.out.println(indent + "   in composite   : " + instance.getComposite());
-            System.out.println(indent + "   in application : " + instance.getRootComposite());
+            System.out.println(indent + "   in application : " + instance.getAppliComposite());
             printProperties(indent + "   ", instance.getAllProperties());
         }
 
