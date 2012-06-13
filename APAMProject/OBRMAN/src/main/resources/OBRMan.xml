@@ -8,5 +8,5 @@
 	<requires field="repoAdmin" proxy="false"/>
 </component>
 
-<ipojo:instance name="OBRMAN-Instance" component="OBRMAN"/>
+<instance name="OBRMAN-Instance" component="OBRMAN"/>
 </ipojo>

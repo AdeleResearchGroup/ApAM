@@ -43,21 +43,7 @@
 					</instructions>
 				</configuration>
 			</plugin>
-<!-- 			
-			<plugin>
-				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>apam-ipojo-bundle</goal>
-						</goals>						
-					</execution>
-				</executions>
-			</plugin>
-			
- -->			
+		
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-ipojo-plugin</artifactId>
@@ -66,10 +52,7 @@
 						<goals>
 							<goal>ipojo-bundle</goal>
 						</goals>
-<!-- 						<configuration>
-							 <metadata>src/main/resources/</metadata>
-						</configuration>
- -->					</execution>
+					</execution>
 				</executions>
 			</plugin>
 			

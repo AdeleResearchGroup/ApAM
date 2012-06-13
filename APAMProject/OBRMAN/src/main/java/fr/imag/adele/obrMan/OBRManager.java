@@ -52,7 +52,7 @@ public class OBRManager implements IOBRMAN {
                 }
             }
 
-            System.out.println("Started OBRMAN" + defaultLocalRepo);
+            System.out.println("Started OBRMAN " + defaultLocalRepo);
             if (defaultLocalRepo != null) {
                 local = repoAdmin.addRepository(defaultLocalRepo);
             } else {

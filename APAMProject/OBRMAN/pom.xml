@@ -36,15 +36,14 @@
 							Adele/LIG/ Grenoble University, France
 						</Bundle-Vendor>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<Private-Package>
-                				org.apache.felix.utils.*
-           				 </Private-Package>
+        				<Export-Package>fr.imag.adele.obrMan.*</Export-Package>
+						<Private-Package>org.apache.felix.utils.*</Private-Package>
 						
 					</instructions>
 				</configuration>
 			</plugin>
 			
-						<plugin>
+			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-ipojo-plugin</artifactId>
 				<executions>
@@ -52,31 +51,12 @@
 						<goals>
 							<goal>ipojo-bundle</goal>
 						</goals>
-<!-- 						<configuration>
-							 <metadata>src/main/resources/</metadata>
-						</configuration>
- -->					</execution>
-				</executions>
-			</plugin>
-			
-			
-<!-- 			<plugin>
-				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>apam-ipojo-bundle</goal>
-						</goals>						
-						<configuration>
+ 						<configuration>
 							 <metadata>src/main/resources/OBRMan.xml</metadata>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-			
- -->			
 			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
