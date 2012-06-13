@@ -41,6 +41,7 @@ public class OBRMan implements Manager {
 
     // when in Felix.
     public void start() {
+        System.out.println("OBRMAN started");
         ApamManagers.addManager(this, 3);
         OBRMan.obr = new OBRManager(null, repoAdmin);
     }
