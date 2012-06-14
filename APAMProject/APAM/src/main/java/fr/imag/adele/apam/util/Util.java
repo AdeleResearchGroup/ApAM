@@ -97,6 +97,10 @@ public class Util {
         }
         String internal;
         str = str.replaceAll("\\ ", "");
+        str = str.replaceAll(";", ",");
+        str = str.replaceAll("\\[,", "[");
+        str = str.replaceAll(",]", "]");
+
         //        String[] tab = str.split(Util.splitSeparator);
         //    }
 
