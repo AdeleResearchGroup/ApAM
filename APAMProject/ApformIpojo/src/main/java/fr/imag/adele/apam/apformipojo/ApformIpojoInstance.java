@@ -79,17 +79,18 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     	}
     	
     	configuration.put("instance.name",declaration.getName());
-    	/* 
-    	 * TODO we had this guard to avoid  configuring the instance for non instrumented
-    	 * components, but now that composite instances become iPojo instances we try to use
-    	 * it, but may have unexpected effects to test
-    	 * 
-    	 * if (getFactory().hasInstrumentedCode())
-    	 */
     	super.configure(metadata, configuration);
 
     }
 
+	@Override
+	public Object getPojoObject() {
+		if (getFactory().hasInstrumentedCode())
+			return super.getPojoObject();
+		
+		return null;
+	}
+	
 	@Override
 	public InstanceDeclaration getDeclaration() {
 		return declaration;
