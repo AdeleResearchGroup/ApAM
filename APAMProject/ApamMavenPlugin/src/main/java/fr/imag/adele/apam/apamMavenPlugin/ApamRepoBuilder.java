@@ -54,12 +54,12 @@ public class ApamRepoBuilder {
         if ((interfaces != null) && !interfaces.isEmpty()) {
             int l = interfaces.size();
             int i = 1;
-            obrContent.append("      <p n='" + OBR.A_PROVIDE_INTERFACES + "' v='[");
+            obrContent.append("      <p n='" + OBR.A_PROVIDE_INTERFACES + "' v='[;");
             for (InterfaceReference interf : interfaces) {
                 if (i<l)
-                    obrContent.append(interf.getJavaType() + ", ");
+                    obrContent.append(interf.getJavaType() + ";");
                 else
-                    obrContent.append(interf.getJavaType() + "]' /> \n");
+                    obrContent.append(interf.getJavaType() + ";]' /> \n");
                 i++ ;
             }
         }
@@ -68,12 +68,12 @@ public class ApamRepoBuilder {
         if ((messages != null) && !messages.isEmpty()) {
             int l = messages.size();
             int i = 1;
-            obrContent.append("      <p n='" + OBR.A_PROVIDE_MESSAGES + "' v='[");
+            obrContent.append("      <p n='" + OBR.A_PROVIDE_MESSAGES + "' v='[;");
             for (MessageReference mess : messages) {
                 if (i < l)
-                    obrContent.append(mess.getJavaType() + ", ");
+                    obrContent.append(mess.getJavaType() + ";");
                 else
-                    obrContent.append(mess.getJavaType() + "]' /> \n");
+                    obrContent.append(mess.getJavaType() + ";]' /> \n");
                 i++;
             }
         }
@@ -103,12 +103,12 @@ public class ApamRepoBuilder {
             String tempContent = "      <p n='" + OBR.A_DEFINITION_PREFIX + definition.getName() + "'";
             String type = definition.getType();
             if (type != null) {
-                if (type.equals("string") || type.equals("int") || type.equals("bool")) {
+                if (type.equals("string") || type.equals("int") || type.equals("boolean")) {
                     tempContent = tempContent + (" v='" + (definition.getType()) + "'");
                     CheckObr.checkAttrType(definition.getName(), definition.getDefaultValue(), type);
                 } else
                     CheckObr.error("Invalid type " + type + " in attribute definition " + definition.getName()
-                            + ". Supported: string, int, bool.");
+                            + ". Supported: string, int, boolean.");
             }
             tempContent = tempContent + " />\n";
             obrContent.append(tempContent);
