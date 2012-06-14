@@ -1,10 +1,8 @@
 <obr> 
    <capability name='apam-implementation'>
       <p n='name' v='S3Impl' />
-      <p n='provide-interfaces' v='{fr.imag.adele.apam.test.s3.S3_1, fr.imag.adele.apam.test.s3.S3_2}' /> 
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s3.S3_2;fr.imag.adele.apam.test.s3.S3_1;]' /> 
       <p n='provide-specification' v='S3' />
-      <p n='shared' v='true' />
-      <p n='scope' v='local' />
       <p n='test' v='bof' />
    </capability>
 </obr> 

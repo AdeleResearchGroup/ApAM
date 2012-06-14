@@ -1,9 +1,9 @@
 <obr> 
    <capability name='apam-specification'>
       <p n='name' v='S5' />
-      <p n='provide-interfaces' v='[fr.imag.adele.apam.test.s5.S5]' /> 
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s5.S5;]' /> 
       <p n='s5-spec' v='coucous5' />
-      <p n='definition-s5b' v='true' />
-      <p n='definition-s5c' />
+      <p n='definition-s5b' v='boolean' />
+      <p n='definition-s5c' v='string' />
    </capability>
 </obr> 

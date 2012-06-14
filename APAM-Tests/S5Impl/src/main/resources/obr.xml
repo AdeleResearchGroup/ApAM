@@ -1,7 +1,7 @@
 <obr> 
    <capability name='apam-implementation'>
       <p n='name' v='S5Impl' />
-      <p n='provide-interfaces' v='[fr.imag.adele.apam.ApamComponent, fr.imag.adele.apam.test.s5.S5]' /> 
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s5.S5;]' /> 
       <p n='provide-specification' v='S5' />
    </capability>
 </obr> 

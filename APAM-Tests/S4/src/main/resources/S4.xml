@@ -1,11 +1,11 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
 	<specification name="S4" interfaces="{fr.imag.adele.apam.test.s4.S4}" messages="MS4" >
-		<properties shared="false" scope="global">
+		<properties>
 			<property test-spec="coucou" type="string"/>
 		</properties>
 		<definitions>
-			<definition name="b" type="bool" value="true" />
+			<definition name="b" type="boolean" value="true" />
 			<definition name="c" type="string" />
 		</definitions>
 

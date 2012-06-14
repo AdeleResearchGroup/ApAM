@@ -10,7 +10,7 @@
 			<property test-spec="coucou" type="string"/>
 		</properties>
 		<definitions>
-			<definition name="b" type="bool" value="true" />
+			<definition name="b" type="boolean" value="true" />
 			<definition name="c" type="string" />
 			<definition name="Dd" type="int" />
 		</definitions>

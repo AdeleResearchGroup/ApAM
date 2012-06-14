@@ -1,12 +1,13 @@
 <obr> 
    <capability name='apam-specification'>
       <p n='name' v='S3' />
-      <p n='provide-interfaces' v='[fr.imag.adele.apam.test.s3.S3_2, fr.imag.adele.apam.test.s3.S3_1]' /> 
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s3.S3_2;fr.imag.adele.apam.test.s3.S3_1;]' /> 
       <p n='cs3' v='xxx' />
       <p n='bs3' v='yes' />
       <p n='test-deux' v='anotherValue' />
       <p n='definition-x' v='string' />
-      <p n='definition-mybool' v='bool' />
+      <p n='definition-mybool' v='boolean' />
       <p n='definition-a2' v='int' />
+      <p n='require-specification' v='S4' /> 
    </capability>
 </obr> 

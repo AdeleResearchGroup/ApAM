@@ -6,7 +6,7 @@
 			<property zerrt="true" />
 		</properties> 
 		<definitions>
-			<definition name="cczerrt" type="bool" />
+			<definition name="cczerrt" type="boolean" />
 		</definitions>
 		<dependency field="s2" />
 		<dependency field="s4" />

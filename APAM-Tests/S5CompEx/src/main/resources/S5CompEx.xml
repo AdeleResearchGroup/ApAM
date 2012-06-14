@@ -1,6 +1,6 @@
 <ipojo xmlns="fr.imag.adele.apam">
 	<composite name="S5CompEx" mainImplem="S5Impl" specification="S5" interfaces="[fr.imag.adele.apam.test.s5.S5,fr.imag.adele.apam.apamAPI.ApamComponent]">
-		<properties shared="true">
+		<properties>
 			<property myproperty="true"/>
 		</properties>
 	</composite>

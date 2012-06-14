@@ -5,7 +5,7 @@
 			<property S1-Attr="coucou" type="string"/>
 		</properties>
 		<definitions>
-			<definition name="s1b" type="bool" value="true" />
+			<definition name="s1b" type="boolean" value="true" />
 			<definition name="s1c" type="string" />
 		</definitions>
 
