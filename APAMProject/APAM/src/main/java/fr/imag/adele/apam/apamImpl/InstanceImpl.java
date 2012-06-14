@@ -90,11 +90,9 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         myComposite = instCompo;
         myComposite.addContainInst(this);
         apformInst.setInst(this);
-        put(CST.A_INSTNAME, apformInst.getDeclaration().getName());
-        put(CST.A_COMPOSITE, myComposite.getName());
         ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
 
-        //        instConstructor(impl, instCompo, initialproperties, apformInst);
+        put(CST.A_INSTNAME, apformInst.getDeclaration().getName());
         putAll(apformInst.getDeclaration().getProperties());
         put(CST.A_SHARED, getShared());
 
@@ -103,8 +101,11 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
             ((ApamComponent) apformInst.getServiceObject()).apamStart(this);
         }
         //calls Dynaman, for own ....
-        if (instCompo == CompositeImpl.getRootAllComposites()) { //it is an external composite
+        if (instCompo == CompositeImpl.getRootAllComposites()) { // it is a root composite
+            put(CST.A_COMPOSITE, "rootComposite");
             ApamManagers.notifyExternal(this) ;           
+        } else {
+            put(CST.A_COMPOSITE, myComposite.getName());
         }
     }
 

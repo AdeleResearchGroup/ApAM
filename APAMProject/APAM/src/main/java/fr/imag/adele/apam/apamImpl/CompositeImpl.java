@@ -18,7 +18,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
     // Global variable.
     private static Map<String, Composite> composites    = new HashMap<String, Composite>();
-    public static Composite               rootComposite = new CompositeImpl();
+    private static Composite              rootComposite = new CompositeImpl();
 
     private final String                  name;
     private final CompositeType           compType;
@@ -48,6 +48,17 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     //        return CompositeImpl.rootComposite;
     //    }
 
+    //    public CompositeImpl newCompositeImpl (CompositeType compType, Composite instCompo, Instance externalMainInst,
+    //            Map<String, Object> initialproperties, ApformInstance apfInst) {
+    //        if (compType == null) 
+    //            compType = CompositeTypeImpl.createCompositeType(null, newName, mainImplem.getName(), null,
+    //                    null, null);
+    //            if (instCompo == null) {
+    //                instCompo = CompositeImpl.rootComposite;
+    //            }
+    //        return new CompositeImpl (compType, instCompo, externalMainInst, initialproperties, apfInst) ;
+    //    }
+
     public CompositeImpl(CompositeType compType, Composite instCompo, Instance externalMainInst,
             Map<String, Object> initialproperties, ApformInstance apfInst) {
         // First create the composite, as a normal instance
@@ -63,9 +74,9 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
         mainImpl = compType.getMainImpl();
 
-        // if it is a composite created from an unused inst that calls Apam
-        // create the main instance with this composite as container. Do not try to reuse an existing instance.
-        // Each composite has a different main instance
+        // if it is a composite created from an unused inst that calls Apam;
+        // create the main instance with this composite as container.
+        // Each composite has a different main instance; do not try to reuse an existing instance.
         if (externalMainInst == null) { // normal case
             externalMainInst = compType.getMainImpl().createInst(this, initialproperties);
         }

@@ -52,36 +52,35 @@ public class CST {
         CST.A_INTERFACE, CST.A_MESSAGE
     };
 
-    public static final String         A_SPECNAME            = "spec-name";
-    public static final String         A_IMPLNAME            = "impl-name";
-    public static final String         A_INSTNAME            = "ins-name";
-    public static final String         A_INTERFACE           = "interface";
-    public static final String         A_MESSAGE             = "message";
+    public static final String         A_SPECNAME        = "spec-name";
+    public static final String         A_IMPLNAME        = "impl-name";
+    public static final String         A_INSTNAME        = "inst-name";
+    public static final String         A_INTERFACE       = "interface";
+    public static final String         A_MESSAGE         = "message";
     public static final String         A_MAIN_COMPONENT  = "apam-main-component";
     // Value boolean
-    public static final String         A_COMPOSITE           = "apam-composite";
+    public static final String         A_COMPOSITE       = "apam-composite";
 
-
-    public static final String         V_TRUE                = "true";
-    public static final String         V_FALSE               = "false";
+    public static final String         V_TRUE            = "true";
+    public static final String         V_FALSE           = "false";
 
     // Managers
-    public static final String         APAMMAN               = "APAMMAN";
-    public static final String         CONFMAN               = "CONFMAN";
-    public static final String         DYNAMAN               = "DYNAMAN";
-    public static final String         DISTRIMAN             = "DISTRIMAN";
-    public static final String         OBRMAN                = "OBRMAN";
+    public static final String         APAMMAN           = "APAMMAN";
+    public static final String         CONFMAN           = "CONFMAN";
+    public static final String         DYNAMAN           = "DYNAMAN";
+    public static final String         DISTRIMAN         = "DISTRIMAN";
+    public static final String         OBRMAN            = "OBRMAN";
 
-    public static final String         ROOTCOMPOSITETYPE     = "rootCompositeType";
+    public static final String         ROOTCOMPOSITETYPE = "rootCompositeType";
 
 
     // The entry point in the ASM : its brokers
-    public static SpecificationBroker  SpecBroker            = null;
-    public static ImplementationBroker ImplBroker            = null;
-    public static InstanceBroker       InstBroker            = null;
+    public static SpecificationBroker  SpecBroker        = null;
+    public static ImplementationBroker ImplBroker        = null;
+    public static InstanceBroker       InstBroker        = null;
 
     // the Apam entry point.
-    public static APAMImpl             apam                  = null;
+    public static APAMImpl             apam              = null;
 
     public CST(APAMImpl theApam) {
         CST.SpecBroker = new SpecificationBrokerImpl();
