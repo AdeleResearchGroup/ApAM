@@ -91,12 +91,6 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
     	if (!(getFactory() instanceof ApformIpojoImplementation))
     		return;
 
-    	if (! getFactory().hasInstrumentedCode())
-    		return;
-    	
-    	if ( ! (getFactory() instanceof ApformIpojoImplementation))
-    		return;
-    	
     	Set<MessageReference> providedMessages 	= getFactory().getDeclaration().getProvidedResources(MessageReference.class);
     	Set<Class<?>> providedFlavors 			=  new HashSet<Class<?>>();
     	for (MessageReference providedMessage : providedMessages) {
@@ -166,6 +160,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 		public Element getHandlerInfo() {
 			Element info = super.getHandlerInfo();
 			info.addAttribute(new Attribute("producer.id",producerId));
+			info.addAttribute(new Attribute("session.id",providerId));
 			info.addAttribute(new Attribute("flavors",Arrays.toString(messageFlavors)));
 			
 			for (Wire wire : wires) {

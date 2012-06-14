@@ -183,16 +183,14 @@ import fr.imag.adele.apam.message.Message;
 	    	consumerDescription.addAttribute(new Attribute("flavors",Arrays.toString(messageFlavors)));
 	    	consumerDescription.addAttribute(new Attribute("buffered",Integer.toString(buffer.size())));
 
-			if (isResolved()) {
-				for (Wire wire : wires.values()) {
-					
-					Element wireInfo = new Element("wire",ApformIpojoComponent.APAM_NAMESPACE);
-					wireInfo.addAttribute(new Attribute("producer.id",(String)wire.getProperties().get(WireConstants.WIREADMIN_PRODUCER_PID)));
-					wireInfo.addAttribute(new Attribute("flavors",Arrays.toString(wire.getFlavors())));
-					consumerDescription.addElement(wireInfo);
-				}
+			for (Wire wire : wires.values()) {
+				
+				Element wireInfo = new Element("wire",ApformIpojoComponent.APAM_NAMESPACE);
+				wireInfo.addAttribute(new Attribute("producer.id",(String)wire.getProperties().get(WireConstants.WIREADMIN_PRODUCER_PID)));
+				wireInfo.addAttribute(new Attribute("flavors",Arrays.toString(wire.getFlavors())));
+				consumerDescription.addElement(wireInfo);
 			}
-	    	
+    	
 		}
 		
 		return consumerDescription;

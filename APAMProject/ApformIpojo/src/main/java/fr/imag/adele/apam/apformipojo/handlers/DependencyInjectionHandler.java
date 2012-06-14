@@ -59,12 +59,6 @@ public class DependencyInjectionHandler extends ApformHandler {
     	if (!(getFactory() instanceof ApformIpojoImplementation))
     		return;
 
-    	if (! getFactory().hasInstrumentedCode())
-    		return;
-    	
-    	if ( ! (getFactory() instanceof ApformIpojoImplementation))
-    		return;
-    	
     	ApformIpojoImplementation implementation	= (ApformIpojoImplementation) getFactory();
     	ImplementationDeclaration declaration		= implementation.getDeclaration();
     	
