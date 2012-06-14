@@ -103,8 +103,7 @@ public class ApamResolver {
      * logical name is provided, since more than one specification can implement the same interface, any specification
      * implementing the provided interface (technical name of the interface) will be considered satisfactory. If found,
      * the instance is returned.
-     * If the client (the instance that needs the resolution) is
-     * not null, a wire is created between the client and the resolved instance(s).
+     * A wire is created between the client and the resolved instance(s).
      * 
      * @param client the instance that requires the specification
      * @param interfaceName the name of one of the interfaces of the specification to resolve.
@@ -129,8 +128,8 @@ public class ApamResolver {
             return null;
         }
 
+        // creates a composite if client is unused.
         Composite compo = ApamResolver.getClientComposite(client);
-
 
         // if it is a promotion, visibility and scope is the one of the embedding composite.
         DepMult depMult = ApamResolver.getPromotion(client, dependency);

@@ -139,10 +139,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         this.mainImpl = mainImpl;
         ((ImplementationImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
 
-
         if (attributes != null)
             putAll(attributes);
-        put(CST.A_COMPOSITE, fromCompo.getName());
+        // put(CST.A_COMPOSITETYPE, fromCompo.getName());
 
         CompositeTypeImpl.compositeTypes.put(name, this);
         ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);

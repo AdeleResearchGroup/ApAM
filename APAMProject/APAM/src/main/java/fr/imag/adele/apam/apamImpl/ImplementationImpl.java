@@ -101,13 +101,13 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         this.name = name;
     }
 
-    public void initializeNewImpl(CompositeType compo, Map<String, Object> props) {
+    public void initializeNewImpl(CompositeType compoType, Map<String, Object> props) {
         declaration = apfImpl.getDeclaration();
-        compo.addImpl(this);
+        compoType.addImpl(this);
         if (props != null) {
             putAll(props);
         }
-        put(CST.A_COMPOSITE, compo.getName());
+        // put(CST.A_COMPOSITETYPE, compoType.getName());
     }
 
     @Override
@@ -116,7 +116,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     }
 
     /**
-     * From an implementation, create an instance. Creates both the apform and ASM instances.
+     * From an implementation, create an instance. Creates both the apform and APAM instances.
      * 
      * @throws IllegalArgumentException
      * @throws UnsupportedOperationException

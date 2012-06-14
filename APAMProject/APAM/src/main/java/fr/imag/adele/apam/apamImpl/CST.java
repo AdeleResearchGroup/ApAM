@@ -58,8 +58,8 @@ public class CST {
     public static final String         A_INTERFACE       = "interface";
     public static final String         A_MESSAGE         = "message";
     public static final String         A_MAIN_COMPONENT  = "apam-main-component";
-    // Value boolean
     public static final String         A_COMPOSITE       = "apam-composite";
+    public static final String         A_COMPOSITETYPE   = "apam-compositeType";
 
     public static final String         V_TRUE            = "true";
     public static final String         V_FALSE           = "false";
