@@ -176,7 +176,8 @@ public class OBRMan implements Manager {
         fr.imag.adele.obrMan.OBRManager.Selected selected = null;
         Implementation impl = null;
         if (resource instanceof SpecificationReference) {
-            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_SPECIFICATION, "(name=" + resource.as(SpecificationReference.class).getName() + ")",
+            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-specification="
+                    + resource.as(SpecificationReference.class).getName() + ")",
                     constraints, preferences);
         }
         if (resource instanceof InterfaceReference) {
