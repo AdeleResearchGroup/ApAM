@@ -180,11 +180,11 @@ public class OBRMan implements Manager {
                     constraints, preferences);
         }
         if (resource instanceof InterfaceReference) {
-            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_COMPONENT, "(interfaces=*;" + resource.as(InterfaceReference.class).getJavaType() + ";*)",
+            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-interfaces=*;" + resource.as(InterfaceReference.class).getJavaType() + ";*)",
                     constraints, preferences);
         }
         if (resource instanceof MessageReference) {
-            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_COMPONENT, "(messages=*;" + resource.as(MessageReference.class).getJavaType() + ";*)",
+            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-messages=*;" + resource.as(MessageReference.class).getJavaType() + ";*)",
                     constraints, preferences);
         }
         if (selected != null) {

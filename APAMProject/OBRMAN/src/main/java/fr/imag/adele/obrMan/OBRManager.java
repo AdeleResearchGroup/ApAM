@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
@@ -24,9 +25,7 @@ import org.osgi.framework.InvalidSyntaxException;
 
 public class OBRManager implements IOBRMAN {
 
-    // iPOJO injected
     private RepositoryAdmin repoAdmin;
-
     private Resolver        resolver;
     private Repository      local;
     private Resource[]      allResources;
@@ -48,16 +47,17 @@ public class OBRManager implements IOBRMAN {
                 }
                 System.out.println("used maven settings: " + settings);
                 if (settings != null) {
-                    defaultLocalRepo = settings.getAbsolutePath();
+                    defaultLocalRepo = searchMavenRepoFromSettings(settings);
                 }
             }
 
-            System.out.println("Started OBRMAN " + defaultLocalRepo);
+            System.out.println("Started OBRMAN " + defaultLocalRepo + "  repoAdmin: " + repoAdmin);
             if (defaultLocalRepo != null) {
                 local = repoAdmin.addRepository(defaultLocalRepo);
             } else {
                 local = repoAdmin.getLocalRepository();
             }
+
             System.err.println("Local repo init = " + repoAdmin.getLocalRepository().getName() + " All repos = "
                     + repoAdmin.listRepositories().toString());
         } catch (Exception e) {
@@ -67,6 +67,9 @@ public class OBRManager implements IOBRMAN {
         System.out.println("local repo : " + local.getURI());
         resolver = repoAdmin.resolver();
         allResources = local.getResources(); // read once for each session, and cached.
+        for (Resource res : allResources) {
+            printRes(res);
+        }
     }
 
     // Resource selected;
@@ -432,6 +435,25 @@ public class OBRManager implements IOBRMAN {
     }
 
     //
+
+    private String searchMavenRepoFromSettings(File pathSettings) {
+        // Look for <localRepository>
+        try {
+            String settings = OBRManager.readFileAsString(pathSettings.toURL());
+            int local = settings.indexOf("<localRepository>");
+            if (local == -1)
+                return null;
+            // TODO eliminer les commentaires
+            String localRepo;
+            int localEnd = settings.indexOf("</localRepository>", local + 5);
+            localRepo = "file:///" + settings.substring(local + 17, localEnd) + "\\repository.xml";
+            // System.out.println("found local repos : " + localRepo);
+            return localRepo;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     private File searchSettingsFromM2Home() {
         String m2_home = System.getProperty("M2_HOME");
