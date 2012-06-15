@@ -20,18 +20,18 @@
 		</dependency>
 	</implementation>
 
-	<instance implementation="S2Simple" name="toto">
+	<apam-instance implementation="S2Simple" name="toto">
 		<properties>
 			<property test-spec="coucous4" />
 			<property A2="yes" />
 			<property c="xxx" />
 		</properties>
-	</instance>
+	</apam-instance>
 	
-	<instance implementation="S3Impl" name="s3Impl-int" />
-	<instance implementation="S3Impl" name="S3Impl-instance1" />
-	<instance implementation="S3Impl" name="S3Impl-instance2" />
-	<instance implementation="S3Impl" name="S3Impl-instance3" />
+	<apam-instance implementation="S3Impl" name="s3Impl-int" />
+	<apam-instance implementation="S3Impl" name="S3Impl-instance1" />
+	<apam-instance implementation="S3Impl" name="S3Impl-instance2" />
+	<apam-instance implementation="S3Impl" name="S3Impl-instance3" />
 
 </ipojo>
 
