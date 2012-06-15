@@ -415,11 +415,19 @@ public class CheckObr {
         }
 
         Set<MessageReference> mainMessages = CheckObr.asSet(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES), MessageReference.class);
-        Set<InterfaceReference> mainInterfaces = CheckObr.asSet(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_INTERFACES),InterfaceReference.class);
-        if (! mainMessages.containsAll(composite.getProvidedResources(MessageReference.class)))
-            System.err.println("In " + name + " Invalid main implementation. " + implName + " must produce message ");
-        if (! mainInterfaces.containsAll(composite.getProvidedResources(InterfaceReference.class)))
-            System.err.println("In " + name + " Invalid main implementation. " + implName + " must implement interface ");
+        Set<MessageReference> compositeMessages = composite.getProvidedResources(MessageReference.class);
+        if (!mainMessages.containsAll(compositeMessages))
+            System.err.println("In " + name + " Invalid main implementation. " + implName
+                    + " produces messages " + mainMessages
+                    + " \n but must produce messages " + compositeMessages);
+
+        Set<InterfaceReference> mainInterfaces = CheckObr.asSet(CheckObr.getAttributeInCap(cap,
+                OBR.A_PROVIDE_INTERFACES), InterfaceReference.class);
+        Set<InterfaceReference> compositeInterfaces = composite.getProvidedResources(InterfaceReference.class);
+        if (!mainInterfaces.containsAll(compositeInterfaces))
+            System.err.println("In " + name + " Invalid main implementation. " + implName
+                    + " implements " + mainInterfaces
+                    + " \n but must implement interfaces " + compositeInterfaces);
     }
 
     /**
@@ -571,8 +579,6 @@ public class CheckObr {
                             + " is a simple field, while other fields in same dependency are collection.");
             }
             String type = innerDep.getResource().getJavaType();
-            //            if (!type.startsWith("<")) {
-            //                for (ResourceReference res : specResources) {
 
             if ((innerDep.getResource() != ResourceReference.UNDEFINED) && !(specResources.contains(innerDep.getResource()))) {
                 CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
@@ -599,14 +605,7 @@ public class CheckObr {
         else {
             CheckObr.allFields.add(dep.getName());
         }
-        //        private static final String[] fieldTypeMultiple = { "java.util.Set", "java.util.List",
-        //            "java.util.Collection", "java.util.Vector" };
 
         return dep.isCollection();
-
-        /* MIGRATION DECLARATION Complete collection information
-        String type = dep.getResource().getName();
-        return (type.equals("java.util.Set") || type.equals("java.util.List") || type.endsWith("[]"));
-         */
     }
 }
