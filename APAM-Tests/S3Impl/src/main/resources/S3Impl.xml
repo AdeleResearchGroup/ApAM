@@ -15,7 +15,9 @@
 			<property test="bof" type="string" />
 		</properties>
 		<dependency field="s5" />
-		<dependency field="s4" specification="S4" />
+		<dependency  specification="S4" >
+			<interface field="s4"/>
+		</dependency>
 	</implementation>
 
 	<instance implementation="S2Simple" name="toto">

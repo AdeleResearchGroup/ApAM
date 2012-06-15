@@ -20,6 +20,6 @@ public class S2Simple implements S2 {
     @Override
     public void callBackS2(String s) {
         // TODO Auto-generated method stub
-
+        s4.callBackS4("from s2-inv; call back");
     }
 }

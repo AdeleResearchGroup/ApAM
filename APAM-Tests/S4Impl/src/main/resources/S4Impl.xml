@@ -3,7 +3,7 @@
 		classname="fr.imag.adele.apam.test.s4Impl.S4Impl" specification="S4">
 		<properties>
 			<property shared="false"/>
-			<property scope="local"/>
+			<property b="true"/>
 		</properties>
 			<dependency field="s5">
 				<constraints>

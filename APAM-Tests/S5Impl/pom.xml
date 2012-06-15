@@ -61,6 +61,12 @@
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework
+			</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S5</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
