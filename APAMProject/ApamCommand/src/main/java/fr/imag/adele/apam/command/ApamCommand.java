@@ -272,8 +272,11 @@ public class ApamCommand {
             System.out.print(inst + " ");
         }
 
-        System.out.println(indent + "   Declared dependencies " + compo.getCompoDeclaration().getDependencies());
-        System.out.println("");
+        //        System.out.println(indent + "   Declared dependencies " + compo.getCompoDeclaration().getDependencies());
+        //        System.out.println("");
+
+        System.out.println(compo.getApformImpl().getDeclaration());
+
 
         for (CompositeType comType : compo.getEmbedded()) {
             printCompositeType(comType, indent + "   ");
@@ -308,6 +311,8 @@ public class ApamCommand {
         System.out.println(indent + "State " + compo);
         dumpState(compo.getMainInst(), indent + "  ", "");
         System.out.println("");
+
+        System.out.println(compo.getApformInst().getDeclaration());
 
         for (Composite comp : compo.getSons()) {
             printComposite(comp, indent + "   ");
@@ -352,6 +357,7 @@ public class ApamCommand {
             System.out.println(indent + "      " + impl);
         }
         printProperties(indent + "   ", specification);
+        System.out.println(specification.getApformSpec().getDeclaration());
 
     }
 
@@ -403,7 +409,7 @@ public class ApamCommand {
             System.out.println(indent + "   in application : " + instance.getAppliComposite());
             printProperties(indent + "   ", instance.getAllProperties());
         }
-
+        System.out.println(instance.getApformInst().getDeclaration());
     }
 
     /**
@@ -446,13 +452,13 @@ public class ApamCommand {
             System.out.println(indent + "      " + implem);
         }
 
-        System.out.println(indent + "   Declared dependencies " + impl.getImplDeclaration().getDependencies());
-
         System.out.println(indent + "   Instances:");
         for (Instance inst : impl.getInsts()) {
             System.out.println(indent + "      " + inst);
         }
         printProperties(indent + "   ", impl.getAllProperties());
+
+        System.out.println(impl.getApformImpl().getDeclaration());
     }
 
     /**
