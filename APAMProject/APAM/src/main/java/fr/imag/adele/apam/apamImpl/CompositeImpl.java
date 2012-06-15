@@ -81,6 +81,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
             externalMainInst = compType.getMainImpl().createInst(this, initialproperties);
         }
         mainInst = externalMainInst;
+        mainInst.put(CST.A_SHARED, CST.V_FALSE);
         Apform.setUsedInst(mainInst); // useful ??
 
         // instCompo is both the father, and the composite that contains the new one, seen as a usual ASMInst.

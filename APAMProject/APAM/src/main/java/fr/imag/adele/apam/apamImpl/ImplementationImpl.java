@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.felix.utils.filter.FilterImpl;
+//import org.apache.felix.utils.filter.FilterImpl;
+import fr.imag.adele.apam.util.ApamFilter;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -20,9 +21,7 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 
 public class ImplementationImpl extends ConcurrentHashMap<String, Object> implements Implementation {
 
@@ -138,10 +137,34 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         if (goal == null)
             return true;
         try {
-            return ((FilterImpl) goal).matchCase(getAllProperties());
+            return ((ApamFilter) goal).matchCase(getAllProperties());
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     * Overloads the usual get to be sure to return all the attributes
+     */
+    @Override
+    public Object get(Object attr) {
+        Object ret = super.get(attr);
+        if (ret != null)
+            return ret;
+        if (getSpec() != null)
+            return getSpec().get(attr);
+        return null;
+    }
+
+    /**
+     * Here we assume that attributes are valid and do not overlap.
+     */
+    @Override
+    public Map<String, Object> getAllProperties() {
+        Map<String, Object> allProps = new HashMap<String, Object>(this);
+        allProps.putAll(getSpec());
+        return allProps;
     }
 
     // WARNING : no control ! Only called by the instance Broker.
@@ -417,16 +440,6 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         this.used = used;
     }
 
-    /**
-     * Here we assume that attributes are valid and do not overlap.
-     */
-    @Override
-    public Map<String, Object> getAllProperties() {
-        Map<String, Object> allProps = new HashMap<String, Object>();
-        allProps.putAll(this);
-        allProps.putAll(getSpec());
-        return allProps;
-    }
 
     @Override
     public ImplementationDeclaration getImplDeclaration() {

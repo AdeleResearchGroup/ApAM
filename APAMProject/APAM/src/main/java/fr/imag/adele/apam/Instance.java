@@ -181,6 +181,14 @@ public interface Instance extends ConcurrentMap<String, Object> {
     public boolean match(Filter goal);
 
     /**
+     * Match.
+     * 
+     * @param goal the goal
+     * @return true is the instance matches the goal
+     */
+    public boolean match(String filter);
+
+    /**
      * 
      * @return the union of the spec, implementation and instance attributes
      */

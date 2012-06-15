@@ -105,6 +105,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                 }
             }
         }
+        mainImpl.put(CST.A_LOCALIMPLEM, "(name=" + mainImpl + ")");
 
         // Spec and interface consistency checking
         if (specName != null) {

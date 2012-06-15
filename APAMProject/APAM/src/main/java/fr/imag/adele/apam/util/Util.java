@@ -250,11 +250,11 @@ public class Util {
         if (compoFrom == compoTo)
             return true;
         if (compoFrom.isFriend(compoTo)) {
-            String friend = ((String) compoFrom.get(CST.A_FRIENDINSTANCE));
+            String friend = ((String) compoTo.get(CST.A_FRIENDINSTANCE));
             if ((friend != null) && Util.checkImplVisibilityExpression(friend, toImpl))
                 return true;
         }
-        String local = ((String) compoFrom.get(CST.A_LOCALINSTANCE));
+        String local = ((String) compoTo.get(CST.A_LOCALINSTANCE));
         if ((local != null) && Util.checkImplVisibilityExpression(local, toImpl))
             return false;
         return true;
@@ -285,25 +285,26 @@ public class Util {
      */
     public static boolean checkInstVisible(Composite compoFrom, Instance toInst) {
         Composite toCompo = toInst.getComposite();
+        CompositeType toCompoType = toInst.getComposite().getCompType();
         if (compoFrom == toCompo)
             return true;
 
         // First check inst can be borrowed
-        String borrow = ((String) compoFrom.get(CST.A_BORROWINSTANCE));
+        String borrow = ((String) compoFrom.getCompType().get(CST.A_BORROWINSTANCE));
         if ((borrow != null) && (Util.checkInstVisibilityExpression(borrow, toInst) == false))
             return false;
 
         if (compoFrom.dependsOn(toCompo)) {
-            String friend = ((String) compoFrom.get(CST.A_FRIENDINSTANCE));
+            String friend = ((String) toCompoType.get(CST.A_FRIENDINSTANCE));
             if ((friend != null) && Util.checkInstVisibilityExpression(friend, toInst))
                 return true;
         }
         if (compoFrom.getAppliComposite() == toCompo.getAppliComposite()) {
-            String appli = ((String) compoFrom.get(CST.A_APPLIINSTANCE));
+            String appli = ((String) toCompoType.get(CST.A_APPLIINSTANCE));
             if ((appli != null) && Util.checkInstVisibilityExpression(appli, toInst))
                 return true;
         }
-        String local = ((String) compoFrom.get(CST.A_LOCALINSTANCE));
+        String local = ((String) toCompoType.get(CST.A_LOCALINSTANCE));
         if ((local != null) && Util.checkInstVisibilityExpression(local, toInst))
             return false;
         return true;

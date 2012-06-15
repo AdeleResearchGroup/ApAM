@@ -1421,7 +1421,7 @@ public class ApamFilter implements Filter {
             int length = end - begin;
 
             if (length == 0) {
-                throw new InvalidSyntaxException("Missing attr: "
+                throw new InvalidSyntaxException("Invalid syntax in filter: " + filterstring + " Missing attr: "
                         + filterstring.substring(pos), filterstring);
             }
 

@@ -8,10 +8,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
 
-//import fr.imag.adele.am.exception.ConnectionException;
+import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -293,14 +292,38 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     }
 
     @Override
+    public boolean match(String filter) {
+        return match(ApamFilter.newInstance(filter));
+    }
+
+    @Override
     public boolean match(Filter goal) {
         if (goal == null)
             return true;
         try {
-            return ((FilterImpl) goal).matchCase(getAllProperties());
+            return ((ApamFilter) goal).matchCase(getAllProperties());
         } catch (Exception e) {
         }
         return false;
+    }
+
+    /**
+     * redefines get to return all attributes, including impl and spec
+     */
+    @Override
+    public Object get(Object attr) {
+        Object ret = super.get(attr);
+        return (ret != null) ? ret : getImpl().get(attr);
+    }
+
+    /**
+     * Here we assume that attributes are valid and do not overlap.
+     */
+    @Override
+    public Map<String, Object> getAllProperties() {
+        Map<String, Object> allProps = new HashMap<String, Object>(this);
+        allProps.putAll(getImpl().getAllProperties());
+        return allProps;
     }
 
     @Override
@@ -383,16 +406,6 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         return (used) ? sharable : true;
     }
 
-    /**
-     * Here we assume that attributes are valid and do not overlap.
-     */
-    @Override
-    public Map<String, Object> getAllProperties() {
-        Map<String, Object> allProps = new HashMap<String, Object>();
-        allProps.putAll(this);
-        allProps.putAll(getImpl().getAllProperties());
-        return allProps;
-    }
 
     @Override
     public InstanceDeclaration getDeclaration() {

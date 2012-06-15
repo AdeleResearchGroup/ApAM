@@ -461,12 +461,7 @@ public class ApamResolver {
      * @return
      */
     public static Implementation findImplByName(CompositeType compoTypeFrom, String implName) {
-
         List<Manager> selectionPath = ApamResolver.computeSelectionPathImpl(compoTypeFrom, implName);
-        if (selectionPath.isEmpty()) {
-            System.err.println("No manager available. Cannot resolve ");
-            return null;
-        }
 
         if (compoTypeFrom == null)
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
@@ -500,20 +495,13 @@ public class ApamResolver {
      * @return
      */
     public static Implementation resolveSpecByName(CompositeType compoTypeFrom, String specName,
-            Set<Filter> constraints,
-            List<Filter> preferences) {
+            Set<Filter> constraints, List<Filter> preferences) {
         if (constraints == null)
             constraints = new HashSet<Filter>();
         if (preferences == null)
             preferences = new ArrayList<Filter>();
         List<Manager> selectionPath = ApamResolver.computeSelectionPathSpec(compoTypeFrom, new SpecificationReference(
-                specName),
-                constraints,
-                preferences);
-        if (selectionPath.isEmpty()) {
-            System.err.println("No manager available. Cannot resolve ");
-            return null;
-        }
+                specName), constraints, preferences);
 
         if (compoTypeFrom == null)
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
@@ -557,12 +545,8 @@ public class ApamResolver {
 
         List<Manager> selectionPath = ApamResolver.computeSelectionPathSpec(compoTypeFrom, dependency.getTarget(),
                 implementationConstraints, implementationPreferences);
-        if ((selectionPath == null) || selectionPath.isEmpty()) {
-            System.err.println("No manager available. Cannot resolve ");
-            return null;
-        }
 
-        System.out.println("Looking for an implem with  " + dependency);
+        System.out.println("Looking for an implem with" + dependency);
         if (compoTypeFrom == null)
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
         Implementation impl = null;
@@ -599,10 +583,6 @@ public class ApamResolver {
         Set<Filter> constraints = Util.toFilter(dependency.getImplementationConstraints());
         List<Filter> preferences = Util.toFilterList(dependency.getImplementationPreferences());
         List<Manager> selectionPath = ApamResolver.computeSelectionPathInst(compo, impl, constraints, preferences);
-        if ((selectionPath == null) || selectionPath.isEmpty()) {
-            System.err.println("No manager available. Cannot resolve ");
-            return null;
-        }
 
         if (compo == null)
             compo = CompositeImpl.getRootAllComposites();
