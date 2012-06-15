@@ -132,7 +132,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         if (apfCompo != null) {
             apfImpl = apfCompo;
         } else {
-            apfImpl = new ApformCompositeImpl(name, mainImpl, attributes);
+            apfImpl = new ApformRootCompositeType(this, mainImpl, attributes);
         }
 
         declaration = apfImpl.getDeclaration(); 
@@ -294,6 +294,11 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         return name;
     }
 
+    @Override
+    public CompositeDeclaration getCompoDeclaration() {
+        return (CompositeDeclaration) declaration;
+    }
+    
     public String getNewInstName() {
         instNumber = instNumber + 1;
         return name + "-" + instNumber;
@@ -421,71 +426,45 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         return name;
     }
 
-    private class ApformComposite implements ApformInstance {
 
-        private InstanceDeclaration declaration;
-        private Instance            instance;
+    /**
+     * The apform implementation of a composite type used to bootstrap isolated
+     * main instances.
+     * 
+     * Bootstrapping requires creating an APAM composite type before its corresponding
+     * Apform declaration, so this case is carefully handled in the constructor of the
+     * composite type.
+     * 
+	 * In the normal case, the Apform composite type is first created and then APAM
+	 * get all the declaration information from it. In the bootstrap case, the order is
+	 * reversed, so care must be taken to avoid circular references.
+	 * 
+     * @author vega
+     *
+     */
+    private static class ApformRootCompositeType implements ApformImplementation {
 
-        public ApformComposite() {
-        }
-
-        @Override
-        public InstanceDeclaration getDeclaration() {
-            return declaration;
-        }
-
-        @Override
-        public Object getServiceObject() {
-            // TODO Auto-generated method stub
-            assert (false);
-            return null;
-        }
-
-        @Override
-        public boolean setWire(Instance destInst, String depName) {
-            // TODO Auto-generated method stub
-            assert (false);
-            return false;
-        }
-
-        @Override
-        public boolean remWire(Instance destInst, String depName) {
-            // TODO Auto-generated method stub
-            assert (false);
-            return false;
-        }
-
-        @Override
-        public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-            // TODO Auto-generated method stub
-            assert (false);
-            return false;
-        }
-
-        @Override
-        public void setInst(Instance asmInstImpl) {
-            instance = asmInstImpl;
-
-            String name = ((CompositeTypeImpl) instance.getImpl()).getNewInstName();
-            declaration = new InstanceDeclaration(instance.getImpl().getApformImpl().getDeclaration().getReference(),
-                    name, null);
-        }
-    }
-
-    private class ApformCompositeImpl implements ApformImplementation {
-
+    	private final CompositeTypeImpl apamComposite;
         private final CompositeDeclaration declaration;
         private final ApformSpecification specification;
 
-        public ApformCompositeImpl(String name, Implementation mainImplem,
+        public ApformRootCompositeType(CompositeTypeImpl apamComposite, Implementation mainImplem,
                 Map<String, Object> attributes) {
 
-            specification = mainImplem.getSpec().getApformSpec();
+        	this.apamComposite	= apamComposite;
+        	
+        	/*
+        	 * NOTE this constructor is invoked when the APAM composite type is partially
+        	 * constructed. Not all methods can be invoked, this is why the main implementation
+        	 * and attributes are additionally passed as arguments. 
+        	 */
+            specification 		= mainImplem.getSpec().getApformSpec();
 
-            declaration = new CompositeDeclaration(name,
+            declaration = new CompositeDeclaration(apamComposite.getName(),
                     specification.getDeclaration().getReference(),
                     mainImplem.getApformImpl().getDeclaration().getReference(),
                     null, new ArrayList<String>());
+            
             declaration.getProperties().putAll(attributes);
             declaration.getProvidedResources().addAll(specification.getDeclaration().getProvidedResources());
 
@@ -499,7 +478,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
         @Override
         public ApformInstance createInstance(Map<String, Object> initialproperties) {
-            return new ApformComposite();
+            return new ApformRootComposite(apamComposite);
         }
 
         @Override
@@ -508,10 +487,52 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         }
     }
 
-    @Override
-    public CompositeDeclaration getCompoDeclaration() {
+    /**
+     * An apform composite instance to represent root composites that don't have
+     * an explicit declaration (automatically created)
+     * 
+     * @author vega
+     *
+     */
+    private static class ApformRootComposite implements ApformInstance {
 
-        return (CompositeDeclaration) declaration;
+        private final InstanceDeclaration declaration;
+
+        public ApformRootComposite(CompositeTypeImpl compositeType) {
+        	
+            String name = compositeType.getNewInstName();
+            declaration = new InstanceDeclaration(compositeType.getApformImpl().getDeclaration().getReference(),
+                    name, null);
+        }
+
+        @Override
+        public InstanceDeclaration getDeclaration() {
+            return declaration;
+        }
+
+        @Override
+        public Object getServiceObject() {
+        	throw new UnsupportedOperationException("this method is not availbale for root composites");
+        }
+
+        @Override
+        public boolean setWire(Instance destInst, String depName) {
+        	throw new UnsupportedOperationException("this method is not availbale for root composites");
+        }
+
+        @Override
+        public boolean remWire(Instance destInst, String depName) {
+        	throw new UnsupportedOperationException("this method is not availbale for root composites");
+        }
+
+        @Override
+        public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
+        	throw new UnsupportedOperationException("this method is not availbale for root composites");
+        }
+
+        @Override
+        public void setInst(Instance ignored) {
+        }
     }
 
 }

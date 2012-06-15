@@ -47,7 +47,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     private final Set<Wire>   invWires         = new HashSet<Wire>();
 
     // WARNING to be used only for empty root composite.
-    public InstanceImpl() {
+    protected InstanceImpl() {
     }
 
     @Override
@@ -76,8 +76,14 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     //        put(CST.A_COMPOSITE, myComposite.getName());
     //        ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
     //    }
-
-    public InstanceImpl(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
+	public static InstanceImpl newInstanceImpl (Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
+            ApformInstance apformInst) {
+		InstanceImpl inst = new InstanceImpl (impl,instCompo,initialproperties,apformInst) ;
+	    ((InstanceBrokerImpl) CST.InstBroker).addInst( inst);
+	    return inst ;
+	}
+	
+    protected InstanceImpl(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
             ApformInstance apformInst) {
         // Create the implementation and initialize
 
@@ -89,16 +95,11 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         myComposite = instCompo;
         myComposite.addContainInst(this);
         apformInst.setInst(this);
-        ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
 
         put(CST.A_INSTNAME, apformInst.getDeclaration().getName());
         putAll(apformInst.getDeclaration().getProperties());
         put(CST.A_SHARED, getShared());
 
-        // not for composite instances, since getServiceObject is the main instance (allready started)
-        if ((!(this instanceof Composite)) && (apformInst.getServiceObject() instanceof ApamComponent)) {
-            ((ApamComponent) apformInst.getServiceObject()).apamStart(this);
-        }
         //calls Dynaman, for own ....
         if (instCompo == CompositeImpl.getRootAllComposites()) { // it is a root composite
             put(CST.A_COMPOSITE, "rootComposite");
@@ -106,6 +107,14 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         } else {
             put(CST.A_COMPOSITE, myComposite.getName());
         }
+        
+        //((InstanceBrokerImpl) CST.InstBroker).addInst(this);
+
+        // not for composite instances, since getServiceObject is the main instance (allready started)
+        if ((!(this instanceof Composite)) && (apformInst.getServiceObject() instanceof ApamComponent)) {
+            ((ApamComponent) apformInst.getServiceObject()).apamStart(this);
+        }
+
     }
 
     @Override

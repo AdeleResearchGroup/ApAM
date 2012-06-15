@@ -20,7 +20,6 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     private static Map<String, Composite> composites    = new HashMap<String, Composite>();
     private static Composite              rootComposite = new CompositeImpl();
 
-    private final String                  name;
     private final CompositeType           compType;
     private final Implementation          mainImpl;
     private final Instance                mainInst;
@@ -35,9 +34,12 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     private final Set<Composite>          sons          = new HashSet<Composite>();
     private Composite                     father;                                          // null if appli
 
+    /**
+     * This constructor is only available for the root composite. The root composite is the only composite
+     * without an associated main instance.
+     */
     private CompositeImpl() {
         super();
-        name = "rootComposite";
         mainImpl = null;
         mainInst = null;
         compType = CompositeTypeImpl.getRootCompositeType(this);
@@ -61,8 +63,10 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
     public CompositeImpl(CompositeType compType, Composite instCompo, Instance externalMainInst,
             Map<String, Object> initialproperties, ApformInstance apfInst) {
+        
         // First create the composite, as a normal instance
-        super(compType, instCompo, initialproperties, apfInst);
+    	super(compType, instCompo, initialproperties, apfInst);
+
         // super () ;
 
         //        if (instCompo == null)
@@ -70,7 +74,6 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
         // initialize as a composite
         this.compType = compType;
-        name = ((CompositeTypeImpl) compType).getNewInstName();
 
         mainImpl = compType.getMainImpl();
 
@@ -98,17 +101,11 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         } else
             appliComposite = instCompo.getAppliComposite();
 
+	    ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
+
         // terminate the ASMInst initialisation
         // instConstructor(compType, instCompo, initialproperties, mainInst.getApformInst());
     }
-
-    /**
-     * Get access to the internal implementation of the wrapped instance
-     */
-    //    @Override
-    //    public Internal asInternal() {
-    //        return this;
-    //    }
 
     public static Composite getRootAllComposites() {
         return CompositeImpl.rootComposite;
@@ -126,6 +123,22 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         return CompositeImpl.composites.get(name);
     }
 
+
+    @Override
+    public String getName() {
+        return getApformInst() != null ? super.getName() : "rootComposite";
+    }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+    @Override
+    public Instance getMainInst() {
+        return mainInst;
+    }
+
     /**
      * Overrides the instance method. A composite has no object, returns the main instance object
      */
@@ -134,32 +147,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         assert (mainInst != null);
         return mainInst.getApformInst().getServiceObject();
     }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String toString() {
-        return getName();
-    }
-
-    public static Composite createComposite(CompositeType compType, Composite instCompo,
-            Map<String, Object> initialproperties) {
-        assert (compType != null);
-
-        if (instCompo == null)
-            instCompo = CompositeImpl.rootComposite;
-        ApformInstance apfInst = compType.getApformImpl().createInstance(initialproperties);
-        return new CompositeImpl(compType, instCompo, null, initialproperties, apfInst);
-    }
-
-    @Override
-    public Instance getMainInst() {
-        return mainInst;
-    }
-
+    
     @Override
     public Implementation getMainImpl() {
         return mainImpl;

@@ -943,7 +943,7 @@ public class CoreMetadataParser implements CoreParser {
         if (CoreMetadataParser.isResourceTarget(referenceKind))
             return parseResourceReference(element, referenceKind, attribute, mandatory);
 
-        return null;
+        return mandatory? new ComponentReference<ComponentDeclaration>(UNDEFINED) : null;
     }
 
     /**
@@ -957,7 +957,7 @@ public class CoreMetadataParser implements CoreParser {
         if (CoreMetadataParser.isMessageReference(referenceKind))
             return parseMessageReference(element,attribute,mandatory);
 
-        return null;
+        return mandatory? ResourceReference.UNDEFINED : null;
 
     }
 
@@ -976,7 +976,7 @@ public class CoreMetadataParser implements CoreParser {
             return parseAnyComponentReference(element,attribute,mandatory);
 
 
-        return null;
+        return mandatory ? new ComponentReference<ComponentDeclaration>(UNDEFINED): null;
 
     }
 
@@ -1117,7 +1117,7 @@ public class CoreMetadataParser implements CoreParser {
                         continue;
 
                     String injectionTarget = CoreMetadataParser.getTargetKind(injection);
-                    if (injectionTarget == null)
+                    if (injectionTarget == UNDEFINED)
                         continue;
 
                     if (!CoreMetadataParser.isResourceTarget(injectionTarget))
