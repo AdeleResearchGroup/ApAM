@@ -51,15 +51,15 @@ public class OBRManager implements IOBRMAN {
                 }
             }
 
-            System.out.println("Started OBRMAN " + defaultLocalRepo + "  repoAdmin: " + repoAdmin);
+            //System.out.println("Started OBRMAN " + defaultLocalRepo + "  repoAdmin: " + repoAdmin);
             if (defaultLocalRepo != null) {
                 local = repoAdmin.addRepository(defaultLocalRepo);
             } else {
                 local = repoAdmin.getLocalRepository();
             }
 
-            System.err.println("Local repo init = " + repoAdmin.getLocalRepository().getName() + " All repos = "
-                    + repoAdmin.listRepositories().toString());
+            //System.err.println("Local repo init = " + repoAdmin.getLocalRepository().getName() + " All repos = "
+            // + repoAdmin.listRepositories().toString());
         } catch (Exception e) {
             System.err.println("Invalid repository address : " + defaultLocalRepo);
             e.printStackTrace();
@@ -67,9 +67,9 @@ public class OBRManager implements IOBRMAN {
         System.out.println("local repo : " + local.getURI());
         resolver = repoAdmin.resolver();
         allResources = local.getResources(); // read once for each session, and cached.
-        for (Resource res : allResources) {
-            printRes(res);
-        }
+        //        for (Resource res : allResources) {
+        //            printRes(res);
+        //        }
     }
 
     // Resource selected;
