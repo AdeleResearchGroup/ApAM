@@ -11,9 +11,22 @@
 
 	<implementation name="S2Simple"
 		classname="fr.imag.adele.apam.test.s2Impl.S2Simple" specification="S2" 
-				interfaces="{fr.imag.adele.apam.test.s2.S2}"> 
-		
+				interfaces="{fr.imag.adele.apam.test.s2.S2}"> 		
 		<dependency field="s3" />
 		<dependency field="s4" />
+	</implementation>
+	
+	<implementation name="S2Impl"
+		classname="fr.imag.adele.apam.test.s2Impl.S2Impl" specification="S2" > 		
+		<dependency field="s4_1" />
+		<dependency field="s4_2" />
+		<dependency field="s3s" />
+		<dependency field="s3s2" />
+		<dependency field="s3_2" />
+		<dependency field="s3" />
+	</implementation>
+	<implementation name="S2ImplBis" 
+		classname="fr.imag.adele.apam.test.s2Impl.S2ImplBis" specification="S2" > 
+		<dependency field="s4Bis" />
 	</implementation>
 </apam>

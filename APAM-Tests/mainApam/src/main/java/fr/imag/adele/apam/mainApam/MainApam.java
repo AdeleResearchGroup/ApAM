@@ -41,13 +41,13 @@ public class MainApam implements Runnable, intTestApam, ApamComponent {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        CompositeType appli = apam.createCompositeType("Test00", "S2Impl", null /* models */, theUrl,
+        CompositeType appli = apam.createCompositeType("Test00", "S2Simple", null /* models */, theUrl,
                 null /* specName */, null /* properties */);
         Instance a = appli.createInst(null /* composite */, null/* properties */);
         S2 s02 = (S2) a.getServiceObject();
         s02.callS2("createAppli by URL");
 
-        System.out.println("end test url\n\n");
+        System.out.println("=====================================\nend test url\n\n");
         // return;
         /*
          * s1.calls1 () ;
@@ -55,9 +55,13 @@ public class MainApam implements Runnable, intTestApam, ApamComponent {
 
         // Creation of an application which main implementation called "S1Impl" provides an interface "S1".
         // The system will ask all its managers to find implementation "S1Impl" (found by OBR in this example)
-        CompositeType appli3 = apam.createCompositeType("TestS1", "S1Impl", null /* models */, null /* properties */);
+        CompositeType appli3 = apam
+        .createCompositeType("TestS1", "S1Simple", null /* models */, null /* properties */);
+        // S1Simple does not exist
+        appli3 = apam.createCompositeType("TestS1", "S1Main", null /* models */, null /* properties */);
 
-        // Alternatively, a specification can be provided instead; it is resolved to find the main implem.
+        System.out.println("\n\n=====================================\n"
+                + " Alternatively, a specification can be provided instead; it is resolved to find the main implem.\n");
         appli3 = apam.createCompositeType("TestS1", "S1", null /* models */, null /* properties */);
 
         // Create an instance of that composite type
@@ -96,7 +100,7 @@ public class MainApam implements Runnable, intTestApam, ApamComponent {
         s2Compo.setProperties(props.getProperties());
          */
 
-        System.out.println("\n\n\n== deuxieme exec ===");
+        System.out.println("\n\n\n========================== deuxieme exec ===");
         a3 = appli3.createInst(null /* composite */, null/* properties */);
 
         // Calling that application from an external program (this instance).
