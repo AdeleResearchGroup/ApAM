@@ -94,8 +94,8 @@ public class ApamResolver {
         CompositeType newCompoT = CompositeTypeImpl.createCompositeType(null, newName, mainImplem.getName(), null,
                 null, null);
         // Composite intCompo = CompositeImpl.rootComposite;
-        return new CompositeImpl(newCompoT, CompositeImpl.getRootAllComposites(), mainInst, (Map<String, Object>) null,
-                newCompoT.getApformImpl().createInstance(null));
+        return CompositeImpl.newCompositeImpl(newCompoT, CompositeImpl.getRootAllComposites(), mainInst,
+                (Map<String, Object>) null, newCompoT.getApformImpl().createInstance(null));
     }
 
     /**

@@ -50,22 +50,23 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     //        return CompositeImpl.rootComposite;
     //    }
 
-    //    public CompositeImpl newCompositeImpl (CompositeType compType, Composite instCompo, Instance externalMainInst,
-    //            Map<String, Object> initialproperties, ApformInstance apfInst) {
-    //        if (compType == null) 
-    //            compType = CompositeTypeImpl.createCompositeType(null, newName, mainImplem.getName(), null,
-    //                    null, null);
-    //            if (instCompo == null) {
-    //                instCompo = CompositeImpl.rootComposite;
-    //            }
-    //        return new CompositeImpl (compType, instCompo, externalMainInst, initialproperties, apfInst) ;
-    //    }
-
-    public CompositeImpl(CompositeType compType, Composite instCompo, Instance externalMainInst,
+    public static CompositeImpl newCompositeImpl(CompositeType compType, Composite instCompo,
+            Instance externalMainInst,
             Map<String, Object> initialproperties, ApformInstance apfInst) {
-        
+        //            if (compType == null) 
+        //                compType = CompositeTypeImpl.createCompositeType(null, newName, mainImplem.getName(), null,
+        //                        null, null);
+        if (instCompo == null) {
+            instCompo = CompositeImpl.rootComposite;
+        }
+        return new CompositeImpl(compType, instCompo, externalMainInst, initialproperties, apfInst);
+    }
+
+    private CompositeImpl(CompositeType compType, Composite instCompo, Instance externalMainInst,
+            Map<String, Object> initialproperties, ApformInstance apfInst) {
+
         // First create the composite, as a normal instance
-    	super(compType, instCompo, initialproperties, apfInst);
+        super(compType, instCompo, initialproperties, apfInst);
 
         // super () ;
 
@@ -101,10 +102,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         } else
             appliComposite = instCompo.getAppliComposite();
 
-	    ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
-
-        // terminate the ASMInst initialisation
-        // instConstructor(compType, instCompo, initialproperties, mainInst.getApformInst());
+        ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
     }
 
     public static Composite getRootAllComposites() {
@@ -147,7 +145,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         assert (mainInst != null);
         return mainInst.getApformInst().getServiceObject();
     }
-    
+
     @Override
     public Implementation getMainImpl() {
         return mainImpl;

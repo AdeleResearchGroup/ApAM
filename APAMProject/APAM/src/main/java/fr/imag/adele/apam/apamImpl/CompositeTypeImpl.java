@@ -278,10 +278,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     // overloads the usual createInst method for ASMImpl
     @Override
     public Instance createInst(Composite instCompo, Map<String, Object> initialproperties) {
-        // Composite comp = CompositeImpl.createComposite(this, instCompo, initialproperties);
-        assert (instCompo != null);
-        // TODO check if apfImpl.createInstance(initialproperties)); is correct
-        return new CompositeImpl(this, instCompo, null, initialproperties, apfImpl.createInstance(initialproperties));
+        return CompositeImpl.newCompositeImpl(this, instCompo, null, initialproperties, apfImpl
+                .createInstance(initialproperties));
     }
 
     @Override
@@ -298,7 +296,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     public CompositeDeclaration getCompoDeclaration() {
         return (CompositeDeclaration) declaration;
     }
-    
+
     public String getNewInstName() {
         instNumber = instNumber + 1;
         return name + "-" + instNumber;
@@ -435,36 +433,36 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * Apform declaration, so this case is carefully handled in the constructor of the
      * composite type.
      * 
-	 * In the normal case, the Apform composite type is first created and then APAM
-	 * get all the declaration information from it. In the bootstrap case, the order is
-	 * reversed, so care must be taken to avoid circular references.
-	 * 
+     * In the normal case, the Apform composite type is first created and then APAM
+     * get all the declaration information from it. In the bootstrap case, the order is
+     * reversed, so care must be taken to avoid circular references.
+     * 
      * @author vega
      *
      */
     private static class ApformRootCompositeType implements ApformImplementation {
 
-    	private final CompositeTypeImpl apamComposite;
+        private final CompositeTypeImpl apamComposite;
         private final CompositeDeclaration declaration;
         private final ApformSpecification specification;
 
         public ApformRootCompositeType(CompositeTypeImpl apamComposite, Implementation mainImplem,
                 Map<String, Object> attributes) {
 
-        	this.apamComposite	= apamComposite;
-        	
-        	/*
-        	 * NOTE this constructor is invoked when the APAM composite type is partially
-        	 * constructed. Not all methods can be invoked, this is why the main implementation
-        	 * and attributes are additionally passed as arguments. 
-        	 */
+            this.apamComposite	= apamComposite;
+
+            /*
+             * NOTE this constructor is invoked when the APAM composite type is partially
+             * constructed. Not all methods can be invoked, this is why the main implementation
+             * and attributes are additionally passed as arguments. 
+             */
             specification 		= mainImplem.getSpec().getApformSpec();
 
             declaration = new CompositeDeclaration(apamComposite.getName(),
                     specification.getDeclaration().getReference(),
                     mainImplem.getApformImpl().getDeclaration().getReference(),
                     null, new ArrayList<String>());
-            
+
             declaration.getProperties().putAll(attributes);
             declaration.getProvidedResources().addAll(specification.getDeclaration().getProvidedResources());
 
@@ -499,7 +497,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         private final InstanceDeclaration declaration;
 
         public ApformRootComposite(CompositeTypeImpl compositeType) {
-        	
+
             String name = compositeType.getNewInstName();
             declaration = new InstanceDeclaration(compositeType.getApformImpl().getDeclaration().getReference(),
                     name, null);
@@ -512,22 +510,22 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
         @Override
         public Object getServiceObject() {
-        	throw new UnsupportedOperationException("this method is not availbale for root composites");
+            throw new UnsupportedOperationException("this method is not availbale for root composites");
         }
 
         @Override
         public boolean setWire(Instance destInst, String depName) {
-        	throw new UnsupportedOperationException("this method is not availbale for root composites");
+            throw new UnsupportedOperationException("this method is not availbale for root composites");
         }
 
         @Override
         public boolean remWire(Instance destInst, String depName) {
-        	throw new UnsupportedOperationException("this method is not availbale for root composites");
+            throw new UnsupportedOperationException("this method is not availbale for root composites");
         }
 
         @Override
         public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-        	throw new UnsupportedOperationException("this method is not availbale for root composites");
+            throw new UnsupportedOperationException("this method is not availbale for root composites");
         }
 
         @Override

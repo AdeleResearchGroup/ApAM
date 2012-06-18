@@ -136,7 +136,7 @@ public class InstanceBrokerImpl implements InstanceBroker {
         // Normally composite implementations are visible but they can not be instantiated.
         // The only way to create an instance of a composite should be using APAM.
         if (impl instanceof CompositeType) {
-        	inst = new CompositeImpl((CompositeType)impl,instComposite,null,properties,apfInst);
+            inst = CompositeImpl.newCompositeImpl((CompositeType) impl, instComposite, null, properties, apfInst);
         }
         else {
             inst = InstanceImpl.newInstanceImpl(impl, instComposite, null, apfInst);
