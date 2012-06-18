@@ -94,11 +94,11 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
 
     }
 
-    // warning : for setting composite name, which is different from Apform name.
-    public void setName(String name) {
-        put(CST.A_IMPLNAME, name);
-        this.name = name;
-    }
+    //    // warning : for setting composite name, which is different from Apform name.
+    //    public void setName(String name) {
+    //        put(CST.A_IMPLNAME, name);
+    //        this.name = name;
+    //    }
 
     public void initializeNewImpl(CompositeType compoType, Map<String, Object> props) {
         declaration = apfImpl.getDeclaration();
@@ -128,7 +128,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
             return null;
         }
         ApformInstance apfInst = apfImpl.createInstance(initialproperties);
-        InstanceImpl inst = InstanceImpl.newInstanceImpl(this, instCompo, initialproperties, apfInst);
+        InstanceImpl inst = new InstanceImpl(this, instCompo, initialproperties, apfInst);
         return inst;
     }
 

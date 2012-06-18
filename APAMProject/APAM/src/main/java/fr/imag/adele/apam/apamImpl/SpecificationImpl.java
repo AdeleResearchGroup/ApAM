@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.felix.utils.filter.FilterImpl;
+//import org.apache.felix.utils.filter.FilterImpl;
+import fr.imag.adele.apam.util.ApamFilter;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -320,7 +321,7 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         if (goal == null)
             return true;
         try {
-            return ((FilterImpl) goal).matchCase(this);
+            return ((ApamFilter) goal).matchCase(this);
         } catch (Exception e) {
         }
         return false;

@@ -60,29 +60,34 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         return id.hashCode();
     }
 
-    //    private void instConstructor(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
-    //            ApformInstance apfInst) {
-    //        assert (apfInst != null);
-    //        assert (instCompo != null);
-    //
-    //        if (impl.getShared().equals(CST.V_FALSE))
-    //            sharable = false;
-    //        apformInst = apfInst;
-    //        declaration = apfInst.getDeclaration();
-    //        myImpl = impl;
-    //        myComposite = instCompo;
-    //        myComposite.addContainInst(this);
-    //        put(CST.A_INSTNAME, apfInst.getDeclaration().getName());
-    //        put(CST.A_COMPOSITE, myComposite.getName());
-    //        ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
-    //    }
-	public static InstanceImpl newInstanceImpl (Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
+    /**
+     * Instance creation. Should be the only way to create an instance, because the constructor *does not chain to the
+     * broker*.
+     * The constructor should be used *only* for creating composites,
+     * because the new composite must be fully initialized before to be visible (through the broker) by others.
+     * 
+     * @param impl
+     * @param instCompo
+     * @param initialproperties
+     * @param apformInst
+     * @return
+     */
+    public static InstanceImpl newInstanceImpl(Implementation impl, Composite instCompo,
+            Map<String, Object> initialproperties,
             ApformInstance apformInst) {
-		InstanceImpl inst = new InstanceImpl (impl,instCompo,initialproperties,apformInst) ;
-	    ((InstanceBrokerImpl) CST.InstBroker).addInst( inst);
-	    return inst ;
-	}
-	
+        InstanceImpl inst = new InstanceImpl (impl,instCompo,initialproperties,apformInst) ;
+        ((InstanceBrokerImpl) CST.InstBroker).addInst( inst);
+        return inst ;
+    }
+
+    /**
+     * Should be used *only* by Composite impl constructor.
+     * 
+     * @param impl
+     * @param instCompo
+     * @param initialproperties
+     * @param apformInst
+     */
     protected InstanceImpl(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
             ApformInstance apformInst) {
         // Create the implementation and initialize
@@ -107,8 +112,8 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         } else {
             put(CST.A_COMPOSITE, myComposite.getName());
         }
-        
-        //((InstanceBrokerImpl) CST.InstBroker).addInst(this);
+
+        // ((InstanceBrokerImpl) CST.InstBroker).addInst(this); -- in newInstanceImpl
 
         // not for composite instances, since getServiceObject is the main instance (allready started)
         if ((!(this instanceof Composite)) && (apformInst.getServiceObject() instanceof ApamComponent)) {
@@ -132,10 +137,6 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         return myImpl;
     }
 
-    // public String getName() {
-    // return name ;
-    // }
-
     @Override
     public Object getServiceObject() {
         return apformInst.getServiceObject();
@@ -155,19 +156,6 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         return dests;
     }
 
-    /**
-     * 
-     */
-    //    @Override
-    //    public Set<Instance> getWireTypeDests(String destType) {
-    //        Set<Instance> dests = new HashSet<Instance>();
-    //        Class dest = Class.forName(destType);
-    //        for (Wire wire : wires) {
-    //            if (wire.getDestination().getApformInst().getServiceObject() instanceof dest)
-    //                dests.add(wire.getDestination());
-    //        }
-    //        return dests;
-    //    }
 
     /**
      */
@@ -204,10 +192,6 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
             if ((wire.getDestination() == to) && wire.getDepName().equals(depName))
                 return true;
         }
-
-        // useless when called by Apam. Needed if called by an external program.
-        //        if (!Wire.checkNewWire(this, to, depName))
-        //            return false;
 
         // creation
         Wire wire = new Wire(this, to, depName);
@@ -281,12 +265,6 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     public ApformInstance getApformInst() {
         return apformInst;
     }
-
-    //    @Override
-    //    public String getScope() {
-    //        // Check if the composite type overloads the implementation scope
-    //        return ((CompositeTypeImpl) myComposite.getCompType()).getScopeInComposite(this);
-    //    }
 
     @Override
     public String getShared() {
@@ -414,7 +392,6 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
     public boolean isSharable() {
         return (used) ? sharable : true;
     }
-
 
     @Override
     public InstanceDeclaration getDeclaration() {

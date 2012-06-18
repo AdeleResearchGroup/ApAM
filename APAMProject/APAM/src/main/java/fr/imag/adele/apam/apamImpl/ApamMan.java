@@ -100,17 +100,6 @@ public class ApamMan implements Manager {
         return spec.getPreferedImpl(impls, preferences);
     }
 
-    //    @Override
-    //    public Implementation resolveSpecByName(CompositeType compoType, String specName,
-    //            Set<Filter> constraints, List<Filter> preferences) {
-    //        Specification spec = null;
-    //        if (specName == null)
-    //            return null;
-    //        spec = CST.SpecBroker.getSpec(specName);
-    //        if (spec == null)
-    //            return null;
-    //        return spec.getImpl(constraints, preferences);
-    //    }
 
     @Override
     public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
