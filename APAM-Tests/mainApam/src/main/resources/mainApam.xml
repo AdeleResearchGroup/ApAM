@@ -1,8 +1,10 @@
-<ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
-<implementation name="MainApam" classname="fr.imag.adele.apam.mainApam.MainApam" >
-	<dependency field="apam" />
- </implementation>
+	<implementation name="MainApam"  classname="fr.imag.adele.apam.mainApam.MainApam" interfaces="[fr.imag.adele.apam.mainApam.intTestApam]">
+		<dependencies>
+			<dependency field="apam" />
+		</dependencies>
+	</implementation>
 
-<ipojo:instance name="MainApam-Instance" component="MainApam"/>
-</ipojo>
+	<apam-instance name="MainApam-Instance" implementation="MainApam" />
+</apam>

@@ -2,20 +2,20 @@ package fr.imag.adele.apam.mainApam;
 
 import java.io.File;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+//import java.util.HashMap;
+//import java.util.Map;
 
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.Composite;
+//import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.test.s1.S1;
 import fr.imag.adele.apam.test.s2.S2;
 
 public class MainApam implements Runnable, intTestApam, ApamComponent {
-    // iPOJO injected
+    // injected
     Apam apam;
 
     //    BundleContext context;
