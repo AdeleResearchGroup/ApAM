@@ -119,6 +119,15 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
 		return dependencyDescription;
 	
     }
+
+    /**
+     * Interface injection doesn't require any external service, so it is always available
+     */
+    @Override
+    public boolean isValid() {
+    	return true;
+    }
+    
     /* (non-Javadoc)
 	 * @see fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager#addTarget(fr.imag.adele.apam.Instance)
 	 */

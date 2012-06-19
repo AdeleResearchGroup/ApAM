@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.felix.ipojo.ConfigurationException;
+import org.apache.felix.ipojo.Handler;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.MethodMetadata;
@@ -95,7 +96,7 @@ import fr.imag.adele.apam.message.Message;
 	private final Queue<Message<Object>> buffer;
     
 	/**
-	 * In case of method callback, an aobject to allow direct invocation of the instance
+	 * In case of method callback, an object to allow direct invocation of the instance
 	 */
 	private final Callback callback;
 	
@@ -124,7 +125,7 @@ import fr.imag.adele.apam.message.Message;
         	MethodMetadata callbackMetadata	= null;
         	String callbackParameterType	= null;
         	
-        	for (MethodMetadata method : component.getPojoMetadata().getMethods(injection.getName())) {
+        	for (MethodMetadata method : this.component.getPojoMetadata().getMethods(injection.getName())) {
         		if (method.getMethodArguments().length == 1) {
         			callbackMetadata 		= method;
         			callbackParameterType	= method.getMethodArguments()[0];
@@ -144,7 +145,7 @@ import fr.imag.adele.apam.message.Message;
         this.consumer 		= null;
 
     	try {
-			this.messageFlavors	= new Class<?>[] {component.loadClass(injection.getResource().getJavaType())};
+			this.messageFlavors	= new Class<?>[] {this.component.loadClass(injection.getResource().getJavaType())};
 	    	this.consumerId 	= NAME+"["+instance.getInstanceName()+","+injection.getDependency().getIdentifier()+","+injection.getName()+"]";
 	        this.wires			= new HashMap<String,Wire>();
 	        this.buffer			= new ArrayBlockingQueue<Message<Object>>(MAX_BUFFER_SIZE);
@@ -197,10 +198,34 @@ import fr.imag.adele.apam.message.Message;
 	
     }
     
+    /**
+     * Get the reference to an Apform handler associated to an instance
+     * 
+     * NOTE This performs an unchecked down casts, as it assumes the calling client knows the exact class of the
+     * requested handler
+     */
+    @SuppressWarnings("unchecked")
+	private static <T extends Handler> T getHandler(ApformIpojoInstance instance, String namespace, String handlerId) {
+    	String qualifiedHandlerId = namespace+":"+handlerId;
+    	return (T) instance.getHandler(qualifiedHandlerId);
+    	
+    }
+    
+    @SuppressWarnings("unchecked")
+	private <T extends Handler> T getHandler(String namespace, String handlerId) {
+    	return (T) getHandler(instance,namespace,handlerId);
+    }
+    
+    /**
+     * Handle modification of the injected field
+     */
     public void onSet(Object pojo, String fieldName, Object value) {
         // Nothing to do, this should never happen as we exclusively handle the field's value
     }
 
+    /**
+     * Handle access to the injected field
+     */
     public Object onGet(Object pojo, String fieldName, Object value) {
 
         /*
@@ -242,9 +267,22 @@ import fr.imag.adele.apam.message.Message;
      * 
      */
     private WireAdmin getWireAdmin() {
-    	String injectionHandlerId = ApformIpojoComponent.APAM_NAMESPACE+":"+DependencyInjectionHandler.NAME;
-    	DependencyInjectionHandler handler = (DependencyInjectionHandler) instance.getHandler(injectionHandlerId);
+    	DependencyInjectionHandler handler = getHandler(ApformIpojoComponent.APAM_NAMESPACE,DependencyInjectionHandler.NAME);
     	return handler.getWireAdmin();
+    }
+
+    /**
+     * This implementation of message injection requires that the WireAdmin service be available on the platform
+     */
+    @Override
+    public boolean isValid() {
+    	WireAdmin wireAdmin = getWireAdmin();
+    	
+    	if (wireAdmin == null) {
+    		System.err.println("The WireAdmin service must be available in the platform to handle message consumer injection \""+injection.toString()+"\"");
+    	}
+    	
+    	return wireAdmin != null;
     }
     
     /**
@@ -273,14 +311,11 @@ import fr.imag.adele.apam.message.Message;
     /**
      * The message producer associated to the given target instance
      * 
-     * NOTE This performs an unchecked down casts, as it assumes the target instance  is an Apform-iPojo provided
+     * NOTE This performs an unchecked down cast, as it assumes the target instance  is an Apform-iPojo provided
      * instance
      */
     public MessageProducerIdentifier getMessageProducer(Instance target) {
-    	String providerHandlerId = ApformIpojoComponent.APAM_NAMESPACE+":"+MessageProviderHandler.NAME;
-        ApformIpojoInstance producer = (ApformIpojoInstance) target.getApformInst();
-    	MessageProviderHandler providerHandler = (MessageProviderHandler) producer.getHandler(providerHandlerId);
-    	
+    	MessageProviderHandler providerHandler = getHandler((ApformIpojoInstance)target.getApformInst(),ApformIpojoComponent.APAM_NAMESPACE,MessageProviderHandler.NAME);
     	return new MessageProducerIdentifier(providerHandler.getProviderId(),providerHandler.getProducerId());
     }
     
@@ -303,7 +338,9 @@ import fr.imag.adele.apam.message.Message;
             	Properties properties = new Properties();
             	properties.put(WireConstants.WIREADMIN_CONSUMER_FLAVORS,messageFlavors);
             	properties.put("service.pid",consumerId);
-            	consumer = component.getBundleContext().registerService(Consumer.class.getCanonicalName(), this, properties);
+            	
+            	MessageProviderHandler providerHandler = getHandler(ApformIpojoComponent.APAM_NAMESPACE,MessageProviderHandler.NAME);
+            	consumer = providerHandler.getHandlerManager().getContext().registerService(Consumer.class.getCanonicalName(), this, properties);
             }
             
             targetServices.add(target);

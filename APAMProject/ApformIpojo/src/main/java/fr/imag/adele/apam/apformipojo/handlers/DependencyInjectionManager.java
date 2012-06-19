@@ -8,7 +8,7 @@ import fr.imag.adele.apam.core.DependencyInjection;
 
 /**
  * This class represents a kind of injection manager for a dependency. The injection manager is in charge of translating
- * teh APAM events into platform specific action to inject the dependency into a field.
+ * the APAM events into platform specific action to inject the dependency into a field.
  * 
  * @author vega
  *
@@ -61,6 +61,16 @@ public interface DependencyInjectionManager extends FieldInterceptor {
      */
     public abstract Element getDescription();
 
+    /**
+     * The current state of the manager. 
+     * 
+     * A specific manager implementation can have dependencies on some platform services that may
+     * become unavailable. In that case the translation from APAM action to platform actions is no
+     * longer possible; 
+     */
+    
+    public abstract boolean isValid();
+    
 	/**
 	 * Adds a new target to this injection
 	 */

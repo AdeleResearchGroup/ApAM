@@ -49,6 +49,11 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 	public static final String NAME = "producer";
 
 	/**
+	 * Whether the handler must register a wire producer to be associated to the managed instance
+	 */
+	private boolean isRegisteredProducer;
+	
+	/**
 	 * Represent the producer flavors (Registration Property)
 	 */
 	private Class<?>[] messageFlavors;
@@ -101,10 +106,12 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 			}
 		}
     	
-    	providerId		= Long.toString(System.currentTimeMillis());
-    	messageFlavors	= providedFlavors.toArray(new Class[providedFlavors.size()]);
-    	producerId 		= NAME+"["+getInstanceManager().getInstanceName()+"]";
-    	wires			= new ArrayList<Wire>();
+    	isRegisteredProducer	= !providedFlavors.isEmpty();
+    	messageFlavors			= providedFlavors.toArray(new Class[providedFlavors.size()]);
+    	wires					= new ArrayList<Wire>();
+
+    	producerId 				= NAME+"["+getInstanceManager().getInstanceName()+"]";
+    	providerId				= Long.toString(System.currentTimeMillis());
     	
     	ApformIpojoImplementation implementation	= (ApformIpojoImplementation) getFactory();
     	ImplementationDeclaration declaration		= implementation.getDeclaration();
@@ -162,6 +169,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 			info.addAttribute(new Attribute("producer.id",producerId));
 			info.addAttribute(new Attribute("session.id",providerId));
 			info.addAttribute(new Attribute("flavors",Arrays.toString(messageFlavors)));
+			info.addAttribute(new Attribute("isRegistered",Boolean.toString(isRegisteredProducer)));
 			
 			for (Wire wire : wires) {
 				Element wireInfo = new Element("wire",ApformIpojoComponent.APAM_NAMESPACE);

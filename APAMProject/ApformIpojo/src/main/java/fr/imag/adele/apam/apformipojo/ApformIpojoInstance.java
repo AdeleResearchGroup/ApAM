@@ -219,16 +219,25 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     public boolean setWire(Instance destInst, String depName) {
 //        System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
     	
-    	boolean injected = false;
-    	
+    	/*
+    	 * Validate all the injections can be performed
+    	 */
+
+    	for (DependencyInjectionManager injectedField : injectedFields) {
+			if (!injectedField.isValid())
+				return false;
+		}
+
+    	/*
+    	 * perform injection update
+    	 */
     	for (DependencyInjectionManager injectedField : injectedFields) {
 			if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
 				injectedField.addTarget(destInst);
-				injected = true;
 			}
 		}
     	
-        return injected;
+        return true;
     }
 
     /**
@@ -237,16 +246,26 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     @Override
     public boolean remWire(Instance destInst, String depName) {
 //        System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
-    	boolean injected = false;
     	
+    	/*
+    	 * Validate all the injections can be performed
+    	 */
+
+    	for (DependencyInjectionManager injectedField : injectedFields) {
+			if (!injectedField.isValid())
+				return false;
+		}
+
+    	/*
+    	 * perform injection update
+    	 */
     	for (DependencyInjectionManager injectedField : injectedFields) {
 			if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
 				injectedField.removeTarget(destInst);
-				injected = true;
 			}
 		}
     	
-        return injected;
+        return true;
     }
 
     /**
@@ -256,16 +275,26 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
 //        System.err.println("Native instance subs wire " + depName + " :" + getInstanceName() + "from ->" + oldDestInst
 //                + " to ->" + newDestInst);
-    	boolean injected = false;
     	
+    	/*
+    	 * Validate all the injections can be performed
+    	 */
+
+    	for (DependencyInjectionManager injectedField : injectedFields) {
+			if (!injectedField.isValid())
+				return false;
+		}
+
+    	/*
+    	 * perform injection update
+    	 */
     	for (DependencyInjectionManager injectedField : injectedFields) {
 			if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
 				injectedField.substituteTarget(oldDestInst, newDestInst);
-				injected = true;
 			}
 		}
     	
-        return injected;
+        return true;
     }
 
 }

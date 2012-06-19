@@ -13,16 +13,19 @@
  
 	 <handler classname="fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionHandler"
 		name="injection" namespace="fr.imag.adele.apam">
-		<requires field="wireAdmin"  proxy="false" nullable="false"/>
+		<requires field="wireAdmin"  proxy="false" nullable="false" optional="true"/>
 	</handler>
 	
 	<handler classname="fr.imag.adele.apam.apformipojo.handlers.MessageProviderHandler"
 		name="producer" namespace="fr.imag.adele.apam">
+		
 		<provides specifications="org.osgi.service.wireadmin.Producer">
 			<property name="wireadmin.producer.flavors" field="messageFlavors"/>
 			<property name="service.pid" field="producerId"/>
+			<controller field="isRegisteredProducer"/>
 		</provides>
-		<requires field="wireAdmin"  proxy="false" nullable="false"/>
+		
+		<requires field="wireAdmin"  proxy="false" nullable="false" optional="true"/>
 	</handler>
 
 	<component name="ApformIpojoLegacyTracker"

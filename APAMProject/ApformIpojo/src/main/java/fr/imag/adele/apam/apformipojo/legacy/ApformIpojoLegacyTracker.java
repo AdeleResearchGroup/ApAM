@@ -177,6 +177,10 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 
 	@Override
 	public void modifiedService(ServiceReference reference, Object service) {
+		
+		if (!(service instanceof Pojo))
+			return;
+
 	}
 
 }

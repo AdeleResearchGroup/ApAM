@@ -132,7 +132,7 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements I
 	        	Element providesDescription = new Element("provides", APAM_NAMESPACE);;
 	        	for (ResourceReference resource : declaration.getProvidedResources()) {
 					Element provideDescription = new Element("provides", APAM_NAMESPACE);
-					provideDescription.addAttribute(new Attribute("name", resource.getJavaType()));
+					provideDescription.addAttribute(new Attribute("resource", resource.toString()));
 					providesDescription.addElement(provideDescription);
 				}
 	        	componentDescription.addElement(providesDescription);
