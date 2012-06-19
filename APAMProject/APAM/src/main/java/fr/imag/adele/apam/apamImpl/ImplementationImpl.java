@@ -128,7 +128,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
             return null;
         }
         ApformInstance apfInst = apfImpl.createInstance(initialproperties);
-        InstanceImpl inst = new InstanceImpl(this, instCompo, initialproperties, apfInst);
+        InstanceImpl inst = InstanceImpl.newInstanceImpl(this, instCompo, initialproperties, apfInst);
         return inst;
     }
 

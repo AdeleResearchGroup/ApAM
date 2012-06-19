@@ -154,9 +154,7 @@ public class ApamResolver {
 
             inst = ApamResolver.resolveImpl(client, compo, impl, dependency);
         }
-        //                    Util.toFilter(dependency.getInstanceConstraints()),
-        //                    Util.toFilterList(dependency.getInstancePreferences()));
-        //        }
+
         if (inst != null) {
             if (depMult != null) { // it was a promotion, embedding composite must also be linked as the source (client)
                 client.getComposite().createWire(inst, depMult.depType);

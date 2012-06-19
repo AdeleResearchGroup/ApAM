@@ -194,11 +194,15 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         }
 
         // creation
-        Wire wire = new Wire(this, to, depName);
-        wires.add(wire);
-        ((InstanceImpl) to).invWires.add(wire);
-
-        apformInst.setWire(to, depName);
+        if (apformInst.setWire(to, depName)) {
+            Wire wire = new Wire(this, to, depName);
+            wires.add(wire);
+            ((InstanceImpl) to).invWires.add(wire);
+        } else {
+            System.err.println("INTERNAL ERROR: wire from " + this + " to " + to
+                    + " could not be created in the real instance.");
+            return false;
+        }
 
         // if the instance was in the unUsed pull, move it to the from composite.
         if (!to.isUsed()) {
@@ -221,8 +225,13 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
 
     @Override
     public void removeWire(Wire wire) {
-        wires.remove(wire);
-        ((ImplementationImpl) getImpl()).removeUses(wire.getDestination().getImpl());
+        if (apformInst.remWire(wire.getDestination(), wire.getDepName())) {
+            wires.remove(wire);
+            ((ImplementationImpl) getImpl()).removeUses(wire.getDestination().getImpl());
+        } else {
+            System.err.println("INTERNAL ERROR: wire from " + this + " to " + wire.getDestination()
+                    + " could not be removed in the real instance.");
+        }
     }
 
     public void removeInvWire(Wire wire) {
