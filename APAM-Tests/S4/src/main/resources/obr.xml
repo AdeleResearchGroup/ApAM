@@ -1,6 +1,6 @@
 <obr> 
    <capability name='apam-specification'>
-      <p n='name' v='S4' />
+      <p n='spec-name' v='S4' />
       <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s4.S4;]' /> 
       <p n='provide-messages' v='[;MS4;]' /> 
       <p n='test-spec' v='coucou' />

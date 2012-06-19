@@ -1,17 +1,38 @@
 <obr> 
    <capability name='apam-implementation'>
-      <p n='name' v='S2Simple' />
+      <p n='impl-name' v='S2Simple' />
       <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s2.S2;]' /> 
       <p n='provide-specification' v='S2' />
+      <p n='require-interface' v='[example.S3, example.S4]' />
+      <p n='require-message' v='[example.DataType2]' />
+      <p n='require-specification' v='[S3]' />
+      <p n='scope' v='[global]' />
+      <p n='shared' v='[false]' />
+      <p n='spec-name' v='[S2]' />
+      <p n='test-spec' v='[coucou]' />
    </capability>
    <capability name='apam-implementation'>
-      <p n='name' v='S2Impl' />
+      <p n='impl-name' v='S2Impl' />
       <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s2.S2;fr.imag.adele.apam.ApamComponent;]' /> 
       <p n='provide-specification' v='S2' />
+      <p n='require-interface' v='[example.S3, example.S4]' />
+      <p n='require-message' v='[example.DataType2]' />
+      <p n='require-specification' v='[S3]' />
+      <p n='scope' v='[global]' />
+      <p n='shared' v='[false]' />
+      <p n='spec-name' v='[S2]' />
+      <p n='test-spec' v='[coucou]' />
    </capability>
    <capability name='apam-implementation'>
-      <p n='name' v='S2ImplBis' />
+      <p n='impl-name' v='S2ImplBis' />
       <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s2.S2;fr.imag.adele.apam.ApamComponent;]' /> 
       <p n='provide-specification' v='S2' />
+      <p n='require-interface' v='[example.S3, example.S4]' />
+      <p n='require-message' v='[example.DataType2]' />
+      <p n='require-specification' v='[S3]' />
+      <p n='scope' v='[global]' />
+      <p n='shared' v='[false]' />
+      <p n='spec-name' v='[S2]' />
+      <p n='test-spec' v='[coucou]' />
    </capability>
 </obr> 

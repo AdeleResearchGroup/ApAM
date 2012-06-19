@@ -1,14 +1,16 @@
 <obr> 
    <capability name='apam-implementation'>
-      <p n='name' v='S1Impl' />
+      <p n='impl-name' v='S1Impl' />
       <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s1.S1;]' /> 
       <p n='provide-specification' v='S1' />
       <p n='shared' v='false' />
       <p n='zerrt' v='true' />
+      <p n='s1-attr' v='[coucou]' />
+      <p n='spec-name' v='[S1]' />
       <p n='definition-cczerrt' v='boolean' />
    </capability>
    <capability name='apam-implementation'>
-      <p n='name' v='S1Main' />
+      <p n='impl-name' v='S1Main' />
       <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;]' /> 
       <p n='shared' v='false' />
       <p n='definition-s1 main' v='string' />

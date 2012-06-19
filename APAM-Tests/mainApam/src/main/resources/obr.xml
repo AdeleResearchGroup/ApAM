@@ -1,6 +1,6 @@
 <obr> 
    <capability name='apam-implementation'>
-      <p n='name' v='MainApam' />
+      <p n='impl-name' v='MainApam' />
       <p n='provide-interfaces' v='[;fr.imag.adele.apam.mainApam.intTestApam;]' /> 
    </capability>
 </obr> 

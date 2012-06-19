@@ -21,12 +21,13 @@
 	</implementation>
 
 	<apam-instance implementation="S2Simple" name="toto">
-		<properties>
+<!-- 		<properties>
 			<property test-spec="coucous4" />
 			<property A2="yes" />
 			<property c="xxx" />
 		</properties>
-	</apam-instance>
+ -->
+ 	</apam-instance>
 	
 	<apam-instance implementation="S3Impl" name="s3Impl-int" />
 	<apam-instance implementation="S3Impl" name="S3Impl-instance1" />

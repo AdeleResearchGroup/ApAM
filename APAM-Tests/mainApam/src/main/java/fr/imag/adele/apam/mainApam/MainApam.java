@@ -14,7 +14,7 @@ import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.test.s1.S1;
 import fr.imag.adele.apam.test.s2.S2;
 
-public class MainApam implements Runnable, intTestApam, ApamComponent {
+public class MainApam implements Runnable, ApamComponent {
     // injected
     Apam apam;
 
@@ -62,7 +62,7 @@ public class MainApam implements Runnable, intTestApam, ApamComponent {
 
         System.out.println("\n\n=====================================\n"
                 + " Alternatively, a specification can be provided instead; it is resolved to find the main implem.\n");
-        appli3 = apam.createCompositeType("TestS1", "S1", null /* models */, null /* properties */);
+        appli3 = apam.createCompositeType("TestS1Bis", "S1", null /* models */, null /* properties */);
 
         // Create an instance of that composite type
         Instance a3 = appli3.createInst(null /* composite */, null/* properties */);
