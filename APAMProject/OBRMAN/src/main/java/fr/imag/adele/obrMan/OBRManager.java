@@ -172,7 +172,7 @@ public class OBRManager implements IOBRMAN {
                         if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(capabilities, constraints)) {
                                 System.out.println("   Found bundle : " + res.getSymbolicName() + " Component:  "
-                                        + getAttributeInCapability(aCap, "name"));
+                                        + getAttributeInCapability(aCap, "impl-name"));
                                 allRes.add(res);
                             }
                         }
@@ -219,7 +219,7 @@ public class OBRManager implements IOBRMAN {
         if (winner == null)
             return null;
         System.out.println("   Found bundle : " + winner.getSymbolicName() + " Component:  "
-                + getAttributeInCapability(selectedCapability, "name"));
+                + getAttributeInCapability(selectedCapability, "impl-name"));
         return new Selected(winner, selectedCapability);
     }
 
@@ -267,7 +267,7 @@ public class OBRManager implements IOBRMAN {
                         if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(capabilities, constraints)) {
                                 System.out.println("   Found bundle : " + res.getSymbolicName() + " Component:  "
-                                        + getAttributeInCapability(aCap, "name"));
+                                        + getAttributeInCapability(aCap, "impl-name"));
                                 return new Selected(res, aCap);
                             }
                         }
@@ -296,7 +296,7 @@ public class OBRManager implements IOBRMAN {
         System.out.println("");
 
         for (Capability aCap : capabilities) {
-            if (aCap.getName().equals("apam-component")) {
+            if (aCap.getName().equals("apam-implementation")) {
                 Map map = aCap.getPropertiesAsMap();
                 for (Filter constraint : constraints) {
                     try {
@@ -321,7 +321,6 @@ public class OBRManager implements IOBRMAN {
      * @return
      */
     public boolean deployInstall(Resource res) {
-        // TODO we should put in a global and synchronized variable that we are currently deploying res.
         // first check if res is not under deployment by another thread.
         // and remove when the deployment is done.
 
@@ -410,7 +409,7 @@ public class OBRManager implements IOBRMAN {
         Selected selected = null;
         String filterStr = null;
         if (implName != null)
-            filterStr = "(name=" + implName + ")";
+            filterStr = "(impl-name=" + implName + ")";
 
         if (selected == null) { // look by bundle name. First apam component by bundle name
             selected = lookFor("apam-implementation", filterStr, constraints, null);

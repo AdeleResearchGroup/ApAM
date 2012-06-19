@@ -158,8 +158,7 @@ public class OBRMan implements Manager {
     }
 
     // interface manager
-    private Implementation resolveSpec(CompositeType compoType, ResolvableReference resource, // String interfaceName,
-            // String specName,
+    private Implementation resolveSpec(CompositeType compoType, ResolvableReference resource,
             Set<Filter> constraints, List<Filter> preferences) {
 
         // temporary
@@ -189,7 +188,7 @@ public class OBRMan implements Manager {
                     constraints, preferences);
         }
         if (selected != null) {
-            String implName = OBRMan.obr.getAttributeInCapability(selected.capability, "name");
+            String implName = OBRMan.obr.getAttributeInCapability(selected.capability, "impl-name");
             impl = installInstantiate(selected.resource, implName);
             // System.out.println("deployed :" + impl);
             // printRes(selected);
@@ -198,11 +197,6 @@ public class OBRMan implements Manager {
         return null;
     }
 
-    //    @Override
-    //    public Implementation resolveSpecByName(CompositeType compoType, String specName,
-    //            Set<Filter> constraints, List<Filter> preferences) {
-    //        return resolveSpec(compoType, null, specName, constraints, preferences);
-    //    }
 
     @Override
     public Implementation resolveSpecByResource(CompositeType compoType, ResolvableReference resource,
@@ -217,7 +211,7 @@ public class OBRMan implements Manager {
         Implementation impl = null;
         String filterStr = null;
         if (implName != null)
-            filterStr = "(name=" + implName + ")";
+            filterStr = "(impl-name=" + implName + ")";
 
         if (selected == null) { // look by bundle name. First apam component by bundle name
             selected = OBRMan.obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, filterStr, null, null);
