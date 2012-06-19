@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.xml.parser.SchemaResolver;
+import org.osgi.service.obr.Capability;
 
 import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
@@ -48,7 +49,12 @@ public class ApamRepoBuilder {
     }
 
     private void printProvided(StringBuffer obrContent, ComponentDeclaration component) {
-        obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
+
+        if (component instanceof ImplementationDeclaration) {
+            obrContent.append("      <p n='impl-name' v='" + component.getName() + "' />\n");
+        } else {
+            obrContent.append("      <p n='spec-name' v='" + component.getName() + "' />\n");
+        }
 
         Set<InterfaceReference> interfaces = component.getProvidedResources(InterfaceReference.class);
         if ((interfaces != null) && !interfaces.isEmpty()) {
@@ -96,8 +102,20 @@ public class ApamRepoBuilder {
                     + properties.get(propertyName) + "' />\n");
         }
 
-        // definition attributes
+        // Add specification attributes; eliminates duplicates.
+        if (component instanceof ImplementationDeclaration) {
+            Map<String, Object> specProperties = CheckObr.getSpecOBRAttr((ImplementationDeclaration) component);
+            if (specProperties != null) {
+                for (String attr : specProperties.keySet()) {
+                    if ((properties.get(attr) == null)
+                            && !(attr.startsWith("definition-") || attr.startsWith("provide-"))) {
+                        obrContent.append("      <p n='" + attr + "' v='" + specProperties.get(attr) + "' />\n");
+                    }
+                }
+            }
+        }
 
+        // definition attributes
         List<PropertyDefinition> definitions = component.getPropertyDefinitions();
         for (PropertyDefinition definition : definitions) {
             String tempContent = "      <p n='" + OBR.A_DEFINITION_PREFIX + definition.getName() + "'";
@@ -169,7 +187,6 @@ public class ApamRepoBuilder {
         }
 
         if (component instanceof CompositeDeclaration) {
-
             CompositeDeclaration composite = (CompositeDeclaration) component;
             obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
             obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='true' />\n");

@@ -302,6 +302,17 @@ public class CheckObr {
         }
     }
 
+    public static Map<String, Object> getSpecOBRAttr(ImplementationDeclaration component) {
+        SpecificationReference spec = component.getSpecification();
+        Map<String, Object> properties = component.getProperties();
+        if (spec == null)
+            return properties;
+        Capability cap = CheckObr.getSpecCapability(component.getSpecification());
+        if (cap == null) {
+            return properties;
+        }
+        return cap.getProperties();
+    }
     /**
      * 
      * @param implName
@@ -489,7 +500,8 @@ public class CheckObr {
             if (OBRGeneratorMojo.bundleDependencies.contains(res.getId())) {
                 for (Capability cap : res.getCapabilities()) {
                     if (cap.getName().equals(OBR.CAPABILITY_SPECIFICATION)
-                            && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
+                            && (CheckObr.getAttributeInCap(cap, "spec-name") != null)
+                            && (CheckObr.getAttributeInCap(cap, "spec-name").equals(name))) {
                         System.out.println("     Specification " + name + " found in bundle " + res.getId());
                         CheckObr.readCapabilities.put(name, cap);
                         return cap;
@@ -510,7 +522,8 @@ public class CheckObr {
             //            if (ApamMavenPlugin.bundleDependencies.contains(res.getId())) {
             for (Capability cap : res.getCapabilities()) {
                 if (cap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)
-                        && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
+                        && (CheckObr.getAttributeInCap(cap, "impl-name") != null)
+                        && (CheckObr.getAttributeInCap(cap, "impl-name").equals(name))) {
                     System.out.println("     Implementation " + name + " found in bundle " + res.getId());
                     CheckObr.readCapabilities.put(name, cap);
                     return cap;
