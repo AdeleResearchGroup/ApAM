@@ -211,18 +211,6 @@ public class ApamResolver {
             // not null if it is a multiple promotion. Use the same target.
             CompositeType compoType = compo.getCompType();
             Implementation impl = ApamResolver.resolveSpecByResource(compoType, dependency);
-
-            //            .getResource(),
-            //                    implementationConstraints, implementationPreferences);
-            //
-            //            if (specName != null)
-            //                impl = ApamResolver.resolveSpecByName(compoType, specName, implementationConstraints,
-            //                        implementationPreferences);
-            //            else {
-            //                impl = ApamResolver.resolveSpecByResource(compoType, new InterfaceReference(interfaceName),
-            //                        implementationConstraints, implementationPreferences);
-            //                specName = interfaceName;
-            //            }
             if (impl == null) {
                 System.err.println("Failed to resolve " + dependency.getTarget() + " from " + client + "(" + depName
                         + ")");
@@ -289,11 +277,9 @@ public class ApamResolver {
         }
 
         Instance inst = ApamResolver.resolveImpl(client, compo, impl, dependency);
-        // instanceConstraints, instancePreferences);
-        //        if (inst != null)
-        //            client.createWire(inst, depName);
-
-        //
+        if (inst != null) {
+            client.createWire(inst, dependency.getIdentifier());
+        }
         ApamResolver.notifySelection(client, impl.getImplDeclaration().getReference(), depName, impl, inst, null);
         return inst;
     }
@@ -591,13 +577,13 @@ public class ApamResolver {
             inst = manager.resolveImpl(compo, impl, constraints, preferences);
             if (inst != null) {
                 System.out.println("selected : " + inst);
-                client.createWire(inst, dependency.getIdentifier());
+                // client.createWire(inst, dependency.getIdentifier());
                 return inst;
             }
         }
         inst = impl.createInst(compo, null);
         System.out.println("instantiated : " + inst);
-        client.createWire(inst, dependency.getIdentifier());
+        // client.createWire(inst, dependency.getIdentifier());
         // TODO Notify dynaman
 
         return inst;
