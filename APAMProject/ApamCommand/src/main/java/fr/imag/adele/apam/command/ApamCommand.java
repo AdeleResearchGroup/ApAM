@@ -26,14 +26,15 @@ import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.ServiceProperty;
 import org.apache.felix.service.command.Descriptor;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.apamImpl.CST;
-import fr.imag.adele.apam.apamImpl.Wire;
+import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.apamImpl.SpecificationImpl;
 import fr.imag.adele.apam.core.ResourceReference;
 
 /**
@@ -356,7 +357,7 @@ public class ApamCommand {
         for (Implementation impl : specification.getImpls()) {
             System.out.println(indent + "      " + impl);
         }
-        printProperties(indent + "   ", specification);
+        printProperties(indent + "   ", (SpecificationImpl) specification);
         System.out.println(specification.getApformSpec().getDeclaration());
 
     }
