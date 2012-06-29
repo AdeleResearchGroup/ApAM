@@ -7,7 +7,7 @@ import java.util.Set;
 import org.apache.felix.ipojo.xml.parser.SchemaResolver;
 import org.osgi.service.obr.Capability;
 
-import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.CompositeDeclaration;

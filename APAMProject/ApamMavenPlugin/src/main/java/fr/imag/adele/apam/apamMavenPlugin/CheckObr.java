@@ -13,7 +13,7 @@ import org.osgi.impl.bundle.obr.resource.RepositoryImpl;
 import org.osgi.service.obr.Capability;
 import org.osgi.service.obr.Resource;
 
-import fr.imag.adele.apam.apamImpl.CST;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.apam.util.Util;
@@ -78,7 +78,7 @@ public class CheckObr {
     }
 
     /**
-     * only string, int and bool attributes are accepted.
+     * only string, int and boolean attributes are accepted.
      * 
      * @param value
      * @param type
@@ -258,7 +258,7 @@ public class CheckObr {
         String defattr = OBR.A_DEFINITION_PREFIX + attr;
         for (Object prop : props.keySet()) {
             if (((String) prop).equals(defattr)) {
-                // for definitions, value is the type: "string", "int", "bool"
+                // for definitions, value is the type: "string", "int", "boolean"
                 Object val = props.get(prop);
                 if (val instanceof Collection) {
                     for (Object aVal : (Collection) val) {
@@ -561,12 +561,19 @@ public class CheckObr {
 
         // All field must have same multiplicity, and must refer to interfaces and messages provided by the specification.
 
-        SpecificationReference spec = dep.getTarget().as(SpecificationReference.class);
+
         Set<ResourceReference> specResources = new HashSet<ResourceReference>();
 
-        if (spec != null) {
+        if (dep.getTarget() instanceof SpecificationReference) {
+            SpecificationReference spec = (SpecificationReference) dep.getTarget();
             specResources.addAll( CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getSpecCapability(spec), OBR.A_PROVIDE_INTERFACES), InterfaceReference.class));
             specResources.addAll( CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getSpecCapability(spec), OBR.A_PROVIDE_MESSAGES), MessageReference.class));
+        } else if (dep.getTarget() instanceof ImplementationReference) {
+            ImplementationReference implem = (ImplementationReference) dep.getTarget();
+            specResources.addAll(CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getImplCapability(implem),
+                    OBR.A_PROVIDE_INTERFACES), InterfaceReference.class));
+            specResources.addAll(CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getImplCapability(implem),
+                    OBR.A_PROVIDE_MESSAGES), MessageReference.class));
         } else {
             specResources.add(dep.getTarget().as(ResourceReference.class));
         }
@@ -597,7 +604,7 @@ public class CheckObr {
                 CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
                         + innerDep.getName()
                         + " is of type " + type
-                        + " which is not implemented by specification " + dep.getIdentifier());
+                        + " which is not implemented by specification or implementation " + dep.getIdentifier());
             }
         }
     }
