@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;
@@ -18,9 +19,8 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Manager;
-import fr.imag.adele.apam.apamImpl.CST;
-import fr.imag.adele.apam.apamImpl.ManagerModel;
-import fr.imag.adele.apam.apamImpl.Wire;
+import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.util.AttributesImpl;
 import fr.imag.adele.apamImpl.apamAPI.ApamDependencyHandler;
@@ -399,7 +399,7 @@ public class DynamicManagerImplementation implements Manager, DynamicApplication
 		/**
 		 * Dispatch APAM event to signal instance apparition to concerned listeners.
 		 */
-		public void appeared(Instance samInstance) {
+		public void external(Instance samInstance) {
 			
 			/*
 			 * Ignore events not concerning this listener

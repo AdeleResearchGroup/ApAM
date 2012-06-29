@@ -34,7 +34,7 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Wire;
-import fr.imag.adele.apam.apamImpl.SpecificationImpl;
+//import fr.imag.adele.apam.apamImpl.SpecificationImpl;
 import fr.imag.adele.apam.core.ResourceReference;
 
 /**
@@ -357,7 +357,7 @@ public class ApamCommand {
         for (Implementation impl : specification.getImpls()) {
             System.out.println(indent + "      " + impl);
         }
-        printProperties(indent + "   ", (SpecificationImpl) specification);
+        printProperties(indent + "   ", specification.getAllProperties());
         System.out.println(specification.getApformSpec().getDeclaration());
 
     }

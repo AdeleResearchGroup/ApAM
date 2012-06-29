@@ -25,11 +25,11 @@ import fr.imag.adele.apam.core.ResolvableReference;
 
 public class ApformIpojoInstance extends InstanceManager implements ApformInstance, DependencyInjectionManager.Resolver  {
 
-	/**
-	 * The property used to configure this instance with its declaration
-	 */
-	public final static String ATT_DECLARATION	= "declaration";
-	
+    /**
+     * The property used to configure this instance with its declaration
+     */
+    public final static String ATT_DECLARATION	= "declaration";
+
     /**
      * Whether this instance was created directly using the APAM API
      */
@@ -49,12 +49,12 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      * The list of injected fields handled by this instance
      */
     private Set<DependencyInjectionManager> 	injectedFields;
-    
-	public ApformIpojoInstance(ApformIpojoImplementation implementation, boolean isApamCreated, BundleContext context,
+
+    public ApformIpojoInstance(ApformIpojoImplementation implementation, boolean isApamCreated, BundleContext context,
             HandlerManager[] handlers) {
 
-    	super(implementation, context, handlers);
-    	this.isApamCreated	= isApamCreated;
+        super(implementation, context, handlers);
+        this.isApamCreated	= isApamCreated;
     	this.injectedFields	= new HashSet<DependencyInjectionManager>();
     }
 
@@ -62,40 +62,40 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     public ApformIpojoImplementation getFactory() {
         return (ApformIpojoImplementation) super.getFactory();
     }
-    
-	@Override
+
+    @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void configure(Element metadata, Dictionary configuration) throws ConfigurationException {
-    	
-		String instanceName = (String) configuration.get("instance.name");
-    	declaration 		= (InstanceDeclaration) configuration.get(ATT_DECLARATION);
-    	
+
+        String instanceName = (String) configuration.get("instance.name");
+        declaration 		= (InstanceDeclaration) configuration.get(ApformIpojoInstance.ATT_DECLARATION);
+
     	if (isApamCreated || declaration == null) {
-    		declaration = new InstanceDeclaration(getFactory().getDeclaration().getReference(),instanceName,null);
-    		for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
-    			String property = properties.nextElement();
-				declaration.getProperties().put(property, configuration.get(property));
-			}
-    	}
-    	
-    	configuration.put("instance.name",declaration.getName());
-    	super.configure(metadata, configuration);
+            declaration = new InstanceDeclaration(getFactory().getDeclaration().getReference(),instanceName,null);
+            for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
+                String property = properties.nextElement();
+                declaration.getProperties().put(property, configuration.get(property));
+            }
+        }
+
+        configuration.put("instance.name",declaration.getName());
+        super.configure(metadata, configuration);
 
     }
 
-	@Override
-	public Object getPojoObject() {
-		if (getFactory().hasInstrumentedCode())
-			return super.getPojoObject();
-		
-		return null;
-	}
-	
-	@Override
-	public InstanceDeclaration getDeclaration() {
-		return declaration;
-	}
-    
+    @Override
+    public Object getPojoObject() {
+        if (getFactory().hasInstrumentedCode())
+            return super.getPojoObject();
+
+        return null;
+    }
+
+    @Override
+    public InstanceDeclaration getDeclaration() {
+        return declaration;
+    }
+
     /**
      * Attach an APAM logical instance to this platform instance
      */
@@ -110,7 +110,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     public Instance getApamInstance() {
     	return this.apamInstance;
     }
-    
+
     /**
      * Adds a new injected field to this instance
      */
@@ -123,9 +123,9 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      * Get the list of injected fields
      */
     public Set<DependencyInjectionManager> getInjections() {
-    	return injectedFields;
+        return injectedFields;
     }
-    
+
     /**
      * Delegate APAM to resolve a given injection.
      * 
@@ -151,37 +151,38 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
             return;
         }
 
-//        System.err.println("resolving " + getInstanceName() + " dependency " + dependency.getName());
+        //        System.err.println("resolving " + getInstanceName() + " dependency " + dependency.getName());
         /*
          * Make a copy of constraints and preferences before invoking resolution. This allow resolution managers to modify constraints
          * and preferences are part of their processing.
          */
-        
+
         DependencyDeclaration dependency 	= injection.getDependencyInjection().getDependency();
-        ResolvableReference target			= dependency.getTarget();
+        ApamResolver.resolveWire(apamInstance, dependency.getIdentifier());
+        //        ResolvableReference target			= dependency.getTarget();
+        //
+        //        /*
+        //         * Resolve implementation dependencies explicitly
+        //         */
+        //        ImplementationReference<?> targetImplementation = target.as(ImplementationReference.class);
+        //        if ( targetImplementation != null) {
+        //
+        //        	if (!dependency.isMultiple())
+        //                ApamResolver.newWireImpl(apamInstance, targetImplementation.getName(), dependency.getIdentifier());
+        //            else
+        //                ApamResolver.newWireImpls(apamInstance, targetImplementation.getName(), dependency.getIdentifier());
+        //        	
+        //        	return;
+        //        }
+        //        
+        //        /*
+        //         * Resolve all other dependencies by specification
+        //         */
+        //        if (!dependency.isMultiple())
+        //            ApamResolver.newWireSpec(apamInstance, dependency.getIdentifier());
+        //        else
+        //            ApamResolver.newWireSpecs(apamInstance, dependency.getIdentifier());
 
-        /*
-         * Resolve implementation dependencies explicitly
-         */
-        ImplementationReference<?> targetImplementation = target.as(ImplementationReference.class);
-        if ( targetImplementation != null) {
-
-        	if (!dependency.isMultiple())
-                ApamResolver.newWireImpl(apamInstance, targetImplementation.getName(), dependency.getIdentifier());
-            else
-                ApamResolver.newWireImpls(apamInstance, targetImplementation.getName(), dependency.getIdentifier());
-        	
-        	return;
-        }
-        
-        /*
-         * Resolve all other dependencies by specification
-         */
-        if (!dependency.isMultiple())
-            ApamResolver.newWireSpec(apamInstance, dependency.getIdentifier());
-        else
-            ApamResolver.newWireSpecs(apamInstance, dependency.getIdentifier());
-        
     }
 
     /**
@@ -217,8 +218,8 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      */
     @Override
     public boolean setWire(Instance destInst, String depName) {
-//        System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
-    	
+        //        System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
+
     	/*
     	 * Validate all the injections can be performed
     	 */
@@ -231,12 +232,12 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     	/*
     	 * perform injection update
     	 */
-    	for (DependencyInjectionManager injectedField : injectedFields) {
-			if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
-				injectedField.addTarget(destInst);
-			}
-		}
-    	
+        for (DependencyInjectionManager injectedField : injectedFields) {
+            if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
+                injectedField.addTarget(destInst);
+            }
+        }
+
         return true;
     }
 
@@ -245,8 +246,8 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      */
     @Override
     public boolean remWire(Instance destInst, String depName) {
-//        System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
-    	
+        //        System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
+
     	/*
     	 * Validate all the injections can be performed
     	 */
@@ -259,12 +260,12 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     	/*
     	 * perform injection update
     	 */
-    	for (DependencyInjectionManager injectedField : injectedFields) {
-			if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
-				injectedField.removeTarget(destInst);
-			}
-		}
-    	
+        for (DependencyInjectionManager injectedField : injectedFields) {
+            if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
+                injectedField.removeTarget(destInst);
+            }
+        }
+
         return true;
     }
 
@@ -273,9 +274,9 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      */
     @Override
     public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-//        System.err.println("Native instance subs wire " + depName + " :" + getInstanceName() + "from ->" + oldDestInst
-//                + " to ->" + newDestInst);
-    	
+        //        System.err.println("Native instance subs wire " + depName + " :" + getInstanceName() + "from ->" + oldDestInst
+        //                + " to ->" + newDestInst);
+
     	/*
     	 * Validate all the injections can be performed
     	 */
@@ -288,12 +289,12 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     	/*
     	 * perform injection update
     	 */
-    	for (DependencyInjectionManager injectedField : injectedFields) {
-			if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
-				injectedField.substituteTarget(oldDestInst, newDestInst);
-			}
-		}
-    	
+        for (DependencyInjectionManager injectedField : injectedFields) {
+            if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
+                injectedField.substituteTarget(oldDestInst, newDestInst);
+            }
+        }
+
         return true;
     }
 

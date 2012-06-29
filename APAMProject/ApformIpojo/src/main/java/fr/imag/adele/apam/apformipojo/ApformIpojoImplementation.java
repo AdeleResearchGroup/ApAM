@@ -11,8 +11,8 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apamImpl.CST;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;

@@ -140,28 +140,6 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
         return false;
     }
 
-    //    /**
-    //     * Overloads the usual get to be sure to return all the attributes
-    //     */
-    //    @Override
-    //    public Object get(Object attr) {
-    //        Object ret = super.get(attr);
-    //        if (ret != null)
-    //            return ret;
-    //        if (getSpec() != null)
-    //            return getSpec().get(attr);
-    //        return null;
-    //    }
-
-    //    /**
-    //     * Here we assume that attributes are valid and do not overlap.
-    //     */
-    //    @Override
-    //    public Map<String, Object> getAllProperties() {
-    //        Map<String, Object> allProps = new HashMap<String, Object>(this);
-    //        allProps.putAll(getSpec());
-    //        return allProps;
-    //    }
 
     // WARNING : no control ! Only called by the instance Broker.
     public void addInst(Instance inst) {

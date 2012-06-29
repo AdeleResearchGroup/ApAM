@@ -9,8 +9,8 @@ import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.BundleContext;
 
-import fr.imag.adele.apam.apamImpl.CST;
-import fr.imag.adele.apam.apamImpl.ManagerModel;
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.ManagerModel;
 
 public class ApformIpojoCompositeType extends ApformIpojoImplementation {
 

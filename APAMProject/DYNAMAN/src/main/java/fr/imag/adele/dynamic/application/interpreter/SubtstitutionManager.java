@@ -1,7 +1,7 @@
 package fr.imag.adele.dynamic.application.interpreter;
 
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.apamImpl.Wire;
+import fr.imag.adele.apam.Wire;
 import fr.imag.adele.dynamic.application.manager.BindingRequest;
 import fr.imag.adele.dynamic.application.manager.DynamicApplicationPlatform.Listener;
 import fr.imag.adele.dynamic.application.manager.ServiceClassifier;
