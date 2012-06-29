@@ -1,6 +1,6 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
-	<implementation name="MainApam"  classname="fr.imag.adele.apam.mainApam.MainApam" interfaces="[fr.imag.adele.apam.mainApam.intTestApam]">
+	<implementation name="MainApam"  classname="fr.imag.adele.apam.mainApam.MainApam" >
 		<dependencies>
 			<dependency field="apam" />
 		</dependencies>
