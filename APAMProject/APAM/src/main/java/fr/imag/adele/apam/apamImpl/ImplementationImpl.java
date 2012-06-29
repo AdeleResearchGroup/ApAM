@@ -13,6 +13,7 @@ import fr.imag.adele.apam.util.ApamFilter;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
@@ -23,7 +24,7 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 
-public class ImplementationImpl extends ConcurrentHashMap<String, Object> implements Implementation {
+public class ImplementationImpl extends PropertiesImpl implements Implementation {
 
     private static final long           serialVersionUID  = 1L;
     protected final Set<Implementation> uses              = new HashSet<Implementation>(); // all relations uses
@@ -70,7 +71,7 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
                 spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfSpec);
             }
         } else {
-            spec = (SpecificationImpl) CST.SpecBroker.getSpec(specName) ;
+            spec = (SpecificationImpl) CST.SpecBroker.getSpec(specName);
         }
         if ((spec == null) && (specName != null)) // No ASM spec related to the apf spec.
             spec = (SpecificationImpl) CST.SpecBroker.getSpec(specName);
@@ -94,17 +95,12 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
 
     }
 
-    //    // warning : for setting composite name, which is different from Apform name.
-    //    public void setName(String name) {
-    //        put(CST.A_IMPLNAME, name);
-    //        this.name = name;
-    //    }
 
     public void initializeNewImpl(CompositeType compoType, Map<String, Object> props) {
         declaration = apfImpl.getDeclaration();
         compoType.addImpl(this);
         if (props != null) {
-            putAll(props);
+            setAllProperties(props);
         }
         // put(CST.A_COMPOSITETYPE, compoType.getName());
     }
@@ -144,28 +140,28 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
         return false;
     }
 
-    /**
-     * Overloads the usual get to be sure to return all the attributes
-     */
-    @Override
-    public Object get(Object attr) {
-        Object ret = super.get(attr);
-        if (ret != null)
-            return ret;
-        if (getSpec() != null)
-            return getSpec().get(attr);
-        return null;
-    }
+    //    /**
+    //     * Overloads the usual get to be sure to return all the attributes
+    //     */
+    //    @Override
+    //    public Object get(Object attr) {
+    //        Object ret = super.get(attr);
+    //        if (ret != null)
+    //            return ret;
+    //        if (getSpec() != null)
+    //            return getSpec().get(attr);
+    //        return null;
+    //    }
 
-    /**
-     * Here we assume that attributes are valid and do not overlap.
-     */
-    @Override
-    public Map<String, Object> getAllProperties() {
-        Map<String, Object> allProps = new HashMap<String, Object>(this);
-        allProps.putAll(getSpec());
-        return allProps;
-    }
+    //    /**
+    //     * Here we assume that attributes are valid and do not overlap.
+    //     */
+    //    @Override
+    //    public Map<String, Object> getAllProperties() {
+    //        Map<String, Object> allProps = new HashMap<String, Object>(this);
+    //        allProps.putAll(getSpec());
+    //        return allProps;
+    //    }
 
     // WARNING : no control ! Only called by the instance Broker.
     public void addInst(Instance inst) {
@@ -400,12 +396,11 @@ public class ImplementationImpl extends ConcurrentHashMap<String, Object> implem
     }
 
     //
-    @Override
-    public void remove() {
+    protected void remove() {
         for (Instance inst : instances) {
             ((InstanceImpl) inst).remove();
         }
-        CST.ImplBroker.removeImpl(this);
+        ((ImplementationBrokerImpl) CST.ImplBroker).removeImpl(this);
         ((SpecificationImpl) getSpec()).removeImpl(this);
     }
 

@@ -21,13 +21,12 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
 
     private final Set<Specification> specs = new HashSet<Specification>();
 
-    @Override
-    public void removeSpec(Specification spec) {
+    protected void removeSpec(Specification spec) {
         if (spec == null)
             return;
         if (specs.contains(spec)) {
             specs.remove(spec);
-            spec.remove();
+            ((SpecificationImpl) spec).remove();
         }
     }
 
@@ -207,10 +206,10 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
     @Override
     public Specification getSpecResource(ResolvableReference resource) {
         for (Specification spec : specs) {
-        	// Verify if the requested resource is the spec itself
-        	if (spec.getDeclaration().getReference().equals(resource))
-        		return spec;
-        	// Verify if the requested resource is provided by the spec
+            // Verify if the requested resource is the spec itself
+            if (spec.getDeclaration().getReference().equals(resource))
+                return spec;
+            // Verify if the requested resource is provided by the spec
             if (spec.getDeclaration().getProvidedResources().contains(resource))
                 return spec;
         }

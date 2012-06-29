@@ -5,13 +5,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+//import java.util.concurrent.ConcurrentHashMap;
 
 //import org.apache.felix.utils.filter.FilterImpl;
 import fr.imag.adele.apam.util.ApamFilter;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformSpecification;
@@ -19,15 +20,12 @@ import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
 
 
-public class SpecificationImpl extends ConcurrentHashMap<String, Object> implements Specification {
+public class SpecificationImpl extends PropertiesImpl implements Specification {
 
     private String                    name;
-    // private final CompositeOLD myComposite;
     private ApformSpecification       apfSpec         = null;
     private SpecificationDeclaration  declaration;
     private final Set<Implementation> implementations = new HashSet<Implementation>();
-    //    private String[]                  interfaces;
-    //    private String[]                  messages;
 
     private final Set<Specification>  requires        = new HashSet<Specification>(); // all relations requires
     private final Set<Specification>  invRequires     = new HashSet<Specification>(); // all reverse relations requires
@@ -60,7 +58,7 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         putAll(apfSpec.getDeclaration().getProperties());
         ((SpecificationBrokerImpl) CST.SpecBroker).addSpec(this);
         if (props != null)
-            putAll(props);
+            setAllProperties(props);
     }
 
 
@@ -181,25 +179,14 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         return apfSpec;
     }
 
-    @Override
-    public void remove() {
+    protected void remove() {
         for (Implementation impl : implementations) {
-            impl.remove();
+            ((ImplementationImpl) impl).remove();
         }
-        CST.SpecBroker.removeSpec(this);
-
-        //        // remove the APAM specific attributes in SAM
-        //        if (apfSpec != null) {
-        //            try {
-        //                apfSpec.removeProperty(Attributes.APAMAPPLI);
-        //                apfSpec.removeProperty(Attributes.APAMCOMPO);
-        //            } catch (ConnectionException e) {
-        //                e.printStackTrace();
-        //            }
-        //        }
+        ((SpecificationBrokerImpl) CST.SpecBroker).removeSpec(this);
     }
 
-    public void removeImpl(Implementation impl) {
+    protected void removeImpl(Implementation impl) {
         implementations.remove(impl);
     }
 
@@ -210,11 +197,6 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
 
     public void setSpecApform(ApformSpecification apfSpec) {
         this.apfSpec = apfSpec;
-        //            
-        //            for (ResourceReference interfRef : apfSpec.getDeclaration().getProvidedResources()) {
-        //            interfaces.add  = apfSpec.getInterfaceNames();
-        //            }
-        //            putAll(apfSpec.getDeclaration().getProperties());
     }
 
     @Override
@@ -256,10 +238,6 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
             impls = implementations;
         if ((impls == null) || impls.isEmpty())
             return null;
-
-        //        if ((preferences != null) && !preferences.isEmpty())
-        //            return ((Implementation) impls.toArray()[0]);
-
         return getPreferedImpl(impls, preferences);
     }
 
@@ -332,6 +310,13 @@ public class SpecificationImpl extends ConcurrentHashMap<String, Object> impleme
         return declaration;
     }
 
+    /**
+     * Created only for those specifications that do not exist in the OSGi layer.
+     * Creates a minimal definition structure.
+     * 
+     * @author Jacky
+     * 
+     */
     private class ApformEmptySpec implements ApformSpecification {
 
         private final SpecificationDeclaration declaration;

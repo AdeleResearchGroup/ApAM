@@ -10,7 +10,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
 
-public interface Specification extends ConcurrentMap<String, Object> {
+public interface Specification extends Properties {
 
     public String getName();
 
@@ -32,7 +32,7 @@ public interface Specification extends ConcurrentMap<String, Object> {
      * remove from ASM but does not try to delete in SAM. It deletes all its
      * Implementations. No change of state. May be selected again later.
      */
-    public void remove();
+    //    public void remove();
 
     /**
      * Return the implementation that implement that specification and has the provided name.

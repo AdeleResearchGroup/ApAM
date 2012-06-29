@@ -14,6 +14,7 @@ import org.osgi.framework.InvalidSyntaxException;
 //import fr.imag.adele.am.eventing.EventingEngine;
 //import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ImplementationBroker;
 import fr.imag.adele.apam.Instance;
@@ -156,8 +157,7 @@ public class InstanceBrokerImpl implements InstanceBroker {
         }
     }
 
-    @Override
-    public void removeInst(Instance inst) {
+    protected void removeInst(Instance inst) {
         if (inst == null)
             return;
         if (instances.contains(inst)) {

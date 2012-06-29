@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ApamManagers;
@@ -17,6 +18,7 @@ import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apform.ApformImplementation;
@@ -54,6 +56,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     private CompositeTypeImpl() {
         name = CST.ROOTCOMPOSITETYPE;
         declaration = new CompositeDeclaration(name,null,null,null,new ArrayList<String>());
+        mySpec = new SpecificationImpl("rootSpec", null, new HashSet<ResourceReference>(), null);
     }
 
     public static CompositeType getRootCompositeType() {
@@ -105,7 +108,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                 }
             }
         }
-        mainImpl.put(CST.A_LOCALIMPLEM, "(name=" + mainImpl + ")");
+        ((ImplementationImpl) mainImpl).put(CST.A_LOCALIMPLEM, "(name=" + mainImpl + ")");
 
         // Spec and interface consistency checking
         if (specName != null) {
@@ -308,8 +311,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         ((CompositeTypeImpl) destination).addInvImport(this);
     }
 
-    @Override
-    public boolean removeImport(CompositeType destination) {
+    private boolean removeImport(CompositeType destination) {
         ((CompositeTypeImpl) destination).removeInvImport(this);
         return imports.remove(destination);
     }

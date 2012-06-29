@@ -51,7 +51,7 @@ public interface SpecificationBroker {
      * 
      * @param spec the spec to delete.
      */
-    public void removeSpec(Specification spec);
+    //    public void removeSpec(Specification spec);
 
     /**
      * return the ASM specification associated with that Apform specification

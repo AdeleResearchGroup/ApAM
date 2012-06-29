@@ -6,11 +6,13 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.util.Util;

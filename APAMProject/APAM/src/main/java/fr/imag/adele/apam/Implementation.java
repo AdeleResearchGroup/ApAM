@@ -12,7 +12,7 @@ import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 
 
-public interface Implementation extends ConcurrentMap<String, Object> {
+public interface Implementation extends Properties {
 
     /**
      * Returns all the composite type that contains this implementation.
@@ -38,14 +38,8 @@ public interface Implementation extends ConcurrentMap<String, Object> {
      */
     public String getShared();
 
-    //    /**
-    //     * returns the value of the scope attribute
-    //     * 
-    //     * @return
-    //     */
-    //    public String getVisible();
-
-    public void remove();
+    //
+    //    public void remove();
 
     /**
      * Creates an instance of that implementation, and initialize its properties with the set of provided properties.
@@ -62,6 +56,7 @@ public interface Implementation extends ConcurrentMap<String, Object> {
      * 
      * @return the union of the spec, implementation and instance attributes
      */
+    @Override
     public Map<String, Object> getAllProperties();
 
     /**

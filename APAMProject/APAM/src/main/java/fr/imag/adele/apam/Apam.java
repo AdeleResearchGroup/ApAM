@@ -8,9 +8,6 @@ import java.util.Set;
 
 //import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.apamImpl.ManagerModel;
-//import fr.imag.adele.apam.util.Attributes;
-//import fr.imag.adele.sam.Implementation;
 
 public interface Apam {
 

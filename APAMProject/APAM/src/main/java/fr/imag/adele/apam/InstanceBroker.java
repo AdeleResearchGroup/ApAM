@@ -27,7 +27,7 @@ public interface InstanceBroker {
      * @param samInst A SAM Instance
      * @return
      */
-//    public ASMInst getInst(Instance samInst);
+    //    public ASMInst getInst(Instance samInst);
 
     /**
      * Return the instances with that name.
@@ -72,6 +72,6 @@ public interface InstanceBroker {
      * Remove the instances
      * 
      */
-    public void removeInst(Instance inst);
+    //    public void removeInst(Instance inst);
 
 }

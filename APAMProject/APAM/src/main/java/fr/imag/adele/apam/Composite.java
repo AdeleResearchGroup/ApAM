@@ -2,7 +2,6 @@ package fr.imag.adele.apam;
 
 import java.util.Set;
 
-import fr.imag.adele.apam.apamImpl.ManagerModel;
 
 public interface Composite extends Instance {
 
@@ -38,13 +37,13 @@ public interface Composite extends Instance {
      */
     public void addDepend(Composite destination);
 
-    /**
-     * removes a "depend" relationship toward destination
-     * 
-     * @param destination
-     * @return
-     */
-    public boolean removeDepend(Composite destination);
+    //    /**
+    //     * removes a "depend" relationship toward destination
+    //     * 
+    //     * @param destination
+    //     * @return
+    //     */
+    //    public boolean removeDepend(Composite destination);
 
     /**
      * 

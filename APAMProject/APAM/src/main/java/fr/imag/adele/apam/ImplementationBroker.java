@@ -30,9 +30,9 @@ public interface ImplementationBroker {
      * @param properties. The initial properties of that implementation (merged with the sam properties)
      * @return the new created implementation, null if failed.
      */
-//    public ASMImpl addImpl(CompositeType compoType, String apfName, Attributes properties);
+    //    public ASMImpl addImpl(CompositeType compoType, String apfName, Attributes properties);
 
-//    public ASMImpl addImpl(CompositeType compo, ApformImplementation apfImpl, Attributes properties);
+    //    public ASMImpl addImpl(CompositeType compo, ApformImplementation apfImpl, Attributes properties);
 
     /**
      * Deploys and creates both the SAM implem and Spec; and the the corresponding ASM spec and implem
@@ -44,7 +44,7 @@ public interface ImplementationBroker {
      */
     public Implementation createImpl(CompositeType compo, String implName, URL url, Map<String, Object> properties);
 
-    public void removeImpl(Implementation impl);
+    //    public void removeImpl(Implementation impl);
 
     /**
      * Return an implementation with the provided name.

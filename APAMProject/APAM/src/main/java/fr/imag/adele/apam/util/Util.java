@@ -3,23 +3,25 @@ package fr.imag.adele.apam.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.apamImpl.CST;
-import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.core.PropertyDefinition;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
-import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
 
 
 
@@ -219,7 +221,7 @@ public class Util {
 
     /**
      * Implementation toImpl can be borrowed by composite type compoFrom if :
-     * compoFrom accepts to borrow the attribute
+     * compoFrom accepts to borrow the service
      * toImpl is inside compoFrom.
      * attribute friendImplementation is set, and toImpl is inside a friend and matches the attribute.
      * toImpl does not matches the attribute localImplementation.
@@ -233,7 +235,7 @@ public class Util {
             return true;
 
         // First check inst can be borrowed
-        String borrow = ((String) compoFrom.get(CST.A_BORROWIMPLEM));
+        String borrow = ((String) compoFrom.getProperty(CST.A_BORROWIMPLEM));
         if ((borrow != null) && (Util.checkImplVisibilityExpression(borrow, toImpl) == false))
             return false;
 
@@ -250,11 +252,11 @@ public class Util {
         if (compoFrom == compoTo)
             return true;
         if (compoFrom.isFriend(compoTo)) {
-            String friend = ((String) compoTo.get(CST.A_FRIENDINSTANCE));
+            String friend = ((String) compoTo.getProperty(CST.A_FRIENDINSTANCE));
             if ((friend != null) && Util.checkImplVisibilityExpression(friend, toImpl))
                 return true;
         }
-        String local = ((String) compoTo.get(CST.A_LOCALINSTANCE));
+        String local = ((String) compoTo.getProperty(CST.A_LOCALINSTANCE));
         if ((local != null) && Util.checkImplVisibilityExpression(local, toImpl))
             return false;
         return true;
@@ -290,21 +292,21 @@ public class Util {
             return true;
 
         // First check inst can be borrowed
-        String borrow = ((String) compoFrom.getCompType().get(CST.A_BORROWINSTANCE));
+        String borrow = ((String) compoFrom.getCompType().getProperty(CST.A_BORROWINSTANCE));
         if ((borrow != null) && (Util.checkInstVisibilityExpression(borrow, toInst) == false))
             return false;
 
         if (compoFrom.dependsOn(toCompo)) {
-            String friend = ((String) toCompoType.get(CST.A_FRIENDINSTANCE));
+            String friend = ((String) toCompoType.getProperty(CST.A_FRIENDINSTANCE));
             if ((friend != null) && Util.checkInstVisibilityExpression(friend, toInst))
                 return true;
         }
         if (compoFrom.getAppliComposite() == toCompo.getAppliComposite()) {
-            String appli = ((String) toCompoType.get(CST.A_APPLIINSTANCE));
+            String appli = ((String) toCompoType.getProperty(CST.A_APPLIINSTANCE));
             if ((appli != null) && Util.checkInstVisibilityExpression(appli, toInst))
                 return true;
         }
-        String local = ((String) toCompoType.get(CST.A_LOCALINSTANCE));
+        String local = ((String) toCompoType.getProperty(CST.A_LOCALINSTANCE));
         if ((local != null) && Util.checkInstVisibilityExpression(local, toInst))
             return false;
         return true;
@@ -312,10 +314,6 @@ public class Util {
 
     public static boolean isPredefinedAttribute(String attr) {
         for (String pred : CST.predefAttributes) {
-            if (pred.equals(attr.toLowerCase()))
-                return true;
-        }
-        for (String pred : CST.finalAttributes) {
             if (pred.equals(attr.toLowerCase()))
                 return true;
         }
@@ -336,6 +334,105 @@ public class Util {
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Check if attribute "attr" is defined in the list of attributes and definitions found in props
+     * Props contains attribute (Cannot be redefined), and attribute definitions.
+     * Check if the value is consistent with the type.
+     * All predefined attributes are Ok (scope ...)
+     * Cannot be a reserved attribute
+     */
+    public static boolean validAttr(Object inst, String attr, Object value) {
+        if (Util.isPredefinedAttribute(attr))
+            return true;
+
+        if (Util.isFinalAttribute(attr)) {
+            System.err.println("ERROR: " + attr + " is a final attribute");
+            return false;
+        }
+
+        if (Util.isReservedAttribute(attr)) {
+            System.err.println("ERROR: " + attr + " is a reserved attribute");
+            return false;
+        }
+
+        if (inst instanceof Specification) return true ;
+
+        Map<String, Object> props = new HashMap<String, Object>();
+        if (inst instanceof Instance) {
+            props = ((Instance) inst).getImpl().getAllProperties() ;
+        } else 
+            props = ((Implementation) inst).getSpec().getAllProperties() ;
+
+        for (Object prop : props.keySet()) {
+            if (((String) prop).equalsIgnoreCase(attr)) {
+                System.err.println("cannot redefine attribute " + attr);
+                return false;
+            }
+        }
+
+        List<PropertyDefinition> propDefs = null;
+        if (inst instanceof Instance) {
+            propDefs = ((Instance)inst).getImpl().getImplDeclaration().getPropertyDefinitions();
+        } else 
+            propDefs = ((Implementation) inst).getSpec().getDeclaration().getPropertyDefinitions(); 
+
+        for (PropertyDefinition propDef : propDefs) {
+            if ((propDef.getName()).equals(attr)) {
+                // for definitions, value is the type: "string", "int", "boolean"
+                // Object val = props.get(prop);
+                //                if (value instanceof Collection) {
+                //                    for (Object aVal : (Collection) val) {
+                //                        Util.checkAttrType(attr, value, propDef.getType());
+                //                    }
+                //                    return true;
+                //                }
+                return Util.checkAttrType(attr, value, propDef.getType());
+            }
+        }
+        System.err.println("attribute " + attr + " undefined");
+        return false;
+    }
+
+    /**
+     * only string, int and boolean attributes are accepted.
+     * 
+     * @param value
+     * @param type
+     */
+    public static boolean checkAttrType(String attr, Object val, String type) {
+        if ((type == null) || (val == null))
+            return false;
+
+        if (!(val instanceof String)) {
+            System.err.println("Invalid attribute value " + val + " for attribute " + attr
+                    + ". String value expected.");
+            return false;
+        }
+        String value = (String) val;
+
+        if (type.equals("boolean") && !value.equalsIgnoreCase(CST.V_TRUE) && !value.equalsIgnoreCase(CST.V_FALSE)) {
+            System.err.println("Invalid attribute value " + value + " for attribute " + attr
+                    + ". Boolean value expected.");
+            return false;
+        }
+        if (type.equals("int")) {
+            try {
+                int valint = Integer.parseInt(value);
+                return true;
+            } catch (Exception e) {
+                System.err.println("Invalid attribute value " + value + " for attribute " + attr
+                        + ". Integer value expected.");
+                return false;
+            }
+        }
+        if (!(value instanceof String)) {
+            System.err.println("Invalid attribute value " + value + " for attribute " + attr
+                    + ". String value expected.");
+            return false;
+        }
+        return true;
     }
 
 }

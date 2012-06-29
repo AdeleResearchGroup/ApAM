@@ -43,8 +43,7 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
     }
 
     // Not in the interface. No control
-    @Override
-    public void removeImpl(Implementation impl) {
+    protected void removeImpl(Implementation impl) {
         assert (impl != null);
 
         implems.remove(impl);

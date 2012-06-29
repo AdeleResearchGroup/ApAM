@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.apamImpl.ManagerModel;
 import fr.imag.adele.apam.core.Reference;
 import fr.imag.adele.apam.core.ResolvableReference;
 

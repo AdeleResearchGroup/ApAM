@@ -11,12 +11,15 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformInstance;
 //import fr.imag.adele.apam.util.Attributes;
@@ -25,7 +28,7 @@ import fr.imag.adele.apam.core.InstanceDeclaration;
 
 //import fr.imag.adele.sam.Instance;
 
-public class InstanceImpl extends ConcurrentHashMap<String, Object> implements Instance {
+public class InstanceImpl extends PropertiesImpl implements Instance {
 
     /**
      * 
@@ -60,6 +63,17 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         return id.hashCode();
     }
 
+    //    @Override
+    //    public Object put(String attr, Object value) {
+    //        //Util.validAttr(this, attr, value);
+    //        return super.put(attr, value);
+    //    }
+
+    public void setAttr(String attr, Object value) {
+        Util.validAttr(this, attr, value);
+        put(attr, value);
+    }
+
     /**
      * Instance creation. Should be the only way to create an instance, because the constructor *does not chain to the
      * broker*.
@@ -90,7 +104,6 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
      */
     protected InstanceImpl(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
             ApformInstance apformInst) {
-        // Create the implementation and initialize
 
         if (impl.getShared().equals(CST.V_FALSE))
             sharable = false;
@@ -102,8 +115,12 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         apformInst.setInst(this);
 
         put(CST.A_INSTNAME, apformInst.getDeclaration().getName());
+        // allready checked
         putAll(apformInst.getDeclaration().getProperties());
         put(CST.A_SHARED, getShared());
+        if (initialproperties != null) {
+            setAllProperties(initialproperties);
+        }
 
         //calls Dynaman, for own ....
         if (instCompo == CompositeImpl.getRootAllComposites()) { // it is a root composite
@@ -113,13 +130,10 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
             put(CST.A_COMPOSITE, myComposite.getName());
         }
 
-        // ((InstanceBrokerImpl) CST.InstBroker).addInst(this); -- in newInstanceImpl
-
         // not for composite instances, since getServiceObject is the main instance (allready started)
         if ((!(this instanceof Composite)) && (apformInst.getServiceObject() instanceof ApamComponent)) {
             ((ApamComponent) apformInst.getServiceObject()).apamStart(this);
         }
-
     }
 
     @Override
@@ -195,7 +209,7 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
 
         // creation
         if (apformInst.setWire(to, depName)) {
-            Wire wire = new Wire(this, to, depName);
+            Wire wire = new WireImpl(this, to, depName);
             wires.add(wire);
             ((InstanceImpl) to).invWires.add(wire);
         } else {
@@ -248,10 +262,10 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
 
     public void remove() {
         for (Wire wire : invWires) {
-            wire.remove();
+            ((WireImpl) wire).remove();
         }
         for (Wire wire : wires) {
-            wire.remove();
+            ((WireImpl) wire).remove();
         }
     }
 
@@ -303,24 +317,6 @@ public class InstanceImpl extends ConcurrentHashMap<String, Object> implements I
         return false;
     }
 
-    /**
-     * redefines get to return all attributes, including impl and spec
-     */
-    @Override
-    public Object get(Object attr) {
-        Object ret = super.get(attr);
-        return (ret != null) ? ret : getImpl().get(attr);
-    }
-
-    /**
-     * Here we assume that attributes are valid and do not overlap.
-     */
-    @Override
-    public Map<String, Object> getAllProperties() {
-        Map<String, Object> allProps = new HashMap<String, Object>(this);
-        allProps.putAll(getImpl().getAllProperties());
-        return allProps;
-    }
 
     @Override
     public Set<Wire> getInvWires() {

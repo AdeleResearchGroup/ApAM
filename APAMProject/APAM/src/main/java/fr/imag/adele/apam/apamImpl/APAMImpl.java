@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
@@ -17,6 +18,7 @@ import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.ManagerModel;
 
 //import fr.imag.adele.sam.Implementation;
 //import org.osgi.framework.Bundle;

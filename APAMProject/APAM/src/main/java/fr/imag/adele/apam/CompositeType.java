@@ -2,7 +2,6 @@ package fr.imag.adele.apam;
 
 import java.util.Set;
 
-import fr.imag.adele.apam.apamImpl.ManagerModel;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 
 public interface CompositeType extends Implementation {
@@ -40,13 +39,13 @@ public interface CompositeType extends Implementation {
      */
     public void addImport(CompositeType destination);
 
-    /**
-     * removes an "import" relationship.
-     * 
-     * @param destination
-     * @return
-     */
-    public boolean removeImport(CompositeType destination);
+    //    /**
+    //     * removes an "import" relationship.
+    //     * 
+    //     * @param destination
+    //     * @return
+    //     */
+    //    public boolean removeImport(CompositeType destination);
 
     /**
      * returns all the "import" relationships

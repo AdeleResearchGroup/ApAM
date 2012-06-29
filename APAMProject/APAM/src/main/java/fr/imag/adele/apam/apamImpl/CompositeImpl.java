@@ -7,10 +7,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformInstance;
 
@@ -51,11 +53,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     //    }
 
     public static CompositeImpl newCompositeImpl(CompositeType compType, Composite instCompo,
-            Instance externalMainInst,
-            Map<String, Object> initialproperties, ApformInstance apfInst) {
-        //            if (compType == null) 
-        //                compType = CompositeTypeImpl.createCompositeType(null, newName, mainImplem.getName(), null,
-        //                        null, null);
+            Instance externalMainInst, Map<String, Object> initialproperties, ApformInstance apfInst) {
         if (instCompo == null) {
             instCompo = CompositeImpl.rootComposite;
         }
@@ -68,11 +66,6 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         // First create the composite, as a normal instance
         super(compType, instCompo, initialproperties, apfInst);
 
-        // super () ;
-
-        //        if (instCompo == null)
-        //            instCompo = CompositeImpl.rootComposite;
-
         // initialize as a composite
         this.compType = compType;
 
@@ -82,10 +75,10 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         // create the main instance with this composite as container.
         // Each composite has a different main instance; do not try to reuse an existing instance.
         if (externalMainInst == null) { // normal case
-            externalMainInst = compType.getMainImpl().createInst(this, initialproperties);
+            externalMainInst = compType.getMainImpl().createInst(this, null /*initialproperties */);
         }
         mainInst = externalMainInst;
-        mainInst.put(CST.A_SHARED, CST.V_FALSE);
+        ((InstanceImpl) mainInst).put(CST.A_SHARED, CST.V_FALSE);
         Apform.setUsedInst(mainInst); // useful ??
 
         // instCompo is both the father, and the composite that contains the new one, seen as a usual ASMInst.
@@ -219,8 +212,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     /**
      * A composite cannot be isolated. Therefore remove is prohibited if the destination will be isolated.
      */
-    @Override
-    public boolean removeDepend(Composite destination) {
+    private boolean removeDepend(Composite destination) {
         if (destination == null)
             return false;
         // if (!dependsOn(destination))

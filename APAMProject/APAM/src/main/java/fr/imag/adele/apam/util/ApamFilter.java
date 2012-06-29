@@ -26,7 +26,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
 
-import org.apache.felix.utils.version.VersionTable;
+//import org.apache.felix.utils.version.VersionTable;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -104,7 +104,7 @@ public class ApamFilter implements Filter {
                 conv = getSet(value);
             } else if ("version".equalsIgnoreCase(attr)) {
                 if (value instanceof String) {
-                    conv = VersionTable.getVersion((String) value);
+                    conv = Version.parseVersion((String) value);
                 } else if (value instanceof Version) {
                     conv = value;
                 }

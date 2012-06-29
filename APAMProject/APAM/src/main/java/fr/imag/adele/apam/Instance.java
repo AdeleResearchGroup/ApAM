@@ -6,11 +6,10 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.apamImpl.Wire;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 
-public interface Instance extends ConcurrentMap<String, Object> {
+public interface Instance extends Properties {
 
     /**
      * Returns the composite to which this instance pertains.
@@ -143,10 +142,6 @@ public interface Instance extends ConcurrentMap<String, Object> {
 
     public boolean isUsed();
 
-    //    /*
-    //     * returns the value of hte scope attribute
-    //     */
-    //    public String getScope();
 
     /**
      * returns the specification of that instance
@@ -188,10 +183,5 @@ public interface Instance extends ConcurrentMap<String, Object> {
      */
     public boolean match(String filter);
 
-    /**
-     * 
-     * @return the union of the spec, implementation and instance attributes
-     */
-    public Map<String, Object> getAllProperties();
 
 }

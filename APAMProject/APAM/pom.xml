@@ -38,9 +38,15 @@
 							Adele/LIG/ Grenoble University, France
 						</Bundle-Vendor>
 						<Bundle-Version>${project.version}</Bundle-Version>
-        				<Export-Package>fr.imag.adele.apam.*</Export-Package>
-        				<Private-Package>org.apache.felix.utils.*</Private-Package>
-					</instructions>
+        				<Export-Package>
+        					fr.imag.adele.apam,
+        					fr.imag.adele.apam.core,
+        					fr.imag.adele.apam.apform,
+        					fr.imag.adele.apam.message,
+        					fr.imag.adele.apam.util
+        					<!--  A faire sauter, definition API public-->
+        				</Export-Package>
+ 					</instructions>
 				</configuration>
 			</plugin>
 		
@@ -86,12 +92,6 @@
 			</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-	      <groupId>org.apache.felix</groupId>
-	      <artifactId>org.apache.felix.utils</artifactId>
-	      <version>1.1.2</version>
-	      <optional>true</optional>
-	    </dependency>
 	    
 		<dependency>
 			<groupId>log4j</groupId>

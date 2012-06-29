@@ -1,18 +1,14 @@
-package fr.imag.adele.apam.apamImpl;
+package fr.imag.adele.apam;
 
-import fr.imag.adele.apam.ImplementationBroker;
-import fr.imag.adele.apam.InstanceBroker;
-import fr.imag.adele.apam.SpecificationBroker;
-
-//import fr.imag.adele.sam.deployment.broker.DeploymentUnitBroker;
+import fr.imag.adele.apam.apamImpl.APAMImpl;
+import fr.imag.adele.apam.apamImpl.ImplementationBrokerImpl;
+import fr.imag.adele.apam.apamImpl.InstanceBrokerImpl;
+import fr.imag.adele.apam.apamImpl.SpecificationBrokerImpl;
 
 public class CST {
 
     // Constants "A_" means attribute name; "V_" means attribute value
 
-    //    public static final String         A_SPECIFICATION       = "specification";
-    //    public static final String         A_IMPLEMENTATION      = "implementation";
-    //    public static final String         A_INSTANCE            = "instance";
 
     public static String[]             predefAttributes      = {
         CST.A_BORROWIMPLEM, CST.A_LOCALIMPLEM,
@@ -73,7 +69,6 @@ public class CST {
 
     public static final String         ROOTCOMPOSITETYPE = "rootCompositeType";
 
-
     // The entry point in the ASM : its brokers
     public static SpecificationBroker  SpecBroker        = null;
     public static ImplementationBroker ImplBroker        = null;
@@ -86,8 +81,7 @@ public class CST {
         CST.SpecBroker = new SpecificationBrokerImpl();
         CST.ImplBroker = new ImplementationBrokerImpl();
         CST.InstBroker = new InstanceBrokerImpl();
-        //        CST.InstBroker = new InstanceBrokerImpl();
-        //        CST.apform2Apam = new Apform2Apam();
         CST.apam = theApam;
     }
+
 }

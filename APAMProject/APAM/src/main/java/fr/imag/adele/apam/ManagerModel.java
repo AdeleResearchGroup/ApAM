@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apamImpl;
+package fr.imag.adele.apam;
 
 import java.net.URL;
 

@@ -82,22 +82,22 @@ public class ApamInstall {
         Dictionary headers = bundle.getHeaders();
         String iPOJO_components = (String) headers.get("iPOJO-Components");
 
-//        Enumeration en = headers.keys();
-//        while (en.hasMoreElements()) {
-//            String s = (String) en.nextElement();
-//            System.out.println(s + "  " + headers.get(s));
-//        }
+        //        Enumeration en = headers.keys();
+        //        while (en.hasMoreElements()) {
+        //            String s = (String) en.nextElement();
+        //            System.out.println(s + "  " + headers.get(s));
+        //        }
 
         ApamInstall.getcompositeNames(iPOJO_components, "fr.imag.adele.apam:specification", componentNames);
-        System.out.println("\nfr.imag.adele.apam:specification : " + componentNames);
+        //        System.out.println("\nfr.imag.adele.apam:specification : " + componentNames);
         ApamInstall.getcompositeNames(iPOJO_components, "fr.imag.adele.apam:composite", componentNames);
-        System.out.println("\nfr.imag.adele.apam:composite : " + componentNames);
+        //        System.out.println("\nfr.imag.adele.apam:composite : " + componentNames);
         ApamInstall.getcompositeNames(iPOJO_components, "fr.imag.adele.apam:implementation", componentNames);
-        System.out.println("\nfr.imag.adele.apam:implementation : " + componentNames);
+        //        System.out.println("\nfr.imag.adele.apam:implementation : " + componentNames);
         ApamInstall.getcompositeNames(iPOJO_components, "ipojo:component", componentNames);
-        System.out.println("\nipojo:component : " + componentNames);
+        //        System.out.println("\nipojo:component : " + componentNames);
         ApamInstall.getcompositeNames(iPOJO_components, "component", componentNames);
-        System.out.println("\ncomponent : " + componentNames);
+        //        System.out.println("\ncomponent : " + componentNames);
 
         return componentNames;
     }
