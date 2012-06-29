@@ -505,10 +505,10 @@ public class CheckObr {
         if (cap == null)
             return null;
         Map<String, Object> props = cap.getPropertiesAsMap();
-        List<String> prop = (List<String>) props.get(name);
+        String prop =  (String) props.get(name);
         if (prop == null)
             return null;
-        return (String) prop.toArray()[0];
+        return prop;
     }
 
     private static Capability getSpecCapability(ComponentReference<?> reference) {
