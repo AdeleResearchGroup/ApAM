@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Property;
 import org.apache.felix.bundlerepository.Reason;
@@ -20,6 +23,9 @@ import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Filter;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 //import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.util.ApamFilter;
@@ -429,16 +435,24 @@ public class OBRManager implements IOBRMAN {
     private String searchMavenRepoFromSettings(File pathSettings) {
         // Look for <localRepository>
         try {
-            String settings = OBRManager.readFileAsString(pathSettings.toURL());
-            int local = settings.indexOf("<localRepository>");
-            if (local == -1)
-                return null;
-            // TODO eliminer les commentaires
-            String localRepo;
-            int localEnd = settings.indexOf("</localRepository>", local + 5);
-            localRepo = "file:///" + settings.substring(local + 17, localEnd) + "\\repository.xml";
-            // System.out.println("found local repos : " + localRepo);
-            return localRepo;
+        	
+        	SAXParserFactory factory = SAXParserFactory.newInstance();
+        	SAXParser saxParser = factory.newSAXParser();
+        	 
+        	SaxHandler handler = new SaxHandler() ;
+         
+            saxParser.parse(pathSettings, handler);
+//            String settings = OBRManager.readFileAsString(pathSettings.toURL());
+//            int local = settings.indexOf("<localRepository>");
+//            if (local == -1)
+//                return null;
+//            // TODO eliminer les commentaires
+//            String localRepo;
+//            int localEnd = settings.indexOf("</localRepository>", local + 5);
+//            localRepo = "file:///" + settings.substring(local + 17, localEnd) + "\\repository.xml";
+//            // System.out.println("found local repos : " + localRepo);
+
+            return handler.getRepo();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -446,7 +460,8 @@ public class OBRManager implements IOBRMAN {
     }
 
     private File searchSettingsFromM2Home() {
-        String m2_home = System.getProperty("M2_HOME");
+        String m2_home = System.getenv().get("M2_HOME");
+       
         if (m2_home == null) {
             return null;
         }
