@@ -9,19 +9,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.osgi.impl.bundle.obr.resource.RepositoryImpl;
-import org.osgi.service.obr.Capability;
-import org.osgi.service.obr.Resource;
+import org.apache.felix.bundlerepository.Capability;
+import org.apache.felix.bundlerepository.DataModelHelper;
+import org.apache.felix.bundlerepository.Property;
+import org.apache.felix.bundlerepository.Repository;
+import org.apache.felix.bundlerepository.Resource;
+import org.apache.felix.bundlerepository.impl.DataModelHelperImpl;
+import org.apache.felix.bundlerepository.impl.RepositoryImpl;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.core.ComponentReference;
+import fr.imag.adele.apam.core.CompositeDeclaration;
+import fr.imag.adele.apam.core.DependencyDeclaration;
+import fr.imag.adele.apam.core.DependencyInjection;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.core.ImplementationReference;
+import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.core.InterfaceReference;
+import fr.imag.adele.apam.core.MessageReference;
+import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.apam.core.*;
 
 public class CheckObr {
 
-    private static RepositoryImpl repo;
+	private static DataModelHelper dataModelHelper; 
+    private static Repository repo;
     private static Resource[]     resources;
 
     private static final Map<String, Capability> readCapabilities        = new HashMap<String, Capability>();
@@ -55,8 +72,10 @@ public class CheckObr {
         System.out.println("start CheckOBR. Default repo= " + defaultOBRRepo);
         try {
             File theRepo = new File(defaultOBRRepo);
-            CheckObr.repo = new RepositoryImpl(theRepo.toURI().toURL());
-            CheckObr.repo.refresh();
+            dataModelHelper =  new DataModelHelperImpl();
+            
+            CheckObr.repo = dataModelHelper.repository(theRepo.toURI().toURL());
+            // CheckObr.repo.refresh();
             // System.out.println("read repo " + defaultOBRRepo);
             CheckObr.resources = CheckObr.repo.getResources();
 
@@ -165,9 +184,9 @@ public class CheckObr {
             cap = CheckObr.getImplCapability(new ImplementationReference<ImplementationDeclaration>(impl));
             if (cap != null) {
                 // Map<String, Object> props = cap.getProperties();
-                for (Object attr : cap.getProperties().keySet()) {
-                    if (!((String) attr).startsWith(OBR.A_DEFINITION_PREFIX))
-                        validAttr.add((String) attr);
+                for (Property attr : cap.getProperties()) {
+                    if (!attr.getName().startsWith(OBR.A_DEFINITION_PREFIX))
+                        validAttr.add(attr.getName());
                 }
             }
         }
@@ -210,12 +229,12 @@ public class CheckObr {
             return null;
         Set<String> validAttrs = new HashSet<String>();
         String attr;
-        for (Object attrObject : cap.getProperties().keySet()) {
-            attr = (String) attrObject;
-            if (attr.startsWith(OBR.A_DEFINITION_PREFIX))
-                validAttrs.add(attr.substring(11));
+        for (Property attrObject : cap.getProperties()) {
+            
+            if (attrObject.getName().startsWith(OBR.A_DEFINITION_PREFIX))
+                validAttrs.add(attrObject.getName().substring(11));
             else
-                validAttrs.add(attr);
+                validAttrs.add(attrObject.getName());
         }
         return validAttrs;
     }
@@ -240,7 +259,7 @@ public class CheckObr {
      * All predefined attributes are Ok (scope ...)
      * Cannot be a reserved attribute
      */
-    private static boolean capContainsDefAttr(Map<String, Object> props, String attr, Object value) {
+    private static boolean capContainsDefAttr(Property[] props, String attr, Object value) {
         if (Util.isPredefinedAttribute(attr))
             return true;
 
@@ -249,17 +268,17 @@ public class CheckObr {
             return false;
         }
 
-        for (Object prop : props.keySet()) {
-            if (((String) prop).equalsIgnoreCase(attr)) {
+        for (Property prop : props) {
+            if (prop.getName().equalsIgnoreCase(attr)) {
                 CheckObr.error("ERROR: cannot redefine attribute " + attr);
                 return false;
             }
         }
         String defattr = OBR.A_DEFINITION_PREFIX + attr;
-        for (Object prop : props.keySet()) {
-            if (((String) prop).equals(defattr)) {
+        for (Property prop : props) {
+            if (prop.getName().equals(defattr)) {
                 // for definitions, value is the type: "string", "int", "boolean"
-                Object val = props.get(prop);
+                Object val = prop.getValue();
                 if (val instanceof Collection) {
                     for (Object aVal : (Collection) val) {
                         CheckObr.checkAttrType(attr, value, (String) aVal);
@@ -311,7 +330,7 @@ public class CheckObr {
         if (cap == null) {
             return properties;
         }
-        return cap.getProperties();
+        return cap.getPropertiesAsMap();
     }
     /**
      * 
@@ -330,7 +349,7 @@ public class CheckObr {
             return;
         }
         // each attribute in properties must be declared in spec.
-        Map<String, Object> props = cap.getProperties();
+        Property[] props = cap.getProperties();
         for (String attr : properties.keySet()) {
             if (!CheckObr.capContainsDefAttr(props, attr, properties.get(attr))) {
                 System.err.println("In implementation " + implName + ", attribute " + attr
@@ -356,7 +375,7 @@ public class CheckObr {
 
         Map<String, Object> properties = instance.getProperties();
 
-        Map<String, Object> props = capImpl.getProperties();
+        Property[] props = capImpl.getProperties();
 
         // Add spec attributes
         // each attribute in properties must be declared in cap.
@@ -475,17 +494,17 @@ public class CheckObr {
     public static void printCap(Capability aCap) {
         System.out.println("   Capability name: " + aCap.getName());
         String value;
-        for (Object prop : aCap.getProperties().keySet()) {
-            Object val = aCap.getProperties().get(prop);
-            System.out.println("type de value: " + val.getClass());
-            System.out.println("     " + (String) prop + " val= " + aCap.getProperties().get(prop));
+        for (Property prop : aCap.getProperties()) {
+            
+            System.out.println("type de value: " + prop.getValue().getClass());
+            System.out.println("     " +  prop.getName() + " val= " +  prop.getValue());
         }
     }
 
     private static String getAttributeInCap(Capability cap, String name) {
         if (cap == null)
             return null;
-        Map<String, Object> props = cap.getProperties();
+        Map<String, Object> props = cap.getPropertiesAsMap();
         List<String> prop = (List<String>) props.get(name);
         if (prop == null)
             return null;
@@ -510,7 +529,7 @@ public class CheckObr {
             }
         }
         System.out
-        .println("     Warning: Specification " + name + " not found in repository " + CheckObr.repo.getURL());
+        .println("     Warning: Specification " + name + " not found in repository " + CheckObr.repo.getURI());
         return null;
     }
 
@@ -531,7 +550,7 @@ public class CheckObr {
                 //                }
             }
         }
-        System.err.println("     Implementation " + name + " not found in repository " + CheckObr.repo.getURL());
+        System.err.println("     Implementation " + name + " not found in repository " + CheckObr.repo.getURI());
         return null;
     }
 
