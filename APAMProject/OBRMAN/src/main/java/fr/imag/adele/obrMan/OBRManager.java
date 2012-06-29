@@ -4,7 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
+//import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
@@ -19,9 +19,10 @@ import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
-import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
+//import org.osgi.framework.InvalidSyntaxException;
+
+import fr.imag.adele.apam.util.ApamFilter;
 
 public class OBRManager implements IOBRMAN {
 
@@ -91,7 +92,7 @@ public class OBRManager implements IOBRMAN {
     // selected = lookFor("bundle", "(symbolicname=ApamCommand)", constraints);
     //
     // try {
-    // Filter f = FilterImpl.newInstance("(&(scope=LOCAL)(shared=TRUE))");
+    // Filter f = ApamFilter.newInstance("(&(scope=LOCAL)(shared=TRUE))");
     // constraints.add(f);
     // } catch (InvalidSyntaxException e) {
     // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
@@ -102,7 +103,7 @@ public class OBRManager implements IOBRMAN {
     // selected = lookFor("apam-component", "(apam-specification=S2)", null);
     //
     // try {
-    // Filter f = FilterImpl.newInstance("(test=yes)");
+    // Filter f = ApamFilter.newInstance("(test=yes)");
     // constraints.add(f);
     // } catch (InvalidSyntaxException e) {
     // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
@@ -111,7 +112,7 @@ public class OBRManager implements IOBRMAN {
     // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", constraints);
     // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", constraints);
     // try {
-    // Filter f = FilterImpl.newInstance("(X=Y)");
+    // Filter f = ApamFilter.newInstance("(X=Y)");
     // constraints.add(f);
     // } catch (InvalidSyntaxException e) {
     // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
@@ -162,9 +163,9 @@ public class OBRManager implements IOBRMAN {
         if (allResources == null)
             return null;
         try {
-            FilterImpl filter = null;
+            ApamFilter filter = null;
             if (filterStr != null)
-                filter = FilterImpl.newInstance(filterStr);
+                filter = ApamFilter.newInstance(filterStr);
             for (Resource res : allResources) {
                 Capability[] capabilities = res.getCapabilities();
                 for (Capability aCap : capabilities) {
@@ -224,22 +225,16 @@ public class OBRManager implements IOBRMAN {
     }
 
     private int matchPreferences(Capability aCap, List<Filter> preferences) {
-        FilterImpl filter;
-        // for (Capability aCap : capabilities) {
-        // if (aCap.getName().equals("apam-component")) {
+        ApamFilter filter;
         Map map = aCap.getPropertiesAsMap();
         int match = 0;
         for (Filter constraint : preferences) {
-            try {
-                filter = FilterImpl.newInstance(constraint.toString());
-                if (!filter.matchCase(map)) {
-                    // System.out.println("contraint not matched : " + constraint);
-                    return match;
-                }
-                match++;
-            } catch (InvalidSyntaxException e) {
-                System.err.println("invalid syntax in filter : " + constraint.toString());
+            filter = ApamFilter.newInstance(constraint.toString());
+            if (!filter.matchCase(map)) {
+                // System.out.println("contraint not matched : " + constraint);
+                return match;
             }
+            match++;
         }
         return match;
     }
@@ -257,9 +252,9 @@ public class OBRManager implements IOBRMAN {
         if (allResources == null)
             return null;
         try {
-            FilterImpl filter = null;
+            ApamFilter filter = null;
             if (filterStr != null)
-                filter = FilterImpl.newInstance(filterStr);
+                filter = ApamFilter.newInstance(filterStr);
             for (Resource res : allResources) {
                 Capability[] capabilities = res.getCapabilities();
                 for (Capability aCap : capabilities) {
@@ -286,7 +281,7 @@ public class OBRManager implements IOBRMAN {
             return true;
         if (capabilities == null)
             return true;
-        FilterImpl filter;
+        ApamFilter filter;
 
         // trace
         System.out.print("maching constraints : ");
@@ -299,14 +294,10 @@ public class OBRManager implements IOBRMAN {
             if (aCap.getName().equals("apam-implementation")) {
                 Map map = aCap.getPropertiesAsMap();
                 for (Filter constraint : constraints) {
-                    try {
-                        filter = FilterImpl.newInstance(constraint.toString());
-                        if (!filter.matchCase(map)) {
-                            System.out.println("constraint not matched : " + constraint);
-                            return false;
-                        }
-                    } catch (InvalidSyntaxException e) {
-                        System.err.println("invalid syntax in filter : " + constraint.toString());
+                    filter = ApamFilter.newInstance(constraint.toString());
+                    if (!filter.matchCase(map)) {
+                        System.out.println("constraint not matched : " + constraint);
+                        return false;
                     }
                 }
             }

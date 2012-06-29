@@ -10,24 +10,24 @@ import java.util.Set;
 
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resource;
-import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
+//import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Manager;
-import fr.imag.adele.apam.apamImpl.CST;
-import fr.imag.adele.apam.apamImpl.ManagerModel;
+import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.OBR;
+import fr.imag.adele.apam.util.ApamFilter;
 
 public class OBRMan implements Manager {
 
@@ -161,15 +161,11 @@ public class OBRMan implements Manager {
     private Implementation resolveSpec(CompositeType compoType, ResolvableReference resource,
             Set<Filter> constraints, List<Filter> preferences) {
 
-        // temporary
+        // temporary ??
         if (preferences == null)
             preferences = new ArrayList<Filter>();
-        try {
-            Filter f = FilterImpl.newInstance("(apam-composite=true)");
-            preferences.add(f);
-        } catch (InvalidSyntaxException e) {
-            e.printStackTrace();
-        }
+        Filter f = ApamFilter.newInstance("(apam-composite=true)");
+        preferences.add(f);
         // end
 
         fr.imag.adele.obrMan.OBRManager.Selected selected = null;
