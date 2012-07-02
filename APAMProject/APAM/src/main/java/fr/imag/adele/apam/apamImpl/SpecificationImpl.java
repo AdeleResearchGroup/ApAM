@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 //import java.util.concurrent.ConcurrentHashMap;
 
 //import org.apache.felix.utils.filter.FilterImpl;
@@ -13,6 +14,7 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformSpecification;
@@ -25,10 +27,18 @@ public class SpecificationImpl extends PropertiesImpl implements Specification {
     private String                    name;
     private ApformSpecification       apfSpec         = null;
     private SpecificationDeclaration  declaration;
-    private final Set<Implementation> implementations = new HashSet<Implementation>();
+    private final Set<Implementation> implementations = Collections
+                                                              .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
-    private final Set<Specification>  requires        = new HashSet<Specification>(); // all relations requires
-    private final Set<Specification>  invRequires     = new HashSet<Specification>(); // all reverse relations requires
+    private final Set<Specification>  requires        = Collections
+                                                              .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>()); // all
+                                                                                                                                // relations
+                                                                                                                                // requires
+    private final Set<Specification>  invRequires     = Collections
+                                                              .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());  // all
+                                                                                                                                // reverse
+                                                                                                                                // relations
+                                                                                                                                // requires
 
     // private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
 

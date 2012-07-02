@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
@@ -19,21 +20,22 @@ import fr.imag.adele.apam.apform.ApformInstance;
 public class CompositeImpl extends InstanceImpl implements Composite {
 
     // Global variable.
-    private static Map<String, Composite> composites    = new HashMap<String, Composite>();
+    private static Map<String, Composite> composites    = new ConcurrentHashMap<String, Composite>();
     private static Composite              rootComposite = new CompositeImpl();
 
     private final CompositeType           compType;
     private final Implementation          mainImpl;
     private final Instance                mainInst;
     private final Composite               appliComposite;                                  // root of father rel
-    private final Set<Instance>           hasInstance   = new HashSet<Instance>();
+    private final Set<Instance>           hasInstance   = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
 
     // the dependencies between composites
-    private final Set<Composite>          depend        = new HashSet<Composite>();
-    private final Set<Composite>          invDepend     = new HashSet<Composite>();        // reverse dependency
+    private final Set<Composite>          depend        = Collections.newSetFromMap(new ConcurrentHashMap<Composite, Boolean>());
+    private final Set<Composite>          invDepend     = Collections.newSetFromMap(new ConcurrentHashMap<Composite, Boolean>());  // reverse dependency
 
     // The father-son relationship
-    private final Set<Composite>          sons          = new HashSet<Composite>();
+    private final Set<Composite>          sons          = Collections
+    .newSetFromMap(new ConcurrentHashMap<Composite, Boolean>());
     private Composite                     father;                                          // null if appli
 
     /**
@@ -65,7 +67,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
         // First create the composite, as a normal instance
         super(compType, instCompo, initialproperties, apfInst);
-
+        put(CST.A_COMPOSITE, CST.V_TRUE);
         // initialize as a composite
         this.compType = compType;
 

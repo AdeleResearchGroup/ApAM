@@ -27,9 +27,18 @@ import fr.imag.adele.apam.core.ImplementationDeclaration;
 public class ImplementationImpl extends PropertiesImpl implements Implementation {
 
     private static final long           serialVersionUID  = 1L;
-    protected final Set<Implementation> uses              = new HashSet<Implementation>(); // all relations uses
-    protected final Set<Implementation> invUses           = new HashSet<Implementation>(); // all reverse relations uses
-    protected final Set<CompositeType>  inComposites      = new HashSet<CompositeType>(); // composite it is contained
+    protected final Set<Implementation> uses              = Collections
+                                                                  .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
+    protected final Set<Implementation> invUses           = Collections
+                                                                  .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>()); // all
+                                                                                                                                    // reverse
+                                                                                                                                    // relations
+                                                                                                                                    // uses
+    protected final Set<CompositeType>  inComposites      = Collections
+                                                                  .newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>()); // composite
+                                                                                                                                    // it
+                                                                                                                                    // is
+                                                                                                                                    // contained
     private final Object                id                = new Object();                 // only for hashCode
     protected ImplementationDeclaration declaration;
 

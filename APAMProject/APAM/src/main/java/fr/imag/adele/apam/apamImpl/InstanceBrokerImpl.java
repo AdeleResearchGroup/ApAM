@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
@@ -30,33 +31,15 @@ import fr.imag.adele.apam.apform.ApformInstance;
 //import fr.imag.adele.sam.event.EventProperty;
 
 public class InstanceBrokerImpl implements InstanceBroker {
-
+    private final Set<Instance> sharableInstances = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
+    private final Set<Instance> instances         = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
     private static final ImplementationBroker implBroker        = CST.ImplBroker;
 
-    private final Set<Instance>               instances         = new HashSet<Instance>();
-    private final Set<Instance>               sharableInstances = new HashSet<Instance>();
-
-    // EVENTS
-    //    private SamInstEventHandler        instEventHandler;
+    //  private final Set<Instance>               instances         = new HashSet<Instance>();
+    //    private final Set<Instance>               sharableInstances = new HashSet<Instance>();
 
     public InstanceBrokerImpl() {
-        //        try {
-        //            Machine machine = LocalMachine.localMachine;
-        //            EventingEngine eventingEngine = machine.getEventingEngine();
-        //            instEventHandler = new SamInstEventHandler();
-        //            eventingEngine.subscribe(instEventHandler, EventProperty.TOPIC_INSTANCE);
-        //        } catch (Exception e) {
-        //        }
     }
-
-    //    public void stopSubscribe(AMEventingHandler handler) {
-    //        try {
-    //            Machine machine = LocalMachine.localMachine;
-    //            EventingEngine eventingEngine = machine.getEventingEngine();
-    //            eventingEngine.unsubscribe(handler, EventProperty.TOPIC_INSTANCE);
-    //        } catch (Exception e) {
-    //        }
-    //    }
 
     @Override
     public Instance getInst(String instName) {
@@ -130,11 +113,9 @@ public class InstanceBrokerImpl implements InstanceBroker {
         impl = CST.ImplBroker.getImpl(implementationName);
         if (impl == null) { // create the implem also
             System.err.println("Implementation is not existing in addInst: " + implementationName);
-            //            impl = ASMInstBrokerImpl.implBroker.addImpl(instComposite.getCompType(),
-            //                        apfInst.getImplemName(), properties);
         }
 
-        // Normally composite implementations are visible but they can not be instantiated.
+        // Normally composite implementations are visible but they cannot be instantiated.
         // The only way to create an instance of a composite should be using APAM.
         if (impl instanceof CompositeType) {
             inst = CompositeImpl.newCompositeImpl((CompositeType) impl, instComposite, null, properties, apfInst);

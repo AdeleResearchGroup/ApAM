@@ -46,8 +46,11 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
     private boolean           used             = false;
     private InstanceDeclaration declaration;
 
-    private final Set<Wire>   wires            = new HashSet<Wire>(); // the currently used instances
-    private final Set<Wire>   invWires         = new HashSet<Wire>();
+    private final Set<Wire>     wires            = Collections.newSetFromMap(new ConcurrentHashMap<Wire, Boolean>()); // the
+                                                                                                                      // currently
+                                                                                                                      // used
+                                                                                                                      // instances
+    private final Set<Wire>     invWires         = Collections.newSetFromMap(new ConcurrentHashMap<Wire, Boolean>());
 
     // WARNING to be used only for empty root composite.
     protected InstanceImpl() {

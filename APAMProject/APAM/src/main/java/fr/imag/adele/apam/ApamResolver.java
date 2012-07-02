@@ -250,7 +250,7 @@ public class ApamResolver {
      * @return
      */
     public static boolean resolveWire(Instance client, String depName) {
-        System.err.println("resolver integré " + client.getName() + " " + depName);
+        System.err.println("Resolving dependency " + depName + " from instance " + client.getName());
         if ((depName == null) || (client == null)) {
             System.err.println("missing client or dependency name");
             return false;
@@ -571,7 +571,11 @@ public class ApamResolver {
         if (compoTypeFrom == null)
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
         Implementation impl = null;
-        System.out.println("Looking for an implem implementing " + specName + ": ");
+        if (constraints.isEmpty() && preferences.isEmpty())
+            System.out.println("Looking a \"" + specName + "\" implementation.");
+        else
+            System.out.println("Looking a \"" + specName + "\" implementation. Constraints:" + constraints
+                    + ". Preferences: " + preferences);
         boolean deployed = false;
         for (Manager manager : selectionPath) {
             if (!manager.getName().equals(CST.APAMMAN))
@@ -664,7 +668,7 @@ public class ApamResolver {
         }
         inst = impl.createInst(compo, null);
         System.out.println("instantiated : " + inst);
-        // client.createWire(inst, dependency.getIdentifier());
+
         // TODO Notify dynaman
 
         return inst;

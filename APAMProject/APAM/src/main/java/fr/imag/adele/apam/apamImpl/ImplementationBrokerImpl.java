@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
@@ -34,7 +35,8 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
 
     // private Logger logger = Logger.getLogger(ASMImplBrokerImpl.class);
 
-    private final Set<Implementation> implems = new HashSet<Implementation>();
+    private final Set<Implementation> implems = Collections
+                                                      .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
     // Not in the interface. No control
     public void addImpl(Implementation impl) {

@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.osgi.framework.Filter;
+
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -28,13 +30,14 @@ import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.util.ApamFilter;
 
 //import fr.imag.adele.sam.Implementation;
 
 public class CompositeTypeImpl extends ImplementationImpl implements CompositeType {
 
     // Global variable. The actual content of the ASM
-    private static Map<String, CompositeType> compositeTypes = new HashMap<String, CompositeType>();
+    private static Map<String, CompositeType> compositeTypes = new ConcurrentHashMap<String, CompositeType>();
     private static CompositeType              rootCompoType  = new CompositeTypeImpl();
     private int                               instNumber     = -1;
 
@@ -43,15 +46,20 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     // All the implementations deployed (really or logically) by this composite type!
     // Warning : implems may be deployed (logically) by more than one composite Type.
-    private final Set<Implementation>         contains       = new HashSet<Implementation>();
+    private final Set<Implementation>         contains       = Collections
+    .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
     // The composites types that have been deployed inside the current one.
-    private final Set<CompositeType>          embedded       = new HashSet<CompositeType>();
-    private final Set<CompositeType>          invEmbedded    = new HashSet<CompositeType>();
+    private final Set<CompositeType>          embedded       = Collections
+    .newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
+    private final Set<CompositeType>          invEmbedded    = Collections
+    .newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
 
     // all the dependencies between composite types
-    private final Set<CompositeType>          imports        = new HashSet<CompositeType>();
-    private final Set<CompositeType>          invImports     = new HashSet<CompositeType>();
+    private final Set<CompositeType>          imports        = Collections
+    .newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
+    private final Set<CompositeType>          invImports     = Collections
+    .newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
 
     private CompositeTypeImpl() {
         name = CST.ROOTCOMPOSITETYPE;
@@ -85,6 +93,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         // the composite itself as an implementation. Warning created empty. Must be fully initialized.
         super();
         name = nameCompo;
+        put(CST.A_COMPOSITETYPE, CST.V_TRUE);
 
         // The main implem resolution must be interpreted with the new models
         if (models != null) {
@@ -101,7 +110,11 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         if (mainImpl == null) { // normal case
             mainImpl = ApamResolver.findImplByName(this, mainImplName);
             if (mainImpl == null) {
-                mainImpl = ApamResolver.resolveSpecByName(this, mainImplName, null, null);
+                // It is a specification to resolve as the main implem. Do not select another composite
+                Set<Filter> noCompo = new HashSet<Filter>();
+                ApamFilter f = ApamFilter.newInstance("(!(" + CST.A_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
+                noCompo.add(f);
+                mainImpl = ApamResolver.resolveSpecByName(this, mainImplName, noCompo, null);
                 if (mainImpl == null) {
                     System.err.println("cannot find main implementation " + mainImplName);
                     return;
@@ -162,7 +175,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * 
      * @param fromCompo : Optional : the father composite from which this one is created.
      * @param name : the symbolic name. Unique.
-     * @param mainImplem : The name of the main implementation. If not found, returns null.
+     * @param mainImplem : The main implementation or the specification name. If not found, returns null.
      * @param models optional : the associated models.
      */
 
@@ -512,22 +525,22 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
         @Override
         public Object getServiceObject() {
-            throw new UnsupportedOperationException("this method is not availbale for root composites");
+            throw new UnsupportedOperationException("this method is not available for root composites");
         }
 
         @Override
         public boolean setWire(Instance destInst, String depName) {
-            throw new UnsupportedOperationException("this method is not availbale for root composites");
+            throw new UnsupportedOperationException("this method is not available for root composites");
         }
 
         @Override
         public boolean remWire(Instance destInst, String depName) {
-            throw new UnsupportedOperationException("this method is not availbale for root composites");
+            throw new UnsupportedOperationException("this method is not available for root composites");
         }
 
         @Override
         public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-            throw new UnsupportedOperationException("this method is not availbale for root composites");
+            throw new UnsupportedOperationException("this method is not available for root composites");
         }
 
         @Override

@@ -2,6 +2,7 @@ package fr.imag.adele.apam.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -102,9 +103,6 @@ public class Util {
         str = str.replaceAll(";", ",");
         str = str.replaceAll("\\[,", "[");
         str = str.replaceAll(",]", "]");
-
-        //        String[] tab = str.split(Util.splitSeparator);
-        //    }
 
         // Remove { and } or [ and ]
         if (((str.charAt(0) == '{') && (str.charAt(str.length() - 1) == '}'))
@@ -337,8 +335,8 @@ public class Util {
     }
 
     /**
-     * Check if attribute "attr" is defined in the list of attributes and definitions found in props
-     * Props contains attribute (Cannot be redefined), and attribute definitions.
+     * Check if attribute "attr=value" is valid when set on object "inst".
+     * inst can be an instance, an implementation or a specification.
      * Check if the value is consistent with the type.
      * All predefined attributes are Ok (scope ...)
      * Cannot be a reserved attribute
@@ -348,12 +346,12 @@ public class Util {
             return true;
 
         if (Util.isFinalAttribute(attr)) {
-            System.err.println("ERROR: " + attr + " is a final attribute");
+            System.err.println("ERROR: \"" + attr + "\" is a final attribute");
             return false;
         }
 
         if (Util.isReservedAttribute(attr)) {
-            System.err.println("ERROR: " + attr + " is a reserved attribute");
+            System.err.println("ERROR: \"" + attr + "\" is a reserved attribute");
             return false;
         }
 
@@ -367,7 +365,7 @@ public class Util {
 
         for (Object prop : props.keySet()) {
             if (((String) prop).equalsIgnoreCase(attr)) {
-                System.err.println("cannot redefine attribute " + attr);
+                System.err.println("cannot redefine attribute \"" + attr + "\"");
                 return false;
             }
         }
@@ -380,18 +378,10 @@ public class Util {
 
         for (PropertyDefinition propDef : propDefs) {
             if ((propDef.getName()).equals(attr)) {
-                // for definitions, value is the type: "string", "int", "boolean"
-                // Object val = props.get(prop);
-                //                if (value instanceof Collection) {
-                //                    for (Object aVal : (Collection) val) {
-                //                        Util.checkAttrType(attr, value, propDef.getType());
-                //                    }
-                //                    return true;
-                //                }
                 return Util.checkAttrType(attr, value, propDef.getType());
             }
         }
-        System.err.println("attribute " + attr + " undefined");
+        System.err.println("In " + inst + " attribute \"" + attr + "=" + value + "\" is undefined.");
         return false;
     }
 
@@ -406,15 +396,15 @@ public class Util {
             return false;
 
         if (!(val instanceof String)) {
-            System.err.println("Invalid attribute value " + val + " for attribute " + attr
-                    + ". String value expected.");
+            System.err.println("Invalid attribute value \"" + val + "\" for attribute \"" + attr
+                    + "\".  String value expected");
             return false;
         }
         String value = (String) val;
 
         if (type.equals("boolean") && !value.equalsIgnoreCase(CST.V_TRUE) && !value.equalsIgnoreCase(CST.V_FALSE)) {
-            System.err.println("Invalid attribute value " + value + " for attribute " + attr
-                    + ". Boolean value expected.");
+            System.err.println("Invalid attribute value \"" + val + "\" for attribute \"" + attr
+                    + "\".  Boolean value expected");
             return false;
         }
         if (type.equals("int")) {
@@ -422,16 +412,27 @@ public class Util {
                 int valint = Integer.parseInt(value);
                 return true;
             } catch (Exception e) {
-                System.err.println("Invalid attribute value " + value + " for attribute " + attr
-                        + ". Integer value expected.");
+                System.err.println("Invalid attribute value \"" + val + "\" for attribute \"" + attr
+                        + "\".  Integer value expected");
                 return false;
             }
         }
-        if (!(value instanceof String)) {
-            System.err.println("Invalid attribute value " + value + " for attribute " + attr
-                    + ". String value expected.");
+        if ((type.charAt(0) == '{') || (type.charAt(0) == '[')) { // enumerated value
+            String[] enumVals = Util.split(type);
+            for (String one : enumVals) {
+                if (one.equals(value))
+                    return true;
+            }
+            System.err
+            .print("Invalid attribute value \"" + val + "\" for attribute \"" + attr + "\".  Expected: \"{");
+            for (String one : enumVals) {
+                System.err.print(one + " ");
+            }
+            System.err.println("}\"");
             return false;
         }
+
+        // it is s string. Anything is Ok
         return true;
     }
 

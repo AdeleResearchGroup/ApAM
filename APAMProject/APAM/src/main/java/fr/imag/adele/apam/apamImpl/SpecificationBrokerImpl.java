@@ -1,13 +1,16 @@
 package fr.imag.adele.apam.apamImpl;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.SpecificationBroker;
 import fr.imag.adele.apam.apform.ApformSpecification;
@@ -19,7 +22,7 @@ import fr.imag.adele.apam.util.ApamInstall;
 
 public class SpecificationBrokerImpl implements SpecificationBroker {
 
-    private final Set<Specification> specs = new HashSet<Specification>();
+    private final Set<Specification> specs = Collections.newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());
 
     protected void removeSpec(Specification spec) {
         if (spec == null)
