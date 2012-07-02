@@ -19,6 +19,7 @@ import fr.imag.adele.apam.core.PropertyDefinition;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.OBR;
+import fr.imag.adele.apam.util.Util;
 
 public class ApamRepoBuilder {
 
@@ -120,15 +121,27 @@ public class ApamRepoBuilder {
             String tempContent = "      <p n='" + OBR.A_DEFINITION_PREFIX + definition.getName() + "'";
             String type = definition.getType();
             if (type != null) {
+                String typeString = null;
                 if (type.equals("string") || type.equals("int") || type.equals("boolean")) {
-                    tempContent = tempContent + (" v='" + (definition.getType()) + "'");
-                    CheckObr.checkAttrType(definition.getName(), definition.getDefaultValue(), type);
-                } else
-                    CheckObr.error("Invalid type " + type + " in attribute definition " + definition.getName()
-                            + ". Supported: string, int, boolean.");
+                    if (Util.checkAttrType(definition.getName(), definition.getDefaultValue(), type))
+                        typeString = type;
+                } else {
+                    // check for enum types
+                    if ((type.charAt(0) == '{') || (type.charAt(0) == '[')) {
+                        typeString = "[;";
+                        for (String one : Util.split(type)) {
+                            typeString += one + ";";
+                        }
+                        typeString += "]";
+                    } else
+                        CheckObr.error("Invalid type " + type + " in attribute definition " + definition.getName()
+                                + ". Supported: string, int, boolean, enumeration.");
+                }
+                if (typeString != null) {
+                    tempContent = tempContent + (" v='" + typeString + "' />\n");
+                    obrContent.append(tempContent);
+                }
             }
-            tempContent = tempContent + " />\n";
-            obrContent.append(tempContent);
         }
 
         // Check Consistency

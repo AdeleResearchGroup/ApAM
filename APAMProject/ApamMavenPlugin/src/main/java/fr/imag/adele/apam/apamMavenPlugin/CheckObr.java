@@ -37,7 +37,7 @@ import fr.imag.adele.apam.util.Util;
 
 public class CheckObr {
 
-	private static DataModelHelper dataModelHelper; 
+    private static DataModelHelper dataModelHelper; 
     private static Repository repo;
     private static Resource[]     resources;
 
@@ -72,9 +72,9 @@ public class CheckObr {
         System.out.println("start CheckOBR. Default repo= " + defaultOBRRepo);
         try {
             File theRepo = new File(defaultOBRRepo);
-            dataModelHelper =  new DataModelHelperImpl();
-            
-            CheckObr.repo = dataModelHelper.repository(theRepo.toURI().toURL());
+            CheckObr.dataModelHelper =  new DataModelHelperImpl();
+
+            CheckObr.repo = CheckObr.dataModelHelper.repository(theRepo.toURI().toURL());
             // CheckObr.repo.refresh();
             // System.out.println("read repo " + defaultOBRRepo);
             CheckObr.resources = CheckObr.repo.getResources();
@@ -96,39 +96,39 @@ public class CheckObr {
         return (Set<R>) references;
     }
 
-    /**
-     * only string, int and boolean attributes are accepted.
-     * 
-     * @param value
-     * @param type
-     */
-    public static void checkAttrType(String attr, Object val, String type) {
-        if ((type == null) || (val == null))
-            return;
-
-        if (!(val instanceof String)) {
-            CheckObr.error("Invalid attribute value " + val + " for attribute " + attr
-                    + ". String value expected.");
-        }
-        String value = (String) val;
-        if (type.equals("bool") && !value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")) {
-            CheckObr.error("Invalid attribute value " + value + " for attribute " + attr + ". Boolean value expected.");
-            return;
-        }
-        if (type.equals("int")) {
-            try {
-                int valint = Integer.parseInt(value);
-                return;
-            } catch (Exception e) {
-                CheckObr.error("Invalid attribute value " + value + " for attribute " + attr
-                        + ". Integer value expected.");
-            }
-        }
-        if (!(value instanceof String)) {
-            CheckObr.error("Invalid attribute value " + value + " for attribute " + attr
-                    + ". String value expected.");
-        }
-    }
+    //    /**
+    //     * only string, int and boolean attributes are accepted.
+    //     * 
+    //     * @param value
+    //     * @param type
+    //     */
+    //    public static void checkAttrType(String attr, Object val, String type) {
+    //        if ((type == null) || (val == null))
+    //            return;
+    //
+    //        if (!(val instanceof String)) {
+    //            CheckObr.error("Invalid attribute value " + val + " for attribute " + attr
+    //                    + ". String value expected.");
+    //        }
+    //        String value = (String) val;
+    //        if (type.equals("bool") && !value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")) {
+    //            CheckObr.error("Invalid attribute value " + value + " for attribute " + attr + ". Boolean value expected.");
+    //            return;
+    //        }
+    //        if (type.equals("int")) {
+    //            try {
+    //                int valint = Integer.parseInt(value);
+    //                return;
+    //            } catch (Exception e) {
+    //                CheckObr.error("Invalid attribute value " + value + " for attribute " + attr
+    //                        + ". Integer value expected.");
+    //            }
+    //        }
+    //        if (!(value instanceof String)) {
+    //            CheckObr.error("Invalid attribute value " + value + " for attribute " + attr
+    //                    + ". String value expected.");
+    //        }
+    //    }
     /**
      * 
      * @param dep
@@ -230,7 +230,7 @@ public class CheckObr {
         Set<String> validAttrs = new HashSet<String>();
         String attr;
         for (Property attrObject : cap.getProperties()) {
-            
+
             if (attrObject.getName().startsWith(OBR.A_DEFINITION_PREFIX))
                 validAttrs.add(attrObject.getName().substring(11));
             else
@@ -259,7 +259,7 @@ public class CheckObr {
      * All predefined attributes are Ok (scope ...)
      * Cannot be a reserved attribute
      */
-    private static boolean capContainsDefAttr(Property[] props, String attr, Object value) {
+    private static boolean capContainsDefAttr(Property[] props, String attr, Object value, String component, String spec) {
         if (Util.isPredefinedAttribute(attr))
             return true;
 
@@ -277,20 +277,14 @@ public class CheckObr {
         String defattr = OBR.A_DEFINITION_PREFIX + attr;
         for (Property prop : props) {
             if (prop.getName().equals(defattr)) {
-                // for definitions, value is the type: "string", "int", "boolean"
-                Object val = prop.getValue();
-                if (val instanceof Collection) {
-                    for (Object aVal : (Collection) val) {
-                        CheckObr.checkAttrType(attr, value, (String) aVal);
-                    }
-                    return true;
-                }
-                if (val instanceof String) {
-                    CheckObr.checkAttrType(attr, value, (String) val);
-                    return true;
-                }
+                return Util.checkAttrType(attr, value, prop.getValue());
             }
         }
+        if (component != null)
+            System.err
+            .println("in component " + component + ", attribute " + attr + " used but not defined in " + spec);
+        else         
+            System.err.println("in instance, attribute " + attr + " used but not defined in " + spec);
         return false;
     }
 
@@ -351,11 +345,7 @@ public class CheckObr {
         // each attribute in properties must be declared in spec.
         Property[] props = cap.getProperties();
         for (String attr : properties.keySet()) {
-            if (!CheckObr.capContainsDefAttr(props, attr, properties.get(attr))) {
-                System.err.println("In implementation " + implName + ", attribute " + attr
-                        + " used but not defined in "
-                        + spec.getName());
-            }
+            CheckObr.capContainsDefAttr(props, attr, properties.get(attr), implName, spec.getName());
         }
     }
 
@@ -380,15 +370,7 @@ public class CheckObr {
         // Add spec attributes
         // each attribute in properties must be declared in cap.
         for (String attr : properties.keySet()) {
-            if (!CheckObr.capContainsDefAttr(props, attr, properties.get(attr))) {
-                if (name == null) {
-                    System.err.println("In instance, attribute " + attr
-                            + " used but not defined in " + impl);
-                } else {
-                    System.err.println("In instance " + name + ", attribute " + attr
-                            + " used but not defined in " + impl);
-                }
-            }
+            CheckObr.capContainsDefAttr(props, attr, properties.get(attr), name, impl);
         }
     }
 
@@ -495,7 +477,7 @@ public class CheckObr {
         System.out.println("   Capability name: " + aCap.getName());
         String value;
         for (Property prop : aCap.getProperties()) {
-            
+
             System.out.println("type de value: " + prop.getValue().getClass());
             System.out.println("     " +  prop.getName() + " val= " +  prop.getValue());
         }
