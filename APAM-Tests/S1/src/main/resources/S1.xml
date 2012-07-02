@@ -7,6 +7,7 @@
 		<definitions>
 			<definition name="s1b" type="boolean" value="true" />
 			<definition name="s1c" type="string" />
+			<definition name="location" type="{living, kitchen, bedroom}" />
 		</definitions>
 
 	</specification>

@@ -10,6 +10,7 @@ import java.util.Map;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;
 //import fr.imag.adele.apam.Composite;
@@ -55,6 +56,8 @@ public class MainApam implements Runnable, ApamComponent {
         props.put("testMain", "valeurTestMain");
         props.put("scope", "5");
         props.put("impl-name", "5");
+        props.put("location", "living");
+        props.put("location", "anywhere");
 
         Instance a3 = appli.createInst((Composite) a /* composite */, props/* properties */);
         //        return;
@@ -63,7 +66,23 @@ public class MainApam implements Runnable, ApamComponent {
         CompositeType appli3 = apam
         .createCompositeType("TestS1", "S1Simple", null /* models */, null /* properties */);
         // S1Simple does not exist
-        appli3 = apam.createCompositeType("TestS1", "S1Main", null /* models */, null /* properties */);
+        appli3 = apam.createCompositeType("TestS1", "S1Impl", null /* models */, null /* properties */);
+
+        //        appli3.setProperty("location", "living");
+        //        appli3.setProperty("location", "Living");
+        //        appli3.setProperty("location", "anywhere");
+        //        appli3.setProperty("testMain", "valeurTestMain");
+        //        appli3.setProperty("scope", "5");
+        //        appli3.setProperty("impl-name", "5");
+
+        Implementation impl = appli3.getMainImpl();
+        impl.setProperty("location", "living");
+        impl.setProperty("location", "Living");
+        impl.setProperty("location", "anywhere");
+        impl.setProperty("testMain", "valeurTestMain");
+        impl.setProperty("scope", "5");
+        impl.setProperty("impl-name", "5");
+
 
         System.out.println("\n\n=====================================\n"
                 + " Alternatively, a specification can be provided instead; it is resolved to find the main implem.\n");
