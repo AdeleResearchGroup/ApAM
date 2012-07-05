@@ -12,30 +12,30 @@ import java.util.List;
  */
 public class DependencyDeclaration extends TargetDeclaration {
 
-	/**
-	 * A reference to a dependency declaration. Notice that dependency identifiers must be only
-	 * unique in the context of their defining component declaration.
-	 */
-	public static class Reference extends fr.imag.adele.apam.core.Reference {
+    /**
+     * A reference to a dependency declaration. Notice that dependency identifiers must be only
+     * unique in the context of their defining component declaration.
+     */
+    public static class Reference extends fr.imag.adele.apam.core.Reference {
 
-		private final String identifier;
-		
-		public Reference(ComponentReference<?> definingComponent, String identifier) {
-			super(definingComponent);
-			this.identifier = identifier;
-		}
+        private final String identifier;
 
-		@Override
-		public String getIdentifier() {
-			return identifier;
-		}
-	
-		public ComponentReference<?> getDeclaringComponent() {
-			return (ComponentReference<?>) namespace;
-		}
-		
-	}
-	
+        public Reference(ComponentReference<?> definingComponent, String identifier) {
+            super(definingComponent);
+            this.identifier = identifier;
+        }
+
+        @Override
+        public String getIdentifier() {
+            return identifier;
+        }
+
+        public ComponentReference<?> getDeclaringComponent() {
+            return (ComponentReference<?>) namespace;
+        }
+
+    }
+
     /**
      * The component in which this dependency is declared
      */
@@ -45,22 +45,22 @@ public class DependencyDeclaration extends TargetDeclaration {
      * The identification of the dependency in its declaring component
      */
     private final String 			id;
-    
+
     /**
      * The reference to this declaration
      */
     private final Reference			reference;
-    
-	/**
-	 * The list of preferences to choose among candidate service provider implementation
-	 */
-	private final List<String> implementationPreferences;
-	
-	/**
-	 * The list of preferences to choose among candidate service provider instances
-	 */
-	private final List<String> instancePreferences;
-    
+
+    /**
+     * The list of preferences to choose among candidate service provider implementation
+     */
+    private final List<String> implementationPreferences;
+
+    /**
+     * The list of preferences to choose among candidate service provider instances
+     */
+    private final List<String> instancePreferences;
+
     /**
      * The list of fields that will be injected with this dependency in a primitive component
      */
@@ -71,11 +71,11 @@ public class DependencyDeclaration extends TargetDeclaration {
      */
 
     private MissingPolicy missingPolicy;
-    
+
     public DependencyDeclaration(ComponentDeclaration component, String id, ResolvableReference resource) {
 
-    	super(resource);
-    	
+        super(resource);
+
 
         // Bidirectional reference to encompassing declaration
         assert component != null;
@@ -83,11 +83,11 @@ public class DependencyDeclaration extends TargetDeclaration {
         this.component.getDependencies().add(this);
 
         this.id				= id;
-        this.reference		= new Reference(component.getReference(),getIdentifier());
-        
-        this.implementationPreferences 	= new ArrayList<String>();
-        this.instancePreferences 		= new ArrayList<String>();
-        this.injections					= new ArrayList<DependencyInjection>();
+        reference		= new Reference(component.getReference(),getIdentifier());
+
+        implementationPreferences 	= new ArrayList<String>();
+        instancePreferences 		= new ArrayList<String>();
+        injections					= new ArrayList<DependencyInjection>();
     }
 
     /**
@@ -108,9 +108,9 @@ public class DependencyDeclaration extends TargetDeclaration {
      * Get the reference to this declaration
      */
     public Reference getReference() {
-    	return reference;
+        return reference;
     }
-    
+
     /**
      * The multiplicity of a dependency is calculated from the declaration of injected fields.
      * 
@@ -135,31 +135,31 @@ public class DependencyDeclaration extends TargetDeclaration {
      * Get the policy associated with this dependency
      */
     public MissingPolicy getMissingPolicy() {
-		return missingPolicy;
-	}
+        return missingPolicy;
+    }
 
     /**
      * Set the missing policy used for this dependency
      * @param missingPolicy
      */
     public void setMissingPolicy(MissingPolicy missingPolicy) {
-		this.missingPolicy = missingPolicy;
-	}
- 
-	/**
-	 * Get the resource provider preferences
-	 */
-	public List<String> getImplementationPreferences() {
-	    return implementationPreferences;
-	}
+        this.missingPolicy = missingPolicy;
+    }
 
-	/**
-	 * Get the instance provider preferences
-	 */
-	public List<String> getInstancePreferences() {
-	    return instancePreferences;
-	}
-    
+    /**
+     * Get the resource provider preferences
+     */
+    public List<String> getImplementationPreferences() {
+        return implementationPreferences;
+    }
+
+    /**
+     * Get the instance provider preferences
+     */
+    public List<String> getInstancePreferences() {
+        return instancePreferences;
+    }
+
     /**
      * Get the injections associated to this dependency declaration
      */
@@ -172,9 +172,9 @@ public class DependencyDeclaration extends TargetDeclaration {
     public String toString() {
         String ret = " dependency id: " + getIdentifier() + ". toward " + getTarget();
         if (! injections.isEmpty()) {
-            ret += "\n         Injected dependencies";
+            // ret += "\n         Injected dependencies";
             for (DependencyInjection inj : injections) {
-                ret += "\n         " + inj;
+                ret += "   " + inj;
             }
         }
 
