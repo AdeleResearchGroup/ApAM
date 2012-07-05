@@ -14,6 +14,7 @@ import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamResolver;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
@@ -55,7 +56,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 
         super(implementation, context, handlers);
         this.isApamCreated	= isApamCreated;
-    	this.injectedFields	= new HashSet<DependencyInjectionManager>();
+        injectedFields	= new HashSet<DependencyInjectionManager>();
     }
 
     @Override
@@ -70,7 +71,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
         String instanceName = (String) configuration.get("instance.name");
         declaration 		= (InstanceDeclaration) configuration.get(ApformIpojoInstance.ATT_DECLARATION);
 
-    	if (isApamCreated || declaration == null) {
+        if (isApamCreated || (declaration == null)) {
             declaration = new InstanceDeclaration(getFactory().getDeclaration().getReference(),instanceName,null);
             for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
                 String property = properties.nextElement();
@@ -108,7 +109,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      * The attached APAM instance
      */
     public Instance getApamInstance() {
-    	return this.apamInstance;
+        return apamInstance;
     }
 
     /**
@@ -158,7 +159,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
          */
 
         DependencyDeclaration dependency 	= injection.getDependencyInjection().getDependency();
-        ApamResolver.resolveWire(apamInstance, dependency.getIdentifier());
+        CST.apamResolver.resolveWire(apamInstance, dependency.getIdentifier());
         //        ResolvableReference target			= dependency.getTarget();
         //
         //        /*
@@ -220,18 +221,18 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     public boolean setWire(Instance destInst, String depName) {
         //        System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
 
-    	/*
-    	 * Validate all the injections can be performed
-    	 */
+        /*
+         * Validate all the injections can be performed
+         */
 
-    	for (DependencyInjectionManager injectedField : injectedFields) {
-			if (!injectedField.isValid())
-				return false;
-		}
+        for (DependencyInjectionManager injectedField : injectedFields) {
+            if (!injectedField.isValid())
+                return false;
+        }
 
-    	/*
-    	 * perform injection update
-    	 */
+        /*
+         * perform injection update
+         */
         for (DependencyInjectionManager injectedField : injectedFields) {
             if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
                 injectedField.addTarget(destInst);
@@ -248,18 +249,18 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     public boolean remWire(Instance destInst, String depName) {
         //        System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
 
-    	/*
-    	 * Validate all the injections can be performed
-    	 */
+        /*
+         * Validate all the injections can be performed
+         */
 
-    	for (DependencyInjectionManager injectedField : injectedFields) {
-			if (!injectedField.isValid())
-				return false;
-		}
+        for (DependencyInjectionManager injectedField : injectedFields) {
+            if (!injectedField.isValid())
+                return false;
+        }
 
-    	/*
-    	 * perform injection update
-    	 */
+        /*
+         * perform injection update
+         */
         for (DependencyInjectionManager injectedField : injectedFields) {
             if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
                 injectedField.removeTarget(destInst);
@@ -277,18 +278,18 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
         //        System.err.println("Native instance subs wire " + depName + " :" + getInstanceName() + "from ->" + oldDestInst
         //                + " to ->" + newDestInst);
 
-    	/*
-    	 * Validate all the injections can be performed
-    	 */
+        /*
+         * Validate all the injections can be performed
+         */
 
-    	for (DependencyInjectionManager injectedField : injectedFields) {
-			if (!injectedField.isValid())
-				return false;
-		}
+        for (DependencyInjectionManager injectedField : injectedFields) {
+            if (!injectedField.isValid())
+                return false;
+        }
 
-    	/*
-    	 * perform injection update
-    	 */
+        /*
+         * perform injection update
+         */
         for (DependencyInjectionManager injectedField : injectedFields) {
             if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
                 injectedField.substituteTarget(oldDestInst, newDestInst);
