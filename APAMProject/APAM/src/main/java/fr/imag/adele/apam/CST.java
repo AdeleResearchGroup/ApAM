@@ -1,6 +1,7 @@
 package fr.imag.adele.apam;
 
 import fr.imag.adele.apam.apamImpl.APAMImpl;
+import fr.imag.adele.apam.apamImpl.ApamResolverImpl;
 import fr.imag.adele.apam.apamImpl.ImplementationBrokerImpl;
 import fr.imag.adele.apam.apamImpl.InstanceBrokerImpl;
 import fr.imag.adele.apam.apamImpl.SpecificationBrokerImpl;
@@ -73,6 +74,7 @@ public class CST {
     public static SpecificationBroker  SpecBroker        = null;
     public static ImplementationBroker ImplBroker        = null;
     public static InstanceBroker       InstBroker        = null;
+    public static ApamResolver         apamResolver      = null;
 
     // the Apam entry point.
     public static APAMImpl             apam              = null;
@@ -82,6 +84,7 @@ public class CST {
         CST.ImplBroker = new ImplementationBrokerImpl();
         CST.InstBroker = new InstanceBrokerImpl();
         CST.apam = theApam;
+        CST.apamResolver = new ApamResolverImpl();
     }
 
 }

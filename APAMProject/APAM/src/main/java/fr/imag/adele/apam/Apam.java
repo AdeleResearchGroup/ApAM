@@ -12,26 +12,28 @@ import java.util.Set;
 public interface Apam {
 
     /**
-     * Creates an isolated composite type.
+     * Creates a root composite type i.e. an application.
      * A single composite with this name can exist in APAM. Returns null if name conflicts.
      * 
-     * @param compositeTypeName : the symbolic name. Unique.
-     * @param mainImplem : The name of the main implementation. If not found, returns null.
+     * @param inCompoType: name of the father composite type. Null if root (application).
+     * @param name : the symbolic name. Unique.
+     * @param mainImplem : The name of the main implementation or a specification name. If not found, returns null.
      * @param models optional : the associated models.
      * @param attributes optional : the initial properties to associate with this composite type (as an implementation).
      *            @ return : the created composite type
      */
-
-    public CompositeType createCompositeType(String compositeTypeName, String mainImplName,
+    public CompositeType createCompositeType(String inCompoType, String name, String mainImplSpecName,
             Set<ManagerModel> models, Map<String, Object> attributes);
 
+
     /**
-     * Creates an isolated composite type.
+     * Creates a root composite type i.e. an application from an URL
      * A single composite with this name can exist in APAM. Returns null if name conflicts.
      * 
      * Creates a composite from an URL leading to a bundle containing either the main implem, or the composite itself.
      * 
-     * @param namcompositeTypeNamee. name of the new composite to create. Unique.
+     * @param inCompoType: name of the father composite type. Null if root (application).
+     * @param name. name of the new composite to create. Unique.
      * @param mainImplName. Name of the main implem. To be found in the bundle. If not found, returns null.
      * @param models. the composite models.
      * @param bundle : URL leading to a bundle containing either the main implementation or the composite.
@@ -41,7 +43,8 @@ public interface Apam {
      *            concatenation.
      * @param attributes optional : the initial properties to associate with this composite type (as an implementation).
      */
-    public CompositeType createCompositeType(String compositeTypeName, String mainImplName, Set<ManagerModel> models,
+    public CompositeType createCompositeType(String inCompoType, String name, String mainImplSpecName,
+            Set<ManagerModel> models,
             URL bundle, String specName, Map<String, Object> properties);
 
     /**

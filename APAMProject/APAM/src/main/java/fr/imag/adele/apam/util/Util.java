@@ -229,7 +229,7 @@ public class Util {
      * @return
      */
     public static boolean checkImplVisible(CompositeType compoFrom, Implementation toImpl) {
-        if (toImpl.getInCompositeType().contains(compoFrom))
+        if (toImpl.getInCompositeType().isEmpty() || toImpl.getInCompositeType().contains(compoFrom))
             return true;
 
         // First check inst can be borrowed

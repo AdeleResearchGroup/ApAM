@@ -14,13 +14,13 @@ import fr.imag.adele.apam.apamImpl.ImplementationImpl;
 import fr.imag.adele.apam.apamImpl.InstanceImpl;
 
 public class Apform {
-   
-	private static final CompositeType              rootType              = CompositeTypeImpl.getRootCompositeType();
-	private static final Composite                  rootInst              = CompositeImpl.getRootAllComposites();
 
-	private static Set<Implementation>              unusedImplems         = CompositeTypeImpl.getRootCompositeType().getImpls();
-	private static Set<Instance>                    unusedInsts           = CompositeImpl.getRootAllComposites()
-                                                                          .getContainInsts();
+    private static final CompositeType              rootType              = CompositeTypeImpl.getRootCompositeType();
+    private static final Composite                  rootInst              = CompositeImpl.getRootAllComposites();
+
+    private static Set<Implementation>              unusedImplems         = CompositeTypeImpl.getRootCompositeType().getImpls();
+    private static Set<Instance>                    unusedInsts           = CompositeImpl.getRootAllComposites()
+    .getContainInsts();
 
     public static Implementation getUnusedImplem(String name) {
         Implementation impl = CST.ImplBroker.getImpl(name);
@@ -53,7 +53,7 @@ public class Apform {
     }
 
     /**
-     * The implementation that was unused so far, is now logicaly deployed.
+     * The implementation that was unused so far, is now logically deployed.
      * Remove it from the unUsed compositeType.
      * 
      * @param impl

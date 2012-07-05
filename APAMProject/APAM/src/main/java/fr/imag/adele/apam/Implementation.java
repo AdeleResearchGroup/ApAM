@@ -36,7 +36,7 @@ public interface Implementation extends Properties {
      * 
      * @return
      */
-    public String getShared();
+    public boolean isSharable();
 
     //
     //    public void remove();
@@ -50,7 +50,7 @@ public interface Implementation extends Properties {
      * @param initialproperties the initial properties
      * @return the instance
      */
-    public Instance createInst(Composite compo, Map<String, Object> initialproperties);
+    public Instance createInstance(Composite instCompo, Map<String, Object> initialproperties);
 
     /**
      * 
@@ -117,12 +117,12 @@ public interface Implementation extends Properties {
 
     public Set<Instance> getInsts();
 
-    /**
-     * Returns all the sharable instances (ASMInsts) of that service implementation. Empty if not existing.
-     * 
-     * @return All instances of that service implementation.
-     */
-    public Set<Instance> getSharableInsts();
+    //    /**
+    //     * Returns all the sharable instances (ASMInsts) of that service implementation. Empty if not existing.
+    //     * 
+    //     * @return All instances of that service implementation.
+    //     */
+    //    public Set<Instance> getSharableInsts();
 
     /**
      * Returns all the instances of that implementation that satisfy the provided Goal,
@@ -134,21 +134,21 @@ public interface Implementation extends Properties {
      */
     public Set<Instance> getInsts(Filter goal) throws InvalidSyntaxException;
 
-    /**
-     * Returns all the sharable instances of that implementation that satisfy the provided Goal,
-     * 
-     * @param goal the goal
-     * @return All instances satisfying the goal
-     * @throws InvalidSyntaxException the invalid syntax exception
-     */
-    public Set<Instance> getSharableInsts(Filter goal) throws InvalidSyntaxException;
-
-    /**
-     * Returns all the sharable instances of that implementation that satisfy all the filters.
-     * 
-     * @param constraints. All the constraint that must be satisfied by the instances.
-     */
-    public Set<Instance> getSharableInsts(Set<Filter> constraints);
+    //    /**
+    //     * Returns all the sharable instances of that implementation that satisfy the provided Goal,
+    //     * 
+    //     * @param goal the goal
+    //     * @return All instances satisfying the goal
+    //     * @throws InvalidSyntaxException the invalid syntax exception
+    //     */
+    //    public Set<Instance> getSharableInsts(Filter goal) throws InvalidSyntaxException;
+    //
+    //    /**
+    //     * Returns all the sharable instances of that implementation that satisfy all the filters.
+    //     * 
+    //     * @param constraints. All the constraint that must be satisfied by the instances.
+    //     */
+    //    public Set<Instance> getSharableInsts(Set<Filter> constraints);
 
     /**
      * Returns all the instances of that implementation that satisfy all the filters.
@@ -167,15 +167,15 @@ public interface Implementation extends Properties {
      */
     public Instance getInst(Set<Filter> constraints, List<Filter> preferences);
 
-    /**
-     * Returns all the sharable instances of that implementation that satisfy all the filters.
-     * Null if not existing.
-     * 
-     * @param constraints. All the constraint that must be satisfied by the instances.
-     * @param preferences. Return the instance that matches the maximum number of constraints, taken in the order
-     */
-
-    public Instance getSharableInst(Set<Filter> constraints, List<Filter> preferences);
+    //    /**
+    //     * Returns all the sharable instances of that implementation that satisfy all the filters.
+    //     * Null if not existing.
+    //     * 
+    //     * @param constraints. All the constraint that must be satisfied by the instances.
+    //     * @param preferences. Return the instance that matches the maximum number of constraints, taken in the order
+    //     */
+    //
+    //    public Instance getSharableInst(Set<Filter> constraints, List<Filter> preferences);
 
     /**
      * Among the instance in "candidates", return the instance that matches the maximum number of constraints, taken in

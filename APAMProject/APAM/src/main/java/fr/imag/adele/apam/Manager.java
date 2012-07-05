@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
+import fr.imag.adele.apam.apamImpl.ApamResolverImpl;
 import fr.imag.adele.apam.core.Reference;
 import fr.imag.adele.apam.core.ResolvableReference;
 
@@ -30,14 +31,10 @@ public interface Manager {
      * It can *add* constraints or preferences that will used by each manager during the resolution.
      * WARNING: Either interfaceName, interfaces or specName are needed;
      * 
-     * @param compTypeFrom the composite type origin of the future wire. Can be null.
-     * @param resource the name of one of the interfaces of the specification to resolve. May be null.
-     * @param constraints The constraints for this resolution.
-     * @param preferences The preferences for this resolution.
+     * @param specName: the name of the spec.
      * @param selPath the managers currently involved in this resolution.
      */
-    public void getSelectionPathSpec(CompositeType compTypeFrom, ResolvableReference resource, Set<Filter> constraints,
-            List<Filter> preferences, List<Manager> selPath);
+    public void getSelectionPathSpec(CompositeType compTypeFrom, String specName, List<Manager> selPath);
 
     /**
      * Provided that an implementation, known by its name, is required, each manager is asked if it want to be involved.
@@ -49,6 +46,16 @@ public interface Manager {
      * @param selPath the managers currently involved in this resolution.
      */
     public void getSelectionPathImpl(CompositeType compTypeFrom, String implName, List<Manager> selPath);
+
+    //    /**
+    //     * Provided that a specification, known by its name, is required, each manager is asked if it want to be involved.
+    //     * If not, does nothing. If involved it must return the list "selPath" including itself somewhere (the order is
+    //     * important).
+    //     * 
+    //     * @param specName the name of implementation to resolve.
+    //     * @param selPath the managers currently involved in this resolution.
+    //     */
+    //    public void getSelectionPathSpec(String specName, List<Manager> selPath);
 
     /**
      * Provided that a resolution will be asked for a implementation (selecting an instance),
@@ -123,6 +130,17 @@ public interface Manager {
      * @return the implementations if resolved, null otherwise
      */
     public Implementation findImplByName(CompositeType compoType, String implName);
+
+    /**
+     * The manager is asked to find the specification given its name.
+     * If it must be created, it must be inside compoType.
+     * 
+     * @param compoType the composite in which is located the calling implem (and where to create implementation, if
+     *            needed). Can be null (root composite assumed).
+     * @param specName the name of specification to find.
+     * @return the specification if found, null otherwise
+     */
+    public Specification findSpecByName(CompositeType compoType, String specName);
 
     /**
      * The manager is asked to find the "right" instance for the required implementation.

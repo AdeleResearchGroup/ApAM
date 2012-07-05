@@ -31,7 +31,7 @@ import fr.imag.adele.apam.apform.ApformInstance;
 //import fr.imag.adele.sam.event.EventProperty;
 
 public class InstanceBrokerImpl implements InstanceBroker {
-    private final Set<Instance> sharableInstances = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
+    //    private final Set<Instance> sharableInstances = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
     private final Set<Instance> instances         = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
     private static final ImplementationBroker implBroker        = CST.ImplBroker;
 
@@ -55,10 +55,10 @@ public class InstanceBrokerImpl implements InstanceBroker {
 
     // End EVENTS
 
-    @Override
-    public Set<Instance> getSharableInsts() {
-        return Collections.unmodifiableSet(sharableInstances);
-    }
+    //    @Override
+    //    public Set<Instance> getSharableInsts() {
+    //        return Collections.unmodifiableSet(sharableInstances);
+    //    }
 
     @Override
     public Set<Instance> getInsts() {
@@ -115,8 +115,7 @@ public class InstanceBrokerImpl implements InstanceBroker {
             System.err.println("Implementation is not existing in addInst: " + implementationName);
         }
 
-        // Normally composite implementations are visible but they cannot be instantiated.
-        // The only way to create an instance of a composite should be using APAM.
+        // Composite implementations can be installed too.
         if (impl instanceof CompositeType) {
             inst = CompositeImpl.newCompositeImpl((CompositeType) impl, instComposite, null, properties, apfInst);
         }
@@ -133,8 +132,8 @@ public class InstanceBrokerImpl implements InstanceBroker {
             instances.add(inst);
             ApamManagers.notifyAddedInApam(inst);
             ((ImplementationImpl) inst.getImpl()).addInst(inst);
-            if (inst.isSharable())
-                sharableInstances.add(inst);
+            //            if (inst.isSharable())
+            //                sharableInstances.add(inst);
         }
     }
 
@@ -144,7 +143,7 @@ public class InstanceBrokerImpl implements InstanceBroker {
         if (instances.contains(inst)) {
             instances.remove(inst);
             ApamManagers.notifyRemovedFromApam(inst);
-            sharableInstances.remove(inst);
+            //            sharableInstances.remove(inst);
             ((InstanceImpl) inst).remove(); // wires and sam attributes
             ((ImplementationImpl) inst.getImpl()).removeInst(inst);
         }

@@ -126,12 +126,12 @@ public interface Instance extends Properties {
      */
     public void removeWire(Wire wire);
 
-    /**
-     * returns the value of the shared attribute
-     * 
-     * @return
-     */
-    public String getShared();
+    //    /**
+    //     * returns the value of the shared attribute
+    //     * 
+    //     * @return
+    //     */
+    //    public String getShared();
 
     /**
      * returns the value of the shared attribute
@@ -174,6 +174,14 @@ public interface Instance extends Properties {
      * @return true is the instance matches the goal
      */
     public boolean match(Filter goal);
+
+    /**
+     * return true if the instance matches ALL the constraints in the set.
+     * 
+     * @param goals
+     * @return
+     */
+    public boolean match(Set<Filter> goals);
 
     /**
      * Match.

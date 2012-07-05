@@ -31,7 +31,7 @@ public class APAMImpl implements Apam {
     public static BundleContext context;
     public static Manager       apamMan;
 
-//    private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
+    //    private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
     public static List<Manager> managerList = new ArrayList<Manager>();
 
     public APAMImpl(BundleContext context) {
@@ -42,22 +42,43 @@ public class APAMImpl implements Apam {
     }
 
     @Override
-    public CompositeType createCompositeType(String name, String mainImplName,
+    public CompositeType createCompositeType(String inCompoType, String name, String mainImplName,
             Set<ManagerModel> models, Map<String, Object> attributes) {
-        return CompositeTypeImpl.createCompositeType(null, name, mainImplName, null,
+        Implementation fatherCompo = null;
+        if (inCompoType != null) {
+            fatherCompo = CST.apamResolver.findImplByName(null, inCompoType);
+            if (fatherCompo == null)
+                return null;
+            if (!(fatherCompo instanceof CompositeType)) {
+                System.err.println(inCompoType + " is not a composite type.");
+                return null;
+            }
+        }
+        return CompositeTypeImpl.createCompositeType((CompositeType) fatherCompo, name, mainImplName, null,
                 models, attributes);
     }
 
     @Override
-    public CompositeType createCompositeType(String name, String mainImplName, Set<ManagerModel> models,
-            URL mainBundle, String specName, Map<String, Object> attributes) {
-        return CompositeTypeImpl.createCompositeType(null, name, models, mainImplName, mainBundle, specName,
+    public CompositeType createCompositeType(String inCompoType, String name, String mainImplName,
+            Set<ManagerModel> models, URL mainBundle, String specName, Map<String, Object> attributes) {
+        Implementation fatherCompo = null;
+        if (inCompoType != null) {
+            fatherCompo = CST.apamResolver.findImplByName(null, inCompoType);
+            if (fatherCompo == null)
+                return null;
+            if (!(fatherCompo instanceof CompositeType)) {
+                System.err.println(inCompoType + " is not a composite type.");
+                return null;
+            }
+        }
+        return CompositeTypeImpl.createCompositeType((CompositeType) fatherCompo, name, models, mainImplName,
+                mainBundle, specName,
                 attributes);
     }
 
     @Override
     public Composite startAppli(String compositeName) {
-        Implementation compoType = ApamResolver.findImplByName(null, compositeName);
+        Implementation compoType = CST.apamResolver.findImplByName(null, compositeName);
         if (compoType == null)
             return null;
         if (compoType instanceof CompositeType)
@@ -74,7 +95,7 @@ public class APAMImpl implements Apam {
 
     @Override
     public Composite startAppli(CompositeType composite) {
-        return (Composite) composite.createInst(null, null);
+        return (Composite) ((CompositeTypeImpl) composite).createInst(null, null);
     }
 
     @Override

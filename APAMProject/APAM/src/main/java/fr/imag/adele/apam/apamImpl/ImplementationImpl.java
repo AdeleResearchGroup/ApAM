@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 //import org.apache.felix.utils.filter.FilterImpl;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Util;
+
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -26,19 +28,18 @@ import fr.imag.adele.apam.core.ImplementationDeclaration;
 
 public class ImplementationImpl extends PropertiesImpl implements Implementation {
 
-    private static final long           serialVersionUID  = 1L;
-    protected final Set<Implementation> uses              = Collections
-                                                                  .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
+    private static final long           serialVersionUID = 1L;
+
+    // all relationship use and their reverse
+    protected final Set<Implementation> uses             = Collections
+    .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
     protected final Set<Implementation> invUses           = Collections
-                                                                  .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>()); // all
-                                                                                                                                    // reverse
-                                                                                                                                    // relations
-                                                                                                                                    // uses
+    .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
+
+    // composite in which it is contained
     protected final Set<CompositeType>  inComposites      = Collections
-                                                                  .newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>()); // composite
-                                                                                                                                    // it
-                                                                                                                                    // is
-                                                                                                                                    // contained
+    .newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
+
     private final Object                id                = new Object();                 // only for hashCode
     protected ImplementationDeclaration declaration;
 
@@ -47,8 +48,12 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
     protected ApformImplementation      apfImpl           = null;
     protected boolean                   used              = false;
 
-    protected Set<Instance>             instances         = new HashSet<Instance>();      // the instances
-    protected Set<Instance>             sharableInstances = new HashSet<Instance>();      // the sharable instances
+    // the instances
+    protected Set<Instance>             instances        = Collections
+    .newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
+
+    // the sharable instances
+    //    protected Set<Instance>             sharableInstances = new HashSet<Instance>();      // the sharable instances
 
     @Override
     public boolean equals(Object o) {
@@ -101,7 +106,6 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
         ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
         this.apfImpl = apfImpl;
         initializeNewImpl(compo, props);
-
     }
 
 
@@ -122,12 +126,8 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
     /**
      * From an implementation, create an instance. Creates both the apform and APAM instances.
      * 
-     * @throws IllegalArgumentException
-     * @throws UnsupportedOperationException
-     * @throws ConnectionException
      */
-    @Override
-    public Instance createInst(Composite instCompo, Map<String, Object> initialproperties) {
+    protected Instance createInst(Composite instCompo, Map<String, Object> initialproperties) {
         if ((get(CST.A_INSTANTIABLE) != null) && get(CST.A_INSTANTIABLE).equals(CST.V_FALSE)) {
             System.out.println("Implementation " + this + " is not instantiable");
             return null;
@@ -135,6 +135,19 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
         ApformInstance apfInst = apfImpl.createInstance(initialproperties);
         InstanceImpl inst = InstanceImpl.newInstanceImpl(this, instCompo, initialproperties, apfInst);
         return inst;
+    }
+
+    /**
+     * From an implementation, create an instance. Creates both the apform and APAM instances.
+     * Can be called from the API. Must check if instCompo can instantiate.
+     */
+    @Override
+    public Instance createInstance(Composite instCompo, Map<String, Object> initialproperties) {
+        if ((instCompo != null) && !Util.checkImplVisible(instCompo.getCompType(), this)) {
+            System.err.println("cannot instantiate " + this + ". It is not visible from composite " + instCompo);
+            return null;
+        }
+        return createInst(instCompo, initialproperties);
     }
 
     @Override
@@ -154,8 +167,8 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
     public void addInst(Instance inst) {
         if (inst != null) {
             instances.add(inst);
-            if (inst.isSharable())
-                sharableInstances.add(inst);
+            //            if (inst.isSharable())
+            //                sharableInstances.add(inst);
         }
     }
 
@@ -196,11 +209,11 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
         // return new HashSet <ASMInst> (instances) ;
     }
 
-    @Override
-    public Set<Instance> getSharableInsts() {
-        return Collections.unmodifiableSet(sharableInstances);
-        // return new HashSet <ASMInst> (instances) ;
-    }
+    //    @Override
+    //    public Set<Instance> getSharableInsts() {
+    //        return Collections.unmodifiableSet(sharableInstances);
+    //        // return new HashSet <ASMInst> (instances) ;
+    //    }
 
     @Override
     public Set<Instance> getInsts(Filter query) throws InvalidSyntaxException {
@@ -214,17 +227,17 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
         return ret;
     }
 
-    @Override
-    public Set<Instance> getSharableInsts(Filter query) throws InvalidSyntaxException {
-        if (query == null)
-            return getSharableInsts();
-        Set<Instance> ret = new HashSet<Instance>();
-        for (Instance inst : sharableInstances) {
-            if (inst.match(query))
-                ret.add(inst);
-        }
-        return ret;
-    }
+    //    @Override
+    //    public Set<Instance> getSharableInsts(Filter query) throws InvalidSyntaxException {
+    //        if (query == null)
+    //            return getSharableInsts();
+    //        Set<Instance> ret = new HashSet<Instance>();
+    //        for (Instance inst : sharableInstances) {
+    //            if (inst.match(query))
+    //                ret.add(inst);
+    //        }
+    //        return ret;
+    //    }
 
     @Override
     public Set<Instance> getInsts(Set<Filter> constraints) {
@@ -241,20 +254,20 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
         return ret;
     }
 
-    @Override
-    public Set<Instance> getSharableInsts(Set<Filter> constraints) {
-        if ((constraints == null) || constraints.isEmpty())
-            return Collections.unmodifiableSet(sharableInstances);
-        Set<Instance> ret = new HashSet<Instance>();
-        for (Instance inst : sharableInstances) {
-            for (Filter filter : constraints) {
-                if (inst.match(filter)) {
-                    ret.add(inst);
-                }
-            }
-        }
-        return ret;
-    }
+    //    @Override
+    //    public Set<Instance> getSharableInsts(Set<Filter> constraints) {
+    //        if ((constraints == null) || constraints.isEmpty())
+    //            return Collections.unmodifiableSet(sharableInstances);
+    //        Set<Instance> ret = new HashSet<Instance>();
+    //        for (Instance inst : sharableInstances) {
+    //            for (Filter filter : constraints) {
+    //                if (inst.match(filter)) {
+    //                    ret.add(inst);
+    //                }
+    //            }
+    //        }
+    //        return ret;
+    //    }
 
     @Override
     public Instance getInst(Set<Filter> constraints, List<Filter> preferences) {
@@ -269,22 +282,22 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
         return getPreferedInst(insts, preferences);
     }
 
-    @Override
-    public Instance getSharableInst(Set<Filter> constraints, List<Filter> preferences) {
-        Set<Instance> insts = null;
-        if ((preferences != null) && !preferences.isEmpty()) {
-            insts = getSharableInsts(constraints);
-        } else
-            insts = sharableInstances;
-
-        if (insts.isEmpty())
-            return null;
-
-        if ((constraints == null) || constraints.isEmpty())
-            return ((Instance) insts.toArray()[0]);
-
-        return getPreferedInst(insts, preferences);
-    }
+    //    @Override
+    //    public Instance getSharableInst(Set<Filter> constraints, List<Filter> preferences) {
+    //        Set<Instance> insts = null;
+    //        if ((preferences != null) && !preferences.isEmpty()) {
+    //            insts = getSharableInsts(constraints);
+    //        } else
+    //            insts = sharableInstances;
+    //
+    //        if (insts.isEmpty())
+    //            return null;
+    //
+    //        if ((constraints == null) || constraints.isEmpty())
+    //            return ((Instance) insts.toArray()[0]);
+    //
+    //        return getPreferedInst(insts, preferences);
+    //    }
 
     @Override
     public Instance getPreferedInst(Set<Instance> candidates, List<Filter> preferences) {
@@ -327,13 +340,13 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
     //        return visible;
     //    }
 
-    @Override
-    public String getShared() {
-        String shared = (String) get(CST.A_SHARED);
-        if (shared == null)
-            shared = CST.V_TRUE;
-        return shared;
-    }
+    //    @Override
+    //    public String getShared() {
+    //        String shared = (String) get(CST.A_SHARED);
+    //        if (shared == null)
+    //            shared = CST.V_TRUE;
+    //        return shared;
+    //    }
 
     // relation uses control
     public void addUses(Implementation dest) {
@@ -393,8 +406,8 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
 
     public void removeInst(Instance inst) {
         instances.remove(inst);
-        if (inst.isSharable())
-            sharableInstances.remove(inst);
+        //        if (inst.isSharable())
+        //            sharableInstances.remove(inst);
     }
 
     @Override
@@ -426,5 +439,16 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
     @Override
     public ImplementationDeclaration getImplDeclaration() {
         return declaration;
+    }
+
+    /**
+     * only here for future optimization.
+     * shared is applied on all the instances
+     */
+    @Override
+    public boolean isSharable() {
+        if (get(CST.A_SHARED) == null)
+            return true;
+        return get(CST.A_SHARED).equals(CST.V_TRUE);
     }
 }

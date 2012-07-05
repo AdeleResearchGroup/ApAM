@@ -16,6 +16,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.ResourceReference;
@@ -28,17 +29,17 @@ public class SpecificationImpl extends PropertiesImpl implements Specification {
     private ApformSpecification       apfSpec         = null;
     private SpecificationDeclaration  declaration;
     private final Set<Implementation> implementations = Collections
-                                                              .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
+    .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
     private final Set<Specification>  requires        = Collections
-                                                              .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>()); // all
-                                                                                                                                // relations
-                                                                                                                                // requires
+    .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>()); // all
+    // relations
+    // requires
     private final Set<Specification>  invRequires     = Collections
-                                                              .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());  // all
-                                                                                                                                // reverse
-                                                                                                                                // relations
-                                                                                                                                // requires
+    .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());  // all
+    // reverse
+    // relations
+    // requires
 
     // private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
 
@@ -294,8 +295,10 @@ public class SpecificationImpl extends PropertiesImpl implements Specification {
      */
     private Implementation getDefaultImpl(Set<Implementation> candidates) {
         for (Implementation impl : candidates) {
-            if (impl.getSharableInst(null, null) != null)
-                return impl;
+            for (Instance inst : impl.getInsts()) {
+                if (inst.isSharable())
+                    return impl;
+            }
         }
         for (Implementation impl : candidates) {
             if (impl.isInstantiable())

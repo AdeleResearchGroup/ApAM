@@ -3,6 +3,7 @@ package fr.imag.adele.apam.apamImpl;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 //import java.util.Dictionary;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -42,14 +43,14 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
     private Implementation    myImpl;
     private Composite         myComposite;
     protected ApformInstance  apformInst;
-    private boolean           sharable         = true;
+    //    private boolean           sharable         = true;
     private boolean           used             = false;
     private InstanceDeclaration declaration;
 
     private final Set<Wire>     wires            = Collections.newSetFromMap(new ConcurrentHashMap<Wire, Boolean>()); // the
-                                                                                                                      // currently
-                                                                                                                      // used
-                                                                                                                      // instances
+    // currently
+    // used
+    // instances
     private final Set<Wire>     invWires         = Collections.newSetFromMap(new ConcurrentHashMap<Wire, Boolean>());
 
     // WARNING to be used only for empty root composite.
@@ -90,9 +91,10 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
      * @return
      */
     public static InstanceImpl newInstanceImpl(Implementation impl, Composite instCompo,
-            Map<String, Object> initialproperties,
-            ApformInstance apformInst) {
+            Map<String, Object> initialproperties, ApformInstance apformInst) {
+
         InstanceImpl inst = new InstanceImpl (impl,instCompo,initialproperties,apformInst) ;
+
         ((InstanceBrokerImpl) CST.InstBroker).addInst( inst);
         return inst ;
     }
@@ -108,8 +110,6 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
     protected InstanceImpl(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
             ApformInstance apformInst) {
 
-        if (impl.getShared().equals(CST.V_FALSE))
-            sharable = false;
         this.apformInst = apformInst;
         declaration = apformInst.getDeclaration();
         myImpl = impl;
@@ -120,7 +120,6 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
         put(CST.A_INSTNAME, apformInst.getDeclaration().getName());
         // allready checked
         putAll(apformInst.getDeclaration().getProperties());
-        put(CST.A_SHARED, getShared());
         if (initialproperties != null) {
             setAllProperties(initialproperties);
         }
@@ -292,17 +291,24 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
         return apformInst;
     }
 
-    @Override
-    public String getShared() {
-        String shared = (String) get(CST.A_SHARED);
-        if (shared == null) {
-            shared = getImpl().getShared();
-        }
-        if (shared == null)
-            shared = CST.V_TRUE;
-        // shared.toUpperCase();
-        return shared;
-    }
+    //    @Override
+    //    public boolean isSharable() {
+    //        if (getProperty(CST.A_SHARED) == null)
+    //            return true;
+    //        return getProperty(CST.A_SHARED).equals(CST.V_TRUE);
+    //    }
+
+    //    @Override
+    //    public String getShared() {
+    //        String shared = (String) get(CST.A_SHARED);
+    //        if (shared == null) {
+    //            shared = getImpl().getShared();
+    //        }
+    //        if (shared == null)
+    //            shared = CST.V_TRUE;
+    //        // shared.toUpperCase();
+    //        return shared;
+    //    }
 
     @Override
     public boolean match(String filter) {
@@ -318,6 +324,23 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
         } catch (Exception e) {
         }
         return false;
+    }
+
+    @Override
+    public boolean match(Set<Filter> goals) {
+        if ((goals == null) || goals.isEmpty())
+            return true;
+        Map props = getAllProperties() ;
+        try {
+            for (Filter f : goals) {
+                if (!((ApamFilter) f).matchCase(props)) {
+                    return false ;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false ;
+        }
     }
 
 
@@ -398,7 +421,8 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
 
     @Override
     public boolean isSharable() {
-        return (used) ? sharable : true;
+        return (getInvWires().isEmpty()
+                || (getProperty(CST.A_SHARED) == null) || (getProperty(CST.A_SHARED).equals(CST.V_TRUE)));
     }
 
     @Override

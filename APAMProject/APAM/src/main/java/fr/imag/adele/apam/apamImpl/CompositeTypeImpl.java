@@ -31,6 +31,7 @@ import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Util;
 
 //import fr.imag.adele.sam.Implementation;
 
@@ -108,13 +109,13 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             models = Collections.emptySet();
 
         if (mainImpl == null) { // normal case
-            mainImpl = ApamResolver.findImplByName(this, mainImplName);
+            mainImpl = CST.apamResolver.findImplByName(this, mainImplName);
             if (mainImpl == null) {
                 // It is a specification to resolve as the main implem. Do not select another composite
                 Set<Filter> noCompo = new HashSet<Filter>();
                 ApamFilter f = ApamFilter.newInstance("(!(" + CST.A_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
                 noCompo.add(f);
-                mainImpl = ApamResolver.resolveSpecByName(this, mainImplName, noCompo, null);
+                mainImpl = CST.apamResolver.resolveSpecByName(this, mainImplName, noCompo, null);
                 if (mainImpl == null) {
                     System.err.println("cannot find main implementation " + mainImplName);
                     return;
@@ -158,7 +159,6 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
         if (attributes != null)
             putAll(attributes);
-        // put(CST.A_COMPOSITETYPE, fromCompo.getName());
 
         CompositeTypeImpl.compositeTypes.put(name, this);
         ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
@@ -216,7 +216,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
         String name						= declaration.getName();
         String mainComponentName = declaration.getMainComponent().getName();
-        String specName 				= declaration.getSpecification().getName();
+        String specName = null; // may be null. Implementation constructor will create one dummy
+        if (declaration.getSpecification() != null)
+            specName = declaration.getSpecification().getName();
         Map<String, Object> properties	= declaration.getProperties();
 
         @SuppressWarnings("unchecked")
@@ -292,8 +294,26 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     }
 
     // overloads the usual createInst method for ASMImpl
+    //    @Override
     @Override
-    public Instance createInst(Composite instCompo, Map<String, Object> initialproperties) {
+    protected Instance createInst(Composite instCompo, Map<String, Object> initialproperties) {
+        return CompositeImpl.newCompositeImpl(this, instCompo, null, initialproperties, apfImpl
+                .createInstance(initialproperties));
+    }
+
+    /**
+     * Public. Must check if instCompos can see this composite type.
+     * 
+     * @param instCompo
+     * @param initialproperties
+     * @return
+     */
+    @Override
+    public Instance createInstance(Composite instCompo, Map<String, Object> initialproperties) {
+        if ((instCompo != null) && !Util.checkImplVisible(instCompo.getCompType(), this)) {
+            System.err.println("cannot instantiate " + this + ". It is not visible from composite " + instCompo);
+            return null;
+        }
         return CompositeImpl.newCompositeImpl(this, instCompo, null, initialproperties, apfImpl
                 .createInstance(initialproperties));
     }
@@ -478,7 +498,11 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                     mainImplem.getApformImpl().getDeclaration().getReference(),
                     null, new ArrayList<String>());
 
-            declaration.getProperties().putAll(attributes);
+            // c'est probablement pas la bonne solution. a voir GERMAN. properties sur composite ??
+            // TODO
+            //            if (declaration.getProperties() != null) {
+            //                declaration.getProperties().putAll(attributes);
+            //            }
             declaration.getProvidedResources().addAll(specification.getDeclaration().getProvidedResources());
 
 

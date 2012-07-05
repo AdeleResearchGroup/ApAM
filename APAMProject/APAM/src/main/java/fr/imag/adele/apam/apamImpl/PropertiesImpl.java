@@ -40,7 +40,7 @@ public class PropertiesImpl extends ConcurrentHashMap<String, Object> implements
         if (this instanceof Implementation) {
             if (((Implementation) this).getSpec() != null)
                 return ((Implementation)this).getSpec().getProperty(attr) ;
-            System.err.println("no spec for " + this);
+            // System.err.println("no spec for " + this);
         } 
         return null ;
     }

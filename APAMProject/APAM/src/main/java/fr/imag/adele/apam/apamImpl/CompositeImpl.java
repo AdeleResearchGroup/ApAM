@@ -77,9 +77,11 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         // create the main instance with this composite as container.
         // Each composite has a different main instance; do not try to reuse an existing instance.
         if (externalMainInst == null) { // normal case
-            externalMainInst = compType.getMainImpl().createInst(this, null /*initialproperties */);
+            externalMainInst = ((ImplementationImpl) compType.getMainImpl())
+                    .createInst(this, null /*initialproperties */);
         }
         mainInst = externalMainInst;
+        // main instance is never shared
         ((InstanceImpl) mainInst).put(CST.A_SHARED, CST.V_FALSE);
         Apform.setUsedInst(mainInst); // useful ??
 

@@ -25,8 +25,7 @@ public class ApamMan implements Manager {
     }
 
     @Override
-    public void getSelectionPathSpec(CompositeType compTypeFrom, ResolvableReference resource,
-            Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath) {
+    public void getSelectionPathSpec(CompositeType compTypeFrom, String specName, List<Manager> selPath) {
     }
 
     @Override
@@ -40,9 +39,17 @@ public class ApamMan implements Manager {
 
     @Override
     public Instance resolveImpl(Composite composite, Implementation impl, Set<Filter> constraints, List<Filter> preferences) {
+
+        if ((constraints == null) && (preferences == null)) {
+            for (Instance inst : impl.getInsts()) {
+                if (inst.isSharable() && Util.checkInstVisible(composite, inst))
+                    return inst;
+            }
+        }
+
         Set<Instance> insts = new HashSet<Instance>();
-        for (Instance inst : impl.getSharableInsts(constraints)) {
-            if (Util.checkInstVisible(composite, inst))
+        for (Instance inst : impl.getInsts()) {
+            if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(composite, inst))
                 insts.add(inst);
         }
         if (!insts.isEmpty())
@@ -53,9 +60,9 @@ public class ApamMan implements Manager {
     @Override
     public Set<Instance> resolveImpls(Composite composite, Implementation impl, Set<Filter> constraints) {
         Set<Instance> insts = new HashSet<Instance>();
-        for (Instance asmInst : impl.getSharableInsts(constraints)) {
-            if (Util.checkInstVisible(composite, asmInst))
-                insts.add(asmInst);
+        for (Instance inst : impl.getInsts()) {
+            if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(composite, inst))
+                insts.add(inst);
         }
         return insts;
     }
@@ -80,6 +87,13 @@ public class ApamMan implements Manager {
             return impl;
         }
         return null;
+    }
+
+    @Override
+    public Specification findSpecByName(CompositeType compTypeFrom, String specName) {
+        if (specName == null)
+            return null;
+        return CST.SpecBroker.getSpec(specName);
     }
 
     @Override
@@ -108,5 +122,6 @@ public class ApamMan implements Manager {
             Set<Instance> insts) {
         // do not care
     }
+
 
 }

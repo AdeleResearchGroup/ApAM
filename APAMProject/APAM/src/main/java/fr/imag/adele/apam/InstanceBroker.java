@@ -44,12 +44,12 @@ public interface InstanceBroker {
      */
     public Set<Instance> getInsts();
 
-    /**
-     * Returns all the sharable instances. empty if none.
-     * 
-     * @return the service instances
-     */
-    public Set<Instance> getSharableInsts();
+    //    /**
+    //     * Returns all the sharable instances. empty if none.
+    //     * 
+    //     * @return the service instances
+    //     */
+    //    public Set<Instance> getSharableInsts();
 
     /**
      * Return all the instances that implement the specification and that satisfy the goal. Null if none.
