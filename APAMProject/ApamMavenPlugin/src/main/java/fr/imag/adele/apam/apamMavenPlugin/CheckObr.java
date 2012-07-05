@@ -96,39 +96,6 @@ public class CheckObr {
         return (Set<R>) references;
     }
 
-    //    /**
-    //     * only string, int and boolean attributes are accepted.
-    //     * 
-    //     * @param value
-    //     * @param type
-    //     */
-    //    public static void checkAttrType(String attr, Object val, String type) {
-    //        if ((type == null) || (val == null))
-    //            return;
-    //
-    //        if (!(val instanceof String)) {
-    //            CheckObr.error("Invalid attribute value " + val + " for attribute " + attr
-    //                    + ". String value expected.");
-    //        }
-    //        String value = (String) val;
-    //        if (type.equals("bool") && !value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")) {
-    //            CheckObr.error("Invalid attribute value " + value + " for attribute " + attr + ". Boolean value expected.");
-    //            return;
-    //        }
-    //        if (type.equals("int")) {
-    //            try {
-    //                int valint = Integer.parseInt(value);
-    //                return;
-    //            } catch (Exception e) {
-    //                CheckObr.error("Invalid attribute value " + value + " for attribute " + attr
-    //                        + ". Integer value expected.");
-    //            }
-    //        }
-    //        if (!(value instanceof String)) {
-    //            CheckObr.error("Invalid attribute value " + value + " for attribute " + attr
-    //                    + ". String value expected.");
-    //        }
-    //    }
     /**
      * 
      * @param dep
@@ -169,7 +136,7 @@ public class CheckObr {
             try {
                 ApamFilter parsedFilter = ApamFilter.newInstance(f);
                 if (parsedFilter == null)
-                    System.err.println("String " + f + " returns null filter.");
+                    CheckObr.error("String " + f + " returns null filter.");
                 else
                     impl = parsedFilter.lookForAttr(CST.A_IMPLNAME);
             } catch (Exception e) {
@@ -375,15 +342,15 @@ public class CheckObr {
     }
 
     /**
-     * An implementation has the following provide; check if consistent with its specification.
-     * First tries to find the spec in obr; if found check that all the spec provide are included
+     * An implementation has the following provide; check if consistent with the list of provides found in "cap".
      * 
-     * @param spec. Can be null.
+     * @param cap. Can be null.
      * @param interfaces = "{I1, I2, I3}" or I1 or null
      * @param messages= "{M1, M2, M3}" or M1 or null
      * @return
      */
-    public static boolean checkImplProvide(String implName, String spec, Set<InterfaceReference> interfaces, Set<MessageReference> messages) {
+    public static boolean checkImplProvide(String implName, String spec, Set<InterfaceReference> interfaces,
+            Set<MessageReference> messages) {
         if (spec == null)
             return true;
         Capability cap = CheckObr.getSpecCapability(new SpecificationReference(spec));
@@ -392,15 +359,17 @@ public class CheckObr {
         }
         // CheckObr.printCap(cap);
 
-        Set<MessageReference> specMessages = CheckObr.asSet(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES),MessageReference.class); 
-        Set<InterfaceReference> specInterfaces = CheckObr.asSet(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_INTERFACES),InterfaceReference.class);
+        Set<MessageReference> specMessages = CheckObr.asSet(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES),
+                MessageReference.class);
+        Set<InterfaceReference> specInterfaces = CheckObr.asSet(CheckObr.getAttributeInCap(cap,
+                OBR.A_PROVIDE_INTERFACES), InterfaceReference.class);
 
-        if ( !(messages.containsAll(specMessages)))
-            System.err.println("Implementation " + implName + " must produce messages "
+        if (!(messages.containsAll(specMessages)))
+            CheckObr.error("Implementation " + implName + " must produce messages "
                     + CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES));
 
-        if (! (interfaces.containsAll(specInterfaces)))
-            System.err.println("Implementation " + implName + " must implement interfaces "
+        if (!(interfaces.containsAll(specInterfaces)))
+            CheckObr.error("Implementation " + implName + " must implement interfaces "
                     + CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_INTERFACES));
 
         return true;
@@ -417,19 +386,19 @@ public class CheckObr {
             if (cap == null)
                 return;
         }
-        String spec = composite.getSpecification().getName();
-        if (spec == null)
-            return;
-        String capSpec = CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_SPECIFICATION);
-        if ((capSpec != null) && !spec.equals(capSpec)) {
-            CheckObr.error("In " + name + " Invalid main implementation. " + implName
-                    + " must implement specification " + spec);
+        if (composite.getSpecification() != null) {
+            String spec = composite.getSpecification().getName();
+            String capSpec = CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_SPECIFICATION);
+            if ((capSpec != null) && !spec.equals(capSpec)) {
+                CheckObr.error("In " + name + " Invalid main implementation. " + implName
+                        + " must implement specification " + spec);
+            }
         }
 
         Set<MessageReference> mainMessages = CheckObr.asSet(CheckObr.getAttributeInCap(cap, OBR.A_PROVIDE_MESSAGES), MessageReference.class);
         Set<MessageReference> compositeMessages = composite.getProvidedResources(MessageReference.class);
         if (!mainMessages.containsAll(compositeMessages))
-            System.err.println("In " + name + " Invalid main implementation. " + implName
+            CheckObr.error("In " + name + " Invalid main implementation. " + implName
                     + " produces messages " + mainMessages
                     + " \n but must produce messages " + compositeMessages);
 
@@ -437,7 +406,7 @@ public class CheckObr {
                 OBR.A_PROVIDE_INTERFACES), InterfaceReference.class);
         Set<InterfaceReference> compositeInterfaces = composite.getProvidedResources(InterfaceReference.class);
         if (!mainInterfaces.containsAll(compositeInterfaces))
-            System.err.println("In " + name + " Invalid main implementation. " + implName
+            CheckObr.error("In " + name + " Invalid main implementation. " + implName
                     + " implements " + mainInterfaces
                     + " \n but must implement interfaces " + compositeInterfaces);
     }
@@ -529,7 +498,6 @@ public class CheckObr {
                     CheckObr.readCapabilities.put(name, cap);
                     return cap;
                 }
-                //                }
             }
         }
         System.err.println("     Implementation " + name + " not found in repository " + CheckObr.repo.getURI());
