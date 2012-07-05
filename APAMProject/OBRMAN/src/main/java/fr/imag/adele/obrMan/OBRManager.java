@@ -23,14 +23,14 @@ import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Filter;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
+//import org.xml.sax.Attributes;
+//import org.xml.sax.SAXException;
+//import org.xml.sax.helpers.DefaultHandler;
 //import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.util.ApamFilter;
 
-public class OBRManager implements IOBRMAN {
+public class OBRManager {
 
     private RepositoryAdmin repoAdmin;
     private Resolver        resolver;
@@ -162,10 +162,17 @@ public class OBRManager implements IOBRMAN {
         return (String) (aCap.getPropertiesAsMap().get(attr));
     }
 
-    public Set<Resource>
-    lookForAll(String capability, String filterStr, Set<Filter> constraints) {
-        Set<Resource> allRes = new HashSet<Resource>();
-        System.out.println("looking for all resources : " + capability + "; filter : " + filterStr);
+    public Set<Selected> lookForAll(String capability, String filterStr, Set<Filter> constraints) {
+        Set<Selected> allRes = new HashSet<Selected>();
+        System.out.print("looking for all resources : " + capability + "; filter : " + filterStr);
+        if ((constraints != null) && !constraints.isEmpty()) {
+            System.out.print(". Constraints : ");
+            for (Filter constraint : constraints) {
+                System.out.print(constraint + ", ");
+            }
+        }
+        System.out.println("");
+
         if (allResources == null)
             return null;
         try {
@@ -177,10 +184,10 @@ public class OBRManager implements IOBRMAN {
                 for (Capability aCap : capabilities) {
                     if (aCap.getName().equals(capability)) {
                         if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
-                            if ((constraints == null) || matchConstraints(capabilities, constraints)) {
+                            if ((constraints == null) || matchConstraints(aCap, constraints)) {
                                 System.out.println("   Found bundle : " + res.getSymbolicName() + " Component:  "
                                         + getAttributeInCapability(aCap, "impl-name"));
-                                allRes.add(res);
+                                allRes.add(new Selected(res, aCap));
                             }
                         }
                     }
@@ -194,7 +201,7 @@ public class OBRManager implements IOBRMAN {
         return allRes;
     }
 
-    public Selected lookForPref(String capability, List<Filter> preferences, Set<Resource> candidates) {
+    public Selected lookForPref(String capability, List<Filter> preferences, Set<Selected> candidates) {
         if (candidates.isEmpty())
             return null;
 
@@ -206,28 +213,28 @@ public class OBRManager implements IOBRMAN {
         System.out.println("");
         // fin trace
 
-        Resource winner = null;
-        Capability selectedCapability = null;
+        Selected winner = null;
+        //        Capability selectedCapability = null;
         int maxMatch = -1;
         int match = 0;
-        for (Resource res : candidates) {
-            Capability[] capabilities = res.getCapabilities();
-            for (Capability aCap : capabilities) {
-                if (aCap.getName().equals(capability)) {
-                    match = matchPreferences(aCap, preferences);
-                    if (match > maxMatch) {
-                        maxMatch = match;
-                        winner = res;
-                        selectedCapability = aCap;
-                    }
-                }
+        for (Selected sel : candidates) {
+            //            Capability[] capabilities = res.getCapabilities();
+            //            for (Capability aCap : capabilities) {
+            // if (sel.capabilityaCap.getName().equals(capability)) {
+            match = matchPreferences(sel.capability, preferences);
+            if (match > maxMatch) {
+                maxMatch = match;
+                winner = sel;
+                // selectedCapability = aCap;
             }
         }
+        //            }
+        //        }
         if (winner == null)
             return null;
-        System.out.println("   Found bundle : " + winner.getSymbolicName() + " Component:  "
-                + getAttributeInCapability(selectedCapability, "impl-name"));
-        return new Selected(winner, selectedCapability);
+        System.out.println("   Found bundle : " + winner.resource.getSymbolicName() + " Component:  "
+                + getAttributeInCapability(winner.capability, "impl-name"));
+        return winner;
     }
 
     private int matchPreferences(Capability aCap, List<Filter> preferences) {
@@ -245,6 +252,14 @@ public class OBRManager implements IOBRMAN {
         return match;
     }
 
+    /**
+     * 
+     * @param capability: an OBR capability
+     * @param filterStr: a single constraint like "(impl-name=xyz)" Should not be null
+     * @param constraints: the other constraints. can be null
+     * @param preferences: the preferences. can be null
+     * @return the pair capability,
+     */
     public Selected lookFor(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences) {
         if ((preferences != null) && !preferences.isEmpty()) {
             return lookForPref(capability, preferences, lookForAll(capability, filterStr, constraints));
@@ -253,7 +268,15 @@ public class OBRManager implements IOBRMAN {
     }
 
     public Selected lookFor(String capability, String filterStr, Set<Filter> constraints) {
-        System.out.println("looking for capability : " + capability + "; filter : " + filterStr);
+        System.out.print("looking for capability : " + capability + "; filter : " + filterStr);
+        if (constraints != null) {
+            System.out.print("maching constraints : ");
+            for (Filter constraint : constraints) {
+                System.out.print(constraint + ", ");
+            }
+        }
+        System.out.println("");
+
         // Requirement req = repoAdmin.getHelper().requirement(capability, filterStr);
         if (allResources == null)
             return null;
@@ -266,7 +289,7 @@ public class OBRManager implements IOBRMAN {
                 for (Capability aCap : capabilities) {
                     if (aCap.getName().equals(capability)) {
                         if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
-                            if ((constraints == null) || matchConstraints(capabilities, constraints)) {
+                            if ((constraints == null) || matchConstraints(aCap, constraints)) {
                                 System.out.println("   Found bundle : " + res.getSymbolicName() + " Component:  "
                                         + getAttributeInCapability(aCap, "impl-name"));
                                 return new Selected(res, aCap);
@@ -282,32 +305,27 @@ public class OBRManager implements IOBRMAN {
         return null;
     }
 
-    private boolean matchConstraints(Capability[] capabilities, Set<Filter> constraints) {
-        if ((constraints == null) || constraints.isEmpty())
+    /**
+     * return true if the provided capability has an implementation that satisfies the constraints
+     * 
+     * @param aCap
+     * @param constraints
+     * @return
+     */
+    private boolean matchConstraints(Capability aCap, Set<Filter> constraints) {
+        if ((constraints == null) || constraints.isEmpty() || (aCap == null))
             return true;
-        if (capabilities == null)
-            return true;
+
         ApamFilter filter;
-
-        // trace
-        System.out.print("maching constraints : ");
+        //        if (aCap.getName().equals("apam-implementation")) {
+        Map map = aCap.getPropertiesAsMap();
         for (Filter constraint : constraints) {
-            System.out.print(constraint + ", ");
-        }
-        System.out.println("");
-
-        for (Capability aCap : capabilities) {
-            if (aCap.getName().equals("apam-implementation")) {
-                Map map = aCap.getPropertiesAsMap();
-                for (Filter constraint : constraints) {
-                    filter = ApamFilter.newInstance(constraint.toString());
-                    if (!filter.matchCase(map)) {
-                        System.out.println("constraint not matched : " + constraint);
-                        return false;
-                    }
-                }
+            filter = ApamFilter.newInstance(constraint.toString());
+            if (!filter.matchCase(map)) {
+                return false;
             }
         }
+        //        }
         return true;
     }
 
@@ -384,41 +402,41 @@ public class OBRManager implements IOBRMAN {
         return new String(buffer);
     }
 
-    // Interface IOBRMAN
-    @Override
-    public Set<Resource> getResources(String capability, String filterStr, Set<Filter> constraints) {
-        //        Set<Resource> allRes = new HashSet<Resource>();
-        return lookForAll(capability, filterStr, constraints);
-    }
-
-    @Override
-    public Resource getResource(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences) {
-        return lookFor(capability, filterStr, constraints, preferences).resource;
-    }
-
-    @Override
-    public boolean install(Resource resource) {
-        deployInstall(resource);
-        return false;
-    }
-
-    private Selected getResourceImpl(String implName, Set<Filter> constraints) {
-        Selected selected = null;
-        String filterStr = null;
-        if (implName != null)
-            filterStr = "(impl-name=" + implName + ")";
-
-        if (selected == null) { // look by bundle name. First apam component by bundle name
-            selected = lookFor("apam-implementation", filterStr, constraints, null);
-        }
-        if (selected == null) { // legacy iPOJO component
-            selected = lookFor("component", filterStr, constraints, null);
-        }
-        if (selected == null) { // legacy OSGi component
-            selected = lookFor("bundle", filterStr, constraints, null);
-        }
-        return selected;
-    }
+    //    // Interface IOBRMAN
+    //    @Override
+    //    public Set<Selected> getResources(String capability, String filterStr, Set<Filter> constraints) {
+    //        //        Set<Resource> allRes = new HashSet<Resource>();
+    //        return lookForAll(capability, filterStr, constraints);
+    //    }
+    //
+    //    @Override
+    //    public Resource getResource(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences) {
+    //        return lookFor(capability, filterStr, constraints, preferences).resource;
+    //    }
+    //
+    //    @Override
+    //    public boolean install(Resource resource) {
+    //        deployInstall(resource);
+    //        return false;
+    //    }
+    //
+    //    private Selected getResourceImpl(String implName, Set<Filter> constraints) {
+    //        Selected selected = null;
+    //        String filterStr = null;
+    //        if (implName != null)
+    //            filterStr = "(impl-name=" + implName + ")";
+    //
+    //        if (selected == null) { // look by bundle name. First apam component by bundle name
+    //            selected = lookFor("apam-implementation", filterStr, constraints, null);
+    //        }
+    //        if (selected == null) { // legacy iPOJO component
+    //            selected = lookFor("component", filterStr, constraints, null);
+    //        }
+    //        if (selected == null) { // legacy OSGi component
+    //            selected = lookFor("bundle", filterStr, constraints, null);
+    //        }
+    //        return selected;
+    //    }
 
     public class Selected {
         public Resource   resource;
@@ -435,22 +453,22 @@ public class OBRManager implements IOBRMAN {
     private String searchMavenRepoFromSettings(File pathSettings) {
         // Look for <localRepository>
         try {
-        	
-        	SAXParserFactory factory = SAXParserFactory.newInstance();
-        	SAXParser saxParser = factory.newSAXParser();
-        	 
-        	SaxHandler handler = new SaxHandler() ;
-         
+
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+
+            SaxHandler handler = new SaxHandler() ;
+
             saxParser.parse(pathSettings, handler);
-//            String settings = OBRManager.readFileAsString(pathSettings.toURL());
-//            int local = settings.indexOf("<localRepository>");
-//            if (local == -1)
-//                return null;
-//            // TODO eliminer les commentaires
-//            String localRepo;
-//            int localEnd = settings.indexOf("</localRepository>", local + 5);
-//            localRepo = "file:///" + settings.substring(local + 17, localEnd) + "\\repository.xml";
-//            // System.out.println("found local repos : " + localRepo);
+            //            String settings = OBRManager.readFileAsString(pathSettings.toURL());
+            //            int local = settings.indexOf("<localRepository>");
+            //            if (local == -1)
+            //                return null;
+            //            // TODO eliminer les commentaires
+            //            String localRepo;
+            //            int localEnd = settings.indexOf("</localRepository>", local + 5);
+            //            localRepo = "file:///" + settings.substring(local + 17, localEnd) + "\\repository.xml";
+            //            // System.out.println("found local repos : " + localRepo);
 
             return handler.getRepo();
         } catch (Exception e) {
@@ -461,7 +479,7 @@ public class OBRManager implements IOBRMAN {
 
     private File searchSettingsFromM2Home() {
         String m2_home = System.getenv().get("M2_HOME");
-       
+
         if (m2_home == null) {
             return null;
         }

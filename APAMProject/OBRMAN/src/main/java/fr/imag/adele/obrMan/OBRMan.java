@@ -21,6 +21,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
@@ -28,6 +29,7 @@ import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.obrMan.OBRManager.Selected;
 
 public class OBRMan implements Manager {
 
@@ -51,20 +53,16 @@ public class OBRMan implements Manager {
     }
 
     /**
-     * Given the res OBR resource, supposed to match an Apam requirement when resolving a wire from "from".
-     * Install and start from the OBR repository, and creates the associated ASM impl and inst.
+     * Given the res OBR resource, supposed to contain the implementation implName.
+     * Install and start from the OBR repository.
      * 
-     * @param res : OBR resource (supposed to match an Apam requirement)
-     * @param from : the origin of the wire toward the resource.
+     * @param res : OBR resource (to contain the implementation implName)
+     * @param implName : the symbolic name of the implementation to deploy.
      * @return
      */
-    private Implementation installInstantiate(Resource res, String implName) {
+    private Implementation installInstantiateImpl(Resource res, String implName) {
 
-        //        String specName = getAttributeInResource(res, "apam-implementation", "apam-specification");
-        Implementation asmImpl = null;
-
-        asmImpl = CST.ImplBroker.getImpl(implName);
-        // samImpl = CST.SAMImplBroker.getImplementation(implName);
+        Implementation asmImpl = CST.ImplBroker.getImpl(implName);
         // Check if already deployed
         if (asmImpl == null) {
             // deploy selected resource
@@ -82,9 +80,38 @@ public class OBRMan implements Manager {
             //            asmImpl = CST.ASMImplBroker.addImpl(implComposite, asmImpl, null);
         }
 
-        // Activate implementation in APAM
-        // asmImpl = CST.ASMImplBroker.addImpl(implComposite, implName, null);
         return asmImpl;
+    }
+
+    /**
+     * Given the res OBR resource, supposed to contain the implementation implName.
+     * Install and start from the OBR repository.
+     * 
+     * @param res : OBR resource (to contain the implementation implName)
+     * @param specName : the symbolic name of the implementation to deploy.
+     * @return
+     */
+    private Specification installInstantiateSpec(Resource res, String specName) {
+
+        Specification spec = CST.SpecBroker.getSpec(specName);
+        // Check if already deployed
+        if (spec == null) {
+            // deploy selected resource
+            boolean deployed = OBRMan.obr.deployInstall(res);
+            if (!deployed) {
+                System.err.print("could not install resource ");
+                OBRMan.obr.printRes(res);
+                return null;
+            }
+            // waiting for the implementation to be ready in Apam.
+            spec = Apform.getWaitSpecification(specName);
+        } else { // do not install twice.
+            // It is a logical deployement. The allready existing impl is not visible !
+            // System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
+            // asmImpl = CST.ASMImplBroker.addImpl(implComposite, asmImpl, null);
+        }
+
+        return spec;
     }
 
     @Override
@@ -94,8 +121,7 @@ public class OBRMan implements Manager {
 
     // at the end
     @Override
-    public void getSelectionPathSpec(CompositeType compTypeFrom, ResolvableReference resource,
-            Set<Filter> constraints, List<Filter> preferences, List<Manager> involved) {
+    public void getSelectionPathSpec(CompositeType compTypeFrom, String specName, List<Manager> involved) {
         involved.add(involved.size(), this);
     }
 
@@ -185,7 +211,7 @@ public class OBRMan implements Manager {
         }
         if (selected != null) {
             String implName = OBRMan.obr.getAttributeInCapability(selected.capability, "impl-name");
-            impl = installInstantiate(selected.resource, implName);
+            impl = installInstantiateImpl(selected.resource, implName);
             // System.out.println("deployed :" + impl);
             // printRes(selected);
             return impl;
@@ -219,10 +245,28 @@ public class OBRMan implements Manager {
             selected = OBRMan.obr.lookFor("bundle", filterStr, null, null);
         }
         if (selected != null) {
-            impl = installInstantiate(selected.resource, implName);
+            impl = installInstantiateImpl(selected.resource, implName);
             // System.out.println("deployed :" + impl);
             // printRes(selected);
             return impl;
+        }
+        return null;
+    }
+
+    @Override
+    public Specification findSpecByName(CompositeType compoType, String specName) {
+
+        if (specName == null)
+            return null;
+
+        String filterStr = "(spec-name=" + specName + ")";
+
+        Selected selected = OBRMan.obr.lookFor(OBR.CAPABILITY_SPECIFICATION, filterStr, null, null);
+        if (selected != null) {
+            Specification spec = installInstantiateSpec(selected.resource, specName);
+            // System.out.println("deployed :" + spec);
+            // printRes(selected);
+            return spec;
         }
         return null;
     }
@@ -232,4 +276,5 @@ public class OBRMan implements Manager {
             Set<Instance> insts) {
         // Do not care
     }
+
 }
