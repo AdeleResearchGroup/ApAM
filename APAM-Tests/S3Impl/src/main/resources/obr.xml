@@ -1,13 +1,14 @@
 <obr> 
    <capability name='apam-implementation'>
       <p n='impl-name' v='S3Impl' />
-      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s3.S3_2;fr.imag.adele.apam.test.s3.S3_1;]' /> 
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s3.S3_1;fr.imag.adele.apam.test.s3.S3_2;]' /> 
       <p n='provide-specification' v='S3' />
+      <p n='shared' v='false' />
       <p n='test' v='bof' />
-      <p n='bs3' v='[yes]' />
-      <p n='cs3' v='[xxx]' />
-      <p n='require-specification' v='[S4]' />
-      <p n='spec-name' v='[S3]' />
-      <p n='test-deux' v='[anotherValue]' />
+      <p n='spec-name' v='S3' />
+      <p n='cs3' v='xxx' />
+      <p n='bs3' v='yes' />
+      <p n='require-specification' v='S4' />
+      <p n='test-deux' v='anotherValue' />
    </capability>
 </obr> 

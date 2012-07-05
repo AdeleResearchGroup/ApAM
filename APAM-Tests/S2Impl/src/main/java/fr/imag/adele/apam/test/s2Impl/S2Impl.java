@@ -23,9 +23,17 @@ public class S2Impl implements S2, ApamComponent {
     S3_2       s3;
     Instance   myInst;
 
+    String     name;
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
     @Override
     public void apamStart(Instance inst) {
         myInst = inst;
+        name = inst.getName();
         System.out.println("S2Impl Started : " + inst.getName());
     }
 
@@ -72,4 +80,5 @@ public class S2Impl implements S2, ApamComponent {
     @Override
     public void apamRelease() {
     }
+
 }

@@ -6,11 +6,9 @@
       <p n='scope' v='global' />
       <p n='test-spec' v='coucou' />
       <p n='definition-b' v='boolean' />
-      <p n='definition-c' v='string' />
-      <p n='definition-dd' v='int' />
-      <p n='require-interface' v='example.S3' /> 
-      <p n='require-interface' v='example.S4' /> 
       <p n='require-message' v='example.DataType2' /> 
+      <p n='require-interface' v='example.S4' /> 
       <p n='require-specification' v='S3' /> 
+      <p n='require-interface' v='example.S3' /> 
    </capability>
 </obr> 

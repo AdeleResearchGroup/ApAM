@@ -3,4 +3,8 @@
       <p n='impl-name' v='MainApam' />
       <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;]' /> 
    </capability>
+   <capability name='apam-implementation'>
+      <p n='impl-name' v='Promotions' />
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;]' /> 
+   </capability>
 </obr> 

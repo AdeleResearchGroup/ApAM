@@ -15,10 +15,17 @@ public class S2ImplBis implements S2, ApamComponent {
     //    Set<S3> s3s;
 
     Instance myInst;
+    String   name;
+
+    @Override
+    public String getName() {
+        return name;
+    }
 
     @Override
     public void apamStart(Instance inst) {
         myInst = inst;
+        name = inst.getName();
         System.out.println("S2ImplBis Started : " + inst.getName());
     }
 

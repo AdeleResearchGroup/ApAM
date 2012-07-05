@@ -16,4 +16,15 @@
       <p n='shared' v='false' />
       <p n='definition-s1 main' v='string' />
    </capability>
+   <capability name='apam-implementation'>
+      <p n='apam-composite' v='true' />
+      <p n='apam-main-component' v='S1Impl' />
+      <p n='impl-name' v='S1MainCompo' />
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s1.S1;]' /> 
+      <p n='shared' v='false' />
+      <p n='borrowinstance' v='false' />
+      <p n='localimplementation' v='(name=S.Im.*)' />
+      <p n='borrowimplementation' v='false' />
+      <p n='localinstance' v='true' />
+   </capability>
 </obr> 

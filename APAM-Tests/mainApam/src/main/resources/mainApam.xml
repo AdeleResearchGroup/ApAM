@@ -6,5 +6,13 @@
 		</dependencies>
 	</implementation>
 
-	<apam-instance name="MainApam-Instance" implementation="MainApam" />
+	<implementation name="Promotions"  classname="fr.imag.adele.apam.mainApam.Promotions" >
+		<dependencies>
+			<dependency field="apam" />
+		</dependencies>
+	</implementation>
+
+<!-- 	<apam-instance name="MainApam-Instance" implementation="MainApam" />
+ -->
+ 	<apam-instance name="Promotions-Instance" implementation="Promotions" />
 </apam>

@@ -1,11 +1,11 @@
 <obr> 
    <capability name='apam-implementation'>
       <p n='impl-name' v='S5Impl' />
-      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s5.S5;fr.imag.adele.apam.ApamComponent;]' /> 
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s5.S5;]' /> 
       <p n='provide-specification' v='S5' />
       <p n='s5c' v='vals5c' />
       <p n='s5b' v='false' />
-      <p n='s5-spec' v='[coucous5]' />
-      <p n='spec-name' v='[S5]' />
+      <p n='spec-name' v='S5' />
+      <p n='s5-spec' v='coucous5' />
    </capability>
 </obr> 

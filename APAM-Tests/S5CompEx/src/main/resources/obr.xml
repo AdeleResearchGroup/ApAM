@@ -3,14 +3,14 @@
       <p n='apam-composite' v='true' />
       <p n='apam-main-component' v='S5Impl' />
       <p n='impl-name' v='S5CompEx' />
-      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s5.S5;fr.imag.adele.apam.ApamComponent;]' /> 
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s5.S5;]' /> 
       <p n='provide-specification' v='S5' />
       <p n='borrowinstance' v='false' />
       <p n='myproperty' v='true' />
       <p n='localimplementation' v='true' />
       <p n='borrowimplementation' v='(b=true)' />
       <p n='localinstance' v='true' />
-      <p n='s5-spec' v='[coucous5]' />
-      <p n='spec-name' v='[S5]' />
+      <p n='spec-name' v='S5' />
+      <p n='s5-spec' v='coucous5' />
    </capability>
 </obr> 

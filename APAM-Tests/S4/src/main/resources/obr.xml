@@ -5,7 +5,6 @@
       <p n='provide-messages' v='[;MS4;]' /> 
       <p n='test-spec' v='coucou' />
       <p n='definition-b' v='boolean' />
-      <p n='definition-c' v='string' />
       <p n='require-specification' v='S5' /> 
    </capability>
 </obr> 

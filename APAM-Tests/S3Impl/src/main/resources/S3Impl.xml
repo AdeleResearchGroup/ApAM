@@ -13,6 +13,7 @@
 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="S3">
 		<properties>
 			<property test="bof" type="string" />
+			<property shared="false" type="string" />
 		</properties>
 		<dependency field="s5" />
 		<dependency  specification="S4" >
