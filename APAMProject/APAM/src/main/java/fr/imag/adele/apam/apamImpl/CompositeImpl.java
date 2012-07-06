@@ -78,7 +78,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         // Each composite has a different main instance; do not try to reuse an existing instance.
         if (externalMainInst == null) { // normal case
             externalMainInst = ((ImplementationImpl) compType.getMainImpl())
-                    .createInst(this, null /*initialproperties */);
+            .createInst(this, null /*initialproperties */);
         }
         mainInst = externalMainInst;
         // main instance is never shared
@@ -167,7 +167,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         if (sons.contains(dest))
             return; // allready existing
         sons.add(dest);
-        ((CompositeImpl) dest).addInvSon(this);
+        ((CompositeImpl) dest).setFather(this);
     }
 
     /**
@@ -177,7 +177,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         if (destination == null)
             return false;
         sons.remove(destination);
-        ((CompositeImpl) destination).removeInvSon(this);
+        ((CompositeImpl) destination).removeFather(this);
         return true;
     }
 
@@ -219,11 +219,6 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     private boolean removeDepend(Composite destination) {
         if (destination == null)
             return false;
-        // if (!dependsOn(destination))
-        // return false;
-        // if (destination.getDepends().size() < 2)
-        // return false;
-        //
         depend.remove(destination);
         ((CompositeImpl) destination).removeInvDepend(this);
         return true;
@@ -245,7 +240,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
      * @param origin
      * @return
      */
-    public boolean removeInvDepend(Composite origin) {
+    private boolean removeInvDepend(Composite origin) {
         if (origin == null)
             return false;
         invDepend.remove(origin);
@@ -259,7 +254,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
      * @return
      */
 
-    public void addInvDepend(Composite origin) {
+    private void addInvDepend(Composite origin) {
         invDepend.add(origin);
         return;
     }
@@ -298,11 +293,11 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         return compType.getModels();
     }
 
-    public void addInvSon(Composite father) {
+    private void setFather(Composite father) {
         this.father = father;
     }
 
-    public void removeInvSon(Composite father) {
+    private void removeFather(Composite father) {
         this.father = null;
     }
 

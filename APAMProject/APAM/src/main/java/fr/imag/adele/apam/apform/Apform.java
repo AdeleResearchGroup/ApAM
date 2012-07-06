@@ -63,9 +63,9 @@ public class Apform {
             return;
         ((CompositeImpl) Apform.rootInst).removeInst(inst);
         ((InstanceImpl) inst).setUsed(true);
-        if (inst instanceof Composite) { // it is a composite. Should never happen ?
-            ((CompositeImpl) Apform.rootInst).removeSon((Composite) inst);
-        }
+        //        if (inst instanceof Composite) { // it is a composite. Should never happen ?
+        //            ((CompositeImpl) Apform.rootInst).removeSon((Composite) inst);
+        //        }
     }
 
     /**

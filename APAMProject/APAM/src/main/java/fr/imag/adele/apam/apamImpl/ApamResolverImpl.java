@@ -239,12 +239,18 @@ public class ApamResolverImpl implements ApamResolver {
             if ((insts == null) || insts.isEmpty()) {
                 if (insts == null)
                     insts = new HashSet<Instance>();
-                insts.add(impl.createInstance(compo, null));
-                if (insts.isEmpty()) {
-                    System.err.println("Failed to resolve " + dependency.getTarget() + " from " + client + "("
-                            + depName + ")" + "\nImplementation not instantiable " + impl);
+                Instance inst;
+                if (impl instanceof CompositeTypeImpl) {
+                    inst = ((CompositeTypeImpl) impl).createInst(compo, null);
+                } else
+                    inst = ((ImplementationImpl) impl).createInst(compo, null);
+
+                if (inst == null){// should never happen
+                    System.err.println("Failed creating instance of " + impl);
                     return false;
                 }
+
+                insts.add(inst);
                 System.out.println("Instantiated " + insts.toArray()[0]);
             }
         }
@@ -262,7 +268,8 @@ public class ApamResolverImpl implements ApamResolver {
                 if (dependency.isMultiple())
                     break; // in case it is a single dep from a multiple promotion. TODO Is that possible ????
             }
-        }
+        } else
+            return false;
 
         // notify the managers
         ApamResolverImpl.notifySelection(client, dependency.getTarget(), depName,
@@ -544,16 +551,12 @@ public class ApamResolverImpl implements ApamResolver {
             System.out.print(manager.getName() + "  ");
             inst = manager.resolveImpl(compo, impl, constraints, preferences);
             if (inst != null) {
-                // System.out.println("selected : " + inst);
                 return inst;
             }
         }
-        //        inst = impl.createInstance(compo, null);
-        //        System.out.println("instantiated : " + inst);
-
         // TODO Notify dynaman
 
-        return inst;
+        return null;
     }
 
     /**

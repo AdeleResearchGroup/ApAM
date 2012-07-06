@@ -235,7 +235,8 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
 
         // Other relationships to instantiate
         ((ImplementationImpl) getImpl()).addUses(to.getImpl());
-        ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
+        if ((SpecificationImpl) getSpec() != null)
+            ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
         return true;
     }
 
@@ -252,8 +253,8 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
 
     public void removeInvWire(Wire wire) {
         invWires.remove(wire);
-        if (invWires.isEmpty()) { // This instance ins no longer used. Delete it
-            remove();
+        if (invWires.isEmpty()) { // This instance ins no longer used.
+            setUsed(false);
         }
     }
 

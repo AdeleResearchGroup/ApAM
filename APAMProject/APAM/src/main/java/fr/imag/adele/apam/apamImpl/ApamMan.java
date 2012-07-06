@@ -105,7 +105,7 @@ public class ApamMan implements Manager {
         if (spec == null)
             return null;
         Set<Implementation> impls = new HashSet<Implementation>();
-        // select those that are visible
+        // select only those that are visible
         for (Implementation impl : spec.getImpls()) {
             if (Util.checkImplVisible(compoType, impl))
                 impls.add(impl);
