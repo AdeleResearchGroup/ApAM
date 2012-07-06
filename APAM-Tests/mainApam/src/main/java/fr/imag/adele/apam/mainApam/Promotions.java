@@ -30,7 +30,7 @@ public class Promotions implements Runnable, ApamComponent {
         System.out.println("S3Impl Loaded\n\n ");
 
         System.out.println("\n\ncreating S1Main-Appli only loading the bundle containing S1Main");
-        CST.apamResolver.findImplByName(null, "S1Main");
+        CST.apamResolver.findImplByName(null, "S1Impl");
         System.out.println("after apamResolver.findImplByName(null, \"S1Main\")\n\n");
 
     }

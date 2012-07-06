@@ -12,7 +12,7 @@
 		</dependencies>
 	</implementation>
 
-<!-- 	<apam-instance name="MainApam-Instance" implementation="MainApam" />
- -->
- 	<apam-instance name="Promotions-Instance" implementation="Promotions" />
+   <apam-instance name="MainApam-Instance" implementation="MainApam" /> 
+ 	
+<!--  	<apam-instance name="Promotions-Instance" implementation="Promotions" /> -->
 </apam>

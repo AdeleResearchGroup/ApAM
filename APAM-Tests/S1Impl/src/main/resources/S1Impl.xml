@@ -23,7 +23,7 @@
 				<interface field="s3_1" />
 				<interface field="s3_2" />
 			</dependency>
-			<dependency implementation="S2ImplBis" field="lastS2" />
+			<dependency implementation="S2Impl" field="lastS2" />
 		</dependencies>
 	</implementation>
 
