@@ -13,16 +13,13 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager;
 import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
-import fr.imag.adele.apam.core.ResolvableReference;
 
 public class ApformIpojoInstance extends InstanceManager implements ApformInstance, DependencyInjectionManager.Resolver  {
 
@@ -193,10 +190,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     public void setState(int state) {
         super.setState(state);
 
-        if (isApamCreated || !isStarted())
-            return;
-
-        if (state == ComponentInstance.VALID)
+        if (state == ComponentInstance.VALID && !isApamCreated)
             Apform2Apam.newInstance(getInstanceName(), this);
 
         if (state == ComponentInstance.INVALID)

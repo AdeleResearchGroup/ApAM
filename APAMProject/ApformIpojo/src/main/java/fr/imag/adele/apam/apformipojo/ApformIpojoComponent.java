@@ -14,9 +14,9 @@ import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.util.Logger;
-import org.apache.felix.ipojo.util.Tracker;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionHandler;
@@ -371,9 +371,9 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements I
 	/**
 	 * A dynamic reference to the APAM platform
 	 */
-	protected final ApamTracker apamTracker;
+	protected final ServiceTracker apamTracker;
 
-	   /**
+	/**
      * A class to dynamically track the APAM platform. This allows to dynamically register/unregister this
      * component into the platform.
      * 
@@ -383,32 +383,36 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements I
      * @author vega
      * 
      */
-    class ApamTracker extends Tracker {
+    class ApamTracker extends ServiceTracker {
 
         private boolean bound;
 
         public ApamTracker(BundleContext context) {
             super(context, Apam.class.getName(), null);
-            bound = false;
+            this.bound = false;
         }
 
         @Override
-        public boolean addingService(ServiceReference reference) {
-            return !bound;
-        }
-
-        @Override
-        public void addedService(ServiceReference reference) {
-            bound = true;
-            Apam apam = (Apam) getService(reference);
+        public Object addingService(ServiceReference reference) {
+            if (bound)
+            	return null;
+            
+            
+            this.bound = true;
+            Apam apam = (Apam) this.context.getService(reference);
             bindToApam(apam);
+            
+            return apam;
         }
+
 
         @Override
         public void removedService(ServiceReference reference, Object service) {
-            unbindFromApam((Apam) service);
-            ungetService(reference);
-            bound = false;
+            
+        	unbindFromApam((Apam) service);
+            this.context.ungetService(reference);
+
+            this.bound = false;
         }
 
     }

@@ -8,12 +8,12 @@ import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.HandlerManager;
 import org.apache.felix.ipojo.IPojoContext;
 import org.apache.felix.ipojo.metadata.Element;
-import org.apache.felix.ipojo.util.Tracker;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.core.InstanceDeclaration;
@@ -94,35 +94,40 @@ public class ApformIpojoInstanceDeclaration extends ApformIpojoComponent {
      * represented by this declaration
      * 
      */
-    class ImplementationTracker extends Tracker {
+    class ImplementationTracker extends ServiceTracker {
 
         public ImplementationTracker(BundleContext context, Filter filter) {
             super(context,filter,null);
         }
 
         @Override
-        public boolean addingService(ServiceReference reference) {
-            return iPojoInstance == null;
-        }
+        public Object addingService(ServiceReference reference) {
 
-        @Override
-        public void addedService(ServiceReference reference) {
-			try {
-	        	Factory factory 			= (Factory) getService(reference);
+			if (iPojoInstance != null)
+				return null;
+
+        	try {
+				
+	        	Factory factory 			= (Factory) this.context.getService(reference);
 	        	Properties configuration	= new Properties();
 	        	configuration.put(ApformIpojoInstance.ATT_DECLARATION, ApformIpojoInstanceDeclaration.this.getDeclaration());
 				iPojoInstance = factory.createComponentInstance(configuration);
 				
+				return factory;
+				
 			} catch (Exception instantiationError) {
 				instantiationError.printStackTrace(System.err);
+				return null;
 			}
+            
         }
 
         @Override
         public void removedService(ServiceReference reference, Object service) {
-            ungetService(reference);
             if (iPojoInstance != null)
             	iPojoInstance.dispose();
+
+            this.context.ungetService(reference);
             iPojoInstance = null;
         }
 
