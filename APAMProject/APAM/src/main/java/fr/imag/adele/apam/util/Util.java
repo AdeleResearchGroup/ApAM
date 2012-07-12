@@ -2,7 +2,6 @@ package fr.imag.adele.apam.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +12,8 @@ import java.util.Set;
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
@@ -32,7 +33,7 @@ import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
  * @author SAM team
  */
 public class Util {
-
+	private static Logger logger = LoggerFactory.getLogger(Util.class);
     static boolean failed;
 
     private Util() {
@@ -45,7 +46,7 @@ public class Util {
 
             @Override
             public void error(Severity severity, String message) {
-                System.err.println("error parsing component declaration : "+message);
+                logger.error("error parsing component declaration : "+message);
                 Util.failed = true;
             }
         });
@@ -195,9 +196,9 @@ public class Util {
         try {
             ret = org.osgi.framework.FrameworkUtil.createFilter(ldap);
         } catch (InvalidSyntaxException e) {
-            System.out.print("Invalid filters : ");
+            logger.debug("Invalid filters : ");
             for (Filter f : filters) {
-                System.out.println("   " + f.toString());
+                logger.debug("   " + f.toString());
                 ;
             }
             e.printStackTrace();
@@ -346,12 +347,12 @@ public class Util {
             return true;
 
         if (Util.isFinalAttribute(attr)) {
-            System.err.println("ERROR: \"" + attr + "\" is a final attribute");
+            logger.error("ERROR: \"" + attr + "\" is a final attribute");
             return false;
         }
 
         if (Util.isReservedAttribute(attr)) {
-            System.err.println("ERROR: \"" + attr + "\" is a reserved attribute");
+            logger.error("ERROR: \"" + attr + "\" is a reserved attribute");
             return false;
         }
 
@@ -365,7 +366,7 @@ public class Util {
 
         for (Object prop : props.keySet()) {
             if (((String) prop).equalsIgnoreCase(attr)) {
-                System.err.println("cannot redefine attribute \"" + attr + "\"");
+                logger.error("cannot redefine attribute \"" + attr + "\"");
                 return false;
             }
         }
@@ -381,7 +382,7 @@ public class Util {
                 return Util.checkAttrType(attr, value, propDef.getType());
             }
         }
-        System.err.println("In " + inst + " attribute \"" + attr + "=" + value + "\" is undefined.");
+        logger.error("In " + inst + " attribute \"" + attr + "=" + value + "\" is undefined.");
         return false;
     }
 
@@ -396,14 +397,14 @@ public class Util {
             return false;
 
         if (!(val instanceof String)) {
-            System.err.println("Invalid attribute value \"" + val + "\" for attribute \"" + attr
+            logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr
                     + "\".  String value expected");
             return false;
         }
         String value = (String) val;
 
         if (type.equals("boolean") && !value.equalsIgnoreCase(CST.V_TRUE) && !value.equalsIgnoreCase(CST.V_FALSE)) {
-            System.err.println("Invalid attribute value \"" + val + "\" for attribute \"" + attr
+            logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr
                     + "\".  Boolean value expected");
             return false;
         }
@@ -412,7 +413,7 @@ public class Util {
                 int valint = Integer.parseInt(value);
                 return true;
             } catch (Exception e) {
-                System.err.println("Invalid attribute value \"" + val + "\" for attribute \"" + attr
+                logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr
                         + "\".  Integer value expected");
                 return false;
             }
@@ -423,12 +424,11 @@ public class Util {
                 if (one.equals(value))
                     return true;
             }
-            System.err
-            .print("Invalid attribute value \"" + val + "\" for attribute \"" + attr + "\".  Expected: \"{");
+          logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr + "\".  Expected: \"{");
             for (String one : enumVals) {
-                System.err.print(one + " ");
+                logger.error(one + " ");
             }
-            System.err.println("}\"");
+            logger.error("}\"");
             return false;
         }
 

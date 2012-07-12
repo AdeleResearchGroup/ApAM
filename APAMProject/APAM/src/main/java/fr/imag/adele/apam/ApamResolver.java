@@ -1,22 +1,11 @@
 package fr.imag.adele.apam;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.apamImpl.APAMImpl;
-import fr.imag.adele.apam.apamImpl.CompositeImpl;
-import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
-import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.ImplementationReference;
-import fr.imag.adele.apam.core.ResolvableReference;
-import fr.imag.adele.apam.core.SpecificationReference;
-import fr.imag.adele.apam.util.Util;
 
 public interface ApamResolver {
 

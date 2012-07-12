@@ -24,13 +24,25 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
-//import org.apache.felix.utils.version.VersionTable;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+//import org.apache.felix.utils.version.VersionTable;
 
 
 /**
@@ -38,7 +50,9 @@ import org.osgi.framework.Version;
  * support for the SUPERSET (&gt;*) and SUBSET (&lt;*) operators.
  * This filter also has a few optimizations (cached transformation).
  */
+
 public class ApamFilter implements Filter {
+	private static Logger logger = LoggerFactory.getLogger(ApamFilter.class);
 
     /* filter operators */
     private static final int          EQUAL     = 1;
@@ -81,7 +95,7 @@ public class ApamFilter implements Filter {
         try {
             return ApamFilter.newInstance(filterString, false);
         } catch  (InvalidSyntaxException e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
         }
         return null;
     }
@@ -372,7 +386,7 @@ public class ApamFilter implements Filter {
             case SUPERSET:
             case PRESENT: {
                 if (!Util.isPredefinedAttribute(attr) && !validAttr.contains(attr)) {
-                    System.err.println("Specification " + spec + " does not define property " + attr
+                    logger.error("Specification " + spec + " does not define property " + attr
                             + ". Invalid constraint " + f);
                 }
             }

@@ -14,6 +14,8 @@ import fr.imag.adele.apam.util.Util;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
@@ -51,6 +53,8 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
     // the instances
     protected Set<Instance>             instances        = Collections
     .newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
+
+	Logger logger =  LoggerFactory.getLogger(ImplementationImpl.class);
 
     // the sharable instances
     //    protected Set<Instance>             sharableInstances = new HashSet<Instance>();      // the sharable instances
@@ -129,7 +133,7 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
      */
     protected Instance createInst(Composite instCompo, Map<String, Object> initialproperties) {
         if ((get(CST.A_INSTANTIABLE) != null) && get(CST.A_INSTANTIABLE).equals(CST.V_FALSE)) {
-            System.out.println("Implementation " + this + " is not instantiable");
+        	logger.debug("Implementation " + this + " is not instantiable");
             return null;
         }
         ApformInstance apfInst = apfImpl.createInstance(initialproperties);
@@ -144,7 +148,7 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
     @Override
     public Instance createInstance(Composite instCompo, Map<String, Object> initialproperties) {
         if ((instCompo != null) && !Util.checkImplVisible(instCompo.getCompType(), this)) {
-            System.err.println("cannot instantiate " + this + ". It is not visible from composite " + instCompo);
+            logger.error("cannot instantiate " + this + ". It is not visible from composite " + instCompo);
             return null;
         }
         return createInst(instCompo, initialproperties);
@@ -318,7 +322,7 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
                 winner = inst;
             }
         }
-        System.out.println("   Selected : " + winner);
+        logger.debug("   Selected : " + winner);
         return winner;
     }
 
@@ -396,7 +400,7 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
     }
 
     //
-    protected void remove() {
+    public void remove() {
         for (Instance inst : instances) {
             ((InstanceImpl) inst).remove();
         }

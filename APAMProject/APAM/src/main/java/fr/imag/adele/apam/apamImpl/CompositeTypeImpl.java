@@ -4,25 +4,24 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.ApamResolver;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
@@ -37,6 +36,7 @@ import fr.imag.adele.apam.util.Util;
 
 public class CompositeTypeImpl extends ImplementationImpl implements CompositeType {
 
+	static Logger logger = LoggerFactory.getLogger(CompositeTypeImpl.class);
     // Global variable. The actual content of the ASM
     private static Map<String, CompositeType> compositeTypes = new ConcurrentHashMap<String, CompositeType>();
     private static CompositeType              rootCompoType  = new CompositeTypeImpl();
@@ -117,7 +117,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                 noCompo.add(f);
                 mainImpl = CST.apamResolver.resolveSpecByName(this, mainImplName, noCompo, null);
                 if (mainImpl == null) {
-                    System.err.println("cannot find main implementation " + mainImplName);
+                    logger.error("cannot find main implementation " + mainImplName);
                     return;
                 }
             }
@@ -128,14 +128,14 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         if (specName != null) {
             Specification spec = CST.SpecBroker.getSpec(specName);
             if (spec == null) {
-                System.err.println("No specification for composite " + nameCompo);
+                logger.error("No specification for composite " + nameCompo);
                 new Exception("No specification for composite " + nameCompo).printStackTrace();
             }
             // check if mainImpl really implements the composite type resources;
             Set<ResourceReference> mainImplSpec = mainImpl.getApformImpl().getDeclaration().getProvidedResources();
             // Should never happen, checked at compile time.
             if (!mainImplSpec.containsAll(spec.getDeclaration().getProvidedResources())) {
-                System.err.println("ERROR: Invalid main implementation " + mainImpl + " for composite type "
+                logger.error("ERROR: Invalid main implementation " + mainImpl + " for composite type "
                         + name + "Main implementation Provided resources " + mainImplSpec
                         + "do no provide all the expected resources : " + spec.getDeclaration().getProvidedResources());
             } else
@@ -184,7 +184,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
         assert (mainImplName != null) ;
         if (CompositeTypeImpl.compositeTypes.get(name) != null) {
-            System.err.println("Composite type " + name + " allready existing");
+            logger.error("Composite type " + name + " allready existing");
             return null;
         }
         if (fromCompo == null) {
@@ -237,7 +237,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             return null;
         }
         if (CompositeTypeImpl.compositeTypes.get(name) != null) {
-            System.err.println("Composite type " + name + " allready existing");
+            logger.error("Composite type " + name + " allready existing");
             return null;
         }
 
@@ -311,7 +311,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     @Override
     public Instance createInstance(Composite instCompo, Map<String, Object> initialproperties) {
         if ((instCompo != null) && !Util.checkImplVisible(instCompo.getCompType(), this)) {
-            System.err.println("cannot instantiate " + this + ". It is not visible from composite " + instCompo);
+            logger.error("cannot instantiate " + this + ". It is not visible from composite " + instCompo);
             return null;
         }
         return CompositeImpl.newCompositeImpl(this, instCompo, null, initialproperties, apfImpl

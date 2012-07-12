@@ -6,25 +6,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-//import java.util.concurrent.ConcurrentHashMap;
 
-//import org.apache.felix.utils.filter.FilterImpl;
-import fr.imag.adele.apam.util.ApamFilter;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
+import fr.imag.adele.apam.util.ApamFilter;
+//import java.util.concurrent.ConcurrentHashMap;
+//import org.apache.felix.utils.filter.FilterImpl;
 
 
 public class SpecificationImpl extends PropertiesImpl implements Specification {
-
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2752578219337076677L;
+	
+	private Logger logger = LoggerFactory.getLogger(SpecificationImpl.class);
     private String                    name;
     private ApformSpecification       apfSpec         = null;
     private SpecificationDeclaration  declaration;
@@ -92,11 +99,11 @@ public class SpecificationImpl extends PropertiesImpl implements Specification {
         if (name.equals(logicalName))
             return;
         if ((apfSpec != null) && name.equals(apfSpec.getDeclaration().getName())) {
-            System.out.println("changing logical name, from " + name + " to " + logicalName);
+            logger.debug("changing logical name, from " + name + " to " + logicalName);
             name = logicalName;
             return;
         }
-        System.err.println(" Error : cannot change specification name from " + name + " to " + logicalName);
+        logger.error(" Error : cannot change specification name from " + name + " to " + logicalName);
     }
 
     @Override

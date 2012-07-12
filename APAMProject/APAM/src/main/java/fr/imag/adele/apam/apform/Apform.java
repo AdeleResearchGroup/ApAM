@@ -2,6 +2,9 @@ package fr.imag.adele.apam.apform;
 
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
@@ -15,6 +18,8 @@ import fr.imag.adele.apam.apamImpl.InstanceImpl;
 
 public class Apform {
 
+	private static Logger logger = LoggerFactory.getLogger(Apform.class);
+	
     private static final CompositeType              rootType              = CompositeTypeImpl.getRootCompositeType();
     private static final Composite                  rootInst              = CompositeImpl.getRootAllComposites();
 
@@ -87,7 +92,7 @@ public class Apform {
         // The expected impl arrived. It is in unUsed.
         impl = CST.ImplBroker.getImpl(expectedImpl);
         if (impl == null) // should never occur
-            System.out.println("wake up but imlementation is not present " + expectedImpl);
+            logger.debug("wake up but imlementation is not present " + expectedImpl);
 
         return impl;
     }
@@ -111,7 +116,7 @@ public class Apform {
         // The expected impl arrived. It is in unUsed.
         spec = CST.SpecBroker.getSpec(expected);
         if (spec == null) // should never occur
-            System.out.println("wake up but specification is not present " + expected);
+            logger.debug("wake up but specification is not present " + expected);
 
         return spec;
     }

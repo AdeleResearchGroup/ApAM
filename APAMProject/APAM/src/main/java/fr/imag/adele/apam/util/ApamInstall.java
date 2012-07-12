@@ -2,22 +2,24 @@ package fr.imag.adele.apam.util;
 
 import java.net.URL;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.osgi.framework.Bundle;
-//import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apamImpl.APAMImpl;
 import fr.imag.adele.apam.apform.Apform;
+//import org.osgi.framework.BundleContext;
 
 public class ApamInstall {
-
+	
+	private static Logger logger = LoggerFactory.getLogger(ApamInstall.class);
+	
     public static Implementation intallImplemFromURL(URL url, String compoName) {
         if (!ApamInstall.deployBundle(url, compoName))
             return null;
@@ -35,14 +37,14 @@ public class ApamInstall {
         try {
             bundle = APAMImpl.context.installBundle(url.toString());
             if (!ApamInstall.getAllComponentNames(bundle).contains(compoName)) {
-                System.err.println("Bundle " + url.toString() + " does not contain " + compoName +
+                logger.error("Bundle " + url.toString() + " does not contain " + compoName +
                         " but contains " + ApamInstall.getAllComponentNames(bundle));
                 return false;
             }
             bundle.start();
             return true;
         } catch (BundleException e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
             return false;
         }
     }

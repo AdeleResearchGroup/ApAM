@@ -3,26 +3,24 @@ package fr.imag.adele.apam.apamImpl;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Implementation;
+import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.ApamResolver;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.ManagerModel;
-
 //import fr.imag.adele.sam.Implementation;
 //import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 //import org.osgi.framework.BundleException;
 //import org.osgi.framework.BundleActivator;
 
@@ -31,6 +29,8 @@ public class APAMImpl implements Apam {
     public static BundleContext context;
     public static Manager       apamMan;
 
+    Logger logger = LoggerFactory.getLogger(APAMImpl.class);
+    
     //    private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
     public static List<Manager> managerList = new ArrayList<Manager>();
 
@@ -50,7 +50,7 @@ public class APAMImpl implements Apam {
             if (fatherCompo == null)
                 return null;
             if (!(fatherCompo instanceof CompositeType)) {
-                System.err.println(inCompoType + " is not a composite type.");
+            	logger.error(inCompoType + " is not a composite type.");
                 return null;
             }
         }
@@ -67,7 +67,7 @@ public class APAMImpl implements Apam {
             if (fatherCompo == null)
                 return null;
             if (!(fatherCompo instanceof CompositeType)) {
-                System.err.println(inCompoType + " is not a composite type.");
+            	logger.error(inCompoType + " is not a composite type.");
                 return null;
             }
         }
@@ -83,7 +83,7 @@ public class APAMImpl implements Apam {
             return null;
         if (compoType instanceof CompositeType)
             return startAppli((CompositeType) compoType);
-        System.err.println("ERROR : " + compoType.getName() + " is not a composite.");
+        logger.error("ERROR : " + compoType.getName() + " is not a composite.");
         return null;
     }
 

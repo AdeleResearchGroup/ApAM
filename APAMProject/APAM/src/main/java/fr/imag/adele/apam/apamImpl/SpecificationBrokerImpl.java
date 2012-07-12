@@ -9,13 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.SpecificationBroker;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.ResolvableReference;
-import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamInstall;
@@ -23,7 +23,7 @@ import fr.imag.adele.apam.util.ApamInstall;
 public class SpecificationBrokerImpl implements SpecificationBroker {
 
     private final Set<Specification> specs = Collections.newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());
-
+    Logger logger = LoggerFactory.getLogger(SpecificationBrokerImpl.class);
     protected void removeSpec(Specification spec) {
         if (spec == null)
             return;
@@ -181,7 +181,7 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
             return spec;
         spec = ApamInstall.intallSpecFromURL(url, specName);
         if (spec == null) {
-            System.out.println("deployment failed for specification " + specName);
+            logger.debug("deployment failed for specification " + specName);
         }
         return spec;
     }

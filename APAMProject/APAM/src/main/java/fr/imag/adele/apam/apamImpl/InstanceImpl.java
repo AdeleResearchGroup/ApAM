@@ -1,36 +1,37 @@
 package fr.imag.adele.apam.apamImpl;
 
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
-//import java.util.Dictionary;
-import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.Util;
+import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.ApamComponent;
-import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Util;
+//import java.util.Dictionary;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
-import fr.imag.adele.apam.core.InstanceDeclaration;
 
 //import fr.imag.adele.sam.Instance;
 
 public class InstanceImpl extends PropertiesImpl implements Instance {
 
+	Logger logger = LoggerFactory.getLogger(InstanceImpl.class);
     /**
      * 
      */
@@ -215,7 +216,7 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
             wires.add(wire);
             ((InstanceImpl) to).invWires.add(wire);
         } else {
-            System.err.println("INTERNAL ERROR: wire from " + this + " to " + to
+        	logger.error("INTERNAL ERROR: wire from " + this + " to " + to
                     + " could not be created in the real instance.");
             return false;
         }
@@ -246,7 +247,7 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
             wires.remove(wire);
             ((ImplementationImpl) getImpl()).removeUses(wire.getDestination().getImpl());
         } else {
-            System.err.println("INTERNAL ERROR: wire from " + this + " to " + wire.getDestination()
+        	logger.error("INTERNAL ERROR: wire from " + this + " to " + wire.getDestination()
                     + " could not be removed in the real instance.");
         }
     }

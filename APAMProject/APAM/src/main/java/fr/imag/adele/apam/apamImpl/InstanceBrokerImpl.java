@@ -8,23 +8,25 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-//import fr.imag.adele.am.LocalMachine;
-//import fr.imag.adele.am.Machine;
-//import fr.imag.adele.am.eventing.AMEventingHandler;
-//import fr.imag.adele.am.eventing.EventingEngine;
-//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ImplementationBroker;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.InstanceBroker;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.CompositeType;
-//import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
 import fr.imag.adele.apam.apform.ApformInstance;
+//import fr.imag.adele.am.LocalMachine;
+//import fr.imag.adele.am.Machine;
+//import fr.imag.adele.am.eventing.AMEventingHandler;
+//import fr.imag.adele.am.eventing.EventingEngine;
+//import fr.imag.adele.am.exception.ConnectionException;
+//import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.Instance;
@@ -37,7 +39,7 @@ public class InstanceBrokerImpl implements InstanceBroker {
 
     //  private final Set<Instance>               instances         = new HashSet<Instance>();
     //    private final Set<Instance>               sharableInstances = new HashSet<Instance>();
-
+    Logger logger = LoggerFactory.getLogger(InstanceBrokerImpl.class);
     public InstanceBrokerImpl() {
     }
 
@@ -105,14 +107,14 @@ public class InstanceBrokerImpl implements InstanceBroker {
         inst = CST.InstBroker.getInst(apfInst.getDeclaration().getName());
         if (inst != null) { // allready existing ! May have been created by
             // DYNAMAN, without all parameters
-            System.err.println("Instance already existing: " + inst);
+        	logger.error("Instance already existing: " + inst);
             return inst;
         }
 
         String implementationName = apfInst.getDeclaration().getImplementation().getName();
         impl = CST.ImplBroker.getImpl(implementationName);
         if (impl == null) { // create the implem also
-            System.err.println("Implementation is not existing in addInst: " + implementationName);
+        	logger.error("Implementation is not existing in addInst: " + implementationName);
         }
 
         // Composite implementations can be installed too.

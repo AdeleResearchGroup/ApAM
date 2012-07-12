@@ -8,28 +8,27 @@ import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Manager;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apamImpl.APAMImpl;
-import fr.imag.adele.apam.apamImpl.CompositeImpl;
-import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
-import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamResolverImpl implements ApamResolver {
 
+	static Logger logger = LoggerFactory.getLogger(ApamResolverImpl.class);
     //    /**
     //     * In the case a client realizes that a dependency disappeared, it has to call this method. APAM will try to resolve
     //     * the problem (DYNAMAM in practice), and return a new instance.
@@ -137,11 +136,11 @@ public class ApamResolverImpl implements ApamResolver {
 
         // TODO I am not sure at all !
         //        if (!promotion.isMultiple() && (dests != null)) {
-        //            System.err.println("ERROR : wire " + client.getComposite() + " -" + depId + "-> "
+        //            logger.error("ERROR : wire " + client.getComposite() + " -" + depId + "-> "
         //                    + " allready existing.");
         //            return null;
         //        }
-        // System.err.println("Promoting " + client + " : " + client.getComposite() + " -" + depFound.dependencyName
+        // logger.error("Promoting " + client + " : " + client.getComposite() + " -" + depFound.dependencyName
         // + "-> ");
         // return ((ApamResolverImpl) CST.apamResolver).new DepMult(depId, dests);
         // return promotion;
@@ -176,9 +175,9 @@ public class ApamResolverImpl implements ApamResolver {
      */
     @Override
     public boolean resolveWire(Instance client, String depName) {
-        System.err.println("Resolving dependency " + depName + " from instance " + client.getName());
+        logger.error("Resolving dependency " + depName + " from instance " + client.getName());
         if ((depName == null) || (client == null)) {
-            System.err.println("missing client or dependency name");
+            logger.error("missing client or dependency name");
             return false;
         }
         // Get required resource from dependency declaration, take the declaration declared at the most concrete level
@@ -187,7 +186,7 @@ public class ApamResolverImpl implements ApamResolver {
             dependency = client.getImpl().getApformImpl().getDeclaration().getDependency(depName);
 
         if (dependency == null) {
-            System.err.println("dependency declaration not found " + depName);
+            logger.error("dependency declaration not found " + depName);
             return false;
         }
 
@@ -202,7 +201,7 @@ public class ApamResolverImpl implements ApamResolver {
             impl = depMult.impl;
             if ((depMult.insts != null) && !depMult.insts.isEmpty()) {
                 insts = depMult.insts;
-                System.out.println("Selected from promotion " + insts);
+                logger.debug("Selected from promotion " + insts);
             }
         }
 
@@ -219,7 +218,7 @@ public class ApamResolverImpl implements ApamResolver {
                 }
             }
             if (impl == null) {
-                System.err.println("Failed to resolve " + dependency.getTarget()
+                logger.error("Failed to resolve " + dependency.getTarget()
                         + " from " + client + "(" + depName + ")");
                 return false;
             }
@@ -227,13 +226,13 @@ public class ApamResolverImpl implements ApamResolver {
             // Look for the instances
             if (dependency.isMultiple()) {
                 insts = CST.apamResolver.resolveImpls(compo, impl, Util.toFilter(dependency.getInstanceConstraints()));
-                System.out.println("Selected set " + insts);
+                logger.debug("Selected set " + insts);
             } else {
                 Instance inst = CST.apamResolver.resolveImpl(compo, impl, dependency);
                 if (inst != null) {
                     insts = new HashSet<Instance>();
                     insts.add(inst);
-                    System.out.println("Selected " + inst);
+                    logger.debug("Selected " + inst);
                 }
             }
             if ((insts == null) || insts.isEmpty()) {
@@ -246,12 +245,12 @@ public class ApamResolverImpl implements ApamResolver {
                     inst = ((ImplementationImpl) impl).createInst(compo, null);
 
                 if (inst == null){// should never happen
-                    System.err.println("Failed creating instance of " + impl);
+                    logger.error("Failed creating instance of " + impl);
                     return false;
                 }
 
                 insts.add(inst);
-                System.out.println("Instantiated " + insts.toArray()[0]);
+                logger.debug("Instantiated " + insts.toArray()[0]);
             }
         }
 
@@ -260,7 +259,7 @@ public class ApamResolverImpl implements ApamResolver {
             for (Instance inst : insts) {
                 if (depMult != null) { // it was a promotion, embedding composite must be linked as the source
                     client.getComposite().createWire(inst, depMult.depType);
-                    System.err.println("Promoting " + client + " -" + depName + "-> " + inst + "\n      as: "
+                    logger.error("Promoting " + client + " -" + depName + "-> " + inst + "\n      as: "
                             + client.getComposite() + " -" + depMult.depType + "-> " + inst);
                 }
                 // in all cases the client must be linked
@@ -328,7 +327,7 @@ public class ApamResolverImpl implements ApamResolver {
     private static List<Manager> computeSelectionPathInst(Composite compoFrom, Implementation impl,
             Set<Filter> constraints, List<Filter> preferences) {
         if (APAMImpl.managerList.size() == 0) {
-            System.err.println("No manager available. Cannot resolve ");
+            logger.error("No manager available. Cannot resolve ");
             return null;
         }
 
@@ -352,7 +351,7 @@ public class ApamResolverImpl implements ApamResolver {
     private static void deployedImpl(CompositeType compoType, Implementation impl, boolean deployed) {
         // it was not deployed
         if (!deployed && impl.isUsed()) {
-            System.out.println(" : selected " + impl);
+        	logger.debug(" : selected " + impl);
             return;
         }
         // it is deployed or was never used so far
@@ -361,14 +360,14 @@ public class ApamResolverImpl implements ApamResolver {
         compoType.addImpl(impl);
 
         if (impl.isUsed()) {
-            System.out.println("Logicaly deployed " + impl);
+        	logger.debug("Logicaly deployed " + impl);
         } else {// it was unused so far.
             Apform.setUsedImpl(impl); // Remove it from unused
             if (impl instanceof CompositeType) { // it is a composite type
                 // if impl is a composite type, it is embedded inside compoFrom
                 ((CompositeTypeImpl) compoType).addEmbedded((CompositeType) impl);
             }
-            System.out.println("   deployed " + impl);
+            logger.debug("   deployed " + impl);
         }
     }
 
@@ -386,12 +385,12 @@ public class ApamResolverImpl implements ApamResolver {
         if (compoTypeFrom == null)
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
         Implementation impl = null;
-        System.out.println("Looking for implementation " + implName + ": ");
+        logger.debug("Looking for implementation " + implName + ": ");
         boolean deployed = false;
         for (Manager manager : selectionPath) {
             if (!manager.getName().equals(CST.APAMMAN))
                 deployed = true;
-            System.out.print(manager.getName() + "  ");
+            logger.debug(manager.getName() + "  ");
             impl = manager.findImplByName(compoTypeFrom, implName);
 
             if (impl != null) {
@@ -414,23 +413,23 @@ public class ApamResolverImpl implements ApamResolver {
         List<Manager> selectionPath = ApamResolverImpl.computeSelectionPathSpec(compTypeFrom, specName);
 
         Specification spec = null;
-        System.out.println("Looking for specification " + specName + ": ");
+        logger.debug("Looking for specification " + specName + ": ");
         boolean deployed = false;
         for (Manager manager : selectionPath) {
             if (!manager.getName().equals(CST.APAMMAN))
                 deployed = true;
-            System.out.print(manager.getName() + "  ");
+            logger.debug(manager.getName() + "  ");
             spec = manager.findSpecByName(compTypeFrom, specName);
             if (spec != null) {
                 if (deployed) {
-                    System.out.println("Deployed specificaiton " + specName);
+                    logger.debug("Deployed specificaiton " + specName);
                 } else
-                    System.out.println("Selected specificaiton " + specName);
+                    logger.debug("Selected specificaiton " + specName);
 
                 return spec;
             }
         }
-        System.out.println("Could not find specification " + specName);
+        logger.debug("Could not find specification " + specName);
         return null;
     }
 
@@ -459,15 +458,15 @@ public class ApamResolverImpl implements ApamResolver {
         List<Manager> selectionPath = ApamResolverImpl.computeSelectionPathSpec(compoTypeFrom, specName);
 
         if (constraints.isEmpty() && preferences.isEmpty())
-            System.out.println("Looking a \"" + specName + "\" implementation.");
+            logger.debug("Looking a \"" + specName + "\" implementation.");
         else
-            System.out.println("Looking a \"" + specName + "\" implementation. Constraints:" + constraints
+            logger.debug("Looking a \"" + specName + "\" implementation. Constraints:" + constraints
                     + ". Preferences: " + preferences);
         boolean deployed = false;
         for (Manager manager : selectionPath) {
             if (!manager.getName().equals(CST.APAMMAN))
                 deployed = true;
-            System.out.println(manager.getName() + "  ");
+            logger.debug(manager.getName() + "  ");
             Implementation impl = manager.resolveSpecByResource(compoTypeFrom, new SpecificationReference(specName),
                     constraints, preferences);
 
@@ -504,7 +503,7 @@ public class ApamResolverImpl implements ApamResolver {
         List<Manager> selectionPath = ApamResolverImpl.computeSelectionPathSpec(compoTypeFrom, dependency.getTarget()
                 .toString());
 
-        System.out.println("Looking for an implem with" + dependency);
+        logger.debug("Looking for an implem with" + dependency);
         if (compoTypeFrom == null)
             compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
         Implementation impl = null;
@@ -512,7 +511,7 @@ public class ApamResolverImpl implements ApamResolver {
         for (Manager manager : selectionPath) {
             if (!manager.getName().equals(CST.APAMMAN))
                 deployed = true;
-            System.out.print(manager.getName() + "  ");
+            logger.debug(manager.getName() + "  ");
             impl = manager.resolveSpecByResource(compoTypeFrom, dependency.getTarget(),
                     implementationConstraints, implementationPreferences);
             if (impl != null) {
@@ -546,9 +545,9 @@ public class ApamResolverImpl implements ApamResolver {
         if (compo == null)
             compo = CompositeImpl.getRootAllComposites();
         Instance inst = null;
-        System.out.println("Looking for an instance of " + impl + ": ");
+        logger.debug("Looking for an instance of " + impl + ": ");
         for (Manager manager : selectionPath) {
-            System.out.print(manager.getName() + "  ");
+            logger.debug(manager.getName() + "  ");
             inst = manager.resolveImpl(compo, impl, constraints, preferences);
             if (inst != null) {
                 return inst;
@@ -574,7 +573,7 @@ public class ApamResolverImpl implements ApamResolver {
     public Set<Instance> resolveImpls(Composite compo, Implementation impl, Set<Filter> constraints) {
 
         if (impl == null) {
-            System.err.println("impl is null in resolveImpls");
+            logger.error("impl is null in resolveImpls");
             return null;
         }
         if (constraints == null)
@@ -585,12 +584,12 @@ public class ApamResolverImpl implements ApamResolver {
             compo = CompositeImpl.getRootAllComposites();
 
         Set<Instance> insts = null;
-        System.out.println("Looking for instances of " + impl + ": ");
+        logger.debug("Looking for instances of " + impl + ": ");
         for (Manager manager : selectionPath) {
-            System.out.print(manager.getName() + "  ");
+            logger.debug(manager.getName() + "  ");
             insts = manager.resolveImpls(compo, impl, constraints);
             if ((insts != null) && !insts.isEmpty()) {
-                // System.out.println("selected " + insts);
+                // logger.debug("selected " + insts);
                 return insts;
             }
         }
@@ -599,7 +598,7 @@ public class ApamResolverImpl implements ApamResolver {
         //        if (insts.isEmpty()) {
         //            insts.add(impl.createInstance(compo, null));
         //        }
-        //        System.out.println("instantiated " + (insts.toArray()[0]));
+        //        logger.debug("instantiated " + (insts.toArray()[0]));
         return insts;
     }
 

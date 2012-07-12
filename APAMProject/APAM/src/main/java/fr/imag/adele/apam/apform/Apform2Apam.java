@@ -5,6 +5,9 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
@@ -19,11 +22,11 @@ import fr.imag.adele.apam.apamImpl.SpecificationImpl;
 
 public class Apform2Apam {
     //    static Set<String>  expectedDeployedImpls = new HashSet<String>();
-
+	
     static final CompositeType    rootType      = CompositeTypeImpl.getRootCompositeType();
     static final Composite        rootInst      = CompositeImpl.getRootAllComposites();
     static Set<Implementation>    unusedImplems = CompositeTypeImpl.getRootCompositeType().getImpls();
-
+    private static Logger logger = LoggerFactory.getLogger(Apform2Apam.class);
     /**
      * The event executor. We use a pool of a threads to handle notification to APAM of underlying platform
      * events, without blocking the platform thread.
@@ -43,7 +46,7 @@ public class Apform2Apam {
             try {
                 process();
             } catch (Exception unhandledException) {
-                System.err.println("Error handling Apform event :");
+                logger.error("Error handling Apform event :");
                 unhandledException.printStackTrace(System.err);
             } finally {
             }
@@ -147,7 +150,7 @@ public class Apform2Apam {
 
             Implementation impl = Apform.getUnusedImplem(implementationName);
             if (impl != null) {
-                System.err.println("Implementation already existing: " + implementationName);
+                logger.error("Implementation already existing: " + implementationName);
                 return;
             }
 
@@ -195,7 +198,7 @@ public class Apform2Apam {
 
             Specification spec = CST.SpecBroker.getSpec(specificationName);
             if (spec != null) {
-                System.err.println("Specification already existing: merging with " + specificationName);
+                logger.error("Specification already existing: merging with " + specificationName);
                 ((SpecificationImpl) spec).setSpecApform(specification);
                 return;
             }
@@ -251,10 +254,11 @@ public class Apform2Apam {
 
         Instance inst = CST.InstBroker.getInst(instanceName);
         if (inst == null) {
-            System.err.println("Vanish instance does not exists: " + instanceName);
+            logger.error("Vanish instance does not exists: " + instanceName);
             return;
         }
         ApamManagers.notifyRemovedFromApam(inst);
+        
     }
 
     /**
@@ -268,7 +272,7 @@ public class Apform2Apam {
          */
         Implementation impl = CST.ImplBroker.getImpl(implementationName);
         if (impl == null) {
-            System.err.println("Vanish implementation does not exists: " + implementationName);
+            logger.error("Vanish implementation does not exists: " + implementationName);
             return;
         }
 
@@ -284,7 +288,7 @@ public class Apform2Apam {
      */
     public static void vanishSpecification(String specificationName) {
         // TODO Auto-generated method stub
-
+    	
     }
 
 }

@@ -9,31 +9,28 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.DynamicManager;
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ImplementationBroker;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.ApamResolver;
-import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformImplementation;
-import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.CompositeDeclaration;
-import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.util.ApamInstall;
+//import fr.imag.adele.am.exception.ConnectionException;
 //import fr.imag.adele.apam.util.Attributes;
 //import fr.imag.adele.apam.util.AttributesImpl;
 //import fr.imag.adele.sam.ApformImplementation;
 //import fr.imag.adele.sam.ApformSpecification;
 //import fr.imag.adele.sam.deployment.DeploymentUnit;
-import fr.imag.adele.apam.util.ApamInstall;
 
 public class ImplementationBrokerImpl implements ImplementationBroker {
 
-    // private Logger logger = Logger.getLogger(ASMImplBrokerImpl.class);
+     private Logger logger = LoggerFactory.getLogger(ImplementationBrokerImpl.class);
 
     private final Set<Implementation> implems = Collections
                                                       .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
@@ -84,7 +81,7 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
     //    @Override
     public Implementation addImpl(CompositeType compo, ApformImplementation apfImpl, Map<String, Object> properties) {
         if ((apfImpl == null) || (compo == null)) {
-            System.err.println("ERROR : missing apf Implementaion or composite in addImpl");
+            logger.error("ERROR : missing apf Implementaion or composite in addImpl");
             return null;
         }
 
@@ -95,7 +92,7 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
         // if allready existing do not duplicate
         Implementation asmImpl = getImpl(implName);
         if (asmImpl != null) { // do not create twice
-            System.err.println("Implementation already existing (in addImpl) " + implName);
+            logger.error("Implementation already existing (in addImpl) " + implName);
             if (specName != null)
                 ((SpecificationImpl) asmImpl.getSpec()).setName(specName);
             return asmImpl;
@@ -163,7 +160,7 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
         }
         asmImpl = ApamInstall.intallImplemFromURL(url, implName);
         if (asmImpl == null) {
-            System.err.println("deployment failed :" + implName + " at URL " + url);
+            logger.error("deployment failed :" + implName + " at URL " + url);
             return null;
         }
 

@@ -3,11 +3,13 @@ package fr.imag.adele.apam;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.apamImpl.APAMImpl;
 
@@ -15,7 +17,7 @@ public class ApamManagers {
 
     private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
     private static List<Manager>          managerList  = new ArrayList<Manager>();
-
+    private static Logger logger = LoggerFactory.getLogger(ApamManagers.class);
     /**
      * Adds a manager to Apam.
      * 
@@ -25,7 +27,7 @@ public class ApamManagers {
      */
     public static void addManager(Manager manager, int priority) {
         if ((priority < 0) && !manager.getName().equals(APAMImpl.apamMan.getName())) {
-            System.err.println("invalid priority" + priority + ". 0 assumed");
+            logger.error("invalid priority" + priority + ". 0 assumed");
             priority = 0;
         }
         boolean inserted = false;
@@ -44,7 +46,7 @@ public class ApamManagers {
 
     public static Manager getManager(String managerName) {
         if (managerName == null) {
-            System.err.println("ERROR : Missing parameter manager in getManager");
+            logger.error("ERROR : Missing parameter manager in getManager");
             return null;
         }
         for (Manager man : APAMImpl.managerList) {
@@ -96,7 +98,7 @@ public class ApamManagers {
      */
     public static void addDynamicManager(DynamicManager manager) {
         if (manager == null) {
-            System.err.println("ERROR : Missing parameter manager in addDynamicManager");
+            logger.error("ERROR : Missing parameter manager in addDynamicManager");
             return;
         }
         ApamManagers.dynamicManagers.add(manager);
@@ -104,7 +106,7 @@ public class ApamManagers {
 
     public static void removeDynamicManager(DynamicManager manager) {
         if  (manager == null) {
-            System.out.println("ERROR : Missing parameter interf or manager in appearedExpected");
+            logger.error("ERROR : Missing parameter interf or manager in appearedExpected");
             return;
         }
         ApamManagers.dynamicManagers.remove(manager);
@@ -122,7 +124,7 @@ public class ApamManagers {
      */
     public static void addAttributeListener(AttributeManager manager) {
         if (manager == null) {
-            System.out.println("ERROR : Missing parameter manager in addAttributeListener");
+            logger.error("ERROR : Missing parameter manager in addAttributeListener");
             return;
         }
         ApamManagers.attributeListeners.add(manager);
@@ -135,7 +137,7 @@ public class ApamManagers {
      */
     public static void removeAttributeListener(AttributeManager manager) {
         if (manager == null) {
-            System.out.println("ERROR : Missing parameter manager in removeAttributeListener");
+           logger.error("ERROR : Missing parameter manager in removeAttributeListener");
             return;
         }
 
