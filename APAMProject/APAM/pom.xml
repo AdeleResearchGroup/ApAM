@@ -1,21 +1,22 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-    <artifactId>APAMProject</artifactId>
-    <groupId>fr.imag.adele.apam</groupId>
-    <version>0.0.1-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
-  </parent>
-  
-  <groupId>fr.imag.adele.apam</groupId>
-  <artifactId>APAM</artifactId>
-  <packaging>bundle</packaging>
-  <version>0.0.1-SNAPSHOT</version>
-  
-  <name>APAM</name>
-  <description>The machine itself</description>
-  	<properties>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>APAMProject</artifactId>
+		<groupId>fr.imag.adele.apam</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<groupId>fr.imag.adele.apam</groupId>
+	<artifactId>APAM</artifactId>
+	<packaging>bundle</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<name>APAM</name>
+	<description>The machine itself</description>
+	<properties>
 		<bundle.symbolicName>APAMach</bundle.symbolicName>
 	</properties>
 
@@ -38,18 +39,18 @@
 							Adele/LIG/ Grenoble University, France
 						</Bundle-Vendor>
 						<Bundle-Version>${project.version}</Bundle-Version>
-        				<Export-Package>
-        					fr.imag.adele.apam,
-        					fr.imag.adele.apam.core,
-        					fr.imag.adele.apam.apform,
-        					fr.imag.adele.apam.message,
-        					fr.imag.adele.apam.util
-        					<!--  A faire sauter, definition API public-->
-        				</Export-Package>
- 					</instructions>
+						<Export-Package>
+							fr.imag.adele.apam,
+							fr.imag.adele.apam.core,
+							fr.imag.adele.apam.apform,
+							fr.imag.adele.apam.message,
+							fr.imag.adele.apam.util
+							<!-- A faire sauter, definition API public -->
+						</Export-Package>
+					</instructions>
 				</configuration>
 			</plugin>
-		
+
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-ipojo-plugin</artifactId>
@@ -61,22 +62,22 @@
 					</execution>
 				</executions>
 			</plugin>
-			
-			
-			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
 
-            </plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>install</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+
+			</plugin>
 		</plugins>
 	</build>
 
@@ -92,7 +93,7 @@
 			</artifactId>
 			<scope>provided</scope>
 		</dependency>
-	    
+
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -120,6 +121,11 @@
 			<version>0.0.1-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
 		</dependency>
 	</dependencies>
 
