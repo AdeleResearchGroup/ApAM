@@ -9,6 +9,10 @@ import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.HandlerManager;
 import org.apache.felix.ipojo.InstanceManager;
+import org.apache.felix.ipojo.architecture.PropertyDescription;
+import org.apache.felix.ipojo.handlers.configuration.ConfigurationHandlerDescription;
+import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceDescription;
+import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceHandlerDescription;
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.BundleContext;
 
@@ -190,6 +194,31 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     public void setState(int state) {
         super.setState(state);
 
+        /*
+         * Copy ipojo properties to declaration on validation
+         */
+        if (state == ComponentInstance.VALID) {
+        	ConfigurationHandlerDescription configuration	= (ConfigurationHandlerDescription)getInstanceDescription().getHandlerDescription("org.apache.felix.ipojo:properties");
+        	ProvidedServiceHandlerDescription provides		= (ProvidedServiceHandlerDescription)getInstanceDescription().getHandlerDescription("org.apache.felix.ipojo:provides");
+        	
+        	if (configuration != null) {
+	        	for (PropertyDescription configurationProperty : configuration.getProperties()) {
+					getDeclaration().getProperties().put(configurationProperty.getName(),configurationProperty.getValue());
+				}
+        	}
+        	
+        	if (provides != null) {
+		    	for (ProvidedServiceDescription providedServiceDescription : provides.getProvidedServices()) {
+		    		for(Object key : providedServiceDescription.getProperties().keySet()) {
+						getDeclaration().getProperties().put((String)key,providedServiceDescription.getProperties().get(key));
+		    		}
+				}
+        	}
+        }
+        
+        /*
+         * For instances that are not created using the Apam API, register instance with APAM on validation
+         */
         if (state == ComponentInstance.VALID && !isApamCreated)
             Apform2Apam.newInstance(getInstanceName(), this);
 
