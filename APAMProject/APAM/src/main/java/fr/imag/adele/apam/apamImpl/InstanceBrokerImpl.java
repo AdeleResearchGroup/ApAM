@@ -16,11 +16,11 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.ImplementationBroker;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.InstanceBroker;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformInstance;
+
 //import fr.imag.adele.am.LocalMachine;
 //import fr.imag.adele.am.Machine;
 //import fr.imag.adele.am.eventing.AMEventingHandler;
@@ -35,7 +35,6 @@ import fr.imag.adele.apam.apform.ApformInstance;
 public class InstanceBrokerImpl implements InstanceBroker {
     //    private final Set<Instance> sharableInstances = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
     private final Set<Instance> instances         = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
-    private static final ImplementationBroker implBroker        = CST.ImplBroker;
 
     //  private final Set<Instance>               instances         = new HashSet<Instance>();
     //    private final Set<Instance>               sharableInstances = new HashSet<Instance>();
@@ -139,16 +138,25 @@ public class InstanceBrokerImpl implements InstanceBroker {
         }
     }
 
-    protected void removeInst(Instance inst) {
-        if (inst == null)
-            return;
-        if (instances.contains(inst)) {
-            instances.remove(inst);
-            ApamManagers.notifyRemovedFromApam(inst);
-            //            sharableInstances.remove(inst);
-            ((InstanceImpl) inst).remove(); // wires and sam attributes
-            ((ImplementationImpl) inst.getImpl()).removeInst(inst);
-        }
+    protected void removeInst(Instance inst, boolean notify) {
+        assert inst != null;
+        assert instances.contains(inst);
+        
+        if (notify)
+        	ApamManagers.notifyRemovedFromApam(inst);
+
+        //            sharableInstances.remove(inst);
+        ((InstanceImpl) inst).remove(); // wires and sam attributes
+        
+        ((ImplementationImpl) inst.getImpl()).removeInst(inst);
+        instances.remove(inst);
+    }
+    
+    /**
+     * TODO change visibility, currently this method is public to be visible from Apform
+     */
+    public  void removeInst(Instance inst) {
+    	removeInst(inst,true);
     }
 
 }

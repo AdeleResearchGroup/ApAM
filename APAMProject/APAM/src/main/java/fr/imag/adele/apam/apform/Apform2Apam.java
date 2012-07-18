@@ -18,6 +18,8 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apamImpl.CompositeImpl;
 import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
 import fr.imag.adele.apam.apamImpl.ImplementationBrokerImpl;
+import fr.imag.adele.apam.apamImpl.InstanceBrokerImpl;
+import fr.imag.adele.apam.apamImpl.SpecificationBrokerImpl;
 import fr.imag.adele.apam.apamImpl.SpecificationImpl;
 
 public class Apform2Apam {
@@ -248,16 +250,12 @@ public class Apform2Apam {
      * @param instanceName
      */
     public static void vanishInstance(String instanceName) {
-        /*
-         * Notify dynamic manager of instance disappearance
-         */
-
         Instance inst = CST.InstBroker.getInst(instanceName);
         if (inst == null) {
             logger.error("Vanish instance does not exists: " + instanceName);
             return;
         }
-        ApamManagers.notifyRemovedFromApam(inst);
+        ((InstanceBrokerImpl)CST.InstBroker).removeInst(inst);
         
     }
 
@@ -267,19 +265,13 @@ public class Apform2Apam {
      * @param implementationName
      */
     public static void vanishImplementation(String implementationName) {
-        /*
-         * Notify dynamic manager of implementation uninstall
-         */
         Implementation impl = CST.ImplBroker.getImpl(implementationName);
         if (impl == null) {
             logger.error("Vanish implementation does not exists: " + implementationName);
             return;
         }
 
-
-//        ApamManagers.notifyVanished(impl.getInCompositeType().iterator().next(), impl);
-        ApamManagers.notifyRemovedFromApam(impl);
-
+        ((ImplementationBrokerImpl)CST.ImplBroker).removeImpl(impl);
     }
 
     /**
@@ -287,8 +279,13 @@ public class Apform2Apam {
      * @param specificationName
      */
     public static void vanishSpecification(String specificationName) {
-        // TODO Auto-generated method stub
+        Specification spec = CST.SpecBroker.getSpec(specificationName);
+        if (spec == null) {
+            System.err.println("Vanish specification does not exists: " + specificationName);
+            return;
+        }
     	
+        ((SpecificationBrokerImpl)CST.SpecBroker).removeSpec(spec);
     }
 
 }

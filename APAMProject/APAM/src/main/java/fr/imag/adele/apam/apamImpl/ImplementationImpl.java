@@ -1,16 +1,11 @@
 package fr.imag.adele.apam.apamImpl;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-//import org.apache.felix.utils.filter.FilterImpl;
-import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.Util;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
@@ -18,15 +13,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Util;
 
 public class ImplementationImpl extends PropertiesImpl implements Implementation {
 
@@ -402,10 +399,8 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
     //
     public void remove() {
         for (Instance inst : instances) {
-            ((InstanceImpl) inst).remove();
+            ((InstanceBrokerImpl)CST.InstBroker).removeInst(inst,false);
         }
-        ((ImplementationBrokerImpl) CST.ImplBroker).removeImpl(this);
-        ((SpecificationImpl) getSpec()).removeImpl(this);
     }
 
     public void removeInst(Instance inst) {

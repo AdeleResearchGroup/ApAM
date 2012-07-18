@@ -768,7 +768,7 @@ public class CoreMetadataParser implements CoreParser {
             if (fieldIPojoMetadata != null)
                 return ApamIpojoInstrumentation.getCollectionType(fieldIPojoMetadata) != null;
 
-            throw new NoSuchFieldException("unvailbale metadata for field "+fieldName);
+            throw new NoSuchFieldException("unavailable metadata for field "+fieldName);
 
         }
 
@@ -1098,7 +1098,7 @@ public class CoreMetadataParser implements CoreParser {
 
         /*
          * Complex dependencies reference a single mandatory specification, and in the case of atomic components
-         * may optionally have a number field injection declarations
+         * may optionally have a number of field injection declarations
          */
         if (CoreMetadataParser.isComponentTarget(targetKind)) {
 

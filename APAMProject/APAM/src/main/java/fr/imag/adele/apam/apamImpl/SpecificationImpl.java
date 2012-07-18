@@ -199,9 +199,8 @@ public class SpecificationImpl extends PropertiesImpl implements Specification {
 
     protected void remove() {
         for (Implementation impl : implementations) {
-            ((ImplementationImpl) impl).remove();
+            ((ImplementationBrokerImpl)CST.ImplBroker).removeImpl(impl,false);
         }
-        ((SpecificationBrokerImpl) CST.SpecBroker).removeSpec(this);
     }
 
     protected void removeImpl(Implementation impl) {

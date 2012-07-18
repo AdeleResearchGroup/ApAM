@@ -24,13 +24,23 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
 
     private final Set<Specification> specs = Collections.newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());
     Logger logger = LoggerFactory.getLogger(SpecificationBrokerImpl.class);
-    protected void removeSpec(Specification spec) {
-        if (spec == null)
-            return;
-        if (specs.contains(spec)) {
-            specs.remove(spec);
-            ((SpecificationImpl) spec).remove();
-        }
+    // Not in the interface. No control
+    /**
+     * TODO change visibility, currently this method is public to be visible from Apform
+     */
+    public void removeSpec(Specification spec) {
+    	removeSpec(spec,true);
+    }
+    
+    protected void removeSpec(Specification spec, boolean notify) {
+    	
+    	assert spec != null;
+    	assert specs.contains(spec);
+    	
+        if (notify) {}
+    	
+    	((SpecificationImpl) spec).remove();
+    	specs.remove(spec);
     }
 
     public void addSpec(Specification spec) {

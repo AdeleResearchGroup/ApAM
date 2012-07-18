@@ -42,11 +42,26 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
     }
 
     // Not in the interface. No control
-    protected void removeImpl(Implementation impl) {
-        assert (impl != null);
-
+    /**
+     * TODO change visibility, currently this method is public to be visible from Apform
+     */
+    public void removeImpl(Implementation impl) {
+    	removeImpl(impl,true);
+    }
+    
+    protected void removeImpl(Implementation impl, boolean notify) {
+    	
+        assert impl != null;
+        assert implems.contains(impl);
+        
+        if (notify)
+        	ApamManagers.notifyRemovedFromApam(impl);
+        
+        ((ImplementationImpl)impl).remove();
+        
+        ((SpecificationImpl) impl.getSpec()).removeImpl(impl);
         implems.remove(impl);
-        ApamManagers.notifyRemovedFromApam(impl);
+        
     }
 
     @Override
