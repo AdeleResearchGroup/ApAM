@@ -123,7 +123,8 @@ public class ApamRepoBuilder {
             if (type != null) {
                 String typeString = null;
                 if (type.equals("string") || type.equals("int") || type.equals("boolean")) {
-                    if (Util.checkAttrType(definition.getName(), definition.getDefaultValue(), type))
+//                	Ignored because the value can be null
+//                    if (Util.checkAttrType(definition.getName(), definition.getDefaultValue(), type))
                         typeString = type;
                 } else {
                     // check for enum types
