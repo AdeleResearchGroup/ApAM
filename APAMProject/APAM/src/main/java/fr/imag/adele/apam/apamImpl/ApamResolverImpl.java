@@ -538,8 +538,8 @@ public class ApamResolverImpl implements ApamResolver {
     @Override
     public Instance resolveImpl(Composite compo, Implementation impl,
             DependencyDeclaration dependency) {
-        Set<Filter> constraints = Util.toFilter(dependency.getImplementationConstraints());
-        List<Filter> preferences = Util.toFilterList(dependency.getImplementationPreferences());
+        Set<Filter> constraints = Util.toFilter(dependency.getInstanceConstraints());
+        List<Filter> preferences = Util.toFilterList(dependency.getInstancePreferences());
         List<Manager> selectionPath = ApamResolverImpl.computeSelectionPathInst(compo, impl, constraints, preferences);
 
         if (compo == null)

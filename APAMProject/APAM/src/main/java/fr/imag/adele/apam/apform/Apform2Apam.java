@@ -252,7 +252,8 @@ public class Apform2Apam {
     public static void vanishInstance(String instanceName) {
         Instance inst = CST.InstBroker.getInst(instanceName);
         if (inst == null) {
-            logger.error("Vanish instance does not exists: " + instanceName);
+          // previous remove of the factory removed instances
+        	logger.warn("Unable to remove instance '{}' : Innexistance instance", instanceName);
             return;
         }
         ((InstanceBrokerImpl)CST.InstBroker).removeInst(inst);
