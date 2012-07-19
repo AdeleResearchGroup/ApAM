@@ -7,8 +7,6 @@ import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
-import java.io.File;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
