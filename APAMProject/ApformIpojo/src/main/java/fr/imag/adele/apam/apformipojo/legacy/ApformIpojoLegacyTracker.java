@@ -13,6 +13,8 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
@@ -76,19 +78,13 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 	/**
 	 * Callback to handle instance binding
 	 */
-	public boolean instanceBound(ComponentInstance ipojoInstance) {
+	public boolean instanceBound(ServiceReference reference, ComponentInstance ipojoInstance) {
 		/*
 		 * ignore handler instances
 		 */
 		if (ipojoInstance.getFactory() instanceof HandlerFactory)
 			return false;
 
-		/*
-		 * Ignore native APAM components
-		 */
-		if (ipojoInstance instanceof ApformIpojoInstance)
-			return false;
-		
 		/*
 		 * Ignore instances of private factories, as no implementation is available to register in 
 		 * APAM
@@ -103,8 +99,17 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 		} catch (InvalidSyntaxException ignored) {
 		}
 		
+		/*
+		 * In the case of APAM instances registered in the registry (hybrid components), registration
+		 * in APAM has already be done by the Instance Manager
+		 */
+		if (ipojoInstance instanceof ApformIpojoInstance)
+			return true;
 		
-		ApformIpojoLegacyInstance apformInstance = new ApformIpojoLegacyInstance(ipojoInstance);
+		/*
+		 * For legacy instances, register the corresponding declaration in APAM
+		 */
+		ApformIpojoLegacyInstance apformInstance = new ApformIpojoLegacyInstance(ipojoInstance,reference);
 		Apform2Apam.newInstance(apformInstance.getDeclaration().getName(), apformInstance);
 		
 		return true;
@@ -114,6 +119,18 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 	 * Callback to handle instance unbinding
 	 */
 	public void instanceUnbound(ComponentInstance ipojoInstance) {
+
+		/*
+		 * In the case of APAM instances registered in the registry (hybrid components), registration
+		 * in APAM has already be done by the Instance Manager
+		 */
+		if (ipojoInstance instanceof ApformIpojoInstance)
+			return;
+		
+		/*
+		 * For legacy instances, unregister the corresponding declaration in APAM
+		 */
+		
 		Apform2Apam.vanishInstance(ipojoInstance.getInstanceName());
 	}
 
@@ -154,7 +171,7 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 		 * ignore services that are not iPojo
 		 */
 		Object service = context.getService(reference);
-		if ( (service instanceof Pojo) && instanceBound(((Pojo)service).getComponentInstance()))
+		if ( (service instanceof Pojo) && instanceBound(reference,((Pojo)service).getComponentInstance()))
 			return  service;
 
 		/*
@@ -180,7 +197,22 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 		
 		if (!(service instanceof Pojo))
 			return;
+		
+		ComponentInstance ipojoInstance = ((Pojo) service).getComponentInstance();
 
+		/*
+		 * If the service is not reified in APAM, just ignore event
+		 */
+        Instance inst = CST.InstBroker.getInst(ipojoInstance.getInstanceName());
+        if (inst == null)
+        	return;
+
+        /*
+		 * Otherwise propagate property changes to Apam
+		 */
+       	for (String key : reference.getPropertyKeys()) {
+       		inst.setProperty(key,reference.getProperty(key));
+       	}
 	}
 
 }
