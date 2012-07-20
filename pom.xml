@@ -241,6 +241,10 @@
 			<name>Cloudbees Private Repository</name>
 			<url>dav:https://repository-damou.forge.cloudbees.com/release</url>
 		</repository>
+		<snapshotRepository>
+            <id>cloudbees-snpashot</id>
+            <url>dav:https://repository-damou.forge.cloudbees.com/snapshot</url>
+        </snapshotRepository>
 	</distributionManagement>
 
 	<dependencyManagement>
@@ -324,6 +328,21 @@
 						</instructions>
 					</configuration>
 				</plugin>
+				<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>install</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+
+			</plugin>
 			</plugins>
 		</pluginManagement>
 		<extensions>

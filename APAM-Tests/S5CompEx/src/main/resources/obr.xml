@@ -3,7 +3,7 @@
       <p n='apam-composite' v='true' />
       <p n='apam-main-component' v='S5Impl' />
       <p n='impl-name' v='S5CompEx' />
-      <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s5.S5;]' /> 
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s5.S5;fr.imag.adele.apam.ApamComponent;]' /> 
       <p n='provide-specification' v='S5' />
       <p n='borrowinstance' v='false' />
       <p n='myproperty' v='true' />
