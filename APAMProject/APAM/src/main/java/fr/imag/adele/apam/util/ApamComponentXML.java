@@ -1,33 +1,6 @@
 package fr.imag.adele.apam.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-
-import org.apache.felix.ipojo.manipulation.ClassChecker;
-import org.apache.felix.ipojo.metadata.Attribute;
-import org.apache.felix.ipojo.metadata.Element;
-import org.apache.felix.ipojo.xml.parser.SchemaResolver;
-import org.apache.felix.ipojo.xml.parser.XMLMetadataParser;
 //import org.apache.maven.plugin.MojoExecutionException;
-import org.objectweb.asm.ClassReader;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 //import fr.imag.adele.apam.apam2MavenPlugIn.Apam2RepoBuilder;
 //import fr.imag.adele.apam.apam2MavenPlugIn.Apam2RepoBuilder.ApamComponentInfo;

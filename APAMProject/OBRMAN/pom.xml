@@ -6,17 +6,12 @@
     <groupId>fr.imag.adele.apam</groupId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <groupId>fr.imag.adele.apam</groupId>
   <artifactId>OBRMAN</artifactId>
   <packaging>bundle</packaging>
-  <version>0.0.1-SNAPSHOT</version>
   
     <name>OBRMAN</name>
-  <description>The OBR Manager for APAM</description>
-  	<properties>
-		<bundle.symbolicName>SAMMAN</bundle.symbolicName>
-	</properties>
-  
+  <description>The Maven repository manager for APAM</description>
+
   	<build>
 		<plugins>
 			<plugin>
@@ -27,7 +22,7 @@
 					<instructions>
 						<Bundle-Name>${project.name}</Bundle-Name>
 						<Bundle-Description>
-							SAM Core Implementation of the API
+							Maven repository manager
 						</Bundle-Description>
 						<Bundle-SymbolicName>
 							${project.artifactId}
@@ -36,9 +31,8 @@
 							Adele/LIG/ Grenoble University, France
 						</Bundle-Vendor>
 						<Bundle-Version>${project.version}</Bundle-Version>
-        				<Export-Package>fr.imag.adele.obrMan.*</Export-Package>
-						<Private-Package>org.apache.felix.utils.*</Private-Package>
-						
+<!--         				<Export-Package>fr.imag.adele.obrMan</Export-Package> -->
+<!-- 						<Private-Package>org.apache.felix.utils.*</Private-Package> -->
 					</instructions>
 				</configuration>
 			</plugin>
@@ -76,48 +70,17 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
-			<artifactId>org.osgi.core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.framework</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.bundlerepository</artifactId>
 			<version>1.6.4</version> 
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-	      <groupId>org.apache.felix</groupId>
-	      <artifactId>org.apache.felix.utils</artifactId>
-	      <version>1.1.0</version>
-	      <optional>true</optional>
-	    </dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.ipojo</artifactId>
 			<scope>provided</scope>
 		</dependency>
         <dependency>
          	<groupId>fr.imag.adele.apam</groupId>
          	<artifactId>APAM</artifactId>
-         	<version>0.0.1-SNAPSHOT</version>
+         	<version>${apam.current.version}</version>
          	<scope>compile</scope>
          </dependency>
-        <dependency>
-         	<groupId>fr.imag.adele.apam</groupId>
-         	<artifactId>ApamCore</artifactId>
-         	<version>0.0.1-SNAPSHOT</version>
-         	<scope>compile</scope>
-         </dependency>
+        
 	</dependencies>
   
   

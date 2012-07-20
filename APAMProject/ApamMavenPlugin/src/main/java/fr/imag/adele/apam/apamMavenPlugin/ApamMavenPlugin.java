@@ -19,21 +19,6 @@ package fr.imag.adele.apam.apamMavenPlugin;
  * under the License.
  */
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.felix.ipojo.manipulator.Pojoization;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * This plugin does the same as ipojo plugin and adds Apam information to the OBR file associated with an Apam bundle.

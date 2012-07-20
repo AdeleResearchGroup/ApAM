@@ -11,7 +11,6 @@ import java.util.Set;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Filter;
-//import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
@@ -27,9 +26,10 @@ import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
-import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.obrMan.OBRManager.Selected;
+import fr.imag.adele.apam.util.OBR;
+import fr.imag.adele.obrMan.internal.OBRManager;
+import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
 public class OBRMan implements Manager {
 
@@ -194,7 +194,7 @@ public class OBRMan implements Manager {
         preferences.add(f);
         // end
 
-        fr.imag.adele.obrMan.OBRManager.Selected selected = null;
+        fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
         Implementation impl = null;
         if (resource instanceof SpecificationReference) {
             selected = OBRMan.obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-specification="
@@ -229,7 +229,7 @@ public class OBRMan implements Manager {
     @Override
     public Implementation findImplByName(CompositeType compoType, String implName) {
         // private Selected getResourceImpl(String implName, Set<Filter> constraints) {
-        fr.imag.adele.obrMan.OBRManager.Selected selected = null;
+        fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
         Implementation impl = null;
         String filterStr = null;
         if (implName != null)

@@ -90,7 +90,7 @@ public class Util {
 
     public static List<String> splitList(String str) {
         if ((str == null) || (str.length() == 0)) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return Arrays.asList(Util.split(str));
     }
@@ -163,7 +163,7 @@ public class Util {
             return false;
         if ((i1.length == 1) && (i1[0].equals(i2[0])))
             return true;
-        boolean ok;
+        
         for (int i = 0; i < i1.length; i++) {
             if (!i1[i].equals(i2[i]))
                 return false;
@@ -410,7 +410,7 @@ public class Util {
         }
         if (type.equals("int")) {
             try {
-                int valint = Integer.parseInt(value);
+                Integer.parseInt(value);
                 return true;
             } catch (Exception e) {
                 logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr

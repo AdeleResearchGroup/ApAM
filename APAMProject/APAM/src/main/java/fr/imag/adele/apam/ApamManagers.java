@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.apamImpl.APAMImpl;
+import fr.imag.adele.apam.impl.APAMImpl;
 
 public class ApamManagers {
 

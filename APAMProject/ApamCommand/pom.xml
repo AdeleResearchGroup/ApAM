@@ -1,20 +1,19 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <artifactId>APAMProject</artifactId>
-    <groupId>fr.imag.adele.apam</groupId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
-  <groupId>fr.imag.adele.apam</groupId>
-  <artifactId>ApamCommand</artifactId>
-  <packaging>bundle</packaging>
-  <version>0.0.1-SNAPSHOT</version>
+	<parent>
+		<artifactId>APAMProject</artifactId>
+		<groupId>fr.imag.adele.apam</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>ApamCommand</artifactId>
+	<packaging>bundle</packaging>
 
-  <name>APAM Shell</name>
-  <description>The Apam Gogo Shell</description>
-  	<properties>
+	<name>APAM Shell</name>
+	<description>The Apam Gogo Shell</description>
+	<properties>
 		<bundle.symbolicName>apam.command</bundle.symbolicName>
 	</properties>
 
@@ -51,90 +50,41 @@
 					</execution>
 				</executions>
 			</plugin>
-			
-			<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
 
-            </plugin>
- 		</plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>install</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+
+			</plugin>
+		</plugins>
 	</build>
 
 	<dependencies>
+
 		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.osgi.core</artifactId>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>APAM</artifactId>
+			<version>${apam.current.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.framework
-			</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.ipojo</artifactId>
-			<scope>provided</scope>
-		</dependency>
-			<dependency>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>org.apache.felix.shell
-				</artifactId>
-				<version>1.4.1</version>
-				<scope>provided</scope>
-			</dependency>
-<!-- 		<dependency>
-			<groupId>fr.imag.adele.sam</groupId>
-			<artifactId>ServiceAbstractMachine-API
-			</artifactId>
-		</dependency>
-		<dependency>
-                <groupId>fr.imag.adele.sam</groupId>
-                <artifactId>ServiceConcreteMachine-API
-                </artifactId>
-        </dependency>       
-        <dependency>
-                <groupId>fr.imag.adele.sam</groupId>
-                <artifactId>SAM-Deployment-Core-API
-                </artifactId>
-        </dependency>
-        <dependency>
-            <groupId>fr.imag.adele.am</groupId>
-            <artifactId>AbstractMachine-API</artifactId>
-        </dependency>
-         -->
-         <dependency>
-    		<groupId>fr.imag.adele.apam</groupId>
-            <artifactId>APAM</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-        </dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.gogo.runtime</artifactId>
-			<version>0.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo.annotations</artifactId>
-			<version>1.6.0</version>
 		</dependency>
- 	</dependencies>
+	</dependencies>
 </project>
 
   

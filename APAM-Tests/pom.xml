@@ -19,5 +19,6 @@
   	<module>S5CompEx</module>
   	<module>perfAPAM</module>
   	<module>perfIPojo</module>
+	<module>apam-test</module>
   </modules>
 </project>

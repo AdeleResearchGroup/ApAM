@@ -21,13 +21,10 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	
-	<groupId>fr.imag.adele.apam</groupId>
+	
 	<artifactId>APAMProject</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>APAMProject</name>
-	<url>http://sam.ligforge.imag.fr</url>
-
 	
 
 	<modules>
@@ -40,6 +37,6 @@
 		<!--<module>CONFMAN</module>-->
 		<!--<module>DYNAMAN</module>-->
 		<!--<module>DISTRIMAN</module>-->
-		
+
 	</modules>
 </project>

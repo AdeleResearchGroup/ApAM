@@ -2,7 +2,6 @@ package fr.imag.adele.apam.apamMavenPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +14,6 @@ import org.apache.felix.bundlerepository.Property;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.felix.bundlerepository.impl.DataModelHelperImpl;
-import org.apache.felix.bundlerepository.impl.RepositoryImpl;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
@@ -195,7 +193,7 @@ public class CheckObr {
         if (cap == null)
             return null;
         Set<String> validAttrs = new HashSet<String>();
-        String attr;
+        
         for (Property attrObject : cap.getProperties()) {
 
             if (attrObject.getName().startsWith(OBR.A_DEFINITION_PREFIX))
@@ -444,7 +442,7 @@ public class CheckObr {
 
     public static void printCap(Capability aCap) {
         System.out.println("   Capability name: " + aCap.getName());
-        String value;
+        
         for (Property prop : aCap.getProperties()) {
 
             System.out.println("type de value: " + prop.getValue().getClass());

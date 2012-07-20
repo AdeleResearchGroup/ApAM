@@ -1,10 +1,10 @@
 package fr.imag.adele.apam;
 
-import fr.imag.adele.apam.apamImpl.APAMImpl;
-import fr.imag.adele.apam.apamImpl.ApamResolverImpl;
-import fr.imag.adele.apam.apamImpl.ImplementationBrokerImpl;
-import fr.imag.adele.apam.apamImpl.InstanceBrokerImpl;
-import fr.imag.adele.apam.apamImpl.SpecificationBrokerImpl;
+import fr.imag.adele.apam.impl.APAMImpl;
+import fr.imag.adele.apam.impl.ApamResolverImpl;
+import fr.imag.adele.apam.impl.ImplementationBrokerImpl;
+import fr.imag.adele.apam.impl.InstanceBrokerImpl;
+import fr.imag.adele.apam.impl.SpecificationBrokerImpl;
 
 public class CST {
 

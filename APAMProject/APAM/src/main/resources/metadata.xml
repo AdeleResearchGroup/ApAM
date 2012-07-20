@@ -1,5 +1,5 @@
 <ipojo>
-<component name="APAM" classname="fr.imag.adele.apam.apamImpl.APAMImpl" immediate="true">
+<component name="APAM" classname="fr.imag.adele.apam.impl.APAMImpl" immediate="true">
 	<provides></provides>
 </component>
 

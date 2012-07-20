@@ -11,10 +11,10 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apamImpl.CompositeImpl;
-import fr.imag.adele.apam.apamImpl.CompositeTypeImpl;
-import fr.imag.adele.apam.apamImpl.ImplementationImpl;
-import fr.imag.adele.apam.apamImpl.InstanceImpl;
+import fr.imag.adele.apam.impl.CompositeImpl;
+import fr.imag.adele.apam.impl.CompositeTypeImpl;
+import fr.imag.adele.apam.impl.ImplementationImpl;
+import fr.imag.adele.apam.impl.InstanceImpl;
 
 public class Apform {
 

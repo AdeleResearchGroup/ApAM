@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apamImpl.APAMImpl;
 import fr.imag.adele.apam.apform.Apform;
 //import org.osgi.framework.BundleContext;
+import fr.imag.adele.apam.impl.APAMImpl;
 
 public class ApamInstall {
 	

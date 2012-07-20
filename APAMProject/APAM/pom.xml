@@ -6,13 +6,10 @@
 		<artifactId>APAMProject</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>APAM</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.0.1-SNAPSHOT</version>
 
 	<name>APAM</name>
 	<description>The machine itself</description>
@@ -30,7 +27,7 @@
 					<instructions>
 						<Bundle-Name>${project.name}</Bundle-Name>
 						<Bundle-Description>
-							SAM Core Implementation of the API
+							APAM Core and Implementation of the API
 						</Bundle-Description>
 						<Bundle-SymbolicName>
 							${project.artifactId}
@@ -82,23 +79,7 @@
 	</build>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.osgi.core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.framework
-			</artifactId>
-			<scope>provided</scope>
-		</dependency>
 
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<scope>provided</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo</artifactId>
@@ -107,18 +88,11 @@
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo.metadata</artifactId>
-			<version>1.4.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.ipojo.manipulator</artifactId>
-			<version>1.8.0</version>
-		</dependency>
-
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>ApamCore</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 			<type>bundle</type>
 			<scope>provided</scope>
 		</dependency>
@@ -126,7 +100,6 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.6.1</version>
 		</dependency>
 	</dependencies>
 
