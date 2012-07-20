@@ -1,0 +1,313 @@
+
+	<!--
+		Copyright Universite Joseph Fourier (www.ujf-grenoble.fr) Licensed
+		under the Apache License, Version 2.0 (the "License"); you may not use
+		this file except in compliance with the License. You may obtain a copy
+		of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless
+		required by applicable law or agreed to in writing, software
+		distributed under the License is distributed on an "AS IS" BASIS,
+		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+		implied. See the License for the specific language governing
+		permissions and limitations under the License.
+	-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  	<modelVersion>4.0.0</modelVersion>
+  	
+	<groupId>fr.imag.adele.apam</groupId>
+	<artifactId>APAMProject.root</artifactId>
+	<packaging>pom</packaging>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>APAMProject.root</name>
+	<url>http://sam.ligforge.imag.fr</url>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.html
+			</url>
+			<distribution>manual</distribution>
+		</license>
+	</licenses>
+
+	<organization>
+		<name>Adele Team / LIG</name>
+		<url>http://equipes-liglab.imag.fr/adele/
+		</url>
+	</organization>
+
+	<scm>
+		<connection>
+			https://developer@svn.ligforge.imag.fr/svnroot/ampam
+		</connection>
+		<developerConnection>
+			https://developer@svn.ligforge.imag.fr/svnroot/apam
+		</developerConnection>
+		<url>
+			https://ligforge.imag.fr/plugins/scmsvn/viewcvs.php/?root=apam
+		</url>
+	</scm>
+
+	<developers>
+		<developer>
+			<id>Estublier</id>
+			<name>Jacky Estublier</name>
+			<email>jacky.estublier@imag.fr</email>
+			<roles>
+				<role>Project Manager</role>
+				<role>Adele director</role>
+			</roles>
+			<organization>LIG / Adele</organization>
+		</developer>
+		<developer>
+			<id>Vega</id>
+			<name>German Vega</name>
+			<email>german.vega@imag.fr</email>
+			<roles>
+				<role>Developer</role>
+				<role>IR CNRS</role>
+			</roles>
+			<organization>LIG / Adele</organization>
+		</developer>
+		<developer>
+			<id>Diana</id>
+			<name>Diana Moreno</name>
+			<email>diana@imag.fr</email>
+			<roles>
+				<role>Developer</role>
+				<role>Theses student</role>
+			</roles>
+			<organization>LIG / Adele</organization>
+		</developer>
+		<developer>
+			<id>Elmehdi</id>
+			<name>Elmehdi Damou</name>
+			<email>elmehdi.damou@imag.fr</email>
+			<roles>
+				<role>Developer</role>
+				<role>Theses student</role>
+			</roles>
+			<organization>LIG / Adele</organization>
+		</developer>
+	</developers>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.ipojo.annotations
+			</artifactId>
+				<version>1.6.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.osgi.service.obr</artifactId>
+				<version>1.0.2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.osgi.core</artifactId>
+				<version>1.4.0</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.framework
+				</artifactId>
+				<version>3.2.2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.shell
+				</artifactId>
+				<version>1.4.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.osgi.compendium</artifactId>
+				<version>1.4.0</version>
+				<scope>provided</scope>
+<!-- 				<exclusions>
+					<exclusion>
+						<artifactId>org.osgi.foundation</artifactId>
+						<groupId>org.apache.felix</groupId>
+					</exclusion>
+				</exclusions>
+ -->			</dependency>
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.ipojo</artifactId>
+				<version>1.8.0</version>
+<!-- 				<exclusions>
+					<exclusion>
+						<artifactId>org.osgi.foundation</artifactId>
+						<groupId>org.apache.felix</groupId>
+					</exclusion>
+				</exclusions>
+ -->				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>javax.servlet</artifactId>
+				<version>1.0.0</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j
+				</artifactId>
+				<version>1.2.15</version>
+				<exclusions>
+					<exclusion>
+						<artifactId>mail</artifactId>
+						<groupId>javax.mail</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jms</artifactId>
+						<groupId>javax.jms</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jmxtools</artifactId>
+						<groupId>com.sun.jdmk</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jmxri</artifactId>
+						<groupId>com.sun.jmx</groupId>
+					</exclusion>
+				</exclusions>
+				<scope>provided</scope>
+			</dependency>
+<!--			<dependency>
+ 				<groupId>stax</groupId>
+				<artifactId>stax-api</artifactId>
+				<version>1.0.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.activation</groupId>
+				<artifactId>activation</artifactId>
+				<version>1.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.am</groupId>
+				<artifactId>AbstractMachine-API</artifactId>
+				<version>2.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.am</groupId>
+				<artifactId>AbstractMachine-Impl</artifactId>
+				<version>2.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.am</groupId>
+				<artifactId>AM-Instance</artifactId>
+				<version>2.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.sam</groupId>
+				<artifactId>ServiceAbstractMachine-API
+				</artifactId>
+				<version>2.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.sam</groupId>
+				<artifactId>ServiceConcreteMachine-API
+				</artifactId>
+				<version>2.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.sam</groupId>
+				<artifactId>ServiceAbstractMachine-Impl
+				</artifactId>
+				<version>2.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.sam</groupId>
+				<artifactId>SAM-Manager-Core-API
+				</artifactId>
+				<version>2.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.sam</groupId>
+				<artifactId>SAM-Deployment-Core-API
+				</artifactId>
+				<version>2.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.sam</groupId>
+				<artifactId>SCM-iPOJO-Impl</artifactId>
+				<version>2.0.0</version>
+				<type>bundle</type>
+				<scope>compile</scope>
+			</dependency>
+ -->
+ 		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.0.1</version>
+					<configuration>
+						<source>1.6</source>
+						<target>1.6</target>
+						<compilerArgument>
+							-Xbootclasspath/p:${basedir}/stax-api-1.0.1.jar
+						</compilerArgument>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-ipojo-plugin</artifactId>
+					<version>1.8.0</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>ipojo-bundle</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>2.0.1</version>
+					<extensions>true</extensions>
+					<configuration>
+						<instructions>
+							<Bundle-SymbolicName>
+								${pom.artifactId}
+						</Bundle-SymbolicName>
+						</instructions>
+					</configuration>
+
+					<executions>
+						<execution>
+							<id>update-remote-obr</id>
+							<phase>deploy</phase>
+							<goals>
+								<goal>deploy</goal>
+							</goals>
+							<configuration>
+								<remoteOBR>
+									scp://sam.ligforge.imag.fr/var/lib/gforge/chroot/home/groups/sam/htdocs/repository
+								</remoteOBR>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<modules>
+		<module>APAMProject</module>
+	</modules>
+</project>
