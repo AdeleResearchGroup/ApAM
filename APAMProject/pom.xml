@@ -35,7 +35,7 @@
 		<module>APAM</module>
 		<module>ApamCommand</module>
 		<module>OBRMAN</module>
-		<module>ApamMavenPlugIn</module>
+		<module>ApamMavenPlugin</module>
 		<module>ApformIpojo</module>
 		<!--<module>CONFMAN</module>-->
 		<!--<module>DYNAMAN</module>-->
