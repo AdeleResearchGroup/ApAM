@@ -234,7 +234,14 @@
 			<url>https://repository-damou.forge.cloudbees.com/snapshot/</url>
 		</repository>
 	</repositories>
-
+	
+	<distributionManagement>
+		<repository>
+			<id>cloudbees-release</id>
+			<name>Cloudbees Private Repository</name>
+			<url>dav:https://repository-damou.forge.cloudbees.com/release</url>
+		</repository>
+	</distributionManagement>
 
 	<dependencyManagement>
 		<dependencies>
