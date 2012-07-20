@@ -8,6 +8,7 @@
       <p n='zerrt' v='true' />
       <p n='s1-attr' v='coucou' />
       <p n='spec-name' v='S1' />
+      <p n='definition-cczerrt' v='boolean' />
       <p n='definition-myenum' v='[;v1;v2;v3;]' />
    </capability>
    <capability name='apam-implementation'>

@@ -114,7 +114,7 @@ public class Injector {
                 instance.call(limit);
                 long during = (System.nanoTime() - nanoTimeStart) / 1000;
                 System.out.println("Instances " + ComponentTestImpl.instances
-                            + " / invocation time (µS): " + during);
+                            + " / invocation time (micro-s): " + during);
 
 //                long during = System.nanoTime() - nanoTimeStart;
 //                System.out.println("Limit:" + ComponentTestImpl.limit + " / invocation time (nS): " + during);
@@ -143,7 +143,7 @@ public class Injector {
                 testPerf.callPerf(1);
             }
             long during = (System.nanoTime() - nanoTimeStart) / 1000;
-            System.out.println("10 000 calls loop. Invocation time (µS): " + during);
+            System.out.println("10 000 calls loop. Invocation time (micro-S): " + during);
         }
 
         System.out.println("limit: " + ComponentTestImpl.limit);

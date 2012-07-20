@@ -8,13 +8,14 @@
 	express or implied. See the License for the specific language governing permissions 
 	and limitations under the License. -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>APAMProject.root</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.1</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>APAMProject.root</name>
 	<url>http://sam.ligforge.imag.fr</url>
 
@@ -22,7 +23,7 @@
 	<properties>
 		<!-- apam version -->
 		<apam.current.version>0.0.1-SNAPSHOT</apam.current.version>
-
+		
 		<!-- Dependencies version -->
 		<osgi.version>4.2.0</osgi.version>
 		<felix.osgi.version>1.4.0</felix.osgi.version>
@@ -32,7 +33,7 @@
 		<compiler.plugin.version>2.1</compiler.plugin.version>
 		<javadoc.plugin.version>2.8.1</javadoc.plugin.version>
 		<slf4j.version>1.6.1</slf4j.version>
-
+		
 		<!-- Test dependencies version -->
 		<mockito.version>1.8.5</mockito.version>
 		<junit.version>4.8.2</junit.version>
@@ -90,12 +91,12 @@
 
 		<profile>
 			<id>release</id>
-			<activation>
-				<property>
-					<name>performRelease</name>
-					<value>true</value>
-				</property>
-			</activation>
+			<!-- <activation> -->
+			<!-- <property> -->
+			<!-- <name>performRelease</name> -->
+			<!-- <value>true</value> -->
+			<!-- </property> -->
+			<!-- </activation> -->
 			<build>
 				<plugins>
 					<plugin>

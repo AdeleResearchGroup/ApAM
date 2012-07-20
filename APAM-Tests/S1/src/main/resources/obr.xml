@@ -4,6 +4,7 @@
       <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s1.S1;]' /> 
       <p n='s1-attr' v='coucou' />
       <p n='definition-s1b' v='boolean' />
+      <p n='definition-s1c' v='string' />
       <p n='definition-location' v='[;living;kitchen;bedroom;]' />
    </capability>
 </obr> 

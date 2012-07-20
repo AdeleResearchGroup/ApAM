@@ -4,14 +4,12 @@
   	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>APAMProject</artifactId>
-    <groupId>fr.imag.adele.apam</groupId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
-  <groupId>fr.imag.adele.apam</groupId>
-  <artifactId>perfAPAM</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+   	<parent>
+		<artifactId>APAM-Tests</artifactId>
+		<groupId>fr.imag.adele.apam</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	 <artifactId>perfAPAM</artifactId>
   <packaging>bundle</packaging>
   <name>perfAPAM</name>
 
@@ -55,23 +53,14 @@
 			<artifactId>org.osgi.core</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.framework
-			</artifactId>
-			<scope>provided</scope>
-		</dependency>
+		
 		<dependency>
 	      <groupId>org.apache.felix</groupId>
 	      <artifactId>org.apache.felix.utils</artifactId>
 	      <version>1.1.0</version>
 	      <optional>true</optional>
 	    </dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<scope>provided</scope>
-		</dependency>
+		
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo</artifactId>
