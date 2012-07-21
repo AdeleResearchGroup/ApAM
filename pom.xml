@@ -225,12 +225,12 @@
 		<!-- cloudbee repo -->
 		<repository>
 			<id>cloudbees-rose-release</id>
-			<name>Cloudbees Private Repository - RoSe - Release </name>
+			<name>Cloudbees Private Repository - ApAM - Release </name>
 			<url>https://repository-damou.forge.cloudbees.com/release/</url>
 		</repository>
 		<repository>
 			<id>cloudbees-rose-snapshot</id>
-			<name>Cloudbees Private Repository - RoSe - Snapshot</name>
+			<name>Cloudbees Private Repository - ApAM - Snapshot</name>
 			<url>https://repository-damou.forge.cloudbees.com/snapshot/</url>
 		</repository>
 	</repositories>
