@@ -58,7 +58,7 @@ public class OBRManager {
                     defaultLocalRepo = searchMavenRepoFromSettings(settings);
                 }
                 if (defaultLocalRepo == null && user_home_file!=null){
-                	File repositoryFile = new File(new File(user_home_file, ".m2"), "repository.xml");
+                	File repositoryFile = new File(new File(new File(user_home_file, ".m2"), "repository"),"repository.xml");
                 	if (repositoryFile.exists()){
                 		defaultLocalRepo = repositoryFile.toString();	
                 	}
