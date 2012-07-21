@@ -36,6 +36,7 @@ public class OBRManager {
     private Resolver        resolver;
     private Repository      local;
     private Resource[]      allResources;
+	private File user_home_file;
 
     /**
      * OBRMAN activated, register with APAM
@@ -56,12 +57,23 @@ public class OBRManager {
                 if (settings != null) {
                     defaultLocalRepo = searchMavenRepoFromSettings(settings);
                 }
+                if (defaultLocalRepo == null && user_home_file!=null){
+                	File repositoryFile = new File(new File(user_home_file, ".m2"), "repository.xml");
+                	if (repositoryFile.exists()){
+                		defaultLocalRepo = repositoryFile.toString();	
+                	}
+                	System.out.println("Last chance :" + defaultLocalRepo);
+                }
+                
             }
 
             //System.out.println("Started OBRMAN " + defaultLocalRepo + "  repoAdmin: " + repoAdmin);
             if (defaultLocalRepo != null) {
                 local = repoAdmin.addRepository(defaultLocalRepo);
             } else {
+            	
+            }
+            if (local==null){
                 local = repoAdmin.getLocalRepository();
             }
 
@@ -499,7 +511,7 @@ public class OBRManager {
                 return null;
             }
         }
-        File user_home_file = new File(user_home);
+        user_home_file = new File(user_home);
         File settings = new File(new File(user_home_file, ".m2"),
         "settings.xml");
         if (settings.exists()) {

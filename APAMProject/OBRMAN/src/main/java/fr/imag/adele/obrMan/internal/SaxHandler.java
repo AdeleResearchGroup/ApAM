@@ -1,5 +1,7 @@
 package fr.imag.adele.obrMan.internal;
 
+import java.io.File;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -25,7 +27,8 @@ public class SaxHandler extends DefaultHandler {
 	}
 	public String getRepo(){
 		String path;
-		path = "file:///" + localRepoPath + "/repository.xml";
+		if (localRepoPath == null ) return null;
+		path = "file://" + localRepoPath +File.separator +"repository.xml";
 		return path;
 	}
 }
