@@ -45,8 +45,9 @@ public class OBRMan implements Manager {
     public void start() {
         System.out.println("OBRMAN started");
         ApamManagers.addManager(this, 3);
-        OBRMan.obr = new OBRManager(null, repoAdmin);
+        obr = new OBRManager(null, repoAdmin);
         obr.startWatchingRepository();
+        System.out.println(">> " + obr);
     }
 
     public void stop() {
@@ -199,20 +200,20 @@ public class OBRMan implements Manager {
         fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
         Implementation impl = null;
         if (resource instanceof SpecificationReference) {
-            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-specification="
+            selected = obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-specification="
                     + resource.as(SpecificationReference.class).getName() + ")",
                     constraints, preferences);
         }
         if (resource instanceof InterfaceReference) {
-            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-interfaces=*;" + resource.as(InterfaceReference.class).getJavaType() + ";*)",
+            selected = obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-interfaces=*;" + resource.as(InterfaceReference.class).getJavaType() + ";*)",
                     constraints, preferences);
         }
         if (resource instanceof MessageReference) {
-            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-messages=*;" + resource.as(MessageReference.class).getJavaType() + ";*)",
+            selected = obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-messages=*;" + resource.as(MessageReference.class).getJavaType() + ";*)",
                     constraints, preferences);
         }
         if (selected != null) {
-            String implName = OBRMan.obr.getAttributeInCapability(selected.capability, "impl-name");
+            String implName = obr.getAttributeInCapability(selected.capability, "impl-name");
             impl = installInstantiateImpl(selected.resource, implName);
             // System.out.println("deployed :" + impl);
             // printRes(selected);
@@ -231,20 +232,21 @@ public class OBRMan implements Manager {
     @Override
     public Implementation findImplByName(CompositeType compoType, String implName) {
         // private Selected getResourceImpl(String implName, Set<Filter> constraints) {
-        fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
+        Selected selected = null;
         Implementation impl = null;
         String filterStr = null;
+        System.out.println("FindImpl OBR --> "+ obr );
         if (implName != null)
             filterStr = "(impl-name=" + implName + ")";
 
         if (selected == null) { // look by bundle name. First apam component by bundle name
-            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, filterStr, null, null);
+            selected = obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, filterStr, null, null);
         }
         if (selected == null) { // legacy iPOJO component
-            selected = OBRMan.obr.lookFor(OBR.CAPABILITY_COMPONENT, filterStr, null, null);
+            selected = obr.lookFor(OBR.CAPABILITY_COMPONENT, filterStr, null, null);
         }
         if (selected == null) { // legacy OSGi component
-            selected = OBRMan.obr.lookFor("bundle", filterStr, null, null);
+            selected = obr.lookFor("bundle", filterStr, null, null);
         }
         if (selected != null) {
             impl = installInstantiateImpl(selected.resource, implName);
