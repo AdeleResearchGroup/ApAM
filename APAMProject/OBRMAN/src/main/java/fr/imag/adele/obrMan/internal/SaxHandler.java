@@ -28,7 +28,7 @@ public class SaxHandler extends DefaultHandler {
 	public String getRepo(){
 		String path;
 		if (localRepoPath == null ) return null;
-		path = "file://" + localRepoPath +File.separator +"repository.xml";
+		path = "file:///" + localRepoPath +File.separator +"repository.xml";
 		return path;
 	}
 }

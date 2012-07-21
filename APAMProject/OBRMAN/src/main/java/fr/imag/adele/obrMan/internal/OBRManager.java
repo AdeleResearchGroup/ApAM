@@ -4,13 +4,16 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-//import java.net.URI;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Timer;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -23,12 +26,14 @@ import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Filter;
+
+import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.obrMan.filewatcher.internal.FileWatcher;
+//import java.net.URI;
 //import org.xml.sax.Attributes;
 //import org.xml.sax.SAXException;
 //import org.xml.sax.helpers.DefaultHandler;
 //import org.osgi.framework.InvalidSyntaxException;
-
-import fr.imag.adele.apam.util.ApamFilter;
 
 public class OBRManager {
 
@@ -37,7 +42,9 @@ public class OBRManager {
     private Repository      local;
     private Resource[]      allResources;
 	private File user_home_file;
-
+	private FileWatcher fileWatcherTask;
+    private boolean repositoryModified=false;
+	private Timer timer;
     /**
      * OBRMAN activated, register with APAM
      */
@@ -60,7 +67,7 @@ public class OBRManager {
                 if (defaultLocalRepo == null && user_home_file!=null){
                 	File repositoryFile = new File(new File(new File(user_home_file, ".m2"), "repository"),"repository.xml");
                 	if (repositoryFile.exists()){
-                		defaultLocalRepo = repositoryFile.toString();	
+                		defaultLocalRepo = "file:///" + repositoryFile.toString();	
                 	}
                 	System.out.println("Last chance :" + defaultLocalRepo);
                 }
@@ -84,11 +91,16 @@ public class OBRManager {
             e.printStackTrace();
         }
         System.out.println("local repo : " + local.getURI());
+        
+     
         resolver = repoAdmin.resolver();
         allResources = local.getResources(); // read once for each session, and cached.
         //        for (Resource res : allResources) {
         //            printRes(res);
         //        }
+       
+        
+       
     }
 
     // Resource selected;
@@ -519,5 +531,39 @@ public class OBRManager {
         }
         return null;
     }
+    
+    public void stopWatchingRepository(){
+    	if (fileWatcherTask!=null){
+    		fileWatcherTask.cancel();
+    	}
+    	if (timer!=null){
+    		timer.purge();
+    		timer.cancel();
+    		timer=null;
+    	}
+    }
+
+	public void startWatchingRepository() {
+		if (local == null) return;
+		 // monitor a modification on repository file
+     	fileWatcherTask = new FileWatcher( new File(URI.create(local.getURI()))) {
+			  protected void onChange( File file , String date ) {
+			    // Repository has been modified
+			    System.out.println( "Repository "+ file +" have been changed the " + date );
+			    setRepositoryModified(true);
+			  }
+			};
+	    timer = new Timer();
+		// repeat the check every 5 second
+		timer.schedule( fileWatcherTask , new Date(), 5000 );
+	}
+
+	public boolean isRepositoryModified() {
+		return repositoryModified;
+	}
+
+	private void setRepositoryModified(boolean repositoryModified) {
+		this.repositoryModified = repositoryModified;
+	}
 
 }
