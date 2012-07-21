@@ -333,6 +333,7 @@
 							<Bundle-SymbolicName>
 								${project.artifactId}
 							</Bundle-SymbolicName>
+							<remoteOBR>true</remoteOBR>
 						</instructions>
 					</configuration>
 				</plugin>
