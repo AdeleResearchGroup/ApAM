@@ -1,6 +1,8 @@
 package fr.imag.adele.obrMan.internal;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -25,10 +27,10 @@ public class SaxHandler extends DefaultHandler {
    			localRepoPath =  new String(ch, start, length);
    		}
 	}
-	public String getRepo(){
-		String path;
+	public URL getRepo() throws MalformedURLException{		
 		if (localRepoPath == null ) return null;
-		path = "file:///" + localRepoPath +File.separator +"repository.xml";
-		return path;
+		File file = new File( localRepoPath +File.separator +"repository.xml" );
+		if (!file.exists()) return null;
+		return file.toURI().toURL();
 	}
 }

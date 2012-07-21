@@ -50,7 +50,7 @@ public class OBRManager {
      */
 
 
-    public OBRManager(String defaultLocalRepo, RepositoryAdmin repoAdmin) {
+    public OBRManager(URL defaultLocalRepo, RepositoryAdmin repoAdmin) {
 
         this.repoAdmin = repoAdmin;
         try {
@@ -67,7 +67,7 @@ public class OBRManager {
                 if (defaultLocalRepo == null && user_home_file!=null){
                 	File repositoryFile = new File(new File(new File(user_home_file, ".m2"), "repository"),"repository.xml");
                 	if (repositoryFile.exists()){
-                		defaultLocalRepo = "file:///" + repositoryFile.toString();	
+                		defaultLocalRepo =  repositoryFile.toURI().toURL();	
                 	}
                 	System.out.println("Last chance :" + defaultLocalRepo);
                 }
@@ -474,7 +474,7 @@ public class OBRManager {
 
     //
 
-    private String searchMavenRepoFromSettings(File pathSettings) {
+    private URL searchMavenRepoFromSettings(File pathSettings) {
         // Look for <localRepository>
         try {
 
