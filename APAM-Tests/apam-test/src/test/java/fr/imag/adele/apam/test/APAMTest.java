@@ -99,6 +99,14 @@ public  class APAMTest {
 		 apam = (Apam) osgi.getServiceObject(Apam.class.getName(), null);
 		 System.out.println("Starting mainApam");
 
+		 try {
+			Thread.currentThread().sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 
+		 System.out.println("Finish wainting...!");
 	        // examples of the different ways to create and start an application in apam.
 	        // The easiest way is as done for starting this class: "implements Runnable, ApamComponent".
 	        // Once loaded in OSGi, it starts in a root composite automatically created for it.
@@ -112,6 +120,7 @@ public  class APAMTest {
 //	        } catch (Exception e) {
 //	            e.printStackTrace();
 //	        }
+		 
 		 	Implementation implem = CST.apamResolver.findImplByName(null,"S2Simple");
 		 	CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", implem.getName(), null,null);
 //	        CompositeType appliTest00 = apam.createCompositeType(null, "Test00", "S2Simple", null /* models */, theUrl,
