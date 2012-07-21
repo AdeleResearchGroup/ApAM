@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +36,7 @@ public class ApamRepoBuilder {
 
     public ApamRepoBuilder(String defaultOBRRepo) {
         // OBRManager obr = new OBRManager(defaultOBRRepo);
-        CheckObr.init(defaultOBRRepo + "\\repository.xml");
+        CheckObr.init(defaultOBRRepo + File.separator +"repository.xml");
     }
 
     public StringBuffer writeOBRFile(List<ComponentDeclaration> components) {

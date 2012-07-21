@@ -36,7 +36,7 @@ public class MainApam implements Runnable, ApamComponent {
 
         // providing an URL leading to the bundle to start. It must contain the main implementation "S2Simple"
 
-        File bundle = new File("F:/APAM/APAM-Tests/S2Impl/target/S2Impl-0.0.1-SNAPSHOT.jar");
+        File bundle = new File("../S2Impl/target/S2Impl-0.0.1-SNAPSHOT.jar");
         URL theUrl = null;
         try {
             theUrl = bundle.toURI().toURL();
