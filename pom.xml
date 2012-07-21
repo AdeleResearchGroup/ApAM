@@ -81,9 +81,17 @@
 
 		<!-- Profile used in order to run the tests -->
 		<profile>
-			<id>test</id>
+			<id>prepare-tests</id>
 			<modules>
 				<module>APAM-Tests</module>
+			</modules>
+		</profile>
+
+	<!-- Profile used in order to run the tests -->
+		<profile>
+			<id>run-tests</id>
+			<modules>
+				<module>APAM-Tests/apam-test</module>
 			</modules>
 		</profile>
 
