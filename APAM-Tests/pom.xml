@@ -21,9 +21,9 @@
   	<module>S2Impl</module>
   	<module>S1Impl</module>
   	<module>S5Impl</module>
-  	<module>S5CompEx</module>
-  	<module>perfAPAM</module>
-  	<module>perfIPojo</module>
+  	<module>S5CompEx</module>  	
 	<module>apam-test</module>
+<!-- 	<module>perfAPAM</module> -->
+<!--   	<module>perfIPojo</module> -->
   </modules>
 </project>
