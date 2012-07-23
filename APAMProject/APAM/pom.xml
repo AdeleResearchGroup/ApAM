@@ -70,7 +70,6 @@
 	</build>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo</artifactId>
@@ -93,6 +92,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
+			<version>1.6.1</version>
 		</dependency>
 	</dependencies>
 
