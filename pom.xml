@@ -263,13 +263,11 @@
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.osgi.core</artifactId>
 				<version>${felix.osgi.version}</version>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.osgi.compendium</artifactId>
 				<version>${felix.osgi.version}</version>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
@@ -280,7 +278,6 @@
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.apache.felix.ipojo</artifactId>
 				<version>${ipojo.version}</version>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
