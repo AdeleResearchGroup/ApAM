@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
@@ -27,7 +26,9 @@ import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Filter;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.obrMan.filewatcher.internal.FileWatcher;
 //import java.net.URI;
 //import org.xml.sax.Attributes;
@@ -209,8 +210,12 @@ public class OBRManager {
                     if (aCap.getName().equals(capability)) {
                         if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.println("   Found bundle : " + res.getSymbolicName() + " Component:  "
-                                        + getAttributeInCapability(aCap, "impl-name"));
+                                System.out.print("   Found bundle : " + res.getSymbolicName() + " Component:  ");
+                                if (aCap.getName().equals(OBR.CAPABILITY_SPECIFICATION)){
+                                	 System.out.println(getAttributeInCapability(aCap, CST.A_SPECNAME));
+                                }else if (aCap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)){
+                                	System.out.println(getAttributeInCapability(aCap, CST.A_IMPLNAME));
+                                }
                                 allRes.add(new Selected(res, aCap));
                             }
                         }
@@ -257,7 +262,7 @@ public class OBRManager {
         if (winner == null)
             return null;
         System.out.println("   Found bundle : " + winner.resource.getSymbolicName() + " Component:  "
-                + getAttributeInCapability(winner.capability, "impl-name"));
+                + getAttributeInCapability(winner.capability, CST.A_IMPLNAME));
         return winner;
     }
 
@@ -314,8 +319,12 @@ public class OBRManager {
                     if (aCap.getName().equals(capability)) {
                         if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.println("   Found bundle : " + res.getSymbolicName() + " Component:  "
-                                        + getAttributeInCapability(aCap, "impl-name"));
+                                System.out.print("   Found bundle : " + res.getSymbolicName() + " Component:  ");
+                                if (aCap.getName().equals(OBR.CAPABILITY_SPECIFICATION)){
+                               	 System.out.println(getAttributeInCapability(aCap, CST.A_SPECNAME));
+                               }else if (aCap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)){
+                               	System.out.println(getAttributeInCapability(aCap, CST.A_IMPLNAME));
+                               }
                                 return new Selected(res, aCap);
                             }
                         }

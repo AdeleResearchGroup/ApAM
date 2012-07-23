@@ -25,7 +25,7 @@ import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 
-public class ImplementationImpl extends PropertiesImpl implements Implementation {
+public class ImplementationImpl extends PropertiesImpl implements Implementation, Comparable<Implementation> {
 
     private static final long           serialVersionUID = 1L;
 
@@ -450,4 +450,9 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
             return true;
         return get(CST.A_SHARED).equals(CST.V_TRUE);
     }
+
+	@Override
+	public int compareTo(Implementation impl) {
+		return getName().toLowerCase().compareTo(impl.getName().toLowerCase());
+	}
 }

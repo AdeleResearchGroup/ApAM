@@ -8,7 +8,8 @@
 	express or implied. See the License for the specific language governing permissions 
 	and limitations under the License. -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>fr.imag.adele.apam</groupId>
@@ -87,7 +88,7 @@
 			</modules>
 		</profile>
 
-	<!-- Profile used in order to run the tests -->
+		<!-- Profile used in order to run the tests -->
 		<profile>
 			<id>run-tests</id>
 			<modules>
@@ -232,17 +233,17 @@
 		</repository>
 		<!-- cloudbee repo -->
 		<repository>
-			<id>cloudbees-rose-release</id>
+			<id>cloudbees-ApAM-release</id>
 			<name>Cloudbees Private Repository - ApAM - Release </name>
 			<url>https://repository-damou.forge.cloudbees.com/release/</url>
 		</repository>
 		<repository>
-			<id>cloudbees-rose-snapshot</id>
+			<id>cloudbees-ApAM-snapshot</id>
 			<name>Cloudbees Private Repository - ApAM - Snapshot</name>
 			<url>https://repository-damou.forge.cloudbees.com/snapshot/</url>
 		</repository>
 	</repositories>
-	
+
 	<distributionManagement>
 		<repository>
 			<id>cloudbees-release</id>
@@ -250,9 +251,9 @@
 			<url>dav:https://repository-damou.forge.cloudbees.com/release</url>
 		</repository>
 		<snapshotRepository>
-            <id>cloudbees-snpashot</id>
-            <url>dav:https://repository-damou.forge.cloudbees.com/snapshot</url>
-        </snapshotRepository>
+			<id>cloudbees-snpashot</id>
+			<url>dav:https://repository-damou.forge.cloudbees.com/snapshot</url>
+		</snapshotRepository>
 	</distributionManagement>
 
 	<dependencyManagement>
@@ -333,25 +334,38 @@
 							<Bundle-SymbolicName>
 								${project.artifactId}
 							</Bundle-SymbolicName>
-							<remoteOBR>true</remoteOBR>
 						</instructions>
+						<executions>
+							<execution>
+								<id>cloudbees-snpashot</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>deploy</goal>
+								</goals>
+								<configuration>
+									<remoteOBR>
+										dav:https://repository-damou.forge.cloudbees.com/snapshot/
+									</remoteOBR>
+								</configuration>
+							</execution>
+						</executions>
 					</configuration>
 				</plugin>
 				<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.1.2</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>install</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>2.1.2</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>install</phase>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
 
-			</plugin>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<extensions>

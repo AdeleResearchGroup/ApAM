@@ -47,7 +47,6 @@ public class OBRMan implements Manager {
         ApamManagers.addManager(this, 3);
         obr = new OBRManager(null, repoAdmin);
         obr.startWatchingRepository();
-        System.out.println(">> " + obr);
     }
 
     public void stop() {

@@ -16,9 +16,11 @@ package fr.imag.adele.apam.command;
  */
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Provides;
@@ -56,7 +58,7 @@ public class ApamCommand {
 	 * Defines the functions (commands).
 	 */
 	@ServiceProperty(name = "osgi.command.function", value = "{}")
-	String[] m_function = new String[] { "resolution",  "specs", "implems", "insts", "spec", "implem", "inst", "dump", "compoTypes",
+	String[] m_function = new String[] { "put",  "specs", "implems", "insts", "spec", "implem", "inst", "dump", "compoTypes",
 			"compoType", "compos", "compo", "wire" };
 
 	// ipojo injected
@@ -67,7 +69,7 @@ public class ApamCommand {
 	 * Resolver Commands.
 	 */
 	@Descriptor("Resolve apam components on the target composite")
-	public void resolution(@Descriptor("type of component (spec | implem) ") String type,
+	public void put(@Descriptor("type of component (spec | implem) ") String type,
 			@Descriptor("the name of the component to resolve ") String componentName,
 			@Descriptor("the name of the composite target or root ") String compositeTarget) {
 		CompositeType target = null;
@@ -97,7 +99,7 @@ public class ApamCommand {
 
 	@Descriptor("Display all the Apam specifications")
 	public void specs() {
-		Set<Specification> specifications = CST.SpecBroker.getSpecs();
+		Set<Specification> specifications = new TreeSet<Specification>(CST.SpecBroker.getSpecs());
 		for (Specification specification : specifications) {
 			System.out.println("ASMSpec : " + specification);
 		}
@@ -108,7 +110,7 @@ public class ApamCommand {
 	 */
 	@Descriptor("Display of all the implementations of the local machine")
 	public void implems() {
-		Set<Implementation> implementations = CST.ImplBroker.getImpls();
+		Set<Implementation> implementations = new TreeSet<Implementation>(CST.ImplBroker.getImpls());
 		for (Implementation implementation : implementations) {
 			System.out.println("ASMImpl : " + implementation);
 		}
@@ -119,7 +121,7 @@ public class ApamCommand {
 	 */
 	@Descriptor("Display of all the instances of the local machine")
 	public void insts() {
-		Set<Instance> instances = CST.InstBroker.getInsts();
+		Set<Instance> instances = new TreeSet<Instance>(CST.InstBroker.getInsts());
 		for (Instance instance : instances) {
 			System.out.println("ASMInst : " + instance);
 		}

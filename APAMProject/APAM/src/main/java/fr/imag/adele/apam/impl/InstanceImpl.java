@@ -29,7 +29,7 @@ import fr.imag.adele.apam.util.Util;
 
 //import fr.imag.adele.sam.Instance;
 
-public class InstanceImpl extends PropertiesImpl implements Instance {
+public class InstanceImpl extends PropertiesImpl implements Instance, Comparable<Instance> {
 
 	Logger logger = LoggerFactory.getLogger(InstanceImpl.class);
     /**
@@ -431,5 +431,10 @@ public class InstanceImpl extends PropertiesImpl implements Instance {
     public InstanceDeclaration getDeclaration() {
         return declaration;
     }
+
+	@Override
+	public int compareTo(Instance inst) {
+		return getName().toLowerCase().compareTo(inst.getName().toLowerCase());
+	}
 
 }
