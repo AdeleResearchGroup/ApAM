@@ -455,4 +455,10 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
 	public int compareTo(Implementation impl) {
 		return getName().toLowerCase().compareTo(impl.getName().toLowerCase());
 	}
+
+	@Override
+	protected void propertiesChanged() {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -361,4 +361,10 @@ public class SpecificationImpl extends PropertiesImpl implements Specification, 
 	 return getName().toLowerCase().compareTo(spec.getName().toLowerCase());
 	}
 
+	@Override
+	protected void propertiesChanged() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

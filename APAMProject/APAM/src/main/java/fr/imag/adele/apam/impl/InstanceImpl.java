@@ -20,6 +20,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
@@ -435,6 +436,16 @@ public class InstanceImpl extends PropertiesImpl implements Instance, Comparable
 	@Override
 	public int compareTo(Instance inst) {
 		return getName().toLowerCase().compareTo(inst.getName().toLowerCase());
+	}
+
+	@Override
+	protected void propertiesChanged() {
+		System.out.println("A property has been modified in : " + getName());
+		//TODO Verify fi 
+//		for (Wire wire : wires) {
+//		  
+//		}
+		
 	}
 
 }

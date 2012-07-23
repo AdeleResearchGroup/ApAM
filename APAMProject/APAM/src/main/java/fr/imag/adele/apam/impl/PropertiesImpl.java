@@ -9,12 +9,14 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Properties;
 import fr.imag.adele.apam.util.Util;
 
-public class PropertiesImpl extends ConcurrentHashMap<String, Object> implements Properties {
+public abstract class PropertiesImpl extends ConcurrentHashMap<String, Object> implements Properties {
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
 
+    private boolean allProperties =false;
+    
     @Override
     public Map<String, Object> getAllProperties() {
 
@@ -47,14 +49,30 @@ public class PropertiesImpl extends ConcurrentHashMap<String, Object> implements
 
     @Override
     public void setProperty(String attr, Object value) {
-        if (Util.validAttr(this, attr, value))
+        if (Util.validAttr(this, attr, value)){
             put(attr, value);
+            if (!allProperties){
+            	propertiesChanged();
+            }
+        }
     }
 
     @Override
     public void setAllProperties(Map<String, Object> properties) {
+    	allProperties = true;
         for (String attr : properties.keySet()) {
             setProperty(attr, properties.get(attr));
         }
+        
+        if (allProperties){
+        	propertiesChanged();
+        	allProperties = false;
+        }
     }
+    
+    /**
+     * Notify the component when properties changed
+     * TODO couper en deux propertyChanged et propertiesChanged
+     */
+    protected abstract void propertiesChanged();
 }
