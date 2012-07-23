@@ -251,7 +251,7 @@
 			<url>dav:https://repository-damou.forge.cloudbees.com/release</url>
 		</repository>
 		<snapshotRepository>
-			<id>cloudbees-snpashot</id>
+			<id>cloudbees-private-snapshot-repository</id>
 			<url>dav:https://repository-damou.forge.cloudbees.com/snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
@@ -335,20 +335,20 @@
 								${project.artifactId}
 							</Bundle-SymbolicName>
 						</instructions>
-						<executions>
-							<execution>
-								<id>cloudbees-snpashot</id>
-								<phase>deploy</phase>
-								<goals>
-									<goal>deploy</goal>
-								</goals>
-								<configuration>
-									<remoteOBR>
-										dav:https://repository-damou.forge.cloudbees.com/snapshot/
-									</remoteOBR>
-								</configuration>
-							</execution>
-						</executions>
+<!-- 						<executions> -->
+<!-- 							<execution> -->
+<!-- 								<id>cloudbees-snpashot</id> -->
+<!-- 								<phase>deploy</phase> -->
+<!-- 								<goals> -->
+<!-- 									<goal>deploy</goal> -->
+<!-- 								</goals> -->
+<!-- 								<configuration> -->
+<!-- 									<remoteOBR> -->
+<!-- 										dav:https://repository-damou.forge.cloudbees.com/snapshot/ -->
+<!-- 									</remoteOBR> -->
+<!-- 								</configuration> -->
+<!-- 							</execution> -->
+<!-- 						</executions> -->
 					</configuration>
 				</plugin>
 				<plugin>
@@ -375,6 +375,8 @@
 				<version>2.2</version>
 			</extension>
 		</extensions>
+		
+         
 	</build>
 
 	<modules>
