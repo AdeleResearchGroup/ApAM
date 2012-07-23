@@ -251,7 +251,7 @@
 			<url>dav:https://repository-damou.forge.cloudbees.com/release</url>
 		</repository>
 		<snapshotRepository>
-			<id>cloudbees-private-snapshot-repository</id>
+			<id>cloudbees-snpashot</id>
 			<url>dav:https://repository-damou.forge.cloudbees.com/snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
