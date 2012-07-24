@@ -77,7 +77,7 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>APAM</artifactId>
-			<version>${apam.current.version}</version>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

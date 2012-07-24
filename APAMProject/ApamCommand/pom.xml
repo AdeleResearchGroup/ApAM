@@ -74,15 +74,16 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>APAM</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.gogo.runtime</artifactId>
+			<version>0.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo.annotations</artifactId>
+			<version>1.8.0</version>
 		</dependency>
 	</dependencies>
 </project>

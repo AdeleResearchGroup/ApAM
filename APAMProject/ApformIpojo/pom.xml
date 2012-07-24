@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo.metadata</artifactId>
-			<version>1.4.0</version>
+			<version>1.6.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
