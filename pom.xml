@@ -234,12 +234,12 @@
 		<repository>
 			<id>cloudbees-ApAM-release</id>
 			<name>Cloudbees Private Repository - ApAM - Release </name>
-			<url>https://repository-damou.forge.cloudbees.com/release/</url>
+			<url>https://repository-apam.forge.cloudbees.com/release/</url>
 		</repository>
 		<repository>
 			<id>cloudbees-ApAM-snapshot</id>
 			<name>Cloudbees Private Repository - ApAM - Snapshot</name>
-			<url>https://repository-damou.forge.cloudbees.com/snapshot/</url>
+			<url>https://repository-apam.forge.cloudbees.com/snapshot/</url>
 		</repository>
 	</repositories>
 
@@ -247,11 +247,11 @@
 		<repository>
 			<id>cloudbees-release</id>
 			<name>Cloudbees Private Repository</name>
-			<url>dav:https://repository-damou.forge.cloudbees.com/release</url>
+			<url>dav:https://repository-apam.forge.cloudbees.com/release</url>
 		</repository>
 		<snapshotRepository>
 			<id>cloudbees-snpashot</id>
-			<url>dav:https://repository-damou.forge.cloudbees.com/snapshot</url>
+			<url>dav:https://repository-apam.forge.cloudbees.com/snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
 
