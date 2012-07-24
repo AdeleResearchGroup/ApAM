@@ -15,9 +15,8 @@
 	<groupId>fr.imag.adele.apam</groupId>
 	<artifactId>APAMProject.root</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.1</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>APAMProject.root</name>
-	<url>http://sam.ligforge.imag.fr</url>
 
 
 	<properties>
@@ -258,15 +257,25 @@
 
 	<dependencyManagement>
 		<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+			<version>${osgi.version}</version>
+		</dependency>
+			<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.bundlerepository</artifactId>
+			<version>1.6.4</version>
+		</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.osgi.core</artifactId>
-				<version>1.4.0</version>
+				<version>${felix.osgi.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.osgi.compendium</artifactId>
-				<version>1.4.0</version>
+				<version>${felix.osgi.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
@@ -276,7 +285,7 @@
 			<dependency>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.apache.felix.ipojo</artifactId>
-				<version>1.8.0</version>
+				<version>${ipojo.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
@@ -286,12 +295,17 @@
 			<dependency>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.apache.felix.ipojo.annotations</artifactId>
-				<version>1.8.0</version>
+				<version>${ipojo.version}</version>
 			</dependency>
+			<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.ipojo.manipulator</artifactId>
+			<version>${ipojo.version}</version>
+		</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
-				<version>1.6.1</version>
+				<version>${slf4j.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -323,7 +337,7 @@
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
-					<version>2.3.4</version>
+					<version>${bundle.plugin.version}</version>
 					<extensions>true</extensions>
 					<configuration>
 						<instructions>
