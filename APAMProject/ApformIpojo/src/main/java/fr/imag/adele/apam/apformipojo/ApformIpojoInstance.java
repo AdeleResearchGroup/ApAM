@@ -82,6 +82,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 
         configuration.put("instance.name",declaration.getName());
         super.configure(metadata, configuration);
+        
 
     }
 
@@ -321,5 +322,5 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 
         return true;
     }
-
+   
 }
