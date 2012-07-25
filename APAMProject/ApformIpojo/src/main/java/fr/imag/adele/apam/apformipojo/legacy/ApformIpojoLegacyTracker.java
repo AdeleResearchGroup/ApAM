@@ -226,6 +226,7 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 			if (inst.getImpl().getImplDeclaration().isDefined(key))
 				inst.setProperty(key, reference.getProperty(key));
 		}
+		
 	}
 
 }
