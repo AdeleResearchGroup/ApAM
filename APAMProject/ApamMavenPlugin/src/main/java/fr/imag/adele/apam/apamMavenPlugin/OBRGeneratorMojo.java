@@ -20,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,45 +30,27 @@ import java.util.jar.Manifest;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.ManifestMetadataParser;
 import org.apache.felix.ipojo.parser.ParseException;
+import org.apache.felix.ipojo.plugin.ManipulatorMojo;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.MavenProjectHelper;
 
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.util.Util;
 
 /**
- * Packages an OSGi jar "bundle" as an "iPOJO bundle".
+ * Packages an OSGi jar "iPOJO bundle" as an "APAM bundle".
  * 
  * @version $Rev$, $Date$
- * @goal apam-ipojo-bundle
+ * @extendsPlugin maven-ipojo-plugin
+ * @goal ipojo-bundle
  * @phase package
  * @requiresDependencyResolution runtime
- * @description manipulate an Apam bundle jar to include the obr.xml file
+ * @description manipulate an OSGi bundle jar to include the obr.xml file and build APAM bundle
  * 
  * @author SIMON Eric (eric.simon<at>imag.fr) and Jacky Estublier (jacky<at>imag.fr)
  */
-public class OBRGeneratorMojo extends AbstractMojo {
-
-    /**
-     * The Maven project.
-     * 
-     * @parameter expression="${project}"
-     * @required
-     * @readonly
-     */
-    private MavenProject m_project;
-
-    /**
-     * Used for attaching new artifacts.
-     * 
-     * @component
-     * @required
-     */
-    private MavenProjectHelper m_helper;
+public class OBRGeneratorMojo extends ManipulatorMojo {
 
 
     /**
@@ -84,17 +65,8 @@ public class OBRGeneratorMojo extends AbstractMojo {
     // The list of bundle dependencies of the form "groupId.name.version"
     public static Set<String>    bundleDependencies = new HashSet<String>();
 
-    /**
-     * Project types which this plugin supports.
-     * 
-     * @parameter
-     */
-    private final List m_supportedProjectTypes = Arrays.asList(new String[] {
-            "bundle", "jar" });
+   
 
-    protected MavenProject getProject() {
-        return m_project;
-    }
 
     /**
      * Execute method : this method launches the OBR generation.
@@ -104,24 +76,11 @@ public class OBRGeneratorMojo extends AbstractMojo {
      * @see fr.imag.adele.obr.ipojo.plugin.OBRGeneratorMojo#execute()
      */
     public void execute() throws MojoExecutionException {
-        // ignore project types not supported, useful when the plugin is configured in the parent pom
-        if (!m_supportedProjectTypes.contains(getProject()
-                .getArtifact().getType())) {
-            getLog()
-            .debug("Ignoring project "
-                    + getProject().getArtifact()
-                    + " : type "
-                    + getProject().getArtifact().getType()
-                    + " is not supported by iPOJO plugin, supported types are "
-                    + m_supportedProjectTypes);
-            return;
-        }
-
-        //OBR.xml generation
-
+    	super.execute();
+    	//OBR.xml generation
         try {
             getLog().info("Start bundle header manipulation");
-            File jar = m_project.getArtifact().getFile();
+            File jar = getProject().getArtifact().getFile();
             JarFile jarFile = new JarFile(jar);
             Manifest manifest = jarFile.getManifest();
             Attributes iPOJOmetadata = manifest.getMainAttributes();
@@ -163,7 +122,7 @@ public class OBRGeneratorMojo extends AbstractMojo {
             }
 
             OutputStream obr;
-            String obrFileStr = m_project.getBasedir().getAbsolutePath()
+            String obrFileStr = getProject().getBasedir().getAbsolutePath()
             + File.separator + "src"
             + File.separator + "main"
             + File.separator + "resources"

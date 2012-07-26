@@ -37,20 +37,34 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.ipojo.metadata</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.ipojo.manipulator</artifactId>
-		</dependency>
-		<dependency>
 			<artifactId>org.apache.felix.ipojo</artifactId>
 			<groupId>org.apache.felix</groupId>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<artifactId>maven-ipojo-plugin</artifactId>
+			<groupId>org.apache.felix</groupId>
+			<version>${ipojo.version}</version>
+			<type>maven-plugin</type>
+<!-- 			<scope>compile</scope> -->
+		</dependency>
 	</dependencies>
 	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.ops4j</groupId>
+				<artifactId>maven-inherit-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>inherit</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>

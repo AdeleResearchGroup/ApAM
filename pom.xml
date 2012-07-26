@@ -283,6 +283,12 @@
 				<version>0.6.1</version>
 			</dependency>
 			<dependency>
+			<artifactId>maven-ipojo-plugin</artifactId>
+			<groupId>org.apache.felix</groupId>
+			<version>${ipojo.version}</version>
+			<scope>compile</scope>
+		</dependency>
+			<dependency>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.apache.felix.ipojo</artifactId>
 				<version>${ipojo.version}</version>

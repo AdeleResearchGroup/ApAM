@@ -23,9 +23,6 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-				</configuration>
 			</plugin>
 			
 			<plugin>
@@ -35,7 +32,7 @@
 				<executions>
 					<execution>
 						<goals>
-							<goal>apam-ipojo-bundle</goal>
+							<goal>ipojo-bundle</goal>
 						</goals>						
 					</execution>
 				</executions>

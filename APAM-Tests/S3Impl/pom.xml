@@ -17,28 +17,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				
 			</plugin>
 			
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-ipojo-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>ipojo-bundle</goal>
-						</goals>
-						<configuration>
-							<metadata>src/main/resources/S3Impl.xml</metadata>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
@@ -47,8 +30,11 @@
 				<executions>
 					<execution>
 						<goals>
-							<goal>apam-ipojo-bundle</goal>
+							<goal>ipojo-bundle</goal>
 						</goals>
+						<configuration>
+							<metadata>src/main/resources/S3Impl.xml</metadata>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
