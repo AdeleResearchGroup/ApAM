@@ -264,6 +264,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 	 */
 	@Override
 	public Object onGet(Object pojo, String fieldName, Object value) {
+		if(wires.isEmpty()) return null;
 		return this;
 	}
 

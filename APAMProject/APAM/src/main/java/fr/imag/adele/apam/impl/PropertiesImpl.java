@@ -52,7 +52,7 @@ public abstract class PropertiesImpl extends ConcurrentHashMap<String, Object> i
         if (Util.validAttr(this, attr, value)){
             put(attr, value);
             if (!allProperties){
-            	propertiesChanged();
+            	propertyChanged(attr,value);
             }
         }
     }
@@ -71,8 +71,14 @@ public abstract class PropertiesImpl extends ConcurrentHashMap<String, Object> i
     }
     
     /**
+     * Notify the component when a property changed
+     */
+    protected abstract void propertyChanged(String attr, Object value);
+    
+    
+    /**
      * Notify the component when properties changed
-     * TODO couper en deux propertyChanged et propertiesChanged
      */
     protected abstract void propertiesChanged();
 }
+

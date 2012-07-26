@@ -223,8 +223,10 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 		 * Otherwise propagate property changes to Apam
 		 */
 		for (String key : reference.getPropertyKeys()) {
-			if (inst.getImpl().getImplDeclaration().isDefined(key))
-				inst.setProperty(key, reference.getProperty(key));
+			if (inst.getImpl().getImplDeclaration().isDefined(key)){
+				Object value =  reference.getProperty(key);
+			    if (value!=inst.getProperty(key)) inst.setProperty(key, reference.getProperty(key));
+			}
 		}
 		
 	}

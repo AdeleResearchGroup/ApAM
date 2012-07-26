@@ -253,7 +253,7 @@ public class Apform2Apam {
         Instance inst = CST.InstBroker.getInst(instanceName);
         if (inst == null) {
           // previous remove of the factory removed instances
-        	logger.warn("Unable to remove instance '{}' : Innexistance instance", instanceName);
+          // logger.warn("Unable to remove instance '{}' : non-existent instance", instanceName);
             return;
         }
         ((InstanceBrokerImpl)CST.InstBroker).removeInst(inst);
@@ -268,7 +268,7 @@ public class Apform2Apam {
     public static void vanishImplementation(String implementationName) {
         Implementation impl = CST.ImplBroker.getImpl(implementationName);
         if (impl == null) {
-            logger.error("Vanish implementation does not exists: " + implementationName);
+        	logger.warn("Vanish implementation does not exists: " + implementationName);
             return;
         }
 
@@ -282,7 +282,7 @@ public class Apform2Apam {
     public static void vanishSpecification(String specificationName) {
         Specification spec = CST.SpecBroker.getSpec(specificationName);
         if (spec == null) {
-            System.err.println("Vanish specification does not exists: " + specificationName);
+        	logger.warn("Vanish specification does not exists: " + specificationName);
             return;
         }
     	

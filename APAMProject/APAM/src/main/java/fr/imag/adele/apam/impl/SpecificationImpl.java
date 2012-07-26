@@ -367,4 +367,10 @@ public class SpecificationImpl extends PropertiesImpl implements Specification, 
 		
 	}
 
+	@Override
+	protected void propertyChanged(String attr, Object value) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

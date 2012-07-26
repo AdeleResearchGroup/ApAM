@@ -461,4 +461,10 @@ public class ImplementationImpl extends PropertiesImpl implements Implementation
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	protected void propertyChanged(String attr, Object value) {
+		// TODO Auto-generated method stub
+		
+	}
 }

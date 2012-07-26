@@ -440,12 +440,18 @@ public class InstanceImpl extends PropertiesImpl implements Instance, Comparable
 
 	@Override
 	protected void propertiesChanged() {
-		System.out.println("A property has been modified in : " + getName());
+		System.out.println("A set of properties has been modified in : " + getName());
 		//TODO
 //		for (Wire wire : wires) {
 //		  System.out.println("source : " + wire.getSource().getName() +" -- dest : " + wire.getDestination().getName() );
 //		}
 //		
+	}
+
+	@Override
+	protected void propertyChanged(String attr, Object value) {
+		// TODO Auto-generated method stub
+		System.out.println("A property has been modified in : " + getName() + " >>  " +attr+"="+value );
 	}
 
 }
