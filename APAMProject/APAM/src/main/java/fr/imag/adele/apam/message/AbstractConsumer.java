@@ -8,8 +8,8 @@ package fr.imag.adele.apam.message;
 
 public interface AbstractConsumer<D> {
 
-    public void sendMessage(Message<D> message);
+    public void pushMessage(Message<D> message);
     
-    public void sendData(D data);
+    public void pushData(D data);
    
 }

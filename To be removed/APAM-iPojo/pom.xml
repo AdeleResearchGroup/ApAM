@@ -1,0 +1,20 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>fr.imag.adele.apam</groupId>
+  <artifactId>APAM-iPojo</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+  <packaging>pom</packaging>
+  
+  <name>APAM-iPojo</name>
+  <description>APAM-iPOjo integration layer</description>
+  
+  	<modules>
+		<module>fr.imag.adele.apam.Specification</module>
+		<module>fr.imag.adele.apam.ApamFactory</module>
+		<module>fr.imag.adele.apam.Composite</module>
+		<module>fr.imag.adele.apam.dependency</module>
+	</modules>
+  
+</project>
