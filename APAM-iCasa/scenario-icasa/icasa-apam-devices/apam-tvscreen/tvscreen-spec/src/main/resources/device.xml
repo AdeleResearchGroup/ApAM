@@ -1,0 +1,8 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+	<specification name="TvScreen"
+		interfaces="fr.imag.adele.apam.device.tvscreen.TvScreen">
+		<definitions>
+			<definition name="location" type="string" />
+		</definitions> 
+	</specification>
+</apam>

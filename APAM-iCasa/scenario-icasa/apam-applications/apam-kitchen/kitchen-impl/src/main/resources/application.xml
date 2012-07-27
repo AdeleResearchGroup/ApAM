@@ -1,0 +1,23 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+
+	<implementation name="KitchenApp-Impl"
+		classname="fr.liglab.adele.icasa.application.apam.kitchen.impl.KitchenAppImpl"
+		specification="KitchenApp" message-fields="sendKitchenMessage">
+
+		<dependency specification="Microwave">
+			<interface field="microwave" />
+			<message method="consumeMicrowaveMessage" />
+			<constraints>
+				<instance filter="(location=kitchen)" />
+			</constraints>
+		</dependency>
+		<dependency specification="Oven">
+			<interface field="oven" />
+			<message method="consumeOvenMessage" />
+			<constraints>
+				<instance filter="(location=kitchen)" />
+			</constraints>
+		</dependency>
+	</implementation>
+
+</apam>

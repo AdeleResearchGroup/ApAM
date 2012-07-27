@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>fr.imag.adele.apam</groupId>
+		<artifactId>APAMProject.root</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<properties>
+		<!-- icasa version -->
+		<icasa.version>0.0.1-SNAPSHOT</icasa.version>
+	</properties>
+
+	<artifactId>scenario-icasa</artifactId>
+	<packaging>pom</packaging>
+	<name>The iCasa Scenario</name>
+	<description>		</description>
+	<modules>
+		<module>icasa-apam-devices</module>
+<!-- 		<module>apam-applications</module> -->
+	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>fr.liglab.adele.icasa</groupId>
+				<artifactId>environment.api</artifactId>
+				<version>${icasa.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>APAM</artifactId>
+				<version>${apam.current.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<repositories>
+		<!-- cloudbee repo -->
+		<repository>
+			<id>cloudbees-iCASA-release</id>
+			<name>Cloudbees Private Repository - icasa - Release </name>
+			<url>https://repository-icasa.forge.cloudbees.com/release/</url>
+		</repository>
+		<repository>
+			<id>cloudbees-iCASA-snapshot</id>
+			<name>Cloudbees Private Repository - icasa - Snapshot</name>
+			<url>https://repository-icasa.forge.cloudbees.com/snapshot/</url>
+		</repository>
+
+	</repositories>
+</project>

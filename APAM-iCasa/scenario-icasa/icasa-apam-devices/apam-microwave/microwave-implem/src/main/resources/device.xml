@@ -1,0 +1,31 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+	<implementation name="APAM.MicroWave"
+		classname="fr.imag.adele.apam.device.microwave.impl.SimulatedMicrowave"
+		specification="Microwave" interfaces="{fr.imag.adele.apam.device.microwave.Microwave}"
+		messages="java.lang.String" message-fields="room">
+
+		<definitions>
+			<definition name="location" type="string" />
+			<definition name="fault" value="no" type="string" />
+			<definition name="state" value="deactivated" type="string" />
+		</definitions>
+
+		<properties>
+			<property instantiable="false" />
+		</properties>
+
+		<ipojo:properties>
+			<ipojo:Property name="location" field="location" />
+		</ipojo:properties>
+
+		<ipojo:provides
+			specifications="{fr.liglab.adele.icasa.environment.SimulatedDevice,fr.liglab.adele.icasa.device.GenericDevice}">
+			<ipojo:Property name="service.description" type="string" />
+			<ipojo:Property name="device.serialNumber" field="m_serialNumber"
+				type="string" />
+			<ipojo:Property name="fault" value="no" field="fault" />
+			<ipojo:Property name="state" value="deactivated"
+				field="state" />
+		</ipojo:provides>
+	</implementation>
+</apam>
