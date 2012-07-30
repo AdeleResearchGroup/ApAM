@@ -233,7 +233,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 	 * Broadcast the message to all connected consumers expecting this flavor
 	 */
 	@Override
-	public void sendMessage(Message<Object> message) {
+	public void pushMessage(Message<Object> message) {
 		
 		if (message.getData() == null)
 			return;
@@ -255,8 +255,8 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 	}
 
 	@Override
-	public void sendData(Object data) {
-		sendMessage(new Message<Object>(data));
+	public void pushData(Object data) {
+		pushMessage(new Message<Object>(data));
 	}
 
 	/**
