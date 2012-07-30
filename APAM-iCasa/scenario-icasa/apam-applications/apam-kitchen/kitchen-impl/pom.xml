@@ -40,8 +40,6 @@
     		<groupId>fr.imag.adele.apam</groupId>
     		<artifactId>oven-spec</artifactId>
     		<version>0.0.1-SNAPSHOT</version>
-    		<type>bundle</type>
-    		<scope>provided</scope>
     	</dependency>
     	<dependency>
     		<groupId>fr.imag.adele.apam</groupId>
@@ -51,7 +49,6 @@
     		<groupId>fr.imag.adele.apam</groupId>
     		<artifactId>microwave-spec</artifactId>
     		<version>0.0.1-SNAPSHOT</version>
-    		<type>bundle</type>
     	</dependency>
     </dependencies>
 </project>

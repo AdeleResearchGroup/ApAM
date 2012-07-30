@@ -143,4 +143,14 @@ public class SimulatedMicrowave extends AbstractDevice implements Microwave,
 
 	}
 
+	@Override
+	public void start() {
+		setState(STATE_ACTIVATED);
+	}
+
+	@Override
+	public void stop() {
+		setState(STATE_DEACTIVATED);
+	}
+
 }

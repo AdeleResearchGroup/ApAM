@@ -20,6 +20,7 @@ import java.util.TimerTask;
 
 import fr.imag.adele.apam.device.oven.Oven;
 import fr.imag.adele.apam.message.AbstractConsumer;
+import fr.liglab.adele.icasa.device.GenericDevice;
 import fr.liglab.adele.icasa.device.util.AbstractDevice;
 import fr.liglab.adele.icasa.environment.SimulatedDevice;
 import fr.liglab.adele.icasa.environment.SimulatedEnvironment;
@@ -134,6 +135,17 @@ public class SimulatedOven extends AbstractDevice implements Oven, SimulatedDevi
 			timer.cancel();
 			timer.purge();
 		}
+	}
+
+	@Override
+	public void start() {
+		setState(GenericDevice.STATE_ACTIVATED);
+	}
+
+	@Override
+	public void stop() {
+		setState(GenericDevice.STATE_DEACTIVATED);
+		
 	}
 
 }

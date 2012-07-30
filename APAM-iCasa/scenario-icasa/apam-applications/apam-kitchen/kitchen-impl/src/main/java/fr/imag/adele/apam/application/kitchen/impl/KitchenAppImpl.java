@@ -23,11 +23,11 @@ public class KitchenAppImpl implements KitchenApp,ApamComponent {
 	@Override
 	public void stopAllDevices() {
 		if (oven != null) {
-			oven.setState(GenericDevice.STATE_DEACTIVATED);
+			oven.stop();
 		}
 		
 		if (microwave != null) {
-			microwave.setState(GenericDevice.STATE_DEACTIVATED);
+			microwave.stop();
 		}
 	}
 
@@ -44,7 +44,7 @@ public class KitchenAppImpl implements KitchenApp,ApamComponent {
 	@Override
 	public void startOven() {
 		if (oven != null)
-			oven.setState(GenericDevice.STATE_ACTIVATED);
+			oven.start();
 	}
 
 	@Override
@@ -56,21 +56,21 @@ public class KitchenAppImpl implements KitchenApp,ApamComponent {
 	@Override
 	public void stopOven() {
 		if (oven != null)
-			oven.setState(GenericDevice.STATE_ACTIVATED);
+			oven.stop();
 	}
 
 	@Override
 	public void startMicrowave(int time) {
 		if (microwave != null)
 			microwave.setCookTime(time);
-			microwave.setState(GenericDevice.STATE_ACTIVATED);
+			microwave.start();
 
 	}
 
 	@Override
 	public void stopMicrowave() {
 		if (microwave != null)
-			microwave.setState(GenericDevice.STATE_DEACTIVATED);
+			microwave.stop();
 	}
 
 	@Override

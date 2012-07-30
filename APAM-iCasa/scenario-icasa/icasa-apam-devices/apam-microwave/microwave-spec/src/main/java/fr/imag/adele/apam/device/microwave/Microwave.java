@@ -9,6 +9,10 @@ package fr.imag.adele.apam.device.microwave;
 public interface Microwave {
 
 	void setCookTime(int time);
+
+	void start();
+
+	void stop();
 	
 
 }
