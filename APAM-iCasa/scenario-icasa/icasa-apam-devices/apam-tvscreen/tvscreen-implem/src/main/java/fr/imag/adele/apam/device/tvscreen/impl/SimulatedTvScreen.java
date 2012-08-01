@@ -96,6 +96,18 @@ public class SimulatedTvScreen extends AbstractDevice implements TvScreen,
       */
      public void setFault(String fault) {
      	this.fault = fault;
-     } 
+     }
+
+	@Override
+	public void start() {
+		setState(STATE_ACTIVATED);
+		
+	}
+
+	@Override
+	public void stop() {
+		setState(STATE_DEACTIVATED);
+		
+	} 
 
 }

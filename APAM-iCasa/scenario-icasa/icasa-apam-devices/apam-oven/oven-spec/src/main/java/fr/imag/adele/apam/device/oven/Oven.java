@@ -9,5 +9,6 @@ public interface Oven   {
 
 		void stop();
 	
+		String getLocation();
 	
 }

@@ -60,60 +60,7 @@ public class SimulatedSpeaker extends AbstractDevice implements Speaker,
 		location = getEnvironmentId();
 	}
 
-    /**
-     * Notify the bound simulated environment that the temperature has changed.
-     * 
-     * @param temperatureDiff
-     *            the temperature difference
-     */
-    private void notifyEnvironment() {
-//        m_env.lock();
-//        try {
-//            long time = System.currentTimeMillis();
-//            double timeDiff = ((double) (time - m_lastUpdateTime)) / 1000.0d;
-//            m_lastUpdateTime = time;
-//            double current = m_env
-//                    .getProperty(SimulatedEnvironment.TEMPERATURE);
-//            double volume = m_env.getProperty(SimulatedEnvironment.VOLUME);
-//            double decrease = m_maxCapacity * m_powerLevel * timeDiff / volume;
-//            if (current > decrease) {
-//                m_env.setProperty(SimulatedEnvironment.TEMPERATURE, current
-//                        - decrease);                
-//            } else {
-//                m_env.setProperty(SimulatedEnvironment.TEMPERATURE, 0.0d);           
-//            }
-//            
-//        } finally {
-//            m_env.unlock();
-//        }
-    }
-
-//    /**
-//     * The updater thread that updates the current temperature and notify
-//     * listeners periodically.
-//     * 
-//     * @author bourretp
-//     */
-//    private class UpdaterThread implements Runnable {
-//
-//        @Override
-//        public void run() {
-//            boolean isInterrupted = false;
-//            while (!isInterrupted) {
-//                try {
-//                    Thread.sleep(m_period);
-//                    synchronized (SimulatedCoolerImpl.this) {
-//                        if (m_env != null) {
-//                            notifyEnvironment();
-//                        }
-//                    }
-//                } catch (InterruptedException e) {
-//                    isInterrupted = true;
-//                }
-//            }
-//        }
-//    }
-    
+ 
     public String getLocation() {
         return getEnvironmentId();
      }
@@ -149,6 +96,17 @@ public class SimulatedSpeaker extends AbstractDevice implements Speaker,
       */
      public void setFault(String fault) {
      	this.fault = fault;
-     } 
+     }
+
+	@Override
+	public void start() {
+		setState(STATE_ACTIVATED);
+		
+	}
+
+	@Override
+	public void stop() {
+		setState(STATE_DEACTIVATED);
+	} 
 
 }

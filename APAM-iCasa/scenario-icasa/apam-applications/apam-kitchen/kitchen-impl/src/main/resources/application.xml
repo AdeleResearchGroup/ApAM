@@ -3,7 +3,7 @@
 	<implementation name="KitchenApp-Impl"
 		classname="fr.liglab.adele.icasa.application.apam.kitchen.impl.KitchenAppImpl"
 		specification="KitchenApp" message-fields="sendKitchenMessage">
-
+       
 		<dependency specification="Microwave">
 			<interface field="microwave" />
 			<message method="consumeMicrowaveMessage" />

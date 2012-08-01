@@ -14,5 +14,5 @@ public interface Microwave {
 
 	void stop();
 	
-
+	String getLocation();
 }

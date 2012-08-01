@@ -35,10 +35,12 @@ public class KitchenAppImpl implements KitchenApp,ApamComponent {
 		System.out.println("KitchenApp >> New Message from Oven : " + event);
 //		System.out.println("Start keep warm  10s" );
 //		oven.keepWarm(10);
+		sendKitchenMessage.pushData(new KitchenMessage("Oven", oven.getLocation(), event));
 	}
 	
 	public void consumeMicrowaveMessage(String event) {
 		System.out.println("KitchenApp >> New Message from Microwave : " + event);
+		sendKitchenMessage.pushData(new KitchenMessage("Microwave", microwave.getLocation(), event));
 	}
 
 	@Override

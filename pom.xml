@@ -351,20 +351,20 @@
 								${project.artifactId}
 							</Bundle-SymbolicName>
 						</instructions>
-<!-- 						<executions> -->
-<!-- 							<execution> -->
-<!-- 								<id>cloudbees-snpashot</id> -->
-<!-- 								<phase>deploy</phase> -->
-<!-- 								<goals> -->
-<!-- 									<goal>deploy</goal> -->
-<!-- 								</goals> -->
-<!-- 								<configuration> -->
-<!-- 									<remoteOBR> -->
-<!-- 										dav:https://repository-damou.forge.cloudbees.com/snapshot/ -->
-<!-- 									</remoteOBR> -->
-<!-- 								</configuration> -->
-<!-- 							</execution> -->
-<!-- 						</executions> -->
+						<executions>
+							<execution>
+								<id>cloudbees-snapshot</id>
+								<phase>install</phase>
+								<goals>
+									<goal>install</goal>
+								</goals>
+								<configuration>
+									<remoteOBR>
+										dav:https://repository-apam.forge.cloudbees.com/snapshot/
+									</remoteOBR>
+								</configuration>
+							</execution>
+						</executions>
 					</configuration>
 				</plugin>
 				<plugin>
