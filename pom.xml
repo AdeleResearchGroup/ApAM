@@ -245,12 +245,12 @@
 
 	<distributionManagement>
 		<repository>
-			<id>cloudbees-release</id>
+			<id>cloudbees-private-release-repository</id>
 			<name>Cloudbees Private Repository</name>
 			<url>dav:https://repository-apam.forge.cloudbees.com/release</url>
 		</repository>
 		<snapshotRepository>
-			<id>cloudbees-snpashot</id>
+			<id>cloudbees-private-snapshot-repository</id>
 			<url>dav:https://repository-apam.forge.cloudbees.com/snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
@@ -351,20 +351,21 @@
 								${project.artifactId}
 							</Bundle-SymbolicName>
 						</instructions>
-<!-- 						<executions> -->
-<!-- 							<execution> -->
-<!-- 								<id>cloudbees-snpashot</id> -->
-<!-- 								<phase>deploy</phase> -->
-<!-- 								<goals> -->
-<!-- 									<goal>deploy</goal> -->
-<!-- 								</goals> -->
-<!-- 								<configuration> -->
-<!-- 									<remoteOBR> -->
-<!-- 										dav:https://repository-damou.forge.cloudbees.com/snapshot/ -->
-<!-- 									</remoteOBR> -->
-<!-- 								</configuration> -->
-<!-- 							</execution> -->
-<!-- 						</executions> -->
+						<executions>
+							<execution>
+								<id>cloudbees-private-snapshot-repository</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>deploy</goal>
+								</goals>
+								<configuration>
+								 <obrRepository>dav:https://repository-apam.forge.cloudbees.com/snapshot/</obrRepository>
+									<remoteOBR>
+										dav:https://repository-apam.forge.cloudbees.com/snapshot/
+									</remoteOBR>
+								</configuration>
+							</execution>
+						</executions>
 					</configuration>
 				</plugin>
 				<plugin>
