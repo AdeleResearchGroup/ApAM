@@ -1,0 +1,20 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+
+
+	<!-- *********** *************** -->
+	<!-- Media center App           -->
+	<!-- *********** ************ -->
+
+
+	<implementation name="MediaPlayer-Impl"
+		classname="fr.imag.adele.apam.application.mediacenter.impl.MediaPayerImpl"
+		specification="MediaPlayer">
+		<dependency specification="TvScreen">
+			<interface field="tvScreen" />
+		</dependency>
+		<dependency specification="Speaker">
+			<interface field="speaker" />
+		</dependency>
+	</implementation>
+
+</apam>

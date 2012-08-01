@@ -1,0 +1,87 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+	<!-- *********** -->
+	<!-- OVEN -->
+	<!-- *********** -->
+	<specification name="Oven"
+		interfaces="fr.liglab.adele.icasa.devices.apam.Oven"
+		messages="java.lang.String">
+		<definitions>
+			<definition name="location" type="string" />
+		</definitions>
+		<dependency id="dep" interface="fr.liglab.adele.icasa.environment.SimulatedEnvironment" /> 
+	</specification>
+
+
+	<!-- *********** -->
+	<!-- Microwave -->
+	<!-- *********** -->
+
+	<specification name="Microwave"
+		interfaces="fr.liglab.adele.icasa.devices.apam.Microwave"
+		messages="java.lang.String">
+	
+		<definitions>
+			<definition name="location" type="string" />
+			<definition name="state" type="string" />
+			<definition name="fault" type="string" />
+		</definitions>
+		<!-- <dependency interface="fr.liglab.adele.icasa.environment.SimulatedEnvironment" 
+			/> -->
+	</specification>
+
+
+	<!-- *********** -->
+	<!-- Smartphone -->
+	<!-- *********** -->
+
+	<specification name="Smartphone"
+		interfaces="fr.liglab.adele.icasa.devices.apam.Smartphone">
+		<properties>
+			<property S1-Attr="coucou" type="string" />
+		</properties>
+		<definitions>
+			<definition name="location" type="string" />
+			<definition name="state" type="string" />
+			<definition name="fault" type="string" />
+		</definitions>
+		<!-- <dependency interface="fr.liglab.adele.icasa.environment.SimulatedEnvironment"/> -->
+	</specification>
+
+	<!-- *********** -->
+	<!-- Speaker -->
+	<!-- *********** -->
+
+	<specification name="Speaker"
+		interfaces="fr.liglab.adele.icasa.devices.apam.Speaker">
+		<properties>
+			<property S1-Attr="coucou" type="string" />
+		</properties>
+		<definitions>
+			<definition name="location" type="string" />
+			<definition name="state" type="string" />
+			<definition name="fault" type="string" />
+		</definitions>
+		<!-- <dependency interface="fr.liglab.adele.icasa.environment.SimulatedEnvironment"/> -->
+	</specification>
+
+
+	<!-- *********** -->
+	<!-- TvScreen -->
+	<!-- *********** -->
+
+
+
+	<specification name="TvScreen"
+		interfaces="fr.liglab.adele.icasa.devices.apam.TvScreen">
+		<properties>
+			<property S1-Attr="coucou" type="string" />
+		</properties>
+		<definitions>
+			<definition name="location" type="string" />
+			<definition name="state" type="string" />
+			<definition name="fault" type="string" />
+		</definitions>
+		<!-- <dependency interface="fr.liglab.adele.icasa.environment.SimulatedEnvironment"/> -->
+	</specification>
+
+</apam>
