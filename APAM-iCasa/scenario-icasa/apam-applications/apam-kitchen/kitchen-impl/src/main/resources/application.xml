@@ -1,7 +1,9 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
 	<implementation name="KitchenApp-Impl"
-		classname="fr.liglab.adele.icasa.application.apam.kitchen.impl.KitchenAppImpl"
+		classname="fr.imag.adele.apam.application.kitchen.impl.KitchenAppImpl"
+		interfaces="fr.imag.adele.apam.application.kitchen.KitchenApp"
+		messages="fr.imag.adele.apam.application.kitchen.KitchenMessage"
 		specification="KitchenApp" message-fields="sendKitchenMessage">
        
 		<dependency specification="Microwave">

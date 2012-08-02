@@ -361,7 +361,6 @@
 								<goals>
 									<goal>deploy</goal>
 								</goals>
-								
 								 <obrRepository>dav:https://repository-apam.forge.cloudbees.com/snapshot/</obrRepository>
 									<remoteOBR>
 										dav:https://repository-apam.forge.cloudbees.com/snapshot/

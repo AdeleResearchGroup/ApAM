@@ -18,7 +18,7 @@
 	<description>		</description>
 	<modules>
 		<module>icasa-apam-devices</module>
-<!-- 		<module>apam-applications</module> -->
+     	<module>apam-applications</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
