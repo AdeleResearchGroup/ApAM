@@ -353,32 +353,17 @@
 						</instructions>
 						<executions>
 							<execution>
-<<<<<<< HEAD
-<<<<<<< HEAD
 								<id>cloudbees-private-snapshot-repository</id>
 								<phase>deploy</phase>
 								<goals>
 									<goal>deploy</goal>
 								</goals>
-								<configuration>
+								
 								 <obrRepository>dav:https://repository-apam.forge.cloudbees.com/snapshot/</obrRepository>
-=======
-=======
->>>>>>> ce0b465a716c3a72bd812ece418c29abfa286595
-								<id>cloudbees-snapshot</id>
-								<phase>install</phase>
-								<goals>
-									<goal>install</goal>
-								</goals>
-								<configuration>
-<<<<<<< HEAD
->>>>>>> ce0b465a716c3a72bd812ece418c29abfa286595
-=======
->>>>>>> ce0b465a716c3a72bd812ece418c29abfa286595
 									<remoteOBR>
 										dav:https://repository-apam.forge.cloudbees.com/snapshot/
 									</remoteOBR>
-								</configuration>
+							
 							</execution>
 						</executions>
 					</configuration>
