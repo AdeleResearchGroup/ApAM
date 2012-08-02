@@ -1,0 +1,123 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+	<!-- *********** -->
+	<!-- Kitchen App -->
+	<!-- *********** ************ -->
+	<composite name="KitchenAppComposite" specification="KitchenApp"
+		mainImplem="KitchenApp-Impl">
+
+		<owns component="Microwave">
+			<constraints>
+				<instance filter="(location=kitchen)" />
+			</constraints>
+		</owns>
+		<owns component="Oven">
+			<constraints>
+				<instance filter="(location=kitchen)" />
+			</constraints>
+		</owns>
+	</composite>
+
+	<specification name="KitchenApp"
+		interfaces="fr.liglab.adele.icasa.application.apam.kitchen.impl.KitchenApp"
+		messages="fr.liglab.adele.icasa.application.apam.kitchen.impl.KitchenMessage">
+
+		<dependency specification="Microwave" />
+		<dependency specification="Oven" />
+	</specification>
+
+	<implementation name="KitchenApp-Impl"
+		classname="fr.liglab.adele.icasa.application.apam.kitchen.impl.KitchenAppImpl"
+		specification="KitchenApp" message-fields="sendKitchenMessage">
+
+		<dependency specification="Microwave">
+			<interface field="microwave" />
+			<message method="consumeMicrowaveMessage" />
+			<constraints>
+				<instance filter="(location=kitchen)" />
+			</constraints>
+		</dependency>
+		<dependency specification="Oven">
+			<interface field="oven" />
+			<message method="consumeOvenMessage" />
+			<constraints>
+				<instance filter="(location=kitchen)" />
+			</constraints>
+		</dependency>
+	</implementation>
+
+
+	<!-- *********** *************** -->
+	<!-- Media center App -->
+	<!-- *********** ************ -->
+
+
+	<!-- L'ideal  est de supprimer la mainImplem-->
+	<composite name="MediaCenter" mainImplem="MediaPlayer-Impl">
+
+		<owns component="TvScreen">
+			<constraints>
+				<constraint filter="(location=livingroom)" />
+			</constraints>
+		</owns>
+		<owns component="Speaker">
+			<constraints>
+				<constraint filter="(location=livingroom)" />
+			</constraints>
+		</owns>
+	</composite>
+
+	<specification name="MediaPlayer"
+		interfaces="fr.liglab.adele.icasa.application.apam.mediacenter.impl.MediaPlayer">
+		<dependency specification="Speaker">
+			<constraints>
+				<instance filter="(location=livingroom)" />
+			</constraints>
+		</dependency>
+		<dependency specification="TvScreen">
+			<constraints>
+				<instance filter="(location=livingroom)" />
+			</constraints>
+		</dependency>
+	</specification>
+
+	<implementation name="MediaPlayer-Impl"
+		classname="fr.liglab.adele.icasa.application.apam.mediacenter.impl.MediaPayerImpl"
+		specification="MediaPlayer">
+		<dependency specification="TvScreen">
+			<interface field="tvScreen" />
+		</dependency>
+		<dependency specification="Speaker">
+			<interface field="speaker" />
+		</dependency>
+	</implementation>
+
+
+	<!-- *********** *************** -->
+	<!-- Living Room App -->
+	<!-- *********** ************ -->
+
+	<specification name="LivingRoom"
+		interfaces="fr.liglab.adele.icasa.application.apam.living.impl.LivingRoomApp"
+		messages="fr.liglab.adele.icasa.application.apam.living.impl.Notification">
+		<dependency specification="smartphone" />
+	</specification>
+
+	<implementation name="LivingRoom-Impl"
+		classname="fr.liglab.adele.icasa.application.apam.living.impl.LivingRoomAppImpl"
+		specification="LivingRoom" message-fields="notificationConsumers">
+
+		<dependency specification="Smartphone">
+			<interface field="smartphone" />
+		</dependency>
+
+	</implementation>
+
+
+	<!-- *********** *************** -->
+	<!-- Instances -->
+	<!-- *********** ************ -->
+
+	<apam-instance implementation="KitchenAppComposite"
+		name="KitchenAppComposite-Instance" />
+
+</apam>
