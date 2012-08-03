@@ -46,12 +46,10 @@ public class OBRMan implements Manager {
         System.out.println("OBRMAN started");
         ApamManagers.addManager(this, 3);
         obr = new OBRManager(null, repoAdmin);
-        obr.startWatchingRepository();
     }
 
     public void stop() {
         ApamManagers.removeManager(this);
-        obr.stopWatchingRepository();
     }
 
     /**
@@ -165,6 +163,13 @@ public class OBRMan implements Manager {
             System.err.println("invalid OBRMAN Model. Cannot be read :" + model.getURL());
             return;
         }
+        
+        //wait for OBR initialization 
+//        
+//        while(obr==null){
+//        }
+//        System.out.println("OBR >>> " +obr );
+        
         OBRMan.obr.newModel(obrModel, composite.getName());
     }
 

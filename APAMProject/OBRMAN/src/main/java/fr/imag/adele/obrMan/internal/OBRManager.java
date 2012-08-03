@@ -404,7 +404,9 @@ public class OBRManager {
             try {
                 repoUrlStr = st.nextToken("\n");
                 System.out.println("new repository :" + repoUrlStr);
-                local = repoAdmin.addRepository(repoUrlStr);
+//                URI uri =  URI.create(repoUrlStr);
+                URL url = new URL(repoUrlStr);
+                local = repoAdmin.addRepository(url);
             } catch (Exception e) {
                 System.err.println("Invalid OBR repository address :" + repoUrlStr);
                 return;

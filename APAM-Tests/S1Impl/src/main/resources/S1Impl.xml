@@ -44,14 +44,14 @@
 		</dependency>
 	</implementation>
 
-	<composite name="S1MainCompo" mainImplem="S1Impl"
-		interfaces="{fr.imag.adele.apam.test.s1.S1}">
+	<composite name="S1MainCompo" mainImplem="S1Main">
+<!-- 		interfaces="{fr.imag.adele.apam.test.s1.S1}"> -->
 		<properties>
 			<property shared="false" />
 			<property borrowInstance="false" />
 			<property borrowImplementation="false" />
 			<property localInstance="true" />
-			<property localImplementation="(name=S.Im.*)" />
+			<property localImplementation="true" />
 		</properties>
 
 <!-- 		<dependency specification="S2"  />
@@ -72,6 +72,7 @@
  -->
 	</composite>
 
-	<apam-instance implementation="S1Main" name="S1MainInstance" />
+	<apam-instance implementation="S1MainCompo" name="S1MainInstance" />
+<!-- 	<apam-instance implementation="S1Main" name="S1MainInstance" /> -->
 </apam>
 
