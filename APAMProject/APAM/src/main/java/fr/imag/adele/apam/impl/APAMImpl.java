@@ -27,7 +27,7 @@ import fr.imag.adele.apam.ManagerModel;
 public class APAMImpl implements Apam {
 
     public static BundleContext context;
-    public static Manager       apamMan;
+    public  Manager       apamMan;
 
     Logger logger = LoggerFactory.getLogger(APAMImpl.class);
     
@@ -37,8 +37,8 @@ public class APAMImpl implements Apam {
     public APAMImpl(BundleContext context) {
         APAMImpl.context = context;
         new CST(this);
-        APAMImpl.apamMan = new ApamMan();
-        ApamManagers.addManager(APAMImpl.apamMan, -1); // -1 to be sure it is not in the main loop
+//        APAMImpl.apamMan = new ApamMan();
+        ApamManagers.addManager(apamMan, -1); // -1 to be sure it is not in the main loop
     }
 
     @Override
@@ -127,5 +127,9 @@ public class APAMImpl implements Apam {
     public Collection<Composite> getRootComposites() {
         return CompositeImpl.getRootComposites();
     }
+
+	public Manager getApamMan() {
+		return apamMan;
+	}
 
 }

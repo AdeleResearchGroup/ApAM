@@ -26,7 +26,7 @@ public class ApamManagers {
      *            apamman.
      */
     public static void addManager(Manager manager, int priority) {
-        if ((priority < 0) && !manager.getName().equals(APAMImpl.apamMan.getName())) {
+        if ((priority < 0) && !manager.getName().equals(CST.APAMMAN)) {
             logger.error("invalid priority" + priority + ". 0 assumed");
             priority = 0;
         }

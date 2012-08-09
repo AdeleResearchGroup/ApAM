@@ -400,5 +400,6 @@
 
 	<modules>
 		<module>APAMProject</module>
+		<module>APAMBundle</module>
 	</modules>
 </project>

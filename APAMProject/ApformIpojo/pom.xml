@@ -8,58 +8,8 @@
 	</parent>
 	
 	<artifactId>ApformIpojo</artifactId>
-	<packaging>bundle</packaging>
-	<name>APAM platform iPojo</name>
-
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Export-Package>fr.imag.adele.apam.apformipojo.*,fr.imag.adele.apam.apformipojo.handlers.*</Export-Package>
-						<IPOJO-Extension>
-							implementation:fr.imag.adele.apam.apformipojo.ApformIpojoImplementation,
-							composite:fr.imag.adele.apam.apformipojo.ApformIpojoCompositeType,
-							specification:fr.imag.adele.apam.apformipojo.ApformIpojoSpecification,							
-							apam-instance:fr.imag.adele.apam.apformipojo.ApformIpojoInstanceDeclaration							
-							<!-- TODO 
-							instance:fr.imag.adele.apam.apformipojo.ApformIpojoInstanceDeclaration,							
-								: In iPojo 1.8.0 component type extension identifiers are matched without 
-								considering the namespace. This definition will then conflict with iPojo 
-								composites. From iPojo 1.8.2 this issue will be resolved and the extension 
-								definition must include a namespace qualifier. 
-								fr.imag.adele.apam composite:fr.imag.adele.apam.composite.CompositeType 
-							-->
-						</IPOJO-Extension>
-					</instructions>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-ipojo-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>ipojo-bundle</goal>
-						</goals>
-						<configuration>
-							<metadata>src/main/resources/metadata.xml</metadata>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-		</plugins>
-	</build>
+	<packaging>jar</packaging>
+	<name>APAM runtime For iPojo</name>
 
 	<dependencies>
 		<dependency>
@@ -81,8 +31,6 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>APAM</artifactId>
 			<version>${apam.current.version}</version>
-			<type>bundle</type>
-			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 </project>

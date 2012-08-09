@@ -84,7 +84,7 @@ public class CST {
         CST.ImplBroker = new ImplementationBrokerImpl();
         CST.InstBroker = new InstanceBrokerImpl();
         CST.apam = theApam;
-        CST.apamResolver = new ApamResolverImpl();
+        CST.apamResolver = new ApamResolverImpl(theApam);
     }
 
 }

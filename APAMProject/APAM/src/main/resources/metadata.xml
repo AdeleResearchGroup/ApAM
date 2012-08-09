@@ -1,7 +1,0 @@
-<ipojo>
-<component name="APAM" classname="fr.imag.adele.apam.impl.APAMImpl" immediate="true">
-	<provides></provides>
-</component>
-
-<instance component= "APAM"/>
-</ipojo>

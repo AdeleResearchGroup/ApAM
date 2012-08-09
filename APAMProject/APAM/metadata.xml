@@ -1,0 +1,15 @@
+<ipojo>
+	<component name="APAM" classname="fr.imag.adele.apam.impl.APAMImpl"
+		immediate="true">
+		<provides></provides>
+	</component>
+
+	<component name="APAMMAN" classname="fr.imag.adele.apam.impl.ApamMan"
+		immediate="true">
+		<callback transition="validate" method="start" />
+		<callback transition="invalidate" method="stop" />
+	</component>
+	
+	<instance component="APAMMAN" />
+	<instance component="APAM" />
+</ipojo>

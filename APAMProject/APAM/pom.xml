@@ -6,62 +6,19 @@
 		<artifactId>APAMProject</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>APAM</artifactId>
-	<packaging>bundle</packaging>
+	<packaging>jar</packaging>
 
 	<name>APAM</name>
-	<description>The machine itself</description>
+	<description>APAM Core and Implementation of the API</description>
 	<properties>
 		<bundle.symbolicName>APAMach</bundle.symbolicName>
 	</properties>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-Name>${project.name}</Bundle-Name>
-						<Bundle-Description>
-							APAM Core and Implementation of the API
-						</Bundle-Description>
-						<Bundle-SymbolicName>
-							${project.artifactId}
-						</Bundle-SymbolicName>
-						<Bundle-Vendor>
-							Adele/LIG/ Grenoble University, France
-						</Bundle-Vendor>
-						<Bundle-Version>${project.version}</Bundle-Version>
-						<Export-Package>
-							fr.imag.adele.apam,
-							fr.imag.adele.apam.core,
-							fr.imag.adele.apam.apform,
-							fr.imag.adele.apam.message,
-							fr.imag.adele.apam.util
-							<!-- A faire sauter, definition API public -->
-						</Export-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-ipojo-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>ipojo-bundle</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -89,7 +46,6 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			
 		</dependency>
 	</dependencies>
 

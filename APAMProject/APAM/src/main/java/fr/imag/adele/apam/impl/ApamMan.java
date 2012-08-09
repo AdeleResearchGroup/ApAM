@@ -24,6 +24,16 @@ public class ApamMan implements Manager {
         return CST.APAMMAN;
     }
 
+    // when in Felix.
+    public void start() {
+        System.out.println("APAMMAN started");
+    }
+
+    public void stop() {
+    	System.out.println("APAMMAN stoped");
+    }
+
+    
     @Override
     public void getSelectionPathSpec(CompositeType compTypeFrom, String specName, List<Manager> selPath) {
     }

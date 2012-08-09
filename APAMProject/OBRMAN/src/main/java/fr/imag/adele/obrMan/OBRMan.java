@@ -34,9 +34,12 @@ import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 public class OBRMan implements Manager {
 
     private static OBRManager obr;
+
     // iPOJO injected
     private RepositoryAdmin   repoAdmin;
 
+    // Default repository
+    private String[] repostiories;
     /**
      * OBRMAN activated, register with APAM
      */
