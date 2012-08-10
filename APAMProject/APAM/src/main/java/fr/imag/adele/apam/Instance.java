@@ -9,7 +9,7 @@ import org.osgi.framework.Filter;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 
-public interface Instance extends Properties {
+public interface Instance extends Component {
 
     /**
      * Returns the composite to which this instance pertains.
@@ -19,16 +19,16 @@ public interface Instance extends Properties {
     // The composite at the end of the "father" relationship chain.
     public Composite getAppliComposite();
 
-    public String getName();
-
-    /**
-     * 
-     * @return the associated InstanceDeclaration
-     */
-    public InstanceDeclaration getDeclaration();
-
-    // The Apform instance associated with this Apam one.
-    public ApformInstance getApformInst();
+//    public String getName();
+//
+//    /**
+//     * 
+//     * @return the associated InstanceDeclaration
+//     */
+//    public InstanceDeclaration getDeclaration();
+//
+//    // The Apform instance associated with this Apam one.
+//    public ApformInstance getApformInst();
 
     /**
      * returns all the instances this one is wired to.
@@ -167,29 +167,29 @@ public interface Instance extends Properties {
      */
     public Object getServiceObject();
 
-    /**
-     * Match.
-     * 
-     * @param goal the goal
-     * @return true is the instance matches the goal
-     */
-    public boolean match(Filter goal);
-
-    /**
-     * return true if the instance matches ALL the constraints in the set.
-     * 
-     * @param goals
-     * @return
-     */
-    public boolean match(Set<Filter> goals);
-
-    /**
-     * Match.
-     * 
-     * @param goal the goal
-     * @return true is the instance matches the goal
-     */
-    public boolean match(String filter);
+//    /**
+//     * Match.
+//     * 
+//     * @param goal the goal
+//     * @return true is the instance matches the goal
+//     */
+//    public boolean match(Filter goal);
+//
+//    /**
+//     * return true if the instance matches ALL the constraints in the set.
+//     * 
+//     * @param goals
+//     * @return
+//     */
+//    public boolean match(Set<Filter> goals);
+//
+//    /**
+//     * Match.
+//     * 
+//     * @param goal the goal
+//     * @return true is the instance matches the goal
+//     */
+//    public boolean match(String filter);
 
 
 }

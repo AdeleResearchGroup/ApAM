@@ -11,13 +11,13 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.util.Util;
 
-public class ApamMan implements Manager {
+public class ApamMan implements DependencyManager {
 
     @Override
     public String getName() {
@@ -35,16 +35,16 @@ public class ApamMan implements Manager {
 
     
     @Override
-    public void getSelectionPathSpec(CompositeType compTypeFrom, String specName, List<Manager> selPath) {
+    public void getSelectionPathSpec(CompositeType compTypeFrom, String specName, List<DependencyManager> selPath) {
     }
 
     @Override
-    public void getSelectionPathImpl(CompositeType compTypeFrom, String implName, List<Manager> selPath) {
+    public void getSelectionPathImpl(CompositeType compTypeFrom, String implName, List<DependencyManager> selPath) {
     }
 
     @Override
     public void getSelectionPathInst(Composite compoFrom, Implementation impl,
-            Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath) {
+            Set<Filter> constraints, List<Filter> preferences, List<DependencyManager> selPath) {
     }
 
     @Override

@@ -10,23 +10,23 @@ import org.osgi.framework.InvalidSyntaxException;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
 
-public interface Specification extends Properties {
+public interface Specification extends Component {
 
-    public String getName();
-
-
-    /**
-     * 
-     * @return the associated SpecificationDeclaration
-     */
-    public SpecificationDeclaration getDeclaration();
-
-    /**
-     * return the apform specification (if existing !!) associated with this specification.
-     * 
-     * @return
-     */
-    public ApformSpecification getApformSpec();
+//    public String getName();
+//
+//
+//    /**
+//     * 
+//     * @return the associated SpecificationDeclaration
+//     */
+//    public SpecificationDeclaration getDeclaration();
+//
+//    /**
+//     * return the apform specification (if existing !!) associated with this specification.
+//     * 
+//     * @return
+//     */
+//    public ApformSpecification getApformSpec();
 
     /**
      * remove from ASM but does not try to delete in SAM. It deletes all its
@@ -124,6 +124,6 @@ public interface Specification extends Properties {
      */
     public Set<Specification> getInvRequires();
 
-    public boolean match(Filter goal);
+//    public boolean match(Filter goal);
 
 }

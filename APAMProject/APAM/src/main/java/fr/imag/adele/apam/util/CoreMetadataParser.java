@@ -101,6 +101,7 @@ public class CoreMetadataParser implements CoreParser {
     private static final String        ATT_TYPE                = "type";
     private static final String        ATT_VALUE               = "value";
     private static final String        ATT_FIELD               = "field";
+    private static final String        ATT_INTERNAL            = "internal";
     private static final String        ATT_METHOD              = "method";
     private static final String        ATT_ID                  = "id";
     private static final String        ATT_MULTIPLE            = "multiple";
@@ -884,6 +885,11 @@ public class CoreMetadataParser implements CoreParser {
     }
 
 
+    private boolean parseBoolean(Element element, String attibute, boolean mandatory, boolean defaultValue) {
+        String valueString = parseString(element,attibute,mandatory);
+        return ((valueString == null) && ! mandatory) ? defaultValue : Boolean.parseBoolean(valueString);
+    }
+
     /**
      * Get the element name
      */
@@ -1305,8 +1311,9 @@ public class CoreMetadataParser implements CoreParser {
                 String name 		= parseString(definition, CoreMetadataParser.ATT_NAME).toLowerCase();
                 String type			= parseString(definition,CoreMetadataParser.ATT_TYPE) ;
                 String defaultValue = parseString(definition,CoreMetadataParser.ATT_VALUE,false);
-
-                component.getPropertyDefinitions().add(new PropertyDefinition(name, type, defaultValue));
+                String field 		= parseString(definition,CoreMetadataParser.ATT_FIELD,false);
+                boolean internal 	= parseBoolean(definition,CoreMetadataParser.ATT_FIELD,false, false);
+                component.getPropertyDefinitions().add(new PropertyDefinition(name, type, defaultValue, field, internal));
             }
         }
     }

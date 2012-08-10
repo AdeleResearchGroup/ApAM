@@ -30,7 +30,7 @@ import fr.imag.adele.apam.util.Util;
 
 //import fr.imag.adele.sam.Instance;
 
-public class InstanceImpl extends PropertiesImpl implements Instance, Comparable<Instance> {
+public class InstanceImpl extends ComponentImpl implements Instance, Comparable<Instance> {
 
 	Logger logger = LoggerFactory.getLogger(InstanceImpl.class);
     /**

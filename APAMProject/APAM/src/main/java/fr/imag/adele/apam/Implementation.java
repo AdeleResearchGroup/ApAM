@@ -12,7 +12,7 @@ import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 
 
-public interface Implementation extends Properties {
+public interface Implementation extends Component {
 
     /**
      * Returns all the composite type that contains this implementation.
@@ -22,14 +22,13 @@ public interface Implementation extends Properties {
      */
     public Set<CompositeType> getInCompositeType();
 
-    public String getName();
 
-    /**
-     * return the apfform implementation associated with this implementation (same name)
-     * 
-     * @return
-     */
-    public ApformImplementation getApformImpl();
+//    /**
+//     * return the apfform implementation associated with this implementation (same name)
+//     * 
+//     * @return
+//     */
+//    public ApformImplementation getApformImpl();
 
     /**
      * return the value of the shared attribute
@@ -52,30 +51,30 @@ public interface Implementation extends Properties {
      */
     public Instance createInstance(Composite instCompo, Map<String, Object> initialproperties);
 
-    /**
-     * 
-     * @return the union of the spec, implementation and instance attributes
-     */
-    @Override
-    public Map<String, Object> getAllProperties();
-
-    /**
-     * 
-     * @param goal
-     * @return true if the implem matches that filter
-     */
-    public boolean match(Filter goal);
+//    /**
+//     * 
+//     * @return the union of the spec, implementation and instance attributes
+//     */
+//    @Override
+//    public Map<String, Object> getAllProperties();
+//
+//    /**
+//     * 
+//     * @param goal
+//     * @return true if the implem matches that filter
+//     */
+//    public boolean match(Filter goal);
 
     /**
      * @return the specification that this ASMImpls implements
      */
     public Specification getSpec();
 
-    /**
-     * 
-     * @return the associated ImplementationDeclaration
-     */
-    public ImplementationDeclaration getImplDeclaration();
+//    /**
+//     * 
+//     * @return the associated ImplementationDeclaration
+//     */
+//    public ImplementationDeclaration getImplDeclaration();
 
     /**
      * Returns the implementation currently used by this implementation.

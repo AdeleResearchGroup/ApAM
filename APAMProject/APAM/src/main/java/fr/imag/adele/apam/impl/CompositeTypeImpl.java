@@ -19,7 +19,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformImplementation;
@@ -98,7 +98,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
         // The main implem resolution must be interpreted with the new models
         if (models != null) {
-            Manager man;
+            DependencyManager man;
             for (ManagerModel managerModel : models) { // call the managers to indicate the new composite and the model
                 man = ApamManagers.getManager(managerModel.getManagerName());
                 if (man != null) {

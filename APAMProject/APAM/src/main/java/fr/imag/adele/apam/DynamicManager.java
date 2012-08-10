@@ -2,7 +2,7 @@ package fr.imag.adele.apam;
 
 //import fr.imag.adele.sam.Instance;
 
-public interface DynamicManager extends Manager {
+public interface DynamicManager extends DependencyManager {
 
     /**
      * The managers is notified of the apparition of an external instance or implem.

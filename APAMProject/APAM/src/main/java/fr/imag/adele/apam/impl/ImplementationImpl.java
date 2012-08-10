@@ -25,7 +25,7 @@ import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 
-public class ImplementationImpl extends PropertiesImpl implements Implementation, Comparable<Implementation> {
+public class ImplementationImpl extends ComponentImpl implements Implementation, Comparable<Implementation> {
 
     private static final long           serialVersionUID = 1L;
 

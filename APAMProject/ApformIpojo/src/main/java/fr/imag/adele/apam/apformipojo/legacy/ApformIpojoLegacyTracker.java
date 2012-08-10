@@ -19,6 +19,7 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
 import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
+import fr.imag.adele.apam.impl.ComponentImpl;
 
 /**
  * This class tracks iPojo legacy implementations and instances and register
@@ -225,7 +226,7 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 		for (String key : reference.getPropertyKeys()) {
 			if (inst.getImpl().getImplDeclaration().isDefined(key)){
 				Object value =  reference.getProperty(key);
-			    if (value!=inst.getProperty(key)) inst.setProperty(key, reference.getProperty(key));
+			    if (value!=inst.getProperty(key)) ((ComponentImpl)inst).setInternalProperty(key, reference.getProperty(key));
 			}
 		}
 		

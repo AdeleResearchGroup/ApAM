@@ -17,7 +17,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.ManagerModel;
 //import fr.imag.adele.sam.Implementation;
 //import org.osgi.framework.Bundle;
@@ -27,18 +27,18 @@ import fr.imag.adele.apam.ManagerModel;
 public class APAMImpl implements Apam {
 
     public static BundleContext context;
-    public  Manager       apamMan;
+    public  DependencyManager       apamMan;
 
     Logger logger = LoggerFactory.getLogger(APAMImpl.class);
     
     //    private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
-    public static List<Manager> managerList = new ArrayList<Manager>();
+    public static List<DependencyManager> managerList = new ArrayList<DependencyManager>();
 
     public APAMImpl(BundleContext context) {
         APAMImpl.context = context;
         new CST(this);
 //        APAMImpl.apamMan = new ApamMan();
-        ApamManagers.addManager(apamMan, -1); // -1 to be sure it is not in the main loop
+        ApamManagers.addDependencyManager(apamMan, -1); // -1 to be sure it is not in the main loop
     }
 
     @Override
@@ -128,7 +128,7 @@ public class APAMImpl implements Apam {
         return CompositeImpl.getRootComposites();
     }
 
-	public Manager getApamMan() {
+	public DependencyManager getApamMan() {
 		return apamMan;
 	}
 

@@ -3,7 +3,7 @@ package fr.imag.adele.apam.apform;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 
-public interface ApformInstance {
+public interface ApformInstance  extends ApformComponent {
 
 	/**
 	 * Get the development model associated with the the instance

@@ -4,7 +4,7 @@ import java.util.Map;
 
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 
-public interface ApformImplementation {
+public interface ApformImplementation extends ApformComponent {
 	
 	/**
 	 * Get the development model associated with the the implementation

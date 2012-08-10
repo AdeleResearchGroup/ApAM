@@ -18,7 +18,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Manager;
+import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform;
@@ -31,7 +31,7 @@ import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.obrMan.internal.OBRManager;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
-public class OBRMan implements Manager {
+public class OBRMan implements DependencyManager {
 
     private static OBRManager obr;
 
@@ -47,12 +47,12 @@ public class OBRMan implements Manager {
     // when in Felix.
     public void start() {
         System.out.println("OBRMAN started");
-        ApamManagers.addManager(this, 3);
+        ApamManagers.addDependencyManager(this, 3);
         obr = new OBRManager(null, repoAdmin);
     }
 
     public void stop() {
-        ApamManagers.removeManager(this);
+        ApamManagers.removeDependencyManager(this);
     }
 
     /**
@@ -124,18 +124,18 @@ public class OBRMan implements Manager {
 
     // at the end
     @Override
-    public void getSelectionPathSpec(CompositeType compTypeFrom, String specName, List<Manager> involved) {
+    public void getSelectionPathSpec(CompositeType compTypeFrom, String specName, List<DependencyManager> involved) {
         involved.add(involved.size(), this);
     }
 
     @Override
-    public void getSelectionPathImpl(CompositeType compTypeFrom, String implName, List<Manager> selPath) {
+    public void getSelectionPathImpl(CompositeType compTypeFrom, String implName, List<DependencyManager> selPath) {
         selPath.add(selPath.size(), this);
     }
 
     @Override
     public void getSelectionPathInst(Composite compoFrom, Implementation impl,
-            Set<Filter> constraints, List<Filter> preferences, List<Manager> selPath) {
+            Set<Filter> constraints, List<Filter> preferences, List<DependencyManager> selPath) {
         return;
     }
 

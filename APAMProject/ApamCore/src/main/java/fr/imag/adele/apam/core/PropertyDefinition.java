@@ -25,14 +25,25 @@ public class PropertyDefinition {
      */
     private final Object defaultValue;
 
+    /**
+     * the associated field in the code, if any.
+     */
+    private final String field;
 
-    public PropertyDefinition(String name, String type, String defaultValue) {
+    /**
+     * True if declared "internal"
+     */
+    private final boolean internal ;
+
+    public PropertyDefinition(String name, String type, String defaultValue, String field, boolean internal) {
 
         assert name != null;
 
         this.name 			= name;
         this.type			= type;
         this.defaultValue	= PropertyDefinition.convert(type,defaultValue);
+        this.field = field ;
+        this.internal = internal ;
     }
 
     /**
@@ -49,6 +60,22 @@ public class PropertyDefinition {
         return type;
     }
 
+	/**
+	 * get the internal property
+	 * @return
+	 */
+    public boolean isInternal () {
+    	return internal ;
+    }
+    
+    /**
+     * returns the associated field name; null if no field.
+     * @return
+     */
+    public String getField () {
+    	return field ;
+    }
+    
     /**
      * Get the default value of the property
      */

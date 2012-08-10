@@ -20,6 +20,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.PropertyDefinition;
@@ -335,6 +336,28 @@ public class Util {
         return false;
     }
 
+/**
+ * Tries to find the definition associated with attribute "attr" associated with component "component".
+ * Returns null if the attribute is not explicitly defined (predefined attributes, reserved attributes etc.).
+ * @param component
+ * @param attr
+ * @return
+ */
+    public static PropertyDefinition getAttrDefinition (Component component, String attr) {
+        List<PropertyDefinition> propDefs = null;
+        if (component instanceof Instance) {
+            propDefs = ((Instance)component).getImpl().getDeclaration().getPropertyDefinitions();
+        } else 
+            propDefs = ((Implementation) component).getSpec().getDeclaration().getPropertyDefinitions(); 
+
+        for (PropertyDefinition propDef : propDefs) {
+            if ((propDef.getName()).equals(attr)) {
+                return propDef;
+            }
+        }
+        return null ;
+    }
+    
     /**
      * Check if attribute "attr=value" is valid when set on object "inst".
      * inst can be an instance, an implementation or a specification.
@@ -342,7 +365,7 @@ public class Util {
      * All predefined attributes are Ok (scope ...)
      * Cannot be a reserved attribute
      */
-    public static boolean validAttr(Object inst, String attr, Object value) {
+    public static boolean validAttr(Component inst, String attr, Object value) {
         if (Util.isPredefinedAttribute(attr))
             return true;
 
@@ -371,19 +394,25 @@ public class Util {
             }
         }
 
-        List<PropertyDefinition> propDefs = null;
-        if (inst instanceof Instance) {
-            propDefs = ((Instance)inst).getImpl().getImplDeclaration().getPropertyDefinitions();
-        } else 
-            propDefs = ((Implementation) inst).getSpec().getDeclaration().getPropertyDefinitions(); 
-
-        for (PropertyDefinition propDef : propDefs) {
-            if ((propDef.getName()).equals(attr)) {
-                return Util.checkAttrType(attr, value, propDef.getType());
-            }
+        PropertyDefinition propDef = getAttrDefinition (inst, attr) ;
+        if (propDef == null) {
+            logger.error("In " + inst + " attribute \"" + attr + "=" + value + "\" is undefined.");
+            return false;
         }
-        logger.error("In " + inst + " attribute \"" + attr + "=" + value + "\" is undefined.");
-        return false;
+        return Util.checkAttrType(attr, value, propDef.getType());
+//        List<PropertyDefinition> propDefs = null;
+//        if (inst instanceof Instance) {
+//            propDefs = ((Instance)inst).getImpl().getImplDeclaration().getPropertyDefinitions();
+//        } else 
+//            propDefs = ((Implementation) inst).getSpec().getDeclaration().getPropertyDefinitions(); 
+//
+//        for (PropertyDefinition propDef : propDefs) {
+//            if ((propDef.getName()).equals(attr)) {
+//                return Util.checkAttrType(attr, value, propDef.getType());
+//            }
+//        }
+//        logger.error("In " + inst + " attribute \"" + attr + "=" + value + "\" is undefined.");
+//        return false;
     }
 
     /**

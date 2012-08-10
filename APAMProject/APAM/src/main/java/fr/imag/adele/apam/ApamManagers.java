@@ -15,9 +15,25 @@ import fr.imag.adele.apam.impl.APAMImpl;
 
 public class ApamManagers {
 
-    private static Map<Manager, Integer> managersPrio = new HashMap<Manager, Integer>();
-    private static List<Manager>          managerList  = new ArrayList<Manager>();
     private static Logger logger = LoggerFactory.getLogger(ApamManagers.class);
+	
+    private static Map<DependencyManager, Integer> dependencyManagersPrio = new HashMap<DependencyManager, Integer>();
+    private static List<DependencyManager>          dependencyManagerList  = new ArrayList<DependencyManager>();
+
+    /**
+     * The list of dynamic manager listeners
+     * 
+     * TODO this is a global list that is not filtered by the event that is expected, so that managers can
+     * get spurious notifications. We should add some way to classify listeners according to the expected
+     * event.
+     */
+    private static Set<DynamicManager> dynamicManagers = new ConcurrentSkipListSet<DynamicManager>();
+    /**
+     * The list of component property listeners
+     */
+    private static Set<PropertyManager> propertyManagers = new ConcurrentSkipListSet<PropertyManager>();
+
+
     /**
      * Adds a manager to Apam.
      * 
@@ -25,7 +41,7 @@ public class ApamManagers {
      * @param priority : the relative priority. the lower the interger, the higher the priority. 0 is reserved for
      *            apamman.
      */
-    public static void addManager(Manager manager, int priority) {
+    public static void addDependencyManager(DependencyManager manager, int priority) {
         if ((priority < 0) && !manager.getName().equals(CST.APAMMAN)) {
             logger.error("invalid priority" + priority + ". 0 assumed");
             priority = 0;
@@ -41,15 +57,15 @@ public class ApamManagers {
         if (!inserted) { // at the end
             APAMImpl.managerList.add(manager);
         }
-        ApamManagers.managersPrio.put(manager, new Integer(priority));
+        ApamManagers.dependencyManagersPrio.put(manager, new Integer(priority));
     }
 
-    public static Manager getManager(String managerName) {
+    public static DependencyManager getManager(String managerName) {
         if (managerName == null) {
             logger.error("ERROR : Missing parameter manager in getManager");
             return null;
         }
-        for (Manager man : APAMImpl.managerList) {
+        for (DependencyManager man : APAMImpl.managerList) {
             if (man.getName().equals(managerName))
                 return man;
         }
@@ -60,7 +76,7 @@ public class ApamManagers {
      * 
      * @return the list of known managers
      */
-    public static List<Manager> getManagers() {
+    public static List<DependencyManager> getManagers() {
         return Collections.unmodifiableList(APAMImpl.managerList);
     }
 
@@ -69,9 +85,9 @@ public class ApamManagers {
      * 
      * @param manager
      */
-    public static void removeManager(Manager manager) {
-        ApamManagers.managersPrio.remove(manager);
-        ApamManagers.managerList.remove(manager);
+    public static void removeDependencyManager(DependencyManager manager) {
+        ApamManagers.dependencyManagersPrio.remove(manager);
+        ApamManagers.dependencyManagerList.remove(manager);
     }
 
     /**
@@ -79,18 +95,10 @@ public class ApamManagers {
      * @param manager
      * @return the priortity of that manager. -1 is unknown.
      */
-    public static int getPriority(Manager manager) {
-        return ApamManagers.managersPrio.get(manager);
+    public static int getPriority(DependencyManager manager) {
+        return ApamManagers.dependencyManagersPrio.get(manager);
     }
 
-    /**
-     * The list of dynamic manager listeners
-     * 
-     * TODO this is a global list that is not filtered by the event that is expected, so that managers can
-     * get spurious notifications. We should add some way to classify listeners according to the expected
-     * event.
-     */
-    private static Set<DynamicManager> dynamicManagers = new ConcurrentSkipListSet<DynamicManager>();
 
     /**
      * Adds a new manager to listen for dynamic events
@@ -113,21 +121,16 @@ public class ApamManagers {
     }
 
     /**
-     * The list of component property listeners
-     */
-    private static Set<AttributeManager> attributeListeners = new ConcurrentSkipListSet<AttributeManager>();
-
-    /**
      * This manager is interested in knowing when instance properties have been changed.
      * 
      * @param manager
      */
-    public static void addAttributeListener(AttributeManager manager) {
+    public static void addPropertyManager(PropertyManager manager) {
         if (manager == null) {
             logger.error("ERROR : Missing parameter manager in addAttributeListener");
             return;
         }
-        ApamManagers.attributeListeners.add(manager);
+        ApamManagers.propertyManagers.add(manager);
     }
 
     /**
@@ -135,69 +138,34 @@ public class ApamManagers {
      * 
      * @param manager
      */
-    public static void removeAttributeListener(AttributeManager manager) {
+    public static void removePropertyManager(PropertyManager manager) {
         if (manager == null) {
            logger.error("ERROR : Missing parameter manager in removeAttributeListener");
             return;
         }
 
-        ApamManagers.attributeListeners.remove(manager);
+        ApamManagers.propertyManagers.remove(manager);
     }
 
     /*
      * Notification events for property changes
      */
-    public static void notifyAttributeChanged(Instance inst, String attr, Object newValue) {
-        for (AttributeManager manager : ApamManagers.attributeListeners) {
-            manager.attributeAdded(inst, attr, newValue);
+
+    public static void notifyAttributeAdded(Component component, String attr, Object value) {
+        for (PropertyManager manager : ApamManagers.propertyManagers) {
+            manager.attributeAdded(component, attr, value);
         }	
     }
 
-    public static void notifyAttributeRemoved(Instance inst, String attr, Object oldValue) {
-        for (AttributeManager manager : ApamManagers.attributeListeners) {
-            manager.attributeRemoved(inst, attr, oldValue);
+    public static void notifyAttributeChanged(Component component, String attr, Object newValue, Object oldValue) {
+        for (PropertyManager manager : ApamManagers.propertyManagers) {
+            manager.attributeChanged(component, attr, newValue, oldValue);
         }	
     }
 
-    public static void notifyAttributeAdded(Instance inst, String attr, Object value) {
-        for (AttributeManager manager : ApamManagers.attributeListeners) {
-            manager.attributeAdded(inst, attr, value);
-        }	
-    }
-
-    public static void notifyAttributeChanged(Implementation impl, String attr, Object newValue) {
-        for (AttributeManager manager : ApamManagers.attributeListeners) {
-            manager.attributeAdded(impl, attr, newValue);
-        }	
-    }
-
-    public static void notifyAttributeRemoved(Implementation impl, String attr, Object oldValue) {
-        for (AttributeManager manager : ApamManagers.attributeListeners) {
-            manager.attributeRemoved(impl, attr, oldValue);
-        }	
-    }
-
-    public static void notifyAttributeAdded(Implementation impl, String attr, Object value) {
-        for (AttributeManager manager : ApamManagers.attributeListeners) {
-            manager.attributeAdded(impl, attr, value);
-        }	
-    }
-
-    public static void notifyAttributeChanged(Specification spec, String attr, Object newValue) {
-        for (AttributeManager manager : ApamManagers.attributeListeners) {
-            manager.attributeAdded(spec, attr, newValue);
-        }	
-    }
-
-    public static void notifyAttributeRemoved(Specification spec, String attr, Object oldValue) {
-        for (AttributeManager manager : ApamManagers.attributeListeners) {
-            manager.attributeRemoved(spec, attr, oldValue);
-        }	
-    }
-
-    public static void notifyAttributeAdded(Specification spec, String attr, Object value) {
-        for (AttributeManager manager : ApamManagers.attributeListeners) {
-            manager.attributeAdded(spec, attr, value);
+    public static void notifyAttributeRemoved(Component component, String attr, Object oldValue) {
+        for (PropertyManager manager : ApamManagers.propertyManagers) {
+            manager.attributeRemoved(component, attr, oldValue);
         }	
     }
 

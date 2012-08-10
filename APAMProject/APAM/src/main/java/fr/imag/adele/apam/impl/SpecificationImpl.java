@@ -24,7 +24,7 @@ import fr.imag.adele.apam.util.ApamFilter;
 //import org.apache.felix.utils.filter.FilterImpl;
 
 
-public class SpecificationImpl extends PropertiesImpl implements Specification, Comparable<Specification> {
+public class SpecificationImpl extends ComponentImpl implements Specification, Comparable<Specification> {
 	
 	/**
 	 * 
