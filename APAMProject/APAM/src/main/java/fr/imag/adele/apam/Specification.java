@@ -21,12 +21,12 @@ public interface Specification extends Component {
 //     */
 //    public SpecificationDeclaration getDeclaration();
 //
-//    /**
-//     * return the apform specification (if existing !!) associated with this specification.
-//     * 
-//     * @return
-//     */
-//    public ApformSpecification getApformSpec();
+    /**
+     * return the apform specification (if existing !!) associated with this specification.
+     * 
+     * @return
+     */
+    public ApformSpecification getApformSpec();
 
     /**
      * remove from ASM but does not try to delete in SAM. It deletes all its

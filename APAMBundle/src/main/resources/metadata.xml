@@ -56,6 +56,8 @@
 		</requires>
 	</component>
 	
+	<instance name="APAMMAN-Instance" component="APAMMAN"></instance>
+	<instance name="APAM-Instance" component="APAM"></instance>
 	<instance name="ApformIpojoLegacyTracker" component="ApformIpojoLegacyTracker"></instance>
 
 </ipojo>

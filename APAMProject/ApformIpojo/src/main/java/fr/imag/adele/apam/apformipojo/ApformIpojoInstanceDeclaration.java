@@ -133,4 +133,12 @@ public class ApformIpojoInstanceDeclaration extends ApformIpojoComponent {
 
     }
 
+
+	@Override
+	public void setProperty(String attr, Object value) {
+		// TODO Auto-generated method stub
+		// faire un refactoring pour ne pas heriter de ApformComponent
+		
+	}
+
 }

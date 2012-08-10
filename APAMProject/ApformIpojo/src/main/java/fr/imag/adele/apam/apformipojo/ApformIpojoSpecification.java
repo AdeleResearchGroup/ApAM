@@ -75,5 +75,11 @@ public class ApformIpojoSpecification extends ApformIpojoComponent implements Ap
         Apform2Apam.vanishSpecification(getName());
     }
 
+	@Override
+	public void setProperty(String attr, Object value) {
+		// TODO Auto-generated method stub
+		
+	}
+
     
 }

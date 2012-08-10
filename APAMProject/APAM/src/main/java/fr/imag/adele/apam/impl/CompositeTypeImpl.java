@@ -1,9 +1,12 @@
 package fr.imag.adele.apam.impl;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +30,7 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
@@ -63,9 +67,23 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     .newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
 
     private CompositeTypeImpl() {
-        name = CST.ROOTCOMPOSITETYPE;
-        declaration = new CompositeDeclaration(name,null,null,null,new ArrayList<String>());
+    	super(new ApformRootCompositeType(),new HashMap<String,Object>());
+//        declaration = new CompositeDeclaration(CST.ROOTCOMPOSITETYPE,null,null,null,new ArrayList<String>());
         mySpec = new SpecificationImpl("rootSpec", null, new HashSet<ResourceReference>(), null);
+        //look for models in directory "load" 
+        this.models = new HashSet<ManagerModel>();
+        File load = new File("load");
+        System.err.println("load -> "+load.getAbsolutePath());
+
+        for (File contents : load.listFiles()) {
+ 			try {
+				URL modelURL = contents.toURI().toURL();
+	            String managerName = contents.getName().substring("root".length()+1, contents.getName().lastIndexOf(".cfg"));
+	            System.err.println("Model root"+ " config "+managerName+"  -> "+modelURL);
+	            models.add(new ManagerModel(managerName, modelURL));
+			} catch (MalformedURLException e) {
+			}			
+		}
     }
 
     public static CompositeType getRootCompositeType() {
@@ -92,8 +110,11 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             String mainImplName,
             Implementation mainImpl, Set<ManagerModel> models, Map<String, Object> attributes, String specName) {
         // the composite itself as an implementation. Warning created empty. Must be fully initialized.
-        super();
-        name = nameCompo;
+        super(apfCompo != null? apfCompo : new ApformRootCompositeType(mainImpl, attributes) ,attributes);
+        if (apfCompo == null)
+        	((ApformRootCompositeType)apform).setCompositeType(this);
+        
+        //name = nameCompo;
         put(CST.A_COMPOSITETYPE, CST.V_TRUE);
 
         // The main implem resolution must be interpreted with the new models
@@ -136,7 +157,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             // Should never happen, checked at compile time.
             if (!mainImplSpec.containsAll(spec.getDeclaration().getProvidedResources())) {
                 logger.error("ERROR: Invalid main implementation " + mainImpl + " for composite type "
-                        + name + "Main implementation Provided resources " + mainImplSpec
+                        + getName() + "Main implementation Provided resources " + mainImplSpec
                         + "do no provide all the expected resources : " + spec.getDeclaration().getProvidedResources());
             } else
                 ((SpecificationImpl) mainImpl.getSpec()).setName(specName);
@@ -146,13 +167,13 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         mySpec = mainImpl.getSpec();
         ((SpecificationImpl) mySpec).addImpl(this);
 
-        if (apfCompo != null) {
-            apfImpl = apfCompo;
-        } else {
-            apfImpl = new ApformRootCompositeType(this, mainImpl, attributes);
-        }
+//        if (apfCompo != null) {
+//            apform = apfCompo;
+//        } else {
+//            apform = new ApformRootCompositeType(this, mainImpl, attributes);
+//        }
 
-        declaration = apfImpl.getDeclaration(); 
+//        declaration = apfImpl.getDeclaration(); 
 
         this.mainImpl = mainImpl;
         ((ImplementationImpl) mainImpl).initializeNewImpl(this, null); // complete attribute value init, and chainings.
@@ -160,7 +181,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         if (attributes != null)
             putAll(attributes);
 
-        CompositeTypeImpl.compositeTypes.put(name, this);
+        CompositeTypeImpl.compositeTypes.put(getName(), this);
         ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
 
         fromCompo.addImpl(this);
@@ -297,7 +318,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     //    @Override
     @Override
     protected Instance createInst(Composite instCompo, Map<String, Object> initialproperties) {
-        return CompositeImpl.newCompositeImpl(this, instCompo, null, initialproperties, apfImpl
+        return CompositeImpl.newCompositeImpl(this, instCompo, null, initialproperties, getApformImpl()
                 .createInstance(initialproperties));
     }
 
@@ -314,7 +335,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             logger.error("cannot instantiate " + this + ". It is not visible from composite " + instCompo);
             return null;
         }
-        return CompositeImpl.newCompositeImpl(this, instCompo, null, initialproperties, apfImpl
+        return CompositeImpl.newCompositeImpl(this, instCompo, null, initialproperties, getApformImpl()
                 .createInstance(initialproperties));
     }
 
@@ -323,10 +344,10 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         return mainImpl;
     }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+//    @Override
+//    public String getName() {
+//        return name;
+//    }
 
     @Override
     public CompositeDeclaration getCompoDeclaration() {
@@ -335,7 +356,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     public String getNewInstName() {
         instNumber = instNumber + 1;
-        return name + "-" + instNumber;
+        return getName() + "-" + instNumber;
     }
 
     @Override
@@ -391,9 +412,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     }
 
     @Override
-    public ManagerModel getModel(String name) {
+    public ManagerModel getModel(String managerName) {
         for (ManagerModel model : models) {
-            if (model.getName().equals(name))
+            if (model.getManagerName().equals(managerName))
                 return model;
         }
         return null;
@@ -456,9 +477,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     @Override
     public String toString() {
-        return name;
+        return getName();
     }
-
 
     /**
      * The apform implementation of a composite type used to bootstrap isolated
@@ -477,37 +497,37 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      */
     private static class ApformRootCompositeType implements ApformImplementation {
 
-        private final CompositeTypeImpl apamComposite;
+        private CompositeTypeImpl apamComposite;
+        private ApformSpecification specification;
+
         private final CompositeDeclaration declaration;
-        private final ApformSpecification specification;
 
-        public ApformRootCompositeType(CompositeTypeImpl apamComposite, Implementation mainImplem,
-                Map<String, Object> attributes) {
-
-            this.apamComposite	= apamComposite;
-
-            /*
-             * NOTE this constructor is invoked when the APAM composite type is partially
-             * constructed. Not all methods can be invoked, this is why the main implementation
-             * and attributes are additionally passed as arguments. 
-             */
-            specification 		= mainImplem.getSpec().getApformSpec();
+        /*
+         * Apform for super root composite type
+         */
+        private ApformRootCompositeType(){
+        	this.apamComposite	= null;
+        	this.declaration =  new CompositeDeclaration(CST.ROOTCOMPOSITETYPE,null,null,null,new ArrayList<String>());
+        	this.specification  = null;
+        }
+        
+        /*
+         * Apform for root composite type
+         */
+       public ApformRootCompositeType(String mainImplemName, Map<String, Object> attributes) {
 
             declaration = new CompositeDeclaration(apamComposite.getName(),
                     specification.getDeclaration().getReference(),
-                    mainImplem.getApformImpl().getDeclaration().getReference(),
+                    new ImplementationReference<ImplementationDeclaration>(mainImplemName),
                     null, new ArrayList<String>());
 
-            // c'est probablement pas la bonne solution. a voir GERMAN. properties sur composite ??
-            // TODO
-            //            if (declaration.getProperties() != null) {
-            //                declaration.getProperties().putAll(attributes);
-            //            }
             declaration.getProvidedResources().addAll(specification.getDeclaration().getProvidedResources());
-
-
         }
 
+       public void setCompositeType(CompositeTypeImpl apamComposite) {
+    	   this.apamComposite	= apamComposite;
+    	   this.specification	= apamComposite.getMainImpl().getSpec().getApformSpec();
+       }
         @Override
         public ImplementationDeclaration getDeclaration() {
             return declaration;
@@ -515,61 +535,18 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
         @Override
         public ApformInstance createInstance(Map<String, Object> initialproperties) {
-            return new ApformRootComposite(apamComposite);
+            return new CompositeImpl.ApformRootComposite(apamComposite);
         }
 
         @Override
         public ApformSpecification getSpecification() {
             return specification;
         }
-    }
-
-    /**
-     * An apform composite instance to represent root composites that don't have
-     * an explicit declaration (automatically created)
-     * 
-     * @author vega
-     *
-     */
-    private static class ApformRootComposite implements ApformInstance {
-
-        private final InstanceDeclaration declaration;
-
-        public ApformRootComposite(CompositeTypeImpl compositeType) {
-
-            String name = compositeType.getNewInstName();
-            declaration = new InstanceDeclaration(compositeType.getApformImpl().getDeclaration().getReference(),
-                    name, null);
-        }
-
+        
         @Override
-        public InstanceDeclaration getDeclaration() {
-            return declaration;
-        }
-
-        @Override
-        public Object getServiceObject() {
-            throw new UnsupportedOperationException("this method is not available for root composites");
-        }
-
-        @Override
-        public boolean setWire(Instance destInst, String depName) {
-            throw new UnsupportedOperationException("this method is not available for root composites");
-        }
-
-        @Override
-        public boolean remWire(Instance destInst, String depName) {
-            throw new UnsupportedOperationException("this method is not available for root composites");
-        }
-
-        @Override
-        public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-            throw new UnsupportedOperationException("this method is not available for root composites");
-        }
-
-        @Override
-        public void setInst(Instance ignored) {
+        public void setProperty (String attr, Object value) {
         }
     }
+    
 
 }

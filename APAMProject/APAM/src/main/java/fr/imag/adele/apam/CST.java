@@ -69,7 +69,8 @@ public class CST {
     public static final String         OBRMAN            = "OBRMAN";
 
     public static final String         ROOTCOMPOSITETYPE = "rootCompositeType";
-
+    public static final String         ROOTCOMPOSITE	 = "rootComposite";
+    
     // The entry point in the ASM : its brokers
     public static SpecificationBroker  SpecBroker        = null;
     public static ImplementationBroker ImplBroker        = null;

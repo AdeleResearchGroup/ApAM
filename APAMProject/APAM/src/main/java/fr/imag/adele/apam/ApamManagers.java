@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.impl.APAMImpl;
+import fr.imag.adele.apam.impl.CompositeTypeImpl;
 
 public class ApamManagers {
 
@@ -57,6 +58,12 @@ public class ApamManagers {
         if (!inserted) { // at the end
             APAMImpl.managerList.add(manager);
         }
+        
+        ManagerModel rootModel = CompositeTypeImpl.getRootCompositeType().getModel(manager.getName());
+        if (rootModel != null) {
+        	manager.newComposite(rootModel, CompositeTypeImpl.getRootCompositeType());
+        }
+        
         ApamManagers.dependencyManagersPrio.put(manager, new Integer(priority));
     }
 

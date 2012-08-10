@@ -322,5 +322,12 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 
         return true;
     }
+
+	@Override
+	public void setProperty(String attr, Object value) {
+		// TODO Auto-generated method stub
+		// change injected field
+		
+	}
    
 }

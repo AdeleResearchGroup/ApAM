@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -10,11 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.PropertyDefinition;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
@@ -31,13 +34,14 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	private final Object  componentId                = new Object();                 // only for hashCode
 
-
+	
 	public ComponentImpl(ApformComponent apform, Map<String, Object> properties) {
 		this.apform = apform;
 		this.declaration = apform.getDeclaration() ;
+        putAll(apform.getDeclaration().getProperties());
+
 		if (properties != null) putAll (properties);
 	}
-
 
 	@Override
 	public boolean equals(Object o) {
@@ -50,10 +54,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 	public String getName () {
-		return apform.getDeclaration().getName() ;
+		return declaration.getName() ;
 	}
 
-	public ApformComponent getApform () {
+	public ApformComponent getApformComponent () {
 		return apform ;
 	}
 
@@ -155,7 +159,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (Util.validAttr(this, attr, value)){
 			Object oldValue = get(attr) ;
 			put(attr, value);
-			getApform().setProperty (attr, value) ;
+			getApformComponent().setProperty (attr, value) ;
 			if (oldValue == null) {
 				ApamManagers.notifyAttributeAdded(this, attr, value) ;
 			} else {

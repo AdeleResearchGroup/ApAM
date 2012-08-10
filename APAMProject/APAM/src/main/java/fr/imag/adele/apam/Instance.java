@@ -27,8 +27,9 @@ public interface Instance extends Component {
 //     */
 //    public InstanceDeclaration getDeclaration();
 //
-//    // The Apform instance associated with this Apam one.
-//    public ApformInstance getApformInst();
+    
+    // The Apform instance associated with this Apam one.
+    public ApformInstance getApformInst();
 
     /**
      * returns all the instances this one is wired to.
@@ -166,30 +167,5 @@ public interface Instance extends Component {
      * @return the service object, return null, if the object no longer exists.
      */
     public Object getServiceObject();
-
-//    /**
-//     * Match.
-//     * 
-//     * @param goal the goal
-//     * @return true is the instance matches the goal
-//     */
-//    public boolean match(Filter goal);
-//
-//    /**
-//     * return true if the instance matches ALL the constraints in the set.
-//     * 
-//     * @param goals
-//     * @return
-//     */
-//    public boolean match(Set<Filter> goals);
-//
-//    /**
-//     * Match.
-//     * 
-//     * @param goal the goal
-//     * @return true is the instance matches the goal
-//     */
-//    public boolean match(String filter);
-
 
 }

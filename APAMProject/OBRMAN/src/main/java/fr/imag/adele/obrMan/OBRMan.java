@@ -47,8 +47,8 @@ public class OBRMan implements DependencyManager {
     // when in Felix.
     public void start() {
         System.out.println("OBRMAN started");
-        ApamManagers.addDependencyManager(this, 3);
         obr = new OBRManager(null, repoAdmin);
+        ApamManagers.addDependencyManager(this, 3);
     }
 
     public void stop() {

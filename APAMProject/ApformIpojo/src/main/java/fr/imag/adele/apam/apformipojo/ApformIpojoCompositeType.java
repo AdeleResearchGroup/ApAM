@@ -34,13 +34,16 @@ public class ApformIpojoCompositeType extends ApformIpojoImplementation {
         Enumeration<String> paths = context.getBundle().getEntryPaths("/");
         while (paths.hasMoreElements()) {
             String path = paths.nextElement();
-            if (!path.endsWith(".xml"))
+            if (!path.endsWith(".cfg"))
+                continue;
+
+            if (!path.startsWith(getDeclaration().getName()))
                 continue;
 
             URL modelURL = context.getBundle().getEntry(path);
-            String modelName = path.substring(0, path.lastIndexOf(".xml"));
-            String managerName = modelName;
-            managerModels.add(new ManagerModel(modelName, managerName, modelURL, 0));
+            String managerName = path.substring(getDeclaration().getName().length()+1, path.lastIndexOf(".cfg"));
+            System.err.println("ApformIpojoCompositeType "+getDeclaration().getName()+" config "+managerName+"  -> "+modelURL);
+            managerModels.add(new ManagerModel(managerName, modelURL));
         }
         
     	

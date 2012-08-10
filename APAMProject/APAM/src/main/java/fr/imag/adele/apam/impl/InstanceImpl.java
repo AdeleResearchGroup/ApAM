@@ -19,6 +19,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.Apform;
+import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.InstanceDeclaration;
@@ -41,13 +42,13 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
     // private static Logger logger = Logger.getLogger(ASMInstImpl.class);
     // private static ASMInstBroker myBroker = ASM.ASMInstBroker;
 
-    private final Object      id               = new Object();
+//    private final Object      id               = new Object();
     private Implementation    myImpl;
     private Composite         myComposite;
-    protected ApformInstance  apformInst;
+//    protected ApformInstance  apformInst;
     //    private boolean           sharable         = true;
     private boolean           used             = false;
-    private InstanceDeclaration declaration;
+//    private InstanceDeclaration declaration;
 
     private final Set<Wire>     wires            = Collections.newSetFromMap(new ConcurrentHashMap<Wire, Boolean>()); // the
     // currently
@@ -56,18 +57,19 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
     private final Set<Wire>     invWires         = Collections.newSetFromMap(new ConcurrentHashMap<Wire, Boolean>());
 
     // WARNING to be used only for empty root composite.
-    protected InstanceImpl() {
+    protected InstanceImpl(ApformComponent apform, Map<String, Object> properties) {
+    	super(apform,properties);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return (this == o);
-    }
-
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        return (this == o);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return id.hashCode();
+//    }
 
     //    @Override
     //    public Object put(String attr, Object value) {
@@ -112,8 +114,10 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
     protected InstanceImpl(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
             ApformInstance apformInst) {
 
-        this.apformInst = apformInst;
-        declaration = apformInst.getDeclaration();
+    	super(apformInst, initialproperties);
+    	
+        //this.apform = apformInst;
+        //declaration = apformInst.getDeclaration();
         myImpl = impl;
         myComposite = instCompo;
         myComposite.addContainInst(this);
@@ -122,9 +126,9 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
         put(CST.A_INSTNAME, apformInst.getDeclaration().getName());
         // allready checked
         putAll(apformInst.getDeclaration().getProperties());
-        if (initialproperties != null) {
-            setAllProperties(initialproperties);
-        }
+//        if (initialproperties != null) {
+//            setAllProperties(initialproperties);
+//        }
 
         //calls Dynaman, for own ....
         if (instCompo == CompositeImpl.getRootAllComposites()) { // it is a root composite
@@ -142,7 +146,7 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
 
     @Override
     public String toString() {
-        return apformInst.getDeclaration().getName();
+        return apform.getDeclaration().getName();
     }
 
     /*
@@ -157,7 +161,7 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
 
     @Override
     public Object getServiceObject() {
-        return apformInst.getServiceObject();
+        return ((ApformInstance)apform).getServiceObject();
     }
 
     /**
@@ -212,7 +216,7 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
         }
 
         // creation
-        if (apformInst.setWire(to, depName)) {
+        if (((ApformInstance)apform).setWire(to, depName)) {
             Wire wire = new WireImpl(this, to, depName);
             wires.add(wire);
             ((InstanceImpl) to).invWires.add(wire);
@@ -244,7 +248,7 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
 
     @Override
     public void removeWire(Wire wire) {
-        if (apformInst.remWire(wire.getDestination(), wire.getDepName())) {
+        if (((ApformInstance)apform).remWire(wire.getDestination(), wire.getDepName())) {
             wires.remove(wire);
             ((ImplementationImpl) getImpl()).removeUses(wire.getDestination().getImpl());
         } else {
@@ -281,7 +285,7 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
 
     @Override
     public String getName() {
-        return apformInst.getDeclaration().getName();
+        return apform.getDeclaration().getName();
     }
 
     @Override
@@ -291,7 +295,7 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
 
     @Override
     public ApformInstance getApformInst() {
-        return apformInst;
+        return (ApformInstance)apform;
     }
 
     //    @Override
@@ -313,38 +317,6 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
     //        return shared;
     //    }
 
-    @Override
-    public boolean match(String filter) {
-        return match(ApamFilter.newInstance(filter));
-    }
-
-    @Override
-    public boolean match(Filter goal) {
-        if (goal == null)
-            return true;
-        try {
-            return ((ApamFilter) goal).matchCase(getAllProperties());
-        } catch (Exception e) {
-        }
-        return false;
-    }
-
-    @Override
-    public boolean match(Set<Filter> goals) {
-        if ((goals == null) || goals.isEmpty())
-            return true;
-        Map props = getAllProperties() ;
-        try {
-            for (Filter f : goals) {
-                if (!((ApamFilter) f).matchCase(props)) {
-                    return false ;
-                }
-            }
-            return true;
-        } catch (Exception e) {
-            return false ;
-        }
-    }
 
 
     @Override
@@ -430,7 +402,7 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
 
     @Override
     public InstanceDeclaration getDeclaration() {
-        return declaration;
+        return (InstanceDeclaration)declaration;
     }
 
 	@Override
@@ -438,20 +410,5 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
 		return getName().toLowerCase().compareTo(inst.getName().toLowerCase());
 	}
 
-	@Override
-	protected void propertiesChanged() {
-		System.out.println("A set of properties has been modified in : " + getName());
-		//TODO
-//		for (Wire wire : wires) {
-//		  System.out.println("source : " + wire.getSource().getName() +" -- dest : " + wire.getDestination().getName() );
-//		}
-//		
-	}
-
-	@Override
-	protected void propertyChanged(String attr, Object value) {
-		// TODO Auto-generated method stub
-		System.out.println("A property has been modified in : " + getName() + " >>  " +attr+"="+value );
-	}
 
 }

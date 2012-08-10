@@ -33,8 +33,8 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
 	
 	private Logger logger = LoggerFactory.getLogger(SpecificationImpl.class);
     private String                    name;
-    private ApformSpecification       apfSpec         = null;
-    private SpecificationDeclaration  declaration;
+    //private ApformSpecification       apfSpec         = null;
+    //private SpecificationDeclaration  declaration;
     private final Set<Implementation> implementations = Collections
     .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
@@ -57,33 +57,32 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
 
     public SpecificationImpl(String specName, ApformSpecification apfSpec, Set<ResourceReference> resources,
             Map<String, Object> props) {
-        assert  (((specName != null) || (apfSpec != null))) ;
 
-        if (specName == null) {
-            name = apfSpec.getDeclaration().getName();
-        } else
-            name = specName;
-        put(CST.A_SPECNAME, name);
-        if (apfSpec == null) {
-            apfSpec = new ApformEmptySpec(resources, props);
-        }
-        this.apfSpec = apfSpec;
-        declaration = apfSpec.getDeclaration();
+    	super(apfSpec == null ? new ApformEmptySpec(specName,resources) : apfSpec,props);
+        
+    	assert  (((specName != null) || (apfSpec != null))) ;
+
+        
+//        if (specName == null) {
+//            name = apfSpec.getDeclaration().getName();
+//        } else
+//            name = specName;
+        put(CST.A_SPECNAME, getName());
 
         //        interfaces = declaration.getProvidedInterfaces();
         //        messages =
 
-        putAll(apfSpec.getDeclaration().getProperties());
+//        putAll(apfSpec.getDeclaration().getProperties());
         ((SpecificationBrokerImpl) CST.SpecBroker).addSpec(this);
-        if (props != null)
-            setAllProperties(props);
+//        if (props != null)
+//            setAllProperties(props);
     }
 
 
-    @Override
-    public String getName() {
-        return name;
-    }
+//    @Override
+//    public String getName() {
+//        return name;
+//    }
 
     public void addImpl(Implementation impl) {
         implementations.add(impl);
@@ -98,7 +97,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
         }
         if (name.equals(logicalName))
             return;
-        if ((apfSpec != null) && name.equals(apfSpec.getDeclaration().getName())) {
+        if ((apform != null) && name.equals(apform.getDeclaration().getName())) {
             logger.debug("changing logical name, from " + name + " to " + logicalName);
             name = logicalName;
             return;
@@ -108,7 +107,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
 
     @Override
     public String toString() {
-        return name;
+        return getName();
         //        String ret = "";
         //        if (name == null) {
         //            ret = " (" + apfSpec.getName() + ") ";
@@ -194,7 +193,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
 
     @Override
     public ApformSpecification getApformSpec() {
-        return apfSpec;
+        return (ApformSpecification)apform;
     }
 
     protected void remove() {
@@ -213,7 +212,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
     }
 
     public void setSpecApform(ApformSpecification apfSpec) {
-        this.apfSpec = apfSpec;
+        this.apform = apfSpec;
     }
 
     @Override
@@ -313,20 +312,10 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
         return (Implementation) candidates.toArray()[0];
     }
 
-    @Override
-    public boolean match(Filter goal) {
-        if (goal == null)
-            return true;
-        try {
-            return ((ApamFilter) goal).matchCase(this);
-        } catch (Exception e) {
-        }
-        return false;
-    }
 
     @Override
     public SpecificationDeclaration getDeclaration() {
-        return declaration;
+        return (SpecificationDeclaration)declaration;
     }
 
     /**
@@ -336,12 +325,11 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
      * @author Jacky
      * 
      */
-    private class ApformEmptySpec implements ApformSpecification {
+    private static class ApformEmptySpec implements ApformSpecification {
 
         private final SpecificationDeclaration declaration;
 
-        public ApformEmptySpec(Set<ResourceReference> resources, Map<String, Object> attributes) {
-            super () ;
+        public ApformEmptySpec(String name, Set<ResourceReference> resources) {
             declaration = new EmptySpecificationDeclaration(name, resources);
         }
 
@@ -349,8 +337,13 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
         public SpecificationDeclaration getDeclaration() {
             return declaration;
         }
+        
+        @Override
+        public void setProperty (String attr, Object value) {
+        }
+
     }
-    private class EmptySpecificationDeclaration extends SpecificationDeclaration {
+    private static class EmptySpecificationDeclaration extends SpecificationDeclaration {
         public EmptySpecificationDeclaration(String name, Set<ResourceReference> resources) {
             super(name);
             getProvidedResources().addAll(resources);
@@ -359,18 +352,6 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
 	@Override
 	public int compareTo(Specification spec) {  
 	 return getName().toLowerCase().compareTo(spec.getName().toLowerCase());
-	}
-
-	@Override
-	protected void propertiesChanged() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void propertyChanged(String attr, Object value) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

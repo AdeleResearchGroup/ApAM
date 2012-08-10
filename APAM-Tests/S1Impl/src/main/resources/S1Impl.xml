@@ -38,7 +38,7 @@
 		</definitions>
 		<dependency id="tos1" field="s1">
 			<preferences>
-				<implementation filter="(impl-name=S1MainCompo)" />
+				<implementation filter="(impl-name=S1Impl)" />
 				<xyz filter="(impl-name=S1ImplFalse)" /> <!-- should be an error -->
 			</preferences>
 		</dependency>
@@ -72,7 +72,7 @@
  -->
 	</composite>
 
-	<apam-instance implementation="S1MainCompo" name="S1MainInstance" />
-<!-- 	<apam-instance implementation="S1Main" name="S1MainInstance" /> -->
+<!-- 	<apam-instance implementation="S1MainCompo" name="S1MainInstance" /> -->
+	<apam-instance implementation="S1Main" name="S1MainInstance" />
 </apam>
 

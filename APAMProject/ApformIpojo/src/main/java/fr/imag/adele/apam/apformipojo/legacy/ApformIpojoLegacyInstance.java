@@ -105,4 +105,10 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
 		return declaration;
 	}
 
+	@Override
+	public void setProperty(String attr, Object value) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

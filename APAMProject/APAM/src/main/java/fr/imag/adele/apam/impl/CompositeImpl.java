@@ -2,6 +2,7 @@ package fr.imag.adele.apam.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,6 +15,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.core.InstanceDeclaration;
 
 public class CompositeImpl extends InstanceImpl implements Composite {
 
@@ -41,7 +43,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
      * without an associated main instance.
      */
     private CompositeImpl() {
-        super();
+        super(new ApformRootComposite(),new HashMap<String, Object>());
         mainImpl = null;
         mainInst = null;
         compType = CompositeTypeImpl.getRootCompositeType(this);
@@ -116,11 +118,6 @@ public class CompositeImpl extends InstanceImpl implements Composite {
         return CompositeImpl.composites.get(name);
     }
 
-
-    @Override
-    public String getName() {
-        return getApformInst() != null ? super.getName() : "rootComposite";
-    }
 
     @Override
     public String toString() {
@@ -302,5 +299,64 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     public void removeInst(Instance inst) {
         hasInstance.remove(inst);
     }
+
+    /**
+     * An apform composite instance to represent root composites that don't have
+     * an explicit declaration (automatically created)
+     * 
+     * @author vega
+     *
+     */
+    protected static class ApformRootComposite implements ApformInstance {
+
+        private final InstanceDeclaration declaration;
+
+        private ApformRootComposite(){
+        	this.declaration =  new InstanceDeclaration(CompositeTypeImpl.getRootCompositeType().getImplDeclaration().getReference(),CST.ROOTCOMPOSITE,null);
+        }
+         
+        public ApformRootComposite(CompositeTypeImpl compositeType) {
+
+            String name = compositeType.getNewInstName();
+            declaration = new InstanceDeclaration(compositeType.getApformImpl().getDeclaration().getReference(),
+                    name, null);
+        }
+
+        @Override
+        public InstanceDeclaration getDeclaration() {
+            return declaration;
+        }
+
+        @Override
+        public Object getServiceObject() {
+            throw new UnsupportedOperationException("this method is not available for root composites");
+        }
+
+        @Override
+        public boolean setWire(Instance destInst, String depName) {
+            throw new UnsupportedOperationException("this method is not available for root composites");
+        }
+
+        @Override
+        public boolean remWire(Instance destInst, String depName) {
+            throw new UnsupportedOperationException("this method is not available for root composites");
+        }
+
+        @Override
+        public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
+            throw new UnsupportedOperationException("this method is not available for root composites");
+        }
+
+        @Override
+        public void setInst(Instance ignored) {
+        }
+        
+        @Override
+        public void setProperty (String attr, Object value) {
+        }
+
+    }
+
+
 
 }

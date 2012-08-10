@@ -94,4 +94,10 @@ public class ApformIPojoLegacyImplementation implements ApformImplementation {
 		return declaration;
 	}
 
+	@Override
+	public void setProperty(String attr, Object value) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

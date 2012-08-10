@@ -18,6 +18,7 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
@@ -40,11 +41,11 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
     .newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
 
     private final Object                id                = new Object();                 // only for hashCode
-    protected ImplementationDeclaration declaration;
+//    protected ImplementationDeclaration declaration;
 
-    protected String                    name;
+//    protected String                    name;
     protected Specification             mySpec;
-    protected ApformImplementation      apfImpl           = null;
+//    protected ApformImplementation      apfImpl           = null;
     protected boolean                   used              = false;
 
     // the instances
@@ -56,26 +57,19 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
     // the sharable instances
     //    protected Set<Instance>             sharableInstances = new HashSet<Instance>();      // the sharable instances
 
-    @Override
-    public boolean equals(Object o) {
-        return (this == o);
-    }
-
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
 
     /**
      * Instantiate a new service implementation.
      */
     // used ONLY when creating a composite type
-    protected ImplementationImpl() {
+    protected ImplementationImpl(ApformComponent apform, Map<String, Object> properties) {
+    	super(apform,properties);
     }
 
     public ImplementationImpl(CompositeType compo, String specName, ApformImplementation apfImpl, Map<String, Object> props) {
-        assert ((apfImpl  != null) || (specName != null));
-        assert (compo != null);
+        super (apfImpl, props) ;
+//        assert ((apfImpl  != null) || (specName != null));
+//        assert (compo != null);
 
         // specification control. Spec usually does not exist in Apform, but we need to create one anyway.
         SpecificationImpl spec = null;
@@ -100,18 +94,18 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
             spec = new SpecificationImpl(specName, apfSpec, apfImpl.getDeclaration().getProvidedResources(), props);
         }
 
-        name = apfImpl.getDeclaration().getName(); // warning, for composites, it is a different name. Overloaded in createCompositeType
-        put(CST.A_IMPLNAME, name);
+        //name = apfImpl.getDeclaration().getName(); // warning, for composites, it is a different name. Overloaded in createCompositeType
+        put(CST.A_IMPLNAME, apfImpl.getDeclaration().getName());
         mySpec = spec;
         spec.addImpl(this);
         ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
-        this.apfImpl = apfImpl;
+        //this.apfImpl = apfImpl;
         initializeNewImpl(compo, props);
     }
 
 
     public void initializeNewImpl(CompositeType compoType, Map<String, Object> props) {
-        declaration = apfImpl.getDeclaration();
+        //declaration = apfImpl.getDeclaration();
         compoType.addImpl(this);
         if (props != null) {
             setAllProperties(props);
@@ -121,7 +115,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
 
     @Override
     public String toString() {
-        return name;
+        return getName();
     }
 
     /**
@@ -133,7 +127,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
         	logger.debug("Implementation " + this + " is not instantiable");
             return null;
         }
-        ApformInstance apfInst = apfImpl.createInstance(initialproperties);
+        ApformInstance apfInst = getApformImpl().createInstance(initialproperties);
         InstanceImpl inst = InstanceImpl.newInstanceImpl(this, instCompo, initialproperties, apfInst);
         return inst;
     }
@@ -323,10 +317,10 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
         return winner;
     }
 
-    @Override
-    public String getName() {
-        return name;
-    }
+//    @Override
+//    public String getName() {
+//        return name;
+//    }
 
     /**
      * returns the visibility.
@@ -411,7 +405,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
 
     @Override
     public ApformImplementation getApformImpl() {
-        return apfImpl;
+        return (ApformImplementation)apform;
     }
 
     @Override
@@ -434,10 +428,9 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
         this.used = used;
     }
 
-
     @Override
     public ImplementationDeclaration getImplDeclaration() {
-        return declaration;
+        return (ImplementationDeclaration)declaration;
     }
 
     /**
@@ -456,15 +449,4 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
 		return getName().toLowerCase().compareTo(impl.getName().toLowerCase());
 	}
 
-	@Override
-	protected void propertiesChanged() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void propertyChanged(String attr, Object value) {
-		// TODO Auto-generated method stub
-		
-	}
 }

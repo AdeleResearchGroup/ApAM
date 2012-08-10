@@ -19,6 +19,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionHandler;
 import fr.imag.adele.apam.apformipojo.handlers.MessageProviderHandler;
 import fr.imag.adele.apam.core.ComponentDeclaration;
@@ -34,7 +35,7 @@ import fr.imag.adele.apam.util.CoreMetadataParser;
 import fr.imag.adele.apam.util.CoreMetadataParser.IntrospectionService;
 import fr.imag.adele.apam.util.CoreParser;
 
-public abstract class ApformIpojoComponent extends ComponentFactory implements IntrospectionService, CoreParser.ErrorHandler {
+public abstract class ApformIpojoComponent extends ComponentFactory implements ApformComponent, IntrospectionService, CoreParser.ErrorHandler {
 
 	public ApformIpojoComponent(BundleContext context, Element element) throws ConfigurationException {
 		super(context,element);

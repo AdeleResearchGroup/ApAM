@@ -149,5 +149,11 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
 	public boolean isInstantiable() {
 		return true;
 	}
+
+	@Override
+	public void setProperty(String attr, Object value) {
+		// TODO Auto-generated method stub
+		
+	}
  
 }
