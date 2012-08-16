@@ -10,7 +10,9 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class SaxHandler extends DefaultHandler {
 	boolean localRepo = false;
+	
 	String localRepoPath;
+	
 	public void startElement(String uri, String localName,String qName, Attributes attributes) throws SAXException {
 		if (qName.equalsIgnoreCase("localRepository")) {
 			localRepo=true;
@@ -27,6 +29,7 @@ public class SaxHandler extends DefaultHandler {
    			localRepoPath =  new String(ch, start, length);
    		}
 	}
+	
 	public URL getRepo() throws MalformedURLException{		
 		if (localRepoPath == null ) return null;
 		File file = new File( localRepoPath +File.separator +"repository.xml" );

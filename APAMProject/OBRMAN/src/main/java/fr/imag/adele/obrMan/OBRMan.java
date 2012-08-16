@@ -9,16 +9,15 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.felix.bundlerepository.RepositoryAdmin;
-import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform;
@@ -33,7 +32,9 @@ import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
 public class OBRMan implements DependencyManager {
 
-    private static OBRManager obr;
+    public static final String COMMON_REPOSITORIES = "common.repositories";
+
+	private static OBRManager obr;
 
     // iPOJO injected
     private RepositoryAdmin   repoAdmin;
@@ -59,20 +60,20 @@ public class OBRMan implements DependencyManager {
      * Given the res OBR resource, supposed to contain the implementation implName.
      * Install and start from the OBR repository.
      * 
-     * @param res : OBR resource (to contain the implementation implName)
+     * @param selected : OBR resource (to contain the implementation implName)
      * @param implName : the symbolic name of the implementation to deploy.
      * @return
      */
-    private Implementation installInstantiateImpl(Resource res, String implName) {
+    private Implementation installInstantiateImpl(Selected selected, String implName) {
 
         Implementation asmImpl = CST.ImplBroker.getImpl(implName);
         // Check if already deployed
         if (asmImpl == null) {
             // deploy selected resource
-            boolean deployed = OBRMan.obr.deployInstall(res);
+            boolean deployed = OBRMan.obr.deployInstall(selected);
             if (!deployed) {
                 System.err.print("could not install resource ");
-                OBRMan.obr.printRes(res);
+                OBRMan.obr.printRes(selected.resource);
                 return null;
             }
             // waiting for the implementation to be ready in Apam.
@@ -94,16 +95,16 @@ public class OBRMan implements DependencyManager {
      * @param specName : the symbolic name of the implementation to deploy.
      * @return
      */
-    private Specification installInstantiateSpec(Resource res, String specName) {
+    private Specification installInstantiateSpec(Selected selected, String specName) {
 
         Specification spec = CST.SpecBroker.getSpec(specName);
         // Check if already deployed
         if (spec == null) {
             // deploy selected resource
-            boolean deployed = OBRMan.obr.deployInstall(res);
+            boolean deployed = OBRMan.obr.deployInstall(selected);
             if (!deployed) {
                 System.err.print("could not install resource ");
-                OBRMan.obr.printRes(res);
+                OBRMan.obr.printRes(selected.resource);
                 return null;
             }
             // waiting for the implementation to be ready in Apam.
@@ -207,21 +208,21 @@ public class OBRMan implements DependencyManager {
         fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
         Implementation impl = null;
         if (resource instanceof SpecificationReference) {
-            selected = obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-specification="
+            selected = obr.lookFor(compoType, OBR.CAPABILITY_IMPLEMENTATION, "(provide-specification="
                     + resource.as(SpecificationReference.class).getName() + ")",
                     constraints, preferences);
         }
         if (resource instanceof InterfaceReference) {
-            selected = obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-interfaces=*;" + resource.as(InterfaceReference.class).getJavaType() + ";*)",
+            selected = obr.lookFor(compoType,OBR.CAPABILITY_IMPLEMENTATION, "(provide-interfaces=*;" + resource.as(InterfaceReference.class).getJavaType() + ";*)",
                     constraints, preferences);
         }
         if (resource instanceof MessageReference) {
-            selected = obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, "(provide-messages=*;" + resource.as(MessageReference.class).getJavaType() + ";*)",
+            selected = obr.lookFor(compoType,OBR.CAPABILITY_IMPLEMENTATION, "(provide-messages=*;" + resource.as(MessageReference.class).getJavaType() + ";*)",
                     constraints, preferences);
         }
         if (selected != null) {
             String implName = obr.getAttributeInCapability(selected.capability, "impl-name");
-            impl = installInstantiateImpl(selected.resource, implName);
+            impl = installInstantiateImpl(selected, implName);
             // System.out.println("deployed :" + impl);
             // printRes(selected);
             return impl;
@@ -247,16 +248,16 @@ public class OBRMan implements DependencyManager {
             filterStr = "(impl-name=" + implName + ")";
 
         if (selected == null) { // look by bundle name. First apam component by bundle name
-            selected = obr.lookFor(OBR.CAPABILITY_IMPLEMENTATION, filterStr, null, null);
+            selected = obr.lookFor(compoType,OBR.CAPABILITY_IMPLEMENTATION, filterStr, null, null);
         }
         if (selected == null) { // legacy iPOJO component
-            selected = obr.lookFor(OBR.CAPABILITY_COMPONENT, filterStr, null, null);
+            selected = obr.lookFor(compoType,OBR.CAPABILITY_COMPONENT, filterStr, null, null);
         }
         if (selected == null) { // legacy OSGi component
-            selected = obr.lookFor("bundle", filterStr, null, null);
+            selected = obr.lookFor(compoType,"bundle", filterStr, null, null);
         }
         if (selected != null) {
-            impl = installInstantiateImpl(selected.resource, implName);
+            impl = installInstantiateImpl(selected, implName);
             // System.out.println("deployed :" + impl);
             // printRes(selected);
             return impl;
@@ -272,9 +273,9 @@ public class OBRMan implements DependencyManager {
 
         String filterStr = "(spec-name=" + specName + ")";
 
-        Selected selected = OBRMan.obr.lookFor(OBR.CAPABILITY_SPECIFICATION, filterStr, null, null);
+        Selected selected = OBRMan.obr.lookFor(compoType,OBR.CAPABILITY_SPECIFICATION, filterStr, null, null);
         if (selected != null) {
-            Specification spec = installInstantiateSpec(selected.resource, specName);
+            Specification spec = installInstantiateSpec(selected, specName);
             // System.out.println("deployed :" + spec);
             // printRes(selected);
             return spec;
