@@ -152,8 +152,7 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
 
 	@Override
 	public void setProperty(String attr, Object value) {
-		// TODO Auto-generated method stub
-		
+		// TODO change factory publication?
 	}
  
 }

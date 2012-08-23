@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,142 +17,246 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Wire;
-import fr.imag.adele.apam.apform.Apform;
-import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.InstanceDeclaration;
-import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.Util;
-//import java.util.Dictionary;
-//import fr.imag.adele.apam.util.Attributes;
-//import fr.imag.adele.apam.util.AttributesImpl;
 
-//import fr.imag.adele.sam.Instance;
+public class InstanceImpl extends ComponentImpl implements Instance {
 
-public class InstanceImpl extends ComponentImpl implements Instance, Comparable<Instance> {
+	private static Logger logger = LoggerFactory.getLogger(InstanceImpl.class);
 
-	Logger logger = LoggerFactory.getLogger(InstanceImpl.class);
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-    /** The logger. */
-    // private static Logger logger = Logger.getLogger(ASMInstImpl.class);
-    // private static ASMInstBroker myBroker = ASM.ASMInstBroker;
+	private static final long serialVersionUID = 1L;
 
-//    private final Object      id               = new Object();
-    private Implementation    myImpl;
-    private Composite         myComposite;
-//    protected ApformInstance  apformInst;
-    //    private boolean           sharable         = true;
-    private boolean           used             = false;
-//    private InstanceDeclaration declaration;
+    private Implementation			myImpl;
+    private Composite         		myComposite;
 
-    private final Set<Wire>     wires            = Collections.newSetFromMap(new ConcurrentHashMap<Wire, Boolean>()); // the
-    // currently
-    // used
-    // instances
-    private final Set<Wire>     invWires         = Collections.newSetFromMap(new ConcurrentHashMap<Wire, Boolean>());
-
-    // WARNING to be used only for empty root composite.
-    protected InstanceImpl(ApformComponent apform, Map<String, Object> properties) {
-    	super(apform,properties);
-    }
-
-//    @Override
-//    public boolean equals(Object o) {
-//        return (this == o);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return id.hashCode();
-//    }
-
-    //    @Override
-    //    public Object put(String attr, Object value) {
-    //        //Util.validAttr(this, attr, value);
-    //        return super.put(attr, value);
-    //    }
-
-    public void setAttr(String attr, Object value) {
-        Util.validAttr(this, attr, value);
-        put(attr, value);
-    }
+    private final Set<Wire>     	wires            = Collections.newSetFromMap(new ConcurrentHashMap<Wire, Boolean>());
+    private final Set<Wire>     	invWires         = Collections.newSetFromMap(new ConcurrentHashMap<Wire, Boolean>());
 
     /**
-     * Instance creation. Should be the only way to create an instance, because the constructor *does not chain to the
-     * broker*.
-     * The constructor should be used *only* for creating composites,
-     * because the new composite must be fully initialized before to be visible (through the broker) by others.
+     * This class represents the Apam root instance. 
      * 
-     * @param impl
-     * @param instCompo
-     * @param initialproperties
-     * @param apformInst
-     * @return
+     * This is an APAM concept without mapping at the execution platform level, we build an special
+     * apform object to represent it.
+     * 
      */
-    public static InstanceImpl newInstanceImpl(Implementation impl, Composite instCompo,
-            Map<String, Object> initialproperties, ApformInstance apformInst) {
+    private static class SystemRootInstance implements ApformInstance {
 
-        InstanceImpl inst = new InstanceImpl (impl,instCompo,initialproperties,apformInst) ;
+    	private final InstanceDeclaration declaration;
+    	
+    	public SystemRootInstance(Implementation rootImplementation, String name) {
+    		declaration = new InstanceDeclaration(rootImplementation.getImplDeclaration().getReference(), name, null);
+    	} 
 
-        ((InstanceBrokerImpl) CST.InstBroker).addInst( inst);
-        return inst ;
+		@Override
+		public InstanceDeclaration getDeclaration() {
+			return declaration;
+		}
+
+		@Override
+		public void setInst(Instance asmInstImpl) {
+			throw new UnsupportedOperationException("method not available in root instance");
+		}
+
+		@Override
+		public void setProperty(String attr, Object value) {
+			throw new UnsupportedOperationException("method not available in root instance");
+		}
+
+
+		@Override
+		public Object getServiceObject() {
+			throw new UnsupportedOperationException("method not available in root instance");
+		}
+
+		@Override
+		public boolean setWire(Instance destInst, String depName) {
+			throw new UnsupportedOperationException("method not available in root instance");
+		}
+
+		@Override
+		public boolean remWire(Instance destInst, String depName) {
+			throw new UnsupportedOperationException("method not available in root instance");
+		}
+
+		@Override
+		public boolean substWire(Instance oldDestInst, Instance newDestInst,
+				String depName) {
+			throw new UnsupportedOperationException("method not available in root instance");
+		}
+
     }
-
+    
     /**
-     * Should be used *only* by Composite impl constructor.
-     * 
-     * @param impl
-     * @param instCompo
-     * @param initialproperties
-     * @param apformInst
+     * This is an special constructor only used for the root instance of the system 
      */
-    protected InstanceImpl(Implementation impl, Composite instCompo, Map<String, Object> initialproperties,
-            ApformInstance apformInst) {
+    protected InstanceImpl(Implementation rootImplementation, String name) {
+    	super(new SystemRootInstance(rootImplementation,name),null);
+    	
+    	myImpl		 = rootImplementation;
+    	myComposite  = null;
+    	
+    	/*
+    	 * NOTE the root instance is automatically registered in Apam in a specific way that
+    	 * allows bootstraping the system
+    	 * 
+    	 */
+        ((ImplementationImpl) getImpl()).addInst(this);
+
+    }
+    
+    /**
+     * Builds a new Apam instance to represent the specified platform instance in the Apam model.
+     */
+    protected InstanceImpl(Composite composite, ApformInstance apformInst, Map<String, Object> initialproperties) {
 
     	super(apformInst, initialproperties);
     	
-        //this.apform = apformInst;
-        //declaration = apformInst.getDeclaration();
-        myImpl = impl;
-        myComposite = instCompo;
-        myComposite.addContainInst(this);
-        apformInst.setInst(this);
+    	/*
+    	 * reference the implementation and the enclosing composite
+    	 */
+        myImpl 		= CST.ImplBroker.getImpl(apformInst.getDeclaration().getImplementation().getName());
+        myComposite = composite;
 
-        put(CST.A_INSTNAME, apformInst.getDeclaration().getName());
-        // allready checked
-        putAll(apformInst.getDeclaration().getProperties());
-//        if (initialproperties != null) {
-//            setAllProperties(initialproperties);
-//        }
+        /*
+         * Add predefined properties
+         */
+        put(CST.A_INSTNAME, getName());
+        put(CST.A_COMPOSITE, getComposite().getName());
+        
+    }    
 
-        //calls Dynaman, for own ....
-        if (instCompo == CompositeImpl.getRootAllComposites()) { // it is a root composite
-            put(CST.A_COMPOSITE, "rootComposite");
-            ApamManagers.notifyExternal(this) ;           
-        } else {
-            put(CST.A_COMPOSITE, myComposite.getName());
+    @Override
+    public void register() {
+    	
+    	/*
+    	 * Opposite references from implementation and enclosing composite
+    	 */
+        ((ImplementationImpl) getImpl()).addInst(this);
+        ((CompositeImpl)getComposite()).addContainInst(this);
+
+        /*
+         * Add to broker
+         */
+        ((InstanceBrokerImpl) CST.InstBroker).add(this);
+       
+        /*
+         * Notify managers
+         */
+        if (((CompositeImpl)getComposite()).isSystemRoot())
+        	ApamManagers.notifyExternal(this);
+        else
+            ApamManagers.notifyAddedInApam(this);
+            
+        /*
+         * Bind to the underlying execution platform instance
+         */
+        getApformInst().setInst(this);
+            
+
+        /*
+         * Invoke the execution platform instance callback
+         */
+        if (! (this instanceof Composite)) {
+        	Object service = getApformInst().getServiceObject();
+        	if (service instanceof ApamComponent) {
+        		ApamComponent serviceComponent = (ApamComponent) service;
+        		serviceComponent.apamStart(this);
+        	}
         }
+        
+    }
+    
+    /**
+     * remove from ASM It deletes the wires, which deletes the isolated used instances, and transitively. It deleted the
+     * invWires, which removes the associated real dependency :
+     */
+    @Override
+    public void unregister() {
+    	
+        /*
+         * Notify managers
+         */
+        ApamManagers.notifyRemovedFromApam(this);
 
-        // not for composite instances, since getServiceObject is the main instance (allready started)
-        if ((!(this instanceof Composite)) && (apformInst.getServiceObject() instanceof ApamComponent)) {
-            ((ApamComponent) apformInst.getServiceObject()).apamStart(this);
+        /*
+    	 * Remove all incoming and outgoing wires (this deletes the associated references at the execution platform level) 
+    	 */
+        for (Wire wire : invWires) {
+            ((WireImpl) wire).remove();
         }
+        for (Wire wire : wires) {
+            ((WireImpl) wire).remove();
+        }
+  
+        /*
+         * Invoke the execution platform instance callback
+         */
+        if (! (this instanceof Composite)) {
+        	Object service = getApformInst().getServiceObject();
+        	if (service instanceof ApamComponent) {
+        		ApamComponent serviceComponent = (ApamComponent) service;
+        		serviceComponent.apamStop();
+        	}
+        }
+        
+        /*
+         * Unbind from the underlying execution platform instance
+         */
+        getApformInst().setInst(null);
+        setApform(null);
+        
+    	/*
+    	 * Unbind from implementation and enclosing composite
+    	 */
+        ((ImplementationImpl) getImpl()).removeInst(this);
+        ((CompositeImpl)getComposite()).removeInst(this);
+        
+        myImpl = null;
+        myComposite = null;
+
+        /*
+         * Remove from broker
+         */
+        ((InstanceBrokerImpl) CST.InstBroker).remove(this);
+        
+    }
+    
+    /**
+     * Change the owner (enclosing composite) of this instance.
+     * 
+     * This is only allowed for unused instances and is the only dynamic
+     * modification of the composite hierarchy allowed so far.
+     * 
+     */
+    public void setOwner(Composite owner) {
+
+    	assert !isUsed();
+
+        ((CompositeImpl)getComposite()).removeInst(this);
+		this.myComposite = owner;
+		((CompositeImpl)owner).addContainInst(this);
     }
 
     @Override
-    public String toString() {
-        return apform.getDeclaration().getName();
+    public final boolean isUsed() {
+        return ! ((CompositeImpl)getComposite()).isSystemRoot();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see fr.imag.adele.sam.ApformInstance#getImplementation()
-     */
+    @Override
+    public final ApformInstance getApformInst() {
+        return (ApformInstance)getApformComponent();
+    }
+    
+    @Override
+    public final Composite getComposite() {
+        return myComposite;
+    }
+    
+    @Override
+    public Composite getAppliComposite() {
+        return myComposite.getAppliComposite();
+    }
+    
     @Override
     public Implementation getImpl() {
         return myImpl;
@@ -161,7 +264,40 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
 
     @Override
     public Object getServiceObject() {
-        return ((ApformInstance)apform).getServiceObject();
+        return getApformInst().getServiceObject();
+    }
+
+    @Override
+    public Specification getSpec() {
+        return myImpl.getSpec();
+    }
+
+    /**
+     * Get the value of a property. 
+     * 
+     * If the value is specified in this instance returns the value directly. Otherwise, propagate value
+     * from the implementation group. 
+     */
+    @Override
+    public Object getProperty(String attr) {
+    	Object value = super.getProperty(attr);
+    	return value != null ? value : getImpl().getProperty(attr);
+    }
+    
+    /**
+     * Get all the properties of this instance and those of its implementation group
+     */
+    @Override
+    public Map<String, Object> getAllProperties() {
+    	Map<String,Object> allProperties = super.getAllProperties();
+    	allProperties.putAll(getImpl().getAllProperties());
+    	return allProperties;
+    }
+    
+    @Override
+    public boolean isSharable() {
+        return (getInvWires().isEmpty()
+                || (getProperty(CST.A_SHARED) == null) || (getProperty(CST.A_SHARED).equals(CST.V_TRUE)));
     }
 
     /**
@@ -216,7 +352,7 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
         }
 
         // creation
-        if (((ApformInstance)apform).setWire(to, depName)) {
+        if (getApformInst().setWire(to, depName)) {
             Wire wire = new WireImpl(this, to, depName);
             wires.add(wire);
             ((InstanceImpl) to).invWires.add(wire);
@@ -226,17 +362,15 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
             return false;
         }
 
-        // if the instance was in the unUsed pull, move it to the from composite.
+        /*
+         *  if the instance was in the unused pull, move it to the from composite.
+         *  
+         *  TODO In the previous version we also changed the source, and if the source
+         *  or target were composites its main instance. Check that this is no longer
+         *  needed
+         */
         if (!to.isUsed()) {
-            Apform.setUsedInst(to);
-        }
-        if (!isUsed())
-            Apform.setUsedInst(this);
-        if (to instanceof Composite) {
-            Apform.setUsedInst(((Composite) to).getMainInst());
-        }
-        if (this instanceof Composite) {
-            Apform.setUsedInst(((Composite) this).getMainInst());
+            ((InstanceImpl)to).setOwner(getComposite());
         }
 
         // Other relationships to instantiate
@@ -248,7 +382,7 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
 
     @Override
     public void removeWire(Wire wire) {
-        if (((ApformInstance)apform).remWire(wire.getDestination(), wire.getDepName())) {
+        if (getApformInst().remWire(wire.getDestination(), wire.getDepName())) {
             wires.remove(wire);
             ((ImplementationImpl) getImpl()).removeUses(wire.getDestination().getImpl());
         } else {
@@ -259,45 +393,20 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
 
     public void removeInvWire(Wire wire) {
         invWires.remove(wire);
-        if (invWires.isEmpty()) { // This instance ins no longer used.
-            setUsed(false);
+        if (invWires.isEmpty()) { 
+        	/*
+        	 * This instance is no longer used.
+        	 * 
+        	 * setUsed(false);
+        	 * 
+        	 * TODO should we change the owner or allow unreferenced instances to stay in
+        	 * their original composite?
+        	 */
+            setOwner(CompositeImpl.getRootAllComposites());
         }
     }
 
-    /**
-     * remove from ASM It deletes the wires, which deletes the isolated used instances, and transitively. It deleted the
-     * invWires, which removes the associated real dependency :
-     */
-
-    public void remove() {
-        for (Wire wire : invWires) {
-            ((WireImpl) wire).remove();
-        }
-        for (Wire wire : wires) {
-            ((WireImpl) wire).remove();
-        }
-    }
-
-    @Override
-    public Specification getSpec() {
-        return myImpl.getSpec();
-    }
-
-    @Override
-    public String getName() {
-        return apform.getDeclaration().getName();
-    }
-
-    @Override
-    public Composite getComposite() {
-        return myComposite;
-    }
-
-    @Override
-    public ApformInstance getApformInst() {
-        return (ApformInstance)apform;
-    }
-
+ 
     //    @Override
     //    public boolean isSharable() {
     //        if (getProperty(CST.A_SHARED) == null)
@@ -379,36 +488,6 @@ public class InstanceImpl extends ComponentImpl implements Instance, Comparable<
         }
         return w;
     }
-
-    @Override
-    public Composite getAppliComposite() {
-        return myComposite.getAppliComposite();
-    }
-
-    @Override
-    public final boolean isUsed() {
-        return used;
-    }
-
-    public final void setUsed(boolean used) {
-        this.used = used;
-    }
-
-    @Override
-    public boolean isSharable() {
-        return (getInvWires().isEmpty()
-                || (getProperty(CST.A_SHARED) == null) || (getProperty(CST.A_SHARED).equals(CST.V_TRUE)));
-    }
-
-    @Override
-    public InstanceDeclaration getDeclaration() {
-        return (InstanceDeclaration)declaration;
-    }
-
-	@Override
-	public int compareTo(Instance inst) {
-		return getName().toLowerCase().compareTo(inst.getName().toLowerCase());
-	}
 
 
 }

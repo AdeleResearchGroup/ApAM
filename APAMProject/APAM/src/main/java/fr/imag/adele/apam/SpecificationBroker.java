@@ -1,36 +1,34 @@
 package fr.imag.adele.apam;
 
 import java.net.URL;
-//import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-//import fr.imag.adele.am.exception.ConnectionException;
 import fr.imag.adele.apam.apform.ApformSpecification;
-//import fr.imag.adele.apam.util.Attributes;
 import fr.imag.adele.apam.core.ResolvableReference;
-import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.ResourceReference;
 
 //import fr.imag.adele.sam.Specification;
 
 public interface SpecificationBroker {
     /**
-     * If samSpec is existing, creates the corresponding specification.
+     * Adds a new specification to the Apam state from its underlying platform definition
      * 
-     * @param specName the *logical* name of that specification; different from Apform. May be null.
      * @param samSpec : A Apform specification.
      */
-    public Specification addSpec(String specName, ApformSpecification apfSpec, Map<String, Object> properties);
+    public Specification addSpec(ApformSpecification apfSpec, Map<String, Object> properties);
 
     /**
-     * Creates a specification. WARNING : this spec may not have any
-     * corresponding spec in Apform. It does not try to create one in Apform.
+     * Creates a specification. 
      * 
-     * @param specName the *logical* name of that specification; different from Apform. May be null.
+     * WARNING : this spec may not have any corresponding entity in underlying execution platform.
+     * However, if a specification with the same logical name is deployed in the execution platform
+     * it will override this definition @see ApformApam.newSpecification.
+     * 
+     * @param specName the *logical* name of that specification
      * @param interfaces the list of interfaces this spec implements
      * @param properties : The initial properties.
      *            return an ASM Specification
@@ -41,7 +39,7 @@ public interface SpecificationBroker {
     /**
      * Creates and deploys a specification.
      * 
-     * @param specName the *logical* name of that specification; different from Apform. May be null.
+     * @param specName the *logical* name of that specification;
      * @param url the location of the executable to deploy
      */
     public Specification createSpec(String specName, URL url);

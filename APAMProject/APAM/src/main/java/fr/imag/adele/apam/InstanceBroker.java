@@ -19,15 +19,7 @@ public interface InstanceBroker {
      * @param properties . optional : the initial properties
      * @return an ASM Instance
      */
-    public Instance addInst(Composite compo, ApformInstance apformInst, Map properties);
-
-    /**
-     * returns the APAM instance related to the provided sam Instance.
-     * 
-     * @param samInst A SAM Instance
-     * @return
-     */
-    //    public ASMInst getInst(Instance samInst);
+    public Instance addInst(Composite compo, ApformInstance apformInst, Map<String,Object> properties);
 
     /**
      * Return the instances with that name.

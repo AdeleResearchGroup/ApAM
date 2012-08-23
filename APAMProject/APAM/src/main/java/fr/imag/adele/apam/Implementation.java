@@ -3,7 +3,6 @@ package fr.imag.adele.apam;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;

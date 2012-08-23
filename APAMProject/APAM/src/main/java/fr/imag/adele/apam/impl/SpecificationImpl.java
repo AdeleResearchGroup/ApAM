@@ -9,122 +9,98 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.core.ResourceReference;
-import fr.imag.adele.apam.core.SpecificationDeclaration;
-import fr.imag.adele.apam.util.ApamFilter;
-//import java.util.concurrent.ConcurrentHashMap;
-//import org.apache.felix.utils.filter.FilterImpl;
 
 
-public class SpecificationImpl extends ComponentImpl implements Specification, Comparable<Specification> {
+public class SpecificationImpl extends ComponentImpl implements Specification {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2752578219337076677L;
 	
-	private Logger logger = LoggerFactory.getLogger(SpecificationImpl.class);
-    private String                    name;
-    //private ApformSpecification       apfSpec         = null;
-    //private SpecificationDeclaration  declaration;
     private final Set<Implementation> implementations = Collections
     .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
+    /*
+     * All relation requires, derived from all the used implementations
+     */
     private final Set<Specification>  requires        = Collections
-    .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>()); // all
-    // relations
-    // requires
+    .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>()); 
+
+    /*
+     * All reverse requires, the opposite of requires
+     */
     private final Set<Specification>  invRequires     = Collections
     .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());  // all
-    // reverse
-    // relations
-    // requires
 
-    // private static Logger logger = Logger.getLogger(ASMSpecImpl.class);
+ 
+    protected SpecificationImpl(ApformSpecification apfSpec, Map<String,Object> configuration) {
+    	super(apfSpec, configuration);
+    	
+    	/*
+    	 * Add predefined properties
+    	 */
+        put(CST.A_SPECNAME, getName());
+    }
 
     @Override
-    public boolean equals(Object o) {
-        return (this == o);
+	public void register() {
+    	/*
+    	 * Add to broker
+    	 */
+        ((SpecificationBrokerImpl) CST.SpecBroker).add(this);
+        
+        /*
+    	 * Notify managers
+    	 * 
+    	 * TODO Add call back to add specification?
+         */
+	}
+
+    @Override
+    public void unregister() {
+    	
+    	/*
+    	 * Notify managers
+    	 * 
+    	 * TODO Add call back to remove specification?
+    	 */
+    	
+
+    	/*
+    	 * Remove all implementations providing this specification
+    	 * 
+    	 * TODO Is this really necessary? We should consider the special case of
+    	 * updates because we probably can reduce the impact of the modification.  
+    	 */
+        for (Implementation impl : implementations) {
+            ((ImplementationBrokerImpl)CST.ImplBroker).removeImpl(impl,false);
+        }
+    	
+        /*
+         * TODO What to do with implementations that reference this specification
+         * in its dependencies?
+         */
+        
+        /*
+         * remove from broker
+         */
+    	((SpecificationBrokerImpl) CST.SpecBroker).remove(this);
+    	
     }
 
-    public SpecificationImpl(String specName, ApformSpecification apfSpec, Set<ResourceReference> resources,
-            Map<String, Object> props) {
-
-    	super(apfSpec == null ? new ApformEmptySpec(specName,resources) : apfSpec,props);
-        
-    	assert  (((specName != null) || (apfSpec != null))) ;
-
-        
-//        if (specName == null) {
-//            name = apfSpec.getDeclaration().getName();
-//        } else
-//            name = specName;
-        put(CST.A_SPECNAME, getName());
-
-        //        interfaces = declaration.getProvidedInterfaces();
-        //        messages =
-
-//        putAll(apfSpec.getDeclaration().getProperties());
-        ((SpecificationBrokerImpl) CST.SpecBroker).addSpec(this);
-//        if (props != null)
-//            setAllProperties(props);
+    @Override
+    public ApformSpecification getApformSpec() {
+        return (ApformSpecification)getApformComponent();
     }
-
-
-//    @Override
-//    public String getName() {
-//        return name;
-//    }
 
     public void addImpl(Implementation impl) {
         implementations.add(impl);
     }
 
-    public void setName(String logicalName) {
-        if ((logicalName == null) || (logicalName == ""))
-            return;
-        if (name == null) {
-            name = logicalName;
-            return;
-        }
-        if (name.equals(logicalName))
-            return;
-        if ((apform != null) && name.equals(apform.getDeclaration().getName())) {
-            logger.debug("changing logical name, from " + name + " to " + logicalName);
-            name = logicalName;
-            return;
-        }
-        logger.error(" Error : cannot change specification name from " + name + " to " + logicalName);
-    }
-
-    @Override
-    public String toString() {
-        return getName();
-        //        String ret = "";
-        //        if (name == null) {
-        //            ret = " (" + apfSpec.getName() + ") ";
-        //        } else {
-        //            if (apfSpec == null)
-        //                ret = name;
-        //            else
-        //                ret = name + " (" + apfSpec.getName() + ") ";
-        //        }
-        //        return ret;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see fr.imag.adele.apf.ApformSpecification#getASMImpl(java.lang.String)
-     */
     @Override
     public Implementation getImpl(String name) {
         if (name == null)
@@ -191,16 +167,6 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
         return Collections.unmodifiableSet(invRequires);
     }
 
-    @Override
-    public ApformSpecification getApformSpec() {
-        return (ApformSpecification)apform;
-    }
-
-    protected void remove() {
-        for (Implementation impl : implementations) {
-            ((ImplementationBrokerImpl)CST.ImplBroker).removeImpl(impl,false);
-        }
-    }
 
     protected void removeImpl(Implementation impl) {
         implementations.remove(impl);
@@ -209,10 +175,6 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
     @Override
     public Set<Implementation> getImpls() {
         return Collections.unmodifiableSet(implementations);
-    }
-
-    public void setSpecApform(ApformSpecification apfSpec) {
-        this.apform = apfSpec;
     }
 
     @Override
@@ -312,46 +274,5 @@ public class SpecificationImpl extends ComponentImpl implements Specification, C
         return (Implementation) candidates.toArray()[0];
     }
 
-
-    @Override
-    public SpecificationDeclaration getDeclaration() {
-        return (SpecificationDeclaration)declaration;
-    }
-
-    /**
-     * Created only for those specifications that do not exist in the OSGi layer.
-     * Creates a minimal definition structure.
-     * 
-     * @author Jacky
-     * 
-     */
-    private static class ApformEmptySpec implements ApformSpecification {
-
-        private final SpecificationDeclaration declaration;
-
-        public ApformEmptySpec(String name, Set<ResourceReference> resources) {
-            declaration = new EmptySpecificationDeclaration(name, resources);
-        }
-
-        @Override
-        public SpecificationDeclaration getDeclaration() {
-            return declaration;
-        }
-        
-        @Override
-        public void setProperty (String attr, Object value) {
-        }
-
-    }
-    private static class EmptySpecificationDeclaration extends SpecificationDeclaration {
-        public EmptySpecificationDeclaration(String name, Set<ResourceReference> resources) {
-            super(name);
-            getProvidedResources().addAll(resources);
-        }
-    }
-	@Override
-	public int compareTo(Specification spec) {  
-	 return getName().toLowerCase().compareTo(spec.getName().toLowerCase());
-	}
 
 }

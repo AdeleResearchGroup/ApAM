@@ -45,7 +45,7 @@ public class CST {
     // Attributes that cannot be changed by users
     public static final String[]       finalAttributes       = {
         CST.A_SPECNAME, CST.A_IMPLNAME, CST.A_INSTNAME,
-        CST.A_COMPOSITE, CST.A_MAIN_COMPONENT,
+        CST.A_COMPOSITE, CST.A_MAIN_COMPONENT, CST.A_MAIN_INSTANCE,
         CST.A_INTERFACE, CST.A_MESSAGE
     };
 
@@ -55,6 +55,7 @@ public class CST {
     public static final String         A_INTERFACE       = "interface";
     public static final String         A_MESSAGE         = "message";
     public static final String         A_MAIN_COMPONENT  = "apam-main-component";
+    public static final String         A_MAIN_INSTANCE   = "apam-main-instance";
     public static final String         A_COMPOSITE       = "apam-composite";
     public static final String         A_COMPOSITETYPE   = "apam-compositetype";
 
@@ -68,9 +69,6 @@ public class CST {
     public static final String         DISTRIMAN         = "DISTRIMAN";
     public static final String         OBRMAN            = "OBRMAN";
 
-    public static final String         ROOTCOMPOSITETYPE = "rootCompositeType";
-    public static final String         ROOTCOMPOSITE	 = "rootComposite";
-    
     // The entry point in the ASM : its brokers
     public static SpecificationBroker  SpecBroker        = null;
     public static ImplementationBroker ImplBroker        = null;

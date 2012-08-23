@@ -96,7 +96,7 @@ public class ApformIPojoLegacyImplementation implements ApformImplementation {
 
 	@Override
 	public void setProperty(String attr, Object value) {
-		// TODO Auto-generated method stub
+		// TODO see if can reconfigure factory publication
 		
 	}
 

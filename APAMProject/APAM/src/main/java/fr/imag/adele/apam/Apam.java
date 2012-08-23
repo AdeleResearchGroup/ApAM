@@ -12,6 +12,30 @@ import java.util.Set;
 public interface Apam {
 
     /**
+     * Simply creates an instance of the composite type.
+     * It starts either because it implements the ApamComponnent interface,
+     * of calling its getServiceObject method.
+     */
+    public Composite startAppli(CompositeType compositeType);
+    
+    /**
+     * Resolve compositeTypeName and, if successful, creates an instance of that type.
+     * It starts either because it implements the ApamComponnent interface,
+     * of calling its getServiceObject method.
+     */
+    public Composite startAppli(String compositeTypeName);
+
+    /**
+     * deploys the bundle found at the provided URL. Looks in that bundle for a composite type
+     * with name "compositeTypeName.
+     * If found creates that composite type and creates an instance of that type.
+     * It starts either because it implements the ApamComponnent interface,
+     * of calling its getServiceObject method.
+     */
+    public Composite startAppli(URL compoTypeURL, String compositeTypeName);
+
+ 
+    /**
      * Creates a root composite type i.e. an application.
      * A single composite with this name can exist in APAM. Returns null if name conflicts.
      * 
@@ -34,7 +58,7 @@ public interface Apam {
      * 
      * @param inCompoType: name of the father composite type. Null if root (application).
      * @param name. name of the new composite to create. Unique.
-     * @param mainImplName. Name of the main implem. To be found in the bundle. If not found, returns null.
+     * @param mainImplName. Name of the main implem or spec. To be found in the bundle. If not found, returns null.
      * @param models. the composite models.
      * @param bundle : URL leading to a bundle containing either the main implementation or the composite.
      *            If main implementation bundle, and implName not found returns null.
@@ -43,10 +67,10 @@ public interface Apam {
      *            concatenation.
      * @param attributes optional : the initial properties to associate with this composite type (as an implementation).
      */
-    public CompositeType createCompositeType(String inCompoType, String name, String mainImplSpecName,
+    public CompositeType createCompositeType(String inCompoType, String name, String mainComponentName,
             Set<ManagerModel> models,
             URL bundle, String specName, Map<String, Object> properties);
-
+    
     /**
      * Return the composite type of that name, if existing. Null otherwise.
      * 
@@ -86,29 +110,5 @@ public interface Apam {
      * @return all the root composites. Also called "applications"
      */
     public Collection<Composite> getRootComposites();
-
-    // starting a new application is starting a composite.
-    /**
-     * Resolve compositeTypeName and, if successful, creates an instance of that type.
-     * It starts either because it implements the ApamComponnent interface,
-     * of calling its getServiceObject method.
-     */
-    public Composite startAppli(String compositeTypeName);
-
-    /**
-     * deploys the bundle found at the provided URL. Looks in that bundle for a composite type
-     * with name "compositeTypeName.
-     * If found creates that composite type and creates an instance of that type.
-     * It starts either because it implements the ApamComponnent interface,
-     * of calling its getServiceObject method.
-     */
-    public Composite startAppli(URL compoTypeURL, String compositeTypeName);
-
-    /**
-     * Simply creates an instance of the composite type.
-     * It starts either because it implements the ApamComponnent interface,
-     * of calling its getServiceObject method.
-     */
-    public Composite startAppli(CompositeType compositeType);
 
 }

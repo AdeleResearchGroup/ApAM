@@ -5,9 +5,7 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
-import fr.imag.adele.apam.core.Reference;
 import fr.imag.adele.apam.core.ResolvableReference;
-import fr.imag.adele.apam.impl.ApamResolverImpl;
 
 /**
  * Interface that each manager MUST implement. Used by APAM to resolve the dependencies and manage the application.

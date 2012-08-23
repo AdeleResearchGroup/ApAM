@@ -63,13 +63,6 @@ public interface CompositeType extends Implementation {
     public boolean isFriend(CompositeType destination);
 
     /**
-     * adds an implementation in the current composite type
-     * 
-     * @param impl
-     */
-    public void addImpl(Implementation impl);
-
-    /**
      * return true if the current type contains "impl"
      * 
      * @param spec
@@ -84,6 +77,7 @@ public interface CompositeType extends Implementation {
      */
     public Set<Implementation> getImpls();
 
+    
     /**
      * return the composite types embedded in the current one.
      * 
@@ -97,11 +91,5 @@ public interface CompositeType extends Implementation {
      * @return
      */
     public Set<CompositeType> getInvEmbedded();
-
-    //    /**
-    //     * 
-    //     * @return true if the attribute "internamImplementations" is set to "true"
-    //     */
-    //    public boolean isInternal();
 
 }

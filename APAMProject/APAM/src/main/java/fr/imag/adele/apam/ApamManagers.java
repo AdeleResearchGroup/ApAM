@@ -11,15 +11,17 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.impl.APAMImpl;
 import fr.imag.adele.apam.impl.CompositeTypeImpl;
 
 public class ApamManagers {
 
     private static Logger logger = LoggerFactory.getLogger(ApamManagers.class);
 	
-    private static Map<DependencyManager, Integer> dependencyManagersPrio = new HashMap<DependencyManager, Integer>();
-    private static List<DependencyManager>          dependencyManagerList  = new ArrayList<DependencyManager>();
+    /**
+     * The list of dependency managers, with their priorities
+     */
+    private static Map<DependencyManager, Integer> dependencyManagersPrio	= new HashMap<DependencyManager, Integer>();
+    private static List<DependencyManager>         dependencyManagers  		= new ArrayList<DependencyManager>();
 
     /**
      * The list of dynamic manager listeners
@@ -48,15 +50,15 @@ public class ApamManagers {
             priority = 0;
         }
         boolean inserted = false;
-        for (int i = 0; i < APAMImpl.managerList.size(); i++) {
-            if (priority <= APAMImpl.managerList.get(i).getPriority()) {
-                APAMImpl.managerList.add(i, manager);
+        for (int i = 0; i < dependencyManagers.size(); i++) {
+            if (priority <= dependencyManagers.get(i).getPriority()) {
+                dependencyManagers.add(i, manager);
                 inserted = true;
                 break;
             }
         }
         if (!inserted) { // at the end
-            APAMImpl.managerList.add(manager);
+            dependencyManagers.add(manager);
         }
         
         ManagerModel rootModel = CompositeTypeImpl.getRootCompositeType().getModel(manager.getName());
@@ -72,7 +74,7 @@ public class ApamManagers {
             logger.error("ERROR : Missing parameter manager in getManager");
             return null;
         }
-        for (DependencyManager man : APAMImpl.managerList) {
+        for (DependencyManager man : dependencyManagers) {
             if (man.getName().equals(managerName))
                 return man;
         }
@@ -84,7 +86,7 @@ public class ApamManagers {
      * @return the list of known managers
      */
     public static List<DependencyManager> getManagers() {
-        return Collections.unmodifiableList(APAMImpl.managerList);
+        return Collections.unmodifiableList(dependencyManagers);
     }
 
     /**
@@ -94,7 +96,7 @@ public class ApamManagers {
      */
     public static void removeDependencyManager(DependencyManager manager) {
         ApamManagers.dependencyManagersPrio.remove(manager);
-        ApamManagers.dependencyManagerList.remove(manager);
+        ApamManagers.dependencyManagers.remove(manager);
     }
 
     /**

@@ -2,6 +2,7 @@ package fr.imag.adele.apam.impl;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -11,15 +12,16 @@ import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.ResolvableReference;
@@ -92,7 +94,7 @@ public class ApamResolverImpl implements ApamResolver {
                     return new DepMult(compoDep.getIdentifier(), null, null);
             } else {
                 if (compoDep.getTarget() instanceof ImplementationReference) {
-                    String implName = ((ImplementationReference) compoDep.getTarget()).getName();
+                    String implName = ((ImplementationReference<?>) compoDep.getTarget()).getName();
                     Implementation impl = findImplByName(compoInst.getComposite().getCompType(), implName);
                     if (impl != null) {
                         if (clientDep.getTarget() instanceof SpecificationReference) {
@@ -156,18 +158,33 @@ public class ApamResolverImpl implements ApamResolver {
     }
 
     // if the instance is unused, it will become the main instance of a new composite.
-    private static Composite getClientComposite(Instance mainInst) {
-        if (mainInst.isUsed())
+    private Composite getClientComposite(Instance mainInst) {
+        
+    	if (mainInst.isUsed())
             return mainInst.getComposite();
 
-        Implementation mainImplem = mainInst.getImpl();
-        String newName = mainImplem.getName() + "_Appli";
-
-        CompositeType newCompoT = CompositeTypeImpl.createCompositeType(null, newName, mainImplem.getName(), null,
-                null, null);
-        // Composite intCompo = CompositeImpl.rootComposite;
-        return CompositeImpl.newCompositeImpl(newCompoT, CompositeImpl.getRootAllComposites(), mainInst,
-                (Map<String, Object>) null, newCompoT.getApformImpl().createInstance(null));
+        /*
+         * We are resolving a reference from an unused client instance. We automatically build a new composite
+         * to create a context of execution. This allow to use Apam without requiring the explicit definition of
+         * composites, just instantiating any implementation.
+         * 
+         * TODO should we provide a way to specify properties and models for the composites created automatically?
+         */
+    	
+    	Implementation mainComponent			= mainInst.getImpl();
+        String applicationName 					= mainComponent.getName() + "_Appli";
+        SpecificationReference specification	= mainComponent.getImplDeclaration().getSpecification();
+        Set<ManagerModel> models				= new HashSet<ManagerModel>();
+        
+        CompositeType application = apam.createCompositeType(null, applicationName,
+        									specification != null ? specification.getName() : null, mainComponent.getName(), models, null);
+        
+        /*
+         * Create an instance of the application with the specified main
+         */
+        Map<String, Object> initialProperties = new HashMap<String, Object>();
+        initialProperties.put(CST.A_MAIN_INSTANCE,mainInst);
+		return (Composite)application.createInstance(null,initialProperties);
     }
 
     /**
@@ -200,7 +217,7 @@ public class ApamResolverImpl implements ApamResolver {
         }
 
         // Promotion control
-        Composite compo = ApamResolverImpl.getClientComposite(client);
+        Composite compo = getClientComposite(client);
         // if it is a promotion, visibility and scope is the one of the embedding composite.
         DepMult depMult = getPromotion(client, dependency);
         Set<Instance> insts = null;
@@ -220,7 +237,7 @@ public class ApamResolverImpl implements ApamResolver {
             CompositeType compoType = compo.getCompType();
             if (impl == null) {
                 if (dependency.getTarget() instanceof ImplementationReference) {
-                    String implName = ((ImplementationReference) dependency.getTarget()).getName();
+                    String implName = ((ImplementationReference<?>) dependency.getTarget()).getName();
                     impl = CST.apamResolver.findImplByName(compoType, implName);
                 } else {
                     impl = CST.apamResolver.resolveSpecByResource(compoType, dependency);
@@ -247,11 +264,8 @@ public class ApamResolverImpl implements ApamResolver {
             if ((insts == null) || insts.isEmpty()) {
                 if (insts == null)
                     insts = new HashSet<Instance>();
-                Instance inst;
-                if (impl instanceof CompositeTypeImpl) {
-                    inst = ((CompositeTypeImpl) impl).createInst(compo, null);
-                } else
-                    inst = ((ImplementationImpl) impl).createInst(compo, null);
+
+                Instance inst = impl.createInstance(compo, null);
 
                 if (inst == null){// should never happen
                     logger.error("Failed creating instance of " + impl);
@@ -301,10 +315,19 @@ public class ApamResolverImpl implements ApamResolver {
      * @return : the managers that will be called for that resolution.
      */
     private List<DependencyManager> computeSelectionPathSpec(CompositeType compoTypeFrom, String specName) {
-        List<DependencyManager> selectionPath = new ArrayList<DependencyManager>();
-        for (int i = 1; i < APAMImpl.managerList.size(); i++) { // start from 1 to skip ApamMan
-            APAMImpl.managerList.get(i).getSelectionPathSpec(compoTypeFrom, specName, selectionPath);
-        }
+
+    	List<DependencyManager> selectionPath = new ArrayList<DependencyManager>();
+        for (DependencyManager dependencyManager : ApamManagers.getManagers()) {
+        	
+        	/*
+        	 * Skip apamman
+        	 */
+        	if (dependencyManager == apam.getApamMan())
+        		continue;
+        	
+        	dependencyManager.getSelectionPathSpec(compoTypeFrom, specName, selectionPath);
+		}
+        
         // To select first in Apam
         selectionPath.add(0, apam.getApamMan());
         return selectionPath;
@@ -313,9 +336,17 @@ public class ApamResolverImpl implements ApamResolver {
     private List<DependencyManager> computeSelectionPathImpl(CompositeType compTypeFrom, String implName) {
 
         List<DependencyManager> selectionPath = new ArrayList<DependencyManager>();
-        for (int i = 1; i < APAMImpl.managerList.size(); i++) { // start from 1 to skip ApamMan
-            APAMImpl.managerList.get(i).getSelectionPathImpl(compTypeFrom, implName, selectionPath);
-        }
+        for (DependencyManager dependencyManager : ApamManagers.getManagers()) {
+        	
+        	/*
+        	 * Skip apamman
+        	 */
+        	if (dependencyManager == apam.getApamMan())
+        		continue;
+        	
+        	dependencyManager.getSelectionPathImpl(compTypeFrom, implName, selectionPath);
+		}
+        
         // To select first in Apam
         selectionPath.add(0, apam.getApamMan());
         return selectionPath;
@@ -335,16 +366,19 @@ public class ApamResolverImpl implements ApamResolver {
      */
     private List<DependencyManager> computeSelectionPathInst(Composite compoFrom, Implementation impl,
             Set<Filter> constraints, List<Filter> preferences) {
-        if (APAMImpl.managerList.size() == 0) {
-            logger.error("No manager available. Cannot resolve ");
-            return null;
-        }
-
+ 
         List<DependencyManager> selectionPath = new ArrayList<DependencyManager>();
-        for (int i = 1; i < APAMImpl.managerList.size(); i++) { // start from 1 to skip ApamMan
-            APAMImpl.managerList.get(i).getSelectionPathInst(compoFrom, impl, constraints,
-                    preferences, selectionPath);
-        }
+        for (DependencyManager dependencyManager : ApamManagers.getManagers()) {
+        	
+        	/*
+        	 * Skip apamman
+        	 */
+        	if (dependencyManager == apam.getApamMan())
+        		continue;
+        	
+        	dependencyManager.getSelectionPathInst(compoFrom,impl,constraints,preferences,selectionPath);
+		}
+
         // To select first in Apam
         selectionPath.add(0, apam.getApamMan());
         return selectionPath;
@@ -363,21 +397,16 @@ public class ApamResolverImpl implements ApamResolver {
         	logger.debug(" : selected " + impl);
             return;
         }
+
         // it is deployed or was never used so far
 
-        // impl is inside compotype
-        compoType.addImpl(impl);
-
         if (impl.isUsed()) {
-        	logger.debug("Logicaly deployed " + impl);
+        	logger.debug(" : logically deployed " + impl);
         } else {// it was unused so far.
-            Apform.setUsedImpl(impl); // Remove it from unused
-            if (impl instanceof CompositeType) { // it is a composite type
-                // if impl is a composite type, it is embedded inside compoFrom
-                ((CompositeTypeImpl) compoType).addEmbedded((CompositeType) impl);
-            }
-            logger.debug("   deployed " + impl);
+            logger.debug(" : deployed " + impl);
         }
+        
+        ((CompositeTypeImpl)compoType).deploy(impl);
     }
 
     /**
@@ -612,7 +641,7 @@ public class ApamResolverImpl implements ApamResolver {
     }
 
     /**
-     * Once the resolution terminated, either sucessfull or not, the managers are notified of the current
+     * Once the resolution terminated, either successful or not, the managers are notified of the current
      * selection.
      * Currently, the managers cannot "undo" nor change the current selection.
      * 
@@ -622,11 +651,13 @@ public class ApamResolverImpl implements ApamResolver {
      * @param insts
      */
     private static void notifySelection(Instance client, ResolvableReference resName, String depName,
-            Implementation impl,
-            Instance inst, Set<Instance> insts) {
-        for (DependencyManager manager : APAMImpl.managerList) {
-            manager.notifySelection(client, resName, depName, impl, inst, insts);
-        }
+            					Implementation impl, Instance inst, Set<Instance> insts) {
+
+    	for (DependencyManager dependencyManager : ApamManagers.getManagers()) {
+        	
+        	dependencyManager.notifySelection(client, resName, depName, impl, inst, insts);
+		}
+    	
     }
 
 }

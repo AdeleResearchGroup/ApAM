@@ -2,27 +2,16 @@ package fr.imag.adele.apam;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.core.SpecificationDeclaration;
 
 public interface Specification extends Component {
 
-//    public String getName();
-//
-//
-//    /**
-//     * 
-//     * @return the associated SpecificationDeclaration
-//     */
-//    public SpecificationDeclaration getDeclaration();
-//
     /**
-     * return the apform specification (if existing !!) associated with this specification.
+     * return the apform specification associated with this specification.
      * 
      * @return
      */
@@ -94,20 +83,6 @@ public interface Specification extends Component {
      */
     public Implementation getPreferedImpl(Set<Implementation> candidates, List<Filter> preferences);
 
-    //    /**
-    //     * Get the spec interfaces.
-    //     * 
-    //     * @return the interfaces name
-    //     */
-    //    public Set<String> getInterfaceNames();
-    //
-    //    /**
-    //     * Get the spec interfaces.
-    //     * 
-    //     * @return the interfaces name
-    //     */
-    //    public Set<String> getMessageTypeNames();
-
     /**
      * Return the list of currently required specification.
      * WARNING : does not include required interfaces and messages.
@@ -123,7 +98,5 @@ public interface Specification extends Component {
      * @throws ConnectionException the connection exception
      */
     public Set<Specification> getInvRequires();
-
-//    public boolean match(Filter goal);
 
 }

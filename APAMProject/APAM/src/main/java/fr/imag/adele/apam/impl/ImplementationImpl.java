@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -12,164 +13,328 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.core.ImplementationReference;
+import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.Util;
 
-public class ImplementationImpl extends ComponentImpl implements Implementation, Comparable<Implementation> {
+public class ImplementationImpl extends ComponentImpl implements Implementation {
 
-    private static final long           serialVersionUID = 1L;
-
-    // all relationship use and their reverse
-    protected final Set<Implementation> uses             = Collections
-    .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
-    protected final Set<Implementation> invUses           = Collections
-    .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
+	private static Logger 				logger 				= LoggerFactory.getLogger(ImplementationImpl.class);
+    private static final long   		serialVersionUID	= 1L;
 
     // composite in which it is contained
-    protected final Set<CompositeType>  inComposites      = Collections
-    .newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
+    private  Set<CompositeType>  		inComposites	= Collections.newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
 
-    private final Object                id                = new Object();                 // only for hashCode
-//    protected ImplementationDeclaration declaration;
-
-//    protected String                    name;
-    protected Specification             mySpec;
-//    protected ApformImplementation      apfImpl           = null;
-    protected boolean                   used              = false;
+    private Specification      			mySpec;
 
     // the instances
-    protected Set<Instance>             instances        = Collections
-    .newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
-
-	Logger logger =  LoggerFactory.getLogger(ImplementationImpl.class);
+    private Set<Instance>      			instances		= Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
+    
+    // all relationship use and their reverse
+    private Set<Implementation> 		uses			= Collections.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
+    private Set<Implementation> 		invUses			= Collections.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
     // the sharable instances
     //    protected Set<Instance>             sharableInstances = new HashSet<Instance>();      // the sharable instances
 
 
     /**
-     * Instantiate a new service implementation.
-     */
-    // used ONLY when creating a composite type
-    protected ImplementationImpl(ApformComponent apform, Map<String, Object> properties) {
-    	super(apform,properties);
-    }
-
-    public ImplementationImpl(CompositeType compo, String specName, ApformImplementation apfImpl, Map<String, Object> props) {
-        super (apfImpl, props) ;
-//        assert ((apfImpl  != null) || (specName != null));
-//        assert (compo != null);
-
-        // specification control. Spec usually does not exist in Apform, but we need to create one anyway.
-        SpecificationImpl spec = null;
-        ApformSpecification apfSpec = null;
-        if (apfImpl != null) {
-            apfSpec = apfImpl.getSpecification();
-            if (apfSpec != null) { // may be null !
-                spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfSpec);
-            }
-        } else {
-            spec = (SpecificationImpl) CST.SpecBroker.getSpec(specName);
-        }
-        if ((spec == null) && (specName != null)) // No ASM spec related to the apf spec.
-            spec = (SpecificationImpl) CST.SpecBroker.getSpec(specName);
-        if (spec == null)
-            spec = (SpecificationImpl) CST.SpecBroker.getSpec(apfImpl.getDeclaration().getProvidedResources());
-        if (spec == null) {
-            if (specName == null) { // create an arbitrary name, and give the impl interface.
-                // TODO warning, it is an approximation, impl may have more interfaces than its spec
-                specName = apfImpl.getDeclaration().getName() + "_spec";
-            }
-            spec = new SpecificationImpl(specName, apfSpec, apfImpl.getDeclaration().getProvidedResources(), props);
-        }
-
-        //name = apfImpl.getDeclaration().getName(); // warning, for composites, it is a different name. Overloaded in createCompositeType
-        put(CST.A_IMPLNAME, apfImpl.getDeclaration().getName());
-        mySpec = spec;
-        spec.addImpl(this);
-        ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(this);
-        //this.apfImpl = apfImpl;
-        initializeNewImpl(compo, props);
-    }
-
-
-    public void initializeNewImpl(CompositeType compoType, Map<String, Object> props) {
-        //declaration = apfImpl.getDeclaration();
-        compoType.addImpl(this);
-        if (props != null) {
-            setAllProperties(props);
-        }
-        // put(CST.A_COMPOSITETYPE, compoType.getName());
-    }
-
-    @Override
-    public String toString() {
-        return getName();
-    }
-
-    /**
-     * From an implementation, create an instance. Creates both the apform and APAM instances.
+     * This class represents the Apam root implementation. 
+     * 
+     * This is an APAM concept without mapping at the execution platform level, we build an special
+     * apform object to represent it.
      * 
      */
-    protected Instance createInst(Composite instCompo, Map<String, Object> initialproperties) {
-        if ((get(CST.A_INSTANTIABLE) != null) && get(CST.A_INSTANTIABLE).equals(CST.V_FALSE)) {
-        	logger.debug("Implementation " + this + " is not instantiable");
-            return null;
-        }
-        ApformInstance apfInst = getApformImpl().createInstance(initialproperties);
-        InstanceImpl inst = InstanceImpl.newInstanceImpl(this, instCompo, initialproperties, apfInst);
-        return inst;
+    private static class SystemRootImplementation implements ApformImplementation {
+
+        private final CompositeDeclaration declaration;
+
+		public SystemRootImplementation(String name) {
+        	this.declaration =  new CompositeDeclaration(name,
+        								(SpecificationReference)null,
+        								new ImplementationReference<ImplementationDeclaration>("none"),
+        								(String)null,new ArrayList<String>());
+		}
+
+		@Override
+		public ImplementationDeclaration getDeclaration() {
+			return declaration;
+		}
+
+		@Override
+		public ApformSpecification getSpecification() {
+			return null;
+		}
+
+		@Override
+		public ApformInstance createInstance(Map<String, Object> initialproperties) {
+			throw new UnsupportedOperationException("method not available in root type");
+		}
+
+		@Override
+		public void setProperty(String attr,Object value) {
+			throw new UnsupportedOperationException("method not available in root type");
+		}
+    	
     }
 
     /**
-     * From an implementation, create an instance. Creates both the apform and APAM instances.
-     * Can be called from the API. Must check if instCompo can instantiate.
+     * This is an special constructor only used for the root type of the system 
      */
-    @Override
-    public Instance createInstance(Composite instCompo, Map<String, Object> initialproperties) {
-        if ((instCompo != null) && !Util.checkImplVisible(instCompo.getCompType(), this)) {
-            logger.error("cannot instantiate " + this + ". It is not visible from composite " + instCompo);
-            return null;
+    protected ImplementationImpl(String name) {
+    	super(new SystemRootImplementation(name),null);
+    	mySpec = CST.SpecBroker.createSpec(name+"_spec",new HashSet<ResourceReference>(),null);
+    }
+
+    /**
+     * Builds a new Apam implementation to represent the specified platform implementtaion in the Apam model.
+     */
+   protected ImplementationImpl(CompositeType composite, ApformImplementation apfImpl, Map<String, Object> props) {
+        super (apfImpl, props) ;
+        
+        ImplementationDeclaration declaration = apfImpl.getDeclaration();
+        
+        /*
+         * Reference the declared provided specification
+         */
+        if (declaration.getSpecification() != null) {
+        	mySpec = CST.SpecBroker.getSpec(declaration.getSpecification().getName());
+        	
+        	/*
+        	 * The specification may not have been defined in Apam yet, in this case we create
+        	 * a temporary declaration that will be overridden when the actual declaration is
+        	 * installed @see ApformApam.newSpecification
+        	 * 
+        	 * TODO WARNING This is an aproximation as the implementation may provide more
+        	 * resources that the specification, to review.
+        	 * 
+        	 * TODO Should we enforce that the provided specification must be declared and
+        	 * installed before any implementation referencing it (or at least providing it)?
+        	 * otherwise we can not validate that the implementation actually conforms to the
+        	 * declared specification.
+        	 */
+        	
+        	if (mySpec == null) {
+        		mySpec = CST.SpecBroker.createSpec(declaration.getSpecification().getName(),
+        									declaration.getProvidedResources(),
+        									(Map<String,Object>)null);
+        	}
         }
-        return createInst(instCompo, initialproperties);
+        
+        /*
+         * If the implementation does not provides explicitly any specification, we build a dummy 
+         * specification to allow the resolution algorithm to access the provided resources of this
+         * implementation
+         */
+        if (declaration.getSpecification() == null) {
+        	mySpec = CST.SpecBroker.createSpec(declaration.getName() + "_spec",
+					declaration.getProvidedResources(),
+					(Map<String,Object>)null);
+        }
+        
+        /*
+         * Reference the enclosing composite type
+         */
+        addInComposites(composite);
+        
+        /*
+         * Add predefined properties
+         */
+        put(CST.A_IMPLNAME, declaration.getName());
+    }
+
+	@Override
+	public void register() {
+		
+    	/*
+    	 * Opposite references from specification and enclosing composite type
+    	 */
+		((SpecificationImpl)mySpec).addImpl(this);
+		
+		for (CompositeType inComposite : inComposites) {
+	        ((CompositeTypeImpl)inComposite).addImpl(this);
+		}
+        
+        /*
+         * Add to broker
+         */
+        ((ImplementationBrokerImpl)CST.ImplBroker).add(this);
+        
+        /*
+         * Notify managers
+         */
+        ApamManagers.notifyAddedInApam(this);
+        
+	}
+
+
+	@Override
+	public void unregister() {
+
+        /*
+         * Notify managers
+         */
+        ApamManagers.notifyRemovedFromApam(this);
+		
+		/*
+		 * remove all existing instances
+		 * 
+		 */
+        for (Instance inst : instances) {
+            ((InstanceBrokerImpl)CST.InstBroker).removeInst(inst);
+        }
+
+    	/*
+    	 * Remove opposite references from specification and enclosing composite types
+    	 */
+        ((SpecificationImpl) getSpec()).removeImpl(this);
+		for (CompositeType inComposite : inComposites) {
+	        ((CompositeTypeImpl)inComposite).removeImpl(this);
+		}
+		
+		mySpec = null;
+		inComposites.clear();
+		
+
+        /*
+         * Remove from broker
+         */
+        ((ImplementationBrokerImpl) CST.ImplBroker).remove(this);
+        
+	}
+
+    @Override
+    public ApformImplementation getApformImpl() {
+        return (ApformImplementation) getApformComponent();
     }
 
     @Override
-    public boolean match(Filter goal) {
-        if (goal == null)
-            return true;
-        try {
-            return ((ApamFilter) goal).matchCase(getAllProperties());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-
-    // WARNING : no control ! Only called by the instance Broker.
-    public void addInst(Instance inst) {
-        if (inst != null) {
-            instances.add(inst);
-            //            if (inst.isSharable())
-            //                sharableInstances.add(inst);
-        }
+    public ImplementationDeclaration getImplDeclaration() {
+        return (ImplementationDeclaration)getDeclaration();
     }
 
     @Override
     public Specification getSpec() {
         return mySpec;
+    }
+    
+    @Override
+    public Set<CompositeType> getInCompositeType() {
+        return Collections.unmodifiableSet(inComposites);
+    }
+    
+    public void addInComposites(CompositeType compo) {
+        inComposites.add(compo);
+    }
+
+    public void removeInComposites(CompositeType compo) {
+        inComposites.remove(compo);
+    }
+
+    @Override
+    public boolean isUsed() {
+        return ! inComposites.contains(CompositeTypeImpl.getRootCompositeType());
+    }
+
+    /**
+     * only here for future optimization.
+     * shared is applied on all the instances
+     */
+    @Override
+    public boolean isSharable() {
+        if (get(CST.A_SHARED) == null)
+            return true;
+        return get(CST.A_SHARED).equals(CST.V_TRUE);
+    }
+
+    @Override
+    public boolean isInstantiable() {
+        String instantiable = (String) get(CST.A_INSTANTIABLE);
+        return (instantiable == null) ? true : instantiable.equals(CST.V_TRUE);
+    }
+	
+    /**
+     * From an implementation, create an instance. Creates both the apform and APAM instances.
+     * Can be called from the API. 
+     * 
+     * Must check if source composite can instantiate this implementation.
+     */
+    @Override
+    public Instance createInstance(Composite composite, Map<String, Object> initialproperties) {
+        if ((composite != null) && !Util.checkImplVisible(composite.getCompType(), this)) {
+            logger.error("cannot instantiate " + this + ". It is not visible from composite " + composite);
+            return null;
+        }
+
+    	if (composite == null)     	{
+    		composite = CompositeImpl.getRootAllComposites();
+    	}
+        
+        Instance instance = instantiate(composite, initialproperties);
+        ((InstanceImpl)instance).register();
+        
+        return instance;
+    }
+	
+	/**
+     * Create a new instance from this implementation in Apam and in the underlying execution platform.
+     * 
+     * WARNING The created Apam instance is not automatically published in the Apam state, nor
+     * added to the list of instances of this implementation. This is actually done when the returned
+     * instance is registered by the caller of this method.
+     * 
+     * This method is not intended to be used as external API.
+     */
+    protected Instance instantiate(Composite composite, Map<String,Object> initialproperties) {
+        if (! this.isInstantiable()) {
+        	logger.debug("Implementation " + this + " is not instantiable");
+            return null;
+        }
+        
+        return reify(composite,getApformImpl().createInstance(initialproperties),null);
+    }
+    
+    /**
+     * Reifies in Apam an instance of this implementation from the information of the underlying
+     * platform. 
+     * 
+     * This method should be overridden to implement different reification semantics for different
+     * subclasses of implementation.
+     * 
+     * WARNING The reified Apam instance is not automatically published in the Apam state, nor
+     * added to the list of instances of this implementation. This is actually done when the returned
+     * instance is registered by the caller of this method.
+     * 
+     * This method is not intended to be used as external API.
+     * 
+     */
+    protected Instance reify(Composite composite, ApformInstance platformInstance, Map<String,Object> initialproperties) {
+        return new InstanceImpl(composite,platformInstance,initialproperties);
+    }
+    
+
+    // WARNING : no control ! Only called by instance registration.
+    public void addInst(Instance instance) {
+       	assert instance != null && !instances.contains(instance);
+       	instances.add(instance);
+    }
+    
+    public void removeInst(Instance instance) {
+    	assert instance != null && instances.contains(instance);
+        instances.remove(instance);
     }
 
     @Override
@@ -193,15 +358,9 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
         return (Instance) instances.toArray()[0];
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see fr.imag.adele.sam.Implementation#getInstances()
-     */
     @Override
     public Set<Instance> getInsts() {
         return Collections.unmodifiableSet(instances);
-        // return new HashSet <ASMInst> (instances) ;
     }
 
     //    @Override
@@ -317,33 +476,19 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
         return winner;
     }
 
-//    @Override
-//    public String getName() {
-//        return name;
-//    }
-
-    /**
-     * returns the visibility.
-     * WARNING : an implem can pertain to various composite types that can overload (reduce) the visibility.
-     * Is returned only the intrinsic visibility.
-     */
-    //    @Override
-    //    public String getVisible() {
-    //        String visible = (String) get(CST.A_VISIBLE);
-    //        if (visible == null)
-    //            visible = CST.V_GLOBAL;
-    //        return visible;
-    //    }
-
-    //    @Override
-    //    public String getShared() {
-    //        String shared = (String) get(CST.A_SHARED);
-    //        if (shared == null)
-    //            shared = CST.V_TRUE;
-    //        return shared;
-    //    }
 
     // relation uses control
+    
+    @Override
+    public Set<Implementation> getUses() {
+        return Collections.unmodifiableSet(uses);
+    }
+
+    @Override
+    public Set<Implementation> getInvUses() {
+        return Collections.unmodifiableSet(invUses);
+    }
+    
     public void addUses(Implementation dest) {
         if (uses.contains(dest))
             return;
@@ -371,82 +516,5 @@ public class ImplementationImpl extends ComponentImpl implements Implementation,
     private void removeInvUses(Implementation orig) {
         invUses.remove(orig);
     }
-
-    public void addInComposites(CompositeType compo) {
-        inComposites.add(compo);
-    }
-
-    public void removeInComposites(CompositeType compo) {
-        inComposites.remove(compo);
-    }
-
-    @Override
-    public Set<Implementation> getUses() {
-        return Collections.unmodifiableSet(uses);
-    }
-
-    @Override
-    public Set<Implementation> getInvUses() {
-        return Collections.unmodifiableSet(invUses);
-    }
-
-    //
-    public void remove() {
-        for (Instance inst : instances) {
-            ((InstanceBrokerImpl)CST.InstBroker).removeInst(inst,false);
-        }
-    }
-
-    public void removeInst(Instance inst) {
-        instances.remove(inst);
-        //        if (inst.isSharable())
-        //            sharableInstances.remove(inst);
-    }
-
-    @Override
-    public ApformImplementation getApformImpl() {
-        return (ApformImplementation)apform;
-    }
-
-    @Override
-    public boolean isInstantiable() {
-        String instantiable = (String) get(CST.A_INSTANTIABLE);
-        return (instantiable == null) ? true : instantiable.equals(CST.V_TRUE);
-    }
-
-    @Override
-    public Set<CompositeType> getInCompositeType() {
-        return Collections.unmodifiableSet(inComposites);
-    }
-
-    @Override
-    public boolean isUsed() {
-        return used;
-    }
-
-    public void setUsed(boolean used) {
-        this.used = used;
-    }
-
-    @Override
-    public ImplementationDeclaration getImplDeclaration() {
-        return (ImplementationDeclaration)declaration;
-    }
-
-    /**
-     * only here for future optimization.
-     * shared is applied on all the instances
-     */
-    @Override
-    public boolean isSharable() {
-        if (get(CST.A_SHARED) == null)
-            return true;
-        return get(CST.A_SHARED).equals(CST.V_TRUE);
-    }
-
-	@Override
-	public int compareTo(Implementation impl) {
-		return getName().toLowerCase().compareTo(impl.getName().toLowerCase());
-	}
 
 }

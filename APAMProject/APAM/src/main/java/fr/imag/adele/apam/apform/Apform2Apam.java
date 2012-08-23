@@ -8,26 +8,17 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.impl.CompositeImpl;
-import fr.imag.adele.apam.impl.CompositeTypeImpl;
 import fr.imag.adele.apam.impl.ImplementationBrokerImpl;
 import fr.imag.adele.apam.impl.InstanceBrokerImpl;
 import fr.imag.adele.apam.impl.SpecificationBrokerImpl;
 import fr.imag.adele.apam.impl.SpecificationImpl;
 
 public class Apform2Apam {
-    //    static Set<String>  expectedDeployedImpls = new HashSet<String>();
 	
-    static final CompositeType    rootType      = CompositeTypeImpl.getRootCompositeType();
-    static final Composite        rootInst      = CompositeImpl.getRootAllComposites();
-    static Set<Implementation>    unusedImplems = CompositeTypeImpl.getRootCompositeType().getImpls();
     private static Logger logger = LoggerFactory.getLogger(Apform2Apam.class);
     /**
      * The event executor. We use a pool of a threads to handle notification to APAM of underlying platform
@@ -121,12 +112,8 @@ public class Apform2Apam {
             if (CST.ImplBroker.getImpl(implementationName) == null)
                 Apform2Apam.waitForDeployedImplementation(implementationName);
 
-            Instance inst = CST.InstBroker.addInst(Apform2Apam.rootInst, instance, instance.getDeclaration().getProperties());
+            CST.InstBroker.addInst(null,instance,null);
 
-            /*
-             * Notify dynamic manager of instance appearance
-             */
-            ApamManagers.notifyExternal(inst);
         }
 
     }
@@ -150,14 +137,13 @@ public class Apform2Apam {
         @Override
         public void process() {
 
-            Implementation impl = Apform.getUnusedImplem(implementationName);
+            Implementation impl = CST.ImplBroker.getImpl(implementationName);
             if (impl != null) {
                 logger.error("Implementation already existing: " + implementationName);
                 return;
             }
 
-            impl = ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(Apform2Apam.rootType, implementation,
-                    implementation.getDeclaration().getProperties());
+            impl = ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(null,implementation,null);
 
             // wake up any threads waiting for this implementation to be deployed
             synchronized (Apform2Apam.expectedImpls) {
@@ -166,14 +152,6 @@ public class Apform2Apam {
                     Apform2Apam.expectedImpls.notifyAll(); // wake up the thread waiting in waitForDeployedImplementation
                 }
             }
-
-            /*
-             * Notify dynamic manager of implementation deployment
-             * 
-             * TODO How to know in which composite type the implementation was deployed
-             */
-            //            ApamManagers.notifyDeployed(impl.getInCompositeType().iterator().next(), impl);
-            //            ApamManagers.notifyR(impl.getInCompositeType().iterator().next(), impl);
 
         }
 
@@ -187,25 +165,24 @@ public class Apform2Apam {
      */
     private static class SpecificationDeploymentProcessing extends ApformEventProcessing {
 
-        private final String              specificationName;
         private final ApformSpecification specification;
 
-        public SpecificationDeploymentProcessing(String specificationName, ApformSpecification specification) {
-            this.specificationName = specificationName;
+        public SpecificationDeploymentProcessing(ApformSpecification specification) {
             this.specification = specification;
         }
 
         @Override
         public void process() {
 
+        	String specificationName = specification.getDeclaration().getName();
             Specification spec = CST.SpecBroker.getSpec(specificationName);
             if (spec != null) {
                 logger.error("Specification already existing: merging with " + specificationName);
-                ((SpecificationImpl) spec).setSpecApform(specification);
+                ((SpecificationImpl) spec).setApform(specification);
                 return;
             }
 
-            spec = CST.SpecBroker.addSpec(specificationName, specification, specification.getDeclaration().getProperties());
+            spec = CST.SpecBroker.addSpec(specification,null);
 
             // wake up any threads waiting for this specification to be deployed
             synchronized (Apform2Apam.expectedSpecs) {
@@ -241,7 +218,7 @@ public class Apform2Apam {
      * @param client
      */
     public static void newSpecification(String specName, ApformSpecification client) {
-        Apform2Apam.executor.execute(new SpecificationDeploymentProcessing(specName, client));
+        Apform2Apam.executor.execute(new SpecificationDeploymentProcessing(client));
     }
 
     /**

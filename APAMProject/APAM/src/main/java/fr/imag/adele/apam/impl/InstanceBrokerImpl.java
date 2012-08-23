@@ -11,37 +11,78 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.InstanceBroker;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformInstance;
 
-//import fr.imag.adele.am.LocalMachine;
-//import fr.imag.adele.am.Machine;
-//import fr.imag.adele.am.eventing.AMEventingHandler;
-//import fr.imag.adele.am.eventing.EventingEngine;
-//import fr.imag.adele.am.exception.ConnectionException;
-//import fr.imag.adele.apam.ASMImpl.SamInstEventHandler;
-//import fr.imag.adele.apam.util.Attributes;
-//import fr.imag.adele.apam.util.AttributesImpl;
-//import fr.imag.adele.sam.Instance;
-//import fr.imag.adele.sam.event.EventProperty;
-
 public class InstanceBrokerImpl implements InstanceBroker {
-    //    private final Set<Instance> sharableInstances = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
-    private final Set<Instance> instances         = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
+
+    private static final Logger logger 		= LoggerFactory.getLogger(InstanceBrokerImpl.class);
+	
+    private final Set<Instance> instances   = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
 
     //  private final Set<Instance>               instances         = new HashSet<Instance>();
     //    private final Set<Instance>               sharableInstances = new HashSet<Instance>();
-    Logger logger = LoggerFactory.getLogger(InstanceBrokerImpl.class);
-    public InstanceBrokerImpl() {
-    }
+	//    private final Set<Instance> sharableInstances = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
 
+    @Override
+    public Instance addInst(Composite composite, ApformInstance apfInst, Map<String,Object> properties) {
+ 
+    	assert apfInst != null;
+    	assert CST.ImplBroker.getImpl(apfInst.getDeclaration().getImplementation().getName()) != null;
+    	assert getInst(apfInst.getDeclaration().getName()) == null;
+    	
+    	if (apfInst == null)     	{
+        	logger.error("Error adding null Apform instance");
+            return null;
+    	}
+    	
+        Implementation implementation = CST.ImplBroker.getImpl(apfInst.getDeclaration().getImplementation().getName());
+        if (implementation == null) {
+        	logger.error("Implementation is not existing in addInst: " + apfInst.getDeclaration().getImplementation().getName());
+        	return null;
+        }
+    	
+        Instance instance = getInst(apfInst.getDeclaration().getName());
+        if (instance != null) { 
+        	logger.error("Instance already existing: " + apfInst.getDeclaration().getName());
+            return instance;
+        }
+
+    	if (composite == null)     	{
+    		composite = CompositeImpl.getRootAllComposites();
+    	}
+        
+    	instance = ((ImplementationImpl)implementation).reify(composite,apfInst,properties);
+        ((InstanceImpl)instance).register();
+        return instance;
+    }
+    
+    /**
+     * TODO change visibility, currently this method is public to be visible from Apform
+     */
+    public  void removeInst(Instance inst) {
+    	removeInst(inst,true);
+    }
+    
+    protected void removeInst(Instance inst, boolean notify) {
+        ((InstanceImpl)inst).unregister();
+    }
+    
+    public void add(Instance instance) {
+    	assert instance != null && ! instances.contains(instance);
+    	instances.add(instance);
+    }
+    
+    public void remove(Instance instance) {
+    	assert instance != null && instances.contains(instance);
+    	instances.remove(instance);
+    }
+    
     @Override
     public Instance getInst(String instName) {
         if (instName == null)
@@ -97,66 +138,6 @@ public class InstanceBrokerImpl implements InstanceBroker {
         return ret;
     }
 
-    @Override
-    public Instance addInst(Composite instComposite, ApformInstance apfInst, Map properties) {
-        assert (apfInst != null);
 
-        Implementation impl = null;
-        Instance inst;
-        inst = CST.InstBroker.getInst(apfInst.getDeclaration().getName());
-        if (inst != null) { // allready existing ! May have been created by
-            // DYNAMAN, without all parameters
-        	logger.error("Instance already existing: " + inst);
-            return inst;
-        }
-
-        String implementationName = apfInst.getDeclaration().getImplementation().getName();
-        impl = CST.ImplBroker.getImpl(implementationName);
-        if (impl == null) { // create the implem also
-        	logger.error("Implementation is not existing in addInst: " + implementationName);
-        }
-
-        // Composite implementations can be installed too.
-        if (impl instanceof CompositeType) {
-            inst = CompositeImpl.newCompositeImpl((CompositeType) impl, instComposite, null, properties, apfInst);
-        }
-        else {
-            inst = InstanceImpl.newInstanceImpl(impl, instComposite, null, apfInst);
-        }
-
-        return inst;
-    }
-
-    // adds both in the broker and in its implem
-    public void addInst(Instance inst) {
-        if ((inst != null) && !instances.contains(inst)) {
-            instances.add(inst);
-            ApamManagers.notifyAddedInApam(inst);
-            ((ImplementationImpl) inst.getImpl()).addInst(inst);
-            //            if (inst.isSharable())
-            //                sharableInstances.add(inst);
-        }
-    }
-
-    protected void removeInst(Instance inst, boolean notify) {
-        assert inst != null;
-        assert instances.contains(inst);
-        
-        if (notify)
-        	ApamManagers.notifyRemovedFromApam(inst);
-
-        //            sharableInstances.remove(inst);
-        ((InstanceImpl) inst).remove(); // wires and sam attributes
-        
-        ((ImplementationImpl) inst.getImpl()).removeInst(inst);
-        instances.remove(inst);
-    }
-    
-    /**
-     * TODO change visibility, currently this method is public to be visible from Apform
-     */
-    public  void removeInst(Instance inst) {
-    	removeInst(inst,true);
-    }
 
 }

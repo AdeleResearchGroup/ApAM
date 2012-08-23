@@ -1,77 +1,16 @@
 package fr.imag.adele.apam.apform;
 
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.impl.CompositeImpl;
-import fr.imag.adele.apam.impl.CompositeTypeImpl;
-import fr.imag.adele.apam.impl.ImplementationImpl;
-import fr.imag.adele.apam.impl.InstanceImpl;
 
 public class Apform {
 
 	private static Logger logger = LoggerFactory.getLogger(Apform.class);
 	
-    private static final CompositeType              rootType              = CompositeTypeImpl.getRootCompositeType();
-    private static final Composite                  rootInst              = CompositeImpl.getRootAllComposites();
-
-    private static Set<Implementation>              unusedImplems         = CompositeTypeImpl.getRootCompositeType().getImpls();
-    private static Set<Instance>                    unusedInsts           = CompositeImpl.getRootAllComposites()
-    .getContainInsts();
-
-    public static Implementation getUnusedImplem(String name) {
-        Implementation impl = CST.ImplBroker.getImpl(name);
-        if (impl == null)
-            return null;
-        return (Apform.unusedImplems.contains(impl)) ? impl : null;
-    }
-
-    public static Instance getUnusedInst(String name) {
-        Instance inst = CST.InstBroker.getInst(name);
-        if (inst == null)
-            return null;
-        return (Apform.unusedInsts.contains(inst)) ? inst : null;
-    }
-
-    /**
-     * The implementation that was unused so far, is now logicaly deployed.
-     * Remove it from the unUsed compositeType.
-     * 
-     * @param impl
-     */
-    public static void setUsedImpl(Implementation impl) {
-        if (impl.isUsed())
-            return;
-        ((ImplementationImpl) impl).setUsed(true);
-        ((CompositeTypeImpl) Apform.rootType).removeImpl(impl);
-        if (impl instanceof CompositeType) { // it is a composite
-            ((CompositeTypeImpl) Apform.rootType).removeEmbedded((CompositeType) impl);
-        }
-    }
-
-    /**
-     * The implementation that was unused so far, is now logically deployed.
-     * Remove it from the unUsed compositeType.
-     * 
-     * @param impl
-     */
-    public static void setUsedInst(Instance inst) {
-        if (inst.isUsed())
-            return;
-        ((CompositeImpl) Apform.rootInst).removeInst(inst);
-        ((InstanceImpl) inst).setUsed(true);
-        //        if (inst instanceof Composite) { // it is a composite. Should never happen ?
-        //            ((CompositeImpl) Apform.rootInst).removeSon((Composite) inst);
-        //        }
-    }
 
     /**
      * A bundle is under deployment, in which is located the implementation to wait.

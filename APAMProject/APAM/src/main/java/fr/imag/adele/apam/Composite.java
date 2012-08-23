@@ -6,7 +6,7 @@ import java.util.Set;
 public interface Composite extends Instance {
 
     /**
-     * retiurns the main instance
+     * returns the main instance
      * 
      * @return
      */
@@ -47,7 +47,7 @@ public interface Composite extends Instance {
 
     /**
      * 
-     * @return the existing depend relatiponships
+     * @return the existing depend relationships
      */
     public Set<Composite> getDepend();
 
@@ -58,7 +58,7 @@ public interface Composite extends Instance {
     public Set<Composite> getInvDepend();
 
     /**
-     * returns true if htis composite depends on "destination"
+     * returns true if this composite depends on "destination"
      * 
      * @param destination
      * @return
@@ -73,7 +73,7 @@ public interface Composite extends Instance {
 
     /**
      * 
-     * @return the set of sons of this compositre (i.e. the implementations it ocntains that are composites.
+     * @return the set of sons of this composite (i.e. the implementations it contains that are composites.
      */
     public Set<Composite> getSons();
 
@@ -91,15 +91,9 @@ public interface Composite extends Instance {
      */
     public Set<ManagerModel> getModels();
 
+ 
     /**
-     * adds a "contains" relationship toward the instance.
-     * 
-     * @param inst
-     */
-    public void addContainInst(Instance inst);
-
-    /**
-     * retuirn true if the instance is contained in the current one.
+     * return true if the instance is contained in the current one.
      * 
      * @param inst
      * @return

@@ -14,13 +14,6 @@ import fr.imag.adele.apam.apform.ApformImplementation;
 
 public interface ImplementationBroker {
 
-    /**
-     * return the ASM implementation associated with that sam implementation
-     * 
-     * @param samImpl
-     * @return
-     */
-    public Implementation getImpl(ApformImplementation apfImpl);
 
     /**
      * If the sam implementation of name samImplName is found, creates a new implementation, and adds it in the broker.
@@ -30,9 +23,7 @@ public interface ImplementationBroker {
      * @param properties. The initial properties of that implementation (merged with the sam properties)
      * @return the new created implementation, null if failed.
      */
-    //    public ASMImpl addImpl(CompositeType compoType, String apfName, Attributes properties);
-
-    //    public ASMImpl addImpl(CompositeType compo, ApformImplementation apfImpl, Attributes properties);
+    public Implementation addImpl(CompositeType compo, ApformImplementation apfImpl, Map<String,Object> properties);
 
     /**
      * Deploys and creates both the SAM implem and Spec; and the the corresponding ASM spec and implem
@@ -46,6 +37,14 @@ public interface ImplementationBroker {
 
     //    public void removeImpl(Implementation impl);
 
+    /**
+     * return the ASM implementation associated with that sam implementation
+     * 
+     * @param samImpl
+     * @return
+     */
+    public Implementation getImpl(ApformImplementation apfImpl);
+    
     /**
      * Return an implementation with the provided name.
      * 

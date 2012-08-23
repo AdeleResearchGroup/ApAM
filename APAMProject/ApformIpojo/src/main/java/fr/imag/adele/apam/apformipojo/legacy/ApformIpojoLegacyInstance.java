@@ -107,8 +107,7 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
 
 	@Override
 	public void setProperty(String attr, Object value) {
-		// TODO Auto-generated method stub
-		
+		// TODO reconfigure iPojo instance
 	}
 
 }

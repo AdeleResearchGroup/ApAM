@@ -2,7 +2,7 @@ package fr.imag.adele.apam.impl;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,350 +13,386 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.core.InstanceDeclaration;
 
 public class CompositeImpl extends InstanceImpl implements Composite {
 
-    // Global variable.
-    private static Map<String, Composite> composites    = new ConcurrentHashMap<String, Composite>();
-    private static Composite              rootComposite = new CompositeImpl();
+	private static final long serialVersionUID = 1L;
+	
+	/*
+	 * Global variables to keep the hierarchy of composites
+	 * 
+	 * TODO should we refactor and move these static variables to a CompositeBroker or to Apam implementation? 
+	 */
+	private static final Composite 				rootComposite 	= new CompositeImpl();
+	private static final Map<String, Composite> composites 		= new ConcurrentHashMap<String, Composite>();
 
-    private final CompositeType           compType;
-    private final Implementation          mainImpl;
-    private final Instance                mainInst;
-    private final Composite               appliComposite;                                  // root of father rel
-    private final Set<Instance>           hasInstance   = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
+	public static Composite getRootAllComposites() {
+		return CompositeImpl.rootComposite;
+	}
 
-    // the dependencies between composites
-    private final Set<Composite>          depend        = Collections.newSetFromMap(new ConcurrentHashMap<Composite, Boolean>());
-    private final Set<Composite>          invDepend     = Collections.newSetFromMap(new ConcurrentHashMap<Composite, Boolean>());  // reverse dependency
+	public static Collection<Composite> getRootComposites() {
+		return Collections.unmodifiableSet(CompositeImpl.rootComposite.getSons());
+	}
 
-    // The father-son relationship
-    private final Set<Composite>          sons          = Collections
-    .newSetFromMap(new ConcurrentHashMap<Composite, Boolean>());
-    private Composite                     father;                                          // null if appli
+	public static Collection<Composite> getComposites() {
+		return Collections.unmodifiableCollection(CompositeImpl.composites.values());
+	}
+
+	public static Composite getComposite(String name) {
+		return CompositeImpl.composites.get(name);
+	}
+
+	/*
+	 * the contained instances
+	 */
+	private Instance 		mainInst;
+	private Set<Instance> 	hasInstance = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
+
+	/*
+	 *  The father-son relationship of the composite hierarchy
+	 *  
+     *  This is a subset of the instance hierarchy restricted only to composites. 
+	 */
+	private Set<Composite>	sons = Collections.newSetFromMap(new ConcurrentHashMap<Composite, Boolean>());
+	private Composite 		father; // null if root composite
+	private Composite 		appliComposite; // root of father relationship
+	
+	/*
+	 *  the dependencies between composites
+	 */
+	private Set<Composite> 	depend = Collections.newSetFromMap(new ConcurrentHashMap<Composite, Boolean>());
+	private Set<Composite> 	invDepend = Collections.newSetFromMap(new ConcurrentHashMap<Composite, Boolean>());
+
 
     /**
-     * This constructor is only available for the root composite. The root composite is the only composite
-     * without an associated main instance.
+     * This is an special constructor only used for the root instance of the system 
      */
-    private CompositeImpl() {
-        super(new ApformRootComposite(),new HashMap<String, Object>());
-        mainImpl = null;
-        mainInst = null;
-        compType = CompositeTypeImpl.getRootCompositeType(this);
-        appliComposite = null;
-    }
+	private CompositeImpl() {
+		super(CompositeTypeImpl.getRootCompositeType(),"rootComposite");
+		
+		this.mainInst 		= null;
 
-    //    public static Composite getRootComposite() {
-    //        return CompositeImpl.rootComposite;
-    //    }
-
-    public static CompositeImpl newCompositeImpl(CompositeType compType, Composite instCompo,
-            Instance externalMainInst, Map<String, Object> initialproperties, ApformInstance apfInst) {
-        if (instCompo == null) {
-            instCompo = CompositeImpl.rootComposite;
-        }
-        return new CompositeImpl(compType, instCompo, externalMainInst, initialproperties, apfInst);
-    }
-
-    private CompositeImpl(CompositeType compType, Composite instCompo, Instance externalMainInst,
-            Map<String, Object> initialproperties, ApformInstance apfInst) {
-
-        // First create the composite, as a normal instance
-        super(compType, instCompo, initialproperties, apfInst);
-        put(CST.A_COMPOSITE, CST.V_TRUE);
-        // initialize as a composite
-        this.compType = compType;
-
-        mainImpl = compType.getMainImpl();
-
-        // if it is a composite created from an unused inst that calls Apam;
-        // create the main instance with this composite as container.
-        // Each composite has a different main instance; do not try to reuse an existing instance.
-        if (externalMainInst == null) { // normal case
-            externalMainInst = ((ImplementationImpl) compType.getMainImpl())
-            .createInst(this, null /*initialproperties */);
-        }
-        mainInst = externalMainInst;
-        // main instance is never shared
-        ((InstanceImpl) mainInst).put(CST.A_SHARED, CST.V_FALSE);
-        Apform.setUsedInst(mainInst); // useful ??
-
-        // instCompo is both the father, and the composite that contains the new one, seen as a usual ASMInst.
-        ((CompositeImpl) instCompo).addSon(this);
-        CompositeImpl.composites.put(getName(), this);
-
-        // initialize the composite as ASMInst
-        hasInstance.add(mainInst);
-
-        // if it is a root composite
-        if (instCompo.getAppliComposite() == null) {
-            appliComposite = this;
-            father = null;
-        } else
-            appliComposite = instCompo.getAppliComposite();
-
-        ((InstanceBrokerImpl) CST.InstBroker).addInst(this);
-    }
-
-    public static Composite getRootAllComposites() {
-        return CompositeImpl.rootComposite;
-    }
-
-    public static Collection<Composite> getRootComposites() {
-        return Collections.unmodifiableSet(CompositeImpl.rootComposite.getSons());
-    }
-
-    public static Collection<Composite> getComposites() {
-        return Collections.unmodifiableCollection(CompositeImpl.composites.values());
-    }
-
-    public static Composite getComposite(String name) {
-        return CompositeImpl.composites.get(name);
-    }
-
-
-    @Override
-    public String toString() {
-        return getName();
-    }
-
-    @Override
-    public Instance getMainInst() {
-        return mainInst;
-    }
+    	/*
+    	 * NOTE the root instance is automatically registered in Apam in a specific way that
+    	 * allows bootstraping the system
+    	 * 
+    	 */
+		this.father			= null;
+		this.appliComposite = null;
+	}
 
     /**
-     * Overrides the instance method. A composite has no object, returns the main instance object
-     */
-    @Override
-    public Object getServiceObject() {
-        assert (mainInst != null);
-        return mainInst.getApformInst().getServiceObject();
-    }
-
-    @Override
-    public Implementation getMainImpl() {
-        return mainImpl;
-    }
-
-    @Override
-    public CompositeType getCompType() {
-        return compType;
-    }
-
-    @Override
-    public void addContainInst(Instance inst) {
-        assert (inst != null);
-
-        hasInstance.add(inst);
-    }
-
-    // Father-son relationship management. Hidden, Internal;
-    public void addSon(Composite dest) {
-        if (dest == null)
-            return;
-        if (sons.contains(dest))
-            return; // allready existing
-        sons.add(dest);
-        ((CompositeImpl) dest).setFather(this);
-    }
-
-    /**
-     * A son can be removed only when deleted. Warning : not checked.
-     */
-    public boolean removeSon(Composite destination) {
-        if (destination == null)
-            return false;
-        sons.remove(destination);
-        ((CompositeImpl) destination).removeFather(this);
-        return true;
-    }
-
-    /**
-     * returns the father !
+     * Whether this is the system root composite
      * 
-     * @return
      */
-    @Override
-    public Composite getFather() {
-        return father;
-    }
-
-    @Override
-    public Set<Composite> getSons() {
-        return Collections.unmodifiableSet(sons);
-    }
-
-    @Override
-    public Composite getAppliComposite() {
-        return appliComposite;
-    }
-
-    // Composite Dependency management ===============
-    @Override
-    public void addDepend(Composite dest) {
-        if (dest == null)
-            return;
-        if (depend.contains(dest))
-            return; // allready existing
-
-        depend.add(dest);
-        ((CompositeImpl) dest).addInvDepend(this);
+    public boolean isSystemRoot() {
+    	return this == rootComposite;
     }
 
     /**
-     * A composite cannot be isolated. Therefore remove is prohibited if the destination will be isolated.
+     * Builds a new Apam composite to represent the specified platform instance in the Apam model.
      */
-    private boolean removeDepend(Composite destination) {
-        if (destination == null)
-            return false;
-        depend.remove(destination);
-        ((CompositeImpl) destination).removeInvDepend(this);
-        return true;
-    }
+	protected CompositeImpl(Composite composite, ApformInstance apformInst, Map<String, Object> initialproperties) {
 
-    /**
-     * returns the reverse dependencies !
-     * 
-     * @return
-     */
-    @Override
-    public Set<Composite> getInvDepend() {
-        return Collections.unmodifiableSet(invDepend);
-    }
+		// First create the composite, as a normal instance
+		super(composite, apformInst, initialproperties);
 
-    /**
-     * Retire une dependance inverse. Hidden, Internal;
-     * 
-     * @param origin
-     * @return
-     */
-    private boolean removeInvDepend(Composite origin) {
-        if (origin == null)
-            return false;
-        invDepend.remove(origin);
-        return true;
-    }
+		/*
+		 * Reference the enclosing composite hierarchy
+		 */
+		father = ((CompositeImpl)composite).isSystemRoot() ? null : composite;
+		appliComposite = father == null ? this : father.getAppliComposite();
 
-    /**
-     * Ajoute une dependance inverse. Hidden, Internal;
-     * 
-     * @param origin
-     * @return
-     */
+		/*
+		 * Add predefined properties
+		 */
+		put(CST.A_COMPOSITE, CST.V_TRUE);
 
-    private void addInvDepend(Composite origin) {
-        invDepend.add(origin);
-        return;
-    }
+		/*
+		 * Initialize the contained instances. The main instance will be eagerly created and the other
+		 * components will be lazily instantiated. It is also possible to specify an unused external main 
+		 * instance in the configuration properties.
+		 * 
+		 * WARNING the main instance will be registered in APAM at the registration of the composite.
+		 */
+		Instance externalInstance = (Instance)get(CST.A_MAIN_INSTANCE);
+		if (externalInstance == null) {
+			mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this,null);
+			put(CST.A_MAIN_INSTANCE,mainInst);
+		} else {
+			assert !externalInstance.isUsed();
+			mainInst = externalInstance;
+		}
+			
+		/*
+		 * main instance is never shared
+		 */
+		((InstanceImpl) mainInst).put(CST.A_SHARED, CST.V_FALSE);
 
-    @Override
-    public boolean containsInst(Instance inst) {
-        if (inst == null)
-            return false;
-        return hasInstance.contains(inst);
-    }
+	}
 
-    @Override
-    public Set<Composite> getDepend() {
-        return Collections.unmodifiableSet(depend);
-    }
+	@Override
+	public void register() {
+		
+		
+		boolean registerMain = true;
+		
+		/*
+		 * If the main instance is external, it is already registered but we need to remove it from the root
+		 * composite and add it to this
+		 */
+		if (! mainInst.isUsed()) {
+			((InstanceImpl)mainInst).setOwner(this);
+			registerMain = false;
+		}
 
-    @Override
-    public Set<Instance> getContainInsts() {
-        return Collections.unmodifiableSet(hasInstance);
-    }
+		/*
+		 * Opposite reference from the enclosing composite. 
+		 * 
+		 * Notice that root application are sons of the all root composite, but their father reference is null.
+		 */
+		((CompositeImpl)getComposite()).addSon(this);
 
-    @Override
-    public boolean dependsOn(Composite dest) {
-        if (dest == null)
-            return false;
-        return (depend.contains(dest));
-    }
+		/*
+		 * add to list of composites
+		 */
+		CompositeImpl.composites.put(getName(),this);
+		
+		/*
+		 * Complete normal registration
+		 */
+		super.register();
+		
+		/*
+		 * After composite is registered, register main instance that was eagerly created
+		 */
+		if (registerMain)
+			((InstanceImpl)mainInst).register();
+		
+		
+	}
 
-    @Override
-    public ManagerModel getModel(String name) {
-        return compType.getModel(name);
-    }
+	@Override
+	public void unregister() {
+		
+		/*
+		 * Unbind from the enclosing composite
+		 */
+		((CompositeImpl)getComposite()).removeSon(this);
+		
+		father = null;
+		appliComposite = null;
 
-    @Override
-    public Set<ManagerModel> getModels() {
-        return compType.getModels();
-    }
+    	/*
+    	 * Remove depend relationships. 
+    	 * 
+    	 * NOTE We have to copy the list because we update it while iterating it
+    	 * 
+    	 */
+		for (Composite dependsOn : new HashSet<Composite>(depend)) {
+	        removeDepend(dependsOn);
+		}
 
-    private void setFather(Composite father) {
-        this.father = father;
-    }
+		for (Composite dependant : new HashSet<Composite>(invDepend)) {
+	        ((CompositeImpl)dependant).removeDepend(this);
+		}
+		
+		/*
+		 *	TODO Should we destroy the whole hierarchy rooted at this composite? or should we try
+		 *  to reuse all created instances in the pool of unused instances?  what to do with wires
+		 *  that enter or leave this hierarchy? what to do of shared instances with other hierarchies?
+		 *  can we reuse the main instance?
+		 */
 
-    private void removeFather(Composite father) {
-        this.father = null;
-    }
+		/*
+		 * Remove from list of composites
+		 */
+		CompositeImpl.composites.remove(getName());
+		
+		/*
+		 * Notify managers and remove the instance from the broker
+		 * 
+		 * TODO perhaps we should notify managers before actually destroying the composite hierarchy, this
+		 * will need a refactoring of the superclass to allow a more fine control of unregistration.
+		 */
+		super.unregister();
+	}
 
-    public void removeInst(Instance inst) {
-        hasInstance.remove(inst);
-    }
+	@Override
+	public void setOwner(Composite owner) {
 
-    /**
-     * An apform composite instance to represent root composites that don't have
-     * an explicit declaration (automatically created)
-     * 
-     * @author vega
-     *
-     */
-    protected static class ApformRootComposite implements ApformInstance {
+		assert !isUsed();
 
-        private final InstanceDeclaration declaration;
+		CompositeImpl previousOwner = (CompositeImpl)getComposite();
+		super.setOwner(owner);
 
-        private ApformRootComposite(){
-        	this.declaration =  new InstanceDeclaration(CompositeTypeImpl.getRootCompositeType().getImplDeclaration().getReference(),CST.ROOTCOMPOSITE,null);
-        }
-         
-        public ApformRootComposite(CompositeTypeImpl compositeType) {
+		previousOwner.removeSon(this);
+		
+		/*
+		 * TODO; WARNING Should we update appliComposite recursively in the contained hierarchy?
+		 * or better not cache this field and recalculate it all the time? or better handle
+		 * a cache with invalidation? or we don't allow set owner for composite instances?
+		 */
+		this.father 		= owner;
+		this.appliComposite = owner.getAppliComposite();
+		
+		((CompositeImpl)owner).addSon(this);
+		
+	}
+	
+	@Override
+	public Instance getMainInst() {
+		return mainInst;
+	}
 
-            String name = compositeType.getNewInstName();
-            declaration = new InstanceDeclaration(compositeType.getApformImpl().getDeclaration().getReference(),
-                    name, null);
-        }
+	/**
+	 * Overrides the instance method. A composite has no object, returns the
+	 * main instance object
+	 */
+	@Override
+	public Object getServiceObject() {
+		assert (mainInst != null);
+		return mainInst.getApformInst().getServiceObject();
+	}
 
-        @Override
-        public InstanceDeclaration getDeclaration() {
-            return declaration;
-        }
+	@Override
+	public final Implementation getMainImpl() {
+		return getCompType().getMainImpl();
+	}
 
-        @Override
-        public Object getServiceObject() {
-            throw new UnsupportedOperationException("this method is not available for root composites");
-        }
+	@Override
+	public final CompositeType getCompType() {
+		return (CompositeType) getImpl();
+	}
 
-        @Override
-        public boolean setWire(Instance destInst, String depName) {
-            throw new UnsupportedOperationException("this method is not available for root composites");
-        }
+	@Override
+	public boolean containsInst(Instance instance) {
+		assert (instance != null);
+		return hasInstance.contains(instance);
+	}
 
-        @Override
-        public boolean remWire(Instance destInst, String depName) {
-            throw new UnsupportedOperationException("this method is not available for root composites");
-        }
+	@Override
+	public Set<Instance> getContainInsts() {
+		return Collections.unmodifiableSet(hasInstance);
+	}
+	
+	public void addContainInst(Instance instance) {
+		assert (instance != null);
+		hasInstance.add(instance);
+	}
 
-        @Override
-        public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-            throw new UnsupportedOperationException("this method is not available for root composites");
-        }
+	public void removeInst(Instance instance) {
+		assert (instance != null);
+		hasInstance.remove(instance);
+	}
 
-        @Override
-        public void setInst(Instance ignored) {
-        }
-        
-        @Override
-        public void setProperty (String attr, Object value) {
-        }
+	@Override
+	public Composite getFather() {
+		return father;
+	}
 
-    }
+	@Override
+	public Set<Composite> getSons() {
+		return Collections.unmodifiableSet(sons);
+	}
+
+	// Father-son relationship management. Hidden, Internal;
+	public void addSon(Composite destination) {
+		assert destination != null && !sons.contains(destination);
+		sons.add(destination);
+	}
+
+	/**
+	 * A son can be removed only when deleted. Warning : not checked.
+	 */
+	public boolean removeSon(Composite destination) {
+		assert destination != null && sons.contains(destination);
+		return sons.remove(destination);
+	}
+
+	@Override
+	public Composite getAppliComposite() {
+		return appliComposite;
+	}
+
+	// Composite Dependency management ===============
+	@Override
+	public void addDepend(Composite destination) {
+		assert destination != null && !depend.contains(destination);
+		depend.add(destination);
+		((CompositeImpl) destination).addInvDepend(this);
+	}
+
+	/**
+	 * A composite cannot be isolated. Therefore remove is prohibited if the
+	 * destination will be isolated.
+	 */
+	public boolean removeDepend(Composite destination) {
+		assert destination != null && depend.contains(destination);
+		depend.remove(destination);
+		((CompositeImpl)destination).removeInvDepend(this);
+		return true;
+	}
+
+	/**
+	 * returns the reverse dependencies !
+	 * 
+	 * @return
+	 */
+	@Override
+	public Set<Composite> getInvDepend() {
+		return Collections.unmodifiableSet(invDepend);
+	}
 
 
+	/**
+	 * Ajoute une dependance inverse. Hidden, Internal;
+	 * 
+	 * @param origin
+	 * @return
+	 */
+
+	private void addInvDepend(Composite origin) {
+		assert origin != null && !invDepend.contains(origin);
+		invDepend.add(origin);
+		return;
+	}
+
+	/**
+	 * Retire une dependance inverse. Hidden, Internal;
+	 * 
+	 * @param origin
+	 * @return
+	 */
+	private boolean removeInvDepend(Composite origin) {
+		assert origin != null && invDepend.contains(origin);
+		invDepend.remove(origin);
+		return true;
+	}
+	
+
+	@Override
+	public Set<Composite> getDepend() {
+		return Collections.unmodifiableSet(depend);
+	}
+
+
+	@Override
+	public boolean dependsOn(Composite dest) {
+		if (dest == null)
+			return false;
+		return (depend.contains(dest));
+	}
+
+	@Override
+	public ManagerModel getModel(String name) {
+		return getCompType().getModel(name);
+	}
+
+	@Override
+	public Set<ManagerModel> getModels() {
+		return getCompType().getModels();
+	}
 
 }

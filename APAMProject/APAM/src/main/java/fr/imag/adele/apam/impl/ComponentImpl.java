@@ -1,6 +1,6 @@
 package fr.imag.adele.apam.impl;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -11,127 +11,192 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.core.ComponentDeclaration;
-import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.PropertyDefinition;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 
-public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> implements Component {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private static Logger logger = LoggerFactory.getLogger(Util.class);
+public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> implements Component, Comparable<Component> {
 
-	protected ComponentDeclaration declaration;
-	protected ApformComponent      apform           = null;
-
-	private final Object  componentId                = new Object();                 // only for hashCode
-
+	private final Object  componentId				= new Object();                 // only for hashCode
+	private static final long serialVersionUID 		= 1L;
 	
-	public ComponentImpl(ApformComponent apform, Map<String, Object> properties) {
-		this.apform = apform;
-		this.declaration = apform.getDeclaration() ;
-        putAll(apform.getDeclaration().getProperties());
+	protected static Logger logger = LoggerFactory.getLogger(ComponentImpl.class);
 
-		if (properties != null) putAll (properties);
+	private ApformComponent      apform ;
+	private ComponentDeclaration declaration;
+
+	public ComponentImpl(ApformComponent apform, Map<String, Object> configuration) {
+		assert apform != null;
+		
+		setApform(apform);
+		if (configuration != null) putAll (configuration);
 	}
 
+	/**
+	 * This methods adds a newly created component to the Apam state model, so that it is visible to the
+	 * external API
+	 */
+	public abstract void register();
+	
+	
+	/**
+	 * This method removes a component from the Apam state model, it must ensure that the component is
+	 * no longer referenced by any other component or visible by the external API
+	 */
+	public abstract void unregister();
+	
+	/**
+	 * Components are uniquely represented in the Apam state model, so we use reference equality
+	 * in all comparisons.
+	 */
 	@Override
-	public boolean equals(Object o) {
+	public final boolean equals(Object o) {
 		return (this == o);
 	}
 
 	@Override
-	public int hashCode() {
+	public int compareTo(Component that) {  
+		return this.getName().toLowerCase().compareTo(that.getName().toLowerCase());
+	}
+	
+	/**
+	 * Override to make hash code conform to the equality definition
+	 */
+	@Override
+	public final int hashCode() {
 		return componentId.hashCode();
 	}
 
-	public String getName () {
+	public final String getName () {
 		return declaration.getName() ;
 	}
 
-	public ApformComponent getApformComponent () {
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+	public final ApformComponent getApformComponent () {
 		return apform ;
 	}
 
-	public ComponentDeclaration getDeclaration () {
+	public final void setApform(ApformComponent apform) {
+		this.apform 		= apform;
+		this.declaration 	= apform.getDeclaration() ;
+		putAll(apform.getDeclaration().getProperties());
+	}
+    
+	public final ComponentDeclaration getDeclaration () {
 		return declaration ;
 	}
 
-	@Override
-	public boolean match(String filter) {
-		return match(ApamFilter.newInstance(filter));
-	}
-
-	@Override
-	public boolean match(Filter goal) {
-		if (goal == null)
-			return true;
-		try {
-			return ((ApamFilter) goal).matchCase(getAllProperties());
-		} catch (Exception e) {
-		}
-		return false;
-	}
-
-	@Override
-	public boolean match(Set<Filter> goals) {
-		if ((goals == null) || goals.isEmpty())
-			return true;
-		Map props = getAllProperties() ;
-		try {
-			for (Filter f : goals) {
-				if (!((ApamFilter) f).matchCase(props)) {
-					return false ;
-				}
-			}
-			return true;
-		} catch (Exception e) {
-			return false ;
-		}
-	}
-
-
-
-	//properties
-
-	@Override
-	public Map<String, Object> getAllProperties() {
-
-		Map<String, Object> allProps = new HashMap<String, Object>(this);
-		if (this instanceof Instance) { 
-			allProps.putAll(((Instance)this).getImpl().getAllProperties());
-			return allProps ;
-		}
-		if (this instanceof Implementation) {
-			allProps.putAll(((Implementation)this).getSpec().getAllProperties());
-			return allProps ;            
-		}
-		return allProps ;
-	}
-
+	/**
+	 * Get the value of the property.
+	 * 
+	 * IMPORTANT this method must be overridden in different subclasses to implement group
+	 * attribute propagation.
+	 * 
+	 */
 	@Override
 	public Object getProperty(String attr) {
-		Object ret = get(attr);
-		if (ret != null) return ret ;
-		if (this instanceof Instance) {
-			return ((Instance)this).getImpl().getProperty(attr) ;
-		} 
-		if (this instanceof Implementation) {
-			if (((Implementation) this).getSpec() != null)
-				return ((Implementation)this).getSpec().getProperty(attr) ;
-			// System.err.println("no spec for " + this);
-		} 
-		return null ;
+		return get(attr);
 	}
 
+	/**
+	 * Get the value of all the properties in the component.
+	 *  
+	 * IMPORTANT this method must be overridden in different subclasses to implement group
+	 * attribute propagation.
+	 */
+	
+	@Override
+	public Map<String, Object> getAllProperties() {
+		return new HashMap<String, Object>(this);
+	}
+
+	/**
+	 * Set the value of the property in the Apam state model. Changing an attribute notifies
+	 * the property manager and the underlying execution platform (apform).
+	 */
+	@Override
+	public boolean setProperty(String attr, Object value) {
+		/*
+		 * Validate property can be set
+		 */
+		PropertyDefinition propDef = Util.getAttrDefinition(this, attr) ;
+		if (propDef != null && propDef.isInternal() == true) {
+			logger.error("In " + this + " attribute " + attr +  " is internal and cannot be set.");
+			return false;
+		}
+		
+		/*
+		 * Validate that the property is defined and the value valid 
+		 */
+		if (! Util.validAttr(this, attr, value))
+			return false;
+		
+		/*
+		 * Change internal value and notify managers
+		 */
+		setInternalProperty(attr,value);
+		
+		/*
+		 * Notify the execution platform
+		 */
+		getApformComponent().setProperty (attr,value);
+		return true ;
+	}
+
+	/**
+	 * Sets the value of a property changed in the state and notifies property managers,
+	 * but doesn't call back the execution platform.
+	 * 
+	 * TODO,IMPORTANT This method should be private, but it is actually directly invoked by 
+	 * apform to avoid notification loops. We need to refactor the different APIs of Apam.  
+	 */
+	public void setInternalProperty(String attr, Object value) {
+
+		/*
+		 * set value
+		 */
+		Object oldValue = get(attr);
+		put(attr, value);
+		
+		/*
+		 * notify property managers
+		 */
+		if (oldValue == null)
+			ApamManagers.notifyAttributeAdded(this, attr, value) ;
+		else
+			ApamManagers.notifyAttributeChanged(this, attr, value, oldValue);
+	}
+
+	/**
+	 * Sets all the values of the specified properties
+	 * 
+	 * TODO Should we validate all attributes before actually modifying
+	 * the value to avoid partial modifications ?
+	 */
+	@Override
+	public boolean setAllProperties(Map<String, Object> properties) {
+		for (String attr : properties.keySet()) {
+			Object value = properties.get(attr);
+			if (! setProperty(attr, value))
+				return false;
+		}
+		
+		return true ;
+	}
+	
+
+	/**
+	 * Removes the specifed property
+	 * 
+	 * TODO Should we add this to the API? how to notify apform?
+	 */
 	public boolean removeProperty(String attr) {
 		PropertyDefinition propDef = Util.getAttrDefinition(this, attr) ;
 		if (propDef != null && propDef.getField() != null) {
@@ -148,68 +213,37 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return false ;	
 	}
 
+	/*
+	 * Filter evaluation on the properties of this component
+	 */
 	
 	@Override
-	public boolean setProperty(String attr, Object value) {
-		PropertyDefinition propDef = Util.getAttrDefinition(this, attr) ;
-		if (propDef != null && propDef.isInternal() == true) {
-			logger.error("In " + this + " attribute " + attr +  " is internal and cannot be set.");
-			return false;
-		}
-		if (Util.validAttr(this, attr, value)){
-			Object oldValue = get(attr) ;
-			put(attr, value);
-			getApformComponent().setProperty (attr, value) ;
-			if (oldValue == null) {
-				ApamManagers.notifyAttributeAdded(this, attr, value) ;
-			} else {
-				ApamManagers.notifyAttributeChanged(this, attr, value, oldValue) ;
-			}
-			return true ;
-		}
-		return false ;
+	public boolean match(String goal) {
+		return goal == null || match(ApamFilter.newInstance(goal));
 	}
-
-	/*
-	 * 
-	 * same as setAttribute but only called by apform 
-	 * when the attribute is changed by its associated field in the code.
-	 */
-	public boolean setInternalProperty(String attr, Object value) {
-		//if (Util.validAttr(this, attr, value)){
-		put(attr, value);
-		propertyChanged(attr,value);
-		return true ;
-		//        }
-		//        return false ;
-	}
-
 
 	@Override
-	public boolean setAllProperties(Map<String, Object> properties) {
-		for (String attr : properties.keySet()) {
-			if (Util.validAttr(this, attr, properties.get(attr))){
-				put(attr, properties.get(attr));
-			} else return false ;
+	public boolean match(Filter goal) {
+		return goal == null || match(Collections.singleton(goal));
+	}
+
+	@Override
+	public boolean match(Set<Filter> goals) {
+		if ((goals == null) || goals.isEmpty())
+			return true;
+		
+		Map<String,Object> props = getAllProperties() ;
+		try {
+			for (Filter f : goals) {
+				if (!((ApamFilter) f).matchCase(props)) {
+					return false ;
+				}
+			}
+			return true;
+		} catch (Exception e) {
+			return false ;
 		}
-		propertiesChanged();
-		return true ;
 	}
-
-	/**
-	 * Notify the component when a property changed
-	 */
-	private void propertyChanged(String attr, Object value){
-		
-		
-	}
-
-
-	/**
-	 * Notify the component when properties changed
-	 */
-	private void propertiesChanged(){
-		
-	}
+	
 }
 

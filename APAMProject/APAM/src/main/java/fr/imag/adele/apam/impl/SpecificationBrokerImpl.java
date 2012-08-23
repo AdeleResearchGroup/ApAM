@@ -17,13 +17,70 @@ import fr.imag.adele.apam.SpecificationBroker;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.core.SpecificationDeclaration;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamInstall;
 
 public class SpecificationBrokerImpl implements SpecificationBroker {
 
+    private static final Logger logger = LoggerFactory.getLogger(SpecificationBrokerImpl.class);
+	
     private final Set<Specification> specs = Collections.newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());
-    Logger logger = LoggerFactory.getLogger(SpecificationBrokerImpl.class);
+ 
+    @Override
+    public Specification addSpec(ApformSpecification apfSpec, Map<String, Object> properties) {
+        SpecificationImpl spec = new SpecificationImpl(apfSpec,properties);
+        spec.register();
+        return spec;
+    }
+
+    @Override
+    public Specification createSpec(String specName, URL url) {
+        assert specName != null && url != null;
+
+        Specification spec = getSpec(specName);
+        if (spec != null)
+            return spec;
+        spec = ApamInstall.intallSpecFromURL(url, specName);
+        if (spec == null) {
+            logger.debug("deployment failed for specification " + specName);
+        }
+        return spec;
+    }
+ 
+    @Override
+    public Specification createSpec(String specName, Set<ResourceReference> resources,
+            Map<String, Object> properties) {
+    	
+        assert specName != null && resources != null;
+        return addSpec(new ApamOnlySpecification(specName,resources), properties);
+    }
+
+    /**
+     * An special apform specification created only for those specifications that do not exist
+     * in the Apform ipojo layer. Creates a minimal definition structure.
+     */
+    private static class ApamOnlySpecification implements ApformSpecification {
+
+        private final SpecificationDeclaration declaration;
+
+        public ApamOnlySpecification(String name, Set<ResourceReference> resources) {
+            declaration = new SpecificationDeclaration(name);
+            declaration.getProvidedResources().addAll(resources);
+        }
+
+        @Override
+        public SpecificationDeclaration getDeclaration() {
+            return declaration;
+        }
+        
+        @Override
+        public void setProperty (String attr, Object value) {
+        }
+
+    }
+
+    
     // Not in the interface. No control
     /**
      * TODO change visibility, currently this method is public to be visible from Apform
@@ -34,19 +91,21 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
     
     protected void removeSpec(Specification spec, boolean notify) {
     	
-    	assert spec != null;
-    	assert specs.contains(spec);
+        /*
+         * remove from Apam state model
+         */
+    	((SpecificationImpl)spec).unregister();
     	
-        if (notify) {}
-    	
-    	((SpecificationImpl) spec).remove();
-    	specs.remove(spec);
     }
 
-    public void addSpec(Specification spec) {
-        if (spec == null)
-            return;
+    public void add(Specification spec) {
+    	assert spec != null;
         specs.add(spec);
+    }
+    
+    public void remove(Specification spec) {
+    	assert spec != null && specs.contains(spec);
+    	specs.remove(spec);
     }
 
     //    @Override
@@ -104,15 +163,7 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
         return null;
     }
 
-    @Override
-    public Specification addSpec(String name, ApformSpecification apfSpec, Map<String, Object> properties) {
-        if ((apfSpec == null))
-            return null;
-        SpecificationImpl spec = new SpecificationImpl(name, apfSpec, null, properties);
-        specs.add(spec);
-        return spec;
-    }
-
+ 
     @Override
     public Specification getSpec(ApformSpecification apfSpec) {
         if (apfSpec == null)
@@ -165,36 +216,6 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
         return null;
     }
 
-    @Override
-    public Specification createSpec(String specName, Set<ResourceReference> resources,
-            Map<String, Object> properties) {
-        if (resources == null)
-            return null;
-        Specification ret = null;
-        ret = new SpecificationImpl(specName, null, resources, properties);
-        return ret;
-    }
-
-    /**
-     * Creates and deploys a specification.
-     * 
-     * @param compo the composite in which to create that spec.
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
-     * @param url the location of the executable to deploy
-     */
-    @Override
-    public Specification createSpec(String specName, URL url) {
-        assert (url != null);
-
-        Specification spec = getSpec(specName);
-        if (spec != null)
-            return spec;
-        spec = ApamInstall.intallSpecFromURL(url, specName);
-        if (spec == null) {
-            logger.debug("deployment failed for specification " + specName);
-        }
-        return spec;
-    }
 
     @Override
     public Set<Specification> getRequires(Specification specification) {

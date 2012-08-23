@@ -1,13 +1,8 @@
 package fr.imag.adele.apam;
 
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
-
-import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.core.InstanceDeclaration;
 
 public interface Instance extends Component {
 
@@ -16,19 +11,15 @@ public interface Instance extends Component {
      */
     public Composite getComposite();
 
-    // The composite at the end of the "father" relationship chain.
+    /**
+     *  The composite at the end of the "father" relationship chain.
+     */
     public Composite getAppliComposite();
 
-//    public String getName();
-//
-//    /**
-//     * 
-//     * @return the associated InstanceDeclaration
-//     */
-//    public InstanceDeclaration getDeclaration();
-//
     
-    // The Apform instance associated with this Apam one.
+    /**
+     * The Apform instance associated with this Apam one.
+     */
     public ApformInstance getApformInst();
 
     /**
@@ -39,13 +30,11 @@ public interface Instance extends Component {
     /**
      * returns the wire toward that destination
      * 
-     * @param destInst
-     * @return
      */
     public Wire getInvWire(Instance destInst);
 
     /**
-     * returns the wire for hte "depName" dependency toward that destination instance
+     * returns the wire for hthe "depName" dependency toward that destination instance
      * 
      * @param destInst : the instance destination of that dependency
      * @param depName : name of the dependency
@@ -54,7 +43,7 @@ public interface Instance extends Component {
     public Wire getInvWire(Instance destInst, String depName);
 
     /**
-     * Retruns all hte wires toward that destination.
+     * Returns all the wires toward that destination.
      * 
      * @param destInst
      * @return
@@ -69,7 +58,6 @@ public interface Instance extends Component {
      */
     public Set<Instance> getWireDests(String depName);
 
-    //    public Set<Instance> getWireTypeDests(String destType);
 
     /**
      * returns all the wires related to that dependency (if multiple cardinality)
@@ -98,7 +86,6 @@ public interface Instance extends Component {
      * return all the dependency for which the destination implements the provided specification
      * 
      * @param spec
-     * @return
      */
     public Set<Wire> getWires(Specification spec);
 
@@ -106,7 +93,6 @@ public interface Instance extends Component {
      * Returns all the wires leading to the current instance.
      * 
      * @param depName
-     * @return
      */
     public Set<Wire> getInvWires();
 
@@ -147,22 +133,19 @@ public interface Instance extends Component {
     /**
      * returns the specification of that instance
      * 
-     * @return
      */
     public Specification getSpec();
 
     /**
      * Get the implementation.
      * 
-     * @return the associated Service implementation
      */
     public Implementation getImpl();
 
     /**
      * Method getServiceObject returns an object that can be casted to the associated interface, and on which the
      * interface methods can be directly called. The object can be the service itself or a proxy for a remote service.
-     * It is the fast way for synchronous service invocation. <BR>
-     * <b>WARNING: </b> In the case of dynamic service, the service object must not be allocated in
+     * It is the fast way for synchronous service invocation.
      * 
      * @return the service object, return null, if the object no longer exists.
      */
