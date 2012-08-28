@@ -84,7 +84,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 	public final void setApform(ApformComponent apform) {
-		this.apform 		= apform;
+		this.apform = apform;
+		if (apform == null)
+			return;
+		
 		this.declaration 	= apform.getDeclaration() ;
 		putAll(apform.getDeclaration().getProperties());
 	}

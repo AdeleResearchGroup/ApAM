@@ -201,7 +201,7 @@ public class ApamResolverImpl implements ApamResolver {
      */
     @Override
     public boolean resolveWire(Instance client, String depName) {
-        logger.error("Resolving dependency " + depName + " from instance " + client.getName());
+        logger.debug("Resolving dependency " + depName + " from instance " + client.getName());
         if ((depName == null) || (client == null)) {
             logger.error("missing client or dependency name");
             return false;
