@@ -1,5 +1,7 @@
 package fr.imag.adele.apam.mainApam;
 
+//import static junit.framework.Assert.assertNotNull;
+
 import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
@@ -21,34 +23,53 @@ public class MainApam implements Runnable, ApamComponent {
     // injected
     Apam apam;
 
-    /*
-     *  Apam injected
-
-    S1 s1;
-    S5 s5;
-     */
     public void run() {
-        System.out.println("Starting mainApam");
+        System.out.println("Starting new mainApam");
 
         // examples of the different ways to create and start an application in apam.
         // The easiest way is as done for starting this class: "implements Runnable, ApamComponent".
         // Once loaded in OSGi, it starts in a root composite automatically created for it.
 
-        // providing an URL leading to the bundle to start. It must contain the main implementation "S2Simple"
-
-        //File bundle = new File("E:\\GitHub\\ApAM\\APAM-Tests\\S2Impl\\target\\S2Impl-0.0.1-SNAPSHOT.jar");
-        File bundle = new File("E:\\Runtime APAM\\ApAM\\APAM-Tests\\S2Impl\\target\\S2Impl-0.0.1-SNAPSHOT.jar");
-        URL theUrl = null;
+		System.out.println("providing an URL leading to the bundle to start. It must contain the main implementation S2Simple");
+        File bundle = new File("http://repository-apam.forge.cloudbees.com/snapshot/fr/imag/adele/apam/S2Impl/0.0.1-SNAPSHOT/S2Impl-0.0.1-20120810.041326-9.jar");
+        URL theUrl = null ;
         try {
-            theUrl = bundle.toURI().toURL();
+        	theUrl = new URL("http://repository-apam.forge.cloudbees.com/snapshot/fr/imag/adele/apam/S2Impl/0.0.1-SNAPSHOT/S2Impl-0.0.1-20120810.041326-9.jar") ;
+           // theUrl = bundle.toURI().toURL();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        CompositeType appliTest00 = apam.createCompositeType(null, "Test00", "S2Simple", null /* models */, theUrl,
-                null /* specName */, null /* properties */);
+	 	CompositeType appliTestURL = apam.createCompositeType(null,  "TestURL", "S2Simple", /* models */null, theUrl, /*specName*/null, null);
+	 	assert(appliTestURL != null);
+        
+	 	System.out.println("testing findImplByName in OBR");
+	 	Implementation implem = CST.apamResolver.findImplByName(null,"S1toS2Final");
+	 	assert(implem != null);
+	 	
+	 	System.out.println("Deploying S1Impl bundle should deploy also the implems and composites. Composite SICompoFinal is created and started.");
+	 	System.out.println("shoud have the message \"S1toS2Final is sarted\" ");
+	 	
+	 	System.out.println("testing findImplByName in ASM and unused");
+	 	Implementation implem2 = CST.apamResolver.findImplByName(null,"S2Final");
+	 	assert(implem2!= null);
+
+	 	System.out.println("testing findImplByName in ASM  and used");
+	 	implem2 = CST.apamResolver.findImplByName(null,"S2Simple");
+	 	assert(implem2!= null);
+
+	 
+	 	System.out.println("testing a root createCompositeType by name existing in ASM. will call S2Final.");
+	 	CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", "S1toS2Final", null,null);
+	 	assert(appliTest00!= null);
+	 		 	
+	 	System.out.println("testing create instance root");
         Instance a = appliTest00.createInstance(null /* composite */, null/* properties */);
-        S2 s02 = (S2) a.getServiceObject();
-        s02.callS2("createAppli by URL");
+        assert(a!= null);
+        
+        System.out.println("testing call to S1toS2Final");
+        S1 s01 = (S1) a.getServiceObject();
+        s01.callS1("createAppli by API by name. Should call S2Final.");
+
 
         System.out.println("=====================================\nend test url\n\n");
 
@@ -59,7 +80,7 @@ public class MainApam implements Runnable, ApamComponent {
         props.put("testMain", "valeurTestMain"); // not declared
         props.put("scope", "5"); // redefined
         props.put("impl-name", "5"); // final
-        props.put("location", "living"); // ok
+        //props.put("location", "living"); // ok
         props.put("location", "anywhere"); // value not defined
 
         Instance test00_instance0 = appliTest00.createInstance((Composite) a /* composite */, props/* properties */);
@@ -74,7 +95,7 @@ public class MainApam implements Runnable, ApamComponent {
         System.err.println("Composite type TestS1 inside composite type Test00");
         appli3 = apam.createCompositeType("Test00", "TestS1", "S1Impl", null /* models */, null /* properties */);
 
-        System.err.println("Root Composite types have no spec. This declarations is false (no definition), but done.");
+//        System.err.println("Root Composite types have no spec. This declarations is false (no definition), but done.");
         appli3.setProperty("location", "no spec for application root");
 
         System.err.println(" Testing attributes on main implem declared: location = {living, kitchen, bedroom}");

@@ -3,7 +3,6 @@
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1">
 		<properties>
 			<property shared="false" />
-			<property zerrt="true" />
 			<property location="living" />
 			<property location="elsewhere" />
 		</properties>
@@ -27,6 +26,22 @@
 		</dependencies>
 	</implementation>
 
+	<implementation name="S1toS2Final"
+		classname="fr.imag.adele.apam.test.s1Impl.S1toS2Final" specification="S1">
+		<dependency field="s2">
+			<preferences>
+				<implementation filter="(impl-name=S2Final)" />
+			</preferences>
+		</dependency>
+	</implementation>
+
+	<composite name="S1CompoFinal" mainImplem="S1toS2Final"
+		interfaces="{fr.imag.adele.apam.test.s1.S1}">
+	</composite>
+
+	<!-- Will install and start immediately the composite and its instance. Main being auto start: it starts alone -->
+	<apam-instance implementation="S1CompoFinal" name="S1CompoFinal-Instance" />
+
 	<!-- An implementation without any provided resource -->
 	<implementation name="S1Main"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Main">
@@ -45,7 +60,7 @@
 	</implementation>
 
 	<composite name="S1MainCompo" mainImplem="S1Main">
-<!-- 		interfaces="{fr.imag.adele.apam.test.s1.S1}"> -->
+		<!-- interfaces="{fr.imag.adele.apam.test.s1.S1}"> -->
 		<properties>
 			<property shared="false" />
 			<property borrowInstance="false" />
@@ -54,25 +69,21 @@
 			<property localImplementation="true" />
 		</properties>
 
-<!-- 		<dependency specification="S2"  />
- -->
- 		<dependency interface="fr.imag.adele.apam.test.s2.S2" />
- 		<dependency implementation="S3Impl" multiple="true" />
-<!-- 		<dependency interface="fr.imag.adele.apam.test.s2.S2" /> should be an error ?
-		<dependency specification="S3" id="S3Id1">
-			<interface field="s3_1" /> 							should be an error
-		</dependency>
-		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="ddd" /> should be an error !
-		<dependency specification="S3" id="S3Idmult" multiple="true">     should be an error
-			<preferences>
-				<implementation filter="(shared=false)" />
-				<xyz filter="(impl-name=S1ImplFalse)" /> 		should be an error
-			</preferences>
-		</dependency>
- -->
+		<!-- <dependency specification="S2" /> -->
+		<dependency interface="fr.imag.adele.apam.test.s2.S2" />
+		<dependency implementation="S3Impl" multiple="true" />
+		<!-- <dependency interface="fr.imag.adele.apam.test.s2.S2" /> should be 
+			an error ? <dependency specification="S3" id="S3Id1"> <interface field="s3_1" 
+			/> should be an error </dependency> <dependency interface="fr.imag.adele.apam.test.s2.S2" 
+			id="ddd" /> should be an error ! <dependency specification="S3" id="S3Idmult" 
+			multiple="true"> should be an error <preferences> <implementation filter="(shared=false)" 
+			/> <xyz filter="(impl-name=S1ImplFalse)" /> should be an error </preferences> 
+			</dependency> -->
 	</composite>
 
-<!-- 	<apam-instance implementation="S1MainCompo" name="S1MainInstance" /> -->
-	<apam-instance implementation="S1Main" name="S1MainInstance" />
+	<!-- <apam-instance implementation="S1MainCompo" name="S1MainInstance" /> -->
+
+	<!-- <apam-instance implementation="S1toS2Final" name="S1toS2Final-Instance" 
+		/> -->
 </apam>
 

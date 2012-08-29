@@ -477,7 +477,7 @@ public class CheckObr {
                 }
             }
         }
-        error("     Warning: Specification " + name + " not found in repository " + CheckObr.repo.getURI());
+        System.err.println("     Specification " + name + " not found in repository " + CheckObr.repo.getURI());
         return null;
     }
 
