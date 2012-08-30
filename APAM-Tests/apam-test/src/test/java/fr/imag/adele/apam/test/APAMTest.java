@@ -1,12 +1,17 @@
 package fr.imag.adele.apam.test;
 
-
+import static junit.framework.Assert.*;
+//http://junit.sourceforge.net/javadoc/org/junit/Assert.html
+//import static junit.framework.Assert.assertNotNull;
+//import static junit.framework.Assert.assertNull;
 import static org.ops4j.pax.exam.CoreOptions.felix;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 
+import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,8 +77,7 @@ public  class APAMTest {
 	                mavenBundle().groupId("org.ow2.chameleon.testing").artifactId("osgi-helpers").versionAsInProject(),
 	                mavenBundle().groupId("org.osgi").artifactId("org.osgi.compendium").versionAsInProject(), 
 	                mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.bundlerepository").version("1.6.6"),
-	                mavenBundle().groupId("fr.imag.adele.apam").artifactId("APAM").version("0.0.1-SNAPSHOT"),
-	                mavenBundle().groupId("fr.imag.adele.apam").artifactId("ApformIpojo").version("0.0.1-SNAPSHOT"),
+	                mavenBundle().groupId("fr.imag.adele.apam").artifactId("APAMBundle").version("0.0.1-SNAPSHOT"),
 	                mavenBundle().groupId("fr.imag.adele.apam").artifactId("OBRMAN").version("0.0.1-SNAPSHOT"),
 	                mavenBundle().groupId("org.slf4j").artifactId("slf4j-api").version("1.6.1"),
 					mavenBundle().groupId("org.slf4j").artifactId("slf4j-simple").version("1.6.1")
@@ -95,9 +99,9 @@ public  class APAMTest {
 	 * Test test;
 	 */
 	@Test
-	public void thingToTest(){
+	public void compoByURL_Name(){
 		 apam = (Apam) osgi.getServiceObject(Apam.class.getName(), null);
-		 System.out.println("Starting mainApam");
+		 System.out.println("Starting compoByURL_Name");
 
 		 try {
 			Thread.currentThread().sleep(3000);
@@ -105,31 +109,63 @@ public  class APAMTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		 
-		 System.out.println("Finish wainting...!");
+		assertNotNull(apam);
+
+		System.out.println("Starting tests and apam ready");
 	        // examples of the different ways to create and start an application in apam.
 	        // The easiest way is as done for starting this class: "implements Runnable, ApamComponent".
 	        // Once loaded in OSGi, it starts in a root composite automatically created for it.
 
-	        // providing an URL leading to the bundle to start. It must contain the main implementation "S2Simple"
+		System.out.println("providing an URL leading to the bundle to start. It must contain the main implementation S2Simple");
+	        File bundle = new File("https://repository-apam.forge.cloudbees.com/snapshot/fr/imag/adele/apam/S2Impl/0.0.1-SNAPSHOT/S2Impl-0.0.1-20120810.041326-9.jar");
+	        URL theUrl = null;
+	        try {
+	            theUrl = bundle.toURI().toURL();
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+		 	CompositeType appliTestURL = apam.createCompositeType(null,  "TestURL", "S2Simple", /* models */null, theUrl, /*specName*/null, null);
+		 	assertNotNull(appliTestURL);
+	        
+		 	System.out.println("testing findImplByName in ASM");
+		 	Implementation implem = CST.apamResolver.findImplByName(null,"S1toS2Final");
+		 	assertNotNull(implem);
+		 	
+		 	System.out.println("testing findImplByName in OBR");
+		 	Implementation implem2 = CST.apamResolver.findImplByName(null,"S2Final");
+		 	assertNotNull(implem2);
 
-//	        File bundle = new File("F:/Workspaces/APAM/APAM-Tests/S2Impl/target/S2Impl-0.0.1-SNAPSHOT.jar");
-//	        URL theUrl = null;
-//	        try {
-//	            theUrl = bundle.toURI().toURL();
-//	        } catch (Exception e) {
-//	            e.printStackTrace();
-//	        }
-		 
-		 	Implementation implem = CST.apamResolver.findImplByName(null,"S2Simple");
-		 	CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", implem.getName(), null,null);
+		 	System.out.println("testing a root createCompositeType by name existing in ASM. will call S2Final.");
+		 	CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", "S1toS2Final", null,null);
+		 	assertNotNull(appliTest00);
+		 	
 //	        CompositeType appliTest00 = apam.createCompositeType(null, "Test00", "S2Simple", null /* models */, theUrl,
 //	                null /* specName */, null /* properties */);
+		 	
+		 	System.out.println("testing create instance root");
 	        Instance a = appliTest00.createInstance(null /* composite */, null/* properties */);
+	        assertNotNull(a);
+	        
+	        System.out.println("testing call to S2Simple");
 	        S2 s02 = (S2) a.getServiceObject();
-	        s02.callS2("createAppli by URL");
+	        s02.callS2("createAppli by API by name. Should call S2Final.");
 
-	        System.out.println("=====================================\nend test url\n\n");
+	        System.out.println("=====================================\nend test S1toS2Final \n\n");
+	}
+	
+	@Test
+	public void thingToTest(){
+		 apam = (Apam) osgi.getServiceObject(Apam.class.getName(), null);
+		 System.out.println("Starting thingToTest");
+
+		 try {
+			Thread.currentThread().sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertNotNull(apam);
+
 
 	        System.out.println("=====================================\nA composite inside another composite\n\n");
 
@@ -141,14 +177,21 @@ public  class APAMTest {
 	        props.put("location", "living"); // ok
 	        props.put("location", "anywhere"); // value not defined
 
+		 	//testing a root createCompositeType by name existing in ASM. will call S2Final.");
+		 	CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", "S1toS2Final", null,null);
+		 	assertNotNull(appliTest00);
+
+		 	//testing create instance root");
+	        Instance a = appliTest00.createInstance(null /* composite */, null/* properties */);
+	        assertNotNull(a);
 	        Instance test00_instance0 = appliTest00.createInstance((Composite) a /* composite */, props/* properties */);
 	        System.err.println("composite in composite same type !! " + test00_instance0 + "\n\n\n");
 
-	        // Creation of an application TestS1 which main implementation is called "S1Simple".
+	        // Creation of an application TestS1 which main implementation is called "S1Simple".");
 	        // The system will try to find an implementation called "S1Simple" (found by OBR in this example)
 	        CompositeType appli3 = apam
 	        .createCompositeType(null, "TestS1", "S1Simple", null /* models */, null /* properties */);
-	        // fails since S1Simple does not exist
+	        // fails since S1Simple does not exist");
 
 	        System.err.println("Composite type TestS1 inside composite type Test00");
 	        appli3 = apam.createCompositeType("Test00", "TestS1", "S1Impl", null /* models */, null /* properties */);

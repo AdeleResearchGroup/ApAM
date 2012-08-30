@@ -75,11 +75,7 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
             return null;
         }
 
-        /*
-         * TODO should we allow logical deploy in this case? or should we verify the 
-         * implementation is unused?
-         */
-        if (compo != null && ! ((CompositeTypeImpl)compo).isSystemRoot())
+       if (compo != null && ! ((CompositeTypeImpl)compo).isSystemRoot())
         	((CompositeTypeImpl)compo).deploy(impl);
         
         return impl;

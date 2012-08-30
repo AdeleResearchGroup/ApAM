@@ -242,7 +242,6 @@ public class OBRMan implements DependencyManager {
         Selected selected = null;
         Implementation impl = null;
         String filterStr = null;
-        System.out.println("FindImpl OBR --> "+ obr );
         if (implName != null)
             filterStr = "(impl-name=" + implName + ")";
 

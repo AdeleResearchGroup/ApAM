@@ -252,11 +252,11 @@ public class Util {
         if (compoFrom == compoTo)
             return true;
         if (compoFrom.isFriend(compoTo)) {
-            String friend = ((String) compoTo.getProperty(CST.A_FRIENDINSTANCE));
+            String friend = ((String) compoTo.getProperty(CST.A_FRIENDIMPLEM));
             if ((friend != null) && Util.checkImplVisibilityExpression(friend, toImpl))
                 return true;
         }
-        String local = ((String) compoTo.getProperty(CST.A_LOCALINSTANCE));
+        String local = ((String) compoTo.getProperty(CST.A_LOCALIMPLEM));
         if ((local != null) && Util.checkImplVisibilityExpression(local, toImpl))
             return false;
         return true;

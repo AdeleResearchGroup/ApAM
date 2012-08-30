@@ -165,19 +165,6 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
     @Override
     public void register() {
-
-    	/*
-    	 * Notify managers of their models
-    	 * 
-    	 * TODO WARNING Notice that at this stage the composite type is not completely registered in the Apam model
-    	 * so managers must be cautious when manipulating the state and navigating the hierarchy.
-    	 */
-        for (ManagerModel managerModel : models) {
-        	DependencyManager manager = ApamManagers.getManager(managerModel.getManagerName());
-            if (manager != null) {
-            	manager.newComposite(managerModel, this);
-            }
-        }
     	
     	/*
     	 * Opposite references from the enclosing composite types
@@ -186,49 +173,54 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	        ((CompositeTypeImpl)inComposite).addEmbedded(this);
 		}
 
+    	/*
+    	 * Notify managers of their models
+    	 * Not at the end of registration because OBR needs its model to find the main implem.
+    	 * WARNING Notice that at this stage the composite type is not completely registered in the Apam model
+    	 * so managers must be cautious when manipulating the state and navigating the hierarchy.
+    	 */
+        for (ManagerModel managerModel : models) {
+        	DependencyManager manager = ApamManagers.getManager(managerModel.getManagerName());
+            if (manager != null) {
+            	manager.newComposite(managerModel, this);
+            }
+        }
 		
         /*
          * Resolve main implementation.
          * 
          * First we try to find an implementation with the name of the main component, if we fail to find one we
-         * assume the name corresponds to an specification. Notice that resolution of the main component is done
-         * in the context of this composite type, so it will be logically deployed in this context if necessary.
+         * assume the name corresponds to a specification which is resolved. 
+         * Notice that resolution of the main component is done in the context of this composite type, 
+         * so it will be  deployed in this context if necessary.
          * 
-         * TODO WARNING this is done after the composite type is added to the hierarchy but before it is completely
-         * registered as a normal implementation. We should have a more controlled order but this will need a refactoring
-         * of the superclass to allow a more fine control of registration.
+         * WARNING this is done after the composite type is added to the hierarchy but before it is completely
+         * registered as a normal implementation. We do not call super.register until the main implem is resolved.
          * 
          */
 		String mainComponent = getCompoDeclaration().getMainComponent().getName();
+		Set<Filter> constraints = new HashSet<Filter>();
+		
 		mainImpl = CST.apamResolver.findImplByName(this,mainComponent);
 		if (mainImpl == null) {
 			/*
 			 *  It is a specification to resolve as the main implem. Do not select another composite
 			 */
-			Set<Filter> constraints = new HashSet<Filter>();
+			constraints.clear();
 			ApamFilter noComposite = ApamFilter.newInstance("(!(" + CST.A_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
 			constraints.add(noComposite);
 			mainImpl = CST.apamResolver.resolveSpecByName(this, mainComponent, constraints, null);
         }
-
         if (mainImpl == null) {
             logger.error("cannot find main implementation " + mainComponent);
             return;
         }
+        
+        if (! mainImpl.getInCompositeType().contains(this)) deploy(mainImpl) ;
 		
-		/*
-		 * TODO, WARNING
-		 * 
-		 * LOCALIMPLEM and FRIENDIMPLEM are not currently validated, @see Util.checkImplVisible, is this
-		 * a bug? can the main implem be shared by several composite types?
-		 */
-        ((ImplementationImpl) mainImpl).put(CST.A_LOCALIMPLEM, "(name=" + mainImpl + ")");
-
         /*
-         * Check that the implementation actually provides all the resources of the composite
+         * Check that the main implementation actually provides all the resources of the composite
          * 
-		 * TODO We should precise the meaning of ImplementationDeclaration.getProvidedResources(), is all
-         * the provided resources or the private resources not mentioned in its specification?  
          */
         if (getSpec() != null ) {
             if (! mainImpl.getDeclaration().getProvidedResources().containsAll(getSpec().getDeclaration().getProvidedResources())) {
@@ -239,14 +231,6 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         }
 
         /*
-         * TODO, WARNING Should the composite inherit the specification of the main implementation? or was this
-         * a bug?
-         *
-         * mySpec = mainImpl.getSpec();
-         * ((SpecificationImpl) mySpec).addImpl(this);
-		 */
-        
-        /*
 		 * add to list of composite types
 		 */
 		CompositeTypeImpl.compositeTypes.put(getName(),this);
@@ -254,8 +238,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		/*
 		 * Complete normal registration
 		 */
-    	super.register();
-    	
+    	super.register(); 	
     }
     
     @Override

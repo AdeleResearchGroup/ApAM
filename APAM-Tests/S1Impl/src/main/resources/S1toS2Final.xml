@@ -1,0 +1,20 @@
+
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+	<implementation name="S1toS2Final"
+		classname="fr.imag.adele.apam.test.s1Impl.S1toS2Final" specification="S1">
+		<properties>
+			<property shared="false" />
+			<property zerrt="true" />
+			<property location="living" />
+			<property location="elsewhere" />
+		</properties>
+		<definitions>
+			<definition name="cczerrt" type="boolean" />
+			<definition name="myEnum" type="{v1, v2, v3}" />
+		</definitions>
+		<dependencies>
+			<dependency field="s2" />
+		</dependencies>
+	</implementation>
+</apam>
+			

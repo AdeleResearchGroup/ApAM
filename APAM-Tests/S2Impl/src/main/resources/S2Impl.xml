@@ -14,12 +14,6 @@
 				interfaces="{fr.imag.adele.apam.test.s2.S2}"> 		
 
 		<dependency implementation="S3Impl" id ="S3Impl-id" field="fieldS3"/>
-
-<!--  
- 		<dependency implementation="S3Impl"> 
-			<interface field="fieldS3" />
-		</dependency>
-		-->
 		<dependency specification="S4" field="s4" />
 	</implementation>
 	
@@ -36,4 +30,9 @@
 		classname="fr.imag.adele.apam.test.s2Impl.S2ImplBis" specification="S2" > 
 		<dependency field="s4Bis" />
 	</implementation>
+	
+	<implementation name="S2Final" 
+		classname="fr.imag.adele.apam.test.s2Impl.S2Final" specification="S2" > 
+	</implementation>
+	
 </apam>

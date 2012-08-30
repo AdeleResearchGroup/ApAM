@@ -226,7 +226,7 @@ public class ApamCommand {
 	public void compoTypes() {
 		Collection<CompositeType> applis = apam.getCompositeTypes();
 		for (CompositeType appli : applis) {
-			printCompositeType(appli, "");
+			System.out.println("    " + appli);
 		}
 	}
 
