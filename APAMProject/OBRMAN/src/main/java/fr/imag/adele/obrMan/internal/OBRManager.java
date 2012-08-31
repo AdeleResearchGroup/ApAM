@@ -92,7 +92,7 @@ public class OBRManager {
             compositeRepositories.put(CST.ROOT_COMPOSITE_TYPE, rootComposite);
 
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getMessage(), e.getCause());
         }
 
     }

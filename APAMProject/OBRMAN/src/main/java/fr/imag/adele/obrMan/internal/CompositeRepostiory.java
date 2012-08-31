@@ -25,7 +25,7 @@ public class CompositeRepostiory {
 			resourcesTemp.addAll(Arrays.asList(repository.getResources()));
 			repoAdmin.removeRepository(repository.getURI());
 		}
-		resourcesTemp.toArray(resources);
+		resources = resourcesTemp.toArray(new Resource[0]);
 		this.resolver =  repoAdmin.resolver(repositories);
 	}
 

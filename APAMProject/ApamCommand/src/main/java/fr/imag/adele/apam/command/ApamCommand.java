@@ -16,7 +16,6 @@ package fr.imag.adele.apam.command;
  */
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -28,16 +27,16 @@ import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.ServiceProperty;
 import org.apache.felix.service.command.Descriptor;
 
+import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Wire;
-//import fr.imag.adele.apam.apamImpl.SpecificationImpl;
 import fr.imag.adele.apam.core.ResourceReference;
+//import fr.imag.adele.apam.apamImpl.SpecificationImpl;
 
 /**
  * 
