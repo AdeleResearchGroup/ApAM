@@ -49,4 +49,10 @@ public class SpecificationDeclaration extends ComponentDeclaration {
         return "Specification " + super.toString();
     }
 
+//	@Override
+//	public String printDeclaration(String indent) {
+//        return indent + "Specification " + super.printDeclaration(indent);
+//
+//	}
+
 }

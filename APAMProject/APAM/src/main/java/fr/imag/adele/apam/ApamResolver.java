@@ -26,15 +26,18 @@ public interface ApamResolver {
 
 
     /**
-     * Look for an implementation with a given name "implName", visible from composite Type compoType.
+     * Look for an implementation with a given name "implName", visible from composite Type compo or compoType.
+     * if compo or compoType is null, root composite are assumed
      * 
      * @param compoType
      * @param implName
      * @return
      */
     public Implementation findImplByName(CompositeType compoTypeFrom, String implName);
+//    public Implementation findImplByName(Composite     compoFrom, String implName);
 
     public Specification findSpecByName(CompositeType compTypeFrom, String specName);
+//    public Specification findSpecByName(Composite     compFrom, String specName);
 
     /**
      * First looks for the specification defined by its name, and then resolve that specification.

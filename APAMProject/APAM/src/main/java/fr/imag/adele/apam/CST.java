@@ -49,6 +49,7 @@ public class CST {
         CST.A_INTERFACE, CST.A_MESSAGE
     };
 
+    public static final String         A_NAME            = "name";
     public static final String         A_SPECNAME        = "spec-name";
     public static final String         A_IMPLNAME        = "impl-name";
     public static final String         A_INSTNAME        = "inst-name";

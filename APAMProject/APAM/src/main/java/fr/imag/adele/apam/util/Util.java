@@ -453,11 +453,12 @@ public class Util {
                 if (one.equals(value))
                     return true;
             }
-          logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr + "\".  Expected: \"{");
+            String errorMes = "Invalid attribute value \"" + val + "\" for attribute \"" + attr + "\".  Expected: \"{" ;
             for (String one : enumVals) {
-                logger.error(one + " ");
+            	errorMes += one + " ";
             }
-            logger.error("}\"");
+            errorMes += "}\"" ;
+            logger.error(errorMes);
             return false;
         }
 
