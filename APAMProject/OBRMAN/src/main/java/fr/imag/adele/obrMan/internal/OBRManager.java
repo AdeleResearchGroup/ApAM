@@ -188,8 +188,11 @@ public class OBRManager {
     }
 
     public Set<Selected> lookForAll(String capability, String filterStr, Set<Filter> constraints) {
+    	if (filterStr == null)
+    		new Exception("no filter in lookfor all").printStackTrace() ;
+    	
         Set<Selected> allRes = new HashSet<Selected>();
-        System.out.print("looking for all resources : " + capability + "; filter : " + filterStr);
+        System.out.print("OBR: looking for all components matching " + filterStr);
         if ((constraints != null) && !constraints.isEmpty()) {
             System.out.print(". Constraints : ");
             for (Filter constraint : constraints) {
@@ -198,24 +201,19 @@ public class OBRManager {
         }
         System.out.println("");
 
-        if (allResources == null)
+        if (allResources == null) {
+        	System.err.println("no resources in OBR");
             return null;
+        }
         try {
-            ApamFilter filter = null;
-            if (filterStr != null)
-                filter = ApamFilter.newInstance(filterStr);
+            ApamFilter filter = ApamFilter.newInstance(filterStr);
             for (Resource res : allResources) {
                 Capability[] capabilities = res.getCapabilities();
                 for (Capability aCap : capabilities) {
                     if (aCap.getName().equals(capability)) {
-                        if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
+                        if (filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.print("   Found bundle : " + res.getSymbolicName() + " Component:  ");
-                                if (aCap.getName().equals(OBR.CAPABILITY_SPECIFICATION)){
-                                	 System.out.println(getAttributeInCapability(aCap, CST.A_SPECNAME));
-                                }else if (aCap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)){
-                                	System.out.println(getAttributeInCapability(aCap, CST.A_IMPLNAME));
-                                }
+                                System.out.println("   Component " + getAttributeInCapability(aCap, OBR.A_NAME) + " found in bundle : " + res.getSymbolicName());
                                 allRes.add(new Selected(res, aCap));
                             }
                         }
@@ -243,22 +241,16 @@ public class OBRManager {
         // fin trace
 
         Selected winner = null;
-        //        Capability selectedCapability = null;
         int maxMatch = -1;
         int match = 0;
         for (Selected sel : candidates) {
-            //            Capability[] capabilities = res.getCapabilities();
-            //            for (Capability aCap : capabilities) {
-            // if (sel.capabilityaCap.getName().equals(capability)) {
             match = matchPreferences(sel.capability, preferences);
             if (match > maxMatch) {
                 maxMatch = match;
                 winner = sel;
-                // selectedCapability = aCap;
             }
         }
-        //            }
-        //        }
+
         if (winner == null)
             return null;
         System.out.println("   Found bundle : " + winner.resource.getSymbolicName() + " Component:  "
@@ -297,34 +289,32 @@ public class OBRManager {
     }
 
     public Selected lookFor(String capability, String filterStr, Set<Filter> constraints) {
-        System.out.print("looking for capability : " + capability + "; filter : " + filterStr);
+    	if (filterStr == null) {
+    		System.err.println("No filter for lookFor");
+    		return null ;
+    	}
+        System.out.print("OBR: looking for component " + filterStr);
         if (constraints != null) {
-            System.out.print("maching constraints : ");
+            System.out.print(". Constraints to match: ");
             for (Filter constraint : constraints) {
                 System.out.print(constraint + ", ");
             }
         }
         System.out.println("");
 
-        // Requirement req = repoAdmin.getHelper().requirement(capability, filterStr);
-        if (allResources == null)
+        if (allResources == null) {
+        	System.err.println("no resources in OBR");
             return null;
+        }
         try {
-            ApamFilter filter = null;
-            if (filterStr != null)
-                filter = ApamFilter.newInstance(filterStr);
+            ApamFilter filter = ApamFilter.newInstance(filterStr);
             for (Resource res : allResources) {
                 Capability[] capabilities = res.getCapabilities();
                 for (Capability aCap : capabilities) {
-                    if (aCap.getName().equals(capability)) {
-                        if ((filter == null) || filter.matchCase(aCap.getPropertiesAsMap())) {
+                    if (aCap.getName().equals(capability)) { // apam-component
+                        if (filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.print("   Found bundle : " + res.getSymbolicName() + " Component:  ");
-                                if (aCap.getName().equals(OBR.CAPABILITY_SPECIFICATION)){
-                               	 System.out.println(getAttributeInCapability(aCap, CST.A_SPECNAME));
-                               }else if (aCap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)){
-                               	System.out.println(getAttributeInCapability(aCap, CST.A_IMPLNAME));
-                               }
+                                System.out.println("   Component " + getAttributeInCapability(aCap, CST.A_NAME) + " found in bundle " + res.getSymbolicName() );
                                 return new Selected(res, aCap);
                             }
                         }
@@ -350,7 +340,6 @@ public class OBRManager {
             return true;
 
         ApamFilter filter;
-        //        if (aCap.getName().equals("apam-implementation")) {
         Map map = aCap.getPropertiesAsMap();
         for (Filter constraint : constraints) {
             filter = ApamFilter.newInstance(constraint.toString());
@@ -358,7 +347,6 @@ public class OBRManager {
                 return false;
             }
         }
-        //        }
         return true;
     }
 
@@ -400,6 +388,7 @@ public class OBRManager {
     public void newModel(String obrModel, String composite) {
         StringTokenizer st = new StringTokenizer(obrModel);
         String repoUrlStr = null;
+/*
         while (st.hasMoreElements()) {
             try {
                 repoUrlStr = st.nextToken("\n");
@@ -418,6 +407,7 @@ public class OBRManager {
             // printRes(res);
             // }
         }
+        */
     }
 
     private static String readFileAsString(URL url) throws java.io.IOException {
@@ -493,17 +483,7 @@ public class OBRManager {
             SAXParser saxParser = factory.newSAXParser();
 
             SaxHandler handler = new SaxHandler() ;
-
             saxParser.parse(pathSettings, handler);
-            //            String settings = OBRManager.readFileAsString(pathSettings.toURL());
-            //            int local = settings.indexOf("<localRepository>");
-            //            if (local == -1)
-            //                return null;
-            //            // TODO eliminer les commentaires
-            //            String localRepo;
-            //            int localEnd = settings.indexOf("</localRepository>", local + 5);
-            //            localRepo = "file:///" + settings.substring(local + 17, localEnd) + "\\repository.xml";
-            //            // System.out.println("found local repos : " + localRepo);
 
             return handler.getRepo();
         } catch (Exception e) {

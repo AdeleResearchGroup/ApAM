@@ -121,24 +121,41 @@ public interface DependencyManager {
     /**
      * The manager is asked to find the implementation given its name.
      * If it must be created, it must be inside compoType.
+     * Use the instance whenever possible, to know the composite scope 
      * 
      * @param compoType the composite in which is located the calling implem (and where to create implementation, if
-     *            needed). Cannot be null.
-     * @param implName the name of implementation to find.
+     *            needed). If null, the system root composite is assumed.
+     *            The search scope is compoType and then its *first* embedding composite type. 
+     *            For that reason prefer the other signature with composite instance
+     * @param compo the composite in which is located the calling implem      * @param implName the name of implementation to find.
      * @return the implementations if resolved, null otherwise
      */
     public Implementation findImplByName(CompositeType compoType, String implName);
+
+    /**
+     * The manager is asked to find the implementation given its name.
+     * If it must be created, it must be inside the type of compo.
+     * 
+     * @param compo the composite in which is located the caller and in which composite type the implementation is created, if
+     *            needed). If null, the system root composite is assumed.      
+     *            The search scope is composite and then its embedding composites (a tree). 
+     * @param implName the name of implementation to find.
+     * @return the implementations if resolved, null otherwise
+     */
+//    public Implementation findImplByName(Composite compo, String implName);
 
     /**
      * The manager is asked to find the specification given its name.
      * If it must be created, it must be inside compoType.
      * 
      * @param compoType the composite in which is located the calling implem (and where to create implementation, if
-     *            needed). Can be null (root composite assumed).
+     *            needed). If null, root composite is assumed.
+     *            The search scope is compoType and then its *first* embedding composite type.
      * @param specName the name of specification to find.
      * @return the specification if found, null otherwise
      */
     public Specification findSpecByName(CompositeType compoType, String specName);
+//    public Specification findSpecByName(Composite compo, String specName);
 
     /**
      * The manager is asked to find the "right" instance for the required implementation.

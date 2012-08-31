@@ -105,7 +105,7 @@ public class CheckObr {
         SpecificationReference reference = dep.getTarget().as(SpecificationReference.class);
         String spec = reference.getName();
 
-        Capability cap = CheckObr.getSpecCapability(reference);
+        Capability cap = CheckObr.getCapability(reference);
         if (cap == null)
             return;
         Set<String> validImplAttrs = CheckObr.getValidImplAttributes(cap);
@@ -146,7 +146,7 @@ public class CheckObr {
         // if implementation is found
         Capability cap = null;
         if (impl != null) {
-            cap = CheckObr.getImplCapability(new ImplementationReference<ImplementationDeclaration>(impl));
+            cap = CheckObr.getCapability(new ImplementationReference<ImplementationDeclaration>(impl));
             if (cap != null) {
                 // Map<String, Object> props = cap.getProperties();
                 for (Property attr : cap.getProperties()) {
@@ -246,10 +246,10 @@ public class CheckObr {
             }
         }
         if (component != null)
-            System.err
+            System.out
             .println("in component " + component + ", attribute " + attr + " used but not defined in " + spec);
         else         
-            System.err.println("in instance, attribute " + attr + " used but not defined in " + spec);
+            System.out.println("in instance, attribute " + attr + " used but not defined in " + spec);
         return false;
     }
 
@@ -285,7 +285,7 @@ public class CheckObr {
         Map<String, Object> properties = component.getProperties();
         if (spec == null)
             return properties;
-        Capability cap = CheckObr.getSpecCapability(component.getSpecification());
+        Capability cap = CheckObr.getCapability(component.getSpecification());
         if (cap == null) {
             return properties;
         }
@@ -303,7 +303,7 @@ public class CheckObr {
         Map<String, Object> properties = component.getProperties();
         if (spec == null)
             return;
-        Capability cap = CheckObr.getSpecCapability(component.getSpecification());
+        Capability cap = CheckObr.getCapability(component.getSpecification());
         if (cap == null) {
             return;
         }
@@ -323,7 +323,7 @@ public class CheckObr {
      * @param instance
      */
     public static void checkInstAttributes(String impl, String name, InstanceDeclaration instance) {
-        Capability capImpl = CheckObr.getImplCapability(instance.getImplementation());
+        Capability capImpl = CheckObr.getCapability(instance.getImplementation());
         if (capImpl == null) {
             return;
         }
@@ -351,7 +351,7 @@ public class CheckObr {
             Set<MessageReference> messages) {
         if (spec == null)
             return true;
-        Capability cap = CheckObr.getSpecCapability(new SpecificationReference(spec));
+        Capability cap = CheckObr.getCapability(new SpecificationReference(spec));
         if (cap == null) {
             return true;
         }
@@ -378,10 +378,8 @@ public class CheckObr {
         String name = composite.getName();
         // System.err.println("in checkCompoMain ");
         String implName = composite.getMainComponent().getName();
-        Capability cap = CheckObr.getImplCapability(composite.getMainComponent());
+        Capability cap = CheckObr.getCapability(composite.getMainComponent());
         if (cap == null) {
-            cap = CheckObr.getSpecCapability(composite.getMainComponent());
-            if (cap == null)
                 return;
         }
         if (composite.getSpecification() != null) {
@@ -460,60 +458,63 @@ public class CheckObr {
         return prop;
     }
 
-    private static Capability getSpecCapability(ComponentReference<?> reference) {
+    private static Capability getCapability(ComponentReference<?> reference) {
         String name = reference.getName();
         if (CheckObr.readCapabilities.containsKey(name))
             return CheckObr.readCapabilities.get(name);
         for (Resource res : CheckObr.resources) {
-            if (OBRGeneratorMojo.bundleDependencies.contains(res.getId())) {
+        	if (reference instanceof SpecificationReference) {
+        		if (!OBRGeneratorMojo.bundleDependencies.contains(res.getId()))
+        			continue ;
+        	}
+//            if (OBRGeneratorMojo.bundleDependencies.contains(res.getId())) {
                 for (Capability cap : res.getCapabilities()) {
-                    if (cap.getName().equals(OBR.CAPABILITY_SPECIFICATION)
-                            && (CheckObr.getAttributeInCap(cap, "spec-name") != null)
-                            && (CheckObr.getAttributeInCap(cap, "spec-name").equals(name))) {
-                        System.out.println("     Specification " + name + " found in bundle " + res.getId());
+                    if (cap.getName().equals(OBR.CAPABILITY_COMPONENT)
+                            && (CheckObr.getAttributeInCap(cap, "name").equals(name))) {
+                        System.out.println("     Component " + name + " found in bundle " + res.getId());
                         CheckObr.readCapabilities.put(name, cap);
                         return cap;
                     }
-                }
+//                }
             }
         }
-        System.err.println("     Specification " + name + " not found in repository " + CheckObr.repo.getURI());
+        System.err.println("     Component " + name + " not found in repository " + CheckObr.repo.getURI());
         return null;
     }
 
-    private static Capability getImplCapability(ComponentReference<?> reference) {
-        String name = reference.getName();
-        if (CheckObr.readCapabilities.containsKey(name))
-            return CheckObr.readCapabilities.get(name);
-        for (Resource res : CheckObr.resources) {
-            //            if (ApamMavenPlugin.bundleDependencies.contains(res.getId())) {
-            for (Capability cap : res.getCapabilities()) {
-                if (cap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)
-                        && (CheckObr.getAttributeInCap(cap, "impl-name") != null)
-                        && (CheckObr.getAttributeInCap(cap, "impl-name").equals(name))) {
-                    System.out.println("     Implementation " + name + " found in bundle " + res.getId());
-                    CheckObr.readCapabilities.put(name, cap);
-                    return cap;
-                }
-            }
-        }
-        System.err.println("     Implementation " + name + " not found in repository " + CheckObr.repo.getURI());
-        return null;
-    }
-
-    private static Capability getCompoCapability(ImplementationReference<? extends CompositeDeclaration> reference) {
-        String name = reference.getName();
-        for (Resource res : CheckObr.resources) {
-            for (Capability cap : res.getCapabilities()) {
-                if (cap.getName().equals(OBR.CAPABILITY_IMPLEMENTATION)
-                        && (CheckObr.getAttributeInCap(cap, CST.A_COMPOSITE) != null)
-                        && (CheckObr.getAttributeInCap(cap, CST.A_COMPOSITE).equals("true"))
-                        && (CheckObr.getAttributeInCap(cap, name) != null))
-                    return cap;
-            }
-        }
-        return null;
-    }
+//    private static Capability getImplCapability(ComponentReference<?> reference) {
+//        String name = reference.getName();
+//        if (CheckObr.readCapabilities.containsKey(name))
+//            return CheckObr.readCapabilities.get(name);
+//        for (Resource res : CheckObr.resources) {
+//            //            if (ApamMavenPlugin.bundleDependencies.contains(res.getId())) {
+//            for (Capability cap : res.getCapabilities()) {
+//                if (cap.getName().equals(OBR.CAPABILITY_COMPONENT)
+//                        && (CheckObr.getAttributeInCap(cap, "impl-name") != null)
+//                        && (CheckObr.getAttributeInCap(cap, "impl-name").equals(name))) {
+//                    System.out.println("     Implementation " + name + " found in bundle " + res.getId());
+//                    CheckObr.readCapabilities.put(name, cap);
+//                    return cap;
+//                }
+//            }
+//        }
+//        System.err.println("     Implementation " + name + " not found in repository " + CheckObr.repo.getURI());
+//        return null;
+//    }
+//
+//    private static Capability getCompoCapability(ImplementationReference<? extends CompositeDeclaration> reference) {
+//        String name = reference.getName();
+//        for (Resource res : CheckObr.resources) {
+//            for (Capability cap : res.getCapabilities()) {
+//                if (cap.getName().equals(OBR.CAPABILITY_COMPONENT)
+//                        && (CheckObr.getAttributeInCap(cap, CST.A_COMPOSITE) != null)
+//                        && (CheckObr.getAttributeInCap(cap, CST.A_COMPOSITE).equals("true"))
+//                        && (CheckObr.getAttributeInCap(cap, name) != null))
+//                    return cap;
+//            }
+//        }
+//        return null;
+//    }
 
     /**
      * Provided a dependency "dep" (simple or complex) checks if the field type and attribute multiple are compatible.
@@ -532,13 +533,13 @@ public class CheckObr {
 
         if (dep.getTarget() instanceof SpecificationReference) {
             SpecificationReference spec = (SpecificationReference) dep.getTarget();
-            specResources.addAll( CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getSpecCapability(spec), OBR.A_PROVIDE_INTERFACES), InterfaceReference.class));
-            specResources.addAll( CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getSpecCapability(spec), OBR.A_PROVIDE_MESSAGES), MessageReference.class));
+            specResources.addAll( CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getCapability(spec), OBR.A_PROVIDE_INTERFACES), InterfaceReference.class));
+            specResources.addAll( CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getCapability(spec), OBR.A_PROVIDE_MESSAGES), MessageReference.class));
         } else if (dep.getTarget() instanceof ImplementationReference) {
             ImplementationReference implem = (ImplementationReference) dep.getTarget();
-            specResources.addAll(CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getImplCapability(implem),
+            specResources.addAll(CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getCapability(implem),
                     OBR.A_PROVIDE_INTERFACES), InterfaceReference.class));
-            specResources.addAll(CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getImplCapability(implem),
+            specResources.addAll(CheckObr.asSet(CheckObr.getAttributeInCap(CheckObr.getCapability(implem),
                     OBR.A_PROVIDE_MESSAGES), MessageReference.class));
         } else {
             specResources.add(dep.getTarget().as(ResourceReference.class));
@@ -567,7 +568,7 @@ public class CheckObr {
             String type = innerDep.getResource().getJavaType();
 
             if ((innerDep.getResource() != ResourceReference.UNDEFINED) && !(specResources.contains(innerDep.getResource()))) {
-                CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
+                System.err.println("ERROR: in " + component.getName() + dep + "\n      Field "
                         + innerDep.getName()
                         + " is of type " + type
                         + " which is not implemented by specification or implementation " + dep.getIdentifier());

@@ -33,6 +33,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		
 		setApform(apform);
 		if (configuration != null) putAll (configuration);
+		put ("name", apform.getDeclaration().getName()) ;
 	}
 
 	/**

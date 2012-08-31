@@ -13,6 +13,7 @@ import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
@@ -50,6 +51,7 @@ public class ApamRepoBuilder {
     }
 
     private void printProvided(StringBuffer obrContent, ComponentDeclaration component) {
+        if (component instanceof InstanceDeclaration) return ;
 
         if (component instanceof ImplementationDeclaration) {
             obrContent.append("      <p n='impl-name' v='" + component.getName() + "' />\n");
@@ -109,7 +111,11 @@ public class ApamRepoBuilder {
             if (specProperties != null) {
                 for (String attr : specProperties.keySet()) {
                     if ((properties.get(attr) == null)
-                            && !(attr.startsWith("definition-") || attr.startsWith("provide-"))) {
+                            && !(attr.startsWith(OBR.A_DEFINITION_PREFIX) 
+                            		|| attr.startsWith(OBR.A_PROVIDE_PREFIX)
+                            		|| attr.equals(OBR.A_NAME)
+                            		|| attr.equals(OBR.COMPONENT_TYPE)
+                            )) {
                         obrContent.append("      <p n='" + attr + "' v='" + specProperties.get(attr) + "' />\n");
                     }
                 }
@@ -195,14 +201,29 @@ public class ApamRepoBuilder {
             System.out.print("specification ");
         System.out.println(component.getName() + " ...");
 
+        //limited capabilities for instances (not selected in obr ?). Nothing generated
+        if (component instanceof InstanceDeclaration) {
+//        	obrContent.append(OBR.INSTANCE + "' /> \n" );
+//            String impl = ((InstanceDeclaration) component).getImplementation().getName();
+//            obrContent.append("      <p n='" + OBR.IMPLEMENTATION + "' v='" + impl + "' />\n");
+            CheckObr.checkInstance((InstanceDeclaration) component);
+            	//no attributes
+//            obrContent.append("   </capability>\n");
+            return;
+        }
+
         //headers
-        if (component instanceof AtomicImplementationDeclaration) {
-            obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
+        obrContent.append("   <capability name='" + OBR.CAPABILITY_COMPONENT + "'>\n");
+        obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
+        obrContent.append("      <p n='" + OBR.COMPONENT_TYPE + "' v='") ;
+        
+        if (component instanceof ImplementationDeclaration) {
+        	obrContent.append(OBR.IMPLEMENTATION + "' /> \n" );
         }
 
         if (component instanceof CompositeDeclaration) {
+//        	obrContent.append(OBR.COMPOSITE_TYPE + "' /> \n" );
             CompositeDeclaration composite = (CompositeDeclaration) component;
-            obrContent.append("   <capability name='" + OBR.CAPABILITY_IMPLEMENTATION + "'>\n");
             obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='true' />\n");
             obrContent.append("      <p n='" + CST.A_MAIN_COMPONENT + "' v='"
                     + composite.getMainComponent().getName()
@@ -210,13 +231,9 @@ public class ApamRepoBuilder {
             CheckObr.checkCompoMain((CompositeDeclaration) component);
         }
         if (component instanceof SpecificationDeclaration) {
-            obrContent.append("   <capability name='" + OBR.CAPABILITY_SPECIFICATION + "'>\n");
+        	obrContent.append(OBR.SPECIFICATION + "' /> \n" );
         }
 
-        if (component instanceof InstanceDeclaration) {
-            CheckObr.checkInstance((InstanceDeclaration) component);
-            return;
-        }
 
         // provide clause
         printProvided(obrContent, component);

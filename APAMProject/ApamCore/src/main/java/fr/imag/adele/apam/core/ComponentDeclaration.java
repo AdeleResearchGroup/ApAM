@@ -194,32 +194,44 @@ public abstract class ComponentDeclaration {
 
     @Override
     public String toString() {
-        String ret = name;
+        return printDeclaration("") ;
+    }
+
+    
+	/**
+	 * Displays the declaration on screen, indented.
+	 * Same as toString, plus the indentation.
+	 * @param indent: a number of white characters as indentation.
+	 */
+	public String printDeclaration (String indent) {
+		String nl = "\n" + indent ;
+        String ret = indent + " Declaration of " + name;
         if (providedResources.size() != 0) {
-            ret += "\n   Provided resources: ";
+            ret += nl + "   Provided resources: ";
             for (ResourceReference resRef : providedResources) {
-                ret += "\n      " + resRef;
+                ret += nl + "      " + resRef;
             }
         }
         if (dependencies.size() != 0) {
-            ret += "\n   Dependencies: ";
+            ret += nl + "   Dependencies: \n";
             for (DependencyDeclaration resRef : dependencies) {
-                ret += resRef;
+                ret += resRef.printDependencyDeclaration(indent + "   ") + "\n";
             }
         }
         if (properties.size() != 0) {
-            ret += "\n   Properties: ";
+            ret += nl + "   Properties: ";
             for (Object resRef : properties.keySet()) {
-                ret += "\n      " + (String) resRef + " = " + properties.get(resRef);
+                ret += nl + "      " + (String) resRef + " = " + properties.get(resRef);
             }
         }
         if (definitions.size() != 0) {
-            ret += "\n   Attribute definitions: ";
+            ret += nl + "   Attribute definitions: ";
             for (PropertyDefinition resRef : definitions) {
-                ret += "\n      " + resRef;
+                ret += nl + "      " + resRef;
             }
         }
+        
         return ret;
-    }
+	}
 
 }

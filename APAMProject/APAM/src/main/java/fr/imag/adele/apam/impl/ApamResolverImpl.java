@@ -446,6 +446,10 @@ public class ApamResolverImpl implements ApamResolver {
      * @param specName
      * @return
      */
+//    @Override
+//    public Specification findSpecByName(Composite compFrom, String specName) {
+//        return findSpecByName (compFrom.getCompType(), specName) ;
+//    }
     @Override
     public Specification findSpecByName(CompositeType compTypeFrom, String specName) {
         List<DependencyManager> selectionPath = computeSelectionPathSpec(compTypeFrom, specName);

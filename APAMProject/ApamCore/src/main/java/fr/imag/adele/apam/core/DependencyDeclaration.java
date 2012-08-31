@@ -170,7 +170,11 @@ public class DependencyDeclaration extends TargetDeclaration {
 
     @Override
     public String toString() {
-        String ret = " dependency id: " + getIdentifier() + ". toward " + getTarget();
+        return printDependencyDeclaration ("");
+    }
+    
+    public String printDependencyDeclaration (String indent) {
+        String ret = indent + " dependency id: " + getIdentifier() + ". toward " + getTarget();
         if (! injections.isEmpty()) {
             // ret += "\n         Injected dependencies";
             for (DependencyInjection inj : injections) {
@@ -203,6 +207,7 @@ public class DependencyDeclaration extends TargetDeclaration {
             }
         }
         return ret;
+    	
     }
 
 }
