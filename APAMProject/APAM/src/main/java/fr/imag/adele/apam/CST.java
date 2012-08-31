@@ -42,6 +42,9 @@ public class CST {
     // List<ManagerModel>
     public static final String         A_MODELS              = "apam-models";
 
+    //APAM ROOT COMPOSITE
+    public static final String ROOT_COMPOSITE_TYPE = "root.composite.type";
+    
     // Attributes that cannot be changed by users
     public static final String[]       finalAttributes       = {
         CST.A_SPECNAME, CST.A_IMPLNAME, CST.A_INSTNAME,
@@ -49,6 +52,7 @@ public class CST {
         CST.A_INTERFACE, CST.A_MESSAGE
     };
 
+ 
     public static final String         A_NAME            = "name";
     public static final String         A_SPECNAME        = "spec-name";
     public static final String         A_IMPLNAME        = "impl-name";
@@ -69,6 +73,7 @@ public class CST {
     public static final String         DYNAMAN           = "DYNAMAN";
     public static final String         DISTRIMAN         = "DISTRIMAN";
     public static final String         OBRMAN            = "OBRMAN";
+
 
     // The entry point in the ASM : its brokers
     public static SpecificationBroker  SpecBroker        = null;
