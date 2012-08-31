@@ -124,6 +124,7 @@ public class OBRManager {
     // serious stuff now !
     public String getAttributeInResource(Resource res, String capability,
             String attr) {
+        
         for (Capability aCap : res.getCapabilities()) {
             if (aCap.getName().equals(capability)) {
                 return (String) (aCap.getPropertiesAsMap().get(attr));

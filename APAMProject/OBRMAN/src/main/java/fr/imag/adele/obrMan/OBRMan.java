@@ -198,6 +198,7 @@ public class OBRMan implements DependencyManager {
     private Implementation resolveSpec(CompositeType compoType, ResolvableReference resource,
             Set<Filter> constraints, List<Filter> preferences) {
 
+        
         // temporary ??
         if (preferences == null)
             preferences = new ArrayList<Filter>();

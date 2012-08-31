@@ -19,14 +19,16 @@ public class CompositeRepostiory {
 	Resolver resolver;
 	
 	public CompositeRepostiory(RepositoryAdmin repoAdmin) {
+	    
 		List<Resource> resourcesTemp = new ArrayList<Resource>();
 		repositories = repoAdmin.listRepositories();
+		this.resolver =  repoAdmin.resolver();
 		for (Repository repository : repositories) {
 			resourcesTemp.addAll(Arrays.asList(repository.getResources()));
 			repoAdmin.removeRepository(repository.getURI());
 		}
 		resources = resourcesTemp.toArray(new Resource[0]);
-		this.resolver =  repoAdmin.resolver(repositories);
+		
 	}
 
 
