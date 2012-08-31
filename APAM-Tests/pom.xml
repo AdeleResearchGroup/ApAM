@@ -24,6 +24,6 @@
   	<module>S5CompEx</module>  	
 <!-- 	<module>perfAPAM</module> -->
 <!--   	<module>perfIPojo</module> -->
-  	<module>message-components</module>
+<!--   	<module>message-components</module> -->
   </modules>
 </project>
