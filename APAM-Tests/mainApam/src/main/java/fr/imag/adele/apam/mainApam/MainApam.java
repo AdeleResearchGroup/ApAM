@@ -35,9 +35,14 @@ public class MainApam implements Runnable, ApamComponent {
 	 	assertTrue(implem != null);
 	 	
 	 	System.out.println("Deploying S1Impl bundle should deploy also the implems and composites. Composite S1CompoFinal is created and started.");
-	 	System.out.println("Above shoud appear the message \"S1toS2Final is sarted\" ");
+	 	System.out.println("Shoud appear the message \"S1toS2Final is sarted\" ");
+	 	try {
+			Thread.sleep(1000) ;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	 	assertTrue (CST.InstBroker.getInst("S1CompoFinal-Instance") != null) ;
-	 	// sleep .. assertTrue (CST.InstBroker.getInst("S1toS2Final-0") != null );	 	
+	 	assertTrue (CST.InstBroker.getInst("S1toS2Final-0") != null );	 	
 	 	
 	 	System.out.println("testing findImplByName in ASM and unused");
 	 	Implementation implem2 = CST.apamResolver.findImplByName(null,"S2Final");
