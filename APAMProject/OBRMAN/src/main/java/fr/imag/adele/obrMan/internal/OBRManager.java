@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.OBR;
 
 public class OBRManager {
 
@@ -88,7 +86,7 @@ public class OBRManager {
                 }
             }
 
-            // save the common repositories
+            // save the common repositories and clean repoAdmin
             CompositeRepostiory rootComposite = new CompositeRepostiory(
                     repoAdmin);
             compositeRepositories.put(CST.ROOT_COMPOSITE_TYPE, rootComposite);
@@ -269,8 +267,11 @@ public class OBRManager {
        CompositeRepostiory compositeRepostiory = compositeRepositories
                 .get(compoType.getName());
 
-        if (compositeRepostiory == null)
-            return null;
+        if (compositeRepostiory == null){
+            compositeRepostiory = compositeRepositories
+                    .get(CST.ROOT_COMPOSITE_TYPE);
+        }
+        else return null;
         try {
             ApamFilter filter = null;
             if (filterStr != null)
