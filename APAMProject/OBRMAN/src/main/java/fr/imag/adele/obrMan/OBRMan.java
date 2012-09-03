@@ -64,7 +64,7 @@ public class OBRMan implements DependencyManager {
 	 * @return
 	 */
 	private Implementation installInstantiateImpl(Resource res, String implName) {
-
+		
 		Implementation asmImpl = CST.ImplBroker.getImpl(implName);
 		// Check if already deployed
 		if (asmImpl == null) {

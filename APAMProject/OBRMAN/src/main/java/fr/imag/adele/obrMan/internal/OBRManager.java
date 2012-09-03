@@ -366,6 +366,7 @@ public class OBRManager {
         while (!deployed) {
             try {
                 resolver = repoAdmin.resolver();
+                
                 resolver.add(res);
                 // printRes(res);
                 if (resolver.resolve()) {
