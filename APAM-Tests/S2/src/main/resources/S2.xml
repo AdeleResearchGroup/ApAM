@@ -1,26 +1,18 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
-<!-- 	
-<specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2, xx, tt}" messages="{M1}" >
- -->	
- <specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2}" >
-		<properties>
-		    <property shared="false"/>
-		    <property scope="global"/>
-			<property test-spec="coucou" type="string"/>
-		</properties>
-		<definitions>
-			<definition name="b" type="boolean" value="true" />
-			<definition name="c" type="string" />
-			<definition name="Dd" type="int" />
-		</definitions>
-
-		<dependencies>
-			<specification name="S3" />
-			<interface name="example.S4" id="xx"/>
-			<interface name="example.S3" id="xx" />
-			<message name="example.DataType2" id="yy"/>
-		</dependencies>
+	<!-- <specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2, 
+		xx, tt}" messages="{M1}" > -->
+	<specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2}">
+		<property shared="false" />
+		<property scope="global" />
+		<property test-spec="coucou" type="string" />
+		<definition name="b" type="boolean" value="true" />
+		<definition name="c" type="string" />
+		<definition name="Dd" type="int" />
+		<specification name="S3" />
+		<interface name="example.S4" id="xx" />
+		<interface name="example.S3" id="xx" />
+		<message name="example.DataType2" id="yy" />
 	</specification>
 
 </ipojo>

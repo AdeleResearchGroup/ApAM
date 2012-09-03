@@ -10,15 +10,15 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
 	<implementation name="S2Simple"
-		classname="fr.imag.adele.apam.test.s2Impl.S2Simple" specification="S2" 
-				interfaces="{fr.imag.adele.apam.test.s2.S2}"> 		
+		classname="fr.imag.adele.apam.test.s2Impl.S2Simple" specification="S2"
+		interfaces="{fr.imag.adele.apam.test.s2.S2}">
 
-		<dependency implementation="S3Impl" id ="S3Impl-id" field="fieldS3"/>
+		<dependency implementation="S3Impl" id="S3Impl-id" field="fieldS3" />
 		<dependency specification="S4" field="s4" />
 	</implementation>
-	
+
 	<implementation name="S2Impl"
-		classname="fr.imag.adele.apam.test.s2Impl.S2Impl" specification="S2" > 		
+		classname="fr.imag.adele.apam.test.s2Impl.S2Impl" specification="S2">
 		<dependency field="s4_1" />
 		<dependency field="s4_2" />
 		<dependency field="s3s" />
@@ -26,13 +26,13 @@
 		<dependency field="s3_2" />
 		<dependency field="s3" />
 	</implementation>
-	<implementation name="S2ImplBis" 
-		classname="fr.imag.adele.apam.test.s2Impl.S2ImplBis" specification="S2" > 
+	<implementation name="S2ImplBis"
+		classname="fr.imag.adele.apam.test.s2Impl.S2ImplBis" specification="S2">
 		<dependency field="s4Bis" />
 	</implementation>
-	
-	<implementation name="S2Final" 
-		classname="fr.imag.adele.apam.test.s2Impl.S2Final" specification="S2" > 
+
+	<implementation name="S2Final"
+		classname="fr.imag.adele.apam.test.s2Impl.S2Final" specification="S2">
 	</implementation>
-	
+
 </apam>

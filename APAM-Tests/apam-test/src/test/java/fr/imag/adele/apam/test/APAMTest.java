@@ -104,9 +104,8 @@ public  class APAMTest {
 		 System.out.println("Starting compoByURL_Name");
 
 		 try {
-			Thread.currentThread().sleep(3000);
+			Thread.sleep(3000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		assertNotNull(apam);

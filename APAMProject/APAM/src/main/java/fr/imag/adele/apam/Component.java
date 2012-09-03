@@ -25,7 +25,7 @@ public interface Component {
      */
     public ComponentDeclaration getDeclaration () ;
 
-    /**
+     /**
      * Match.
      * 
      * @param goal the goal
@@ -71,4 +71,20 @@ public interface Component {
 	 */
     public boolean setAllProperties(Map<String, Object> properties);
 
+	/**
+	 * Removes the specified property of the component
+	 */
+    public boolean removeProperty(String attr);
+
+    /**
+     * return all the members of this component. Null if leaf (instance).
+     * @return
+     */
+    public Set<? extends Component> getMembers () ;
+//    public Component getMember (String name) ;
+
+    /**
+     * return the representant of this group member. Null if root (Specification)
+     */
+    public Component getGroup () ;
 }

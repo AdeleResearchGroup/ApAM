@@ -1305,8 +1305,9 @@ public class CoreMetadataParser implements CoreParser {
         if (component instanceof InstanceDeclaration)
             return; 
 
-        for (Element definitions : optional(element.getElements(CoreMetadataParser.DEFINITIONS, CoreMetadataParser.APAM))) {
-            for (Element definition : optional(definitions.getElements(CoreMetadataParser.DEFINITION, CoreMetadataParser.APAM))) {
+    //    for (Element definitions : optional(element.getElements(CoreMetadataParser.DEFINITIONS, CoreMetadataParser.APAM))) {
+    //        for (Element definition : optional(definitions.getElements(CoreMetadataParser.DEFINITION, CoreMetadataParser.APAM))) {
+                for (Element definition : optional(element.getElements(CoreMetadataParser.DEFINITION, CoreMetadataParser.APAM))) {
 
                 String name 		= parseString(definition, CoreMetadataParser.ATT_NAME).toLowerCase();
                 String type			= parseString(definition,CoreMetadataParser.ATT_TYPE) ;
@@ -1315,7 +1316,7 @@ public class CoreMetadataParser implements CoreParser {
                 boolean internal 	= parseBoolean(definition,CoreMetadataParser.ATT_FIELD,false, false);
                 component.getPropertyDefinitions().add(new PropertyDefinition(name, type, defaultValue, field, internal));
             }
-        }
+    //    }
     }
 
 
@@ -1324,11 +1325,12 @@ public class CoreMetadataParser implements CoreParser {
      */
     private void parseProperties(Element element, ComponentDeclaration component) {
 
-        for (Element properties : optional(element.getElements(CoreMetadataParser.PROPERTIES, CoreMetadataParser.APAM))) {
+   //     for (Element properties : optional(element.getElements(CoreMetadataParser.PROPERTIES, CoreMetadataParser.APAM))) {
 
             // parse user defined properties
-            for (Element property : optional(properties.getElements(CoreMetadataParser.PROPERTY,
-                    CoreMetadataParser.APAM))) {
+//            for (Element property : optional(properties.getElements(CoreMetadataParser.PROPERTY,
+        for (Element property : optional(element.getElements(CoreMetadataParser.PROPERTY,
+                  CoreMetadataParser.APAM))) {
 
                 // consider attributes as properties
                 for (Attribute attribute : property.getAttributes()) {
@@ -1345,7 +1347,7 @@ public class CoreMetadataParser implements CoreParser {
 
                 }
 
-            }
+    //        }
         }
 
     }

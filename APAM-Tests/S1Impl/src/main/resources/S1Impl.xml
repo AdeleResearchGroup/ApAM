@@ -1,33 +1,35 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 	<implementation name="S1Impl"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1">
-		<properties>
-			<property shared="false" />
-			<property location="living" />
-			<property location="elsewhere" />
-		</properties>
-		<definitions>
-			<definition name="cczerrt" type="boolean" />
-			<definition name="myEnum" type="{v1, v2, v3}" />
-		</definitions>
-		<dependencies>
-			<dependency specification="S2" field="s2Spec" />
-			<dependency interface="fr.imag.adele.apam.test.s2.S2"
-				field="s2Interf" />
-			<dependency specification="S3" id="S3Multiple" multiple="true">
-				<interface field="s3List" />
-				<interface field="s3ListBis" />
-			</dependency>
-			<dependency specification="S3">
-				<interface field="s3_1" />
-				<interface field="s3_2" />
-			</dependency>
-			<dependency implementation="S2Impl" field="lastS2" />
-		</dependencies>
+		<property shared="false" />
+		<property location="living" />
+		<property location="elsewhere" />
+		<definition name="cczerrt" type="boolean" />
+		<definition name="myEnum" type="{v1, v2, v3}" />
+		<dependency specification="S2" field="s2Spec" />
+		<dependency interface="fr.imag.adele.apam.test.s2.S2"
+			field="s2Interf" />
+		<dependency specification="S3" id="S3Multiple" multiple="true">
+			<interface field="s3List" />
+			<interface field="s3ListBis" />
+		</dependency>
+		<dependency specification="S3">
+			<interface field="s3_1" />
+			<interface field="s3_2" />
+		</dependency>
+		<dependency implementation="S2Impl" field="lastS2" />
 	</implementation>
 
 	<implementation name="S1toS2Final"
 		classname="fr.imag.adele.apam.test.s1Impl.S1toS2Final" specification="S1">
+
+		<property S1toS2Final-Attr="couscous" type="string" />
+		<property testEnumere="v2" type="string" />
+		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
+		<definition name="S1toS2Final-String1" type="string" />
+		<definition name="S1toS2Final-location"
+			type="{FinalLiving, FinalKitchen, FinalLedroom}" />
+		<definition name="enumeration" type="{f1, f2, f3, f4}" />
 		<dependency field="s2">
 			<preferences>
 				<implementation filter="(impl-name=S2Final)" />
@@ -35,22 +37,22 @@
 		</dependency>
 	</implementation>
 
+	
 	<composite name="S1CompoFinal" mainImplem="S1toS2Final"
 		interfaces="{fr.imag.adele.apam.test.s1.S1}">
 	</composite>
 
-	<!-- Will install and start immediately the composite and its instance. Main being auto start: it starts alone -->
+	<!-- Will install and start immediately the composite and its instance. 
+		Main being auto start: it starts alone -->
 	<apam-instance implementation="S1CompoFinal" name="S1CompoFinal-Instance" />
 
 	<!-- An implementation without any provided resource -->
 	<implementation name="S1Main"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Main">
-		<properties>
-			<property shared="false" />
-		</properties>
-		<definitions>
-			<definition name="s1 main" type="string" value="pas d interface" />
-		</definitions>
+		<property shared="false" />
+		<property S1Main-Attr="whatever" /> <!-- ok because it has no spec -->
+		<property testAttr="false" />
+		<definition name="s1 main" type="string" value="pas d interface" />
 		<dependency id="tos1" field="s1">
 			<preferences>
 				<implementation filter="(impl-name=S1Impl)" />
@@ -61,13 +63,11 @@
 
 	<composite name="S1MainCompo" mainImplem="S1Main">
 		<!-- interfaces="{fr.imag.adele.apam.test.s1.S1}"> -->
-		<properties>
-			<property shared="false" />
-			<property borrowInstance="false" />
-			<property borrowImplementation="false" />
-			<property localInstance="true" />
-			<property localImplementation="true" />
-		</properties>
+		<property shared="false" />
+		<property borrowInstance="false" />
+		<property borrowImplementation="false" />
+		<property localInstance="true" />
+		<property localImplementation="true" />
 
 		<!-- <dependency specification="S2" /> -->
 		<dependency interface="fr.imag.adele.apam.test.s2.S2" />
@@ -82,8 +82,12 @@
 	</composite>
 
 	<!-- <apam-instance implementation="S1MainCompo" name="S1MainInstance" /> -->
-
-	<!-- <apam-instance implementation="S1toS2Final" name="S1toS2Final-Instance" 
-		/> -->
+		
+	<apam-instance implementation="S1toS2Final" name="S1toS2Final-instance" >
+		<property S1toS2Final-Bool="xxx" />
+		<property S1toS2Final-String1="a String Value" />
+		<property badAttr="yyy" />
+	</apam-instance>
+		
 </apam>
 

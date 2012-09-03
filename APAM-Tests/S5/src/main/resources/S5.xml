@@ -1,14 +1,9 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
-	<specification name="S5" interfaces="{fr.imag.adele.apam.test.s5.S5}" >
-		<properties>
-			<property s5-spec="coucous5" type="string"/>
-		</properties>
-		<definitions>
-			<definition name="s5b" type="boolean" value="true" />
-			<definition name="s5c" type="string" />
-		</definitions>
-
+	<specification name="S5" interfaces="{fr.imag.adele.apam.test.s5.S5}">
+		<property s5-spec="coucous5" type="string" />
+		<definition name="s5b" type="boolean" value="true" />
+		<definition name="s5c" type="string" />
 	</specification>
 
 </ipojo>

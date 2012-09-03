@@ -1,15 +1,13 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
 	<specification name="S1" interfaces="fr.imag.adele.apam.test.s1.S1"  >
-		<properties>
 			<property S1-Attr="coucou" type="string"/>
-		</properties>
-		<definitions>
 			<definition name="s1b" type="boolean" value="true" />
 			<definition name="s1c" type="string" />
+			<definition name="s1i" type="int" />
 			<definition name="location" type="{living, kitchen, bedroom}" />
 			<definition name="testEnumere" type="{v1, v2, v3, v4}" />
-		</definitions>
+			<definition name="OS" type="{Linux, Windows, Android, IOS}" />
 
 	</specification>
 

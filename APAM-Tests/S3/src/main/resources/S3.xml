@@ -2,17 +2,13 @@
 
 	<specification name="S3"
 		interfaces="[fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2]">
-		<properties>
-			<property test-deux="coucous3" type="string" />
-			<property bS3="yes" />
-			<property cS3="xxx" />
-			<property test-deux="anotherValue" />
-		</properties>
-		<definitions>
-			<definition name="x" type="string" />
-			<definition name="MyBool" type="boolean" />
-			<definition name="A2" type="int" value="5" />
-		</definitions>
+		<property test-deux="coucous3" type="string" />
+		<property bS3="yes" />
+		<property cS3="xxx" />
+		<property test-deux="anotherValue" />
+		<definition name="x" type="string" />
+		<definition name="MyBool" type="boolean" />
+		<definition name="A2" type="int" value="5" />
 		<dependency specification="S4" />
 	</specification>
 

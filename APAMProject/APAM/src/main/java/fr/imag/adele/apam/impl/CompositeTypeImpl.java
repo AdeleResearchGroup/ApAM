@@ -155,12 +155,6 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 			Set<ManagerModel> declaredModels = (Set<ManagerModel>)declaration.getProperty(CST.A_MODELS);
     		models.addAll(declaredModels);
     	}
-    	
-        /*
-         * Add predefined properties
-         */
-        put(CST.A_COMPOSITETYPE, CST.V_TRUE);
-        
     }
 
     @Override
@@ -222,13 +216,13 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
          * Check that the main implementation actually provides all the resources of the composite
          * 
          */
-        if (getSpec() != null ) {
+        //if (getSpec() != null ) {
             if (! mainImpl.getDeclaration().getProvidedResources().containsAll(getSpec().getDeclaration().getProvidedResources())) {
                 logger.error("ERROR: Invalid main implementation " + mainImpl + " for composite type "
                         + getName() + "Main implementation Provided resources " + mainImpl.getDeclaration().getProvidedResources()
                         + "do no provide all the expected resources : " + getSpec().getDeclaration().getProvidedResources());
             }
-        }
+        //} 
 
         /*
 		 * add to list of composite types

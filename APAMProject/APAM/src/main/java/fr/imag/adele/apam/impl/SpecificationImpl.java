@@ -11,6 +11,7 @@ import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
@@ -36,18 +37,22 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
     private final Set<Specification>  invRequires     = Collections
     .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());  // all
 
- 
+//    //spec created empty only to be associated with implementations that do not implement a spec.
+//    private boolean dummySpec = false ;
+    
     protected SpecificationImpl(ApformSpecification apfSpec, Map<String,Object> configuration) {
     	super(apfSpec, configuration);
     	
-    	/*
-    	 * Add predefined properties
-    	 */
-        put(CST.A_SPECNAME, getName());
     }
 
+   
     @Override
 	public void register() {
+        /*
+         * Terminates the initalisation, and computes properties
+         */
+        terminateInitComponent() ;
+
     	/*
     	 * Add to broker
     	 */
@@ -274,5 +279,15 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
         return (Implementation) candidates.toArray()[0];
     }
 
+	@Override
+	public Set<? extends Component> getMembers() {
+		//return new HashSet <Component> (implementations) ;
+		return Collections.unmodifiableSet(implementations);
+	}
+
+	@Override
+	public Component getGroup() {
+		return null;
+	}
 
 }

@@ -120,7 +120,7 @@ public class APAMImpl implements Apam {
         }
         
         String specification = null;
-        return createCompositeType((CompositeType)parent,name,specification,mainComponent,models,attributes);
+        return createCompositeType((CompositeType)parent, name, specification, mainComponent, models, attributes);
     }
     
     @Override
@@ -183,10 +183,10 @@ public class APAMImpl implements Apam {
     		parent = CompositeTypeImpl.getRootCompositeType();
     	
     	ApformImplementation apfCompo = new ApamOnlyCompositeType(name,
-    											specification,mainComponent,
-    											models,initialProperties);
+    											specification, mainComponent,
+    											models, initialProperties);
     	
-    	CompositeTypeImpl composite = new CompositeTypeImpl(parent,apfCompo,initialProperties);
+    	CompositeTypeImpl composite = new CompositeTypeImpl(parent, apfCompo, initialProperties);
     	composite.register();
     	
     	return composite;

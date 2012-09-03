@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -117,12 +118,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         myImpl 		= CST.ImplBroker.getImpl(apformInst.getDeclaration().getImplementation().getName());
         myComposite = composite;
 
-        /*
-         * Add predefined properties
-         */
-        put(CST.A_INSTNAME, getName());
-        put(CST.A_COMPOSITE, getComposite().getName());
-        
     }    
 
     @Override
@@ -133,6 +128,11 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     	 */
         ((ImplementationImpl) getImpl()).addInst(this);
         ((CompositeImpl)getComposite()).addContainInst(this);
+
+        /*
+         * Terminates the initalisation, and computes properties
+         */
+        terminateInitComponent() ;
 
         /*
          * Add to broker
@@ -272,28 +272,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         return myImpl.getSpec();
     }
 
-    /**
-     * Get the value of a property. 
-     * 
-     * If the value is specified in this instance returns the value directly. Otherwise, propagate value
-     * from the implementation group. 
-     */
-    @Override
-    public Object getProperty(String attr) {
-    	Object value = super.getProperty(attr);
-    	return value != null ? value : getImpl().getProperty(attr);
-    }
-    
-    /**
-     * Get all the properties of this instance and those of its implementation group
-     */
-    @Override
-    public Map<String, Object> getAllProperties() {
-    	Map<String,Object> allProperties = super.getAllProperties();
-    	allProperties.putAll(getImpl().getAllProperties());
-    	return allProperties;
-    }
-    
     @Override
     public boolean isSharable() {
         return (getInvWires().isEmpty()
@@ -488,6 +466,16 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         }
         return w;
     }
+
+	@Override
+	public Set<Component> getMembers() {
+		return null;
+	}
+
+	@Override
+	public Component getGroup() {
+		return myImpl;
+	}
 
 
 }

@@ -6,30 +6,24 @@
 	on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
 	express or implied. See the License for the specific language governing permissions 
 	and limitations under the License. -->
-	
-	
+
+
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 	<implementation name="S3Impl"
 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="S3">
-		<properties>
-			<property test="bof" type="string" />
-			<property shared="false" type="string" />
-		</properties>
+		<property test="bof" type="string" />
+		<property shared="false" type="string" />
 		<dependency field="s5" />
-		<dependency  specification="S4" >
-			<interface field="s4"/>
+		<dependency specification="S4">
+			<interface field="s4" />
 		</dependency>
 	</implementation>
 
 	<apam-instance implementation="S2Simple" name="toto">
-<!-- 		<properties>
-			<property test-spec="coucous4" />
-			<property A2="yes" />
-			<property c="xxx" />
-		</properties>
- -->
- 	</apam-instance>
-	
+		<!-- <property test-spec="coucous4" /> <property A2="yes" /> <property 
+			c="xxx" /> -->
+	</apam-instance>
+
 	<apam-instance implementation="S3Impl" name="s3Impl-int" />
 	<apam-instance implementation="S3Impl" name="S3Impl-instance1" />
 	<apam-instance implementation="S3Impl" name="S3Impl-instance2" />

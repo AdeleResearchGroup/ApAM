@@ -1,17 +1,10 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
-	<specification name="S4" interfaces="{fr.imag.adele.apam.test.s4.S4}"  > <!-- messages="MS4" -->
-		<properties>
-			<property test-spec="coucou" type="string"/>
-		</properties>
-		<definitions>
-			<definition name="b" type="boolean" value="true" />
-			<definition name="c" type="string" />
-		</definitions>
-
-		<dependencies>
-			<specification name="S5" />
-		</dependencies>
+	<specification name="S4" interfaces="{fr.imag.adele.apam.test.s4.S4}"> <!-- messages="MS4" -->
+		<property test-spec="coucou" type="string" />
+		<definition name="b" type="boolean" value="true" />
+		<definition name="c" type="string" />
+		<specification name="S5" />
 	</specification>
 
 </ipojo>

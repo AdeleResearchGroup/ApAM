@@ -336,85 +336,32 @@ public class Util {
         return false;
     }
 
-/**
- * Tries to find the definition associated with attribute "attr" associated with component "component".
- * Returns null if the attribute is not explicitly defined (predefined attributes, reserved attributes etc.).
- * @param component
- * @param attr
- * @return
- */
-    public static PropertyDefinition getAttrDefinition (Component component, String attr) {
-        List<PropertyDefinition> propDefs = null;
-        if (component instanceof Instance) {
-            propDefs = ((Instance)component).getImpl().getDeclaration().getPropertyDefinitions();
-        } else 
-            propDefs = ((Implementation) component).getSpec().getDeclaration().getPropertyDefinitions(); 
+	/**
+	 * Check if attribute "attr=value" is valid when set on object "inst".
+	 * inst can be an instance, an implementation or a specification.
+	 * Check if the value is consistent with the type.
+	 * All predefined attributes are Ok (scope ...)
+	 * Cannot be a reserved attribute
+	 */
+	public static boolean validAttr(String component, String attr) {
+		attr = attr.toLowerCase();
+		if (Util.isPredefinedAttribute(attr))
+			return true;
 
-        for (PropertyDefinition propDef : propDefs) {
-            if ((propDef.getName()).equals(attr)) {
-                return propDef;
-            }
-        }
-        return null ;
-    }
+		if (Util.isFinalAttribute(attr)) {
+			logger.error("ERROR: in " + component + ", attribute\"" + attr + "\" is final");
+			return false;
+		}
+
+		if (Util.isReservedAttribute(attr)) {
+			logger.error("ERROR: in " + component + ", attribute\"" + attr + "\" is reserved");
+			return false;
+		}
+
+		return true ;
+	}
+
     
-    /**
-     * Check if attribute "attr=value" is valid when set on object "inst".
-     * inst can be an instance, an implementation or a specification.
-     * Check if the value is consistent with the type.
-     * All predefined attributes are Ok (scope ...)
-     * Cannot be a reserved attribute
-     */
-    public static boolean validAttr(Component inst, String attr, Object value) {
-        if (Util.isPredefinedAttribute(attr))
-            return true;
-
-        if (Util.isFinalAttribute(attr)) {
-            logger.error("ERROR: \"" + attr + "\" is a final attribute");
-            return false;
-        }
-
-        if (Util.isReservedAttribute(attr)) {
-            logger.error("ERROR: \"" + attr + "\" is a reserved attribute");
-            return false;
-        }
-
-        if (inst instanceof Specification) return true ;
-
-        Map<String, Object> props = new HashMap<String, Object>();
-        if (inst instanceof Instance) {
-            props = ((Instance) inst).getImpl().getAllProperties() ;
-        } else 
-            props = ((Implementation) inst).getSpec().getAllProperties() ;
-
-        for (Object prop : props.keySet()) {
-            if (((String) prop).equalsIgnoreCase(attr)) {
-                logger.error("cannot redefine attribute \"" + attr + "\"");
-                return false;
-            }
-        }
-
-        PropertyDefinition propDef = getAttrDefinition (inst, attr) ;
-        if (propDef == null) {
-            logger.error("In " + inst + " attribute \"" + attr + "=" + value + "\" is undefined.");
-            return false;
-        }
-        return Util.checkAttrType(attr, value, propDef.getType());
-//        List<PropertyDefinition> propDefs = null;
-//        if (inst instanceof Instance) {
-//            propDefs = ((Instance)inst).getImpl().getImplDeclaration().getPropertyDefinitions();
-//        } else 
-//            propDefs = ((Implementation) inst).getSpec().getDeclaration().getPropertyDefinitions(); 
-//
-//        for (PropertyDefinition propDef : propDefs) {
-//            if ((propDef.getName()).equals(attr)) {
-//                return Util.checkAttrType(attr, value, propDef.getType());
-//            }
-//        }
-//        logger.error("In " + inst + " attribute \"" + attr + "=" + value + "\" is undefined.");
-//        return false;
-    }
-
     /**
      * only string, int and boolean attributes are accepted.
      * 

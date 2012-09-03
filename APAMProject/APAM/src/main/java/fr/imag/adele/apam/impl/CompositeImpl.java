@@ -105,21 +105,18 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		appliComposite = father == null ? this : father.getAppliComposite();
 
 		/*
-		 * Add predefined properties
-		 */
-		put(CST.A_COMPOSITE, CST.V_TRUE);
-
-		/*
 		 * Initialize the contained instances. The main instance will be eagerly created and the other
 		 * components will be lazily instantiated. It is also possible to specify an unused external main 
 		 * instance in the configuration properties.
+		 * 
+		 * Attribute A_MAIN_INSTANCE is set when a running unused instance makes its first resolution:
+		 * it become the main instance of a new default composite 
 		 * 
 		 * WARNING the main instance will be registered in APAM at the registration of the composite.
 		 */
 		Instance externalInstance = (Instance)get(CST.A_MAIN_INSTANCE);
 		if (externalInstance == null) {
 			mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this,null);
-			put(CST.A_MAIN_INSTANCE,mainInst);
 		} else {
 			assert !externalInstance.isUsed();
 			mainInst = externalInstance;
@@ -133,9 +130,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 	}
 
 	@Override
-	public void register() {
-		
-		
+	public void register() {		
 		boolean registerMain = true;
 		
 		/*
