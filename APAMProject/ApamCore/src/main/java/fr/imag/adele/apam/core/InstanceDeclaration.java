@@ -58,4 +58,9 @@ public class InstanceDeclaration extends ComponentDeclaration {
         ret += "\n    Implementation: " + implementation.getIdentifier();
         return ret;
     }
+
+	@Override
+	public ComponentReference<?> getGroupReference() {
+		return getImplementation();
+	}
 }

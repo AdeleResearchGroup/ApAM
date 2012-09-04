@@ -70,6 +70,11 @@ public abstract class ComponentDeclaration {
     }
 
     /**
+     * Get the reference to this declaration
+     */
+    public abstract ComponentReference<?> getGroupReference() ;
+
+    /**
      * Generates a unique resource identifier to reference this declaration
      */
     protected  abstract ComponentReference<?> generateReference();
