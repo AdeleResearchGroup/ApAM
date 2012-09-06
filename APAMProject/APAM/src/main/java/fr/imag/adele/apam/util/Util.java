@@ -3,10 +3,8 @@ package fr.imag.adele.apam.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.metadata.Element;
@@ -20,13 +18,9 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.ComponentDeclaration;
-import fr.imag.adele.apam.core.PropertyDefinition;
+import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
-
-
 
 /**
  * The static Class Util provides a set of static method for the iPOJO service concrete machine.
@@ -88,7 +82,11 @@ public class Util {
         }
         return filters;
     }
-
+    /**
+     * Warning: returns an unmodifiable List !
+     * @param str
+     * @return
+     */
     public static List<String> splitList(String str) {
         if ((str == null) || (str.length() == 0)) {
             return Collections.emptyList();
@@ -328,9 +326,9 @@ public class Util {
         return false;
     }
 
-    public static boolean isReservedAttribute(String attr) {
-        for (String pred : OBR.reservedAttributes) {
-            if (pred.equals(attr.toLowerCase()))
+    public static boolean isReservedAttributePrefix(String attr) {
+        for (String prefix : CST.reservedPrefix) {
+            if (attr.startsWith(prefix))
                 return true;
         }
         return false;
@@ -353,7 +351,7 @@ public class Util {
 			return false;
 		}
 
-		if (Util.isReservedAttribute(attr)) {
+		if (Util.isReservedAttributePrefix(attr)) {
 			logger.error("ERROR: in " + component + ", attribute\"" + attr + "\" is reserved");
 			return false;
 		}
@@ -413,6 +411,16 @@ public class Util {
         return true;
     }
 
+    public static String toStringSetReference (Set<? extends ResourceReference> setRef) {
+    	String ret = "{" ;
+    	for (ResourceReference ref : setRef) {
+    		ret = ret+ ref.getJavaType() + ", ";
+    	}
+    	int i = ret.lastIndexOf(',') ;
+    	ret = ret.substring(0, i) ;
+    	return ret + "}" ;
+    }
+    
 }
 
 

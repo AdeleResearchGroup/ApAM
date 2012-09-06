@@ -202,7 +202,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	
 	/**
 	 * During initialisation, set the new (attrbute, value) in the object, 
-	 * in the platform, and propagates to the members recursively
+	 * in the platform, and propagates to the members recursively.
+	 * Does not notify managers.
 	 * @param com the component to which is added the attribute.
 	 * @param attr
 	 * @param value
@@ -253,13 +254,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * apform to avoid notification loops. We need to refactor the different APIs of Apam.  
 	 */
 	public void setInternalProperty(String attr, Object value) {
-
-		/*
-		 * set value
-		 */
 		Object oldValue = get(attr);
 		put(attr, value);
-
 		/*
 		 * notify property managers
 		 */
@@ -306,7 +302,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return false;
 		}
 
-		if (Util.isReservedAttribute(attr)) {
+		if (Util.isReservedAttributePrefix(attr)) {
 			logger.error("ERROR: \"" + attr + "\" is a reserved attribute");
 			return false;
 		}

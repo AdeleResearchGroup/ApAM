@@ -19,17 +19,16 @@ import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.OBR;
 
 public class OBRManager {
 
-    private Resolver     resolver;
+    private final Resolver     resolver;
 
-    private Repository[] repositories;
+    private final Repository[] repositories;
 
-    private Resource[]   allResources;
+    private final Resource[]   allResources;
 
-    private String       compositeTypeName;
+    private final String       compositeTypeName;
 
     public OBRManager(String name, RepositoryAdmin repoAdmin) {
         this(name, repoAdmin, null);
@@ -42,7 +41,7 @@ public class OBRManager {
         compositeTypeName = name;
         List<Resource> resourcesTemp = new ArrayList<Resource>();
         repositories = repoAdmin.listRepositories();
-        this.resolver = repoAdmin.resolver();
+        resolver = repoAdmin.resolver();
         for (Repository repository : repositories) {
             resourcesTemp.addAll(Arrays.asList(repository.getResources()));
             repoAdmin.removeRepository(repository.getURI());
@@ -90,7 +89,7 @@ public class OBRManager {
                     if (aCap.getName().equals(capability)) {
                         if (filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.println("   Component " + getAttributeInCapability(aCap, OBR.A_NAME)
+                                System.out.println("   Component " + getAttributeInCapability(aCap, CST.A_NAME)
                                         + " found in bundle : " + res.getSymbolicName());
                                 allRes.add(new Selected(this, res, aCap));
                             }

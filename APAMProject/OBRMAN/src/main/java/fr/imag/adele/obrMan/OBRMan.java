@@ -30,7 +30,6 @@ import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.obrMan.internal.OBRManager;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 import fr.imag.adele.obrMan.internal.Util;
@@ -250,23 +249,23 @@ public class OBRMan implements DependencyManager {
         preferences.add(f);
         // end
 
-        f = ApamFilter.newInstance("(" + OBR.COMPONENT_TYPE + "=" + OBR.IMPLEMENTATION + ")");
+        f = ApamFilter.newInstance("(" + CST.COMPONENT_TYPE + "=" + CST.IMPLEMENTATION + ")");
         constraints.add(f);
 
         fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
         Implementation impl = null;
         if (resource instanceof SpecificationReference) {
-            selected = obrManager.lookFor(OBR.CAPABILITY_COMPONENT, "(provide-specification="
+            selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-specification="
                     + resource.as(SpecificationReference.class).getName() + ")",
                     constraints, preferences);
         }
         if (resource instanceof InterfaceReference) {
-            selected = obrManager.lookFor(OBR.CAPABILITY_COMPONENT, "(provide-interfaces=*;"
+            selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-interfaces=*;"
                     + resource.as(InterfaceReference.class).getJavaType() + ";*)",
                     constraints, preferences);
         }
         if (resource instanceof MessageReference) {
-            selected = obrManager.lookFor(OBR.CAPABILITY_COMPONENT, "(provide-messages=*;"
+            selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-messages=*;"
                     + resource.as(MessageReference.class).getJavaType() + ";*)",
                     constraints, preferences);
         }
@@ -313,11 +312,11 @@ public class OBRMan implements DependencyManager {
         if (obrManager == null)
             return null;
 
-        Selected selected = obrManager.lookFor(OBR.CAPABILITY_COMPONENT, "(name=" + implName + ")", null, null);
+        Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + implName + ")", null, null);
 
         if (selected == null)
             return null;
-        if (!obrManager.getAttributeInCapability(selected.capability, OBR.COMPONENT_TYPE).equals(OBR.IMPLEMENTATION)) {
+        if (!obrManager.getAttributeInCapability(selected.capability, CST.COMPONENT_TYPE).equals(CST.IMPLEMENTATION)) {
             System.err.println("ERROR : " + implName + " is found but is not an Implementation");
             return null;
         }
@@ -335,12 +334,12 @@ public class OBRMan implements DependencyManager {
         if (obrManager == null)
             return null;
 
-        Selected selected = obrManager.lookFor(OBR.CAPABILITY_COMPONENT, "(name=" + specName + ")", null, null);
+        Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + specName + ")", null, null);
 
         if (selected == null)
             return null;
 
-        if (!obrManager.getAttributeInCapability(selected.capability, OBR.COMPONENT_TYPE).equals(OBR.SPECIFICATION)) {
+        if (!obrManager.getAttributeInCapability(selected.capability, CST.COMPONENT_TYPE).equals(CST.SPECIFICATION)) {
             System.err.println("ERROR : " + specName + " is found but is not a specification");
             return null;
         }

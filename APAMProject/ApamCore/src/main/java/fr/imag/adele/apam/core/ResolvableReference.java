@@ -8,6 +8,10 @@ package fr.imag.adele.apam.core;
  */
 public interface ResolvableReference {
 
+	/**
+	 * The name of the reference 
+	 */
+	public String getName();
 	
 	/**
 	 * Cast this reference to a particular class of reference. Returns null if the cast is not possible

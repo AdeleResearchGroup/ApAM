@@ -1,4 +1,5 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+
 	<implementation name="S1Impl"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1">
 		<property shared="false" />
@@ -20,11 +21,24 @@
 		<dependency implementation="S2Impl" field="lastS2" />
 	</implementation>
 
+	<apam-instance implementation="S1toS2Final" name="S1toS2Final-instance" >
+		<property S1toS2Final-Bool="xxx" />
+		<property S1toS2Final-String1="a String Value" />
+		<property badAttr="yyy" />
+	</apam-instance>
+
+	<composite name="S1CompoFinal" mainImplem="S1toS2Final"
+		interfaces="{fr.imag.adele.apam.test.s1.S1}">
+	</composite>
+
 	<implementation name="S1toS2Final"
 		classname="fr.imag.adele.apam.test.s1Impl.S1toS2Final" specification="S1">
-
 		<property S1toS2Final-Attr="couscous" type="string" />
-		<property testEnumere="v2" type="string" />
+		<property spec-name="yyy"  />
+		<property definition-xx="ttt" />
+		<property s1b="xyze=" />
+		<property OS="pas bon" />
+		<property testEnumere="v2" />
 		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
 		<definition name="S1toS2Final-String1" type="string" />
 		<definition name="S1toS2Final-location"
@@ -38,9 +52,6 @@
 	</implementation>
 
 	
-	<composite name="S1CompoFinal" mainImplem="S1toS2Final"
-		interfaces="{fr.imag.adele.apam.test.s1.S1}">
-	</composite>
 
 	<!-- Will install and start immediately the composite and its instance. 
 		Main being auto start: it starts alone -->
@@ -83,11 +94,6 @@
 
 	<!-- <apam-instance implementation="S1MainCompo" name="S1MainInstance" /> -->
 		
-	<apam-instance implementation="S1toS2Final" name="S1toS2Final-instance" >
-		<property S1toS2Final-Bool="xxx" />
-		<property S1toS2Final-String1="a String Value" />
-		<property badAttr="yyy" />
-	</apam-instance>
 		
 </apam>
 
