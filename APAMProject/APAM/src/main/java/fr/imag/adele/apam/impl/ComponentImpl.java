@@ -31,31 +31,28 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	protected static Logger logger = LoggerFactory.getLogger(ComponentImpl.class);
 
-	private ApformComponent      apform ;
-	private ComponentDeclaration declaration;
+	private final ApformComponent      apform ;
+	private final ComponentDeclaration declaration;
 
-	public Object put (String attr, Object value) {
-		return super.put(attr, value);
-	}
 
-	public ComponentImpl(ApformComponent apform, Map<String, Object> configuration) {
+	public ComponentImpl(ApformComponent apform) {
+		
 		assert apform != null;
 
-		setApform(apform);
-		//WARNING this component is not correctly chained with its group component. 
-		// Cannot initialize correctly its attributes and inheritance. 
-		if (configuration != null) putAll (configuration);
-		//		put ("name", apform.getDeclaration().getName()) ;
+		this.apform 		= apform;
+		this.declaration	= apform.getDeclaration();
+		
 	}
 
 	/**
 	 * to be called once the Apam entity is fully initialized.
 	 * Computes all its attributes, including inheritance. 
 	 */
-	public void terminateInitComponent () {
+	public void initializeProperties (Map<String, Object> initialProperties) {
 		//get the initial attributes
-		Map<String, Object> props = new HashMap<String, Object> (this) ;
-		this.clear();
+		Map<String, Object> props = new HashMap<String, Object> (getDeclaration().getProperties()) ;
+		if (initialProperties != null)
+			props.putAll(initialProperties);
 
 		ComponentImpl group = (ComponentImpl)getGroup () ;
 
@@ -63,7 +60,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		for (String attr : props.keySet()) {
 			if (Util.validAttr(this.getName(), attr)) {
 				//At initialization, all valid attributes are ok for specs
-				if (group == null || validDef (this, attr, props.get(attr)))
+				if (group == null || validDef (attr, props.get(attr)))
 					put (attr.toLowerCase(), props.get(attr)) ;
 			}
 		}
@@ -100,7 +97,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 		//and propagate, to the platform and to members, in case the spec has been created after the implem
 		for (String attr : getAllProperties().keySet()) {
-			propagateInit (this, attr, get(attr)) ;
+			propagateInit (attr, get(attr)) ;
 		}
 	}
 
@@ -108,7 +105,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * This methods adds a newly created component to the Apam state model, so that it is visible to the
 	 * external API
 	 */
-	public abstract void register();
+	public abstract void register(Map<String, Object> initialProperties);
 
 
 	/**
@@ -155,15 +152,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return apform ;
 	}
 
-	public final void setApform(ApformComponent apform) {
-		this.apform = apform;
-		if (apform == null)
-			return;
-
-		this.declaration 	= apform.getDeclaration() ;
-		putAll(apform.getDeclaration().getProperties());
-	}
-
 	public final ComponentDeclaration getDeclaration () {
 		return declaration ;
 	}
@@ -204,11 +192,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (!Util.validAttr(this.getName(), attr))
 			return false;
 
-		if (!validDef (this, attr, value))
+		if (!validDef (attr, value))
 			return false ;
 
 		//does the change, notifies, changes the platform and propagate to members
-		propagate (this, attr, value) ;
+		this.propagate (attr, value) ;
 		return true ;
 	}
 	
@@ -220,16 +208,16 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param attr
 	 * @param value
 	 */
-	private void propagateInit (Component com, String attr, Object value) {
+	private void propagateInit (String attr, Object value) {
 		//Notify the execution platform
-		com.getApformComponent().setProperty (attr,value);
+		getApformComponent().setProperty (attr,value);
 
 		//Propagate to members recursively
-		if (com.getMembers() != null) {
-			for (Component co : com.getMembers()) {
-				((ComponentImpl)co).put (attr, value) ;
-				propagateInit (co, attr, value) ;
-			}
+		if (getMembers() == null)
+			return;
+		
+		for (Component member : getMembers()) {
+			((ComponentImpl)member).propagate (attr, value) ;
 		}
 	}
 
@@ -241,26 +229,20 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param value attribute value
 	 */
 
-	private void propagate (Component com, String attr, Object value) {
-		Object oldValue = get(attr);
-		put(attr, value);
-		/*
-		 * notify property managers
-		 */
-		if (oldValue == null)
-			ApamManagers.notifyAttributeAdded(this, attr, value) ;
-		else
-			ApamManagers.notifyAttributeChanged(this, attr, value, oldValue);
+	private void propagate (String attr, Object value) {
+		//Change value and notify managers
+		setInternalProperty(attr,value);
 
 		//Notify the execution platform
-		com.getApformComponent().setProperty (attr,value);
+		getApformComponent().setProperty (attr,value);
 
-		//Propagate to members recursively, without notifying managers
-		if (com.getMembers() != null) {
-			for (Component co : com.getMembers()) {
-				((ComponentImpl)co).put (attr, value) ;
-				propagateInit (co, attr, value) ;
-			}
+		//Propagate to members recursively
+		
+		if (getMembers() == null)
+			return;
+		
+		for (Component member : getMembers()) {
+			((ComponentImpl)member).propagate (attr, value) ;
 		}
 	}
 	
@@ -307,8 +289,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * TODO Should we add this to the API? how to notify apform?
 	 */
 	public boolean removeProperty(String attr) {
-		attr = attr.toLowerCase();
-		Object oldValue = get(attr) ;
+		
+		Object oldValue = getProperty(attr) ;
 		
 		if (oldValue == null) {
 			logger.error("ERROR: \"" + attr + "\" not instanciated");
@@ -325,19 +307,19 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return false;
 		}
 		
-		PropertyDefinition propDef = getAttrDefinition(this, attr) ;
+		PropertyDefinition propDef = getAttrDefinition(attr) ;
 		if (propDef != null && propDef.getField() != null) {
 			logger.error("In " + this + " attribute " + attr +  " is a program field and cannot be removed.");
 			return false;
 		}
 		
-		if (getGroup() != null && ((ComponentImpl)getGroup()).get(attr) != null) {
+		if (getGroup() != null && getGroup().getProperty(attr) != null) {
 			logger.error("In " + this + " attribute " + attr +  " inherited and cannot be removed.");
 			return false;			
 		}
 		
 		//it is ok, remove it and propagate to members, recursively
-		propageRemove(this, attr) ;
+		propagateRemove(attr) ;
 		
 		//TODO. Should we notify at all levels ?
 		ApamManagers.notifyAttributeRemoved(this, attr, oldValue);
@@ -350,14 +332,17 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param ent
 	 * @param attr
 	 */
-	private void propageRemove (Component ent, String attr) {
-		((ComponentImpl)ent).remove(attr) ;
-		Set<? extends Component> members = ent.getMembers () ;
-		if (members != null) {
-			for (Component member : members) {
-				propageRemove(member, attr) ;
-			}
+	private void propagateRemove (String attr) {
+		
+		remove(attr.toLowerCase()) ;
+
+		if (getMembers() == null)
+			return;
+		
+		for (Component member : getMembers ()) {
+			((ComponentImpl)member).propagateRemove(attr) ;
 		}
+		
 	}
 
 	/**
@@ -367,17 +352,17 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param attr
 	 * @return
 	 */
-	private PropertyDefinition getAttrDefinition (Component component, String attr) {
-		Component group = component.getGroup() ;
+	private PropertyDefinition getAttrDefinition (String attr) {
+		Component group = this.getGroup() ;
 
 		while (group != null) {
-			for (PropertyDefinition propDef : group.getDeclaration().getPropertyDefinitions()) {
-				if ((propDef.getName()).equalsIgnoreCase(attr)) {
-					return propDef;
-				}
-			}
+			PropertyDefinition definition =  group.getDeclaration().getPropertyDefinition(attr);
+			if (definition != null)
+				return definition;
+			
 			group = group.getGroup () ;
 		}
+		
 		return null ;
 	}
 
@@ -396,39 +381,39 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param value
 	 * @return
 	 */
-	private boolean validDef (Component ent, String attr, Object value) {
+	private boolean validDef (String attr, Object value) {
 		attr = attr.toLowerCase() ;
 		if (Util.isPredefinedAttribute(attr))
 			return true;
 
-		Component group = ent.getGroup() ;
+		Component group = this.getGroup() ;
 
 		//if the same attribute exists above, it is a redefinition.
-		if (group != null) {
-			if (((ComponentImpl)group).get(attr) != null) {
-				logger.error("cannot redefine attribute \"" + attr + "\"");
-				return false;
-			}
+		if (group != null && group.getProperty(attr) != null) {
+			logger.error("cannot redefine attribute \"" + attr + "\"");
+			return false;
 		}
 
 		//It is a spec. There is no definition
 		//for specs the attribute must be already existing
 		if (group == null)
-			return (((ComponentImpl)ent).get(attr) != null) ;
+			return this.get(attr) != null ;
 
-		PropertyDefinition propDef = getAttrDefinition (ent, attr) ;
+		PropertyDefinition definition = this.getAttrDefinition (attr) ;
 
-		// there is a definition for attr
-		if (propDef != null) { 		
-			if (propDef.isInternal()) {
-				logger.error("In " + group + " attribute " + attr +  " is internal and cannot be set.");
-				return false;
-			}
-			return Util.checkAttrType(attr, value, propDef.getType());
+		if (definition == null) {
+			logger.error("Attribute \"" + attr + "=" + value + "\" is undefined.");
+			return false;
 		}
+		
+		// there is a definition for attr
+		if (definition.isInternal()) {
+			logger.error("In " + group + " attribute " + attr +  " is internal and cannot be set.");
+			return false;
+		}
+		
+		return Util.checkAttrType(attr, value, definition.getType());
 
-		logger.error("Attribute \"" + attr + "=" + value + "\" is undefined.");
-		return false;
 	}
 	/*
 	 * Filter evaluation on the properties of this component

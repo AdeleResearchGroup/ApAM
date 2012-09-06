@@ -64,12 +64,12 @@ public class APAMImpl implements Apam {
     	
         Implementation compoType = CST.apamResolver.findImplByName(null,compositeName);
         if (compoType == null) {
-            logger.error("ERROR : " + compositeName + " is not a deployed composite.");
+            logger.error("Error starting application: " + compositeName + " is not a deployed composite.");
             return null;
         }
         
         if (!(compoType instanceof CompositeType)) {
-            logger.error("ERROR : " + compoType.getName() + " is not a composite.");
+            logger.error("Error starting application: " + compoType.getName() + " is not a composite.");
             return null;
         }
 
@@ -82,12 +82,12 @@ public class APAMImpl implements Apam {
     	Implementation compoType = CST.ImplBroker.createImpl(null,compositeName,compoURL,null);
     	
         if (compoType == null) {
-            logger.error("ERROR : " + compositeName + " can not be deployed.");
+            logger.error("Error starting application: " + compositeName + " can not be deployed.");
             return null;
         }
         
         if (!(compoType instanceof CompositeType)) {
-            logger.error("ERROR : " + compoType.getName() + " is not a composite.");
+            logger.error("Error starting application: " + compoType.getName() + " is not a composite.");
             return null;
         }
 
@@ -103,8 +103,8 @@ public class APAMImpl implements Apam {
     	 */
     	CompositeType compositeType = getCompositeType(name);
         if (compositeType != null) {
-            logger.error("Composite type " + name + " already existing");
-            return null;
+            logger.error("Error creating composite type: already exists " + name );
+            return compositeType;
         }
     	
      	/*
@@ -114,7 +114,7 @@ public class APAMImpl implements Apam {
         if (inCompoType != null) {
         	parent = CST.apamResolver.findImplByName(null, inCompoType);
             if (parent == null || !(parent instanceof CompositeType)) {
-            	logger.error(inCompoType + " is not a deployed composite type.");
+            	logger.error("Error creating composite type: specified enclosing composite "+ inCompoType + " is not a deployed composite type.");
                 return null;
             }
         }
@@ -132,7 +132,7 @@ public class APAMImpl implements Apam {
     	 */
     	CompositeType compositeType = getCompositeType(name);
         if (compositeType != null) {
-            logger.error("Composite type " + name + " already existing");
+            logger.error("Error creating composite type: already exists " + name);
             return null;
         }
     	
@@ -143,7 +143,7 @@ public class APAMImpl implements Apam {
         if (inCompoType != null) {
         	parent = CST.apamResolver.findImplByName(null, inCompoType);
             if (parent == null || !(parent instanceof CompositeType)) {
-            	logger.error(inCompoType + " is not a deployed composite type.");
+            	logger.error("Error creating composite type: specified enclosing composite"+ inCompoType + " is not a deployed composite type.");
                 return null;
             }
         }
@@ -172,7 +172,7 @@ public class APAMImpl implements Apam {
      */
     public CompositeType createCompositeType(CompositeType parent,
     		String name, String specification, String mainComponent,
-            Set<ManagerModel> models, Map<String, Object> initialProperties) {
+            Set<ManagerModel> models, Map<String, Object> properties) {
 
     	assert name != null && mainComponent != null;
     	
@@ -184,12 +184,16 @@ public class APAMImpl implements Apam {
     	
     	ApformImplementation apfCompo = new ApamOnlyCompositeType(name,
     											specification, mainComponent,
-    											models, initialProperties);
+    											models, properties);
     	
-    	CompositeTypeImpl composite = new CompositeTypeImpl(parent, apfCompo, initialProperties);
-    	composite.register();
+    	/* 
+    	 * If the provided specification is not installed force a resolution
+    	 */
+    	if (specification != null && CST.SpecBroker.getSpec(specification) == null) {
+    		CST.apamResolver.findSpecByName(null, specification);
+    	}
     	
-    	return composite;
+    	return (CompositeType) CST.ImplBroker.addImpl(parent, apfCompo);
     }
     
  

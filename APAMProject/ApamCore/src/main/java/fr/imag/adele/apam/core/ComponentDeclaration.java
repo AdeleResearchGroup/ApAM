@@ -105,7 +105,7 @@ public abstract class ComponentDeclaration {
      */
     public PropertyDefinition getPropertyDefinition(String propertyName) {
         for (PropertyDefinition definition : definitions) {
-            if (definition.getName().equals(propertyName))
+            if (definition.getName().equalsIgnoreCase(propertyName))
                 return definition;
         }
         return null;

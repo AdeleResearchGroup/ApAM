@@ -10,10 +10,9 @@ import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apform.Apform;
-//import org.osgi.framework.BundleContext;
 import fr.imag.adele.apam.impl.APAMImpl;
 
 public class ApamInstall {
@@ -23,13 +22,13 @@ public class ApamInstall {
     public static Implementation intallImplemFromURL(URL url, String compoName) {
         if (!ApamInstall.deployBundle(url, compoName))
             return null;
-        return Apform.getWaitImplementation(compoName);
+        return CST.ImplBroker.getImpl(compoName,true);
     }
 
     public static Specification intallSpecFromURL(URL url, String compoName) {
         if (!ApamInstall.deployBundle(url, compoName))
             return null;
-        return Apform.getWaitSpecification(compoName);
+        return CST.SpecBroker.getSpec(compoName,true);
     }
 
     private static boolean deployBundle(URL url, String compoName) {
@@ -81,7 +80,9 @@ public class ApamInstall {
 
     public static Set<String> getAllComponentNames(Bundle bundle) {
         Set<String> componentNames = new HashSet<String>();
-        Dictionary headers = bundle.getHeaders();
+        
+        @SuppressWarnings("unchecked")
+		Dictionary<String,String> headers = bundle.getHeaders();
         String iPOJO_components = (String) headers.get("iPOJO-Components");
 
         //        Enumeration en = headers.keys();

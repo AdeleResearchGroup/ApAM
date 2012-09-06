@@ -60,8 +60,7 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 		if (factory instanceof IPojoFactory) {
 			ApformImplementation implementation = new ApformIPojoLegacyImplementation(
 					(IPojoFactory) factory);
-			Apform2Apam.newImplementation(implementation.getDeclaration()
-					.getName(), implementation);
+			Apform2Apam.newImplementation(implementation);
 		}
 	}
 
@@ -118,8 +117,7 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 		 */
 		ApformIpojoLegacyInstance apformInstance = new ApformIpojoLegacyInstance(
 				ipojoInstance, reference);
-		Apform2Apam.newInstance(apformInstance.getDeclaration().getName(),
-				apformInstance);
+		Apform2Apam.newInstance(apformInstance);
 
 		return true;
 	}
@@ -224,10 +222,9 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
 		 * Otherwise propagate property changes to Apam
 		 */
 		for (String key : reference.getPropertyKeys()) {
-			if (inst.getImpl().getImplDeclaration().isDefined(key)){
-				Object value =  reference.getProperty(key);
-			    if (value!=inst.getProperty(key)) ((ComponentImpl)inst).setInternalProperty(key, reference.getProperty(key));
-			}
+			Object value =  reference.getProperty(key);
+			if (value != inst.getProperty(key)) 
+				inst.setProperty(key, value);
 		}
 		
 	}

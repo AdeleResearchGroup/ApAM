@@ -221,7 +221,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
          * For instances that are not created using the Apam API, register instance with APAM on validation
          */
         if (state == ComponentInstance.VALID && !isApamCreated)
-            Apform2Apam.newInstance(getInstanceName(), this);
+            Apform2Apam.newInstance(this);
 
         if (state == ComponentInstance.INVALID)
             Apform2Apam.vanishInstance(getInstanceName());

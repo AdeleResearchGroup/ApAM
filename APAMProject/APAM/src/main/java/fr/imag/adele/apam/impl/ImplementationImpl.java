@@ -49,16 +49,6 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	private Set<Implementation> 		uses			= Collections.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 	private Set<Implementation> 		invUses			= Collections.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
-	//This impl does not declared any specification
-	private final boolean  hasSpec  ;
-	
-	//failed to find its specification.
-	private final boolean isValid ;
-
-	
-	// the sharable instances
-	//    protected Set<Instance>             sharableInstances = new HashSet<Instance>();      // the sharable instances
-
 
 	/**
 	 * This class represents the Apam root implementation. 
@@ -104,18 +94,16 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 * This is an special constructor only used for the root type of the system 
 	 */
 	protected ImplementationImpl(String name) {
-		super(new SystemRootImplementation(name),null);
+		super(new SystemRootImplementation(name));
 		mySpec = CST.SpecBroker.createSpec(name+"_spec",new HashSet<ResourceReference>(),null);
-		hasSpec = true;
-		isValid = true ;
 	}
 
 
 	/**
 	 * Builds a new Apam implementation to represent the specified platform implementtaion in the Apam model.
 	 */
-	protected ImplementationImpl(CompositeType composite, ApformImplementation apfImpl, Map<String, Object> props) {
-		super (apfImpl, props) ;
+	protected ImplementationImpl(CompositeType composite, ApformImplementation apfImpl) {
+		super (apfImpl) ;
 
 		ImplementationDeclaration declaration = apfImpl.getDeclaration();
 
@@ -143,8 +131,6 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			if (mySpec == null) {
 				logger.error("invalid specification " + declaration.getSpecification().getName() 
 						+ " for implementation " + declaration.getName());
-				isValid = false ;
-				hasSpec = false ;
 				return ;
 			}
 
@@ -164,9 +150,8 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			mySpec = CST.SpecBroker.createSpec(declaration.getName() + "_spec",
 					declaration.getProvidedResources(),
 					(Map<String,Object>)null);
-			hasSpec = false ;
-		} else hasSpec = true ;
-		isValid = true ;
+		} 
+
 		/*
 		 * Reference the enclosing composite type
 		 */
@@ -175,7 +160,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	}
 
 	@Override
-	public void register() {
+	public void register(Map<String, Object> initialProperties) {
 
 		/*
 		 * Opposite references from specification and enclosing composite type
@@ -189,7 +174,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		/*
 		 * Terminates the initialization, and computes properties
 		 */
-		terminateInitComponent() ;
+		initializeProperties(initialProperties);
 
 		/*
 		 * Add to broker
@@ -306,8 +291,8 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			composite = CompositeImpl.getRootAllComposites();
 		}
 
-		Instance instance = instantiate(composite, initialproperties);
-		((InstanceImpl)instance).register();
+		Instance instance = instantiate(composite);
+		((InstanceImpl)instance).register(initialproperties);
 
 		return instance;
 	}
@@ -321,13 +306,13 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 * 
 	 * This method is not intended to be used as external API.
 	 */
-	protected Instance instantiate(Composite composite, Map<String,Object> initialproperties) {
+	protected Instance instantiate(Composite composite) {
 		if (! this.isInstantiable()) {
 			logger.debug("Implementation " + this + " is not instantiable");
 			return null;
 		}
 
-		return reify(composite,getApformImpl().createInstance(initialproperties),null);
+		return reify(composite,getApformImpl().createInstance(null));
 	}
 
 	/**
@@ -344,8 +329,8 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 * This method is not intended to be used as external API.
 	 * 
 	 */
-	protected Instance reify(Composite composite, ApformInstance platformInstance, Map<String,Object> initialproperties) {
-		return new InstanceImpl(composite,platformInstance,initialproperties);
+	protected Instance reify(Composite composite, ApformInstance platformInstance) {
+		return new InstanceImpl(composite,platformInstance);
 	}
 
 
@@ -540,21 +525,14 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		 invUses.remove(orig);
 	 }
 
-	 //	@Override
-	 //	public Set<Component> getMembers() {
-	 //		return new HashSet<Component> (instances) ;
-	 //	}
-
 	 @Override
 	 public Set<? extends Component> getMembers() {
-		 //return new HashSet <Component> (implementations) ;
 		 return Collections.unmodifiableSet(instances);
 	 }
 
 	 @Override
 	 public Component getGroup() {
-		 if (!hasSpec) return null ;
-		 return mySpec;
+		 return getImplDeclaration().getSpecification() != null ? mySpec : null;
 	 }
 
 }

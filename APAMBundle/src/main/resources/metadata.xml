@@ -46,7 +46,8 @@
 	</component>
 
 	<component name="ApformIpojoLegacyTracker"
-		classname="fr.imag.adele.apam.apformipojo.legacy.ApformIpojoLegacyTracker">
+		classname="fr.imag.adele.apam.apformipojo.legacy.ApformIpojoLegacyTracker"
+		immediate="true">
 		<requires field="apam" />
 		<callback transition="validate" method="start" />
 		<callback transition="invalidate" method="stop" />

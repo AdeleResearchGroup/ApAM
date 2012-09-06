@@ -91,7 +91,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
      * This is an special constructor only used for the root instance of the system 
      */
     protected InstanceImpl(Implementation rootImplementation, String name) {
-    	super(new SystemRootInstance(rootImplementation,name),null);
+    	super(new SystemRootInstance(rootImplementation,name));
     	
     	myImpl		 = rootImplementation;
     	myComposite  = null;
@@ -108,9 +108,9 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     /**
      * Builds a new Apam instance to represent the specified platform instance in the Apam model.
      */
-    protected InstanceImpl(Composite composite, ApformInstance apformInst, Map<String, Object> initialproperties) {
+    protected InstanceImpl(Composite composite, ApformInstance apformInst) {
 
-    	super(apformInst, initialproperties);
+    	super(apformInst);
     	
     	/*
     	 * reference the implementation and the enclosing composite
@@ -121,7 +121,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }    
 
     @Override
-    public void register() {
+    public void register(Map<String, Object> initialproperties) {
     	
     	/*
     	 * Opposite references from implementation and enclosing composite
@@ -130,9 +130,9 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         ((CompositeImpl)getComposite()).addContainInst(this);
 
         /*
-         * Terminates the initalisation, and computes properties
+         * Terminates the initialization, and computes properties
          */
-        terminateInitComponent() ;
+        initializeProperties(initialproperties) ;
 
         /*
          * Add to broker
@@ -203,7 +203,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
          * Unbind from the underlying execution platform instance
          */
         getApformInst().setInst(null);
-        setApform(null);
         
     	/*
     	 * Unbind from implementation and enclosing composite

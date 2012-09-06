@@ -62,7 +62,7 @@ public class ApformIpojoSpecification extends ApformIpojoComponent implements Ap
      */
     @Override
     protected void bindToApam(Apam apam) {
-        Apform2Apam.newSpecification(getDeclaration().getName(), this);
+        Apform2Apam.newSpecification(this);
     }
 
     /**

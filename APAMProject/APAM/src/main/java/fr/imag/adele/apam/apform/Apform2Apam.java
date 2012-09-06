@@ -9,35 +9,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.impl.ImplementationBrokerImpl;
 import fr.imag.adele.apam.impl.InstanceBrokerImpl;
 import fr.imag.adele.apam.impl.SpecificationBrokerImpl;
-import fr.imag.adele.apam.impl.SpecificationImpl;
 
 public class Apform2Apam {
 	
     private static Logger logger = LoggerFactory.getLogger(Apform2Apam.class);
+    
+    /**
+     * The components that clients are waiting for deployment to complete
+     */
+    private static Set<String> expectedComponents = new HashSet<String>();
+    
     /**
      * The event executor. We use a pool of a threads to handle notification to APAM of underlying platform
      * events, without blocking the platform thread.
      */
     static private final Executor executor      = Executors.newCachedThreadPool();
-
+    
     /**
-     * The base class of all the event processors. This handle exception and context management
+     * The base class of all the reification processors. This handle exception and context management
      * 
      * @author vega
      * 
      */
-    private static abstract class ApformEventProcessing implements Runnable {
+    private static abstract class ApamReificationProcess implements Runnable {
 
         @Override
         public void run() {
             try {
-                process();
+                notifyDeployment(reify());
             } catch (Exception unhandledException) {
                 logger.error("Error handling Apform event :");
                 unhandledException.printStackTrace(System.err);
@@ -49,55 +55,51 @@ public class Apform2Apam {
         /**
          * The processing method
          */
-        protected abstract void process();
+        protected abstract Component reify();
+        
+        /**
+         * Notify any threads waiting for the deployment of a component
+         */
+        private void notifyDeployment(Component component) {
+        	
+            synchronized (Apform2Apam.expectedComponents) {
+            	/*
+            	 * If it is expected wake up all threads blocked in waitForComponent
+            	 */
+                if (Apform2Apam.expectedComponents.contains(component.getName())) { 
+                    Apform2Apam.expectedComponents.remove(component.getName());
+                    Apform2Apam.expectedComponents.notifyAll();
+                }
+            }
+        	
+        }
 
     }
 
     /**
-     * Wait for a future implementation to be deployed
+     * Wait for a future component to be deployed
      */
-    public static void waitForDeployedImplementation(String implementationName) {
+    public static void waitForComponent(String componentName) {
 
-        synchronized (Apform2Apam.expectedImpls) {
-            Apform2Apam.expectedImpls.add(implementationName);
+        synchronized (Apform2Apam.expectedComponents) {
+            Apform2Apam.expectedComponents.add(componentName);
             try {
-                while (Apform2Apam.expectedImpls.contains(implementationName))
-                    Apform2Apam.expectedImpls.wait();
+                while (Apform2Apam.expectedComponents.contains(componentName))
+                    Apform2Apam.expectedComponents.wait();
             } catch (InterruptedException interrupted) {
                 interrupted.printStackTrace();
             }
             return;
         }
     }
-
-    /**
-     * Wait for a future specification to be deployed
-     */
-    public static void waitForDeployedSpecification(String specificationName) {
-
-        synchronized (Apform2Apam.expectedSpecs) {
-            Apform2Apam.expectedSpecs.add(specificationName);
-            try {
-                while (Apform2Apam.expectedSpecs.contains(specificationName))
-                    Apform2Apam.expectedSpecs.wait();
-            } catch (InterruptedException interrupted) {
-                interrupted.printStackTrace();
-            }
-            return;
-        }
-    }
-
-
-    private static Set<String> expectedImpls = new HashSet<String>();
-    private static Set<String> expectedSpecs = new HashSet<String>();
-
+    
     /**
      * Task to handle instance appearance
      * 
      * @author vega
      * 
      */
-    private static class InstanceAppearenceProcessing extends ApformEventProcessing {
+    private static class InstanceAppearenceProcessing extends ApamReificationProcess {
 
         private final ApformInstance instance;
 
@@ -106,14 +108,8 @@ public class Apform2Apam {
         }
 
         @Override
-        public void process() {
-
-            String implementationName = instance.getDeclaration().getImplementation().getName();
-            if (CST.ImplBroker.getImpl(implementationName) == null)
-                Apform2Apam.waitForDeployedImplementation(implementationName);
-
-            CST.InstBroker.addInst(null,instance,null);
-
+        public Component reify() {
+            return CST.InstBroker.addInst(null,instance);
         }
 
     }
@@ -124,35 +120,17 @@ public class Apform2Apam {
      * @author vega
      * 
      */
-    private static class ImplementationDeploymentProcessing extends ApformEventProcessing {
+    private static class ImplementationDeploymentProcessing extends ApamReificationProcess {
 
-        private final String               implementationName;
         private final ApformImplementation implementation;
 
-        public ImplementationDeploymentProcessing(String implementationName, ApformImplementation implementation) {
-            this.implementationName = implementationName;
+        public ImplementationDeploymentProcessing(ApformImplementation implementation) {
             this.implementation = implementation;
         }
 
         @Override
-        public void process() {
-
-            Implementation impl = CST.ImplBroker.getImpl(implementationName);
-            if (impl != null) {
-                logger.error("Implementation already existing: " + implementationName);
-                return;
-            }
-
-            impl = ((ImplementationBrokerImpl) CST.ImplBroker).addImpl(null,implementation,null);
-
-            // wake up any threads waiting for this implementation to be deployed
-            synchronized (Apform2Apam.expectedImpls) {
-                if (Apform2Apam.expectedImpls.contains(implementationName)) { // it is expected
-                    Apform2Apam.expectedImpls.remove(implementationName);
-                    Apform2Apam.expectedImpls.notifyAll(); // wake up the thread waiting in waitForDeployedImplementation
-                }
-            }
-
+        public Component reify() {
+            return CST.ImplBroker.addImpl(null,implementation);
         }
 
     }
@@ -163,7 +141,7 @@ public class Apform2Apam {
      * @author vega
      * 
      */
-    private static class SpecificationDeploymentProcessing extends ApformEventProcessing {
+    private static class SpecificationDeploymentProcessing extends ApamReificationProcess {
 
         private final ApformSpecification specification;
 
@@ -172,32 +150,16 @@ public class Apform2Apam {
         }
 
         @Override
-        public void process() {
-
-        	String specificationName = specification.getDeclaration().getName();
-            Specification spec = CST.SpecBroker.getSpec(specificationName);
-            if (spec != null) {
-                logger.error("Specification already existing: merging with " + specificationName);
-                ((SpecificationImpl) spec).setApform(specification);
-                return;
-            }
-
-            spec = CST.SpecBroker.addSpec(specification,null);
-
-            // wake up any threads waiting for this specification to be deployed
-            synchronized (Apform2Apam.expectedSpecs) {
-                if (Apform2Apam.expectedSpecs.contains(specificationName)) { // it is expected
-                    Apform2Apam.expectedSpecs.remove(specificationName);
-                    Apform2Apam.expectedSpecs.notifyAll(); // wake up the thread waiting in waitForDeployedSpecification
-                }
-            }          
+        public Component reify() {
+            return CST.SpecBroker.addSpec(specification);
+            
         }
     }
 
     /**
      * A new instance, represented by object "client" just appeared in the platform.
      */
-    public static void newInstance(String instanceName, ApformInstance client) {
+    public static void newInstance(ApformInstance client) {
         Apform2Apam.executor.execute(new InstanceAppearenceProcessing(client));
     }
 
@@ -207,8 +169,8 @@ public class Apform2Apam {
      * @param implemName : the symbolic name.
      * @param client
      */
-    public static void newImplementation(String implemName, ApformImplementation client) {
-        Apform2Apam.executor.execute(new ImplementationDeploymentProcessing(implemName, client));
+    public static void newImplementation(ApformImplementation client) {
+        Apform2Apam.executor.execute(new ImplementationDeploymentProcessing(client));
     }
 
     /**
@@ -217,7 +179,7 @@ public class Apform2Apam {
      * @param specName
      * @param client
      */
-    public static void newSpecification(String specName, ApformSpecification client) {
+    public static void newSpecification(ApformSpecification client) {
         Apform2Apam.executor.execute(new SpecificationDeploymentProcessing(client));
     }
 
