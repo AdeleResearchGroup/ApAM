@@ -2,7 +2,6 @@ package fr.imag.adele.apam.impl;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -215,7 +214,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	
 	/**
 	 * During initialisation, set the new (attrbute, value) in the object, 
-	 * in the platform, and propagates to the members recursively
+	 * in the platform, and propagates to the members recursively.
+	 * Does not notify managers.
 	 * @param com the component to which is added the attribute.
 	 * @param attr
 	 * @param value
@@ -227,7 +227,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		//Propagate to members recursively
 		if (com.getMembers() != null) {
 			for (Component co : com.getMembers()) {
-				propagate (co, attr, value) ;
+				((ComponentImpl)co).put (attr, value) ;
+				propagateInit (co, attr, value) ;
 			}
 		}
 	}
@@ -241,19 +242,28 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 
 	private void propagate (Component com, String attr, Object value) {
-		//Change value and notify managers
-		((ComponentImpl)com).setInternalProperty(attr,value);
+		Object oldValue = get(attr);
+		put(attr, value);
+		/*
+		 * notify property managers
+		 */
+		if (oldValue == null)
+			ApamManagers.notifyAttributeAdded(this, attr, value) ;
+		else
+			ApamManagers.notifyAttributeChanged(this, attr, value, oldValue);
 
 		//Notify the execution platform
 		com.getApformComponent().setProperty (attr,value);
 
-		//Propagate to members recursively
+		//Propagate to members recursively, without notifying managers
 		if (com.getMembers() != null) {
 			for (Component co : com.getMembers()) {
-				propagate (co, attr, value) ;
+				((ComponentImpl)co).put (attr, value) ;
+				propagateInit (co, attr, value) ;
 			}
 		}
 	}
+	
 	/**
 	 * Sets the value of a property changed in the state and notifies property managers,
 	 * but doesn't call back the execution platform.
@@ -262,13 +272,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * apform to avoid notification loops. We need to refactor the different APIs of Apam.  
 	 */
 	public void setInternalProperty(String attr, Object value) {
-
-		/*
-		 * set value
-		 */
 		Object oldValue = get(attr);
 		put(attr, value);
-
 		/*
 		 * notify property managers
 		 */
@@ -315,7 +320,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return false;
 		}
 
-		if (Util.isReservedAttribute(attr)) {
+		if (Util.isReservedAttributePrefix(attr)) {
 			logger.error("ERROR: \"" + attr + "\" is a reserved attribute");
 			return false;
 		}

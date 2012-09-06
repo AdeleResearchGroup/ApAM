@@ -28,7 +28,6 @@ import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.obrMan.filewatcher.internal.FileWatcher;
 //import java.net.URI;
 //import org.xml.sax.Attributes;
@@ -213,7 +212,7 @@ public class OBRManager {
                     if (aCap.getName().equals(capability)) {
                         if (filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.println("   Component " + getAttributeInCapability(aCap, OBR.A_NAME) + " found in bundle : " + res.getSymbolicName());
+                                System.out.println("   Component " + getAttributeInCapability(aCap, CST.A_NAME) + " found in bundle : " + res.getSymbolicName());
                                 allRes.add(new Selected(res, aCap));
                             }
                         }
@@ -381,7 +380,7 @@ public class OBRManager {
 
         Reason[] reqs = resolver.getUnsatisfiedRequirements();
         for (Reason req : reqs) {
-            System.out.println("Unable to resolve: " + req);
+            System.err.println("Unable to resolve: " + req.toString());
         }
         return false;
     }

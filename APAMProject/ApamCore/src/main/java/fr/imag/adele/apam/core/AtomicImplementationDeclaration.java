@@ -129,10 +129,6 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         return ret;
     }
 
-	@Override
-	public ComponentReference<?> getGroupReference() {
-		return getSpecification();
-	}
 
 
 }

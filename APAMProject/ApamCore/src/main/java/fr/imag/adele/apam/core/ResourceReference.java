@@ -38,6 +38,11 @@ public abstract class ResourceReference extends Reference implements ResolvableR
     }
 
     @Override
+    public String getName() {
+    	return type;
+    }
+    
+    @Override
     protected final String getIdentifier() {
         return getJavaType();
     }

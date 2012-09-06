@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.core;
 
+
 /**
  * The declaration of an instance.
  * 
@@ -44,12 +45,13 @@ public class InstanceDeclaration extends ComponentDeclaration {
 		return trigger;
 	}
     
-    /**
+
+	/**
      * Instances are never directly referenced
      */
     @Override
-    protected ComponentReference<?> generateReference() {
-        return null;
+    protected ComponentReference<InstanceDeclaration> generateReference() {
+        return new InstanceReference(getName());
     }
 
     @Override

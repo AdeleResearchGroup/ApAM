@@ -1,251 +1,296 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.xml.parser.SchemaResolver;
+import org.apache.maven.artifact.versioning.VersionRange;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.core.ComponentReference;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.PropertyDefinition;
+import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
 import fr.imag.adele.apam.core.SpecificationReference;
-import fr.imag.adele.apam.util.OBR;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamRepoBuilder {
 
-    /**
-     * Metadata (in internal format).
-     */
+	/**
+	 * Metadata (in internal format).
+	 */
+
+	private List<ComponentDeclaration> components ;
+
+	private Set<SpecificationReference> bundleRequiresSpecifications = new HashSet <SpecificationReference> ();
+
+	/**
+	 * Flag describing if we need or not use local XSD files (i.e. use the {@link SchemaResolver} or not). If
+	 * <code>true</code> the local XSD are not used.
+	 */
+
+	public ApamRepoBuilder(List<ComponentDeclaration> components, String defaultOBRRepo) {
+		this.components = components ;
+		ApamCapability.init (components, defaultOBRRepo + File.separator +"repository.xml") ;
+	}
+
+	public StringBuffer writeOBRFile() {
+		StringBuffer obrContent = new StringBuffer("<obr> \n");
+		for (ComponentDeclaration comp : components) {
+			if (comp instanceof SpecificationDeclaration)
+				printOBRElement(obrContent, comp, "");
+		}
+		for (ComponentDeclaration comp : components) {
+			if (comp instanceof AtomicImplementationDeclaration)
+				printOBRElement(obrContent, comp, "");
+		}
+		for (ComponentDeclaration comp : components) {
+			if (comp instanceof CompositeDeclaration)
+				printOBRElement(obrContent, comp, "");
+		}
+		for (ComponentDeclaration comp : components) {
+			if (comp instanceof InstanceDeclaration)
+				printOBRElement(obrContent, comp, "");
+		}
+
+		generateFilters (obrContent) ;
+
+		obrContent.append("</obr> \n");
+		return obrContent;
+	}
+
+	private void printProvided(StringBuffer obrContent, ComponentDeclaration component) {
+		if (component instanceof InstanceDeclaration) return ;
+
+		Set<InterfaceReference> interfaces = component.getProvidedResources(InterfaceReference.class);
+		String val = setReference2String (interfaces) ;	
+		if (val != null)
+			generateProperty(obrContent, component, CST.A_PROVIDE_INTERFACES, setReference2String(interfaces)) ;
+
+		Set<MessageReference> messages = component.getProvidedResources(MessageReference.class);
+		val = setReference2String (messages) ;	
+		if (val != null)
+			generateProperty(obrContent, component, CST.A_PROVIDE_MESSAGES, val);
+
+		if (component instanceof ImplementationDeclaration) {
+			SpecificationReference spec = ((ImplementationDeclaration) component).getSpecification();
+			if ((spec != null) && !spec.getName().isEmpty()) {
+				generateProperty(obrContent, component, CST.A_PROVIDE_SPECIFICATION, spec.getName()) ;
+				CheckObr.checkImplProvide(component.getName(), spec.getName(), interfaces, messages);
+			}
+		}
+	}
 
 
-    /**
-     * Flag describing if we need or not use local XSD files (i.e. use the {@link SchemaResolver} or not). If
-     * <code>true</code> the local XSD are not used.
-     */
+	private void printProperties(StringBuffer obrContent, ComponentDeclaration component) {
+		Map<String, Object> properties = CheckObr.getValidProperties(component) ;
+		for (String attr : properties.keySet()) { 
+			generateProperty (obrContent, component, attr, properties.get(attr)) ;
+		}
 
-    public ApamRepoBuilder(String defaultOBRRepo) {
-        // OBRManager obr = new OBRManager(defaultOBRRepo);
-        CheckObr.init(defaultOBRRepo + File.separator +"repository.xml");
-    }
+		// definition attributes
+		List<PropertyDefinition> definitions = component.getPropertyDefinitions();
+		for (PropertyDefinition definition : definitions) {
+			//String tempContent = "      <p n='" + CST.A_DEFINITION_PREFIX + definition.getName() + "'";
+			String type = definition.getType();
+			if (type != null) {
+				String typeString = null;
+				if (type.equals("string") || type.equals("int") || type.equals("boolean")) {
+					//                	Ignored because the value can be null
+					//                    if (Util.checkAttrType(definition.getName(), definition.getDefaultValue(), type))
+					typeString = type;
+				} else {
+					// check for enum types
+					if ((type.charAt(0) == '{') || (type.charAt(0) == '[')) {
+						typeString = "[;";
+						for (String one : Util.split(type)) {
+							typeString += one + ";";
+						}
+						typeString += "]";
+					} else
+						CheckObr.error("Invalid type " + type + " in attribute definition " + definition.getName()
+								+ ". Supported: string, int, boolean, enumeration.");
+				}
+				if (typeString != null) {
+					//tempContent = tempContent + (" v='" + typeString + "' />\n");
+					//obrContent.append(tempContent);
+					generateProperty (obrContent, component, CST.A_DEFINITION_PREFIX + definition.getName(), typeString) ;
+				}
+			}
+		}
+	}
 
-    public StringBuffer writeOBRFile(List<ComponentDeclaration> components) {
-        StringBuffer obrContent = new StringBuffer("<obr> \n");
-        for (ComponentDeclaration comp : components) {
-            // printElement(comp.m_componentMetadata, "");
-            printOBRElement(obrContent, comp, "");
-        }
-        obrContent.append("</obr> \n");
-        return obrContent;
-    }
+	/**
+	 * provided a set of resources references (interface or messages) fr.mag....A , B, C references produces a string "[;fr.imag....A;B;C;]"
+	 * @param refs
+	 * @return
+	 */
 
-    private void printProvided(StringBuffer obrContent, ComponentDeclaration component) {
-        if (component instanceof InstanceDeclaration) return ;
+	private String setReference2String (Set<? extends ResolvableReference> refs) {
+		if (refs.isEmpty()) return null ;
+		int l = refs.size();
+		int i = 1;
 
-        if (component instanceof ImplementationDeclaration) {
-            obrContent.append("      <p n='impl-name' v='" + component.getName() + "' />\n");
-        } else {
-            obrContent.append("      <p n='spec-name' v='" + component.getName() + "' />\n");
-        }
+		String val = "[;" ;
+		for (ResolvableReference mess : refs) {
+			if (i < l)
+				val += mess.getName() + ";" ;
+			else
+				val += mess.getName() + ";]" ;
+			i++;
+		}
+		return val ;
+	}
 
-        Set<InterfaceReference> interfaces = component.getProvidedResources(InterfaceReference.class);
-        if ((interfaces != null) && !interfaces.isEmpty()) {
-            int l = interfaces.size();
-            int i = 1;
-            obrContent.append("      <p n='" + OBR.A_PROVIDE_INTERFACES + "' v='[;");
-            for (InterfaceReference interf : interfaces) {
-                if (i<l)
-                    obrContent.append(interf.getJavaType() + ";");
-                else
-                    obrContent.append(interf.getJavaType() + ";]' /> \n");
-                i++ ;
-            }
-        }
+	private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {
 
-        Set<MessageReference> messages = component.getProvidedResources(MessageReference.class);
-        if ((messages != null) && !messages.isEmpty()) {
-            int l = messages.size();
-            int i = 1;
-            obrContent.append("      <p n='" + OBR.A_PROVIDE_MESSAGES + "' v='[;");
-            for (MessageReference mess : messages) {
-                if (i < l)
-                    obrContent.append(mess.getJavaType() + ";");
-                else
-                    obrContent.append(mess.getJavaType() + ";]' /> \n");
-                i++;
-            }
-        }
+		Set<ResolvableReference> resRef = new HashSet <ResolvableReference> () ;
+		for (DependencyDeclaration dep : component.getDependencies()) {
+			if (dep.getTarget().as(SpecificationReference.class) != null) {
+				bundleRequiresSpecifications.add(dep.getTarget().as(SpecificationReference.class)) ;
+			}
+		}
+		// composite and implems
+		CheckObr.checkRequire(component);
+	}
 
-        if (component instanceof ImplementationDeclaration) {
-            SpecificationReference spec = ((ImplementationDeclaration) component).getSpecification();
-            if ((spec != null) && !spec.getName().isEmpty()) {
-                obrContent.append("      <p n='" + OBR.A_PROVIDE_SPECIFICATION + "' v='" + spec.getName() + "' />\n");
-                CheckObr.checkImplProvide(component.getName(), spec.getName(), interfaces, messages);
-            }
-        }
-    }
-
-
-    private void printProperties(StringBuffer obrContent, ComponentDeclaration component) {
-        // property attributes
-        Map<String, Object> properties = component.getProperties();
-        for (String propertyName : properties.keySet()) {
-            obrContent.append("      <p n='" + propertyName + "' v='"
-                    + properties.get(propertyName) + "' />\n");
-        }
-
-        // Add specification attributes; eliminates duplicates.
-        if (component instanceof ImplementationDeclaration) {
-            Map<String, Object> specProperties = CheckObr.getSpecOBRAttr((ImplementationDeclaration) component);
-            if (specProperties != null) {
-                for (String attr : specProperties.keySet()) {
-                    if ((properties.get(attr) == null)
-                            && !(attr.startsWith(OBR.A_DEFINITION_PREFIX) 
-                            		|| attr.startsWith(OBR.A_PROVIDE_PREFIX)
-                            		|| attr.equals(OBR.A_NAME)
-                            		|| attr.equals(OBR.COMPONENT_TYPE)
-                            )) {
-                        obrContent.append("      <p n='" + attr + "' v='" + specProperties.get(attr) + "' />\n");
-                    }
-                }
-            }
-        }
-
-        // definition attributes
-        List<PropertyDefinition> definitions = component.getPropertyDefinitions();
-        for (PropertyDefinition definition : definitions) {
-            String tempContent = "      <p n='" + OBR.A_DEFINITION_PREFIX + definition.getName() + "'";
-            String type = definition.getType();
-            if (type != null) {
-                String typeString = null;
-                if (type.equals("string") || type.equals("int") || type.equals("boolean")) {
-//                	Ignored because the value can be null
-//                    if (Util.checkAttrType(definition.getName(), definition.getDefaultValue(), type))
-                        typeString = type;
-                } else {
-                    // check for enum types
-                    if ((type.charAt(0) == '{') || (type.charAt(0) == '[')) {
-                        typeString = "[;";
-                        for (String one : Util.split(type)) {
-                            typeString += one + ";";
-                        }
-                        typeString += "]";
-                    } else
-                        CheckObr.error("Invalid type " + type + " in attribute definition " + definition.getName()
-                                + ". Supported: string, int, boolean, enumeration.");
-                }
-                if (typeString != null) {
-                    tempContent = tempContent + (" v='" + typeString + "' />\n");
-                    obrContent.append(tempContent);
-                }
-            }
-        }
-
-        // Check Consistency
-        if (component instanceof ImplementationDeclaration)
-            CheckObr.checkImplAttributes((ImplementationDeclaration) component);
-    }
-
-    private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {
-        if (component instanceof SpecificationDeclaration) {
-            for (DependencyDeclaration dep : component.getDependencies()) {
-
-                InterfaceReference refInterface			= dep.getTarget().as(InterfaceReference.class);
-                MessageReference refMessage 			= dep.getTarget().as(MessageReference.class);	
-                SpecificationReference refSpecification = dep.getTarget().as(SpecificationReference.class);;
-
-                if (refInterface != null) {
-                    obrContent.append("      <p n='" + OBR.A_REQUIRE_INTERFACE + "' v='" + refInterface.getJavaType()
-                            + "' /> \n");
-                }
-                else if (refSpecification != null) {
-                    obrContent.append("      <p n='" + OBR.A_REQUIRE_SPECIFICATION + "' v='"
-                            + refSpecification.getName()
-                            + "' /> \n");
-                }
-                else if (refMessage != null) {
-                    obrContent.append("      <p n='" + OBR.A_REQUIRE_MESSAGE + "' v='" + refMessage.getJavaType()
-                            + "' /> \n");
-                }
-            }
-            return;
-        }
-
-        // composite and implems
-        CheckObr.checkRequire(component);
-    }
-
-    private void
-    printOBRElement(StringBuffer obrContent, ComponentDeclaration component, String indent) {
-        // String spec = component.getSpecification();
-        // messages
-        System.out.print("Checking ");
-        if (component instanceof ImplementationDeclaration)
-            System.out.print("implementation ");
-        if (component instanceof CompositeDeclaration)
-            System.out.print("composite ");
-        if (component instanceof InstanceDeclaration)
-            System.out.print("instance ");
-        if (component instanceof SpecificationDeclaration)
-            System.out.print("specification ");
-        System.out.println(component.getName() + " ...");
-
-        //limited capabilities for instances (not selected in obr ?). Nothing generated
-        if (component instanceof InstanceDeclaration) {
-//        	obrContent.append(OBR.INSTANCE + "' /> \n" );
-//            String impl = ((InstanceDeclaration) component).getImplementation().getName();
-//            obrContent.append("      <p n='" + OBR.IMPLEMENTATION + "' v='" + impl + "' />\n");
-            CheckObr.checkInstance((InstanceDeclaration) component);
-            	//no attributes
-//            obrContent.append("   </capability>\n");
-            return;
-        }
-
-        //headers
-        obrContent.append("   <capability name='" + OBR.CAPABILITY_COMPONENT + "'>\n");
-        obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
-        obrContent.append("      <p n='" + OBR.COMPONENT_TYPE + "' v='") ;
-        
-        if (component instanceof ImplementationDeclaration) {
-        	obrContent.append(OBR.IMPLEMENTATION + "' /> \n" );
-        }
-
-        if (component instanceof CompositeDeclaration) {
-//        	obrContent.append(OBR.COMPOSITE_TYPE + "' /> \n" );
-            CompositeDeclaration composite = (CompositeDeclaration) component;
-            obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='true' />\n");
-            obrContent.append("      <p n='" + CST.A_MAIN_COMPONENT + "' v='"
-                    + composite.getMainComponent().getName()
-                    + "' />\n");
-            CheckObr.checkCompoMain((CompositeDeclaration) component);
-        }
-        if (component instanceof SpecificationDeclaration) {
-        	obrContent.append(OBR.SPECIFICATION + "' /> \n" );
-        }
+	private void printOBRElement(StringBuffer obrContent, ComponentDeclaration component, String indent) {
+		// String spec = component.getSpecification();
+		// messages
+		System.out.print("Checking ");
+		if (component instanceof ImplementationDeclaration)
+			System.out.print("implementation ");
+		if (component instanceof CompositeDeclaration)
+			System.out.print("composite ");
+		if (component instanceof InstanceDeclaration)
+			System.out.print("instance ");
+		if (component instanceof SpecificationDeclaration)
+			System.out.print("specification ");
+		System.out.println(component.getName() + " ...");
 
 
-        // provide clause
-        printProvided(obrContent, component);
+		//headers
+		obrContent.append("   <capability name='" + CST.CAPABILITY_COMPONENT + "'>\n");
+		generateProperty (obrContent, component, CST.A_NAME, component.getName()) ;
+		//obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
+		//obrContent.append("      <p n='" + CST.COMPONENT_TYPE + "' v='") ;
 
-        // definition attributes
-        printProperties(obrContent, component);
+		if (component instanceof ImplementationDeclaration) {
+			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.IMPLEMENTATION);
+			generateProperty (obrContent, component, CST.A_IMPLNAME, component.getName());
+			//obrContent.append(CST.IMPLEMENTATION + "' /> \n" );
+		}
 
-        // Require, fields and constraints
-        printRequire(obrContent, component);
+		if (component instanceof InstanceDeclaration) {
+			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.INSTANCE);
+			generateProperty (obrContent, component, CST.A_INSTNAME, component.getName());
+			//obrContent.append(CST.INSTANCE + "' /> \n" );
+			CheckObr.checkInstance((InstanceDeclaration) component);
+		}
 
-        obrContent.append("   </capability>\n");
+		if (component instanceof CompositeDeclaration) {
+			//        	obrContent.append(CST.COMPOSITE_TYPE + "' /> \n" );
+			CompositeDeclaration composite = (CompositeDeclaration) component;
+			generateProperty (obrContent, component, CST.A_COMPOSITE, CST.V_TRUE);
+			generateProperty (obrContent, component, CST.A_MAIN_COMPONENT, composite.getMainComponent().getName()) ;
+			//obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='true' />\n");
+			//obrContent.append("      <p n='" + CST.A_MAIN_COMPONENT + "' v='"
+			//		+ composite.getMainComponent().getName() + "' />\n");
+			CheckObr.checkCompoMain((CompositeDeclaration) component);
+		}
+		if (component instanceof SpecificationDeclaration) {
+			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.SPECIFICATION) ;
+			generateProperty (obrContent, component, CST.A_SPECNAME, component.getName());
+			//obrContent.append(CST.SPECIFICATION + "' /> \n" );
+		}
 
-    }
+		// provide clause
+		printProvided(obrContent, component);
+
+		// definition attributes
+		//CheckObr.printCheckProperties(component, obrContent);   	
+
+		printProperties(obrContent, component);
+
+		// Require, fields and constraints
+		printRequire(obrContent, component);
+
+		generateTypedProperty(obrContent, component, "version", "version", OBRGeneratorMojo.thisBundleVersion) ;
+		//<p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+		//this component is fully processed.  
+		ApamCapability.get(component.getReference()).finalize() ;
+		obrContent.append("   </capability>\n");
+
+	}
+
+	private void generateFilters (StringBuffer obrContent){		
+		/**
+		 * Generate filters for all provided specifications
+		 */
+		//VersionRange version ;
+		for (SpecificationReference res : bundleRequiresSpecifications) {
+			generateRequire(obrContent, res.getName(), getVersionExpression(res.getName())) ;
+		}
+	}
+
+	private void generateProperty (StringBuffer obrContent, ComponentDeclaration component, String attr, Object value) {
+		if  (ApamCapability.get(component.getReference()).putAttr (attr, value)) {
+			obrContent.append("      <p n='" + attr + "' v='" + value + "' />\n");
+			return ;
+		}
+		CheckObr.error ("Property " + attr + " already defined for  " + component.getName()) ;
+	}
+
+	private void generateTypedProperty (StringBuffer obrContent, ComponentDeclaration component, String attr, String type, Object value) {
+		if  (ApamCapability.get(component.getReference()).putAttr (attr, value)) {
+			obrContent.append("      <p n='" + attr + "' t='" + type + "' v='" + value + "' />\n");
+			return ;
+		}
+		CheckObr.error ("Property " + attr + " already defined for  " + component.getName()) ;
+	}
+
+	
+	private void generateRequire (StringBuffer obrContent, String target, String version) {
+		if (version == null) {
+			obrContent.append ( "   <require name='apam-component' filter='(name=" + target + ")' extend='false' multiple='false' optional='false'>"
+					+ " specification dependency toward " + target + "</require>\n") ;
+		} else {
+			obrContent.append ( "   <require name='apam-component' filter='(&amp;(name=" + target + ")" + version + ")' extend='false' multiple='false' optional='false'>"
+					+ " specification dependency toward " + target + "</require>\n") ;
+		}
+	}
+
+	private String getVersionExpression (String name) {
+		VersionRange range = getVersionRange(name) ;
+		if (range == null) return null ;
+		String version ;
+		if (range.toString().indexOf('-') != -1 )
+			version = range.toString().substring(0, range.toString().indexOf('-')) ;
+		else version = range.toString().replace('-', '.') ;
+		return "(version&gt;=" + version + ")" ;
+	}	
+
+	private VersionRange getVersionRange (String name) {
+		if (OBRGeneratorMojo.versionRange.containsKey(name)) {
+			return OBRGeneratorMojo.versionRange.get(name);
+		}  
+		return null ;
+	}
 
 }
