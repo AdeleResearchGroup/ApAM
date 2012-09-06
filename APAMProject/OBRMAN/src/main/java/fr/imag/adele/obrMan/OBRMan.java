@@ -16,12 +16,11 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apform.Apform;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.ResolvableReference;
@@ -76,7 +75,7 @@ public class OBRMan implements DependencyManager {
 				return null;
 			}
 			// waiting for the implementation to be ready in Apam.
-			asmImpl = Apform.getWaitImplementation(implName);
+			asmImpl = CST.ImplBroker.getImpl(implName,true);
 		} else { // do not install twice.
 			// It is a logical deployement. The allready existing impl is not visible !
 			//            System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
@@ -107,7 +106,7 @@ public class OBRMan implements DependencyManager {
 				return null;
 			}
 			// waiting for the implementation to be ready in Apam.
-			spec = Apform.getWaitSpecification(specName);
+			spec = CST.SpecBroker.getSpec(specName,true);
 		} else { // do not install twice.
 			// It is a logical deployement. The allready existing impl is not visible !
 			// System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");

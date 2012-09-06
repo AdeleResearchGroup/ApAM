@@ -49,5 +49,10 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
         ret += "\n   Specification: " + specificationName;
         return ret;
     }
+    
+	@Override
+	public ComponentReference<?> getGroupReference() {
+		return getSpecification();
+	}
 
 }

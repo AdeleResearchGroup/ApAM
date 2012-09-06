@@ -16,17 +16,15 @@ public interface ImplementationBroker {
 
 
     /**
-     * If the sam implementation of name samImplName is found, creates a new implementation, and adds it in the broker.
+     * Adds a new implementation to the Apam state from its underlying platform definition
      * 
      * @param compoType the composite type that will contain that new implementation.
-     * @param apfImpl : the name of an implementation in Apform, not created yet .
-     * @param properties. The initial properties of that implementation (merged with the sam properties)
-     * @return the new created implementation, null if failed.
+     * @param apfImpl : the apform implementation.
      */
-    public Implementation addImpl(CompositeType compo, ApformImplementation apfImpl, Map<String,Object> properties);
+    public Implementation addImpl(CompositeType compo, ApformImplementation apfImpl);
 
     /**
-     * Deploys and creates both the SAM implem and Spec; and the the corresponding ASM spec and implem
+     * Deploys and creates an implementation
      * 
      * @param implName the name of implementation to resolve.
      * @param url the location of the executable to deploy
@@ -37,13 +35,6 @@ public interface ImplementationBroker {
 
     //    public void removeImpl(Implementation impl);
 
-    /**
-     * return the ASM implementation associated with that sam implementation
-     * 
-     * @param samImpl
-     * @return
-     */
-    public Implementation getImpl(ApformImplementation apfImpl);
     
     /**
      * Return an implementation with the provided name.
@@ -52,6 +43,15 @@ public interface ImplementationBroker {
      * @return an ASMImpl that has the provided name, null if none.
      */
     public Implementation getImpl(String implName);
+
+    /**
+     * Return an implementation with the provided name. If the implementation
+     * is not deployed waits until installed, if specified.
+     * 
+     * @param the implementation name.
+     * @return an ASMImpl that has the provided name, null if none.
+     */
+    public Implementation getImpl(String implName, boolean wait);
 
     /**
      * Get all the implementations.

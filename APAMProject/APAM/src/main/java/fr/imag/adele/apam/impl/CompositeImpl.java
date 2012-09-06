@@ -93,16 +93,24 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     /**
      * Builds a new Apam composite to represent the specified platform instance in the Apam model.
      */
-	protected CompositeImpl(Composite composite, ApformInstance apformInst, Map<String, Object> initialproperties) {
+	protected CompositeImpl(Composite composite, ApformInstance apformInst) {
 
 		// First create the composite, as a normal instance
-		super(composite, apformInst, initialproperties);
+		super(composite, apformInst);
 
 		/*
 		 * Reference the enclosing composite hierarchy
 		 */
 		father = ((CompositeImpl)composite).isSystemRoot() ? null : composite;
 		appliComposite = father == null ? this : father.getAppliComposite();
+
+
+	}
+
+	@Override
+	public void register(Map<String, Object> initialProperties) {		
+		
+		boolean registerMain = true;
 
 		/*
 		 * Initialize the contained instances. The main instance will be eagerly created and the other
@@ -112,27 +120,15 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		 * Attribute A_MAIN_INSTANCE is set when a running unused instance makes its first resolution:
 		 * it become the main instance of a new default composite 
 		 * 
-		 * WARNING the main instance will be registered in APAM at the registration of the composite.
 		 */
-		Instance externalInstance = (Instance)get(CST.A_MAIN_INSTANCE);
-		if (externalInstance == null) {
-			mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this,null);
-		} else {
-			assert !externalInstance.isUsed();
-			mainInst = externalInstance;
+		if (initialProperties != null && initialProperties.get(CST.A_MAIN_INSTANCE) != null) {
+			mainInst = (Instance) initialProperties.remove(CST.A_MAIN_INSTANCE);
+			assert !mainInst.isUsed();
 		}
-			
-		/*
-		 * main instance is never shared
-		 */
-		((InstanceImpl) mainInst).put(CST.A_SHARED, CST.V_FALSE);
+		else {
+			mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this);
+		}
 
-	}
-
-	@Override
-	public void register() {		
-		boolean registerMain = true;
-		
 		/*
 		 * If the main instance is external, it is already registered but we need to remove it from the root
 		 * composite and add it to this
@@ -142,6 +138,11 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 			registerMain = false;
 		}
 
+		/*
+		 * main instance is never shared
+		 */
+		((InstanceImpl) mainInst).setProperty(CST.A_SHARED, CST.V_FALSE);
+		
 		/*
 		 * Opposite reference from the enclosing composite. 
 		 * 
@@ -157,13 +158,13 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		/*
 		 * Complete normal registration
 		 */
-		super.register();
+		super.register(initialProperties);
 		
 		/*
 		 * After composite is registered, register main instance that was eagerly created
 		 */
 		if (registerMain)
-			((InstanceImpl)mainInst).register();
+			((InstanceImpl)mainInst).register(null);
 		
 		
 	}

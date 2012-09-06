@@ -81,7 +81,6 @@ public interface Component {
      * @return
      */
     public Set<? extends Component> getMembers () ;
-//    public Component getMember (String name) ;
 
     /**
      * return the representant of this group member. Null if root (Specification)

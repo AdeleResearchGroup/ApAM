@@ -1313,7 +1313,7 @@ public class CoreMetadataParser implements CoreParser {
                 String type			= parseString(definition,CoreMetadataParser.ATT_TYPE) ;
                 String defaultValue = parseString(definition,CoreMetadataParser.ATT_VALUE,false);
                 String field 		= parseString(definition,CoreMetadataParser.ATT_FIELD,false);
-                boolean internal 	= parseBoolean(definition,CoreMetadataParser.ATT_FIELD,false, false);
+                boolean internal 	= parseBoolean(definition,CoreMetadataParser.ATT_INTERNAL,false, false);
                 component.getPropertyDefinitions().add(new PropertyDefinition(name, type, defaultValue, field, internal));
             }
     //    }

@@ -40,18 +40,18 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 //    //spec created empty only to be associated with implementations that do not implement a spec.
 //    private boolean dummySpec = false ;
     
-    protected SpecificationImpl(ApformSpecification apfSpec, Map<String,Object> configuration) {
-    	super(apfSpec, configuration);
+    protected SpecificationImpl(ApformSpecification apfSpec) {
+    	super(apfSpec);
     	
     }
 
    
     @Override
-	public void register() {
+	public void register(Map<String,Object> initialProperties) {
         /*
          * Terminates the initalisation, and computes properties
          */
-        terminateInitComponent() ;
+        initializeProperties(initialProperties) ;
 
     	/*
     	 * Add to broker

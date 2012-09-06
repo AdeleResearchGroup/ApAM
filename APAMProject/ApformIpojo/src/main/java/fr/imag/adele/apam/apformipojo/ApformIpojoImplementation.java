@@ -74,7 +74,7 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
     			specification = provided.getApformSpec();
     	}
     	
-        Apform2Apam.newImplementation(getName(), this);
+        Apform2Apam.newImplementation(this);
     }
 
     /**

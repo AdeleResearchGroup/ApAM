@@ -2,7 +2,6 @@ package fr.imag.adele.apam.impl;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,40 +24,42 @@ public class InstanceBrokerImpl implements InstanceBroker {
 	
     private final Set<Instance> instances   = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
 
-    //  private final Set<Instance>               instances         = new HashSet<Instance>();
-    //    private final Set<Instance>               sharableInstances = new HashSet<Instance>();
-	//    private final Set<Instance> sharableInstances = Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
-
     @Override
-    public Instance addInst(Composite composite, ApformInstance apfInst, Map<String,Object> properties) {
+    public Instance addInst(Composite composite, ApformInstance apfInst) {
  
+    	String instanceName			= apfInst.getDeclaration().getName();
+    	String implementationName	= apfInst.getDeclaration().getImplementation().getName();
+    	
     	assert apfInst != null;
-    	assert CST.ImplBroker.getImpl(apfInst.getDeclaration().getImplementation().getName()) != null;
-    	assert getInst(apfInst.getDeclaration().getName()) == null;
+    	assert getInst(instanceName) == null;
     	
     	if (apfInst == null)     	{
-        	logger.error("Error adding null Apform instance");
+        	logger.error("Error adding instance: null Apform instance");
             return null;
     	}
-    	
-        Implementation implementation = CST.ImplBroker.getImpl(apfInst.getDeclaration().getImplementation().getName());
-        if (implementation == null) {
-        	logger.error("Implementation is not existing in addInst: " + apfInst.getDeclaration().getImplementation().getName());
-        	return null;
-        }
-    	
-        Instance instance = getInst(apfInst.getDeclaration().getName());
+
+        Instance instance = getInst(instanceName);
         if (instance != null) { 
-        	logger.error("Instance already existing: " + apfInst.getDeclaration().getName());
+        	logger.error("Error adding instance: already exists" + instanceName);
             return instance;
         }
+    	  	
+        /*
+         * Get the implementation group to create the instance. If the implementation could
+         * not be resolved wait until it is deployed
+         * 
+         * TODO Define a timeout to avoid blocking the thread infinitely or implement 
+         * change this method signature to become asynchronous.
+         */
+        Implementation implementation = CST.ImplBroker.getImpl(implementationName,true);
 
+        
     	if (composite == null)     	{
     		composite = CompositeImpl.getRootAllComposites();
     	}
         
-    	instance = ((ImplementationImpl)implementation).reify(composite,apfInst,properties);
-        ((InstanceImpl)instance).register();
+    	instance = ((ImplementationImpl)implementation).reify(composite,apfInst);
+        ((InstanceImpl)instance).register(null);
         return instance;
     }
     
@@ -73,16 +74,6 @@ public class InstanceBrokerImpl implements InstanceBroker {
         ((InstanceImpl)inst).unregister();
     }
     
-    public void add(Instance instance) {
-    	assert instance != null && ! instances.contains(instance);
-    	instances.add(instance);
-    }
-    
-    public void remove(Instance instance) {
-    	assert instance != null && instances.contains(instance);
-    	instances.remove(instance);
-    }
-    
     @Override
     public Instance getInst(String instName) {
         if (instName == null)
@@ -95,13 +86,6 @@ public class InstanceBrokerImpl implements InstanceBroker {
         return null;
     }
 
-    // End EVENTS
-
-    //    @Override
-    //    public Set<Instance> getSharableInsts() {
-    //        return Collections.unmodifiableSet(sharableInstances);
-    //    }
-
     @Override
     public Set<Instance> getInsts() {
         return Collections.unmodifiableSet(instances);
@@ -112,16 +96,9 @@ public class InstanceBrokerImpl implements InstanceBroker {
         if (spec == null)
             return null;
         Set<Instance> ret = new HashSet<Instance>();
-        if (goal == null) {
-            for (Instance inst : instances) {
-                if (inst.getSpec() == spec)
-                    ret.add(inst);
-            }
-        } else {
-            for (Instance inst : instances) {
-                if ((inst.getSpec() == spec) && inst.match(goal))
-                    ret.add(inst);
-            }
+        for (Instance inst : instances) {
+            if ((inst.getSpec() == spec) && inst.match(goal))
+                ret.add(inst);
         }
         return ret;
     }
@@ -138,6 +115,15 @@ public class InstanceBrokerImpl implements InstanceBroker {
         return ret;
     }
 
+    public void add(Instance instance) {
+    	assert instance != null && ! instances.contains(instance);
+    	instances.add(instance);
+    }
+    
+    public void remove(Instance instance) {
+    	assert instance != null && instances.contains(instance);
+    	instances.remove(instance);
+    }
 
 
 }

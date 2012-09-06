@@ -1,7 +1,6 @@
 package fr.imag.adele.apam;
 
 //import java.util.Properties;
-import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Filter;
@@ -19,7 +18,7 @@ public interface InstanceBroker {
      * @param properties . optional : the initial properties
      * @return an ASM Instance
      */
-    public Instance addInst(Composite compo, ApformInstance apformInst, Map<String,Object> properties);
+    public Instance addInst(Composite compo, ApformInstance apformInst);
 
     /**
      * Return the instances with that name.
@@ -35,13 +34,6 @@ public interface InstanceBroker {
      * @return the service instances
      */
     public Set<Instance> getInsts();
-
-    //    /**
-    //     * Returns all the sharable instances. empty if none.
-    //     * 
-    //     * @return the service instances
-    //     */
-    //    public Set<Instance> getSharableInsts();
 
     /**
      * Return all the instances that implement the specification and that satisfy the goal. Null if none.

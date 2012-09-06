@@ -134,9 +134,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     /**
      * Builds a new Apam composite type to represent the specified implementation in the Apam model.
      */
-    protected CompositeTypeImpl(CompositeType composite, ApformImplementation apfCompo, Map<String, Object> initialProperties) {
+    protected CompositeTypeImpl(CompositeType composite, ApformImplementation apfCompo) {
         
-    	super(composite,apfCompo,initialProperties);
+    	super(composite,apfCompo);
   
 		/*
 		 * Reference the enclosing composite hierarchy
@@ -158,7 +158,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     }
 
     @Override
-    public void register() {
+    public void register(Map<String, Object> initialProperties) {
     	
     	/*
     	 * Opposite references from the enclosing composite types
@@ -232,7 +232,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		/*
 		 * Complete normal registration
 		 */
-    	super.register(); 	
+    	super.register(initialProperties); 	
     }
     
     @Override
@@ -309,8 +309,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     	}
     }
     
-    protected Composite reify(Composite composite, ApformInstance platformInstance, Map<String,Object> initialproperties) {
-    	return new CompositeImpl(composite,platformInstance,initialproperties);
+    @Override
+    protected Composite reify(Composite composite, ApformInstance platformInstance) {
+    	return new CompositeImpl(composite,platformInstance);
     }
 
     @Override

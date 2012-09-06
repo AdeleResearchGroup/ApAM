@@ -14,11 +14,11 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.SpecificationBroker;
+import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
-import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamInstall;
 
 public class SpecificationBrokerImpl implements SpecificationBroker {
@@ -28,15 +28,33 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
     private final Set<Specification> specs = Collections.newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());
  
     @Override
-    public Specification addSpec(ApformSpecification apfSpec, Map<String, Object> properties) {
-        SpecificationImpl spec = new SpecificationImpl(apfSpec,properties);
-        spec.register();
-        return spec;
+    public Specification addSpec(ApformSpecification apfSpec) {
+    	
+    	String specificationName	= apfSpec.getDeclaration().getName();
+    	
+    	assert apfSpec != null;
+    	assert getSpec(specificationName) == null;
+    	
+    	if (apfSpec == null)     	{
+        	logger.error("Error adding specification: null Apform");
+            return null;
+    	}
+    	
+        Specification specification =getSpec(specificationName);
+        if (specification != null) { 
+        	logger.error("Error adding specification: already exists " + specificationName);
+            return specification;
+        }
+
+    	
+        specification = new SpecificationImpl(apfSpec);
+        ((SpecificationImpl)specification).register(null);
+        return specification;
     }
 
     @Override
     public Specification createSpec(String specName, URL url) {
-        assert specName != null && url != null;
+    	assert specName != null && url != null;
 
         Specification spec = getSpec(specName);
         if (spec != null)
@@ -48,13 +66,6 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
         return spec;
     }
  
-    @Override
-    public Specification createSpec(String specName, Set<ResourceReference> resources,
-            Map<String, Object> properties) {
-    	
-        assert specName != null && resources != null;
-        return addSpec(new ApamOnlySpecification(specName,resources), properties);
-    }
 
     /**
      * An special apform specification created only for those specifications that do not exist
@@ -64,9 +75,11 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
 
         private final SpecificationDeclaration declaration;
 
-        public ApamOnlySpecification(String name, Set<ResourceReference> resources) {
+        public ApamOnlySpecification(String name, Set<ResourceReference> resources, Map<String,Object> properties) {
             declaration = new SpecificationDeclaration(name);
             declaration.getProvidedResources().addAll(resources);
+            if (properties != null)
+            	declaration.getProperties().putAll(properties);
         }
 
         @Override
@@ -80,7 +93,14 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
 
     }
 
-    
+    @Override
+    public Specification createSpec(String specName, Set<ResourceReference> resources,
+            Map<String, Object> properties) {
+    	
+        assert specName != null && resources != null;
+        return addSpec(new ApamOnlySpecification(specName,resources,properties));
+    }
+   
     // Not in the interface. No control
     /**
      * TODO change visibility, currently this method is public to be visible from Apform
@@ -98,39 +118,38 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
     	
     }
 
-    public void add(Specification spec) {
-    	assert spec != null;
-        specs.add(spec);
-    }
-    
-    public void remove(Specification spec) {
-    	assert spec != null && specs.contains(spec);
-    	specs.remove(spec);
-    }
-
-    //    @Override
-    //    public Specification getSpec(String[] interfaces) {
-    //        if (interfaces == null)
-    //            return null;
-    //
-    //        interfaces = Util.orderInterfaces(interfaces);
-    //        for (Specification spec : specs) {
-    //            if (Util.sameInterfaces(spec.getInterfaceNames(), interfaces))
-    //                return spec;
-    //        }
-    //        return null;
-    //    }
 
     @Override
     public Specification getSpec(String name) {
+    	
         if (name == null)
             return null;
-
+    	
         for (Specification spec : specs) {
             if (name.equals(spec.getName()))
                 return spec;
         }
-        return null;
+        
+       	return null;
+    }
+
+    @Override
+    public Specification getSpec(String name, boolean wait) {
+
+    	Specification specification = getSpec(name);
+    	if ( specification != null || !wait)
+    		return specification;
+    	
+    	/*
+    	 * If not found wait and try again 
+    	 */
+    	Apform2Apam.waitForComponent(name);
+    	specification = getSpec(name);
+    	
+        if (specification == null) // should never occur
+            logger.debug("wake up but specification is not present " + name);
+    	
+       	return specification;
     }
 
     @Override
@@ -163,71 +182,6 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
         return null;
     }
 
- 
-    @Override
-    public Specification getSpec(ApformSpecification apfSpec) {
-        if (apfSpec == null)
-            return null;
-        for (Specification spec : specs) {
-            if (spec.getApformSpec() == apfSpec)
-                return spec;
-        }
-        return null;
-    }
-
-    /**
-     * Returns *the first* specification that implements the provided interfaces. WARNING : the same interface can be
-     * implemented by different specifications, and a specification may implement more than one interface : the first
-     * spec found is returned. WARNING : convenient only if a single spec provides that interface; otherwise it is non
-     * deterministic.
-     * 
-     * @param interfaceName : the name of the interface of the required specification.
-     * @return the abstract service
-     * @throws ConnectionException the connection exception Returns the ExportedSpecification exported by this Machine
-     *             that satisfies the interfaces.
-     */
-    //    @Override
-    //    public Specification getSpecResource(ResourceReference resource) {
-    //        if (resource == null)
-    //            return null;
-    //        for (Specification spec : specs) {
-    //            if (spec.getDeclaration().getProvidedResources().contains(resource))
-    //                return spec;
-    //        }
-    //        return null;
-    //    }
-
-    /**
-     * Returns the specification with the given sam name.
-     * 
-     * @param samName the sam name of the specification
-     * @return the abstract service
-     */
-    @Override
-    public Specification getSpecApfName(String samName) {
-        if (samName == null)
-            return null;
-        for (Specification spec : specs) {
-            if (spec.getApformSpec() != null) {
-                if (spec.getApformSpec().getDeclaration().getName().equals(samName))
-                    return spec;
-            }
-        }
-        return null;
-    }
-
-
-    @Override
-    public Set<Specification> getRequires(Specification specification) {
-        SpecificationReference specRef = new SpecificationReference(specification.getName());
-        Set<Specification> specs = new HashSet<Specification>();
-        for (Specification spec : specs) {
-            if (spec.getDeclaration().getProvidedResources().contains(specRef))
-                specs.add(spec);
-        }
-        return specs;
-    }
-
     @Override
     public Specification getSpec(Set<ResourceReference> providedResources) {
         for (Specification spec : specs) {
@@ -249,5 +203,16 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
         }
         return null;
     }
+    
+    public void add(Specification spec) {
+    	assert spec != null;
+        specs.add(spec);
+    }
+    
+    public void remove(Specification spec) {
+    	assert spec != null && specs.contains(spec);
+    	specs.remove(spec);
+    }
+    
 
 }
