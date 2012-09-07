@@ -44,11 +44,12 @@
 		<definition name="S1toS2Final-location"
 			type="{FinalLiving, FinalKitchen, FinalLedroom}" />
 		<definition name="enumeration" type="{f1, f2, f3, f4}" />
-		<dependency field="s2">
-			<preferences>
-				<implementation filter="(impl-name=S2Final)" />
-			</preferences>
-		</dependency>
+		<implementation name="S2Final" field="s2" />
+<!-- 		<dependency field="s2"> -->
+<!-- 			<preferences> -->
+<!-- 				<implementation filter="(impl-name=S2Final)" /> -->
+<!-- 			</preferences> -->
+<!-- 		</dependency> -->
 	</implementation>
 
 	

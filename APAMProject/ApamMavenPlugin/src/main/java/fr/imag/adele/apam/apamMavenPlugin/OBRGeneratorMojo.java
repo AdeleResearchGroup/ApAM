@@ -82,7 +82,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 	 */
 	public void execute() throws MojoExecutionException {
 		super.execute();
-		//OBR.xml generation
+		//obr.xml generation
 		try {
 			getLog().info("Start bundle header manipulation");
 			File jar = getProject().getArtifact().getFile();
@@ -98,34 +98,35 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 				getLog().info(" No iPOJO metadata - Failed ");
 				return;
 			}
-			getLog().info(" Parsing iPOJO metadata - SUCCESS ");
+			getLog().info("Parsing iPOJO metadata - SUCCESS ");
 			Element root = ManifestMetadataParser
 			.parseHeaderMetadata(ipojoMetadata);
-			//            Element[] elements = root.getElements();
 
 			thisBundleVersion = getProject().getVersion().replace('-', '.');
-			System.out.println("getProject().getVersion() = "+getProject().getVersion());
-			System.out.println("getProject().getArtifact().getBaseVersion() = "+getProject().getArtifact().getBaseVersion());
-			System.out.println("getProject().getArtifact().getVersion() = "+getProject().getArtifact().getVersion());
-			System.out.println("getProject().getArtifact().getArtifactId() = "+getProject().getArtifact().getArtifactId());
+//			System.out.println("getProject().getVersion() = "+getProject().getVersion());
+//			System.out.println("getProject().getArtifact().getBaseVersion() = "+getProject().getArtifact().getBaseVersion());
+//			System.out.println("getProject().getArtifact().getVersion() = "+getProject().getArtifact().getVersion());
+//			System.out.println("getProject().getArtifact().getArtifactId() = "+getProject().getArtifact().getArtifactId());
 			for (Object artifact : getProject().getDependencyArtifacts()) {
 				if (artifact instanceof Artifact) {
 					Artifact dependency = (Artifact) artifact;
 					// 0.0.1.SNAPSHOT not 0.0.1-SNAPSHOT
 					String version = dependency.getBaseVersion().replace('-', '.');
 					VersionRange range = dependency.getVersionRange() ;
-					System.out.println("component " + artifact + " artifact id = " + dependency.getArtifactId()  + " version range = " + range + " version = " + version);
+					//System.out.println("component " + artifact + " artifact id = " + dependency.getArtifactId()  + " version range = " + range + " version = " + version);
 					//System.out.println(dependency.getRepository().getBasedir() + "  URL  "+  dependency.getRepository().getUrl());
 					OBRGeneratorMojo.bundleDependencies.add(dependency.getArtifactId() + "/" + version);
 					OBRGeneratorMojo.versionRange.put(dependency.getArtifactId(), range);
 				}
 			}
+			
 			// Debug
+			String validDependencies = "Valid dependencies: " ;
 			System.out.print("Valid dependencies: ");
 			for (String dep : OBRGeneratorMojo.bundleDependencies) {
-				System.out.print(" " + dep);
+				validDependencies += " " + dep;
 			}
-			System.out.println("");
+			getLog().debug (validDependencies) ;
 
 			List<ComponentDeclaration> components = Util.getComponents(root);
 			ApamRepoBuilder arb = new ApamRepoBuilder(components, localRepository.getBasedir());
@@ -147,6 +148,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			
 			//maven ?? copies first in target/classes before to look in src/resources
 			//and copies src/resources/obr.xml to  target/classes *after* obr modification
+			//Thus we delete first target/classes/obr.xml to be sure the newly generated obr.xml file will be used
 			String oldObrFileStr = getProject().getBasedir().getAbsolutePath()
 			+ File.separator + "target"
 			+ File.separator + "classes"

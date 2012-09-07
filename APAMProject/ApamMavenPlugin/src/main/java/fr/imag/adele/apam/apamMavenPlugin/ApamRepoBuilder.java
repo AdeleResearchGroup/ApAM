@@ -159,14 +159,18 @@ public class ApamRepoBuilder {
 	}
 
 	private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {
-
-		Set<ResolvableReference> resRef = new HashSet <ResolvableReference> () ;
-		for (DependencyDeclaration dep : component.getDependencies()) {
-			if (dep.getTarget().as(SpecificationReference.class) != null) {
-				bundleRequiresSpecifications.add(dep.getTarget().as(SpecificationReference.class)) ;
+		//We do not generate dependencies for specification to remain lazy
+		//the spec version is mentionned in the implementations that implement that spec.
+		if (component instanceof ImplementationDeclaration) {
+			Set<ResolvableReference> resRef = new HashSet <ResolvableReference> () ;
+			for (DependencyDeclaration dep : component.getDependencies()) {
+				if (dep.getTarget().as(SpecificationReference.class) != null) {
+					bundleRequiresSpecifications.add(dep.getTarget().as(SpecificationReference.class)) ;
+				}
 			}
 		}
-		// composite and implems
+		
+		// all components : checks dependencies and constraints
 		CheckObr.checkRequire(component);
 	}
 
@@ -265,7 +269,7 @@ public class ApamRepoBuilder {
 		CheckObr.error ("Property " + attr + " already defined for  " + component.getName()) ;
 	}
 
-	
+
 	private void generateRequire (StringBuffer obrContent, String target, String version) {
 		if (version == null) {
 			obrContent.append ( "   <require name='apam-component' filter='(name=" + target + ")' extend='false' multiple='false' optional='false'>"
