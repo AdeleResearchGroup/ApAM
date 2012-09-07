@@ -58,7 +58,7 @@ public class ApamCommand {
 	 */
 	@ServiceProperty(name = "osgi.command.function", value = "{}")
 	String[] m_function = new String[] { "put",  "specs", "implems", "insts", "spec", "implem", "inst", "dump", "compoTypes",
-		"compoType", "compos", "compo", "wire" };
+		"compoType", "compos", "compo", "wire", "launch" };
 
 	// ipojo injected
 	@Requires
@@ -157,7 +157,7 @@ public class ApamCommand {
 	 * @param implementationName
 	 *            the implementation name
 	 */
-	@Descriptor("Display informations about the target implemetation")
+	@Descriptor("Display informations about the target implementation")
 	public void implem(@Descriptor("target implementation") String implementationName) {
 		Implementation implementation = CST.ImplBroker.getImpl(implementationName);
 		if (implementation == null) {
@@ -165,6 +165,30 @@ public class ApamCommand {
 			return;
 		}
 		printImplementation("", implementation);
+		// testInstances("   ", implementation.getInsts());
+	}
+
+	@Descriptor("Start a new instance of the target implementation")
+	public void launch(@Descriptor("target implementation") String implementationName,
+					   @Descriptor("the name of the composite target or root ") String compositeTarget) {
+		
+		Composite target = null;
+
+		if (compositeTarget != null && !compositeTarget.equals("root")) {
+			target = apam.getComposite(compositeTarget);
+			if (target== null){
+				System.out.println("Invalid composite name "+ compositeTarget);
+				return;
+			}
+
+		}
+		Implementation implementation = CST.ImplBroker.getImpl(implementationName);
+		if (implementation == null) {
+			System.out.println("No such implementation : " + implementationName);
+			return;
+		}
+		
+		implementation.createInstance(target,null);
 		// testInstances("   ", implementation.getInsts());
 	}
 
