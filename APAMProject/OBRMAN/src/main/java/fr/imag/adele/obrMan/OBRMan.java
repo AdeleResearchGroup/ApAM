@@ -53,7 +53,7 @@ public class OBRMan implements DependencyManager {
 
     // when in Felix.
     public void start() {
-        System.out.println("OBRMAN started");
+        System.out.println(">>> OBRMAN starting");
         obrManagers = new HashMap<String, OBRManager>();
         configureOBRMan();
         ApamManagers.addDependencyManager(this, 3);
@@ -95,6 +95,7 @@ public class OBRMan implements DependencyManager {
     }
 
     public void stop() {
+        System.out.println(">>> OBRMAN stoping");
         ApamManagers.removeDependencyManager(this);
         obrManagers.clear();
     }
