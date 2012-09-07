@@ -92,6 +92,7 @@ public class ApamRepoBuilder {
 			SpecificationReference spec = ((ImplementationDeclaration) component).getSpecification();
 			if ((spec != null) && !spec.getName().isEmpty()) {
 				generateProperty(obrContent, component, CST.A_PROVIDE_SPECIFICATION, spec.getName()) ;
+				bundleRequiresSpecifications.add(spec) ;
 				CheckObr.checkImplProvide(component.getName(), spec.getName(), interfaces, messages);
 			}
 		}

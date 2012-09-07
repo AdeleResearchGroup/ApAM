@@ -185,17 +185,17 @@ public class CheckObr {
 			}
 		}
 		
-		//add the attribute coming from "above" if not already instantiated
+		//add the attribute coming from "above" if not already instantiated and heritable
 		ApamCapability group = entCap.getGroup() ;
 		if (group != null && group.getProperties()!= null) {
 			for (String prop : group.getProperties().keySet()) {
-				if (ret.get(prop) == null 
-						&& !Util.isReservedAttributePrefix(prop)
-						&& !prop.equals((CST.A_NAME)) 
-						&& !prop.equals(CST.COMPONENT_TYPE)) 
-				{
+				if (ret.get(prop) == null && Util.isInheritedAttribute(prop)) {
 					ret.put(prop, group.getProperties().get(prop)) ;
-				}
+				}			
+//						&& !Util.isReservedAttributePrefix(prop)
+//						&& !prop.equals((CST.A_NAME)) 
+//						&& !prop.equals(CST.COMPONENT_TYPE)) 
+//				{
 			}
 		}		
 		return ret ;
@@ -220,7 +220,7 @@ public class CheckObr {
 		if (group == null) return true ;
 		
 		if (group.getProperties().get(attr) != null)  {
-			logger.error("ERROR: cannot redefine attribute \"" + attr + "\"");
+			logger.error("Warning: cannot redefine attribute \"" + attr + "\"");
 			return false ;
 		}
 
@@ -232,7 +232,7 @@ public class CheckObr {
 		}
 		 
 		if (defAttr == null) {
-			logger.error("ERROR: in " + ent.getName() + ", attribute \"" + attr + "\" used but not defined.");
+			logger.error("Warning: in " + ent.getName() + ", attribute \"" + attr + "\" used but not defined.");
 			return false ;
 		}
 

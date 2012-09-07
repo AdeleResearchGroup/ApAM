@@ -122,7 +122,6 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			
 			// Debug
 			String validDependencies = "Valid dependencies: " ;
-			System.out.print("Valid dependencies: ");
 			for (String dep : OBRGeneratorMojo.bundleDependencies) {
 				validDependencies += " " + dep;
 			}
@@ -132,7 +131,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			ApamRepoBuilder arb = new ApamRepoBuilder(components, localRepository.getBasedir());
 			StringBuffer obrContent = arb.writeOBRFile();
 			if (CheckObr.getFailedChecking()) {
-				// throw new MojoExecutionException("Inconsistent Metadata");
+				throw new MojoExecutionException("Inconsistent Metadata");
 			}
 			if (Util.getFailedParsing()) {
 				throw new MojoExecutionException("Invalid xml Metadata syntax");

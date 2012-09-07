@@ -67,6 +67,7 @@ public class CST {
 
     
     public static final String         A_NAME            = "name";
+    public static final String         A_VERSION         = "version";
     public static final String         A_SPECNAME        = "spec-name";
     public static final String         A_IMPLNAME        = "impl-name";
     public static final String         A_INSTNAME        = "inst-name";
@@ -84,6 +85,10 @@ public class CST {
     	CST.A_REQUIRE_PREFIX 
     };
 
+    public static final String [] notInheritedAttribute = {
+    	A_NAME, COMPONENT_TYPE, A_VERSION
+    };
+    
     // Attributes that cannot be changed nor set by users
     public static final String[]       finalAttributes       = {
         CST.A_SPECNAME, 
