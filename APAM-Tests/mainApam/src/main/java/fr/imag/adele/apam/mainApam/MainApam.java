@@ -145,7 +145,7 @@ public class MainApam implements Runnable, ApamComponent {
 
 	public void testInitialAttributes () {
 		System.out.println("=========== start testInitialAttributes");
-		Map<String, Object> props = new HashMap<String, Object>();
+		Map<String, String> props = new HashMap<String, String>();
 		props.put("testMain", "valeurTestMain"); // not declared
 		props.put("scope", "5"); // redefined
 		props.put("impl-name", "5"); // final
@@ -396,7 +396,7 @@ public class MainApam implements Runnable, ApamComponent {
 	
 	public void otherTests () {
 
-		Map<String, Object> props = new HashMap<String, Object>();
+		Map<String, String> props = new HashMap<String, String>();
 		Instance test00_instance0 = null ;
 		CompositeType appli3 ; 
 		// Calling that application from an external program (this instance).

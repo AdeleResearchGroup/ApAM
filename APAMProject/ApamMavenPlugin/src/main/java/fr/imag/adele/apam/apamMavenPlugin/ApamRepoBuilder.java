@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,12 +46,16 @@ public class ApamRepoBuilder {
 	 * <code>true</code> the local XSD are not used.
 	 */
 
-	public ApamRepoBuilder(List<ComponentDeclaration> components, String defaultOBRRepo) {
+	public ApamRepoBuilder(List<ComponentDeclaration> components, List<URL> OBRRepos) {
 		this.components = components ;
-		ApamCapability.init (components, defaultOBRRepo + File.separator +"repository.xml") ;
+		ApamCapability.init(components, OBRRepos) ;
 	}
 
 	public StringBuffer writeOBRFile() {
+		
+		//if a component is defined twice, or  error is name space, remove the second definition
+		checkDoubleDefinition () ;
+		
 		StringBuffer obrContent = new StringBuffer("<obr> \n");
 		for (ComponentDeclaration comp : components) {
 			if (comp instanceof SpecificationDeclaration)
@@ -74,6 +79,59 @@ public class ApamRepoBuilder {
 		obrContent.append("</obr> \n");
 		return obrContent;
 	}
+	
+	private void printOBRElement(StringBuffer obrContent, ComponentDeclaration component, String indent) {
+		System.out.print("Checking ");
+		if (component instanceof ImplementationDeclaration)
+			System.out.print("implementation ");
+		if (component instanceof CompositeDeclaration)
+			System.out.print("composite ");
+		if (component instanceof InstanceDeclaration)
+			System.out.print("instance ");
+		if (component instanceof SpecificationDeclaration)
+			System.out.print("specification ");
+		System.out.println(component.getName() + " ...");
+
+		//headers
+		obrContent.append("   <capability name='" + CST.CAPABILITY_COMPONENT + "'>\n");
+		generateProperty (obrContent, component, CST.A_NAME, component.getName()) ;
+
+		if (component instanceof ImplementationDeclaration) {
+			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.IMPLEMENTATION);
+			generateProperty (obrContent, component, CST.A_IMPLNAME, component.getName());
+		}
+
+		if (component instanceof InstanceDeclaration) {
+			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.INSTANCE);
+			generateProperty (obrContent, component, CST.A_INSTNAME, component.getName());
+		}
+
+		if (component instanceof CompositeDeclaration) {
+			CompositeDeclaration composite = (CompositeDeclaration) component;
+			generateProperty (obrContent, component, CST.A_COMPOSITE, CST.V_TRUE);
+			generateProperty (obrContent, component, CST.A_MAIN_COMPONENT, composite.getMainComponent().getName()) ;
+			CheckObr.checkCompoMain((CompositeDeclaration) component);
+		}
+		
+		if (component instanceof SpecificationDeclaration) {
+			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.SPECIFICATION) ;
+			generateProperty (obrContent, component, CST.A_SPECNAME, component.getName());
+		}
+
+		// provide clause
+		printProvided(obrContent, component);
+
+		//properties
+		printProperties(obrContent, component);
+
+		// Require, fields and constraints
+		printRequire(obrContent, component);
+
+		generateTypedProperty(obrContent, component, "version", "version", OBRGeneratorMojo.thisBundleVersion) ;
+		ApamCapability.get(component.getReference()).finalize() ;
+		obrContent.append("   </capability>\n");
+	}
+
 
 	private void printProvided(StringBuffer obrContent, ComponentDeclaration component) {
 		if (component instanceof InstanceDeclaration) return ;
@@ -180,74 +238,6 @@ public class ApamRepoBuilder {
 		CheckObr.checkRequire(component);
 	}
 
-	private void printOBRElement(StringBuffer obrContent, ComponentDeclaration component, String indent) {
-		// String spec = component.getSpecification();
-		// messages
-		System.out.print("Checking ");
-		if (component instanceof ImplementationDeclaration)
-			System.out.print("implementation ");
-		if (component instanceof CompositeDeclaration)
-			System.out.print("composite ");
-		if (component instanceof InstanceDeclaration)
-			System.out.print("instance ");
-		if (component instanceof SpecificationDeclaration)
-			System.out.print("specification ");
-		System.out.println(component.getName() + " ...");
-
-
-		//headers
-		obrContent.append("   <capability name='" + CST.CAPABILITY_COMPONENT + "'>\n");
-		generateProperty (obrContent, component, CST.A_NAME, component.getName()) ;
-		//obrContent.append("      <p n='name' v='" + component.getName() + "' />\n");
-		//obrContent.append("      <p n='" + CST.COMPONENT_TYPE + "' v='") ;
-
-		if (component instanceof ImplementationDeclaration) {
-			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.IMPLEMENTATION);
-			generateProperty (obrContent, component, CST.A_IMPLNAME, component.getName());
-			//obrContent.append(CST.IMPLEMENTATION + "' /> \n" );
-		}
-
-		if (component instanceof InstanceDeclaration) {
-			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.INSTANCE);
-			generateProperty (obrContent, component, CST.A_INSTNAME, component.getName());
-			//obrContent.append(CST.INSTANCE + "' /> \n" );
-			CheckObr.checkInstance((InstanceDeclaration) component);
-		}
-
-		if (component instanceof CompositeDeclaration) {
-			//        	obrContent.append(CST.COMPOSITE_TYPE + "' /> \n" );
-			CompositeDeclaration composite = (CompositeDeclaration) component;
-			generateProperty (obrContent, component, CST.A_COMPOSITE, CST.V_TRUE);
-			generateProperty (obrContent, component, CST.A_MAIN_COMPONENT, composite.getMainComponent().getName()) ;
-			//obrContent.append("      <p n='" + CST.A_COMPOSITE + "' v='true' />\n");
-			//obrContent.append("      <p n='" + CST.A_MAIN_COMPONENT + "' v='"
-			//		+ composite.getMainComponent().getName() + "' />\n");
-			CheckObr.checkCompoMain((CompositeDeclaration) component);
-		}
-		if (component instanceof SpecificationDeclaration) {
-			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.SPECIFICATION) ;
-			generateProperty (obrContent, component, CST.A_SPECNAME, component.getName());
-			//obrContent.append(CST.SPECIFICATION + "' /> \n" );
-		}
-
-		// provide clause
-		printProvided(obrContent, component);
-
-		// definition attributes
-		//CheckObr.printCheckProperties(component, obrContent);   	
-
-		printProperties(obrContent, component);
-
-		// Require, fields and constraints
-		printRequire(obrContent, component);
-
-		generateTypedProperty(obrContent, component, "version", "version", OBRGeneratorMojo.thisBundleVersion) ;
-		//<p n='version' t='version' v='0.0.1.SNAPSHOT'/>
-		//this component is fully processed.  
-		ApamCapability.get(component.getReference()).finalize() ;
-		obrContent.append("   </capability>\n");
-
-	}
 
 	private void generateFilters (StringBuffer obrContent){		
 		/**
@@ -303,4 +293,16 @@ public class ApamRepoBuilder {
 		return null ;
 	}
 
+	private void checkDoubleDefinition () {
+		Set<String> defined = new HashSet<String>() ;
+		List<ComponentDeclaration> dcl = new ArrayList<ComponentDeclaration>(components);
+
+		for (ComponentDeclaration comp : dcl) {
+			if (defined.contains(comp.getName())) {
+				CheckObr.error("In " + comp + ": component " + comp.getName() + " already defined") ;
+				components.remove(comp) ;
+			}
+			else defined.add(comp.getName()) ;
+		}
+	}
 }

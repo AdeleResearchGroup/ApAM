@@ -20,8 +20,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +39,11 @@ import org.apache.felix.ipojo.plugin.ManipulatorMojo;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.apache.maven.model.Plugin;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.util.Util;
@@ -65,14 +72,30 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 	 */
 	protected ArtifactRepository localRepository;
 
+
+	/**
+	 * 
+	 *
+	 * @parameter expression="${dependencyObrList}"
+	 */
+	private List<URL> dependencyObrList;
+
+	/**
+	 * 
+	 *
+	 * @parameter expression="${localObr}"
+	 */
+	private boolean localObr;
+
+
 	// The list of bundle dependencies of the form "groupId.name.version"
 	public static Set<String>    bundleDependencies = new HashSet<String>();
 
 	public static Map <String, VersionRange> versionRange = new HashMap <String, VersionRange> () ;
-	
+
 	public static String thisBundleVersion ;
 
-
+	Logger logger = LoggerFactory.getLogger(OBRGeneratorMojo.class);
 	/**
 	 * Execute method : this method launches the OBR generation.
 	 * 
@@ -82,8 +105,22 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 	 */
 	public void execute() throws MojoExecutionException {
 		super.execute();
-		//obr.xml generation
+
 		try {
+			//Computing the list of OBR repositories in which will be extracted the dependencies.
+			//The repo in which we compile will be the first one
+			//The local repository is at the end
+			if (dependencyObrList == null) 
+				dependencyObrList = new ArrayList <URL> () ;
+			URL obrRepository = getObrRepoFromMavenPlugin() ;
+			if (obrRepository != null)
+				dependencyObrList.add(0, obrRepository) ;
+			if (localObr) {
+				File local = new File (localRepository.getBasedir() + File.separator +"repository.xml") ;
+				if (local.exists())
+					dependencyObrList.add(local.toURI().toURL()) ;
+			}
+
 			getLog().info("Start bundle header manipulation");
 			File jar = getProject().getArtifact().getFile();
 			JarFile jarFile = new JarFile(jar);
@@ -103,38 +140,38 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			.parseHeaderMetadata(ipojoMetadata);
 
 			thisBundleVersion = getProject().getVersion().replace('-', '.');
-//			System.out.println("getProject().getVersion() = "+getProject().getVersion());
-//			System.out.println("getProject().getArtifact().getBaseVersion() = "+getProject().getArtifact().getBaseVersion());
-//			System.out.println("getProject().getArtifact().getVersion() = "+getProject().getArtifact().getVersion());
-//			System.out.println("getProject().getArtifact().getArtifactId() = "+getProject().getArtifact().getArtifactId());
 			for (Object artifact : getProject().getDependencyArtifacts()) {
 				if (artifact instanceof Artifact) {
 					Artifact dependency = (Artifact) artifact;
 					// 0.0.1.SNAPSHOT not 0.0.1-SNAPSHOT
 					String version = dependency.getBaseVersion().replace('-', '.');
 					VersionRange range = dependency.getVersionRange() ;
-					//System.out.println("component " + artifact + " artifact id = " + dependency.getArtifactId()  + " version range = " + range + " version = " + version);
-					//System.out.println(dependency.getRepository().getBasedir() + "  URL  "+  dependency.getRepository().getUrl());
 					OBRGeneratorMojo.bundleDependencies.add(dependency.getArtifactId() + "/" + version);
 					OBRGeneratorMojo.versionRange.put(dependency.getArtifactId(), range);
 				}
 			}
-			
+
 			// Debug
 			String validDependencies = "Valid dependencies: " ;
 			for (String dep : OBRGeneratorMojo.bundleDependencies) {
 				validDependencies += " " + dep;
 			}
-			getLog().debug (validDependencies) ;
+			logger.debug (validDependencies) ;
 
 			List<ComponentDeclaration> components = Util.getComponents(root);
-			ApamRepoBuilder arb = new ApamRepoBuilder(components, localRepository.getBasedir());
+
+			//			//In case the repository.xml is in another directory than Maven.
+			//			if (obrRepository != null) {
+			//				System.out.println("obr Repository = " + obrRepository); 
+			//			} else obrRepository = localRepository.getBasedir() + File.separator +"repository.xml" ;
+
+			ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencyObrList);
 			StringBuffer obrContent = arb.writeOBRFile();
 			if (CheckObr.getFailedChecking()) {
-				throw new MojoExecutionException("Inconsistent Metadata");
+				throw new MojoExecutionException("Metadata Apam compilation failed.");
 			}
 			if (Util.getFailedParsing()) {
-				throw new MojoExecutionException("Invalid xml Metadata syntax");
+				throw new MojoExecutionException("Invalid xml Apam Metadata syntax");
 			}
 
 			OutputStream obr;
@@ -144,7 +181,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			+ File.separator + "resources"
 			+ File.separator + "obr.xml";
 			File obrFile = new File(obrFileStr);
-			
+
 			//maven ?? copies first in target/classes before to look in src/resources
 			//and copies src/resources/obr.xml to  target/classes *after* obr modification
 			//Thus we delete first target/classes/obr.xml to be sure the newly generated obr.xml file will be used
@@ -177,4 +214,37 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 		}
 		getLog().info(" obr.xml File generation - SUCCESS ");
 	}
+
+
+
+	private URL getObrRepoFromMavenPlugin()
+	{
+		List<Plugin> plugins = (List<Plugin>)getProject().getBuildPlugins();
+		System.out.print(" Used plug in Maven : ");
+		for (Plugin plugin : plugins) {
+			System.out.print(plugin.getArtifactId() + "  ");
+			if(plugin.getArtifactId().equals("maven-bundle-plugin")) {
+				Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration() ;
+				if (configuration.getChild("obrRepository") != null) {
+					String repoName =  configuration.getChild("obrRepository").getValue() ;
+					System.out.println("trouve : " + configuration.getChild("obrRepository").getValue());
+					File fileRepo = new File (repoName) ;
+					if (fileRepo.exists()) {
+						try {
+							return fileRepo.toURI().toURL() ;
+						} catch (MalformedURLException e) {						
+							e.printStackTrace();
+						}
+					} else {
+						logger.error("OBR Repository " + repoName + " does not exist"); 
+						return null ;
+					}
+				} else return null ;
+			}
+		}
+		System.out.println("");
+		return null;
+	}
+
+
 }
