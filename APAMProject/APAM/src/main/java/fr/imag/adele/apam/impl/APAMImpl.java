@@ -20,13 +20,13 @@ import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.ComponentReference;
 import fr.imag.adele.apam.core.CompositeDeclaration;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.SpecificationReference;
@@ -96,7 +96,7 @@ public class APAMImpl implements Apam {
 
     @Override
     public CompositeType createCompositeType(String inCompoType, String name, String mainComponent,
-            Set<ManagerModel> models, Map<String, Object> attributes) {
+            Set<ManagerModel> models, Map<String, String> attributes) {
 
     	/*
     	 * Verify if it already exists
@@ -125,7 +125,7 @@ public class APAMImpl implements Apam {
     
     @Override
     public CompositeType createCompositeType(String inCompoType, String name, String mainImplName,
-            Set<ManagerModel> models, URL mainBundle, String specName, Map<String, Object> attributes) {
+            Set<ManagerModel> models, URL mainBundle, String specName, Map<String, String> attributes) {
     	
     	/*
     	 * Verify if it already exists
@@ -172,7 +172,7 @@ public class APAMImpl implements Apam {
      */
     public CompositeType createCompositeType(CompositeType parent,
     		String name, String specification, String mainComponent,
-            Set<ManagerModel> models, Map<String, Object> properties) {
+            Set<ManagerModel> models, Map<String, String> properties) {
 
     	assert name != null && mainComponent != null;
     	
@@ -235,19 +235,23 @@ public class APAMImpl implements Apam {
      * An special apform implementation created only for those composites types that do not exist
      * in the Apform ipojo layer. Creates a minimal definition structure.
      */
-    private static class ApamOnlyCompositeType implements ApformImplementation {
+    private static class ApamOnlyCompositeType implements ApformCompositeType {
 
     	/**
     	 * The declaration with all the information regarding this composite type
     	 */
        	private final CompositeDeclaration declaration;
 
+       	/**
+       	 * The associated models
+       	 */
+       	private final Set<ManagerModel> models = new HashSet<ManagerModel>();
     	/**
     	 * The number of instances created for this composite type
     	 */
     	private int  numInstances;
  
-    	public ApamOnlyCompositeType(String name, String specificationName, String mainName, Set<ManagerModel> models, Map<String,Object> properties) {
+    	public ApamOnlyCompositeType(String name, String specificationName, String mainName, Set<ManagerModel> models, Map<String,String> properties) {
     		assert name != null && mainName != null && models != null;
     		
     		SpecificationReference specification = specificationName != null? new SpecificationReference(specificationName) : null;
@@ -256,30 +260,37 @@ public class APAMImpl implements Apam {
     		declaration = new CompositeDeclaration(name,specification, mainComponent,null,new ArrayList<String>());
     		if (properties != null)
     			declaration.getProperties().putAll(properties);
-    		declaration.getProperties().put(CST.A_MODELS,models);
+    		
+    		if (models != null)
+    			this.models.addAll(models);
     		
     		numInstances = 0;
     	}
     	
 		@Override
-		public ImplementationDeclaration getDeclaration() {
+		public CompositeDeclaration getDeclaration() {
 			return declaration;
 		}
 
 		@Override
-		public ApformInstance createInstance(Map<String, Object> initialProperties) {
+		public ApformInstance createInstance(Map<String, String> initialProperties) {
 			numInstances ++;
 			String name = declaration.getName()+"-"+numInstances;
 			return new ApamOnlyComposite(declaration.getReference(),name,initialProperties);
 		}
 
 		@Override
-		public void setProperty(String attr, Object value) {
+		public void setProperty(String attr, String value) {
 		}
 		
 		@Override
 		public ApformSpecification getSpecification() {
 			return null;
+		}
+
+		@Override
+		public Set<ManagerModel> getModels() {
+			return models;
 		}
 
     }
@@ -292,7 +303,7 @@ public class APAMImpl implements Apam {
 
     	private final InstanceDeclaration declaration;
     	
-    	public ApamOnlyComposite(ImplementationReference<?>implementation,String name,Map<String, Object> initialProperties) {
+    	public ApamOnlyComposite(ImplementationReference<?>implementation,String name,Map<String, String> initialProperties) {
     		declaration = new InstanceDeclaration(implementation,name,null);
     		if (initialProperties != null)
     			declaration.getProperties().putAll(initialProperties);
@@ -308,7 +319,7 @@ public class APAMImpl implements Apam {
 		}
 		
 		@Override
-		public void setProperty(String attr, Object value) {
+		public void setProperty(String attr, String value) {
 		}
 
 

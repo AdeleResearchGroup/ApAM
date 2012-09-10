@@ -13,7 +13,7 @@ public interface PropertyManager {
 	 * @param newValue. The new value of that attribute.
 	 * @param oldValue. The previous value of that attribute.
 	 */
-	public void attributeChanged (Component component, String attr, Object newValue, Object oldValue) ;
+	public void attributeChanged (Component component, String attr, String newValue, String oldValue) ;
 
 	/**
 	 * The attribute "attr" has been removed.
@@ -21,7 +21,7 @@ public interface PropertyManager {
 	 * @param attr. The attribute name.
 	 * @param oldValue. The previous value of that attribute.
 	 */
-	public void attributeRemoved (Component component, String attr, Object oldValue) ;
+	public void attributeRemoved (Component component, String attr, String oldValue) ;
 
 	/**
 	 * The attribute "attr" has been added (instantiated for the first time).
@@ -29,5 +29,5 @@ public interface PropertyManager {
 	 * @param attr. The attribute name.
 	 * @param newValue. The new value of that attribute.
 	 */
-	public void attributeAdded   (Component component, String attr, Object newValue) ;
+	public void attributeAdded   (Component component, String attr, String newValue) ;
 }

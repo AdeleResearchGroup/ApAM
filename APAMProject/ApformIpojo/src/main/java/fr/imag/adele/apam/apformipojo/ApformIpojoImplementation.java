@@ -106,7 +106,7 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
      * the API or implicitly by a dependency resolution)
      */	
     @Override
-    public ApformInstance createInstance(Map<String, Object> initialproperties) {
+    public ApformInstance createInstance(Map<String, String> initialproperties) {
         try {
 
             ApformIpojoInstance instance = null;
@@ -151,7 +151,7 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
 	}
 
 	@Override
-	public void setProperty(String attr, Object value) {
+	public void setProperty(String attr, String value) {
 		// TODO change factory publication?
 	}
  

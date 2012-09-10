@@ -47,7 +47,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 
    
     @Override
-	public void register(Map<String,Object> initialProperties) {
+	public void register(Map<String,String> initialProperties) {
         /*
          * Terminates the initalisation, and computes properties
          */

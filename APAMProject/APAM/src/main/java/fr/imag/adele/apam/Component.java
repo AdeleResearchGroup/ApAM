@@ -53,23 +53,23 @@ public interface Component {
      * Get the value of a property, the property can be valued in this component or in its
      * defining group
      */
-    public Object getProperty(String attribute);
+    public String getProperty(String attribute);
 
     /**
      * Set the value of the property for this component
      */
-	public boolean setProperty(String attr, Object value);
+	public boolean setProperty(String attr, String value);
 
     /**
      * Get the value of all the properties of the component, including those in the enclosing
      * groups
      */
-	public Map<String, Object> getAllProperties();
+	public Map<String, String> getAllProperties();
 
 	/**
 	 * Change the value of the specified properties of the component
 	 */
-    public boolean setAllProperties(Map<String, Object> properties);
+    public boolean setAllProperties(Map<String, String> properties);
 
 	/**
 	 * Removes the specified property of the component

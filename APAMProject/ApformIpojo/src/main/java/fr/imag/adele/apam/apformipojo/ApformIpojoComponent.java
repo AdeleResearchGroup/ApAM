@@ -203,7 +203,7 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
 	        	componentDescription.addElement(definitionsDescription);
 	        	
 	        	Element propertiesDescription = new Element("properties", APAM_NAMESPACE);;
-	        	for (Entry<String,Object> propertyEntry : declaration.getProperties().entrySet()) {
+	        	for (Entry<String,String> propertyEntry : declaration.getProperties().entrySet()) {
 					Element propertyDescription = new Element("property", APAM_NAMESPACE);
 					propertyDescription.addAttribute(new Attribute("name", propertyEntry.getKey()));
 					if (propertyEntry.getValue() != null)

@@ -76,7 +76,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
             declaration = new InstanceDeclaration(getFactory().getDeclaration().getReference(),instanceName,null);
             for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
                 String property = properties.nextElement();
-                declaration.getProperties().put(property, configuration.get(property));
+                declaration.getProperties().put(property, configuration.get(property).toString());
             }
         }
 
@@ -211,7 +211,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
         	if (provides != null) {
 		    	for (ProvidedServiceDescription providedServiceDescription : provides.getProvidedServices()) {
 		    		for(Object key : providedServiceDescription.getProperties().keySet()) {
-						getDeclaration().getProperties().put((String)key,providedServiceDescription.getProperties().get(key));
+						getDeclaration().getProperties().put((String)key,providedServiceDescription.getProperties().get(key).toString());
 		    		}
 				}
         	}
@@ -324,7 +324,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     }
 
 	@Override
-	public void setProperty(String attr, Object value) {
+	public void setProperty(String attr, String value) {
 		// TODO Auto-generated method stub
 		// change injected field
 		

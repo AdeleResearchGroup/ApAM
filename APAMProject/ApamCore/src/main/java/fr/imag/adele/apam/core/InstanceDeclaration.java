@@ -1,5 +1,7 @@
 package fr.imag.adele.apam.core;
 
+import java.util.Set;
+
 
 /**
  * The declaration of an instance.
@@ -18,17 +20,17 @@ public class InstanceDeclaration extends ComponentDeclaration {
     private final ImplementationReference<?> implementation;
 
     /**
-     * A description of an optional instance that must be present in the platform to trigger
-     * the actual instantiation for this declaration
+     * The list of triggers that must be met to start this instance
      */
-    private final TargetDeclaration trigger;
+    private final Set<TargetDeclaration> triggers;
     
-    public InstanceDeclaration(ImplementationReference<?> implementation, String name, TargetDeclaration trigger) {
+    public InstanceDeclaration(ImplementationReference<?> implementation, String name, Set<TargetDeclaration> triggers) {
         super(name);
 
         assert implementation != null;
+        
         this.implementation	= implementation;
-        this.trigger = trigger;
+        this.triggers 		= triggers;
     }
 
     /**
@@ -41,14 +43,11 @@ public class InstanceDeclaration extends ComponentDeclaration {
     /**
      * The triggering specification
      */
-    public TargetDeclaration getTrigger() {
-		return trigger;
+    public Set<TargetDeclaration> getTriggers() {
+		return triggers;
 	}
     
 
-	/**
-     * Instances are never directly referenced
-     */
     @Override
     protected ComponentReference<InstanceDeclaration> generateReference() {
         return new InstanceReference(getName());

@@ -51,8 +51,11 @@ public class ApamCapability {
 	Capability cap = null ;
 	ComponentDeclaration dcl = null ;
 	
-	Map <String, Object> properties ;
-	Map <String, Object> finalProperties = new HashMap <String, Object> () ;
+	Map <String, String> properties ;
+	Map <String,String>  propertiesTypes 	=  new HashMap <String, String> ();
+	Map <String,String>  propertiesDefaults =  new HashMap <String, String> ();
+	
+	Map <String, String> finalProperties = new HashMap <String, String> () ;
 	
 
 	private static DataModelHelper dataModelHelper; 
@@ -78,12 +81,27 @@ public class ApamCapability {
 		this.cap = cap ;
 		capabilities.put(name, this) ;
 		properties = cap.getPropertiesAsMap();
+		
+		for (Property property : cap.getProperties()) {
+			if (property.getName().startsWith(CST.A_DEFINITION_PREFIX)) {
+				String key = property.getName().substring(11);
+				propertiesTypes.put(key, property.getType());
+				if (!property.getValue().equals(""))
+					propertiesDefaults.put(key,property.getValue());
+			}
+		}
 	}
 
 	public ApamCapability (String name, ComponentDeclaration dcl) {
 		this.dcl = dcl ;
 		capabilities.put(name, this) ;
 		properties = dcl.getProperties();
+		
+		for (PropertyDefinition definition : dcl.getPropertyDefinitions()) {
+			propertiesTypes.put(definition.getName(), definition.getType());
+			if (definition.getDefaultValue() != null)
+				propertiesDefaults.put(definition.getName(),definition.getDefaultValue());
+		}
 	}
 
 	public String getName () {
@@ -159,7 +177,7 @@ public class ApamCapability {
 		return (String)properties.get(name) ;
 	}
 	
-	public Map<String, Object> getProperties () {
+	public Map<String, String> getProperties () {
 		return Collections.unmodifiableMap(properties);	
 	}
 	
@@ -190,33 +208,40 @@ public class ApamCapability {
 	}
 
 	public String getAttrDefinition (String name) {
-		if (dcl != null) {
-			for (PropertyDefinition def : dcl.getPropertyDefinitions()) {
-				if (def.getName().equals(name)) return def.getType() ;
-			}
-		}
-		for (String def : getProperties().keySet()) {
-			if (def.startsWith(CST.A_DEFINITION_PREFIX) 
-					&& def.substring(11).equals(name)) 
-				return getProperty(def) ;
-		}
-		return null ;
+		return propertiesTypes.get(name);
 	}
 
-	public Set<String> getAttrDefinitions () {
-		Set<String> ret = new HashSet<String> () ;
-		if (dcl != null) {
-			for (PropertyDefinition def : dcl.getPropertyDefinitions()) {
-				ret.add(def.getName()) ;
-			}
-			return ret ;
-		}
-		for (String def : getProperties().keySet()) {
-			if (def.startsWith(CST.A_DEFINITION_PREFIX)) 
-				ret.add(def.substring(11)) ;
-		}
-		return ret ;
+	public String getAttrDefault (String name) {
+		return propertiesDefaults.get(name);
 	}
+
+//		if (dcl != null) {
+//			for (PropertyDefinition def : dcl.getPropertyDefinitions()) {
+//				if (def.getName().equals(name)) return def.getType() ;
+//			}
+//		}
+//		for (String def : getProperties().keySet()) {
+//			if (def.startsWith(CST.A_DEFINITION_PREFIX) 
+//					&& def.substring(11).equals(name)) 
+//				return getProperty(def) ;
+//		}
+//		return null ;
+//	}
+
+//	public Set<String> getAttrDefinitions () {
+//		Set<String> ret = new HashSet<String> () ;
+//		if (dcl != null) {
+//			for (PropertyDefinition def : dcl.getPropertyDefinitions()) {
+//				ret.add(def.getName()) ;
+//			}
+//			return ret ;
+//		}
+//		for (String def : getProperties().keySet()) {
+//			if (def.startsWith(CST.A_DEFINITION_PREFIX)) 
+//				ret.add(def.substring(11)) ;
+//		}
+//		return ret ;
+//	}
 
 	/**
 	 * returns all the attribute that can be found associated with the component.
@@ -281,7 +306,7 @@ public class ApamCapability {
 	 * @param attr
 	 * @param value
 	 */
-	public boolean putAttr (String attr, Object value) {
+	public boolean putAttr (String attr, String value) {
 		if (finalProperties.get(attr) != null) {
 			return false ;
 		}

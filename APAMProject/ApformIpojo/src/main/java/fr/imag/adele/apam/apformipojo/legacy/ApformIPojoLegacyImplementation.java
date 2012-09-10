@@ -68,12 +68,12 @@ public class ApformIPojoLegacyImplementation implements ApformImplementation {
 	 * Create a new legacy instance
 	 */
 	@Override
-	public ApformInstance createInstance(Map<String, Object> initialproperties) {
+	public ApformInstance createInstance(Map<String, String> initialProperties) {
 		
 		try {
 			Properties configuration = new Properties();
-			if (initialproperties != null)
-				configuration.putAll(initialproperties);
+			if (initialProperties != null)
+				configuration.putAll(initialProperties);
 			
 			ComponentInstance ipojoInstance = factory.createComponentInstance(configuration);
 			return new ApformIpojoLegacyInstance(ipojoInstance);
@@ -95,7 +95,7 @@ public class ApformIPojoLegacyImplementation implements ApformImplementation {
 	}
 
 	@Override
-	public void setProperty(String attr, Object value) {
+	public void setProperty(String attr, String value) {
 		// TODO see if can reconfigure factory publication
 		
 	}

@@ -75,7 +75,7 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
 
         private final SpecificationDeclaration declaration;
 
-        public ApamOnlySpecification(String name, Set<ResourceReference> resources, Map<String,Object> properties) {
+        public ApamOnlySpecification(String name, Set<ResourceReference> resources, Map<String,String> properties) {
             declaration = new SpecificationDeclaration(name);
             declaration.getProvidedResources().addAll(resources);
             if (properties != null)
@@ -88,14 +88,14 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
         }
         
         @Override
-        public void setProperty (String attr, Object value) {
+        public void setProperty (String attr, String value) {
         }
 
     }
 
     @Override
     public Specification createSpec(String specName, Set<ResourceReference> resources,
-            Map<String, Object> properties) {
+            Map<String, String> properties) {
     	
         assert specName != null && resources != null;
         return addSpec(new ApamOnlySpecification(specName,resources,properties));

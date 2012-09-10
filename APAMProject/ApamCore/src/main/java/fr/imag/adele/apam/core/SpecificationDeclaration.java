@@ -33,17 +33,12 @@ public class SpecificationDeclaration extends ComponentDeclaration {
         return (SpecificationReference) super.getReference();
     }
 
-    /**
-     * Verifies if this specification resolves the given dependency.
-     * 
-     * Either the dependency explicitly requires this specification or it requires one of
-     * the provided resources of this specification
-     */
+    @Override
     public boolean resolves(DependencyDeclaration dependency) {
-    	ResolvableReference requiredResource = dependency.getTarget();
-    	return this.getReference().equals(requiredResource) || this.isProvided(requiredResource);
+        return	super.resolves(dependency) ||
+        		dependency.getTarget().equals(this.getReference());
     }
-    
+
     @Override
     public String toString() {
         return "Specification " + super.toString();

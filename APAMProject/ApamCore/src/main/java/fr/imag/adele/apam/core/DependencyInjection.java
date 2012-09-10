@@ -27,7 +27,7 @@ public abstract class DependencyInjection  {
     }
 
     /**
-     * Sets the dependency that will be injected in this field
+     * Sets the dependency that will be injected
      */
     public void setDependency(DependencyDeclaration dependency) {
 
@@ -40,7 +40,7 @@ public abstract class DependencyInjection  {
     
     
     /**
-     * The dependency that must be resolved to inject this field
+     * The dependency that must be resolved
      */
     public DependencyDeclaration getDependency() {
         return dependency;
@@ -62,6 +62,10 @@ public abstract class DependencyInjection  {
      */
     public abstract boolean isCollection();
     
+    /**
+     * Whether the injection definition is valid in the instrumented code
+     */
+    public abstract boolean isValidInstrumentation();
     
     /**
      * An injected field declaration
@@ -78,13 +82,25 @@ public abstract class DependencyInjection  {
     	/**
     	 * The name of the field to inject
     	 */
+    	@Override
     	public String getName() {
     	    return fieldName;
     	}
 
+    	@Override
+        public boolean isValidInstrumentation() {
+    	    try {
+    			implementation.getInstrumentation().getFieldType(fieldName);
+    			return true;
+    		} catch (NoSuchFieldException e) {
+    			return false;
+    		}
+        }
+    	
     	/**
     	 * The type of the resource that will be injected in the field
     	 */
+    	@Override
     	public ResourceReference getResource() {
     	    try {
     			return implementation.getInstrumentation().getFieldType(fieldName);
@@ -96,6 +112,7 @@ public abstract class DependencyInjection  {
     	/**
     	 * whether this field is a collection or not
     	 */
+    	@Override
     	public boolean isCollection() {
     		try {
     			return implementation.getInstrumentation().isCollectionField(fieldName);
@@ -131,6 +148,15 @@ public abstract class DependencyInjection  {
     	    return methodName;
     	}
 
+        public boolean isValidInstrumentation() {
+    	    try {
+    	    	implementation.getInstrumentation().getCallbackType(methodName);
+    			return true;
+    		} catch (NoSuchMethodException e) {
+    			return false;
+    		}
+        }
+     	
     	/**
     	 * The type of the resource that will be injected in the field
     	 */

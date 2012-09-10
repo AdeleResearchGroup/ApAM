@@ -24,6 +24,7 @@ import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
+import fr.imag.adele.apam.core.PropertyDefinition;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
@@ -169,11 +170,11 @@ public class CheckObr {
 	 * Then the attributes pertaining to the entity above are added.
 	 * @param component the component to check
 	 */
-	public static Map<String, Object> getValidProperties(ComponentDeclaration component) {
+	public static Map<String, String> getValidProperties(ComponentDeclaration component) {
 		//the attributes to return
-		Map<String, Object> ret = new HashMap <String, Object> ();
+		Map<String, String> ret = new HashMap <String, String> ();
 		//Properties of this component
-		Map<String, Object> properties = component.getProperties();
+		Map<String, String> properties = component.getProperties();
 		
 		ApamCapability entCap = ApamCapability.get(component.getReference()) ;
 
@@ -197,7 +198,25 @@ public class CheckObr {
 //						&& !prop.equals(CST.COMPONENT_TYPE)) 
 //				{
 			}
-		}		
+		}	
+		
+		/*
+		 * Add the default values specified in the group for properties not
+		 * explicitly specified
+		 */
+		if (group != null) {
+			for (String prop : group.getValidAttrNames()) {
+				if (! Util.isInheritedAttribute(prop)) 
+					continue;
+				if ( ret.get(prop) != null )
+					continue;
+				if (group.getAttrDefault(prop) == null)
+					continue;
+				
+				ret.put(prop, group.getAttrDefault(prop)) ;
+			}
+		} 
+		
 		return ret ;
 	}
 
@@ -211,7 +230,7 @@ public class CheckObr {
 	 * @param superGroupProps
 	 * @return
 	 */
-	private static boolean validDefObr (ApamCapability ent, String attr, Object value) {
+	private static boolean validDefObr (ApamCapability ent, String attr, String value) {
 		if (Util.isPredefinedAttribute(attr))return true ; ;
 		if (!Util.validAttr(ent.getName(), attr)) return false  ;
 		
@@ -349,26 +368,8 @@ public class CheckObr {
 			specResources.add(dep.getTarget().as(ResourceReference.class));
 		}
 	
-		Boolean mult = dep.isMultiple();
 		for (DependencyInjection innerDep : dep.getInjections()) {
-			// check if attribute "multiple" matches the fields type (Set, List Array)
-			// if multiple is not explicitly defined, assume the first field multiplicity
-
-			// Done by the parser
-//			if (mult == null) {
-//				//dep.setMultiple(CheckObr.isFieldMultiple(innerDep, component));
-//				mult = dep.isMultiple();
-//			}
-//			if (mult != CheckObr.isFieldMultiple(innerDep, component)) {
-//				if (!mult)
-//					CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
-//							+ innerDep.getName()
-//							+ " is a collection field, while other fields in same dependency are simple.");
-//				else
-//					CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
-//							+ innerDep.getName()
-//							+ " is a simple field, while other fields in same dependency are collection.");
-//			}
+			
 			String type = innerDep.getResource().getJavaType();
 
 			if ((innerDep.getResource() != ResourceReference.UNDEFINED) && !(specResources.contains(innerDep.getResource()))) {

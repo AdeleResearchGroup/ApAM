@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.apache.felix.ipojo.parser.MethodMetadata;
@@ -28,12 +27,13 @@ import fr.imag.adele.apam.core.ConstrainedReference;
 import fr.imag.adele.apam.core.ContextualMissingPolicy;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.DependencyInjection;
-import fr.imag.adele.apam.core.FieldInjection;
 import fr.imag.adele.apam.core.GrantDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.core.InstanceReference;
 import fr.imag.adele.apam.core.InterfaceReference;
+import fr.imag.adele.apam.core.MessageProducerFieldInjection;
 import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.MissingPolicy;
 import fr.imag.adele.apam.core.OwnedComponentDeclaration;
@@ -89,6 +89,7 @@ public class CoreMetadataParser implements CoreParser {
     private static final String        GRANT                   = "grant";
     private static final String        RELEASE                 = "release";
     private static final String        STATES                  = "states";
+    private static final String		   START                   = "start";
 
     private static final String        ATT_NAME                = "name";
     private static final String        ATT_CLASSNAME           = "classname";
@@ -270,7 +271,7 @@ public class CoreMetadataParser implements CoreParser {
             /*
              * TODO Verify that the type of the field can be assigned to AbstractConsumer<?> 
              */
-            declaration.getProducerInjections().add(new FieldInjection(declaration,messageField));
+            declaration.getProducerInjections().add(new MessageProducerFieldInjection(declaration,messageField));
         }
 
         /*
@@ -282,7 +283,7 @@ public class CoreMetadataParser implements CoreParser {
             boolean injected 	= false;
             boolean defined		= false;
 
-            for (FieldInjection messageField : declaration.getProducerInjections()) {
+            for (MessageProducerFieldInjection messageField : declaration.getProducerInjections()) {
                 if (messageField.getResource() == ResourceReference.UNDEFINED)
                     continue;
                 defined = true;
@@ -319,7 +320,7 @@ public class CoreMetadataParser implements CoreParser {
          * If not explicitly provided, get all produced messages from the declared injected fields
          */
         Set<MessageReference> declaredMessages = declaration.getProvidedResources(MessageReference.class);
-        for (FieldInjection messageField : declaration.getProducerInjections()) {
+        for (MessageProducerFieldInjection messageField : declaration.getProducerInjections()) {
 
             if (messageField.getResource() == ResourceReference.UNDEFINED)
                 continue;
@@ -605,17 +606,17 @@ public class CoreMetadataParser implements CoreParser {
                 if (collectionType != null)
                     return collectionType != CoreParser.UNDEFINED ?  new InterfaceReference(collectionType) : ResourceReference.UNDEFINED ;
 
-                    /*
-                     * Then verify if it is a message
-                     */
-                    String messageType 	= ApamIpojoInstrumentation.getMessageType(fieldReflectionMetadata);
-                    if (messageType != null)
-                        return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : ResourceReference.UNDEFINED;
+                /*
+                 * Then verify if it is a message
+                 */
+                String messageType 	= ApamIpojoInstrumentation.getMessageType(fieldReflectionMetadata);
+                if (messageType != null)
+                    return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : ResourceReference.UNDEFINED;
 
-                        /*
-                         * Otherwise it's a normal field we just return its type name
-                         */
-                        return new InterfaceReference(fieldReflectionMetadata.getType().getCanonicalName());
+                /*
+                 * Otherwise it's a normal field we just return its type name
+                 */
+                return new InterfaceReference(fieldReflectionMetadata.getType().getCanonicalName());
             }
 
             /*
@@ -630,20 +631,20 @@ public class CoreMetadataParser implements CoreParser {
                 if (collectionType != null)
                     return collectionType != CoreParser.UNDEFINED ?  new InterfaceReference(collectionType) : ResourceReference.UNDEFINED ;
 
-                    /*
-                     * Then verify if it is a message
-                     */
-                    String messageType 	= ApamIpojoInstrumentation.getMessageType(fieldIPojoMetadata);
-                    if (messageType != null)
-                        return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : ResourceReference.UNDEFINED;
+                /*
+                 * Then verify if it is a message
+                 */
+                String messageType 	= ApamIpojoInstrumentation.getMessageType(fieldIPojoMetadata);
+                if (messageType != null)
+                    return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : ResourceReference.UNDEFINED;
 
-                        /*
-                         * Otherwise it's a normal field we just return its type name
-                         */
-                        return new InterfaceReference(fieldIPojoMetadata.getFieldType());
+                /*
+                 * Otherwise it's a normal field we just return its type name
+                 */
+                return new InterfaceReference(fieldIPojoMetadata.getFieldType());
             }
 
-            throw new NoSuchFieldException("unavailable type for field "+fieldName);
+            throw new NoSuchFieldException("unavailable field "+fieldName);
 
         }
 
@@ -737,7 +738,7 @@ public class CoreMetadataParser implements CoreParser {
                 return new MessageReference(parameterType);
             }
 
-            throw new NoSuchMethodException("unavailable type for callback "+callbackName);
+            throw new NoSuchMethodException("unavailable callback "+callbackName);
 
         }
 
@@ -814,46 +815,71 @@ public class CoreMetadataParser implements CoreParser {
         String name 								= parseName(element);
         ImplementationReference<?> implementation	= parseImplementationReference(element,CoreMetadataParser.ATT_IMPLEMENTATION,true);
 
-        TargetDeclaration targetDeclaration = null;
+        Set<TargetDeclaration> targetDeclarations 	= new HashSet<TargetDeclaration>();
 
         /*
-         * look for optional target declaration
+         * look for optional trigger declaration
          */
-        for (Element target : optional(element.getElements())) {
+        for (Element trigger : optional(element.getElements(CoreMetadataParser.START,CoreMetadataParser.APAM))) {
 
-            String targetKind = CoreMetadataParser.getTargetKind(target);
+        	Element targets[] = optional(trigger.getElements());
+        	
+            if (targets.length == 0)
+                errorHandler.error(Severity.ERROR, "A target must be specified in a start declaration"+element);
 
-            /*
-             * Skip unrelated elements
-             */
-            if (targetKind == CoreParser.UNDEFINED)
-                continue;
+            if (targets.length > 1)
+                errorHandler.error(Severity.ERROR, "A single target is allowed in a start declaration"+element);
+        	
+            TargetDeclaration targetDeclaration = null;
+            
+            for (Element target : targets) {
+            	
+                /*
+                 * ignore elements that are not from APAM
+                 */
+                if (!CoreMetadataParser.isApamDefinition(target))
+                    continue;
+                
+                /*
+                 * Ignore invalid target elements
+                 */
+               String targetKind	= CoreMetadataParser.getTargetKind(target);
 
-            /*
-             * Try to avoid conflict with dependency declarations
-             * 
-             * TODO Currently if the dependencies tag is not used, it is ambiguous if the
-             * declaration corresponds to a dependency of the instance or a target instantiation
-             * condition 
-             */
+               if (targetKind == CoreParser.UNDEFINED)
+                    continue;
 
-            if (! target.getName().equals(targetKind))
-                continue;
+                if (! target.getName().equals(targetKind))
+                    continue;
 
-            String targetAttribute			= CoreMetadataParser.getTargetAttribute(target,targetKind);
-            ResolvableReference reference 	= parseResolvableReference(target,targetKind,targetAttribute,true);
+                /*
+                 * Parse target
+                 */
+                String targetAttribute			= CoreMetadataParser.getTargetAttribute(target,targetKind);
+                ResolvableReference reference 	= parseResolvableReference(target,targetKind,targetAttribute,true);
 
-            targetDeclaration = new TargetDeclaration(reference);
+                targetDeclaration 				= new TargetDeclaration(reference);
 
-            /*
-             * parse optional constraints
-             */
-            for (Element constraints : optional(target.getElements(CoreMetadataParser.CONSTRAINTS,CoreMetadataParser.APAM))) {
-                parseConstraints(constraints,targetDeclaration);
-            }
+                /*
+                 * parse optional constraints
+                 */
+                for (Element constraints : optional(target.getElements(CoreMetadataParser.CONSTRAINTS,CoreMetadataParser.APAM))) {
+                    parseConstraints(constraints,targetDeclaration);
+                }
+                
+                /*
+                 * Ignore all other targets
+                 */
+                break;
+				
+			}
 
+            if (targetDeclaration == null)
+            	continue;
+            
+            targetDeclarations.add(targetDeclaration);
         }
-        InstanceDeclaration declaration = new InstanceDeclaration(implementation,name,targetDeclaration);
+        
+        InstanceDeclaration declaration = new InstanceDeclaration(implementation,name,targetDeclarations);
         parseComponent(element,declaration);
         return declaration;
     }
@@ -913,6 +939,15 @@ public class CoreMetadataParser implements CoreParser {
         String implementation = parseString(element,attibute,mandatory);
         return ((implementation == null) && ! mandatory) ? null : new ImplementationReference<ImplementationDeclaration>(implementation);
     }
+    
+    /**
+     * Get an instance reference coded in an attribute
+     */
+    private InstanceReference parseInstanceReference(Element element, String attibute, boolean mandatory) {
+        String instance = parseString(element,attibute,mandatory);
+        return ((instance == null) && ! mandatory) ? null : new InstanceReference(instance);
+    }
+    
 
     /**
      * Get a component reference coded in an attribute
@@ -978,6 +1013,9 @@ public class CoreMetadataParser implements CoreParser {
         if (CoreMetadataParser.isImplementationReference(referenceKind))
             return parseImplementationReference(element,attribute,mandatory);
 
+        if (CoreMetadataParser.isInstanceReference(referenceKind))
+            return parseInstanceReference(element,attribute,mandatory);
+        
         if (CoreMetadataParser.isAnyComponentReference(referenceKind))
             return parseAnyComponentReference(element,attribute,mandatory);
 
@@ -999,6 +1037,14 @@ public class CoreMetadataParser implements CoreParser {
     private static final boolean isImplementationReference(String referenceKind) {
         return CoreMetadataParser.IMPLEMENTATION.equals(referenceKind);
     }
+    
+    /**
+     * Determines if this element represents an instance reference
+     */
+    private static final boolean isInstanceReference(String referenceKind) {
+        return CoreMetadataParser.INSTANCE.equals(referenceKind);
+    }
+    
 
     /**
      * Determines if this element represents a component reference
@@ -1096,20 +1142,21 @@ public class CoreMetadataParser implements CoreParser {
         String attributeTarget  = CoreMetadataParser.getTargetAttribute(element,targetKind);
 
         /*
-         * All dependencies have an optional identifier 
+         * All dependencies have an optional identifier and multiplicity specification
          */
-        String id = parseString(element,CoreMetadataParser.ATT_ID,false);
+        String id 			= parseString(element,CoreMetadataParser.ATT_ID,false);
+        boolean isMultiple	= parseBoolean(element,CoreMetadataParser.ATT_MULTIPLE, false, true); 
         DependencyDeclaration dependency = null;
 
 
         /*
-         * Complex dependencies reference a single mandatory specification, and in the case of atomic components
-         * may optionally have a number of field injection declarations
+         * Component dependencies reference a single mandatory component (specification, implementation,instance),
+         * and in the case of atomic components may optionally have a number of field injection declarations
          */
         if (CoreMetadataParser.isComponentTarget(targetKind)) {
 
             ResolvableReference target = parseComponentReference(element,targetKind,attributeTarget,true);
-            dependency = new DependencyDeclaration(component,id,target);
+            dependency = new DependencyDeclaration(component,id,isMultiple,target);
 
             if (component instanceof AtomicImplementationDeclaration) {
 
@@ -1134,6 +1181,9 @@ public class CoreMetadataParser implements CoreParser {
 
                 }
 
+                /*
+                 * Optionally, as a shortcut,  a single injection may be specified directly as an attribute of the dependency
+                 */
                 String field = parseString(element, CoreMetadataParser.ATT_FIELD,false);
                 String method = parseString(element, CoreMetadataParser.ATT_METHOD,false);
 
@@ -1142,6 +1192,9 @@ public class CoreMetadataParser implements CoreParser {
                     dependencyInjection.setDependency(dependency);
                 }
 
+                /*
+                 * At least one injection must be specified in atomic components
+                 */
                 if (dependency.getInjections().isEmpty()) {
                     errorHandler.error(Severity.ERROR,
                             "A field must be defined for dependencies in primitive implementation "
@@ -1172,9 +1225,9 @@ public class CoreMetadataParser implements CoreParser {
                  * If both an explicit target and an injection are specified they must match 
                  */
                 if ((target != null) &&  !target.equals(dependencyInjection.getResource())) {
-                    errorHandler.error(Severity.ERROR, "dependency target doesn't match the type of the field in "+element);
+                    errorHandler.error(Severity.ERROR, "dependency target doesn't match the type of the field or method in "+element);
                 }
-
+                
                 /*
                  * If a target is not explicitly declared use the injected field metadata
                  */
@@ -1183,7 +1236,7 @@ public class CoreMetadataParser implements CoreParser {
                     target	= dependencyInjection.getResource();
                 }
 
-                dependency = new DependencyDeclaration(component,id,target);
+                dependency = new DependencyDeclaration(component,id,isMultiple,target);
                 dependencyInjection.setDependency(dependency);
 
             } 
@@ -1192,7 +1245,7 @@ public class CoreMetadataParser implements CoreParser {
                  * For other components, a target must be explicitly specified
                  */
                 target = parseResourceReference(element,targetKind,attributeTarget,true);
-                dependency = new DependencyDeclaration(component,id,target);
+                dependency = new DependencyDeclaration(component,id,isMultiple,target);
             }
 
         }
@@ -1232,7 +1285,7 @@ public class CoreMetadataParser implements CoreParser {
         if (CoreMetadataParser.OPTIONAL.equalsIgnoreCase(encodedPolicy))
             return MissingPolicy.OPTIONAL;
 
-        errorHandler.error(Severity.ERROR, "invalid value for miising policy : \""+encodedPolicy+"\",  accepted values are "+CoreMetadataParser.MISSING_VALUES.toString());
+        errorHandler.error(Severity.ERROR, "invalid value for missing policy : \""+encodedPolicy+"\",  accepted values are "+CoreMetadataParser.MISSING_VALUES.toString());
         return null;
     }
 
@@ -1253,10 +1306,14 @@ public class CoreMetadataParser implements CoreParser {
             errorHandler.error(Severity.ERROR, "attribute \""+CoreMetadataParser.ATT_FIELD+"\" must be specified in "+element);
 
         if ((field == null) && (method == null))
-            field = CoreParser.UNDEFINED;
-
-        return field != null ? new DependencyInjection.Field(primitive,field) : new DependencyInjection.Callback(primitive,method);
-
+            return new DependencyInjection.Field(primitive,CoreParser.UNDEFINED);
+        
+        DependencyInjection injection = field != null ? new DependencyInjection.Field(primitive,field) : new DependencyInjection.Callback(primitive,method);
+        
+        if (! injection.isValidInstrumentation())
+            errorHandler.error(Severity.ERROR, "the specified \""+CoreMetadataParser.ATT_FIELD+"\" or \""+CoreMetadataParser.ATT_METHOD+"\" is invalid "+element);
+        
+        return injection;
     }
 
     /**
@@ -1305,18 +1362,22 @@ public class CoreMetadataParser implements CoreParser {
         if (component instanceof InstanceDeclaration)
             return; 
 
-    //    for (Element definitions : optional(element.getElements(CoreMetadataParser.DEFINITIONS, CoreMetadataParser.APAM))) {
-    //        for (Element definition : optional(definitions.getElements(CoreMetadataParser.DEFINITION, CoreMetadataParser.APAM))) {
-                for (Element definition : optional(element.getElements(CoreMetadataParser.DEFINITION, CoreMetadataParser.APAM))) {
+        /*
+         *	Skip the optional enclosing list 
+         */
+        for (Element definitions : optional(element.getElements(CoreMetadataParser.DEFINITIONS,CoreMetadataParser.APAM))) {
+        	parsePropertyDefinitions(definitions, component);
+        }
 
-                String name 		= parseString(definition, CoreMetadataParser.ATT_NAME).toLowerCase();
-                String type			= parseString(definition,CoreMetadataParser.ATT_TYPE) ;
-                String defaultValue = parseString(definition,CoreMetadataParser.ATT_VALUE,false);
-                String field 		= parseString(definition,CoreMetadataParser.ATT_FIELD,false);
-                boolean internal 	= parseBoolean(definition,CoreMetadataParser.ATT_INTERNAL,false, false);
-                component.getPropertyDefinitions().add(new PropertyDefinition(name, type, defaultValue, field, internal));
-            }
-    //    }
+        for (Element definition : optional(element.getElements(CoreMetadataParser.DEFINITION, CoreMetadataParser.APAM))) {
+
+        	String name 		= parseString(definition, CoreMetadataParser.ATT_NAME).toLowerCase();
+        	String type			= parseString(definition,CoreMetadataParser.ATT_TYPE) ;
+        	String defaultValue = parseString(definition,CoreMetadataParser.ATT_VALUE,false);
+        	String field 		= parseString(definition,CoreMetadataParser.ATT_FIELD,false);
+        	boolean internal 	= parseBoolean(definition,CoreMetadataParser.ATT_INTERNAL,false, false);
+        	component.getPropertyDefinitions().add(new PropertyDefinition(name, type, defaultValue, field, internal));
+        }
     }
 
 
@@ -1325,29 +1386,23 @@ public class CoreMetadataParser implements CoreParser {
      */
     private void parseProperties(Element element, ComponentDeclaration component) {
 
-   //     for (Element properties : optional(element.getElements(CoreMetadataParser.PROPERTIES, CoreMetadataParser.APAM))) {
+        /*
+         *	Skip the optional enclosing list 
+         */
+        for (Element properties : optional(element.getElements(CoreMetadataParser.PROPERTIES,CoreMetadataParser.APAM))) {
+        	parseProperties(properties, component);
+        }
 
-            // parse user defined properties
-//            for (Element property : optional(properties.getElements(CoreMetadataParser.PROPERTY,
-        for (Element property : optional(element.getElements(CoreMetadataParser.PROPERTY,
-                  CoreMetadataParser.APAM))) {
+        for (Element property : optional(element.getElements(CoreMetadataParser.PROPERTY,CoreMetadataParser.APAM))) {
 
-                // consider attributes as properties
-                for (Attribute attribute : property.getAttributes()) {
+    		/*
+    		 * If a name is specified, get the associated value
+    		 */
+       		String name = parseString(property, ATT_NAME);
+   			String value = parseString(property, ATT_VALUE);
+       		
+   			component.getProperties().put(name.toLowerCase(),value);
 
-                    // skip special attributes
-                    if (attribute.getName().equals(CoreMetadataParser.ATT_TYPE))
-                        continue;
-
-                    if (attribute.getName().equals(CoreMetadataParser.ATT_FIELD))
-                        continue;
-
-                    // add all other properties
-                    component.getProperties().put(attribute.getName(), attribute.getValue());
-
-                }
-
-    //        }
         }
 
     }
@@ -1467,11 +1522,17 @@ public class CoreMetadataParser implements CoreParser {
 
     }
 
-    private final static List<String> COMPONENT_TARGETS	= Arrays.asList(CoreMetadataParser.SPECIFICATION, CoreMetadataParser.IMPLEMENTATION, CoreMetadataParser.COMPONENT); 
-    private final static List<String> RESOURCE_TARGETS	= Arrays.asList(CoreMetadataParser.INTERFACE, CoreMetadataParser.MESSAGE); 
+    private final static List<String> COMPONENT_TARGETS	= Arrays.asList(CoreMetadataParser.SPECIFICATION, 
+    																	CoreMetadataParser.IMPLEMENTATION,
+    																	CoreMetadataParser.INSTANCE,
+    																	CoreMetadataParser.COMPONENT);
+    
+    private final static List<String> RESOURCE_TARGETS	= Arrays.asList(CoreMetadataParser.INTERFACE,
+    																	CoreMetadataParser.MESSAGE); 
 
     @SuppressWarnings("unchecked")
-    private final static List<String> ALL_TARGETS  		= CoreMetadataParser.union(CoreMetadataParser.COMPONENT_TARGETS,CoreMetadataParser.RESOURCE_TARGETS); 
+    private final static List<String> ALL_TARGETS  		= CoreMetadataParser.union(	CoreMetadataParser.COMPONENT_TARGETS,
+    																				CoreMetadataParser.RESOURCE_TARGETS); 
 
     /**
      * Get the kind of a target

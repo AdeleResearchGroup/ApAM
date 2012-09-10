@@ -59,7 +59,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		}
 
 		@Override
-		public void setProperty(String attr, Object value) {
+		public void setProperty(String attr, String value) {
 			throw new UnsupportedOperationException("method not available in root instance");
 		}
 
@@ -121,7 +121,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }    
 
     @Override
-    public void register(Map<String, Object> initialproperties) {
+    public void register(Map<String, String> initialproperties) {
     	
     	/*
     	 * Opposite references from implementation and enclosing composite
@@ -342,9 +342,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         /*
          *  if the instance was in the unused pull, move it to the from composite.
          *  
-         *  TODO In the previous version we also changed the source, and if the source
-         *  or target were composites its main instance. Check that this is no longer
-         *  needed
          */
         if (!to.isUsed()) {
             ((InstanceImpl)to).setOwner(getComposite());

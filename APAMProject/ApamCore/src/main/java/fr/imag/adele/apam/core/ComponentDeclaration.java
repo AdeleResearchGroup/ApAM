@@ -40,7 +40,7 @@ public abstract class ComponentDeclaration {
     /**
      * The properties describing this service provider
      */
-    private Map<String,Object> 					properties;
+    private Map<String,String> 					properties;
     private final List<PropertyDefinition>		definitions;
 
     protected ComponentDeclaration(String name) {
@@ -49,7 +49,7 @@ public abstract class ComponentDeclaration {
 
         this.name			= name;
         reference			= generateReference();
-        properties			= new HashMap<String,Object>();
+        properties			= new HashMap<String,String>();
         providedResources	= new HashSet<ResourceReference>();
         dependencies		= new HashSet<DependencyDeclaration>();
         definitions 		= new ArrayList<PropertyDefinition>();
@@ -82,14 +82,14 @@ public abstract class ComponentDeclaration {
     /**
      * Get the properties describing this provider
      */
-    public Map<String,Object> getProperties() {
+    public Map<String,String> getProperties() {
         return properties;
     }
 
     /**
      * Get the value of a property
      */
-    public Object getProperty(String property) {
+    public String getProperty(String property) {
         return properties.get(property);
     }
 
@@ -143,16 +143,11 @@ public abstract class ComponentDeclaration {
    
 
     /**
-     * Check if the specified resource is provided by this provider
+     * Check if the specified resource is provided by this component
      * 
-     * TODO Notice that we can ask for any ResolvableReference which is less restrictive than a ResourceReference. 
-     * 
-     * This is to avoid castings when invoking this method in the context of a dependency resolution that can reference a
-     * specification. Perhaps we should unify the concepts of provided resources and provided specification for implementations,
-     * but it is awkward to generalize to all component descriptions (e.g Specifications provides themselves?)
      */
-    public boolean isProvided(ResolvableReference resource) {
-        return providedResources.contains(resource);
+    public boolean resolves(DependencyDeclaration dependency) {
+        return providedResources.contains(dependency.getTarget());
     }
 
     /**

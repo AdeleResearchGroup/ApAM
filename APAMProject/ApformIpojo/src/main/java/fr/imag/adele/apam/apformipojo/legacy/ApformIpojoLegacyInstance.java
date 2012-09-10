@@ -53,7 +53,7 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
 		 * Propagate OSGI registry properties to APAM
 		 */
 		for (String key : reference.getPropertyKeys()) {
-			this.declaration.getProperties().put(key,reference.getProperty(key));
+			this.declaration.getProperties().put(key,reference.getProperty(key).toString());
 		}
 		
 	}
@@ -106,7 +106,7 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
 	}
 
 	@Override
-	public void setProperty(String attr, Object value) {
+	public void setProperty(String attr, String value) {
 		// TODO reconfigure iPojo instance
 	}
 

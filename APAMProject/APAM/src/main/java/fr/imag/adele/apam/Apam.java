@@ -47,7 +47,7 @@ public interface Apam {
      *            @ return : the created composite type
      */
     public CompositeType createCompositeType(String inCompoType, String name, String mainImplSpecName,
-            Set<ManagerModel> models, Map<String, Object> attributes);
+            Set<ManagerModel> models, Map<String, String> attributes);
 
 
     /**
@@ -69,7 +69,7 @@ public interface Apam {
      */
     public CompositeType createCompositeType(String inCompoType, String name, String mainComponentName,
             Set<ManagerModel> models,
-            URL bundle, String specName, Map<String, Object> properties);
+            URL bundle, String specName, Map<String, String> properties);
     
     /**
      * Return the composite type of that name, if existing. Null otherwise.

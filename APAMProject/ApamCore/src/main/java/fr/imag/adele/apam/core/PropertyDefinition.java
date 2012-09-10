@@ -23,7 +23,7 @@ public class PropertyDefinition {
     /**
      * The default value for the property
      */
-    private final Object defaultValue;
+    private final String defaultValue;
 
     /**
      * the associated field in the code, if any.
@@ -41,7 +41,7 @@ public class PropertyDefinition {
 
         this.name 			= name;
         this.type			= type;
-        this.defaultValue	= PropertyDefinition.convert(type,defaultValue);
+        this.defaultValue	= defaultValue;
         this.field = field ;
         this.internal = internal ;
     }
@@ -79,36 +79,8 @@ public class PropertyDefinition {
     /**
      * Get the default value of the property
      */
-    public Object getDefaultValue() {
+    public String getDefaultValue() {
         return defaultValue;
-    }
-
-    /**
-     * Verifies if the value is valid for the type of this property definition and
-     * converts it to an object.
-     * 
-     * If the serialized value is null, returns the default value associated
-     * to this property
-     * 
-     */
-    public Object getValue(String serializedValue) {
-        return (serializedValue == null) ? defaultValue : PropertyDefinition.convert(type, serializedValue);
-    }
-
-    /**
-     * convert a serialized value of the specified type into its corresponding memory
-     * representation.
-     * 
-     * TODO
-     * 
-     * make all conversions for 
-     * 1) the basic types String, int, boolean, float
-     * 2) Sets, List and arrays of basic types
-     * 
-     */
-    private static Object convert(String type, String serializedValue) {
-        // TODO
-        return serializedValue;
     }
     
     @Override

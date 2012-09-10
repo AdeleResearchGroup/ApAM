@@ -31,7 +31,7 @@ public interface ImplementationBroker {
      * @param properties . optional : the initial properties for that implementation
      * @return an ASM Implementation
      */
-    public Implementation createImpl(CompositeType compo, String implName, URL url, Map<String, Object> properties);
+    public Implementation createImpl(CompositeType compo, String implName, URL url, Map<String, String> properties);
 
     //    public void removeImpl(Implementation impl);
 

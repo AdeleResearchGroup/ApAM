@@ -21,7 +21,7 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.apform.ApformImplementation;
+import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.util.ApamFilter;
@@ -134,7 +134,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     /**
      * Builds a new Apam composite type to represent the specified implementation in the Apam model.
      */
-    protected CompositeTypeImpl(CompositeType composite, ApformImplementation apfCompo) {
+    protected CompositeTypeImpl(CompositeType composite, ApformCompositeType apfCompo) {
         
     	super(composite,apfCompo);
   
@@ -146,19 +146,11 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     	/*
     	 * Get declared models
     	 */
-       	
-    	assert apfCompo.getDeclaration() instanceof CompositeDeclaration;
-       	
-       	CompositeDeclaration declaration = (CompositeDeclaration)apfCompo.getDeclaration();
-    	if (declaration.getProperty(CST.A_MODELS) != null) {
-    		@SuppressWarnings("unchecked")
-			Set<ManagerModel> declaredModels = (Set<ManagerModel>)declaration.getProperty(CST.A_MODELS);
-    		models.addAll(declaredModels);
-    	}
+       	this.models.addAll(apfCompo.getModels());
     }
 
     @Override
-    public void register(Map<String, Object> initialProperties) {
+    public void register(Map<String, String> initialProperties) {
     	
     	/*
     	 * Opposite references from the enclosing composite types
