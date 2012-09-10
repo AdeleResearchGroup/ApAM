@@ -75,7 +75,7 @@ public class CheckObr {
 		if (cap == null)
 			return;
 
-		//computes the attributes that can be associated with this spec or implementations
+		//computes the attributes that can be associated with this spec or implementations members
 		Map<String, String> validAttrs = cap.getValidAttrNames();
 
 		CheckObr.checkFilters(dep.getImplementationConstraints(), dep.getImplementationPreferences(), validAttrs, dep.getTarget().getName());

@@ -1,10 +1,10 @@
 <ipojo xmlns="fr.imag.adele.apam">
 	<composite name="S5CompEx" mainImplem="S5Impl" specification="S5"
 		interfaces="[fr.imag.adele.apam.test.s5.S5,fr.imag.adele.apam.ApamComponent]">
-		<property myproperty="true" />
-		<property localInstance="true" />
-		<property localImplementation="true" />
-		<property borrowInstance="false" />
-		<property borrowImplementation="(b=true)" />
+		<property name="valuemyproperty" value="true" />
+		<property name="localInstance" value="true" />
+		<property name="localImplementation" value="true" />
+		<property name="borrowInstance" value="false" />
+		<property name="borrowImplementation" value="(b=true)" />
 	</composite>
 </ipojo>

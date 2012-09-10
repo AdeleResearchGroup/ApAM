@@ -33,12 +33,12 @@
 
 	<implementation name="S1toS2Final"
 		classname="fr.imag.adele.apam.test.s1Impl.S1toS2Final" specification="S1">
-		<property S1toS2Final-Attr="couscous" type="string" />
-		<property spec-name="yyy"  />
-		<property definition-xx="ttt" />
-		<property s1b="xyze=" />
-		<property OS="pas bon" />
-		<property testEnumere="v2" />
+		<property name="S1toS2Final-Attr" value="couscous" type="string" />
+		<property name="spec-name" value="yyy"  />
+		<property name="definition-xx" value="ttt" />
+		<property name="s1b" value="xyze=" />
+		<property name="OS" value="pas bon" />
+		<property name="testEnumere" value="v2" />
 		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
 		<definition name="S1toS2Final-String1" type="string" />
 		<definition name="S1toS2Final-location"
@@ -61,9 +61,9 @@
 	<!-- An implementation without any provided resource -->
 	<implementation name="S1Main"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Main">
-		<property shared="false" />
-		<property S1Main-Attr="whatever" /> <!-- ok because it has no spec -->
-		<property testAttr="false" />
+		<property name="shared" value="false" />
+		<property name="S1Main-Attr" value="whatever" /> <!-- ok because it has no spec -->
+		<property name="testAttr" value="false" />
 		<definition name="s1 main" type="string" value="pas d interface" />
 		<dependency id="tos1" field="s1">
 			<preferences>
@@ -75,11 +75,11 @@
 
 	<composite name="S1MainCompo" mainImplem="S1Main">
 		<!-- interfaces="{fr.imag.adele.apam.test.s1.S1}"> -->
-		<property shared="false" />
-		<property borrowInstance="false" />
-		<property borrowImplementation="false" />
-		<property localInstance="true" />
-		<property localImplementation="true" />
+		<property name="shared" value="false" />
+		<property name="borrowInstance" value="false" />
+		<property name="borrowImplementation" value="false" />
+		<property name="localInstance" value="true" />
+		<property name="localImplementation" value="true" />
 
 		<!-- <dependency specification="S2" /> -->
 		<dependency interface="fr.imag.adele.apam.test.s2.S2" />

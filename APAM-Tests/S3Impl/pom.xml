@@ -22,6 +22,11 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<obrRepository>
+						${basedir}/apamRepo.xml
+					</obrRepository>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>

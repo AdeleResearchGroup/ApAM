@@ -13,13 +13,13 @@
 		classname="fr.imag.adele.apam.test.s2Impl.S2Impl" specification="S2"
 		messages="{M5, M2, M3}">						<!-- Message M1 missing -->
 		<!-- Interfaces missing:{fr.imag.adele.apam.test.s2.S2, XXY} -->
-		<property shared="false" />
-		<property borrowImplementation="true" />
-		<property test="yes" />					<!-- Attribute test undefined -->
-		<property b="yes" />					<!-- b is boolean -->
-		<property B="yes" />					<!-- Case ? -->
-		<property c="xxx" />
-		<property test-spec="anotherValue" />	<!-- Attribute re-defined -->
+		<property name="shared" value="false" />
+		<property name="borrowImplementation" value="true" />
+		<property name="test" value="yes" />					<!-- Attribute test undefined -->
+		<property name="b" value="yes" />					<!-- b is boolean -->
+		<property name="B" value="yes" />					<!-- Case ? -->
+		<property name="c" value="xxx" />
+		<property name="test-spec" value="anotherValue" />	<!-- Attribute re-defined -->
 		<definition name="A1" type="string" />
 		<definition name="A2" type="int" value="xxxyyy" />
 
@@ -45,8 +45,8 @@
 
 	<implementation name="S2Simple"
 		classname="fr.imag.adele.apam.test.s2Impl.S2Simple" specification="S2">
-		<property shared="false" />
-		<property test22="yes" /> 		<!-- test22 undefined -->
+		<property name="shared" value="false" />
+		<property name="test22" value="yes" /> 		<!-- test22 undefined -->
 
 		<specification name="S3" id="S3Id">
 			<interface field="fieldS3" />
@@ -95,10 +95,10 @@
 
 	<implementation name="S2ImplBis"
 		classname="fr.imag.adele.apam.test.s2Impl.S2ImplBis" specification="S2">
-		<property shared="false" />
-		<property borrowImplementation="false" />
-		<property borrowInstance="()interface=fr.imag.adele.apam.test.s3.S3" />
-		<property testbis="xyz" />
+		<property name="shared" value="false" />
+		<property name="borrowImplementation" value="false" />
+		<property name="borrowInstance" value="(interface=fr.imag.adele.apam.test.s3.S3)" />
+		<property name="testbis" value="xyz" />
 		<interface field="s4Bis" />
 		<ipojo:requires field="apam" />
 	</implementation>
@@ -107,11 +107,11 @@
 	<composite name="S2Compo" specification="S2" mainImplem="S3Impl"
 		messages="{M5, M6}"
 		interfaces="{fr.imag.adele.apam.test.s2.SZZZ,fr.imag.adele.apam.apamAPI.YYYYYYY}"> <!-- interface does not exist -->
-		<property shared="false" />
-		<property borrowInstance="false" />
-		<property borrowImplementation="false" />
-		<property localInstance="true" />
-		<property localImplementation="(name=S.Im.*)" />
+		<property name="shared" value="false" />
+		<property name="borrowInstance" value="false" />
+		<property name="borrowImplementation" value="false" />
+		<property name="localInstance" value="true" />
+		<property name="localImplementation" value="(name=S.Im.*)" />
 
 		<instances internal="true" local=".*" />
 		<implementations internal="true" local="S.Im.*" />
@@ -127,12 +127,12 @@
 	</composite>
 
 	<instance implementation="S2Impl" name="toto">
-		<property shared="false" />
-		<property test-spec="coucous4" />
-		<property A2="yes" />
-		<property c3="xxx" />
-		<property b="bbb" />
-		<property xyz="yyy" />
+		<property name="shared" value="false" />
+		<property name="test-spec" value="coucous4" />
+		<property name="A2" value="yes" />
+		<property name="c3" value="xxx" />
+		<property name="b" value="bbb" />
+		<property name="xyz" value="yyy" />
 		<specification name="S3" id="S3Id">		<!-- id is undefined -->
 			<constraints>
 				<implementation filter="(apam-composite=true)" />

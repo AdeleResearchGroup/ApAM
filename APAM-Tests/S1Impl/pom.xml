@@ -36,6 +36,11 @@
 						</goals>
 						<configuration>
 							<metadata>src/main/resources/S1Impl.xml</metadata>
+							<localObr>true</localObr>
+							<dependencyObrList>
+								<param>file:/F:/Maven/.m2/repository.xml</param>
+<!-- 								<param>retest..falseURL</param>								 -->
+							</dependencyObrList>
 						</configuration>
 					</execution>
 				</executions>
