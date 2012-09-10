@@ -37,6 +37,8 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.util.Util;
@@ -72,7 +74,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 	
 	public static String thisBundleVersion ;
 
-
+    Logger logger = LoggerFactory.getLogger(OBRGeneratorMojo.class);
 	/**
 	 * Execute method : this method launches the OBR generation.
 	 * 
@@ -125,7 +127,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			for (String dep : OBRGeneratorMojo.bundleDependencies) {
 				validDependencies += " " + dep;
 			}
-			getLog().debug (validDependencies) ;
+			logger.debug (validDependencies) ;
 
 			List<ComponentDeclaration> components = Util.getComponents(root);
 			ApamRepoBuilder arb = new ApamRepoBuilder(components, localRepository.getBasedir());

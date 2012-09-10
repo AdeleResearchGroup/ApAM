@@ -14,12 +14,13 @@
 		<property test="bof" type="string" />
 		<property shared="false" type="string" />
 		<dependency field="s5" />
+		<definition name="S3Impl-Attr" type="string" />
 		<dependency specification="S4">
 			<interface field="s4" />
 		</dependency>
 	</implementation>
 
-	<apam-instance implementation="S2Simple" name="toto">
+	<apam-instance implementation="S2Simple" name="S2Simple-inst-from-S3Impl">
 		<!-- <property test-spec="coucous4" /> <property A2="yes" /> <property 
 			c="xxx" /> -->
 	</apam-instance>

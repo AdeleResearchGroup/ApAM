@@ -360,7 +360,7 @@ public class ApamFilter implements Filter {
         return toString().hashCode();
     }
 
-    public void validateAttr(Set<String> validAttr, String f, String spec) {
+    public void validateAttr(Map<String, String> validAttr, String f, String spec) {
         switch (op) {
             case AND:
             case OR: {
@@ -385,9 +385,12 @@ public class ApamFilter implements Filter {
             case SUBSET:
             case SUPERSET:
             case PRESENT: {
-                if (!Util.isPredefinedAttribute(attr) && !validAttr.contains(attr)) {
-                    logger.error("Specification " + spec + " does not define property " + attr
+                if (!Util.isPredefinedAttribute(attr) && !Util.isFinalAttribute(attr) && !validAttr.containsKey(attr)) {
+                    logger.error("Members of component " + spec + " cannot have property " + attr
                             + ". Invalid constraint " + f);
+                }
+                if (validAttr.containsKey(attr)) {
+                	Util.checkAttrType(attr, value, validAttr.get(attr));
                 }
             }
 
