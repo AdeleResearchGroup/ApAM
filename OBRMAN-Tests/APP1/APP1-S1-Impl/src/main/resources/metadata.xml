@@ -1,0 +1,15 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+
+	<implementation name="APP1_S1_IMPL"
+		classname="fr.imag.adele.apam.app1.s1.impl.S1Impl" specification="APP1_S1_SPEC">
+		<property vendor="apam-team" />
+		<dependency specification="APP2_SPEC">
+			<interface field="app2" />
+		</dependency>
+
+	</implementation>
+
+
+
+</apam>
+

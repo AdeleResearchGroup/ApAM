@@ -1,0 +1,12 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+
+	
+    <composite name="APP1" mainImplem="APP1_MAIN">
+		<property shared="false" />
+		<property borrowInstance="false" />
+		<property borrowImplementation="false" />
+		<property localInstance="true" />
+		<property localImplementation="true" />
+	</composite>
+    
+</apam>

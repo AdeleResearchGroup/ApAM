@@ -5,16 +5,10 @@
     <groupId>fr.imag.adele.apam</groupId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>APP1</artifactId>
+  <artifactId>APP2</artifactId>
   <packaging>pom</packaging>
   <modules>
-  	<module>APP1-Spec</module>
-  	<module>APP1-MainImpl</module>
-  	<module>APP1-S1-Spec</module>
-  	<module>APP1-S2-Spec</module>
-  	<module>APP1-S3-Spec</module>
-	<module>APP1-S1-Impl</module>
-	<module>APP1-S2-Impl</module>
-	<module>APP1-Composite</module>
+  	<module>APP2-Spec</module>
+  	<module>APP2-MainImpl</module>
   </modules>
 </project>
