@@ -1,7 +1,9 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,27 +53,39 @@ public class ApamCapability {
 	Capability cap = null ;
 	ComponentDeclaration dcl = null ;
 
-	Map <String, Object> properties ;
-	Map <String, Object> finalProperties = new HashMap <String, Object> () ;
+	private Map <String, Object> properties ;
+	private Map <String, Object> finalProperties = new HashMap <String, Object> () ;
 
+	//If true, no obr repository found. Cannot look for the other components
+	private static boolean noRepository = true ;
 
 	private static DataModelHelper dataModelHelper; 
-	private static Repository repo;
-	private static Resource[] resources;
+	private static String repos = "";
+	private static List<Resource> resources = new ArrayList<Resource> ();
 
-	public static void init (List<ComponentDeclaration> components, String defaultOBRRepo) {
+	public static void init (List<ComponentDeclaration> components, List<URL> OBRRepos) {
 		ApamCapability.components = components ;
 
-		//public static void init(String defaultOBRRepo) {
-		System.out.println("start CheckOBR. Default repo= " + defaultOBRRepo);
+		//First, compute the list of available resources
 		try {
-			File theRepo = new File(defaultOBRRepo);
-			dataModelHelper =  new DataModelHelperImpl();
-			repo = dataModelHelper.repository(theRepo.toURI().toURL());
-			resources = repo.getResources();
+			for (URL repo : OBRRepos){
+				//File theRepo = new File();
+				if (repo.getFile().isEmpty()) {
+					break ;
+				}
+				repos += repo.toString() ;
+				noRepository = false ;
+				dataModelHelper =  new DataModelHelperImpl();
+				Repository repoModel = dataModelHelper.repository(repo.toURI().toURL());
+				resources.addAll(Arrays.asList(repoModel.getResources()));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		//public static void init(String defaultOBRRepo) {
+		System.out.println("start CheckOBR. Used OBR repositories: " + OBRRepos);
+
+
 	}
 
 	public ApamCapability (String name, Capability cap) {
@@ -104,11 +118,8 @@ public class ApamCapability {
 		}
 
 		//look in OBR
+		if (noRepository) return null ;
 		for (Resource res : resources) {
-			//			if (reference instanceof SpecificationReference) {
-			//				if (!OBRGeneratorMojo.bundleDependencies.contains(res.getId()))
-			//					continue ;
-			//			}
 			for (Capability cap : res.getCapabilities()) {
 				if (cap.getName().equals(CST.CAPABILITY_COMPONENT)
 						&& (getAttributeInCap(cap, "name").equals(name))) {
@@ -129,7 +140,7 @@ public class ApamCapability {
 			}
 		}
 
-		logger.error("     Component " + name + " not found in repository " + repo.getURI());
+		logger.error("     Component " + name + " not found in repositories " + repos);
 		return null;
 	}
 
@@ -247,7 +258,7 @@ public class ApamCapability {
 		}
 		if (getGroup() != null)
 			ret.putAll(getGroup().getValidAttrNames()) ;
-		
+
 		return ret ;
 	}
 

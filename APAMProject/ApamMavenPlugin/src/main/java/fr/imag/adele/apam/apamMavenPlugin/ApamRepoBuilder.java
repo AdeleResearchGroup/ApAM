@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,9 +46,9 @@ public class ApamRepoBuilder {
 	 * <code>true</code> the local XSD are not used.
 	 */
 
-	public ApamRepoBuilder(List<ComponentDeclaration> components, String defaultOBRRepo) {
+	public ApamRepoBuilder(List<ComponentDeclaration> components, List<URL> OBRRepos) {
 		this.components = components ;
-		ApamCapability.init (components, defaultOBRRepo + File.separator +"repository.xml") ;
+		ApamCapability.init(components, OBRRepos) ;
 	}
 
 	public StringBuffer writeOBRFile() {
