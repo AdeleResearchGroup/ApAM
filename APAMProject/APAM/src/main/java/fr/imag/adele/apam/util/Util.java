@@ -318,6 +318,15 @@ public class Util {
         return false;
     }
 
+    public static boolean isInheritedAttribute(String attr) {
+    	if (isReservedAttributePrefix(attr)) return false ;
+        for (String pred : CST.notInheritedAttribute) {
+            if (pred.equals(attr.toLowerCase()))
+                return false;
+        }
+        return true;
+    }
+    
     public static boolean isFinalAttribute(String attr) {
         for (String pred : CST.finalAttributes) {
             if (pred.equals(attr.toLowerCase()))

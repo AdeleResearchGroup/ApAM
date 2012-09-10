@@ -49,11 +49,11 @@ public class CheckObr {
 
 	public static void error(String msg) {
 		CheckObr.failedChecking = true;
-		logger.error(msg);
+		logger.error("ERROR: " + msg);
 	}
 
 	public static void warning(String msg) {
-		System.out.println(msg);
+		logger.error("Warning: " + msg);
 	}
 
 	public static void setFailedParsing(boolean failed) {
@@ -67,101 +67,37 @@ public class CheckObr {
 	 * @param dep a dependency
 	 */
 	private static void checkConstraint(DependencyDeclaration dep) {
-		if ((dep == null) || !(dep.getTarget() instanceof SpecificationReference))
+		if ((dep == null) || !(dep.getTarget() instanceof ComponentReference))
 			return;
 
-		SpecificationReference reference = dep.getTarget().as(SpecificationReference.class);
-		String spec = reference.getName();
-		
-		//get the spec definition
-		ApamCapability cap = ApamCapability.get(reference);
+		//get the spec or impl definition
+		ApamCapability cap = ApamCapability.get(dep.getTarget().as(ComponentReference.class));
 		if (cap == null)
 			return;
-		
-		//computes the attributes that can be associated with this spec implementations
-		Set<String> validAttrs = cap.getValidAttrNames();
 
-		CheckObr.checkFilterSet(dep.getImplementationConstraints(), validAttrs, spec);
-		CheckObr.checkFilterList(dep.getImplementationPreferences(), validAttrs, spec);
-		CheckObr.checkInstFilterSet(dep.getInstanceConstraints(), validAttrs, spec);
-		CheckObr.checkInstFilterList(dep.getInstancePreferences(), validAttrs, spec);
+		//computes the attributes that can be associated with this spec or implementations
+		Map<String, String> validAttrs = cap.getValidAttrNames();
+
+		CheckObr.checkFilters(dep.getImplementationConstraints(), dep.getImplementationPreferences(), validAttrs, dep.getTarget().getName());
+		CheckObr.checkFilters(dep.getInstanceConstraints(), dep.getInstancePreferences(), validAttrs, dep.getTarget().getName());
 	}
 
-	/**
-	 * In theory we cannot check a constraint on instance attributes since we do not know the implementation that
-	 * will be selected, however, if the constraints contains "impl-name = xyz" we could do it.
-	 * 
-	 * At least we can check the spec and implem attributes
-	 * 
-	 */
-	public static void checkInstFilterList(List<String> filters, Set<String> validAttr, String spec) {
-		if ((validAttr == null) || (filters == null))
-			return;
 
-		// try to see if implementation name "impl-name" is in the constraints
-		String impl = null;
-		for (String f : filters) {
-			try {
+	private static void checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr, String comp) {
+		if (filters != null) {
+			for (String f : filters) {
 				ApamFilter parsedFilter = ApamFilter.newInstance(f);
-				if (parsedFilter == null)
-					CheckObr.error("String " + f + " returns null filter.");
-				else
-					impl = parsedFilter.lookForAttr(CST.A_IMPLNAME);
-			} catch (Exception e) {
-				CheckObr.error("Invalid filter " + f);
+				parsedFilter.validateAttr(validAttr, f, comp);
 			}
-			if (impl != null)
-				break ;
 		}
-		
-		// if implementation is found, see if the constraint is Ok.
-		ApamCapability cap = null;
-		if (impl != null) {
-			cap = ApamCapability.get(new ImplementationReference<ImplementationDeclaration>(impl));
-			if (cap != null) {
-				//extends validAttr with the attributes defined by the implem
-				validAttr = cap.getValidAttrNames() ;
+		if (listFilters != null) {
+			for (String f : listFilters) {
+				ApamFilter parsedFilter = ApamFilter.newInstance(f);
+				parsedFilter.validateAttr(validAttr, f, comp);
 			}
-			
-		}
-		String msg = (impl == null) ? spec : impl ;
-		CheckObr.checkFilterList(filters, validAttr, msg);
-	}
-
-	public static void checkInstFilterSet(Set<String> filters, Set<String> validAttr, String spec) {
-		List<String> filterSet = new ArrayList<String>(filters);
-		CheckObr.checkInstFilterList(filterSet, validAttr, spec);
-	}
-
-	public static void checkFilterList(List<String> filters, Set<String> validAttr, String spec) {
-		for (String f : filters) {
-			ApamFilter parsedFilter = ApamFilter.newInstance(f);
-			parsedFilter.validateAttr(validAttr, f, spec);
 		}
 	}
 
-	public static void checkFilterSet(Set<String> filters, Set<String> validAttr, String spec) {
-		for (String f : filters) {
-			ApamFilter parsedFilter = ApamFilter.newInstance(f);
-			parsedFilter.validateAttr(validAttr, f, spec);
-		}
-	}
-
-
-	/**
-	 * Check the consistency of an instance :
-	 * -Existence of its implementation,
-	 * -Validity of its attributes,
-	 * -Validity of its constraints.
-	 * 
-	 * @param instance
-	 */
-	public static void checkInstance(InstanceDeclaration instance) {
-		if (instance.getImplementation() == null) {
-			CheckObr.error("ERROR: implementation name missing for instance " + instance.getName());
-			return;
-		}
-	}
 
 	/**
 	 * Checks the attributes defined in the component; 
@@ -174,7 +110,7 @@ public class CheckObr {
 		Map<String, Object> ret = new HashMap <String, Object> ();
 		//Properties of this component
 		Map<String, Object> properties = component.getProperties();
-		
+
 		ApamCapability entCap = ApamCapability.get(component.getReference()) ;
 
 		//return the valid attributes
@@ -184,18 +120,14 @@ public class CheckObr {
 				ret.put(attr, properties.get(attr)) ;
 			}
 		}
-		
-		//add the attribute coming from "above" if not already instantiated
+
+		//add the attribute coming from "above" if not already instantiated and heritable
 		ApamCapability group = entCap.getGroup() ;
 		if (group != null && group.getProperties()!= null) {
 			for (String prop : group.getProperties().keySet()) {
-				if (ret.get(prop) == null 
-						&& !Util.isReservedAttributePrefix(prop)
-						&& !prop.equals((CST.A_NAME)) 
-						&& !prop.equals(CST.COMPONENT_TYPE)) 
-				{
+				if (ret.get(prop) == null && Util.isInheritedAttribute(prop)) {
 					ret.put(prop, group.getProperties().get(prop)) ;
-				}
+				}			
 			}
 		}		
 		return ret ;
@@ -214,13 +146,13 @@ public class CheckObr {
 	private static boolean validDefObr (ApamCapability ent, String attr, Object value) {
 		if (Util.isPredefinedAttribute(attr))return true ; ;
 		if (!Util.validAttr(ent.getName(), attr)) return false  ;
-		
+
 		//Top group all is Ok
 		ApamCapability group = ent.getGroup() ;
 		if (group == null) return true ;
-		
+
 		if (group.getProperties().get(attr) != null)  {
-			logger.error("ERROR: cannot redefine attribute \"" + attr + "\"");
+			warning("Cannot redefine attribute \"" + attr + "\"");
 			return false ;
 		}
 
@@ -230,9 +162,9 @@ public class CheckObr {
 			if (defAttr != null) break ;
 			group = group.getGroup() ;
 		}
-		 
+
 		if (defAttr == null) {
-			logger.error("ERROR: in " + ent.getName() + ", attribute \"" + attr + "\" used but not defined.");
+			warning("In " + ent.getName() + ", attribute \"" + attr + "\" used but not defined.");
 			return false ;
 		}
 
@@ -316,7 +248,7 @@ public class CheckObr {
 		Set<String> depIds = new HashSet<String>();
 		for (DependencyDeclaration dep : deps) {
 			if (depIds.contains(dep.getIdentifier())) {
-				CheckObr.error("ERROR: Dependency " + dep.getIdentifier() + " allready defined.");
+				CheckObr.error("Dependency " + dep.getIdentifier() + " allready defined.");
 			} else
 				depIds.add(dep.getIdentifier());
 			// validating dependency constraints and preferences..
@@ -325,8 +257,6 @@ public class CheckObr {
 			CheckObr.checkFieldTypeDep(dep, component);
 		}
 	}
-
-
 
 
 	/**
@@ -348,31 +278,31 @@ public class CheckObr {
 		else {
 			specResources.add(dep.getTarget().as(ResourceReference.class));
 		}
-	
+
 		Boolean mult = dep.isMultiple();
 		for (DependencyInjection innerDep : dep.getInjections()) {
 			// check if attribute "multiple" matches the fields type (Set, List Array)
 			// if multiple is not explicitly defined, assume the first field multiplicity
 
 			// Done by the parser
-//			if (mult == null) {
-//				//dep.setMultiple(CheckObr.isFieldMultiple(innerDep, component));
-//				mult = dep.isMultiple();
-//			}
-//			if (mult != CheckObr.isFieldMultiple(innerDep, component)) {
-//				if (!mult)
-//					CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
-//							+ innerDep.getName()
-//							+ " is a collection field, while other fields in same dependency are simple.");
-//				else
-//					CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
-//							+ innerDep.getName()
-//							+ " is a simple field, while other fields in same dependency are collection.");
-//			}
+			//			if (mult == null) {
+			//				//dep.setMultiple(CheckObr.isFieldMultiple(innerDep, component));
+			//				mult = dep.isMultiple();
+			//			}
+			//			if (mult != CheckObr.isFieldMultiple(innerDep, component)) {
+			//				if (!mult)
+			//					CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
+			//							+ innerDep.getName()
+			//							+ " is a collection field, while other fields in same dependency are simple.");
+			//				else
+			//					CheckObr.error("ERROR: in " + component.getName() + dep + "\n      Field "
+			//							+ innerDep.getName()
+			//							+ " is a simple field, while other fields in same dependency are collection.");
+			//			}
 			String type = innerDep.getResource().getJavaType();
 
 			if ((innerDep.getResource() != ResourceReference.UNDEFINED) && !(specResources.contains(innerDep.getResource()))) {
-				logger.error("ERROR: in " + component.getName() + dep + "\n      Field "
+				CheckObr.error("In " + component.getName() + dep + "\n      Field "
 						+ innerDep.getName()
 						+ " is of type " + type
 						+ " which is not implemented by specification or implementation " + dep.getIdentifier());
@@ -390,7 +320,7 @@ public class CheckObr {
 	 */
 	public static boolean isFieldMultiple(DependencyInjection dep, ComponentDeclaration component) {
 		if (CheckObr.allFields.contains(dep.getName()) && !dep.getName().equals(CheckObr.UNDEFINED)) {
-			CheckObr.error("ERROR: in " + component.getName() + " field/method " + dep.getName()
+			CheckObr.error("In " + component.getName() + " field/method " + dep.getName()
 					+ " allready declared");
 		}
 		else {
@@ -399,5 +329,5 @@ public class CheckObr {
 
 		return dep.isCollection();
 	}
-	
+
 }

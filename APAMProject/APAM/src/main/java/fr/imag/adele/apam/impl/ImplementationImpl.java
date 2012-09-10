@@ -254,7 +254,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 
 	@Override
 	public boolean isUsed() {
-		return ! inComposites.contains(CompositeTypeImpl.getRootCompositeType());
+		return ! inComposites.contains(CompositeTypeImpl.getRootCompositeType()) && inComposites.size()==1;
 	}
 
 	/**
