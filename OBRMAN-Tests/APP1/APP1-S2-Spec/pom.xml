@@ -5,7 +5,7 @@
     <groupId>fr.imag.adele.apam</groupId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>APP1-S1-Spec</artifactId>
+  <artifactId>APP1-S2-Spec</artifactId>
   <packaging>bundle</packaging>
 	<build>
 		<plugins>
@@ -19,7 +19,7 @@
 			</plugin>
  			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>	
+				<artifactId>ApamMavenPlugin</artifactId>		
 			</plugin>	
 		</plugins>
  	</build>

@@ -365,7 +365,6 @@
 									<remoteOBR>
 										dav:https://repository-apam.forge.cloudbees.com/snapshot/
 									</remoteOBR>
-							
 							</execution>
 						</executions>
 					</configuration>

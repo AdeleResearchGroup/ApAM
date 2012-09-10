@@ -6,7 +6,6 @@
 		<dependency specification="APP2_SPEC">
 			<interface field="app2" />
 		</dependency>
-
 	</implementation>
 
 

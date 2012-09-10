@@ -5,8 +5,7 @@
     <groupId>fr.imag.adele.apam</groupId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>APP1-S1-Spec</artifactId>
-  <packaging>bundle</packaging>
+  <artifactId>APP1-S2-Impl</artifactId>
 	<build>
 		<plugins>
 			<plugin>
@@ -19,11 +18,28 @@
 			</plugin>
  			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>	
+				<artifactId>ApamMavenPlugin</artifactId>
+				<version>${apam.current.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>ipojo-bundle</goal>
+						</goals>
+					</execution>
+				</executions>			
 			</plugin>	
 		</plugins>
  	</build>
 	<dependencies>
-       
+       <dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>APP1-S2-Spec</artifactId>
+			<version>${apam.current.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>APP1-S3-Spec</artifactId>
+			<version>${apam.current.version}</version>
+		</dependency>
 	</dependencies>
 </project>

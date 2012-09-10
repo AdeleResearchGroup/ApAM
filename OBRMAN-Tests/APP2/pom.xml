@@ -9,6 +9,21 @@
   <packaging>pom</packaging>
   <modules>
   	<module>APP2-Spec</module>
-  	<module>APP2-MainImpl</module>
+<!--   	<module>APP2-MainImpl</module> -->
   </modules>
+  	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>${bundle.plugin.version}</version>
+					<extensions>true</extensions>
+					<configuration>
+						<obrRepository>${basedir}/../APP2-Repo/app2-repo.xml</obrRepository>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

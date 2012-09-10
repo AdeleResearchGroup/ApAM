@@ -1,0 +1,26 @@
+<repository lastmodified='20120910062232.865'>
+  <resource id='APP2-Spec/0.0.1.SNAPSHOT' symbolicname='APP2-Spec' presentationname='APP2-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/APP2-Spec/0.0.1-SNAPSHOT/APP2-Spec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>3635</size>
+    <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
+    <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
+    <capability name='bundle'>
+      <p n='symbolicname' v='APP2-Spec'/>
+      <p n='presentationname' v='APP2-Spec'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='fr.imag.adele.apam.app2.spec'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='APP2_SPEC'/>
+      <p n='component-type' v='specification'/>
+      <p n='spec-name' v='APP2_SPEC'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app2.spec.App2Spec;]'/>
+      <p n='application' v='app2'/>
+      <p n='definition-vendor' v='string'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+  </resource>
+</repository>

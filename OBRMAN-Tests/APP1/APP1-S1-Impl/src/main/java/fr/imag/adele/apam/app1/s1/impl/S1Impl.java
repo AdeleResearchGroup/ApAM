@@ -1,7 +1,7 @@
 package fr.imag.adele.apam.app1.s1.impl;
 
 import fr.imag.adele.apam.app1.s1.spec.S1;
-import fr.imag.adele.apam.app1.spec.App2Spec;
+import fr.imag.adele.apam.app2.spec.App2Spec;
 
 public class S1Impl implements S1 {
 

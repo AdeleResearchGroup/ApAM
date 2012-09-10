@@ -1,7 +1,7 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
-	<specification name="SpecApp1" interfaces="fr.imag.adele.apam.app1.spec.SpecApp1"  >
-			<property application="app1" type="string"/>
+	<specification name="APP2_SPEC" interfaces="fr.imag.adele.apam.app2.spec.App2Spec"  >
+			<property application="app2" type="string"/>
 			<definition name="vendor" type="string"/>
 	</specification>
 

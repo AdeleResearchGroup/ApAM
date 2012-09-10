@@ -8,7 +8,7 @@
   <artifactId>OBRMAN-Tests</artifactId>
   <packaging>pom</packaging>
   <modules>
-  	<module>APP1</module>
   	<module>APP2</module>
+  	<module>APP1</module>
   </modules>
 </project>

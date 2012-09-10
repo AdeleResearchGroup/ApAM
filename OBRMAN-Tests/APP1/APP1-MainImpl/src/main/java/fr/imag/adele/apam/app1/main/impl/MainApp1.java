@@ -5,7 +5,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.app1.s1.spec.S1;
 import fr.imag.adele.apam.app1.s2.spec.S2;
 import fr.imag.adele.apam.app1.spec.App1Spec;
-import fr.imag.adele.apam.app1.spec.App2Spec;
+import fr.imag.adele.apam.app2.spec.App2Spec;
 
 public class MainApp1 implements App1Spec, ApamComponent {
 
