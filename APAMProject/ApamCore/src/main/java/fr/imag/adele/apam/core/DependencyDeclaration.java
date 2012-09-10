@@ -47,6 +47,10 @@ public class DependencyDeclaration extends TargetDeclaration {
     private final String 			id;
 
     /**
+     * Whether this dependency is declared explicitly as multiple
+     */
+    private final boolean			isMultiple;
+    /**
      * The reference to this declaration
      */
     private final Reference			reference;
@@ -72,17 +76,18 @@ public class DependencyDeclaration extends TargetDeclaration {
 
     private MissingPolicy missingPolicy;
 
-    public DependencyDeclaration(ComponentDeclaration component, String id, ResolvableReference resource) {
+    public DependencyDeclaration(ComponentDeclaration component, String id, boolean isMultiple, ResolvableReference resource) {
 
         super(resource);
 
 
         // Bidirectional reference to encompassing declaration
         assert component != null;
-        this.component		= component;
+        this.component	= component;
         this.component.getDependencies().add(this);
 
-        this.id				= id;
+        this.id			= id;
+        this.isMultiple	= isMultiple;
         reference		= new Reference(component.getReference(),getIdentifier());
 
         implementationPreferences 	= new ArrayList<String>();
@@ -112,15 +117,17 @@ public class DependencyDeclaration extends TargetDeclaration {
     }
 
     /**
-     * The multiplicity of a dependency is calculated from the declaration of injected fields.
+     * The multiplicity of a dependency.
      * 
-     * If this is an abstract declaration in specifications or composites, it's supposed to be
-     * potentially multiple
+     * If there are is calculated from the declaration of injected fields.
+     * 
+     * If this is an abstract declaration in specifications or composites, it must be
+     * explicitly defined.
      */
     public boolean isMultiple() {
 
         if (getInjections().isEmpty())
-            return true;
+            return isMultiple;
 
         // If there is at least one field declared collection the dependency is considered multiple
         for (DependencyInjection injection : getInjections()) {

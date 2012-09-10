@@ -1,13 +1,12 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
-	 <specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2, A.B.C.wrongInterface}"
-	 	message="{M1, M2, M3}" > 
+	 <specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2}" > 
 		<specification name="S4" />
 		<dependency interface="fr.imag.adele.apam.test.s4.S4" />
 <!-- 	<specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2}"> -->
-		<property shared="false" />
-		<property scope="global" />
-		<property test-spec="coucou" type="string" />
+		<property name="shared" value="false" />
+		<property name="scope" value="global" />
+		<property name="test-spec" value="coucou" type="string" />
 		<definition name="b" type="boolean" value="true" />
 		<definition name="c" type="string" />
 		<definition name="Dd" type="int" />

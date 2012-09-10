@@ -21,7 +21,7 @@ import org.osgi.service.wireadmin.WireConstants;
 import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
 import fr.imag.adele.apam.apformipojo.ApformIpojoImplementation;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.core.FieldInjection;
+import fr.imag.adele.apam.core.MessageProducerFieldInjection;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.message.AbstractConsumer;
@@ -120,7 +120,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
     		return;
     	
     	AtomicImplementationDeclaration primitive	= (AtomicImplementationDeclaration) declaration;
-    	for (FieldInjection messageField : primitive.getProducerInjections()) {
+    	for (MessageProducerFieldInjection messageField : primitive.getProducerInjections()) {
     		
     		MessageReference messageReference = messageField.getResource().as(MessageReference.class);
     		

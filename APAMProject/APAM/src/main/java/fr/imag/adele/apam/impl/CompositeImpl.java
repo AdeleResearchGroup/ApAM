@@ -108,7 +108,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 	}
 
 	@Override
-	public void register(Map<String, Object> initialProperties) {		
+	public void register(Map<String, String> initialProperties) {		
 		
 		boolean registerMain = true;
 
@@ -122,8 +122,8 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		 * 
 		 */
 		if (initialProperties != null && initialProperties.get(CST.A_MAIN_INSTANCE) != null) {
-			mainInst = (Instance) initialProperties.remove(CST.A_MAIN_INSTANCE);
-			assert !mainInst.isUsed();
+			mainInst = CST.InstBroker.getInst(initialProperties.remove(CST.A_MAIN_INSTANCE));
+			assert ! mainInst.isUsed();
 		}
 		else {
 			mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this);

@@ -24,7 +24,7 @@ import fr.imag.adele.apam.core.PropertyDefinition;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 
-public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> implements Component, Comparable<Component> {
+public abstract class ComponentImpl extends ConcurrentHashMap<String, String> implements Component, Comparable<Component> {
 
 	private final Object  componentId				= new Object();                 // only for hashCode
 	private static final long serialVersionUID 		= 1L;
@@ -48,9 +48,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * to be called once the Apam entity is fully initialized.
 	 * Computes all its attributes, including inheritance. 
 	 */
-	public void initializeProperties (Map<String, Object> initialProperties) {
-		//get the initial attributes
-		Map<String, Object> props = new HashMap<String, Object> (getDeclaration().getProperties()) ;
+	public void initializeProperties (Map<String, String> initialProperties) {
+		/*
+		 * get the initial attributes from declaration and overriden initial
+		 * properties
+		 */
+		Map<String, String> props = new HashMap<String, String> (getDeclaration().getProperties()) ;
 		if (initialProperties != null)
 			props.putAll(initialProperties);
 
@@ -73,6 +76,17 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			}
 		} 
 
+		/*
+		 * Add the default values specified in the group for properties not
+		 * explicitly specified
+		 */
+		if (group != null) {
+			for (PropertyDefinition definition : group.getDeclaration().getPropertyDefinitions()) {
+				if ( definition.getDefaultValue() != null && get(definition.getName()) == null) 
+					put (definition.getName(),definition.getDefaultValue()) ;
+			}
+		} 
+
 		//Finally add the specific attributes. Should be the only place where instanceof is used.
 		put (CST.A_NAME, apform.getDeclaration().getName()) ;
 		if (this instanceof Specification) {
@@ -85,7 +99,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 				}
 				if (this instanceof Composite) {
 					put(CST.A_COMPOSITE, CST.V_TRUE);
-					put(CST.A_MAIN_INSTANCE, ((CompositeImpl)this).getMainInst());
+					put(CST.A_MAIN_INSTANCE, ((Composite)this).getMainInst().getName());
 				}
 			} else  {
 				if (this instanceof Instance) {
@@ -105,7 +119,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * This methods adds a newly created component to the Apam state model, so that it is visible to the
 	 * external API
 	 */
-	public abstract void register(Map<String, Object> initialProperties);
+	public abstract void register(Map<String, String> initialProperties);
 
 
 	/**
@@ -163,7 +177,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * 
 	 */
 	@Override
-	public Object getProperty(String attr) {
+	public String getProperty(String attr) {
 		return get(attr.toLowerCase());
 	}
 
@@ -173,7 +187,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 
 	@Override
-	public Map<String, Object> getAllProperties() {
+	public Map<String, String> getAllProperties() {
 		return Collections.unmodifiableMap(this);
 	}
 
@@ -182,7 +196,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * the property manager, the underlying execution platform (apform), and propagates to members
 	 */
 	@Override
-	public boolean setProperty(String attr, Object value) {
+	public boolean setProperty(String attr, String value) {
 		// attribute names are in lower case
 		attr = attr.toLowerCase() ;
 
@@ -208,7 +222,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param attr
 	 * @param value
 	 */
-	private void propagateInit (String attr, Object value) {
+	private void propagateInit (String attr, String value) {
 		//Notify the execution platform
 		getApformComponent().setProperty (attr,value);
 
@@ -229,7 +243,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param value attribute value
 	 */
 
-	private void propagate (String attr, Object value) {
+	private void propagate (String attr, String value) {
 		//Change value and notify managers
 		setInternalProperty(attr,value);
 
@@ -253,8 +267,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * TODO,IMPORTANT This method should be private, but it is actually directly invoked by 
 	 * apform to avoid notification loops. We need to refactor the different APIs of Apam.  
 	 */
-	public void setInternalProperty(String attr, Object value) {
-		Object oldValue = get(attr);
+	public void setInternalProperty(String attr, String value) {
+		String oldValue = get(attr);
 		put(attr, value);
 		/*
 		 * notify property managers
@@ -272,9 +286,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * the value to avoid partial modifications ?
 	 */
 	@Override
-	public boolean setAllProperties(Map<String, Object> properties) {
+	public boolean setAllProperties(Map<String, String> properties) {
 		for (String attr : properties.keySet()) {
-			Object value = properties.get(attr);
+			String value = properties.get(attr);
 			if (! setProperty(attr, value))
 				return false;
 		}
@@ -290,7 +304,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	public boolean removeProperty(String attr) {
 		
-		Object oldValue = getProperty(attr) ;
+		String oldValue = getProperty(attr) ;
 		
 		if (oldValue == null) {
 			logger.error("ERROR: \"" + attr + "\" not instanciated");
@@ -381,7 +395,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param value
 	 * @return
 	 */
-	private boolean validDef (String attr, Object value) {
+	private boolean validDef (String attr, String value) {
 		attr = attr.toLowerCase() ;
 		if (Util.isPredefinedAttribute(attr))
 			return true;
@@ -434,7 +448,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if ((goals == null) || goals.isEmpty())
 			return true;
 
-		Map<String,Object> props = getAllProperties() ;
+		Map<String,String> props = getAllProperties() ;
 		try {
 			for (Filter f : goals) {
 				if (!((ApamFilter) f).matchCase(props)) {

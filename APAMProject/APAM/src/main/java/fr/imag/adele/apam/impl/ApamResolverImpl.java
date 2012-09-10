@@ -182,8 +182,8 @@ public class ApamResolverImpl implements ApamResolver {
         /*
          * Create an instance of the application with the specified main
          */
-        Map<String, Object> initialProperties = new HashMap<String, Object>();
-        initialProperties.put(CST.A_MAIN_INSTANCE, mainInst) ;
+        Map<String, String> initialProperties = new HashMap<String, String>();
+        initialProperties.put(CST.A_MAIN_INSTANCE, mainInst.getName()) ;
 		return (Composite)application.createInstance(null, initialProperties);
     }
 

@@ -390,7 +390,7 @@ public class ApamFilter implements Filter {
                             + ". Invalid constraint " + f);
                 }
                 if (validAttr.containsKey(attr)) {
-                	Util.checkAttrType(attr, value, validAttr.get(attr));
+                	Util.checkAttrType(attr, (String)value, validAttr.get(attr));
                 }
             }
 

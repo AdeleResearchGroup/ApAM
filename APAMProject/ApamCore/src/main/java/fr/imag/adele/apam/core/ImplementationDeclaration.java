@@ -43,6 +43,13 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
     }
 
     @Override
+    public boolean resolves(DependencyDeclaration dependency) {
+        return	super.resolves(dependency) ||
+        		( getSpecification() != null && getSpecification().equals(dependency.getTarget())) ||
+				dependency.getTarget().equals(this.getReference());
+   }
+
+    @Override
     public String toString() {
         String ret = "Implementation declaration " + super.toString();
         String specificationName = (specification != null? specification.getIdentifier() : "null");

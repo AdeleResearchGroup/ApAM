@@ -169,7 +169,7 @@ public  class APAMTest {
 	        System.out.println("=====================================\nA composite inside another composite\n\n");
 
 	        // testing initial properties
-	        Map<String, Object> props = new HashMap<String, Object>();
+	        Map<String, String> props = new HashMap<String, String>();
 	        props.put("testMain", "valeurTestMain"); // not declared
 	        props.put("scope", "5"); // redefined
 	        props.put("impl-name", "5"); // final

@@ -1,0 +1,101 @@
+<repository lastmodified='20120910053847.038'>
+  <resource id='S3Impl/0.0.1.SNAPSHOT' symbolicname='S3Impl' presentationname='S3Impl' uri='/C:/Program%20Files/Apache%20Software%20Foundation/apache-maven-2.2.1/repository/fr/imag/adele/apam/S3Impl/0.0.1-SNAPSHOT/S3Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>6872</size>
+    <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
+    <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
+    <capability name='bundle'>
+      <p n='symbolicname' v='S3Impl'/>
+      <p n='presentationname' v='S3Impl'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='fr.imag.adele.apam.test.s3Impl'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='uses:' v='fr.imag.adele.apam.test.s4,fr.imag.adele.apam,fr.imag.adele.apam.test.s3,fr.imag.adele.apam.test.s5'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='S3Impl'/>
+      <p n='component-type' v='implementation'/>
+      <p n='impl-name' v='S3Impl'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s3.S3_1;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s3.S3_2;]'/>
+      <p n='provide-specification' v='S3'/>
+      <p n='shared' v='false'/>
+      <p n='spec-name' v='S3'/>
+      <p n='cs3' v='xxx'/>
+      <p n='bs3' v='yes'/>
+      <p n='a2' v='5'/>
+      <p n='test-deux' v='anotherValue'/>
+      <p n='definition-s3impl-attr' t='string' v=''/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='S2Simple-inst-from-S3Impl'/>
+      <p n='component-type' v='instance'/>
+      <p n='inst-name' v='S2Simple-inst-from-S3Impl'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='s3Impl-int'/>
+      <p n='component-type' v='instance'/>
+      <p n='inst-name' v='s3Impl-int'/>
+      <p n='shared' v='false'/>
+      <p n='impl-name' v='S3Impl'/>
+      <p n='spec-name' v='S3'/>
+      <p n='cs3' v='xxx'/>
+      <p n='bs3' v='yes'/>
+      <p n='a2' v='5'/>
+      <p n='test-deux' v='anotherValue'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='S3Impl-instance1'/>
+      <p n='component-type' v='instance'/>
+      <p n='inst-name' v='S3Impl-instance1'/>
+      <p n='shared' v='false'/>
+      <p n='impl-name' v='S3Impl'/>
+      <p n='spec-name' v='S3'/>
+      <p n='cs3' v='xxx'/>
+      <p n='bs3' v='yes'/>
+      <p n='a2' v='5'/>
+      <p n='test-deux' v='anotherValue'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='S3Impl-instance2'/>
+      <p n='component-type' v='instance'/>
+      <p n='inst-name' v='S3Impl-instance2'/>
+      <p n='shared' v='false'/>
+      <p n='impl-name' v='S3Impl'/>
+      <p n='spec-name' v='S3'/>
+      <p n='cs3' v='xxx'/>
+      <p n='bs3' v='yes'/>
+      <p n='a2' v='5'/>
+      <p n='test-deux' v='anotherValue'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='S3Impl-instance3'/>
+      <p n='component-type' v='instance'/>
+      <p n='inst-name' v='S3Impl-instance3'/>
+      <p n='shared' v='false'/>
+      <p n='impl-name' v='S3Impl'/>
+      <p n='spec-name' v='S3'/>
+      <p n='cs3' v='xxx'/>
+      <p n='bs3' v='yes'/>
+      <p n='a2' v='5'/>
+      <p n='test-deux' v='anotherValue'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <require name='package' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.log;version=1.3</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo.architecture)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo.architecture;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.test.s4)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.test.s4;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.test.s3)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.test.s3;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.test.s5)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.test.s5;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
+    <require name='apam-component' filter='(&amp;(name=S3)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S3</require>
+    <require name='apam-component' filter='(&amp;(name=S4)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S4</require>
+  </resource>
+</repository>

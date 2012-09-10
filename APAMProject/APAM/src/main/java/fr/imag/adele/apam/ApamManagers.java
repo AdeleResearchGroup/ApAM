@@ -160,19 +160,19 @@ public class ApamManagers {
      * Notification events for property changes
      */
 
-    public static void notifyAttributeAdded(Component component, String attr, Object value) {
+    public static void notifyAttributeAdded(Component component, String attr, String value) {
         for (PropertyManager manager : ApamManagers.propertyManagers) {
             manager.attributeAdded(component, attr, value);
         }	
     }
 
-    public static void notifyAttributeChanged(Component component, String attr, Object newValue, Object oldValue) {
+    public static void notifyAttributeChanged(Component component, String attr, String newValue, String oldValue) {
         for (PropertyManager manager : ApamManagers.propertyManagers) {
             manager.attributeChanged(component, attr, newValue, oldValue);
         }	
     }
 
-    public static void notifyAttributeRemoved(Component component, String attr, Object oldValue) {
+    public static void notifyAttributeRemoved(Component component, String attr, String oldValue) {
         for (PropertyManager manager : ApamManagers.propertyManagers) {
             manager.attributeRemoved(component, attr, oldValue);
         }	

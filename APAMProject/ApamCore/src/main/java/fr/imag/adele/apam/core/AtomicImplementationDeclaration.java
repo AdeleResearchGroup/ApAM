@@ -50,7 +50,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
     /**
      * The list of injected fields declared for message producers of this implementation
      */
-    private final Set<FieldInjection> producerInjections;
+    private final Set<MessageProducerFieldInjection> producerInjections;
 
     public AtomicImplementationDeclaration(String name, SpecificationReference specification, Instrumentation instrumentation) {
         super(name, specification);
@@ -59,7 +59,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 
         this.instrumentation 		= instrumentation;
         this.dependencyInjections	= new HashSet<DependencyInjection>();
-        this.producerInjections		= new HashSet<FieldInjection>();
+        this.producerInjections		= new HashSet<MessageProducerFieldInjection>();
     }
 
 	/**
@@ -105,7 +105,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
     /**
      * The list of fields that must be injected in this implementation for handling message producers
      */
-    public Set<FieldInjection> getProducerInjections() {
+    public Set<MessageProducerFieldInjection> getProducerInjections() {
         return producerInjections;
     }
 
@@ -120,7 +120,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         }
         if (producerInjections.size() != 0) {
             ret += "\n    Injected message producer fields : ";
-            for (FieldInjection injection : producerInjections) {
+            for (MessageProducerFieldInjection injection : producerInjections) {
                 ret += " " + injection.getFieldName();
             }
         }

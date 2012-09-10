@@ -48,7 +48,7 @@ public interface Implementation extends Component {
      * @param initialproperties the initial properties
      * @return the instance
      */
-    public Instance createInstance(Composite instCompo, Map<String, Object> initialproperties);
+    public Instance createInstance(Composite instCompo, Map<String, String> initialproperties);
 
 
     /**

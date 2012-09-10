@@ -9,10 +9,11 @@ import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.BundleContext;
 
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.apform.ApformCompositeType;
+import fr.imag.adele.apam.core.CompositeDeclaration;
 
-public class ApformIpojoCompositeType extends ApformIpojoImplementation {
+public class ApformIpojoCompositeType extends ApformIpojoImplementation implements ApformCompositeType {
 
    
     /**
@@ -47,10 +48,6 @@ public class ApformIpojoCompositeType extends ApformIpojoImplementation {
 				managerModels.add(new ManagerModel(managerName, modelURL));
         }
         
-    	
-    	// add models to properties
-    	getDeclaration().getProperties().put(CST.A_MODELS, getManagerModels());
-
     }
 
     @Override
@@ -58,6 +55,10 @@ public class ApformIpojoCompositeType extends ApformIpojoImplementation {
     	super.check(element);
 	}
 	
+    @Override
+    public CompositeDeclaration getDeclaration() {
+    	return (CompositeDeclaration) super.getDeclaration();
+    };
     /**
      * This factory doesn't have an associated instrumented class
      */
@@ -80,7 +81,7 @@ public class ApformIpojoCompositeType extends ApformIpojoImplementation {
     /**
      * Get The list of models associated to this composite
      */
-    public Set<ManagerModel> getManagerModels() {
+    public Set<ManagerModel> getModels() {
         return managerModels;
     }
 

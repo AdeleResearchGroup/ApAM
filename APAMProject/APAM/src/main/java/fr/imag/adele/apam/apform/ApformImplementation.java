@@ -18,7 +18,7 @@ public interface ApformImplementation extends ApformComponent {
      * @param initialproperties the initial properties
      * @return the platform instance
      */
-    public ApformInstance createInstance(Map<String, Object> initialproperties);
+    public ApformInstance createInstance(Map<String, String> initialproperties);
 
     /**
      * If a specification exists in the platform, returns the associated spec.

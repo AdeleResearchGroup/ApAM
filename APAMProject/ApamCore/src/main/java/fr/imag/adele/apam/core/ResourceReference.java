@@ -21,6 +21,10 @@ public abstract class ResourceReference extends Reference implements ResolvableR
 	 * A singleton object to represent undefined references
 	 */
 	public final static ResourceReference UNDEFINED = new ResourceReference("<Unavailable>") {
+	    @Override
+	    public String toString() {
+	        return "resource UNKNOWN";
+	    }
 	};
 	
     private final String type;

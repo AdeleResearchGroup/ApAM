@@ -18,8 +18,8 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ImplementationBroker;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
+import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformImplementation;
-import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.util.ApamInstall;
 
 public class ImplementationBrokerImpl implements ImplementationBroker {
@@ -31,8 +31,7 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
 			.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
 	@Override
-	public Implementation addImpl(CompositeType composite,
-			ApformImplementation apfImpl) {
+	public Implementation addImpl(CompositeType composite, ApformImplementation apfImpl) {
 
 		String implementationName = apfImpl.getDeclaration().getName();
 		String specificationName = apfImpl.getDeclaration().getSpecification() != null ? apfImpl.getDeclaration().getSpecification().getName() : null;
@@ -66,8 +65,8 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
 			composite = CompositeTypeImpl.getRootCompositeType();
 
 		// create a primitive or composite implementation
-		if (apfImpl.getDeclaration() instanceof CompositeDeclaration) {
-			implementation = new CompositeTypeImpl(composite, apfImpl);
+		if (apfImpl instanceof ApformCompositeType) {
+			implementation = new CompositeTypeImpl(composite,(ApformCompositeType)apfImpl);
 		} else {
 			implementation = new ImplementationImpl(composite, apfImpl);
 		}
@@ -77,7 +76,7 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
 	}
 
 	@Override
-	public Implementation createImpl(CompositeType compo, String implName, URL url, Map<String, Object> properties) {
+	public Implementation createImpl(CompositeType compo, String implName, URL url, Map<String, String> properties) {
 		assert implName != null && url != null;
 
 		Implementation impl = getImpl(implName);

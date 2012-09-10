@@ -2,9 +2,7 @@
 	<implementation name="S5Impl"
 		classname="fr.imag.adele.apam.test.s5Impl.S5Impl" specification="S5">
 		<dependency field="s2_inv" />
-		<properties>
-			<property s5b="false" />
-			<property s5c="vals5c" />
-		</properties>
+			<property name="s5b" value="false" />
+			<property name="s5c" value="vals5c" />
 	</implementation>
 </ipojo>

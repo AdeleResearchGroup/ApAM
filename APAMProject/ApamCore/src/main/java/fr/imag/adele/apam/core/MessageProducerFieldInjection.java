@@ -1,12 +1,13 @@
 package fr.imag.adele.apam.core;
 
 /**
- * This class declares a field in a java implementation that must be injected with a resource by the runtime
+ * This class declares a field in a java implementation that must be injected with a reference to a
+ * message producer
  * 
  * @author vega
  * 
  */
-public class FieldInjection {
+public class MessageProducerFieldInjection {
 
 	/**
 	 * The atomic implementation declaring this injection
@@ -18,7 +19,7 @@ public class FieldInjection {
 	 */
 	protected final String fieldName;
 
-    public FieldInjection(AtomicImplementationDeclaration implementation, String fieldName) {
+    public MessageProducerFieldInjection(AtomicImplementationDeclaration implementation, String fieldName) {
 
         assert implementation != null;
         assert fieldName != null;

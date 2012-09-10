@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,9 +46,9 @@ public class ApamRepoBuilder {
 	 * <code>true</code> the local XSD are not used.
 	 */
 
-	public ApamRepoBuilder(List<ComponentDeclaration> components, String defaultOBRRepo) {
+	public ApamRepoBuilder(List<ComponentDeclaration> components, List<URL> OBRRepos) {
 		this.components = components ;
-		ApamCapability.init (components, defaultOBRRepo + File.separator +"repository.xml") ;
+		ApamCapability.init(components, OBRRepos) ;
 	}
 
 	public StringBuffer writeOBRFile() {
@@ -157,7 +158,7 @@ public class ApamRepoBuilder {
 
 
 	private void printProperties(StringBuffer obrContent, ComponentDeclaration component) {
-		Map<String, Object> properties = CheckObr.getValidProperties(component) ;
+		Map<String, String> properties = CheckObr.getValidProperties(component) ;
 		for (String attr : properties.keySet()) { 
 			generateProperty (obrContent, component, attr, properties.get(attr)) ;
 		}
@@ -167,6 +168,11 @@ public class ApamRepoBuilder {
 		for (PropertyDefinition definition : definitions) {
 			//String tempContent = "      <p n='" + CST.A_DEFINITION_PREFIX + definition.getName() + "'";
 			String type = definition.getType();
+			String defaultValue = definition.getDefaultValue();
+			
+			if (defaultValue == null)
+				defaultValue = "";
+			
 			if (type != null) {
 				String typeString = null;
 				if (type.equals("string") || type.equals("int") || type.equals("boolean")) {
@@ -188,7 +194,7 @@ public class ApamRepoBuilder {
 				if (typeString != null) {
 					//tempContent = tempContent + (" v='" + typeString + "' />\n");
 					//obrContent.append(tempContent);
-					generateProperty (obrContent, component, CST.A_DEFINITION_PREFIX + definition.getName(), typeString) ;
+					generateTypedProperty (obrContent, component, CST.A_DEFINITION_PREFIX + definition.getName(), typeString, defaultValue) ;
 				}
 			}
 		}
@@ -243,7 +249,7 @@ public class ApamRepoBuilder {
 		}
 	}
 
-	private void generateProperty (StringBuffer obrContent, ComponentDeclaration component, String attr, Object value) {
+	private void generateProperty (StringBuffer obrContent, ComponentDeclaration component, String attr, String value) {
 		if  (ApamCapability.get(component.getReference()).putAttr (attr, value)) {
 			obrContent.append("      <p n='" + attr + "' v='" + value + "' />\n");
 			return ;
@@ -251,7 +257,7 @@ public class ApamRepoBuilder {
 		CheckObr.error ("Property " + attr + " already defined for  " + component.getName()) ;
 	}
 
-	private void generateTypedProperty (StringBuffer obrContent, ComponentDeclaration component, String attr, String type, Object value) {
+	private void generateTypedProperty (StringBuffer obrContent, ComponentDeclaration component, String attr, String type, String value) {
 		if  (ApamCapability.get(component.getReference()).putAttr (attr, value)) {
 			obrContent.append("      <p n='" + attr + "' t='" + type + "' v='" + value + "' />\n");
 			return ;

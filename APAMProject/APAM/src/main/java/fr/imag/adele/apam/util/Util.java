@@ -375,19 +375,12 @@ public class Util {
      * @param value
      * @param type
      */
-    public static boolean checkAttrType(String attr, Object val, String type) {
-        if ((type == null) || (val == null))
+    public static boolean checkAttrType(String attr, String value, String type) {
+        if ((type == null) || (value == null))
             return false;
-
-        if (!(val instanceof String)) {
-            logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr
-                    + "\".  String value expected");
-            return false;
-        }
-        String value = (String) val;
 
         if (type.equals("boolean") && !value.equalsIgnoreCase(CST.V_TRUE) && !value.equalsIgnoreCase(CST.V_FALSE)) {
-            logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr
+            logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
                     + "\".  Boolean value expected");
             return false;
         }
@@ -396,7 +389,7 @@ public class Util {
                 Integer.parseInt(value);
                 return true;
             } catch (Exception e) {
-                logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr
+                logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
                         + "\".  Integer value expected");
                 return false;
             }
@@ -407,7 +400,7 @@ public class Util {
                 if (one.equals(value))
                     return true;
             }
-            String errorMes = "Invalid attribute value \"" + val + "\" for attribute \"" + attr + "\".  Expected: \"{" ;
+            String errorMes = "Invalid attribute value \"" + value + "\" for attribute \"" + attr + "\".  Expected: \"{" ;
             for (String one : enumVals) {
             	errorMes += one + " ";
             }

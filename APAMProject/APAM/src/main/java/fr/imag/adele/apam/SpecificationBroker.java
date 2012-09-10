@@ -30,7 +30,7 @@ public interface SpecificationBroker {
      *            return an ASM Specification
      */
     public Specification createSpec(String specName, Set<ResourceReference> resources,
-            Map<String, Object> properties);
+            Map<String, String> properties);
 
     /**
      * Creates and deploys a specification.
