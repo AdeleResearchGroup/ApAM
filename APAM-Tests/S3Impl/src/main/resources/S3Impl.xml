@@ -11,7 +11,7 @@
 <ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 	<implementation name="S3Impl"
 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="S3">
-		<property name="test" vlaue="bof" type="string" />
+		<property name="test" value="bof" type="string" />
 		<property name="shared" value="false" type="string" />
 		<dependency field="s5" />
 		<definition name="S3Impl-Attr" type="string" />

@@ -39,7 +39,7 @@
 							<localObr>true</localObr>
 							<dependencyObrList>
 								<param>file:/F:/Maven/.m2/repository.xml</param>
-<!-- 								<param>retest..falseURL</param>								 -->
+ 								<param>retest..falseURL</param>								 
 							</dependencyObrList>
 						</configuration>
 					</execution>

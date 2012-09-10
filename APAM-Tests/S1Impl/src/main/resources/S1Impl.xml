@@ -2,9 +2,9 @@
 
 	<implementation name="S1Impl"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1">
-		<property shared="false" />
-		<property location="living" />
-		<property location="elsewhere" />
+		<property name="shared" value="false" />
+		<property name="location" value="living" />
+		<property name="location" value="elsewhere" />
 		<definition name="cczerrt" type="boolean" />
 		<definition name="myEnum" type="{v1, v2, v3}" />
 		<dependency specification="S2" field="s2Spec" />
@@ -22,9 +22,9 @@
 	</implementation>
 
 	<apam-instance implementation="S1toS2Final" name="S1toS2Final-instance" >
-		<property S1toS2Final-Bool="xxx" />
-		<property S1toS2Final-String1="a String Value" />
-		<property badAttr="yyy" />
+		<property name="S1toS2Final-Bool" value="xxx" />
+		<property name="S1toS2Final-String1" value="a String Value" />
+		<property name="badAttr" value="yyy" />
 	</apam-instance>
 
 	<composite name="S1CompoFinal" mainImplem="S1toS2Final"
