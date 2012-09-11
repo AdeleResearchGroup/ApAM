@@ -309,6 +309,8 @@ public class ApamCapability {
 	 */
 	public boolean putAttr (String attr, String value) {
 		if (finalProperties.get(attr) != null) {
+			CheckObr.warning("Attribute " + attr + " already set on " + getName() 
+					+ " (old value=" + finalProperties.get(attr) + " new value=" + value + ")") ;
 			return false ;
 		}
 		finalProperties.put(attr, value) ;

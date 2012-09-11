@@ -2,7 +2,7 @@
 	<implementation name="S4Impl"
 		classname="fr.imag.adele.apam.test.s4Impl.S4Impl" specification="S4">
 		<property name="shared" value="false" />
-		<property name="b" value="true" />
+		<property name="b" value="true" type="boolean"/>
 		<dependency field="s5">
 			<constraints>
 				<constraint filter="(apam-composite=true)" />

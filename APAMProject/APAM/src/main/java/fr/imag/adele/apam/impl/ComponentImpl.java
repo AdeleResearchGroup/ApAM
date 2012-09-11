@@ -64,7 +64,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 			if (Util.validAttr(this.getName(), attr)) {
 				//At initialization, all valid attributes are ok for specs
 				if (group == null || validDef (attr, props.get(attr)))
-					put (attr.toLowerCase(), props.get(attr)) ;
+					put (attr, props.get(attr)) ;
 			}
 		}
 
@@ -142,7 +142,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 */
 	@Override
 	public int compareTo(Component that) {  
-		return this.getName().toLowerCase().compareTo(that.getName().toLowerCase());
+		return this.getName().compareTo(that.getName());
 	}
 
 	/**
@@ -178,7 +178,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 */
 	@Override
 	public String getProperty(String attr) {
-		return get(attr.toLowerCase());
+		return get(attr);
 	}
 
 	/**
@@ -198,7 +198,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	@Override
 	public boolean setProperty(String attr, String value) {
 		// attribute names are in lower case
-		attr = attr.toLowerCase() ;
+		//attr = attr ;
 
 		/*
 		 * Validate that the property is defined and the value is valid 
@@ -282,7 +282,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	/**
 	 * Sets all the values of the specified properties
 	 * 
-	 * TODO Should we validate all attributes before actually modifying
+	 * We validate all attributes before actually modifying
 	 * the value to avoid partial modifications ?
 	 */
 	@Override
@@ -348,7 +348,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 */
 	private void propagateRemove (String attr) {
 		
-		remove(attr.toLowerCase()) ;
+		remove(attr) ;
 
 		if (getMembers() == null)
 			return;
@@ -396,7 +396,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * @return
 	 */
 	private boolean validDef (String attr, String value) {
-		attr = attr.toLowerCase() ;
+		//attr = attr.toLowerCase() ;
 		if (Util.isPredefinedAttribute(attr))
 			return true;
 

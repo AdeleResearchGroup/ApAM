@@ -1,7 +1,7 @@
 <ipojo xmlns="fr.imag.adele.apam">
 	<composite name="S5CompEx" mainImplem="S5Impl" specification="S5"
 		interfaces="[fr.imag.adele.apam.test.s5.S5,fr.imag.adele.apam.ApamComponent]">
-		<property name="valuemyproperty" value="true" />
+		<property name="valuemyproperty" value="true" type="boolean"/>
 		<property name="localInstance" value="true" />
 		<property name="localImplementation" value="true" />
 		<property name="borrowInstance" value="false" />

@@ -254,7 +254,7 @@ public class ApamRepoBuilder {
 			obrContent.append("      <p n='" + attr + "' v='" + value + "' />\n");
 			return ;
 		}
-		CheckObr.error ("Property " + attr + " already defined for  " + component.getName()) ;
+		//CheckObr.error ("Property " + attr + " already defined for  " + component.getName()) ;
 	}
 
 	private void generateTypedProperty (StringBuffer obrContent, ComponentDeclaration component, String attr, String type, String value) {
@@ -262,7 +262,7 @@ public class ApamRepoBuilder {
 			obrContent.append("      <p n='" + attr + "' t='" + type + "' v='" + value + "' />\n");
 			return ;
 		}
-		CheckObr.error ("Property " + attr + " already defined for  " + component.getName()) ;
+		//CheckObr.error ("Property " + attr + " already defined for  " + component.getName()) ;
 	}
 
 

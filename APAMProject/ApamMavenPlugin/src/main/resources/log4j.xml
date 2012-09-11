@@ -11,13 +11,13 @@
     <appender name="file-appender" class="org.apache.log4j.FileAppender">
         <param name="encoding" value="UTF-8" />
         <param name="file" value="toto.txt" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="conversionPattern" value="%d{dd/MM/yyyy HH:mm:ss} - %m%n" />
-        </layout>
+<!--         <layout class="org.apache.log4j.PatternLayout"> -->
+<!--             <param name="conversionPattern" value="%d{dd/MM/yyyy HH:mm:ss} - %m%n" /> -->
+<!--         </layout> -->
     </appender>
 
     <root>
-        <level value="DEBUG" />
+        <level value="ERROR" />
         <appender-ref ref="console-appender" />
     </root>
 
