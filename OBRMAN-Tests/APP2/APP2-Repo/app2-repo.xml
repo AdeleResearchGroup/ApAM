@@ -1,6 +1,6 @@
-<repository lastmodified='20120910062232.865'>
+<repository lastmodified='20120910062646.817'>
   <resource id='APP2-Spec/0.0.1.SNAPSHOT' symbolicname='APP2-Spec' presentationname='APP2-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/APP2-Spec/0.0.1-SNAPSHOT/APP2-Spec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>3635</size>
+    <size>3636</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
