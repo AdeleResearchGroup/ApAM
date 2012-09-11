@@ -1,14 +1,11 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.felix.bundlerepository.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,12 +16,8 @@ import fr.imag.adele.apam.core.ComponentReference;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.DependencyInjection;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.ImplementationReference;
-import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
-import fr.imag.adele.apam.core.PropertyDefinition;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
@@ -116,7 +109,6 @@ public class CheckObr {
 
 		//return the valid attributes
 		for (String attr : properties.keySet()) {
-			attr = attr.toLowerCase() ;
 			if (validDefObr (entCap, attr, properties.get(attr))) {
 				ret.put(attr, properties.get(attr)) ;
 			}
@@ -134,7 +126,7 @@ public class CheckObr {
 		
 		/*
 		 * Add the default values specified in the group for properties not
-		 * explicitly specified
+		 * explicitly initialized
 		 */
 		if (group != null) {
 			for (String prop : group.getValidAttrNames().keySet()) {
@@ -166,16 +158,18 @@ public class CheckObr {
 		if (Util.isPredefinedAttribute(attr))return true ; ;
 		if (!Util.validAttr(ent.getName(), attr)) return false  ;
 		
-		//Top group all is Ok
-		ApamCapability group = ent.getGroup() ;
-		if (group == null) return true ;
+//		//Top group all is Ok
+//		ApamCapability group = ent.getGroup() ;
+//		if (group == null) return true ;
 		
-		if (group.getProperties().get(attr) != null)  {
+		if (ent.getGroup()!= null && ent.getGroup().getProperties().get(attr) != null)  {
 			warning("Cannot redefine attribute \"" + attr + "\"");
 			return false ;
 		}
 
 		String defAttr = null ;
+		//if we are at top level, the attribute definition is at the same level; otherwise it must be defined "above"
+		ApamCapability group = (ent.getGroup() == null) ? ent : ent.getGroup() ;
 		while (group != null) {
 			defAttr = group.getAttrDefinition(attr)  ;
 			if (defAttr != null) break ;

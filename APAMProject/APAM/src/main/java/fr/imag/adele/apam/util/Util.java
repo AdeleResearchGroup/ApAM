@@ -312,7 +312,7 @@ public class Util {
 
     public static boolean isPredefinedAttribute(String attr) {
         for (String pred : CST.predefAttributes) {
-            if (pred.equals(attr.toLowerCase()))
+            if (pred.equals(attr))
                 return true;
         }
         return false;
@@ -321,7 +321,7 @@ public class Util {
     public static boolean isInheritedAttribute(String attr) {
     	if (isReservedAttributePrefix(attr)) return false ;
         for (String pred : CST.notInheritedAttribute) {
-            if (pred.equals(attr.toLowerCase()))
+            if (pred.equals(attr))
                 return false;
         }
         return true;
@@ -329,7 +329,7 @@ public class Util {
     
     public static boolean isFinalAttribute(String attr) {
         for (String pred : CST.finalAttributes) {
-            if (pred.equals(attr.toLowerCase()))
+            if (pred.equals(attr))
                 return true;
         }
         return false;
@@ -351,7 +351,7 @@ public class Util {
 	 * Cannot be a reserved attribute
 	 */
 	public static boolean validAttr(String component, String attr) {
-		attr = attr.toLowerCase();
+		//attr = attr.toLowerCase();
 		if (Util.isPredefinedAttribute(attr))
 			return true;
 

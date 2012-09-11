@@ -107,10 +107,11 @@ public class ApamFilter implements Filter {
 
     ApamFilter(int operation, String attr, Object value) {
         op = operation;
-        if (attr != null) {
-            this.attr = attr.toLowerCase();
-        } else
-            this.attr = null;
+        this.attr = attr ;
+//        if (attr != null) {
+//            this.attr = attr.toLowerCase();
+//        } else
+//            this.attr = null;
         this.value = value;
         Object conv = null;
         try {

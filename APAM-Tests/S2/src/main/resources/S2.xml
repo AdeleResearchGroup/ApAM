@@ -5,7 +5,7 @@
 		<dependency interface="fr.imag.adele.apam.test.s4.S4" />
 <!-- 	<specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2}"> -->
 		<property name="shared" value="false" />
-		<property name="scope" value="global" />
+		<property name="scope" value="global" type="string"/>
 		<property name="test-spec" value="coucou" type="string" />
 		<definition name="b" type="boolean" value="true" />
 		<definition name="c" type="string" />

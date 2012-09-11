@@ -157,6 +157,8 @@ public class MainApam implements Runnable, ApamComponent {
 		assertTrue(appliTestAttr != null);
 
 		Instance appliTestAttr_0 = appliTestAttr.createInstance(null /* composite */, props/* properties */);
+		System.out.println("Tested instance : " + appliTestAttr_0.getName());
+
 		//since the composite type has no spec, all initial values are valid.
 		assertTrue (appliTestAttr_0 != null) ;
 		assertEquals (appliTestAttr_0.getProperty("testMain"), "valeurTestMain") ;
@@ -173,20 +175,26 @@ public class MainApam implements Runnable, ApamComponent {
 
 		/*
  	<specification name="S1" interfaces="fr.imag.adele.apam.test.s1.S1"  >
-		<property S1-Attr="coucou" type="string"/>
-		<definition name="s1b" type="boolean" value="true" />
-		<definition name="s1c" type="string" />
-		<definition name="s1i" type="int" />
-		<definition name="location" type="{living, kitchen, bedroom}" />
-		<definition name="testEnumere" type="{v1, v2, v3, v4}" />
-		<definition name="OS" type="{Linux, Windows, Android, IOS}" />
+			<property name="S1-Enum" value="s1-2" type="{s1-1, s1-2, s1-3}"/>
+			<property name="S1-Attr" value="coucou" type="string"/>
+			<definition name="s1b" type="boolean" value="true" />
+			<definition name="s1c" type="string" />
+			<definition name="s1i" type="int" />
+			<definition name="location" type="{living, kitchen, bedroom}" value="bedroom" />
+			<definition name="testEnumere" type="{v1, v2, v3, v4}" />
+			<definition name="OS" type="{Linux, Windows, Android, IOS}" />
 
 	<implementation name="S1toS2Final"
-		<property S1toS2Final-Attr="couscous" type="string" />
-		<property testEnumere="v2" type="string" />
+		<property name="S1toS2Final-Attr" value="couscous" type="string" />
+		<property name="spec-name" value="yyy"  />
+		<property name="definition-xx" value="ttt" />
+		<property name="s1b" value="xyze=" />
+		<property name="OS" value="pas bon" />
+		<property name="testEnumere" value="v2" />
 		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
 		<definition name="S1toS2Final-String1" type="string" />
-		<definition name="S1toS2Final-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" />
+		<definition name="S1toS2Final-location"
+			type="{FinalLiving, FinalKitchen, FinalLedroom}" />
 		<definition name="enumeration" type="{f1, f2, f3, f4}" />
 		
 	<instance implementation="S1toS2Final" name="S1toS2Final-instance" >
@@ -208,29 +216,29 @@ public class MainApam implements Runnable, ApamComponent {
 		Specification spec = impl.getSpec() ;
 		Instance inst = null ;
 		inst = impl.getInst() ; // any instance 
+		System.out.println("Tested instance : " + inst + ". TestedImpl : " + impl);
 
-//		inst = CST.InstBroker.getInst("S1toS2Final-instance") ; //instance of S1toS2Final, spec S1
-//		while (inst == null) {
-//			inst = CST.InstBroker.getInst("S1toS2Final-instance") ; //instance of S1toS2Final, spec S1
-//			if (inst != null)
-//				break ;
-//			try {
-//				Thread.sleep(1000) ;
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-//		assertTrue (inst != null) ;
 		
 		//check attributes defined in the xml
 		System.out.println("=========== start testing xml attributes");
 
-		assertEquals (spec.getProperty("S1-Attr"), "coucou") ; //case insensitive for attr
-		assertEquals (spec.getProperty("s1-attr"), "coucou") ;
-		assertNotEquals (spec.getProperty("s1-attr"), "Coucou") ; // case sensitive for value
-		assertEquals (impl.getProperty("s1-attr"), "coucou") ;
-		assertEquals (inst.getProperty("s1-attr"), "coucou") ;
+		assertEquals (spec.getProperty("S1-Attr"), "coucou") ; 
+		assertNotEquals (spec.getProperty("s1-attr"), "coucou") ; //case sensitive for attr
+		assertNotEquals (spec.getProperty("S1-Attr"), "Coucou") ; // case sensitive for value
+		assertEquals (impl.getProperty("S1-Attr"), "coucou") ;
+		assertEquals (inst.getProperty("S1-Attr"), "coucou") ;
+
+		assertEquals (spec.getProperty("S1-Enum"), "s1-2") ; 
+		assertEquals (impl.getProperty("S1-Enum"), "s1-2") ;
+		assertEquals (inst.getProperty("S1-Enum"), "s1-2") ;
+		
+		//default values S1toS2Final-Attr
+		assertNotEquals (spec.getProperty("s1b"), "true") ;
+		assertEquals (impl.getProperty("s1b"), "true") ;
+		assertEquals (inst.getProperty("s1b"), "true") ;
+		assertEquals (impl.getProperty("location"), "bedroom") ;
+		assertEquals (inst.getProperty("S1toS2Final-Bool"), "true") ;
+		assertNotEquals (impl.getProperty("S1toS2Final-Bool"), "true") ;
 
 		assertTrue (impl.getProperty("S1toS2Final-Attr") == null) ;
 		assertTrue (inst.getProperty("S1toS2Final-Attr") == null) ;
@@ -246,7 +254,7 @@ public class MainApam implements Runnable, ApamComponent {
 
 		System.out.println("=========== start testing setting attributes");
 
-		//Setting spec attributes. Only changing those defined
+		//Setting spec attributes. 
 		spec.setProperty("xxx", "value") ;
 		assertTrue (spec.getProperty("xxx") == null) ;
 
@@ -255,6 +263,18 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals (impl.getProperty("S1-Attr"), "New-value") ;
 		assertEquals (inst.getProperty("S1-Attr"), "New-value") ;
 
+		spec.setProperty("S1-Enum", "New-value") ;
+		assertEquals (spec.getProperty("S1-Enum"), "s1-2") ;
+		spec.setProperty("S1-Enum", "s1-3") ;
+		assertEquals (spec.getProperty("S1-Enum"), "s1-3") ;
+		assertEquals (impl.getProperty("S1-Enum"), "s1-3") ;
+		assertEquals (inst.getProperty("S1-Enum"), "s1-3") ;
+
+		impl.setProperty("S1-Enum", "s1-1") ;
+		assertEquals (spec.getProperty("S1-Enum"), "s1-3") ;
+		assertEquals (impl.getProperty("S1-Enum"), "s1-3") ;
+		assertEquals (inst.getProperty("S1-Enum"), "s1-3") ;
+		
 		impl.setProperty("location", "living"); // good
 		assertEquals(impl.getProperty("location"), "living");
 		assertEquals(inst.getProperty("location"), "living");
@@ -273,7 +293,7 @@ public class MainApam implements Runnable, ApamComponent {
 
 		//boolean
 		impl.setProperty("s1b", "5"); // error: bool attribute
-		assertTrue(impl.getProperty("s1b") == null);
+		assertNotEquals(impl.getProperty("s1b"), "5");
 
 		impl.setProperty("s1b", "true"); // Ok
 		assertEquals(impl.getProperty("s1b"), "true");
@@ -310,7 +330,7 @@ public class MainApam implements Runnable, ApamComponent {
 
 		//Instance has its own defs, and can define spec definiiton if not set in implem
 		inst.setProperty("S1toS2Final-Bool", "6") ;
-		assertTrue(inst.getProperty("S1toS2Final-Bool") == null);
+		assertNotEquals(inst.getProperty("S1toS2Final-Bool"), "6");
 
 		inst.setProperty("S1toS2Final-Bool", "false") ;
 		assertEquals(inst.getProperty("S1toS2Final-Bool"), "false");
@@ -333,8 +353,8 @@ public class MainApam implements Runnable, ApamComponent {
 		inst.removeProperty ("inst-name") ;
 		assertTrue (inst.getProperty("inst-name") != null) ;
 
-		inst.removeProperty ("testenumere") ;
-		assertTrue (inst.getProperty("testenumere") != null) ;
+		inst.removeProperty ("testEnumere") ;
+		assertTrue (inst.getProperty("testEnumere") != null) ;
 		
 		inst.removeProperty ("OS") ;
 		assertTrue (inst.getProperty("OS") == null) ;
@@ -352,8 +372,8 @@ public class MainApam implements Runnable, ApamComponent {
 		impl.removeProperty ("xxx") ;
 		assertTrue (impl.getProperty("xxx") == null) ;
 		
-		impl.removeProperty ("s1-attr") ;
-		assertTrue (impl.getProperty("s1-attr") != null) ;
+		impl.removeProperty ("S1-Attr") ;
+		assertTrue (impl.getProperty("S1-Attr") != null) ;
 		
 		impl.removeProperty ("testenumere") ;
 		assertTrue (impl.getProperty("testenumere") == null) ;
