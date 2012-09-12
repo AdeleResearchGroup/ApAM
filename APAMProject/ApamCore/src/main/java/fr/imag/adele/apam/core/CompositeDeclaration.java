@@ -20,6 +20,15 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     private final ComponentReference<?> mainComponent;
     
     /**
+     * The property that represents the state of the component
+     */
+    private PropertyDefinition.Reference stateProperty;
+
+    /**
+     * The visibility policies
+     */
+    private final VisibilityDeclaration visibility;
+    /**
      * The list of owned components
      */
 	private final Set<OwnedComponentDeclaration> ownedComponents;
@@ -28,21 +37,16 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	 * The list of declared instances in this composite
 	 */
 	private final List<InstanceDeclaration> instances;
-
-	/**
-	 * The list of contextual missing policies of this composite
-	 */
-	private final List<ContextualMissingPolicy> missingPolicies;
-
-	/**
-	 * The list of states of this composite
-	 */
-	private final List<String> states;
 	
 	/**
-	 * The default state
+	 * The list of contextual dependencies of this composite 
 	 */
-	private final String initialState;
+	private final List<DependencyDeclaration> contextualDependencies;
+	
+	/**
+	 * The list of dependencies overrides of this composite
+	 */
+	private final List<DependencyOverride> overrides;
 	
 	/**
 	 * The list of automatic resource grants
@@ -54,20 +58,20 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	 */
 	private final List<ReleaseDeclaration> releases;
 	
-    public CompositeDeclaration(String name, SpecificationReference specification, ComponentReference<?> mainComponent, String initialState, List<String> states) {
+    public CompositeDeclaration(String name, SpecificationReference specification, ComponentReference<?> mainComponent) {
         super(name, specification);
 
         assert mainComponent != null;
 
-        this.mainComponent 		= mainComponent;
-        this.states				= states;
-        this.initialState		= initialState;
-
-        this.ownedComponents	= new HashSet<OwnedComponentDeclaration>();
-        this.instances			= new ArrayList<InstanceDeclaration>();
-        this.missingPolicies	= new ArrayList<ContextualMissingPolicy>();
-        this.grants				= new ArrayList<GrantDeclaration>();
-        this.releases			= new ArrayList<ReleaseDeclaration>();
+        this.mainComponent 			= mainComponent;
+        
+        this.visibility				= new VisibilityDeclaration();
+        this.ownedComponents		= new HashSet<OwnedComponentDeclaration>();
+        this.instances				= new ArrayList<InstanceDeclaration>();
+        this.contextualDependencies = new ArrayList<DependencyDeclaration>();
+        this.overrides				= new ArrayList<DependencyOverride>();
+        this.grants					= new ArrayList<GrantDeclaration>();
+        this.releases				= new ArrayList<ReleaseDeclaration>();
         
     }
 
@@ -91,6 +95,15 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     }
 
     /**
+     * Override the return type to a most specific class in order to avoid unchecked casting when used
+     */
+	@Override
+    @SuppressWarnings("unchecked")
+    public ImplementationReference<CompositeDeclaration> getReference() {
+        return (ImplementationReference<CompositeDeclaration>) super.getReference();
+    }
+    
+    /**
      * Get the main implementation
      */
     public ComponentReference<?> getMainComponent() {
@@ -98,17 +111,24 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     }
 
     /**
-     * The list of possible states of this composite
+     * The property that specifies the state of the composite
      */
-    public List<String> getStates() {
-		return states;
-	}
+    public PropertyDefinition.Reference getStateProperty() {
+    	return stateProperty;
+    	
+    }
     
     /**
-     * The default state of the composite
+     * The visibility rules of the composite
      */
-    public String getInitialState() {
-		return initialState;
+    public VisibilityDeclaration getVisibility() {
+		return visibility;
+	}
+    /**
+     * Sets the state property
+     */
+    public void setStateProperty(PropertyDefinition.Reference stateProperty) {
+		this.stateProperty = stateProperty;
 	}
     
     /**
@@ -126,10 +146,17 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     }
     
     /**
-     * The list of contextual missing policies
+     * The list of contextual overrides
      */
-    public List<ContextualMissingPolicy> getMissingPolicies() {
-		return missingPolicies;
+    public List<DependencyOverride> getOverrides() {
+		return overrides;
+	}
+    
+    /**
+     * The list of contextual dependencies
+     */
+    public List<DependencyDeclaration> getContextualDependencies() {
+		return contextualDependencies;
 	}
     
     /**

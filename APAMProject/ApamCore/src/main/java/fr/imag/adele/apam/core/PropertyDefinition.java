@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.core;
 
+
 /**
  * This class represents a property declaration.
  * 
@@ -11,10 +12,44 @@ package fr.imag.adele.apam.core;
 public class PropertyDefinition {
 
     /**
+     * A reference to a property definition declaration. Notice that property identifiers must be only
+     * unique in the context of their defining component declaration.
+     */
+    public static class Reference extends fr.imag.adele.apam.core.Reference {
+
+        private final String name;
+
+        public Reference(ComponentReference<?> definingComponent, String name) {
+            super(definingComponent);
+            this.name = name;
+        }
+
+        @Override
+        public String getIdentifier() {
+            return name;
+        }
+
+        public ComponentReference<?> getDeclaringComponent() {
+            return (ComponentReference<?>) namespace;
+        }
+
+    }
+
+    /**
+     * The component in which this property definition is declared
+     */
+    private final ComponentDeclaration component;
+    
+    /**
      * The name of the property 
      */
     private final String name;
 
+    /**
+     * The reference to this declaration
+     */
+    private final Reference			reference;
+    
     /**
      * the type of the property
      */
@@ -26,24 +61,34 @@ public class PropertyDefinition {
     private final String defaultValue;
 
     /**
-     * the associated field in the code, if any.
+     * The associated field in the code, if any.
      */
     private final String field;
 
     /**
-     * True if declared "internal"
+     * Whether this is an internal property, whose value can not be modified by API
      */
-    private final boolean internal ;
+    private final boolean internal;
 
-    public PropertyDefinition(String name, String type, String defaultValue, String field, boolean internal) {
+    public PropertyDefinition(ComponentDeclaration component, String name, String type, String defaultValue, String field, boolean internal) {
 
+        assert component != null;
         assert name != null;
 
+        this.component		= component;
         this.name 			= name;
+        this.reference		= new Reference(component.getReference(),name);
         this.type			= type;
         this.defaultValue	= defaultValue;
         this.field = field ;
         this.internal = internal ;
+    }
+
+    /**
+     * The defining component
+     */
+    public ComponentDeclaration getComponent() {
+        return component;
     }
 
     /**
@@ -53,6 +98,13 @@ public class PropertyDefinition {
         return name;
     }
 
+    /**
+     * Get the reference to this declaration
+     */
+    public Reference getReference() {
+        return reference;
+    }
+    
     /**
      * Get the type of the property
      */

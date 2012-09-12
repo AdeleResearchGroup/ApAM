@@ -37,33 +37,24 @@ public class DependencyDeclaration extends TargetDeclaration {
     }
 
     /**
-     * The component in which this dependency is declared
+     * The reference to this declaration
      */
-    private final ComponentDeclaration component;
-
-    /**
-     * The identification of the dependency in its declaring component
-     */
-    private final String 			id;
-
+    private final Reference					reference;
+    
     /**
      * Whether this dependency is declared explicitly as multiple
      */
-    private final boolean			isMultiple;
-    /**
-     * The reference to this declaration
-     */
-    private final Reference			reference;
-
+    private final boolean					isMultiple;
+    
     /**
      * The list of preferences to choose among candidate service provider implementation
      */
-    private final List<String> implementationPreferences;
+    private final List<String> 				implementationPreferences;
 
     /**
      * The list of preferences to choose among candidate service provider instances
      */
-    private final List<String> instancePreferences;
+    private final List<String> 				instancePreferences;
 
     /**
      * The list of fields that will be injected with this dependency in a primitive component
@@ -74,21 +65,18 @@ public class DependencyDeclaration extends TargetDeclaration {
      * The policy to handle unresolved dependencies
      */
 
-    private MissingPolicy missingPolicy;
+    private MissingPolicy 					missingPolicy;
 
-    public DependencyDeclaration(ComponentDeclaration component, String id, boolean isMultiple, ResolvableReference resource) {
+    public DependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource) {
 
         super(resource);
 
-
-        // Bidirectional reference to encompassing declaration
         assert component != null;
-        this.component	= component;
-        this.component.getDependencies().add(this);
+        
+        id = (id == null) ? getTarget().as(fr.imag.adele.apam.core.Reference.class).getIdentifier() : id;
+        this.reference	= new Reference(component,id);
 
-        this.id			= id;
         this.isMultiple	= isMultiple;
-        reference		= new Reference(component.getReference(),getIdentifier());
 
         implementationPreferences 	= new ArrayList<String>();
         instancePreferences 		= new ArrayList<String>();
@@ -98,15 +86,15 @@ public class DependencyDeclaration extends TargetDeclaration {
     /**
      * The defining component
      */
-    public ComponentDeclaration getComponent() {
-        return component;
+    public ComponentReference<?> getComponent() {
+        return reference.getDeclaringComponent();
     }
 
     /**
      * Get the id of the dependency in the declaring component declaration
      */
     public String getIdentifier() {
-        return id != null? id : getTarget().as(fr.imag.adele.apam.core.Reference.class).getIdentifier();
+    	return reference.getIdentifier();
     }
 
     /**

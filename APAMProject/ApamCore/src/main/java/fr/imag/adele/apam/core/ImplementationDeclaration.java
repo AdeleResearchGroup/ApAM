@@ -31,7 +31,7 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
      * Override the return type to a most specific class in order to avoid unchecked casting when used
      */
     @Override
-    public final ImplementationReference<?> getReference() {
+    public ImplementationReference<?> getReference() {
         return (ImplementationReference<?>) super.getReference();
     }
     
