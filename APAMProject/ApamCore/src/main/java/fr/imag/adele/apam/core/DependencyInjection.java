@@ -31,7 +31,7 @@ public abstract class DependencyInjection  {
      */
     public void setDependency(DependencyDeclaration dependency) {
 
-    	assert dependency.getComponent() == implementation;
+    	assert dependency.getComponent() == implementation.getReference();
         
         // bidirectional reference to dependency
         this.dependency = dependency;

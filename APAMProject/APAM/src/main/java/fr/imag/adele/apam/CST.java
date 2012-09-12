@@ -15,19 +15,18 @@ public class CST {
         CST.A_FRIENDIMPLEM, CST.A_BORROWINSTANCE,
         CST.A_LOCALINSTANCE, CST.A_FRIENDINSTANCE, CST.A_APPLIINSTANCE,
         CST.A_INSTANTIABLE,
-        CST.A_MULTIPLE, CST.A_REMOTABLE, CST.A_SHARED,
-        CST.A_MODELS
+        CST.A_MULTIPLE, CST.A_REMOTABLE, CST.A_SHARED
     };
 
     // Borrow / lend properties of composites.
     // Expression | true | false
-    public static final String         A_BORROWIMPLEM        = "borrowimplementation";
-    public static final String         A_LOCALIMPLEM         = "localimplementation";
-    public static final String         A_FRIENDIMPLEM        = "friendimplementation";
+    public static final String         A_BORROWIMPLEM        = "borrowImplementation";
+    public static final String         A_LOCALIMPLEM         = "localImplementation";
+    public static final String         A_FRIENDIMPLEM        = "friendImplementation";
 
-    public static final String         A_BORROWINSTANCE      = "borrowinstance";
-    public static final String         A_LOCALINSTANCE       = "localinstance";
-    public static final String         A_FRIENDINSTANCE      = "friendinstance";
+    public static final String         A_BORROWINSTANCE      = "borrowInstance";
+    public static final String         A_LOCALINSTANCE       = "localInstance";
+    public static final String         A_FRIENDINSTANCE      = "friendInstance";
     public static final String         A_APPLIINSTANCE       = "appliInstance";
 
     // Value boolean
@@ -38,8 +37,6 @@ public class CST {
     public static final String         A_REMOTABLE           = "remotable";
     // shared on an implementation indicates if its instances can have more than one incoming wire
     public static final String         A_SHARED              = "shared";
-    // List<ManagerModel>
-    public static final String         A_MODELS              = "apam-models";
 
     //APAM ROOT COMPOSITE
     public static final String ROOT_COMPOSITE_TYPE = "root.composite.type";

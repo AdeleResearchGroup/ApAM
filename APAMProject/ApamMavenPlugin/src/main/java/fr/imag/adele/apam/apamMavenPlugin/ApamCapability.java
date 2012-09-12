@@ -52,13 +52,13 @@ public class ApamCapability {
 
 	Capability cap = null ;
 	ComponentDeclaration dcl = null ;
-	
+
 	private Map <String, String> properties ;
 	private Map <String,String>  propertiesTypes 	=  new HashMap <String, String> ();
 	private Map <String,String>  propertiesDefaults =  new HashMap <String, String> ();
-	
+
 	private Map <String, String> finalProperties = new HashMap <String, String> () ;
-	
+
 	//If true, no obr repository found. Cannot look for the other components
 	private static boolean noRepository = true ;
 
@@ -71,14 +71,15 @@ public class ApamCapability {
 
 		//First, compute the list of available resources
 		try {
+			repos= "" ;
 			for (URL repo : OBRRepos){
 				//File theRepo = new File();
 				if (repo.getFile().isEmpty()) {
 					break ;
 				}
-				repos += repo.toString() ;
+				repos += repo.toString()+ "  " ;
 				noRepository = false ;
-			dataModelHelper =  new DataModelHelperImpl();
+				dataModelHelper =  new DataModelHelperImpl();
 				Repository repoModel = dataModelHelper.repository(repo.toURI().toURL());
 				resources.addAll(Arrays.asList(repoModel.getResources()));
 			}
@@ -86,16 +87,14 @@ public class ApamCapability {
 			e.printStackTrace();
 		}
 		//public static void init(String defaultOBRRepo) {
-		System.out.println("start CheckOBR. Used OBR repositories: " + OBRRepos);
-
-
+		System.out.println("start CheckOBR. Used OBR repositories: " + repos);
 	}
 
 	public ApamCapability (String name, Capability cap) {
 		this.cap = cap ;
 		capabilities.put(name, this) ;
 		properties = cap.getPropertiesAsMap();
-		
+
 		for (Property property : cap.getProperties()) {
 			if (property.getName().startsWith(CST.A_DEFINITION_PREFIX)) {
 				String key = property.getName().substring(11);
@@ -110,7 +109,7 @@ public class ApamCapability {
 		this.dcl = dcl ;
 		capabilities.put(name, this) ;
 		properties = dcl.getProperties();
-		
+
 		for (PropertyDefinition definition : dcl.getPropertyDefinitions()) {
 			propertiesTypes.put(definition.getName(), definition.getType());
 			if (definition.getDefaultValue() != null)
@@ -123,18 +122,18 @@ public class ApamCapability {
 			return dcl.getName() ;
 		return cap.getName();
 	}
-	
+
 	public static ApamCapability get(ComponentReference<?> reference) {
 		String name = reference.getName();
 		if (capabilities.containsKey(name))
 			return capabilities.get(name);
-		
+
 		//Look for in the components in this bundle
 		for (ComponentDeclaration component : components) {
 			if (component.getName().equals(name))
 				return new ApamCapability(name, component) ;
 		}
-		
+
 		//look in OBR
 		if (noRepository) return null ;
 		for (Resource res : resources) {
@@ -157,7 +156,7 @@ public class ApamCapability {
 				}
 			}
 		}
-		
+
 		logger.error("     Component " + name + " not found in repositories " + repos);
 		return null;
 	}
@@ -183,22 +182,22 @@ public class ApamCapability {
 			return null;
 		return prop;
 	}
-	
+
 	public String getProperty (String name) {
 		return (String)properties.get(name) ;
 	}
-	
+
 	public Map<String, String> getProperties () {
 		return Collections.unmodifiableMap(properties);	
 	}
-	
+
 	public Set<InterfaceReference> getProvideInterfaces () {
 		if (dcl != null) {
 			return dcl.getProvidedResources(InterfaceReference.class) ;
 		}
 		return asSet(getProperty(CST.A_PROVIDE_INTERFACES), InterfaceReference.class);
 	}
-	
+
 	public Set<ResourceReference> getProvideResources () {
 		if (dcl != null) {
 			return dcl.getProvidedResources() ;
@@ -209,7 +208,7 @@ public class ApamCapability {
 		return references;
 	}
 
-	
+
 	public Set<MessageReference> getProvideMessages () {
 		if (dcl != null) {
 			return dcl.getProvidedResources(MessageReference.class) ;
@@ -226,33 +225,33 @@ public class ApamCapability {
 		return propertiesDefaults.get(name);
 	}
 
-//		if (dcl != null) {
-//			for (PropertyDefinition def : dcl.getPropertyDefinitions()) {
-//				if (def.getName().equals(name)) return def.getType() ;
-//			}
-//		}
-//		for (String def : getProperties().keySet()) {
-//			if (def.startsWith(CST.A_DEFINITION_PREFIX) 
-//					&& def.substring(11).equals(name)) 
-//				return getProperty(def) ;
-//		}
-//		return null ;
-//	}
+	//		if (dcl != null) {
+	//			for (PropertyDefinition def : dcl.getPropertyDefinitions()) {
+	//				if (def.getName().equals(name)) return def.getType() ;
+	//			}
+	//		}
+	//		for (String def : getProperties().keySet()) {
+	//			if (def.startsWith(CST.A_DEFINITION_PREFIX) 
+	//					&& def.substring(11).equals(name)) 
+	//				return getProperty(def) ;
+	//		}
+	//		return null ;
+	//	}
 
-//	public Set<String> getAttrDefinitions () {
-//		Set<String> ret = new HashSet<String> () ;
-//		if (dcl != null) {
-//			for (PropertyDefinition def : dcl.getPropertyDefinitions()) {
-//				ret.add(def.getName()) ;
-//			}
-//			return ret ;
-//		}
-//		for (String def : getProperties().keySet()) {
-//			if (def.startsWith(CST.A_DEFINITION_PREFIX)) 
-//				ret.add(def.substring(11)) ;
-//		}
-//		return ret ;
-//	}
+	//	public Set<String> getAttrDefinitions () {
+	//		Set<String> ret = new HashSet<String> () ;
+	//		if (dcl != null) {
+	//			for (PropertyDefinition def : dcl.getPropertyDefinitions()) {
+	//				ret.add(def.getName()) ;
+	//			}
+	//			return ret ;
+	//		}
+	//		for (String def : getProperties().keySet()) {
+	//			if (def.startsWith(CST.A_DEFINITION_PREFIX)) 
+	//				ret.add(def.substring(11)) ;
+	//		}
+	//		return ret ;
+	//	}
 
 	/**
 	 * returns all the attribute that can be found associated with this component members.
@@ -264,7 +263,7 @@ public class ApamCapability {
 		Map<String, String> ret = new HashMap<String, String> () ;
 		for (String predef : CST.predefAttributes)
 			ret.put(predef, "string");
-		
+
 		ret.putAll(propertiesTypes);
 		if (getGroup() != null)
 			ret.putAll(getGroup().getValidAttrNames()) ;
@@ -297,7 +296,7 @@ public class ApamCapability {
 		}
 		return null ;
 	}
-	
+
 	/**
 	 * Warning: should be used only once in generateProperty.
 	 * finalProperties contains the attributes generated in OBR i.e. the right attributes.
@@ -316,9 +315,9 @@ public class ApamCapability {
 		finalProperties.put(attr, value) ;
 		return true ;
 	}
-	
+
 	public void finalize () {
 		properties = finalProperties ;
 	}
-	
+
 }

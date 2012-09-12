@@ -1,6 +1,5 @@
 package fr.imag.adele.apam.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -62,10 +61,9 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		private final CompositeDeclaration declaration;
 
 		public SystemRootImplementation(String name) {
-			this.declaration =  new CompositeDeclaration(name,
-					(SpecificationReference)null,
-					new ImplementationReference<ImplementationDeclaration>("none"),
-					(String)null,new ArrayList<String>());
+			this.declaration =  new CompositeDeclaration(name, 
+										(SpecificationReference)null, 
+										new ImplementationReference<ImplementationDeclaration>("Root Main Implem"));
 		}
 
 		@Override

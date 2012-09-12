@@ -368,6 +368,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 */
 	private PropertyDefinition getAttrDefinition (String attr) {
 		Component group = this.getGroup() ;
+		if (group == null) 
+			return getDeclaration().getPropertyDefinition(attr);
 
 		while (group != null) {
 			PropertyDefinition definition =  group.getDeclaration().getPropertyDefinition(attr);
@@ -404,14 +406,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 
 		//if the same attribute exists above, it is a redefinition.
 		if (group != null && group.getProperty(attr) != null) {
-			logger.error("cannot redefine attribute \"" + attr + "\"");
+			logger.error("Cannot redefine attribute \"" + attr + "\"");
 			return false;
 		}
-
-		//It is a spec. There is no definition
-		//for specs the attribute must be already existing
-		if (group == null)
-			return this.get(attr) != null ;
 
 		PropertyDefinition definition = this.getAttrDefinition (attr) ;
 
@@ -422,7 +419,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		
 		// there is a definition for attr
 		if (definition.isInternal()) {
-			logger.error("In " + group + " attribute " + attr +  " is internal and cannot be set.");
+			logger.error("Attribute " + attr +  " is an internal field attribute and cannot be set.");
 			return false;
 		}
 		

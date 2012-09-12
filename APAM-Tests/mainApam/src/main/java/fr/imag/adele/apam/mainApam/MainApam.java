@@ -7,7 +7,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
@@ -180,6 +179,7 @@ public class MainApam implements Runnable, ApamComponent {
 			<definition name="s1b" type="boolean" value="true" />
 			<definition name="s1c" type="string" />
 			<definition name="s1i" type="int" />
+			<definition name="fieldAttr" type="string" />
 			<definition name="location" type="{living, kitchen, bedroom}" value="bedroom" />
 			<definition name="testEnumere" type="{v1, v2, v3, v4}" />
 			<definition name="OS" type="{Linux, Windows, Android, IOS}" />
@@ -189,6 +189,7 @@ public class MainApam implements Runnable, ApamComponent {
 		<property name="spec-name" value="yyy"  />
 		<property name="definition-xx" value="ttt" />
 		<property name="s1b" value="xyze=" />
+		<property name="fieldAttr" field="theFieldAttr" internal="true" />
 		<property name="OS" value="pas bon" />
 		<property name="testEnumere" value="v2" />
 		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
@@ -310,6 +311,20 @@ public class MainApam implements Runnable, ApamComponent {
 		impl.setProperty("S1-Attr", "5"); // error: cannot redefine
 		assertEquals(spec.getProperty("S1-Attr"), "New-value");
 
+		//field and internal. Set by program when starting
+		assertEquals(inst.getProperty("fieldAttr"), "initial set by program");
+		String s = "to set the field attribute" ;
+		((S1)inst.getServiceObject()).callS1 (s) ; //callS1 sets the attribute to s 
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		assertEquals(inst.getProperty("fieldAttr"), s);
+
+		inst.setProperty("fieldAttr", "test"); // error: cannot set
+		assertNotEquals(impl.getProperty("fieldAttr"), "test");
+		
 		//Instances can set spec attributes, if not defined by the implem
 		inst.setProperty("OS", "Linux") ; // ok
 		assertEquals(inst.getProperty("OS"), "Linux");
@@ -458,7 +473,6 @@ public class MainApam implements Runnable, ApamComponent {
 
 	}
 
-	static int  nbThread = 0 ;
 	public void run() {
 		
 		System.out.println("Starting new mainApam " );

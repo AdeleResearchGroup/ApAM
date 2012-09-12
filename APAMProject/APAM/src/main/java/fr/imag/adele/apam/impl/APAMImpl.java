@@ -1,7 +1,6 @@
 package fr.imag.adele.apam.impl;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -257,7 +256,7 @@ public class APAMImpl implements Apam {
     		SpecificationReference specification = specificationName != null? new SpecificationReference(specificationName) : null;
     		ComponentReference<?>  mainComponent = new ComponentReference<ComponentDeclaration>(mainName);
     		
-    		declaration = new CompositeDeclaration(name,specification, mainComponent,null,new ArrayList<String>());
+    		declaration = new CompositeDeclaration(name,specification, mainComponent);
     		if (properties != null)
     			declaration.getProperties().putAll(properties);
     		

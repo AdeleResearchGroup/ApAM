@@ -104,9 +104,10 @@ public class CheckObr {
 		Map<String, String> ret = new HashMap <String, String> ();
 		//Properties of this component
 		Map<String, String> properties = component.getProperties();
-		
-		ApamCapability entCap = ApamCapability.get(component.getReference()) ;
 
+		ApamCapability entCap = ApamCapability.get(component.getReference()) ;
+		if (entCap == null) return ret ; //should never happen.
+		
 		//return the valid attributes
 		for (String attr : properties.keySet()) {
 			if (validDefObr (entCap, attr, properties.get(attr))) {
@@ -287,9 +288,12 @@ public class CheckObr {
 		// All field must have same multiplicity, and must refer to interfaces and messages provided by the specification.
 
 		Set<ResourceReference> specResources = new HashSet<ResourceReference>();
-
-		if (dep.getTarget() instanceof ComponentReference<?>)
-			specResources = ApamCapability.get((ComponentReference)dep.getTarget()).getProvideResources() ;
+		
+		if (dep.getTarget() instanceof ComponentReference<?>) {
+			ApamCapability cap = ApamCapability.get((ComponentReference)dep.getTarget()) ;
+			if (cap == null) return ;
+			specResources = cap.getProvideResources() ;
+		}
 		else {
 			specResources.add(dep.getTarget().as(ResourceReference.class));
 		}
