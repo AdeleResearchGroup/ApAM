@@ -1,6 +1,5 @@
 package fr.imag.adele.obrMan.internal;
 
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,8 +18,13 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class Util {
 
-    
-    private static Logger logger =  LoggerFactory.getLogger(Util.class);
+    public static final String LOCAL_MAVEN_REPOSITORY    = "LocalMavenRepository";
+    public static final String DEFAULT_OSGI_REPOSITORIES = "DefaultOSGiRepositories";
+    public static final String REPOSITORIES              = "Repositories";
+    public static final String COMPOSITES                = "Composites";
+    public static final String OSGI_OBR_REPOSITORY_URL   = "obr.repository.url";
+
+    private static Logger      logger                    = LoggerFactory.getLogger(Util.class);
 
     public static void printCap(Capability aCap) {
         System.out.println("   Capability name: " + aCap.getName());
@@ -43,7 +47,7 @@ public class Util {
         }
         return ret.toString();
     }
-    
+
     public static File searchSettingsFromM2Home() {
         String m2_home = System.getenv().get("M2_HOME");
 
@@ -57,7 +61,7 @@ public class Util {
         }
         return null;
     }
-    
+
     public static File searchSettingsFromUserHome() {
         File m2Folder = getM2Folder();
         if (m2Folder == null)
@@ -82,11 +86,11 @@ public class Util {
                 return repo;
             }
         } catch (MalformedURLException e) {
-            logger .error(e.getMessage());
+            logger.error(e.getMessage());
         }
         return null;
     }
-    
+
     public static File getM2Folder() {
         String user_home = System.getProperty("user.home");
         if (user_home == null) {
@@ -99,8 +103,7 @@ public class Util {
         File m2Folder = new File(user_home_file, ".m2");
         return m2Folder;
     }
-    
-    
+
     public static URL searchMavenRepoFromSettings(File pathSettings) {
         // Look for <localRepository>
         try {
@@ -118,35 +121,41 @@ public class Util {
         }
         return null;
     }
-    
+
     public static class SaxHandler extends DefaultHandler {
         boolean localRepo = false;
-        
-        String localRepoPath;
-        
-        public void startElement(String uri, String localName,String qName, Attributes attributes) throws SAXException {
+
+        String  localRepoPath;
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             if (qName.equalsIgnoreCase("localRepository")) {
-                localRepo=true;
+                localRepo = true;
             }
         }
 
+        @Override
         public void endElement(String uri, String localName,
-            String qName) throws SAXException {     
-            if (localRepo) localRepo=false;
+                String qName) throws SAXException {
+            if (localRepo)
+                localRepo = false;
         }
 
+        @Override
         public void characters(char ch[], int start, int length) throws SAXException {
             if (localRepo) {
-                localRepoPath =  new String(ch, start, length);
+                localRepoPath = new String(ch, start, length);
             }
         }
-        
-        public URL getRepo() throws MalformedURLException{      
-            if (localRepoPath == null ) return null;
-            File file = new File( localRepoPath +File.separator +"repository.xml" );
-            if (!file.exists()) return null;
+
+        public URL getRepo() throws MalformedURLException {
+            if (localRepoPath == null)
+                return null;
+            File file = new File(localRepoPath + File.separator + "repository.xml");
+            if (!file.exists())
+                return null;
             return file.toURI().toURL();
         }
     }
-    
+
 }

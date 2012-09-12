@@ -17,6 +17,7 @@
 		<module>APP1-S1-Impl</module>
 		<module>APP1-S2-Impl</module>
 		<module>APP1-Composite</module>
+		<module>APP1-S3-Impl</module>
 	</modules>
 	<build>
 		<pluginManagement>
@@ -28,6 +29,25 @@
 					<extensions>true</extensions>
 					<configuration>
 						<obrRepository>${basedir}/../APP1-Repo/app1-repo.xml</obrRepository>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>fr.imag.adele.apam</groupId>
+					<artifactId>ApamMavenPlugin</artifactId>
+					<version>${apam.current.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>ipojo-bundle</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<localObr>false</localObr>
+						<dependencyObrList>
+							<param>file:/${basedir}/../../APP2/APP2-Repo/app2-repo.xml</param>
+							<!-- <param>retest..falseURL</param> -->
+						</dependencyObrList>
 					</configuration>
 				</plugin>
 			</plugins>

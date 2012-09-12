@@ -1,10 +1,8 @@
 package fr.imag.adele.obrMan;
 
-import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,22 +28,20 @@ import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.obrMan.internal.LinkedProperties;
 import fr.imag.adele.obrMan.internal.OBRManager;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 import fr.imag.adele.obrMan.internal.Util;
 
 public class OBRMan implements DependencyManager {
 
-    // Link compositeType with an instance of obrManager
+    // Link compositeType with it instance of obrManager
     private Map<String, OBRManager> obrManagers;
 
     // iPOJO injected
     private RepositoryAdmin         repoAdmin;
 
-    // Search local maven repository
-    private final boolean           searchLocalRepo = true;
-
-    private final Logger            logger          = LoggerFactory.getLogger(OBRMan.class);
+    private final Logger            logger = LoggerFactory.getLogger(OBRMan.class);
 
     /**
      * OBRMAN activated, register with APAM
@@ -55,43 +51,12 @@ public class OBRMan implements DependencyManager {
     public void start() {
         System.out.println(">>> OBRMAN starting");
         obrManagers = new HashMap<String, OBRManager>();
-        configureOBRMan();
-        ApamManagers.addDependencyManager(this, 3);
-    }
 
-    private void configureOBRMan() {
-
-        // look for local user maven repository
-        if (searchLocalRepo) {
-            // try to find the maven settings.xml file
-            File settings = Util.searchSettingsFromM2Home();
-            if (settings == null) {
-                settings = Util.searchSettingsFromUserHome();
-            }
-            logger.info("Maven settings location: " + settings);
-
-            // Extract localRepository from settings.xml
-            URL defaultLocalRepo = null;
-            if (settings != null) {
-                defaultLocalRepo = Util.searchMavenRepoFromSettings(settings);
-            }
-
-            if (defaultLocalRepo == null) {
-                // Special case for Jenkins Server :
-                defaultLocalRepo = Util.searchRepositoryFromJenkinsServer();
-            } else {
-                // Add the founded repository to RepoAdmin
-                try {
-                    repoAdmin.addRepository(defaultLocalRepo);
-                } catch (Exception e) {
-                    logger.error("Error when adding default local repository to repoAdmin", e.getCause());
-                }
-            }
-        }
-
+        // TODO lookFor root.OBRMAN.cfg and create obrmanager for the root composite
         // create obrmanager for the root composite
-        OBRManager rootOBRManager = new OBRManager(CST.ROOT_COMPOSITE_TYPE, repoAdmin);
-        obrManagers.put(CST.ROOT_COMPOSITE_TYPE, rootOBRManager);
+        createNewOBRManager("conf/root.OBRMAN.cfg", CST.ROOT_COMPOSITE_TYPE);
+
+        ApamManagers.addDependencyManager(this, 3);
     }
 
     public void stop() {
@@ -201,37 +166,25 @@ public class OBRMan implements DependencyManager {
     }
 
     @Override
-    public void newComposite(ManagerModel model, CompositeType composite) {
+    public void newComposite(ManagerModel model, CompositeType compositeType) {
         if (model == null)
             return;
-        String obrModel;
-        try {
-            obrModel = OBRMan.readFileAsString(model.getURL());
-        } catch (IOException e1) {
-            System.err.println("invalid OBRMAN Model. Cannot be read :" + model.getURL());
-            return;
-        }
-
-        OBRManager obrManager = new OBRManager(composite.getName(), repoAdmin, obrModel);
-        obrManagers.put(composite.getName(), obrManager);
+        createNewOBRManager(model.getURL().getFile(), compositeType.getName());
 
     }
 
-    private static String readFileAsString(URL url) throws java.io.IOException {
-        InputStream is = url.openStream();
-        byte[] buffer = new byte[is.available()];
-        BufferedInputStream f = null;
+    protected void createNewOBRManager(String file, String compositeTypeName) {
+        LinkedProperties obrModel = new LinkedProperties();
         try {
-            f = new BufferedInputStream(is);
-            f.read(buffer);
-        } finally {
-            if (f != null)
-                try {
-                    f.close();
-                } catch (IOException ignored) {
-                }
+            obrModel.load(new FileInputStream(new File(file)));
+        } catch (IOException e1) {
+            System.err.println("invalid OBRMAN Model. Cannot be read :" + file);
+            return;
         }
-        return new String(buffer);
+
+        OBRManager obrManager = new OBRManager(this, compositeTypeName, repoAdmin, obrModel);
+        obrManagers.put(compositeTypeName, obrManager);
+
     }
 
     // interface manager
@@ -239,7 +192,7 @@ public class OBRMan implements DependencyManager {
             Set<Filter> constraints, List<Filter> preferences) {
 
         // Find the composite OBRManager
-        OBRManager obrManager = getOBRManager(compoType);
+        OBRManager obrManager = searchOBRManager(compoType);
         if (obrManager == null)
             return null;
 
@@ -280,7 +233,7 @@ public class OBRMan implements DependencyManager {
         return null;
     }
 
-    private OBRManager getOBRManager(CompositeType compoType) {
+    private OBRManager searchOBRManager(CompositeType compoType) {
         OBRManager obrManager = null;
 
         // in the case of root composite, compoType = null
@@ -309,7 +262,7 @@ public class OBRMan implements DependencyManager {
         }
 
         // Find the composite OBRManager
-        OBRManager obrManager = getOBRManager(compoType);
+        OBRManager obrManager = searchOBRManager(compoType);
         if (obrManager == null)
             return null;
 
@@ -331,7 +284,7 @@ public class OBRMan implements DependencyManager {
             return null;
 
         // Find the composite OBRManager
-        OBRManager obrManager = getOBRManager(compoType);
+        OBRManager obrManager = searchOBRManager(compoType);
         if (obrManager == null)
             return null;
 
@@ -348,6 +301,10 @@ public class OBRMan implements DependencyManager {
         Specification spec = installInstantiateSpec(selected, specName);
         return spec;
 
+    }
+
+    public OBRManager getOBRManager(String compositeTypeName) {
+        return obrManagers.get(compositeTypeName);
     }
 
     @Override

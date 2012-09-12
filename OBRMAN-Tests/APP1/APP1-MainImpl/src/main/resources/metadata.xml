@@ -2,7 +2,7 @@
 
 	<implementation name="APP1_MAIN"
 		classname="fr.imag.adele.apam.app1.main.impl.MainApp1" specification="APP1_SPEC">
-		<property vendor="apam-team" />
+		<property name="vendor" value="apam-team" />
 		<dependency specification="APP1_S1_SPEC">
 			<interface field="s1" />
 		</dependency>

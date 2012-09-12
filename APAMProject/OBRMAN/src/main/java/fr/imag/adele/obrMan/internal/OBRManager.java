@@ -1,13 +1,15 @@
 package fr.imag.adele.obrMan.internal;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Reason;
@@ -16,37 +18,48 @@ import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.obrMan.OBRMan;
 
 public class OBRManager {
 
-    private final Resolver     resolver;
+    private final Resolver       resolver;
 
-    private final Repository[] repositories;
+    private List<Repository>     repositories;
 
-    private final Resource[]   allResources;
+    private final List<Resource> allResources;
 
-    private final String       compositeTypeName;
+    private final String         compositeTypeName;
 
-    public OBRManager(String name, RepositoryAdmin repoAdmin) {
-        this(name, repoAdmin, null);
-    }
+    private final OBRMan         obrMan;
 
-    public OBRManager(String name, RepositoryAdmin repoAdmin, String obrModel) {
+    private final Logger         logger = LoggerFactory.getLogger(OBRManager.class);
+
+    public OBRManager(OBRMan obrman, String compositeTypeName, RepositoryAdmin repoAdmin, LinkedProperties obrModel) {
+        allResources = new ArrayList<Resource>();
+        repositories = new ArrayList<Repository>();
+        this.compositeTypeName = compositeTypeName;
+        obrMan = obrman;
+        // First Read model if it exist
         if (obrModel != null) {
-            newModel(obrModel, repoAdmin);
+            repositories = getRepositoriesFromModel(obrModel, repoAdmin);
         }
-        compositeTypeName = name;
-        List<Resource> resourcesTemp = new ArrayList<Resource>();
-        repositories = repoAdmin.listRepositories();
-        resolver = repoAdmin.resolver();
+
+        // Get resources from repositories and remove them from repoAdmin.
         for (Repository repository : repositories) {
-            resourcesTemp.addAll(Arrays.asList(repository.getResources()));
+            allResources.addAll(Arrays.asList(repository.getResources()));
             repoAdmin.removeRepository(repository.getURI());
         }
-        allResources = resourcesTemp.toArray(new Resource[0]);
+
+        // Add the system as repository
+        repositories.add(0, repoAdmin.getLocalRepository());
+        repositories.add(0, repoAdmin.getSystemRepository());
+        resolver = repoAdmin.resolver(repositories.toArray(new Repository[repositories.size()]));
+
     }
 
     // serious stuff now !
@@ -77,7 +90,7 @@ public class OBRManager {
         }
         System.out.println("");
 
-        if (allResources == null) {
+        if (allResources.isEmpty()) {
             System.err.println("no resources in OBR");
             return null;
         }
@@ -179,7 +192,7 @@ public class OBRManager {
         }
         System.out.println("");
 
-        if (allResources == null) {
+        if (allResources.isEmpty()) {
             System.err.println("no resources in OBR");
             return null;
         }
@@ -262,22 +275,66 @@ public class OBRManager {
         return false;
     }
 
-    public void newModel(String obrModel, RepositoryAdmin repoAdmin) {
-        StringTokenizer st = new StringTokenizer(obrModel);
-        String repoUrlStr = null;
-        while (st.hasMoreElements()) {
+    protected List<Repository> getRepositoriesFromModel(LinkedProperties obrModel, RepositoryAdmin repoAdmin) {
+        List<Repository> declaredRepositories = new ArrayList<Repository>();
+        Enumeration<?> keys = obrModel.keys();
+        while (keys.hasMoreElements()) {
+
+            String key = (String) keys.nextElement();
+            if (Util.LOCAL_MAVEN_REPOSITORY.equals(key)) {
+                // Add the obr repository located in the local maven repository
+                Boolean localMavenOBRRepo = new Boolean(obrModel.getProperty(key));
+                if (localMavenOBRRepo) {
+                    URL localMavenObrUrl = findLocalMavenRepository();
+                    try {
+                        declaredRepositories.add(repoAdmin.addRepository(localMavenObrUrl));
+                    } catch (Exception e) {
+                        logger.error("Error when adding default local repository to repoAdmin", e.getCause());
+                    }
+                }
+            } else if (Util.DEFAULT_OSGI_REPOSITORIES.equals(key)) {
+                // Add obr repositories declared in the osgi configuration file
+                Boolean osgiRepo = new Boolean(obrModel.getProperty(key));
+                if (osgiRepo) {
+                    String repos = System.getProperty(Util.OSGI_OBR_REPOSITORY_URL);
+                    if (repos != null) {
+                        declaredRepositories.addAll(getRepositoriesFromArray(repoAdmin, repos.split("\\s+")));
+                    }
+                }
+            } else if (Util.REPOSITORIES.equals(key)) {
+                // Add obr repositories declared in the composite
+                declaredRepositories
+                        .addAll(getRepositoriesFromArray(repoAdmin, obrModel.getProperty(key).split("\\s+")));
+
+            } else if (Util.COMPOSITES.equals(key)) {
+                // look for obr repositories in other composites
+                String[] otherCompositesRepositories = obrModel.getProperty(key).split("\\s+");
+                for (String compoTypeName : otherCompositesRepositories) {
+                    OBRManager manager = obrMan.getOBRManager(compoTypeName);
+                    if (manager != null) {
+                        declaredRepositories.addAll(manager.getRepositories());
+                    } else {
+                        // If the compositeType is not present, do nothing
+                        logger.debug("The composite " + compositeTypeName + " reference a missing compiste "
+                                + compoTypeName);
+                    }
+                }
+            }
+        }
+
+        return declaredRepositories;
+    }
+
+    protected Collection<Repository> getRepositoriesFromArray(RepositoryAdmin repoAdmin, String[] repos) {
+        for (String repoUrlStr : repos) {
             try {
-                repoUrlStr = st.nextToken("\n");
-                System.out.println("new repository :" + repoUrlStr);
-                // URI uri = URI.create(repoUrlStr);
                 URL url = new URL(repoUrlStr);
                 repoAdmin.addRepository(url);
             } catch (Exception e) {
-                System.err.println("Invalid OBR repository address :"
-                        + repoUrlStr);
-                return;
+                logger.error("Invalid OBR repository address :" + repoUrlStr, e.getCause());
             }
         }
+        return null;
     }
 
     public String getCompositeTypeName() {
@@ -289,14 +346,42 @@ public class OBRManager {
         public Capability capability;
         public OBRManager obrManager;
 
-        public Selected(OBRManager obrMan, Resource res, Capability cap) {
-            obrManager = obrMan;
+        public Selected(OBRManager obrManager, Resource res, Capability cap) {
+            this.obrManager = obrManager;
             resource = res;
             capability = cap;
         }
 
     }
 
+    protected URL findLocalMavenRepository() {
+
+        // try to find the maven settings.xml file
+        File settings = Util.searchSettingsFromM2Home();
+        if (settings == null) {
+            settings = Util.searchSettingsFromUserHome();
+        }
+        logger.info("Maven settings location: " + settings);
+
+        // Extract localRepository from settings.xml
+        URL defaultLocalRepo = null;
+        if (settings != null) {
+            defaultLocalRepo = Util.searchMavenRepoFromSettings(settings);
+        }
+
+        if (defaultLocalRepo == null) {
+            // Special case for Jenkins Server :
+            defaultLocalRepo = Util.searchRepositoryFromJenkinsServer();
+        }
+        if (defaultLocalRepo != null) {
+            return defaultLocalRepo;
+        }
+        return null;
+    }
+
+    public List<Repository> getRepositories() {
+        return repositories;
+    }
     //
 
 }
