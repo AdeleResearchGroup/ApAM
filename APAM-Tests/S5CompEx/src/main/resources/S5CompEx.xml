@@ -1,10 +1,56 @@
 <ipojo xmlns="fr.imag.adele.apam">
 	<composite name="S5CompEx" mainImplem="S5Impl" specification="S5"
 		interfaces="[fr.imag.adele.apam.test.s5.S5,fr.imag.adele.apam.ApamComponent]">
+		<contentMngt>
+			<state implementation="S5Impl" property="s5b"/>
+			
+			<start implementation="S3Impl" name="s3Impl-int">
+				
+				<property name="S3Impl-Attr" value="val"/>
+			
+				<specification name="S4">
+					<constraints>
+						<constraint filter="propre=true"/>
+					</constraints>
+				</specification>
+			
+				<trigger>
+					<specification name="la spec qui declenche le demmarage">
+						<constraints>
+							<constraint filter="la condition de demarrage"/>
+						</constraints>
+					</specification>
+				</trigger>
+			</start> 
+			
+			
+			<visibility>
+				<borrow implementation="(b=true)" instance="false"/>
+				<local  implementation="true" instance="true"/>
+			</visibility>
+			
+			<grant implementation="S3Impl" dependency="S4" when="hello"/>
+			<override implementation="S3Impl" dependency="S4">
+				<constraints>
+					<implementation filter="(apam-composite=true)" />
+					<instance filter="(b=true)" />
+				</constraints>
+				<preferences>
+					<implementation filter="(b=10)" />
+					<instance filter="(c=hello)" />
+				</preferences>
+			</override>
+			
+			<specification name="Spec_A*">
+				<constraints>
+					<constraint filter="(apam-composite=true)" />
+				</constraints>
+				<preferences>
+					<constraint filter="(SCOPE=GLOBAL)" />
+				</preferences>
+			</specification>
+			
+		</contentMngt>
 		<property name="valuemyproperty" value="true" type="boolean"/>
-		<property name="localInstance" value="true" />
-		<property name="localImplementation" value="true" />
-		<property name="borrowInstance" value="false" />
-		<property name="borrowImplementation" value="(b=true)" />
 	</composite>
 </ipojo>
