@@ -1,4 +1,4 @@
-<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" >
 
 	<implementation name="S1Impl"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1">
@@ -39,6 +39,7 @@
 		<property name="s1b" value="xyze=" />
 		<property name="OS" value="pas bon" />
 		<property name="testEnumere" value="v2" />
+		<definition name="fieldAttr" field="theFieldAttr" internal="true" value="bidon"/>
 		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
 		<definition name="S1toS2Final-String1" type="string" />
 		<definition name="S1toS2Final-location"
@@ -84,13 +85,15 @@
 		<!-- <dependency specification="S2" /> -->
 		<dependency interface="fr.imag.adele.apam.test.s2.S2" />
 		<dependency implementation="S3Impl" multiple="true" />
-		<!-- <dependency interface="fr.imag.adele.apam.test.s2.S2" /> should be 
-			an error ? <dependency specification="S3" id="S3Id1"> <interface field="s3_1" 
-			/> should be an error </dependency> <dependency interface="fr.imag.adele.apam.test.s2.S2" 
-			id="ddd" /> should be an error ! <dependency specification="S3" id="S3Idmult" 
-			multiple="true"> should be an error <preferences> <implementation filter="(shared=false)" 
-			/> <xyz filter="(impl-name=S1ImplFalse)" /> should be an error </preferences> 
-			</dependency> -->
+		<dependency specification="S3" id="S3Id1"> 
+			<interface field="s3_1" /> <!-- should be an error multiple vs simple -->
+		</dependency> 
+		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="ddd" /> <!-- should be an error  --> 
+		<dependency specification="S3" id="S3Idmult" multiple="true"> <!-- should be an error  --> 
+			<preferences> 
+				<implementation filter="(shared=false)" /> 
+			</preferences> 
+			</dependency>
 	</composite>
 
 	<!-- <apam-instance implementation="S1MainCompo" name="S1MainInstance" /> -->
