@@ -18,14 +18,14 @@ import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.apache.felix.ipojo.parser.MethodMetadata;
 import org.apache.felix.ipojo.parser.PojoMetadata;
 
-import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration.Instrumentation;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.ComponentReference;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ConstrainedReference;
-import fr.imag.adele.apam.core.ContextualMissingPolicy;
+import fr.imag.adele.apam.core.DependencyOverride;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.DependencyInjection;
 import fr.imag.adele.apam.core.GrantDeclaration;
@@ -81,22 +81,28 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String        INTERFACE               = "interface";
 	private static final String        MESSAGE                 = "message";
 	private static final String        CONSTRAINTS             = "constraints";
+	private static final String        CONSTRAINT              = "constraint";
 	private static final String        PREFERENCES             = "preferences";
-	private static final String        OWNS                    = "owns";
-	private static final String        WAIT                    = "wait";
-	private static final String        DELETE                  = "delete";
-	private static final String        MANDATORY               = "mandatory";
-	private static final String        OPTIONAL                = "optional";
+	private static final String        CONTENT                 = "contentMngt";
+	private static final String		   START                   = "start";
+	private static final String		   TRIGGER                 = "trigger";
+	private static final String        OWN                     = "own";
 	private static final String        GRANT                   = "grant";
 	private static final String        RELEASE                 = "release";
-	private static final String        STATES                  = "states";
-	private static final String		   START                   = "start";
+	private static final String        OVERRIDE                = "override";
+	private static final String		   STATE                   = "state";
+	private static final String		   VISIBILITY              = "visibility";
+	private static final String		   BORROW              	   = "borrow";
+	private static final String		   LOCAL              	   = "local";
+	private static final String		   FRIEND              	   = "friend";
+	private static final String		   APPLICATION             = "application";
 
 	private static final String        ATT_NAME                = "name";
 	private static final String        ATT_CLASSNAME           = "classname";
 	private static final String        ATT_SPECIFICATION       = "specification";
 	private static final String        ATT_MAIN_IMPLEMENTATION = "mainImplem";
 	private static final String        ATT_IMPLEMENTATION      = "implementation";
+	private static final String        ATT_INSTANCE      	   = "instance";
 	private static final String        ATT_INTERFACES          = "interfaces";
 	private static final String        ATT_MESSAGES            = "messages";
 	private static final String        ATT_MESSAGE_FIELDS	   = "message-fields";
@@ -104,15 +110,20 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String        ATT_VALUE               = "value";
 	private static final String        ATT_FIELD               = "field";
 	private static final String        ATT_INTERNAL            = "internal";
-	private static final String        ATT_METHOD              = "method";
-	private static final String        ATT_ID                  = "id";
 	private static final String        ATT_MULTIPLE            = "multiple";
 	private static final String        ATT_MISSING             = "missing";
 	private static final String        ATT_FILTER              = "filter";
+	private static final String        ATT_METHOD              = "method";
+	private static final String        ATT_ID                  = "id";
+	private static final String        ATT_PROPERTY            = "property";
+	private static final String        ATT_DEPENDENCY          = "dependency";
+	private static final String        ATT_PROMOTION           = "promotion";
 	private static final String        ATT_WHEN                = "when";
-	private static final String        ATT_VALUES              = "values";
-	private static final String        ATT_DEFAULT             = "default";
 
+	private static final String        VALUE_WAIT              = "wait";
+	private static final String        VALUE_DELETE            = "delete";
+	private static final String        VALUE_MANDATORY         = "mandatory";
+	private static final String        VALUE_OPTIONAL          = "optional";
 
 	/**
 	 * The parsed metatadata
@@ -785,29 +796,37 @@ public class CoreMetadataParser implements CoreParser {
 		SpecificationReference specification		= parseSpecificationReference(element,CoreMetadataParser.ATT_SPECIFICATION,false);
 		ComponentReference<?> implementation 		= parseComponentReference(element,CoreMetadataParser.COMPONENT,CoreMetadataParser.ATT_MAIN_IMPLEMENTATION, true);
 
-		Element states[]	= optional(element.getElements(CoreMetadataParser.STATES, CoreMetadataParser.APAM));
-
-		if (states.length > 1)
-			errorHandler.error(Severity.ERROR, "A single state declaration is allowed "+element);
-
-		String enocedInitial	= states.length > 0 ? parseString(states[0],CoreMetadataParser.ATT_DEFAULT,true) : CoreParser.UNDEFINED;
-		String encodedStates 	= states.length > 0 ? parseString(states[0],CoreMetadataParser.ATT_VALUES,true)  : CoreParser.UNDEFINED;
-
-		String initialState		= enocedInitial != CoreParser.UNDEFINED ? enocedInitial : null;
-		List<String> statesDeclaration = encodedStates != CoreParser.UNDEFINED ? Util.splitList(encodedStates) : Util.splitList("");
-
-		CompositeDeclaration declaration = new CompositeDeclaration(name,specification,implementation, initialState, statesDeclaration);
+		CompositeDeclaration declaration = new CompositeDeclaration(name,specification,implementation);
 		parseComponent(element,declaration);
-
-		parseOwns(element,declaration);
-		parseOwnedInstances(element,declaration);
-		parseContextualMissingPolicies(element,declaration);
-		parseResourceConflictPolicies(element,declaration);
+		parseCompositeContent(element,declaration);
 
 		return declaration;
 	}
 
+	private void parseCompositeContent(Element element, CompositeDeclaration declaration) {
+		
+		/*
+		 * Look for content management specification
+		 */
+		Element contents[] = optional(element.getElements(CoreMetadataParser.CONTENT,CoreMetadataParser.APAM));
 
+		if (contents.length > 1)
+			errorHandler.error(Severity.ERROR, "A single content management is allowed in a composite declaration"+element);
+		
+		if (contents.length == 0)
+			return;
+		
+		Element content = contents[0];
+		
+		parseState(content,declaration);
+		parseVisibility(content,declaration);
+		parseOwnedInstances(content,declaration);
+		parseOwns(content,declaration);
+		parseContextualOverrides(content,declaration);
+		parseContextualDependencies(content,declaration);
+		parseResourceConflictPolicies(content,declaration);
+		
+	}
 	/**
 	 * Parse an instance declaration
 	 */
@@ -816,69 +835,62 @@ public class CoreMetadataParser implements CoreParser {
 		String name 								= parseName(element);
 		ImplementationReference<?> implementation	= parseImplementationReference(element,CoreMetadataParser.ATT_IMPLEMENTATION,true);
 
-		Set<TargetDeclaration> targetDeclarations 	= new HashSet<TargetDeclaration>();
 
 		/*
-		 * look for optional trigger declaration
+		 * look for optional trigger declarations
 		 */
-		for (Element trigger : optional(element.getElements(CoreMetadataParser.START,CoreMetadataParser.APAM))) {
 
-			Element targets[] = optional(trigger.getElements());
+		Element triggers[] = optional(element.getElements(CoreMetadataParser.TRIGGER,CoreMetadataParser.APAM));
+		Element trigger	= triggers.length > 0 ? triggers[0] : null;	
 
-			if (targets.length == 0)
-				errorHandler.error(Severity.ERROR, "A target must be specified in a start declaration"+element);
+		if (triggers.length > 1)
+			errorHandler.error(Severity.ERROR, "A single trigger declaration is allowed in an instance declaration"+element);
+		
+		/*
+		 * Parse triggering conditions
+		 */
+		Set<TargetDeclaration> targetDeclarations 	= new HashSet<TargetDeclaration>();
+		for (Element target : optional(trigger != null ? trigger.getElements() : null)) {
 
-			if (targets.length > 1)
-				errorHandler.error(Severity.ERROR, "A single target is allowed in a start declaration"+element);
-
-			TargetDeclaration targetDeclaration = null;
-
-			for (Element target : targets) {
-
-				/*
-				 * ignore elements that are not from APAM
-				 */
-				if (!CoreMetadataParser.isApamDefinition(target))
-					continue;
-
-				/*
-				 * Ignore invalid target elements
-				 */
-				String targetKind	= CoreMetadataParser.getTargetKind(target);
-
-				if (targetKind == CoreParser.UNDEFINED)
-					continue;
-
-				if (! target.getName().equals(targetKind))
-					continue;
-
-				/*
-				 * Parse target
-				 */
-				String targetAttribute			= CoreMetadataParser.getTargetAttribute(target,targetKind);
-				ResolvableReference reference 	= parseResolvableReference(target,targetKind,targetAttribute,true);
-
-				targetDeclaration 				= new TargetDeclaration(reference);
-
-				/*
-				 * parse optional constraints
-				 */
-				for (Element constraints : optional(target.getElements(CoreMetadataParser.CONSTRAINTS,CoreMetadataParser.APAM))) {
-					parseConstraints(constraints,targetDeclaration);
-				}
-
-				/*
-				 * Ignore all other targets
-				 */
-				break;
-
-			}
-
-			if (targetDeclaration == null)
+			/*
+			 * ignore elements that are not from APAM
+			 */
+			if (!CoreMetadataParser.isApamDefinition(target))
 				continue;
 
+			/*
+			 * Ignore invalid target elements
+			 */
+			String targetKind	= CoreMetadataParser.getTargetKind(target);
+
+			if (targetKind == CoreParser.UNDEFINED)
+				continue;
+
+			if (! target.getName().equals(targetKind))
+				continue;
+
+			/*
+			 * Parse target
+			 */
+			String targetAttribute				= CoreMetadataParser.getTargetAttribute(target,targetKind);
+			ResolvableReference reference 		= parseResolvableReference(target,targetKind,targetAttribute,true);
+
+			TargetDeclaration targetDeclaration = new TargetDeclaration(reference);
+
+			/*
+			 * parse optional constraints
+			 */
+			for (Element constraints : optional(target.getElements(CoreMetadataParser.CONSTRAINTS,CoreMetadataParser.APAM))) {
+				parseConstraints(constraints,targetDeclaration);
+			}
+
+
 			targetDeclarations.add(targetDeclaration);
+
 		}
+		
+		
+
 
 		InstanceDeclaration declaration = new InstanceDeclaration(implementation,name,targetDeclarations);
 		parseComponent(element,declaration);
@@ -1157,7 +1169,7 @@ public class CoreMetadataParser implements CoreParser {
 		if (CoreMetadataParser.isComponentTarget(targetKind)) {
 
 			ResolvableReference target = parseComponentReference(element,targetKind,attributeTarget,true);
-			dependency = new DependencyDeclaration(component,id,isMultiple,target);
+			dependency = new DependencyDeclaration(component.getReference(),id,isMultiple,target);
 
 			if (component instanceof AtomicImplementationDeclaration) {
 
@@ -1237,7 +1249,7 @@ public class CoreMetadataParser implements CoreParser {
 					target	= dependencyInjection.getResource();
 				}
 
-				dependency = new DependencyDeclaration(component,id,isMultiple,target);
+				dependency = new DependencyDeclaration(component.getReference(),id,isMultiple,target);
 				dependencyInjection.setDependency(dependency);
 
 			} 
@@ -1246,12 +1258,14 @@ public class CoreMetadataParser implements CoreParser {
 				 * For other components, a target must be explicitly specified
 				 */
 				target = parseResourceReference(element,targetKind,attributeTarget,true);
-				dependency = new DependencyDeclaration(component,id,isMultiple,target);
+				dependency = new DependencyDeclaration(component.getReference(),id,isMultiple,target);
 			}
 
 		}
 
-
+		/*
+		 * Get the specified constraints and preferences
+		 */
 		for (Element constraints : optional(element.getElements(CoreMetadataParser.CONSTRAINTS,CoreMetadataParser.APAM))) {
 			parseConstraints(constraints, dependency);
 		}
@@ -1267,6 +1281,11 @@ public class CoreMetadataParser implements CoreParser {
 		MissingPolicy policy = encodedPolicy != null ? parsePolicy(encodedPolicy) : MissingPolicy.OPTIONAL;
 
 		dependency.setMissingPolicy(policy);
+		
+		/*
+		 * Add to component declaration
+		 */
+		component.getDependencies().add(dependency);
 	}
 
 
@@ -1274,16 +1293,16 @@ public class CoreMetadataParser implements CoreParser {
 	 * Parse an encoded missing policy name
 	 */
 	private MissingPolicy parsePolicy(String encodedPolicy) {
-		if (CoreMetadataParser.WAIT.equalsIgnoreCase(encodedPolicy))
+		if (CoreMetadataParser.VALUE_WAIT.equalsIgnoreCase(encodedPolicy))
 			return MissingPolicy.WAIT;
 
-		if (CoreMetadataParser.DELETE.equalsIgnoreCase(encodedPolicy))
+		if (CoreMetadataParser.VALUE_DELETE.equalsIgnoreCase(encodedPolicy))
 			return MissingPolicy.DELETE;
 
-		if (CoreMetadataParser.MANDATORY.equalsIgnoreCase(encodedPolicy))
+		if (CoreMetadataParser.VALUE_MANDATORY.equalsIgnoreCase(encodedPolicy))
 			return MissingPolicy.MANDATORY;
 
-		if (CoreMetadataParser.OPTIONAL.equalsIgnoreCase(encodedPolicy))
+		if (CoreMetadataParser.VALUE_OPTIONAL.equalsIgnoreCase(encodedPolicy))
 			return MissingPolicy.OPTIONAL;
 
 		errorHandler.error(Severity.ERROR, "invalid value for missing policy : \""+encodedPolicy+"\",  accepted values are "+CoreMetadataParser.MISSING_VALUES.toString());
@@ -1326,7 +1345,8 @@ public class CoreMetadataParser implements CoreParser {
 
 			String filter = parseString(constraint, CoreMetadataParser.ATT_FILTER);
 
-			if (constraint.getName().equals(CoreMetadataParser.IMPLEMENTATION))
+			if (constraint.getName().equals(CoreMetadataParser.IMPLEMENTATION) || 
+				constraint.getName().equals(CoreMetadataParser.CONSTRAINT))
 				reference.getImplementationConstraints().add(filter);
 
 			if (constraint.getName().equals(CoreMetadataParser.INSTANCE))
@@ -1345,7 +1365,8 @@ public class CoreMetadataParser implements CoreParser {
 
 			String filter = parseString(constraint, CoreMetadataParser.ATT_FILTER);
 
-			if (constraint.getName().equals(CoreMetadataParser.IMPLEMENTATION))
+			if (constraint.getName().equals(CoreMetadataParser.IMPLEMENTATION) || 
+				constraint.getName().equals(CoreMetadataParser.CONSTRAINT))
 				dependency.getImplementationPreferences().add(filter);
 
 			if (constraint.getName().equals(CoreMetadataParser.INSTANCE))
@@ -1377,7 +1398,8 @@ public class CoreMetadataParser implements CoreParser {
 			String defaultValue = parseString(definition,CoreMetadataParser.ATT_VALUE,false);
 			String field 		= parseString(definition,CoreMetadataParser.ATT_FIELD,false);
 			boolean internal 	= parseBoolean(definition,CoreMetadataParser.ATT_INTERNAL,false, false);
-			component.getPropertyDefinitions().add(new PropertyDefinition(name, type, defaultValue, field, internal));
+			
+			component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, defaultValue, field, internal));
 		}
 	}
 
@@ -1407,13 +1429,9 @@ public class CoreMetadataParser implements CoreParser {
 			/**
 			 * Special case for specification. The type is in the property, we generate a definition for it.
 			 */
-			if (component instanceof SpecificationDeclaration) {
-				if (!Util.isPredefinedAttribute(name)) {
-					String type = parseString(property, ATT_TYPE);
-					if (!type.equals(UNDEFINED)) {
-						component.getPropertyDefinitions().add(new PropertyDefinition(name, type, value, null, false)) ;
-					}
-				}
+			if (component instanceof SpecificationDeclaration && !Util.isPredefinedAttribute(name)) {
+				String type = parseString(property, ATT_TYPE);
+				component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, value, null, false)) ;
 			}
 
 		}
@@ -1421,10 +1439,110 @@ public class CoreMetadataParser implements CoreParser {
 	}
 
 	/**
+	 * Parse the definition of the state of a composite
+	 */
+	private void parseState(Element element, CompositeDeclaration composite) {
+		/*
+		 * Look for content management specification
+		 */
+		Element states[] = optional(element.getElements(CoreMetadataParser.STATE,CoreMetadataParser.APAM));
+
+		if (states.length > 1)
+			errorHandler.error(Severity.ERROR, "A single state declaration is allowed in a composite declaration"+element);
+		
+		if (states.length == 0)
+			return;
+		
+		Element state = states[0];
+
+		String targetKind = CoreMetadataParser.getTargetKind(state);
+
+		if (!CoreMetadataParser.isComponentTarget(targetKind)) {
+			errorHandler.error(Severity.ERROR, "component name must be specified for \""+state.getName()+"\" declaration");
+		}
+
+		String targetAttribute 			= CoreMetadataParser.getTargetAttribute(state,targetKind);
+		ComponentReference<?> target	= parseComponentReference(state,targetKind,targetAttribute,true);
+		String identifier 				= parseString(state,CoreMetadataParser.ATT_PROPERTY,true);
+
+		PropertyDefinition.Reference stateProperty = new PropertyDefinition.Reference(target,identifier);
+		composite.setStateProperty(stateProperty);
+	}
+	
+	/**
+	 * Parse the visibility rules for the content of a composite
+	 */
+	private void parseVisibility(Element element, CompositeDeclaration composite) {
+
+		/*
+		 * Look for content management specification
+		 */
+		Element visibilities[] = optional(element.getElements(CoreMetadataParser.VISIBILITY,CoreMetadataParser.APAM));
+
+		if (visibilities.length > 1)
+			errorHandler.error(Severity.ERROR, "A single visibility declaration is allowed in a composite declaration"+element);
+		
+		if (visibilities.length == 0)
+			return;
+		
+		Element visibility = visibilities[0];
+
+		for (Element rule : optional(visibility.getElements())) {
+
+			String implementationsRule	= parseString(rule,CoreMetadataParser.ATT_IMPLEMENTATION,false);
+			String instancesRule 		= parseString(rule,CoreMetadataParser.ATT_INSTANCE,false);
+
+			if (rule.getName().equals(CoreMetadataParser.BORROW)) {
+				if (implementationsRule != null) {
+					composite.getVisibility().setBorrowImplementations(implementationsRule);
+					composite.getProperties().put(CST.A_BORROWIMPLEM, implementationsRule);
+				}
+				if (instancesRule != null){
+					composite.getVisibility().setBorrowInstances(instancesRule);
+					composite.getProperties().put(CST.A_BORROWINSTANCE, instancesRule);
+				}
+			}
+
+			if (rule.getName().equals(CoreMetadataParser.FRIEND)) {
+				if (implementationsRule != null) {
+					composite.getVisibility().setFriendImplementations(implementationsRule);
+					composite.getProperties().put(CST.A_FRIENDIMPLEM, implementationsRule);
+				}
+				if (instancesRule != null) {
+					composite.getVisibility().setFriendInstances(instancesRule);
+					composite.getProperties().put(CST.A_FRIENDINSTANCE, instancesRule);
+				}
+			}
+
+			if (rule.getName().equals(CoreMetadataParser.LOCAL)) {
+				if (implementationsRule != null) {
+					composite.getVisibility().setLocalImplementations(implementationsRule);
+					composite.getProperties().put(CST.A_LOCALIMPLEM, implementationsRule);
+				}
+
+				if (instancesRule != null) {
+					composite.getVisibility().setLocalInstances(instancesRule);
+					composite.getProperties().put(CST.A_LOCALINSTANCE, instancesRule);
+				}
+			}
+
+			if (rule.getName().equals(CoreMetadataParser.APPLICATION)) {
+
+				if (instancesRule != null) {
+					composite.getVisibility().setApplicationInstances(instancesRule);
+					composite.getProperties().put(CST.A_APPLIINSTANCE, instancesRule);
+				}
+			}
+			
+		}
+		
+	}
+	
+	/**
 	 * Parse the list of owned components of a composite
 	 */
 	private void parseOwns(Element element, CompositeDeclaration composite) {
-		for (Element owned : optional(element.getElements(CoreMetadataParser.OWNS, CoreMetadataParser.APAM))) {
+		for (Element owned : optional(element.getElements(CoreMetadataParser.OWN, CoreMetadataParser.APAM))) {
 
 			String targetKind = CoreMetadataParser.getTargetKind(owned);
 			if (! CoreMetadataParser.isComponentTarget(targetKind))
@@ -1451,46 +1569,110 @@ public class CoreMetadataParser implements CoreParser {
 	 */
 	private void parseOwnedInstances(Element element, CompositeDeclaration composite) {
 
-		for (Element instance : element.getElements()) {
-
-			if (!CoreMetadataParser.isInstance(instance))
-				continue;
-
-			composite.getInstanceDeclarations().add(parseInstance(instance));
-
+		for (Element start : optional(element.getElements(CoreMetadataParser.START,CoreMetadataParser.APAM))) {
+			composite.getInstanceDeclarations().add(parseInstance(start));
 		}
 
 	}
 
 
 	/**
-	 * Parse the list of contextual dependency policies of a composite
+	 * Parse the list of dependency overrides of a composite
 	 */
-	private void parseContextualMissingPolicies(Element element, CompositeDeclaration composite) {
+	private void parseContextualOverrides(Element element, CompositeDeclaration composite) {
 
-		for (Element policy : optional(element.getElements())) {
+		for (Element override : optional(element.getElements(CoreMetadataParser.OVERRIDE,CoreMetadataParser.APAM))) {
 
-			if (! CoreMetadataParser.isContextualMissingPolicy(element))
-				continue;
-
-			String targetKind = CoreMetadataParser.getTargetKind(policy);
-
+			/*
+			 * Get the reference of the overridden dependency
+			 */
+			String targetKind = CoreMetadataParser.getTargetKind(override);
 			if (!CoreMetadataParser.isComponentTarget(targetKind)) {
-				errorHandler.error(Severity.ERROR, "component name must be specified for \""+policy.getName()+"\" declaration");
+				errorHandler.error(Severity.ERROR, "component name must be specified for \""+override.getName()+"\" declaration");
 				continue;
 			}
 
-			String targetAttribute 		= CoreMetadataParser.getTargetAttribute(policy,targetKind);
-			ResolvableReference target	= parseComponentReference(policy,targetKind,targetAttribute,true);
-			String identifier 			= parseString(policy,CoreMetadataParser.ATT_ID,true);
+			String targetAttribute 						= CoreMetadataParser.getTargetAttribute(override,targetKind);
+			ComponentReference<?> target				= parseComponentReference(override,targetKind,targetAttribute,true);
+			String identifier 							= parseString(override,CoreMetadataParser.ATT_DEPENDENCY,true);
+			DependencyDeclaration.Reference overriden 	= new DependencyDeclaration.Reference(target,identifier);
+			
+			/*
+			 * Create the override
+			 */
+			DependencyOverride dependencyOverride 	= new DependencyOverride(composite.getReference(),overriden);
 
-			DependencyDeclaration.Reference dependency = new DependencyDeclaration.Reference((ComponentReference<?>)target,identifier);
-			MissingPolicy missingPoliciy = parsePolicy(policy.getName());
+			/*
+			 * Get the overridden constraints and preferences
+			 */
+			for (Element constraints : optional(override.getElements(CoreMetadataParser.CONSTRAINTS,CoreMetadataParser.APAM))) {
+				parseConstraints(constraints,dependencyOverride.getReplacement());
+				dependencyOverride.setConstraintsOverridden(true);
+			}
 
-			ContextualMissingPolicy policyDeclaration = new ContextualMissingPolicy(dependency,missingPoliciy);
+			for (Element preferences : optional(override.getElements(CoreMetadataParser.PREFERENCES,CoreMetadataParser.APAM))) {
+				parsePreferences(preferences,dependencyOverride.getReplacement());
+				dependencyOverride.setPreferencesOverridden(true);
+			}
 
-			composite.getMissingPolicies().add(policyDeclaration);
+			/*
+			 * Get the overridden missing policy
+			 */
+			String encodedPolicy = parseString(override,CoreMetadataParser.ATT_MISSING,false);
+			if (encodedPolicy != null) {
+				dependencyOverride.getReplacement().setMissingPolicy(parsePolicy(encodedPolicy));
+				dependencyOverride.setMissingPolicyOverridden(true);
+			}
+			
+			/*
+			 * Get the overridden promotion specification
+			 */
+			String promotion = parseString(override,CoreMetadataParser.ATT_PROMOTION, false);
+			if (promotion != null) {
+				dependencyOverride.setPromotionTarget(promotion);
+			}
+
+			composite.getOverrides().add(dependencyOverride);
 		}
+	}
+
+	/**
+	 * Parse the list of contextual dependencies of a composite
+	 */
+	private void parseContextualDependencies(Element element, final CompositeDeclaration composite) {
+		
+		/*
+		 * NOTE IMPORTANT Notice that we cannot parse the dependencies directly in the context of
+		 * the specified composite declaration because they will mixed with the real dependencies
+		 * of the composite. So we create a dummy component declaration to represent the content
+		 * of the composite and parse them in this context. This dummy declaration has the same
+		 * reference as the composite so that we still know where a dependency was defined.
+		 * 
+		 * This is kind of a hack, but it allow us to reuse the method parseDependencies without
+		 * any special case for contextual dependencies.
+		 */
+		ComponentDeclaration content = new ComponentDeclaration("content") {
+			
+			@Override
+			protected ComponentReference<?> generateReference() {
+				return composite.getReference();
+			}
+
+			@Override
+			public ComponentReference<?> getGroupReference() {
+				return null;
+			}
+		};
+		
+		/*
+		 * parse the dependencies in the context of the content of the composite
+		 */
+		parseDependencies(element,content);
+		
+		/*
+		 * add to composite as contextual dependencies
+		 */
+		composite.getContextualDependencies().addAll(content.getDependencies());
 	}
 
 	/**
@@ -1500,7 +1682,7 @@ public class CoreMetadataParser implements CoreParser {
 
 		for (Element policy : optional(element.getElements())) {
 
-			if (! CoreMetadataParser.isResourceConflictPolicy(element))
+			if (! CoreMetadataParser.isResourceConflictPolicy(policy))
 				continue;
 
 			String targetKind = CoreMetadataParser.getTargetKind(policy);
@@ -1512,7 +1694,7 @@ public class CoreMetadataParser implements CoreParser {
 
 			String targetAttribute 		= CoreMetadataParser.getTargetAttribute(policy,targetKind);
 			ResolvableReference target	= parseComponentReference(policy,targetKind,targetAttribute,true);
-			String identifier 			= parseString(policy,CoreMetadataParser.ATT_ID,true);
+			String identifier 			= parseString(policy,CoreMetadataParser.ATT_DEPENDENCY,true);
 
 			DependencyDeclaration.Reference dependency = new DependencyDeclaration.Reference((ComponentReference<?>)target,identifier);
 
@@ -1536,16 +1718,16 @@ public class CoreMetadataParser implements CoreParser {
 	}
 
 	private final static List<String> COMPONENT_TARGETS	= Arrays.asList(CoreMetadataParser.SPECIFICATION, 
-			CoreMetadataParser.IMPLEMENTATION,
-			CoreMetadataParser.INSTANCE,
-			CoreMetadataParser.COMPONENT);
+																		CoreMetadataParser.IMPLEMENTATION,
+																		CoreMetadataParser.INSTANCE,
+																		CoreMetadataParser.COMPONENT);
 
 	private final static List<String> RESOURCE_TARGETS	= Arrays.asList(CoreMetadataParser.INTERFACE,
-			CoreMetadataParser.MESSAGE); 
+																		CoreMetadataParser.MESSAGE); 
 
 	@SuppressWarnings("unchecked")
 	private final static List<String> ALL_TARGETS  		= CoreMetadataParser.union(	CoreMetadataParser.COMPONENT_TARGETS,
-			CoreMetadataParser.RESOURCE_TARGETS); 
+																					CoreMetadataParser.RESOURCE_TARGETS); 
 
 	/**
 	 * Get the kind of a target
@@ -1615,20 +1797,16 @@ public class CoreMetadataParser implements CoreParser {
 	}
 
 	/**
-	 * Determines if this element represents a composite declaration
+	 * Determines if this element represents an instance declaration
 	 */
 	private static final boolean isInstance(Element element) {
 		return CoreMetadataParser.INSTANCE.equals(element.getName()) || CoreMetadataParser.INSTANCE_ALT.equals(element.getName());
 	}
 
-	private static final List<String> MISSING_VALUES 			= Arrays.asList(CoreMetadataParser.WAIT,CoreMetadataParser.DELETE,CoreMetadataParser.MANDATORY,CoreMetadataParser.OPTIONAL);
-
-	/**
-	 * Whether this element represents a contextual policy definition
-	 */
-	private static final boolean isContextualMissingPolicy(Element element) {
-		return CoreMetadataParser.MISSING_VALUES.contains(element.getName());
-	}
+	private static final List<String> MISSING_VALUES 			= Arrays.asList(CoreMetadataParser.VALUE_WAIT,
+																				CoreMetadataParser.VALUE_DELETE,
+																				CoreMetadataParser.VALUE_MANDATORY,
+																				CoreMetadataParser.VALUE_OPTIONAL);
 
 	private static final List<String> RESOURCE_POLICY_VALUES 	= Arrays.asList(CoreMetadataParser.GRANT,CoreMetadataParser.RELEASE);
 

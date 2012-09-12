@@ -38,17 +38,11 @@ public class TargetDeclaration implements ConstrainedReference {
 	    return resource;
 	}
 
-	/* (non-Javadoc)
-	 * @see fr.imag.adele.apam.core.ConstrainedReference#getImplementationConstraints()
-	 */
 	@Override
 	public Set<String> getImplementationConstraints() {
 	    return implementationConstraints;
 	}
 
-	/* (non-Javadoc)
-	 * @see fr.imag.adele.apam.core.ConstrainedReference#getInstanceConstraints()
-	 */
 	@Override
 	public Set<String> getInstanceConstraints() {
 	    return instanceConstraints;
