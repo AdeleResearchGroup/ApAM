@@ -1,0 +1,10 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+
+	<implementation name="APP2_MAIN"
+		classname="fr.imag.adele.apam.app2.main.impl.MainApp2" specification="APP2_SPEC"
+		interfaces="fr.imag.adele.apam.app2.spec.App2Spec">
+		
+	</implementation>
+
+</apam>
+
