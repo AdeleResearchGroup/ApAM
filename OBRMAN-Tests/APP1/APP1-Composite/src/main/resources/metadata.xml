@@ -11,5 +11,5 @@
 		/>
 
 	</composite>
-
+	<apam-instance name="APP1-instance" implementation="APP1"/>
 </apam>

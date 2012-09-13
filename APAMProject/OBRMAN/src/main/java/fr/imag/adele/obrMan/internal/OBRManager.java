@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.obrMan.OBRMan;
 
 public class OBRManager {
 
@@ -114,7 +113,7 @@ public class OBRManager {
             e.printStackTrace();
         }
         if (allRes.isEmpty())
-            System.out.println("   Not Found");
+            System.out.println("   Not Found in > " + repositoriesToString());
         return allRes;
     }
 
@@ -215,7 +214,7 @@ public class OBRManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("   Not Found");
+        System.out.println("   Not Found in : " + repositoriesToString());
         return null;
     }
 
@@ -296,7 +295,7 @@ public class OBRManager {
                 // Add obr repositories declared in the osgi configuration file
                 Boolean osgiRepo = new Boolean(obrModel.getProperty(key));
                 if (osgiRepo) {
-                    String repos = System.getProperty(Util.OSGI_OBR_REPOSITORY_URL);
+                    String repos = obrMan.getDeclaredOSGiOBR();
                     if (repos != null) {
                         declaredRepositories.addAll(getRepositoriesFromArray(repoAdmin, repos.split("\\s+")));
                     }
@@ -326,15 +325,16 @@ public class OBRManager {
     }
 
     protected Collection<Repository> getRepositoriesFromArray(RepositoryAdmin repoAdmin, String[] repos) {
+        List<Repository> repoList = new ArrayList<Repository>();
         for (String repoUrlStr : repos) {
             try {
                 URL url = new URL(repoUrlStr);
-                repoAdmin.addRepository(url);
+                repoList.add(repoAdmin.addRepository(url));
             } catch (Exception e) {
                 logger.error("Invalid OBR repository address :" + repoUrlStr, e.getCause());
             }
         }
-        return null;
+        return repoList;
     }
 
     public String getCompositeTypeName() {
@@ -382,6 +382,13 @@ public class OBRManager {
     public List<Repository> getRepositories() {
         return repositories;
     }
-    //
 
+    //
+    protected List<String> repositoriesToString() {
+        List<String> repoString = new ArrayList<String>();
+        for (Repository repo : repositories) {
+            repoString.add(repo.getURI());
+        }
+        return repoString;
+    }
 }

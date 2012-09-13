@@ -3,7 +3,11 @@
 	<specification name="APP1_S1_SPEC" interfaces="fr.imag.adele.apam.app1.s1.spec.S1"  >
 			<property name="application" value="app1" type="string"/>
 			<definition name="vendor" type="string"/>
-			<dependency specification="APP2_SPEC"/>
+			<dependency specification="APP2_SPEC">
+<!-- 				<constraints> -->
+<!-- 					<implementation filter="(composite=true)"/> -->
+<!-- 				</constraints> -->
+			</dependency>
 	</specification>
 
 </apam>

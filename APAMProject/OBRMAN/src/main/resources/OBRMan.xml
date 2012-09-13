@@ -1,13 +1,13 @@
 <ipojo>
-<component name="OBRMAN" classname="fr.imag.adele.obrMan.OBRMan" immediate="true">
-	<callback transition="validate" method="start"/>
-	<callback transition="invalidate" method="stop"/>
-	<requires field="repoAdmin" proxy="false"/>
-</component>
+<!-- <component name="OBRMAN" classname="fr.imag.adele.obrMan.OBRMan" immediate="true"> -->
+<!-- 	<callback transition="validate" method="start"/> -->
+<!-- 	<callback transition="invalidate" method="stop"/> -->
+<!-- 	<requires field="repoAdmin" proxy="false"/> -->
+<!-- </component> -->
 
-<!-- <component name="OBRMANAGER" classname="fr.imag.adele.obrMan.OBRManager" immediate="true">
-	<requires field="repoAdmin" proxy="false"/>
-</component>
- -->
-<instance name="OBRMAN-Instance" component="OBRMAN"/>
+<!-- <!-- <component name="OBRMANAGER" classname="fr.imag.adele.obrMan.OBRManager" immediate="true"> -->
+<!-- 	<requires field="repoAdmin" proxy="false"/> -->
+<!-- </component> -->
+<!--  --> -->
+<!-- <instance name="OBRMAN-Instance" component="OBRMAN"/> -->
 </ipojo>

@@ -43,10 +43,9 @@
 						</execution>
 					</executions>
 					<configuration>
-						<localObr>false</localObr>
+						<noLocalObr>true</noLocalObr>
 						<dependencyObrList>
 							<param>file:/${basedir}/../../APP2/APP2-Repo/app2-repo.xml</param>
-							<!-- <param>retest..falseURL</param> -->
 						</dependencyObrList>
 					</configuration>
 				</plugin>

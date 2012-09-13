@@ -1,4 +1,4 @@
-package fr.imag.adele.obrMan;
+package fr.imag.adele.obrMan.internal;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,7 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
+import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Instantiate;
+import org.apache.felix.ipojo.annotations.Invalidate;
+import org.apache.felix.ipojo.annotations.Provides;
+import org.apache.felix.ipojo.annotations.Requires;
+import org.apache.felix.ipojo.annotations.Validate;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,37 +36,55 @@ import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.obrMan.internal.LinkedProperties;
-import fr.imag.adele.obrMan.internal.OBRManager;
+import fr.imag.adele.obrMan.OBRManCommand;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
-import fr.imag.adele.obrMan.internal.Util;
 
-public class OBRMan implements DependencyManager {
+@Instantiate(name = "OBRMAN-Instance")
+@Component(name = "OBRMAN")
+@Provides(specifications = OBRManCommand.class)
+public class OBRMan implements DependencyManager, OBRManCommand {
 
     // Link compositeType with it instance of obrManager
-    private Map<String, OBRManager> obrManagers;
+    private final Map<String, OBRManager> obrManagers;
 
     // iPOJO injected
-    private RepositoryAdmin         repoAdmin;
+    @Requires(proxy = false)
+    private RepositoryAdmin               repoAdmin;
 
-    private final Logger            logger = LoggerFactory.getLogger(OBRMan.class);
+    private final Logger                  logger = LoggerFactory.getLogger(OBRMan.class);
+
+    private final BundleContext           m_context;
 
     /**
      * OBRMAN activated, register with APAM
      */
 
-    // when in Felix.
+    public OBRMan(BundleContext context) {
+        m_context = context;
+        obrManagers = new HashMap<String, OBRManager>();
+    }
+
+    @Validate
     public void start() {
         System.out.println(">>> OBRMAN starting");
-        obrManagers = new HashMap<String, OBRManager>();
-
+        LinkedProperties obrModel = new LinkedProperties();
         // TODO lookFor root.OBRMAN.cfg and create obrmanager for the root composite
         // create obrmanager for the root composite
-        createNewOBRManager("conf/root.OBRMAN.cfg", CST.ROOT_COMPOSITE_TYPE);
+
+        try {
+            obrModel.load(new FileInputStream(new File("conf/root.OBRMAN.cfg")));
+        } catch (IOException e) {
+            logger.error("Invalid OBRMAN Model. Cannot be read stream " + "conf/root.OBRMAN.cfg", e.getCause());
+            obrModel.put(Util.LOCAL_MAVEN_REPOSITORY, "true");
+            obrModel.put(Util.DEFAULT_OSGI_REPOSITORIES, "true");
+        }
+        OBRManager obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
+        obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
 
         ApamManagers.addDependencyManager(this, 3);
     }
 
+    @Invalidate
     public void stop() {
         System.out.println(">>> OBRMAN stoping");
         ApamManagers.removeDependencyManager(this);
@@ -167,24 +193,18 @@ public class OBRMan implements DependencyManager {
 
     @Override
     public void newComposite(ManagerModel model, CompositeType compositeType) {
+        LinkedProperties obrModel = new LinkedProperties();
         if (model == null)
             return;
-        createNewOBRManager(model.getURL().getFile(), compositeType.getName());
-
-    }
-
-    protected void createNewOBRManager(String file, String compositeTypeName) {
-        LinkedProperties obrModel = new LinkedProperties();
         try {
-            obrModel.load(new FileInputStream(new File(file)));
-        } catch (IOException e1) {
-            System.err.println("invalid OBRMAN Model. Cannot be read :" + file);
-            return;
+            obrModel.load(model.getURL().openStream());
+        } catch (IOException e) {
+            logger.error("Invalid OBRMAN Model. Cannot be read stream " + model.getURL(), e.getCause());
+            obrModel.put(Util.LOCAL_MAVEN_REPOSITORY, "true");
+            obrModel.put(Util.DEFAULT_OSGI_REPOSITORIES, "true");
         }
-
-        OBRManager obrManager = new OBRManager(this, compositeTypeName, repoAdmin, obrModel);
-        obrManagers.put(compositeTypeName, obrManager);
-
+        OBRManager obrManager = new OBRManager(this, compositeType.getName(), repoAdmin, obrModel);
+        obrManagers.put(compositeType.getName(), obrManager);
     }
 
     // interface manager
@@ -314,4 +334,22 @@ public class OBRMan implements DependencyManager {
         // Do not care
     }
 
+    public String getDeclaredOSGiOBR() {
+        return m_context.getProperty(Util.OSGI_OBR_REPOSITORY_URL);
+    }
+
+    @Override
+    public String printCompositeRepositories(String compositeTypeName) {
+        String result = "";
+        OBRManager obrmanager = getOBRManager(compositeTypeName);
+        if (obrmanager == null)
+            return result;
+
+        result += (compositeTypeName + " (" + obrmanager.getRepositories().size() + ") : \n");
+        for (Repository repository : obrmanager.getRepositories()) {
+            result += ("    >> " + repository.getURI() + "\n");
+        }
+
+        return result;
+    }
 }

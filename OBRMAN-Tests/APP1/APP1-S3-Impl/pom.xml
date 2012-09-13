@@ -6,6 +6,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>APP1-S3-Impl</artifactId>
+  <packaging>bundle</packaging>
 	<build>
 		<plugins>
 			<plugin>

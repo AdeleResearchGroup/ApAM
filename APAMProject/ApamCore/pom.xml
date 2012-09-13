@@ -17,7 +17,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 		
 	</parent>
-
+	
 	<artifactId>ApamCore</artifactId>
 	<packaging>jar</packaging>
 	<name>APAM Core</name>

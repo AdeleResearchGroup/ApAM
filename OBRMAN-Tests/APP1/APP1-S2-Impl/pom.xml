@@ -5,6 +5,7 @@
     <groupId>fr.imag.adele.apam</groupId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
+  <packaging>bundle</packaging>
   <artifactId>APP1-S2-Impl</artifactId>
 	<build>
 		<plugins>

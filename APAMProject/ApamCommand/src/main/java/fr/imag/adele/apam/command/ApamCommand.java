@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.ServiceProperty;
@@ -44,7 +45,8 @@ import fr.imag.adele.apam.core.ResourceReference;
  * 
  * @author Jacky
  */
-@Component(public_factory = false, immediate = true, name = "apam.shell")
+@Instantiate
+@Component(publicFactory = false, immediate = true, name = "apam.shell")
 @Provides(specifications = ApamCommand.class)
 public class ApamCommand {
 
@@ -59,8 +61,8 @@ public class ApamCommand {
      */
     @ServiceProperty(name = "osgi.command.function", value = "{}")
     String[] m_function = new String[] { "put", "specs", "implems", "insts", "spec", "implem", "inst", "dump",
-            "compoTypes",
-            "compoType", "compos", "compo", "wire", "launch" };
+                        "compoTypes",
+                        "compoType", "compos", "compo", "wire", "launch" };
 
     // ipojo injected
     @Requires

@@ -9,7 +9,8 @@
   <packaging>pom</packaging>
   <modules>
   	<module>APP2-Spec</module>
-<!--   	<module>APP2-MainImpl</module> -->
+  	<module>APP2-MainImpl</module>
+  	<module>APP2-Composite</module>
   </modules>
   	<build>
 		<pluginManagement>
@@ -21,6 +22,21 @@
 					<extensions>true</extensions>
 					<configuration>
 						<obrRepository>${basedir}/../APP2-Repo/app2-repo.xml</obrRepository>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>fr.imag.adele.apam</groupId>
+					<artifactId>ApamMavenPlugin</artifactId>
+					<version>${apam.current.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>ipojo-bundle</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<noLocalObr>true</noLocalObr>
 					</configuration>
 				</plugin>
 			</plugins>

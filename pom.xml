@@ -244,7 +244,7 @@
 	</repositories>
 
 	<distributionManagement>
-	
+
 		<repository>
 			<id>cloudbees-private-release-repository</id>
 			<name>Cloudbees Private Repository</name>
@@ -260,16 +260,16 @@
 
 	<dependencyManagement>
 		<dependencies>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-			<version>${osgi.version}</version>
-		</dependency>
 			<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.bundlerepository</artifactId>
-			<version>1.6.4</version>
-		</dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.core</artifactId>
+				<version>${osgi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.bundlerepository</artifactId>
+				<version>1.6.4</version>
+			</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.osgi.core</artifactId>
@@ -286,11 +286,11 @@
 				<version>0.6.1</version>
 			</dependency>
 			<dependency>
-			<artifactId>maven-ipojo-plugin</artifactId>
-			<groupId>org.apache.felix</groupId>
-			<version>${ipojo.version}</version>
-			<scope>compile</scope>
-		</dependency>
+				<artifactId>maven-ipojo-plugin</artifactId>
+				<groupId>org.apache.felix</groupId>
+				<version>${ipojo.version}</version>
+				<scope>compile</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.apache.felix.ipojo</artifactId>
@@ -307,10 +307,10 @@
 				<version>${ipojo.version}</version>
 			</dependency>
 			<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.ipojo.manipulator</artifactId>
-			<version>${ipojo.version}</version>
-		</dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.ipojo.manipulator</artifactId>
+				<version>${ipojo.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
@@ -350,9 +350,17 @@
 					<extensions>true</extensions>
 					<configuration>
 						<instructions>
+							<Bundle-Name>${project.name}</Bundle-Name>
+							<Bundle-Description>
+								${project.description}
+							</Bundle-Description>
 							<Bundle-SymbolicName>
 								${project.artifactId}
 							</Bundle-SymbolicName>
+							<Bundle-Vendor>
+								Adele/LIG/ Grenoble University, France
+							</Bundle-Vendor>
+							<Bundle-Version>${project.version}</Bundle-Version>
 						</instructions>
 						<executions>
 							<execution>
@@ -361,10 +369,10 @@
 								<goals>
 									<goal>deploy</goal>
 								</goals>
-								 <obrRepository>dav:https://repository-apam.forge.cloudbees.com/snapshot/</obrRepository>
-									<remoteOBR>
-										dav:https://repository-apam.forge.cloudbees.com/snapshot/
-									</remoteOBR>
+								<obrRepository>dav:https://repository-apam.forge.cloudbees.com/snapshot/</obrRepository>
+								<remoteOBR>
+									dav:https://repository-apam.forge.cloudbees.com/snapshot/
+								</remoteOBR>
 							</execution>
 						</executions>
 					</configuration>
@@ -382,7 +390,6 @@
 							</goals>
 						</execution>
 					</executions>
-
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -393,13 +400,13 @@
 				<version>2.2</version>
 			</extension>
 		</extensions>
-		
-         
+
+
 	</build>
 
 	<modules>
 		<module>APAMProject</module>
 		<module>APAMBundle</module>
-		
+
 	</modules>
 </project>
