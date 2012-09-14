@@ -261,14 +261,14 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 */
 	@Override
 	public boolean isSharable() {
-		if (get(CST.A_SHARED) == null)
+		if (get(CST.SHARED) == null)
 			return true;
-		return get(CST.A_SHARED).equals(CST.V_TRUE);
+		return get(CST.SHARED).equals(CST.V_TRUE);
 	}
 
 	@Override
 	public boolean isInstantiable() {
-		String instantiable = (String) get(CST.A_INSTANTIABLE);
+		String instantiable = (String) get(CST.INSTANTIABLE);
 		return (instantiable == null) ? true : instantiable.equals(CST.V_TRUE);
 	}
 

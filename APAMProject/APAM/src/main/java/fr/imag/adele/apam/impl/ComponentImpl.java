@@ -88,22 +88,22 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		} 
 
 		//Finally add the specific attributes. Should be the only place where instanceof is used.
-		put (CST.A_NAME, apform.getDeclaration().getName()) ;
+		put (CST.NAME, apform.getDeclaration().getName()) ;
 		if (this instanceof Specification) {
-			put (CST.A_SPECNAME, apform.getDeclaration().getName()) ;
+			put (CST.SPECNAME, apform.getDeclaration().getName()) ;
 		} else {
 			if (this instanceof Implementation) {
-				put (CST.A_IMPLNAME, apform.getDeclaration().getName()) ;	
+				put (CST.IMPLNAME, apform.getDeclaration().getName()) ;	
 				if (this instanceof CompositeType) {
-					put(CST.A_COMPOSITETYPE, CST.V_TRUE);
+					put(CST.APAM_COMPOSITETYPE, CST.V_TRUE);
 				}
 				if (this instanceof Composite) {
-					put(CST.A_COMPOSITE, CST.V_TRUE);
-					put(CST.A_MAIN_INSTANCE, ((Composite)this).getMainInst().getName());
+					put(CST.APAM_COMPOSITE, CST.V_TRUE);
+					put(CST.APAM_MAIN_INSTANCE, ((Composite)this).getMainInst().getName());
 				}
 			} else  {
 				if (this instanceof Instance) {
-					put (CST.A_INSTNAME, apform.getDeclaration().getName()) ;
+					put (CST.INSTNAME, apform.getDeclaration().getName()) ;
 					//put (CST.A_COMPOSITE, ((Instance)this).getComposite().getName());
 				}
 			}

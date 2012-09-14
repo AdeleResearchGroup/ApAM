@@ -96,7 +96,7 @@ public class ApamCapability {
 		properties = cap.getPropertiesAsMap();
 
 		for (Property property : cap.getProperties()) {
-			if (property.getName().startsWith(CST.A_DEFINITION_PREFIX)) {
+			if (property.getName().startsWith(CST.DEFINITION_PREFIX)) {
 				String key = property.getName().substring(11);
 				propertiesTypes.put(key, property.getType());
 				if (!property.getValue().equals(""))
@@ -195,7 +195,7 @@ public class ApamCapability {
 		if (dcl != null) {
 			return dcl.getProvidedResources(InterfaceReference.class) ;
 		}
-		return asSet(getProperty(CST.A_PROVIDE_INTERFACES), InterfaceReference.class);
+		return asSet(getProperty(CST.PROVIDE_INTERFACES), InterfaceReference.class);
 	}
 
 	public Set<ResourceReference> getProvideResources () {
@@ -214,7 +214,7 @@ public class ApamCapability {
 			return dcl.getProvidedResources(MessageReference.class) ;
 		}
 		return asSet(getAttributeInCap(cap,
-				CST.A_PROVIDE_MESSAGES), MessageReference.class);
+				CST.PROVIDE_MESSAGES), MessageReference.class);
 	}
 
 	public String getAttrDefinition (String name) {
@@ -282,13 +282,13 @@ public class ApamCapability {
 			if (dcl instanceof InstanceDeclaration) return get(((InstanceDeclaration)dcl).getImplementation()) ;
 		}
 		if (getProperty(CST.COMPONENT_TYPE).equals(CST.INSTANCE)) {
-			if (getProperty(CST.A_IMPLNAME) == null) return null ;
-			ImplementationReference implRef = new ImplementationReference(getProperty(CST.A_IMPLNAME)) ;
+			if (getProperty(CST.IMPLNAME) == null) return null ;
+			ImplementationReference implRef = new ImplementationReference(getProperty(CST.IMPLNAME)) ;
 			return (get(implRef)) ;
 		}
 		if (getProperty(CST.COMPONENT_TYPE).equals(CST.IMPLEMENTATION)) {
-			if (getProperty(CST.A_SPECNAME) == null) return null ;
-			SpecificationReference specRef = new SpecificationReference(getProperty(CST.A_SPECNAME)) ;
+			if (getProperty(CST.SPECNAME) == null) return null ;
+			SpecificationReference specRef = new SpecificationReference(getProperty(CST.SPECNAME)) ;
 			return (get(specRef)) ;
 		}
 		if (getProperty(CST.COMPONENT_TYPE).equals(CST.SPECIFICATION)) {

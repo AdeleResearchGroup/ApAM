@@ -1,6 +1,6 @@
-<repository lastmodified='20120912082151.109'>
+<repository lastmodified='20120913015527.522'>
   <resource id='S1Impl/0.0.1.SNAPSHOT' symbolicname='S1Impl' presentationname='S1ImplMain' uri='/F:/Maven/.m2/fr/imag/adele/apam/S1Impl/0.0.1-SNAPSHOT/S1Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>12362</size>
+    <size>11624</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -20,39 +20,26 @@
       <p n='impl-name' v='S1Impl'/>
       <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s1.S1;]'/>
       <p n='provide-specification' v='S1'/>
-      <p n='s1-attr' v='coucou'/>
-      <p n='shared' v='false'/>
       <p n='s1b' v='true'/>
       <p n='spec-name' v='S1'/>
-      <p n='S1-Attr' v='coucou'/>
       <p n='location' v='bedroom'/>
       <p n='s1-enum' v='s1-2'/>
       <p n='S1-Enum' v='s1-2'/>
       <p n='S1-Enum2' v='coucou'/>
-      <p n='definition-cczerrt' t='boolean' v=''/>
-      <p n='definition-myEnum' t='[;v1;v2;v3;]' v=''/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
       <p n='name' v='S1toS2Final'/>
       <p n='component-type' v='implementation'/>
       <p n='impl-name' v='S1toS2Final'/>
-      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s1.S1;fr.imag.adele.apam.ApamComponent;]'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s1.S1;]'/>
       <p n='provide-specification' v='S1'/>
-      <p n='s1-attr' v='coucou'/>
       <p n='s1b' v='true'/>
       <p n='spec-name' v='S1'/>
-      <p n='S1-Attr' v='coucou'/>
       <p n='location' v='bedroom'/>
-      <p n='fieldAttr' v='bidon'/>
       <p n='s1-enum' v='s1-2'/>
       <p n='S1-Enum' v='s1-2'/>
       <p n='S1-Enum2' v='coucou'/>
-      <p n='testEnumere' v='v2'/>
-      <p n='definition-S1toS2Final-Bool' t='boolean' v='true'/>
-      <p n='definition-S1toS2Final-String1' t='string' v=''/>
-      <p n='definition-S1toS2Final-location' t='[;FinalLiving;FinalKitchen;FinalLedroom;]' v=''/>
-      <p n='definition-enumeration' t='[;f1;f2;f3;f4;]' v=''/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
@@ -60,8 +47,6 @@
       <p n='component-type' v='implementation'/>
       <p n='impl-name' v='S1Main'/>
       <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;]'/>
-      <p n='shared' v='false'/>
-      <p n='definition-s1 main' t='string' v='pas d interface'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
@@ -80,10 +65,6 @@
       <p n='apam-composite' v='true'/>
       <p n='apam-main-component' v='S1Main'/>
       <p n='shared' v='false'/>
-      <p n='localInstance' v='true'/>
-      <p n='borrowInstance' v='false'/>
-      <p n='borrowImplementation' v='false'/>
-      <p n='localImplementation' v='true'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
@@ -91,18 +72,12 @@
       <p n='component-type' v='instance'/>
       <p n='inst-name' v='S1toS2Final-instance'/>
       <p n='impl-name' v='S1toS2Final'/>
-      <p n='s1-attr' v='coucou'/>
-      <p n='S1-Attr' v='coucou'/>
-      <p n='location' v='bedroom'/>
-      <p n='S1toS2Final-Bool' v='true'/>
-      <p n='s1-enum' v='s1-2'/>
-      <p n='S1toS2Final-String1' v='a String Value'/>
-      <p n='S1-Enum2' v='coucou'/>
-      <p n='S1-Enum' v='s1-2'/>
       <p n='s1b' v='true'/>
       <p n='spec-name' v='S1'/>
-      <p n='fieldAttr' v='bidon'/>
-      <p n='testEnumere' v='v2'/>
+      <p n='location' v='bedroom'/>
+      <p n='s1-enum' v='s1-2'/>
+      <p n='S1-Enum' v='s1-2'/>
+      <p n='S1-Enum2' v='coucou'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
@@ -122,8 +97,8 @@
     <require name='package' filter='(&amp;(package=fr.imag.adele.apam.test.s3)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.test.s3;version="[0.0,1)"</require>
     <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
-    <require name='apam-component' filter='(&amp;(name=S2)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S2</require>
     <require name='apam-component' filter='(&amp;(name=S3)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S3</require>
+    <require name='apam-component' filter='(&amp;(name=S2)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S2</require>
     <require name='apam-component' filter='(&amp;(name=S1)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S1</require>
   </resource>
 </repository>

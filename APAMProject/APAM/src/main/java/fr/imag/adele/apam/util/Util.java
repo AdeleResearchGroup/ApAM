@@ -19,6 +19,7 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
 
@@ -233,7 +234,7 @@ public class Util {
             return true;
 
         // First check inst can be borrowed
-        String borrow = ((String) compoFrom.getProperty(CST.A_BORROWIMPLEM));
+        String borrow =  ((CompositeDeclaration)compoFrom.getDeclaration()).getVisibility().getBorrowImplementations() ; //   getProperty(CST.A_BORROWIMPLEM));
         if ((borrow != null) && (Util.checkImplVisibilityExpression(borrow, toImpl) == false))
             return false;
 
@@ -250,11 +251,13 @@ public class Util {
         if (compoFrom == compoTo)
             return true;
         if (compoFrom.isFriend(compoTo)) {
-            String friend = ((String) compoTo.getProperty(CST.A_FRIENDIMPLEM));
+            String friend = ((CompositeDeclaration)compoTo.getDeclaration()).getVisibility().getFriendImplementations() ;     //.getProperty(CST.A_FRIENDIMPLEM));
+//            String friend = ((String) compoTo.getProperty(CST.A_FRIENDIMPLEM));
             if ((friend != null) && Util.checkImplVisibilityExpression(friend, toImpl))
                 return true;
         }
-        String local = ((String) compoTo.getProperty(CST.A_LOCALIMPLEM));
+        String local = ((CompositeDeclaration)compoTo.getDeclaration()).getVisibility().getLocalImplementations() ;
+//        String local = ((String) compoTo.getProperty(CST.A_LOCALIMPLEM));
         if ((local != null) && Util.checkImplVisibilityExpression(local, toImpl))
             return false;
         return true;
@@ -286,25 +289,31 @@ public class Util {
     public static boolean checkInstVisible(Composite compoFrom, Instance toInst) {
         Composite toCompo = toInst.getComposite();
         CompositeType toCompoType = toInst.getComposite().getCompType();
+        CompositeType fromCompoType = compoFrom.getCompType() ;
+        
         if (compoFrom == toCompo)
             return true;
 
         // First check inst can be borrowed
-        String borrow = ((String) compoFrom.getCompType().getProperty(CST.A_BORROWINSTANCE));
+        String borrow = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getBorrowInstances() ;
+//      String borrow = ((String) compoFrom.getCompType().getProperty(CST.A_BORROWINSTANCE));
         if ((borrow != null) && (Util.checkInstVisibilityExpression(borrow, toInst) == false))
             return false;
 
         if (compoFrom.dependsOn(toCompo)) {
-            String friend = ((String) toCompoType.getProperty(CST.A_FRIENDINSTANCE));
+        	String friend = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getFriendInstances() ;
+//          String friend = ((String) toCompoType.getProperty(CST.A_FRIENDINSTANCE));
             if ((friend != null) && Util.checkInstVisibilityExpression(friend, toInst))
                 return true;
         }
         if (compoFrom.getAppliComposite() == toCompo.getAppliComposite()) {
-            String appli = ((String) toCompoType.getProperty(CST.A_APPLIINSTANCE));
+        	String appli = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getApplicationInstances() ;
+        	//String appli = ((String) toCompoType.getProperty(CST.A_APPLIINSTANCE));
             if ((appli != null) && Util.checkInstVisibilityExpression(appli, toInst))
                 return true;
         }
-        String local = ((String) toCompoType.getProperty(CST.A_LOCALINSTANCE));
+        String local = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getLocalInstances() ;
+        //String local = ((String) toCompoType.getProperty(CST.A_LOCALINSTANCE));
         if ((local != null) && Util.checkInstVisibilityExpression(local, toInst))
             return false;
         return true;

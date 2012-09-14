@@ -54,6 +54,13 @@
 		</dependency>
 		<dependency>
 		  	<groupId>fr.imag.adele.apam</groupId>
+  			<artifactId>S1TestAttr</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>		
+		<dependency>
+		  	<groupId>fr.imag.adele.apam</groupId>
   			<artifactId>S1</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<type>bundle</type>

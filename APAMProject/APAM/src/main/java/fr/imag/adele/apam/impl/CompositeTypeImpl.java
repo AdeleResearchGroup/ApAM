@@ -193,7 +193,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 			 *  It is a specification to resolve as the main implem. Do not select another composite
 			 */
 			constraints.clear();
-			ApamFilter noComposite = ApamFilter.newInstance("(!(" + CST.A_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
+			ApamFilter noComposite = ApamFilter.newInstance("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
 			constraints.add(noComposite);
 			mainImpl = CST.apamResolver.resolveSpecByName(this, mainComponent, constraints, null);
         }

@@ -212,7 +212,7 @@ public class OBRManager {
                     if (aCap.getName().equals(capability)) {
                         if (filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.println("   Component " + getAttributeInCapability(aCap, CST.A_NAME) + " found in bundle : " + res.getSymbolicName());
+                                System.out.println("   Component " + getAttributeInCapability(aCap, CST.NAME) + " found in bundle : " + res.getSymbolicName());
                                 allRes.add(new Selected(res, aCap));
                             }
                         }
@@ -253,7 +253,7 @@ public class OBRManager {
         if (winner == null)
             return null;
         System.out.println("   Found bundle : " + winner.resource.getSymbolicName() + " Component:  "
-                + getAttributeInCapability(winner.capability, CST.A_IMPLNAME));
+                + getAttributeInCapability(winner.capability, CST.IMPLNAME));
         return winner;
     }
 
@@ -313,7 +313,7 @@ public class OBRManager {
                     if (aCap.getName().equals(capability)) { // apam-component
                         if (filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.println("   Component " + getAttributeInCapability(aCap, CST.A_NAME) + " found in bundle " + res.getSymbolicName() );
+                                System.out.println("   Component " + getAttributeInCapability(aCap, CST.NAME) + " found in bundle " + res.getSymbolicName() );
                                 return new Selected(res, aCap);
                             }
                         }
