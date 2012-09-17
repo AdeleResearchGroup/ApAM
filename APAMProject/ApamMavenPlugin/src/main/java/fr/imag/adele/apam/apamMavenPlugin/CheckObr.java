@@ -375,7 +375,7 @@ public class CheckObr {
 	private static void checkState (CompositeDeclaration component) {
 		PropertyDefinition.Reference ref = component.getStateProperty() ;
 		if (ref == null) {
-			error ("A state must be associated with an implementation.") ;
+			//error ("A state must be associated with an implementation.") ;
 			return ;
 		}
 		
