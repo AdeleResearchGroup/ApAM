@@ -1,4 +1,4 @@
-<repository lastmodified='20120913084725.922'>
+<repository lastmodified='20120913070058.501'>
   <resource id='APP2-Composite/0.0.1.SNAPSHOT' symbolicname='APP2-Composite' presentationname='APP2-Composite' uri='/E:/maven-repository/fr/imag/adele/apam/APP2-Composite/0.0.1-SNAPSHOT/APP2-Composite-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
     <size>3121</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
@@ -39,7 +39,7 @@
     <require name='apam-component' filter='(name=APP2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP2_SPEC</require>
   </resource>
   <resource id='APP2-MainImpl/0.0.1.SNAPSHOT' symbolicname='APP2-MainImpl' presentationname='APP2-MainImpl' uri='/E:/maven-repository/fr/imag/adele/apam/APP2-MainImpl/0.0.1-SNAPSHOT/APP2-MainImpl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>4816</size>
+    <size>4815</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -66,7 +66,7 @@
     <require name='apam-component' filter='(name=APP2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP2_SPEC</require>
   </resource>
   <resource id='APP2-Spec/0.0.1.SNAPSHOT' symbolicname='APP2-Spec' presentationname='APP2-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/APP2-Spec/0.0.1-SNAPSHOT/APP2-Spec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>3625</size>
+    <size>3595</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>

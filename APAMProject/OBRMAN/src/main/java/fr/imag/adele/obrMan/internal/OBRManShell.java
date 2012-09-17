@@ -20,7 +20,6 @@ import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.ServiceProperty;
-import org.apache.felix.service.command.Descriptor;
 
 import fr.imag.adele.obrMan.OBRManCommand;
 
@@ -53,8 +52,9 @@ public class OBRManShell {
     /**
      * compositeRepositories
      */
-    @Descriptor("list repositories of a compositeType")
-    public void cr(@Descriptor("the name of the compositeType ") String compositeTypeName) {
+//    @Descriptor("list repositories of a compositeType")
+//    @Descriptor("the name of the compositeType ") 
+    public void cr(String compositeTypeName) {
         System.out.println(obrmanCommand.printCompositeRepositories(compositeTypeName));
 
     }

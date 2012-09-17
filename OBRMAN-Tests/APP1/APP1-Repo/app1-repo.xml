@@ -1,6 +1,6 @@
-<repository lastmodified='20120913084731.558'>
+<repository lastmodified='20120913070103.954'>
   <resource id='APP1-Composite/0.0.1.SNAPSHOT' symbolicname='APP1-Composite' presentationname='APP1-Composite' uri='/E:/maven-repository/fr/imag/adele/apam/APP1-Composite/0.0.1-SNAPSHOT/APP1-Composite-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>2899</size>
+    <size>2898</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -32,7 +32,7 @@
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
   </resource>
   <resource id='APP1-MainImpl/0.0.1.SNAPSHOT' symbolicname='APP1-MainImpl' presentationname='APP1-MainImpl' uri='/E:/maven-repository/fr/imag/adele/apam/APP1-MainImpl/0.0.1-SNAPSHOT/APP1-MainImpl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>6267</size>
+    <size>6266</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -61,10 +61,10 @@
     <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app2.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app2.spec;version="[0.0,1)"</require>
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
     <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app1.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app1.spec;version="[0.0,1)"</require>
-    <require name='apam-component' filter='(name=APP1_S2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S2_SPEC</require>
     <require name='apam-component' filter='(name=APP2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP2_SPEC</require>
-    <require name='apam-component' filter='(name=APP1_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_SPEC</require>
+    <require name='apam-component' filter='(name=APP1_S2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S2_SPEC</require>
     <require name='apam-component' filter='(name=APP1_S1_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S1_SPEC</require>
+    <require name='apam-component' filter='(name=APP1_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_SPEC</require>
   </resource>
   <resource id='APP1-S1-Impl/0.0.1.SNAPSHOT' symbolicname='APP1-S1-Impl' presentationname='APP1-S1-Impl' uri='/E:/maven-repository/fr/imag/adele/apam/APP1-S1-Impl/0.0.1-SNAPSHOT/APP1-S1-Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
     <size>5170</size>
@@ -97,7 +97,7 @@
     <require name='apam-component' filter='(name=APP1_S1_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S1_SPEC</require>
   </resource>
   <resource id='APP1-S1-Spec/0.0.1.SNAPSHOT' symbolicname='APP1-S1-Spec' presentationname='APP1-S1-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/APP1-S1-Spec/0.0.1-SNAPSHOT/APP1-S1-Spec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>3878</size>
+    <size>3879</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -126,7 +126,7 @@
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
   </resource>
   <resource id='APP1-S2-Impl/0.0.1.SNAPSHOT' symbolicname='APP1-S2-Impl' presentationname='APP1-S2-Impl' uri='/E:/maven-repository/fr/imag/adele/apam/APP1-S2-Impl/0.0.1-SNAPSHOT/APP1-S2-Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>5095</size>
+    <size>5094</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -152,11 +152,11 @@
     <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
     <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app1.s3.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app1.s3.spec;version="[0.0,1)"</require>
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
-    <require name='apam-component' filter='(name=APP1_S2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S2_SPEC</require>
     <require name='apam-component' filter='(name=APP1_S3_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S3_SPEC</require>
+    <require name='apam-component' filter='(name=APP1_S2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S2_SPEC</require>
   </resource>
   <resource id='APP1-S2-Spec/0.0.1.SNAPSHOT' symbolicname='APP1-S2-Spec' presentationname='APP1-S2-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/APP1-S2-Spec/0.0.1-SNAPSHOT/APP1-S2-Spec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>3830</size>
+    <size>3829</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -185,7 +185,7 @@
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
   </resource>
   <resource id='APP1-S3-Impl/0.0.1.SNAPSHOT' symbolicname='APP1-S3-Impl' presentationname='APP1-S3-Impl' uri='/E:/maven-repository/fr/imag/adele/apam/APP1-S3-Impl/0.0.1-SNAPSHOT/APP1-S3-Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>4841</size>
+    <size>4840</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -213,7 +213,7 @@
     <require name='apam-component' filter='(name=APP1_S3_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S3_SPEC</require>
   </resource>
   <resource id='APP1-S3-Spec/0.0.1.SNAPSHOT' symbolicname='APP1-S3-Spec' presentationname='APP1-S3-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/APP1-S3-Spec/0.0.1-SNAPSHOT/APP1-S3-Spec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>3778</size>
+    <size>3775</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
