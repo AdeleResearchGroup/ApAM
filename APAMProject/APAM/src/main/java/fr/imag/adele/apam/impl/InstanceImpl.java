@@ -274,7 +274,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     @Override
     public boolean isSharable() {
         return (getInvWires().isEmpty()
-                || (getProperty(CST.A_SHARED) == null) || (getProperty(CST.A_SHARED).equals(CST.V_TRUE)));
+                || (getProperty(CST.SHARED) == null) || (getProperty(CST.SHARED).equals(CST.V_TRUE)));
     }
 
     /**

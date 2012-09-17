@@ -16,10 +16,18 @@ import fr.imag.adele.apam.core.ComponentReference;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.DependencyInjection;
+import fr.imag.adele.apam.core.GrantDeclaration;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.core.ImplementationReference;
+import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
+import fr.imag.adele.apam.core.OwnedComponentDeclaration;
+import fr.imag.adele.apam.core.PropertyDefinition;
+import fr.imag.adele.apam.core.Reference;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.core.VisibilityDeclaration;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 
@@ -194,8 +202,10 @@ public class CheckObr {
 	 * @param messages= "{M1, M2, M3}" or M1 or null
 	 * @return
 	 */
-	public static boolean checkImplProvide(String implName, String spec, Set<InterfaceReference> interfaces,
+	public static boolean checkImplProvide(ComponentDeclaration impl, String spec, Set<InterfaceReference> interfaces,
 			Set<MessageReference> messages) {
+		if (!(impl instanceof AtomicImplementationDeclaration)) return true ;
+		
 		if (spec == null)
 			return true;
 		ApamCapability cap = ApamCapability.get(new SpecificationReference(spec));
@@ -207,11 +217,11 @@ public class CheckObr {
 		Set<InterfaceReference> specInterfaces = cap.getProvideInterfaces();
 
 		if (!(messages.containsAll(specMessages)))
-			CheckObr.error("Implementation " + implName + " must produce messages "
+			CheckObr.error("Implementation " + impl.getName() + " must produce messages "
 					+ Util.toStringSetReference(specMessages)) ;
 
 		if (!(interfaces.containsAll(specInterfaces)))
-			CheckObr.error("Implementation " + implName + " must implement interfaces "
+			CheckObr.error("Implementation " + impl.getName() + " must implement interfaces "
 					+ Util.toStringSetReference(specInterfaces)) ;
 
 		return true;
@@ -227,7 +237,7 @@ public class CheckObr {
 		}
 		if (composite.getSpecification() != null) {
 			String spec = composite.getSpecification().getName();
-			String capSpec = cap.getProperty(CST.A_PROVIDE_SPECIFICATION);
+			String capSpec = cap.getProperty(CST.PROVIDE_SPECIFICATION);
 			if ((capSpec != null) && !spec.equals(capSpec)) {
 				CheckObr.error("In " + name + " Invalid main implementation. " + implName
 						+ " must implement specification " + spec);
@@ -239,14 +249,14 @@ public class CheckObr {
 		if (!mainMessages.containsAll(compositeMessages))
 			CheckObr.error("In " + name + " Invalid main implementation. " + implName
 					+ " produces messages " + mainMessages
-					+ " \n but must produce messages " + compositeMessages);
+					+ " instead of " + compositeMessages);
 
 		Set<InterfaceReference> mainInterfaces = cap.getProvideInterfaces() ;
 		Set<InterfaceReference> compositeInterfaces = composite.getProvidedResources(InterfaceReference.class);
 		if (!mainInterfaces.containsAll(compositeInterfaces))
 			CheckObr.error("In " + name + " Invalid main implementation. " + implName
 					+ " implements " + mainInterfaces
-					+ " \n but must implement interfaces " + compositeInterfaces);
+					+ " instead of " + compositeInterfaces);
 	}
 
 	/**
@@ -331,4 +341,145 @@ public class CheckObr {
 		return dep.isCollection();
 	}
 	
+	/**
+	 * check all the characteristics that can be found in the <contentMngt> of a composite
+	 * @param component
+	 */
+	public static void checkCompositeContent (CompositeDeclaration component) {
+		
+		checkStart ((CompositeDeclaration) component) ;
+		checkState ((CompositeDeclaration) component) ;
+		checkOwn ((CompositeDeclaration) component) ;
+		checkGrant ((CompositeDeclaration) component) ;
+		checkVisibility ((CompositeDeclaration) component) ;
+		checkGeneric ((CompositeDeclaration) component) ;
+		checkOverride ((CompositeDeclaration) component) ;
+	}
+
+	/**
+	 * Check the start characteristic.
+	 * It is very similar to an instance declaration, plus a trigger.
+	 * @param component
+	 */
+	private static void checkStart (CompositeDeclaration component) {
+		for (InstanceDeclaration start : component.getInstanceDeclarations()) {
+			//String main = start.
+		}
+	}
+
+	/**
+	 * Check the start characteristic.
+	 * It is very similar to an instance declaration, plus a trigger.
+	 * @param component
+	 */
+	private static void checkState (CompositeDeclaration component) {
+		PropertyDefinition.Reference ref = component.getStateProperty() ;
+		if (ref == null) {
+			error ("A state must be associated with an implementation.") ;
+			return ;
+		}
+		
+		ComponentReference compo = ref.getDeclaringComponent() ;
+		if (! (compo instanceof ImplementationReference)) {
+			error ("A state must be associated with an implementation.") ;
+			return ;
+		}
+			ApamCapability implCap = ApamCapability.get(compo) ;
+			if (implCap == null) {
+				error ("Implementation for state unavailable: " + compo.getName()) ;
+				return ;
+			}
+		String propertyDef = implCap.getAttrDefinition(ref.getIdentifier()) ;
+		if (propertyDef == null) {
+			error ("The state attribute " + ref.getIdentifier() + " on implementation " + compo.getName() + " is undefined.") ;
+			return ;
+		}
+	}
+
+	private static boolean visibilityExpression (String expr) {
+		if (expr == null) {
+			//error("Missing expression in visibility. ") ;
+			return true ;
+		}
+		if (expr.equals(CST.V_FALSE) || expr.equals(CST.V_TRUE)) 
+			return true ;
+		try {
+			ApamFilter f = ApamFilter.newInstance(expr) ;
+		} catch (Exception e) {
+			error ("Bad filter in visibility expression " + expr) ;
+			return false ;
+		}
+		return true ;
+	}
+	
+	private static void checkVisibility (CompositeDeclaration component) {
+		VisibilityDeclaration visiDcl = component.getVisibility() ;
+		if (! visibilityExpression(visiDcl.getApplicationInstances())) 
+			error ("bad expression in Application visibility: " + visiDcl.getApplicationInstances()) ;
+		if (! visibilityExpression(visiDcl.getFriendImplementations())) 
+			error ("bad expression in Friend implementation visibility: " + visiDcl.getFriendImplementations()) ;
+		if (! visibilityExpression(visiDcl.getFriendInstances())) 
+			error ("bad expression in Friend instance visibility: " + visiDcl.getFriendInstances()) ;
+		if (! visibilityExpression(visiDcl.getLocalImplementations())) 
+			error ("bad expression in Local implementation visibility: " + visiDcl.getLocalImplementations()) ;
+		if (! visibilityExpression(visiDcl.getLocalInstances())) 
+			error ("bad expression in Local instance visibility: " + visiDcl.getLocalInstances()) ;
+		if (! visibilityExpression(visiDcl.getBorrowImplementations())) 
+			error ("bad expression in Borrow implementation visibility: " + visiDcl.getBorrowImplementations()) ;
+		if (! visibilityExpression(visiDcl.getBorrowInstances())) 
+			error ("bad expression in Borrow instance visibility: " + visiDcl.getBorrowInstances()) ;
+	}
+	
+	/**
+	 * 
+	 * @param component
+	 */
+	private static void checkOwn (CompositeDeclaration component) {
+		Set<OwnedComponentDeclaration> owned = component.getOwnedComponents() ;
+		for (OwnedComponentDeclaration own : owned) {
+			ApamCapability ownCap = ApamCapability.get(own.getComponent()) ;
+			if (ownCap == null) {
+				error ("Unknown component in own expression : " + own.getComponent().getName()) ;
+				break ;
+			}
+			//computes the attributes that can be associated with this spec or implementations members
+			Map<String, String> validAttrs = ownCap.getValidAttrNames();
+
+			CheckObr.checkFilters(own.getImplementationConstraints(), null, validAttrs, ownCap.getName());			
+			CheckObr.checkFilters(own.getInstanceConstraints(), null, validAttrs, ownCap.getName());			
+		}
+	}
+
+	private static void checkGrant (CompositeDeclaration component) {
+		List<GrantDeclaration> grants = component.getGrants();
+		for (GrantDeclaration grant : grants) {
+			DependencyDeclaration.Reference dep = grant.getDependency() ;
+			ComponentReference compo = dep.getDeclaringComponent() ;
+			String depName = dep.getIdentifier() ;
+			Set<String> states = grant.getStates() ;
+			ApamCapability cap = ApamCapability.get(compo) ;
+			if (cap == null) {
+				error ("Unknown component in own expression : " + compo.getName()) ;
+				break ;
+			}
+			System.out.println("Need to check dependency " + depName + " of component "
+					+ compo.getName() + " state attribute " + states ) ;
+			//look for the dependency
+			//TODO We do not have the dependencies in OBR
+			//TODO cannot compile that !! Need read the component, to get the dependency target, 
+			// and check if the states are valid.
+			//cap.getAttrDefinition(name) ;
+		}
+	}
+
+	
+	private static void checkGeneric (CompositeDeclaration component) {
+	
+	}
+
+	
+	private static void checkOverride (CompositeDeclaration component) {
+		
+	}
+
 }

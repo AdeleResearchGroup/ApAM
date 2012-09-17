@@ -844,7 +844,7 @@ public class CoreMetadataParser implements CoreParser {
 		Element trigger	= triggers.length > 0 ? triggers[0] : null;	
 
 		if (triggers.length > 1)
-			errorHandler.error(Severity.ERROR, "A single trigger declaration is allowed in an instance declaration"+element);
+			errorHandler.error(Severity.ERROR, "A single trigger declaration is allowed in an instance declaration" + element.getName());
 		
 		/*
 		 * Parse triggering conditions
@@ -1448,7 +1448,7 @@ public class CoreMetadataParser implements CoreParser {
 		Element states[] = optional(element.getElements(CoreMetadataParser.STATE,CoreMetadataParser.APAM));
 
 		if (states.length > 1)
-			errorHandler.error(Severity.ERROR, "A single state declaration is allowed in a composite declaration"+element);
+			errorHandler.error(Severity.ERROR, "In composite " + element.getName() + ": A single state declaration is allowed in a composite declaration");
 		
 		if (states.length == 0)
 			return;
@@ -1495,34 +1495,34 @@ public class CoreMetadataParser implements CoreParser {
 			if (rule.getName().equals(CoreMetadataParser.BORROW)) {
 				if (implementationsRule != null) {
 					composite.getVisibility().setBorrowImplementations(implementationsRule);
-					composite.getProperties().put(CST.A_BORROWIMPLEM, implementationsRule);
+//					composite.getProperties().put(CST.A_BORROWIMPLEM, implementationsRule);
 				}
 				if (instancesRule != null){
 					composite.getVisibility().setBorrowInstances(instancesRule);
-					composite.getProperties().put(CST.A_BORROWINSTANCE, instancesRule);
+//					composite.getProperties().put(CST.A_BORROWINSTANCE, instancesRule);
 				}
 			}
 
 			if (rule.getName().equals(CoreMetadataParser.FRIEND)) {
 				if (implementationsRule != null) {
 					composite.getVisibility().setFriendImplementations(implementationsRule);
-					composite.getProperties().put(CST.A_FRIENDIMPLEM, implementationsRule);
+//					composite.getProperties().put(CST.A_FRIENDIMPLEM, implementationsRule);
 				}
 				if (instancesRule != null) {
 					composite.getVisibility().setFriendInstances(instancesRule);
-					composite.getProperties().put(CST.A_FRIENDINSTANCE, instancesRule);
+//					composite.getProperties().put(CST.A_FRIENDINSTANCE, instancesRule);
 				}
 			}
 
 			if (rule.getName().equals(CoreMetadataParser.LOCAL)) {
 				if (implementationsRule != null) {
 					composite.getVisibility().setLocalImplementations(implementationsRule);
-					composite.getProperties().put(CST.A_LOCALIMPLEM, implementationsRule);
+//					composite.getProperties().put(CST.A_LOCALIMPLEM, implementationsRule);
 				}
 
 				if (instancesRule != null) {
 					composite.getVisibility().setLocalInstances(instancesRule);
-					composite.getProperties().put(CST.A_LOCALINSTANCE, instancesRule);
+//					composite.getProperties().put(CST.A_LOCALINSTANCE, instancesRule);
 				}
 			}
 
@@ -1530,7 +1530,7 @@ public class CoreMetadataParser implements CoreParser {
 
 				if (instancesRule != null) {
 					composite.getVisibility().setApplicationInstances(instancesRule);
-					composite.getProperties().put(CST.A_APPLIINSTANCE, instancesRule);
+//					composite.getProperties().put(CST.A_APPLIINSTANCE, instancesRule);
 				}
 			}
 			

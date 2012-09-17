@@ -51,6 +51,5 @@
 			</specification>
 			
 		</contentMngt>
-		<property name="valuemyproperty" value="true" type="boolean"/>
 	</composite>
 </ipojo>

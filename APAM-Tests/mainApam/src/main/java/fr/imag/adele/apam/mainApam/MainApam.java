@@ -16,6 +16,7 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.test.s1.S1;
+import fr.imag.adele.apam.test.s1TestAttr.S1TestAttr;
 
 public class MainApam implements Runnable, ApamComponent {
 	// injected
@@ -152,7 +153,7 @@ public class MainApam implements Runnable, ApamComponent {
 		props.put("location", "anywhere"); // value not defined
 		props.put("testEnumere", "v1");
 
-		CompositeType appliTestAttr = apam.createCompositeType(null,  "TestInitAttr", "S1toS2Final", null, props);
+		CompositeType appliTestAttr = apam.createCompositeType(null,  "TestInitAttr", "S1ImplTestAttr", null, props);
 		assertTrue(appliTestAttr != null);
 
 		Instance appliTestAttr_0 = appliTestAttr.createInstance(null /* composite */, props/* properties */);
@@ -205,7 +206,7 @@ public class MainApam implements Runnable, ApamComponent {
 
 		 */
 
-		CompositeType appliSetAttr = apam.createCompositeType(null,  "TestSetAttr", "S1toS2Final", null,null);
+		CompositeType appliSetAttr = apam.createCompositeType(null,  "TestSetAttr", "S1ImplTestAttr", null,null);
 		assertTrue(appliSetAttr != null);
 
 		Instance appliSetAttr_0 = appliSetAttr.createInstance(null /* composite */, null/* properties */);
@@ -314,7 +315,7 @@ public class MainApam implements Runnable, ApamComponent {
 		//field and internal. Set by program when starting
 		assertEquals(inst.getProperty("fieldAttr"), "initial set by program");
 		String s = "to set the field attribute" ;
-		((S1)inst.getServiceObject()).callS1 (s) ; //callS1 sets the attribute to s 
+		((S1TestAttr)inst.getServiceObject()).callS1 (s) ; //callS1 sets the attribute to s 
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -440,16 +441,16 @@ public class MainApam implements Runnable, ApamComponent {
 
 		// setting visibilities
 		// composite a3 should not be shared
-		test00_instance0.setProperty(CST.A_SHARED, CST.V_FALSE);
+		test00_instance0.setProperty(CST.SHARED, CST.V_FALSE);
 
 		System.out.println("\n\n===================================== Testing promotions\n"
 				+ " creating composite on S1 containing an S2 composite \n");
 
 		props.clear();
-		props.put(CST.A_LOCALIMPLEM, CST.V_TRUE);
-		props.put(CST.A_LOCALINSTANCE, CST.V_TRUE);
-		props.put(CST.A_BORROWIMPLEM, CST.V_FALSE);
-		props.put(CST.A_BORROWINSTANCE, CST.V_FALSE);
+//		props.put(CST.A_LOCALIMPLEM, CST.V_TRUE);
+//		props.put(CST.A_LOCALINSTANCE, CST.V_TRUE);
+//		props.put(CST.A_BORROWIMPLEM, CST.V_FALSE);
+//		props.put(CST.A_BORROWINSTANCE, CST.V_FALSE);
 
 		CompositeType mainCompo = apam.createCompositeType("Test00", "TestS1Promotions", "S1Main", null /* models */,
 				props);
