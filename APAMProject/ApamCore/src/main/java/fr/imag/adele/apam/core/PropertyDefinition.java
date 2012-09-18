@@ -29,7 +29,7 @@ public class PropertyDefinition {
             return name;
         }
 
-        public ComponentReference<?> getDeclaringComponent() {
+        public ComponentReference<?> getDefiningComponent() {
             return (ComponentReference<?>) namespace;
         }
 

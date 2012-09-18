@@ -1,6 +1,9 @@
 <ipojo xmlns="fr.imag.adele.apam">
 	<composite name="S5CompEx" mainImplem="S5Impl" specification="S5"
 		interfaces="[fr.imag.adele.apam.test.s5.S5,fr.imag.adele.apam.ApamComponent]">
+		
+		<dependency specification="S4" fail= "wait" exception="fr.imag.failedException" />
+		
 		<contentMngt>
 			<state implementation="S5Impl" property="s5b"/>
 			
@@ -23,25 +26,18 @@
 				</trigger>
 			</start> 
 			
+			<promote implementation="A" dependency="fastS2" to="S2Single"/>
+					
+			<borrow implementation="(b=true)" instance="false"/>
+			<local  implementation="true" instance="true"/>
+
+			<own specification="Door" property="location" value="{entrance,exit}">
+				<grant when="emergency" implementation="FireEscape" />
+				<grant when="threat" implementation="efraction" />
+			</own>
+			<own specification="Door" property="location" value="garage"/>
 			
-			<visibility>
-				<borrow implementation="(b=true)" instance="false"/>
-				<local  implementation="true" instance="true"/>
-			</visibility>
-			
-			<grant implementation="S3Impl" dependency="S4" when="hello"/>
-			<override implementation="S3Impl" dependency="S4">
-				<constraints>
-					<implementation filter="(apam-composite=true)" />
-					<instance filter="(b=true)" />
-				</constraints>
-				<preferences>
-					<implementation filter="(b=10)" />
-					<instance filter="(c=hello)" />
-				</preferences>
-			</override>
-			
-			<specification name="Spec_A*">
+			<specification name="Spec_A*" eager="true" hide="true" exception="CompositeDependencyException">
 				<constraints>
 					<constraint filter="(apam-composite=true)" />
 				</constraints>

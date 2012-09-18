@@ -2,7 +2,7 @@ package fr.imag.adele.apam.core;
 
 /**
  * This enumeration represents the different policies available for handling events in which
- * a dependency is no longer resolvable
+ * a dependency is no resolvable
  * 
  * @author vega
  *
@@ -16,21 +16,16 @@ public enum MissingPolicy {
 	OPTIONAL,
 	
 	/**
-	 * Automatically recreates the wire for resolving the dependency when a suitable instance is
+	 * Automatically creates the wire for resolving the dependency when a suitable instance is
 	 * available. If a client tries to use the dependency, the invoking thread will be blocked until
 	 * the dependency is resolved again.
 	 */
 	WAIT,
 	
 	/**
-	 * Deletes the client component instance, this may propagate to other instances and forces a
-	 * recalculation of another branch in the graph of possible configurations.
+	 * If a client effectively accesses the dependency an exception will be thrown to signal the
+	 * missing target.
 	 */
-	DELETE,
+	EXCEPTION
 	
-	/**
-	 * The dependency is verified before instantiating the source component. Otherwise it behaves as
-	 * the delete policy.
-	 */
-	MANDATORY
 }

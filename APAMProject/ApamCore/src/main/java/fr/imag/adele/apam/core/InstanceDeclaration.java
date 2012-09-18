@@ -22,9 +22,9 @@ public class InstanceDeclaration extends ComponentDeclaration {
     /**
      * The list of triggers that must be met to start this instance
      */
-    private final Set<TargetDeclaration> triggers;
+    private final Set<ConstrainedReference> triggers;
     
-    public InstanceDeclaration(ImplementationReference<?> implementation, String name, Set<TargetDeclaration> triggers) {
+    public InstanceDeclaration(ImplementationReference<?> implementation, String name, Set<ConstrainedReference> triggers) {
         super(name);
 
         assert implementation != null;
@@ -43,7 +43,7 @@ public class InstanceDeclaration extends ComponentDeclaration {
     /**
      * The triggering specification
      */
-    public Set<TargetDeclaration> getTriggers() {
+    public Set<ConstrainedReference> getTriggers() {
 		return triggers;
 	}
     

@@ -176,8 +176,9 @@ public class ApamResolverImpl implements ApamResolver {
         SpecificationReference specification	= mainComponent.getImplDeclaration().getSpecification();
         Set<ManagerModel> models				= new HashSet<ManagerModel>();
         
-        CompositeType application = apam.createCompositeType(null, applicationName,
-        									specification != null ? specification.getName() : null, mainComponent.getName(), models, null);
+        CompositeType application = apam.createCompositeType((CompositeType)null,
+        									applicationName, specification != null ? specification.getName() : null, mainComponent.getName(),
+        									models, null);
         
         /*
          * Create an instance of the application with the specified main

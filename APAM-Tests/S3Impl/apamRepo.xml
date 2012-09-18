@@ -1,6 +1,6 @@
-<repository lastmodified='20120911014032.614'>
+<repository lastmodified='20120918042944.044'>
   <resource id='S3Impl/0.0.1.SNAPSHOT' symbolicname='S3Impl' presentationname='S3Impl' uri='/C:/Program%20Files/Apache%20Software%20Foundation/apache-maven-2.2.1/repository/fr/imag/adele/apam/S3Impl/0.0.1-SNAPSHOT/S3Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>6867</size>
+    <size>6870</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -95,7 +95,7 @@
     <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
     <require name='package' filter='(&amp;(package=fr.imag.adele.apam.test.s5)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.test.s5;version="[0.0,1)"</require>
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
-    <require name='apam-component' filter='(&amp;(name=S4)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S4</require>
     <require name='apam-component' filter='(&amp;(name=S3)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S3</require>
+    <require name='apam-component' filter='(&amp;(name=S4)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S4</require>
   </resource>
 </repository>

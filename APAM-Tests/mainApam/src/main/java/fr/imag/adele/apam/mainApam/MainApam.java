@@ -85,26 +85,11 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("=========== passed testFindImplByName\n\n");
 	}
 
-	public void testCompoURL () {
-		System.out.println("=========== start testCompoURL");
-		System.out.println("providing an URL leading to the bundle to start. It must contain the main implementation S2Simple");
-		URL theUrl = null ;
-		try {
-			theUrl = new URL("http://repository-apam.forge.cloudbees.com/snapshot/fr/imag/adele/apam/S2Impl/0.0.1-SNAPSHOT/S2Impl-0.0.1-20120810.041326-9.jar") ;
-			// theUrl = bundle.toURI().toURL();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		CompositeType appliTestURL = apam.createCompositeType(null,  "TestURL", "S2Simple", /* models */null, theUrl, /*specName*/null, null);
-		assertTrue(appliTestURL != null);
-
-		System.out.println("=========== passed testCompoURL\n\n");
-	}
 
 	public void testCreateCompoRootS1toS2Final () {
 		System.out.println("=========== start testCreateCompoRootS1toS2Final");
 		System.out.println("testing a root createCompositeType by name existing in ASM. will call S2Final.");
-		CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", "S1toS2Final", null,null);
+		CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", null, "S1toS2Final", null,null);
 		assertTrue(appliTest00!= null);
 
 		System.out.println("testing create instance root");
@@ -133,7 +118,7 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println(" Alternatively, a specification (S1) can be provided instead; it is resolved to find the main implem.\n");
 
 		// The system will look for an atomic implementations of "S1" as the main implementation
-		CompositeType appli3 = apam.createCompositeType(null, "TestS1Bis", "S1", null /* models */, null /* properties */);
+		CompositeType appli3 = apam.createCompositeType(null, "TestS1Bis", null,  "S1", null /* models */, null /* properties */);
 		assertTrue (appli3 != null) ;
 
 		// Create an instance of that composite type
@@ -153,7 +138,7 @@ public class MainApam implements Runnable, ApamComponent {
 		props.put("location", "anywhere"); // value not defined
 		props.put("testEnumere", "v1");
 
-		CompositeType appliTestAttr = apam.createCompositeType(null,  "TestInitAttr", "S1toS2Final", null, props);
+		CompositeType appliTestAttr = apam.createCompositeType(null,  "TestInitAttr", null, "S1toS2Final", null, props);
 		assertTrue(appliTestAttr != null);
 
 		Instance appliTestAttr_0 = appliTestAttr.createInstance(null /* composite */, props/* properties */);
@@ -204,7 +189,7 @@ public class MainApam implements Runnable, ApamComponent {
 
 		 */
 
-		CompositeType appliSetAttr = apam.createCompositeType(null,  "TestSetAttr", "S1toS2Final", null,null);
+		CompositeType appliSetAttr = apam.createCompositeType(null,  "TestSetAttr", null, "S1toS2Final", null,null);
 		assertTrue(appliSetAttr != null);
 
 		Instance appliSetAttr_0 = appliSetAttr.createInstance(null /* composite */, null/* properties */);
@@ -436,7 +421,7 @@ public class MainApam implements Runnable, ApamComponent {
 		props.put(CST.A_BORROWIMPLEM, CST.V_FALSE);
 		props.put(CST.A_BORROWINSTANCE, CST.V_FALSE);
 
-		CompositeType mainCompo = apam.createCompositeType("Test00", "TestS1Promotions", "S1Main", null /* models */,
+		CompositeType mainCompo = apam.createCompositeType("Test00", "TestS1Promotions", null, "S1Main", null /* models */,
 				props);
 
 		System.err.println("TestS1Promotions inside Test00 and black box");

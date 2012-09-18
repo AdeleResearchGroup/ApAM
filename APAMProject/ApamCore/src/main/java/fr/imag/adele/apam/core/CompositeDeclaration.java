@@ -39,24 +39,14 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	private final List<InstanceDeclaration> instances;
 	
 	/**
-	 * The list of contextual dependencies of this composite 
+	 * The list of contextual resolution policies of this composite 
 	 */
-	private final List<DependencyDeclaration> contextualDependencies;
+	private final List<ContextualResolutionPolicy> contextualResolutions;
 	
 	/**
-	 * The list of dependencies overrides of this composite
+	 * The list of dependencies promotions of this composite
 	 */
-	private final List<DependencyOverride> overrides;
-	
-	/**
-	 * The list of automatic resource grants
-	 */
-	private final List<GrantDeclaration> grants;
-	
-	/**
-	 * The list of automatic resource releases
-	 */
-	private final List<ReleaseDeclaration> releases;
+	private final List<DependencyPromotion> promotions;
 	
     public CompositeDeclaration(String name, SpecificationReference specification, ComponentReference<?> mainComponent) {
         super(name, specification);
@@ -68,10 +58,8 @@ public class CompositeDeclaration extends ImplementationDeclaration {
         this.visibility				= new VisibilityDeclaration();
         this.ownedComponents		= new HashSet<OwnedComponentDeclaration>();
         this.instances				= new ArrayList<InstanceDeclaration>();
-        this.contextualDependencies = new ArrayList<DependencyDeclaration>();
-        this.overrides				= new ArrayList<DependencyOverride>();
-        this.grants					= new ArrayList<GrantDeclaration>();
-        this.releases				= new ArrayList<ReleaseDeclaration>();
+        this.contextualResolutions	= new ArrayList<ContextualResolutionPolicy>();
+        this.promotions				= new ArrayList<DependencyPromotion>();
         
     }
 
@@ -146,33 +134,20 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     }
     
     /**
-     * The list of contextual overrides
+     * The list of contextual promotions
      */
-    public List<DependencyOverride> getOverrides() {
-		return overrides;
+    public List<DependencyPromotion> getPromotions() {
+		return promotions;
 	}
     
     /**
      * The list of contextual dependencies
      */
-    public List<DependencyDeclaration> getContextualDependencies() {
-		return contextualDependencies;
+    public List<ContextualResolutionPolicy> getContextualResolutionPolicies() {
+		return contextualResolutions;
 	}
     
-    /**
-     * The list of resource grants
-     */
-    public List<GrantDeclaration> getGrants() {
-		return grants;
-	}
 
-    /**
-     * The list of resource releases
-     */
-    public List<ReleaseDeclaration> getReleases() {
-		return releases;
-	}
-    
     @Override
     public String toString() {
         String ret = "\nComposite declaration " + super.toString();
