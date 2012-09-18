@@ -83,9 +83,9 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 	/**
 	 * 
 	 *
-	 * @parameter expression="${localObr}"
+	 * @parameter expression="${noLocalObr}"
 	 */
-	private boolean localObr;
+	private boolean noLocalObr;
 
 
 	// The list of bundle dependencies of the form "groupId.name.version"
@@ -115,7 +115,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			URL obrRepository = getObrRepoFromMavenPlugin() ;
 			if (obrRepository != null)
 				dependencyObrList.add(0, obrRepository) ;
-			if (localObr) {
+			if (!noLocalObr) {
 				File local = new File (localRepository.getBasedir() + File.separator +"repository.xml") ;
 				if (local.exists())
 					dependencyObrList.add(local.toURI().toURL()) ;
@@ -217,8 +217,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 
 
 
-	private URL getObrRepoFromMavenPlugin()
-	{
+	private URL getObrRepoFromMavenPlugin() {
 		List<Plugin> plugins = (List<Plugin>)getProject().getBuildPlugins();
 		System.out.print(" Used plug in Maven : ");
 		for (Plugin plugin : plugins) {

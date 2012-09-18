@@ -3,7 +3,6 @@
 	<specification name="S1" interfaces="fr.imag.adele.apam.test.s1.S1"  >
 			<property name="S1-Enum2" value="coucou" type="{s1-1, s1-2, s1-3}"/>
 			<property name="S1-Enum" value="s1-2" type="{s1-1, s1-2, s1-3}"/>
-			<property name="S1-Attr" value="coucou" type="string"/>
 			<definition name="s1b" type="boolean" value="true" />
 			<definition name="s1c" type="string" />
 			<definition name="s1i" type="int" />

@@ -1,12 +1,7 @@
-<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" >
 
 	<implementation name="S1Impl"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1">
-		<property name="shared" value="false" />
-		<property name="location" value="living" />
-		<property name="location" value="elsewhere" />
-		<definition name="cczerrt" type="boolean" />
-		<definition name="myEnum" type="{v1, v2, v3}" />
 		<dependency specification="S2" field="s2Spec" />
 		<dependency interface="fr.imag.adele.apam.test.s2.S2"
 			field="s2Interf" />
@@ -22,9 +17,6 @@
 	</implementation>
 
 	<apam-instance implementation="S1toS2Final" name="S1toS2Final-instance" >
-		<property name="S1toS2Final-Bool" value="xxx" />
-		<property name="S1toS2Final-String1" value="a String Value" />
-		<property name="badAttr" value="yyy" />
 	</apam-instance>
 
 	<composite name="S1CompoFinal" mainImplem="S1toS2Final"
@@ -33,23 +25,7 @@
 
 	<implementation name="S1toS2Final"
 		classname="fr.imag.adele.apam.test.s1Impl.S1toS2Final" specification="S1">
-		<property name="S1toS2Final-Attr" value="couscous" type="string" />
-		<property name="spec-name" value="yyy"  />
-		<property name="definition-xx" value="ttt" />
-		<property name="s1b" value="xyze=" />
-		<property name="OS" value="pas bon" />
-		<property name="testEnumere" value="v2" />
-		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
-		<definition name="S1toS2Final-String1" type="string" />
-		<definition name="S1toS2Final-location"
-			type="{FinalLiving, FinalKitchen, FinalLedroom}" />
-		<definition name="enumeration" type="{f1, f2, f3, f4}" />
 		<implementation name="S2Final" field="s2" />
-<!-- 		<dependency field="s2"> -->
-<!-- 			<preferences> -->
-<!-- 				<implementation filter="(impl-name=S2Final)" /> -->
-<!-- 			</preferences> -->
-<!-- 		</dependency> -->
 	</implementation>
 
 	
@@ -61,39 +37,38 @@
 	<!-- An implementation without any provided resource -->
 	<implementation name="S1Main"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Main">
-		<property name="shared" value="false" />
-		<property name="S1Main-Attr" value="whatever" /> <!-- ok because it has no spec -->
-		<property name="testAttr" value="false" />
-		<definition name="s1 main" type="string" value="pas d interface" />
 		<dependency id="tos1" field="s1">
 			<preferences>
 				<implementation filter="(impl-name=S1Impl)" />
-				<xyz filter="(impl-name=S1ImplFalse)" /> <!-- should be an error -->
 			</preferences>
 		</dependency>
 	</implementation>
 
 	<composite name="S1MainCompo" mainImplem="S1Main">
-		<!-- interfaces="{fr.imag.adele.apam.test.s1.S1}"> -->
 		<property name="shared" value="false" />
-		<property name="borrowInstance" value="false" />
-		<property name="borrowImplementation" value="false" />
-		<property name="localInstance" value="true" />
-		<property name="localImplementation" value="true" />
 
 		<!-- <dependency specification="S2" /> -->
 		<dependency interface="fr.imag.adele.apam.test.s2.S2" />
 		<dependency implementation="S3Impl" multiple="true" />
-		<!-- <dependency interface="fr.imag.adele.apam.test.s2.S2" /> should be 
-			an error ? <dependency specification="S3" id="S3Id1"> <interface field="s3_1" 
-			/> should be an error </dependency> <dependency interface="fr.imag.adele.apam.test.s2.S2" 
-			id="ddd" /> should be an error ! <dependency specification="S3" id="S3Idmult" 
-			multiple="true"> should be an error <preferences> <implementation filter="(shared=false)" 
-			/> <xyz filter="(impl-name=S1ImplFalse)" /> should be an error </preferences> 
-			</dependency> -->
+		<dependency specification="S3" id="S3Id1"> 
+			<interface field="s3_1" /> <!-- should be an error multiple vs simple -->
+		</dependency> 
+		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="ddd" /> <!-- should be an error  --> 
+		<dependency specification="S3" id="S3Idmult" multiple="true"> <!-- should be an error  --> 
+			<preferences> 
+				<implementation filter="(shared=false)" /> 
+			</preferences> 
+		</dependency>
+		
+		<contentMngt>
+			<visibility>
+				<borrow implementation="false" instance="false" />
+				<local  implementation="true"  instance="true"  />
+			</visibility>	
+		</contentMngt>	
+		
 	</composite>
 
-	<!-- <apam-instance implementation="S1MainCompo" name="S1MainInstance" /> -->
 		
 		
 </apam>

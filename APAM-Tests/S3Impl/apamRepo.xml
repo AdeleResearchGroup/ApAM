@@ -18,13 +18,15 @@
       <p n='name' v='S3Impl'/>
       <p n='component-type' v='implementation'/>
       <p n='impl-name' v='S3Impl'/>
-      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s3.S3_1;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s3.S3_2;]'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s3.S3_2;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s3.S3_1;]'/>
       <p n='provide-specification' v='S3'/>
-      <p n='A2' v='5'/>
       <p n='cS3' v='xxx'/>
+      <p n='A2' v='5'/>
       <p n='shared' v='false'/>
-      <p n='spec-name' v='S3'/>
       <p n='bS3' v='yes'/>
+      <p n='spec-name' v='S3'/>
+      <p n='cs3' v='xxx'/>
+      <p n='bs3' v='yes'/>
       <p n='test-deux' v='coucous3'/>
       <p n='definition-S3Impl-Attr' t='string' v=''/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
@@ -33,6 +35,12 @@
       <p n='name' v='S2Simple-inst-from-S3Impl'/>
       <p n='component-type' v='instance'/>
       <p n='inst-name' v='S2Simple-inst-from-S3Impl'/>
+      <p n='impl-name' v='S2Simple'/>
+      <p n='shared' v='false'/>
+      <p n='spec-name' v='S2'/>
+      <p n='scope' v='global'/>
+      <p n='b' v='true'/>
+      <p n='test-spec' v='coucou'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
@@ -45,6 +53,8 @@
       <p n='impl-name' v='S3Impl'/>
       <p n='spec-name' v='S3'/>
       <p n='bS3' v='yes'/>
+      <p n='cs3' v='xxx'/>
+      <p n='bs3' v='yes'/>
       <p n='test-deux' v='coucous3'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
@@ -58,6 +68,8 @@
       <p n='impl-name' v='S3Impl'/>
       <p n='spec-name' v='S3'/>
       <p n='bS3' v='yes'/>
+      <p n='cs3' v='xxx'/>
+      <p n='bs3' v='yes'/>
       <p n='test-deux' v='coucous3'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
@@ -71,6 +83,8 @@
       <p n='impl-name' v='S3Impl'/>
       <p n='spec-name' v='S3'/>
       <p n='bS3' v='yes'/>
+      <p n='cs3' v='xxx'/>
+      <p n='bs3' v='yes'/>
       <p n='test-deux' v='coucous3'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
@@ -84,6 +98,8 @@
       <p n='impl-name' v='S3Impl'/>
       <p n='spec-name' v='S3'/>
       <p n='bS3' v='yes'/>
+      <p n='cs3' v='xxx'/>
+      <p n='bs3' v='yes'/>
       <p n='test-deux' v='coucous3'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>

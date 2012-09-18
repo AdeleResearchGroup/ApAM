@@ -1808,5 +1808,4 @@ public class CoreMetadataParser implements CoreParser {
 
 	}
 	
-	
 }

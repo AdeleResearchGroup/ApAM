@@ -121,8 +121,8 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		 * it become the main instance of a new default composite 
 		 * 
 		 */
-		if (initialProperties != null && initialProperties.get(CST.A_MAIN_INSTANCE) != null) {
-			mainInst = CST.InstBroker.getInst(initialProperties.remove(CST.A_MAIN_INSTANCE));
+		if (initialProperties != null && initialProperties.get(CST.APAM_MAIN_INSTANCE) != null) {
+			mainInst = CST.InstBroker.getInst(initialProperties.remove(CST.APAM_MAIN_INSTANCE));
 			assert ! mainInst.isUsed();
 		}
 		else {
@@ -141,7 +141,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		/*
 		 * main instance is never shared
 		 */
-		((InstanceImpl) mainInst).setProperty(CST.A_SHARED, CST.V_FALSE);
+		((InstanceImpl) mainInst).setProperty(CST.SHARED, CST.V_FALSE);
 		
 		/*
 		 * Opposite reference from the enclosing composite. 

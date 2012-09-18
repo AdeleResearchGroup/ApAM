@@ -220,16 +220,16 @@ public  class APAMTest {
 
 	        // setting visibilities
 	        // composite a3 should not be shared
-	        test00_instance0.setProperty(CST.A_SHARED, CST.V_FALSE);
+	        test00_instance0.setProperty(CST.SHARED, CST.V_FALSE);
 
 	        System.out.println("\n\n===================================== Testing promotions\n"
 	                + " creating composite on S1 containing an S2 composite \n");
 
 	        props.clear();
-	        props.put(CST.A_LOCALIMPLEM, CST.V_TRUE);
-	        props.put(CST.A_LOCALINSTANCE, CST.V_TRUE);
-	        props.put(CST.A_BORROWIMPLEM, CST.V_FALSE);
-	        props.put(CST.A_BORROWINSTANCE, CST.V_FALSE);
+//	        props.put(CST.A_LOCALIMPLEM, CST.V_TRUE);
+//	        props.put(CST.A_LOCALINSTANCE, CST.V_TRUE);
+//	        props.put(CST.A_BORROWIMPLEM, CST.V_FALSE);
+//	        props.put(CST.A_BORROWINSTANCE, CST.V_FALSE);
 
 	        CompositeType mainCompo = apam.createCompositeType("Test00", "TestS1Promotions", null, "S1Main", null /* models */,
 	                props);

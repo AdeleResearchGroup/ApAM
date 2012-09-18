@@ -94,28 +94,30 @@ public class ApamRepoBuilder {
 
 		//headers
 		obrContent.append("   <capability name='" + CST.CAPABILITY_COMPONENT + "'>\n");
-		generateProperty (obrContent, component, CST.A_NAME, component.getName()) ;
+		generateProperty (obrContent, component, CST.NAME, component.getName()) ;
 
 		if (component instanceof ImplementationDeclaration) {
 			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.IMPLEMENTATION);
-			generateProperty (obrContent, component, CST.A_IMPLNAME, component.getName());
+			generateProperty (obrContent, component, CST.IMPLNAME, component.getName());
 		}
 
 		if (component instanceof InstanceDeclaration) {
 			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.INSTANCE);
-			generateProperty (obrContent, component, CST.A_INSTNAME, component.getName());
+			generateProperty (obrContent, component, CST.INSTNAME, component.getName());
 		}
 
 		if (component instanceof CompositeDeclaration) {
 			CompositeDeclaration composite = (CompositeDeclaration) component;
-			generateProperty (obrContent, component, CST.A_COMPOSITE, CST.V_TRUE);
-			generateProperty (obrContent, component, CST.A_MAIN_COMPONENT, composite.getMainComponent().getName()) ;
+			generateProperty (obrContent, component, CST.APAM_COMPOSITE, CST.V_TRUE);
+			generateProperty (obrContent, component, CST.APAM_MAIN_COMPONENT, composite.getMainComponent().getName()) ;
 			CheckObr.checkCompoMain((CompositeDeclaration) component);
+			//check the information for composite : grant, start, own, visibility etc.
+			CheckObr.checkCompositeContent ((CompositeDeclaration) component) ;
 		}
 		
 		if (component instanceof SpecificationDeclaration) {
 			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.SPECIFICATION) ;
-			generateProperty (obrContent, component, CST.A_SPECNAME, component.getName());
+			generateProperty (obrContent, component, CST.SPECNAME, component.getName());
 		}
 
 		// provide clause
@@ -127,6 +129,7 @@ public class ApamRepoBuilder {
 		// Require, fields and constraints
 		printRequire(obrContent, component);
 
+		
 		generateTypedProperty(obrContent, component, "version", "version", OBRGeneratorMojo.thisBundleVersion) ;
 		ApamCapability.get(component.getReference()).finalize() ;
 		obrContent.append("   </capability>\n");
@@ -139,19 +142,19 @@ public class ApamRepoBuilder {
 		Set<InterfaceReference> interfaces = component.getProvidedResources(InterfaceReference.class);
 		String val = setReference2String (interfaces) ;	
 		if (val != null)
-			generateProperty(obrContent, component, CST.A_PROVIDE_INTERFACES, setReference2String(interfaces)) ;
+			generateProperty(obrContent, component, CST.PROVIDE_INTERFACES, setReference2String(interfaces)) ;
 
 		Set<MessageReference> messages = component.getProvidedResources(MessageReference.class);
 		val = setReference2String (messages) ;	
 		if (val != null)
-			generateProperty(obrContent, component, CST.A_PROVIDE_MESSAGES, val);
+			generateProperty(obrContent, component, CST.PROVIDE_MESSAGES, val);
 
 		if (component instanceof ImplementationDeclaration) {
 			SpecificationReference spec = ((ImplementationDeclaration) component).getSpecification();
 			if ((spec != null) && !spec.getName().isEmpty()) {
-				generateProperty(obrContent, component, CST.A_PROVIDE_SPECIFICATION, spec.getName()) ;
+				generateProperty(obrContent, component, CST.PROVIDE_SPECIFICATION, spec.getName()) ;
 				bundleRequiresSpecifications.add(spec) ;
-				CheckObr.checkImplProvide(component.getName(), spec.getName(), interfaces, messages);
+				CheckObr.checkImplProvide(component, spec.getName(), interfaces, messages);
 			}
 		}
 	}
@@ -194,7 +197,7 @@ public class ApamRepoBuilder {
 				if (typeString != null) {
 					//tempContent = tempContent + (" v='" + typeString + "' />\n");
 					//obrContent.append(tempContent);
-					generateTypedProperty (obrContent, component, CST.A_DEFINITION_PREFIX + definition.getName(), typeString, defaultValue) ;
+					generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + definition.getName(), typeString, defaultValue) ;
 				}
 			}
 		}

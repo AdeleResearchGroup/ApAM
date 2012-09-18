@@ -33,7 +33,7 @@ public class OwnedComponentDeclaration  {
 	 * The owned component
 	 */
 	public ComponentReference<?> getComponent() {
-		return property.getDefiningComponent();
+		return property.getDeclaringComponent();
 	}
 	
 	/**
