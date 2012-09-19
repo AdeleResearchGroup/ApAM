@@ -1,6 +1,6 @@
-<repository lastmodified='20120918055326.469'>
+<repository lastmodified='20120919112904.284'>
   <resource id='S1Impl/0.0.1.SNAPSHOT' symbolicname='S1Impl' presentationname='S1ImplMain' uri='/C:/Program%20Files/Apache%20Software%20Foundation/apache-maven-2.2.1/repository/fr/imag/adele/apam/S1Impl/0.0.1-SNAPSHOT/S1Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>11603</size>
+    <size>11414</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -31,7 +31,7 @@
       <p n='name' v='S1toS2Final'/>
       <p n='component-type' v='implementation'/>
       <p n='impl-name' v='S1toS2Final'/>
-      <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s1.S1;]'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s1.S1;fr.imag.adele.apam.ApamComponent;]'/>
       <p n='provide-specification' v='S1'/>
       <p n='s1b' v='true'/>
       <p n='spec-name' v='S1'/>
@@ -94,8 +94,8 @@
     <require name='package' filter='(&amp;(package=fr.imag.adele.apam.test.s3)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.test.s3;version="[0.0,1)"</require>
     <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
+    <require name='apam-component' filter='(&amp;(name=S2)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S2</require>
     <require name='apam-component' filter='(&amp;(name=S3)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S3</require>
     <require name='apam-component' filter='(&amp;(name=S1)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S1</require>
-    <require name='apam-component' filter='(&amp;(name=S2)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S2</require>
   </resource>
 </repository>

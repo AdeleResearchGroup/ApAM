@@ -821,7 +821,7 @@ public class CoreMetadataParser implements CoreParser {
 		
 		Element state = states[0];
 
-		composite.setStateProperty( parsePropertyReference(state,true));
+		composite.setStateProperty(parsePropertyReference(state,true));
 	}
 	
 	/**

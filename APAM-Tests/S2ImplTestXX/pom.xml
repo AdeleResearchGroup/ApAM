@@ -11,7 +11,7 @@
 	<artifactId>S2ImplTestXX</artifactId>
 
 	<packaging>bundle</packaging>
-	<name>S2Impl</name>
+	<name>S2ImplTestXX</name>
 
 	<build>
 		<plugins>

@@ -52,6 +52,7 @@ public class ApamCapability {
 
 	Capability cap = null ;
 	ComponentDeclaration dcl = null ;
+	private boolean isFinalized		= false;
 
 	private Map <String, String> properties ;
 	private Map <String,String>  propertiesTypes 	=  new HashMap <String, String> ();
@@ -59,6 +60,7 @@ public class ApamCapability {
 
 	private Map <String, String> finalProperties = new HashMap <String, String> () ;
 
+	
 	//If true, no obr repository found. Cannot look for the other components
 	private static boolean noRepository = true ;
 
@@ -317,7 +319,12 @@ public class ApamCapability {
 	}
 
 	public void finalize () {
+		isFinalized = true;
 		properties = finalProperties ;
+	}
+	
+	public boolean isFinalized() {
+		return isFinalized;
 	}
 
 }
