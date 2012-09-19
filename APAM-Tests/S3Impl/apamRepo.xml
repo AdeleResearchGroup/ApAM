@@ -1,6 +1,6 @@
-<repository lastmodified='20120913015638.052'>
-  <resource id='S3Impl/0.0.1.SNAPSHOT' symbolicname='S3Impl' presentationname='S3Impl' uri='/F:/Maven/.m2/fr/imag/adele/apam/S3Impl/0.0.1-SNAPSHOT/S3Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>6909</size>
+<repository lastmodified='20120919112906.251'>
+  <resource id='S3Impl/0.0.1.SNAPSHOT' symbolicname='S3Impl' presentationname='S3Impl' uri='/C:/Program%20Files/Apache%20Software%20Foundation/apache-maven-2.2.1/repository/fr/imag/adele/apam/S3Impl/0.0.1-SNAPSHOT/S3Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>6905</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -18,15 +18,13 @@
       <p n='name' v='S3Impl'/>
       <p n='component-type' v='implementation'/>
       <p n='impl-name' v='S3Impl'/>
-      <p n='provide-interfaces' v='[;fr.imag.adele.apam.test.s3.S3_2;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s3.S3_1;]'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.ApamComponent;fr.imag.adele.apam.test.s3.S3_2;fr.imag.adele.apam.test.s3.S3_1;]'/>
       <p n='provide-specification' v='S3'/>
-      <p n='cS3' v='xxx'/>
       <p n='A2' v='5'/>
+      <p n='cS3' v='xxx'/>
       <p n='shared' v='false'/>
-      <p n='bS3' v='yes'/>
       <p n='spec-name' v='S3'/>
-      <p n='cs3' v='xxx'/>
-      <p n='bs3' v='yes'/>
+      <p n='bS3' v='yes'/>
       <p n='test-deux' v='coucous3'/>
       <p n='definition-S3Impl-Attr' t='string' v=''/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
@@ -53,8 +51,6 @@
       <p n='impl-name' v='S3Impl'/>
       <p n='spec-name' v='S3'/>
       <p n='bS3' v='yes'/>
-      <p n='cs3' v='xxx'/>
-      <p n='bs3' v='yes'/>
       <p n='test-deux' v='coucous3'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
@@ -68,8 +64,6 @@
       <p n='impl-name' v='S3Impl'/>
       <p n='spec-name' v='S3'/>
       <p n='bS3' v='yes'/>
-      <p n='cs3' v='xxx'/>
-      <p n='bs3' v='yes'/>
       <p n='test-deux' v='coucous3'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
@@ -83,8 +77,6 @@
       <p n='impl-name' v='S3Impl'/>
       <p n='spec-name' v='S3'/>
       <p n='bS3' v='yes'/>
-      <p n='cs3' v='xxx'/>
-      <p n='bs3' v='yes'/>
       <p n='test-deux' v='coucous3'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
@@ -98,8 +90,6 @@
       <p n='impl-name' v='S3Impl'/>
       <p n='spec-name' v='S3'/>
       <p n='bS3' v='yes'/>
-      <p n='cs3' v='xxx'/>
-      <p n='bs3' v='yes'/>
       <p n='test-deux' v='coucous3'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>

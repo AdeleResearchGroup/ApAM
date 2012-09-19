@@ -22,6 +22,7 @@ public abstract class ComponentDeclaration {
      */
     private final String name;
 
+    
     /**
      * The reference to this component declaration
      */
@@ -40,14 +41,35 @@ public abstract class ComponentDeclaration {
     /**
      * The properties describing this service provider
      */
-    private Map<String,String> 					properties;
+    private final Map<String,String> 			properties;
     private final List<PropertyDefinition>		definitions;
 
+    /**
+     * Whether instances of this component must be accessed exclusively by a single client
+     * at the time
+     */
+    public boolean isExclusive;
+
+    /**
+     * Whether we can create instances of this component
+     */
+    public boolean isInstantiable;
+    
+    /**
+     * Whether there can be a single instance of this component in the execution platform
+     */
+    public boolean isSingleton;
+    
     protected ComponentDeclaration(String name) {
 
         assert name != null;
 
         this.name			= name;
+        
+        this.isInstantiable	= true;
+        this.isExclusive	= false;
+        this.isSingleton	= false;
+        
         reference			= generateReference();
         properties			= new HashMap<String,String>();
         providedResources	= new HashSet<ResourceReference>();
@@ -79,6 +101,40 @@ public abstract class ComponentDeclaration {
      */
     protected  abstract ComponentReference<?> generateReference();
 
+    /**
+     * Whether the component is exclusive
+     */
+    public boolean isExclusive() {
+		return isExclusive;
+	}
+    
+    public void setExclusive(boolean isExclusive) {
+		this.isExclusive = isExclusive;
+	}
+    
+    /**
+     * Whether the component is instantiable
+     */
+    public boolean isInstantiable() {
+		return isInstantiable;
+	}
+    
+    public void setInstantiable(boolean isInstantiable) {
+		this.isInstantiable = isInstantiable;
+	}
+    
+    
+    /**
+     * Whether the component is singleton
+     */
+    public boolean isSingleton() {
+		return isSingleton;
+	}
+    
+    public void setSingleton(boolean isSingleton) {
+		this.isSingleton = isSingleton;
+	}
+    
     /**
      * Get the properties describing this provider
      */

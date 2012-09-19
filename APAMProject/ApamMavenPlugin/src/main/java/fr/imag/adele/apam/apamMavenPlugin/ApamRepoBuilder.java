@@ -300,6 +300,9 @@ public class ApamRepoBuilder {
 		Set<String> defined = new HashSet<String>() ;
 		List<ComponentDeclaration> dcl = new ArrayList<ComponentDeclaration>(components);
 
+		/*
+		 * Verify in the current project
+		 */
 		for (ComponentDeclaration comp : dcl) {
 			if (defined.contains(comp.getName())) {
 				CheckObr.error("In " + comp + ": component " + comp.getName() + " already defined") ;
@@ -307,5 +310,37 @@ public class ApamRepoBuilder {
 			}
 			else defined.add(comp.getName()) ;
 		}
+		
+		/*
+		 * Verify if the components we are building were not in already processed
+		 * in another project in the same built
+		 * 
+		 * NOTE this causes problems because a lot of information is kept in static
+		 * variables that are shared in the same build execution.
+		 */
+		for (ComponentDeclaration comp : new ArrayList<ComponentDeclaration>(components)) {
+
+			ApamCapability existingDefinition = ApamCapability.get(comp.getReference());
+			
+			/*
+			 * never built is OK to process
+			 */
+			if (existingDefinition == null)
+				continue;
+			
+			/*
+			 * already built in the repository is OK to process
+			 */
+			if (!existingDefinition.isFinalized())
+				continue;
+			
+			/*
+			 * Already processed in this build execution
+			 */
+			CheckObr.error("Component " + comp.getName() + " is already defined in another project in this build") ;
+			components.remove(comp) ;
+		}
+		
+		
 	}
 }

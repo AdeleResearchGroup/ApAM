@@ -10,7 +10,6 @@
   <artifactId>APAM-Tests</artifactId>
   <packaging>pom</packaging>
   <modules>
-  	<module>mainApam</module>
   	<module>S1</module>
   	<module>S2</module>
   	<module>S3</module>
@@ -24,8 +23,9 @@
   	<module>S5Impl</module>
   	<module>TestAttrSpec</module>
   	<module>TestAttrImpl</module>
-  	<module>TestCompile</module>
+  	<module>mainApam</module>
   	<module>S5CompEx</module>  	
+  	<module>TestCompile</module>
 <!-- 	<module>perfAPAM</module> -->
 <!--   	<module>perfIPojo</module> -->
 <!--   	<module>message-components</module> -->

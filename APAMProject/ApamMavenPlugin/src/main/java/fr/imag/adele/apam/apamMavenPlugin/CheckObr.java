@@ -350,10 +350,9 @@ public class CheckObr {
 		checkStart ((CompositeDeclaration) component) ;
 		checkState ((CompositeDeclaration) component) ;
 		checkOwn ((CompositeDeclaration) component) ;
-		checkGrant ((CompositeDeclaration) component) ;
 		checkVisibility ((CompositeDeclaration) component) ;
-		checkGeneric ((CompositeDeclaration) component) ;
-		checkOverride ((CompositeDeclaration) component) ;
+		checkContextualDependencies ((CompositeDeclaration) component) ;
+		checkPromote ((CompositeDeclaration) component) ;
 	}
 
 	/**
@@ -445,12 +444,20 @@ public class CheckObr {
 			//computes the attributes that can be associated with this spec or implementations members
 			Map<String, String> validAttrs = ownCap.getValidAttrNames();
 
-			CheckObr.checkFilters(own.getImplementationConstraints(), null, validAttrs, ownCap.getName());			
-			CheckObr.checkFilters(own.getInstanceConstraints(), null, validAttrs, ownCap.getName());			
+			/*
+			 * TODO Check the specified property is defined, is an enumeration and the specified values
+			 * are declared in the enumeration
+			 * 
+			 * own.getProperty();
+			 * own.getValues()
+			 *
+			 */
+			
+			checkGrant(own);
 		}
 	}
 
-	private static void checkGrant (CompositeDeclaration component) {
+	private static void checkGrant (OwnedComponentDeclaration component) {
 		List<GrantDeclaration> grants = component.getGrants();
 		for (GrantDeclaration grant : grants) {
 			DependencyDeclaration.Reference dep = grant.getDependency() ;
@@ -473,12 +480,12 @@ public class CheckObr {
 	}
 
 	
-	private static void checkGeneric (CompositeDeclaration component) {
+	private static void checkContextualDependencies (CompositeDeclaration component) {
 	
 	}
 
 	
-	private static void checkOverride (CompositeDeclaration component) {
+	private static void checkPromote (CompositeDeclaration component) {
 		
 	}
 
