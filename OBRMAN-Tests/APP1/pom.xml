@@ -18,6 +18,7 @@
 		<module>APP1-S2-Impl</module>
 		<module>APP1-Composite</module>
 		<module>APP1-S3-Impl</module>
+		<module>APP1-Repo</module>
 	</modules>
 	<build>
 		<pluginManagement>
@@ -28,7 +29,7 @@
 					<version>${bundle.plugin.version}</version>
 					<extensions>true</extensions>
 					<configuration>
-						<obrRepository>${basedir}/../APP1-Repo/app1-repo.xml</obrRepository>
+						<obrRepository>${basedir}/../APP1-Repo/obr/app1-repo.xml</obrRepository>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -45,7 +46,7 @@
 					<configuration>
 						<noLocalObr>true</noLocalObr>
 						<dependencyObrList>
-							<param>file:/${basedir}/../../APP2/APP2-Repo/app2-repo.xml</param>
+							<param>file:/${basedir}/../../APP2/APP2-Repo/obr/app2-repo.xml</param>
 						</dependencyObrList>
 					</configuration>
 				</plugin>

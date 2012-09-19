@@ -11,6 +11,7 @@
   	<module>APP2-Spec</module>
   	<module>APP2-MainImpl</module>
   	<module>APP2-Composite</module>
+  	<module>APP2-Repo</module>
   </modules>
   	<build>
 		<pluginManagement>
@@ -21,7 +22,7 @@
 					<version>${bundle.plugin.version}</version>
 					<extensions>true</extensions>
 					<configuration>
-						<obrRepository>${basedir}/../APP2-Repo/app2-repo.xml</obrRepository>
+						<obrRepository>${basedir}/../APP2-Repo/obr/app2-repo.xml</obrRepository>
 					</configuration>
 				</plugin>
 				<plugin>

@@ -38,10 +38,16 @@ public class OBRManager {
 
     private final Logger         logger = LoggerFactory.getLogger(OBRManager.class);
 
+    private final Repository     runningbundles;
+
+    private final Repository     systembundle;
+
     public OBRManager(OBRMan obrman, String compositeTypeName, RepositoryAdmin repoAdmin, LinkedProperties obrModel) {
         allResources = new ArrayList<Resource>();
         repositories = new ArrayList<Repository>();
         this.compositeTypeName = compositeTypeName;
+        runningbundles = repoAdmin.getLocalRepository();
+        systembundle = repoAdmin.getSystemRepository();
         obrMan = obrman;
         // First Read model if it exist
         if (obrModel != null) {
@@ -55,8 +61,8 @@ public class OBRManager {
         }
 
         // Add the system as repository
-        repositories.add(0, repoAdmin.getLocalRepository());
-        repositories.add(0, repoAdmin.getSystemRepository());
+        repositories.add(0, runningbundles);
+        repositories.add(0, systembundle);
         resolver = repoAdmin.resolver(repositories.toArray(new Repository[repositories.size()]));
 
     }
@@ -80,17 +86,12 @@ public class OBRManager {
             new Exception("no filter in lookfor all").printStackTrace();
 
         Set<Selected> allRes = new HashSet<Selected>();
-        System.out.print("OBR: looking for all components matching " + filterStr);
-        if ((constraints != null) && !constraints.isEmpty()) {
-            System.out.print(". Constraints : ");
-            for (Filter constraint : constraints) {
-                System.out.print(constraint + ", ");
-            }
-        }
-        System.out.println("");
+
+        // Trace preference filter
+        logFilterConstraintPreferences(filterStr, constraints, null, true);
 
         if (allResources.isEmpty()) {
-            System.err.println("no resources in OBR");
+            System.out.println("no resources in OBR");
             return null;
         }
         try {
@@ -101,8 +102,9 @@ public class OBRManager {
                     if (aCap.getName().equals(capability)) {
                         if (filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.println("   Component " + getAttributeInCapability(aCap, CST.NAME)
-                                        + " found in bundle : " + res.getSymbolicName());
+                                System.out.println("-->Component " + getAttributeInCapability(aCap, CST.NAME)
+                                        + " found in bundle : " + res.getSymbolicName() + " From "
+                                        + compositeTypeName + " repositories : \n   " + repositoriesToString());
                                 allRes.add(new Selected(this, res, aCap));
                             }
                         }
@@ -113,7 +115,7 @@ public class OBRManager {
             e.printStackTrace();
         }
         if (allRes.isEmpty())
-            System.out.println("   Not Found in > " + repositoriesToString());
+            System.out.println("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
         return allRes;
     }
 
@@ -121,13 +123,8 @@ public class OBRManager {
         if (candidates.isEmpty())
             return null;
 
-        // trace
-        System.out.print("preferences : ");
-        for (Filter constraint : preferences) {
-            System.out.print(constraint + ", ");
-        }
-        System.out.println("");
-        // fin trace
+        // Trace preference filter
+        logFilterConstraintPreferences(null, null, preferences, false);
 
         Selected winner = null;
         int maxMatch = -1;
@@ -143,7 +140,8 @@ public class OBRManager {
         if (winner == null)
             return null;
         System.out.println("   Found bundle : " + winner.resource.getSymbolicName() + " Component:  "
-                + getAttributeInCapability(winner.capability, CST.IMPLNAME));
+                + getAttributeInCapability(winner.capability, CST.IMPLNAME) + " \n  from "
+                + compositeTypeName + "  repositories : " + repositoriesToString());
         return winner;
     }
 
@@ -179,20 +177,15 @@ public class OBRManager {
 
     public Selected lookFor(String capability, String filterStr, Set<Filter> constraints) {
         if (filterStr == null) {
-            System.err.println("No filter for lookFor");
+            System.out.println("No filter for lookFor");
             return null;
         }
-        System.out.print("OBR: looking for component " + filterStr);
-        if (constraints != null) {
-            System.out.print(". Constraints to match: ");
-            for (Filter constraint : constraints) {
-                System.out.print(constraint + ", ");
-            }
-        }
-        System.out.println("");
+
+        // Trace constraints filter
+        logFilterConstraintPreferences(filterStr, constraints, null, false);
 
         if (allResources.isEmpty()) {
-            System.err.println("no resources in OBR");
+            System.out.println("no resources in OBR");
             return null;
         }
         try {
@@ -203,8 +196,9 @@ public class OBRManager {
                     if (aCap.getName().equals(capability)) { // apam-component
                         if (filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.println("   Component " + getAttributeInCapability(aCap, CST.NAME)
-                                        + " found in bundle " + res.getSymbolicName());
+                                System.out.println("-->Component " + getAttributeInCapability(aCap, CST.NAME)
+                                        + " found in bundle : " + res.getSymbolicName() + " From "
+                                        + compositeTypeName + " repositories : \n   " + repositoriesToString());
                                 return new Selected(this, res, aCap);
                             }
                         }
@@ -214,8 +208,36 @@ public class OBRManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("   Not Found in : " + repositoriesToString());
+        System.out.println("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
         return null;
+    }
+
+    private void logFilterConstraintPreferences(String filterStr, Set<Filter> constraints, List<Filter> preferences,
+            boolean all) {
+
+        String debugMessage = "";
+        if (filterStr != null) {
+            if (all) {
+                debugMessage = "OBR: looking for all components matching " + filterStr;
+            } else {
+                debugMessage = "OBR: looking for a component matching" + filterStr;
+            }
+        }
+        if ((constraints != null) && !constraints.isEmpty()) {
+            debugMessage += "   > Constraints : ";
+            for (Filter constraint : constraints) {
+                debugMessage += (constraint + ", ");
+            }
+        }
+
+        if ((preferences != null) && !preferences.isEmpty()) {
+            debugMessage += "   > Preferences : ";
+            for (Filter preference : preferences) {
+                debugMessage += (preference + ", ");
+            }
+        }
+
+        System.out.println(debugMessage);
     }
 
     /**
@@ -269,7 +291,7 @@ public class OBRManager {
 
         Reason[] reqs = resolver.getUnsatisfiedRequirements();
         for (Reason req : reqs) {
-            System.out.println("Unable to resolve: " + req);
+            System.out.println("Unable to resolve: " + req.getRequirement());
         }
         return false;
     }
@@ -288,7 +310,8 @@ public class OBRManager {
                     try {
                         declaredRepositories.add(repoAdmin.addRepository(localMavenObrUrl));
                     } catch (Exception e) {
-                        logger.error("Error when adding default local repository to repoAdmin", e.getCause());
+                        System.out.println("Error when adding default local repository to repoAdmin");
+                        e.printStackTrace();
                     }
                 }
             } else if (Util.DEFAULT_OSGI_REPOSITORIES.equals(key)) {
@@ -314,7 +337,7 @@ public class OBRManager {
                         declaredRepositories.addAll(manager.getRepositories());
                     } else {
                         // If the compositeType is not present, do nothing
-                        logger.debug("The composite " + compositeTypeName + " reference a missing compiste "
+                        System.out.println("The composite " + compositeTypeName + " reference a missing compiste "
                                 + compoTypeName);
                     }
                 }
@@ -329,9 +352,11 @@ public class OBRManager {
         for (String repoUrlStr : repos) {
             try {
                 URL url = new URL(repoUrlStr);
+
                 repoList.add(repoAdmin.addRepository(url));
             } catch (Exception e) {
-                logger.error("Invalid OBR repository address :" + repoUrlStr, e.getCause());
+                System.out.println("Invalid OBR repository address :" + repoUrlStr);
+                e.printStackTrace();
             }
         }
         return repoList;
@@ -380,13 +405,17 @@ public class OBRManager {
     }
 
     public List<Repository> getRepositories() {
-        return repositories;
+        List<Repository> tempList = new ArrayList<Repository>();
+        tempList.addAll(repositories);
+        tempList.remove(runningbundles);
+        tempList.remove(systembundle);
+        return tempList;
     }
 
     //
     protected List<String> repositoriesToString() {
         List<String> repoString = new ArrayList<String>();
-        for (Repository repo : repositories) {
+        for (Repository repo : getRepositories()) {
             repoString.add(repo.getURI());
         }
         return repoString;

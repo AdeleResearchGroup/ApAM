@@ -107,7 +107,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             // deploy selected resource
             boolean deployed = selected.obrManager.deployInstall(selected);
             if (!deployed) {
-                System.err.print("could not install resource ");
+                System.err.print("> Could not install resource " + selected.resource);
                 Util.printRes(selected.resource);
                 return null;
             }
