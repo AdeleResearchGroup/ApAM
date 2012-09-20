@@ -10,7 +10,6 @@ import org.osgi.framework.BundleContext;
 import org.ow2.chameleon.testing.helpers.OSGiHelper;
 
 import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.ManagerModel;
 
@@ -27,7 +26,7 @@ public class ApAMHelper {
         this.osgi = osgi;
     }
 
-    public CompositeType runApplication(String name, String main) {
+    public CompositeType runApplication(String name, String main, String mainSpec) {
         waitForIt(100);
 
         URL obrModelAppUrl = context.getBundle().getResource(name + ".OBRMAN.cfg");
@@ -44,7 +43,7 @@ public class ApAMHelper {
 
         assertNotNull(apam);
 
-        CompositeType app = apam.createCompositeType(null, name, main, models, null);
+        CompositeType app = apam.createCompositeType(null, name, mainSpec, main, models, null);
 
         return app;
     }

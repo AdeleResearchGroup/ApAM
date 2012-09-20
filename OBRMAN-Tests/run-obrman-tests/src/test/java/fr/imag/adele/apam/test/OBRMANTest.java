@@ -87,9 +87,9 @@ public class OBRMANTest {
         Option[] r = OptionUtils.combine(platform, bundles);
 
         Option[] debug = options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
-//        r = OptionUtils.combine(r, debug);
+        r = OptionUtils.combine(r, debug);
 
-        Option[] log = options(vmOption("-Dlog4j.file=./am.log4j.properties"));
+        // Option[] log = options(vmOption("-Dlog4j.file=./am.log4j.properties"));
         // r = OptionUtils.combine(r, log);
         return r;
     }
@@ -108,7 +108,7 @@ public class OBRMANTest {
     public void simpleComposite() {
         waitForIt(100);
 
-        CompositeType app2CompoType = apam.runApplication("APP2", "APP2_MAIN");
+        CompositeType app2CompoType = apam.runApplication("APP2", "APP2_MAIN", "APP2_SPEC");
 
         assertNotNull(app2CompoType);
 
@@ -134,11 +134,11 @@ public class OBRMANTest {
      * The composite APP2 will be inside the composite APP1
      * 
      */
-    @Test
+//    @Test
     public void embeddedComposite() {
         waitForIt(100);
 
-        CompositeType app1CompoType = apam.runApplication("APP1", "APP1_MAIN");
+        CompositeType app1CompoType = apam.runApplication("APP1", "APP1_MAIN", "APP1_SPEC");
 
         assertNotNull(app1CompoType);
 
@@ -161,13 +161,13 @@ public class OBRMANTest {
      * create the composite APP1 which will call the composite APP2
      * APP1 and APP2 will be on the same level of root composite.
      */
-    @Test
+//    @Test
     public void friendComposite() {
         waitForIt(100);
 
         simpleComposite();
 
-        CompositeType app1CompoType = apam.runApplication("APP1.2", "APP1_MAIN");
+        CompositeType app1CompoType = apam.runApplication("APP1.2", "APP1_MAIN", "APP1_SPEC");
 
         assertNotNull(app1CompoType);
 
@@ -189,11 +189,11 @@ public class OBRMANTest {
      * APP1 declare one repository and APP2 composite in ObrMan model
      * Try to create APP1 composite, but APP2 composite is missing
      */
-    @Test
+//    @Test
     public void missingAPP2Composite() {
         waitForIt(100);
 
-        CompositeType app1CompoType = apam.runApplication("APP1.2", "APP1_MAIN");
+        CompositeType app1CompoType = apam.runApplication("APP1.2", "APP1_MAIN", "APP1_SPEC");
 
         // Est ce que c'est normal que app1CompoType != null
         assertNull(app1CompoType.getMainImpl());
