@@ -170,6 +170,9 @@ public class ApamResolverImpl implements ApamResolver {
 	// if the instance is unused, it will become the main instance of a new composite.
 	private Composite getClientComposite(Instance mainInst) {
 
+    	if (mainInst.isUsed())
+            return mainInst.getComposite();
+
         /*
          * We are resolving a reference from an unused client instance. We automatically build a new composite
          * to create a context of execution. This allow to use Apam without requiring the explicit definition of
