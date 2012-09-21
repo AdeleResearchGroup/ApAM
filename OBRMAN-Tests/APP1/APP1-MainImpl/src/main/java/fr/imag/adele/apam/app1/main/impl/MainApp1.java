@@ -1,11 +1,13 @@
 package fr.imag.adele.apam.app1.main.impl;
 
+import fr.imag.adele.apam.ApamComponent;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.app1.s1.spec.S1;
 import fr.imag.adele.apam.app1.s2.spec.S2;
 import fr.imag.adele.apam.app1.spec.App1Spec;
 import fr.imag.adele.apam.app2.spec.App2Spec;
 
-public class MainApp1 implements App1Spec {
+public class MainApp1 implements App1Spec, ApamComponent {
 
     S1       s1;
 
@@ -35,6 +37,24 @@ public class MainApp1 implements App1Spec {
         callS1(texte);
         callS2(texte);
         callApp2(texte);
+
+    }
+
+    @Override
+    public void apamStart(Instance apamInstance) {
+        call("go >");
+
+    }
+
+    @Override
+    public void apamStop() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void apamRelease() {
+        // TODO Auto-generated method stub
 
     }
 }
