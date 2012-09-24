@@ -41,6 +41,7 @@
 
 	<apam-instance implementation="Dependency" name="testDependencyINst" />
 
+<!-- La spec de S2 -->
 	<specification name="SDep">
 			<property name="S1-Enum" value="s1-2" type="{s1-1, s1-2, s1-3}"/>
 			<property name="S1-Attr" value="coucou" type="string"/>
@@ -52,8 +53,9 @@
 			<definition name="OS" type="{Linux, Windows, Android, IOS}" />	
 	</specification>
 
+<!-- Les implems de S2 -->
 	<implementation name="Impl1"
-		classname="fr.imag.adele.apam.test.s2Impl.S2Simple" specification="SDep" >
+		classname="fr.imag.adele.apam.test.dependency.S2Simple" specification="SDep" >
 		<property name="s1b" value="false" />
 		<property name="OS" value="IOS" />
 		<property name="Enumere" value="v2" />
@@ -62,17 +64,17 @@
 		<definition name="1-String" type="string" />
 		<definition name="1-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" />
 		<definition name="enumeration1" type="{f1, f2, f3, f4}" />
-				
 	</implementation>
 
  	<implementation name="Impl2"
-		classname="fr.imag.adele.apam.test.s2Impl.S2ImplBis" specification="SDep" >
+		classname="fr.imag.adele.apam.test.dependency.S2ImplBis" specification="SDep" >
 	</implementation>
 
 	<implementation name="Impl3" 
-		classname="fr.imag.adele.apam.test.s2Impl.S2Final" specification="SDep" >
+		classname="fr.imag.adele.apam.test.dependency.S2Final" specification="SDep" >
 	</implementation>
 
+<!-- Les instances pre existantes -->
 	<apam-instance implementation="Impl1" name="inst1_2" >
 	</apam-instance>
 
@@ -87,5 +89,19 @@
 
 	<apam-instance implementation="Impl1" name="inst1_6" >
 	</apam-instance>
+
+<!-- Les implems de S3  -->
+	<specification name="DepS3"
+		interfaces="[fr.imag.adele.apam.test.dependency.S3_1,fr.imag.adele.apam.test.dependency.S3_2]">
+	</specification>
+
+
+	<implementation name="S3Impl"
+		classname="fr.imag.adele.apam.test.dependency.S3Impl" specification="DepS3">
+	</implementation>
+
+	<implementation name="S3Impl2"
+		classname="fr.imag.adele.apam.test.dependency.S3Impl" specification="DepS3">
+	</implementation>
 
 </apam>

@@ -10,7 +10,7 @@ public class S2Simple implements S2, ApamComponent {
 
     S3_1 fieldS3;
     S4   s4;
-
+    String theFieldAttr ;
     String name;
 
     @Override

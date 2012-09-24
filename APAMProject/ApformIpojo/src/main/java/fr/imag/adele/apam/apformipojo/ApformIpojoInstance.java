@@ -154,37 +154,8 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
             return;
         }
 
-        //        System.err.println("resolving " + getInstanceName() + " dependency " + dependency.getName());
-        /*
-         * Make a copy of constraints and preferences before invoking resolution. This allow resolution managers to modify constraints
-         * and preferences are part of their processing.
-         */
-
         DependencyDeclaration dependency 	= injection.getDependencyInjection().getDependency();
         CST.apamResolver.resolveWire(apamInstance, dependency.getIdentifier());
-        //        ResolvableReference target			= dependency.getTarget();
-        //
-        //        /*
-        //         * Resolve implementation dependencies explicitly
-        //         */
-        //        ImplementationReference<?> targetImplementation = target.as(ImplementationReference.class);
-        //        if ( targetImplementation != null) {
-        //
-        //        	if (!dependency.isMultiple())
-        //                ApamResolver.newWireImpl(apamInstance, targetImplementation.getName(), dependency.getIdentifier());
-        //            else
-        //                ApamResolver.newWireImpls(apamInstance, targetImplementation.getName(), dependency.getIdentifier());
-        //        	
-        //        	return;
-        //        }
-        //        
-        //        /*
-        //         * Resolve all other dependencies by specification
-        //         */
-        //        if (!dependency.isMultiple())
-        //            ApamResolver.newWireSpec(apamInstance, dependency.getIdentifier());
-        //        else
-        //            ApamResolver.newWireSpecs(apamInstance, dependency.getIdentifier());
 
     }
 

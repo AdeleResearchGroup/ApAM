@@ -170,30 +170,31 @@ public class ApamResolverImpl implements ApamResolver {
 	// if the instance is unused, it will become the main instance of a new composite.
 	private Composite getClientComposite(Instance mainInst) {
 
-		if (mainInst.isUsed())
-			return mainInst.getComposite();
+    	if (mainInst.isUsed())
+            return mainInst.getComposite();
 
-		/*
-		 * We are resolving a reference from an unused client instance. We automatically build a new composite
-		 * to create a context of execution. This allow to use Apam without requiring the explicit definition of
-		 * composites, just instantiating any implementation.
-		 * 
-		 * TODO should we provide a way to specify properties and models for the composites created automatically?
-		 */
-
-		Implementation mainComponent			= mainInst.getImpl();
-		String applicationName 					= mainComponent.getName() + "_Appli";
-		SpecificationReference specification	= mainComponent.getImplDeclaration().getSpecification();
-		Set<ManagerModel> models				= new HashSet<ManagerModel>();
-
-		CompositeType application = apam.createCompositeType(null, applicationName,
-				specification != null ? specification.getName() : null, mainComponent.getName(), models, null);
-
-		/*
-		 * Create an instance of the application with the specified main
-		 */
-		Map<String, String> initialProperties = new HashMap<String, String>();
-		initialProperties.put(CST.APAM_MAIN_INSTANCE, mainInst.getName()) ;
+        /*
+         * We are resolving a reference from an unused client instance. We automatically build a new composite
+         * to create a context of execution. This allow to use Apam without requiring the explicit definition of
+         * composites, just instantiating any implementation.
+         * 
+         * TODO should we provide a way to specify properties and models for the composites created automatically?
+         */
+    	
+    	Implementation mainComponent			= mainInst.getImpl();
+        String applicationName 					= mainComponent.getName() + "_Appli";
+        SpecificationReference specification	= mainComponent.getImplDeclaration().getSpecification();
+        Set<ManagerModel> models				= new HashSet<ManagerModel>();
+        
+        CompositeType application = apam.createCompositeType((CompositeType)null,
+        									applicationName, specification != null ? specification.getName() : null, mainComponent.getName(),
+        									models, null);
+        
+        /*
+         * Create an instance of the application with the specified main
+         */
+        Map<String, String> initialProperties = new HashMap<String, String>();
+        initialProperties.put(CST.APAM_MAIN_INSTANCE, mainInst.getName()) ;
 		return (Composite)application.createInstance(null, initialProperties);
 	}
 

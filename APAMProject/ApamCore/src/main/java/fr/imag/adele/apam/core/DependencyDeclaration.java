@@ -10,7 +10,7 @@ import java.util.List;
  * @author vega
  *
  */
-public class DependencyDeclaration extends TargetDeclaration {
+public class DependencyDeclaration extends ConstrainedReference {
 
     /**
      * A reference to a dependency declaration. Notice that dependency identifiers must be only
@@ -46,15 +46,6 @@ public class DependencyDeclaration extends TargetDeclaration {
      */
     private final boolean					isMultiple;
     
-    /**
-     * The list of preferences to choose among candidate service provider implementation
-     */
-    private final List<String> 				implementationPreferences;
-
-    /**
-     * The list of preferences to choose among candidate service provider instances
-     */
-    private final List<String> 				instancePreferences;
 
     /**
      * The list of fields that will be injected with this dependency in a primitive component
@@ -66,7 +57,14 @@ public class DependencyDeclaration extends TargetDeclaration {
      */
 
     private MissingPolicy 					missingPolicy;
-
+    
+    /**
+     * The exception to throw for the exception missing policy
+     * 
+     */
+    private String							missingException;
+    
+    
     public DependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource) {
 
         super(resource);
@@ -76,10 +74,10 @@ public class DependencyDeclaration extends TargetDeclaration {
         id = (id == null) ? getTarget().as(fr.imag.adele.apam.core.Reference.class).getIdentifier() : id;
         this.reference	= new Reference(component,id);
 
-        this.isMultiple	= isMultiple;
-
-        implementationPreferences 	= new ArrayList<String>();
-        instancePreferences 		= new ArrayList<String>();
+        this.isMultiple				= isMultiple;
+        this.missingPolicy			= MissingPolicy.OPTIONAL;
+        this.missingException		= null;
+        
         injections					= new ArrayList<DependencyInjection>();
     }
 
@@ -135,25 +133,24 @@ public class DependencyDeclaration extends TargetDeclaration {
 
     /**
      * Set the missing policy used for this dependency
-     * @param missingPolicy
      */
     public void setMissingPolicy(MissingPolicy missingPolicy) {
         this.missingPolicy = missingPolicy;
     }
-
+    
     /**
-     * Get the resource provider preferences
+     * Get the exception associated with the missing policy
      */
-    public List<String> getImplementationPreferences() {
-        return implementationPreferences;
+    public String getMissingException() {
+        return missingException;
     }
 
     /**
-     * Get the instance provider preferences
+     * Set the missing exception used for this dependency
      */
-    public List<String> getInstancePreferences() {
-        return instancePreferences;
-    }
+    public void setMissingExeception(String missingException) {
+        this.missingException = missingException;
+    }    
 
     /**
      * Get the injections associated to this dependency declaration

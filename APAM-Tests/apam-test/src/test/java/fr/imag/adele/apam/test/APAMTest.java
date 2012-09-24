@@ -123,8 +123,6 @@ public  class APAMTest {
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	        }
-		 	CompositeType appliTestURL = apam.createCompositeType(null,  "TestURL", "S2Simple", /* models */null, theUrl, /*specName*/null, null);
-		 	assertNotNull(appliTestURL);
 	        
 		 	System.out.println("testing findImplByName in ASM");
 		 	Implementation implem = CST.apamResolver.findImplByName(null,"S1toS2Final");
@@ -135,7 +133,7 @@ public  class APAMTest {
 		 	assertNotNull(implem2);
 
 		 	System.out.println("testing a root createCompositeType by name existing in ASM. will call S2Final.");
-		 	CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", "S1toS2Final", null,null);
+		 	CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", null, "S1toS2Final", null,null);
 		 	assertNotNull(appliTest00);
 		 	
 //	        CompositeType appliTest00 = apam.createCompositeType(null, "Test00", "S2Simple", null /* models */, theUrl,
@@ -177,7 +175,7 @@ public  class APAMTest {
 	        props.put("location", "anywhere"); // value not defined
 
 		 	//testing a root createCompositeType by name existing in ASM. will call S2Final.");
-		 	CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", "S1toS2Final", null,null);
+		 	CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", null, "S1toS2Final", null,null);
 		 	assertNotNull(appliTest00);
 
 		 	//testing create instance root");
@@ -189,11 +187,11 @@ public  class APAMTest {
 	        // Creation of an application TestS1 which main implementation is called "S1Simple".");
 	        // The system will try to find an implementation called "S1Simple" (found by OBR in this example)
 	        CompositeType appli3 = apam
-	        .createCompositeType(null, "TestS1", "S1Simple", null /* models */, null /* properties */);
+	        .createCompositeType(null, "TestS1", null, "S1Simple", null /* models */, null /* properties */);
 	        // fails since S1Simple does not exist");
 
 	        System.err.println("Composite type TestS1 inside composite type Test00");
-	        appli3 = apam.createCompositeType("Test00", "TestS1", "S1Impl", null /* models */, null /* properties */);
+	        appli3 = apam.createCompositeType("Test00", "TestS1", null, "S1Impl", null /* models */, null /* properties */);
 
 	        System.err.println("Root Composite types have no spec. This declarations is false (no definition), but done.");
 	        appli3.setProperty("location", "no spec for application root");
@@ -211,7 +209,7 @@ public  class APAMTest {
 	                + " Alternatively, a specification (S1) can be provided instead; it is resolved to find the main implem.\n");
 
 	        // The system will look for an atomic implementations of "S1" as the main implementation
-	        appli3 = apam.createCompositeType(null, "TestS1Bis", "S1", null /* models */, null /* properties */);
+	        appli3 = apam.createCompositeType(null, "TestS1Bis",null, "S1", null /* models */, null /* properties */);
 
 	        // Create an instance of that composite type
 	        test00_instance0 = appli3.createInstance(null /* composite */, null/* properties */);
@@ -233,7 +231,7 @@ public  class APAMTest {
 //	        props.put(CST.A_BORROWIMPLEM, CST.V_FALSE);
 //	        props.put(CST.A_BORROWINSTANCE, CST.V_FALSE);
 
-	        CompositeType mainCompo = apam.createCompositeType("Test00", "TestS1Promotions", "S1Main", null /* models */,
+	        CompositeType mainCompo = apam.createCompositeType("Test00", "TestS1Promotions", null, "S1Main", null /* models */,
 	                props);
 
 	        System.err.println("TestS1Promotions inside Test00 and black box");

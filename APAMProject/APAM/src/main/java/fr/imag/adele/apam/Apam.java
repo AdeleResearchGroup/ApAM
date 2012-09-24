@@ -27,7 +27,7 @@ public interface Apam {
 
     /**
      * deploys the bundle found at the provided URL. Looks in that bundle for a composite type
-     * with name "compositeTypeName.
+     * with name "compositeTypeName".
      * If found creates that composite type and creates an instance of that type.
      * It starts either because it implements the ApamComponnent interface,
      * of calling its getServiceObject method.
@@ -46,31 +46,11 @@ public interface Apam {
      * @param attributes optional : the initial properties to associate with this composite type (as an implementation).
      *            @ return : the created composite type
      */
-    public CompositeType createCompositeType(String inCompoType, String name, String mainImplSpecName,
+    public CompositeType createCompositeType(String inCompoType,
+    		String name, String specName, String mainImplSpecName,
             Set<ManagerModel> models, Map<String, String> attributes);
 
 
-    /**
-     * Creates a root composite type i.e. an application from an URL
-     * A single composite with this name can exist in APAM. Returns null if name conflicts.
-     * 
-     * Creates a composite from an URL leading to a bundle containing either the main implem, or the composite itself.
-     * 
-     * @param inCompoType: name of the father composite type. Null if root (application).
-     * @param name. name of the new composite to create. Unique.
-     * @param mainImplName. Name of the main implem or spec. To be found in the bundle. If not found, returns null.
-     * @param models. the composite models.
-     * @param bundle : URL leading to a bundle containing either the main implementation or the composite.
-     *            If main implementation bundle, and implName not found returns null.
-     *            if Composite bundle, name, implName and models are not used since found in the composite bundle.
-     * @param specName. Optional.The symbolic name of the associated specification. Otherwise it will be the interface
-     *            concatenation.
-     * @param attributes optional : the initial properties to associate with this composite type (as an implementation).
-     */
-    public CompositeType createCompositeType(String inCompoType, String name, String mainComponentName,
-            Set<ManagerModel> models,
-            URL bundle, String specName, Map<String, String> properties);
-    
     /**
      * Return the composite type of that name, if existing. Null otherwise.
      * 

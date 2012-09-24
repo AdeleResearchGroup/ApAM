@@ -94,7 +94,8 @@ public class APAMImpl implements Apam {
     }
 
     @Override
-    public CompositeType createCompositeType(String inCompoType, String name, String mainComponent,
+    public CompositeType createCompositeType(String inCompoType,
+    		String name, String specification, String mainComponent, 
             Set<ManagerModel> models, Map<String, String> attributes) {
 
     	/*
@@ -118,52 +119,7 @@ public class APAMImpl implements Apam {
             }
         }
         
-        String specification = null;
         return createCompositeType((CompositeType)parent, name, specification, mainComponent, models, attributes);
-    }
-    
-    @Override
-    public CompositeType createCompositeType(String inCompoType, String name, String mainImplName,
-            Set<ManagerModel> models, URL mainBundle, String specName, Map<String, String> attributes) {
-    	
-    	/*
-    	 * Verify if it already exists
-    	 */
-    	CompositeType compositeType = getCompositeType(name);
-        if (compositeType != null) {
-            logger.error("Error creating composite type: already exists " + name);
-            return null;
-        }
-    	
-     	/*
-    	 * Get the specified enclosing composite type
-    	 */
-    	Implementation parent = null;
-        if (inCompoType != null) {
-        	parent = CST.apamResolver.findImplByName(null, inCompoType);
-            if (parent == null || !(parent instanceof CompositeType)) {
-            	logger.error("Error creating composite type: specified enclosing composite"+ inCompoType + " is not a deployed composite type.");
-                return null;
-            }
-        }
-
-        /*
-         * Deploy the bundle with the main implementation.
-         * 
-         * TODO this method blocks until the specified implementation is deployed, this requires knowing
-         * the name of the expected implementation. This is in contradiction with the description of the
-         * method signature in the API that allows either the main implementation or composite name. It
-         * doesn't work neither if the main component is an specification. We should review the API to
-         * avoid confusion, perhaps provide two different methods for each case.
-         * 
-         * For now just assume we deploy the main implementation and get the composite information from
-         * the parameters. Notice also that to enforce resolution from the  specified URL we deploy the
-         * main implementation in the context of the parent, not in the context of the newly created
-         * composite type. The main implementation will be later deployed logically in the created 
-         * composite type, if allowed by visibility rules.
-         */
-        CST.ImplBroker.createImpl((CompositeType)parent,mainImplName,mainBundle,attributes);
-        return createCompositeType((CompositeType)parent,name,specName,mainImplName,models,attributes);
     }
     
     /**
@@ -189,7 +145,7 @@ public class APAMImpl implements Apam {
     	 * If the provided specification is not installed force a resolution
     	 */
     	if (specification != null && CST.SpecBroker.getSpec(specification) == null) {
-    		CST.apamResolver.findSpecByName(null, specification);
+    		CST.apamResolver.findSpecByName(parent, specification);
     	}
     	
     	return (CompositeType) CST.ImplBroker.addImpl(parent, apfCompo);

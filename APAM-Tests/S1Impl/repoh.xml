@@ -1,6 +1,6 @@
-<repository lastmodified='20120913015527.522'>
+<repository lastmodified='20120924100512.057'>
   <resource id='S1Impl/0.0.1.SNAPSHOT' symbolicname='S1Impl' presentationname='S1ImplMain' uri='/F:/Maven/.m2/fr/imag/adele/apam/S1Impl/0.0.1-SNAPSHOT/S1Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>11624</size>
+    <size>11421</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -23,9 +23,8 @@
       <p n='s1b' v='true'/>
       <p n='spec-name' v='S1'/>
       <p n='location' v='bedroom'/>
-      <p n='s1-enum' v='s1-2'/>
-      <p n='S1-Enum' v='s1-2'/>
       <p n='S1-Enum2' v='coucou'/>
+      <p n='S1-Enum' v='s1-2'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
@@ -37,9 +36,8 @@
       <p n='s1b' v='true'/>
       <p n='spec-name' v='S1'/>
       <p n='location' v='bedroom'/>
-      <p n='s1-enum' v='s1-2'/>
-      <p n='S1-Enum' v='s1-2'/>
       <p n='S1-Enum2' v='coucou'/>
+      <p n='S1-Enum' v='s1-2'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
@@ -75,9 +73,8 @@
       <p n='s1b' v='true'/>
       <p n='spec-name' v='S1'/>
       <p n='location' v='bedroom'/>
-      <p n='s1-enum' v='s1-2'/>
-      <p n='S1-Enum' v='s1-2'/>
       <p n='S1-Enum2' v='coucou'/>
+      <p n='S1-Enum' v='s1-2'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
@@ -98,7 +95,7 @@
     <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
     <require name='apam-component' filter='(&amp;(name=S3)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S3</require>
-    <require name='apam-component' filter='(&amp;(name=S2)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S2</require>
     <require name='apam-component' filter='(&amp;(name=S1)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S1</require>
+    <require name='apam-component' filter='(&amp;(name=S2)(version&gt;=0.0.1))' extend='false' multiple='false' optional='false'>specification dependency toward S2</require>
   </resource>
 </repository>
