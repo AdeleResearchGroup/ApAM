@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>APAMBundle</artifactId>
 	<packaging>bundle</packaging>
-	<description>APAM iPOJO Bundle</description>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -20,7 +20,18 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<extensions>true</extensions>
 				<configuration>
-					<instructions>						
+					<instructions>
+						<Bundle-Name>${project.name}</Bundle-Name>
+						<Bundle-Description>
+							APAM iPOJO Bundle
+						</Bundle-Description>
+						<Bundle-SymbolicName>
+							${project.artifactId}
+						</Bundle-SymbolicName>
+						<Bundle-Vendor>
+							Adele/LIG/ Grenoble University, France
+						</Bundle-Vendor>
+						<Bundle-Version>${project.version}</Bundle-Version>
 						<Private-Package>
 							fr.imag.adele.apam.impl,
 							fr.imag.adele.apam.apformipojo.legacy
@@ -51,7 +62,17 @@
 
 			<plugin>
 				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-ipojo-plugin</artifactId>				
+				<artifactId>maven-ipojo-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>ipojo-bundle</goal>
+						</goals>
+						<configuration>
+							<metadata>src/main/resources/metadata.xml</metadata>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 		</plugins>

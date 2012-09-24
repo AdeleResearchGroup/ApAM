@@ -25,10 +25,10 @@
 			c="xxx" /> -->
 	</apam-instance>
 
-	<apam-instance implementation="S3Impl" name="s3Impl-int" />
-	<apam-instance implementation="S3Impl" name="S3Impl-instance1" />
-	<apam-instance implementation="S3Impl" name="S3Impl-instance2" />
-	<apam-instance implementation="S3Impl" name="S3Impl-instance3" />
+<!-- 	<apam-instance implementation="S3Impl" name="s3Impl-int" /> -->
+<!-- 	<apam-instance implementation="S3Impl" name="S3Impl-instance1" /> -->
+<!-- 	<apam-instance implementation="S3Impl" name="S3Impl-instance2" /> -->
+<!-- 	<apam-instance implementation="S3Impl" name="S3Impl-instance3" /> -->
 
 </ipojo>
 

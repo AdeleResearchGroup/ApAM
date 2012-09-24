@@ -297,8 +297,8 @@ public class ApamResolverImpl implements ApamResolver {
 				}
 				// in all cases the client must be linked
 				client.createWire(inst, depName);
-				if (dependency.isMultiple())
-					break; // in case it is a single dep from a multiple promotion. TODO Is that possible ????
+//				if (dependency.isMultiple())
+//					break; // in case it is a single dep from a multiple promotion. TODO Is that possible ????
 			}
 		} else
 			return false;

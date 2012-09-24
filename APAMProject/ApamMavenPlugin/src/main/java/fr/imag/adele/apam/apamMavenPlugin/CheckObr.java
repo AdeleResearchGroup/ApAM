@@ -76,7 +76,7 @@ public class CheckObr {
 		ApamCapability cap = ApamCapability.get(dep.getTarget().as(ComponentReference.class));
 		if (cap == null)
 			return;
-		
+
 		//computes the attributes that can be associated with this spec or implementations members
 		Map<String, String> validAttrs = cap.getValidAttrNames();
 
@@ -115,14 +115,14 @@ public class CheckObr {
 
 		ApamCapability entCap = ApamCapability.get(component.getReference()) ;
 		if (entCap == null) return ret ; //should never happen.
-		
+
 		//return the valid attributes
 		for (String attr : properties.keySet()) {
 			if (validDefObr (entCap, attr, properties.get(attr))) {
 				ret.put(attr, properties.get(attr)) ;
 			}
 		}
-		
+
 		//add the attribute coming from "above" if not already instantiated and heritable
 		ApamCapability group = entCap.getGroup() ;
 		if (group != null && group.getProperties()!= null) {
@@ -132,7 +132,7 @@ public class CheckObr {
 				}			
 			}
 		}	
-		
+
 		/*
 		 * Add the default values specified in the group for properties not
 		 * explicitly initialized
@@ -145,11 +145,11 @@ public class CheckObr {
 					continue;
 				if (group.getAttrDefault(prop) == null)
 					continue;
-				
+
 				ret.put(prop, group.getAttrDefault(prop)) ;
 			}
 		} 
-		
+
 		return ret ;
 	}
 
@@ -166,11 +166,11 @@ public class CheckObr {
 	private static boolean validDefObr (ApamCapability ent, String attr, String value) {
 		if (Util.isPredefinedAttribute(attr))return true ; ;
 		if (!Util.validAttr(ent.getName(), attr)) return false  ;
-		
-//		//Top group all is Ok
-//		ApamCapability group = ent.getGroup() ;
-//		if (group == null) return true ;
-		
+
+		//		//Top group all is Ok
+		//		ApamCapability group = ent.getGroup() ;
+		//		if (group == null) return true ;
+
 		if (ent.getGroup()!= null && ent.getGroup().getProperties().get(attr) != null)  {
 			warning("Cannot redefine attribute \"" + attr + "\"");
 			return false ;
@@ -184,7 +184,7 @@ public class CheckObr {
 			if (defAttr != null) break ;
 			group = group.getGroup() ;
 		}
-		 
+
 		if (defAttr == null) {
 			warning("In " + ent.getName() + ", attribute \"" + attr + "\" used but not defined.");
 			return false ;
@@ -205,7 +205,7 @@ public class CheckObr {
 	public static boolean checkImplProvide(ComponentDeclaration impl, String spec, Set<InterfaceReference> interfaces,
 			Set<MessageReference> messages) {
 		if (!(impl instanceof AtomicImplementationDeclaration)) return true ;
-		
+
 		if (spec == null)
 			return true;
 		ApamCapability cap = ApamCapability.get(new SpecificationReference(spec));
@@ -298,7 +298,7 @@ public class CheckObr {
 		// All field must have same multiplicity, and must refer to interfaces and messages provided by the specification.
 
 		Set<ResourceReference> specResources = new HashSet<ResourceReference>();
-		
+
 		if (dep.getTarget() instanceof ComponentReference<?>) {
 			ApamCapability cap = ApamCapability.get((ComponentReference)dep.getTarget()) ;
 			if (cap == null) return ;
@@ -307,9 +307,9 @@ public class CheckObr {
 		else {
 			specResources.add(dep.getTarget().as(ResourceReference.class));
 		}
-	
+
 		for (DependencyInjection innerDep : dep.getInjections()) {
-			
+
 			String type = innerDep.getResource().getJavaType();
 
 			if ((innerDep.getResource() != ResourceReference.UNDEFINED) && !(specResources.contains(innerDep.getResource()))) {
@@ -340,13 +340,13 @@ public class CheckObr {
 
 		return dep.isCollection();
 	}
-	
+
 	/**
 	 * check all the characteristics that can be found in the <contentMngt> of a composite
 	 * @param component
 	 */
 	public static void checkCompositeContent (CompositeDeclaration component) {
-		
+
 		checkStart ((CompositeDeclaration) component) ;
 		checkState ((CompositeDeclaration) component) ;
 		checkOwn ((CompositeDeclaration) component) ;
@@ -367,27 +367,26 @@ public class CheckObr {
 	}
 
 	/**
-	 * Check the start characteristic.
-	 * It is very similar to an instance declaration, plus a trigger.
+	 * Check the state characteristic.
+	 * <own specification="Door" property=”location” value=”{entrance, exit}”>
 	 * @param component
 	 */
 	private static void checkState (CompositeDeclaration component) {
 		PropertyDefinition.Reference ref = component.getStateProperty() ;
 		if (ref == null) {
-			//error ("A state must be associated with an implementation.") ;
 			return ;
 		}
-		
+
 		ComponentReference compo = ref.getDeclaringComponent() ;
 		if (! (compo instanceof ImplementationReference)) {
 			error ("A state must be associated with an implementation.") ;
 			return ;
 		}
-			ApamCapability implCap = ApamCapability.get(compo) ;
-			if (implCap == null) {
-				error ("Implementation for state unavailable: " + compo.getName()) ;
-				return ;
-			}
+		ApamCapability implCap = ApamCapability.get(compo) ;
+		if (implCap == null) {
+			error ("Implementation for state unavailable: " + compo.getName()) ;
+			return ;
+		}
 		String propertyDef = implCap.getAttrDefinition(ref.getIdentifier()) ;
 		if (propertyDef == null) {
 			error ("The state attribute " + ref.getIdentifier() + " on implementation " + compo.getName() + " is undefined.") ;
@@ -396,12 +395,11 @@ public class CheckObr {
 	}
 
 	private static boolean visibilityExpression (String expr) {
-		if (expr == null) {
-			//error("Missing expression in visibility. ") ;
-			return true ;
-		}
+		if (expr == null) return true ;
+		
 		if (expr.equals(CST.V_FALSE) || expr.equals(CST.V_TRUE)) 
 			return true ;
+		
 		try {
 			ApamFilter f = ApamFilter.newInstance(expr) ;
 		} catch (Exception e) {
@@ -410,7 +408,7 @@ public class CheckObr {
 		}
 		return true ;
 	}
-	
+
 	private static void checkVisibility (CompositeDeclaration component) {
 		VisibilityDeclaration visiDcl = component.getVisibility() ;
 		if (! visibilityExpression(visiDcl.getApplicationInstances())) 
@@ -428,7 +426,7 @@ public class CheckObr {
 		if (! visibilityExpression(visiDcl.getBorrowInstances())) 
 			error ("bad expression in Borrow instance visibility: " + visiDcl.getBorrowInstances()) ;
 	}
-	
+
 	/**
 	 * 
 	 * @param component
@@ -478,6 +476,7 @@ public class CheckObr {
 			//cap.getAttrDefinition(name) ;
 		}
 	}
+
 
 	
 	private static void checkContextualDependencies (CompositeDeclaration component) {
