@@ -6,65 +6,14 @@
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
+	<groupId>fr.imag.adele.apam.tests</groupId>
 	<artifactId>OBRMAN-Tests</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>APP2</module>
-		<module>APP1</module>
-		<module>run-obrman-tests</module>
+		<module>apam-apps-components</module>
+		<module>apam-apps</module>
+		<module>apam-repositories</module>
+<!-- 		<module>run-obrman-tests</module> -->
 	</modules>
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>xml-maven-plugin</artifactId>
-					<executions>
-						<execution>
-							<goals>
-								<goal>transform</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<transformationSets>
-							<transformationSet>
-								<dir>${basedir}/obr</dir>
-								<stylesheet>../../xsl/mvn-url.xslt</stylesheet>
-								<outputDir>${basedir}/src/main/resources</outputDir>
-							</transformationSet>
-						</transformationSets>
-					</configuration>
-				</plugin>
-				 <!--This plugin's configuration is used to store Eclipse m2e settings 
-                only. It has no influence on the Maven build itself. -->
-            <plugin>
-                <groupId>org.eclipse.m2e</groupId>
-                <artifactId>lifecycle-mapping</artifactId>
-                <version>1.0.0</version>
-                <configuration>
-                    <lifecycleMappingMetadata>
-                        <pluginExecutions>
-                            <pluginExecution>
-                                <pluginExecutionFilter>
-                                    		<groupId>org.codehaus.mojo</groupId>
-					<artifactId>xml-maven-plugin</artifactId>
-                                    <versionRange>
-                                        [1.0.0,)
-                                    </versionRange>
-                                    <goals>
-                                        <goal>transform</goal>
-                                    </goals>
-                                </pluginExecutionFilter>
-                                <action>
-                                    <ignore></ignore>
-                                </action>
-                            </pluginExecution>
-                        </pluginExecutions>
-                    </lifecycleMappingMetadata>
-                </configuration>
-            </plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+	
 </project>
