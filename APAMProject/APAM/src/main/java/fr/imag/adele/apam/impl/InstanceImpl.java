@@ -90,7 +90,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     /**
      * This is an special constructor only used for the root instance of the system 
      */
-    protected InstanceImpl(Implementation rootImplementation, String name) {
+    protected InstanceImpl(Implementation rootImplementation, String name) throws InvalidConfiguration {
     	super(new SystemRootInstance(rootImplementation,name));
     	
     	myImpl		 = rootImplementation;
@@ -108,20 +108,31 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     /**
      * Builds a new Apam instance to represent the specified platform instance in the Apam model.
      */
-    protected InstanceImpl(Composite composite, ApformInstance apformInst) {
+    protected InstanceImpl(Composite composite, ApformInstance apformInst) throws InvalidConfiguration {
 
     	super(apformInst);
-    	
+
+        if (composite == null)
+        	throw new InvalidConfiguration("Null parent while creating instance");
+        
+        Implementation implementation = CST.ImplBroker.getImpl(apformInst.getDeclaration().getImplementation().getName());
+        
+        if (implementation == null)
+        	throw new InvalidConfiguration("Null implementation while creating instance");
+        
+        assert composite != null && implementation != null;
+        
     	/*
     	 * reference the implementation and the enclosing composite
     	 */
-        myImpl 		= CST.ImplBroker.getImpl(apformInst.getDeclaration().getImplementation().getName());
+        myImpl 		= implementation;
         myComposite = composite;
+        
 
     }    
 
     @Override
-    public void register(Map<String, String> initialproperties) {
+    public void register(Map<String, String> initialproperties) throws InvalidConfiguration {
     	
     	/*
     	 * Opposite references from implementation and enclosing composite

@@ -35,6 +35,9 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.apform.Apform2Apam;
+import fr.imag.adele.apam.apform.Apform2Apam.Request;
+import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.ResourceReference;
 
 //import fr.imag.adele.apam.apamImpl.SpecificationImpl;
@@ -60,7 +63,7 @@ public class ApamCommand {
     @ServiceProperty(name = "osgi.command.function", value = "{}")
     String[] m_function = new String[] { "put", "specs", "implems", "insts", "spec", "implem", "inst", "dump",
             "compoTypes",
-            "compoType", "compos", "compo", "wire", "launch" };
+            "compoType", "compos", "compo", "wire", "launch", "pending" };
 
     // ipojo injected
     @Requires
@@ -240,6 +243,17 @@ public class ApamCommand {
     @Descriptor("Display the full Apam state model")
     public void dump() {
         dumpApam();
+    }
+
+    @Descriptor("Display the pending platform installations")
+    public void pending() {
+        System.out.println("Platform pernding requests");
+        for (Request pendingRequest : Apform2Apam.getPending()) {
+            ComponentDeclaration declaration = pendingRequest.getComponent().getDeclaration();
+            System.out.println("Adding component " + declaration.getName() + " is waiting for component "
+                    + pendingRequest.getRequiredComponent());
+        }
+
     }
 
     // @Descriptor("Display the state model of the target application")

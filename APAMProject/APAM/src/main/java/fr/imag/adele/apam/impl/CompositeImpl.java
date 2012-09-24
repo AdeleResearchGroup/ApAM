@@ -19,13 +19,30 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
 	private static final long serialVersionUID = 1L;
 	
-	/*
-	 * Global variables to keep the hierarchy of composites
+	
+	/**
+	 * The root of the composite hierarchy
 	 * 
-	 * TODO should we refactor and move these static variables to a CompositeBroker or to Apam implementation? 
 	 */
-	private static final Composite 				rootComposite 	= new CompositeImpl();
-	private static final Map<String, Composite> composites 		= new ConcurrentHashMap<String, Composite>();
+	private static final Composite 	rootComposite ;
+	
+	/**
+	 * NOTE We can not directly initialize the field because the constructor may throw an exception, so we need to
+	 * make an static block to be able to catch the exception. The root composite bootstraps the system, so normally
+	 * we SHOULD always be able to create it; if there is an exception, that means there is some bug an we can not
+	 * normally continue so we throw a class initialization exception.
+	 */
+	static {
+		Composite bootstrap = null;
+		try {
+			bootstrap 	= new CompositeImpl();
+		} catch (Exception e) {
+			throw new ExceptionInInitializerError(e);
+		}
+		finally {
+			rootComposite = bootstrap;
+		}
+	}
 
 	public static Composite getRootAllComposites() {
 		return CompositeImpl.rootComposite;
@@ -34,6 +51,11 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 	public static Collection<Composite> getRootComposites() {
 		return Collections.unmodifiableSet(CompositeImpl.rootComposite.getSons());
 	}
+	
+	/**
+	 * The list of all composites in the APAM state model
+	 */
+	private static final Map<String, Composite> composites 		= new ConcurrentHashMap<String, Composite>();
 
 	public static Collection<Composite> getComposites() {
 		return Collections.unmodifiableCollection(CompositeImpl.composites.values());
@@ -68,7 +90,8 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     /**
      * This is an special constructor only used for the root instance of the system 
      */
-	private CompositeImpl() {
+	private CompositeImpl() throws InvalidConfiguration {
+		
 		super(CompositeTypeImpl.getRootCompositeType(),"rootComposite");
 		
 		this.mainInst 		= null;
@@ -93,7 +116,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
     /**
      * Builds a new Apam composite to represent the specified platform instance in the Apam model.
      */
-	protected CompositeImpl(Composite composite, ApformInstance apformInst) {
+	protected CompositeImpl(Composite composite, ApformInstance apformInst) throws InvalidConfiguration {
 
 		// First create the composite, as a normal instance
 		super(composite, apformInst);
@@ -108,7 +131,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 	}
 
 	@Override
-	public void register(Map<String, String> initialProperties) {		
+	public void register(Map<String, String> initialProperties) throws InvalidConfiguration {		
 		
 		boolean registerMain = true;
 
@@ -123,6 +146,9 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		 */
 		if (initialProperties != null && initialProperties.get(CST.APAM_MAIN_INSTANCE) != null) {
 			mainInst = CST.InstBroker.getInst(initialProperties.remove(CST.APAM_MAIN_INSTANCE));
+			if (mainInst.isUsed())
+				throw new InvalidConfiguration("Error creating composite : already used main instance "+mainInst);
+			
 			assert ! mainInst.isUsed();
 		}
 		else {

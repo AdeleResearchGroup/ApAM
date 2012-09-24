@@ -44,8 +44,8 @@ import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
 import fr.imag.adele.apam.core.SpecificationReference;
-import fr.imag.adele.apam.message.AbstractConsumer;
-import fr.imag.adele.apam.message.AbstractProducer;
+import fr.imag.adele.apam.message.MessageProducer;
+import fr.imag.adele.apam.message.MessageConsumer;
 import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
 
@@ -686,10 +686,12 @@ public class CoreMetadataParser implements CoreParser {
 		String method	= parseString(element,CoreMetadataParser.ATT_METHOD,false);
 
 		if ( (field == null) && (method == null) && mandatory)
-			errorHandler.error(Severity.ERROR, "attribute \""+CoreMetadataParser.ATT_FIELD+"\" or \""+CoreMetadataParser.ATT_METHOD+"\" must be specified in "+element);
+			errorHandler.error(Severity.ERROR, "attribute \""+CoreMetadataParser.ATT_FIELD+"\" or \""
+					+CoreMetadataParser.ATT_METHOD+"\" must be specified in "+element.getName());
 
 		if ((field == null) && CoreMetadataParser.INTERFACE.equals(element.getName()) && mandatory)
-			errorHandler.error(Severity.ERROR, "attribute \""+CoreMetadataParser.ATT_FIELD+"\" must be specified in "+element);
+			errorHandler.error(Severity.ERROR, "attribute \""
+					+CoreMetadataParser.ATT_FIELD+"\" must be specified in "+element.getName());
 
 		if ((field == null) && (method == null))
 			return mandatory ? new DependencyInjection.Field(atomic,CoreParser.UNDEFINED) : null;
@@ -697,7 +699,8 @@ public class CoreMetadataParser implements CoreParser {
 		DependencyInjection injection = field != null ? new DependencyInjection.Field(atomic,field) : new DependencyInjection.Callback(atomic,method);
 
 		if (! injection.isValidInstrumentation())
-			errorHandler.error(Severity.ERROR, "the specified \""+CoreMetadataParser.ATT_FIELD+"\" or \""+CoreMetadataParser.ATT_METHOD+"\" is invalid "+element);
+			errorHandler.error(Severity.ERROR, "the specified \""+CoreMetadataParser.ATT_FIELD+"\" or \""
+					+CoreMetadataParser.ATT_METHOD+"\" is invalid "+element.getName());
 
 		return injection;
 	}
@@ -1031,12 +1034,12 @@ public class CoreMetadataParser implements CoreParser {
 		String value = element.getAttribute(attribute);
 
 		if (mandatory && (value == null)) {
-			errorHandler.error(Severity.ERROR, "attribute \""+attribute+"\" must be specified in "+element);
+			errorHandler.error(Severity.ERROR, "attribute \""+attribute+"\" must be specified in "+element.getName());
 			value = CoreParser.UNDEFINED;
 		}
 
 		if (mandatory && (value != null) && value.trim().isEmpty()) {
-			errorHandler.error(Severity.ERROR, "attribute \""+attribute+"\" cannot be empty in "+element);
+			errorHandler.error(Severity.ERROR, "attribute \""+attribute+"\" cannot be empty in "+element.getName());
 			value = CoreParser.UNDEFINED;
 		}
 
@@ -1211,7 +1214,7 @@ public class CoreMetadataParser implements CoreParser {
 		}
 		
 		if (attribute.equals(CoreMetadataParser.UNDEFINED) && mandatory) {
-			errorHandler.error(Severity.ERROR, "component name must be specified in "+element);
+			errorHandler.error(Severity.ERROR, "component name must be specified in "+element.getName());
 			return  new ComponentReference<ComponentDeclaration>(CoreParser.UNDEFINED);
 		}
 		
@@ -1266,7 +1269,7 @@ public class CoreMetadataParser implements CoreParser {
 			return parseMessageReference(element,attribute,mandatory);
 
 		if (mandatory) {
-			errorHandler.error(Severity.ERROR, "resource name must be specified in "+element);
+			errorHandler.error(Severity.ERROR, "resource name must be specified in "+element.getName());
 			return ResourceReference.UNDEFINED;
 		}
 
@@ -1294,7 +1297,7 @@ public class CoreMetadataParser implements CoreParser {
 			return parseResourceReference(element,attribute,mandatory);
 
 		if (mandatory) {
-			errorHandler.error(Severity.ERROR, "component name or resource must be specified in "+element);
+			errorHandler.error(Severity.ERROR, "component name or resource must be specified in "+element.getName());
 			return new ComponentReference<ComponentDeclaration>(CoreParser.UNDEFINED);
 		}
 		
@@ -1339,7 +1342,7 @@ public class CoreMetadataParser implements CoreParser {
 		}
 		
 		if (attribute.equals(CoreMetadataParser.UNDEFINED) && mandatory) {
-			errorHandler.error(Severity.ERROR, "component name or resource must be specified in "+element);
+			errorHandler.error(Severity.ERROR, "component name or resource must be specified in "+element.getName());
 			return new ComponentReference<ComponentDeclaration>(CoreParser.UNDEFINED);
 		}
 		
@@ -1425,8 +1428,8 @@ public class CoreMetadataParser implements CoreParser {
 		 * The list of supported messages for aggregate dependencies
 		 */
 		private final static Class<?>[] supportedMessages = new Class<?>[] { 
-			AbstractConsumer.class,
-			AbstractProducer.class };
+			MessageProducer.class,
+			MessageConsumer.class };
 
 
 		/**

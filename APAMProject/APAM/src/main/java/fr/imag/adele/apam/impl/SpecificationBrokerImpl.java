@@ -19,6 +19,7 @@ import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.util.ApamInstall;
 
 public class SpecificationBrokerImpl implements SpecificationBroker {
@@ -46,10 +47,21 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
             return specification;
         }
 
-    	
-        specification = new SpecificationImpl(apfSpec);
-        ((SpecificationImpl)specification).register(null);
-        return specification;
+    	/*
+    	 * Create and register the object in the APAM state model
+    	 */
+        try {
+
+        	specification = new SpecificationImpl(apfSpec);
+	        ((SpecificationImpl)specification).register(null);
+	        return specification;
+
+		} catch (InvalidConfiguration configurationError) {
+			logger.error("Error adding specification: exception in apam registration",configurationError);
+		}
+
+		return null;
+
     }
 
     @Override
@@ -216,3 +228,4 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
     
 
 }
+

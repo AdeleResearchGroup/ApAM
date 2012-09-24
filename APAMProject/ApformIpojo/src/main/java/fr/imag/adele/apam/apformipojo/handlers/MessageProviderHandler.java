@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.ConfigurationException;
@@ -24,7 +25,7 @@ import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.MessageProducerFieldInjection;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.MessageReference;
-import fr.imag.adele.apam.message.AbstractConsumer;
+import fr.imag.adele.apam.message.MessageProducer;
 import fr.imag.adele.apam.message.Message;
 
 
@@ -40,7 +41,7 @@ import fr.imag.adele.apam.message.Message;
  * @author vega
  *
  */
-public class MessageProviderHandler extends ApformHandler implements Producer, AbstractConsumer<Object>, FieldInterceptor {
+public class MessageProviderHandler extends ApformHandler implements Producer, MessageProducer<Object>, FieldInterceptor {
 
 
 	/**
@@ -233,7 +234,18 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 	 * Broadcast the message to all connected consumers expecting this flavor
 	 */
 	@Override
-	public void pushMessage(Message<Object> message) {
+	public void push(Object data, Map<String,Object> properties) {
+		Message<Object> m = new Message<Object>(data);
+		m.getProperties().putAll(properties);
+		push(m);
+	}
+
+	@Override
+	public void push(Object data) {
+		push(new Message<Object>(data));
+	}
+
+	private void push(Message<Object> message) {
 		
 		if (message.getData() == null)
 			return;
@@ -252,11 +264,6 @@ public class MessageProviderHandler extends ApformHandler implements Producer, A
 			}
 			
 		}
-	}
-
-	@Override
-	public void pushData(Object data) {
-		pushMessage(new Message<Object>(data));
 	}
 
 	/**

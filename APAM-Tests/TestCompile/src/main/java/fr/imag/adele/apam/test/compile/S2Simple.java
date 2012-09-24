@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.test.TestCompile;
+package fr.imag.adele.apam.test.compile;
 
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
@@ -12,6 +12,7 @@ public class S2Simple implements S2, ApamComponent {
     S4   s4;
 
     String name;
+    String state ;
 
     @Override
     public String getName() {

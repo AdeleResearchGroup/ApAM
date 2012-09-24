@@ -17,6 +17,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.InstanceBroker;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 
 public class InstanceBrokerImpl implements InstanceBroker {
 
@@ -40,27 +41,38 @@ public class InstanceBrokerImpl implements InstanceBroker {
 
         Instance instance = getInst(instanceName);
         if (instance != null) { 
-        	logger.error("Error adding instance: already exists" + instanceName);
+        	logger.error("Error adding instance: already exists " + instanceName);
             return instance;
         }
     	  	
         /*
-         * Get the implementation group to create the instance. If the implementation could
-         * not be resolved wait until it is deployed
-         * 
-         * TODO Define a timeout to avoid blocking the thread infinitely or implement 
-         * change this method signature to become asynchronous.
+         * Get the implementation group to create the instance. If the implementation can
+         * not be resolved the creation of the instance fails.
          */
-        Implementation implementation = CST.ImplBroker.getImpl(implementationName,true);
-
+        Implementation implementation = CST.ImplBroker.getImpl(implementationName);
+        if (implementation == null) {
+        	logger.error("Error adding instance: implementation not found" + implementationName);
+        	return null;
+        }
         
     	if (composite == null)     	{
     		composite = CompositeImpl.getRootAllComposites();
     	}
         
-    	instance = ((ImplementationImpl)implementation).reify(composite,apfInst);
-        ((InstanceImpl)instance).register(null);
-        return instance;
+    	/*
+    	 * Create and register the object in the APAM state model
+    	 */
+        try {
+
+        	instance = ((ImplementationImpl)implementation).reify(composite,apfInst);
+			((InstanceImpl)instance).register(null);
+	        return instance;
+
+		} catch (InvalidConfiguration configurationError) {
+			logger.error("Error adding instance: exception in APAM registration",configurationError);
+		}
+
+		return null;
     }
     
     /**

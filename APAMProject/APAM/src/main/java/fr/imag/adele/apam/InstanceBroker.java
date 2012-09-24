@@ -11,7 +11,7 @@ import fr.imag.adele.apam.apform.ApformInstance;
 public interface InstanceBroker {
 
     /**
-     * adds in ASM an existing SAM Instance.
+     * adds in ASM an existing platform Instance.
      * 
      * @param compo The composite in which to create the instance. Cannot be null.
      * @param inst a SAM Instance
