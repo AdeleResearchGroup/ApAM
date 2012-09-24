@@ -25,6 +25,9 @@
   	<module>TestAttrSpec</module>
   	<module>TestAttrImpl</module>
   	<module>TestCompile</module>
+  	<module>TestDependency</module>
+  	<module>TestPromotion</module>
+  	<module>TestGrant</module>
   	<module>S5CompEx</module>  	
 <!-- 	<module>perfAPAM</module> -->
 <!--   	<module>perfIPojo</module> -->

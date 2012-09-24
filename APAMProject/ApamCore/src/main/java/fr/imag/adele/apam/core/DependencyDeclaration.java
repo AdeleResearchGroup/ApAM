@@ -107,7 +107,7 @@ public class DependencyDeclaration extends TargetDeclaration {
     /**
      * The multiplicity of a dependency.
      * 
-     * If there are is calculated from the declaration of injected fields.
+     * If there are calculated from the declaration of injected fields.
      * 
      * If this is an abstract declaration in specifications or composites, it must be
      * explicitly defined.
