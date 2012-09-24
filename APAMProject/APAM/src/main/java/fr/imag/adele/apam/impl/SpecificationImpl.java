@@ -40,14 +40,13 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 //    //spec created empty only to be associated with implementations that do not implement a spec.
 //    private boolean dummySpec = false ;
     
-    protected SpecificationImpl(ApformSpecification apfSpec) {
+    protected SpecificationImpl(ApformSpecification apfSpec) throws InvalidConfiguration {
     	super(apfSpec);
-    	
     }
 
    
     @Override
-	public void register(Map<String,String> initialProperties) {
+	public void register(Map<String,String> initialProperties) throws InvalidConfiguration {
         /*
          * Terminates the initalisation, and computes properties
          */

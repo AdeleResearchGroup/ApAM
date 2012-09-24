@@ -35,7 +35,31 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	private final ComponentDeclaration declaration;
 
 
-	public ComponentImpl(ApformComponent apform) {
+    /**
+     * An exception that can be thrown in the case of problems while creating a component
+     */
+    public class InvalidConfiguration extends Exception {
+
+		private static final long serialVersionUID = 1L;
+		
+		public InvalidConfiguration(String message) {
+			super(message);
+		}
+
+		public InvalidConfiguration(String message, Throwable cause) {
+			super(message,cause);
+		}
+
+		public InvalidConfiguration( Throwable cause) {
+			super(cause);
+		}
+
+    }
+	
+	public ComponentImpl(ApformComponent apform) throws InvalidConfiguration {
+
+		if (apform == null)
+        	throw new InvalidConfiguration("Null apform instance while creating component");
 		
 		assert apform != null;
 
@@ -119,7 +143,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * This methods adds a newly created component to the Apam state model, so that it is visible to the
 	 * external API
 	 */
-	public abstract void register(Map<String, String> initialProperties);
+	public abstract void register(Map<String, String> initialProperties) throws InvalidConfiguration;
 
 
 	/**

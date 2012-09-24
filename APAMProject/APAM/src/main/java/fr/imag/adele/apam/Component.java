@@ -80,10 +80,11 @@ public interface Component {
      * return all the members of this component. Null if leaf (instance).
      * @return
      */
-    public Set<? extends Component> getMembers () ;
+    public Set<? extends Component> getMembers ();
 
     /**
      * return the representant of this group member. Null if root (Specification)
      */
-    public Component getGroup () ;
+    public Component getGroup ();
+    
 }
