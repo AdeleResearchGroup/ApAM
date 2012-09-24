@@ -91,16 +91,16 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	/**
 	 * This is an special constructor only used for the root type of the system 
 	 */
-	protected ImplementationImpl(String name) {
+	protected ImplementationImpl(String name) throws InvalidConfiguration {
 		super(new SystemRootImplementation(name));
 		mySpec = CST.SpecBroker.createSpec(name+"_spec",new HashSet<ResourceReference>(),null);
 	}
 
 
 	/**
-	 * Builds a new Apam implementation to represent the specified platform implementtaion in the Apam model.
+	 * Builds a new Apam implementation to represent the specified platform implementation in the Apam model.
 	 */
-	protected ImplementationImpl(CompositeType composite, ApformImplementation apfImpl) {
+	protected ImplementationImpl(CompositeType composite, ApformImplementation apfImpl) throws InvalidConfiguration {
 		super (apfImpl) ;
 
 		ImplementationDeclaration declaration = apfImpl.getDeclaration();
@@ -109,34 +109,17 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		 * Reference the declared provided specification
 		 */
 		if (declaration.getSpecification() != null) {
-			mySpec = CST.SpecBroker.getSpec(declaration.getSpecification().getName());
-			//if not already here, install it.
-			//mySpec = CST.apamResolver.findSpecByName(composite, declaration.getSpecification().getName()) ;
-
-			/*
-			 * The specification may not have been defined in Apam yet, in this case we create
-			 * a temporary declaration that will be overridden when the actual declaration is
-			 * installed @see ApformApam.newSpecification
-			 * 
-			 * TODO WARNING This is an aproximation as the implementation may provide more
-			 * resources that the specification, to review.
-			 * 
-			 * TODO Should we enforce that the provided specification must be declared and
-			 * installed before any implementation referencing it (or at least providing it)?
-			 * otherwise we can not validate that the implementation actually conforms to the
-			 * declared specification.
-			 */
-			if (mySpec == null) {
-				logger.error("invalid specification " + declaration.getSpecification().getName() 
-						+ " for implementation " + declaration.getName());
-				return ;
+			
+			String specificationName	= declaration.getSpecification().getName();
+			Specification specification = CST.SpecBroker.getSpec(specificationName);
+			
+			if (specification == null) {
+				throw new InvalidConfiguration("Specification not installed " + specificationName + " for implementation " + declaration.getName());
 			}
+			
+			assert specification != null;
+			mySpec = specification;
 
-			//        	if (mySpec == null) {
-			//        		mySpec = CST.SpecBroker.createSpec(declaration.getSpecification().getName(),
-			//        									declaration.getProvidedResources(),
-			//        									(Map<String,Object>)null);
-			//        	}
 		}
 
 		/*
@@ -158,7 +141,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	}
 
 	@Override
-	public void register(Map<String, String> initialProperties) {
+	public void register(Map<String, String> initialProperties) throws InvalidConfiguration {
 
 		/*
 		 * Opposite references from specification and enclosing composite type
@@ -289,10 +272,21 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			composite = CompositeImpl.getRootAllComposites();
 		}
 
-		Instance instance = instantiate(composite);
-		((InstanceImpl)instance).register(initialProperties);
+    	/*
+    	 * Create and register the object in the APAM state model
+    	 */
+		try {
+			
+			Instance instance = instantiate(composite);
+			((InstanceImpl)instance).register(initialProperties);
+			return instance;
+			
+		} catch (InvalidConfiguration configurationError) {
+			logger.error("Error instantiating implementation "+this.getName()+": exception registering instance in APAM",configurationError);
+		}
+		
+		return null;
 
-		return instance;
 	}
 
 	/**
@@ -304,7 +298,8 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 * 
 	 * This method is not intended to be used as external API.
 	 */
-	protected Instance instantiate(Composite composite) {
+	protected Instance instantiate(Composite composite) throws InvalidConfiguration {
+		
 		if (! this.isInstantiable()) {
 			logger.debug("Implementation " + this + " is not instantiable");
 			return null;
@@ -327,7 +322,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 * This method is not intended to be used as external API.
 	 * 
 	 */
-	protected Instance reify(Composite composite, ApformInstance platformInstance) {
+	protected Instance reify(Composite composite, ApformInstance platformInstance) throws InvalidConfiguration {
 		return new InstanceImpl(composite,platformInstance);
 	}
 

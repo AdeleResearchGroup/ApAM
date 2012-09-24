@@ -12,7 +12,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ImplementationBroker;
@@ -20,6 +19,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformImplementation;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.util.ApamInstall;
 
 public class ImplementationBrokerImpl implements ImplementationBroker {
@@ -34,7 +34,6 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
 	public Implementation addImpl(CompositeType composite, ApformImplementation apfImpl) {
 
 		String implementationName = apfImpl.getDeclaration().getName();
-		String specificationName = apfImpl.getDeclaration().getSpecification() != null ? apfImpl.getDeclaration().getSpecification().getName() : null;
 
 		assert apfImpl != null;
 		assert getImpl(implementationName) == null;
@@ -50,29 +49,30 @@ public class ImplementationBrokerImpl implements ImplementationBroker {
 			return implementation;
 		}
 
-        /*
-         * Get the specification group to create the implementation. If the specification could
-         * not be resolved wait until it is deployed
-         * 
-         * TODO Define a timeout to avoid blocking the thread infinitely or  change this method
-         * signature to become asynchronous.
-         */
-		if (specificationName != null) {
-			CST.SpecBroker.getSpec(specificationName,true);
-		}
-		
 		if (composite == null)
 			composite = CompositeTypeImpl.getRootCompositeType();
 
-		// create a primitive or composite implementation
-		if (apfImpl instanceof ApformCompositeType) {
-			implementation = new CompositeTypeImpl(composite,(ApformCompositeType)apfImpl);
-		} else {
-			implementation = new ImplementationImpl(composite, apfImpl);
+    	/*
+    	 * Create and register the object in the APAM state model
+    	 */
+        try {
+
+    		// create a primitive or composite implementation
+    		if (apfImpl instanceof ApformCompositeType) {
+    			implementation = new CompositeTypeImpl(composite,(ApformCompositeType)apfImpl);
+    		} else {
+    			implementation = new ImplementationImpl(composite, apfImpl);
+    		}
+
+    		((ImplementationImpl) implementation).register(null);
+    		return implementation;
+
+		} catch (InvalidConfiguration configurationError) {
+			logger.error("Error adding implementation: exception in APAM registration",configurationError);
 		}
 
-		((ImplementationImpl) implementation).register(null);
-		return implementation;
+		return null;
+		
 	}
 
 	@Override

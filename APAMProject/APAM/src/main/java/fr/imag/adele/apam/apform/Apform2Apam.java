@@ -1,6 +1,9 @@
 package fr.imag.adele.apam.apform;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -13,6 +16,7 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.impl.ImplementationBrokerImpl;
 import fr.imag.adele.apam.impl.InstanceBrokerImpl;
 import fr.imag.adele.apam.impl.SpecificationBrokerImpl;
@@ -32,26 +36,104 @@ public class Apform2Apam {
      */
     static private final Executor executor      = Executors.newCachedThreadPool();
     
+    
+    static private final ThreadLocal<Request> 	current = new ThreadLocal<Request>();
+    static private final List<Request> 			pending = new ArrayList<Request>();
+    
     /**
-     * The base class of all the reification processors. This handle exception and context management
+     * The base class of all the apform requests to add a new component to the APAM model. 
      * 
      * @author vega
-     * 
      */
-    private static abstract class ApamReificationProcess implements Runnable {
+    public static abstract class Request implements Runnable {
 
+    	private final ApformComponent 	component;
+    	private boolean					isProcessing;
+    	private String 					requiredComponent;
+    	
+    	protected Request(ApformComponent component) {
+    		this.component		= component;
+    		this.isProcessing	= false;
+		}
+    	
+    	/**
+    	 * The component to be reified in APAM
+    	 */
+    	public ApformComponent getComponent() {
+			return component;
+		}
+    	
+    	/**
+    	 * Mark this request as started
+    	 */
+    	private void started() {
+    		isProcessing = true;
+    		current.set(this);
+    	}
+    	
+    	/**
+    	 * Mark this request as finished
+    	 */
+    	private void finished() {
+    		isProcessing = false;
+    		current.remove();
+    	}
+    	
+    	/**
+    	 * Whether this request is being processing
+    	 */
+    	public boolean isProcessing() {
+    		return isProcessing;
+    	}
+    	
+    	/**
+    	 * Mark this request as pending for a component
+    	 */
+    	private void pending(String requiredComponent) {
+    		this.requiredComponent = requiredComponent;
+    		pending.add(this);
+    	}
+
+    	/**
+    	 * Mark this request as resumed after the requested component is found
+    	 */
+    	private void resumed() {
+    		this.requiredComponent = null;
+    		pending.remove(this);
+    	}
+    	
+    	/**
+    	 * Whether this request is pending
+    	 */
+    	public boolean isPending() {
+    		return pending.contains(this);
+    	}
+    	
+    	/**
+    	 * The required component
+    	 */
+    	public String getRequiredComponent() {
+    		return requiredComponent;
+    	}
+
+    	
         @Override
         public void run() {
             try {
-                notifyDeployment(reify());
+            	started();
+            	Component apamReification = reify();
+                if (apamReification != null) {
+                    notifyDeployment(apamReification);
+                }
             } catch (Exception unhandledException) {
-                logger.error("Error handling Apform event :");
-                unhandledException.printStackTrace(System.err);
+                logger.error("Error handling Apform event :",unhandledException);
             } finally {
+            	finished();
             }
 
         }
 
+        
         /**
          * The processing method
          */
@@ -77,15 +159,37 @@ public class Apform2Apam {
     }
 
     /**
+     * The list of pending request
+     */
+    public static List<Request> getPending() {
+    	return Collections.unmodifiableList(pending);
+    }
+
+    /**
+     * The request executing in the context of the current thread.
+     * 
+     * Return null if the thread is not executing an Apform request.
+     */
+    public static Request getCurrent() {
+    	return current.get();
+    }
+    
+    /**
      * Wait for a future component to be deployed
      */
     public static void waitForComponent(String componentName) {
 
         synchronized (Apform2Apam.expectedComponents) {
+        	
+        	Request current = getCurrent();
+        	
             Apform2Apam.expectedComponents.add(componentName);
             try {
-                while (Apform2Apam.expectedComponents.contains(componentName))
+                while (Apform2Apam.expectedComponents.contains(componentName)) {
+                	if (current != null) current.pending(componentName);
                     Apform2Apam.expectedComponents.wait();
+                    if (current != null) current.resumed();
+                }
             } catch (InterruptedException interrupted) {
                 interrupted.printStackTrace();
             }
@@ -99,17 +203,32 @@ public class Apform2Apam {
      * @author vega
      * 
      */
-    private static class InstanceAppearenceProcessing extends ApamReificationProcess {
+    private static class InstanceAppearenceProcessing extends Request {
 
-        private final ApformInstance instance;
 
         public InstanceAppearenceProcessing(ApformInstance instance) {
-            this.instance = instance;
+        	super(instance);
         }
 
         @Override
+        public ApformInstance getComponent() {
+        	return (ApformInstance) super.getComponent();
+        }
+        
+        @Override
         public Component reify() {
-            return CST.InstBroker.addInst(null,instance);
+        	
+        	/*
+        	 * Verify implementation is currently installed. If not installed wait for
+        	 * installation
+        	 */
+        	String implementationName = getComponent().getDeclaration().getImplementation().getName();
+        	CST.ImplBroker.getImpl(implementationName, true);
+        	
+        	/*
+        	 * Add to APAM
+        	 */
+        	return CST.InstBroker.addInst(null,getComponent());
         }
 
     }
@@ -120,17 +239,32 @@ public class Apform2Apam {
      * @author vega
      * 
      */
-    private static class ImplementationDeploymentProcessing extends ApamReificationProcess {
-
-        private final ApformImplementation implementation;
+    private static class ImplementationDeploymentProcessing extends Request {
 
         public ImplementationDeploymentProcessing(ApformImplementation implementation) {
-            this.implementation = implementation;
+        	super(implementation);
         }
 
         @Override
+        public ApformImplementation getComponent() {
+        	return (ApformImplementation) super.getComponent();
+        }
+        
+        @Override
         public Component reify() {
-            return CST.ImplBroker.addImpl(null,implementation);
+        	/*
+        	 * Verify specification is currently installed. If not installed wait for
+        	 * installation
+        	 */
+        	SpecificationReference specification = getComponent().getDeclaration().getSpecification();
+        	if (specification != null) {
+            	CST.SpecBroker.getSpec(specification.getName(), true);
+        	}
+        	
+        	/*
+        	 * Add to APAM
+        	 */
+            return CST.ImplBroker.addImpl(null,getComponent());
         }
 
     }
@@ -141,17 +275,20 @@ public class Apform2Apam {
      * @author vega
      * 
      */
-    private static class SpecificationDeploymentProcessing extends ApamReificationProcess {
-
-        private final ApformSpecification specification;
+    private static class SpecificationDeploymentProcessing extends Request {
 
         public SpecificationDeploymentProcessing(ApformSpecification specification) {
-            this.specification = specification;
+        	super(specification);
         }
 
         @Override
+        public ApformSpecification getComponent() {
+        	return (ApformSpecification) super.getComponent();
+        }
+        
+        @Override
         public Component reify() {
-            return CST.SpecBroker.addSpec(specification);
+            return CST.SpecBroker.addSpec(getComponent());
             
         }
     }

@@ -30,25 +30,46 @@ import fr.imag.adele.apam.util.ApamFilter;
 
 public class CompositeTypeImpl extends ImplementationImpl implements CompositeType {
 
+	@SuppressWarnings("unused")
 	private static Logger 		logger 				= LoggerFactory.getLogger(CompositeTypeImpl.class);
 	private static final long 	serialVersionUID 	= 1L;
 	
-	/*
-	 * Global variables to keep the hierarchy of composite types
-	 * 
-	 * TODO should we refactor and move these static variables to a CompositeBroker or to Apam implementation? 
+	/**
+	 * The root of the composite type hierarchy
 	 */
-    private static CompositeType              rootCompoType  = new CompositeTypeImpl();
-    private static Map<String, CompositeType> compositeTypes = new ConcurrentHashMap<String, CompositeType>();
-    
+	private static CompositeType	rootCompoType;
+
+	/**
+	 * NOTE We can not directly initialize the field because the constructor may throw an exception, so we need to
+	 * make an static block to be able to catch the exception. The root composite bootstraps the system, so normally
+	 * we SHOULD always be able to create it; if there is an exception, that means there is some bug an we can not
+	 * normally continue so we throw a class initialization exception.
+	 */
+	static {
+		CompositeType bootstrap = null;
+		try {
+			bootstrap 	= new CompositeTypeImpl();
+		} catch (Exception e) {
+			throw new ExceptionInInitializerError(e);
+		}
+		finally {
+			rootCompoType = bootstrap;
+		}
+	}
+
     public static CompositeType getRootCompositeType() {
         return CompositeTypeImpl.rootCompoType;
     }
     
+	/**
+	 * The list of all composites in the APAM state model
+	 */
     public static Collection<CompositeType> getRootCompositeTypes() {
         return CompositeTypeImpl.rootCompoType.getEmbedded();
     }
-
+	
+	private static Map<String, CompositeType> compositeTypes = new ConcurrentHashMap<String, CompositeType>();
+    
     public static Collection<CompositeType> getCompositeTypes() {
         return Collections.unmodifiableCollection(CompositeTypeImpl.compositeTypes.values());
     }
@@ -90,7 +111,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     /**
      * This is an special constructor only used for the root type of the system 
      */
-    private CompositeTypeImpl() {
+    private CompositeTypeImpl() throws InvalidConfiguration {
     	super("rootCompositeType");
         
         /*
@@ -134,7 +155,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     /**
      * Builds a new Apam composite type to represent the specified implementation in the Apam model.
      */
-    protected CompositeTypeImpl(CompositeType composite, ApformCompositeType apfCompo) {
+    protected CompositeTypeImpl(CompositeType composite, ApformCompositeType apfCompo) throws InvalidConfiguration {
         
     	super(composite,apfCompo);
   
@@ -150,7 +171,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     }
 
     @Override
-    public void register(Map<String, String> initialProperties) {
+    public void register(Map<String, String> initialProperties) throws InvalidConfiguration {
     	
     	/*
     	 * Opposite references from the enclosing composite types
@@ -160,10 +181,15 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		}
 
     	/*
-    	 * Notify managers of their models
-    	 * Not at the end of registration because OBR needs its model to find the main implem.
-    	 * WARNING Notice that at this stage the composite type is not completely registered in the Apam model
-    	 * so managers must be cautious when manipulating the state and navigating the hierarchy.
+    	 * Notify managers of their models.
+    	 * 
+    	 * WARNING Notice that the managers are not notified at the end of the registration, but 
+    	 * before resolving the main implementation. This allow the resolution of the main
+    	 * implementation in the context of the composite, specially if the main implementation
+    	 * is deployed in the private repository of the composite..
+    	 * 
+    	 * Managers must be aware that the composite type is not completely registered, so they
+    	 * must be cautious when manipulating the state and navigating the hierarchy.
     	 */
         for (ManagerModel managerModel : models) {
         	DependencyManager manager = ApamManagers.getManager(managerModel.getManagerName());
@@ -181,7 +207,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
          * so it will be  deployed in this context if necessary.
          * 
          * WARNING this is done after the composite type is added to the hierarchy but before it is completely
-         * registered as a normal implementation. We do not call super.register until the main implem is resolved.
+         * registered as a normal implementation. We do not call super.register until the main implementation
+         * is resolved.
          * 
          */
 		String mainComponent = getCompoDeclaration().getMainComponent().getName();
@@ -197,25 +224,42 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 			constraints.add(noComposite);
 			mainImpl = CST.apamResolver.resolveSpecByName(this, mainComponent, constraints, null);
         }
+		
+		/*
+		 * If we can not resolve the main implementation, we abort the registration in APAM, taking care of
+		 * undoing the partial processing already performed. 
+		 */
         if (mainImpl == null) {
-            logger.error("cannot find main implementation " + mainComponent);
-            return;
+        	unregister();
+            throw new InvalidConfiguration("Cannot find main implementation " + mainComponent);
+
         }
+        
+        assert mainImpl != null;
         
         if (! mainImpl.getInCompositeType().contains(this)) deploy(mainImpl) ;
 		
         /*
-         * Check that the main implementation actually provides all the resources of the composite
+         * Check that the main implementation conforms to the declaration of the composite
          * 
          */
-        //if (getSpec() != null ) {
-            if (! mainImpl.getDeclaration().getProvidedResources().containsAll(getSpec().getDeclaration().getProvidedResources())) {
-                logger.error("ERROR: Invalid main implementation " + mainImpl + " for composite type "
-                        + getName() + "Main implementation Provided resources " + mainImpl.getDeclaration().getProvidedResources()
-                        + "do no provide all the expected resources : " + getSpec().getDeclaration().getProvidedResources());
-            }
-        //} 
+        boolean providesResources = mainImpl.getDeclaration().getProvidedResources().containsAll(getSpec().getDeclaration().getProvidedResources());
+        
 
+		/*
+		 * If the main implementation is not conforming, we abort the registration in APAM, taking care of
+		 * undoing the partial processing already performed. 
+		 */
+        if (! providesResources) {
+        	unregister();
+        	throw new InvalidConfiguration("invalid main implementation " + mainImpl.getName() + " for composite type "
+                    + getName() + "Main implementation Provided resources " + mainImpl.getDeclaration().getProvidedResources()
+                    + "do no provide all the expected resources : " + getSpec().getDeclaration().getProvidedResources());
+        }
+
+        boolean isConformingMainImplem = providesResources;
+        assert isConformingMainImplem;
+        
         /*
 		 * add to list of composite types
 		 */
@@ -260,6 +304,12 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		}
 		
     	invEmbedded.clear();
+    	
+		/*
+		 * Remove from list of composite types
+		 */
+		CompositeTypeImpl.compositeTypes.remove(getName());
+
     }
 
     /**
@@ -302,7 +352,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     }
     
     @Override
-    protected Composite reify(Composite composite, ApformInstance platformInstance) {
+    protected Composite reify(Composite composite, ApformInstance platformInstance) throws InvalidConfiguration {
     	return new CompositeImpl(composite,platformInstance);
     }
 
