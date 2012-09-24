@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.test.TestCompile;
+package fr.imag.adele.apam.test.compile;
 
 public interface S2 {
     public void callS2(String s);

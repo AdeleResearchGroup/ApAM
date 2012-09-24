@@ -28,7 +28,7 @@ import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
 import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
 import fr.imag.adele.apam.core.DependencyInjection;
 import fr.imag.adele.apam.core.InterfaceReference;
-import fr.imag.adele.apam.message.AbstractProducer;
+import fr.imag.adele.apam.message.MessageConsumer;
 import fr.imag.adele.apam.message.Message;
 
 /**
@@ -46,7 +46,7 @@ import fr.imag.adele.apam.message.Message;
  * 
  * @author vega
  *
- */public class MessageInjectionManager implements DependencyInjectionManager, Consumer, AbstractProducer<Object> {
+ */public class MessageInjectionManager implements DependencyInjectionManager, Consumer, MessageConsumer<Object> {
 
 	/**
 	 * The registered name of this iPojo handler
@@ -461,7 +461,7 @@ import fr.imag.adele.apam.message.Message;
 		 */
 		if (callback != null) {
 			try {
-				Message<Object> consumed  = getMessage(); 
+				Message<Object> consumed  = pullMessage(); 
 				if (consumed != null) {
 					if (isMessageCallback)
 						callback.call(new Object[] {consumed});
@@ -487,7 +487,7 @@ import fr.imag.adele.apam.message.Message;
 	 * Retrieves the first message in the buffer if available
 	 */
 	@Override
-	public Message<Object> getMessage() {
+	public Message<Object> pullMessage() {
 		return buffer.poll();
 	}
 
@@ -511,8 +511,8 @@ import fr.imag.adele.apam.message.Message;
 	}
 
 	@Override
-	public Object getData() {
-		Message<Object> message = getMessage();
+	public Object pull() {
+		Message<Object> message = pullMessage();
 		return message != null ? message.getData() : null;
 	}
 

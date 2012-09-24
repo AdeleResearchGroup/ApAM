@@ -8,12 +8,12 @@ package fr.imag.adele.apam.message;
 import java.util.List;
 
 
-public interface AbstractProducer<D> {
+public interface MessageConsumer<D> {
 
-	public Message<D> getMessage();
+	public Message<D> pullMessage();
  
 	public List<Message<D>> getAllMessages();
 	
-	public D getData();
+	public D pull();
 	
 }
