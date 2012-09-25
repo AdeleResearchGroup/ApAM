@@ -67,6 +67,9 @@ public class Util {
         }
         return ret.substring(0, ret.length() - 2) + "}";
     }
+    public static String toStringArrayString(String[] names) {
+    	return toStringResources(new HashSet<String> (Arrays.asList(names))) ;
+    }
 
     public static Set<Filter> toFilter(Set<String> filterString) {
         Set<Filter> filters = new HashSet<Filter>();
@@ -89,14 +92,24 @@ public class Util {
      * @return
      */
     public static List<String> splitList(String str) {
-        if ((str == null) || (str.length() == 0)) {
-            return Collections.emptyList();
-        }
         return Arrays.asList(Util.split(str));
     }
+    
+    public static Set<String> splitSet(String str) {
+        return new HashSet<String> (Arrays.asList(Util.split(str))) ;
+    }
 
+    /**
+     * Provided a string contain a list of values, return an array of string containing the different values.
+     * A list is of the form "{A, B, .... G}" or "[A, B, .... G]"
+     * 
+     * If the string is empty or is not a list, return the empty array.
+     * @param str
+     * @return
+     */
     public static String[] split(String str) {
-        if ((str == null) || (str.length() == 0)) {
+        if ((str == null) || (str.length() == 0) 
+        		|| ((str.charAt(0) != '{') && (str.charAt(0) != '['))) {
             return new String[0];
         }
         String internal;

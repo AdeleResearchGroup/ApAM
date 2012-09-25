@@ -60,7 +60,7 @@ public class ApamCapability {
 
 	private Map <String, String> finalProperties = new HashMap <String, String> () ;
 
-	
+
 	//If true, no obr repository found. Cannot look for the other components
 	private static boolean noRepository = true ;
 
@@ -219,41 +219,43 @@ public class ApamCapability {
 				CST.PROVIDE_MESSAGES), MessageReference.class);
 	}
 
-	public String getAttrDefinition (String name) {
+	private String getLocalAttrDefinition (String name) {
 		return propertiesTypes.get(name);
 	}
+
+	public String getAttrDefinition (String name) {
+		ApamCapability group = (getGroup() == null) ? this : getGroup() ;
+		String defAttr ;
+		while (group != null) {
+			defAttr = group.getLocalAttrDefinition(name)  ;
+			if (defAttr != null) return defAttr ;
+			group = group.getGroup() ;
+		}
+		return null ;
+	}
+
 
 	public String getAttrDefault (String name) {
 		return propertiesDefaults.get(name);
 	}
 
-	//		if (dcl != null) {
-	//			for (PropertyDefinition def : dcl.getPropertyDefinitions()) {
-	//				if (def.getName().equals(name)) return def.getType() ;
-	//			}
-	//		}
-	//		for (String def : getProperties().keySet()) {
-	//			if (def.startsWith(CST.A_DEFINITION_PREFIX) 
-	//					&& def.substring(11).equals(name)) 
-	//				return getProperty(def) ;
-	//		}
-	//		return null ;
-	//	}
+	/**
+	 * returns all the attribute that can be found associated with this component members.
+	 * i.e. all the actual attributes plus those defined on component, 
+	 * and those defined above.
+	 * @return
+	 */
+	public boolean isValidAttrName (String name) {
+		if (Util.isPredefinedAttribute(name))  return true ;
+		return getAttrDefinition(name) != null ;
+//		if (propertiesTypes.containsKey(name)) return true ;
+//
+//		if (getGroup() != null)
+//			return getGroup().isValidAttrName(name) ;
+//
+//		return false ;
+	}
 
-	//	public Set<String> getAttrDefinitions () {
-	//		Set<String> ret = new HashSet<String> () ;
-	//		if (dcl != null) {
-	//			for (PropertyDefinition def : dcl.getPropertyDefinitions()) {
-	//				ret.add(def.getName()) ;
-	//			}
-	//			return ret ;
-	//		}
-	//		for (String def : getProperties().keySet()) {
-	//			if (def.startsWith(CST.A_DEFINITION_PREFIX)) 
-	//				ret.add(def.substring(11)) ;
-	//		}
-	//		return ret ;
-	//	}
 
 	/**
 	 * returns all the attribute that can be found associated with this component members.
@@ -322,7 +324,7 @@ public class ApamCapability {
 		isFinalized = true;
 		properties = finalProperties ;
 	}
-	
+
 	public boolean isFinalized() {
 		return isFinalized;
 	}

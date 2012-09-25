@@ -14,8 +14,11 @@ import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.ComponentReference;
 import fr.imag.adele.apam.core.CompositeDeclaration;
+import fr.imag.adele.apam.core.ConstrainedReference;
+import fr.imag.adele.apam.core.ContextualResolutionPolicy;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.DependencyInjection;
+import fr.imag.adele.apam.core.DependencyPromotion;
 import fr.imag.adele.apam.core.GrantDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
@@ -25,6 +28,7 @@ import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.OwnedComponentDeclaration;
 import fr.imag.adele.apam.core.PropertyDefinition;
 import fr.imag.adele.apam.core.Reference;
+import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.core.VisibilityDeclaration;
@@ -36,6 +40,8 @@ public class CheckObr {
 	private static Logger logger = LoggerFactory.getLogger(CheckObr.class);
 
 	private static final Set<String>             allFields         = new HashSet<String>();
+	private static final Set<String>             allOwns           = new HashSet<String>();
+	private static final Set<String>             allGrants         = new HashSet<String>();
 
 	private static boolean                       failedChecking = false;
 
@@ -167,23 +173,12 @@ public class CheckObr {
 		if (Util.isPredefinedAttribute(attr))return true ; ;
 		if (!Util.validAttr(ent.getName(), attr)) return false  ;
 
-		//		//Top group all is Ok
-		//		ApamCapability group = ent.getGroup() ;
-		//		if (group == null) return true ;
-
 		if (ent.getGroup()!= null && ent.getGroup().getProperties().get(attr) != null)  {
 			warning("Cannot redefine attribute \"" + attr + "\"");
 			return false ;
 		}
 
-		String defAttr = null ;
-		//if we are at top level, the attribute definition is at the same level; otherwise it must be defined "above"
-		ApamCapability group = (ent.getGroup() == null) ? ent : ent.getGroup() ;
-		while (group != null) {
-			defAttr = group.getAttrDefinition(attr)  ;
-			if (defAttr != null) break ;
-			group = group.getGroup() ;
-		}
+		String defAttr = ent.getAttrDefinition(attr) ;
 
 		if (defAttr == null) {
 			warning("In " + ent.getName() + ", attribute \"" + attr + "\" used but not defined.");
@@ -264,8 +259,8 @@ public class CheckObr {
 	 * 
 	 * @param component
 	 */
-	public static void checkRequire(ComponentDeclaration component) {
-		Set<DependencyDeclaration> deps = component.getDependencies();
+	public static void checkDependencies(Set<DependencyDeclaration> deps) {
+		//Set<DependencyDeclaration> deps = component.getDependencies();
 		if (deps == null)
 			return;
 		CheckObr.allFields.clear();
@@ -278,11 +273,12 @@ public class CheckObr {
 			// validating dependency constraints and preferences..
 			CheckObr.checkConstraint(dep);
 			// Checking fields and complex dependencies
-			CheckObr.checkFieldTypeDep(dep, component);
+			CheckObr.checkFieldTypeDep(dep);
 		}
 	}
 
-
+//	public static void checkRequire(Set<DependencyDeclaration> deps) {
+//		Set<DependencyDeclaration> deps = component.getDependencies();
 
 
 	/**
@@ -292,8 +288,8 @@ public class CheckObr {
 	 * @param dep : a dependency
 	 * @param component : the component currently analyzed
 	 */
-	private static void checkFieldTypeDep(DependencyDeclaration dep, ComponentDeclaration component) {
-		if (!(component instanceof AtomicImplementationDeclaration)) return ;
+	private static void checkFieldTypeDep(DependencyDeclaration dep) {
+//		if (!(component instanceof AtomicImplementationDeclaration)) return ;
 
 		// All field must have same multiplicity, and must refer to interfaces and messages provided by the specification.
 
@@ -313,7 +309,7 @@ public class CheckObr {
 			String type = innerDep.getResource().getJavaType();
 
 			if ((innerDep.getResource() != ResourceReference.UNDEFINED) && !(specResources.contains(innerDep.getResource()))) {
-				CheckObr.error("In " + component.getName() + dep + "\n      Field "
+				CheckObr.error("Field "
 						+ innerDep.getName()
 						+ " is of type " + type
 						+ " which is not implemented by specification or implementation " + dep.getIdentifier());
@@ -362,7 +358,43 @@ public class CheckObr {
 	 */
 	private static void checkStart (CompositeDeclaration component) {
 		for (InstanceDeclaration start : component.getInstanceDeclarations()) {
-			//String main = start.
+			ImplementationReference implRef = start.getImplementation() ;
+			if (implRef == null) {
+				error ("Implementation name cannot be null") ;
+				continue ;
+			}
+			ApamCapability cap = ApamCapability.get(implRef) ;
+			if (cap == null) {
+				continue ;
+			}
+			for (String attr : start.getProperties().keySet()) {
+				validDefObr(cap, attr, start.getProperties().get(attr)) ;
+			}
+			checkDependencies(start.getDependencies()) ;
+			
+			checkTrigger (start) ;
+		}
+	}
+
+	private static void checkTrigger (InstanceDeclaration start) {
+		Set<ConstrainedReference> trig = start.getTriggers() ;
+		for (ConstrainedReference ref : trig) {
+			ResolvableReference target = ref.getTarget() ;
+			ComponentReference compoRef = target.as(ComponentReference.class) ;
+			if (compoRef == null) {
+				error ("Start trigger not related to a valid component") ;
+				continue ;
+			}
+			ApamCapability cap = ApamCapability.get(compoRef) ;
+			if (cap == null) {
+				//error ("Unknown component " + target.getName()) ;
+				continue ;
+			}
+			
+			Map<String, String> validAttrs = cap.getValidAttrNames();
+
+			CheckObr.checkFilters(ref.getImplementationConstraints(), ref.getImplementationPreferences(), validAttrs, ref.getTarget().getName());
+			CheckObr.checkFilters(ref.getInstanceConstraints(), ref.getInstancePreferences(), validAttrs, ref.getTarget().getName());
 		}
 	}
 
@@ -371,35 +403,43 @@ public class CheckObr {
 	 * <own specification="Door" property=”location” value=”{entrance, exit}”>
 	 * @param component
 	 */
-	private static void checkState (CompositeDeclaration component) {
+	private static Set<String> checkState (CompositeDeclaration component) {
 		PropertyDefinition.Reference ref = component.getStateProperty() ;
 		if (ref == null) {
-			return ;
+			return null;
 		}
 
 		ComponentReference compo = ref.getDeclaringComponent() ;
 		if (! (compo instanceof ImplementationReference)) {
 			error ("A state must be associated with an implementation.") ;
-			return ;
+			return null;
 		}
 		ApamCapability implCap = ApamCapability.get(compo) ;
 		if (implCap == null) {
 			error ("Implementation for state unavailable: " + compo.getName()) ;
-			return ;
+			return null;
 		}
-		String propertyDef = implCap.getAttrDefinition(ref.getIdentifier()) ;
-		if (propertyDef == null) {
-			error ("The state attribute " + ref.getIdentifier() + " on implementation " + compo.getName() + " is undefined.") ;
-			return ;
+		String type = implCap.getAttrDefinition(ref.getIdentifier()) ;
+		if (type == null) {
+			error ("The state attribute " + ref.getIdentifier() + " on implementation " 
+					+ compo.getName() + " is undefined.") ;
+			return null ;
 		}
+
+		Set<String> values = Util.splitSet(type);
+		if (values.isEmpty()) {
+			error ("State attribute " + ref.getIdentifier() +  " is not an enumeration. Invalid state attribute") ;
+			return null ;	
+		}
+		return values ;
 	}
 
 	private static boolean visibilityExpression (String expr) {
 		if (expr == null) return true ;
-		
+
 		if (expr.equals(CST.V_FALSE) || expr.equals(CST.V_TRUE)) 
 			return true ;
-		
+
 		try {
 			ApamFilter f = ApamFilter.newInstance(expr) ;
 		} catch (Exception e) {
@@ -433,59 +473,127 @@ public class CheckObr {
 	 */
 	private static void checkOwn (CompositeDeclaration component) {
 		Set<OwnedComponentDeclaration> owned = component.getOwnedComponents() ;
+		
+		//check that a single own clause is defined for a component and its members
+		Set <String> compRef = new HashSet <String> () ;
 		for (OwnedComponentDeclaration own : owned) {
 			ApamCapability ownCap = ApamCapability.get(own.getComponent()) ;
 			if (ownCap == null) {
 				error ("Unknown component in own expression : " + own.getComponent().getName()) ;
-				break ;
+				continue ;
 			}
-			//computes the attributes that can be associated with this spec or implementations members
-			Map<String, String> validAttrs = ownCap.getValidAttrNames();
-
-			/*
-			 * TODO Check the specified property is defined, is an enumeration and the specified values
-			 * are declared in the enumeration
-			 * 
-			 * own.getProperty();
-			 * own.getValues()
-			 *
-			 */
 			
-			checkGrant(own);
+			//computes the attributes that can be associated with this spec or implementations members
+			if (own.getProperty() == null) {
+				error ("Need a property for an own clause") ;
+				continue ;
+			}
+			String prop = own.getProperty().getIdentifier() ;
+			String type = ownCap.getAttrDefinition(prop) ;
+			if (type == null) {
+				error ("Undefined attribute " + own.getProperty().getIdentifier() + " for component " 
+						+ own.getComponent().getName() + " in own expression") ;
+				continue ;
+			}
+			Set<String> values = Util.splitSet(type);
+			if (values.isEmpty()) {
+				error ("Attribute " + own.getProperty().getIdentifier() + " for component " 
+						+ own.getComponent().getName() + " is not an enumeration. Invalid in own expression") ;
+				continue ;	
+			}
+			
+			if (!values.containsAll(own.getValues()))  {
+				error ("In own clause, invalid values for attribute " + prop + "=" + Util.toStringResources(own.getValues()) 
+						+  " \n    for component " + own.getComponent().getName() + ". Expected " + Util.toStringResources(values)) ;
+			}
+			
+			/**
+			 * Check that a single own clause applies for the same component, and members
+			 * At execution must also be checked that if other grant clauses in other composites 
+			 * for that component or its members:
+			 * 		-It must be the same property
+			 * 		-It must be different values
+			 */
+			if (compRef.contains(own.getComponent().getName())) {
+				error ("Another Own clause exist for " + own.getComponent().getName() + " in this composite declaration") ;
+				continue ;
+			}
+			compRef.add(own.getComponent().getName()) ;
+			if (ownCap.getGroup() != null) {
+				compRef.add(ownCap.getGroup().getName()) ;
+			}
+
+			checkGrant(component, own);
 		}
 	}
 
-	private static void checkGrant (OwnedComponentDeclaration component) {
-		List<GrantDeclaration> grants = component.getGrants();
-		for (GrantDeclaration grant : grants) {
+	private static void checkGrant (CompositeDeclaration component, OwnedComponentDeclaration own) {
+		//Get state definition
+		Set<String> stateDefinition = checkState(component) ;
+		if (stateDefinition.isEmpty()) { //No valid state declaration. No valid grants.
+			return ;
+		}
+		
+		//List<GrantDeclaration> grants = own.getGrants();
+		for (GrantDeclaration grant : own.getGrants()) {
 			DependencyDeclaration.Reference dep = grant.getDependency() ;
 			ComponentReference compo = dep.getDeclaringComponent() ;
-			String depName = dep.getIdentifier() ;
-			Set<String> states = grant.getStates() ;
+			//TODO cannot check if the dependency has really the component as target.
 			ApamCapability cap = ApamCapability.get(compo) ;
 			if (cap == null) {
 				error ("Unknown component in own expression : " + compo.getName()) ;
-				break ;
+				continue ;
 			}
-			System.out.println("Need to check dependency " + depName + " of component "
-					+ compo.getName() + " state attribute " + states ) ;
-			//look for the dependency
-			//TODO We do not have the dependencies in OBR
-			//TODO cannot compile that !! Need read the component, to get the dependency target, 
-			// and check if the states are valid.
-			//cap.getAttrDefinition(name) ;
+
+			//Check that grant state values are valid
+			Set<String> grantStates = grant.getStates() ;
+			if (!stateDefinition.containsAll(grant.getStates()))  {
+				error ("In Grant expression, invalid values " + Util.toStringResources(grant.getStates()) 
+						+ " for state=" + Util.toStringResources(stateDefinition)) ;
+			}
+			
+			//Check that a single grant for a given state.
+			for (String def : grantStates) {
+				if (allGrants.contains(def)) {
+					error ("Component " + own.getComponent().getName() + " already granted when state is " + def);
+					break ;
+				}
+				allGrants.add(def) ;
+			}
 		}
 	}
 
-
-	
+	/**
+	 * Cannot check almost nothing !
+	 * Because of wild cards, components are not known, and their attribute and dependencies cannot be checked.
+	 * Only the syntax of filters can be checked. 
+	 * 
+	 * @param component
+	 */
 	private static void checkContextualDependencies (CompositeDeclaration component) {
-	
+		 //List<ContextualResolutionPolicy> resol = component.getContextualResolutionPolicies() ;
 	}
 
-	
+
+	/**
+	 * Cannot check if the component dependency is valid.
+	 * Only checks that the composite dependency is declared, and that the component is known.
+	 * 
+	 * @param component
+	 */
 	private static void checkPromote (CompositeDeclaration component) {
-		
+		for (DependencyPromotion promo : component.getPromotions()) {
+			if (ApamCapability.get(promo.getContentDependency().getDeclaringComponent()) == null) {
+				error ("Invalid promotion: unknown component " + promo.getContentDependency().getDeclaringComponent().getName());
+			}
+			Reference compoDep = promo.getCompositeDependency();
+			for (DependencyDeclaration dep : component.getDependencies()) {
+				if (dep.getIdentifier().equals(promo.getCompositeDependency().getIdentifier())) {
+					break ;
+				}
+				error ("Undefined composite dependency: " + promo.getCompositeDependency().getIdentifier()) ;
+			}
+		}
 	}
 
 }
