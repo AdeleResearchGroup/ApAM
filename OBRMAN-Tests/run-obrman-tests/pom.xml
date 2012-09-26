@@ -10,6 +10,7 @@
 	</parent>
 
 
+	<groupId>fr.imag.adele.apam.tests.obrman</groupId>
 	<artifactId>run-obrman-tests</artifactId>
 
 	<packaging>jar</packaging>
@@ -94,6 +95,12 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<scope>test</scope>
 		</dependency>
+			<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>OBRMAN</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>APAM</artifactId>
@@ -109,13 +116,13 @@
 		<!-- </dependency> -->
 
 		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
+			<groupId>fr.imag.adele.apam.tests.apps.app1</groupId>
 			<artifactId>APP1-Spec</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
+			<groupId>fr.imag.adele.apam.tests.apps.app2</groupId>
 			<artifactId>APP2-Spec</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>test</scope>
@@ -188,5 +195,4 @@
 		</pluginManagement>
 	</build>
 
-	<groupId>fr.imag.adele.apam.tests.obrman</groupId>
 </project>

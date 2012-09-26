@@ -1,6 +1,6 @@
-<repository lastmodified='20120924014828.357'>
+<repository lastmodified='20120926023704.293'>
   <resource id='APP1-Composite/0.0.1.SNAPSHOT' symbolicname='APP1-Composite' presentationname='APP1-Composite' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/app1/APP1-Composite/0.0.1-SNAPSHOT/APP1-Composite-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>3074</size>
+    <size>3146</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -8,6 +8,11 @@
       <p n='presentationname' v='APP1-Composite'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
       <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.app1'/>
+      <p n='artifactId' v='APP1-Composite'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
       <p n='name' v='APP1'/>
@@ -32,7 +37,7 @@
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
   </resource>
   <resource id='APP1-Spec/0.0.1.SNAPSHOT' symbolicname='APP1-Spec' presentationname='APP1-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/app1/APP1-Spec/0.0.1-SNAPSHOT/APP1-Spec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>3767</size>
+    <size>3813</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -44,6 +49,11 @@
     <capability name='package'>
       <p n='package' v='fr.imag.adele.apam.app1.spec'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.app1'/>
+      <p n='artifactId' v='APP1-Spec'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
       <p n='name' v='APP1_SPEC'/>
@@ -61,7 +71,7 @@
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
   </resource>
   <resource id='APP2-Composite/0.0.1.SNAPSHOT' symbolicname='APP2-Composite' presentationname='APP2-Composite' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/app2/APP2-Composite/0.0.1-SNAPSHOT/APP2-Composite-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>3285</size>
+    <size>3351</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -69,6 +79,11 @@
       <p n='presentationname' v='APP2-Composite'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
       <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.app2'/>
+      <p n='artifactId' v='APP2-Composite'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
       <p n='name' v='APP2'/>
@@ -100,7 +115,7 @@
     <require name='apam-component' filter='(name=APP2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP2_SPEC</require>
   </resource>
   <resource id='APP2-Spec/0.0.1.SNAPSHOT' symbolicname='APP2-Spec' presentationname='APP2-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/app2/APP2-Spec/0.0.1-SNAPSHOT/APP2-Spec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>3780</size>
+    <size>3825</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -112,6 +127,11 @@
     <capability name='package'>
       <p n='package' v='fr.imag.adele.apam.app2.spec'/>
       <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.app2'/>
+      <p n='artifactId' v='APP2-Spec'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
     </capability>
     <capability name='apam-component'>
       <p n='name' v='APP2_SPEC'/>

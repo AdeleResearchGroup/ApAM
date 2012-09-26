@@ -13,7 +13,7 @@
 		<module>apam-apps-components</module>
 		<module>apam-apps</module>
 		<module>apam-repositories</module>
-<!-- 		<module>run-obrman-tests</module> -->
+		<module>run-obrman-tests</module>
 	</modules>
 	
 </project>

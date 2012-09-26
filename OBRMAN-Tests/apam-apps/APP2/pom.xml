@@ -12,5 +12,32 @@
   	<module>APP2-Spec</module>
   	<module>APP2-Composite</module>
   </modules>
-  
+  <build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+				</plugin>
+				<plugin>
+					<groupId>fr.imag.adele.apam</groupId>
+					<artifactId>ApamMavenPlugin</artifactId>
+					<version>${apam.current.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>ipojo-bundle</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<noLocalObr>true</noLocalObr>
+						<dependencyObrList>
+							<param>file:/${basedir}/../../../apam-repositories/APP2/obr/app2-repo.xml</param>
+						</dependencyObrList>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

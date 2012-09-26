@@ -43,6 +43,10 @@ public class CST {
 
     // Constant used by OBR
     // Capability
+    public static final String         MAVEN                 = "maven";
+    public static final String         GROUP_ID              = "groupId";
+    public static final String         ARTIFACT_ID           = "artifactId";
+
     public static final String         CAPABILITY_COMPONENT  = "apam-component";
     public static final String         COMPONENT_TYPE        = "component-type";
     public static final String         SPECIFICATION         = "specification";
@@ -87,9 +91,9 @@ public class CST {
                                                              CST.APAM_MAIN_COMPONENT, CST.APAM_MAIN_INSTANCE,
                                                              CST.INTERFACE,
                                                              CST.MESSAGE, CST.REQUIRE_INTERFACE,
-            CST.REQUIRE_SPECIFICATION,
-            CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, CST.NAME,
-            CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION };
+                                                             CST.REQUIRE_SPECIFICATION,
+                                                             CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, CST.NAME,
+                                                             CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION };
 
     public static final String         V_TRUE                = "true";
     public static final String         V_FALSE               = "false";

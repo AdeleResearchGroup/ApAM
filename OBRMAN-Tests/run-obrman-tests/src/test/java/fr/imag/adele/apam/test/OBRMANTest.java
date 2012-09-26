@@ -1,8 +1,9 @@
 package fr.imag.adele.apam.test;
 
 import static fr.imag.adele.apam.test.ApAMHelper.waitForIt;
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.ops4j.pax.exam.CoreOptions.felix;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
@@ -25,7 +26,6 @@ import org.ow2.chameleon.testing.helpers.OSGiHelper;
 
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-
 import fr.imag.adele.apam.app1.spec.App1Spec;
 import fr.imag.adele.apam.app2.spec.App2Spec;
 //http://junit.sourceforge.net/javadoc/org/junit/Assert.html
@@ -62,9 +62,10 @@ public class OBRMANTest {
 
     @Configuration
     public static Option[] apamConfig() {
+        
         Option[] platform = options(felix(), systemProperty(
                 "org.osgi.service.http.port").value("8080"));
-
+       
         Option[] bundles = options(provision(
                 mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.ipojo")
                         .versionAsInProject(),
@@ -87,7 +88,7 @@ public class OBRMANTest {
         Option[] r = OptionUtils.combine(platform, bundles);
 
         Option[] debug = options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
-        r = OptionUtils.combine(r, debug);
+        //r = OptionUtils.combine(r, debug);
 
         // Option[] log = options(vmOption("-Dlog4j.file=./am.log4j.properties"));
         // r = OptionUtils.combine(r, log);
@@ -108,6 +109,8 @@ public class OBRMANTest {
     public void simpleComposite() {
         waitForIt(100);
 
+        apam.setObrManInitialConfig("root");
+        
         CompositeType app2CompoType = apam.runApplication("APP2", "APP2_MAIN", null);
 
         assertNotNull(app2CompoType);
@@ -138,6 +141,8 @@ public class OBRMANTest {
     public void embeddedComposite() {
         waitForIt(100);
 
+        apam.setObrManInitialConfig("root");
+        
         CompositeType app1CompoType = apam.runApplication("APP1", "APP1_MAIN", null);
 
         assertNotNull(app1CompoType);

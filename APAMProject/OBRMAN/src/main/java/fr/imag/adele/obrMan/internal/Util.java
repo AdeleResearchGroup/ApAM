@@ -24,6 +24,8 @@ public class Util {
     public static final String COMPOSITES                = "Composites";
     public static final String OSGI_OBR_REPOSITORY_URL   = "obr.repository.url";
 
+    public static final String ROOT_MODEL_URL   = "apam.root.model.url";
+    
     private static Logger      logger                    = LoggerFactory.getLogger(Util.class);
 
     public static void printCap(Capability aCap) {

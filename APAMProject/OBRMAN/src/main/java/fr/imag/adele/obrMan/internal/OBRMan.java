@@ -1,8 +1,9 @@
 package fr.imag.adele.obrMan.internal;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,20 +68,19 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     @Validate
     public void start() {
         System.out.println(">>> OBRMAN starting");
-        LinkedProperties obrModel = new LinkedProperties();
         // TODO lookFor root.OBRMAN.cfg and create obrmanager for the root composite
-        // create obrmanager for the root composite
-
+        String rootModelurl =  m_context.getProperty(Util.ROOT_MODEL_URL);
+        // create obrmanager for the root composite 
         try {
-            obrModel.load(new FileInputStream(new File("conf/root.OBRMAN.cfg")));
-        } catch (IOException e) {
-            logger.error("Invalid OBRMAN Model. Cannot be read stream " + "conf/root.OBRMAN.cfg", e.getCause());
-            obrModel.put(Util.LOCAL_MAVEN_REPOSITORY, "true");
-            obrModel.put(Util.DEFAULT_OSGI_REPOSITORIES, "true");
+            URL urlModel = null;
+            if (rootModelurl!=null){
+                urlModel = (new File(rootModelurl)).toURI().toURL();
+            }
+            setInitialConfig(urlModel);
+        } catch (MalformedURLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-        OBRManager obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
-        obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
-
         ApamManagers.addDependencyManager(this, 3);
     }
 
@@ -337,6 +337,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     public String getDeclaredOSGiOBR() {
         return m_context.getProperty(Util.OSGI_OBR_REPOSITORY_URL);
     }
+    
+  
 
     @Override
     public String printCompositeRepositories(String compositeTypeName) {
@@ -351,5 +353,27 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         }
 
         return result;
+    }
+
+    @Override
+    public void setInitialConfig(URL modellocation) {
+        LinkedProperties obrModel = new LinkedProperties();
+        try {
+            if (modellocation == null){
+                File defaultLocation =  new File("conf/root.OBRMAN.cfg");
+                if (defaultLocation.exists()){
+                    modellocation = defaultLocation.toURI().toURL();
+                }
+            }
+            obrModel.load(modellocation.openStream());
+            System.out.println(obrModel.size());
+        } catch (Exception e) {
+            System.out.println("Invalid OBRMAN Model. Cannot be read stream " + "conf/root.OBRMAN.cfg");
+//             e.printStackTrace();
+            obrModel.put(Util.LOCAL_MAVEN_REPOSITORY, "true");
+            obrModel.put(Util.DEFAULT_OSGI_REPOSITORIES, "true");
+        }
+        OBRManager obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
+        obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
     }
 }

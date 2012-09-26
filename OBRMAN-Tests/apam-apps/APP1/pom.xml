@@ -31,15 +31,17 @@
 							</goals>
 						</execution>
 					</executions>
-<!-- 					<configuration> -->
-<!-- 						<noLocalObr>true</noLocalObr> -->
-<!-- 						<dependencyObrList> -->
-<!-- 							<param>file:/${basedir}/../../APP2/APP2-Repo/obr/app2-repo.xml</param> -->
-<!-- 						</dependencyObrList> -->
-<!-- 					</configuration> -->
+					<configuration>
+						<noLocalObr>true</noLocalObr>
+						<dependencyObrList>
+							<param>file:/${basedir}/../../../apam-repositories/APP1/obr/app1-repo.xml</param>
+							<param>file:/${basedir}/../../../apam-repositories/APPS/obr/apps-repo.xml</param>
+						</dependencyObrList>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
 	<groupId>fr.imag.adele.apam.tests.apps</groupId>
+	
 </project>
