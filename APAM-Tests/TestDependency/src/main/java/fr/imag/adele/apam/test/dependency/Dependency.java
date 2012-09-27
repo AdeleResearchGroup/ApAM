@@ -74,7 +74,7 @@ public class Dependency implements S2, ApamComponent, Runnable {
     }
 
     @Override
-    public void apamStart(Instance inst) {
+    public void apamInit(Instance inst) {
         myInst = inst;
         name = inst.getName();
 		new Thread(this, "test dependency").start();
@@ -177,11 +177,7 @@ public class Dependency implements S2, ApamComponent, Runnable {
     }
 
     @Override
-    public void apamStop() {
-    }
-
-    @Override
-    public void apamRelease() {
+    public void apamRemove() {
     }
 
 }

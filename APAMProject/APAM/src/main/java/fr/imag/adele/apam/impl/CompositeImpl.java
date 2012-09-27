@@ -167,7 +167,8 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		/*
 		 * main instance is never shared
 		 */
-		((InstanceImpl) mainInst).setProperty(CST.SHARED, CST.V_FALSE);
+		mainInst.getDeclaration().setShared(false) ;
+		((InstanceImpl) mainInst).put(CST.SHARED, CST.V_FALSE);
 		
 		/*
 		 * Opposite reference from the enclosing composite. 

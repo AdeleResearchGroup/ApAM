@@ -332,13 +332,13 @@ public class Util {
         return true;
     }
 
-    public static boolean isPredefinedAttribute(String attr) {
-        for (String pred : CST.predefAttributes) {
-            if (pred.equals(attr))
-                return true;
-        }
-        return false;
-    }
+//    public static boolean isPredefinedAttribute(String attr) {
+//        for (String pred : CST.predefAttributes) {
+//            if (pred.equals(attr))
+//                return true;
+//        }
+//        return false;
+//    }
 
     public static boolean isInheritedAttribute(String attr) {
     	if (isReservedAttributePrefix(attr)) return false ;
@@ -374,8 +374,8 @@ public class Util {
 	 */
 	public static boolean validAttr(String component, String attr) {
 		//attr = attr.toLowerCase();
-		if (Util.isPredefinedAttribute(attr))
-			return true;
+//		if (Util.isPredefinedAttribute(attr))
+//			return true;
 
 		if (Util.isFinalAttribute(attr)) {
 			logger.error("ERROR: in " + component + ", attribute\"" + attr + "\" is final");

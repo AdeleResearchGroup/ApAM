@@ -171,7 +171,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         	Object service = getApformInst().getServiceObject();
         	if (service instanceof ApamComponent) {
         		ApamComponent serviceComponent = (ApamComponent) service;
-        		serviceComponent.apamStart(this);
+        		serviceComponent.apamInit(this);
         	}
         }
         
@@ -206,7 +206,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         	Object service = getApformInst().getServiceObject();
         	if (service instanceof ApamComponent) {
         		ApamComponent serviceComponent = (ApamComponent) service;
-        		serviceComponent.apamStop();
+        		serviceComponent.apamRemove();
         	}
         }
         
@@ -284,8 +284,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
     @Override
     public boolean isSharable() {
-        return (getInvWires().isEmpty()
-                || (getProperty(CST.SHARED) == null) || (getProperty(CST.SHARED).equals(CST.V_TRUE)));
+        return (getInvWires().isEmpty() || isShared()) ;
     }
 
     /**

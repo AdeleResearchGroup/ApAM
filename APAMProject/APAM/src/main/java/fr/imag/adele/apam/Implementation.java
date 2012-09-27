@@ -29,12 +29,12 @@ public interface Implementation extends Component {
      */
     public ApformImplementation getApformImpl();
 
-    /**
-     * return the value of the shared attribute
-     * 
-     * @return
-     */
-    public boolean isSharable();
+//    /**
+//     * return the value of the shared attribute
+//     * 
+//     * @return
+//     */
+//    public boolean isSharable();
 
     //
     //    public void remove();
@@ -170,12 +170,12 @@ public interface Implementation extends Component {
      */
     public Instance getPreferedInst(Set<Instance> candidates, List<Filter> preferences);
 
-    /**
-     * Checks if is an instantiator.
-     * 
-     * @return true if method createASMInst is supported
-     */
-    public boolean isInstantiable();
+//    /**
+//     * Checks if is an instantiator.
+//     * 
+//     * @return true if method createASMInst is supported
+//     */
+//    public boolean isInstantiable();
 
     public boolean isUsed();
 

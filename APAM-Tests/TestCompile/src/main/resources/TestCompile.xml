@@ -25,7 +25,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<specification name="S2Compile5" exclusive="true" 
 		instantiable="false" shared="false" />
 
-	<specification name="S2Compile"
+	<specification name="S2Compile" singleton="false"
+		instantiable="false" shared="false" 
 		interfaces="fr.imag.adele.apam.test.compile.S2"
 		messages="{M1, M2}">
 			
@@ -44,7 +45,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<dependency message="example.DataType2" id="yy" />
 	</specification>
 
-	<specification name="S3Compile"
+	<specification name="S3Compile" shared="false"
 		interfaces="[fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2]">
 		<property name="test-deux" value="coucous3" type="string" />
 		<property name="bS3" value="yes" type="string"/>
@@ -63,15 +64,19 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 
 <!-- S2 Implementations -->
-	<implementation name="S2ImplCompile0"
+	<implementation name="S2ImplCompile0"  specification="S2Compile" singleton="false"
+		instantiable="false" shared="false"
 		classname="fr.imag.adele.apam.test.compile.S2Impl"  />		
-	<implementation name="S2ImplCompile2"
+	<implementation name="S2ImplCompile2" specification="S2Compile" singleton="true"
+		instantiable="false" shared="false"
 		classname="fr.imag.adele.apam.test.compile.S2Impl" 
 		messages="{M1, M2}" message-fields="{p2, p1}" interfaces="{fr.imag.adele.apam.test.compile.S2, A.B}" />		
-	<implementation name="S2ImplCompile3"
+	<implementation name="S2ImplCompile3" specification="S2Compile" singleton="false"
+		instantiable="true" shared="false"
 		classname="fr.imag.adele.apam.test.compile.S2Impl" interfaces="{fr.imag.adele.apam.test.compile.S2, A.B}" />		
-	<implementation name="S2ImplCompile4"
-		classname="fr.imag.adele.apam.test.compile.S2Impl" specification="S2Compile" interfaces="fr.imag.adele.apam.test.compile.S2"/>
+	<implementation name="S2ImplCompile4" specification="S2Compile" singleton="false"
+		instantiable="false" shared="true"
+		classname="fr.imag.adele.apam.test.compile.S2Impl" interfaces="fr.imag.adele.apam.test.compile.S2"/>
 
 	<implementation name="S2ImplCompile6"
 		classname="fr.imag.adele.apam.test.compile.S2Simple" />
@@ -86,6 +91,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		classname="fr.imag.adele.apam.test.compile.S2Simple"
 		specification="S2Compile" exclusive="true" singleton="false"
 		instantiable="false" shared="false" />  <!--  all possible characteristics  -->
+
 
 
 	<implementation name="S2ImplCompile"

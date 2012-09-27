@@ -31,7 +31,7 @@ public class S2Impl implements S2, ApamComponent {
     }
 
     @Override
-    public void apamStart(Instance inst) {
+    public void apamInit(Instance inst) {
         myInst = inst;
         name = inst.getName();
         System.out.println("S2Impl Started : " + inst.getName());
@@ -74,11 +74,7 @@ public class S2Impl implements S2, ApamComponent {
     }
 
     @Override
-    public void apamStop() {
-    }
-
-    @Override
-    public void apamRelease() {
+    public void apamRemove() {
     }
 
 }

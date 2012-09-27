@@ -1,15 +1,17 @@
-<ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+
 	<implementation name="S4Impl"
 		classname="fr.imag.adele.apam.test.s4Impl.S4Impl" specification="S4">
 		<property name="shared" value="false" />
-		<property name="b" value="true" type="boolean"/>
+		<property name="b" value="true" />
 		<dependency field="s5">
 			<constraints>
-				<constraint filter="(apam-composite=true)" />
+				<implementation filter="(apam-composite=true)" />
 			</constraints>
 			<preferences>
-				<constraint filter="(SCOPE=GLOBAL)" />
+				<implementation filter="(SCOPE=GLOBAL)" />
 			</preferences>
 		</dependency>
 	</implementation>
-</ipojo>
+</apam>

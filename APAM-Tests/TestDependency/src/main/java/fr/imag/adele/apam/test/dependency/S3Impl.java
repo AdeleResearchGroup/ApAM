@@ -22,7 +22,7 @@ public class S3Impl implements S3_1, S3_2, ApamComponent {
     }
     
     @Override
-    public void apamStart(Instance inst) {
+    public void apamInit(Instance inst) {
         name = inst.getName();
         System.out.println("S3Impl Started : " + inst.getName());
     }
@@ -46,13 +46,7 @@ public class S3Impl implements S3_1, S3_2, ApamComponent {
     }
 
     @Override
-    public void apamRelease() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void apamStop() {
+    public void apamRemove() {
         // TODO Auto-generated method stub
 
     }

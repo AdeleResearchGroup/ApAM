@@ -1,7 +1,11 @@
+
 package fr.imag.adele.apam.apamMavenPlugin;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +17,13 @@ import org.apache.maven.artifact.versioning.VersionRange;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.core.ComponentReference;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.PropertyDefinition;
@@ -79,15 +86,14 @@ public class ApamRepoBuilder {
         return obrContent;
     }
     
-
     private void printOBRMavenElement(StringBuffer obrContent, String indent) {
-        obrContent.append("   <capability name='" + CST.MAVEN + "'>\n");
-        obrContent.append("      <p n='" + CST.GROUP_ID + "' v='" + OBRGeneratorMojo.currentProjectGroupId + "' />\n");
-        obrContent.append("      <p n='" + CST.ARTIFACT_ID + "' v='" + OBRGeneratorMojo.currentProjectArtifactId + "' />\n");
-        obrContent.append("      <p n='" + CST.VERSION + "' v='" + OBRGeneratorMojo.currentProjectVersion + "' />\n");
-        obrContent.append("   </capability>\n");
+      obrContent.append("   <capability name='" + CST.MAVEN + "'>\n");
+      obrContent.append("      <p n='" + CST.GROUP_ID + "' v='" + OBRGeneratorMojo.currentProjectGroupId + "' />\n");
+      obrContent.append("      <p n='" + CST.ARTIFACT_ID + "' v='" + OBRGeneratorMojo.currentProjectArtifactId + "' />\n");
+      obrContent.append("      <p n='" + CST.VERSION + "' v='" + OBRGeneratorMojo.currentProjectVersion + "' />\n");
+      obrContent.append("   </capability>\n");
     }
-    
+
     
     private void printOBRElement(StringBuffer obrContent, ComponentDeclaration component, String indent) {
         System.out.print("Checking ");
@@ -129,6 +135,9 @@ public class ApamRepoBuilder {
             generateProperty (obrContent, component, CST.SPECNAME, component.getName());
         }
 
+        //checks shared, singleton, instantiable, exclusive,  
+        CheckObr.checkComponentHeader (component) ;
+        
         // provide clause
         printProvided(obrContent, component);
 
@@ -178,7 +187,6 @@ public class ApamRepoBuilder {
         // definition attributes
         List<PropertyDefinition> definitions = component.getPropertyDefinitions();
         for (PropertyDefinition definition : definitions) {
-            //String tempContent = "      <p n='" + CST.A_DEFINITION_PREFIX + definition.getName() + "'";
             String type = definition.getType();
             String defaultValue = definition.getDefaultValue();
             

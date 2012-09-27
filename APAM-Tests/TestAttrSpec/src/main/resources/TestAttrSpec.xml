@@ -1,4 +1,5 @@
-<ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
 	<specification name="S1TestAttr" interfaces="fr.imag.adele.apam.test.s1TestAttr.S1TestAttr"  >
 			<property name="S1-Enum2" value="coucou" type="{s1-1, s1-2, s1-3}"/>
@@ -13,4 +14,4 @@
 
 	</specification>
 
-</ipojo>
+</apam>

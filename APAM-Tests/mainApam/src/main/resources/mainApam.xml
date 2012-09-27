@@ -1,18 +1,15 @@
-<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
 	<implementation name="MainApam"  classname="fr.imag.adele.apam.mainApam.MainApam" >
-		<dependencies>
 			<dependency field="apam" />
-		</dependencies>
 	</implementation>
 
 	<implementation name="Promotions"  classname="fr.imag.adele.apam.mainApam.Promotions" >
-		<dependencies>
 			<dependency field="apam" />
-		</dependencies>
 	</implementation>
 
-   <apam-instance name="MainApam-Instance" implementation="MainApam" /> 
+   <instance name="MainApam-Instance" implementation="MainApam" /> 
  	
-<!--  	<apam-instance name="Promotions-Instance" implementation="Promotions" /> -->
+<!--  	<instance name="Promotions-Instance" implementation="Promotions" /> -->
 </apam>

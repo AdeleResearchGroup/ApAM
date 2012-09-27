@@ -1,5 +1,7 @@
-<ipojo xmlns="fr.imag.adele.apam">
-	<composite name="S5CompEx" mainImplem="S5Impl" specification="S5"
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+
+	<composite name="S5CompEx" main="S5Impl" specification="S5"
 		interfaces="[fr.imag.adele.apam.test.s5.S5,fr.imag.adele.apam.ApamComponent]">
 		
 		<dependency specification="S4" fail= "wait" exception="fr.imag.failedException" />
@@ -11,11 +13,11 @@
 				
 				<property name="S3Impl-Attr" value="val"/>
 			
-				<specification name="S4">
+				<dependency specification="S4">
 					<constraints>
-						<constraint filter="propre=true"/>
+						<implementation filter="propre=true"/>
 					</constraints>
-				</specification>
+				</dependency>
 			
 				<trigger>
 					<specification name="la spec qui declenche le demmarage">
@@ -48,4 +50,4 @@
 			
 		</contentMngt>
 	</composite>
-</ipojo>
+</apam>

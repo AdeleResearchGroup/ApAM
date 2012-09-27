@@ -1,11 +1,13 @@
-<apam xmlns="fr.imag.adele.apam" >
+<!-- <apam xmlns="fr.imag.adele.apam" > -->
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
 	<implementation name="S1Impl"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1">
 		<dependency specification="S2" field="s2Spec" />
 		<dependency interface="fr.imag.adele.apam.test.s2.S2"
 			field="s2Interf" />
-		<dependency specification="S3" id="S3Multiple" multiple="true">
+		<dependency specification="S3" id="S3Multiple"  multiple="true">
 			<interface field="s3List" />
 			<interface field="s3ListBis" />
 		</dependency>
@@ -16,27 +18,31 @@
 		<dependency implementation="S2Impl" field="lastS2" />
 	</implementation>
 
-	<apam-instance implementation="S1toS2Final" name="S1toS2Final-instance" >
-	</apam-instance>
+	<instance implementation="S1toS2Final" name="S1toS2Final-instance" >
+	</instance>
 
-	<composite name="S1CompoFinal" mainImplem="S1toS2Final"
+	<composite name="S1CompoFinal" main="S1toS2Final"
 		interfaces="{fr.imag.adele.apam.test.s1.S1}">
 	</composite>
 
 	<implementation name="S1toS2Final"
 		classname="fr.imag.adele.apam.test.s1Impl.S1toS2Final" specification="S1">
-		<implementation name="S2Final" field="s2" />
+		<dependency implementation="S2Final" field="s2" />
 	</implementation>
 
 	
 
 	<!-- Will install and start immediately the composite and its instance. 
 		Main being auto start: it starts alone -->
-	<apam-instance implementation="S1CompoFinal" name="S1CompoFinal-Instance" />
+	<instance implementation="S1CompoFinal" name="S1CompoFinal-Instance" />
 
 	<!-- An implementation without any provided resource -->
 	<implementation name="S1Main"
-		classname="fr.imag.adele.apam.test.s1Impl.S1Main">
+		classname="fr.imag.adele.apam.test.s1Impl.S1Main" shared="false" singleton="true">
+		<property name="S1Main-Attr" value="whatever"/>
+		<property name="testAttr" value="false"/>
+		<property name="shared" value="true"/>
+		
 		<dependency id="tos1" field="s1">
 			<preferences>
 				<implementation filter="(impl-name=S1Impl)" />
@@ -44,15 +50,13 @@
 		</dependency>
 	</implementation>
 
-	<composite name="S1MainCompo" mainImplem="S1Main">
+	<composite name="S1MainCompo" main="S1Main">
 		<property name="shared" value="false" />
 
 		<!-- <dependency specification="S2" /> -->
 		<dependency interface="fr.imag.adele.apam.test.s2.S2" />
 		<dependency implementation="S3Impl" multiple="true" />
-		<dependency specification="S3" id="S3Id1"> 
-			<interface field="s3_1" /> <!-- should be an error multiple vs simple -->
-		</dependency> 
+		<dependency specification="S3" id="S3Id1" />
 		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="ddd" /> <!-- should be an error  --> 
 		<dependency specification="S3" id="S3Idmult" multiple="true"> <!-- should be an error  --> 
 			<preferences> 
@@ -61,10 +65,8 @@
 		</dependency>
 		
 		<contentMngt>
-			<visibility>
 				<borrow implementation="false" instance="false" />
 				<local  implementation="true"  instance="true"  />
-			</visibility>	
 		</contentMngt>	
 		
 	</composite>

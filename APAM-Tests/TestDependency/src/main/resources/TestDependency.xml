@@ -7,7 +7,8 @@
 	express or implied. See the License for the specific language governing permissions 
 	and limitations under the License. -->
 
-<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
 
 	<implementation name="Dependency"
@@ -17,19 +18,19 @@
 		<dependency field="s3_2" />
 		<dependency field="s3" />
 
-		<dependency field="s4_1" >
+		<dependency field="s4_1" multiple="true">
 			<constraints>
 				<implementation filter="" />
 				<implementation filter="" />
 				<implementation filter="" />
 			</constraints>
 		</dependency>
-		<implementation name="" field="s4_2" >
+		<dependency implementation="" field="s4_2" >
 			<constraints>
 				<instance filter="" />
 				<instance filter="" />
 			</constraints>
-		</implementation>
+		</dependency>
 		<dependency field="s4_3" >
 			<preferences>
 				<instance filter="" />
@@ -39,7 +40,7 @@
 		</dependency>
 	</implementation>
 
-	<apam-instance implementation="Dependency" name="testDependencyINst" />
+	<instance implementation="Dependency" name="testDependencyINst" />
 
 <!-- La spec de S2 -->
 	<specification name="SDep">
@@ -75,20 +76,20 @@
 	</implementation>
 
 <!-- Les instances pre existantes -->
-	<apam-instance implementation="Impl1" name="inst1_2" >
-	</apam-instance>
+	<instance implementation="Impl1" name="inst1_2" >
+	</instance>
 
-	<apam-instance implementation="Impl1" name="inst1_3" >
-	</apam-instance>
+	<instance implementation="Impl1" name="inst1_3" >
+	</instance>
 
-	<apam-instance implementation="Impl1" name="inst1_4" >
-	</apam-instance>
+	<instance implementation="Impl1" name="inst1_4" >
+	</instance>
 
-	<apam-instance implementation="Impl1" name="inst1_5" >
-	</apam-instance>
+	<instance implementation="Impl1" name="inst1_5" >
+	</instance>
 
-	<apam-instance implementation="Impl1" name="inst1_6" >
-	</apam-instance>
+	<instance implementation="Impl1" name="inst1_6" >
+	</instance>
 
 <!-- Les implems de S3  -->
 	<specification name="DepS3"

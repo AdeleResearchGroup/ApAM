@@ -1,18 +1,19 @@
-<ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
 	 <specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2}" > 
-		<specification name="S4" />
+		<dependency specification="S4" />
 		<dependency interface="fr.imag.adele.apam.test.s4.S4" />
 <!-- 	<specification name="S2" interfaces="{fr.imag.adele.apam.test.s2.S2}"> -->
-		<property name="shared" value="false" />
+		<property name="shared" value="false" type="boolean"/>
 		<property name="scope" value="global" type="string"/>
 		<property name="test-spec" value="coucou" type="string" />
 		<definition name="b" type="boolean" value="true" />
 		<definition name="c" type="string" />
 		<definition name="Dd" type="int" />
-		<interface name="example.S4" id="xxx" />
-		<interface name="example.S3" id="yyy" />
-		<message name="example.DataType2" id="yy" />
+		<dependency interface="example.S4" id="xxx" />
+		<dependency interface="example.S3" id="yyy" />
+		<dependency message="example.DataType2" id="yy" />
 	</specification>
 
-</ipojo>
+</apam>

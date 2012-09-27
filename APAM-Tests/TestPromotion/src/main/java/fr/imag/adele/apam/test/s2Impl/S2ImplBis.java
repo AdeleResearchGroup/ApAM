@@ -23,7 +23,7 @@ public class S2ImplBis implements S2, ApamComponent {
     }
 
     @Override
-    public void apamStart(Instance inst) {
+    public void apamInit(Instance inst) {
         myInst = inst;
         name = inst.getName();
         System.out.println("S2ImplBis Started : " + inst.getName());
@@ -38,19 +38,6 @@ public class S2ImplBis implements S2, ApamComponent {
     // @Override
     @Override
     public void callS2(String s) {
-        //        int i = 1;
-        //        for (S3 s3 : s3s) {
-        //            s3.callS3(i + " from S2Impl");
-        //            i++;
-        //        }
-
-        //        Attributes c2Attrs = new AttributesImpl();
-        //        c2Attrs.setProperty(CST.A_SHARED, CST.V_TRUE);
-        //
-        //        Attributes c3Attrs = new AttributesImpl();
-        //        c3Attrs.setProperty(CST.A_SHARED, CST.V_FALSE);
-        //        // implBroker.addImpl(compo3, "ApamS5impl", "S5Impl", "S5", c3Attrs);
-
         System.out.println("S2 Bis called " + s);
         if (s4Bis != null)
             s4Bis.callS4("depuis S2 Bis (s4Bis) ");
@@ -59,10 +46,6 @@ public class S2ImplBis implements S2, ApamComponent {
     }
 
     @Override
-    public void apamStop() {
-    }
-
-    @Override
-    public void apamRelease() {
+    public void apamRemove() {
     }
 }

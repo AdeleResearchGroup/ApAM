@@ -407,10 +407,18 @@ public class MainApam implements Runnable, ApamComponent {
 	public void testImplemWithoutSpec () {
 	
 	System.out.println("=========== start test Implem without spec (dummy spec)");
+	
+//	<implementation name="S1Main"
+//		classname="fr.imag.adele.apam.test.s1Impl.S1Main" shared="false" singleton="true">
+//		<property name="S1Main-Attr" value="whatever"/>
+//		<property name="testAttr" value="false"/>
+//		<property name="shared" value="true"/>
+	
 	Implementation impl= CST.apamResolver.findImplByName(null,"S1Main");
 	assertEquals(impl.getProperty("S1Main-Attr"), "whatever");
 	assertEquals(impl.getProperty("testAttr"), "false");
 	assertEquals(impl.getProperty("shared"), "false");
+	assertEquals(impl.getProperty("singleton"), "true");
 	System.out.println("=========== passed test Implem without spec (dummy spec)");
 	}
 
@@ -426,7 +434,7 @@ public class MainApam implements Runnable, ApamComponent {
 
 		// setting visibilities
 		// composite a3 should not be shared
-		test00_instance0.setProperty(CST.SHARED, CST.V_FALSE);
+//		test00_instance0.setProperty(CST.SHARED, CST.V_FALSE);
 
 		System.out.println("\n\n===================================== Testing promotions\n"
 				+ " creating composite on S1 containing an S2 composite \n");
@@ -474,15 +482,11 @@ public class MainApam implements Runnable, ApamComponent {
 
 
 
-	public void apamStart(Instance apamInstance) {
+	public void apamInit(Instance apamInstance) {
 		new Thread(this, "APAM test").start();
 	}
 
-	public void apamStop() {
-
-	}
-
-	public void apamRelease() {
+	public void apamRemove() {
 
 	}
 

@@ -386,7 +386,7 @@ public class ApamFilter implements Filter {
             case SUBSET:
             case SUPERSET:
             case PRESENT: {
-                if (!Util.isPredefinedAttribute(attr) && !Util.isFinalAttribute(attr) && !validAttr.containsKey(attr)) {
+                if (!Util.isFinalAttribute(attr) && !validAttr.containsKey(attr)) {
                     logger.error("Members of component " + spec + " cannot have property " + attr
                             + ". Invalid constraint " + f);
                 }

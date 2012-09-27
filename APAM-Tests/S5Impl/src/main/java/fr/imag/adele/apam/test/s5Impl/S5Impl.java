@@ -22,7 +22,7 @@ public class S5Impl implements S5, ApamComponent {
     }
 
     @Override
-    public void apamStart(Instance apamInstance) {
+    public void apamInit(Instance apamInstance) {
 
         boolean res;
         //        ApamFilter f = ApamFilter.newInstance("()");
@@ -38,12 +38,7 @@ public class S5Impl implements S5, ApamComponent {
     }
 
     @Override
-    public void apamStop() {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void apamRelease() {
+    public void apamRemove() {
         // TODO Auto-generated method stub
     }
 }
