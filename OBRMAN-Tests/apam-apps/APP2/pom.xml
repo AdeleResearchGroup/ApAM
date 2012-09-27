@@ -1,18 +1,20 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>apam-apps</artifactId>
-    <groupId>fr.imag.adele.apam.tests.obrman</groupId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
-  <groupId>fr.imag.adele.apam.tests.apps</groupId>
-  <artifactId>APP2</artifactId>
-  <packaging>pom</packaging>
-  <modules>
-  	<module>APP2-Spec</module>
-  	<module>APP2-Composite</module>
-  </modules>
-  <build>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>apam-apps</artifactId>
+		<groupId>fr.imag.adele.apam.tests.obrman</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<groupId>fr.imag.adele.apam.tests.apps</groupId>
+	<artifactId>APP2</artifactId>
+	<packaging>pom</packaging>
+	<modules>
+		<module>APP2-Spec</module>
+		<module>../../apam-apps-components/APP2</module>
+		<module>APP2-Composite</module>
+	</modules>
+	<build>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -33,7 +35,7 @@
 					<configuration>
 						<noLocalObr>true</noLocalObr>
 						<dependencyObrList>
-							<param>file:/${basedir}/../../../apam-repositories/APP2/obr/app2-repo.xml</param>
+							<param>file:/${basedir}/../../../apam-repositories/APP2/obr/APP2-repo.xml</param>
 						</dependencyObrList>
 					</configuration>
 				</plugin>

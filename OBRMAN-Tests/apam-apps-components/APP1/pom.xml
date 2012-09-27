@@ -37,7 +37,7 @@
 					<configuration>
 						<noLocalObr>true</noLocalObr>
 						<dependencyObrList>
-<!-- 							<param>file:/${basedir}/../../../APP1/obr/app2-repo.xml</param> -->
+							<param>file:/${basedir}/../../../apam-repositories/APPS/obr/APPS-repo.xml</param>
 						</dependencyObrList>
 					</configuration>
 				</plugin>

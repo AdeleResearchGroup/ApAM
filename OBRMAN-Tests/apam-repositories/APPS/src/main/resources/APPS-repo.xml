@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><repository lastmodified="20120925054719.851">
+<?xml version="1.0" encoding="UTF-8"?><repository lastmodified="20120926061257.146">
   <resource id="APP1-Composite/0.0.1.SNAPSHOT" symbolicname="APP1-Composite" presentationname="APP1-Composite" uri="mvn:fr.imag.adele.apam.tests.apps.app1/APP1-Composite/0.0.1-SNAPSHOT" version="0.0.1.SNAPSHOT">
     <size>3146</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
@@ -37,7 +37,7 @@
     <require name="package" filter="(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))" extend="false" multiple="false" optional="false">Import package org.osgi.service.cm;version=1.2</require>
   </resource>
   <resource id="APP1-Spec/0.0.1.SNAPSHOT" symbolicname="APP1-Spec" presentationname="APP1-Spec" uri="mvn:fr.imag.adele.apam.tests.apps.app1/APP1-Spec/0.0.1-SNAPSHOT" version="0.0.1.SNAPSHOT">
-    <size>3813</size>
+    <size>3890</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name="bundle">
@@ -71,7 +71,7 @@
     <require name="package" filter="(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))" extend="false" multiple="false" optional="false">Import package org.osgi.service.cm;version=1.2</require>
   </resource>
   <resource id="APP2-Composite/0.0.1.SNAPSHOT" symbolicname="APP2-Composite" presentationname="APP2-Composite" uri="mvn:fr.imag.adele.apam.tests.apps.app2/APP2-Composite/0.0.1-SNAPSHOT" version="0.0.1.SNAPSHOT">
-    <size>3342</size>
+    <size>3322</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name="bundle">
@@ -91,7 +91,6 @@
       <p n="impl-name" v="APP2"/>
       <p n="apam-composite" v="true"/>
       <p n="apam-main-component" v="APP2_MAIN"/>
-      <p n="provide-interfaces" v="[;fr.imag.adele.apam.app2.spec.App2Spec;]"/>
       <p n="provide-specification" v="APP2_SPEC"/>
       <p n="spec-name" v="APP2_SPEC"/>
       <p n="application" v="app2"/>
@@ -115,7 +114,7 @@
     <require name="apam-component" filter="(name=APP2_SPEC)" extend="false" multiple="false" optional="false">specification dependency toward APP2_SPEC</require>
   </resource>
   <resource id="APP2-Spec/0.0.1.SNAPSHOT" symbolicname="APP2-Spec" presentationname="APP2-Spec" uri="mvn:fr.imag.adele.apam.tests.apps.app2/APP2-Spec/0.0.1-SNAPSHOT" version="0.0.1.SNAPSHOT">
-    <size>3825</size>
+    <size>3903</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name="bundle">

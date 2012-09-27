@@ -6,11 +6,12 @@
 		<groupId>fr.imag.adele.apam.tests.obrman</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>APP1</artifactId>
 	<packaging>pom</packaging>
 	<modules>
 		<module>APP1-Spec</module>
+		<module>../../apam-apps-components/APP1</module>
 		<module>APP1-Composite</module>
 	</modules>
 	<build>
@@ -34,8 +35,8 @@
 					<configuration>
 						<noLocalObr>true</noLocalObr>
 						<dependencyObrList>
-							<param>file:/${basedir}/../../../apam-repositories/APP1/obr/app1-repo.xml</param>
-							<param>file:/${basedir}/../../../apam-repositories/APPS/obr/apps-repo.xml</param>
+							<param>file:/${basedir}/../../../apam-repositories/APP1/obr/APP1-repo.xml</param>
+							<param>file:/${basedir}/../../../apam-repositories/APPS/obr/APPs-repo.xml</param>
 						</dependencyObrList>
 					</configuration>
 				</plugin>
@@ -43,5 +44,5 @@
 		</pluginManagement>
 	</build>
 	<groupId>fr.imag.adele.apam.tests.apps</groupId>
-	
+
 </project>

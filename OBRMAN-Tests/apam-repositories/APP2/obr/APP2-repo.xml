@@ -1,6 +1,6 @@
-<repository lastmodified='20120925054715.818'>
+<repository lastmodified='20120926061252.748'>
   <resource id='APP2-MainImpl/0.0.1.SNAPSHOT' symbolicname='APP2-MainImpl' presentationname='APP2-MainImpl' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/components/app2/APP2-MainImpl/0.0.1-SNAPSHOT/APP2-MainImpl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>5308</size>
+    <size>5304</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -18,7 +18,7 @@
       <p n='name' v='APP2_MAIN'/>
       <p n='component-type' v='implementation'/>
       <p n='impl-name' v='APP2_MAIN'/>
-      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app2.spec.App2Spec;]'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app2.main.spec.App2MainSpec;fr.imag.adele.apam.app2.spec.App2Spec;]'/>
       <p n='provide-specification' v='APP2_SPEC'/>
       <p n='spec-name' v='APP2_SPEC'/>
       <p n='application' v='app2'/>
@@ -33,7 +33,7 @@
     <require name='apam-component' filter='(name=APP2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP2_SPEC</require>
   </resource>
   <resource id='APP2-MainSpec/0.0.1.SNAPSHOT' symbolicname='APP2-MainSpec' presentationname='APP2-MainSpec' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/components/app2/APP2-MainSpec/0.0.1-SNAPSHOT/APP2-MainSpec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
-    <size>4154</size>
+    <size>4118</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -55,7 +55,6 @@
       <p n='name' v='APP2_MAIN_SPEC'/>
       <p n='component-type' v='specification'/>
       <p n='spec-name' v='APP2_MAIN_SPEC'/>
-      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app2.main.spec.App2MainSpec;]'/>
       <p n='application' v='app2'/>
       <p n='definition-vendor' t='string' v=''/>
       <p n='definition-application' t='string' v='app2'/>

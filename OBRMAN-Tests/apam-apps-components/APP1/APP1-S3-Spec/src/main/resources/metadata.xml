@@ -1,6 +1,9 @@
-<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
-	<specification name="APP1_S3_SPEC" interfaces="fr.imag.adele.apam.app1.s3.spec.S3"  >
+
+	<specification name="APP1_S3_SPEC" interfaces="{fr.imag.adele.apam.app1.s3.spec.S3}"  >
 			<property name="application" value="app1" type="string"/>
 			<definition name="vendor" type="string"/>
 	</specification>
