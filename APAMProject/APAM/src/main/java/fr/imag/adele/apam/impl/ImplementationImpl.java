@@ -238,16 +238,16 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		return ! inComposites.contains(CompositeTypeImpl.getRootCompositeType()) && inComposites.size()==1;
 	}
 
-	/**
-	 * only here for future optimization.
-	 * shared is applied on all the instances
-	 */
-	@Override
-	public boolean isSharable() {
-		if (get(CST.SHARED) == null)
-			return true;
-		return get(CST.SHARED).equals(CST.V_TRUE);
-	}
+//	/**
+//	 * only here for future optimization.
+//	 * shared is applied on all the instances
+//	 */
+//	@Override
+//	public boolean isSharable() {
+//		if (get(CST.SHARED) == null)
+//			return true;
+//		return get(CST.SHARED).equals(CST.V_TRUE);
+//	}
 
 	@Override
 	public boolean isInstantiable() {
@@ -263,6 +263,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 */
 	@Override
 	public Instance createInstance(Composite composite, Map<String, String> initialProperties) {
+
 		if ((composite != null) && !Util.checkImplVisible(composite.getCompType(), this)) {
 			logger.error("cannot instantiate " + this + ". It is not visible from composite " + composite);
 			return null;
@@ -301,8 +302,12 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	protected Instance instantiate(Composite composite) throws InvalidConfiguration {
 		
 		if (! this.isInstantiable()) {
-			logger.debug("Implementation " + this + " is not instantiable");
+			logger.error("Implementation " + this + " is not instantiable");
 			return null;
+		}
+		if (this.isSingleton() && !instances.isEmpty()) {
+			logger.error("Implementation " + this + " is a singleton and an instance exists");
+			return null;		
 		}
 
 		return reify(composite,getApformImpl().createInstance(null));

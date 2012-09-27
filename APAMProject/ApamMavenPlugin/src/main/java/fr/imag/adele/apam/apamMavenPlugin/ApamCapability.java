@@ -239,22 +239,22 @@ public class ApamCapability {
 		return propertiesDefaults.get(name);
 	}
 
-	/**
-	 * returns all the attribute that can be found associated with this component members.
-	 * i.e. all the actual attributes plus those defined on component, 
-	 * and those defined above.
-	 * @return
-	 */
-	public boolean isValidAttrName (String name) {
-		if (Util.isPredefinedAttribute(name))  return true ;
-		return getAttrDefinition(name) != null ;
-//		if (propertiesTypes.containsKey(name)) return true ;
-//
-//		if (getGroup() != null)
-//			return getGroup().isValidAttrName(name) ;
-//
-//		return false ;
-	}
+	//	/**
+	//	 * returns true if the attribute can be found associated with this component members.
+	//	 * i.e. all the actual attributes plus those defined on component, 
+	//	 * and those defined above.
+	//	 * @return
+	//	 */
+	//	public boolean isValidAttrName (String name) {
+	//		if (Util.isFinalAttribute(name))  return true ;
+	//		return getAttrDefinition(name) != null ;
+	//		if (propertiesTypes.containsKey(name)) return true ;
+	//
+	//		if (getGroup() != null)
+	//			return getGroup().isValidAttrName(name) ;
+	//
+	//		return false ;
+	//	}
 
 
 	/**
@@ -265,8 +265,6 @@ public class ApamCapability {
 	 */
 	public Map<String, String> getValidAttrNames () {
 		Map<String, String> ret = new HashMap<String, String> () ;
-		for (String predef : CST.predefAttributes)
-			ret.put(predef, "string");
 
 		ret.putAll(propertiesTypes);
 		if (getGroup() != null)
@@ -274,6 +272,7 @@ public class ApamCapability {
 
 		return ret ;
 	}
+
 
 	public ApamCapability getGroup () {
 		if (dcl != null) {
@@ -299,6 +298,48 @@ public class ApamCapability {
 			return null ;
 		}
 		return null ;
+	}
+
+	/**
+	 * return null if Shared is undefined, 
+	 * true of false if it is defined as true or false.
+	 * @return
+	 */
+	public String shared () {
+		if (dcl != null) {
+			if (dcl.isDefinedShared()) 
+				return Boolean.toString(dcl.isShared()) ;
+			return null ;
+		}
+		return getProperty(CST.SHARED) ;
+	}
+
+	/**
+	 * return null if Instantiable is undefined, 
+	 * true of false if it is defined as true or false.
+	 * @return
+	 */
+	public String instantiable () {
+		if (dcl != null) {
+			if (dcl.isDefinedInstantiable()) 
+				return Boolean.toString(dcl.isInstantiable()) ;
+			return null ;
+		}
+		return getProperty(CST.INSTANTIABLE) ;
+	}
+
+	/**
+	 * return null if Singleton is undefined, 
+	 * true of false if it is defined as true or false.
+	 * @return
+	 */
+	public String singleton () {
+		if (dcl != null) {
+			if (dcl.isDefinedSingleton()) 
+				return Boolean.toString(dcl.isSingleton()) ;
+			return null ;
+		}
+		return getProperty(CST.SINGLETON) ;
 	}
 
 	/**

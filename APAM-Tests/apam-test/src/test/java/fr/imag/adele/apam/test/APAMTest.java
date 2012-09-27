@@ -220,7 +220,7 @@ public  class APAMTest {
 
 	        // setting visibilities
 	        // composite a3 should not be shared
-	        test00_instance0.setProperty(CST.SHARED, CST.V_FALSE);
+//	        test00_instance0.setProperty(CST.SHARED, CST.V_FALSE);
 
 	        System.out.println("\n\n===================================== Testing promotions\n"
 	                + " creating composite on S1 containing an S2 composite \n");

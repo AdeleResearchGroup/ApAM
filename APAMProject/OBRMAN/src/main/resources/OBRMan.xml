@@ -1,4 +1,5 @@
 <ipojo>
+
 <component name="OBRMAN" classname="fr.imag.adele.obrMan.OBRMan" immediate="true">
 	<callback transition="validate" method="start"/>
 	<callback transition="invalidate" method="stop"/>

@@ -25,6 +25,25 @@ public interface Component {
      */
     public ComponentDeclaration getDeclaration () ;
 
+    /**
+     * Whether the component is exclusive
+     */
+    public boolean isExclusive() ;
+
+    /**
+     * Whether the component is instantiable
+     */
+    public boolean isInstantiable() ;
+
+    /**
+     * Whether the component is singleton
+     */
+    public boolean isSingleton() ;
+
+    /**
+     * Whether the component is shared
+     */
+    public boolean isShared() ;
      /**
      * Match.
      * 

@@ -108,9 +108,10 @@ public class CheckObr {
 
 
 	/**
-	 * Checks the attributes defined in the component; 
+	 * Checks the attributes *defined* in the component; 
 	 * if valid, they are returned.
 	 * Then the attributes pertaining to the entity above are added.
+	 * Then the final attributes
 	 * @param component the component to check
 	 */
 	public static Map<String, String> getValidProperties(ComponentDeclaration component) {
@@ -156,11 +157,31 @@ public class CheckObr {
 			}
 		} 
 
+		/*
+		 * Add the component characteristics as final attributes, only if explicitly defined.
+		 * Needed to compile members. 
+		 */
+//		ret.put(CST.INSTANTIABLE, Boolean.toString(component.isInstantiable())) ;
+//		ret.put(CST.SINGLETON, Boolean.toString(component.isSingleton())) ;
+//		ret.put(CST.SHARED, Boolean.toString(component.isShared())) ;
+
+		if (component.isDefinedInstantiable()) {
+			ret.put(CST.INSTANTIABLE, Boolean.toString(component.isInstantiable())) ;
+		}
+		if (component.isDefinedSingleton()) {
+			ret.put(CST.SINGLETON, Boolean.toString(component.isSingleton())) ;
+		}
+		if (component.isDefinedShared()) {
+			ret.put(CST.SHARED, Boolean.toString(component.isShared())) ;
+		}
+		
+		
 		return ret ;
 	}
 
 	/**
 	 * Checks if the attribute / values pair is valid for the component ent.
+	 * If a final attribute, it is ignored but returns false. (cannot be set).
 	 * 
 	 * @param entName
 	 * @param attr
@@ -170,7 +191,7 @@ public class CheckObr {
 	 * @return
 	 */
 	private static boolean validDefObr (ApamCapability ent, String attr, String value) {
-		if (Util.isPredefinedAttribute(attr))return true ; ;
+		if (Util.isFinalAttribute(attr))return false ;
 		if (!Util.validAttr(ent.getName(), attr)) return false  ;
 
 		if (ent.getGroup()!= null && ent.getGroup().getProperties().get(attr) != null)  {
@@ -337,6 +358,33 @@ public class CheckObr {
 		return dep.isCollection();
 	}
 
+	/**
+	 * Checks if the component characteristics : shared, exclusive, instantiable, singleton, 
+	 * when explicitly defined, are not in contradiction with the group definition.
+	 * 
+	 * @param component
+	 */
+	public static void checkComponentHeader (ComponentDeclaration component) {
+		ApamCapability cap = ApamCapability.get(component.getReference()) ;
+		if (cap == null) return ;
+		ApamCapability group = cap.getGroup() ;
+
+		while (group != null) {
+			if (cap.shared() != null && group.shared() != null && (cap.shared() != group.shared()) ) {
+				error ("The \"shared\" property is incompatible with the value declared in " + group.getName()) ;
+			}
+			if (cap.instantiable() != null && group.instantiable() != null && (cap.instantiable() != group.instantiable()) ) {
+				error ("The \"Instantiable\" property is incompatible with the value declared in " + group.getName()) ;
+			}
+			if (cap.singleton() != null && group.singleton() != null && (cap.singleton() != group.singleton()) ) {
+				error ("The \"Singleton\" property is incompatible with the value declared in " + group.getName()) ;
+			}
+			group = group.getGroup() ;
+		}
+	}
+	
+
+	
 	/**
 	 * check all the characteristics that can be found in the <contentMngt> of a composite
 	 * @param component
@@ -596,4 +644,5 @@ public class CheckObr {
 		}
 	}
 
+	
 }

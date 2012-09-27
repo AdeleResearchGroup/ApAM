@@ -8,11 +8,12 @@
 	and limitations under the License. -->
 
 
-<ipojo xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 	<implementation name="S3Impl"
 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="S3">
-		<property name="test" value="bof" type="string" />
-		<property name="shared" value="false" type="string" />
+		<property name="test" value="bof"/>
+		<property name="shared" value="false"  />
 		<dependency field="s5" />
 		<definition name="S3Impl-Attr" type="string" />
 		<dependency specification="S4">
@@ -20,15 +21,15 @@
 		</dependency>
 	</implementation>
 
-	<apam-instance implementation="S2Simple" name="S2Simple-inst-from-S3Impl">
+	<instance implementation="S2Simple" name="S2Simple-inst-from-S3Impl">
 		<!-- <property test-spec="coucous4" /> <property A2="yes" /> <property 
 			c="xxx" /> -->
-	</apam-instance>
+	</instance>
 
 <!-- 	<apam-instance implementation="S3Impl" name="s3Impl-int" /> -->
 <!-- 	<apam-instance implementation="S3Impl" name="S3Impl-instance1" /> -->
 <!-- 	<apam-instance implementation="S3Impl" name="S3Impl-instance2" /> -->
 <!-- 	<apam-instance implementation="S3Impl" name="S3Impl-instance3" /> -->
 
-</ipojo>
+</apam>
 

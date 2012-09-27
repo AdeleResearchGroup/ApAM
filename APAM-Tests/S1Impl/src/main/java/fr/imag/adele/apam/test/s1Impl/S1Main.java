@@ -15,12 +15,12 @@ public class S1Main implements Runnable, ApamComponent {
         //        s1.callS1("Deuxieme from S1 Main");
     }
 
-    public void apamStart(Instance inst) {
+    public void apamInit(Instance inst) {
         System.out.println("S1Main Started : " + inst.getName());
         new Thread(this, "APAM test").start();
     }
 
-    public void apamStop() {
+    public void apamRemove() {
     }
 
     public void apamRelease() {

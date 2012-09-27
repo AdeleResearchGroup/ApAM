@@ -1,12 +1,14 @@
-<apam xmlns="fr.imag.adele.apam" >
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
 
-	<composite name="S1CompoFinalTest" mainImplem="S1ImplTestAttr"
+	<composite name="S1CompoFinalTest" main="S1ImplTestAttr"
 		specification="S1TestAttr" interfaces="{fr.imag.adele.apam.test.s1TestAttr.S1TestAttr}" />
 
 	<implementation name="S1ImplTestAttr"
 		classname="fr.imag.adele.apam.test.s1ImplTestAttr.S1ImplTestAttr" specification="S1TestAttr">
-		<property name="S1toS2Final-Attr" value="couscous" type="string" />
+		<property name="S1toS2Final-Attr" value="couscous" />
 		<property name="spec-name" value="yyy"  />
 		<property name="definition-xx" value="ttt" />
 		<property name="s1b" value="xyze=" />
@@ -15,13 +17,12 @@
 		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" value="bidon"/>
 		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
 		<definition name="S1toS2Final-String1" type="string" />
-		<definition name="S1toS2Final-location"
-			type="{FinalLiving, FinalKitchen, FinalLedroom}" />
+		<definition name="S1toS2Final-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" />
 		<definition name="enumeration" type="{f1, f2, f3, f4}" />
 	</implementation>
 
 
-	<apam-instance implementation="S1ImplTestAttr" name="S1ImplInstance" />
+	<instance implementation="S1ImplTestAttr" name="S1ImplInstance" />
 		
 		
 </apam>

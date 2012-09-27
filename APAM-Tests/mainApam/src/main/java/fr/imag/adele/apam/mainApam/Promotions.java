@@ -35,11 +35,11 @@ public class Promotions implements Runnable, ApamComponent {
 
     }
 
-    public void apamStart(Instance apamInstance) {
+    public void apamInit(Instance apamInstance) {
         new Thread(this, "APAM test").start();
     }
 
-    public void apamStop() {
+    public void apamRemove() {
 
     }
 

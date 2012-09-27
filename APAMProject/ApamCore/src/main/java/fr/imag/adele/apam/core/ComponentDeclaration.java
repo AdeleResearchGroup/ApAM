@@ -48,18 +48,27 @@ public abstract class ComponentDeclaration {
      * Whether instances of this component must be accessed exclusively by a single client
      * at the time
      */
-    public boolean isExclusive;
+    private boolean isExclusive;
+    private boolean isDefinedExclusive;
 
     /**
      * Whether we can create instances of this component
      */
-    public boolean isInstantiable;
+    private boolean isInstantiable;
+    private boolean isDefinedInstantiable;
     
     /**
      * Whether there can be a single instance of this component in the execution platform
      */
-    public boolean isSingleton;
-    
+    private boolean isSingleton;
+    private boolean isDefinedSingleton;
+
+    /**
+     * Whether the instance of this component can be shared by different clients
+     */
+    public boolean isShared;
+    public boolean isDefinedShared;
+
     protected ComponentDeclaration(String name) {
 
         assert name != null;
@@ -69,6 +78,11 @@ public abstract class ComponentDeclaration {
         this.isInstantiable	= true;
         this.isExclusive	= false;
         this.isSingleton	= false;
+        this.isShared	    = true;
+        this.isDefinedInstantiable	= false;
+        this.isDefinedExclusive	    = false;
+        this.isDefinedSingleton	    = false;
+        this.isDefinedShared	    = false;
         
         reference			= generateReference();
         properties			= new HashMap<String,String>();
@@ -107,11 +121,20 @@ public abstract class ComponentDeclaration {
     public boolean isExclusive() {
 		return isExclusive;
 	}
-    
+ 
+    public boolean isDefinedExclusive() {
+		return isDefinedExclusive;
+	}
+
     public void setExclusive(boolean isExclusive) {
 		this.isExclusive = isExclusive;
+		this.isDefinedExclusive = true ;
 	}
-    
+    //Warning : should be called ONLY by CoreMetadataParser
+    public void setDefinedExclusive(boolean isExclusive) {
+		this.isDefinedExclusive = isExclusive ;
+	}
+   
     /**
      * Whether the component is instantiable
      */
@@ -121,6 +144,15 @@ public abstract class ComponentDeclaration {
     
     public void setInstantiable(boolean isInstantiable) {
 		this.isInstantiable = isInstantiable;
+		this.isDefinedInstantiable = true ;
+	}
+    public boolean isDefinedInstantiable() {
+		return isDefinedInstantiable;
+	}
+    
+    //Warning : should be called ONLY by CoreMetadataParser
+    public void setDefinedInstantiable(boolean isInstantiable) {
+		this.isDefinedInstantiable = isInstantiable;
 	}
     
     
@@ -133,8 +165,39 @@ public abstract class ComponentDeclaration {
     
     public void setSingleton(boolean isSingleton) {
 		this.isSingleton = isSingleton;
+		this.isDefinedSingleton = true ;
+	}
+ 
+    public boolean isDefinedSingleton() {
+		return isDefinedSingleton;
 	}
     
+    //Warning : should be called ONLY by CoreMetadataParser
+    public void setDefinedSingleton(boolean isSingleton) {
+		this.isDefinedSingleton = isSingleton;
+	}
+
+    /**
+     * Whether the component is shared
+     */
+    public boolean isShared() {
+		return isShared;
+	}
+    
+    public void setShared(boolean isShared) {
+		this.isShared = isShared;
+		this.isDefinedShared = true ;
+	}
+ 
+    public boolean isDefinedShared() {
+		return isDefinedShared;
+	}
+    
+    //Warning : should be called ONLY by CoreMetadataParser
+    public void setDefinedShared(boolean isShared) {
+		this.isDefinedShared = isShared;
+	}
+
     /**
      * Get the properties describing this provider
      */

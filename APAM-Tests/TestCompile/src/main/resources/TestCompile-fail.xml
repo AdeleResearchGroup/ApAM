@@ -7,14 +7,16 @@
 	express or implied. See the License for the specific language governing permissions 
 	and limitations under the License. -->
 
-<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
 
 <!-- specifications -->
 	<specification name="S2Compile"
 		interfaces="{fr.imag.adele.apam.test.compile.S2, A.B.C.wrongInterface}"
-		message="{M1, M2, M3}">
-		<specification name="S4Compile" />
+		messages="{M1, M2, M3}">
+		<dependency specification="S4Compile" />
 
 		<!-- composite state. Implemented in S2Impl -->
 		<definition name="houseState"
@@ -68,7 +70,7 @@
 		instantiable="false" shared="false">  <!--  all possible characteristics  -->
 
 		<!-- 	The state for composites -->
-		<property name="houseState" field="state" internal="true"
+		<definition name="houseState" field="state" internal="true"
 			type="{empty, night, vacation, emergency, threat}" value="busy" />
 			
 		<definition name="location" type="{exit, entrance, garage, bedroom,…}" />
@@ -109,10 +111,10 @@
 	</implementation>
 
 
-	<composite name="GoodComposite" mainImplem="S2ImplCompile" /> <!-- minimal good -->
+	<composite name="GoodComposite" main="S2ImplCompile" /> <!-- minimal good -->
 
 	<composite name="ContentComposite" specification="S2Compile"
-		mainImplem="S2ImplCompile">
+		main="S2ImplCompile">
 		<dependency specification="S" id="compoS4" />
 
 		<contentMngt>
@@ -120,12 +122,12 @@
 				<property name="S3Impl-Attr" value="val" />
 				<dependency specification="S4Compile">
 					<constraints>
-						<constraint filter="(propre=true)" /> <!-- propre is not defined in S4 -->
+						<implementation filter="(propre=true)" /> <!-- propre is not defined in S4 -->
 						<implementation filter="xxx" />  <!-- Not valid -->
 					</constraints>
-					<preference> 						<!-- Not valid -->
+					<preferences> 						<!-- Not valid -->
 						<implementation filter="xxx" />  <!-- Not valid -->
-					</preference>
+					</preferences>
 				</dependency>
 				<trigger>
 					<specification name="la spec qui declenche le demmarage"> <!-- Not valid unknown spec -->
@@ -177,11 +179,11 @@
 
 
 	<composite name="S2CompoCompile" specification="S2Compile"
-		mainImplem="S3Impl" messages="{M5, M6}"
+		main="S3Impl" messages="{M5, M6}"
 		interfaces="{fr.imag.adele.apam.test.s2.SZZZ,fr.imag.adele.apam.apamAPI.YYYYYYY}"> <!-- interface does not exist -->
 		<property name="shared" value="false" />
 
-		<instances internal="true" local=".*" />   <!-- Old syntax -->
+		<local instance="true" implementation=".*" />   <!-- Old syntax -->
 		<implementations internal="true" local="S.Im.*" /> <!-- Old syntax -->
 		<dependency interface="fr.imag.adele.apam.test.s4.S4"
 			source="S2Compile" /> <!-- Old syntax -->
@@ -212,7 +214,7 @@
 		<property name="c3" value="xxx" />
 		<property name="b" value="bbb" />
 		<property name="xyz" value="yyy" />
-		<specification name="S3" id="S3Id">		<!-- id is undefined -->
+		<dependency specification="S3" id="S3Id">		<!-- id is undefined -->
 			<constraints>
 				<implementation filter="(apam-composite=true)" />
 				<instance filter="(SCccOPE=GLOBAL)" /> <!-- attribute undefined -->
@@ -221,7 +223,7 @@
 				<implementation filter="(x=10)" />
 				<instance filter="(bxc=false)" />
 			</preferences>
-		</specification>
+		</dependency>
 	</instance>
 
 	<instance name="InstS2Impl" />					<!-- implementation is missing -->

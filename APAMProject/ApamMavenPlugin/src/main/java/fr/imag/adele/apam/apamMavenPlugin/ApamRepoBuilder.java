@@ -120,6 +120,9 @@ public class ApamRepoBuilder {
 			generateProperty (obrContent, component, CST.SPECNAME, component.getName());
 		}
 
+		//checks shared, singleton, instantiable, exclusive,  
+		CheckObr.checkComponentHeader (component) ;
+		
 		// provide clause
 		printProvided(obrContent, component);
 
@@ -169,7 +172,6 @@ public class ApamRepoBuilder {
 		// definition attributes
 		List<PropertyDefinition> definitions = component.getPropertyDefinitions();
 		for (PropertyDefinition definition : definitions) {
-			//String tempContent = "      <p n='" + CST.A_DEFINITION_PREFIX + definition.getName() + "'";
 			String type = definition.getType();
 			String defaultValue = definition.getDefaultValue();
 			

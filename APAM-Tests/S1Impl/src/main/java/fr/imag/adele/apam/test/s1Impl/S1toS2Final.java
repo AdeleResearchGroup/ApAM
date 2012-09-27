@@ -17,19 +17,13 @@ public class S1toS2Final implements S1, ApamComponent {
 	}
 
 	@Override
-	public void apamStart(Instance apamInstance) {
+	public void apamInit(Instance apamInstance) {
 		System.out.println("S1toS2Final is sarted");
 		theFieldAttr = "initial set by program" ;
 	}
 
 	@Override
-	public void apamStop() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void apamRelease() {
+	public void apamRemove() {
 		// TODO Auto-generated method stub
 		
 	}

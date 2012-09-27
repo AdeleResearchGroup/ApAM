@@ -174,25 +174,23 @@ public class ApamCommand {
 	@Descriptor("Start a new instance of the target implementation")
 	public void launch(@Descriptor("target implementation") String implementationName,
 					   @Descriptor("the name of the composite target or root ") String compositeTarget) {
-		
+				
 		Composite target = null;
+		CompositeType targetType = null;
 
-		if (compositeTarget != null && !compositeTarget.equals("root")) {
+		if ("root".equals(compositeTarget)){
+			System.out.println("Resolving "+ implementationName + " on the root composite");
+		} else {
 			target = apam.getComposite(compositeTarget);
 			if (target== null){
-				System.out.println("Invalid composite name "+ compositeTarget);
+				System.out.println("Invalid composite instance "+ compositeTarget);
 				return;
 			}
+			targetType = target.getCompType() ;
+		}
 
-		}
-		Implementation implementation = CST.ImplBroker.getImpl(implementationName);
-		if (implementation == null) {
-			System.out.println("No such implementation : " + implementationName);
-			return;
-		}
-		
+		Implementation implementation =  CST.apamResolver.findImplByName(targetType, implementationName);
 		implementation.createInstance(target,null);
-		// testInstances("   ", implementation.getInsts());
 	}
 
 	/**

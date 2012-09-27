@@ -19,7 +19,7 @@ public class S2Simple implements S2, ApamComponent {
     }
 
     @Override
-    public void apamStart(Instance inst) {
+    public void apamInit(Instance inst) {
         name = inst.getName();
         System.out.println("S2Simple Started : " + inst.getName());
     }
@@ -39,13 +39,7 @@ public class S2Simple implements S2, ApamComponent {
     }
 
     @Override
-    public void apamStop() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void apamRelease() {
+    public void apamRemove() {
         // TODO Auto-generated method stub
 
     }

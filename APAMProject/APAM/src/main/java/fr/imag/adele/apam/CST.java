@@ -8,10 +8,9 @@ import fr.imag.adele.apam.impl.SpecificationBrokerImpl;
 
 public class CST {
 
-	// Constants "A_" means attribute name; "V_" means attribute value
-
-	public static String[] predefAttributes = { 
-			CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, CST.SHARED };
+//	public static String[] predefAttributes = { 
+//			CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, 
+//			CST.SHARED, CST.EXCLUSIVE, CST.SINGLETON };
 		
 //		CST.A_BORROWIMPLEM,
 //			CST.A_LOCALIMPLEM, CST.A_FRIENDIMPLEM, CST.A_BORROWINSTANCE,
@@ -28,16 +27,20 @@ public class CST {
 //	public static final String A_FRIENDINSTANCE = "friendInstance";
 //	public static final String A_APPLIINSTANCE = "appliInstance";
 
-	// Value boolean
+	// Values are boolean
 	public static final String INSTANTIABLE = "instantiable";
-	// multiple on a group head indicates if more than one resolution is allowed
+	// multiple on a dependency indicates more than one outgoing wire
 	public static final String MULTIPLE = "multiple";
 	// remotable indicates that the instance can be used from a remote machine
 	public static final String REMOTABLE = "remotable";
-	// shared on an implementation indicates if its instances can have more than
-	// one incoming wire
+	// shared indicates if its instances can have more than one incoming wire
 	public static final String SHARED = "shared";
+	//exclusive == shared=false and singleton=true
+	public static final String EXCLUSIVE = "exclusive" ; 
+	//a single instance per implementation
+	public static final String SINGLETON = "singleton" ;
 
+	
 	// APAM ROOT COMPOSITE
 	public static final String ROOT_COMPOSITE_TYPE = "root.composite.type";
 
@@ -47,10 +50,9 @@ public class CST {
 	public static final String COMPONENT_TYPE 		= "component-type";
 	public static final String SPECIFICATION 		= "specification";
 	public static final String IMPLEMENTATION 		= "implementation";
-	public static final String COMPOSITE_TYPE 		= "composite-type";
-	public static final String COMPOSITE 			= "composite";
+//	public static final String COMPOSITE_TYPE 		= "composite-type";
+//	public static final String COMPOSITE 			= "composite";
 	public static final String INSTANCE 			= "instance";
-	// All values are string
 	public static final String DEFINITION_PREFIX 	= "definition-";
 	public static final String PROVIDE_PREFIX 		= "provide-";
 	public static final String REQUIRE_PREFIX 		= "require-";
@@ -78,16 +80,19 @@ public class CST {
 	public static final String[] reservedPrefix = { CST.DEFINITION_PREFIX,
 			CST.PROVIDE_PREFIX, CST.REQUIRE_PREFIX };
 
-	public static final String[] notInheritedAttribute = { NAME,
-			COMPONENT_TYPE, VERSION };
+	public static final String[] notInheritedAttribute = {NAME,
+			COMPONENT_TYPE, VERSION, APAM_COMPOSITETYPE };
 
 	// Attributes that cannot be changed nor set by users
-	public static final String[] finalAttributes = { CST.SPECNAME,
-			CST.IMPLNAME, CST.INSTNAME, CST.APAM_COMPOSITE,
-			CST.APAM_MAIN_COMPONENT, CST.APAM_MAIN_INSTANCE, CST.INTERFACE,
-			CST.MESSAGE, CST.REQUIRE_INTERFACE, CST.REQUIRE_SPECIFICATION,
-			CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, CST.NAME,
-			CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION };
+	public static final String[] finalAttributes = { 
+			CST.NAME, VERSION, CST.SPECNAME, 
+			CST.IMPLNAME, CST.INSTNAME, CST.MESSAGE, CST.APAM_COMPOSITE, 
+			CST.APAM_COMPOSITETYPE, CST.APAM_MAIN_COMPONENT, CST.APAM_MAIN_INSTANCE, 
+			CST.INTERFACE, CST.REQUIRE_INTERFACE, CST.REQUIRE_SPECIFICATION,
+			CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, 
+			CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION,
+			CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, 
+			CST.SHARED, CST.EXCLUSIVE, CST.SINGLETON};
 
 	public static final String V_TRUE = "true";
 	public static final String V_FALSE = "false";

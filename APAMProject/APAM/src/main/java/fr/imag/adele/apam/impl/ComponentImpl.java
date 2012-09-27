@@ -34,7 +34,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	private final ApformComponent      apform ;
 	private final ComponentDeclaration declaration;
 
-
     /**
      * An exception that can be thrown in the case of problems while creating a component
      */
@@ -111,7 +110,16 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 			}
 		} 
 
-		//Finally add the specific attributes. Should be the only place where instanceof is used.
+		/*
+		 * Set the attribute for the final attributes 
+		 */
+		put (CST.SHARED, Boolean.toString(isShared())) ;
+		put (CST.SINGLETON, Boolean.toString(isSingleton())) ;
+		put (CST.INSTANTIABLE, Boolean.toString(isInstantiable())) ;
+		
+		/*
+		 * Finally add the specific attributes. Should be the only place where instanceof is used.
+		 */
 		put (CST.NAME, apform.getDeclaration().getName()) ;
 		if (this instanceof Specification) {
 			put (CST.SPECNAME, apform.getDeclaration().getName()) ;
@@ -423,9 +431,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 */
 	private boolean validDef (String attr, String value) {
 		//attr = attr.toLowerCase() ;
-		if (Util.isPredefinedAttribute(attr))
-			return true;
-
+//		if (Util.isPredefinedAttribute(attr))
+//			return true;
+		if (Util.isFinalAttribute(attr)) {
+			logger.error("Cannot redefine final attribute \"" + attr + "\"");
+			return false;			
+		}		
+			
 		Component group = this.getGroup() ;
 
 		//if the same attribute exists above, it is a redefinition.
@@ -482,5 +494,42 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		}
 	}
 
+    /**
+     * Whether the component is exclusive
+     */
+    public boolean isExclusive() {
+    	if (declaration.isDefinedExclusive() || getGroup() == null) 
+    		return declaration.isExclusive() ;
+    	return getGroup().isExclusive() ;
+    }
+
+    /**
+     * Whether the component is instantiable
+     */
+    public boolean isInstantiable() {
+    	if (declaration.isDefinedInstantiable() || getGroup() == null) 
+    		return declaration.isInstantiable() ;
+    	return getGroup().isInstantiable() ;
+    }
+
+    /**
+     * Whether the component is singleton
+     */
+    public boolean isSingleton(){
+    	if (declaration.isDefinedSingleton() || getGroup() == null) 
+    		return declaration.isSingleton() ;
+    	return getGroup().isSingleton() ;
+    }
+
+    /**
+     * Whether the component is shared
+     */
+    public boolean isShared() {
+    	if (declaration.isDefinedShared() || getGroup() == null) 
+    		return declaration.isShared() ;
+    	return getGroup().isShared() ;
+    }
+	
+	
 }
 
