@@ -564,7 +564,7 @@ public class CheckObr {
 	private static void checkGrant (CompositeDeclaration component, OwnedComponentDeclaration own) {
 		//Get state definition
 		Set<String> stateDefinition = checkState(component) ;
-		if (stateDefinition.isEmpty()) { //No valid state declaration. No valid grants.
+		if (stateDefinition == null || stateDefinition.isEmpty()) { //No valid state declaration. No valid grants.
 			return ;
 		}
 		
