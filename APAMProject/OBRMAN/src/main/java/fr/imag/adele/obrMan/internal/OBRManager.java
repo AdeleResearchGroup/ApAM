@@ -1,175 +1,70 @@
 package fr.imag.adele.obrMan.internal;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.Timer;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.felix.bundlerepository.Capability;
-import org.apache.felix.bundlerepository.Property;
 import org.apache.felix.bundlerepository.Reason;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.obrMan.filewatcher.internal.FileWatcher;
-//import java.net.URI;
-//import org.xml.sax.Attributes;
-//import org.xml.sax.SAXException;
-//import org.xml.sax.helpers.DefaultHandler;
-//import org.osgi.framework.InvalidSyntaxException;
 
 public class OBRManager {
 
-    private RepositoryAdmin repoAdmin;
-    private Resolver        resolver;
-    private Repository      local;
-    private Resource[]      allResources;
-	private File user_home_file;
-	private FileWatcher fileWatcherTask;
-    private boolean repositoryModified=false;
-	private Timer timer;
-    /**
-     * OBRMAN activated, register with APAM
-     */
+    private final Resolver       resolver;
 
+    private List<Repository>     repositories;
 
-    public OBRManager(URL defaultLocalRepo, RepositoryAdmin repoAdmin) {
-    	
-        this.repoAdmin = repoAdmin;
-        try {
-            if (defaultLocalRepo == null) {
-                // use Maven settings to find maven repository
-                File settings = searchSettingsFromUserHome();
-                if (settings == null) {
-                    settings = searchSettingsFromM2Home();
-                }
-                System.out.println("used maven settings: " + settings);
-                if (settings != null) {
-                    defaultLocalRepo = searchMavenRepoFromSettings(settings);
-                }
-                if (defaultLocalRepo == null && user_home_file!=null){
-                	File repositoryFile = new File(new File(new File(user_home_file, ".m2"), "repository"),"repository.xml");
-                	if (repositoryFile.exists()){
-                		defaultLocalRepo =  repositoryFile.toURI().toURL();	
-                	}
-                	System.out.println("Last chance :" + defaultLocalRepo);
-                }
-                
-            }
+    private final List<Resource> allResources;
 
-            //System.out.println("Started OBRMAN " + defaultLocalRepo + "  repoAdmin: " + repoAdmin);
-            if (defaultLocalRepo != null) {
-                local = repoAdmin.addRepository(defaultLocalRepo);
-            } else {
-            	
-            }
-            if (local==null){
-                local = repoAdmin.getLocalRepository();
-            }
+    private final String         compositeTypeName;
 
-            //System.err.println("Local repo init = " + repoAdmin.getLocalRepository().getName() + " All repos = "
-            // + repoAdmin.listRepositories().toString());
-        } catch (Exception e) {
-            System.err.println("Invalid repository address : " + defaultLocalRepo);
-            e.printStackTrace();
+    private final OBRMan         obrMan;
+
+    private final Logger         logger = LoggerFactory.getLogger(OBRManager.class);
+
+    private final Repository     runningbundles;
+
+    private final Repository     systembundle;
+
+    public OBRManager(OBRMan obrman, String compositeTypeName, RepositoryAdmin repoAdmin, LinkedProperties obrModel) {
+        allResources = new ArrayList<Resource>();
+        repositories = new ArrayList<Repository>();
+        this.compositeTypeName = compositeTypeName;
+        runningbundles = repoAdmin.getLocalRepository();
+        systembundle = repoAdmin.getSystemRepository();
+        obrMan = obrman;
+        // First Read model if it exist
+        if (obrModel != null) {
+            repositories = getRepositoriesFromModel(obrModel, repoAdmin);
         }
-        System.out.println("local repo : " + local.getURI());
-        
-     
-        resolver = repoAdmin.resolver();
-        allResources = local.getResources(); // read once for each session, and cached.
-        //        for (Resource res : allResources) {
-        //            printRes(res);
-        //        }
-       
-        
-       
-    }
 
-    // Resource selected;
-    // selected = lookFor("bundle", "(symbolicname=ApamCommand)", null);
-    // selected = lookFor("apam-component", "(name=S2Impl)", null);
-    // selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", null);
-    // selected = lookFor("apam-component", "(apam-specification=S2)", null);
-    // selected = lookFor("apam-component", "(scope=LOCAL)", null);
-    // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", null);
-    // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", null);
-    // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", null);
-    // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.test.s2.S2)", null);
-    // selected = lookFor("apam-component",
-    // "(&(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)(scope=LOCAL))",
-    // null);
-    //
-    // Set<Filter> constraints = new HashSet<Filter>();
-    //
-    // selected = lookFor("bundle", "(symbolicname=ApamCommand)", constraints);
-    //
-    // try {
-    // Filter f = ApamFilter.newInstance("(&(scope=LOCAL)(shared=TRUE))");
-    // constraints.add(f);
-    // } catch (InvalidSyntaxException e) {
-    // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
-    // }
-    //
-    // selected = lookFor("apam-component", "(name=S2Impl)", constraints);
-    // selected = lookFor("apam-component", "(apam-implementation=S2ImplApamName)", constraints);
-    // selected = lookFor("apam-component", "(apam-specification=S2)", null);
-    //
-    // try {
-    // Filter f = ApamFilter.newInstance("(test=yes)");
-    // constraints.add(f);
-    // } catch (InvalidSyntaxException e) {
-    // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
-    // }
-    //
-    // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.apamAPI.ApamComponent*)", constraints);
-    // selected = lookFor("apam-component", "(interfaces=*fr.imag.adele.apam.test.s2.S2*)", constraints);
-    // try {
-    // Filter f = ApamFilter.newInstance("(X=Y)");
-    // constraints.add(f);
-    // } catch (InvalidSyntaxException e) {
-    // System.out.println("invalid filter (&(scope=LOCAL)(shared=TRUE))");
-    // }
-    //
-    // selected = lookFor("apam-interface", "(name=fr.imag.adele.apam.apamAPI.ApamComponent)", constraints);
-
-    public void printCap(Capability aCap) {
-        System.out.println("   Capability name: " + aCap.getName());
-        for (Property prop : aCap.getProperties()) {
-            System.out.println("     " + prop.getName() + " type= " + prop.getType() + " val= " + prop.getValue());
+        // Get resources from repositories and remove them from repoAdmin.
+        for (Repository repository : repositories) {
+            allResources.addAll(Arrays.asList(repository.getResources()));
+            repoAdmin.removeRepository(repository.getURI());
         }
-    }
 
-    public void printRes(Resource aResource) {
-        System.out.println("\n\nRessource SymbolicName : " + aResource.getSymbolicName());
-        for (Capability aCap : aResource.getCapabilities()) {
-            printCap(aCap);
-        }
-    }
+        // Add the system as repository
+        repositories.add(0, runningbundles);
+        repositories.add(0, systembundle);
+        resolver = repoAdmin.resolver(repositories.toArray(new Repository[repositories.size()]));
 
-    public String printProperties(Property[] props) {
-        StringBuffer ret = new StringBuffer();
-        for (Property prop : props) {
-            ret.append(prop.getName() + "=" + prop.getValue() + ",  ");
-        }
-        return ret.toString();
     }
 
     // serious stuff now !
@@ -187,21 +82,16 @@ public class OBRManager {
     }
 
     public Set<Selected> lookForAll(String capability, String filterStr, Set<Filter> constraints) {
-    	if (filterStr == null)
-    		new Exception("no filter in lookfor all").printStackTrace() ;
-    	
-        Set<Selected> allRes = new HashSet<Selected>();
-        System.out.print("OBR: looking for all components matching " + filterStr);
-        if ((constraints != null) && !constraints.isEmpty()) {
-            System.out.print(". Constraints : ");
-            for (Filter constraint : constraints) {
-                System.out.print(constraint + ", ");
-            }
-        }
-        System.out.println("");
+        if (filterStr == null)
+            new Exception("no filter in lookfor all").printStackTrace();
 
-        if (allResources == null) {
-        	System.err.println("no resources in OBR");
+        Set<Selected> allRes = new HashSet<Selected>();
+
+        // Trace preference filter
+        logFilterConstraintPreferences(filterStr, constraints, null, true);
+
+        if (allResources.isEmpty()) {
+            System.out.println("no resources in OBR");
             return null;
         }
         try {
@@ -212,8 +102,10 @@ public class OBRManager {
                     if (aCap.getName().equals(capability)) {
                         if (filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.println("   Component " + getAttributeInCapability(aCap, CST.NAME) + " found in bundle : " + res.getSymbolicName());
-                                allRes.add(new Selected(res, aCap));
+                                System.out.println("-->Component " + getAttributeInCapability(aCap, CST.NAME)
+                                        + " found in bundle : " + res.getSymbolicName() + " From "
+                                        + compositeTypeName + " repositories : \n   " + repositoriesToString());
+                                allRes.add(new Selected(this, res, aCap));
                             }
                         }
                     }
@@ -223,7 +115,7 @@ public class OBRManager {
             e.printStackTrace();
         }
         if (allRes.isEmpty())
-            System.out.println("   Not Found");
+            System.out.println("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
         return allRes;
     }
 
@@ -231,13 +123,8 @@ public class OBRManager {
         if (candidates.isEmpty())
             return null;
 
-        // trace
-        System.out.print("preferences : ");
-        for (Filter constraint : preferences) {
-            System.out.print(constraint + ", ");
-        }
-        System.out.println("");
-        // fin trace
+        // Trace preference filter
+        logFilterConstraintPreferences(null, null, preferences, false);
 
         Selected winner = null;
         int maxMatch = -1;
@@ -253,13 +140,14 @@ public class OBRManager {
         if (winner == null)
             return null;
         System.out.println("   Found bundle : " + winner.resource.getSymbolicName() + " Component:  "
-                + getAttributeInCapability(winner.capability, CST.IMPLNAME));
+                + getAttributeInCapability(winner.capability, CST.IMPLNAME) + " \n  from "
+                + compositeTypeName + "  repositories : " + repositoriesToString());
         return winner;
     }
 
     private int matchPreferences(Capability aCap, List<Filter> preferences) {
         ApamFilter filter;
-        Map map = aCap.getPropertiesAsMap();
+        Map<?, ?> map = aCap.getPropertiesAsMap();
         int match = 0;
         for (Filter constraint : preferences) {
             filter = ApamFilter.newInstance(constraint.toString());
@@ -288,21 +176,16 @@ public class OBRManager {
     }
 
     public Selected lookFor(String capability, String filterStr, Set<Filter> constraints) {
-    	if (filterStr == null) {
-    		System.err.println("No filter for lookFor");
-    		return null ;
-    	}
-        System.out.print("OBR: looking for component " + filterStr);
-        if (constraints != null) {
-            System.out.print(". Constraints to match: ");
-            for (Filter constraint : constraints) {
-                System.out.print(constraint + ", ");
-            }
+        if (filterStr == null) {
+            System.out.println("No filter for lookFor");
+            return null;
         }
-        System.out.println("");
 
-        if (allResources == null) {
-        	System.err.println("no resources in OBR");
+        // Trace constraints filter
+        logFilterConstraintPreferences(filterStr, constraints, null, false);
+
+        if (allResources.isEmpty()) {
+            System.out.println("no resources in OBR");
             return null;
         }
         try {
@@ -313,8 +196,10 @@ public class OBRManager {
                     if (aCap.getName().equals(capability)) { // apam-component
                         if (filter.matchCase(aCap.getPropertiesAsMap())) {
                             if ((constraints == null) || matchConstraints(aCap, constraints)) {
-                                System.out.println("   Component " + getAttributeInCapability(aCap, CST.NAME) + " found in bundle " + res.getSymbolicName() );
-                                return new Selected(res, aCap);
+                                System.out.println("-->Component " + getAttributeInCapability(aCap, CST.NAME)
+                                        + " found in bundle : " + res.getSymbolicName() + " From "
+                                        + compositeTypeName + " repositories : \n   " + repositoriesToString());
+                                return new Selected(this, res, aCap);
                             }
                         }
                     }
@@ -323,8 +208,36 @@ public class OBRManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("   Not Found in " + local.getName());
+        System.out.println("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
         return null;
+    }
+
+    private void logFilterConstraintPreferences(String filterStr, Set<Filter> constraints, List<Filter> preferences,
+            boolean all) {
+
+        String debugMessage = "";
+        if (filterStr != null) {
+            if (all) {
+                debugMessage = "OBR: looking for all components matching " + filterStr;
+            } else {
+                debugMessage = "OBR: looking for a component matching" + filterStr;
+            }
+        }
+        if ((constraints != null) && !constraints.isEmpty()) {
+            debugMessage += "   > Constraints : ";
+            for (Filter constraint : constraints) {
+                debugMessage += (constraint + ", ");
+            }
+        }
+
+        if ((preferences != null) && !preferences.isEmpty()) {
+            debugMessage += "   > Preferences : ";
+            for (Filter preference : preferences) {
+                debugMessage += (preference + ", ");
+            }
+        }
+
+        System.out.println(debugMessage);
     }
 
     /**
@@ -339,7 +252,7 @@ public class OBRManager {
             return true;
 
         ApamFilter filter;
-        Map map = aCap.getPropertiesAsMap();
+        Map<?, ?> map = aCap.getPropertiesAsMap();
         for (Filter constraint : constraints) {
             filter = ApamFilter.newInstance(constraint.toString());
             if (!filter.matchCase(map)) {
@@ -355,7 +268,7 @@ public class OBRManager {
      * @param res
      * @return
      */
-    public boolean deployInstall(Resource res) {
+    public boolean deployInstall(Selected selected) {
         // first check if res is not under deployment by another thread.
         // and remove when the deployment is done.
 
@@ -364,9 +277,7 @@ public class OBRManager {
         // change the state of the local repository, which produces the IllegalStateException.
         while (!deployed) {
             try {
-                resolver = repoAdmin.resolver();
-                
-                resolver.add(res);
+                resolver.add(selected.resource);
                 // printRes(res);
                 if (resolver.resolve()) {
                     resolver.deploy(Resolver.START);
@@ -374,187 +285,139 @@ public class OBRManager {
                 }
                 deployed = true;
             } catch (IllegalStateException e) {
-                System.out.println("OBR changed state. Resolving again " + res.getSymbolicName());
+                System.out.println("OBR changed state. Resolving again " + selected.resource.getSymbolicName());
             }
         }
 
         Reason[] reqs = resolver.getUnsatisfiedRequirements();
         for (Reason req : reqs) {
-            System.err.println("Unable to resolve: " + req.toString());
+            System.out.println("Unable to resolve: " + req.getRequirement());
         }
         return false;
     }
 
-    public void newModel(String obrModel, String composite) {
-        StringTokenizer st = new StringTokenizer(obrModel);
-        String repoUrlStr = null;
-/*
-        while (st.hasMoreElements()) {
-            try {
-                repoUrlStr = st.nextToken("\n");
-                System.out.println("new repository :" + repoUrlStr);
-//                URI uri =  URI.create(repoUrlStr);
-                URL url = new URL(repoUrlStr);
-                local = repoAdmin.addRepository(url);
-            } catch (Exception e) {
-                System.err.println("Invalid OBR repository address :" + repoUrlStr);
-                return;
-            }
-            // System.out.println("new local repo : " + local.getURI());
-            resolver = repoAdmin.resolver();
-            allResources = local.getResources(); // read once for each session, and cached.
-            // for (Resource res : allResources) {
-            // printRes(res);
-            // }
-        }
-        */
-    }
+    protected List<Repository> getRepositoriesFromModel(LinkedProperties obrModel, RepositoryAdmin repoAdmin) {
+        List<Repository> declaredRepositories = new ArrayList<Repository>();
+        Enumeration<?> keys = obrModel.keys();
+        while (keys.hasMoreElements()) {
 
-    private static String readFileAsString(URL url) throws java.io.IOException {
-        InputStream is = url.openStream();
-        byte[] buffer = new byte[is.available()];
-        BufferedInputStream f = null;
-        try {
-            f = new BufferedInputStream(is);
-            f.read(buffer);
-        } finally {
-            if (f != null)
-                try {
-                    f.close();
-                } catch (IOException ignored) {
+            String key = (String) keys.nextElement();
+            if (Util.LOCAL_MAVEN_REPOSITORY.equals(key)) {
+                // Add the obr repository located in the local maven repository
+                Boolean localMavenOBRRepo = new Boolean(obrModel.getProperty(key));
+                if (localMavenOBRRepo) {
+                    URL localMavenObrUrl = findLocalMavenRepository();
+                    try {
+                        declaredRepositories.add(repoAdmin.addRepository(localMavenObrUrl));
+                    } catch (Exception e) {
+                        System.out.println("Error when adding default local repository to repoAdmin");
+                        e.printStackTrace();
+                    }
                 }
+            } else if (Util.DEFAULT_OSGI_REPOSITORIES.equals(key)) {
+                // Add obr repositories declared in the osgi configuration file
+                Boolean osgiRepo = new Boolean(obrModel.getProperty(key));
+                if (osgiRepo) {
+                    String repos = obrMan.getDeclaredOSGiOBR();
+                    if (repos != null) {
+                        declaredRepositories.addAll(getRepositoriesFromArray(repoAdmin, repos.split("\\s+")));
+                    }
+                }
+            } else if (Util.REPOSITORIES.equals(key)) {
+                // Add obr repositories declared in the composite
+                declaredRepositories
+                        .addAll(getRepositoriesFromArray(repoAdmin, obrModel.getProperty(key).split("\\s+")));
+
+            } else if (Util.COMPOSITES.equals(key)) {
+                // look for obr repositories in other composites
+                String[] otherCompositesRepositories = obrModel.getProperty(key).split("\\s+");
+                for (String compoTypeName : otherCompositesRepositories) {
+                    OBRManager manager = obrMan.getOBRManager(compoTypeName);
+                    if (manager != null) {
+                        declaredRepositories.addAll(manager.getRepositories());
+                    } else {
+                        // If the compositeType is not present, do nothing
+                        System.out.println("The composite " + compositeTypeName + " reference a missing compiste "
+                                + compoTypeName);
+                    }
+                }
+            }
         }
-        return new String(buffer);
+
+        return declaredRepositories;
     }
 
-    //    // Interface IOBRMAN
-    //    @Override
-    //    public Set<Selected> getResources(String capability, String filterStr, Set<Filter> constraints) {
-    //        //        Set<Resource> allRes = new HashSet<Resource>();
-    //        return lookForAll(capability, filterStr, constraints);
-    //    }
-    //
-    //    @Override
-    //    public Resource getResource(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences) {
-    //        return lookFor(capability, filterStr, constraints, preferences).resource;
-    //    }
-    //
-    //    @Override
-    //    public boolean install(Resource resource) {
-    //        deployInstall(resource);
-    //        return false;
-    //    }
-    //
-    //    private Selected getResourceImpl(String implName, Set<Filter> constraints) {
-    //        Selected selected = null;
-    //        String filterStr = null;
-    //        if (implName != null)
-    //            filterStr = "(impl-name=" + implName + ")";
-    //
-    //        if (selected == null) { // look by bundle name. First apam component by bundle name
-    //            selected = lookFor("apam-implementation", filterStr, constraints, null);
-    //        }
-    //        if (selected == null) { // legacy iPOJO component
-    //            selected = lookFor("component", filterStr, constraints, null);
-    //        }
-    //        if (selected == null) { // legacy OSGi component
-    //            selected = lookFor("bundle", filterStr, constraints, null);
-    //        }
-    //        return selected;
-    //    }
+    protected Collection<Repository> getRepositoriesFromArray(RepositoryAdmin repoAdmin, String[] repos) {
+        List<Repository> repoList = new ArrayList<Repository>();
+        for (String repoUrlStr : repos) {
+            try {
+                URL url = new URL(repoUrlStr);
+
+                repoList.add(repoAdmin.addRepository(url));
+            } catch (Exception e) {
+                System.out.println("Invalid OBR repository address :" + repoUrlStr);
+                e.printStackTrace();
+            }
+        }
+        return repoList;
+    }
+
+    public String getCompositeTypeName() {
+        return compositeTypeName;
+    }
 
     public class Selected {
         public Resource   resource;
         public Capability capability;
+        public OBRManager obrManager;
 
-        public Selected(Resource res, Capability cap) {
+        public Selected(OBRManager obrManager, Resource res, Capability cap) {
+            this.obrManager = obrManager;
             resource = res;
             capability = cap;
         }
+
+    }
+
+    protected URL findLocalMavenRepository() {
+
+        // try to find the maven settings.xml file
+        File settings = Util.searchSettingsFromM2Home();
+        if (settings == null) {
+            settings = Util.searchSettingsFromUserHome();
+        }
+        logger.info("Maven settings location: " + settings);
+
+        // Extract localRepository from settings.xml
+        URL defaultLocalRepo = null;
+        if (settings != null) {
+            defaultLocalRepo = Util.searchMavenRepoFromSettings(settings);
+        }
+
+        if (defaultLocalRepo == null) {
+            // Special case for Jenkins Server :
+            defaultLocalRepo = Util.searchRepositoryFromJenkinsServer();
+        }
+        if (defaultLocalRepo != null) {
+            return defaultLocalRepo;
+        }
+        return null;
+    }
+
+    public List<Repository> getRepositories() {
+        List<Repository> tempList = new ArrayList<Repository>();
+        tempList.addAll(repositories);
+        tempList.remove(runningbundles);
+        tempList.remove(systembundle);
+        return tempList;
     }
 
     //
-
-    private URL searchMavenRepoFromSettings(File pathSettings) {
-        // Look for <localRepository>
-        try {
-
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            SAXParser saxParser = factory.newSAXParser();
-
-            SaxHandler handler = new SaxHandler() ;
-            saxParser.parse(pathSettings, handler);
-
-            return handler.getRepo();
-        } catch (Exception e) {
-            e.printStackTrace();
+    protected List<String> repositoriesToString() {
+        List<String> repoString = new ArrayList<String>();
+        for (Repository repo : getRepositories()) {
+            repoString.add(repo.getURI());
         }
-        return null;
+        return repoString;
     }
-
-    private File searchSettingsFromM2Home() {
-        String m2_home = System.getenv().get("M2_HOME");
-
-        if (m2_home == null) {
-            return null;
-        }
-        File m2_Home_file = new File(m2_home);
-        File settings = new File(new File(m2_Home_file, "conf"), "settings.xml");
-        if (settings.exists()) {
-            return settings;
-        }
-        return null;
-    }
-
-    private File searchSettingsFromUserHome() {
-        String user_home = System.getProperty("user.home");
-        if (user_home == null) {
-            user_home = System.getProperty("HOME");
-            if (user_home == null) {
-                return null;
-            }
-        }
-        user_home_file = new File(user_home);
-        File settings = new File(new File(user_home_file, ".m2"),
-        "settings.xml");
-        if (settings.exists()) {
-            return settings;
-        }
-        return null;
-    }
-    
-    public void stopWatchingRepository(){
-    	if (fileWatcherTask!=null){
-    		fileWatcherTask.cancel();
-    	}
-    	if (timer!=null){
-    		timer.purge();
-    		timer.cancel();
-    		timer=null;
-    	}
-    }
-
-	public void startWatchingRepository() {
-		if (local == null) return;
-		 // monitor a modification on repository file
-     	fileWatcherTask = new FileWatcher( new File(URI.create(local.getURI()))) {
-			  protected void onChange( File file , String date ) {
-			    // Repository has been modified
-			    System.out.println( "Repository "+ file +" have been changed the " + date );
-			    setRepositoryModified(true);
-			  }
-			};
-	    timer = new Timer();
-		// repeat the check every 5 second
-		timer.schedule( fileWatcherTask , new Date(), 5000 );
-	}
-
-	public boolean isRepositoryModified() {
-		return repositoryModified;
-	}
-
-	private void setRepositoryModified(boolean repositoryModified) {
-		this.repositoryModified = repositoryModified;
-	}
-
 }

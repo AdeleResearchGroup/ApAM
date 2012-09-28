@@ -8,6 +8,7 @@ import fr.imag.adele.apam.impl.SpecificationBrokerImpl;
 
 public class CST {
 
+
 //	public static String[] predefAttributes = { 
 //			CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, 
 //			CST.SHARED, CST.EXCLUSIVE, CST.SINGLETON };
@@ -16,8 +17,8 @@ public class CST {
 //			CST.A_LOCALIMPLEM, CST.A_FRIENDIMPLEM, CST.A_BORROWINSTANCE,
 //			CST.A_LOCALINSTANCE, CST.A_FRIENDINSTANCE, CST.A_APPLIINSTANCE,
 
-	// Borrow / lend properties of composites.
-	// Expression | true | false
+    // Borrow / lend properties of composites.
+    // Expression | true | false
 //	public static final String A_BORROWIMPLEM = "borrowImplementation";
 //	public static final String A_LOCALIMPLEM = "localImplementation";
 //	public static final String A_FRIENDIMPLEM = "friendImplementation";
@@ -26,6 +27,7 @@ public class CST {
 //	public static final String A_LOCALINSTANCE = "localInstance";
 //	public static final String A_FRIENDINSTANCE = "friendInstance";
 //	public static final String A_APPLIINSTANCE = "appliInstance";
+
 
 	// Values are boolean
 	public static final String INSTANTIABLE = "instantiable";
@@ -42,10 +44,14 @@ public class CST {
 
 	
 	// APAM ROOT COMPOSITE
-	public static final String ROOT_COMPOSITE_TYPE = "root.composite.type";
+	public static final String ROOT_COMPOSITE_TYPE = "root";
 
 	// Constant used by OBR
 	// Capability
+	public static final String         MAVEN                 = "maven";
+    public static final String         GROUP_ID              = "groupId";
+    public static final String         ARTIFACT_ID           = "artifactId";
+    
 	public static final String CAPABILITY_COMPONENT = "apam-component";
 	public static final String COMPONENT_TYPE 		= "component-type";
 	public static final String SPECIFICATION 		= "specification";

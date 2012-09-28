@@ -1,0 +1,282 @@
+<repository lastmodified='20120926061256.960'>
+  <resource id='APP1-MainImpl/0.0.1.SNAPSHOT' symbolicname='APP1-MainImpl' presentationname='APP1-MainImpl' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/components/app1/APP1-MainImpl/0.0.1-SNAPSHOT/APP1-MainImpl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>6704</size>
+    <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
+    <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
+    <capability name='bundle'>
+      <p n='symbolicname' v='APP1-MainImpl'/>
+      <p n='presentationname' v='APP1-MainImpl'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.components.app1'/>
+      <p n='artifactId' v='APP1-MainImpl'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='APP1_MAIN'/>
+      <p n='component-type' v='implementation'/>
+      <p n='impl-name' v='APP1_MAIN'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app1.main.spec.App1MainSpec;fr.imag.adele.apam.app1.spec.App1Spec;]'/>
+      <p n='provide-specification' v='APP1_MAIN_SPEC'/>
+      <p n='spec-name' v='APP1_MAIN_SPEC'/>
+      <p n='application' v='app1'/>
+      <p n='vendor' v='apam-team'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app1.s2.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app1.s2.spec;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.log;version=1.3</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app1.s1.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app1.s1.spec;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app1.main.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app1.main.spec;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo.architecture)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo.architecture;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app2.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app2.spec;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app1.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app1.spec;version="[0.0,1)"</require>
+    <require name='apam-component' filter='(name=APP1_S1_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S1_SPEC</require>
+    <require name='apam-component' filter='(name=APP2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP2_SPEC</require>
+    <require name='apam-component' filter='(name=APP1_MAIN_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_MAIN_SPEC</require>
+    <require name='apam-component' filter='(name=APP1_S2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S2_SPEC</require>
+  </resource>
+  <resource id='APP1-MainSpec/0.0.1.SNAPSHOT' symbolicname='APP1-MainSpec' presentationname='APP1-MainSpec' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/components/app1/APP1-MainSpec/0.0.1-SNAPSHOT/APP1-MainSpec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>4264</size>
+    <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
+    <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
+    <capability name='bundle'>
+      <p n='symbolicname' v='APP1-MainSpec'/>
+      <p n='presentationname' v='APP1-MainSpec'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='fr.imag.adele.apam.app1.main.spec'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.components.app1'/>
+      <p n='artifactId' v='APP1-MainSpec'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='APP1_MAIN_SPEC'/>
+      <p n='component-type' v='specification'/>
+      <p n='spec-name' v='APP1_MAIN_SPEC'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app1.main.spec.App1MainSpec;]'/>
+      <p n='application' v='app1'/>
+      <p n='definition-vendor' t='string' v=''/>
+      <p n='definition-application' t='string' v='app1'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <require name='package' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.log;version=1.3</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo.architecture)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo.architecture;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
+  </resource>
+  <resource id='APP1-S1-Impl/0.0.1.SNAPSHOT' symbolicname='APP1-S1-Impl' presentationname='APP1-S1-Impl' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/components/app1/APP1-S1-Impl/0.0.1-SNAPSHOT/APP1-S1-Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>5485</size>
+    <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
+    <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
+    <capability name='bundle'>
+      <p n='symbolicname' v='APP1-S1-Impl'/>
+      <p n='presentationname' v='APP1-S1-Impl'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.components.app1'/>
+      <p n='artifactId' v='APP1-S1-Impl'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='APP1_S1_IMPL'/>
+      <p n='component-type' v='implementation'/>
+      <p n='impl-name' v='APP1_S1_IMPL'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app1.s1.spec.S1;]'/>
+      <p n='provide-specification' v='APP1_S1_SPEC'/>
+      <p n='spec-name' v='APP1_S1_SPEC'/>
+      <p n='application' v='app1'/>
+      <p n='vendor' v='apam-team'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <require name='package' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.log;version=1.3</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app1.s1.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app1.s1.spec;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo.architecture)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo.architecture;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app2.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app2.spec;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
+    <require name='apam-component' filter='(name=APP1_S1_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S1_SPEC</require>
+    <require name='apam-component' filter='(name=APP2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP2_SPEC</require>
+  </resource>
+  <resource id='APP1-S1-Spec/0.0.1.SNAPSHOT' symbolicname='APP1-S1-Spec' presentationname='APP1-S1-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/components/app1/APP1-S1-Spec/0.0.1-SNAPSHOT/APP1-S1-Spec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>4287</size>
+    <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
+    <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
+    <capability name='bundle'>
+      <p n='symbolicname' v='APP1-S1-Spec'/>
+      <p n='presentationname' v='APP1-S1-Spec'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='fr.imag.adele.apam.app1.s1.spec'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.components.app1'/>
+      <p n='artifactId' v='APP1-S1-Spec'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='APP1_S1_SPEC'/>
+      <p n='component-type' v='specification'/>
+      <p n='spec-name' v='APP1_S1_SPEC'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app1.s1.spec.S1;]'/>
+      <p n='application' v='app1'/>
+      <p n='definition-vendor' t='string' v=''/>
+      <p n='definition-application' t='string' v='app1'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <require name='package' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.log;version=1.3</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo.architecture)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo.architecture;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
+  </resource>
+  <resource id='APP1-S2-Impl/0.0.1.SNAPSHOT' symbolicname='APP1-S2-Impl' presentationname='APP1-S2-Impl' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/components/app1/APP1-S2-Impl/0.0.1-SNAPSHOT/APP1-S2-Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>5401</size>
+    <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
+    <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
+    <capability name='bundle'>
+      <p n='symbolicname' v='APP1-S2-Impl'/>
+      <p n='presentationname' v='APP1-S2-Impl'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.components.app1'/>
+      <p n='artifactId' v='APP1-S2-Impl'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='APP1_S2_IMPL'/>
+      <p n='component-type' v='implementation'/>
+      <p n='impl-name' v='APP1_S2_IMPL'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app1.s2.spec.S2;]'/>
+      <p n='provide-specification' v='APP1_S2_SPEC'/>
+      <p n='spec-name' v='APP1_S2_SPEC'/>
+      <p n='application' v='app1'/>
+      <p n='vendor' v='apam-team'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app1.s2.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app1.s2.spec;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.log;version=1.3</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo.architecture)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo.architecture;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app1.s3.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app1.s3.spec;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
+    <require name='apam-component' filter='(name=APP1_S3_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S3_SPEC</require>
+    <require name='apam-component' filter='(name=APP1_S2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S2_SPEC</require>
+  </resource>
+  <resource id='APP1-S2-Spec/0.0.1.SNAPSHOT' symbolicname='APP1-S2-Spec' presentationname='APP1-S2-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/components/app1/APP1-S2-Spec/0.0.1-SNAPSHOT/APP1-S2-Spec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>4209</size>
+    <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
+    <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
+    <capability name='bundle'>
+      <p n='symbolicname' v='APP1-S2-Spec'/>
+      <p n='presentationname' v='APP1-S2-Spec'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='fr.imag.adele.apam.app1.s2.spec'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.components.app1'/>
+      <p n='artifactId' v='APP1-S2-Spec'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='APP1_S2_SPEC'/>
+      <p n='component-type' v='specification'/>
+      <p n='spec-name' v='APP1_S2_SPEC'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app1.s2.spec.S2;]'/>
+      <p n='application' v='app1'/>
+      <p n='definition-vendor' t='string' v=''/>
+      <p n='definition-application' t='string' v='app1'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <require name='package' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.log;version=1.3</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo.architecture)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo.architecture;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
+  </resource>
+  <resource id='APP1-S3-Impl/0.0.1.SNAPSHOT' symbolicname='APP1-S3-Impl' presentationname='APP1-S3-Impl' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/components/app1/APP1-S3-Impl/0.0.1-SNAPSHOT/APP1-S3-Impl-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>5150</size>
+    <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
+    <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
+    <capability name='bundle'>
+      <p n='symbolicname' v='APP1-S3-Impl'/>
+      <p n='presentationname' v='APP1-S3-Impl'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.components.app1'/>
+      <p n='artifactId' v='APP1-S3-Impl'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='APP1_S3_IMPL'/>
+      <p n='component-type' v='implementation'/>
+      <p n='impl-name' v='APP1_S3_IMPL'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app1.s3.spec.S3;]'/>
+      <p n='provide-specification' v='APP1_S3_SPEC'/>
+      <p n='spec-name' v='APP1_S3_SPEC'/>
+      <p n='application' v='app1'/>
+      <p n='vendor' v='apam-team'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <require name='package' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.log;version=1.3</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo.architecture)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo.architecture;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=fr.imag.adele.apam.app1.s3.spec)(!(version&gt;=1.0.0)))' extend='false' multiple='false' optional='false'>Import package fr.imag.adele.apam.app1.s3.spec;version="[0.0,1)"</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
+    <require name='apam-component' filter='(name=APP1_S3_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP1_S3_SPEC</require>
+  </resource>
+  <resource id='APP1-S3-Spec/0.0.1.SNAPSHOT' symbolicname='APP1-S3-Spec' presentationname='APP1-S3-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/tests/apps/components/app1/APP1-S3-Spec/0.0.1-SNAPSHOT/APP1-S3-Spec-0.0.1-SNAPSHOT.jar' version='0.0.1.SNAPSHOT'>
+    <size>4158</size>
+    <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
+    <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
+    <capability name='bundle'>
+      <p n='symbolicname' v='APP1-S3-Spec'/>
+      <p n='presentationname' v='APP1-S3-Spec'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+      <p n='manifestversion' v='2'/>
+    </capability>
+    <capability name='package'>
+      <p n='package' v='fr.imag.adele.apam.app1.s3.spec'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <capability name='maven'>
+      <p n='groupId' v='fr.imag.adele.apam.tests.apps.components.app1'/>
+      <p n='artifactId' v='APP1-S3-Spec'/>
+      <p n='version' v='0.0.1-SNAPSHOT'/>
+    </capability>
+    <capability name='apam-component'>
+      <p n='name' v='APP1_S3_SPEC'/>
+      <p n='component-type' v='specification'/>
+      <p n='spec-name' v='APP1_S3_SPEC'/>
+      <p n='provide-interfaces' v='[;fr.imag.adele.apam.app1.s3.spec.S3;]'/>
+      <p n='application' v='app1'/>
+      <p n='definition-vendor' t='string' v=''/>
+      <p n='definition-application' t='string' v='app1'/>
+      <p n='version' t='version' v='0.0.1.SNAPSHOT'/>
+    </capability>
+    <require name='package' filter='(&amp;(package=org.osgi.service.log)(version&gt;=1.3.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.log;version=1.3</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo.architecture)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo.architecture;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
+    <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
+  </resource>
+</repository>
