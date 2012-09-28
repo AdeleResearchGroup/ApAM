@@ -1,37 +1,50 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"></meta>
     <title>ApAM by AdeleResearchGroup</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link href="stylesheets/menu_assets/styles.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="stylesheets/styles.css"></link>
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css"></link>
+      <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"></meta>
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
   </head>
   <body>
     <div class="wrapper">
-      <header>
-        <h1>ApAM</h1>
-        <p></p>
+      <header>  
+        <div align="center"><a href="">
+          <img  height="150" width="250" src="logo/Apam2.png" />
+        </a>
+        </div>
+        
 
-        <p class="view"><a href="https://github.com/AdeleResearchGroup/ApAM">View the Project on GitHub <small>AdeleResearchGroup/ApAM</small></a></p>
+<!--        <p class="view"><a href="https://github.com/AdeleResearchGroup/ApAM">View the Project on GitHub <small>AdeleResearchGroup/ApAM</small></a></p>-->
 
-
+        <div id='defaultmenu'>
         <ul>
           <li><a href="https://github.com/AdeleResearchGroup/ApAM/zipball/master">Download <strong>ZIP File</strong></a></li>
           <li><a href="https://github.com/AdeleResearchGroup/ApAM/tarball/master">Download <strong>TAR Ball</strong></a></li>
           <li><a href="https://github.com/AdeleResearchGroup/ApAM">View On <strong>GitHub</strong></a></li>
         </ul>
+        </div>
+        <div id='cssmenu'>
+          <ul>
+            <li class='active '><a href='index.html'><span>Home</span></a></li>
+            <li><a href='#'><span>Products</span></a></li>
+            <li><a href='#'><span>About</span></a></li>
+            <li><a href='#'><span>Contact</span></a></li>
+          </ul>
+        </div>
+        
       </header>
       <section>
-        <h3>Welcome to ApAM Pages.</h3>
+<!--        <h3>Welcome to ApAM Pages.</h3>-->
 
-<p>APAM (APplication Abstract Machine) is a runtime platform to support execution of adaptable applications. 
-Page in Progress ...</p>
+        <p align="justify">APAM is a runtime platform to support execution of adaptable applications. It includes the capability to handle dynamic deployment of application's components, as well as opportunistic usage of third-party deployed components.<br/>
+          APAM is an extensible platform. It can be extended by "managers" that handle additional adaptation policies, or other non functional properties of the application. In this sense, APAM is a basis for constructing adaptative or autonomic applications.<br/>
+          Applications in APAM are built from primitive Java components, assembled into larger composites using a service based interaction. Applications are specified by a number of models describing different aspects of the dynamic evolution of the application</p>
 
 <pre><code>$ cd your_repo_root/repo_name
 $ git fetch origin
@@ -49,8 +62,14 @@ $ git checkout gh-pages
 <p>Having trouble with ApAM? Check out the documentation at <a href="http://coming.soon">http://coming.soon</a> or contact <a href="mailto:adele.lig@imag.fr">adele.lig@imag.fr</a> and we’ll help you sort it out.</p>
       </section>
       <footer>
-        <p>This project is maintained by <a href="https://github.com/AdeleResearchGroup">AdeleResearchGroup</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+        This project is maintained by
+         <a href="https://github.com/AdeleResearchGroup">
+            <img  height="50" width="100" src="logo/New_adele_logo.png" />
+          </a>
+          
+        
+          <!--<a href="https://github.com/AdeleResearchGroup">AdeleResearchGroup</a>-->
+<!--        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>-->
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
