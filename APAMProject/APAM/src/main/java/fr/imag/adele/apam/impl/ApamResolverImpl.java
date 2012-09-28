@@ -26,7 +26,10 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.ContextualResolutionPolicy;
 import fr.imag.adele.apam.core.DependencyDeclaration;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
+import fr.imag.adele.apam.core.InterfaceReference;
+import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
@@ -265,7 +268,7 @@ public class ApamResolverImpl implements ApamResolver {
 						//impls = CST.apamResolver.resolveSpecByResources(compoType, dependency);
 						//TODO Should look for all the implemenentaiton that satisfy the constraints.
 					} //else 
-					impl = CST.apamResolver.resolveSpecByResource(compoType, dependency);
+					impl = this.resolveSpecByResource(compoType, dependency);
 				}
 			}
 			if (impl == null) {
@@ -276,10 +279,10 @@ public class ApamResolverImpl implements ApamResolver {
 
 			// Look for the instances
 			if (dependency.isMultiple()) {
-				insts = CST.apamResolver.resolveImpls(compo, impl, Util.toFilter(dependency.getInstanceConstraints()));
+				insts = this.resolveImpls(compo, impl, dependency);
 				logger.debug("Selected set " + insts);
 			} else {
-				Instance inst = CST.apamResolver.resolveImpl(compo, impl, dependency);
+				Instance inst = this.resolveImpl(compo, impl, dependency);
 				if (inst != null) {
 					insts = new HashSet<Instance>();
 					insts.add(inst);
@@ -348,6 +351,7 @@ public class ApamResolverImpl implements ApamResolver {
 					break ;
 				}
 			}
+			group = group.getGroup() ;
 		}
 
 		//Add the composite generic constraints
@@ -421,43 +425,43 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param preferences : the preferences added by the managers. A (empty) list must be provided as parameter.
 	 * @return : the managers that will be called for that resolution.
 	 */
-	private List<DependencyManager> computeSelectionPathSpec(CompositeType compoTypeFrom, String specName) {
-
-		List<DependencyManager> selectionPath = new ArrayList<DependencyManager>();
-		for (DependencyManager dependencyManager : ApamManagers.getManagers()) {
-
-			/*
-			 * Skip apamman
-			 */
-			if (dependencyManager == apam.getApamMan())
-				continue;
-
-			dependencyManager.getSelectionPathSpec(compoTypeFrom, specName, selectionPath);
-		}
-
-		// To select first in Apam
-		selectionPath.add(0, apam.getApamMan());
-		return selectionPath;
-	}
-
-	private List<DependencyManager> computeSelectionPathImpl(CompositeType compTypeFrom, String implName) {
-
-		List<DependencyManager> selectionPath = new ArrayList<DependencyManager>();
-		for (DependencyManager dependencyManager : ApamManagers.getManagers()) {
-
-			/*
-			 * Skip apamman
-			 */
-			if (dependencyManager == apam.getApamMan())
-				continue;
-
-			dependencyManager.getSelectionPathImpl(compTypeFrom, implName, selectionPath);
-		}
-
-		// To select first in Apam
-		selectionPath.add(0, apam.getApamMan());
-		return selectionPath;
-	}
+//	private List<DependencyManager> computeSelectionPathSpec(CompositeType compoTypeFrom, String specName) {
+//
+//		List<DependencyManager> selectionPath = new ArrayList<DependencyManager>();
+//		for (DependencyManager dependencyManager : ApamManagers.getManagers()) {
+//
+//			/*
+//			 * Skip apamman
+//			 */
+//			if (dependencyManager == apam.getApamMan())
+//				continue;
+//
+//			dependencyManager.getSelectionPathSpec(compoTypeFrom, specName, selectionPath);
+//		}
+//
+//		// To select first in Apam
+//		selectionPath.add(0, apam.getApamMan());
+//		return selectionPath;
+//	}
+//
+//	private List<DependencyManager> computeSelectionPathImpl(CompositeType compTypeFrom, String implName) {
+//
+//		List<DependencyManager> selectionPath = new ArrayList<DependencyManager>();
+//		for (DependencyManager dependencyManager : ApamManagers.getManagers()) {
+//
+//			/*
+//			 * Skip apamman
+//			 */
+//			if (dependencyManager == apam.getApamMan())
+//				continue;
+//
+//			dependencyManager.getSelectionPathImpl(compTypeFrom, implName, selectionPath);
+//		}
+//
+//		// To select first in Apam
+//		selectionPath.add(0, apam.getApamMan());
+//		return selectionPath;
+//	}
 
 
 	/**
@@ -471,8 +475,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param preferences : the preferences added by the managers. A (empty) list must be provided as parameter.
 	 * @return : the managers that will be called for that resolution.
 	 */
-	private List<DependencyManager> computeSelectionPathInst(Composite compoFrom, Implementation impl,
-			Set<Filter> constraints, List<Filter> preferences) {
+	private List<DependencyManager> computeSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dependency) {
 
 		List<DependencyManager> selectionPath = new ArrayList<DependencyManager>();
 		for (DependencyManager dependencyManager : ApamManagers.getManagers()) {
@@ -483,7 +486,7 @@ public class ApamResolverImpl implements ApamResolver {
 			if (dependencyManager == apam.getApamMan())
 				continue;
 
-			dependencyManager.getSelectionPathInst(compoFrom,impl,constraints,preferences,selectionPath);
+			dependencyManager.getSelectionPath(compTypeFrom, dependency,selectionPath);
 		}
 
 		// To select first in Apam
@@ -525,10 +528,13 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	@Override
 	public Implementation findImplByName(CompositeType compoTypeFrom, String implName) {
-		List<DependencyManager> selectionPath = computeSelectionPathImpl(compoTypeFrom, implName);
-
 		if (compoTypeFrom == null)
 			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
+		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), 
+				implName, false, new ImplementationReference<ImplementationDeclaration>(implName));
+
+		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dep);
+
 		Implementation impl = null;
 		logger.debug("Looking for implementation " + implName + ": ");
 		boolean deployed = false;
@@ -553,14 +559,16 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param specName
 	 * @return
 	 */
-	//    @Override
-	//    public Specification findSpecByName(Composite compFrom, String specName) {
-	//        return findSpecByName (compFrom.getCompType(), specName) ;
-	//    }
 	@Override
-	public Specification findSpecByName(CompositeType compTypeFrom, String specName) {
-		List<DependencyManager> selectionPath = computeSelectionPathSpec(compTypeFrom, specName);
+	public Specification findSpecByName(CompositeType compoTypeFrom, String specName) {
+		
+		if (compoTypeFrom == null)
+			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
+		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), 
+				specName, false, new SpecificationReference(specName));
 
+		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dep);
+	
 		Specification spec = null;
 		logger.debug("Looking for specification " + specName + ": ");
 		boolean deployed = false;
@@ -568,7 +576,7 @@ public class ApamResolverImpl implements ApamResolver {
 			if (!manager.getName().equals(CST.APAMMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
-			spec = manager.findSpecByName(compTypeFrom, specName);
+			spec = manager.findSpecByName(compoTypeFrom, specName);
 			if (spec != null) {
 				if (deployed) {
 					logger.debug("Deployed specificaiton " + specName);
@@ -596,15 +604,19 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	@Override
 	public Implementation resolveSpecByName(CompositeType compoTypeFrom, String specName,
-			Set<Filter> constraints, List<Filter> preferences) {
+			Set<String> constraints, List<String> preferences) {
 		if (constraints == null)
-			constraints = new HashSet<Filter>();
+			constraints = new HashSet<String>();
 		if (preferences == null)
-			preferences = new ArrayList<Filter>();
+			preferences = new ArrayList<String>();
 		if (compoTypeFrom == null)
 			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
 
-		List<DependencyManager> selectionPath = computeSelectionPathSpec(compoTypeFrom, specName);
+		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), specName, false, new SpecificationReference(specName));
+		dep.getImplementationConstraints().addAll(constraints) ;
+		dep.getImplementationPreferences().addAll(preferences) ;
+
+		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dep);
 
 		if (constraints.isEmpty() && preferences.isEmpty())
 			logger.debug("Looking a \"" + specName + "\" implementation.");
@@ -616,8 +628,9 @@ public class ApamResolverImpl implements ApamResolver {
 			if (!manager.getName().equals(CST.APAMMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
-			Implementation impl = manager.resolveSpecByResource(compoTypeFrom, new SpecificationReference(specName),
-					constraints, preferences);
+			Implementation impl = manager.resolveSpecByResource(compoTypeFrom, dep) ;
+//			Implementation impl = manager.resolveSpecByResource(compoTypeFrom, new SpecificationReference(specName),
+//					constraints, preferences);
 
 			if (impl != null) {
 				deployedImpl(compoTypeFrom, impl, deployed);
@@ -642,41 +655,16 @@ public class ApamResolverImpl implements ApamResolver {
 	 *            number of preferences, taken in the order, and stopping at the first failure.
 	 * @return
 	 */
-	@Override
 	public Implementation resolveSpecByResource(CompositeType compoTypeFrom, DependencyDeclaration dependency) {
 		// Get the constraints and preferences by merging declarations
-		Set<Filter> implementationConstraints = Util.toFilter(dependency.getImplementationConstraints());
-		List<Filter> implementationPreferences = Util.toFilterList(dependency.getImplementationPreferences());
+//		Set<Filter> implementationConstraints = Util.toFilter(dependency.getImplementationConstraints());
+//		List<Filter> implementationPreferences = Util.toFilterList(dependency.getImplementationPreferences());
 
-		return resolveSpecByResourceLoop(compoTypeFrom, dependency.getTarget(), implementationConstraints, implementationPreferences) ;
+//		return resolveSpecByResourceLoop(compoTypeFrom, dependency.getTarget(), implementationConstraints, implementationPreferences) ;
 //		// TODO Hummm ... toString is not the name.
-//		List<DependencyManager> selectionPath = computeSelectionPathSpec(compoTypeFrom, dependency.getTarget()
-//				.toString());
-//
-//		logger.debug("Looking for an implem with" + dependency);
-//		if (compoTypeFrom == null)
-//			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
-//		Implementation impl = null;
-//		boolean deployed = false;
-//		for (DependencyManager manager : selectionPath) {
-//			if (!manager.getName().equals(CST.APAMMAN))
-//				deployed = true;
-//			logger.debug(manager.getName() + "  ");
-//			impl = manager.resolveSpecByResource(compoTypeFrom, dependency.getTarget(),
-//					implementationConstraints, implementationPreferences);
-//			if (impl != null) {
-//				deployedImpl(compoTypeFrom, impl, deployed);
-//				return impl;
-//			}
-//		}
-//		return null;
-	}
+		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dependency);
 
-	public Implementation resolveSpecByResourceLoop (CompositeType compoTypeFrom, ResolvableReference ressource,
-            Set<Filter> constraints, List<Filter> preferences) {
-		//logger.debug("Looking for an implem with" + dependency);
-		List<DependencyManager> selectionPath = computeSelectionPathSpec(compoTypeFrom, ressource.toString());
-
+		logger.debug("Looking for an implem with" + dependency);
 		if (compoTypeFrom == null)
 			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
 		Implementation impl = null;
@@ -685,16 +673,15 @@ public class ApamResolverImpl implements ApamResolver {
 			if (!manager.getName().equals(CST.APAMMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
-			impl = manager.resolveSpecByResource(compoTypeFrom, ressource,
-					constraints, preferences);
+			impl = manager.resolveSpecByResource(compoTypeFrom, dependency);
 			if (impl != null) {
 				deployedImpl(compoTypeFrom, impl, deployed);
 				return impl;
 			}
 		}
 		return null;
-
 	}
+
 	/**
 	 * Look for an instance of "impl" that satisfies the constraints. That instance must be either
 	 * - shared and visible from "compo", or
@@ -708,12 +695,8 @@ public class ApamResolverImpl implements ApamResolver {
 	 *            maximum
 	 * @return
 	 */
-	@Override
-	public Instance resolveImpl(Composite compo, Implementation impl,
-			DependencyDeclaration dependency) {
-		Set<Filter> constraints = Util.toFilter(dependency.getInstanceConstraints());
-		List<Filter> preferences = Util.toFilterList(dependency.getInstancePreferences());
-		List<DependencyManager> selectionPath = computeSelectionPathInst(compo, impl, constraints, preferences);
+	public Instance resolveImpl(Composite compo, Implementation impl, DependencyDeclaration dependency) {
+		List<DependencyManager> selectionPath = computeSelectionPath(compo.getCompType(), dependency);
 
 		if (compo == null)
 			compo = CompositeImpl.getRootAllComposites();
@@ -721,7 +704,7 @@ public class ApamResolverImpl implements ApamResolver {
 		logger.debug("Looking for an instance of " + impl + ": ");
 		for (DependencyManager manager : selectionPath) {
 			logger.debug(manager.getName() + "  ");
-			inst = manager.resolveImpl(compo, impl, constraints, preferences);
+			inst = manager.resolveImpl(compo, impl, dependency);
 			if (inst != null) {
 				return inst;
 			}
@@ -742,37 +725,26 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param constraints. The constraints to satisfy. They must be all satisfied.
 	 * @return
 	 */
-	@Override
-	public Set<Instance> resolveImpls(Composite compo, Implementation impl, Set<Filter> constraints) {
-
-		if (impl == null) {
-			logger.error("impl is null in resolveImpls");
-			return null;
-		}
-		if (constraints == null)
-			constraints = new HashSet<Filter>();
-		List<DependencyManager> selectionPath = computeSelectionPathInst(compo, impl, constraints, null);
+	public Set<Instance> resolveImpls(Composite compo, Implementation impl, DependencyDeclaration dependency) {
+		
+		List<DependencyManager> selectionPath = computeSelectionPath(compo.getCompType(), dependency);
 
 		if (compo == null)
 			compo = CompositeImpl.getRootAllComposites();
-
 		Set<Instance> insts = null;
-		logger.debug("Looking for instances of " + impl + ": ");
+		logger.debug("Looking for an instance of " + impl + ": ");
 		for (DependencyManager manager : selectionPath) {
 			logger.debug(manager.getName() + "  ");
-			insts = manager.resolveImpls(compo, impl, constraints);
+			insts = manager.resolveImpls(compo, impl, dependency);
 			if ((insts != null) && !insts.isEmpty()) {
 				// logger.debug("selected " + insts);
 				return insts;
 			}
 		}
-		//        if (insts == null)
-		//            insts = new HashSet<Instance>();
-		//        if (insts.isEmpty()) {
-		//            insts.add(impl.createInstance(compo, null));
-		//        }
-		//        logger.debug("instantiated " + (insts.toArray()[0]));
-		return insts;
+		// TODO Notify dynaman
+
+		return null;
+
 	}
 
 	/**
@@ -794,5 +766,60 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 	}
+
+
+
+	@Override
+	public Implementation resolveSpecByInterface(CompositeType compoTypeFrom,
+			String interfaceName, Set<String> constraints,
+			List<String> preferences) {
+		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getDeclaration().getReference(),
+				interfaceName, false, new InterfaceReference(interfaceName));
+		
+		dep.getImplementationConstraints().addAll(constraints) ;
+		dep.getImplementationPreferences().addAll(preferences) ;
+		return resolveSpecByResource(compoTypeFrom, dep);
+	}
+
+
+
+	@Override
+	public Implementation resolveSpecByMessage(CompositeType compoTypeFrom,
+			String messageName, Set<String> constraints, List<String> preferences) {
+		
+		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getDeclaration().getReference(),
+				messageName, false, new MessageReference(messageName));
+		
+		dep.getImplementationConstraints().addAll(constraints) ;
+		dep.getImplementationPreferences().addAll(preferences) ;
+		return resolveSpecByResource(compoTypeFrom, dep);
+	}
+
+
+
+	@Override
+	public Instance resolveImpl(Composite compo, Implementation impl,
+			Set<String> constraints, List<String> preferences) {
+
+		DependencyDeclaration dep = new DependencyDeclaration (compo.getDeclaration().getReference(),
+				impl.getName(), false, new ImplementationReference<ImplementationDeclaration>(impl.getName()));
+		
+		dep.getImplementationConstraints().addAll(constraints) ;
+		dep.getImplementationPreferences().addAll(preferences) ;
+
+		return resolveImpl(compo, impl, dep);
+	}
+	
+	@Override
+	public Set<Instance> resolveImpls(Composite compo, Implementation impl, Set<String> constraints) {
+
+			DependencyDeclaration dep = new DependencyDeclaration (compo.getDeclaration().getReference(),
+					impl.getName(), true, new ImplementationReference<ImplementationDeclaration>(impl.getName()));
+			
+			dep.getImplementationConstraints().addAll(constraints) ;
+
+			return resolveImpls(compo, impl, dep);
+	}
+
 
 }

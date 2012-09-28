@@ -32,11 +32,13 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.obrMan.OBRManCommand;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
@@ -69,7 +71,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     public void start() {
         System.out.println(">>> OBRMAN starting");
         // TODO lookFor root.OBRMAN.cfg and create obrmanager for the root composite
-        String rootModelurl =  m_context.getProperty(Util.ROOT_MODEL_URL);
+        String rootModelurl =  m_context.getProperty(ObrUtil.ROOT_MODEL_URL);
         // create obrmanager for the root composite 
         try {
             URL urlModel = null;
@@ -108,7 +110,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             boolean deployed = selected.obrManager.deployInstall(selected);
             if (!deployed) {
                 System.err.print("> Could not install resource " + selected.resource);
-                Util.printRes(selected.resource);
+                ObrUtil.printRes(selected.resource);
                 return null;
             }
             // waiting for the implementation to be ready in Apam.
@@ -139,7 +141,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             boolean deployed = selected.obrManager.deployInstall(selected);
             if (!deployed) {
                 System.err.print("could not install resource ");
-                Util.printRes(selected.resource);
+                ObrUtil.printRes(selected.resource);
                 return null;
             }
             // waiting for the implementation to be ready in Apam.
@@ -160,29 +162,17 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     // at the end
     @Override
-    public void getSelectionPathSpec(CompositeType compTypeFrom, String specName, List<DependencyManager> involved) {
+    public void getSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dep, List<DependencyManager> involved) {
         involved.add(involved.size(), this);
     }
 
     @Override
-    public void getSelectionPathImpl(CompositeType compTypeFrom, String implName, List<DependencyManager> selPath) {
-        selPath.add(selPath.size(), this);
-    }
-
-    @Override
-    public void getSelectionPathInst(Composite compoFrom, Implementation impl,
-            Set<Filter> constraints, List<Filter> preferences, List<DependencyManager> selPath) {
-        return;
-    }
-
-    @Override
-    public Instance resolveImpl(Composite composite, Implementation impl, Set<Filter> constraints,
-            List<Filter> preferences) {
+    public Instance resolveImpl(Composite composite, Implementation impl, DependencyDeclaration dep) {
         return null;
     }
 
     @Override
-    public Set<Instance> resolveImpls(Composite composite, Implementation impl, Set<Filter> constraints) {
+    public Set<Instance> resolveImpls(Composite composite, Implementation impl, DependencyDeclaration dep) {
         return null;
     }
 
@@ -200,8 +190,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             obrModel.load(model.getURL().openStream());
         } catch (IOException e) {
             logger.error("Invalid OBRMAN Model. Cannot be read stream " + model.getURL(), e.getCause());
-            obrModel.put(Util.LOCAL_MAVEN_REPOSITORY, "true");
-            obrModel.put(Util.DEFAULT_OSGI_REPOSITORIES, "true");
+            obrModel.put(ObrUtil.LOCAL_MAVEN_REPOSITORY, "true");
+            obrModel.put(ObrUtil.DEFAULT_OSGI_REPOSITORIES, "true");
         }
         OBRManager obrManager = new OBRManager(this, compositeType.getName(), repoAdmin, obrModel);
         obrManagers.put(compositeType.getName(), obrManager);
@@ -229,18 +219,18 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
         Implementation impl = null;
         if (resource instanceof SpecificationReference) {
-            selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-specification>="
+            selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-specification*>"
 					+ resource.as(SpecificationReference.class).getName() + ")",
 					constraints, preferences);
         }
         if (resource instanceof InterfaceReference) {
-			selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-interfaces >="  //=*;"
-					+ resource.as(InterfaceReference.class).getJavaType() + ",)", //";*)"
+			selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-interfaces*>"  //=*;"
+					+ resource.as(InterfaceReference.class).getJavaType() + ")", //";*)"
                     constraints, preferences);
         }
         if (resource instanceof MessageReference) {
-			selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-messages>=" 
-					+ resource.as(MessageReference.class).getJavaType() + ",)",
+			selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-messages*>" 
+					+ resource.as(MessageReference.class).getJavaType() + ")",
                     constraints, preferences);
         }
         if (selected != null) {
@@ -270,9 +260,11 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Implementation resolveSpecByResource(CompositeType compoType, ResolvableReference resource,
-            Set<Filter> constraints, List<Filter> preferences) {
-        return resolveSpec(compoType, resource, constraints, preferences);
+    public Implementation resolveSpecByResource(CompositeType compoType, DependencyDeclaration dep) {
+    	Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints()) ;
+    	List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
+
+        return resolveSpec(compoType, dep.getTarget(), constraints, preferences);
     }
 
     @Override
@@ -335,7 +327,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     public String getDeclaredOSGiOBR() {
-        return m_context.getProperty(Util.OSGI_OBR_REPOSITORY_URL);
+        return m_context.getProperty(ObrUtil.OSGI_OBR_REPOSITORY_URL);
     }
     
   
@@ -370,8 +362,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         } catch (Exception e) {
             System.out.println("Invalid OBRMAN Model. Cannot be read stream " + "conf/root.OBRMAN.cfg");
 //             e.printStackTrace();
-            obrModel.put(Util.LOCAL_MAVEN_REPOSITORY, "true");
-            obrModel.put(Util.DEFAULT_OSGI_REPOSITORIES, "true");
+            obrModel.put(ObrUtil.LOCAL_MAVEN_REPOSITORY, "true");
+            obrModel.put(ObrUtil.DEFAULT_OSGI_REPOSITORIES, "true");
         }
         OBRManager obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
         obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);

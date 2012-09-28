@@ -88,6 +88,9 @@ public class MainApam implements Runnable, ApamComponent {
 
 	public void testCreateCompoRootS1toS2Final () {
 		System.out.println("=========== start testCreateCompoRootS1toS2Final");
+		if (apam != null) {
+			System.out.println("apam is Ok");
+		}
 		System.out.println("testing a root createCompositeType by name existing in ASM. will call S2Final.");
 		CompositeType appliTest00 = apam.createCompositeType(null,  "Test00", null, "S1toS2Final", null,null);
 		assertTrue(appliTest00!= null);
@@ -321,7 +324,7 @@ public class MainApam implements Runnable, ApamComponent {
 		//Instances can set spec attributes, if not defined by the implem
 		inst.setProperty("OS", "Linux") ; // ok
 		assertEquals(inst.getProperty("OS"), "Linux");
-		inst.setProperty("OS", "Linux, Android, IOS") ; // ok
+		inst.setProperty("OS", " Android, Linux, IOS") ; // ok
 		assertEquals(inst.getProperty("OS"), "Linux, Android, IOS");
 		assertTrue(impl.getProperty("OS") == null);
 
@@ -337,16 +340,30 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("Matching: (OS *> Android): " + ok);
 		ok = inst.match("(OS *> Android,)")  ;
 		System.out.println("Matching: (OS *> Android,): " + ok);
-		ok = inst.match("(OS = Android)")  ;
-		System.out.println("Matching: (OS = Android): " + ok);		
-		ok = inst.match("(OS >= Android)")  ;
-		System.out.println("Matching: (OS >= Android): " + ok);		
+		ok = inst.match("(OS=Android)")  ;
+		System.out.println("Matching: (OS=Android): " + ok);		
+		ok = inst.match("(OS >=Android)")  ;
+		System.out.println("Matching: (OS>=Android): " + ok);		
+
+		ok = inst.match("(OS >=Linux, Android, IOS)")  ;
+		System.out.println("Matching: (OS>=Linux, Android, IOS): " + ok);		
+		ok = inst.match("(OS >=Android, Linux, IOS)")  ;
+		System.out.println("Matching: (OS>=Android, Linux, IOS): " + ok);		
+		ok = inst.match("(OS >=Android, Linux   , IOS)")  ;
+		System.out.println("Matching: (OS>=Android, Linux   , IOS): " + ok);		
+
+		
 		ok = inst.match("(OS *> Linux, Android, IOS)") ;
 		System.out.println("Matching: (OS *> Linux, Android, IOS): " + ok);
 		ok = inst.match("(OS <* Linux, Android, IOS)") ;
 		System.out.println("Matching: (OS <* Linux, Android, IOS): " + ok);
+		
 		ok = inst.match("(OS = Linux, Android, IOS)") ;
 		System.out.println("Matching: (OS = Linux, Android, IOS): " + ok);
+		
+		ok = inst.match("(OS = Android  , Linux  , IOS)") ;
+		System.out.println("Matching: (OS = Android  , Linux  , IOS): " + ok);
+		
 		ok = inst.match("(OS *> Linux, Android, IOS,)") ;
 		System.out.println("Matching: (OS *> Linux, Android, IOS,): " + ok);
 		ok = inst.match("(OS <* Linux, Android, IOS,)") ;
@@ -372,9 +389,14 @@ public class MainApam implements Runnable, ApamComponent {
 		ok = inst.match("(OS *> Android,)")  ;
 		System.out.println("Matching: (OS *> Android,): " + ok);
 		ok = inst.match("(OS = Android)")  ;
-		System.out.println("Matching: (OS = Android): " + ok);		
+		System.out.println("Matching: (OS=Android): " + ok);		
 		ok = inst.match("(OS >= Android)")  ;
-		System.out.println("Matching: (OS >= Android): " + ok);		
+		System.out.println("Matching: (OS >=Android): " + ok);		
+
+		ok = inst.match("(OS >= Android)")  ;
+		System.out.println("Matching: (OS >=Android): " + ok);		
+
+		
 		ok = inst.match("(OS *> Linux, Android, IOS)") ;
 		System.out.println("Matching: (OS *> Linux, Android, IOS): " + ok);
 		ok = inst.match("(OS <* Linux, Android, IOS)") ;
@@ -404,8 +426,8 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("Matching: (OS *> Android): " + ok);
 		ok = inst.match("(OS *> Android,)")  ;
 		System.out.println("Matching: (OS *> Android,): " + ok);
-		ok = inst.match("(OS = Android)")  ;
-		System.out.println("Matching: (OS = Android): " + ok);		
+		ok = inst.match("(OS =Android)")  ;
+		System.out.println("Matching: (OS =Android): " + ok);		
 		ok = inst.match("(OS >= Android)")  ;
 		System.out.println("Matching: (OS >= Android): " + ok);		
 		ok = inst.match("(OS *> Linux, Android, IOS)") ;

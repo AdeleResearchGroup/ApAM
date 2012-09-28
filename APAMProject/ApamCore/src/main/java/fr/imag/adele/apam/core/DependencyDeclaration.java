@@ -84,7 +84,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     @Override
     public DependencyDeclaration clone() {
     	
-    	DependencyDeclaration clone = new DependencyDeclaration(this.reference.getDeclaringComponent(),this.reference.getIdentifier(), this.isMultiple, this.getTarget());
+    	DependencyDeclaration clone = new DependencyDeclaration(this.reference.getDeclaringComponent(),this.reference.getIdentifier(), this.isMultiple(), this.getTarget());
     	
     	clone.getImplementationConstraints().addAll(this.getImplementationConstraints());
     	clone.getInstanceConstraints().addAll(this.getInstanceConstraints());

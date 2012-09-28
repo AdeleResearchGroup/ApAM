@@ -14,6 +14,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.util.Util;
 
@@ -35,21 +36,14 @@ public class ApamMan implements DependencyManager {
 
     
     @Override
-    public void getSelectionPathSpec(CompositeType compTypeFrom, String specName, List<DependencyManager> selPath) {
+    public void getSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dep, List<DependencyManager> selPath) {
     }
 
     @Override
-    public void getSelectionPathImpl(CompositeType compTypeFrom, String implName, List<DependencyManager> selPath) {
-    }
+    public Instance resolveImpl(Composite composite, Implementation impl, DependencyDeclaration dep) {
 
-    @Override
-    public void getSelectionPathInst(Composite compoFrom, Implementation impl,
-            Set<Filter> constraints, List<Filter> preferences, List<DependencyManager> selPath) {
-    }
-
-    @Override
-    public Instance resolveImpl(Composite composite, Implementation impl, Set<Filter> constraints, List<Filter> preferences) {
-
+    	Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
+    	List<Filter> preferences = Util.toFilterList(dep.getInstancePreferences()) ;
         if ((constraints == null) && (preferences == null)) {
             for (Instance inst : impl.getInsts()) {
                 if (inst.isSharable() && Util.checkInstVisible(composite, inst))
@@ -68,8 +62,10 @@ public class ApamMan implements DependencyManager {
     }
 
     @Override
-    public Set<Instance> resolveImpls(Composite composite, Implementation impl, Set<Filter> constraints) {
-        Set<Instance> insts = new HashSet<Instance>();
+    public Set<Instance> resolveImpls(Composite composite, Implementation impl, DependencyDeclaration dep) {
+
+    	Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;	
+    	Set<Instance> insts = new HashSet<Instance>();
         for (Instance inst : impl.getInsts()) {
             if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(composite, inst))
                 insts.add(inst);
@@ -107,13 +103,16 @@ public class ApamMan implements DependencyManager {
     }
 
     @Override
-    public Implementation resolveSpecByResource(CompositeType compoType, ResolvableReference resource,
-            Set<Filter> constraints, List<Filter> preferences) {
-        assert (resource != null);
-
-        Specification spec = CST.SpecBroker.getSpecResource(resource);
+    public Implementation resolveSpecByResource(CompositeType compoType, DependencyDeclaration dep) {
+//        assert (resource != null);
+    	
+        Specification spec = CST.SpecBroker.getSpecResource(dep.getTarget());
         if (spec == null)
             return null;
+        
+    	Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints()) ;
+    	List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
+
         Set<Implementation> impls = new HashSet<Implementation>();
         // select only those that are visible
         for (Implementation impl : spec.getImpls()) {

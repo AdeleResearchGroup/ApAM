@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.osgi.framework.Filter;
 
+import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ResolvableReference;
 
 /**
@@ -23,54 +24,18 @@ public interface DependencyManager {
     public String getName();
 
     /**
-     * Provided that a resolution will be asked for a specification (or interface),
+     * Provided that a dependency resolution is required,
      * each manager is asked if it want to be involved. If this manager is not involved, it does nothing. If involved,
      * it must return the list "selPath" including itself somewhere (the order is important).
      * It can *add* constraints or preferences that will used by each manager during the resolution.
-     * WARNING: Either interfaceName, interfaces or specName are needed;
      * 
-     * @param specName: the name of the spec.
+     * @param compTypeFrom the source composite type
+     * @param dependency the dependency to resolve. It contains the target type and name; and the constraints. 
      * @param selPath the managers currently involved in this resolution.
      */
-    public void getSelectionPathSpec(CompositeType compTypeFrom, String specName, List<DependencyManager> selPath);
-
-    /**
-     * Provided that an implementation, known by its name, is required, each manager is asked if it want to be involved.
-     * If not, does nothing. If involved it must return the list "selPath" including itself somewhere (the order is
-     * important).
-     * 
-     * @param compTypeFrom the composite type origin of the future wire. Can be null.
-     * @param implName the name of implementation to resolve.
-     * @param selPath the managers currently involved in this resolution.
-     */
-    public void getSelectionPathImpl(CompositeType compTypeFrom, String implName, List<DependencyManager> selPath);
-
-    //    /**
-    //     * Provided that a specification, known by its name, is required, each manager is asked if it want to be involved.
-    //     * If not, does nothing. If involved it must return the list "selPath" including itself somewhere (the order is
-    //     * important).
-    //     * 
-    //     * @param specName the name of implementation to resolve.
-    //     * @param selPath the managers currently involved in this resolution.
-    //     */
-    //    public void getSelectionPathSpec(String specName, List<Manager> selPath);
-
-    /**
-     * Provided that a resolution will be asked for a implementation (selecting an instance),
-     * each manager is asked if it want to be involved. If this manager is not involved, it does nothing. If involved,
-     * it must return the list "selPath" including itself somewhere (the order is important).
-     * It can *add* constraints or preferences that will used by each manager during the resolution.
-     * WARNING: Either interfaceName or specName are needed;
-     * 
-     * @param compTypeFrom the composite type origin of the future wire. Can be null.
-     * @param interfaceName the name of one of the interfaces of the specification to resolve. May be null.
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
-     * @param constraints The constraints for this resolution.
-     * @param preferences The preferences for this resolution.
-     * @param selPath the managers currently involved in this resolution.
-     */
-    public void getSelectionPathInst(Composite compoFrom, Implementation impl,
-            Set<Filter> constraints, List<Filter> preferences, List<DependencyManager> selPath);
+    
+    
+     public void getSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dependency,  List<DependencyManager> selPath);
 
     // returns the relative priority of that manager, for the resolution algorithm
     public int getPriority();
@@ -84,39 +49,23 @@ public interface DependencyManager {
      */
     public void newComposite(ManagerModel model, CompositeType composite);
 
-    /**
-     * The manager is asked to find the "right" implementation for the provided specification, given its name.
-     * If an implementation has to be created, it must be inside compoType.
-     * 
-     * @param compoType the composite in which is located the calling implem (and where to create implementation, if
-     *            needed). Cannot be null.
-     * @param specName the *logical* name of that specification; different from SAM. May be null.
-     * @param constraints The constraints for this resolution.
-     * @param preferences The preferences for this resolution.
-     * @return the implementations if resolved, null otherwise
-     */
-    //    public Implementation resolveSpecByName(CompositeType compoType, String specName,
-    //            Set<Filter> constraints, List<Filter> preferences);
 
     /**
-     * The manager is asked to find the "right" implementation for the specification defined by the ressource it
+     * The manager is asked to find the "right" implementation for the specification defined by the resources it
      * implements.
      * WARNING : since a specification may implement more than one resource, it can be ambiguous.
      * If an implementation has to be created, it must be inside compoType.
      * 
      * @param compoType the composite in which is located the calling implem (and where to create implementation, if
      *            needed). Cannot be null.
-     * @param reource the resource that specification must implement. It can be
+     * @param dependency a dependency declaration containing the type and name of the resource. It can be
      *            -the specification Name (new SpecificationReference (specName))
      *            -an interface name (new InterfaceReference (interfaceName))
      *            -a message name (new MessageReference (dataTypeName))
      *            - or any future resource ...
-     * @param constraints The constraints for this resolution.
-     * @param preferences The preferences for this resolution.
      * @return the implementations if resolved, null otherwise
      */
-    public Implementation resolveSpecByResource(CompositeType compoType, ResolvableReference ressource,
-            Set<Filter> constraints, List<Filter> preferences);
+    public Implementation resolveSpecByResource(CompositeType compoTypeFrom, DependencyDeclaration dependency);
 
     /**
      * The manager is asked to find the implementation given its name.
@@ -132,19 +81,7 @@ public interface DependencyManager {
      */
     public Implementation findImplByName(CompositeType compoType, String implName);
 
-    /**
-     * The manager is asked to find the implementation given its name.
-     * If it must be created, it must be inside the type of compo.
-     * 
-     * @param compo the composite in which is located the caller and in which composite type the implementation is created, if
-     *            needed). If null, the system root composite is assumed.      
-     *            The search scope is composite and then its embedding composites (a tree). 
-     * @param implName the name of implementation to find.
-     * @return the implementations if resolved, null otherwise
-     */
-//    public Implementation findImplByName(Composite compo, String implName);
-
-    /**
+     /**
      * The manager is asked to find the specification given its name.
      * If it must be created, it must be inside compoType.
      * 
@@ -155,7 +92,6 @@ public interface DependencyManager {
      * @return the specification if found, null otherwise
      */
     public Specification findSpecByName(CompositeType compoType, String specName);
-//    public Specification findSpecByName(Composite compo, String specName);
 
     /**
      * The manager is asked to find the "right" instance for the required implementation.
@@ -163,12 +99,10 @@ public interface DependencyManager {
      * 
      * @param compo the composite in which is located the calling instances. Cannot be null.
      * @param impl the implementation to resolve. Cannot be null.
-     * @param constraints The constraints for this resolution.
-     * @param preferences The preferences for this resolution.
+     * @param dependency a dependency declaration containing the constraints to apply for this resolution. 
      * @return an instance if resolved, null otherwise
      */
-    public Instance resolveImpl(Composite compo, Implementation impl, Set<Filter> constraints,
-            List<Filter> preferences);
+    public Instance resolveImpl(Composite compo, Implementation impl, DependencyDeclaration dependency);
 
     /**
      * The manager is asked to find the all "right" instances for the required implementation.
@@ -176,11 +110,10 @@ public interface DependencyManager {
      * 
      * @param compo the composite in which is located the calling instances. Cannot be null.
      * @param impl the implementation to resolve. Cannot be null.
-     * @param constraints The constraints for this resolution.
-     * @param preferences The preferences for this resolution.
-     * @return an instance if resolved, null otherwise
+     * @param dependency a dependency declaration containing the constraints to apply for this resolution. 
+     * @return all the instances instance if resolved, null otherwise
      */
-    public Set<Instance> resolveImpls(Composite compo, Implementation impl, Set<Filter> constraints);
+    public Set<Instance> resolveImpls(Composite compo, Implementation impl, DependencyDeclaration dependency);
 
     /**
      * Once the resolution terminated, either successful or not, the managers are notified of the current

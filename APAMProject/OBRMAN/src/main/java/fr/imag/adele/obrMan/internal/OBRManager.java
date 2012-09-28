@@ -42,6 +42,8 @@ public class OBRManager {
 
     private final Repository     systembundle;
 
+	private File settings;
+
     public OBRManager(OBRMan obrman, String compositeTypeName, RepositoryAdmin repoAdmin, LinkedProperties obrModel) {
         allResources = new ArrayList<Resource>();
         repositories = new ArrayList<Repository>();
@@ -224,14 +226,14 @@ public class OBRManager {
             }
         }
         if ((constraints != null) && !constraints.isEmpty()) {
-            debugMessage += "   > Constraints : ";
+            debugMessage += "\n     Constraints : ";
             for (Filter constraint : constraints) {
                 debugMessage += (constraint + ", ");
             }
         }
 
         if ((preferences != null) && !preferences.isEmpty()) {
-            debugMessage += "   > Preferences : ";
+            debugMessage += "\n    Preferences : ";
             for (Filter preference : preferences) {
                 debugMessage += (preference + ", ");
             }
@@ -302,11 +304,14 @@ public class OBRManager {
         while (keys.hasMoreElements()) {
 
             String key = (String) keys.nextElement();
-            if (Util.LOCAL_MAVEN_REPOSITORY.equals(key)) {
+            if (ObrUtil.LOCAL_MAVEN_REPOSITORY.equals(key)) {
                 // Add the obr repository located in the local maven repository
                 Boolean localMavenOBRRepo = new Boolean(obrModel.getProperty(key));
                 if (localMavenOBRRepo) {
                     URL localMavenObrUrl = findLocalMavenRepository();
+                    if (localMavenObrUrl==null){
+                    	System.out.println("Error : localRepository not found in : " + settings.getPath());
+                    }
                     try {
                         declaredRepositories.add(repoAdmin.addRepository(localMavenObrUrl));
                     } catch (Exception e) {
@@ -314,7 +319,7 @@ public class OBRManager {
                         e.printStackTrace();
                     }
                 }
-            } else if (Util.DEFAULT_OSGI_REPOSITORIES.equals(key)) {
+            } else if (ObrUtil.DEFAULT_OSGI_REPOSITORIES.equals(key)) {
                 // Add obr repositories declared in the osgi configuration file
                 Boolean osgiRepo = new Boolean(obrModel.getProperty(key));
                 if (osgiRepo) {
@@ -323,12 +328,12 @@ public class OBRManager {
                         declaredRepositories.addAll(getRepositoriesFromArray(repoAdmin, repos.split("\\s+")));
                     }
                 }
-            } else if (Util.REPOSITORIES.equals(key)) {
+            } else if (ObrUtil.REPOSITORIES.equals(key)) {
                 // Add obr repositories declared in the composite
                 declaredRepositories
                         .addAll(getRepositoriesFromArray(repoAdmin, obrModel.getProperty(key).split("\\s+")));
 
-            } else if (Util.COMPOSITES.equals(key)) {
+            } else if (ObrUtil.COMPOSITES.equals(key)) {
                 // look for obr repositories in other composites
                 String[] otherCompositesRepositories = obrModel.getProperty(key).split("\\s+");
                 for (String compoTypeName : otherCompositesRepositories) {
@@ -382,21 +387,21 @@ public class OBRManager {
     protected URL findLocalMavenRepository() {
 
         // try to find the maven settings.xml file
-        File settings = Util.searchSettingsFromM2Home();
+        settings = ObrUtil.searchSettingsFromM2Home();
         if (settings == null) {
-            settings = Util.searchSettingsFromUserHome();
+            settings = ObrUtil.searchSettingsFromUserHome();
         }
         logger.info("Maven settings location: " + settings);
 
         // Extract localRepository from settings.xml
         URL defaultLocalRepo = null;
         if (settings != null) {
-            defaultLocalRepo = Util.searchMavenRepoFromSettings(settings);
+            defaultLocalRepo = ObrUtil.searchMavenRepoFromSettings(settings);
         }
 
         if (defaultLocalRepo == null) {
             // Special case for Jenkins Server :
-            defaultLocalRepo = Util.searchRepositoryFromJenkinsServer();
+            defaultLocalRepo = ObrUtil.searchRepositoryFromJenkinsServer();
         }
         if (defaultLocalRepo != null) {
             return defaultLocalRepo;

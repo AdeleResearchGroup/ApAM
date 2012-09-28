@@ -16,7 +16,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class Util {
+public class ObrUtil {
 
     public static final String LOCAL_MAVEN_REPOSITORY    = "LocalMavenRepository";
     public static final String DEFAULT_OSGI_REPOSITORIES = "DefaultOSGiRepositories";
@@ -26,7 +26,7 @@ public class Util {
 
     public static final String ROOT_MODEL_URL   = "apam.root.model.url";
     
-    private static Logger      logger                    = LoggerFactory.getLogger(Util.class);
+    private static Logger      logger                    = LoggerFactory.getLogger(ObrUtil.class);
 
     public static void printCap(Capability aCap) {
         System.out.println("   Capability name: " + aCap.getName());

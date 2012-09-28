@@ -52,7 +52,7 @@ public interface ApamResolver {
      * @return
      */
     public Implementation resolveSpecByName(CompositeType compoTypeFrom, String specName,
-            Set<Filter> constraints, List<Filter> preferences);
+            Set<String> constraints, List<String> preferences);
 
     /**
      * First looks for the specification defined by its interface, and then resolve that specification.
@@ -69,7 +69,8 @@ public interface ApamResolver {
      *            number of preferences, taken in the order, and stopping at the first failure.
      * @return
      */
-    public Implementation resolveSpecByResource(CompositeType compoTypeFrom, DependencyDeclaration dependency);
+    public Implementation resolveSpecByInterface(CompositeType compoTypeFrom,  String interfaceName, Set<String> constraints, List<String> preferences);
+    public Implementation resolveSpecByMessage  (CompositeType compoTypeFrom,  String messageName,   Set<String> constraints, List<String> preferences);
 
     /**
      * Look for an instance of "impl" that satisfies the constraints. That instance must be either
@@ -84,8 +85,7 @@ public interface ApamResolver {
      *            maximum
      * @return
      */
-    public Instance resolveImpl(Composite compo, Implementation impl,
-            DependencyDeclaration dependency);
+    public Instance resolveImpl(Composite compo, Implementation impl, Set<String> constraints, List<String> preferences);
 
     /**
      * Look for all the existing instance of "impl" that satisfy the constraints.
@@ -98,7 +98,7 @@ public interface ApamResolver {
      * @param constraints. The constraints to satisfy. They must be all satisfied.
      * @return
      */
-    public Set<Instance> resolveImpls(Composite compo, Implementation impl, Set<Filter> constraints);
+    public Set<Instance> resolveImpls(Composite compo, Implementation impl, Set<String> constraints);
 
 
 }

@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.ServiceProperty;
@@ -46,6 +47,7 @@ import fr.imag.adele.apam.core.ResourceReference;
  * 
  * @author Jacky
  */
+@Instantiate
 @Component(public_factory = false, immediate = true, name = "apam.shell")
 @Provides(specifications = ApamCommand.class)
 public class ApamCommand {

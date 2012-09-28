@@ -212,16 +212,15 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
          * 
          */
 		String mainComponent = getCompoDeclaration().getMainComponent().getName();
-		Set<Filter> constraints = new HashSet<Filter>();
 		
 		mainImpl = CST.apamResolver.findImplByName(this,mainComponent);
 		if (mainImpl == null) {
 			/*
 			 *  It is a specification to resolve as the main implem. Do not select another composite
 			 */
-			constraints.clear();
-			ApamFilter noComposite = ApamFilter.newInstance("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
-			constraints.add(noComposite);
+			Set<String> constraints = new HashSet<String>();
+//			ApamFilter noComposite = ApamFilter.newInstance("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
+			constraints.add("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
 			mainImpl = CST.apamResolver.resolveSpecByName(this, mainComponent, constraints, null);
         }
 		
