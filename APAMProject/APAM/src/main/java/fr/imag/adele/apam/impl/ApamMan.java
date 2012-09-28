@@ -103,9 +103,7 @@ public class ApamMan implements DependencyManager {
     }
 
     @Override
-    public Implementation resolveSpecByResource(CompositeType compoType, DependencyDeclaration dep) {
-//        assert (resource != null);
-    	
+    public Set<Implementation> resolveSpecByResources(CompositeType compoType, DependencyDeclaration dep) {
         Specification spec = CST.SpecBroker.getSpecResource(dep.getTarget());
         if (spec == null)
             return null;
@@ -120,8 +118,18 @@ public class ApamMan implements DependencyManager {
                 impls.add(impl);
         }
         // AND those that match the constraints
-        impls = spec.getImpls(impls, constraints);
+        return spec.getImpls(impls, constraints);
+    }
+
+    @Override
+    public Implementation resolveSpecByResource(CompositeType compoType, DependencyDeclaration dep) {
+        Specification spec = CST.SpecBroker.getSpecResource(dep.getTarget());
+        if (spec == null)
+            return null;	
+
+    	Set<Implementation> impls = resolveSpecByResources (compoType, dep) ;
         // and then the prefered ones.
+     	List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
         return spec.getPreferedImpl(impls, preferences);
     }
 

@@ -605,7 +605,21 @@ public class CheckObr {
 	 * @param component
 	 */
 	private static void checkContextualDependencies (CompositeDeclaration component) {
-		 //List<ContextualResolutionPolicy> resol = component.getContextualResolutionPolicies() ;
+		ApamFilter f ;
+		for (ContextualResolutionPolicy pol : component.getContextualResolutionPolicies()) {
+			for (String constraint : pol.getImplementationConstraints()) {
+				f = ApamFilter.newInstance(constraint) ;
+			}
+			for (String constraint : pol.getImplementationPreferences()) {
+				f = ApamFilter.newInstance(constraint) ;
+			}
+			for (String constraint : pol.getInstanceConstraints()) {
+				f = ApamFilter.newInstance(constraint) ;
+			}
+			for (String constraint : pol.getInstancePreferences()) {
+				f = ApamFilter.newInstance(constraint) ;
+			}
+		}
 	}
 
 
