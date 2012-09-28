@@ -10,7 +10,7 @@ import java.util.List;
  * @author vega
  *
  */
-public class DependencyDeclaration extends ConstrainedReference {
+public class DependencyDeclaration extends ConstrainedReference implements Cloneable {
 
     /**
      * A reference to a dependency declaration. Notice that dependency identifiers must be only
@@ -79,6 +79,22 @@ public class DependencyDeclaration extends ConstrainedReference {
         this.missingException		= null;
         
         injections					= new ArrayList<DependencyInjection>();
+    }
+    
+    @Override
+    public DependencyDeclaration clone() {
+    	
+    	DependencyDeclaration clone = new DependencyDeclaration(this.reference.getDeclaringComponent(),this.reference.getIdentifier(), this.isMultiple, this.getTarget());
+    	
+    	clone.getImplementationConstraints().addAll(this.getImplementationConstraints());
+    	clone.getInstanceConstraints().addAll(this.getInstanceConstraints());
+    	clone.getImplementationPreferences().addAll(this.getImplementationPreferences());
+    	clone.getInstancePreferences().addAll(this.getInstancePreferences());
+    	
+    	clone.setMissingExeception(this.getMissingException());
+    	clone.setMissingPolicy(this.getMissingPolicy());
+    	
+    	return clone;
     }
 
     /**

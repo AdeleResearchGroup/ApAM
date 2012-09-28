@@ -86,25 +86,11 @@ public class CheckObr {
 		//computes the attributes that can be associated with this spec or implementations members
 		Map<String, String> validAttrs = cap.getValidAttrNames();
 
-		CheckObr.checkFilters(dep.getImplementationConstraints(), dep.getImplementationPreferences(), validAttrs, dep.getTarget().getName());
-		CheckObr.checkFilters(dep.getInstanceConstraints(), dep.getInstancePreferences(), validAttrs, dep.getTarget().getName());
+		Util.checkFilters(dep.getImplementationConstraints(), dep.getImplementationPreferences(), validAttrs, dep.getTarget().getName());
+		Util.checkFilters(dep.getInstanceConstraints(), dep.getInstancePreferences(), validAttrs, dep.getTarget().getName());
 	}
 
 
-	private static void checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr, String comp) {
-		if (filters != null) {
-			for (String f : filters) {
-				ApamFilter parsedFilter = ApamFilter.newInstance(f);
-				parsedFilter.validateAttr(validAttr, f, comp);
-			}
-		}
-		if (listFilters != null) {
-			for (String f : listFilters) {
-				ApamFilter parsedFilter = ApamFilter.newInstance(f);
-				parsedFilter.validateAttr(validAttr, f, comp);
-			}
-		}
-	}
 
 
 	/**
@@ -441,8 +427,8 @@ public class CheckObr {
 			
 			Map<String, String> validAttrs = cap.getValidAttrNames();
 
-			CheckObr.checkFilters(ref.getImplementationConstraints(), ref.getImplementationPreferences(), validAttrs, ref.getTarget().getName());
-			CheckObr.checkFilters(ref.getInstanceConstraints(), ref.getInstancePreferences(), validAttrs, ref.getTarget().getName());
+			Util.checkFilters(ref.getImplementationConstraints(), ref.getImplementationPreferences(), validAttrs, ref.getTarget().getName());
+			Util.checkFilters(ref.getInstanceConstraints(), ref.getInstancePreferences(), validAttrs, ref.getTarget().getName());
 		}
 	}
 

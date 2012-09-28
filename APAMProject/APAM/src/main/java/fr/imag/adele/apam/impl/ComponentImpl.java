@@ -34,13 +34,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	private final ApformComponent      apform ;
 	private final ComponentDeclaration declaration;
 
-    /**
-     * An exception that can be thrown in the case of problems while creating a component
-     */
-    public class InvalidConfiguration extends Exception {
+	/**
+	 * An exception that can be thrown in the case of problems while creating a component
+	 */
+	public class InvalidConfiguration extends Exception {
 
 		private static final long serialVersionUID = 1L;
-		
+
 		public InvalidConfiguration(String message) {
 			super(message);
 		}
@@ -53,18 +53,18 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 			super(cause);
 		}
 
-    }
-	
+	}
+
 	public ComponentImpl(ApformComponent apform) throws InvalidConfiguration {
 
 		if (apform == null)
-        	throw new InvalidConfiguration("Null apform instance while creating component");
-		
+			throw new InvalidConfiguration("Null apform instance while creating component");
+
 		assert apform != null;
 
 		this.apform 		= apform;
 		this.declaration	= apform.getDeclaration();
-		
+
 	}
 
 	/**
@@ -116,7 +116,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		put (CST.SHARED, Boolean.toString(isShared())) ;
 		put (CST.SINGLETON, Boolean.toString(isSingleton())) ;
 		put (CST.INSTANTIABLE, Boolean.toString(isInstantiable())) ;
-		
+
 		/*
 		 * Finally add the specific attributes. Should be the only place where instanceof is used.
 		 */
@@ -245,7 +245,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		this.propagate (attr, value) ;
 		return true ;
 	}
-	
+
 	/**
 	 * During initialisation, set the new (attrbute, value) in the object, 
 	 * in the platform, and propagates to the members recursively.
@@ -261,7 +261,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		//Propagate to members recursively
 		if (getMembers() == null)
 			return;
-		
+
 		for (Component member : getMembers()) {
 			((ComponentImpl)member).propagate (attr, value) ;
 		}
@@ -283,15 +283,15 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		getApformComponent().setProperty (attr,value);
 
 		//Propagate to members recursively
-		
+
 		if (getMembers() == null)
 			return;
-		
+
 		for (Component member : getMembers()) {
 			((ComponentImpl)member).propagate (attr, value) ;
 		}
 	}
-	
+
 	/**
 	 * Sets the value of a property changed in the state and notifies property managers,
 	 * but doesn't call back the execution platform.
@@ -335,9 +335,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * TODO Should we add this to the API? how to notify apform?
 	 */
 	public boolean removeProperty(String attr) {
-		
+
 		String oldValue = getProperty(attr) ;
-		
+
 		if (oldValue == null) {
 			logger.error("ERROR: \"" + attr + "\" not instanciated");
 			return false;			
@@ -352,24 +352,24 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 			logger.error("ERROR: \"" + attr + "\" is a reserved attribute");
 			return false;
 		}
-		
+
 		PropertyDefinition propDef = getAttrDefinition(attr) ;
 		if (propDef != null && propDef.getField() != null) {
 			logger.error("In " + this + " attribute " + attr +  " is a program field and cannot be removed.");
 			return false;
 		}
-		
+
 		if (getGroup() != null && getGroup().getProperty(attr) != null) {
 			logger.error("In " + this + " attribute " + attr +  " inherited and cannot be removed.");
 			return false;			
 		}
-		
+
 		//it is ok, remove it and propagate to members, recursively
 		propagateRemove(attr) ;
-		
+
 		//TODO. Should we notify at all levels ?
 		ApamManagers.notifyAttributeRemoved(this, attr, oldValue);
-		
+
 		return true ;	
 	}
 
@@ -379,16 +379,16 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * @param attr
 	 */
 	private void propagateRemove (String attr) {
-		
+
 		remove(attr) ;
 
 		if (getMembers() == null)
 			return;
-		
+
 		for (Component member : getMembers ()) {
 			((ComponentImpl)member).propagateRemove(attr) ;
 		}
-		
+
 	}
 
 	/**
@@ -407,10 +407,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 			PropertyDefinition definition =  group.getDeclaration().getPropertyDefinition(attr);
 			if (definition != null)
 				return definition;
-			
+
 			group = group.getGroup () ;
 		}
-		
+
 		return null ;
 	}
 
@@ -431,13 +431,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 */
 	private boolean validDef (String attr, String value) {
 		//attr = attr.toLowerCase() ;
-//		if (Util.isPredefinedAttribute(attr))
-//			return true;
+		//		if (Util.isPredefinedAttribute(attr))
+		//			return true;
 		if (Util.isFinalAttribute(attr)) {
 			logger.error("Cannot redefine final attribute \"" + attr + "\"");
 			return false;			
 		}		
-			
+
 		Component group = this.getGroup() ;
 
 		//if the same attribute exists above, it is a redefinition.
@@ -452,13 +452,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 			logger.error("Attribute \"" + attr + "=" + value + "\" is undefined.");
 			return false;
 		}
-		
+
 		// there is a definition for attr
 		if (definition.isInternal()) {
 			logger.error("Attribute " + attr +  " is an internal field attribute and cannot be set.");
 			return false;
 		}
-		
+
 		return Util.checkAttrType(attr, value, definition.getType());
 
 	}
@@ -494,42 +494,52 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		}
 	}
 
-    /**
-     * Whether the component is exclusive
-     */
-    public boolean isExclusive() {
-    	if (declaration.isDefinedExclusive() || getGroup() == null) 
-    		return declaration.isExclusive() ;
-    	return getGroup().isExclusive() ;
-    }
+	/**
+	 * Whether the component is exclusive
+	 */
+	public boolean isExclusive() {
+		if (declaration.isDefinedExclusive() || getGroup() == null) 
+			return declaration.isExclusive() ;
+		return getGroup().isExclusive() ;
+	}
 
-    /**
-     * Whether the component is instantiable
-     */
-    public boolean isInstantiable() {
-    	if (declaration.isDefinedInstantiable() || getGroup() == null) 
-    		return declaration.isInstantiable() ;
-    	return getGroup().isInstantiable() ;
-    }
+	/**
+	 * Whether the component is instantiable
+	 */
+	public boolean isInstantiable() {
+		if (declaration.isDefinedInstantiable() || getGroup() == null) 
+			return declaration.isInstantiable() ;
+		return getGroup().isInstantiable() ;
+	}
 
-    /**
-     * Whether the component is singleton
-     */
-    public boolean isSingleton(){
-    	if (declaration.isDefinedSingleton() || getGroup() == null) 
-    		return declaration.isSingleton() ;
-    	return getGroup().isSingleton() ;
-    }
+	/**
+	 * Whether the component is singleton
+	 */
+	public boolean isSingleton(){
+		if (declaration.isDefinedSingleton() || getGroup() == null) 
+			return declaration.isSingleton() ;
+		return getGroup().isSingleton() ;
+	}
 
-    /**
-     * Whether the component is shared
-     */
-    public boolean isShared() {
-    	if (declaration.isDefinedShared() || getGroup() == null) 
-    		return declaration.isShared() ;
-    	return getGroup().isShared() ;
-    }
-	
-	
+	/**
+	 * Whether the component is shared
+	 */
+	public boolean isShared() {
+		if (declaration.isDefinedShared() || getGroup() == null) 
+			return declaration.isShared() ;
+		return getGroup().isShared() ;
+	}
+
+	public Map<String, String> getValidAttributes () {
+		Map<String, String> ret = new HashMap <String, String> () ;
+		for (PropertyDefinition def: declaration.getPropertyDefinitions()) {
+			ret.put(def.getName(), def.getType());
+		}
+		if (getGroup() != null) {
+			ret.putAll (getGroup().getValidAttributes()) ;
+		}
+		return ret ;
+	}
+
 }
 

@@ -16,7 +16,7 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.test.s1.S1;
-import fr.imag.adele.apam.test.s1TestAttr.S1TestAttr;
+//import fr.imag.adele.apam.test.s1TestAttr.S1TestAttr;
 
 public class MainApam implements Runnable, ApamComponent {
 	// injected
@@ -39,10 +39,10 @@ public class MainApam implements Runnable, ApamComponent {
 			return ;
 		}
 		if (left instanceof String && right instanceof String) {
-				if (!left.equals(right)) {
-					new Exception ("Assertion Equals failed: " + left + " != " + right).printStackTrace();
-					return ;
-				} else return ;
+			if (!left.equals(right)) {
+				new Exception ("Assertion Equals failed: " + left + " != " + right).printStackTrace();
+				return ;
+			} else return ;
 		} else {
 			new Exception ("Assertion arguments not same type: " + left + " != " + right).printStackTrace();			
 		}
@@ -150,7 +150,7 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals (appliTestAttr_0.getProperty("scope"), "5") ;
 		assertNotEquals (appliTestAttr_0.getProperty("impl-name"), "5") ;
 		assertEquals (appliTestAttr_0.getProperty("location") , "anywhere") ;
-//		assertTrue (appliTestAttr_0.getProperty("testEnumere") == null) ;
+		//		assertTrue (appliTestAttr_0.getProperty("testEnumere") == null) ;
 
 		System.out.println("=========== passed testInitialAttributes\n\n");
 	}
@@ -183,7 +183,7 @@ public class MainApam implements Runnable, ApamComponent {
 		<definition name="S1toS2Final-location"
 			type="{FinalLiving, FinalKitchen, FinalLedroom}" />
 		<definition name="enumeration" type="{f1, f2, f3, f4}" />
-		
+
 	<instance implementation="S1toS2Final" name="S1toS2Final-instance" >
 		<property S1toS2Final-Bool="xxx" />
 		<property S1toS2Final-String1="a String Value" />
@@ -205,7 +205,7 @@ public class MainApam implements Runnable, ApamComponent {
 		inst = impl.getInst() ; // any instance 
 		System.out.println("Tested instance : " + inst + ". TestedImpl : " + impl);
 
-		
+
 		//check attributes defined in the xml
 		System.out.println("=========== start testing xml attributes");
 
@@ -218,7 +218,7 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals (spec.getProperty("S1-Enum"), "s1-2") ; 
 		assertEquals (impl.getProperty("S1-Enum"), "s1-2") ;
 		assertEquals (inst.getProperty("S1-Enum"), "s1-2") ;
-		
+
 		//default values S1toS2Final-Attr
 		assertNotEquals (spec.getProperty("s1b"), "true") ;
 		assertEquals (impl.getProperty("s1b"), "true") ;
@@ -232,10 +232,10 @@ public class MainApam implements Runnable, ApamComponent {
 
 		assertEquals (impl.getProperty("testEnumere"), "v2") ;
 		assertEquals (inst.getProperty("testEnumere"), "v2") ;
-		
-//		assertTrue (inst.getProperty("S1toS2Final-Bool") == null) ;
-//		assertEquals (inst.getProperty("S1toS2Final-String"), "a String Value") ;
-//		assertTrue (inst.getProperty("badAttr") == null) ;
+
+		//		assertTrue (inst.getProperty("S1toS2Final-Bool") == null) ;
+		//		assertEquals (inst.getProperty("S1toS2Final-String"), "a String Value") ;
+		//		assertTrue (inst.getProperty("badAttr") == null) ;
 		System.out.println("=========== passed testing xml attributes");
 
 
@@ -250,7 +250,7 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals (impl.getProperty("S1-Attr"), "New-value") ;
 		assertEquals (inst.getProperty("S1-Attr"), "New-value") ;
 
-		spec.setProperty("S1-Enum", "New-value") ;
+		spec.setProperty("S1-Enum", "New-value") ; 
 		assertEquals (spec.getProperty("S1-Enum"), "s1-2") ;
 		spec.setProperty("S1-Enum", "s1-3") ;
 		assertEquals (spec.getProperty("S1-Enum"), "s1-3") ;
@@ -261,7 +261,7 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals (spec.getProperty("S1-Enum"), "s1-3") ;
 		assertEquals (impl.getProperty("S1-Enum"), "s1-3") ;
 		assertEquals (inst.getProperty("S1-Enum"), "s1-3") ;
-		
+
 		impl.setProperty("location", "living"); // good
 		assertEquals(impl.getProperty("location"), "living");
 		assertEquals(inst.getProperty("location"), "living");
@@ -293,31 +293,172 @@ public class MainApam implements Runnable, ApamComponent {
 		impl.setProperty("s1i", "5"); // Ok
 		assertEquals(impl.getProperty("s1i"), "5");
 		assertEquals(inst.getProperty("s1i"), "5");
+		impl.setProperty("s1i", "5, 7, 55,985"); // Ok
+		assertEquals(impl.getProperty("s1i"), "5, 7, 55,985");
+		assertEquals(inst.getProperty("s1i"), "5, 7, 55,985");
+
+		impl.setProperty("s1i", "5, zz, 55,985"); // wrong
+		assertNotEquals(impl.getProperty("s1i"), "5, zz, 55,985");
+
 
 		impl.setProperty("S1-Attr", "5"); // error: cannot redefine
 		assertEquals(spec.getProperty("S1-Attr"), "New-value");
 
 		//field and internal. Set by program when starting
-		assertEquals(inst.getProperty("fieldAttr"), "initial set by program");
-		String s = "to set the field attribute" ;
-		((S1TestAttr)inst.getServiceObject()).callS1 (s) ; //callS1 sets the attribute to s 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		assertEquals(inst.getProperty("fieldAttr"), s);
+		//		assertEquals(inst.getProperty("fieldAttr"), "initial set by program");
+		//		String s = "to set the field attribute" ;
+		//		((S1TestAttr)inst.getServiceObject()).callS1 (s) ; //callS1 sets the attribute to s 
+		//		try {
+		//			Thread.sleep(1000);
+		//		} catch (InterruptedException e) {
+		//			e.printStackTrace();
+		//		}
+		//		assertEquals(inst.getProperty("fieldAttr"), s);
 
 		inst.setProperty("fieldAttr", "test"); // error: cannot set
 		assertNotEquals(impl.getProperty("fieldAttr"), "test");
-		
+
 		//Instances can set spec attributes, if not defined by the implem
 		inst.setProperty("OS", "Linux") ; // ok
 		assertEquals(inst.getProperty("OS"), "Linux");
+		inst.setProperty("OS", "Linux, Android, IOS") ; // ok
+		assertEquals(inst.getProperty("OS"), "Linux, Android, IOS");
 		assertTrue(impl.getProperty("OS") == null);
 
+		System.out.println("\n");
+		System.out.println("OS value is : " + inst.getProperty("OS"));
+		boolean ok = inst.match("(OS *> Linux, Android, IOS, Windows)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS, Windows): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS, Windows)")  ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS, Windows): " + ok);
+		ok = inst.match("(OS *> Linux, Android)")  ;
+		System.out.println("Matching: (OS *> Linux, Android): " + ok);
+		ok = inst.match("(OS *> Android)")  ;
+		System.out.println("Matching: (OS *> Android): " + ok);
+		ok = inst.match("(OS *> Android,)")  ;
+		System.out.println("Matching: (OS *> Android,): " + ok);
+		ok = inst.match("(OS = Android)")  ;
+		System.out.println("Matching: (OS = Android): " + ok);		
+		ok = inst.match("(OS >= Android)")  ;
+		System.out.println("Matching: (OS >= Android): " + ok);		
+		ok = inst.match("(OS *> Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS): " + ok);
+		ok = inst.match("(OS = Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS = Linux, Android, IOS): " + ok);
+		ok = inst.match("(OS *> Linux, Android, IOS,)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS,): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS,)") ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS,): " + ok);
+		ok = inst.match("(OS *> {Linux, Android, IOS})") ;
+		System.out.println("Matching: (OS *> {Linux, Android, IOS}): " + ok);
+		ok = inst.match("(OS *> [Linux, Android, IOS])") ;
+		System.out.println("Matching: (OS *> [Linux, Android, IOS]): " + ok);
+		ok = inst.match("(OS *> Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS): " + ok);
+
+		System.out.println("\n");
+		inst.setProperty("OS", "Linux, Android, IOS,") ; // ok
+		System.out.println("OS value is : " + inst.getProperty("OS"));
+		ok = inst.match("(OS *> Linux, Android, IOS, Windows)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS, Windows): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS, Windows)")  ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS, Windows): " + ok);
+		ok = inst.match("(OS *> Linux, Android)")  ;
+		System.out.println("Matching: (OS *> Linux, Android): " + ok);
+		ok = inst.match("(OS *> Android)")  ;
+		System.out.println("Matching: (OS *> Android): " + ok);
+		ok = inst.match("(OS *> Android,)")  ;
+		System.out.println("Matching: (OS *> Android,): " + ok);
+		ok = inst.match("(OS = Android)")  ;
+		System.out.println("Matching: (OS = Android): " + ok);		
+		ok = inst.match("(OS >= Android)")  ;
+		System.out.println("Matching: (OS >= Android): " + ok);		
+		ok = inst.match("(OS *> Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS): " + ok);
+		ok = inst.match("(OS *> Linux, Android, IOS,)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS,): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS,)") ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS,): " + ok);
+		ok = inst.match("(OS *> {Linux, Android, IOS})") ;
+		System.out.println("Matching: (OS *> {Linux, Android, IOS}): " + ok);
+		ok = inst.match("(OS *> [Linux, Android, IOS])") ;
+		System.out.println("Matching: (OS *> [Linux, Android, IOS]): " + ok);
+		ok = inst.match("(OS *> Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS): " + ok);
+
+
+		System.out.println("\n");
+		inst.setProperty("OS", "Android") ; // ok
+		System.out.println("OS value is : " + inst.getProperty("OS"));
+		ok = inst.match("(OS *> Linux, Android, IOS, Windows)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS, Windows): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS, Windows)")  ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS, Windows): " + ok);
+		ok = inst.match("(OS *> Linux, Android)")  ;
+		System.out.println("Matching: (OS *> Linux, Android): " + ok);
+		ok = inst.match("(OS *> Android)")  ;
+		System.out.println("Matching: (OS *> Android): " + ok);
+		ok = inst.match("(OS *> Android,)")  ;
+		System.out.println("Matching: (OS *> Android,): " + ok);
+		ok = inst.match("(OS = Android)")  ;
+		System.out.println("Matching: (OS = Android): " + ok);		
+		ok = inst.match("(OS >= Android)")  ;
+		System.out.println("Matching: (OS >= Android): " + ok);		
+		ok = inst.match("(OS *> Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS): " + ok);
+		ok = inst.match("(OS *> Linux, Android, IOS,)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS,): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS,)") ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS,): " + ok);
+		ok = inst.match("(OS *> {Linux, Android, IOS})") ;
+		System.out.println("Matching: (OS *> {Linux, Android, IOS}): " + ok);
+		ok = inst.match("(OS *> [Linux, Android, IOS])") ;
+		System.out.println("Matching: (OS *> [Linux, Android, IOS]): " + ok);
+		ok = inst.match("(OS *> Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS): " + ok);
+
+
+		System.out.println("\n");
+		inst.setProperty("OS", "Android,") ; // ok
+		System.out.println("OS value is : " + inst.getProperty("OS"));
+		ok = inst.match("(OS *> Linux, Android, IOS, Windows)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS, Windows): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS, Windows)")  ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS, Windows): " + ok);
+		ok = inst.match("(OS *> Linux, Android)")  ;
+		System.out.println("Matching: (OS *> Linux, Android): " + ok);
+		ok = inst.match("(OS *> Android)")  ;
+		System.out.println("Matching: (OS *> Android): " + ok);
+		ok = inst.match("(OS *> Android,)")  ;
+		System.out.println("Matching: (OS *> Android,): " + ok);
+		ok = inst.match("(OS = Android)")  ;
+		System.out.println("Matching: (OS = Android): " + ok);		
+		ok = inst.match("(OS >= Android)")  ;
+		System.out.println("Matching: (OS >= Android): " + ok);		
+		ok = inst.match("(OS *> Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS): " + ok);
+		ok = inst.match("(OS *> Linux, Android, IOS,)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS,): " + ok);
+		ok = inst.match("(OS <* Linux, Android, IOS,)") ;
+		System.out.println("Matching: (OS <* Linux, Android, IOS,): " + ok);
+		ok = inst.match("(OS *> {Linux, Android, IOS})") ;
+		System.out.println("Matching: (OS *> {Linux, Android, IOS}): " + ok);
+		ok = inst.match("(OS *> [Linux, Android, IOS])") ;
+		System.out.println("Matching: (OS *> [Linux, Android, IOS]): " + ok);
+		ok = inst.match("(OS *> Linux, Android, IOS)") ;
+		System.out.println("Matching: (OS *> Linux, Android, IOS): " + ok);
+
+
 		inst.setProperty("OS", "vxxx") ; // 
-		assertEquals(inst.getProperty("OS"), "Linux");
+		assertNotEquals(inst.getProperty("OS"), "vxxx");
 		assertTrue(impl.getProperty("OS") == null);
 
 		inst.setProperty("s1c", "s1c-value") ; // ok
@@ -339,15 +480,15 @@ public class MainApam implements Runnable, ApamComponent {
 		inst.setProperty("S1toS2Final-location", "xxx") ;
 		assertTrue(inst.getProperty("S1toS2Final-location") == null);
 
-		inst.setProperty("S1toS2Final-location", "FinalLiving") ;
-		assertEquals(inst.getProperty("S1toS2Final-location"), "FinalLiving");
+		inst.setProperty("S1toS2Final-location", "FinalLiving, FinalKitchen") ;
+		assertEquals(inst.getProperty("S1toS2Final-location"), "FinalLiving, FinalKitchen");
 		System.out.println("=========== start testing setting attributes");
 
-				
+
 		System.out.println("=========== start test Remove Attributes");
 		inst.removeProperty ("name") ;
 		assertTrue (inst.getProperty("name") != null) ;
-		
+
 		inst.removeProperty ("spec-name") ;
 		assertTrue (inst.getProperty("spec-name") != null) ;
 
@@ -356,13 +497,13 @@ public class MainApam implements Runnable, ApamComponent {
 
 		inst.removeProperty ("testEnumere") ;
 		assertTrue (inst.getProperty("testEnumere") != null) ;
-		
+
 		inst.removeProperty ("OS") ;
 		assertTrue (inst.getProperty("OS") == null) ;
 
 		inst.removeProperty ("xxx") ;
 		assertTrue (inst.getProperty("xxx") == null) ;
-		
+
 		// implem
 		impl.removeProperty ("name") ;
 		assertTrue (impl.getProperty("name") != null) ;
@@ -372,14 +513,14 @@ public class MainApam implements Runnable, ApamComponent {
 		assertTrue (impl.getProperty("OS") == null) ;
 		impl.removeProperty ("xxx") ;
 		assertTrue (impl.getProperty("xxx") == null) ;
-		
+
 		impl.removeProperty ("S1-Attr") ;
 		assertTrue (impl.getProperty("S1-Attr") != null) ;
-		
+
 		impl.removeProperty ("testenumere") ;
 		assertTrue (impl.getProperty("testenumere") == null) ;
 		assertTrue (inst.getProperty("testenumere") == null) ;
-		
+
 		//spec 
 		spec.removeProperty ("name") ;
 		assertTrue (spec.getProperty("name") != null) ;
@@ -398,31 +539,31 @@ public class MainApam implements Runnable, ApamComponent {
 		assertTrue (inst.getProperty("S1-Attr") == null) ;
 
 		System.out.println("=========== passed test Remove Attributes");
-		
-		
+
+
 		System.out.println("=========== passed testSettingAttributes\n\n");
 
 	}
 
 	public void testImplemWithoutSpec () {
-	
-	System.out.println("=========== start test Implem without spec (dummy spec)");
-	
-//	<implementation name="S1Main"
-//		classname="fr.imag.adele.apam.test.s1Impl.S1Main" shared="false" singleton="true">
-//		<property name="S1Main-Attr" value="whatever"/>
-//		<property name="testAttr" value="false"/>
-//		<property name="shared" value="true"/>
-	
-	Implementation impl= CST.apamResolver.findImplByName(null,"S1Main");
-	assertEquals(impl.getProperty("S1Main-Attr"), "whatever");
-	assertEquals(impl.getProperty("testAttr"), "false");
-	assertEquals(impl.getProperty("shared"), "false");
-	assertEquals(impl.getProperty("singleton"), "true");
-	System.out.println("=========== passed test Implem without spec (dummy spec)");
+
+		System.out.println("=========== start test Implem without spec (dummy spec)");
+
+		//	<implementation name="S1Main"
+		//		classname="fr.imag.adele.apam.test.s1Impl.S1Main" shared="false" singleton="true">
+		//		<property name="S1Main-Attr" value="whatever"/>
+		//		<property name="testAttr" value="false"/>
+		//		<property name="shared" value="true"/>
+
+		Implementation impl= CST.apamResolver.findImplByName(null,"S1Main");
+		assertEquals(impl.getProperty("S1Main-Attr"), "whatever");
+		assertEquals(impl.getProperty("testAttr"), "false");
+		assertEquals(impl.getProperty("shared"), "false");
+		assertEquals(impl.getProperty("singleton"), "true");
+		System.out.println("=========== passed test Implem without spec (dummy spec)");
 	}
 
-	
+
 	public void otherTests () {
 
 		Map<String, String> props = new HashMap<String, String>();
@@ -434,16 +575,16 @@ public class MainApam implements Runnable, ApamComponent {
 
 		// setting visibilities
 		// composite a3 should not be shared
-//		test00_instance0.setProperty(CST.SHARED, CST.V_FALSE);
+		//		test00_instance0.setProperty(CST.SHARED, CST.V_FALSE);
 
 		System.out.println("\n\n===================================== Testing promotions\n"
 				+ " creating composite on S1 containing an S2 composite \n");
 
 		props.clear();
-//		props.put(CST.A_LOCALIMPLEM, CST.V_TRUE);
-//		props.put(CST.A_LOCALINSTANCE, CST.V_TRUE);
-//		props.put(CST.A_BORROWIMPLEM, CST.V_FALSE);
-//		props.put(CST.A_BORROWINSTANCE, CST.V_FALSE);
+		//		props.put(CST.A_LOCALIMPLEM, CST.V_TRUE);
+		//		props.put(CST.A_LOCALINSTANCE, CST.V_TRUE);
+		//		props.put(CST.A_BORROWIMPLEM, CST.V_FALSE);
+		//		props.put(CST.A_BORROWINSTANCE, CST.V_FALSE);
 
 		CompositeType mainCompo = apam.createCompositeType("Test00", "TestS1Promotions", null, "S1Main", null /* models */,
 				props);
@@ -468,13 +609,13 @@ public class MainApam implements Runnable, ApamComponent {
 	}
 
 	public void run() {
-		
+
 		System.out.println("Starting new mainApam " );
 
-		//        testFindImplByName () ;
-		//        testCompoURL () ;
-		//        testCreateCompoRootS1toS2Final () ;
-		//        testCreateCompoBySpec () ;
+		testFindImplByName () ;
+		//testCompoURL () ;
+		testCreateCompoRootS1toS2Final () ;
+		testCreateCompoBySpec () ;
 		testInitialAttributes () ;
 		testSettingAttributes () ;
 		testImplemWithoutSpec () ;
@@ -489,50 +630,5 @@ public class MainApam implements Runnable, ApamComponent {
 	public void apamRemove() {
 
 	}
-
-	// Composite s2Compo0 = apam.getComposite("S2Compo-0");
-	// if (s2Compo0 == null)
-	// System.err.println("s2Compo-0 is null ??!!");
-	// s2Compo0.put(CST.A_SHARED, CST.V_FALSE);
-	//
-	// Map<String, Object> props = new HashMap<String, Object>();
-
-	/* This properties have been declared in the S2Compo metadata definition
-	 * 
-            Attributes props = new AttributesImpl();
-            // properties for S2Compo instances. A different instance for each use.
-            props.setProperty(CST.A_LOCALSCOPE, new String[] {".*"});
-            props.setProperty(CST.A_INTERNALINST, CST.V_TRUE);
-            // for s2Compo type
-            props.setProperty(CST.A_LOCALVISIBLE, new String[] {"S.Im.*"});
-            props.setProperty(CST.A_INTERNALIMPL, CST.V_TRUE);
-
-	 */
-	// CompositeType s2Compo = apam.getCompositeType("S2Compo");
-	// if (s2Compo == null)
-	// System.err.println("s2Compos is null ??!!");
-
-	/* Take properties form metadata
-            s2Compo.setProperties(props.getProperties());
-	 */
-
-	/* these properties are provided in the xml
-    // properties for S2Compo instances.
-    // A different instance for each use.
-    props.put(CST.A_LOCALSCOPE, new String[] { ".*" });
-    // All instance must pertain to S2Compo instance
-    props.put(CST.A_INTERNALINST, CST.V_TRUE);
-
-    // for s2Compo type
-    // Implementations matching "S*Impl*" i.e. all, are not visible from outside
-    props.put(CST.A_LOCALVISIBLE, new String[] { "S*Impl*" });
-    // All implementations must pertain to S2Compo
-    props.put(CST.A_INTERNALIMPL, CST.V_TRUE);
-
-    CompositeType s2Compo = apam.getCompositeType("S2Compo");
-    if (s2Compo == null)
-        System.err.println("s2Compos is null ??!!");
-    s2Compo.putAll(props);
-	 */
 
 }

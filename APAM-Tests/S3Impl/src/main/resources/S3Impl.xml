@@ -21,10 +21,10 @@
 		</dependency>
 	</implementation>
 
-	<instance implementation="S2Simple" name="S2Simple-inst-from-S3Impl">
+	<apam-instance implementation="S2Simple" name="S2Simple-inst-from-S3Impl">
 		<!-- <property test-spec="coucous4" /> <property A2="yes" /> <property 
 			c="xxx" /> -->
-	</instance>
+	</apam-instance>
 
 <!-- 	<apam-instance implementation="S3Impl" name="s3Impl-int" /> -->
 <!-- 	<apam-instance implementation="S3Impl" name="S3Impl-instance1" /> -->

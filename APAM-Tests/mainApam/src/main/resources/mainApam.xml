@@ -9,7 +9,7 @@
 			<dependency field="apam" />
 	</implementation>
 
-   <instance name="MainApam-Instance" implementation="MainApam" /> 
+   <apam-instance name="MainApam-Instance" implementation="MainApam" /> 
  	
 <!--  	<instance name="Promotions-Instance" implementation="Promotions" /> -->
 </apam>

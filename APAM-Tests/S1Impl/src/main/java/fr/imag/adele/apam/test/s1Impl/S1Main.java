@@ -23,7 +23,4 @@ public class S1Main implements Runnable, ApamComponent {
     public void apamRemove() {
     }
 
-    public void apamRelease() {
-    }
-
 }

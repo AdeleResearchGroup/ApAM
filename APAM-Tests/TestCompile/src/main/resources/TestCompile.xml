@@ -53,6 +53,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<definition name="x" type="string" />
 		<definition name="MyBool" type="boolean" />
 		<definition name="A2" type="int" value="5" />
+		<definition name="testEnum" type="{v1, v2, v3, v4, v5}" value="v3" />
 	</specification>
 
 	<specification name="S4Compile">
@@ -132,9 +133,14 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 		<dependency specification="S3Compile" id="S3Id">
 			<interface field="fieldS3" />
+<!-- 			<message field="mes1" /> -->
+<!-- 			<interface field="field2S3" /> -->
 			<constraints>
 				<implementation filter="(apam-composite=true)" />
-				<instance filter="(&amp;(A2&gt;=5)(x=6))" />
+				<instance filter="(&amp;(testEnum*&gt;v1 ,v2, v3)(x=6))" /> 
+				<instance filter="(&amp;(testEnum=v1)(x=6))" /> 
+				<instance filter="(&amp;(testEnum=wxcv)(x=6))" /> 
+				<instance filter="(&amp;(testEnum*&gt;v1,toto)(x=6))" /> 
 				<instance filter="(&amp;(A2=8)(MyBool=false))" />
 			</constraints>
 			<preferences>

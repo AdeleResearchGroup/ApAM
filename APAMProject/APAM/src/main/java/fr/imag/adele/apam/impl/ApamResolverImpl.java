@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.omg.CosNaming.IstringHelper;
 import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DependencyManager;
@@ -22,10 +24,12 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.core.ContextualResolutionPolicy;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamResolverImpl implements ApamResolver {
@@ -48,11 +52,11 @@ public class ApamResolverImpl implements ApamResolver {
 	private class DepMult {
 		//Name (Id) of the dependency in the composite
 		public String        depType = null;
-		
+
 		//set of instances in the composite (if any) associated with the composite dependency
 		public Set<Instance> insts   = null;
 
-		//The Implementation this dependency is revolved to 
+		//The Implementations this dependency is revolved to 
 		public Implementation impl    = null;
 
 		public DepMult(String dep, Set<Instance> insts, Implementation impl) {
@@ -123,6 +127,7 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 
+
 	/**
 	 * Compares the client dependency wrt the enclosing composite dependencies.
 	 * If it matches one composite dependency, it is a promotion.
@@ -170,31 +175,31 @@ public class ApamResolverImpl implements ApamResolver {
 	// if the instance is unused, it will become the main instance of a new composite.
 	private Composite getClientComposite(Instance mainInst) {
 
-    	if (mainInst.isUsed())
-            return mainInst.getComposite();
+		if (mainInst.isUsed())
+			return mainInst.getComposite();
 
-        /*
-         * We are resolving a reference from an unused client instance. We automatically build a new composite
-         * to create a context of execution. This allow to use Apam without requiring the explicit definition of
-         * composites, just instantiating any implementation.
-         * 
-         * TODO should we provide a way to specify properties and models for the composites created automatically?
-         */
-    	
-    	Implementation mainComponent			= mainInst.getImpl();
-        String applicationName 					= mainComponent.getName() + "_Appli";
-        SpecificationReference specification	= mainComponent.getImplDeclaration().getSpecification();
-        Set<ManagerModel> models				= new HashSet<ManagerModel>();
-        
-        CompositeType application = apam.createCompositeType((CompositeType)null,
-        									applicationName, specification != null ? specification.getName() : null, mainComponent.getName(),
-        									models, null);
-        
-        /*
-         * Create an instance of the application with the specified main
-         */
-        Map<String, String> initialProperties = new HashMap<String, String>();
-        initialProperties.put(CST.APAM_MAIN_INSTANCE, mainInst.getName()) ;
+		/*
+		 * We are resolving a reference from an unused client instance. We automatically build a new composite
+		 * to create a context of execution. This allow to use Apam without requiring the explicit definition of
+		 * composites, just instantiating any implementation.
+		 * 
+		 * TODO should we provide a way to specify properties and models for the composites created automatically?
+		 */
+
+		Implementation mainComponent			= mainInst.getImpl();
+		String applicationName 					= mainComponent.getName() + "_Appli";
+		SpecificationReference specification	= mainComponent.getImplDeclaration().getSpecification();
+		Set<ManagerModel> models				= new HashSet<ManagerModel>();
+
+		CompositeType application = apam.createCompositeType((CompositeType)null,
+				applicationName, specification != null ? specification.getName() : null, mainComponent.getName(),
+						models, null);
+
+		/*
+		 * Create an instance of the application with the specified main
+		 */
+		Map<String, String> initialProperties = new HashMap<String, String>();
+		initialProperties.put(CST.APAM_MAIN_INSTANCE, mainInst.getName()) ;
 		return (Composite)application.createInstance(null, initialProperties);
 	}
 
@@ -230,8 +235,11 @@ public class ApamResolverImpl implements ApamResolver {
 		Composite compo = getClientComposite(client);
 		// if it is a promotion, visibility and scope is the one of the embedding composite.
 		DepMult depMult = getPromotion(client, dependency);
+
 		Set<Instance> insts = null;
 		Implementation impl = null;
+		Set<Implementation> impls = new HashSet<Implementation> ();
+
 		if (depMult != null) { // it is a promotion
 			compo = compo.getComposite();
 			impl = depMult.impl;
@@ -241,15 +249,22 @@ public class ApamResolverImpl implements ApamResolver {
 			}
 		}
 
+		//compute the set of constraints that apply to that resolution: inst + impl + spec + composite generique
+		dependency = computeAllConstraints (client, dependency) ;
+
 		// normal case. Try to find the instances.
 		if (insts == null) {
-			// Look for the implementation
+			// Look for the implementation(s)
 			CompositeType compoType = compo.getCompType();
 			if (impl == null) {
 				if (dependency.getTarget() instanceof ImplementationReference) {
 					String implName = ((ImplementationReference<?>) dependency.getTarget()).getName();
 					impl = CST.apamResolver.findImplByName(compoType, implName);
 				} else {
+					if (dependency.isMultiple()) {
+						//impls = CST.apamResolver.resolveSpecByResources(compoType, dependency);
+						//TODO Should look for all the implemenentaiton that satisfy the constraints.
+					} //else 
 					impl = CST.apamResolver.resolveSpecByResource(compoType, dependency);
 				}
 			}
@@ -271,6 +286,8 @@ public class ApamResolverImpl implements ApamResolver {
 					logger.debug("Selected " + inst);
 				}
 			}
+
+			//No existing instance. Create one.
 			if ((insts == null) || insts.isEmpty()) {
 				if (insts == null)
 					insts = new HashSet<Instance>();
@@ -297,8 +314,8 @@ public class ApamResolverImpl implements ApamResolver {
 				}
 				// in all cases the client must be linked
 				client.createWire(inst, depName);
-//				if (dependency.isMultiple())
-//					break; // in case it is a single dep from a multiple promotion. TODO Is that possible ????
+				//				if (dependency.isMultiple())
+				//					break; // in case it is a single dep from a multiple promotion. TODO Is that possible ????
 			}
 		} else
 			return false;
@@ -309,6 +326,86 @@ public class ApamResolverImpl implements ApamResolver {
 		return true;
 	}
 
+	/**
+	 * The dependencies that apply on a dependency are those of the instance, plus those of the implem, 
+	 * plus those of the spec, and finally those in the composite, if the name matches the generic constraints
+	 * @param client
+	 * @param dependency
+	 * @return
+	 */
+	private DependencyDeclaration computeAllConstraints (Instance client, DependencyDeclaration dependencyIn) {
+		
+		DependencyDeclaration dependency = dependencyIn.clone();
+		Component group = client.getGroup() ;
+
+		while (group != null) {
+			for (DependencyDeclaration dep : group.getDeclaration().getDependencies()) {
+				if (dep.getIdentifier().equals(dependency.getIdentifier())) {
+					dependency.getImplementationConstraints().addAll(dep.getImplementationConstraints()) ;
+					dependency.getInstanceConstraints().addAll(dep.getInstanceConstraints()) ;
+					dependency.getImplementationPreferences().addAll(dep.getImplementationPreferences()) ;
+					dependency.getInstancePreferences().addAll(dep.getInstancePreferences()) ;
+					break ;
+				}
+			}
+		}
+
+		//Add the composite generic constraints
+		CompositeType compoType = client.getComposite().getCompType() ;
+		Map<String, String> validAttrs = client.getValidAttributes() ;
+		for ( ContextualResolutionPolicy  pol  : compoType.getCompoDeclaration().getContextualResolutionPolicies()) {
+
+			if (matchGenericDependency(client, pol, dependency)) {
+				if (Util.checkFilters(pol.getImplementationConstraints(), null, validAttrs, client.getName())) {
+					dependency.getImplementationConstraints().addAll(pol.getImplementationConstraints()) ;
+				}
+				if (Util.checkFilters(pol.getInstanceConstraints(), null, validAttrs, client.getName())) {
+					dependency.getInstanceConstraints().addAll(pol.getInstanceConstraints()) ;
+				}
+				if (Util.checkFilters(null, pol.getImplementationPreferences(), validAttrs, client.getName())) {
+					dependency.getImplementationPreferences().addAll(pol.getImplementationPreferences()) ;
+				}
+				if (Util.checkFilters(null, pol.getInstancePreferences(), validAttrs, client.getName())) {
+					dependency.getInstancePreferences().addAll(pol.getInstancePreferences()) ;
+				}
+			}
+		}
+		return dependency ;
+	}
+
+	/**
+	 * Provided a composite (compoInst), checks if the provided generic dependency constraint declaration
+	 * matches the compoClient dependency declaration.
+	 * 
+	 * @param compoInst the composite instance containing the client
+	 * @param genericDeps the dependencies of the composite: a regExpression
+	 * @param clientDep the client dependency we are trying to resolve.
+	 * @return
+	 */
+	private boolean matchGenericDependency(Instance compoInst, ContextualResolutionPolicy compoDep, DependencyDeclaration clientDep) {
+
+		String pattern = compoDep.getTarget().getName() ;
+		//Look for same dependency: the same specification, the same implementation or same resource name
+		//Constraints are not taken into account
+		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { // same nature
+			if (clientDep.getTarget().getName().matches(pattern)) {
+				return true;
+			}
+		}
+
+		//If the client dep is an implementation dependency, check if the specification matches the pattern
+		if (compoDep.getTarget() instanceof SpecificationReference) {
+			if (clientDep.getTarget() instanceof ImplementationReference) {
+				String implName = ((ImplementationReference<?>) clientDep.getTarget()).getName();
+				Implementation impl = findImplByName(compoInst.getComposite().getCompType(), implName);
+				if (impl != null || impl.getSpec().getName().matches(pattern)) {
+					return true ;
+				}
+			}
+		}
+
+		return false;
+	}
 
 	/**
 	 * Before to resolve a specification (i.e. to select one of its implementations)
@@ -551,11 +648,35 @@ public class ApamResolverImpl implements ApamResolver {
 		Set<Filter> implementationConstraints = Util.toFilter(dependency.getImplementationConstraints());
 		List<Filter> implementationPreferences = Util.toFilterList(dependency.getImplementationPreferences());
 
-		// TODO Hummm ... toString is not the name.
-		List<DependencyManager> selectionPath = computeSelectionPathSpec(compoTypeFrom, dependency.getTarget()
-				.toString());
+		return resolveSpecByResourceLoop(compoTypeFrom, dependency.getTarget(), implementationConstraints, implementationPreferences) ;
+//		// TODO Hummm ... toString is not the name.
+//		List<DependencyManager> selectionPath = computeSelectionPathSpec(compoTypeFrom, dependency.getTarget()
+//				.toString());
+//
+//		logger.debug("Looking for an implem with" + dependency);
+//		if (compoTypeFrom == null)
+//			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
+//		Implementation impl = null;
+//		boolean deployed = false;
+//		for (DependencyManager manager : selectionPath) {
+//			if (!manager.getName().equals(CST.APAMMAN))
+//				deployed = true;
+//			logger.debug(manager.getName() + "  ");
+//			impl = manager.resolveSpecByResource(compoTypeFrom, dependency.getTarget(),
+//					implementationConstraints, implementationPreferences);
+//			if (impl != null) {
+//				deployedImpl(compoTypeFrom, impl, deployed);
+//				return impl;
+//			}
+//		}
+//		return null;
+	}
 
-		logger.debug("Looking for an implem with" + dependency);
+	public Implementation resolveSpecByResourceLoop (CompositeType compoTypeFrom, ResolvableReference ressource,
+            Set<Filter> constraints, List<Filter> preferences) {
+		//logger.debug("Looking for an implem with" + dependency);
+		List<DependencyManager> selectionPath = computeSelectionPathSpec(compoTypeFrom, ressource.toString());
+
 		if (compoTypeFrom == null)
 			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
 		Implementation impl = null;
@@ -564,16 +685,16 @@ public class ApamResolverImpl implements ApamResolver {
 			if (!manager.getName().equals(CST.APAMMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
-			impl = manager.resolveSpecByResource(compoTypeFrom, dependency.getTarget(),
-					implementationConstraints, implementationPreferences);
+			impl = manager.resolveSpecByResource(compoTypeFrom, ressource,
+					constraints, preferences);
 			if (impl != null) {
 				deployedImpl(compoTypeFrom, impl, deployed);
 				return impl;
 			}
 		}
 		return null;
-	}
 
+	}
 	/**
 	 * Look for an instance of "impl" that satisfies the constraints. That instance must be either
 	 * - shared and visible from "compo", or

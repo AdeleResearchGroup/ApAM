@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.metadata.Element;
@@ -108,116 +109,115 @@ public class Util {
      * @return
      */
     public static String[] split(String str) {
-        if ((str == null) || (str.length() == 0) 
-        		|| ((str.charAt(0) != '{') && (str.charAt(0) != '['))) {
+        if ((str == null) || (str.length() == 0)) 
             return new String[0];
-        }
-        String internal;
+        
+    	str = str.trim () ;
+		if ((str.charAt(0) != '{') && (str.charAt(0) != '[')) {
+			return stringArrayTrim(str.split(",")) ;
+		}
+        	 
         str = str.replaceAll("\\ ", "");
         str = str.replaceAll(";", ",");
         str = str.replaceAll("\\[,", "[");
         str = str.replaceAll(",]", "]");
 
-        // Remove { and } or [ and ]
+        String internal;
         if (((str.charAt(0) == '{') && (str.charAt(str.length() - 1) == '}'))
                 || ((str.charAt(0) == '[') && (str.charAt(str.length() - 1) == ']'))) {
+
             internal = (str.substring(1, str.length() - 1)).trim();
             // Check empty array
             if (internal.length() == 0) {
                 return new String[0];
             }
             return internal.split(",");
-        } else {
-            return new String[] { str };
+        } else { 
+            return new String[] { str } ;
         }
     }
 
+//    /**
+//     * Orders the array in lexicographical order.
+//     * 
+//     * @param interfaces
+//     */
+//    public static String[] orderInterfaces(String[] interfaces) {
+//        if (interfaces == null)
+//            return null;
+//        boolean ok = false;
+//        String tmp;
+//        while (!ok) {
+//            ok = true;
+//            for (int i = 0; i < interfaces.length - 1; i++) {
+//                if (interfaces[i].compareTo(interfaces[i + 1]) > 0) {
+//                    tmp = interfaces[i];
+//                    interfaces[i] = interfaces[i + 1];
+//                    interfaces[i + 1] = tmp;
+//                    ok = false;
+//                }
+//            }
+//        }
+//        return interfaces;
+//    }
 
-    public static final String splitSeparator = ", |\\s|\\{|\\[|\\]|\\}";
-    /** The logger. */
-    //    private static Logger logger = Logger.getLogger(Util.class);
-
-    /**
-     * Orders the array in lexicographical order.
-     * 
-     * @param interfaces
-     */
-    public static String[] orderInterfaces(String[] interfaces) {
-        if (interfaces == null)
-            return null;
-        boolean ok = false;
-        String tmp;
-        while (!ok) {
-            ok = true;
-            for (int i = 0; i < interfaces.length - 1; i++) {
-                if (interfaces[i].compareTo(interfaces[i + 1]) > 0) {
-                    tmp = interfaces[i];
-                    interfaces[i] = interfaces[i + 1];
-                    interfaces[i + 1] = tmp;
-                    ok = false;
-                }
-            }
-        }
-        return interfaces;
-    }
-
-    /**
-     * compares the two arrays of interfaces. They may be in a different order. Returns true if they contain exactly the
-     * same interfaces (strings).
-     * 
-     * @param i1 : an array of strings
-     * @param i2
-     * @return
-     */
-    public static boolean sameInterfaces(String[] i1, String[] i2) {
-        if ((i1 == null) || (i2 == null) || (i1.length == 0) || (i2.length == 0))
-            return false;
-        if (i1.length != i2.length)
-            return false;
-        if ((i1.length == 1) && (i1[0].equals(i2[0])))
-            return true;
-        
-        for (int i = 0; i < i1.length; i++) {
-            if (!i1[i].equals(i2[i]))
-                return false;
-        }
-        return true;
-    }
+//    /**
+//     * compares the two arrays of interfaces. They may be in a different order. Returns true if they contain exactly the
+//     * same interfaces (strings).
+//     * 
+//     * @param i1 : an array of strings
+//     * @param i2
+//     * @return
+//     */
+//    public static boolean sameInterfaces(String[] i1, String[] i2) {
+//        if ((i1 == null) || (i2 == null) || (i1.length == 0) || (i2.length == 0))
+//            return false;
+//        if (i1.length != i2.length)
+//            return false;
+//        if ((i1.length == 1) && (i1[0].equals(i2[0])))
+//            return true;
+//        
+//        for (int i = 0; i < i1.length; i++) {
+//            if (!i1[i].equals(i2[i]))
+//                return false;
+//        }
+//        return true;
+//    }
 
 
-    public static String ANDLDAP(String... params) {
-        StringBuilder sb = new StringBuilder("(&");
-        for (String p : params) {
-            sb.append(p);
-        }
-        sb.append(")");
-        return sb.toString();
-    }
-
-    public static Filter buildFilter(Set<Filter> filters) {
-        if ((filters == null) || (filters.size() == 0))
-            return null;
-        String ldap = null;
-        for (Filter f : filters) {
-            if (ldap == null) {
-                ldap = f.toString();
-            } else {
-                ldap = Util.ANDLDAP(ldap, f.toString());
-            }
-        }
-        Filter ret = null;
-        try {
-            ret = org.osgi.framework.FrameworkUtil.createFilter(ldap);
-        } catch (InvalidSyntaxException e) {
-            logger.debug("Invalid filters : ");
-            for (Filter f : filters) {
-                logger.debug("   " + f.toString());
-                ;
-            }
-            e.printStackTrace();
-        }
-        return ret;
-    }
+//    public static String ANDLDAP(String... params) {
+//        StringBuilder sb = new StringBuilder("(&");
+//        for (String p : params) {
+//            sb.append(p);
+//        }
+//        sb.append(")");
+//        return sb.toString();
+//    }
+//
+//    public static Filter buildFilter(Set<Filter> filters) {
+//        if ((filters == null) || (filters.size() == 0))
+//            return null;
+//        String ldap = null;
+//        for (Filter f : filters) {
+//            if (ldap == null) {
+//                ldap = f.toString();
+//            } else {
+//                ldap = Util.ANDLDAP(ldap, f.toString());
+//            }
+//        }
+//        Filter ret = null;
+//        try {
+//            ret = org.osgi.framework.FrameworkUtil.createFilter(ldap);
+//        } catch (InvalidSyntaxException e) {
+//            logger.debug("Invalid filters : ");
+//            for (Filter f : filters) {
+//                logger.debug("   " + f.toString());
+//                ;
+//            }
+//            e.printStackTrace();
+//        }
+//        return ret;
+//    }
 
 
     public static boolean checkImplVisibilityExpression(String expre, Implementation impl) {
@@ -309,36 +309,25 @@ public class Util {
 
         // First check inst can be borrowed
         String borrow = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getBorrowInstances() ;
-//      String borrow = ((String) compoFrom.getCompType().getProperty(CST.A_BORROWINSTANCE));
         if ((borrow != null) && (Util.checkInstVisibilityExpression(borrow, toInst) == false))
             return false;
 
         if (compoFrom.dependsOn(toCompo)) {
         	String friend = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getFriendInstances() ;
-//          String friend = ((String) toCompoType.getProperty(CST.A_FRIENDINSTANCE));
             if ((friend != null) && Util.checkInstVisibilityExpression(friend, toInst))
                 return true;
         }
         if (compoFrom.getAppliComposite() == toCompo.getAppliComposite()) {
         	String appli = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getApplicationInstances() ;
-        	//String appli = ((String) toCompoType.getProperty(CST.A_APPLIINSTANCE));
             if ((appli != null) && Util.checkInstVisibilityExpression(appli, toInst))
                 return true;
         }
         String local = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getLocalInstances() ;
-        //String local = ((String) toCompoType.getProperty(CST.A_LOCALINSTANCE));
         if ((local != null) && Util.checkInstVisibilityExpression(local, toInst))
             return false;
         return true;
     }
 
-//    public static boolean isPredefinedAttribute(String attr) {
-//        for (String pred : CST.predefAttributes) {
-//            if (pred.equals(attr))
-//                return true;
-//        }
-//        return false;
-//    }
 
     public static boolean isInheritedAttribute(String attr) {
     	if (isReservedAttributePrefix(attr)) return false ;
@@ -373,9 +362,6 @@ public class Util {
 	 * Cannot be a reserved attribute
 	 */
 	public static boolean validAttr(String component, String attr) {
-		//attr = attr.toLowerCase();
-//		if (Util.isPredefinedAttribute(attr))
-//			return true;
 
 		if (Util.isFinalAttribute(attr)) {
 			logger.error("ERROR: in " + component + ", attribute\"" + attr + "\" is final");
@@ -392,7 +378,7 @@ public class Util {
 
     
     /**
-     * only string, int and boolean attributes are accepted.
+     * only string, int, boolean and enumerations attributes are accepted.
      * 
      * @param value
      * @param type
@@ -407,32 +393,38 @@ public class Util {
             return false;
         }
         if (type.equals("int")) {
+            Set<String> values = Util.splitSet(value) ; 
             try {
-                Integer.parseInt(value);
-                return true;
+            	for (String val : values) {
+            		Integer.parseInt(val);
+            	}
+        		return true;
             } catch (Exception e) {
                 logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
-                        + "\".  Integer value expected");
+                        + "\".  Integer value(s) expected");
                 return false;
             }
         }
         if ((type.charAt(0) == '{') || (type.charAt(0) == '[')) { // enumerated value
-            String[] enumVals = Util.split(type);
-            for (String one : enumVals) {
-                if (one.equals(value))
-                    return true;
-            }
-            String errorMes = "Invalid attribute value \"" + value + "\" for attribute \"" + attr + "\".  Expected: \"{" ;
-            for (String one : enumVals) {
-            	errorMes += one + " ";
-            }
-            errorMes += "}\"" ;
+            Set<String> enumVals = Util.splitSet(type);
+//            String[] arrayVal = stringArrayTrim(value.split(",")) ;
+            Set<String> values = Util.splitSet(value) ; 
+            if (enumVals.containsAll(values)) return true ;
+            
+            String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr + "\".  Expected subset of: " + type;
             logger.error(errorMes);
             return false;
         }
-
         // it is s string. Anything is Ok
         return true;
+    }
+    
+    public static String[] stringArrayTrim (String [] strings) {
+    	String [] ret = new String [strings.length] ;
+    	for (int i=0; i < strings.length; i++) {
+    		ret[i] = strings[i].trim();
+    	}
+    	return ret ;
     }
 
     public static String toStringSetReference (Set<? extends ResourceReference> setRef) {
@@ -445,6 +437,24 @@ public class Util {
     	return ret + "}" ;
     }
     
+    
+	public static boolean checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr, String comp) {
+		boolean ok = true ;
+		if (filters != null) {
+			for (String f : filters) {
+				ApamFilter parsedFilter = ApamFilter.newInstance(f);
+				if (!parsedFilter.validateAttr(validAttr, f, comp)) ok = false ;
+			}
+		}
+		if (listFilters != null) {
+			for (String f : listFilters) {
+				ApamFilter parsedFilter = ApamFilter.newInstance(f);
+				if (!parsedFilter.validateAttr(validAttr, f, comp)) ok = false ;
+			}
+		}
+		return ok ;
+	}
+
 }
 
 

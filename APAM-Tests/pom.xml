@@ -17,21 +17,17 @@
   	<module>S4</module>
   	<module>S5</module>
   	<module>S1Impl</module>
-  	<module>S2Impl</module>
-  	
+  	<module>S2Impl</module>  	
   	<module>S3Impl</module>
   	<module>S4Impl</module>
   	<module>S5Impl</module>
+  	<module>S5CompEx</module>  	
   	<module>TestAttrSpec</module>
   	<module>TestAttrImpl</module>
   	<module>TestDependency</module>
   	<module>TestPromotion</module>
   	<module>TestGrant</module>
-  	<module>S5CompEx</module>  	
   	<module>TestCompile</module>
-<!-- 	<module>perfAPAM</module> -->
-<!--   	<module>perfIPojo</module> -->
-<!--   	<module>message-components</module> -->
   </modules>
 
 </project>

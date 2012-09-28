@@ -35,9 +35,12 @@ public class S1Impl implements S1 {
         System.out.println("=== In S1Impl; S3_1 " + s3_1.getName());
         System.out.println("=== In S1Impl; S3_2 " + s3_2.getName());
 
+        s2Spec.callS2("From S1Impl to S2 ...") ;
+        
         System.out.print("=== In S1Impl; S3_1  s3List :");
         for (S3_1 s3 : s3List) {
             System.out.print("     " + s3.getName());
+            s3.callS3_1("freom S1Impl, s3List ") ;
         }
         System.out.println("");
         System.out.print("=== In S1Impl; S3_1  s3ListBis :");

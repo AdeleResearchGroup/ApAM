@@ -10,15 +10,12 @@
 			<state implementation="S5Impl" property="state"/>
 			
 			<start implementation="S3Impl" name="s3Impl-int">
-				
 				<property name="S3Impl-Attr" value="val"/>
-			
 				<dependency specification="S4">
 					<constraints>
-						<implementation filter="propre=true"/>
+						<implementation filter="(propre=true)"/>
 					</constraints>
 				</dependency>
-			
 				<trigger>
 					<specification name="la spec qui declenche le demmarage">
 						<constraints>

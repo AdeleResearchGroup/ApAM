@@ -106,4 +106,6 @@ public interface Component {
      */
     public Component getGroup ();
     
+	public Map<String, String> getValidAttributes () ;
+
 }

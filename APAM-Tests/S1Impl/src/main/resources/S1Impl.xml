@@ -18,8 +18,8 @@
 		<dependency implementation="S2Impl" field="lastS2" />
 	</implementation>
 
-	<instance implementation="S1toS2Final" name="S1toS2Final-instance" >
-	</instance>
+	<apam-instance implementation="S1toS2Final" name="S1toS2Final-instance" >
+	</apam-instance>
 
 	<composite name="S1CompoFinal" main="S1toS2Final"
 		interfaces="{fr.imag.adele.apam.test.s1.S1}">
@@ -34,7 +34,7 @@
 
 	<!-- Will install and start immediately the composite and its instance. 
 		Main being auto start: it starts alone -->
-	<instance implementation="S1CompoFinal" name="S1CompoFinal-Instance" />
+	<apam-instance implementation="S1CompoFinal" name="S1CompoFinal-Instance" />
 
 	<!-- An implementation without any provided resource -->
 	<implementation name="S1Main"
@@ -44,9 +44,9 @@
 		<property name="shared" value="true"/>
 		
 		<dependency id="tos1" field="s1">
-			<preferences>
+			<constraints>
 				<implementation filter="(impl-name=S1Impl)" />
-			</preferences>
+			</constraints>
 		</dependency>
 	</implementation>
 

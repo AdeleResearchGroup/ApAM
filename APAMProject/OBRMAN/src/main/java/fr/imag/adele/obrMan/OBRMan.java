@@ -208,18 +208,18 @@ public class OBRMan implements DependencyManager {
 		fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
 		Implementation impl = null;
 		if (resource instanceof SpecificationReference) {
-			selected = obr.lookFor(CST.CAPABILITY_COMPONENT, "(provide-specification="
+			selected = obr.lookFor(CST.CAPABILITY_COMPONENT, "(provide-specification>="
 					+ resource.as(SpecificationReference.class).getName() + ")",
 					constraints, preferences);
 		}
 		if (resource instanceof InterfaceReference) {
-			selected = obr.lookFor(CST.CAPABILITY_COMPONENT, "(provide-interfaces=*;" 
-					+ resource.as(InterfaceReference.class).getJavaType() + ";*)",
+			selected = obr.lookFor(CST.CAPABILITY_COMPONENT, "(provide-interfaces >="  //=*;"
+					+ resource.as(InterfaceReference.class).getJavaType() + ",)", //";*)"
 					constraints, preferences);
 		}
 		if (resource instanceof MessageReference) {
-			selected = obr.lookFor(CST.CAPABILITY_COMPONENT, "(provide-messages=*;" 
-					+ resource.as(MessageReference.class).getJavaType() + ";*)",
+			selected = obr.lookFor(CST.CAPABILITY_COMPONENT, "(provide-messages>=" 
+					+ resource.as(MessageReference.class).getJavaType() + ",)",
 					constraints, preferences);
 		}
 		if (selected != null) {

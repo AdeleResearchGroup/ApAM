@@ -179,19 +179,19 @@ public class ApamRepoBuilder {
 				defaultValue = "";
 			
 			if (type != null) {
+				type = type.trim() ;
 				String typeString = null;
 				if (type.equals("string") || type.equals("int") || type.equals("boolean")) {
-					//                	Ignored because the value can be null
-					//                    if (Util.checkAttrType(definition.getName(), definition.getDefaultValue(), type))
 					typeString = type;
 				} else {
 					// check for enum types
 					if ((type.charAt(0) == '{') || (type.charAt(0) == '[')) {
-						typeString = "[;";
-						for (String one : Util.split(type)) {
-							typeString += one + ";";
-						}
-						typeString += "]";
+						typeString =  type ;
+//						typeString = "[;";
+//						for (String one : Util.split(type)) {
+//							typeString += one + ";";
+//						}
+//						typeString += "]";
 					} else
 						CheckObr.error("Invalid type " + type + " in attribute definition " + definition.getName()
 								+ ". Supported: string, int, boolean, enumeration.");
@@ -213,18 +213,24 @@ public class ApamRepoBuilder {
 
 	private String setReference2String (Set<? extends ResolvableReference> refs) {
 		if (refs.isEmpty()) return null ;
-		int l = refs.size();
-		int i = 1;
-
-		String val = "[;" ;
+		String val = "";
 		for (ResolvableReference mess : refs) {
-			if (i < l)
-				val += mess.getName() + ";" ;
-			else
-				val += mess.getName() + ";]" ;
-			i++;
+			val += mess.getName() + "," ;
 		}
-		return val ;
+		//remove last ","
+		return val.substring(0, val.length() -1) ;
+//		int l = refs.size();
+//		int i = 1;
+//
+//		String val = "[;" ;
+//		for (ResolvableReference mess : refs) {
+//			if (i < l)
+//				val += mess.getName() + ";" ;
+//			else
+//				val += mess.getName() + ";]" ;
+//			i++;
+//		}
+//		return val ;
 	}
 
 	private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {

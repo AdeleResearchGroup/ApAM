@@ -361,21 +361,21 @@ public class ApamFilter implements Filter {
         return toString().hashCode();
     }
 
-    public void validateAttr(Map<String, String> validAttr, String f, String spec) {
+    public boolean validateAttr(Map<String, String> validAttr, String f, String spec) {
         switch (op) {
             case AND:
             case OR: {
                 ApamFilter[] filters = (ApamFilter[]) value;
+                boolean ok = true ;
                 for (ApamFilter filter : filters) {
-                    filter.validateAttr(validAttr, f, spec);
+                    if (!filter.validateAttr(validAttr, f, spec)) ok = false ;
                 }
-                return;
+                return ok;
             }
 
             case NOT: {
                 ApamFilter filter = (ApamFilter) value;
-                filter.validateAttr(validAttr, f, spec);
-                return;
+                return filter.validateAttr(validAttr, f, spec);
             }
 
             case SUBSTRING:
@@ -389,14 +389,15 @@ public class ApamFilter implements Filter {
                 if (!Util.isFinalAttribute(attr) && !validAttr.containsKey(attr)) {
                     logger.error("Members of component " + spec + " cannot have property " + attr
                             + ". Invalid constraint " + f);
+                    return false ;
                 }
                 if (validAttr.containsKey(attr)) {
-                	Util.checkAttrType(attr, (String)value, validAttr.get(attr));
+                	return Util.checkAttrType(attr, (String)value, validAttr.get(attr));
                 }
             }
-
+            return true ;
         }
-
+        return true ;
     }
 
     /**
