@@ -105,13 +105,11 @@ public class ApamMan implements DependencyManager {
     @Override
     public Set<Implementation> resolveSpecByResources(CompositeType compoType, DependencyDeclaration dep) {
         Specification spec = CST.SpecBroker.getSpecResource(dep.getTarget());
-        if (spec == null)
-            return null;
+        if (spec == null) return null;
         
     	Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints()) ;
-    	List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
-
         Set<Implementation> impls = new HashSet<Implementation>();
+
         // select only those that are visible
         for (Implementation impl : spec.getImpls()) {
             if (Util.checkImplVisible(compoType, impl))

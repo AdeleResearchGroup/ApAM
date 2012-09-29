@@ -74,6 +74,8 @@ public class Util {
 
     public static Set<Filter> toFilter(Set<String> filterString) {
         Set<Filter> filters = new HashSet<Filter>();
+        if (filterString == null) return filters ;
+        
         for (String f : filterString) {
             filters.add(ApamFilter.newInstance(f));
         }
@@ -82,6 +84,8 @@ public class Util {
 
     public static List<Filter> toFilterList(List<String> filterString) {
         List<Filter> filters = new ArrayList<Filter>();
+        if (filterString == null) return filters ;
+
         for (String f : filterString) {
             filters.add(ApamFilter.newInstance(f));
         }
