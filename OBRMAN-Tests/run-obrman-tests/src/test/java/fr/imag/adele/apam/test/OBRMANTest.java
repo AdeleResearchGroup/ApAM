@@ -88,7 +88,7 @@ public class OBRMANTest {
         Option[] r = OptionUtils.combine(platform, bundles);
 
         Option[] debug = options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
-        //r = OptionUtils.combine(r, debug);
+        r = OptionUtils.combine(r, debug);
 
         // Option[] log = options(vmOption("-Dlog4j.file=./am.log4j.properties"));
         // r = OptionUtils.combine(r, log);
