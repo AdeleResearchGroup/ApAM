@@ -66,6 +66,7 @@ public interface DependencyManager {
      * @return the implementations if resolved, null otherwise
      */
     public Implementation resolveSpecByResource(CompositeType compoTypeFrom, DependencyDeclaration dependency);
+    public Set<Implementation> resolveSpecByResources(CompositeType compoTypeFrom, DependencyDeclaration dependency);
 
     /**
      * The manager is asked to find the implementation given its name.

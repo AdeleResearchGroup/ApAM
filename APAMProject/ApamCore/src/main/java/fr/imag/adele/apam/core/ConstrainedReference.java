@@ -45,9 +45,8 @@ public class ConstrainedReference {
 
         this.implementationConstraints 	= new HashSet<String>();
         this.instanceConstraints 		= new HashSet<String>();
-        implementationPreferences 		= new ArrayList<String>();
-        instancePreferences 			= new ArrayList<String>();
-        
+        this.implementationPreferences 	= new ArrayList<String>();
+        this.instancePreferences 		= new ArrayList<String>();
 	}
 
 	/**

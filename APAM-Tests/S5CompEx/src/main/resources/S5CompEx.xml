@@ -10,31 +10,31 @@
 			<state implementation="S5Impl" property="state"/>
 			
 			<start implementation="S3Impl" name="s3Impl-int">
-				<property name="S3Impl-Attr" value="val"/>
+				<property name="MyBool" value="true"/>
 				<dependency specification="S4">
 					<constraints>
-						<implementation filter="(propre=true)"/>
+						<implementation filter="(b=true)"/>
 					</constraints>
 				</dependency>
 				<trigger>
-					<specification name="la spec qui declenche le demmarage">
+					<specification name="S4">
 						<constraints>
-							<constraint filter="la condition de demarrage"/>
+							<constraint filter="(spec-name=S4)"/>
 						</constraints>
 					</specification>
 				</trigger>
 			</start> 
 			
-			<promote implementation="A" dependency="fastS2" to="S2Single"/>
+			<promote implementation="S5Impl" dependency="fastS2" to="S4"/>
 					
 			<borrow implementation="(b=true)" instance="false"/>
 			<local  implementation="true" instance="true"/>
 
-			<own specification="S1" property="location" value="{entrance,exit}">
+			<own specification="S1" property="location" value="{kitchen, living}">
 				<grant when="emergency" implementation="S1ImplTestAttr" />
 				<grant when="threat" implementation="S2Impl" />
 			</own>
-			<own specification="S1" property="location" value="garage"/>
+<!-- 			<own specification="S2" property="location" value="bedroom"/> -->
 			
 			<specification name="Spec_A*" eager="true" hide="true" exception="CompositeDependencyException">
 				<constraints>
