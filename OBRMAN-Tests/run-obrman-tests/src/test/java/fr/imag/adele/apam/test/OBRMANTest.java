@@ -3,13 +3,14 @@ package fr.imag.adele.apam.test;
 import static fr.imag.adele.apam.test.ApAMHelper.waitForIt;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.ops4j.pax.exam.CoreOptions.felix;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.vmOption;
+
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -88,7 +89,7 @@ public class OBRMANTest {
         Option[] r = OptionUtils.combine(platform, bundles);
 
         Option[] debug = options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
-        r = OptionUtils.combine(r, debug);
+       // r = OptionUtils.combine(r, debug);
 
         // Option[] log = options(vmOption("-Dlog4j.file=./am.log4j.properties"));
         // r = OptionUtils.combine(r, log);
@@ -105,7 +106,7 @@ public class OBRMANTest {
      * Simple Test : Create a compositetype with obrman model and instantiate it then call the application service
      * This composite must contains only the spec and the main impl of the composite
      */
-    // @Test
+    @Test
     public void simpleComposite() {
         waitForIt(100);
 
@@ -166,7 +167,7 @@ public class OBRMANTest {
      * create the composite APP1 which will call the composite APP2
      * APP1 and APP2 will be on the same level of root composite.
      */
-    // @Test
+    @Test
     public void friendCompositev1() {
         waitForIt(100);
 
@@ -174,6 +175,12 @@ public class OBRMANTest {
 
         CompositeType app1CompoType = apam.runApplication("APP1.2", "APP1_MAIN", null);
 
+        Set<CompositeType> roots = app1CompoType.getInCompositeType();
+        
+        Object[] comps =  roots.toArray();
+        
+        System.out.println("ROOT Embeded " + ((CompositeType)comps[0]).getEmbedded().size());
+        
         assertNotNull(app1CompoType);
 
         assertNotNull(app1CompoType.getMainImpl().getApformImpl());
@@ -187,7 +194,8 @@ public class OBRMANTest {
         app1Spec.call("Call Main APP1 from Test");
 
         System.out.println("\n=================End call test====================\n");
-
+        System.out.println("ROOT Embeded " + ((CompositeType)comps[0]).getEmbedded().size());
+        
         assertEquals(app1CompoType.getEmbedded().size(), 0);
 
     }
@@ -196,14 +204,13 @@ public class OBRMANTest {
      * APP1 declare one repository and APP2 composite in ObrMan model
      * Try to create APP1 composite, but APP2 composite is missing
      */
-    // @Test
+    @Test
     public void missingAPP2Composite() {
         waitForIt(100);
 
         CompositeType app1CompoType = apam.runApplication("APP1.2", "APP1_MAIN", null);
 
-        // Est ce que c'est normal que app1CompoType != null
-        assertNull(app1CompoType.getMainImpl());
+        assertNotNull(app1CompoType);
 
     }
 
