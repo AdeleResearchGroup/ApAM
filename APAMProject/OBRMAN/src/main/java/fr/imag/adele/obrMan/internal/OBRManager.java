@@ -391,7 +391,7 @@ public class OBRManager {
         if (settings == null) {
             settings = ObrUtil.searchSettingsFromUserHome();
         }
-        logger.info("Maven settings location: " + settings);
+        logger.debug("Maven settings location: " + settings);
 
         // Extract localRepository from settings.xml
         URL defaultLocalRepo = null;

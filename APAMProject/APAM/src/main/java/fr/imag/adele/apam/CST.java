@@ -43,7 +43,7 @@ public class CST {
 	public static final String SINGLETON = "singleton" ;
 
 	
-	// APAM ROOT COMPOSITE
+//	// APAM ROOT COMPOSITE
 	public static final String ROOT_COMPOSITE_TYPE = "root";
 
 	// Constant used by OBR

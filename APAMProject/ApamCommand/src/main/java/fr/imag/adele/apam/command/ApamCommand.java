@@ -73,8 +73,7 @@ public class ApamCommand {
 	 * Resolver Commands.
 	 */
 	@Descriptor("Resolve apam components on the target composite")
-	public void put(@Descriptor("type of component (spec | implem) ") String type,
-			@Descriptor("the name of the component to resolve ") String componentName,
+	public void put(@Descriptor("the name of the component to resolve ") String componentName,
 			@Descriptor("the name of the composite target or root ") String compositeTarget) {
 		CompositeType target = null;
 
@@ -88,13 +87,12 @@ public class ApamCommand {
 			}
 
 		}
-
-		if ("spec".equals(type)){
-			CST.apamResolver.findSpecByName(target, componentName);
-		}else if ("implem".equals(type)){
-			CST.apamResolver.findImplByName(target, componentName);
+		System.out.println("< Searching " + componentName +" in specifications > " );
+		Specification spec = CST.apamResolver.findSpecByName(target, componentName);
+		if (spec ==null){
+		    System.out.println("< Searching "+ componentName + " in implementations > " );
+		    CST.apamResolver.findImplByName(target, componentName);
 		}
-
 	}
 
 	/**
