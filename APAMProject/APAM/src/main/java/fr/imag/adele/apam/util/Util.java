@@ -1,8 +1,12 @@
 package fr.imag.adele.apam.util;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +14,6 @@ import java.util.Set;
 
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +33,8 @@ import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
  * @author SAM team
  */
 public class Util {
-	private static Logger logger = LoggerFactory.getLogger(Util.class);
-    static boolean failed;
+    private static Logger logger = LoggerFactory.getLogger(Util.class);
+    static boolean        failed;
 
     private Util() {
     };
@@ -43,7 +46,7 @@ public class Util {
 
             @Override
             public void error(Severity severity, String message) {
-                logger.error("error parsing component declaration : "+message);
+                logger.error("error parsing component declaration : " + message);
                 Util.failed = true;
             }
         });
@@ -68,14 +71,16 @@ public class Util {
         }
         return ret.substring(0, ret.length() - 2) + "}";
     }
+
     public static String toStringArrayString(String[] names) {
-    	return toStringResources(new HashSet<String> (Arrays.asList(names))) ;
+        return toStringResources(new HashSet<String>(Arrays.asList(names)));
     }
 
     public static Set<Filter> toFilter(Set<String> filterString) {
         Set<Filter> filters = new HashSet<Filter>();
-        if (filterString == null) return filters ;
-        
+        if (filterString == null)
+            return filters;
+
         for (String f : filterString) {
             filters.add(ApamFilter.newInstance(f));
         }
@@ -84,24 +89,27 @@ public class Util {
 
     public static List<Filter> toFilterList(List<String> filterString) {
         List<Filter> filters = new ArrayList<Filter>();
-        if (filterString == null) return filters ;
+        if (filterString == null)
+            return filters;
 
         for (String f : filterString) {
             filters.add(ApamFilter.newInstance(f));
         }
         return filters;
     }
+
     /**
      * Warning: returns an unmodifiable List !
+     * 
      * @param str
      * @return
      */
     public static List<String> splitList(String str) {
         return Arrays.asList(Util.split(str));
     }
-    
+
     public static Set<String> splitSet(String str) {
-        return new HashSet<String> (Arrays.asList(Util.split(str))) ;
+        return new HashSet<String>(Arrays.asList(Util.split(str)));
     }
 
     /**
@@ -109,18 +117,19 @@ public class Util {
      * A list is of the form "{A, B, .... G}" or "[A, B, .... G]"
      * 
      * If the string is empty or is not a list, return the empty array.
+     * 
      * @param str
      * @return
      */
     public static String[] split(String str) {
-        if ((str == null) || (str.length() == 0)) 
+        if ((str == null) || (str.length() == 0))
             return new String[0];
-        
-    	str = str.trim () ;
-		if ((str.charAt(0) != '{') && (str.charAt(0) != '[')) {
-			return stringArrayTrim(str.split(",")) ;
-		}
-        	 
+
+        str = str.trim();
+        if ((str.charAt(0) != '{') && (str.charAt(0) != '[')) {
+            return stringArrayTrim(str.split(","));
+        }
+
         str = str.replaceAll("\\ ", "");
         str = str.replaceAll(";", ",");
         str = str.replaceAll("\\[,", "[");
@@ -136,8 +145,8 @@ public class Util {
                 return new String[0];
             }
             return internal.split(",");
-        } else { 
-            return new String[] { str } ;
+        } else {
+            return new String[] { str };
         }
     }
 
@@ -188,7 +197,6 @@ public class Util {
 //        return true;
 //    }
 
-
 //    public static String ANDLDAP(String... params) {
 //        StringBuilder sb = new StringBuilder("(&");
 //        for (String p : params) {
@@ -223,7 +231,6 @@ public class Util {
 //        return ret;
 //    }
 
-
     public static boolean checkImplVisibilityExpression(String expre, Implementation impl) {
         if ((expre == null) || expre.equals(CST.V_TRUE))
             return true;
@@ -251,7 +258,7 @@ public class Util {
             return true;
 
         // First check inst can be borrowed
-        String borrow =  ((CompositeDeclaration)compoFrom.getDeclaration()).getVisibility().getBorrowImplementations() ; //   getProperty(CST.A_BORROWIMPLEM));
+        String borrow = ((CompositeDeclaration) compoFrom.getDeclaration()).getVisibility().getBorrowImplementations(); // getProperty(CST.A_BORROWIMPLEM));
         if ((borrow != null) && (Util.checkImplVisibilityExpression(borrow, toImpl) == false))
             return false;
 
@@ -264,16 +271,17 @@ public class Util {
     }
 
     public static boolean
-    checkImplVisibleInCompo(CompositeType compoFrom, Implementation toImpl, CompositeType compoTo) {
+            checkImplVisibleInCompo(CompositeType compoFrom, Implementation toImpl, CompositeType compoTo) {
         if (compoFrom == compoTo)
             return true;
         if (compoFrom.isFriend(compoTo)) {
-            String friend = ((CompositeDeclaration)compoTo.getDeclaration()).getVisibility().getFriendImplementations() ;     //.getProperty(CST.A_FRIENDIMPLEM));
+            String friend = ((CompositeDeclaration) compoTo.getDeclaration()).getVisibility()
+                    .getFriendImplementations(); // .getProperty(CST.A_FRIENDIMPLEM));
 //            String friend = ((String) compoTo.getProperty(CST.A_FRIENDIMPLEM));
             if ((friend != null) && Util.checkImplVisibilityExpression(friend, toImpl))
                 return true;
         }
-        String local = ((CompositeDeclaration)compoTo.getDeclaration()).getVisibility().getLocalImplementations() ;
+        String local = ((CompositeDeclaration) compoTo.getDeclaration()).getVisibility().getLocalImplementations();
 //        String local = ((String) compoTo.getProperty(CST.A_LOCALIMPLEM));
         if ((local != null) && Util.checkImplVisibilityExpression(local, toImpl))
             return false;
@@ -306,42 +314,44 @@ public class Util {
     public static boolean checkInstVisible(Composite compoFrom, Instance toInst) {
         Composite toCompo = toInst.getComposite();
         CompositeType toCompoType = toInst.getComposite().getCompType();
-        CompositeType fromCompoType = compoFrom.getCompType() ;
-        
+        CompositeType fromCompoType = compoFrom.getCompType();
+
         if (compoFrom == toCompo)
             return true;
 
         // First check inst can be borrowed
-        String borrow = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getBorrowInstances() ;
+        String borrow = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getBorrowInstances();
         if ((borrow != null) && (Util.checkInstVisibilityExpression(borrow, toInst) == false))
             return false;
 
         if (compoFrom.dependsOn(toCompo)) {
-        	String friend = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getFriendInstances() ;
+            String friend = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility()
+                    .getFriendInstances();
             if ((friend != null) && Util.checkInstVisibilityExpression(friend, toInst))
                 return true;
         }
         if (compoFrom.getAppliComposite() == toCompo.getAppliComposite()) {
-        	String appli = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getApplicationInstances() ;
+            String appli = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility()
+                    .getApplicationInstances();
             if ((appli != null) && Util.checkInstVisibilityExpression(appli, toInst))
                 return true;
         }
-        String local = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getLocalInstances() ;
+        String local = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getLocalInstances();
         if ((local != null) && Util.checkInstVisibilityExpression(local, toInst))
             return false;
         return true;
     }
 
-
     public static boolean isInheritedAttribute(String attr) {
-    	if (isReservedAttributePrefix(attr)) return false ;
+        if (isReservedAttributePrefix(attr))
+            return false;
         for (String pred : CST.notInheritedAttribute) {
             if (pred.equals(attr))
                 return false;
         }
         return true;
     }
-    
+
     public static boolean isFinalAttribute(String attr) {
         for (String pred : CST.finalAttributes) {
             if (pred.equals(attr))
@@ -358,29 +368,28 @@ public class Util {
         return false;
     }
 
-	/**
-	 * Check if attribute "attr=value" is valid when set on object "inst".
-	 * inst can be an instance, an implementation or a specification.
-	 * Check if the value is consistent with the type.
-	 * All predefined attributes are Ok (scope ...)
-	 * Cannot be a reserved attribute
-	 */
-	public static boolean validAttr(String component, String attr) {
+    /**
+     * Check if attribute "attr=value" is valid when set on object "inst".
+     * inst can be an instance, an implementation or a specification.
+     * Check if the value is consistent with the type.
+     * All predefined attributes are Ok (scope ...)
+     * Cannot be a reserved attribute
+     */
+    public static boolean validAttr(String component, String attr) {
 
-		if (Util.isFinalAttribute(attr)) {
-			logger.error("ERROR: in " + component + ", attribute\"" + attr + "\" is final");
-			return false;
-		}
+        if (Util.isFinalAttribute(attr)) {
+            logger.error("ERROR: in " + component + ", attribute\"" + attr + "\" is final");
+            return false;
+        }
 
-		if (Util.isReservedAttributePrefix(attr)) {
-			logger.error("ERROR: in " + component + ", attribute\"" + attr + "\" is reserved");
-			return false;
-		}
+        if (Util.isReservedAttributePrefix(attr)) {
+            logger.error("ERROR: in " + component + ", attribute\"" + attr + "\" is reserved");
+            return false;
+        }
 
-		return true ;
-	}
+        return true;
+    }
 
-    
     /**
      * only string, int, boolean and enumerations attributes are accepted.
      * 
@@ -397,12 +406,12 @@ public class Util {
             return false;
         }
         if (type.equals("int")) {
-            Set<String> values = Util.splitSet(value) ; 
+            Set<String> values = Util.splitSet(value);
             try {
-            	for (String val : values) {
-            		Integer.parseInt(val);
-            	}
-        		return true;
+                for (String val : values) {
+                    Integer.parseInt(val);
+                }
+                return true;
             } catch (Exception e) {
                 logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
                         + "\".  Integer value(s) expected");
@@ -412,53 +421,72 @@ public class Util {
         if ((type.charAt(0) == '{') || (type.charAt(0) == '[')) { // enumerated value
             Set<String> enumVals = Util.splitSet(type);
 //            String[] arrayVal = stringArrayTrim(value.split(",")) ;
-            Set<String> values = Util.splitSet(value) ; 
-            if (enumVals.containsAll(values)) return true ;
-            
-            String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr + "\".  Expected subset of: " + type;
+            Set<String> values = Util.splitSet(value);
+            if (enumVals.containsAll(values))
+                return true;
+
+            String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
+                    + "\".  Expected subset of: " + type;
             logger.error(errorMes);
             return false;
         }
         // it is s string. Anything is Ok
         return true;
     }
-    
-    public static String[] stringArrayTrim (String [] strings) {
-    	String [] ret = new String [strings.length] ;
-    	for (int i=0; i < strings.length; i++) {
-    		ret[i] = strings[i].trim();
-    	}
-    	return ret ;
+
+    public static String[] stringArrayTrim(String[] strings) {
+        String[] ret = new String[strings.length];
+        for (int i = 0; i < strings.length; i++) {
+            ret[i] = strings[i].trim();
+        }
+        return ret;
     }
 
-    public static String toStringSetReference (Set<? extends ResourceReference> setRef) {
-    	String ret = "{" ;
-    	for (ResourceReference ref : setRef) {
-    		ret = ret+ ref.getJavaType() + ", ";
-    	}
-    	int i = ret.lastIndexOf(',') ;
-    	ret = ret.substring(0, i) ;
-    	return ret + "}" ;
+    public static String toStringSetReference(Set<? extends ResourceReference> setRef) {
+        String ret = "{";
+        for (ResourceReference ref : setRef) {
+            ret = ret + ref.getJavaType() + ", ";
+        }
+        int i = ret.lastIndexOf(',');
+        ret = ret.substring(0, i);
+        return ret + "}";
     }
-    
-    
-	public static boolean checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr, String comp) {
-		boolean ok = true ;
-		if (filters != null) {
-			for (String f : filters) {
-				ApamFilter parsedFilter = ApamFilter.newInstance(f);
-				if (!parsedFilter.validateAttr(validAttr, f, comp)) ok = false ;
-			}
-		}
-		if (listFilters != null) {
-			for (String f : listFilters) {
-				ApamFilter parsedFilter = ApamFilter.newInstance(f);
-				if (!parsedFilter.validateAttr(validAttr, f, comp)) ok = false ;
-			}
-		}
-		return ok ;
-	}
+
+    public static boolean checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr,
+            String comp) {
+        boolean ok = true;
+        if (filters != null) {
+            for (String f : filters) {
+                ApamFilter parsedFilter = ApamFilter.newInstance(f);
+                if (!parsedFilter.validateAttr(validAttr, f, comp))
+                    ok = false;
+            }
+        }
+        if (listFilters != null) {
+            for (String f : listFilters) {
+                ApamFilter parsedFilter = ApamFilter.newInstance(f);
+                if (!parsedFilter.validateAttr(validAttr, f, comp))
+                    ok = false;
+            }
+        }
+        return ok;
+    }
+
+    public static void printFileToConsole(URL path) throws IOException {
+        try {
+            DataInputStream in = new DataInputStream(path.openStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String strLine;
+            // Read File Line By Line
+            while ((strLine = br.readLine()) != null) {
+                // Print the content on the console
+                System.out.println(strLine);
+            }
+            // Close the input stream
+            in.close();
+        } catch (Exception e) {// Catch exception if any
+          //TODO nothing
+        }
+    }
 
 }
-
-

@@ -112,13 +112,13 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
      * This is an special constructor only used for the root type of the system 
      */
     private CompositeTypeImpl() throws InvalidConfiguration {
-    	super("rootCompositeType");
+    	super(CST.ROOT_COMPOSITE_TYPE);
         
         /*
          * Look for platform models in directory "load" 
          */
         this.models = new HashSet<ManagerModel>();
-        File modelDirectory = new File("load");
+        File modelDirectory = new File("conf");
         
         if (! modelDirectory.exists())
         	return;

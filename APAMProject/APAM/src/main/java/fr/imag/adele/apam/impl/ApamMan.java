@@ -1,9 +1,11 @@
 package fr.imag.adele.apam.impl;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.CST;
@@ -20,13 +22,25 @@ import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements DependencyManager {
 
+    private BundleContext context;
+
+
     @Override
     public String getName() {
         return CST.APAMMAN;
     }
+    
+    public ApamMan(BundleContext context){
+        this.context = context;
+    }
 
     // when in Felix.
     public void start() {
+        try {
+            Util.printFileToConsole(context.getBundle().getResource("logo.txt"));
+        } catch (IOException e) {
+           //TODO nothing
+        }
         System.out.println("APAMMAN started");
     }
 
