@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,17 +237,6 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		return ! inComposites.contains(CompositeTypeImpl.getRootCompositeType()) && inComposites.size()==1;
 	}
 
-//	/**
-//	 * only here for future optimization.
-//	 * shared is applied on all the instances
-//	 */
-//	@Override
-//	public boolean isSharable() {
-//		if (get(CST.SHARED) == null)
-//			return true;
-//		return get(CST.SHARED).equals(CST.V_TRUE);
-//	}
-
 	@Override
 	public boolean isInstantiable() {
 		String instantiable = (String) get(CST.INSTANTIABLE);
@@ -276,18 +264,14 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
     	/*
     	 * Create and register the object in the APAM state model
     	 */
-		try {
-			
+		try {			
 			Instance instance = instantiate(composite);
 			((InstanceImpl)instance).register(initialProperties);
-			return instance;
-			
+			return instance;		
 		} catch (InvalidConfiguration configurationError) {
 			logger.error("Error instantiating implementation "+this.getName()+": exception registering instance in APAM",configurationError);
-		}
-		
+		}	
 		return null;
-
 	}
 
 	/**
@@ -369,119 +353,6 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		 return Collections.unmodifiableSet(instances);
 	 }
 
-	 //    @Override
-	 //    public Set<Instance> getSharableInsts() {
-	 //        return Collections.unmodifiableSet(sharableInstances);
-	 //        // return new HashSet <ASMInst> (instances) ;
-	 //    }
-
-	 @Override
-	 public Set<Instance> getInsts(Filter query) throws InvalidSyntaxException {
-		 if (query == null)
-			 return getInsts();
-		 Set<Instance> ret = new HashSet<Instance>();
-		 for (Instance inst : instances) {
-			 if (inst.match(query))
-				 ret.add(inst);
-		 }
-		 return ret;
-	 }
-
-	 //    @Override
-	 //    public Set<Instance> getSharableInsts(Filter query) throws InvalidSyntaxException {
-	 //        if (query == null)
-	 //            return getSharableInsts();
-	 //        Set<Instance> ret = new HashSet<Instance>();
-	 //        for (Instance inst : sharableInstances) {
-	 //            if (inst.match(query))
-	 //                ret.add(inst);
-	 //        }
-	 //        return ret;
-	 //    }
-
-	 @Override
-	 public Set<Instance> getInsts(Set<Filter> constraints) {
-		 if ((constraints == null) || constraints.isEmpty())
-			 return Collections.unmodifiableSet(instances);
-		 Set<Instance> ret = new HashSet<Instance>();
-		 for (Instance inst : instances) {
-			 for (Filter filter : constraints) {
-				 if (inst.match(filter)) {
-					 ret.add(inst);
-				 }
-			 }
-		 }
-		 return ret;
-	 }
-
-	 //    @Override
-	 //    public Set<Instance> getSharableInsts(Set<Filter> constraints) {
-	 //        if ((constraints == null) || constraints.isEmpty())
-	 //            return Collections.unmodifiableSet(sharableInstances);
-	 //        Set<Instance> ret = new HashSet<Instance>();
-	 //        for (Instance inst : sharableInstances) {
-	 //            for (Filter filter : constraints) {
-	 //                if (inst.match(filter)) {
-	 //                    ret.add(inst);
-	 //                }
-	 //            }
-	 //        }
-	 //        return ret;
-	 //    }
-
-	 @Override
-	 public Instance getInst(Set<Filter> constraints, List<Filter> preferences) {
-		 Set<Instance> insts = null;
-		 if ((preferences != null) && !preferences.isEmpty()) {
-			 insts = getInsts(constraints);
-		 } else
-			 insts = instances;
-		 if ((constraints == null) || constraints.isEmpty())
-			 return ((Instance) insts.toArray()[0]);
-
-		 return getPreferedInst(insts, preferences);
-	 }
-
-	 //    @Override
-	 //    public Instance getSharableInst(Set<Filter> constraints, List<Filter> preferences) {
-	 //        Set<Instance> insts = null;
-	 //        if ((preferences != null) && !preferences.isEmpty()) {
-	 //            insts = getSharableInsts(constraints);
-	 //        } else
-	 //            insts = sharableInstances;
-	 //
-	 //        if (insts.isEmpty())
-	 //            return null;
-	 //
-	 //        if ((constraints == null) || constraints.isEmpty())
-	 //            return ((Instance) insts.toArray()[0]);
-	 //
-	 //        return getPreferedInst(insts, preferences);
-	 //    }
-
-	 @Override
-	 public Instance getPreferedInst(Set<Instance> candidates, List<Filter> preferences) {
-		 if ((preferences == null) || preferences.isEmpty()) {
-			 return (Instance) candidates.toArray()[0];
-		 }
-		 Instance winner = null;
-		 int maxMatch = -1;
-		 for (Instance inst : candidates) {
-			 int match = 0;
-			 for (Filter filter : preferences) {
-				 if (!inst.match(filter))
-					 break;
-				 match++;
-			 }
-			 if (match > maxMatch) {
-				 maxMatch = match;
-				 winner = inst;
-			 }
-		 }
-		 logger.debug("   Selected : " + winner);
-		 return winner;
-	 }
-
 
 	 // relation uses control
 
@@ -532,5 +403,4 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 public Component getGroup() {
 		 return getImplDeclaration().getSpecification() != null ? mySpec : null;
 	 }
-
 }

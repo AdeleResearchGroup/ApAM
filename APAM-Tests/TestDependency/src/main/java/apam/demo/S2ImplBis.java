@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.test.dependency;
+package apam.demo;
 
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Apam;

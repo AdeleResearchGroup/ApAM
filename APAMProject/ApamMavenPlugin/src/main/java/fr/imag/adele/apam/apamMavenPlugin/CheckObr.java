@@ -86,6 +86,9 @@ public class CheckObr {
 		//computes the attributes that can be associated with this spec or implementations members
 		Map<String, String> validAttrs = cap.getValidAttrNames();
 
+		if (dep.isMultiple() && (!dep.getImplementationPreferences().isEmpty() || !dep.getInstancePreferences().isEmpty())) {
+			error ("Preferences cannot be defined for a dependency with multiple cardinality: " + dep.getIdentifier()) ;
+		}
 		Util.checkFilters(dep.getImplementationConstraints(), dep.getImplementationPreferences(), validAttrs, dep.getTarget().getName());
 		Util.checkFilters(dep.getInstanceConstraints(), dep.getInstancePreferences(), validAttrs, dep.getTarget().getName());
 	}

@@ -113,12 +113,6 @@ public interface Instance extends Component {
      */
     public void removeWire(Wire wire);
 
-    //    /**
-    //     * returns the value of the shared attribute
-    //     * 
-    //     * @return
-    //     */
-    //    public String getShared();
 
     /**
      * returns the value of the shared attribute

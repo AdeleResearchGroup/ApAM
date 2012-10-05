@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.test.compile;
+package apam.test.compile;
 
 import java.util.HashMap;
 import java.util.List;

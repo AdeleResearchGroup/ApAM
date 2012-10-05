@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.test.compile;
+package apam.demo;
 
 public interface M2 {
 

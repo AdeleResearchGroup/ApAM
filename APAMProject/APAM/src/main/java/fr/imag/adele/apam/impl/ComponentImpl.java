@@ -2,6 +2,8 @@ package fr.imag.adele.apam.impl;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -259,9 +261,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		getApformComponent().setProperty (attr,value);
 
 		//Propagate to members recursively
-		if (getMembers() == null)
-			return;
-
 		for (Component member : getMembers()) {
 			((ComponentImpl)member).propagate (attr, value) ;
 		}
@@ -283,10 +282,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		getApformComponent().setProperty (attr,value);
 
 		//Propagate to members recursively
-
-		if (getMembers() == null)
-			return;
-
 		for (Component member : getMembers()) {
 			((ComponentImpl)member).propagate (attr, value) ;
 		}
@@ -332,7 +327,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	/**
 	 * Removes the specifed property
 	 * 
-	 * TODO Should we add this to the API? how to notify apform?
 	 */
 	public boolean removeProperty(String attr) {
 
@@ -381,14 +375,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	private void propagateRemove (String attr) {
 
 		remove(attr) ;
-
-		if (getMembers() == null)
-			return;
-
 		for (Component member : getMembers ()) {
 			((ComponentImpl)member).propagateRemove(attr) ;
 		}
-
 	}
 
 	/**
@@ -430,9 +419,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * @return
 	 */
 	private boolean validDef (String attr, String value) {
-		//attr = attr.toLowerCase() ;
-		//		if (Util.isPredefinedAttribute(attr))
-		//			return true;
 		if (Util.isFinalAttribute(attr)) {
 			logger.error("Cannot redefine final attribute \"" + attr + "\"");
 			return false;			
@@ -460,8 +446,77 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		}
 
 		return Util.checkAttrType(attr, value, definition.getType());
-
 	}
+
+	public <T extends Component> Set<T> getSelectedComponents(Set<T> candidates, Set<Filter> constraints) {
+		if (constraints == null) return candidates;
+		if (candidates == null) return null ;
+
+		Set<T> ret = new HashSet <T> () ;
+		for (T inst : candidates) {
+			if (inst.match(constraints)) {
+				ret.add (inst) ;
+			}
+		}
+		return ret;
+	}
+
+	public <T extends Component> T getSelectedComponent(Set<T> candidates, Set<Filter> constraints) {
+		Set<T> ret = getSelectedComponents(candidates, constraints) ;
+		if (ret.isEmpty()) return null ;
+		return (T)ret.toArray()[0] ;
+	}
+
+
+	/**
+	 * Returns the candidate that best matches the preferences.
+	 * Take the preferences in orden: m candidates
+	 * find  the n candidates that match the constraint.
+	 * 		if n= 0 ignore the constraint
+	 *      if n=1 return it.
+	 * iterate with the n candidates.
+	 * At the end, if n > 1 return hte default one.
+	 * 
+	 */
+	@Override
+	public <T extends Component> T getPreferedComponent(Set<T> candidates, List<Filter> preferences) {
+		if (candidates == null || candidates.isEmpty()) return null ;
+		if ((preferences == null) || preferences.isEmpty()) {
+				return getDefaultComponent(candidates);
+		}
+		
+		Set<T> valids = new HashSet<T> ();
+		for (Filter f : preferences) {
+			for (T compo : candidates) {
+				if (compo.match(f)) 
+					valids.add (compo) ;
+			}
+			if (valids.size()==1) return (T)valids.toArray()[0] ;
+			if (!valids.isEmpty()) {
+				candidates = valids ;
+				valids=new HashSet<T> () ;
+			}
+		}
+		return getDefaultComponent(candidates) ;
+	}
+	
+
+	public <T extends Component> T getDefaultComponent (Set<T> candidates) {
+		for (T impl : candidates) {
+			if (! (impl instanceof Implementation)) return impl ;
+			for (Component inst : impl.getMembers()) {
+				if (((Instance)inst).isSharable())
+					return impl;
+			}
+		}
+		for (T impl : candidates) {
+			if (impl.isInstantiable())
+				return impl;
+		}
+		return (T) candidates.toArray()[0];
+	}
+
+
 	/*
 	 * Filter evaluation on the properties of this component
 	 */

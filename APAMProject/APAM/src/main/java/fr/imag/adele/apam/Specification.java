@@ -1,11 +1,6 @@
 package fr.imag.adele.apam;
 
-import java.util.List;
 import java.util.Set;
-
-import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
-
 import fr.imag.adele.apam.apform.ApformSpecification;
 
 public interface Specification extends Component {
@@ -39,49 +34,6 @@ public interface Specification extends Component {
      * @throws ConnectionException the connection exception
      */
     public Set<Implementation> getImpls();
-
-    /**
-     * Returns all the implementations that satisfy the goal. Null if none.
-     * 
-     * @param goal If null or empty, no constraints.
-     * @return the implementations
-     * @throws InvalidSyntaxException
-     */
-    public Set<Implementation> getImpls(Filter filter) throws InvalidSyntaxException;
-
-    /**
-     * Returns all the implementations that satisfy all the constraints. Null if none.
-     * 
-     * @param constraint : the set of filters. If null or empty, no constraints.
-     * @return the implementations
-     */
-    public Set<Implementation> getImpls(Set<Filter> constraints);
-
-    /**
-     * Returns the subset of "candidates" that satisfy all the constraints. Null if none.
-     * 
-     * @param constraint : the set of filters. If null or empty, no constraints.
-     * @return the implementations
-     */
-    public Set<Implementation> getImpls(Set<Implementation> candidates, Set<Filter> constraints);
-
-    /**
-     * Return the implementation that matches the constraints and that best satisfies the preferences.
-     * 
-     * @param constraints
-     * @param preferences
-     * @return
-     */
-    public Implementation getImpl(Set<Filter> constraints, List<Filter> preferences);
-
-    /**
-     * returns the implementation, in the candidate set, that best satisfies the preferences.
-     * 
-     * @param candidates
-     * @param preferences
-     * @return
-     */
-    public Implementation getPreferedImpl(Set<Implementation> candidates, List<Filter> preferences);
 
     /**
      * Return the list of currently required specification.

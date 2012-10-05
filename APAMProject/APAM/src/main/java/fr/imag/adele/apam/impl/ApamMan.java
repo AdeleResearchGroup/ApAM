@@ -57,7 +57,7 @@ public class ApamMan implements DependencyManager {
                 insts.add(inst);
         }
         if (!insts.isEmpty())
-            return impl.getPreferedInst(insts, preferences);
+            return impl.getPreferedComponent(insts, preferences);
         return null;
     }
 
@@ -116,7 +116,7 @@ public class ApamMan implements DependencyManager {
                 impls.add(impl);
         }
         // AND those that match the constraints
-        return spec.getImpls(impls, constraints);
+        return spec.getSelectedComponents(impls, constraints);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class ApamMan implements DependencyManager {
     	Set<Implementation> impls = resolveSpecByResources (compoType, dep) ;
         // and then the prefered ones.
      	List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
-        return spec.getPreferedImpl(impls, preferences);
+        return spec.getPreferedComponent(impls, preferences);
     }
 
 

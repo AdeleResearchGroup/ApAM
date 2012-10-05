@@ -117,7 +117,7 @@ public interface Implementation extends Component {
      * @return All instances satisfying the goal
      * @throws InvalidSyntaxException the invalid syntax exception
      */
-    public Set<Instance> getInsts(Filter goal) throws InvalidSyntaxException;
+//    public Set<Instance> getInsts(Filter goal) ;
 
     //    /**
     //     * Returns all the sharable instances of that implementation that satisfy the provided Goal,
@@ -141,7 +141,7 @@ public interface Implementation extends Component {
      * 
      * @param constraints. All the constraint that must be satisfied by the instances.
      */
-    public Set<Instance> getInsts(Set<Filter> constraints);
+//    public Set<Instance> getInsts(Set<Filter> constraints);
 
     /**
      * Returns all the instances of that implementation that satisfy all the filters.
@@ -150,7 +150,7 @@ public interface Implementation extends Component {
      * @param constraints. All the constraint that must be satisfied by the instances.
      * @param preferences. Return the instance that matches the maximum number of constraints, taken in the order
      */
-    public Instance getInst(Set<Filter> constraints, List<Filter> preferences);
+//    public Instance getInst(Set<Filter> constraints, List<Filter> preferences);
 
     //    /**
     //     * Returns all the sharable instances of that implementation that satisfy all the filters.
@@ -168,7 +168,7 @@ public interface Implementation extends Component {
      * 
      * @param preferences. The preferences ordered from the most important (first).
      */
-    public Instance getPreferedInst(Set<Instance> candidates, List<Filter> preferences);
+//    public Instance getPreferedInst(Set<Instance> candidates, List<Filter> preferences);
 
 //    /**
 //     * Checks if is an instantiator.

@@ -390,27 +390,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         }
     }
 
- 
-    //    @Override
-    //    public boolean isSharable() {
-    //        if (getProperty(CST.A_SHARED) == null)
-    //            return true;
-    //        return getProperty(CST.A_SHARED).equals(CST.V_TRUE);
-    //    }
-
-    //    @Override
-    //    public String getShared() {
-    //        String shared = (String) get(CST.A_SHARED);
-    //        if (shared == null) {
-    //            shared = getImpl().getShared();
-    //        }
-    //        if (shared == null)
-    //            shared = CST.V_TRUE;
-    //        // shared.toUpperCase();
-    //        return shared;
-    //    }
-
-
 
     @Override
     public Set<Wire> getInvWires() {
@@ -475,7 +454,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
 	@Override
 	public Set<Component> getMembers() {
-		return null;
+		return Collections.EMPTY_SET;
 	}
 
 	@Override

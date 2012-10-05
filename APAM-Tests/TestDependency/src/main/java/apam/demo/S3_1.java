@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.test.dependency;
+package apam.demo;
 
 public interface S3_1 {
     public void callS3_1(String s);

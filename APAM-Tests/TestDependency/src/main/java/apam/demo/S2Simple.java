@@ -1,9 +1,10 @@
-package fr.imag.adele.apam.test.dependency;
+package apam.demo;
 
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.test.s2.S2;
-import fr.imag.adele.apam.test.s3.S3_1;
+import apam.demo.S2;
+import apam.demo.S3_1;
+import fr.imag.adele.apam.message.MessageProducer;
 import fr.imag.adele.apam.test.s4.S4;
 
 public class S2Simple implements S2, ApamComponent {
@@ -13,6 +14,8 @@ public class S2Simple implements S2, ApamComponent {
     String theFieldAttr ;
     String name;
 
+    MessageProducer<M1> p1;
+    
     @Override
     public String getName() {
         return name;

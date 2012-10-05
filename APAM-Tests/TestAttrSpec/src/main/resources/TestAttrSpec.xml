@@ -2,7 +2,6 @@
  xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
 	<specification name="S1TestAttr" interfaces="fr.imag.adele.apam.test.s1TestAttr.S1TestAttr"  >
-			<property name="S1-Enum2" value="coucou" type="{s1-1, s1-2, s1-3}"/>
 			<property name="S1-Enum" value="s1-2" type="{s1-1, s1-2, s1-3}"/>
 			<property name="S1-Attr" value="coucou" type="string"/>
 			<definition name="s1b" type="boolean" value="true" />
