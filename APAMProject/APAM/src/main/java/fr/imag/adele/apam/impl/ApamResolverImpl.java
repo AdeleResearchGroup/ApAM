@@ -2,6 +2,7 @@ package fr.imag.adele.apam.impl;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +27,7 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.ContextualResolutionPolicy;
 import fr.imag.adele.apam.core.DependencyDeclaration;
+import fr.imag.adele.apam.core.DependencyPromotion;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InterfaceReference;
@@ -54,19 +56,28 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	private class DepMult {
 		//Name (Id) of the dependency in the composite
-		public String        depType = null;
+		private String        depType = null;
 
 		//set of instances in the composite (if any) associated with the composite dependency
-		public Set<Instance> insts   = null;
+		private Set<Instance> insts   = null;
 
 		//The Implementations this dependency is revolved to 
-		public Implementation impl    = null;
+		//		public Implementation impl    = null;
 
-		public DepMult(String dep, Set<Instance> insts, Implementation impl) {
-			depType = dep;
-			this.insts = insts;
-			this.impl = impl;
+		public DepMult(Instance client, DependencyDeclaration dep) {
+			depType = dep.getIdentifier();
+			this.insts = client.getComposite().getWireDests(depType);
+			//			if (insts != null && !insts.isEmpty()) 	
+			//				this.impl = ((Instance)insts.toArray()[0]).getImpl ();
 		}
+
+		public Set<Instance> getInsts () {
+			return insts ;
+		}
+		public String getDepId () {
+			return depType ;
+		}
+
 	}
 
 	/**
@@ -83,58 +94,90 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param clientDep the client dependency we are trying to resolve
 	 * @return
 	 */
-	private DepMult
-	matchDependency(Instance compoInst, Set<DependencyDeclaration> compoDeps, DependencyDeclaration clientDep) {
+	private DepMult matchDependency(Instance compoInst, DependencyDeclaration compoDep, DependencyDeclaration clientDep) {
 		boolean multiple = clientDep.isMultiple();
 		//Look for same dependency: the same specification, the same implementation or same resource name
 		//Constraints are not taken into account
-		for (DependencyDeclaration compoDep : compoDeps) {
-			if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { // same nature
-				if (compoDep.getTarget().equals(clientDep.getTarget())) {
-					if (!multiple || compoDep.isMultiple())
-						return new DepMult(compoDep.getIdentifier(), null, null);
-				}
+		//		for (DependencyDeclaration compoDep : compoDeps) {
+		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { // same nature
+			if (compoDep.getTarget().equals(clientDep.getTarget())) {
+				if (!multiple || compoDep.isMultiple())
+					return new DepMult(compoInst, compoDep);
 			}
 		}
+		//		}
 
 		//Look for a compatible dependency.
 		//Stop at the first dependency matching only based on same name (same resource or same component)
 		//No provision for : cardinality, constraints or characteristics (missing, eager)
-		for (DependencyDeclaration compoDep : compoDeps) {
-			//Look if the client requires one of the resources provided by the specification
-			if (compoDep.getTarget() instanceof SpecificationReference) {
-				Specification spec = findSpecByName(compoInst.getComposite().getCompType(),
-						((SpecificationReference) compoDep.getTarget()).getName());
-				if ((spec != null) && spec.getDeclaration().getProvidedResources().contains(clientDep.getTarget()))
-					if (!multiple || compoDep.isMultiple())
-						return new DepMult(compoDep.getIdentifier(), null, null);
-			} else {
-				//If the composite has a dependency toward an implementation
-				//and the client requires a resource provided by that implementation
-				if (compoDep.getTarget() instanceof ImplementationReference) {
-					String implName = ((ImplementationReference<?>) compoDep.getTarget()).getName();
-					Implementation impl = findImplByName(compoInst.getComposite().getCompType(), implName);
-					if (impl != null) {
-						//The client requires the specification implemented by that implementation
-						if (clientDep.getTarget() instanceof SpecificationReference) {
-							String clientReqSpec = ((SpecificationReference) clientDep.getTarget()).getName();
-							if (impl.getImplDeclaration().getSpecification().getName().equals(clientReqSpec))
-								if (!multiple || compoDep.isMultiple())
-									return new DepMult(compoDep.getIdentifier(), null, impl);
-						} else {
-							//The client requires a resource provided by that implementation
-							if (impl.getImplDeclaration().getProvidedResources().contains(clientDep.getTarget()))
-								if (!multiple || compoDep.isMultiple())
-									return new DepMult(compoDep.getIdentifier(), null, null);
-						}
+		//		for (DependencyDeclaration compoDep : compoDeps) {
+		//Look if the client requires one of the resources provided by the specification
+		if (compoDep.getTarget() instanceof SpecificationReference) {
+			Specification spec = findSpecByName(compoInst.getComposite().getCompType(),
+					((SpecificationReference) compoDep.getTarget()).getName());
+			if ((spec != null) && spec.getDeclaration().getProvidedResources().contains(clientDep.getTarget()))
+				if (!multiple || compoDep.isMultiple())
+					return new DepMult(compoInst, compoDep);
+		} else {
+			//If the composite has a dependency toward an implementation
+			//and the client requires a resource provided by that implementation
+			if (compoDep.getTarget() instanceof ImplementationReference) {
+				String implName = ((ImplementationReference<?>) compoDep.getTarget()).getName();
+				Implementation impl = findImplByName(compoInst.getComposite().getCompType(), implName);
+				if (impl != null) {
+					//The client requires the specification implemented by that implementation
+					if (clientDep.getTarget() instanceof SpecificationReference) {
+						String clientReqSpec = ((SpecificationReference) clientDep.getTarget()).getName();
+						if (impl.getImplDeclaration().getSpecification().getName().equals(clientReqSpec))
+							if (!multiple || compoDep.isMultiple())
+								return new DepMult(compoInst, compoDep);
+					} else {
+						//The client requires a resource provided by that implementation
+						if (impl.getImplDeclaration().getProvidedResources().contains(clientDep.getTarget()))
+							if (!multiple || compoDep.isMultiple())
+								return new DepMult(compoInst, compoDep);
 					}
 				}
 			}
 		}
+		//		}
 		return null;
 	}
 
+	/**
+	 * Provided an instance, computes all the dependency declaration that applies to that instance/
+	 * If can be defined on the instance, the implementation, the specification, or on both.
+	 * In case the same dependency is defined multiple time, it is the most concrete one that must be taken into account.
+	 * @param client
+	 * @return
+	 */
+	public Set<DependencyDeclaration> computeAllDependencies (Instance client) {
+		Set<DependencyDeclaration> allDeps = new HashSet<DependencyDeclaration> () ;
+		allDeps.addAll(client.getDeclaration().getDependencies());
 
+		boolean found ;
+		for (DependencyDeclaration dep : client.getImpl().getDeclaration().getDependencies()) {
+			found= false ;
+			for (DependencyDeclaration allDep : allDeps) {
+				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
+					found= true;
+					break ;
+				}
+			}
+			if (!found) allDeps.add(dep) ;
+		}
+		for (DependencyDeclaration dep : client.getSpec().getDeclaration().getDependencies()) {
+			found= false ;
+			for (DependencyDeclaration allDep : allDeps) {
+				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
+					found= true;
+					break ;
+				}
+			}
+			if (!found) allDeps.add(dep) ;
+		}
+		return allDeps ;
+	}
 
 	/**
 	 * Compares the client dependency wrt the enclosing composite dependencies.
@@ -154,19 +197,42 @@ public class ApamResolverImpl implements ApamResolver {
 			return null;
 
 		// take the dependency first in the instance, and if not found, in the implementation
-		Set<DependencyDeclaration> compoDeps = client.getComposite().getDeclaration().getDependencies();
-		if ((compoDeps == null) || compoDeps.isEmpty())
-			compoDeps = client.getComposite().getCompType().getCompoDeclaration().getDependencies();
+		Set<DependencyDeclaration> compoDeps = computeAllDependencies(client.getComposite()) ;
+		if (compoDeps.isEmpty()) return null ;
 
-		promotion = matchDependency (client, compoDeps, dependency) ;
-		if (promotion == null)
-			return null; // no promotion
+		//look if a promotion is explicitly declared for that client component
+		// <promotion implementation="A" dependency="clientDep" to="compoDep" />
+		// <promotion specification="SA" dependency="clientDep" to="compoDep" />		
+		for (DependencyPromotion promo: client.getComposite().getCompType().getCompoDeclaration().getPromotions()) {			
+			if (! promo.getContentDependency().getIdentifier().equals(dependency.getIdentifier()))
+				continue;		// this promotion is not about our dependency  (not "clientDep")
+			String sourceName = promo.getContentDependency().getDeclaringComponent().getName();
+			//sourceName = "SA" or "A"
+			if (sourceName.equals(client.getImpl().getName()) || sourceName.equals(client.getSpec().getName())) {	
+				// We found the right promotion from client side. 
+				//Look for the corresponding composite dependency "compoDep"
+				String toName =  promo.getCompositeDependency().getIdentifier();
+				for (DependencyDeclaration compoDep : compoDeps) {
+					if (compoDep.getIdentifier().equals(toName)) {
+						//We found the composite side. It is an explicit promotion. It should match.
+						promotion = matchDependency (client, compoDep, dependency) ;
+						if (promotion == null) {
+							logger.error ("Promotion is invalid. Dependency " + promo.getContentDependency().getIdentifier()
+									+ " of component " + sourceName + " does not match the composite dependency " + compoDep) ;
+							return null ;
+						}	
+						return promotion ;
+					}
+				}
+			}
+		}
 
-		// it is a promotion.
-		// compute the instances that must be used for the promotion
-		promotion.insts = client.getComposite().getWireDests(promotion.depType); // For composite, the wire name is the
+		for (DependencyDeclaration compoDep : compoDeps) {
+			promotion = matchDependency(client, compoDep, dependency) ;
+			if (promotion != null) break ; ;
+		}
 
-		return promotion;
+		return promotion ;
 	}
 
 	// if the instance is unused, it will become the main instance of a new composite.
@@ -179,8 +245,6 @@ public class ApamResolverImpl implements ApamResolver {
 		 * We are resolving a reference from an unused client instance. We automatically build a new composite
 		 * to create a context of execution. This allow to use Apam without requiring the explicit definition of
 		 * composites, just instantiating any implementation.
-		 * 
-		 * TODO should we provide a way to specify properties and models for the composites created automatically?
 		 */
 
 		Implementation mainComponent			= mainInst.getImpl();
@@ -218,11 +282,18 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.error("missing client or dependency name");
 			return false;
 		}
+		Component depComponent = client ;
 		// Get required resource from dependency declaration, take the declaration declared at the most concrete level
 		DependencyDeclaration dependency = client.getApformInst().getDeclaration().getDependency(depName);
-		if (dependency == null)
+		if (dependency == null) {
 			dependency = client.getImpl().getApformImpl().getDeclaration().getDependency(depName);
-
+			depComponent = client.getImpl() ;
+		}
+		//the dependency can be defined at spec level if implem is a composite
+		if (dependency == null) {
+			dependency = client.getSpec().getApformSpec().getDeclaration().getDependency(depName);
+			depComponent =client.getSpec();
+		}
 		if (dependency == null) {
 			logger.error("dependency declaration not found " + depName);
 			return false;
@@ -239,15 +310,15 @@ public class ApamResolverImpl implements ApamResolver {
 
 		if (depMult != null) { // it is a promotion
 			compo = compo.getComposite();
-			impl = depMult.impl;
-			if ((depMult.insts != null) && !depMult.insts.isEmpty()) {
-				insts = depMult.insts;
+			if ((depMult.getInsts() != null) && !depMult.getInsts().isEmpty()) {
+				insts = depMult.getInsts();
+				impl = ((Instance)insts.toArray()[0]).getImpl ();			
 				logger.debug("Selected from promotion " + insts);
 			}
 		}
 
 		//compute the set of constraints that apply to that resolution: inst + impl + spec + composite generique
-		dependency = computeAllConstraints (client, dependency) ;
+		dependency = computeAllConstraints (depComponent, client, dependency) ;
 
 		// normal case. Try to find the instances.
 		if (insts == null) {
@@ -319,7 +390,7 @@ public class ApamResolverImpl implements ApamResolver {
 					ok = true ;
 				}
 			}
-			
+
 			//Not a promotion. Normal case: we wire the client toward all the instances.
 			else 	{
 				client.createWire(inst, depName);
@@ -340,10 +411,10 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param dependency
 	 * @return
 	 */
-	private DependencyDeclaration computeAllConstraints (Instance client, DependencyDeclaration dependencyIn) {
+	private DependencyDeclaration computeAllConstraints (Component depComponent, Instance client, DependencyDeclaration dependencyIn) {
 
 		DependencyDeclaration dependency = dependencyIn.clone();
-		Component group = client.getGroup() ;
+		Component group = depComponent.getGroup() ;
 
 		while (group != null) {
 			for (DependencyDeclaration dep : group.getDeclaration().getDependencies()) {
@@ -708,7 +779,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 		// TODO Notify dynaman
 
-		return null;
+		return Collections.EMPTY_SET;
 
 	}
 

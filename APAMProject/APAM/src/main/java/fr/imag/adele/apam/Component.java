@@ -1,5 +1,6 @@
 package fr.imag.adele.apam;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +45,44 @@ public interface Component {
      * Whether the component is shared
      */
     public boolean isShared() ;
+    
+    /**
+     * Return a candidate, selected (by default) among those satisfying the constraints
+     * @param <T>
+     * @param candidates
+     * @param constraints
+     * @return
+     */
+    public <T extends Component> T getSelectedComponent(Set<T> candidates, Set<Filter> constraints) ;
+
+    /**
+     * Return the sub-set of candidates that satisfy all the constraints
+     * @param <T>
+     * @param candidates
+     * @param constraints
+     * @return
+     */
+    public <T extends Component> Set<T> getSelectedComponents(Set<T> candidates, Set<Filter> constraints) ;
+
+    /**
+     * Return the component, among the candidates, that satisfies the best the preferences.
+     * @param <T>
+     * @param candidates
+     * @param preferences
+     * @return
+     */
+    public <T extends Component> T getPreferedComponent(Set<T> candidates, List<Filter> preferences) ;
+
+    /**
+     * Return the "best" component among the candidates. 
+     * Best depends on the component nature. 
+     * For implems, it is those that have sharable instance or that is instantiable.
+     * @param <T>
+     * @param candidates
+     * @return
+     */
+    public <T extends Component> T getDefaultComponent (Set<T> candidates) ;
+    
      /**
      * Match.
      * 

@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.test.compile;
+package apam.test.compile;
 
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;

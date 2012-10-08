@@ -67,13 +67,13 @@ public class MainApam implements Runnable, ApamComponent {
 
 		System.out.println("Deploying S1Impl bundle should deploy also the implems and composites. Composite S1CompoFinal is created and started.");
 		System.out.println("Shoud appear the message \"S1toS2Final is sarted\" ");
-		try {
-			Thread.sleep(1000) ;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(1000) ;
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 		assertTrue (CST.InstBroker.getInst("S1CompoFinal-Instance") != null) ;
-		assertTrue (CST.InstBroker.getInst("S1toS2Final-0") != null );	 	
+		assertTrue (implem != null );	 	
 
 		System.out.println("testing findImplByName in ASM and unused");
 		Implementation implem2 = CST.apamResolver.findImplByName(null,"S2Final");
@@ -162,35 +162,30 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("=========== start testSettingAttributes");
 
 		/*
- 	<specification name="S1" interfaces="fr.imag.adele.apam.test.s1.S1"  >
+ 		<specification name="S1TestAttr" interfaces="fr.imag.adele.apam.test.s1TestAttr.S1TestAttr"  >
 			<property name="S1-Enum" value="s1-2" type="{s1-1, s1-2, s1-3}"/>
 			<property name="S1-Attr" value="coucou" type="string"/>
 			<definition name="s1b" type="boolean" value="true" />
 			<definition name="s1c" type="string" />
 			<definition name="s1i" type="int" />
-			<definition name="fieldAttr" type="string" />
 			<definition name="location" type="{living, kitchen, bedroom}" value="bedroom" />
 			<definition name="testEnumere" type="{v1, v2, v3, v4}" />
 			<definition name="OS" type="{Linux, Windows, Android, IOS}" />
 
-	<implementation name="S1toS2Final"
-		<property name="S1toS2Final-Attr" value="couscous" type="string" />
+	<implementation name="S1ImplTestAttr"
+		classname="fr.imag.adele.apam.test.s1ImplTestAttr.S1ImplTestAttr" specification="S1TestAttr">
 		<property name="spec-name" value="yyy"  />
-		<property name="definition-xx" value="ttt" />
-		<property name="s1b" value="xyze=" />
-		<property name="fieldAttr" field="theFieldAttr" internal="true" />
-		<property name="OS" value="pas bon" />
 		<property name="testEnumere" value="v2" />
+		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" value="bidon"/>
 		<definition name="S1toS2Final-Bool" type="boolean" value="true" />
 		<definition name="S1toS2Final-String1" type="string" />
-		<definition name="S1toS2Final-location"
-			type="{FinalLiving, FinalKitchen, FinalLedroom}" />
+		<definition name="S1toS2Final-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" />
 		<definition name="enumeration" type="{f1, f2, f3, f4}" />
 
-	<instance implementation="S1toS2Final" name="S1toS2Final-instance" >
-		<property S1toS2Final-Bool="xxx" />
-		<property S1toS2Final-String1="a String Value" />
-		<property badAttr="yyy" />
+//	<instance implementation="S1toS2Final" name="S1toS2Final-instance" >
+//		<property S1toS2Final-Bool="xxx" />
+//		<property S1toS2Final-String1="a String Value" />
+//		<property badAttr="yyy" />
 
 		 */
 
@@ -206,7 +201,7 @@ public class MainApam implements Runnable, ApamComponent {
 		Specification spec = impl.getSpec() ;
 		Instance inst = null ;
 		inst = impl.getInst() ; // any instance 
-		System.out.println("Tested instance : " + inst + ". TestedImpl : " + impl);
+		System.out.println("Tested instance : " + inst + ". TestedImpl : " + impl + " Tested spec : " + spec);
 
 
 		//check attributes defined in the xml
@@ -324,8 +319,8 @@ public class MainApam implements Runnable, ApamComponent {
 		//Instances can set spec attributes, if not defined by the implem
 		inst.setProperty("OS", "Linux") ; // ok
 		assertEquals(inst.getProperty("OS"), "Linux");
-		inst.setProperty("OS", " Android, Linux, IOS") ; // ok
-		assertEquals(inst.getProperty("OS"), "Linux, Android, IOS");
+		inst.setProperty("OS", "Android, Linux, IOS") ; // ok
+		assertEquals(inst.getProperty("OS"), "Android, Linux, IOS");
 		assertTrue(impl.getProperty("OS") == null);
 
 		System.out.println("\n");

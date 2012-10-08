@@ -116,18 +116,18 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
         return null;
     }
 
-    @Override
-    public Set<Implementation> getImpls(Filter filter) throws InvalidSyntaxException {
-        if (filter == null)
-            return getImpls();
-        Set<Implementation> ret = new HashSet<Implementation>();
-        for (Implementation impl : implementations) {
-            if (impl.match(filter)) {
-                ret.add(impl);
-            }
-        }
-        return ret;
-    }
+//    @Override
+//    public Set<Implementation> getImpls(Filter filter) throws InvalidSyntaxException {
+//        if (filter == null)
+//            return getImpls();
+//        Set<Implementation> ret = new HashSet<Implementation>();
+//        for (Implementation impl : implementations) {
+//            if (impl.match(filter)) {
+//                ret.add(impl);
+//            }
+//        }
+//        return ret;
+//    }
 
     //    @Override
     //    public Set<String> getInterfaceNames() {
@@ -180,104 +180,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
     public Set<Implementation> getImpls() {
         return Collections.unmodifiableSet(implementations);
     }
-
-    @Override
-    public Set<Implementation> getImpls(Set<Filter> constraints) {
-        if ((constraints == null) || constraints.isEmpty())
-            return Collections.unmodifiableSet(implementations);
-        Set<Implementation> ret = new HashSet<Implementation>();
-        for (Implementation impl : implementations) {
-            for (Filter filter : constraints) {
-                if (impl.match(filter)) {
-                    ret.add(impl);
-                }
-            }
-        }
-        return ret;
-    }
-
-    @Override
-    public Set<Implementation> getImpls(Set<Implementation> candidates, Set<Filter> constraints) {
-        if ((constraints == null) || constraints.isEmpty())
-            return Collections.unmodifiableSet(candidates);
-        Set<Implementation> ret = new HashSet<Implementation>();
-        for (Implementation impl : candidates) {
-            for (Filter filter : constraints) {
-                if (impl.match(filter)) {
-                    ret.add(impl);
-                }
-            }
-        }
-        return ret;
-    }
-
-    @Override
-    public Implementation getImpl(Set<Filter> constraints, List<Filter> preferences) {
-        Set<Implementation> impls = null;
-        if ((constraints == null) || constraints.isEmpty()) {
-            impls = getImpls(constraints);
-        } else
-            impls = implementations;
-        if ((impls == null) || impls.isEmpty())
-            return null;
-        return getPreferedImpl(impls, preferences);
-    }
-
-    /**
-     * If no prefered, select
-     * first return the implem that have available instances,
-     * second an instantiable implem,
-     * third, any one.
-     */
-    @Override
-    public Implementation getPreferedImpl(Set<Implementation> candidates, List<Filter> preferences) {
-        if ((preferences == null) || preferences.isEmpty()) {
-            if (candidates.isEmpty())
-                return null;
-            else
-                return getDefaultImpl(candidates);
-        }
-        Implementation winner = null;
-        int maxMatch = -1;
-        for (Implementation impl : candidates) {
-            int match = 0;
-            for (Filter filter : preferences) {
-                if (!impl.match(filter))
-                    break;
-                match++;
-            }
-            if (match > maxMatch) {
-                maxMatch = match;
-                winner = impl;
-            }
-        }
-        // System.out.println("   Selected : " + winner);
-        return winner;
-    }
-
-    /**
-     * In case more than one implementation are available and no preference are expressed,
-     * first return the implem that have available instances,
-     * second an instantiable implem,
-     * third, any one.
-     * 
-     * @param candidates
-     * @return
-     */
-    private Implementation getDefaultImpl(Set<Implementation> candidates) {
-        for (Implementation impl : candidates) {
-            for (Instance inst : impl.getInsts()) {
-                if (inst.isSharable())
-                    return impl;
-            }
-        }
-        for (Implementation impl : candidates) {
-            if (impl.isInstantiable())
-                return impl;
-        }
-        return (Implementation) candidates.toArray()[0];
-    }
-
+    
 	@Override
 	public Set<? extends Component> getMembers() {
 		//return new HashSet <Component> (implementations) ;
@@ -288,5 +191,132 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 	public Component getGroup() {
 		return null;
 	}
-
 }
+
+//    @Override
+//    public Set<Implementation> getImpls(Set<Filter> constraints) {
+//        if ((constraints == null) || constraints.isEmpty())
+//            return Collections.unmodifiableSet(implementations);
+//        Set<Implementation> ret = new HashSet<Implementation>();
+//        for (Implementation impl : implementations) {
+//            for (Filter filter : constraints) {
+//                if (impl.match(filter)) {
+//                    ret.add(impl);
+//                }
+//            }
+//        }
+//        return ret;
+//    }
+//
+//    @Override
+//    public Set<Implementation> getImpls(Set<Implementation> candidates, Set<Filter> constraints) {
+//        if ((constraints == null) || constraints.isEmpty())
+//            return Collections.unmodifiableSet(candidates);
+//        Set<Implementation> ret = new HashSet<Implementation>();
+//        for (Implementation impl : candidates) {
+//            for (Filter filter : constraints) {
+//                if (impl.match(filter)) {
+//                    ret.add(impl);
+//                }
+//            }
+//        }
+//        return ret;
+//    }
+//
+//    @Override
+//    public Implementation getImpl(Set<Filter> constraints, List<Filter> preferences) {
+//        Set<Implementation> impls = null;
+//        if ((constraints == null) || constraints.isEmpty()) {
+//            impls = getImpls(constraints);
+//        } else
+//            impls = implementations;
+//        if ((impls == null) || impls.isEmpty())
+//            return null;
+//        return getPreferedComponent(impls, preferences);
+//    }
+
+//    /**
+//     * If no prefered, select
+//     * first return the implem that have available instances,
+//     * second an instantiable implem,
+//     * third, any one.
+//     */
+//    public <T extends Component> T getPreferedImpl(Set<T> candidates, List<Filter> preferences) {
+//        if ((preferences == null) || preferences.isEmpty()) {
+//            if (candidates.isEmpty())
+//                return null;
+//            else
+//                return getDefaultImpl(candidates);
+//        }
+//        T winner = null;
+//        int maxMatch = -1;
+//        for (T compo : candidates) {
+//            int match = 0;
+//            for (Filter filter : preferences) {
+//                if (!compo.match(filter))
+//                    break;
+//                match++;
+//            }
+//            if (match > maxMatch) {
+//                maxMatch = match;
+//                winner = compo;
+//            }
+//        }
+//        // System.out.println("   Selected : " + winner);
+//        return winner;
+//
+//    }
+//    @Override
+//    public Implementation getPreferedImpl(Set<Implementation> candidates, List<Filter> preferences) {
+//        if ((preferences == null) || preferences.isEmpty()) {
+//            if (candidates.isEmpty())
+//                return null;
+//            else
+//                return getDefaultImpl(candidates);
+//        }
+//        Implementation winner = null;
+//        int maxMatch = -1;
+//        for (Implementation impl : candidates) {
+//            int match = 0;
+//            for (Filter filter : preferences) {
+//                if (!impl.match(filter))
+//                    break;
+//                match++;
+//            }
+//            if (match > maxMatch) {
+//                maxMatch = match;
+//                winner = impl;
+//            }
+//        }
+//        // System.out.println("   Selected : " + winner);
+//        return winner;
+//    }
+//
+//    /**
+//     * In case more than one implementation are available and no preference are expressed,
+//     * first return the implem that have available instances,
+//     * second an instantiable implem,
+//     * third, any one.
+//     * 
+//     * @param candidates
+//     * @return
+//     */
+//    
+//    //public abstract <T extends Component> T getDefaultComponent (Set<T> candidates) ;
+//
+//    public Implementation getDefaultComponent(Set<Implementation> candidates) {
+//        for (Implementation impl : candidates) {
+//            for (Instance inst : impl.getInsts()) {
+//                if (inst.isSharable())
+//                    return impl;
+//            }
+//        }
+//        for (Implementation impl : candidates) {
+//            if (impl.isInstantiable())
+//                return impl;
+//        }
+//        return (Implementation) candidates.toArray()[0];
+//    }
+//
+//
+//}

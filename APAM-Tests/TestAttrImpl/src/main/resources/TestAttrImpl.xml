@@ -8,11 +8,11 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 	<implementation name="S1ImplTestAttr"
 		classname="fr.imag.adele.apam.test.s1ImplTestAttr.S1ImplTestAttr" specification="S1TestAttr">
-		<property name="S1toS2Final-Attr" value="couscous" />
+<!-- 		<property name="S1toS2Final-Attr" value="couscous" /> -->
 		<property name="spec-name" value="yyy"  />
-		<property name="definition-xx" value="ttt" />
-		<property name="s1b" value="xyze=" />
-		<property name="OS" value="pas bon" />
+<!-- 		<property name="definition-xx" value="ttt" /> -->
+<!-- 		<property name="s1b" value="xyze=" /> -->
+<!-- 		<property name="OS" value="pas bon" /> -->
 		<property name="testEnumere" value="v2" />
 		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" value="bidon"/>
 		<definition name="S1toS2Final-Bool" type="boolean" value="true" />

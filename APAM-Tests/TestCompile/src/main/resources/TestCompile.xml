@@ -14,15 +14,15 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 <!-- Test for syntax only. Should be all good -->
 <!-- specifications -->
-	<specification name="S2Compile0" exclusive="true" singleton="false"
+	<specification name="S2Compile0" singleton="false"
 		instantiable="false" shared="false" />
 	<specification name="S2Compile2" singleton="false"
 		instantiable="false" shared="false" />
 	<specification name="S2Compile3" 
 		instantiable="false" shared="false" />
 	<specification name="S2Compile4" interfaces="{fr.imag.adele.apam.test.compile.S2, AB}" 	
-	exclusive="true" singleton="false"	/>
-	<specification name="S2Compile5" exclusive="true" 
+	singleton="false"	/>
+	<specification name="S2Compile5"  
 		instantiable="false" shared="false" />
 
 	<specification name="S2Compile" singleton="false"
@@ -83,14 +83,14 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		classname="fr.imag.adele.apam.test.compile.S2Simple" />
 	<implementation name="S2ImplCompile7" interfaces="[fr.imag.adele.apam.test.compile.S2]"
 		classname="fr.imag.adele.apam.test.compile.S2Simple" 
-		specification="S2Compile" exclusive="true" singleton="false" />
+		specification="S2Compile" singleton="false" />
 	<implementation name="S2ImplCompile8" interfaces="fr.imag.adele.apam.test.compile.S2"
 		classname="fr.imag.adele.apam.test.compile.S2Simple"
-		specification="S2Compile" exclusive="true" singleton="false"
+		specification="S2Compile" singleton="false"
 		instantiable="false" />  
 	<implementation name="S2ImplCompile9" interfaces="fr.imag.adele.apam.test.compile.S2"
 		classname="fr.imag.adele.apam.test.compile.S2Simple"
-		specification="S2Compile" exclusive="true" singleton="false"
+		specification="S2Compile" singleton="false"
 		instantiable="false" shared="false" />  <!--  all possible characteristics  -->
 
 
@@ -121,7 +121,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 	<implementation name="S2SimpleCompile" interfaces="fr.imag.adele.apam.test.compile.S2"
 		classname="fr.imag.adele.apam.test.compile.S2Simple"
-		specification="S2Compile" exclusive="true" singleton="false"
+		specification="S2Compile" singleton="false"
 		instantiable="false" shared="false">  <!--  all possible characteristics  -->
 
 		<!-- 	The state for composites -->
@@ -172,13 +172,13 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 
 	<composite name="GoodComposite"  main="S2ImplCompile" /> <!-- minimal good -->
-	<composite name="GoodComposite2" main="S2ImplCompile" exclusive="true" singleton="false"
+	<composite name="GoodComposite2" main="S2ImplCompile" singleton="false"
 		instantiable="false" shared="false" /> 
-	<composite name="GoodComposite3" main="S2ImplCompile" exclusive="true" singleton="false"
+	<composite name="GoodComposite3" main="S2ImplCompile" singleton="false"
 		instantiable="false" /> 
-	<composite name="GoodComposite4" main="S2ImplCompile" exclusive="true" singleton="false"	/> 
-	<composite name="GoodComposite5" main="S2ImplCompile" exclusive="true" 	/> 
-	<composite name="GoodComposite6" main="S2ImplCompile" exclusive="true" instantiable="false" /> 
+	<composite name="GoodComposite4" main="S2ImplCompile" singleton="false"	/> 
+	<composite name="GoodComposite5" main="S2ImplCompile"  	/> 
+	<composite name="GoodComposite6" main="S2ImplCompile" instantiable="false" /> 
 
 
 	<composite name="ContentComposite" specification="S2Compile"

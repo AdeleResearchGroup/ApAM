@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.test.compile;
+package apam.demo;
 
 import fr.imag.adele.apam.test.s2.S2;
 

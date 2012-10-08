@@ -63,7 +63,7 @@ public class ApamCommand {
 	 */
 	@ServiceProperty(name = "osgi.command.function", value = "{}")
 	String[] m_function = new String[] { "put",  "specs", "implems", "insts", "spec", "implem", "inst", "dump", "compoTypes",
-		"compoType", "compos", "compo", "wire", "launch", "pending" };
+		"compoType", "compos", "compo", "wire", "launch", "pending", "l" };
 
 	// ipojo injected
 	@Requires
@@ -171,6 +171,13 @@ public class ApamCommand {
 		// testInstances("   ", implementation.getInsts());
 	}
 
+
+	@Descriptor("Start a new instance of the target implementation in root composite")
+	public void l(@Descriptor("target implementation") String implementationName) {
+		launch (implementationName, "root") ;
+	}
+
+	
 	@Descriptor("Start a new instance of the target implementation")
 	public void launch(@Descriptor("target implementation") String implementationName,
 					   @Descriptor("the name of the composite target or root ") String compositeTarget) {

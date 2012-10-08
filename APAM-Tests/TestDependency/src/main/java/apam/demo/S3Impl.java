@@ -1,9 +1,9 @@
-package fr.imag.adele.apam.test.dependency;
+package apam.demo;
 
+import apam.demo.S3_1;
+import apam.demo.S3_2;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.test.dependency.S3_1;
-import fr.imag.adele.apam.test.dependency.S3_2;
 
 //import fr.imag.adele.apam.test.s5.S5;
 

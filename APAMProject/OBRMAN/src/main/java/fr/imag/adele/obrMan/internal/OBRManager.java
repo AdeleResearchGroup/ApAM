@@ -1,3 +1,4 @@
+
 package fr.imag.adele.obrMan.internal;
 
 import java.io.File;
@@ -122,23 +123,7 @@ public class OBRManager {
     }
 
     public Selected lookForPref(String capability, List<Filter> preferences, Set<Selected> candidates) {
-        if (candidates.isEmpty())
-            return null;
-
-        // Trace preference filter
-        logFilterConstraintPreferences(null, null, preferences, false);
-
-        Selected winner = null;
-        int maxMatch = -1;
-        int match = 0;
-        for (Selected sel : candidates) {
-            match = matchPreferences(sel.capability, preferences);
-            if (match > maxMatch) {
-                maxMatch = match;
-                winner = sel;
-            }
-        }
-
+		Selected winner = lookForPrefInt(capability, preferences, candidates) ;
         if (winner == null)
             return null;
         System.out.println("   Found bundle : " + winner.resource.getSymbolicName() + " Component:  "
@@ -147,20 +132,76 @@ public class OBRManager {
         return winner;
     }
 
-    private int matchPreferences(Capability aCap, List<Filter> preferences) {
+	/**
+	 * Returns the candidate that best matches the preferences.
+	 * Take the preferences in orden: m candidates
+	 * find  the n candidates that match the constraint.
+	 * 		if n= 0 ignore the constraint
+	 *      if n=1 return it.
+	 * iterate with the n candidates.
+	 * At the end, if n > 1 return one arbitrarily.
+	 * 
+	 */
+	public Selected lookForPrefInt(String capability, List<Filter> preferences, Set<Selected> candidates) {
+		if (candidates == null || candidates.isEmpty()) return null ;
+		// Trace preference filter
+		logFilterConstraintPreferences(null, null, preferences, false);
+
+		if ((preferences == null) || preferences.isEmpty()) 
+			return (Selected)candidates.toArray()[0] ;
+
+		Set<Selected> valids = new HashSet<Selected> ();
         ApamFilter filter;
-        Map<?, ?> map = aCap.getPropertiesAsMap();
-        int match = 0;
-        for (Filter constraint : preferences) {
-            filter = ApamFilter.newInstance(constraint.toString());
-            if (!filter.matchCase(map)) {
-                // System.out.println("contraint not matched : " + constraint);
-                return match;
+		for (Filter f : preferences) {
+			filter = ApamFilter.newInstance(f.toString());
+			for (Selected compo : candidates) {			
+				if (filter.matchCase(compo.capability.getPropertiesAsMap())) 
+					valids.add (compo) ;
+			}
+			if (valids.size()==1) return (Selected)valids.toArray()[0] ;
+			if (!valids.isEmpty()) {
+				candidates = valids ;
+				valids=new HashSet<Selected> () ;
             }
-            match++;
         }
-        return match;
+		return (Selected)candidates.toArray()[0] ;
     }
+
+
+
+	//        Selected winner = null;
+	//        int maxMatch = -1;
+	//        int match = 0;
+	//        for (Selected sel : candidates) {
+	//            match = matchPreferences(sel.capability, preferences);
+	//            if (match > maxMatch) {
+	//                maxMatch = match;
+	//                winner = sel;
+	//            }
+	//        }
+	//
+	//        if (winner == null)
+	//            return null;
+//	System.out.println("   Found bundle : " + winner.resource.getSymbolicName() + " Component:  "
+//			+ getAttributeInCapability(winner.capability, CST.IMPLNAME) + " \n  from "
+//			+ compositeTypeName + "  repositories : " + repositoriesToString());
+//	return winner;
+//}
+
+//private int matchPreferences(Capability aCap, List<Filter> preferences) {
+//	ApamFilter filter;
+//	Map<?, ?> map = aCap.getPropertiesAsMap();
+//	int match = 0;
+//	for (Filter constraint : preferences) {
+//		filter = ApamFilter.newInstance(constraint.toString());
+//		if (!filter.matchCase(map)) {
+//			// System.out.println("contraint not matched : " + constraint);
+//			return match;
+//		}
+//		match++;
+//	}
+//	return match;
+//}
 
     /**
      * 
