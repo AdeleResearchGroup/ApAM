@@ -38,11 +38,7 @@
 
 	<!-- An implementation without any provided resource -->
 	<implementation name="S1Main"
-		classname="fr.imag.adele.apam.test.s1Impl.S1Main" shared="false" singleton="true">
-		<property name="S1Main-Attr" value="whatever"/>
-		<property name="testAttr" value="false"/>
-		<property name="shared" value="true"/>
-		
+		classname="fr.imag.adele.apam.test.s1Impl.S1Main" shared="false" singleton="true">		
 		<dependency id="tos1" field="s1">
 			<constraints>
 				<implementation filter="(impl-name=S1Impl)" />
@@ -51,17 +47,15 @@
 	</implementation>
 
 	<composite name="S1MainCompo" main="S1Main">
-		<property name="shared" value="false" />
-
 		<!-- <dependency specification="S2" /> -->
 		<dependency interface="fr.imag.adele.apam.test.s2.S2" />
 		<dependency implementation="S3Impl" multiple="true" />
 		<dependency specification="S3" id="S3Id1" />
 		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="ddd" /> <!-- should be an error  --> 
 		<dependency specification="S3" id="S3Idmult" multiple="true"> <!-- should be an error  --> 
-			<preferences> 
+			<constraints> 
 				<implementation filter="(shared=false)" /> 
-			</preferences> 
+			</constraints> 
 		</dependency>
 		
 		<contentMngt>
