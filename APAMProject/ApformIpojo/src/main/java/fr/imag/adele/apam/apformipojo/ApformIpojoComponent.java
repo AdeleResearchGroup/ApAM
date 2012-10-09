@@ -22,6 +22,7 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionHandler;
 import fr.imag.adele.apam.apformipojo.handlers.MessageProviderHandler;
+import fr.imag.adele.apam.apformipojo.handlers.PropertyInjectionHandler;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.DependencyDeclaration;
@@ -262,6 +263,7 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
 
 		requiredHandlers.add(new RequiredHandler(MessageProviderHandler.NAME, APAM_NAMESPACE));
 		requiredHandlers.add(new RequiredHandler(DependencyInjectionHandler.NAME, APAM_NAMESPACE));
+		requiredHandlers.add(new RequiredHandler(PropertyInjectionHandler.NAME, APAM_NAMESPACE));
 
 		return requiredHandlers;
 	}

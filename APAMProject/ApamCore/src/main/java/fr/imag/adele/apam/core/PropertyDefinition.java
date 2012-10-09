@@ -66,11 +66,16 @@ public class PropertyDefinition {
     private final String field;
 
     /**
+     * The associated callback in the code, if any.
+     */
+    private final String callback;
+    
+    /**
      * Whether this is an internal property, whose value can not be modified by API
      */
     private final boolean internal;
 
-    public PropertyDefinition(ComponentDeclaration component, String name, String type, String defaultValue, String field, boolean internal) {
+    public PropertyDefinition(ComponentDeclaration component, String name, String type, String defaultValue, String field, String callback, boolean internal) {
 
         assert component != null;
         assert name != null;
@@ -80,8 +85,9 @@ public class PropertyDefinition {
         this.reference		= new Reference(component.getReference(),name);
         this.type			= type;
         this.defaultValue	= defaultValue;
-        this.field = field ;
-        this.internal = internal ;
+        this.field 			= field;
+        this.callback		= callback;
+        this.internal 		= internal ;
     }
 
     /**
@@ -114,19 +120,24 @@ public class PropertyDefinition {
 
 	/**
 	 * get the internal property
-	 * @return
 	 */
     public boolean isInternal () {
     	return internal ;
     }
     
     /**
-     * returns the associated field name; null if no field.
-     * @return
+     * get the injected field, if specified
      */
     public String getField () {
     	return field ;
     }
+    
+    /**
+     * Get the update callback, if specified
+     */
+    public String getCallback() {
+		return callback;
+	}
     
     /**
      * Get the default value of the property

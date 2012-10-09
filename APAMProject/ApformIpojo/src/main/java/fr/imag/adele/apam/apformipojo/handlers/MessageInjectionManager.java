@@ -33,11 +33,11 @@ import fr.imag.adele.apam.message.Message;
 
 /**
  * This handler handles message consumers. It is at the same time a OSGi's WireAdmin consumer and an APAM
- * abstract producer, so that it translates message exchanges over APAM wires into concrete message exchanges
+ * message consumer, so that it translates message exchanges over APAM wires into concrete message exchanges
  * over WireAdmin wires.
  * 
  * This handler is also a field interceptor that injects itself into all fields used to transparently consume
- * messages. Fields must be declared of type AbstractProducer<D>, and a reference to this handler will be
+ * messages. Fields must be declared of type MessageConsumer<D>, and a reference to this handler will be
  * down casted and injected.
  * 
  * This handler is also in charge of triggering lazy resolution, if data is consumed and there is no producer
@@ -294,7 +294,7 @@ import fr.imag.adele.apam.message.Message;
     
     /**
      * The identification of the APAM message producer. It is composed of the identification of the
-     * provider and the WireAdmin consumer identifier
+     * provider and the WireAdmin producer identifier
      * @author vega
      *
      */

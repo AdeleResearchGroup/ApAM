@@ -791,9 +791,10 @@ public class CoreMetadataParser implements CoreParser {
 			String type			= parseString(definition,CoreMetadataParser.ATT_TYPE) ;
 			String defaultValue = parseString(definition,CoreMetadataParser.ATT_VALUE,false);
 			String field 		= parseString(definition,CoreMetadataParser.ATT_FIELD,false);
+			String callback		= parseString(definition,CoreMetadataParser.ATT_METHOD,false);
 			boolean internal 	= parseBoolean(definition,CoreMetadataParser.ATT_INTERNAL,false, false);
 
-			component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, defaultValue, field, internal));
+			component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, defaultValue, field, callback, internal));
 		}
 	}
 
@@ -823,10 +824,9 @@ public class CoreMetadataParser implements CoreParser {
 			/**
 			 * Special case for specification. The type is in the property, we generate a definition for it.
 			 */
-			//			if (component instanceof SpecificationDeclaration && !Util.isPredefinedAttribute(name)) {
 			if (component instanceof SpecificationDeclaration ) {
 				String type = parseString(property, ATT_TYPE);
-				component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, value, null, false)) ;
+				component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, value, null, null, false)) ;
 			}
 		}
 	}
