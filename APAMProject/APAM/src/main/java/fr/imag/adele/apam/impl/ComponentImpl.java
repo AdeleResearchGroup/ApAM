@@ -62,7 +62,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		if (apform == null)
 			throw new InvalidConfiguration("Null apform instance while creating component");
 
-		assert apform != null;
+		//assert apform != null;
 
 		this.apform 		= apform;
 		this.declaration	= apform.getDeclaration();

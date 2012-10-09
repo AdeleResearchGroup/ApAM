@@ -442,7 +442,7 @@ public class OBRManager {
 
         if (defaultLocalRepo == null) {
             // Special case for Jenkins Server :
-            defaultLocalRepo = ObrUtil.searchRepositoryFromJenkinsServer();
+            defaultLocalRepo = ObrUtil.searchRepositoryFromDefaultLinux();
         }
         if (defaultLocalRepo != null) {
             return defaultLocalRepo;
