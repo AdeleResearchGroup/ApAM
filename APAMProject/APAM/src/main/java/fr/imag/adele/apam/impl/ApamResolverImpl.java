@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.omg.CosNaming.IstringHelper;
-import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +32,6 @@ import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
-import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamResolverImpl implements ApamResolver {
@@ -73,9 +70,6 @@ public class ApamResolverImpl implements ApamResolver {
 
 		public Set<Instance> getInsts () {
 			return insts ;
-		}
-		public String getDepId () {
-			return depType ;
 		}
 
 	}
@@ -477,7 +471,7 @@ public class ApamResolverImpl implements ApamResolver {
 			if (clientDep.getTarget() instanceof ImplementationReference) {
 				String implName = ((ImplementationReference<?>) clientDep.getTarget()).getName();
 				Implementation impl = findImplByName(compoInst.getComposite().getCompType(), implName);
-				if (impl != null || impl.getSpec().getName().matches(pattern)) {
+				if (impl != null && impl.getSpec().getName().matches(pattern)) {
 					return true ;
 				}
 			}
@@ -732,10 +726,11 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @return
 	 */
 	public Instance resolveImpl(Composite compo, Implementation impl, DependencyDeclaration dependency) {
-		List<DependencyManager> selectionPath = computeSelectionPath(compo.getCompType(), dependency);
-
 		if (compo == null)
 			compo = CompositeImpl.getRootAllComposites();
+
+		List<DependencyManager> selectionPath = computeSelectionPath(compo.getCompType(), dependency);
+
 		Instance inst = null;
 		logger.debug("Looking for an instance of " + impl + ": ");
 		for (DependencyManager manager : selectionPath) {
@@ -762,11 +757,11 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @return
 	 */
 	public Set<Instance> resolveImpls(Composite compo, Implementation impl, DependencyDeclaration dependency) {
+		if (compo == null)
+			compo = CompositeImpl.getRootAllComposites();
 
 		List<DependencyManager> selectionPath = computeSelectionPath(compo.getCompType(), dependency);
 
-		if (compo == null)
-			compo = CompositeImpl.getRootAllComposites();
 		Set<Instance> insts = null;
 		logger.debug("Looking for an instance of " + impl + ": ");
 		for (DependencyManager manager : selectionPath) {
@@ -779,7 +774,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 		// TODO Notify dynaman
 
-		return Collections.EMPTY_SET;
+		return Collections.emptySet();
 
 	}
 

@@ -329,6 +329,18 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }
 
     @Override
+    public Set<Wire> getWires(Specification spec) {
+        if (spec == null)
+            return null;
+        Set<Wire> w = new HashSet<Wire>();
+        for (Wire wire : wires) {
+            if (wire.getDestination().getSpec() == spec)
+                w.add(wire);
+        }
+        return w;
+    }
+    
+    @Override
     public boolean createWire(Instance to, String depName) {
         if ((to == null) || (depName == null))
             return false;
@@ -361,6 +373,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         ((ImplementationImpl) getImpl()).addUses(to.getImpl());
         if ((SpecificationImpl) getSpec() != null)
             ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
+        
         return true;
     }
 
@@ -440,21 +453,10 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         return w;
     }
 
-    @Override
-    public Set<Wire> getWires(Specification spec) {
-        if (spec == null)
-            return null;
-        Set<Wire> w = new HashSet<Wire>();
-        for (Wire wire : invWires) {
-            if (wire.getDestination().getSpec() == spec)
-                w.add(wire);
-        }
-        return w;
-    }
 
 	@Override
 	public Set<Component> getMembers() {
-		return Collections.EMPTY_SET;
+		return Collections.emptySet();
 	}
 
 	@Override

@@ -1,11 +1,7 @@
 package fr.imag.adele.apam;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.core.ImplementationDeclaration;

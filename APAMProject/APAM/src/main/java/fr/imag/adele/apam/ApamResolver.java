@@ -3,10 +3,6 @@ package fr.imag.adele.apam;
 import java.util.List;
 import java.util.Set;
 
-import org.osgi.framework.Filter;
-
-import fr.imag.adele.apam.core.DependencyDeclaration;
-
 public interface ApamResolver {
 
 
