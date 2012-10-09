@@ -240,35 +240,36 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }
 
     private void fireCallbacks(String trigger, Object service) {
-        AtomicImplementationDeclaration atomicImpl = (AtomicImplementationDeclaration) getImpl().getDeclaration();
-        Set<CallbackMethod> callbacks = atomicImpl.getCallback(trigger);
-        if (callbacks != null) {
-            for (CallbackMethod callbackMethod : callbacks) {
-                Method callback;
-                try {
-                    if (callbackMethod.hasAnInstanceArgument()) {
-                        callback = service.getClass().getMethod(callbackMethod.getMethodName(), Instance.class);
-                        callback.invoke(service, this);
-                    } else {
-                        callback = service.getClass().getMethod(callbackMethod.getMethodName());
-                        callback.invoke(service);
+        if (getImpl().getDeclaration() instanceof AtomicImplementationDeclaration) {
+            AtomicImplementationDeclaration atomicImpl = (AtomicImplementationDeclaration) getImpl().getDeclaration();
+            Set<CallbackMethod> callbacks = atomicImpl.getCallback(trigger);
+            if (callbacks != null) {
+                for (CallbackMethod callbackMethod : callbacks) {
+                    Method callback;
+                    try {
+                        if (callbackMethod.hasAnInstanceArgument()) {
+                            callback = service.getClass().getMethod(callbackMethod.getMethodName(), Instance.class);
+                            callback.invoke(service, this);
+                        } else {
+                            callback = service.getClass().getMethod(callbackMethod.getMethodName());
+                            callback.invoke(service);
+                        }
+                    } catch (NoSuchMethodException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IllegalArgumentException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
-                } catch (NoSuchMethodException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalArgumentException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 }
             }
         }
-
     }
 
     /**
@@ -429,7 +430,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         }
     }
 
-
     @Override
     public Set<Wire> getInvWires() {
         return Collections.unmodifiableSet(invWires);
@@ -491,14 +491,14 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         return w;
     }
 
-	@Override
-	public Set<Component> getMembers() {
-		return Collections.EMPTY_SET;
-	}
+    @Override
+    public Set<Component> getMembers() {
+        return Collections.EMPTY_SET;
+    }
 
-	@Override
-	public Component getGroup() {
-		return myImpl;
-	}
+    @Override
+    public Component getGroup() {
+        return myImpl;
+    }
 
 }
