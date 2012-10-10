@@ -831,12 +831,12 @@ public class CoreMetadataParser implements CoreParser {
 
             String name = parseString(definition, CoreMetadataParser.ATT_NAME);
             String type = parseString(definition, CoreMetadataParser.ATT_TYPE);
-            String defaultValue = parseString(definition, CoreMetadataParser.ATT_VALUE, false);
-            String field = parseString(definition, CoreMetadataParser.ATT_FIELD, false);
-            boolean internal = parseBoolean(definition, CoreMetadataParser.ATT_INTERNAL, false, false);
+			String defaultValue = parseString(definition,CoreMetadataParser.ATT_VALUE,false);
+			String field 		= parseString(definition,CoreMetadataParser.ATT_FIELD,false);
+			String callback		= parseString(definition,CoreMetadataParser.ATT_METHOD,false);
+			boolean internal 	= parseBoolean(definition,CoreMetadataParser.ATT_INTERNAL,false, false);
 
-            component.getPropertyDefinitions().add(
-                    new PropertyDefinition(component, name, type, defaultValue, field, internal));
+            component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, defaultValue, field, callback, internal));
         }
     }
 
@@ -859,7 +859,6 @@ public class CoreMetadataParser implements CoreParser {
              */
             String name = parseString(property, ATT_NAME);
             String value = parseString(property, ATT_VALUE);
-
             component.getProperties().put(name, value);
 
             /**
@@ -869,7 +868,7 @@ public class CoreMetadataParser implements CoreParser {
             if (component instanceof SpecificationDeclaration) {
                 String type = parseString(property, ATT_TYPE);
                 component.getPropertyDefinitions().add(
-                        new PropertyDefinition(component, name, type, value, null, false));
+                        new PropertyDefinition(component, name, type, value, null,null, false));
             }
         }
     }

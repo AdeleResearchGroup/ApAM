@@ -75,7 +75,7 @@ public class ObrUtil {
         return null;
     }
 
-    public static URL searchRepositoryFromJenkinsServer() {
+    public static URL searchRepositoryFromDefaultLinux() {
         try {
             File m2Folder = getM2Folder();
             if (m2Folder == null)
@@ -84,7 +84,7 @@ public class ObrUtil {
                     "repository.xml");
             if (repositoryFile.exists()) {
                 URL repo = repositoryFile.toURI().toURL();
-                logger.info("Jenkins server repository :" + repo);
+                logger.info("Default Linux repository :" + repo);
                 return repo;
             }
         } catch (MalformedURLException e) {

@@ -66,9 +66,6 @@ public class ApamResolverImpl implements ApamResolver {
 		public Set<Instance> getInsts () {
 			return insts ;
 		}
-//		public String getDepId () {
-//			return depType ;
-//		}
 
 	}
 
@@ -737,6 +734,7 @@ public class ApamResolverImpl implements ApamResolver {
 	public Instance resolveImpl(Composite compo, Implementation impl, DependencyDeclaration dependency) {
 		if (compo == null)
 			compo = CompositeImpl.getRootAllComposites();		
+
 		List<DependencyManager> selectionPath = computeSelectionPath(compo.getCompType(), dependency);
 
 		Instance inst = null;

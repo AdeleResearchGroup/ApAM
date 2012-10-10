@@ -2,6 +2,7 @@ package fr.imag.adele.apam.apformipojo.legacy;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.InstanceManager;
@@ -109,7 +110,9 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
 
     @Override
     public void setProperty(String attr, String value) {
-        // TODO reconfigure iPojo instance
+    	Properties configuration = new Properties();
+    	configuration.put(attr,value);
+    	ipojoInstance.reconfigure(configuration);
     }
 
     private static List<String> osgiAndiPojoProperties = Arrays.asList(new String[] { Constants.SERVICE_ID,

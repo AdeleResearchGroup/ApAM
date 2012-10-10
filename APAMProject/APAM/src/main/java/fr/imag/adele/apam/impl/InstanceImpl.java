@@ -246,35 +246,36 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }
 
     private void fireCallbacks(String trigger, Object service) {
-        AtomicImplementationDeclaration atomicImpl = (AtomicImplementationDeclaration) getImpl().getDeclaration();
-        Set<CallbackMethod> callbacks = atomicImpl.getCallback(trigger);
-        if (callbacks != null) {
-            for (CallbackMethod callbackMethod : callbacks) {
-                Method callback;
-                try {
-                    if (callbackMethod.hasAnInstanceArgument()) {
-                        callback = service.getClass().getMethod(callbackMethod.getMethodName(), Instance.class);
-                        callback.invoke(service, this);
-                    } else {
-                        callback = service.getClass().getMethod(callbackMethod.getMethodName());
-                        callback.invoke(service);
+        if (getImpl().getDeclaration() instanceof AtomicImplementationDeclaration) {
+            AtomicImplementationDeclaration atomicImpl = (AtomicImplementationDeclaration) getImpl().getDeclaration();
+            Set<CallbackMethod> callbacks = atomicImpl.getCallback(trigger);
+            if (callbacks != null) {
+                for (CallbackMethod callbackMethod : callbacks) {
+                    Method callback;
+                    try {
+                        if (callbackMethod.hasAnInstanceArgument()) {
+                            callback = service.getClass().getMethod(callbackMethod.getMethodName(), Instance.class);
+                            callback.invoke(service, this);
+                        } else {
+                            callback = service.getClass().getMethod(callbackMethod.getMethodName());
+                            callback.invoke(service);
+                        }
+                    } catch (NoSuchMethodException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IllegalArgumentException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
-                } catch (NoSuchMethodException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalArgumentException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 }
             }
         }
-
     }
 
     /**
@@ -374,6 +375,18 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }
 
     @Override
+    public Set<Wire> getWires(Specification spec) {
+        if (spec == null)
+            return null;
+        Set<Wire> w = new HashSet<Wire>();
+        for (Wire wire : wires) {
+            if (wire.getDestination().getSpec() == spec)
+                w.add(wire);
+        }
+        return w;
+    }
+    
+    @Override
     public boolean createWire(Instance to, String depName) {
         if ((to == null) || (depName == null))
             return false;
@@ -406,6 +419,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         ((ImplementationImpl) getImpl()).addUses(to.getImpl());
         if ((SpecificationImpl) getSpec() != null)
             ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
+        
         return true;
     }
 
@@ -434,7 +448,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
             setOwner(CompositeImpl.getRootAllComposites());
         }
     }
-
 
     @Override
     public Set<Wire> getInvWires() {
@@ -485,26 +498,15 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         return w;
     }
 
-    @Override
-    public Set<Wire> getWires(Specification spec) {
-        if (spec == null)
-            return null;
-        Set<Wire> w = new HashSet<Wire>();
-        for (Wire wire : invWires) {
-            if (wire.getDestination().getSpec() == spec)
-                w.add(wire);
-        }
-        return w;
-    }
 
 	@Override
 	public Set<Component> getMembers() {
 		return Collections.emptySet();
 	}
 
-	@Override
-	public Component getGroup() {
-		return myImpl;
-	}
+    @Override
+    public Component getGroup() {
+        return myImpl;
+    }
 
 }

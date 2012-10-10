@@ -473,7 +473,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	public <T extends Component> T getSelectedComponent(Set<T> candidates, Set<Filter> constraints) {
 		Set<T> ret = getSelectedComponents(candidates, constraints) ;
 		if (ret.isEmpty()) return null ;
-		return (T)ret.iterator().next() ;
+		return ret.iterator().next() ;
 	}
 
 
@@ -500,7 +500,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 				if (compo.match(f)) 
 					valids.add (compo) ;
 			}
-			if (valids.size()==1) return (T)valids.iterator().next() ;
+			if (valids.size()==1) return valids.iterator().next();
 			if (!valids.isEmpty()) {
 				candidates = valids ;
 				valids=new HashSet<T> () ;
@@ -523,7 +523,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 			if (impl.isInstantiable())
 				return impl;
 		}
-		return (T) candidates.iterator().next();
+		return candidates.iterator().next();
 	}
 
 

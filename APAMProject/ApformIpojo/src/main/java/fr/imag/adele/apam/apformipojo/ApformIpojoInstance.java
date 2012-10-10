@@ -2,7 +2,9 @@ package fr.imag.adele.apam.apformipojo;
 
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.ComponentInstance;
@@ -14,7 +16,8 @@ import org.apache.felix.ipojo.handlers.configuration.ConfigurationHandlerDescrip
 import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceDescription;
 import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceHandlerDescription;
 import org.apache.felix.ipojo.metadata.Element;
-import org.osgi.framework.Bundle;
+import org.apache.felix.ipojo.util.Callback;
+import org.apache.felix.ipojo.util.Logger;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
@@ -37,29 +40,36 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     /**
      * Whether this instance was created directly using the APAM API
      */
-    private final boolean				isApamCreated;
+    private final boolean						isApamCreated;
 
     /**
      * The declaration of the instance
      */
-    private InstanceDeclaration			declaration;
+    private InstanceDeclaration					declaration;
 
     /**
      * The APAM instance associated to this component instance
      */
-    private Instance					apamInstance;
+    private Instance							apamInstance;
 
     /**
      * The list of injected fields handled by this instance
      */
     private Set<DependencyInjectionManager> 	injectedFields;
+    
+    /**
+     * The list of callbacks to notify when a property is set
+     */
+    private Map<String,Callback> 				propertyCallbacks;
+    
 
-    public ApformIpojoInstance(ApformIpojoImplementation implementation, boolean isApamCreated, BundleContext context,
-            HandlerManager[] handlers) {
+    public ApformIpojoInstance(ApformIpojoImplementation implementation, boolean isApamCreated, BundleContext context, HandlerManager[] handlers) {
 
         super(implementation, context, handlers);
+        
         this.isApamCreated	= isApamCreated;
-        injectedFields	= new HashSet<DependencyInjectionManager>();
+        injectedFields		= new HashSet<DependencyInjectionManager>();
+        propertyCallbacks	= new HashMap<String, Callback>();
     }
 
     @Override
@@ -129,6 +139,13 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      */
     public Set<DependencyInjectionManager> getInjections() {
         return injectedFields;
+    }
+    
+    /**
+     * Adds a new callback to a property
+     */
+    public void addCallback(String property, Callback callback) {
+    	propertyCallbacks.put(property, callback);
     }
 
     /**
@@ -298,14 +315,24 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 
 	@Override
 	public void setProperty(String attr, String value) {
-		// TODO Auto-generated method stub
-		// change injected field
-		
-	}
 
+		Object pojo 		= getPojoObject();
+		Callback callback 	= propertyCallbacks.get(attr);
+
+		if ( pojo == null || callback == null)
+			return;
+		
+		try {
+			callback.call(pojo,new Object[] {value});
+		} catch (Exception ignored) {
+			getLogger().log(Logger.ERROR, "error invoking callback "+callback.getMethod()+" for property "+attr, ignored);
+		}		
+	}
+	
 	@Override
 	public Bundle getBundle() {
 		return ((ComponentImpl)this.getApamInstance().getImpl()).getApformComponent().getBundle() ;
-	}
+		}
+
    
 }

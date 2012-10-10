@@ -71,7 +71,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     @Validate
     public void start() {
-        System.out.println(">>> OBRMAN starting");
+        System.out.println("[OBRMAN] starting");
         // lookFor root.OBRMAN.cfg and create obrmanager for the root composite
         String rootModelurl = m_context.getProperty(ObrUtil.ROOT_MODEL_URL);
         // create obrmanager for the root composite
