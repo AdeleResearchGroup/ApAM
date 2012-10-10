@@ -20,14 +20,14 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		instantiable="false" shared="false" />
 	<specification name="S2Compile3" 
 		instantiable="false" shared="false" />
-	<specification name="S2Compile4" interfaces="{fr.imag.adele.apam.test.compile.S2, AB}" 	
+	<specification name="S2Compile4" interfaces="{apam.test.compile.S2, AB}" 	
 	singleton="false"	/>
 	<specification name="S2Compile5"  
 		instantiable="false" shared="false" />
 
 	<specification name="S2Compile" singleton="false"
 		instantiable="false" shared="false" 
-		interfaces="fr.imag.adele.apam.test.compile.S2"
+		interfaces="apam.test.compile.S2"
 		messages="{M1, M2}">
 			
 		<property name="test-spec" value="coucou" type="string" />
@@ -39,14 +39,14 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			type="{empty, night, vacation, emergency, threat}" value="busy" />
 
 		<dependency specification="S4Compile" id="dzepS4"/>
-		<dependency interface="fr.imag.adele.apam.test.s4.S4" />
+		<dependency interface="apam.test.s4.S4" />
 		<dependency interface="example.S4" id="xxx" />
 		<dependency interface="example.S3" id="yyy" />
 		<dependency message="example.DataType2" id="yy" />
 	</specification>
 
 	<specification name="S3Compile" shared="false"
-		interfaces="[fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2]">
+		interfaces="[apam.test.s3.S3_1,apam.test.s3.S3_2]">
 		<property name="test-deux" value="coucous3" type="string" />
 		<property name="bS3" value="yes" type="string"/>
 		<property name="cS3" value="xxx" type="string"/>
@@ -67,37 +67,37 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 <!-- S2 Implementations -->
 	<implementation name="S2ImplCompile0"  specification="S2Compile" singleton="false"
 		instantiable="false" shared="false"
-		classname="fr.imag.adele.apam.test.compile.S2Impl"  />		
+		classname="apam.test.compile.S2Impl"  />		
 	<implementation name="S2ImplCompile2" specification="S2Compile" singleton="true"
 		instantiable="false" shared="false"
-		classname="fr.imag.adele.apam.test.compile.S2Impl" 
-		messages="{M1, M2}" message-fields="{p2, p1}" interfaces="{fr.imag.adele.apam.test.compile.S2, A.B}" />		
+		classname="apam.test.compile.S2Impl" 
+		messages="{M1, M2}" message-fields="{p2, p1}" interfaces="{apam.test.compile.S2, A.B}" />		
 	<implementation name="S2ImplCompile3" specification="S2Compile" singleton="false"
 		instantiable="true" shared="false"
-		classname="fr.imag.adele.apam.test.compile.S2Impl" interfaces="{fr.imag.adele.apam.test.compile.S2, A.B}" />		
+		classname="apam.test.compile.S2Impl" interfaces="{apam.test.compile.S2, A.B}" />		
 	<implementation name="S2ImplCompile4" specification="S2Compile" singleton="false"
 		instantiable="false" shared="true"
-		classname="fr.imag.adele.apam.test.compile.S2Impl" interfaces="fr.imag.adele.apam.test.compile.S2"/>
+		classname="apam.test.compile.S2Impl" interfaces="apam.test.compile.S2"/>
 
 	<implementation name="S2ImplCompile6"
-		classname="fr.imag.adele.apam.test.compile.S2Simple" />
-	<implementation name="S2ImplCompile7" interfaces="[fr.imag.adele.apam.test.compile.S2]"
-		classname="fr.imag.adele.apam.test.compile.S2Simple" 
+		classname="apam.test.compile.S2Simple" />
+	<implementation name="S2ImplCompile7" interfaces="[apam.test.compile.S2]"
+		classname="apam.test.compile.S2Simple" 
 		specification="S2Compile" singleton="false" />
-	<implementation name="S2ImplCompile8" interfaces="fr.imag.adele.apam.test.compile.S2"
-		classname="fr.imag.adele.apam.test.compile.S2Simple"
+	<implementation name="S2ImplCompile8" interfaces="apam.test.compile.S2"
+		classname="apam.test.compile.S2Simple"
 		specification="S2Compile" singleton="false"
 		instantiable="false" />  
-	<implementation name="S2ImplCompile9" interfaces="fr.imag.adele.apam.test.compile.S2"
-		classname="fr.imag.adele.apam.test.compile.S2Simple"
+	<implementation name="S2ImplCompile9" interfaces="apam.test.compile.S2"
+		classname="apam.test.compile.S2Simple"
 		specification="S2Compile" singleton="false"
 		instantiable="false" shared="false" />  <!--  all possible characteristics  -->
 
 
 
 	<implementation name="S2ImplCompile"
-		classname="fr.imag.adele.apam.test.compile.S2Impl" specification="S2Compile"
-		interfaces="{fr.imag.adele.apam.test.compile.S2}" >		
+		classname="apam.test.compile.S2Impl" specification="S2Compile"
+		interfaces="{apam.test.compile.S2}" >		
 
 		<definition name="location" type="{exit, entrance, garage, bedroom,…}" />
 		<definition name="b" type="boolean" value="true" />
@@ -113,14 +113,14 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 		<dependency field="s4_1" exception="fr.imag. ….failedException"/>
 		<dependency field="s4_2" />		
-		<dependency message="fr.imag.adele.apam.test.compile.M2" field="fM2"/>  		
+		<dependency message="apam.test.compile.M2" field="fM2"/>  		
 		<dependency method="getT2" />		
 		<ipojo:requires field="apam" />
 	</implementation>
 
 
-	<implementation name="S2SimpleCompile" interfaces="fr.imag.adele.apam.test.compile.S2"
-		classname="fr.imag.adele.apam.test.compile.S2Simple"
+	<implementation name="S2SimpleCompile" interfaces="apam.test.compile.S2"
+		classname="apam.test.compile.S2Simple"
 		specification="S2Compile" singleton="false"
 		instantiable="false" shared="false">  <!--  all possible characteristics  -->
 
@@ -157,7 +157,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			</constraints>
 		</dependency>
 
-		<dependency interface="fr.imag.adele.apam.test.s4.S4" field="s4" id="s4Id">
+		<dependency interface="apam.test.s4.S4" field="s4" id="s4Id">
 			<constraints>
 				<implementation filter="(apam-composite=true)" />
 				<instance filter="(SCccOPE=GLOBAL)" />

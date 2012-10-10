@@ -5,6 +5,8 @@ import java.util.Properties;
 
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.IPojoFactory;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
@@ -98,6 +100,11 @@ public class ApformIPojoLegacyImplementation implements ApformImplementation {
 	public void setProperty(String attr, String value) {
 		// TODO see if can reconfigure factory publication
 		
+	}
+
+	@Override
+	public Bundle getBundle() {
+		 return factory.getBundleContext().getBundle(); 
 	}
 
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,6 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.CallbackMethod;
 import fr.imag.adele.apam.core.InstanceDeclaration;
-import fr.imag.adele.apam.util.CoreMetadataParser;
 
 public class InstanceImpl extends ComponentImpl implements Instance {
 
@@ -89,6 +89,12 @@ public class InstanceImpl extends ComponentImpl implements Instance {
             throw new UnsupportedOperationException("method not available in root instance");
         }
 
+		@Override
+		public Bundle getBundle() {
+			// No bundle for this dummy entity
+			return null;
+		}
+
     }
 
     /**
@@ -119,7 +125,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         if (composite == null)
             throw new InvalidConfiguration("Null parent while creating instance");
 
-        Implementation implementation = CST.ImplBroker.getImpl(apformInst.getDeclaration().getImplementation()
+        Implementation implementation = CST.componentBroker.getImpl(apformInst.getDeclaration().getImplementation()
                 .getName());
 
         if (implementation == null)
@@ -152,7 +158,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         /*
          * Add to broker
          */
-        ((InstanceBrokerImpl) CST.InstBroker).add(this);
+        ((ComponentBrokerImpl) CST.componentBroker).add(this);
 
         /*
          * Notify managers
@@ -235,7 +241,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         /*
          * Remove from broker
          */
-        ((InstanceBrokerImpl) CST.InstBroker).remove(this);
+        ((ComponentBrokerImpl) CST.componentBroker).remove(this);
 
     }
 
@@ -493,7 +499,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
 	@Override
 	public Set<Component> getMembers() {
-		return Collections.EMPTY_SET;
+		return Collections.emptySet();
 	}
 
 	@Override

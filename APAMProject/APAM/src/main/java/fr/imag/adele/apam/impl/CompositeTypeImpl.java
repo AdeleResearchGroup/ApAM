@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +23,6 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.core.CompositeDeclaration;
-import fr.imag.adele.apam.util.ApamFilter;
 
 //import fr.imag.adele.sam.Implementation;
 
@@ -312,7 +310,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     }
 
     /**
-     * Deploy (logically) a new implementation to this composite type.
+     * Deploy (logically) a new implementation into this composite type.
      * 
      * TODO Should this method be in the public API or it is restricted to the
      * resolver and other managers?

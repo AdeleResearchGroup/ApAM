@@ -222,7 +222,7 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
         /*
          * If the service is not reified in APAM, just ignore event
          */
-        Instance inst = CST.InstBroker.getInst(ipojoInstance.getInstanceName());
+        Instance inst = CST.componentBroker.getInst(ipojoInstance.getInstanceName());
         if (inst == null)
             return;
 

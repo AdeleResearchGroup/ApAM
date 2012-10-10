@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.InstanceManager;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
@@ -117,5 +118,11 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
     public static boolean isOSGioriPojoProperty(String key) {
         return osgiAndiPojoProperties.contains(key);
     }
+    
+    @Override
+    public Bundle getBundle() {
+        return ipojoInstance.getContext().getBundle();
+    }
+
 
 }

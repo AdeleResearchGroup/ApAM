@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.impl.APAMImpl;
@@ -19,16 +20,31 @@ public class ApamInstall {
 	
 	private static Logger logger = LoggerFactory.getLogger(ApamInstall.class);
 	
-    public static Implementation intallImplemFromURL(URL url, String compoName) {
+	public static Component installFromURL (URL url, String compoName) {
         if (!ApamInstall.deployBundle(url, compoName))
             return null;
-        return CST.ImplBroker.getImpl(compoName,true);
+        return CST.componentBroker.getWaitComponent(compoName);
+	}
+    public static Implementation intallImplemFromURL(URL url, String compoName) {
+    	Implementation impl = (Implementation)installFromURL (url, compoName) ;
+    	if (impl == null) return null ;
+        if (! (impl instanceof Implementation)) {
+        	logger.error("component " + compoName + " is found but is not an Implementation.") ;
+        }     
+        return impl;
     }
 
     public static Specification intallSpecFromURL(URL url, String compoName) {
-        if (!ApamInstall.deployBundle(url, compoName))
-            return null;
-        return CST.SpecBroker.getSpec(compoName,true);
+       	Specification spec  = (Specification)installFromURL (url, compoName) ;
+    	if (spec == null) return null ;
+        if (! (spec instanceof Specification)) {
+        	logger.error("component " + compoName + " is found but is not an Specification.") ;
+        }     
+        return spec;
+
+//        if (!ApamInstall.deployBundle(url, compoName))
+//            return null;
+//        return (Specification)ComponentImpl.getWaitComponent(compoName);
     }
 
     private static boolean deployBundle(URL url, String compoName) {

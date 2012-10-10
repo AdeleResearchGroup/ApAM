@@ -3,13 +3,17 @@ package fr.imag.adele.apam;
 import java.util.List;
 import java.util.Set;
 
-import org.osgi.framework.Filter;
-
-import fr.imag.adele.apam.core.DependencyDeclaration;
-
 public interface ApamResolver {
 
+	/**
+	 * Ask to update an existing component. It will uninstall the bundle in which this component is located. 
+	 * If the new bundle does not contain the same components, it will make some side effects. 
+	 * @param toUpdate
+	 * @return
+	 */
+	public void updateComponent (String componentName) ;
 
+	
     /**
      * An APAM client instance requires to be wired with one or all the instance that satisfy the dependency.
      * WARNING : in case of interface or message dependency , since more than one specification can implement the same

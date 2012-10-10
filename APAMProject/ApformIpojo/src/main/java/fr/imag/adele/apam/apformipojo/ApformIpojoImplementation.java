@@ -67,7 +67,7 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
     	 */
     	if (getDeclaration().getSpecification() != null) {
     		String specName = getDeclaration().getSpecification().getName();
-    		Specification provided = CST.SpecBroker.getSpec(specName);
+    		Specification provided = CST.componentBroker.getSpec(specName);
     		if (provided != null && provided.getApformSpec() != null)
     			specification = provided.getApformSpec();
     	}

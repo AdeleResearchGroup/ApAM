@@ -36,6 +36,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	private final ApformComponent      apform ;
 	private final ComponentDeclaration declaration;
 
+	//Contains the composite type that was the first to physically deploy that component.
+	private CompositeType firstDeployed ;
+
 	/**
 	 * An exception that can be thrown in the case of problems while creating a component
 	 */
@@ -187,6 +190,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		return componentId.hashCode();
 	}
 
+	@Override
 	public final String getName () {
 		return declaration.getName() ;
 	}
@@ -196,10 +200,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		return getName();
 	}
 
+	@Override
 	public final ApformComponent getApformComponent () {
 		return apform ;
 	}
 
+	@Override
 	public final ComponentDeclaration getDeclaration () {
 		return declaration ;
 	}
@@ -328,6 +334,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * Removes the specifed property
 	 * 
 	 */
+	@Override
 	public boolean removeProperty(String attr) {
 
 		String oldValue = getProperty(attr) ;
@@ -448,6 +455,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		return Util.checkAttrType(attr, value, definition.getType());
 	}
 
+	@Override
 	public <T extends Component> Set<T> getSelectedComponents(Set<T> candidates, Set<Filter> constraints) {
 		if (constraints == null) return candidates;
 		if (candidates == null) return null ;
@@ -461,10 +469,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		return ret;
 	}
 
+	@Override
 	public <T extends Component> T getSelectedComponent(Set<T> candidates, Set<Filter> constraints) {
 		Set<T> ret = getSelectedComponents(candidates, constraints) ;
 		if (ret.isEmpty()) return null ;
-		return (T)ret.toArray()[0] ;
+		return (T)ret.iterator().next() ;
 	}
 
 
@@ -482,16 +491,16 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	public <T extends Component> T getPreferedComponent(Set<T> candidates, List<Filter> preferences) {
 		if (candidates == null || candidates.isEmpty()) return null ;
 		if ((preferences == null) || preferences.isEmpty()) {
-				return getDefaultComponent(candidates);
+			return getDefaultComponent(candidates);
 		}
-		
+
 		Set<T> valids = new HashSet<T> ();
 		for (Filter f : preferences) {
 			for (T compo : candidates) {
 				if (compo.match(f)) 
 					valids.add (compo) ;
 			}
-			if (valids.size()==1) return (T)valids.toArray()[0] ;
+			if (valids.size()==1) return (T)valids.iterator().next() ;
 			if (!valids.isEmpty()) {
 				candidates = valids ;
 				valids=new HashSet<T> () ;
@@ -499,8 +508,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		}
 		return getDefaultComponent(candidates) ;
 	}
-	
 
+
+	@Override
 	public <T extends Component> T getDefaultComponent (Set<T> candidates) {
 		for (T impl : candidates) {
 			if (! (impl instanceof Implementation)) return impl ;
@@ -513,7 +523,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 			if (impl.isInstantiable())
 				return impl;
 		}
-		return (T) candidates.toArray()[0];
+		return (T) candidates.iterator().next();
 	}
 
 
@@ -549,18 +559,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		}
 	}
 
-	/**
-	 * Whether the component is exclusive
-	 */
-	public boolean isExclusive() {
-		if (declaration.isDefinedExclusive() || getGroup() == null) 
-			return declaration.isExclusive() ;
-		return getGroup().isExclusive() ;
-	}
+
 
 	/**
 	 * Whether the component is instantiable
 	 */
+	@Override
 	public boolean isInstantiable() {
 		if (declaration.isDefinedInstantiable() || getGroup() == null) 
 			return declaration.isInstantiable() ;
@@ -570,6 +574,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	/**
 	 * Whether the component is singleton
 	 */
+	@Override
 	public boolean isSingleton(){
 		if (declaration.isDefinedSingleton() || getGroup() == null) 
 			return declaration.isSingleton() ;
@@ -579,12 +584,23 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	/**
 	 * Whether the component is shared
 	 */
+	@Override
 	public boolean isShared() {
 		if (declaration.isDefinedShared() || getGroup() == null) 
 			return declaration.isShared() ;
 		return getGroup().isShared() ;
 	}
 
+	@Override
+	public CompositeType getFirstDeployed () {
+		return firstDeployed ;
+	}
+
+	public void setFirstDeployed (CompositeType father) {
+		firstDeployed = father ;
+	}
+
+	@Override
 	public Map<String, String> getValidAttributes () {
 		Map<String, String> ret = new HashMap <String, String> () ;
 		for (PropertyDefinition def: declaration.getPropertyDefinitions()) {
@@ -595,6 +611,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		}
 		return ret ;
 	}
+
 
 }
 

@@ -30,6 +30,7 @@ import org.apache.felix.service.command.Descriptor;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
+//import fr.imag.adele.apam.Component; // a cause des annotations de iPOJO !!
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
@@ -40,7 +41,6 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.Apform2Apam.Request;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.ResourceReference;
-//import fr.imag.adele.apam.apamImpl.SpecificationImpl;
 
 /**
  * 
@@ -63,11 +63,23 @@ public class ApamCommand {
 	 */
 	@ServiceProperty(name = "osgi.command.function", value = "{}")
 	String[] m_function = new String[] { "put",  "specs", "implems", "insts", "spec", "implem", "inst", "dump", "compoTypes",
-		"compoType", "compos", "compo", "wire", "launch", "pending", "l" };
+		"compoType", "compos", "compo", "wire", "launch", "pending", "apdate", "l" };
 
-	// ipojo injected
+	// Apam injected
 	@Requires
 	Apam apam;
+
+
+	/**
+	 * ASMSpec.
+	 * 
+	 * @param specificationName
+	 *            the specification name
+	 */
+	@Descriptor("Updates the target component")
+	public void apdate(@Descriptor("target component to update. Warning: updates the whole Bundle.") String componentName) {
+		CST.apamResolver.updateComponent (componentName) ;
+	}
 
 	/**
 	 * Resolver Commands.
@@ -90,8 +102,8 @@ public class ApamCommand {
 		System.out.println("< Searching " + componentName +" in specifications > " );
 		Specification spec = CST.apamResolver.findSpecByName(target, componentName);
 		if (spec ==null){
-		    System.out.println("< Searching "+ componentName + " in implementations > " );
-		    CST.apamResolver.findImplByName(target, componentName);
+			System.out.println("< Searching "+ componentName + " in implementations > " );
+			CST.apamResolver.findImplByName(target, componentName);
 		}
 	}
 
@@ -101,7 +113,7 @@ public class ApamCommand {
 
 	@Descriptor("Display all the Apam specifications")
 	public void specs() {
-		Set<Specification> specifications = new TreeSet<Specification>(CST.SpecBroker.getSpecs());
+		Set<Specification> specifications = new TreeSet<Specification>(CST.componentBroker.getSpecs());
 		for (Specification specification : specifications) {
 			System.out.println("ASMSpec : " + specification);
 		}
@@ -112,7 +124,7 @@ public class ApamCommand {
 	 */
 	@Descriptor("Display of all the implementations of the local machine")
 	public void implems() {
-		Set<Implementation> implementations = new TreeSet<Implementation>(CST.ImplBroker.getImpls());
+		Set<Implementation> implementations = new TreeSet<Implementation>(CST.componentBroker.getImpls());
 		for (Implementation implementation : implementations) {
 			System.out.println("ASMImpl : " + implementation);
 		}
@@ -123,7 +135,7 @@ public class ApamCommand {
 	 */
 	@Descriptor("Display of all the instances of the local machine")
 	public void insts() {
-		Set<Instance> instances = new TreeSet<Instance>(CST.InstBroker.getInsts());
+		Set<Instance> instances = new TreeSet<Instance>(CST.componentBroker.getInsts());
 		for (Instance instance : instances) {
 			System.out.println("ASMInst : " + instance);
 		}
@@ -137,20 +149,13 @@ public class ApamCommand {
 	 */
 	@Descriptor("Display informations about the target specification")
 	public void spec(@Descriptor("target specification") String specificationName) {
-		Set<Specification> specifications = CST.SpecBroker.getSpecs();
+		Set<Specification> specifications = CST.componentBroker.getSpecs();
 		for (Specification specification : specifications) {
 			if ((specification.getName() != null) && (specification.getName().equalsIgnoreCase(specificationName))) {
 				printSpecification("", specification);
 				// testImplementations("   ", specification.getImpls());
 				break;
 			}
-			// if ((specification.getName() != null)
-			// && (specification.getName().equalsIgnoreCase(specificationName)))
-			// {
-			// printSpecification("", specification);
-			// // testImplementations("   ", specification.getImpls());
-			// break;
-			// }
 		}
 	}
 
@@ -162,7 +167,7 @@ public class ApamCommand {
 	 */
 	@Descriptor("Display informations about the target implementation")
 	public void implem(@Descriptor("target implementation") String implementationName) {
-		Implementation implementation = CST.ImplBroker.getImpl(implementationName);
+		Implementation implementation = CST.componentBroker.getImpl(implementationName);
 		if (implementation == null) {
 			System.out.println("No such implementation : " + implementationName);
 			return;
@@ -177,11 +182,11 @@ public class ApamCommand {
 		launch (implementationName, "root") ;
 	}
 
-	
+
 	@Descriptor("Start a new instance of the target implementation")
 	public void launch(@Descriptor("target implementation") String implementationName,
-					   @Descriptor("the name of the composite target or root ") String compositeTarget) {
-				
+			@Descriptor("the name of the composite target or root ") String compositeTarget) {
+
 		Composite target = null;
 		CompositeType targetType = null;
 
@@ -209,7 +214,7 @@ public class ApamCommand {
 	@Descriptor("Display informations about the target instance")
 	public void inst(@Descriptor("target implementation") String instanceName) {
 		try {
-			Instance instance = CST.InstBroker.getInst(instanceName);
+			Instance instance = CST.componentBroker.getInst(instanceName);
 			if (instance == null) {
 				System.out.println("No such instance : " + instanceName);
 			} else
@@ -247,7 +252,7 @@ public class ApamCommand {
 	public void dump() {
 		dumpApam();
 	}
-	
+
 	@Descriptor("Display the pending platform installations")
 	public void pending() {
 		System.out.println("Platform pernding requests");
@@ -255,9 +260,9 @@ public class ApamCommand {
 			ComponentDeclaration declaration = pendingRequest.getComponent().getDeclaration();
 			System.out.println("Adding component "+declaration.getName()+" is waiting for component "+pendingRequest.getRequiredComponent());
 		}
-		
+
 	}
-	
+
 
 	// @Descriptor("Display the state model of the target application")
 	// public void state(@Descriptor("target application") String appliName) {
@@ -401,7 +406,7 @@ public class ApamCommand {
 
 	@Descriptor("Display all the dependencies")
 	public void wire(@Descriptor("target instance") String instName) {
-		Instance inst = CST.InstBroker.getInst(instName);
+		Instance inst = CST.componentBroker.getInst(instName);
 		if (inst != null)
 			dumpState(inst, "  ", null);
 	}

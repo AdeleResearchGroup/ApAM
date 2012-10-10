@@ -1,19 +1,13 @@
 package fr.imag.adele.apam.impl;
 
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
-
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformSpecification;
 
@@ -55,7 +49,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
     	/*
     	 * Add to broker
     	 */
-        ((SpecificationBrokerImpl) CST.SpecBroker).add(this);
+        ((ComponentBrokerImpl) CST.componentBroker).add(this);
         
         /*
     	 * Notify managers
@@ -81,7 +75,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
     	 * updates because we probably can reduce the impact of the modification.  
     	 */
         for (Implementation impl : implementations) {
-            ((ImplementationBrokerImpl)CST.ImplBroker).removeImpl(impl,false);
+            ((ComponentBrokerImpl)CST.componentBroker).removeImpl(impl,false);
         }
     	
         /*
@@ -92,7 +86,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
         /*
          * remove from broker
          */
-    	((SpecificationBrokerImpl) CST.SpecBroker).remove(this);
+        ((ComponentBrokerImpl)CST.componentBroker).remove(this);
     	
     }
 

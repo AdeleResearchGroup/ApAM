@@ -14,6 +14,7 @@ import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.util.Logger;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -63,6 +64,10 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
 		return declaration;
 	}
 	
+    public Bundle getBundle() {
+        return getBundleContext().getBundle();
+    }
+
 	/**
 	 * Defines the implementation description.
 	 * 

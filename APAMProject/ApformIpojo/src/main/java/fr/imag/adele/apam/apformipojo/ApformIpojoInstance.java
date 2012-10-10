@@ -14,6 +14,7 @@ import org.apache.felix.ipojo.handlers.configuration.ConfigurationHandlerDescrip
 import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceDescription;
 import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceHandlerDescription;
 import org.apache.felix.ipojo.metadata.Element;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
@@ -24,6 +25,7 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.impl.ComponentImpl;
 
 public class ApformIpojoInstance extends InstanceManager implements ApformInstance, DependencyInjectionManager.Resolver  {
 
@@ -299,6 +301,11 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 		// TODO Auto-generated method stub
 		// change injected field
 		
+	}
+
+	@Override
+	public Bundle getBundle() {
+		return ((ComponentImpl)this.getApamInstance().getImpl()).getApformComponent().getBundle() ;
 	}
    
 }
