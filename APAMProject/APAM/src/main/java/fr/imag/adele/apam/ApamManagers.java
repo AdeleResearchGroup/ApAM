@@ -31,6 +31,7 @@ public class ApamManagers {
      * event.
      */
     private static Set<DynamicManager> dynamicManagers = new ConcurrentSkipListSet<DynamicManager>();
+    
     /**
      * The list of component property listeners
      */
@@ -45,8 +46,8 @@ public class ApamManagers {
      *            apamman.
      */
     public static void addDependencyManager(DependencyManager manager, int priority) {
-        if ((priority < 0) && !manager.getName().equals(CST.APAMMAN)) {
-            logger.error("invalid priority" + priority + ". 0 assumed");
+        if ((priority < 0) && !(manager.getName().equals(CST.APAMMAN) || manager.getName().equals(CST.UPDATEMAN))) {
+            logger.error("invalid priority: " + priority + "> 0 assumed");
             priority = 0;
         }
         boolean inserted = false;

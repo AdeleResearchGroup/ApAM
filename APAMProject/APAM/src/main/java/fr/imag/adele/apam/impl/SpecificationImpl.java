@@ -49,7 +49,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
     	/*
     	 * Add to broker
     	 */
-        ((SpecificationBrokerImpl) CST.SpecBroker).add(this);
+        ((ComponentBrokerImpl) CST.componentBroker).add(this);
         
         /*
     	 * Notify managers
@@ -75,7 +75,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
     	 * updates because we probably can reduce the impact of the modification.  
     	 */
         for (Implementation impl : implementations) {
-            ((ImplementationBrokerImpl)CST.ImplBroker).removeImpl(impl,false);
+            ((ComponentBrokerImpl)CST.componentBroker).removeImpl(impl,false);
         }
     	
         /*
@@ -86,7 +86,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
         /*
          * remove from broker
          */
-    	((SpecificationBrokerImpl) CST.SpecBroker).remove(this);
+        ((ComponentBrokerImpl)CST.componentBroker).remove(this);
     	
     }
 

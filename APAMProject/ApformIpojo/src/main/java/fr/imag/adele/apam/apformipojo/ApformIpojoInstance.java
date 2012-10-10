@@ -29,6 +29,7 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.impl.ComponentImpl;
 
 public class ApformIpojoInstance extends InstanceManager implements ApformInstance, DependencyInjectionManager.Resolver  {
 
@@ -77,11 +78,17 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
         return (ApformIpojoImplementation) super.getFactory();
     }
 
-    @Override
-    public Bundle getBundle() {
-    	return getContext().getBundle();
-    }
-    
+	@Override
+	public Bundle getBundle() {
+		/*
+		 * TODO getContext should be the context of the factory, unless the instance is declared in another
+		 * bundle, to verify.
+		 * 
+		 * return getContext().getBundle();
+		 */
+		return ((ComponentImpl)this.getApamInstance().getImpl()).getApformComponent().getBundle() ;
+	}
+
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void configure(Element metadata, Dictionary configuration) throws ConfigurationException {

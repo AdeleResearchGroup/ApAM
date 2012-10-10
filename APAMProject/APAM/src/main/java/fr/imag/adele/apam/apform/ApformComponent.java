@@ -10,5 +10,8 @@ public interface ApformComponent {
 
 	public void setProperty(String attr, String value);
 	
-	public abstract Bundle getBundle();
+    /**
+     * Get the bundle in which is located this component.
+     */
+    public abstract Bundle getBundle();
 }

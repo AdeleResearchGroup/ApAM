@@ -145,7 +145,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		 * 
 		 */
 		if (initialProperties != null && initialProperties.get(CST.APAM_MAIN_INSTANCE) != null) {
-			mainInst = CST.InstBroker.getInst(initialProperties.remove(CST.APAM_MAIN_INSTANCE));
+			mainInst = CST.componentBroker.getInst(initialProperties.remove(CST.APAM_MAIN_INSTANCE));
 			if (mainInst.isUsed())
 				throw new InvalidConfiguration("Error creating composite : already used main instance "+mainInst);
 			

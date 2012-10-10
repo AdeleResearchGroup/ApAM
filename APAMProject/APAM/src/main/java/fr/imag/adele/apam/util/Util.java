@@ -313,7 +313,7 @@ public class Util {
      */
     public static boolean checkInstVisible(Composite compoFrom, Instance toInst) {
         Composite toCompo = toInst.getComposite();
-        CompositeType toCompoType = toInst.getComposite().getCompType();
+//        CompositeType toCompoType = toInst.getComposite().getCompType();
         CompositeType fromCompoType = compoFrom.getCompType();
 
         if (compoFrom == toCompo)

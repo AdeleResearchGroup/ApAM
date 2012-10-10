@@ -44,10 +44,6 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
         apamTracker = new ApamTracker(context);
 	}
 
-	public Bundle getBundle() {
-		return getBundleContext().getBundle();
-	}
-	
 	/**
 	 * The name space of this factory
 	 */
@@ -69,6 +65,10 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
 		return declaration;
 	}
 	
+    public Bundle getBundle() {
+        return getBundleContext().getBundle();
+    }
+
 	/**
 	 * Defines the implementation description.
 	 * 

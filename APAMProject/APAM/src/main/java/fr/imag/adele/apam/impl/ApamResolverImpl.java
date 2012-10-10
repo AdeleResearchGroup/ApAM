@@ -58,14 +58,9 @@ public class ApamResolverImpl implements ApamResolver {
 		//set of instances in the composite (if any) associated with the composite dependency
 		private Set<Instance> insts   = null;
 
-		//The Implementations this dependency is revolved to 
-		//		public Implementation impl    = null;
-
 		public DepMult(Instance client, DependencyDeclaration dep) {
 			depType = dep.getIdentifier();
-			this.insts = client.getComposite().getWireDests(depType);
-			//			if (insts != null && !insts.isEmpty()) 	
-			//				this.impl = ((Instance)insts.toArray()[0]).getImpl ();
+			this.insts = client.getComposite().getWireDests(dep.getIdentifier());
 		}
 
 		public Set<Instance> getInsts () {
@@ -508,13 +503,14 @@ public class ApamResolverImpl implements ApamResolver {
 			/*
 			 * Skip apamman
 			 */
-			if (dependencyManager == apam.getApamMan())
+			if (dependencyManager.getName().equals(CST.APAMMAN) || dependencyManager.getName().equals(CST.APAMMAN))
 				continue;
 			dependencyManager.getSelectionPath(compTypeFrom, dependency,selectionPath);
 		}
 
 		// To select first in Apam
 		selectionPath.add(0, apam.getApamMan());
+		selectionPath.add(0, apam.getUpdateMan());
 		return selectionPath;
 	}
 
@@ -525,7 +521,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param compoType
 	 * @param impl
 	 */
-	private void deployedImpl(CompositeType compoType, Implementation impl, boolean deployed) {
+	public static void deployedImpl(CompositeType compoType, Implementation impl, boolean deployed) {
 		// it was not deployed
 		if (!deployed && impl.isUsed()) {
 			logger.info(" : selected " + impl);
@@ -536,6 +532,7 @@ public class ApamResolverImpl implements ApamResolver {
 		if (impl.isUsed()) {
 			logger.info(" : logically deployed " + impl);
 		} else {// it was unused so far.
+			((ComponentImpl)impl).setFirstDeployed(compoType);
 			logger.info(" : deployed " + impl);
 		}
 		((CompositeTypeImpl)compoType).deploy(impl);
@@ -650,7 +647,7 @@ public class ApamResolverImpl implements ApamResolver {
 			if (!manager.getName().equals(CST.APAMMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
-			Implementation impl = manager.resolveSpecByResource(compoTypeFrom, dep) ;
+			Implementation impl = manager.resolveSpec(compoTypeFrom, dep) ;
 			//			Implementation impl = manager.resolveSpecByResource(compoTypeFrom, new SpecificationReference(specName),
 			//					constraints, preferences);
 
@@ -689,7 +686,7 @@ public class ApamResolverImpl implements ApamResolver {
 			if (!manager.getName().equals(CST.APAMMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
-			impl = manager.resolveSpecByResource(compoTypeFrom, dependency);
+			impl = manager.resolveSpec(compoTypeFrom, dependency);
 			if (impl != null) {
 				deployedImpl(compoTypeFrom, impl, deployed);
 				return impl;
@@ -710,7 +707,7 @@ public class ApamResolverImpl implements ApamResolver {
 			if (!manager.getName().equals(CST.APAMMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
-			impls = manager.resolveSpecByResources(compoTypeFrom, dependency);
+			impls = manager.resolveSpecs(compoTypeFrom, dependency);
 			if (impls != null && !impls.isEmpty()) {
 				for (Implementation impl : impls) {
 					deployedImpl(compoTypeFrom, impl, deployed);
@@ -736,7 +733,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	public Instance resolveImpl(Composite compo, Implementation impl, DependencyDeclaration dependency) {
 		if (compo == null)
-			compo = CompositeImpl.getRootAllComposites();
+			compo = CompositeImpl.getRootAllComposites();		
 
 		List<DependencyManager> selectionPath = computeSelectionPath(compo.getCompType(), dependency);
 
@@ -749,7 +746,7 @@ public class ApamResolverImpl implements ApamResolver {
 				return inst;
 			}
 		}
-		// TODO Notify dynaman
+		// TODO Notify dynaman ?
 
 		return null;
 	}
@@ -781,8 +778,7 @@ public class ApamResolverImpl implements ApamResolver {
 				return insts;
 			}
 		}
-		// TODO Notify dynaman
-
+		// TODO Notify dynaman ?
 		return Collections.emptySet();
 
 	}
@@ -799,14 +795,10 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	private static void notifySelection(Instance client, ResolvableReference resName, String depName,
 			Implementation impl, Instance inst, Set<Instance> insts) {
-
 		for (DependencyManager dependencyManager : ApamManagers.getManagers()) {
-
 			dependencyManager.notifySelection(client, resName, depName, impl, inst, insts);
 		}
-
 	}
-
 
 
 	@Override
@@ -821,8 +813,6 @@ public class ApamResolverImpl implements ApamResolver {
 		return resolveSpecByResource(compoTypeFrom, dep);
 	}
 
-
-
 	@Override
 	public Implementation resolveSpecByMessage(CompositeType compoTypeFrom,
 			String messageName, Set<String> constraints, List<String> preferences) {
@@ -834,8 +824,6 @@ public class ApamResolverImpl implements ApamResolver {
 		dep.getImplementationPreferences().addAll(preferences) ;
 		return resolveSpecByResource(compoTypeFrom, dep);
 	}
-
-
 
 	@Override
 	public Instance resolveImpl(Composite compo, Implementation impl,
@@ -859,6 +847,15 @@ public class ApamResolverImpl implements ApamResolver {
 		dep.getImplementationConstraints().addAll(constraints) ;
 
 		return resolveImpls(compo, impl, dep);
+	}
+
+	@Override
+	public void updateComponent(String componentName) {
+		Component compo = CST.componentBroker.getComponent(componentName) ;
+		if (compo == null) {
+			logger.error ("Unknown component " + componentName) ;
+		}
+		UpdateMan.updateComponent(compo) ;
 	}
 
 

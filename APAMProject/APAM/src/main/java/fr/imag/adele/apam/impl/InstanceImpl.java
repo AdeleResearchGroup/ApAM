@@ -124,7 +124,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         if (composite == null)
             throw new InvalidConfiguration("Null parent while creating instance");
 
-        Implementation implementation = CST.ImplBroker.getImpl(apformInst.getDeclaration().getImplementation()
+        Implementation implementation = CST.componentBroker.getImpl(apformInst.getDeclaration().getImplementation()
                 .getName());
 
         if (implementation == null)
@@ -157,7 +157,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         /*
          * Add to broker
          */
-        ((InstanceBrokerImpl) CST.InstBroker).add(this);
+        ((ComponentBrokerImpl) CST.componentBroker).add(this);
 
         /*
          * Notify managers
@@ -240,7 +240,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         /*
          * Remove from broker
          */
-        ((InstanceBrokerImpl) CST.InstBroker).remove(this);
+        ((ComponentBrokerImpl) CST.componentBroker).remove(this);
 
     }
 

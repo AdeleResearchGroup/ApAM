@@ -43,15 +43,18 @@ public class APAMImpl implements Apam {
     /*
      * A reference to the ApamMan manager. 
      * 
-     * This is the only manager required to start the platform.
+     * This are the managers required to start the platform.
      */
     private DependencyManager	apamMan;
+    private DependencyManager	updateMan;
 
     public APAMImpl(BundleContext context) {
         APAMImpl.context = context;
         new CST(this);
-//        APAMImpl.apamMan = new ApamMan();
+        apamMan = new ApamMan();
+        updateMan = new UpdateMan();
         ApamManagers.addDependencyManager(apamMan, -1); // -1 to be sure it is not in the main loop
+        ApamManagers.addDependencyManager(updateMan, -2); // -2 to be sure it is not in the main loop
     }
 
     @Override
@@ -79,7 +82,7 @@ public class APAMImpl implements Apam {
     @Override
     public Composite startAppli(URL compoURL, String compositeName) {
     	
-    	Implementation compoType = CST.ImplBroker.createImpl(null,compositeName,compoURL,null);
+    	Implementation compoType = CST.componentBroker.createImpl(null,compositeName,compoURL,null);
     	
         if (compoType == null) {
             logger.error("Error starting application: " + compositeName + " can not be deployed.");
@@ -145,11 +148,11 @@ public class APAMImpl implements Apam {
     	/* 
     	 * If the provided specification is not installed force a resolution
     	 */
-    	if (specification != null && CST.SpecBroker.getSpec(specification) == null) {
+    	if (specification != null && CST.componentBroker.getSpec(specification) == null) {
     		CST.apamResolver.findSpecByName(parent,specification);
     	}
     	
-    	return (CompositeType) CST.ImplBroker.addImpl(parent,apfCompo);
+    	return (CompositeType) CST.componentBroker.addImpl(parent,apfCompo);
     }
     
  
@@ -185,6 +188,9 @@ public class APAMImpl implements Apam {
 
 	public DependencyManager getApamMan() {
 		return apamMan;
+	}
+	public DependencyManager getUpdateMan() {
+		return updateMan;
 	}
 
     /**

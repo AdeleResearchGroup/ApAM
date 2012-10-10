@@ -126,5 +126,5 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
     public static boolean isOSGioriPojoProperty(String key) {
         return osgiAndiPojoProperties.contains(key);
     }
-
+    
 }

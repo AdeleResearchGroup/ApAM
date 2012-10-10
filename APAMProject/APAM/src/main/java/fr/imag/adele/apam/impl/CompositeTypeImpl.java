@@ -310,7 +310,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     }
 
     /**
-     * Deploy (logically) a new implementation to this composite type.
+     * Deploy (logically) a new implementation into this composite type.
      * 
      * TODO Should this method be in the public API or it is restricted to the
      * resolver and other managers?
