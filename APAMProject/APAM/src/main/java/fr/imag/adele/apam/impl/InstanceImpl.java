@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,6 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.CallbackMethod;
 import fr.imag.adele.apam.core.InstanceDeclaration;
-import fr.imag.adele.apam.util.CoreMetadataParser;
 
 public class InstanceImpl extends ComponentImpl implements Instance {
 
@@ -53,6 +53,11 @@ public class InstanceImpl extends ComponentImpl implements Instance {
             declaration = new InstanceDeclaration(rootImplementation.getImplDeclaration().getReference(), name, null);
         }
 
+        @Override
+        public Bundle getBundle() {
+        	return null;
+        }
+        
         @Override
         public InstanceDeclaration getDeclaration() {
             return declaration;
@@ -119,7 +124,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         if (composite == null)
             throw new InvalidConfiguration("Null parent while creating instance");
 
-        Implementation implementation = CST.ImplBroker.getImpl(apformInst.getDeclaration().getImplementation()
+        Implementation implementation = CST.componentBroker.getImpl(apformInst.getDeclaration().getImplementation()
                 .getName());
 
         if (implementation == null)
@@ -152,7 +157,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         /*
          * Add to broker
          */
-        ((InstanceBrokerImpl) CST.InstBroker).add(this);
+        ((ComponentBrokerImpl) CST.componentBroker).add(this);
 
         /*
          * Notify managers
@@ -235,7 +240,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         /*
          * Remove from broker
          */
-        ((InstanceBrokerImpl) CST.InstBroker).remove(this);
+        ((ComponentBrokerImpl) CST.componentBroker).remove(this);
 
     }
 
@@ -369,6 +374,18 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }
 
     @Override
+    public Set<Wire> getWires(Specification spec) {
+        if (spec == null)
+            return null;
+        Set<Wire> w = new HashSet<Wire>();
+        for (Wire wire : wires) {
+            if (wire.getDestination().getSpec() == spec)
+                w.add(wire);
+        }
+        return w;
+    }
+    
+    @Override
     public boolean createWire(Instance to, String depName) {
         if ((to == null) || (depName == null))
             return false;
@@ -401,6 +418,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         ((ImplementationImpl) getImpl()).addUses(to.getImpl());
         if ((SpecificationImpl) getSpec() != null)
             ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
+        
         return true;
     }
 
@@ -479,22 +497,11 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         return w;
     }
 
-    @Override
-    public Set<Wire> getWires(Specification spec) {
-        if (spec == null)
-            return null;
-        Set<Wire> w = new HashSet<Wire>();
-        for (Wire wire : invWires) {
-            if (wire.getDestination().getSpec() == spec)
-                w.add(wire);
-        }
-        return w;
-    }
 
-    @Override
-    public Set<Component> getMembers() {
-        return Collections.EMPTY_SET;
-    }
+	@Override
+	public Set<Component> getMembers() {
+		return Collections.emptySet();
+	}
 
     @Override
     public Component getGroup() {

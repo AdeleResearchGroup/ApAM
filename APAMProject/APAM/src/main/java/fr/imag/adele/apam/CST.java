@@ -2,31 +2,9 @@ package fr.imag.adele.apam;
 
 import fr.imag.adele.apam.impl.APAMImpl;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
-import fr.imag.adele.apam.impl.ImplementationBrokerImpl;
-import fr.imag.adele.apam.impl.InstanceBrokerImpl;
-import fr.imag.adele.apam.impl.SpecificationBrokerImpl;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
 public class CST {
-
-
-//	public static String[] predefAttributes = { 
-//			CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, 
-//			CST.SHARED, CST.EXCLUSIVE, CST.SINGLETON };
-		
-//		CST.A_BORROWIMPLEM,
-//			CST.A_LOCALIMPLEM, CST.A_FRIENDIMPLEM, CST.A_BORROWINSTANCE,
-//			CST.A_LOCALINSTANCE, CST.A_FRIENDINSTANCE, CST.A_APPLIINSTANCE,
-
-    // Borrow / lend properties of composites.
-    // Expression | true | false
-//	public static final String A_BORROWIMPLEM = "borrowImplementation";
-//	public static final String A_LOCALIMPLEM = "localImplementation";
-//	public static final String A_FRIENDIMPLEM = "friendImplementation";
-//
-//	public static final String A_BORROWINSTANCE = "borrowInstance";
-//	public static final String A_LOCALINSTANCE = "localInstance";
-//	public static final String A_FRIENDINSTANCE = "friendInstance";
-//	public static final String A_APPLIINSTANCE = "appliInstance";
 
 
 	// Values are boolean
@@ -37,8 +15,8 @@ public class CST {
 	public static final String REMOTABLE = "remotable";
 	// shared indicates if its instances can have more than one incoming wire
 	public static final String SHARED = "shared";
-	//exclusive == shared=false and singleton=true
-	public static final String EXCLUSIVE = "exclusive" ; 
+//	//exclusive == shared=false and singleton=true
+//	public static final String EXCLUSIVE = "exclusive" ; 
 	//a single instance per implementation
 	public static final String SINGLETON = "singleton" ;
 
@@ -98,31 +76,33 @@ public class CST {
 			CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, 
 			CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION,
 			CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, 
-			CST.SHARED, CST.EXCLUSIVE, CST.SINGLETON};
+			CST.SHARED, CST.SINGLETON};
 
 	public static final String V_TRUE = "true";
 	public static final String V_FALSE = "false";
 
 	// Managers
-	public static final String APAMMAN = "APAMMAN";
-	public static final String CONFMAN = "CONFMAN";
-	public static final String DYNAMAN = "DYNAMAN";
+	public static final String APAMMAN   = "APAMMAN";
+	public static final String CONFMAN   = "CONFMAN";
+	public static final String DYNAMAN   = "DYNAMAN";
 	public static final String DISTRIMAN = "DISTRIMAN";
-	public static final String OBRMAN = "OBRMAN";
+	public static final String OBRMAN    = "OBRMAN";
+	public static final String UPDATEMAN = "UPDATEMAN";
 
 	// The entry point in the ASM : its brokers
-	public static SpecificationBroker SpecBroker = null;
-	public static ImplementationBroker ImplBroker = null;
-	public static InstanceBroker InstBroker = null;
+//	public static SpecificationBroker ComponentBroker = null;
+//	public static ImplementationBroker ComponentBroker = null;
+	public static ComponentBroker componentBroker = null;
 	public static ApamResolver apamResolver = null;
 
 	// the Apam entry point.
+	
 	public static APAMImpl apam = null;
 
 	public CST(APAMImpl theApam) {
-		CST.SpecBroker = new SpecificationBrokerImpl();
-		CST.ImplBroker = new ImplementationBrokerImpl();
-		CST.InstBroker = new InstanceBrokerImpl();
+//		CST.componentBroker = new SpecificationBrokerImpl();
+//		CST.componentBroker = new ImplementationBrokerImpl();
+		CST.componentBroker = new ComponentBrokerImpl();
 		CST.apam = theApam;
 		CST.apamResolver = new ApamResolverImpl(theApam);
 	}

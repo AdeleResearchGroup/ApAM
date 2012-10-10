@@ -9,11 +9,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.DependencyDeclaration;
@@ -30,6 +31,8 @@ public class ApamMan implements DependencyManager {
         return CST.APAMMAN;
     }
     
+    public ApamMan(){
+    }
     public ApamMan(BundleContext context){
         this.context = context;
     }
@@ -39,7 +42,6 @@ public class ApamMan implements DependencyManager {
         try {
             Util.printFileToConsole(context.getBundle().getResource("logo.txt"));
         } catch (IOException e) {
-           //TODO nothing
         }
         System.out.println("APAMMAN started");
     }
@@ -100,7 +102,7 @@ public class ApamMan implements DependencyManager {
     public Implementation findImplByName(CompositeType compoType, String implName) {
         if (implName == null)
             return null;
-        Implementation impl = CST.ImplBroker.getImpl(implName);
+        Implementation impl = CST.componentBroker.getImpl(implName);
         if (impl == null)
             return null;
         if (Util.checkImplVisible(compoType, impl)) {
@@ -113,12 +115,12 @@ public class ApamMan implements DependencyManager {
     public Specification findSpecByName(CompositeType compTypeFrom, String specName) {
         if (specName == null)
             return null;
-        return CST.SpecBroker.getSpec(specName);
+        return CST.componentBroker.getSpec(specName);
     }
 
     @Override
-    public Set<Implementation> resolveSpecByResources(CompositeType compoType, DependencyDeclaration dep) {
-        Specification spec = CST.SpecBroker.getSpecResource(dep.getTarget());
+    public Set<Implementation> resolveSpecs(CompositeType compoType, DependencyDeclaration dep) {
+        Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
         if (spec == null) return null;
         
     	Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints()) ;
@@ -134,12 +136,12 @@ public class ApamMan implements DependencyManager {
     }
 
     @Override
-    public Implementation resolveSpecByResource(CompositeType compoType, DependencyDeclaration dep) {
-        Specification spec = CST.SpecBroker.getSpecResource(dep.getTarget());
+    public Implementation resolveSpec(CompositeType compoType, DependencyDeclaration dep) {
+        Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
         if (spec == null)
             return null;	
 
-    	Set<Implementation> impls = resolveSpecByResources (compoType, dep) ;
+    	Set<Implementation> impls = resolveSpecs (compoType, dep) ;
         // and then the prefered ones.
      	List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
         return spec.getPreferedComponent(impls, preferences);
@@ -151,6 +153,32 @@ public class ApamMan implements DependencyManager {
             Set<Instance> insts) {
         // do not care
     }
+
+//	@Override
+//	public Set<String> selectComponentByName(CompositeType compoType, String name) {
+//		return null;
+//	}
+
+	@Override
+	public Component findComponentByName(CompositeType compoType, String componentName) {
+		Component ret = findSpecByName(compoType, componentName)  ;
+		if (ret == null) 
+			ret= findImplByName(compoType, componentName) ;
+		return ret;
+	}
+
+@Override
+public Implementation install(ComponentBundle selected) {
+	
+	return null;
+}
+
+@Override
+public ComponentBundle findBundle(CompositeType compoType,
+		String bundleSymbolicName) {
+	
+	return null;
+}
 
 
 }

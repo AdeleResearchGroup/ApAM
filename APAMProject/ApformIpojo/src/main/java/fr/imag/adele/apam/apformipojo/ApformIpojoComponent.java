@@ -14,6 +14,7 @@ import org.apache.felix.ipojo.architecture.ComponentTypeDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.util.Logger;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -22,6 +23,7 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionHandler;
 import fr.imag.adele.apam.apformipojo.handlers.MessageProviderHandler;
+import fr.imag.adele.apam.apformipojo.handlers.PropertyInjectionHandler;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.DependencyDeclaration;
@@ -63,6 +65,10 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
 		return declaration;
 	}
 	
+    public Bundle getBundle() {
+        return getBundleContext().getBundle();
+    }
+
 	/**
 	 * Defines the implementation description.
 	 * 
@@ -262,6 +268,7 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
 
 		requiredHandlers.add(new RequiredHandler(MessageProviderHandler.NAME, APAM_NAMESPACE));
 		requiredHandlers.add(new RequiredHandler(DependencyInjectionHandler.NAME, APAM_NAMESPACE));
+		requiredHandlers.add(new RequiredHandler(PropertyInjectionHandler.NAME, APAM_NAMESPACE));
 
 		return requiredHandlers;
 	}

@@ -20,16 +20,17 @@ public interface Component {
      * The underlying entity in the execution platform
      */
     public ApformComponent getApformComponent();
-
+    
     /**
      * The component declaration
      */
     public ComponentDeclaration getDeclaration () ;
 
     /**
-     * Whether the component is exclusive
+     * Give the composite type that physically deployed that component.
+     * Warning : null when unused. 
      */
-    public boolean isExclusive() ;
+    public CompositeType getFirstDeployed() ;
 
     /**
      * Whether the component is instantiable
@@ -46,6 +47,12 @@ public interface Component {
      */
     public boolean isShared() ;
     
+    /**
+     * Get a component provided its name
+     * @param name
+     * @return
+     */
+//    public Component getComponent (String name) ;
     /**
      * Return a candidate, selected (by default) among those satisfying the constraints
      * @param <T>

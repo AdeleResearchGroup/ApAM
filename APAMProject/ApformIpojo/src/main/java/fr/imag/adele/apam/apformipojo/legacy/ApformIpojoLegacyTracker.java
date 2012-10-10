@@ -1,15 +1,11 @@
 package fr.imag.adele.apam.apformipojo.legacy;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.HandlerFactory;
 import org.apache.felix.ipojo.IPojoFactory;
 import org.apache.felix.ipojo.Pojo;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
@@ -48,10 +44,6 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
      */
     private final BundleContext context;
 
-    /**
-     * The Properties which are not managed by ApAM 
-     */
-    private List<String> ignoredProperties;
 
     public ApformIpojoLegacyTracker(BundleContext context) {
         this.context = context;
@@ -222,7 +214,7 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
         /*
          * If the service is not reified in APAM, just ignore event
          */
-        Instance inst = CST.InstBroker.getInst(ipojoInstance.getInstanceName());
+        Instance inst = CST.componentBroker.getInst(ipojoInstance.getInstanceName());
         if (inst == null)
             return;
 

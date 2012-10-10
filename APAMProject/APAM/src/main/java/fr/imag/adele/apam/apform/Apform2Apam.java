@@ -17,9 +17,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.SpecificationReference;
-import fr.imag.adele.apam.impl.ImplementationBrokerImpl;
-import fr.imag.adele.apam.impl.InstanceBrokerImpl;
-import fr.imag.adele.apam.impl.SpecificationBrokerImpl;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
 public class Apform2Apam {
 	
@@ -223,12 +221,12 @@ public class Apform2Apam {
         	 * installation
         	 */
         	String implementationName = getComponent().getDeclaration().getImplementation().getName();
-        	CST.ImplBroker.getImpl(implementationName, true);
+        	CST.componentBroker.getWaitComponent(implementationName);
         	
         	/*
         	 * Add to APAM
         	 */
-        	return CST.InstBroker.addInst(null,getComponent());
+        	return CST.componentBroker.addInst(null,getComponent());
         }
 
     }
@@ -258,13 +256,13 @@ public class Apform2Apam {
         	 */
         	SpecificationReference specification = getComponent().getDeclaration().getSpecification();
         	if (specification != null) {
-            	CST.SpecBroker.getSpec(specification.getName(), true);
+        		CST.componentBroker.getWaitComponent(specification.getName());
         	}
         	
         	/*
         	 * Add to APAM
         	 */
-            return CST.ImplBroker.addImpl(null,getComponent());
+            return CST.componentBroker.addImpl(null,getComponent());
         }
 
     }
@@ -288,7 +286,7 @@ public class Apform2Apam {
         
         @Override
         public Component reify() {
-            return CST.SpecBroker.addSpec(getComponent());
+            return CST.componentBroker.addSpec(getComponent());
             
         }
     }
@@ -326,13 +324,13 @@ public class Apform2Apam {
      * @param instanceName
      */
     public static void vanishInstance(String instanceName) {
-        Instance inst = CST.InstBroker.getInst(instanceName);
+        Instance inst = CST.componentBroker.getInst(instanceName);
         if (inst == null) {
           // previous remove of the factory removed instances
           // logger.warn("Unable to remove instance '{}' : non-existent instance", instanceName);
             return;
         }
-        ((InstanceBrokerImpl)CST.InstBroker).removeInst(inst);
+        ((ComponentBrokerImpl)CST.componentBroker).removeInst(inst);
         
     }
 
@@ -342,13 +340,13 @@ public class Apform2Apam {
      * @param implementationName
      */
     public static void vanishImplementation(String implementationName) {
-        Implementation impl = CST.ImplBroker.getImpl(implementationName);
+        Implementation impl = CST.componentBroker.getImpl(implementationName);
         if (impl == null) {
         	logger.warn("Vanish implementation does not exists: " + implementationName);
             return;
         }
 
-        ((ImplementationBrokerImpl)CST.ImplBroker).removeImpl(impl);
+        ((ComponentBrokerImpl)CST.componentBroker).removeImpl(impl);
     }
 
     /**
@@ -356,13 +354,13 @@ public class Apform2Apam {
      * @param specificationName
      */
     public static void vanishSpecification(String specificationName) {
-        Specification spec = CST.SpecBroker.getSpec(specificationName);
+        Specification spec = CST.componentBroker.getSpec(specificationName);
         if (spec == null) {
         	logger.warn("Vanish specification does not exists: " + specificationName);
             return;
         }
     	
-        ((SpecificationBrokerImpl)CST.SpecBroker).removeSpec(spec);
+        ((ComponentBrokerImpl)CST.componentBroker).removeSpec(spec);
     }
 
 }

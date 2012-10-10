@@ -72,7 +72,7 @@ public class MainApam implements Runnable, ApamComponent {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		assertTrue (CST.InstBroker.getInst("S1CompoFinal-Instance") != null) ;
+		assertTrue (CST.componentBroker.getInst("S1CompoFinal-Instance") != null) ;
 		assertTrue (implem != null );	 	
 
 		System.out.println("testing findImplByName in ASM and unused");

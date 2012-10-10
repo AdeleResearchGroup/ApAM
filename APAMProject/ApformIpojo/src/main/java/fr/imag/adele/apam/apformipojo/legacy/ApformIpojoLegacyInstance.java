@@ -2,9 +2,11 @@ package fr.imag.adele.apam.apformipojo.legacy;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.InstanceManager;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
@@ -62,6 +64,11 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
     }
 
     @Override
+    public Bundle getBundle() {
+    	return ipojoInstance.getContext().getBundle();
+    }
+    
+    @Override
     public void setInst(Instance apamInstance) {
         this.apamInstance = apamInstance;
     }
@@ -108,7 +115,9 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
 
     @Override
     public void setProperty(String attr, String value) {
-        // TODO reconfigure iPojo instance
+    	Properties configuration = new Properties();
+    	configuration.put(attr,value);
+    	ipojoInstance.reconfigure(configuration);
     }
 
     private static List<String> osgiAndiPojoProperties = Arrays.asList(new String[] { Constants.SERVICE_ID,
@@ -117,5 +126,5 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
     public static boolean isOSGioriPojoProperty(String key) {
         return osgiAndiPojoProperties.contains(key);
     }
-
+    
 }

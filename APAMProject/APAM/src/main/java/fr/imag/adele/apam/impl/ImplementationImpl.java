@@ -2,12 +2,11 @@ package fr.imag.adele.apam.impl;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.osgi.framework.Filter;
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +63,12 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 										(SpecificationReference)null, 
 										new ImplementationReference<ImplementationDeclaration>("Root Main Implem"));
 		}
+		
+		@Override
+		public Bundle getBundle() {
+			return null;
+		}
+		
 
 		@Override
 		public ImplementationDeclaration getDeclaration() {
@@ -92,7 +97,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 */
 	protected ImplementationImpl(String name) throws InvalidConfiguration {
 		super(new SystemRootImplementation(name));
-		mySpec = CST.SpecBroker.createSpec(name+"_spec",new HashSet<ResourceReference>(),null);
+		mySpec = CST.componentBroker.createSpec(name+"_spec",new HashSet<ResourceReference>(),null);
 	}
 
 
@@ -110,7 +115,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		if (declaration.getSpecification() != null) {
 			
 			String specificationName	= declaration.getSpecification().getName();
-			Specification specification = CST.SpecBroker.getSpec(specificationName);
+			Specification specification = CST.componentBroker.getSpec(specificationName);
 			
 			if (specification == null) {
 				throw new InvalidConfiguration("Specification not installed " + specificationName + " for implementation " + declaration.getName());
@@ -127,7 +132,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		 * implementation
 		 */
 		if (mySpec == null) {
-			mySpec = CST.SpecBroker.createSpec(declaration.getName() + "_spec",
+			mySpec = CST.componentBroker.createSpec(declaration.getName() + "_spec",
 					declaration.getProvidedResources(),
 					(Map<String,String>)null);
 		} 
@@ -159,7 +164,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		/*
 		 * Add to broker
 		 */
-		((ImplementationBrokerImpl)CST.ImplBroker).add(this);
+		((ComponentBrokerImpl)CST.componentBroker).add(this);
 
 		/*
 		 * Notify managers
@@ -182,7 +187,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		 * 
 		 */
 		for (Instance inst : instances) {
-			((InstanceBrokerImpl)CST.InstBroker).removeInst(inst);
+			((ComponentBrokerImpl)CST.componentBroker).removeInst(inst);
 		}
 
 		/*
@@ -200,7 +205,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		/*
 		 * Remove from broker
 		 */
-		((ImplementationBrokerImpl) CST.ImplBroker).remove(this);
+		((ComponentBrokerImpl) CST.componentBroker).remove(this);
 
 	}
 
