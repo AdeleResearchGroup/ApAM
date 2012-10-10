@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.IPojoFactory;
+import org.osgi.framework.Bundle;
 
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
@@ -62,6 +63,11 @@ public class ApformIPojoLegacyImplementation implements ApformImplementation {
 		for (String providedIntereface : factory.getComponentDescription().getprovidedServiceSpecification()) {
 			declaration.getProvidedResources().add(new InterfaceReference(providedIntereface));
 		}
+	}
+	
+	@Override
+	public Bundle getBundle() {
+		return factory.getBundleContext().getBundle();
 	}
 	
 	/**

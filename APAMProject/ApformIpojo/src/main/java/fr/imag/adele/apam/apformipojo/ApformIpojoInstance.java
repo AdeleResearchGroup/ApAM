@@ -18,6 +18,7 @@ import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceHandlerDes
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.util.Callback;
 import org.apache.felix.ipojo.util.Logger;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
@@ -76,6 +77,11 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
         return (ApformIpojoImplementation) super.getFactory();
     }
 
+    @Override
+    public Bundle getBundle() {
+    	return getContext().getBundle();
+    }
+    
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void configure(Element metadata, Dictionary configuration) throws ConfigurationException {

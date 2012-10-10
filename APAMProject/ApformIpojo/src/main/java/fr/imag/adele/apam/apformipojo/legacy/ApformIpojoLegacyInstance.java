@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.InstanceManager;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
@@ -62,6 +63,11 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
 
     }
 
+    @Override
+    public Bundle getBundle() {
+    	return ipojoInstance.getContext().getBundle();
+    }
+    
     @Override
     public void setInst(Instance apamInstance) {
         this.apamInstance = apamInstance;

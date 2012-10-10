@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,6 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.CallbackMethod;
 import fr.imag.adele.apam.core.InstanceDeclaration;
-import fr.imag.adele.apam.util.CoreMetadataParser;
 
 public class InstanceImpl extends ComponentImpl implements Instance {
 
@@ -53,6 +53,11 @@ public class InstanceImpl extends ComponentImpl implements Instance {
             declaration = new InstanceDeclaration(rootImplementation.getImplDeclaration().getReference(), name, null);
         }
 
+        @Override
+        public Bundle getBundle() {
+        	return null;
+        }
+        
         @Override
         public InstanceDeclaration getDeclaration() {
             return declaration;

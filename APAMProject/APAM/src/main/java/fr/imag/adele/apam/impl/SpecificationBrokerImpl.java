@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
@@ -94,6 +95,11 @@ public class SpecificationBrokerImpl implements SpecificationBroker {
             	declaration.getProperties().putAll(properties);
         }
 
+        @Override
+        public Bundle getBundle() {
+        	return null;
+        }
+        
         @Override
         public SpecificationDeclaration getDeclaration() {
             return declaration;

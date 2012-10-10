@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -222,6 +223,11 @@ public class APAMImpl implements Apam {
     		numInstances = 0;
     	}
     	
+    	@Override
+    	public Bundle getBundle() {
+    		return null;
+    	}
+    	
 		@Override
 		public CompositeDeclaration getDeclaration() {
 			return declaration;
@@ -264,6 +270,11 @@ public class APAMImpl implements Apam {
     			declaration.getProperties().putAll(initialProperties);
     	} 
 
+    	@Override
+    	public Bundle getBundle() {
+    		return null;
+    	}
+    	
 		@Override
 		public InstanceDeclaration getDeclaration() {
 			return declaration;

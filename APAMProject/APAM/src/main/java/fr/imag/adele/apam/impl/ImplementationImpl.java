@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,12 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 										(SpecificationReference)null, 
 										new ImplementationReference<ImplementationDeclaration>("Root Main Implem"));
 		}
+		
+		@Override
+		public Bundle getBundle() {
+			return null;
+		}
+		
 
 		@Override
 		public ImplementationDeclaration getDeclaration() {
