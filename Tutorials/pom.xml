@@ -1,0 +1,237 @@
+<!-- Copyright Universite Joseph Fourier (www.ujf-grenoble.fr) Licensed under 
+	the Apache License, Version 2.0 (the "License"); you may not use this file 
+	except in compliance with the License. You may obtain a copy of the License 
+	at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable 
+	law or agreed to in writing, software distributed under the License is distributed 
+	on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+	express or implied. See the License for the specific language governing permissions 
+	and limitations under the License. -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>fr.imag.adele.apam.tutorials</groupId>
+	<artifactId>apam-tutorials</artifactId>
+	<packaging>pom</packaging>
+	<version>0.0.1</version>
+	<name>Apam Tutorials</name>
+
+
+	<properties>
+		<!-- apam version -->
+		<apam.current.version>0.0.1-SNAPSHOT</apam.current.version>
+
+		<!-- Dependencies version -->
+		<ipojo.plugin.version>1.8.0</ipojo.plugin.version>
+		<bundle.plugin.version>2.3.7</bundle.plugin.version>
+		<compiler.plugin.version>2.5.1</compiler.plugin.version>
+		<!-- Encoding -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.html
+			</url>
+			<distribution>manual</distribution>
+		</license>
+	</licenses>
+
+	<organization>
+		<name>Adele Team / LIG</name>
+		<url>http://equipes-liglab.imag.fr/adele/
+		</url>
+	</organization>
+
+	<scm>
+		<connection>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</connection>
+		<url>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</url>
+		<developerConnection>scm:git:git@github.com:AdeleResearchGroup/ApAM.git</developerConnection>
+	</scm>
+
+	<developers>
+		<developer>
+			<id>Estublier</id>
+			<name>Jacky Estublier</name>
+			<email>jacky.estublier@imag.fr</email>
+			<roles>
+				<role>Project Manager</role>
+				<role>Adele director</role>
+			</roles>
+			<organization>LIG / Adele</organization>
+		</developer>
+		<developer>
+			<id>Vega</id>
+			<name>German Vega</name>
+			<email>german.vega@imag.fr</email>
+			<roles>
+				<role>Developer</role>
+				<role>IR CNRS</role>
+			</roles>
+			<organization>LIG / Adele</organization>
+		</developer>
+		<developer>
+			<id>Diana</id>
+			<name>Diana Moreno</name>
+			<email>diana@imag.fr</email>
+			<roles>
+				<role>Developer</role>
+				<role>Theses student</role>
+			</roles>
+			<organization>LIG / Adele</organization>
+		</developer>
+		<developer>
+			<id>Elmehdi</id>
+			<name>Elmehdi Damou</name>
+			<email>elmehdi.damou@imag.fr</email>
+			<roles>
+				<role>Developer</role>
+				<role>Theses student</role>
+			</roles>
+			<organization>LIG / Adele</organization>
+		</developer>
+	</developers>
+
+	<!-- Maven Repo -->
+	<repositories>
+		<!-- OW2 Repo -->
+		<repository>
+			<id>objectweb-public</id>
+			<name>ow2 Maven Repository</name>
+			<url>http://repository.ow2.org/nexus/content/repositories/public</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>objectweb-old-release</id>
+			<name>ow2 Maven Repository [OLD]</name>
+			<url>http://maven.ow2.org/maven2</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<!-- Java.net repo -->
+		<repository>
+			<id>maven2-repository.dev.java.net</id>
+			<name>Java.net Repository for Maven</name>
+			<url>http://download.java.net/maven/2/</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>maven-glassfish-repository.dev.java.net</id>
+			<name>Java.net Repository for Maven</name>
+			<url>http://download.java.net/maven/glassfish/</url>
+			<layout>default</layout>
+		</repository>
+		<!-- cloudbee repo -->
+		<repository>
+			<id>cloudbees-ApAM-release</id>
+			<name>Cloudbees Private Repository - ApAM - Release </name>
+			<url>https://repository-apam.forge.cloudbees.com/release/</url>
+		</repository>
+		<repository>
+			<id>cloudbees-ApAM-snapshot</id>
+			<name>Cloudbees Private Repository - ApAM - Snapshot</name>
+			<url>https://repository-apam.forge.cloudbees.com/snapshot/</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+
+		<repository>
+			<id>cloudbees-private-release-repository</id>
+			<name>Cloudbees Private Repository</name>
+			<url>dav:https://repository-apam.forge.cloudbees.com/release/tutorials</url>
+			<uniqueVersion>false</uniqueVersion>
+		</repository>
+		<snapshotRepository>
+			<id>cloudbees-private-snapshot-repository</id>
+			<url>dav:https://repository-apam.forge.cloudbees.com/snapshot/tutorials</url>
+			<uniqueVersion>false</uniqueVersion>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${compiler.plugin.version}</version>
+					<configuration>
+						<source>1.6</source>
+						<target>1.6</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-ipojo-plugin</artifactId>
+					<version>${ipojo.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>ipojo-bundle</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>${bundle.plugin.version}</version>
+					<extensions>true</extensions>
+					<configuration>
+						<instructions>
+							<Bundle-Name>${project.name}</Bundle-Name>
+							<Bundle-Description>
+								${project.description}
+							</Bundle-Description>
+							<Bundle-SymbolicName>
+								${project.artifactId}
+							</Bundle-SymbolicName>
+							<Bundle-Vendor>
+								Adele/LIG/ Grenoble University, France
+							</Bundle-Vendor>
+							<Bundle-Version>${project.version}</Bundle-Version>
+						</instructions>
+						<executions>
+							<execution>
+								<id>cloudbees-private-release-repository</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>deploy</goal>
+								</goals>
+								<remoteOBR>
+									dav:https://repository-apam.forge.cloudbees.com/release/tutorials/
+								</remoteOBR>
+							</execution>
+						</executions>
+					</configuration>
+				</plugin>
+				
+			</plugins>
+		</pluginManagement>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav-jackrabbit</artifactId>
+				<version>2.2</version>
+			</extension>
+		</extensions>
+
+
+	</build>
+
+	<modules>
+		<module>HelloWorld-AllInOneBundle</module>
+	</modules>
+</project>

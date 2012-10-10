@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>fr.imag.adele.apam.tutorial</groupId>
-	<artifactId>HelloWorld</artifactId>
+	<artifactId>HelloWorld-Implementation</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<!-- Repositories List -->
@@ -19,7 +19,11 @@
 
 	<!-- Dependencies Description -->
 	<dependencies>
-
+		<dependency>
+			<groupId>fr.imag.adele.apam.tutorial</groupId>
+			<artifactId>HelloWorld-Specification</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<!-- Build Description -->

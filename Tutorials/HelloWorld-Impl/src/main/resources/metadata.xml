@@ -1,0 +1,14 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd"	>
+
+
+	
+	<implementation name="Hello-Implementation" 
+	    classname="fr.imag.adele.apam.hello.world.impl.HelloImplementation"
+		specification="Hello-Specification">
+		<callback onInit="go" onRemove="bye"/>
+	</implementation>
+
+	<apam-instance name="Hello-Instance" implementation="Hello-Implementation" >
+	</apam-instance>
+</apam>

@@ -69,8 +69,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Validate
-    public void start() {
-        System.out.println("[OBRMAN] starting");
+    public void start() {        
         // TODO lookFor root.OBRMAN.cfg and create obrmanager for the root composite
         String rootModelurl = m_context.getProperty(ObrUtil.ROOT_MODEL_URL);
         // create obrmanager for the root composite
@@ -85,13 +84,14 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             e.printStackTrace();
         }
         ApamManagers.addDependencyManager(this, 3);
+        System.out.println("[OBRMAN] started");
     }
 
     @Invalidate
     public void stop() {
-        System.out.println(">>> OBRMAN stoping");
         ApamManagers.removeDependencyManager(this);
         obrManagers.clear();
+        System.out.println("[OBRMAN] stopped");
     }
 
     /**
