@@ -14,7 +14,7 @@ public class TestUpdate implements ApamComponent, Runnable{
 		System.err.println("Got previous value : " + prev);
 		while (temperature.getTemp () == prev){
 			if (! (temperature instanceof CapteurTemp)) {
-				System.err.println("bat type for temperature: " + temperature.getClass().getCanonicalName()) ;
+				System.err.println("bad type for temperature: " + temperature.getClass().getCanonicalName()) ;
 			}
 			if (temperature.getTemp () != prev) break ;
 		}

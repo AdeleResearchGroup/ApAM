@@ -137,42 +137,6 @@ public class ApamResolverImpl implements ApamResolver {
 		return null;
 	}
 
-	/**
-	 * Provided an instance, computes all the dependency declaration that applies to that instance/
-	 * If can be defined on the instance, the implementation, the specification, or on both.
-	 * In case the same dependency is defined multiple time, it is the most concrete one that must be taken into account.
-	 * There is no attempt to compute all the constraints that apply on a given dependency; 
-	 * We are only interested in the target.
-	 * @param client
-	 * @return
-	 */
-	public Set<DependencyDeclaration> computeAllDependencies (Instance client) {
-		Set<DependencyDeclaration> allDeps = new HashSet<DependencyDeclaration> () ;
-		allDeps.addAll(client.getDeclaration().getDependencies());
-
-		boolean found ;
-		for (DependencyDeclaration dep : client.getImpl().getDeclaration().getDependencies()) {
-			found= false ;
-			for (DependencyDeclaration allDep : allDeps) {
-				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
-					found= true;
-					break ;
-				}
-			}
-			if (!found) allDeps.add(dep) ;
-		}
-		for (DependencyDeclaration dep : client.getSpec().getDeclaration().getDependencies()) {
-			found= false ;
-			for (DependencyDeclaration allDep : allDeps) {
-				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
-					found= true;
-					break ;
-				}
-			}
-			if (!found) allDeps.add(dep) ;
-		}
-		return allDeps ;
-	}
 
 	/**
 	 * Compares the client dependency wrt the enclosing composite dependencies.
@@ -390,13 +354,67 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 	/**
+	 * Provided an instance, computes all the dependency declaration that applies to that instance.
+	 * If can be defined on the instance, the implementation, the specification, or on both.
+	 * For each dependency, we clone it, and we aggregate the constraints as found at all level, 
+	 * including the generic ones found in the composite type.
+	*/
+	public Set<DependencyDeclaration> computeAllEffectiveDependency (Instance client) {
+		if (client == null) return null ;
+		Set<DependencyDeclaration> allDeps = new HashSet <DependencyDeclaration> ();
+		for (DependencyDeclaration dep : computeAllDependencies (client)) {
+			allDeps.add(computeEffectiveDependency(client, dep.getIdentifier())) ;
+		}
+		return allDeps ;
+	}
+	
+	/**
+	 * Provided an instance, computes all the dependency declaration that applies to that instance/
+	 * If can be defined on the instance, the implementation, the specification, or on both.
+	 * In case the same dependency is defined multiple time, it is the most concrete one that must be taken into account.
+	 * There is no attempt to compute all the constraints that apply on a given dependency; 
+	 * We are only interested in the target.
+	 * @param client
+	 * @return
+	 */
+	public Set<DependencyDeclaration> computeAllDependencies (Instance client) {
+		Set<DependencyDeclaration> allDeps = new HashSet<DependencyDeclaration> () ;
+		allDeps.addAll(client.getDeclaration().getDependencies());
+
+		boolean found ;
+		for (DependencyDeclaration dep : client.getImpl().getDeclaration().getDependencies()) {
+			found= false ;
+			for (DependencyDeclaration allDep : allDeps) {
+				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
+					found= true;
+					break ;
+				}
+			}
+			if (!found) allDeps.add(dep) ;
+		}
+		for (DependencyDeclaration dep : client.getSpec().getDeclaration().getDependencies()) {
+			found= false ;
+			for (DependencyDeclaration allDep : allDeps) {
+				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
+					found= true;
+					break ;
+				}
+			}
+			if (!found) allDeps.add(dep) ;
+		}
+		return allDeps ;
+	}
+
+	/**
 	 * The dependencies "depName" that apply on a client are those of the instance, plus those of the implem, 
-	 * plus those of the spec, and finally those in the composite, if the name matches the generic constraints
+	 * plus those of the spec, and finally those in the composite. 
+	 * We aggregate the constraints as found at all level, including the generic one found in the composite type.
+	 * 
 	 * @param client
 	 * @param dependency
 	 * @return
 	 */
-	private DependencyDeclaration computeEffectiveDependency (Instance client, String depName) {
+	public DependencyDeclaration computeEffectiveDependency (Instance client, String depName) {
 
 		//Find the first dependency declaration.
 		Component depComponent = client ;
@@ -953,6 +971,7 @@ public class ApamResolverImpl implements ApamResolver {
 		Component compo = CST.componentBroker.getComponent(componentName) ;
 		if (compo == null) {
 			logger.error ("Unknown component " + componentName) ;
+			return ;
 		}
 		UpdateMan.updateComponent(compo) ;
 	}

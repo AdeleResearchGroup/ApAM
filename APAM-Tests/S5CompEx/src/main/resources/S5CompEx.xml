@@ -31,7 +31,7 @@
 			<local  implementation="true" instance="true"/>
 
 			<own specification="S1" property="location" value="{kitchen, living}">
-				<grant when="emergency" implementation="S1ImplTestAttr" />
+				<grant when="emergency" implementation="TestAttr" />
 				<grant when="threat" implementation="S2Impl" />
 			</own>
 <!-- 			<own specification="S2" property="location" value="bedroom"/> -->

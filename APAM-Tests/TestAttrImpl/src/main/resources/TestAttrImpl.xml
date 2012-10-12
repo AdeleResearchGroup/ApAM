@@ -3,11 +3,11 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
 
-	<composite name="S1CompoFinalTest" main="S1ImplTestAttr"
-		specification="S1TestAttr" interfaces="{fr.imag.adele.apam.TestAttr.S1TestAttr}" />
+	<composite name="CompoTestAttr" main="TestAttr"
+		specification="STestAttr" interfaces="{fr.imag.adele.apam.TestAttr.S1TestAttr}" />
 
-	<implementation name="S1ImplTestAttr"
-		classname="fr.imag.adele.apam.TestAttrImpl.S1ImplTestAttr" specification="S1TestAttr">
+	<implementation name="TestAttr"
+		classname="fr.imag.adele.apam.TestAttrImpl.S1ImplTestAttr" specification="STestAttr">
 <!-- 		<property name="S1toS2Final-Attr" value="couscous" /> -->
 		<property name="spec-name" value="yyy"  />
 <!-- 		<property name="definition-xx" value="ttt" /> -->
@@ -22,7 +22,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	</implementation>
 
 
-	<instance implementation="S1ImplTestAttr" name="TestAttr_Instance" />
+<!-- 	<instance implementation="TestAttr" name="TestAttr_Instance" /> -->
 		
 		
 </apam>
