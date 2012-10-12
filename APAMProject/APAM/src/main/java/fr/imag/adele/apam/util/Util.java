@@ -18,13 +18,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.CompositeDeclaration;
+import fr.imag.adele.apam.core.ContextualResolutionPolicy;
+import fr.imag.adele.apam.core.DependencyDeclaration;
+import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
 
 /**
@@ -485,8 +491,223 @@ public class Util {
             // Close the input stream
             in.close();
         } catch (Exception e) {// Catch exception if any
-          //TODO nothing
         }
     }
+
+    ///About dependencies
+	/**
+	 * Provided a client instance, checks if its dependency "clientDep", matches another dependency: "compoDep".
+	 * 
+	 * matches only based on same name (same resource or same component).
+	 * If client cardinality is multiple, compo cardinallity must be multiple too.
+	 * No provision for the client constraints or characteristics (missing, eager)
+	 * 
+	 * @param compoInst the composite instance containing the client
+	 * @param compoDep the dependency that matches or not
+	 * @param clientDep the client dependency we are trying to resolve
+	 * @return
+	 */
+	public static boolean matchDependency(Instance compoInst, DependencyDeclaration compoDep, DependencyDeclaration clientDep) {
+		boolean multiple = clientDep.isMultiple();
+		//Look for same dependency: the same specification, the same implementation or same resource name
+		//Constraints are not taken into account
+		//		for (DependencyDeclaration compoDep : compoDeps) {
+		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { // same nature
+			if (compoDep.getTarget().equals(clientDep.getTarget())) {
+				if (!multiple || compoDep.isMultiple())
+					return true;
+			}
+		}
+
+		//Look for a compatible dependency.
+		//Stop at the first dependency matching only based on same name (same resource or same component)
+		//No provision for : cardinality, constraints or characteristics (missing, eager)
+		//		for (DependencyDeclaration compoDep : compoDeps) {
+		//Look if the client requires one of the resources provided by the specification
+		if (compoDep.getTarget() instanceof SpecificationReference) {
+			Specification spec = CST.apamResolver.findSpecByName(compoInst.getComposite().getCompType(),
+					((SpecificationReference) compoDep.getTarget()).getName());
+			if ((spec != null) && spec.getDeclaration().getProvidedResources().contains(clientDep.getTarget()))
+				if (!multiple || compoDep.isMultiple())
+					return true;
+		} else {
+			//If the composite has a dependency toward an implementation
+			//and the client requires a resource provided by that implementation
+			if (compoDep.getTarget() instanceof ImplementationReference) {
+				String implName = ((ImplementationReference<?>) compoDep.getTarget()).getName();
+				Implementation impl = CST.apamResolver.findImplByName(compoInst.getComposite().getCompType(), implName);
+				if (impl != null) {
+					//The client requires the specification implemented by that implementation
+					if (clientDep.getTarget() instanceof SpecificationReference) {
+						String clientReqSpec = ((SpecificationReference) clientDep.getTarget()).getName();
+						if (impl.getImplDeclaration().getSpecification().getName().equals(clientReqSpec))
+							if (!multiple || compoDep.isMultiple())
+								return true;
+					} else {
+						//The client requires a resource provided by that implementation
+						if (impl.getImplDeclaration().getProvidedResources().contains(clientDep.getTarget()))
+							if (!multiple || compoDep.isMultiple())
+								return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+    
+	/**
+	 * Provided an instance, computes all the dependency declaration that applies to that instance.
+	 * If can be defined on the instance, the implementation, the specification, or on both.
+	 * For each dependency, we clone it, and we aggregate the constraints as found at all level, 
+	 * including the generic ones found in the composite type.
+	 * The dependencies returned are clones of the original ones.
+	*/
+	public static Set<DependencyDeclaration> computeAllEffectiveDependency (Instance client) {
+		if (client == null) return null ;
+		Set<DependencyDeclaration> allDeps = new HashSet <DependencyDeclaration> ();
+		for (DependencyDeclaration dep : computeAllDependencies (client)) {
+			allDeps.add(computeEffectiveDependency(client, dep.getIdentifier())) ;
+		}
+		return allDeps ;
+	}
+	
+	/**
+	 * Provided an instance, computes all the dependency declaration that applies to that instance/
+	 * If can be defined on the instance, the implementation, the specification, or on both.
+	 * In case the same dependency is defined multiple time, it is the most concrete one that must be taken into account.
+	 * There is no attempt to compute all the constraints that apply on a given dependency; 
+	 * We are only interested in the target.
+	 * @param client
+	 * @return
+	 */
+	public static Set<DependencyDeclaration> computeAllDependencies (Instance client) {
+		Set<DependencyDeclaration> allDeps = new HashSet<DependencyDeclaration> () ;
+		allDeps.addAll(client.getDeclaration().getDependencies());
+
+		boolean found ;
+		for (DependencyDeclaration dep : client.getImpl().getDeclaration().getDependencies()) {
+			found= false ;
+			for (DependencyDeclaration allDep : allDeps) {
+				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
+					found= true;
+					break ;
+				}
+			}
+			if (!found) allDeps.add(dep) ;
+		}
+		for (DependencyDeclaration dep : client.getSpec().getDeclaration().getDependencies()) {
+			found= false ;
+			for (DependencyDeclaration allDep : allDeps) {
+				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
+					found= true;
+					break ;
+				}
+			}
+			if (!found) allDeps.add(dep) ;
+		}
+		return allDeps ;
+	}
+
+	/**
+	 * The dependencies "depName" that apply on a client are those of the instance, plus those of the implem, 
+	 * plus those of the spec, and finally those in the composite. 
+	 * We aggregate the constraints as found at all level, including the generic one found in the composite type.
+	 * 
+	 * @param client
+	 * @param dependency
+	 * @return
+	 */
+	public static DependencyDeclaration computeEffectiveDependency (Instance client, String depName) {
+
+		//Find the first dependency declaration.
+		Component depComponent = client ;
+		//take the declaration declared at the most concrete level
+		DependencyDeclaration dependency = client.getApformInst().getDeclaration().getDependency(depName);
+		if (dependency == null) {
+			dependency = client.getImpl().getApformImpl().getDeclaration().getDependency(depName);
+			depComponent = client.getImpl() ;
+		}
+		//the dependency can be defined at spec level if implem is a composite
+		if (dependency == null) {
+			dependency = client.getSpec().getApformSpec().getDeclaration().getDependency(depName);
+			depComponent =client.getSpec();
+		}
+
+		if (dependency == null) return null ;
+
+		//Now compute the inheritance instance, Implem, Spec.
+		dependency = dependency.clone();
+		Component group = depComponent.getGroup() ;
+
+		while (group != null) {
+			for (DependencyDeclaration dep : group.getDeclaration().getDependencies()) {
+				if (dep.getIdentifier().equals(dependency.getIdentifier())) {
+					dependency.getImplementationConstraints().addAll(dep.getImplementationConstraints()) ;
+					dependency.getInstanceConstraints().addAll(dep.getInstanceConstraints()) ;
+					dependency.getImplementationPreferences().addAll(dep.getImplementationPreferences()) ;
+					dependency.getInstancePreferences().addAll(dep.getInstancePreferences()) ;
+					break ;
+				}
+			}
+			group = group.getGroup() ;
+		}
+
+		//Add the composite generic constraints
+		CompositeType compoType = client.getComposite().getCompType() ;
+		Map<String, String> validAttrs = client.getValidAttributes() ;
+		for ( ContextualResolutionPolicy  pol  : compoType.getCompoDeclaration().getContextualResolutionPolicies()) {
+
+			if (matchGenericDependency(client, pol, dependency)) {
+				if (Util.checkFilters(pol.getImplementationConstraints(), null, validAttrs, client.getName())) {
+					dependency.getImplementationConstraints().addAll(pol.getImplementationConstraints()) ;
+				}
+				if (Util.checkFilters(pol.getInstanceConstraints(), null, validAttrs, client.getName())) {
+					dependency.getInstanceConstraints().addAll(pol.getInstanceConstraints()) ;
+				}
+				if (Util.checkFilters(null, pol.getImplementationPreferences(), validAttrs, client.getName())) {
+					dependency.getImplementationPreferences().addAll(pol.getImplementationPreferences()) ;
+				}
+				if (Util.checkFilters(null, pol.getInstancePreferences(), validAttrs, client.getName())) {
+					dependency.getInstancePreferences().addAll(pol.getInstancePreferences()) ;
+				}
+			}
+		}
+		return dependency ;
+	}
+
+	/**
+	 * Provided a composite (compoInst), checks if the provided generic dependency constraint declaration
+	 * matches the compoClient dependency declaration.
+	 * 
+	 * @param compoInst the composite instance containing the client
+	 * @param genericDeps the dependencies of the composite: a regExpression
+	 * @param clientDep the client dependency we are trying to resolve.
+	 * @return
+	 */
+	public static boolean matchGenericDependency(Instance compoInst, ContextualResolutionPolicy compoDep, DependencyDeclaration clientDep) {
+
+		String pattern = compoDep.getTarget().getName() ;
+		//Look for same dependency: the same specification, the same implementation or same resource name
+		//Constraints are not taken into account
+		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { // same nature
+			if (clientDep.getTarget().getName().matches(pattern)) {
+				return true;
+			}
+		}
+
+		//If the client dep is an implementation dependency, check if the specification matches the pattern
+		if (compoDep.getTarget() instanceof SpecificationReference) {
+			if (clientDep.getTarget() instanceof ImplementationReference) {
+				String implName = ((ImplementationReference<?>) clientDep.getTarget()).getName();
+				Implementation impl = CST.apamResolver.findImplByName(compoInst.getComposite().getCompType(), implName);
+				if (impl != null && impl.getSpec().getName().matches(pattern)) {
+					return true ;
+				}
+			}
+		}
+
+		return false;
+	}
 
 }
