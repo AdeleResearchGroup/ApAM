@@ -18,6 +18,7 @@ import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.PropertyDefinition;
+import fr.imag.adele.apam.impl.InstanceImpl;
 
 public class PropertyInjectionHandler extends ApformHandler implements FieldInterceptor {
 
@@ -142,7 +143,7 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
     	for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
     		
     		if (definition.getField() != null && definition.getField().equals(fieldName)) {
-    			getInstanceManager().getApamInstance().setProperty(definition.getName(),(String) value);
+    			((InstanceImpl)getInstanceManager().getApamInstance()).setPropertyInt(definition.getName(),(String) value, true);
     		}
     		
     	}

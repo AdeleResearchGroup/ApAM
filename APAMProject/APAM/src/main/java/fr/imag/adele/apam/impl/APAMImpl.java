@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.impl;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.util.Util;
 
 public class APAMImpl implements Apam {
 
@@ -56,6 +58,11 @@ public class APAMImpl implements Apam {
         ApamManagers.addDependencyManager(apamMan, -1); // -1 to be sure it is not in the main loop
         ApamManagers.addDependencyManager(updateMan, -2); // -2 to be sure it is not in the main loop
         ApamManagers.addDynamicManager(updateMan); 
+		try {
+			Util.printFileToConsole(context.getBundle().getResource("logo.txt"));
+		} catch (IOException e) {
+		}
+		//System.out.println("APAM started");
     }
 
     @Override

@@ -2,7 +2,7 @@ package fr.imag.adele.apam.test.s2Impl;
 
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.TestAttr.CapteurTemp;
+import fr.imag.adele.apam.testAttr.CapteurTemp;
 
 public class TestUpdate implements ApamComponent, Runnable{
 

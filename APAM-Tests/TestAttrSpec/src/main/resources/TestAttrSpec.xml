@@ -2,7 +2,7 @@
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
 	<specification name="STestAttr"
-		interfaces="fr.imag.adele.apam.TestAttr.S1TestAttr">
+		interfaces="fr.imag.adele.apam.testAttr.TestAttr">
 		<property name="S1-Enum" value="s1-2" type="{s1-1, s1-2, s1-3}" />
 		<property name="S1-Attr" value="coucou" type="string" />
 		<definition name="s1b" type="boolean" value="true" />
@@ -14,7 +14,7 @@
 		<definition name="OS" type="{Linux, Windows, Android, IOS}" />
 	</specification>
 	
-	<specification name="CapteurTemp" interfaces="{fr.imag.adele.apam.TestAttr.CapteurTemp}">
+	<specification name="CapteurTemp" interfaces="{fr.imag.adele.apam.testAttr.CapteurTemp}">
 		<property name="description" value="Un capteur de température …"
 			type="string" />
 		<definition name="unit" type="{C, F}" value="F" />

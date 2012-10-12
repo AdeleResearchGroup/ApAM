@@ -4,10 +4,10 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 
 	<composite name="CompoTestAttr" main="TestAttr"
-		specification="STestAttr" interfaces="{fr.imag.adele.apam.TestAttr.S1TestAttr}" />
+		specification="STestAttr" interfaces="{fr.imag.adele.apam.testAttr.TestAttr}" />
 
 	<implementation name="TestAttr"
-		classname="fr.imag.adele.apam.TestAttrImpl.S1ImplTestAttr" specification="STestAttr">
+		classname="fr.imag.adele.apam.testAttrImpl.TestAttrImpl" specification="STestAttr">
 <!-- 		<property name="S1toS2Final-Attr" value="couscous" /> -->
 		<property name="spec-name" value="yyy"  />
 <!-- 		<property name="definition-xx" value="ttt" /> -->
