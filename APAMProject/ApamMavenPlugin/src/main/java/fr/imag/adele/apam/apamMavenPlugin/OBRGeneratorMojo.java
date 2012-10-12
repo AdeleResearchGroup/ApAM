@@ -132,6 +132,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
             File jar = getProject().getArtifact().getFile();
             JarFile jarFile = new JarFile(jar);
             Manifest manifest = jarFile.getManifest();
+           // manifest.getAttributes("").
             Attributes iPOJOmetadata = manifest.getMainAttributes();
             String ipojoMetadata = iPOJOmetadata.getValue("iPOJO-Components");
 

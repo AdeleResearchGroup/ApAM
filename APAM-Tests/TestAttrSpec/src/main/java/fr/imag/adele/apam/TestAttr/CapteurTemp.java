@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.TestAttr;
+package fr.imag.adele.apam.testAttr;
 
 public interface CapteurTemp {
 

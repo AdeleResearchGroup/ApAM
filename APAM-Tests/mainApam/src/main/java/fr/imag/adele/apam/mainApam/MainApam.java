@@ -16,6 +16,7 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.test.s1.S1;
+import fr.imag.adele.apam.testAttr.TestAttr;
 //import fr.imag.adele.apam.test.s1TestAttr.S1TestAttr;
 
 public class MainApam implements Runnable, ApamComponent {
@@ -141,7 +142,7 @@ public class MainApam implements Runnable, ApamComponent {
 		props.put("location", "anywhere"); // value not defined
 		props.put("testEnumere", "v1");
 
-		CompositeType appliTestAttr = apam.createCompositeType(null,  "TestInitAttr", null, "S1ImplTestAttr", null, props);
+		CompositeType appliTestAttr = apam.createCompositeType(null,  "TestInitAttr", null, "TestAttr", null, props);
 		assertTrue(appliTestAttr != null);
 
 		Instance appliTestAttr_0 = appliTestAttr.createInstance(null /* composite */, props/* properties */);
@@ -162,7 +163,7 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("=========== start testSettingAttributes");
 
 		/*
- 		<specification name="S1TestAttr" interfaces="fr.imag.adele.apam.test.s1TestAttr.S1TestAttr"  >
+ 		<specification name="STestAttr" interfaces="fr.imag.adele.apam.test.testAttr.TestAttr"  >
 			<property name="S1-Enum" value="s1-2" type="{s1-1, s1-2, s1-3}"/>
 			<property name="S1-Attr" value="coucou" type="string"/>
 			<definition name="s1b" type="boolean" value="true" />
@@ -172,8 +173,8 @@ public class MainApam implements Runnable, ApamComponent {
 			<definition name="testEnumere" type="{v1, v2, v3, v4}" />
 			<definition name="OS" type="{Linux, Windows, Android, IOS}" />
 
-	<implementation name="S1ImplTestAttr"
-		classname="fr.imag.adele.apam.test.s1ImplTestAttr.S1ImplTestAttr" specification="S1TestAttr">
+	<implementation name="TestAttr"
+		classname="fr.imag.adele.apam.test.testAttrImpl.TestAttrImpl" specification="STestAttr">
 		<property name="spec-name" value="yyy"  />
 		<property name="testEnumere" value="v2" />
 		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" value="bidon"/>
@@ -182,14 +183,14 @@ public class MainApam implements Runnable, ApamComponent {
 		<definition name="S1toS2Final-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" />
 		<definition name="enumeration" type="{f1, f2, f3, f4}" />
 
-//	<instance implementation="S1toS2Final" name="S1toS2Final-instance" >
-//		<property S1toS2Final-Bool="xxx" />
-//		<property S1toS2Final-String1="a String Value" />
-//		<property badAttr="yyy" />
+	<instance implementation="S1toS2Final" name="S1toS2Final-instance" >
+		<property S1toS2Final-Bool="xxx" />
+		<property S1toS2Final-String1="a String Value" />
+		<property badAttr="yyy" />
 
 		 */
 
-		CompositeType appliSetAttr = apam.createCompositeType(null,  "TestSetAttr", null, "S1ImplTestAttr", null,null);
+		CompositeType appliSetAttr = apam.createCompositeType(null,  "TestSetAttr", null, "TestAttr", null,null);
 		assertTrue(appliSetAttr != null);
 
 		Instance appliSetAttr_0 = appliSetAttr.createInstance(null /* composite */, null/* properties */);
@@ -206,7 +207,6 @@ public class MainApam implements Runnable, ApamComponent {
 
 		//check attributes defined in the xml
 		System.out.println("=========== start testing xml attributes");
-//TODO Asynchronisme ici. S1-Attr, souvent n'est pas encore initialisé ! On relache le thread trop tot.
 		assertEquals (spec.getProperty("S1-Attr"), "coucou") ; 
 		assertNotEquals (spec.getProperty("s1-attr"), "coucou") ; //case sensitive for attr
 		assertNotEquals (spec.getProperty("S1-Attr"), "Coucou") ; // case sensitive for value
@@ -303,15 +303,16 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals(spec.getProperty("S1-Attr"), "New-value");
 
 		//field and internal. Set by program when starting
-		//		assertEquals(inst.getProperty("fieldAttr"), "initial set by program");
-		//		String s = "to set the field attribute" ;
-		//		((S1TestAttr)inst.getServiceObject()).callS1 (s) ; //callS1 sets the attribute to s 
-		//		try {
-		//			Thread.sleep(1000);
-		//		} catch (InterruptedException e) {
-		//			e.printStackTrace();
-		//		}
-		//		assertEquals(inst.getProperty("fieldAttr"), s);
+		assertEquals(inst.getProperty("fieldAttr"), "initial set by program");
+		String s = "to set the field attribute" ;
+		((TestAttr)inst.getServiceObject()).callS1 (s) ; //callS1 sets the attribute to s 
+		assertEquals(inst.getProperty("fieldAttr"), s);
+		 s = "second value" ;
+		((TestAttr)inst.getServiceObject()).callS1 (s) ; //callS1 sets the attribute to s 
+		assertEquals(inst.getProperty("fieldAttr"), s);
+		inst.setProperty("fieldAttr", "a Value") ;
+		assertEquals(inst.getProperty("fieldAttr"), s);
+		
 
 		inst.setProperty("fieldAttr", "test"); // error: cannot set
 		assertNotEquals(impl.getProperty("fieldAttr"), "test");
@@ -327,7 +328,7 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("OS value is : " + inst.getProperty("OS"));
 		System.out.println("toto does not exist. Its value is null");
 		boolean ok  ;
-		
+
 		//non instantiated attributes
 		ok = inst.match("(toto= Android  , Linux  , IOS)") ;
 		System.out.println("Matching: (toto= Android  , Linux  , IOS): " + ok);
@@ -339,14 +340,14 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("Matching: (toto<*testnull,): " + ok);
 		ok = inst.match("(toto=testnull)") ;
 		System.out.println("Matching: (toto<*testnull): " + ok);
-		
+
 		ok = inst.match("(toto=*)") ;
 		System.out.println("Matching: (toto=*): " + ok);
 		ok = inst.match("(OS=*)") ;
 		System.out.println("Matching: (OS=*): " + ok);
 		ok = inst.match("(OS=And*)") ;
 		System.out.println("Matching: (OS=And*): " + ok);
-		
+
 		ok = inst.match("(OS*>And*)") ;
 		System.out.println("Matching: (OS*>And*): " + ok);
 		ok = inst.match("(OS<*And*,)") ;
@@ -382,18 +383,18 @@ public class MainApam implements Runnable, ApamComponent {
 		ok = inst.match("(OS >=Android, Linux   , IOS)")  ;
 		System.out.println("Matching: (OS>=Android, Linux   , IOS): " + ok);		
 
-		
+
 		ok = inst.match("(OS *> Linux, Android, IOS)") ;
 		System.out.println("Matching: (OS *> Linux, Android, IOS): " + ok);
 		ok = inst.match("(OS <* Linux, Android, IOS)") ;
 		System.out.println("Matching: (OS <* Linux, Android, IOS): " + ok);
-		
+
 		ok = inst.match("(OS = Linux, Android, IOS)") ;
 		System.out.println("Matching: (OS = Linux, Android, IOS): " + ok);
-		
+
 		ok = inst.match("(OS = Android  , Linux  , IOS)") ;
 		System.out.println("Matching: (OS = Android  , Linux  , IOS): " + ok);
-		
+
 		ok = inst.match("(OS *> Linux, Android, IOS,)") ;
 		System.out.println("Matching: (OS *> Linux, Android, IOS,): " + ok);
 		ok = inst.match("(OS <* Linux, Android, IOS,)") ;
@@ -519,8 +520,8 @@ public class MainApam implements Runnable, ApamComponent {
 		//		<property name="shared" value="true"/>
 
 		Implementation impl= CST.apamResolver.findImplByName(null,"S1Main");
-//		assertEquals(impl.getProperty("S1Main-Attr"), "whatever");
-//		assertEquals(impl.getProperty("testAttr"), "false");
+		//		assertEquals(impl.getProperty("S1Main-Attr"), "whatever");
+		//		assertEquals(impl.getProperty("testAttr"), "false");
 		assertEquals(impl.getProperty("shared"), "false");
 		assertEquals(impl.getProperty("singleton"), "true");
 		System.out.println("=========== passed test Implem without spec (dummy spec)");

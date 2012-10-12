@@ -91,7 +91,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		for (String attr : props.keySet()) {
 			if (Util.validAttr(this.getName(), attr)) {
 				//At initialization, all valid attributes are ok for specs
-				if (group == null || validDef (attr, props.get(attr)))
+				if (group == null || validDef (attr, props.get(attr), true))
 					put (attr, props.get(attr)) ;
 			}
 		}
@@ -237,6 +237,19 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 */
 	@Override
 	public boolean setProperty(String attr, String value) {
+		return setPropertyInt(attr, value, false);
+	}
+	
+	/**
+	 * Warning: to be used only by Apform for setting internal attributes.
+	 * Only Inhibits the message "Attribute " + attr +  " is an internal field attribute and cannot be set.");
+	 * @param attr
+	 * @param value
+	 * @param forced
+	 * @return
+	 */
+	public boolean setPropertyInt(String attr, String value, boolean forced) {
+	
 		// attribute names are in lower case
 		//attr = attr ;
 
@@ -246,7 +259,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		if (!Util.validAttr(this.getName(), attr))
 			return false;
 
-		if (!validDef (attr, value))
+		if (!validDef (attr, value, forced))
 			return false ;
 
 		//does the change, notifies, changes the platform and propagate to members
@@ -425,7 +438,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * @param value
 	 * @return
 	 */
-	private boolean validDef (String attr, String value) {
+	private boolean validDef (String attr, String value, boolean forced) {
 		if (Util.isFinalAttribute(attr)) {
 			logger.error("Cannot redefine final attribute \"" + attr + "\"");
 			return false;			
@@ -447,7 +460,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		}
 
 		// there is a definition for attr
-		if (definition.isInternal()) {
+		if (definition.isInternal() && !forced) {
 			logger.error("Attribute " + attr +  " is an internal field attribute and cannot be set.");
 			return false;
 		}

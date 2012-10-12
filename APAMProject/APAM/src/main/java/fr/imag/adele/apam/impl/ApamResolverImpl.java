@@ -137,42 +137,6 @@ public class ApamResolverImpl implements ApamResolver {
 		return null;
 	}
 
-	/**
-	 * Provided an instance, computes all the dependency declaration that applies to that instance/
-	 * If can be defined on the instance, the implementation, the specification, or on both.
-	 * In case the same dependency is defined multiple time, it is the most concrete one that must be taken into account.
-	 * There is no attempt to compute all the constraints that apply on a given dependency; 
-	 * We are only interested in the target.
-	 * @param client
-	 * @return
-	 */
-	public Set<DependencyDeclaration> computeAllDependencies (Instance client) {
-		Set<DependencyDeclaration> allDeps = new HashSet<DependencyDeclaration> () ;
-		allDeps.addAll(client.getDeclaration().getDependencies());
-
-		boolean found ;
-		for (DependencyDeclaration dep : client.getImpl().getDeclaration().getDependencies()) {
-			found= false ;
-			for (DependencyDeclaration allDep : allDeps) {
-				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
-					found= true;
-					break ;
-				}
-			}
-			if (!found) allDeps.add(dep) ;
-		}
-		for (DependencyDeclaration dep : client.getSpec().getDeclaration().getDependencies()) {
-			found= false ;
-			for (DependencyDeclaration allDep : allDeps) {
-				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
-					found= true;
-					break ;
-				}
-			}
-			if (!found) allDeps.add(dep) ;
-		}
-		return allDeps ;
-	}
 
 	/**
 	 * Compares the client dependency wrt the enclosing composite dependencies.
@@ -390,13 +354,68 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 	/**
+	 * Provided an instance, computes all the dependency declaration that applies to that instance.
+	 * If can be defined on the instance, the implementation, the specification, or on both.
+	 * For each dependency, we clone it, and we aggregate the constraints as found at all level, 
+	 * including the generic ones found in the composite type.
+	 * The dependencies returned are clones of the original ones.
+	*/
+	public Set<DependencyDeclaration> computeAllEffectiveDependency (Instance client) {
+		if (client == null) return null ;
+		Set<DependencyDeclaration> allDeps = new HashSet <DependencyDeclaration> ();
+		for (DependencyDeclaration dep : computeAllDependencies (client)) {
+			allDeps.add(computeEffectiveDependency(client, dep.getIdentifier())) ;
+		}
+		return allDeps ;
+	}
+	
+	/**
+	 * Provided an instance, computes all the dependency declaration that applies to that instance/
+	 * If can be defined on the instance, the implementation, the specification, or on both.
+	 * In case the same dependency is defined multiple time, it is the most concrete one that must be taken into account.
+	 * There is no attempt to compute all the constraints that apply on a given dependency; 
+	 * We are only interested in the target.
+	 * @param client
+	 * @return
+	 */
+	public Set<DependencyDeclaration> computeAllDependencies (Instance client) {
+		Set<DependencyDeclaration> allDeps = new HashSet<DependencyDeclaration> () ;
+		allDeps.addAll(client.getDeclaration().getDependencies());
+
+		boolean found ;
+		for (DependencyDeclaration dep : client.getImpl().getDeclaration().getDependencies()) {
+			found= false ;
+			for (DependencyDeclaration allDep : allDeps) {
+				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
+					found= true;
+					break ;
+				}
+			}
+			if (!found) allDeps.add(dep) ;
+		}
+		for (DependencyDeclaration dep : client.getSpec().getDeclaration().getDependencies()) {
+			found= false ;
+			for (DependencyDeclaration allDep : allDeps) {
+				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
+					found= true;
+					break ;
+				}
+			}
+			if (!found) allDeps.add(dep) ;
+		}
+		return allDeps ;
+	}
+
+	/**
 	 * The dependencies "depName" that apply on a client are those of the instance, plus those of the implem, 
-	 * plus those of the spec, and finally those in the composite, if the name matches the generic constraints
+	 * plus those of the spec, and finally those in the composite. 
+	 * We aggregate the constraints as found at all level, including the generic one found in the composite type.
+	 * 
 	 * @param client
 	 * @param dependency
 	 * @return
 	 */
-	private DependencyDeclaration computeEffectiveDependency (Instance client, String depName) {
+	public DependencyDeclaration computeEffectiveDependency (Instance client, String depName) {
 
 		//Find the first dependency declaration.
 		Component depComponent = client ;
@@ -507,7 +526,7 @@ public class ApamResolverImpl implements ApamResolver {
 			/*
 			 * Skip apamman
 			 */
-			if (dependencyManager.getName().equals(CST.APAMMAN) || dependencyManager.getName().equals(CST.APAMMAN))
+			if (dependencyManager.getName().equals(CST.APAMMAN) || dependencyManager.getName().equals(CST.UPDATEMAN))
 				continue;
 			dependencyManager.getSelectionPath(compTypeFrom, dependency,selectionPath);
 		}
@@ -614,100 +633,6 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 
-	//	@Override
-	//	public Component findComponentByName(CompositeType compoTypeFrom, String componentName) {
-	//		if (compoTypeFrom == null)
-	//			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
-	//		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), 
-	//				componentName, false, new ImplementationReference<ImplementationDeclaration>(componentName));
-	//
-	//		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dep);
-	//
-	//		Component compo = null;
-	//		logger.error("Looking for component " + componentName + ": ");
-	//		boolean deployed = false;
-	//		for (DependencyManager manager : selectionPath) {
-	//			if (!(manager.getName().equals(CST.APAMMAN) || manager.getName().equals(CST.UPDATEMAN)))
-	//				deployed = true;
-	//			logger.debug(manager.getName() + "  ");
-	//			compo = manager.findComponentByName(compoTypeFrom, componentName);
-	//
-	//			if (compo != null) {
-	//				if (compo instanceof Implementation) {
-	//					deployedImpl(compoTypeFrom, (Implementation)compo, deployed);
-	//				}
-	//				return compo;
-	//			}
-	//		}
-	//		return null;
-	//	}
-
-
-
-	//	@Override
-	//	public Implementation findImplByName(CompositeType compoTypeFrom, String implName) {
-	//		if (compoTypeFrom == null)
-	//			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
-	//		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), 
-	//				implName, false, new ImplementationReference<ImplementationDeclaration>(implName));
-	//
-	//		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dep);
-	//
-	//		Implementation impl = null;
-	//		logger.error("Looking for implementation " + implName + ": ");
-	//		boolean deployed = false;
-	//		for (DependencyManager manager : selectionPath) {
-	//			if (!manager.getName().equals(CST.APAMMAN))
-	//				deployed = true;
-	//			logger.debug(manager.getName() + "  ");
-	//			impl = manager.findImplByName(compoTypeFrom, implName);
-	//
-	//			if (impl != null) {
-	//				deployedImpl(compoTypeFrom, impl, deployed);
-	//				return impl;
-	//			}
-	//		}
-	//		return null;
-	//	}
-
-	/**
-	 * Look for an implementation with a given name "implName", visible from composite Type compoType.
-	 * 
-	 * @param compoType
-	 * @param specName
-	 * @return
-	 */
-	//	@Override
-	//	public Specification findSpecByName(CompositeType compoTypeFrom, String specName) {
-	//
-	//		if (compoTypeFrom == null)
-	//			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
-	//		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), 
-	//				specName, false, new SpecificationReference(specName));
-	//
-	//		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dep);
-	//
-	//		Specification spec = null;
-	//		logger.error("Looking for specification " + specName + ": ");
-	//		boolean deployed = false;
-	//		for (DependencyManager manager : selectionPath) {
-	//			if (!manager.getName().equals(CST.APAMMAN))
-	//				deployed = true;
-	//			logger.debug(manager.getName() + "  ");
-	//			spec = manager.findSpecByName(compoTypeFrom, specName);
-	//			if (spec != null) {
-	//				if (deployed) {
-	//					logger.error("Deployed specificaiton " + specName);
-	//				} else
-	//					logger.error("Selected specificaiton " + specName);
-	//
-	//				return spec;
-	//			}
-	//		}
-	//		logger.error("Could not find specification " + specName);
-	//		return null;
-	//	}
-
 	/**
 	 * First looks for the specification defined by its name, and then resolve that specification.
 	 * Returns the implementation that implement the specification and that satisfies the constraints.
@@ -743,7 +668,7 @@ public class ApamResolverImpl implements ApamResolver {
 					+ ". Preferences: " + preferences);
 		boolean deployed = false;
 		for (DependencyManager manager : selectionPath) {
-			if (!manager.getName().equals(CST.APAMMAN))
+			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
 			Implementation impl = manager.resolveSpec(compoTypeFrom, dep) ;
@@ -782,7 +707,7 @@ public class ApamResolverImpl implements ApamResolver {
 		Implementation impl = null;
 		boolean deployed = false;
 		for (DependencyManager manager : selectionPath) {
-			if (!manager.getName().equals(CST.APAMMAN))
+			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
 			impl = manager.resolveSpec(compoTypeFrom, dependency);
@@ -803,7 +728,7 @@ public class ApamResolverImpl implements ApamResolver {
 		Set<Implementation> impls = null;
 		boolean deployed = false;
 		for (DependencyManager manager : selectionPath) {
-			if (!manager.getName().equals(CST.APAMMAN))
+			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
 			impls = manager.resolveSpecs(compoTypeFrom, dependency);
@@ -845,8 +770,6 @@ public class ApamResolverImpl implements ApamResolver {
 				return inst;
 			}
 		}
-		// TODO Notify dynaman ?
-
 		return null;
 	}
 
@@ -877,7 +800,6 @@ public class ApamResolverImpl implements ApamResolver {
 				return insts;
 			}
 		}
-		// TODO Notify dynaman ?
 		return Collections.emptySet();
 
 	}
@@ -953,6 +875,7 @@ public class ApamResolverImpl implements ApamResolver {
 		Component compo = CST.componentBroker.getComponent(componentName) ;
 		if (compo == null) {
 			logger.error ("Unknown component " + componentName) ;
+			return ;
 		}
 		UpdateMan.updateComponent(compo) ;
 	}

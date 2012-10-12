@@ -135,7 +135,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	 */
 	@Override
 	public void addedInApam(Component newComponent) {
-		System.out.println("Added : " + newComponent);
+		logger.debug("Added : " + newComponent);
 		deployed.remove(newComponent.getName()) ;		
 	}
 

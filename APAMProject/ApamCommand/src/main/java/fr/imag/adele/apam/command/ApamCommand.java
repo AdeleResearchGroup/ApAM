@@ -63,7 +63,7 @@ public class ApamCommand {
 	 */
 	@ServiceProperty(name = "osgi.command.function", value = "{}")
 	String[] m_function = new String[] { "put",  "specs", "implems", "insts", "spec", "implem", "inst", "dump", "compoTypes",
-		"compoType", "compos", "compo", "wire", "launch", "pending", "apdate", "l" };
+		"compoType", "compos", "compo", "wire", "launch", "pending", "up", "l" };
 
 	// Apam injected
 	@Requires
@@ -77,7 +77,7 @@ public class ApamCommand {
 	 *            the specification name
 	 */
 	@Descriptor("Updates the target component")
-	public void apdate(@Descriptor("target component to update. Warning: updates the whole Bundle.") String componentName) {
+	public void up(@Descriptor("target component to update. Warning: updates the whole Bundle.") String componentName) {
 		CST.apamResolver.updateComponent (componentName) ;
 	}
 
