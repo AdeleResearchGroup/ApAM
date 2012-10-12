@@ -79,6 +79,17 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 	}
 
 	@Override
+	public Bundle getBundle() {
+		/*
+		 * TODO getContext should be the context of the factory, unless the instance is declared in another
+		 * bundle, to verify.
+		 * 
+		 * return getContext().getBundle();
+		 */
+		return ((ComponentImpl)this.getApamInstance().getImpl()).getApformComponent().getBundle() ;
+	}
+
+    @Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void configure(Element metadata, Dictionary configuration) throws ConfigurationException {
 
@@ -330,9 +341,11 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 			getLogger().log(Logger.ERROR, "error invoking callback "+callback.getMethod()+" for property "+attr, ignored);
 		}		
 	}
-
+	
 	@Override
 	public Bundle getBundle() {
 		return ((ComponentImpl)this.getApamInstance().getImpl()).getApformComponent().getBundle() ;
+	}
+
 	}
 }

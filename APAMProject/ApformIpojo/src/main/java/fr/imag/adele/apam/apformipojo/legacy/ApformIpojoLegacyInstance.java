@@ -64,6 +64,11 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
     }
 
     @Override
+    public Bundle getBundle() {
+    	return ipojoInstance.getContext().getBundle();
+    }
+    
+    @Override
     public void setInst(Instance apamInstance) {
         this.apamInstance = apamInstance;
     }
@@ -122,10 +127,4 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
         return osgiAndiPojoProperties.contains(key);
     }
     
-    @Override
-    public Bundle getBundle() {
-        return ipojoInstance.getContext().getBundle();
-    }
-
-
 }

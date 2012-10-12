@@ -230,6 +230,11 @@ public class APAMImpl implements Apam {
     		numInstances = 0;
     	}
     	
+    	@Override
+    	public Bundle getBundle() {
+    		return null;
+    	}
+    	
 		@Override
 		public CompositeDeclaration getDeclaration() {
 			return declaration;
@@ -256,12 +261,6 @@ public class APAMImpl implements Apam {
 			return models;
 		}
 
-		@Override
-		public Bundle getBundle() {
-			// no Bundle
-			return null;
-		}
-
     }
  
     /**
@@ -278,6 +277,11 @@ public class APAMImpl implements Apam {
     			declaration.getProperties().putAll(initialProperties);
     	} 
 
+    	@Override
+    	public Bundle getBundle() {
+    		return null;
+    	}
+    	
 		@Override
 		public InstanceDeclaration getDeclaration() {
 			return declaration;
@@ -310,12 +314,6 @@ public class APAMImpl implements Apam {
 		@Override
 		public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
 			throw new UnsupportedOperationException("method not available in application composite instance");
-		}
-
-		@Override
-		public Bundle getBundle() {
-			// no bundle
-			return null;
 		}
 
     } 

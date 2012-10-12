@@ -54,6 +54,11 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         }
 
         @Override
+        public Bundle getBundle() {
+        	return null;
+        }
+        
+        @Override
         public InstanceDeclaration getDeclaration() {
             return declaration;
         }
@@ -88,12 +93,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
                 String depName) {
             throw new UnsupportedOperationException("method not available in root instance");
         }
-
-		@Override
-		public Bundle getBundle() {
-			// No bundle for this dummy entity
-			return null;
-		}
 
     }
 

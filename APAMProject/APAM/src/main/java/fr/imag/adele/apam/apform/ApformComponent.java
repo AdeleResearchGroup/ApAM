@@ -12,8 +12,6 @@ public interface ApformComponent {
 	
     /**
      * Get the bundle in which is located this component.
-     * @return
      */
     public abstract Bundle getBundle();
-
 }

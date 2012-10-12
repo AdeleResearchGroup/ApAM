@@ -63,6 +63,12 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 										(SpecificationReference)null, 
 										new ImplementationReference<ImplementationDeclaration>("Root Main Implem"));
 		}
+		
+		@Override
+		public Bundle getBundle() {
+			return null;
+		}
+		
 
 		@Override
 		public ImplementationDeclaration getDeclaration() {
@@ -82,12 +88,6 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		@Override
 		public void setProperty(String attr,String value) {
 			throw new UnsupportedOperationException("method not available in root type");
-		}
-
-		@Override
-		public Bundle getBundle() {
-			// No bundle at all!
-			return null;
 		}
 
 	}
