@@ -340,12 +340,6 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 		} catch (Exception ignored) {
 			getLogger().log(Logger.ERROR, "error invoking callback "+callback.getMethod()+" for property "+attr, ignored);
 		}		
-	}
-	
-	@Override
-	public Bundle getBundle() {
-		return ((ComponentImpl)this.getApamInstance().getImpl()).getApformComponent().getBundle() ;
-	}
+	}	
 
-	}
 }
