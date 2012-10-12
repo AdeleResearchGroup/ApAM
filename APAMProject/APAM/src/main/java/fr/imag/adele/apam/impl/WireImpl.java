@@ -8,20 +8,18 @@ public class WireImpl implements Wire {
     private final InstanceImpl destination;
     private final String       depName;    // field name for atomic dep; spec name for complex dep, dest type for
 
+    /**
+     * Warning, only creates a Wire object. Does not chain that wire in the client and provider.
+     * Must be called only from createWire in InstanceImpl.
+     * @param from
+     * @param to
+     * @param depName
+     */
     public WireImpl(Instance from, Instance to, String depName) {
         source = (InstanceImpl) from;
         destination = (InstanceImpl) to;
         this.depName = depName;
     }
-
-    /**
-     * Check if this new wire is consistent or not.
-     * 
-     * @param from
-     * @param to
-     * @return
-     */
-
 
     @Override
     public Instance getSource() {

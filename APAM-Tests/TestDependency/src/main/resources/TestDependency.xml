@@ -10,12 +10,6 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
  xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
-<specification name="CapteurTemp" interfaces="{apam.demo.CapteurTemp}" >
-	<property name="description" value="Un capteur de température …" type="string"/>
-	<definition name="unit"        type="{C, F}" value="F" />
-	<definition name="location" type="{living, kitchen, bedroom}"    />
-	<definition name="OS" type="{Linux, Windows, Android, IOS}" />
-</specification>
 
 <implementation name="MotorolaZ43" specification="CapteurTemp" 
 	classname="apam.demo.MotorolaZ43" >
@@ -30,7 +24,7 @@
 </apam-instance>
 
 <!-- La spec de SDep -->
-	<specification name="SDep" interfaces="apam.demo.S2" messages="{apam.demo.M1}" />
+	<specification name="DepS2" interfaces="apam.demo.S2" />
 
 	<specification name="DepS3" interfaces="{apam.demo.S3_1,apam.demo.S3_2}" >
 	    <definition name="location" type="{living, kitchen, bedroom}"    />
@@ -90,12 +84,10 @@
 		<property name="MyBool" value="true" />
 	</apam-instance>
 
-	<apam-instance name="s3IOS" implementation="S3ImplDemo" >
-		
-	</apam-instance>
+	<apam-instance name="s3IOS" implementation="S3IOS" />
 
 	<implementation name="Dependency"
-		classname="apam.demo.Dependency" specification="S2" message-fields="p1" >
+		classname="apam.demo.Dependency" specification="DepS2"  >
 		
 		<dependency field="s3" /> <!--  interface="apam.demo.S3_1" multiple="false" -->
 
@@ -146,7 +138,7 @@
 	<instance implementation="Dependency" name="testDependencyINst" />
 
 
-<!-- Les implems de S2 -->
+<!-- Les implems de DepS2 -->
 <!-- 	<implementation name="Impl1" message-fields="p1"  -->
 <!-- 		classname="apam.demo.S2Simple" specification="SDep" > -->
 <!-- 		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" value="bidon"/> -->

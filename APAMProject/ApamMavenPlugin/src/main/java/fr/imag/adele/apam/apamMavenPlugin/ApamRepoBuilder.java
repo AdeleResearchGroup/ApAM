@@ -251,7 +251,6 @@ public class ApamRepoBuilder {
 		//We do not generate dependencies for specification to remain lazy
 		//the spec version is mentionned in the implementations that implement that spec.
 		if (component instanceof ImplementationDeclaration) {
-			Set<ResolvableReference> resRef = new HashSet <ResolvableReference> () ;
 			for (DependencyDeclaration dep : component.getDependencies()) {
 				if (dep.getTarget().as(SpecificationReference.class) != null) {
 					bundleRequiresSpecifications.add(dep.getTarget().as(SpecificationReference.class)) ;

@@ -18,6 +18,7 @@ import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceHandlerDes
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.util.Callback;
 import org.apache.felix.ipojo.util.Logger;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
@@ -32,286 +33,287 @@ import fr.imag.adele.apam.impl.ComponentImpl;
 
 public class ApformIpojoInstance extends InstanceManager implements ApformInstance, DependencyInjectionManager.Resolver  {
 
-    /**
-     * The property used to configure this instance with its declaration
-     */
-    public final static String ATT_DECLARATION	= "declaration";
+	/**
+	 * The property used to configure this instance with its declaration
+	 */
+	public final static String ATT_DECLARATION	= "declaration";
 
-    /**
-     * Whether this instance was created directly using the APAM API
-     */
-    private final boolean						isApamCreated;
+	/**
+	 * Whether this instance was created directly using the APAM API
+	 */
+	private final boolean						isApamCreated;
 
-    /**
-     * The declaration of the instance
-     */
-    private InstanceDeclaration					declaration;
+	/**
+	 * The declaration of the instance
+	 */
+	private InstanceDeclaration					declaration;
 
-    /**
-     * The APAM instance associated to this component instance
-     */
-    private Instance							apamInstance;
+	/**
+	 * The APAM instance associated to this component instance
+	 */
+	private Instance							apamInstance;
 
-    /**
-     * The list of injected fields handled by this instance
-     */
-    private Set<DependencyInjectionManager> 	injectedFields;
-    
-    /**
-     * The list of callbacks to notify when a property is set
-     */
-    private Map<String,Callback> 				propertyCallbacks;
-    
+	/**
+	 * The list of injected fields handled by this instance
+	 */
+	private Set<DependencyInjectionManager> 	injectedFields;
 
-    public ApformIpojoInstance(ApformIpojoImplementation implementation, boolean isApamCreated, BundleContext context, HandlerManager[] handlers) {
+	/**
+	 * The list of callbacks to notify when a property is set
+	 */
+	private Map<String,Callback> 				propertyCallbacks;
 
-        super(implementation, context, handlers);
-        
-        this.isApamCreated	= isApamCreated;
-        injectedFields		= new HashSet<DependencyInjectionManager>();
-        propertyCallbacks	= new HashMap<String, Callback>();
-    }
 
-    @Override
-    public ApformIpojoImplementation getFactory() {
-        return (ApformIpojoImplementation) super.getFactory();
-    }
+	public ApformIpojoInstance(ApformIpojoImplementation implementation, boolean isApamCreated, BundleContext context, HandlerManager[] handlers) {
 
-    @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void configure(Element metadata, Dictionary configuration) throws ConfigurationException {
+		super(implementation, context, handlers);
 
-        String instanceName = (String) configuration.get("instance.name");
-        declaration 		= (InstanceDeclaration) configuration.get(ApformIpojoInstance.ATT_DECLARATION);
+		this.isApamCreated	= isApamCreated;
+		injectedFields		= new HashSet<DependencyInjectionManager>();
+		propertyCallbacks	= new HashMap<String, Callback>();
+	}
 
-        if (isApamCreated || (declaration == null)) {
-            declaration = new InstanceDeclaration(getFactory().getDeclaration().getReference(),instanceName,null);
-            for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
-                String property = properties.nextElement();
-                declaration.getProperties().put(property, configuration.get(property).toString());
-            }
-        }
+	@Override
+	public ApformIpojoImplementation getFactory() {
+		return (ApformIpojoImplementation) super.getFactory();
+	}
 
-        configuration.put("instance.name",declaration.getName());
-        super.configure(metadata, configuration);
-        
+	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void configure(Element metadata, Dictionary configuration) throws ConfigurationException {
 
-    }
+		String instanceName = (String) configuration.get("instance.name");
+		declaration 		= (InstanceDeclaration) configuration.get(ApformIpojoInstance.ATT_DECLARATION);
 
-    @Override
-    public Object getPojoObject() {
-        if (getFactory().hasInstrumentedCode())
-            return super.getPojoObject();
+		if (isApamCreated || (declaration == null)) {
+			declaration = new InstanceDeclaration(getFactory().getDeclaration().getReference(),instanceName,null);
+			for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
+				String property = properties.nextElement();
+				declaration.getProperties().put(property, configuration.get(property).toString());
+			}
+		}
 
-        return null;
-    }
+		configuration.put("instance.name",declaration.getName());
+		super.configure(metadata, configuration);
 
-    @Override
-    public InstanceDeclaration getDeclaration() {
-        return declaration;
-    }
 
-    /**
-     * Attach an APAM logical instance to this platform instance
-     */
-    @Override
-    public void setInst(Instance apamInstance) {
-        this.apamInstance = apamInstance;
-    }
+	}
 
-    /**
-     * The attached APAM instance
-     */
-    public Instance getApamInstance() {
-        return apamInstance;
-    }
+	@Override
+	public Object getPojoObject() {
+		if (getFactory().hasInstrumentedCode())
+			return super.getPojoObject();
 
-    /**
-     * Adds a new injected field to this instance
-     */
-    @Override
-    public void addInjection(DependencyInjectionManager dependency) {
-        injectedFields.add(dependency);
-    }
+		return null;
+	}
 
-    /**
-     * Get the list of injected fields
-     */
-    public Set<DependencyInjectionManager> getInjections() {
-        return injectedFields;
-    }
-    
-    /**
-     * Adds a new callback to a property
-     */
-    public void addCallback(String property, Callback callback) {
-    	propertyCallbacks.put(property, callback);
-    }
+	@Override
+	public InstanceDeclaration getDeclaration() {
+		return declaration;
+	}
 
-    /**
-     * Delegate APAM to resolve a given injection.
-     * 
-     * NOTE nothing is returned from this method, the call to APAM has as
-     * side-effect the update of the dependency.
-     * 
-     * @param dependency
-     */
-    @Override
-    public void resolve(DependencyInjectionManager injection) {
+	/**
+	 * Attach an APAM logical instance to this platform instance
+	 */
+	@Override
+	public void setInst(Instance apamInstance) {
+		this.apamInstance = apamInstance;
+	}
 
-        /*
-         * This instance is not actually yet managed by APAM
-         */
-        if (apamInstance == null) {
-            System.err.println("resolve failure for client " + getInstanceName() + " : ASM instance unkown");
-            return;
-        }
+	/**
+	 * The attached APAM instance
+	 */
+	public Instance getApamInstance() {
+		return apamInstance;
+	}
 
-        Apam apam = getFactory().getApam();
-        if (apam == null) {
-            System.err.println("resolve failure for client " + getInstanceName() + " : APAM not found");
-            return;
-        }
+	/**
+	 * Adds a new injected field to this instance
+	 */
+	@Override
+	public void addInjection(DependencyInjectionManager dependency) {
+		injectedFields.add(dependency);
+	}
 
-        DependencyDeclaration dependency 	= injection.getDependencyInjection().getDependency();
-        CST.apamResolver.resolveWire(apamInstance, dependency.getIdentifier());
+	/**
+	 * Get the list of injected fields
+	 */
+	public Set<DependencyInjectionManager> getInjections() {
+		return injectedFields;
+	}
 
-    }
+	/**
+	 * Adds a new callback to a property
+	 */
+	public void addCallback(String property, Callback callback) {
+		propertyCallbacks.put(property, callback);
+	}
 
-    /**
-     * Notify instance activation/deactivation
-     */
-    @Override
-    public void setState(int state) {
-        super.setState(state);
+	/**
+	 * Delegate APAM to resolve a given injection.
+	 * 
+	 * NOTE nothing is returned from this method, the call to APAM has as
+	 * side-effect the update of the dependency.
+	 * 
+	 * @param dependency
+	 */
+	@Override
+	public boolean resolve(DependencyInjectionManager injection) {
 
-        /*
-         * Copy ipojo properties to declaration on validation
-         */
-        if (state == ComponentInstance.VALID) {
-        	ConfigurationHandlerDescription configuration	= (ConfigurationHandlerDescription)getInstanceDescription().getHandlerDescription("org.apache.felix.ipojo:properties");
-        	ProvidedServiceHandlerDescription provides		= (ProvidedServiceHandlerDescription)getInstanceDescription().getHandlerDescription("org.apache.felix.ipojo:provides");
-        	
-        	if (configuration != null) {
-	        	for (PropertyDescription configurationProperty : configuration.getProperties()) {
+		/*
+		 * This instance is not actually yet managed by APAM
+		 */
+		if (apamInstance == null) {
+			System.err.println("resolve failure for client " + getInstanceName() + " : ASM instance unkown");
+			return false;
+		}
+
+		Apam apam = getFactory().getApam();
+		if (apam == null) {
+			System.err.println("resolve failure for client " + getInstanceName() + " : APAM not found");
+			return false;
+		}
+
+		DependencyDeclaration dependency 	= injection.getDependencyInjection().getDependency();
+		return CST.apamResolver.resolveWire(apamInstance, dependency.getIdentifier());
+		
+
+	}
+
+	/**
+	 * Notify instance activation/deactivation
+	 */
+	@Override
+	public void setState(int state) {
+		super.setState(state);
+
+		/*
+		 * Copy ipojo properties to declaration on validation
+		 */
+		if (state == ComponentInstance.VALID) {
+			ConfigurationHandlerDescription configuration	= (ConfigurationHandlerDescription)getInstanceDescription().getHandlerDescription("org.apache.felix.ipojo:properties");
+			ProvidedServiceHandlerDescription provides		= (ProvidedServiceHandlerDescription)getInstanceDescription().getHandlerDescription("org.apache.felix.ipojo:provides");
+
+			if (configuration != null) {
+				for (PropertyDescription configurationProperty : configuration.getProperties()) {
 					getDeclaration().getProperties().put(configurationProperty.getName(),configurationProperty.getValue());
 				}
-        	}
-        	
-        	if (provides != null) {
-		    	for (ProvidedServiceDescription providedServiceDescription : provides.getProvidedServices()) {
-		    		for(Object key : providedServiceDescription.getProperties().keySet()) {
+			}
+
+			if (provides != null) {
+				for (ProvidedServiceDescription providedServiceDescription : provides.getProvidedServices()) {
+					for(Object key : providedServiceDescription.getProperties().keySet()) {
 						getDeclaration().getProperties().put((String)key,providedServiceDescription.getProperties().get(key).toString());
-		    		}
+					}
 				}
-        	}
-        }
-        
-        /*
-         * For instances that are not created using the Apam API, register instance with APAM on validation
-         */
-        if (state == ComponentInstance.VALID && !isApamCreated)
-            Apform2Apam.newInstance(this);
+			}
+		}
 
-        if (state == ComponentInstance.INVALID)
-            Apform2Apam.vanishInstance(getInstanceName());
-    }
+		/*
+		 * For instances that are not created using the Apam API, register instance with APAM on validation
+		 */
+		if (state == ComponentInstance.VALID && !isApamCreated)
+			Apform2Apam.newInstance(this);
 
-
-
-    /**
-     * Apform: get the service object of the instance
-     */
-    @Override
-    public Object getServiceObject() {
-        return getPojoObject();
-    }
+		if (state == ComponentInstance.INVALID)
+			Apform2Apam.vanishInstance(getInstanceName());
+	}
 
 
-    /**
-     * Apform: resolve dependency
-     */
-    @Override
-    public boolean setWire(Instance destInst, String depName) {
-        //        System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
 
-        /*
-         * Validate all the injections can be performed
-         */
+	/**
+	 * Apform: get the service object of the instance
+	 */
+	@Override
+	public Object getServiceObject() {
+		return getPojoObject();
+	}
 
-        for (DependencyInjectionManager injectedField : injectedFields) {
-            if (!injectedField.isValid())
-                return false;
-        }
 
-        /*
-         * perform injection update
-         */
-        for (DependencyInjectionManager injectedField : injectedFields) {
-            if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
-                injectedField.addTarget(destInst);
-            }
-        }
+	/**
+	 * Apform: resolve dependency
+	 */
+	@Override
+	public boolean setWire(Instance destInst, String depName) {
+		//        System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
 
-        return true;
-    }
+		/*
+		 * Validate all the injections can be performed
+		 */
 
-    /**
-     * Apform: unresolve dependency
-     */
-    @Override
-    public boolean remWire(Instance destInst, String depName) {
-        //        System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
+		for (DependencyInjectionManager injectedField : injectedFields) {
+			if (!injectedField.isValid())
+				return false;
+		}
 
-        /*
-         * Validate all the injections can be performed
-         */
+		/*
+		 * perform injection update
+		 */
+		for (DependencyInjectionManager injectedField : injectedFields) {
+			if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
+				injectedField.addTarget(destInst);
+			}
+		}
 
-        for (DependencyInjectionManager injectedField : injectedFields) {
-            if (!injectedField.isValid())
-                return false;
-        }
+		return true;
+	}
 
-        /*
-         * perform injection update
-         */
-        for (DependencyInjectionManager injectedField : injectedFields) {
-            if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
-                injectedField.removeTarget(destInst);
-            }
-        }
+	/**
+	 * Apform: unresolve dependency
+	 */
+	@Override
+	public boolean remWire(Instance destInst, String depName) {
+		//        System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
 
-        return true;
-    }
+		/*
+		 * Validate all the injections can be performed
+		 */
 
-    /**
-     * Apform: substitute dependency
-     */
-    @Override
-    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-        //        System.err.println("Native instance subs wire " + depName + " :" + getInstanceName() + "from ->" + oldDestInst
-        //                + " to ->" + newDestInst);
+		for (DependencyInjectionManager injectedField : injectedFields) {
+			if (!injectedField.isValid())
+				return false;
+		}
 
-        /*
-         * Validate all the injections can be performed
-         */
+		/*
+		 * perform injection update
+		 */
+		for (DependencyInjectionManager injectedField : injectedFields) {
+			if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
+				injectedField.removeTarget(destInst);
+			}
+		}
 
-        for (DependencyInjectionManager injectedField : injectedFields) {
-            if (!injectedField.isValid())
-                return false;
-        }
+		return true;
+	}
 
-        /*
-         * perform injection update
-         */
-        for (DependencyInjectionManager injectedField : injectedFields) {
-            if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
-                injectedField.substituteTarget(oldDestInst, newDestInst);
-            }
-        }
+	/**
+	 * Apform: substitute dependency
+	 */
+	@Override
+	public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
+		//        System.err.println("Native instance subs wire " + depName + " :" + getInstanceName() + "from ->" + oldDestInst
+		//                + " to ->" + newDestInst);
 
-        return true;
-    }
+		/*
+		 * Validate all the injections can be performed
+		 */
+
+		for (DependencyInjectionManager injectedField : injectedFields) {
+			if (!injectedField.isValid())
+				return false;
+		}
+
+		/*
+		 * perform injection update
+		 */
+		for (DependencyInjectionManager injectedField : injectedFields) {
+			if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
+				injectedField.substituteTarget(oldDestInst, newDestInst);
+			}
+		}
+
+		return true;
+	}
 
 	@Override
 	public void setProperty(String attr, String value) {
@@ -321,18 +323,16 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 
 		if ( pojo == null || callback == null)
 			return;
-		
+
 		try {
 			callback.call(pojo,new Object[] {value});
 		} catch (Exception ignored) {
 			getLogger().log(Logger.ERROR, "error invoking callback "+callback.getMethod()+" for property "+attr, ignored);
 		}		
 	}
-	
+
 	@Override
 	public Bundle getBundle() {
 		return ((ComponentImpl)this.getApamInstance().getImpl()).getApformComponent().getBundle() ;
-		}
-
-   
+	}
 }

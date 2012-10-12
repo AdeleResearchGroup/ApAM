@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
@@ -54,8 +55,9 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
         /*
     	 * Notify managers
     	 * 
-    	 * TODO Add call back to add specification?
+    	 * Add call back to add specification?
          */
+        ApamManagers.notifyAddedInApam(this) ;
 	}
 
     @Override

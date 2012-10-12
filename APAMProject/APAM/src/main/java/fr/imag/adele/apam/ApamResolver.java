@@ -37,11 +37,14 @@ public interface ApamResolver {
      * @param implName
      * @return
      */
-    public Implementation findImplByName(CompositeType compoTypeFrom, String implName);
-//    public Implementation findImplByName(Composite     compoFrom, String implName);
+    public Instance       findInstByName(Composite compoFrom, String instName);
 
-    public Specification findSpecByName(CompositeType compTypeFrom, String specName);
-//    public Specification findSpecByName(Composite     compFrom, String specName);
+    public Implementation findImplByName(CompositeType compoTypeFrom, String implName);
+
+    public Specification  findSpecByName(CompositeType compoTypeFrom, String specName);
+
+    public Component findComponentByName(CompositeType compoTypeFrom, String compName);
+
 
     /**
      * First looks for the specification defined by its name, and then resolve that specification.

@@ -27,9 +27,9 @@ public interface DependencyManager {
     	public Set<String> getComponents ();
     }
     
-    public Component install (ComponentBundle selected) ;
+ //   public Component install (ComponentBundle selected) ;
     
-    public ComponentBundle findBundle(CompositeType compoType, String bundleSymbolicName);
+    public ComponentBundle findBundle(CompositeType compoType, String bundleSymbolicName, String componentName);
     /**
      * Provided that a dependency resolution is required,
      * each manager is asked if it want to be involved. If this manager is not involved, it does nothing. If involved,
@@ -75,40 +75,24 @@ public interface DependencyManager {
     public Set<Implementation> resolveSpecs(CompositeType compoTypeFrom, DependencyDeclaration dependency);
 
     /**
-     * The manager is asked to find the implementation given its name.
+     * The manager is asked to find the component given its name and type.
      * If it must be created, it must be inside compoType.
      * 
-     * @param compoType the composite in which is located the calling implem (and where to create implementation, if
+     * @param compoType the composite in which is located the calling implem (and where to create the componet, if
      *            needed). If null, the system root composite is assumed.
      *            The search scope is compoType. 
      * @param compo the composite in which is located the calling implem
      * @param implName the name of implementation to find.
      * @return the implementations if resolved, null otherwise
      */
-    public Implementation findImplByName(CompositeType compoType, String implName);
-    
-    /**
-     * The manager is asked to find the component given its name.
-     * If it must be created, it must be inside compoType.
-     * 
-     * @param compoType the composite in which is located the calling implem (and where to create component, if
-     *            needed). If null, the system root composite is assumed.
-     *            The search scope is compoType. 
-     * @param compo the composite in which is located the calling implem      * @param implName the name of implementation to find.
-     * @return the implementations if resolved, null otherwise
-     */
-    public Component findComponentByName(CompositeType compoType, String componentName);
+    public Instance findInstByName      (Composite composite, String instName);
 
-     /**
-     * The manager is asked to find the specification given its name.
-     * If it must be created, it must be inside compoType.
-     * 
-     * @param compoType the composite in which is located the calling implem (and where to create implementation, if
-     *            needed). If null, root composite is assumed.
-     * @param specName the name of specification to find.
-     * @return the specification if found, null otherwise
-     */
-    public Specification findSpecByName(CompositeType compoType, String specName);
+    public Implementation findImplByName(CompositeType compoType, String implName);
+ 
+    public Specification findSpecByName (CompositeType compoType, String specName);
+
+    public Component findComponentByName(CompositeType compoType, String compName);
+
 
     /**
      * The manager is asked to find the "right" instance for the required implementation.
