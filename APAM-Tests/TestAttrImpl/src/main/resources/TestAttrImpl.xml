@@ -4,10 +4,10 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 
 	<composite name="S1CompoFinalTest" main="S1ImplTestAttr"
-		specification="S1TestAttr" interfaces="{fr.imag.adele.apam.test.s1TestAttr.S1TestAttr}" />
+		specification="S1TestAttr" interfaces="{fr.imag.adele.apam.TestAttr.S1TestAttr}" />
 
 	<implementation name="S1ImplTestAttr"
-		classname="fr.imag.adele.apam.test.s1ImplTestAttr.S1ImplTestAttr" specification="S1TestAttr">
+		classname="fr.imag.adele.apam.TestAttrImpl.S1ImplTestAttr" specification="S1TestAttr">
 <!-- 		<property name="S1toS2Final-Attr" value="couscous" /> -->
 		<property name="spec-name" value="yyy"  />
 <!-- 		<property name="definition-xx" value="ttt" /> -->
@@ -22,7 +22,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	</implementation>
 
 
-	<instance implementation="S1ImplTestAttr" name="S1ImplInstance" />
+	<instance implementation="S1ImplTestAttr" name="TestAttr_Instance" />
 		
 		
 </apam>

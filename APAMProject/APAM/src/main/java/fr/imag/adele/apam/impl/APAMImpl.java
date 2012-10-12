@@ -46,7 +46,7 @@ public class APAMImpl implements Apam {
      * This are the managers required to start the platform.
      */
     private DependencyManager	apamMan;
-    private DependencyManager	updateMan;
+    private UpdateMan	updateMan;
 
     public APAMImpl(BundleContext context) {
         APAMImpl.context = context;
@@ -55,6 +55,7 @@ public class APAMImpl implements Apam {
         updateMan = new UpdateMan();
         ApamManagers.addDependencyManager(apamMan, -1); // -1 to be sure it is not in the main loop
         ApamManagers.addDependencyManager(updateMan, -2); // -2 to be sure it is not in the main loop
+        ApamManagers.addDynamicManager(updateMan); 
     }
 
     @Override

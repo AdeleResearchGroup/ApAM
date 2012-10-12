@@ -42,7 +42,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	/**
 	 * An exception that can be thrown in the case of problems while creating a component
 	 */
-	public class InvalidConfiguration extends Exception {
+	public static class InvalidConfiguration extends Exception {
 
 		private static final long serialVersionUID = 1L;
 
@@ -593,7 +593,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 
 	@Override
 	public CompositeType getFirstDeployed () {
-		return firstDeployed ;
+		return firstDeployed == null ? CompositeTypeImpl.getRootCompositeType() : firstDeployed ;
 	}
 
 	public void setFirstDeployed (CompositeType father) {

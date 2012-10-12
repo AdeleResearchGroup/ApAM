@@ -162,10 +162,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         /*
          * Notify managers
          */
-        if (((CompositeImpl) getComposite()).isSystemRoot())
-            ApamManagers.notifyExternal(this);
-        else
-            ApamManagers.notifyAddedInApam(this);
+        ApamManagers.notifyAddedInApam(this);
 
         /*
          * Bind to the underlying execution platform instance
@@ -193,11 +190,15 @@ public class InstanceImpl extends ComponentImpl implements Instance {
      */
     @Override
     public void unregister() {
-
+    	logger.debug("unregister instance " + this);
+    	
         /*
-         * Notify managers
+         * Remove from broker, and from its composites.
+         * After that, it is invisible.
          */
-        ApamManagers.notifyRemovedFromApam(this);
+        ((ComponentBrokerImpl) CST.componentBroker).remove(this);
+        ((ImplementationImpl) getImpl()).removeInst(this);
+        ((CompositeImpl) getComposite()).removeInst(this);
 
         /*
          * Remove all incoming and outgoing wires (this deletes the associated references at the execution platform level) 
@@ -205,14 +206,12 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         for (Wire wire : invWires) {
             ((WireImpl) wire).remove();
         }
-        for (Wire wire : wires) {
-            ((WireImpl) wire).remove();
-        }
-
+ 
         /*
          * Invoke the execution platform instance callback
          */
         if (!(this instanceof Composite)) {
+        	logger.debug("remove Atomic Instance " + this);
             Object service = getApformInst().getServiceObject();
             if (service instanceof ApamComponent) {
                 ApamComponent serviceComponent = (ApamComponent) service;
@@ -220,27 +219,31 @@ public class InstanceImpl extends ComponentImpl implements Instance {
             }
             // call back methods
             fireCallbacks("onRemove", service);
-
         }
 
         /*
          * Unbind from the underlying execution platform instance
          */
         getApformInst().setInst(null);
+        
+        /*
+         * Do no remove the outgoing wires, in case a Thread is still here.
+         * If so, the dependency will be resolved again !
+         * TODO Should only remove the invWire ! But weird: wired only in a direction ...
+         */
+//      myImpl = null;
+//      myComposite = null;
+        
+      for (Wire wire : wires) {
+          ((WireImpl) wire).remove();
+      }
 
         /*
-         * Unbind from implementation and enclosing composite
+         * Notify managers
          */
-        ((ImplementationImpl) getImpl()).removeInst(this);
-        ((CompositeImpl) getComposite()).removeInst(this);
+        ApamManagers.notifyRemovedFromApam(this);
 
-        myImpl = null;
-        myComposite = null;
 
-        /*
-         * Remove from broker
-         */
-        ((ComponentBrokerImpl) CST.componentBroker).remove(this);
 
     }
 
@@ -260,16 +263,12 @@ public class InstanceImpl extends ComponentImpl implements Instance {
                             callback.invoke(service);
                         }
                     } catch (NoSuchMethodException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     } catch (IllegalArgumentException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     } catch (IllegalAccessException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     } catch (InvocationTargetException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
@@ -438,13 +437,14 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         if (invWires.isEmpty()) {
             /*
              * This instance is no longer used.
+             * TODO should we set unused and change the owner  ?
              * 
              * setUsed(false);
+             * setOwner(CompositeImpl.getRootAllComposites());
              * 
-             * TODO should we change the owner or allow unreferenced instances to stay in
-             * their original composite?
+             * Currently, it will stay in the same composite. 
+             * It may be the target of an "OWN" clause, and must not be changed. In case it will be re-used (local).
              */
-            setOwner(CompositeImpl.getRootAllComposites());
         }
     }
 

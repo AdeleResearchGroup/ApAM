@@ -1,9 +1,9 @@
 package apam.demo;
 
-import apam.demo.CapteurTemp;
+import fr.imag.adele.apam.TestAttr.CapteurTemp;
 
 public class MotorolaZ43 implements CapteurTemp{
      public int getTemp () {
-    	 return 3 ;
+    	 return 542 ;
      }
 }

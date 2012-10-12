@@ -23,162 +23,173 @@ import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements DependencyManager {
 
-    private BundleContext context;
+	private BundleContext context;
 
 
-    @Override
-    public String getName() {
-        return CST.APAMMAN;
-    }
-    
-    public ApamMan(){
-    }
-    public ApamMan(BundleContext context){
-        this.context = context;
-    }
+	@Override
+	public String getName() {
+		return CST.APAMMAN;
+	}
 
-    // when in Felix.
-    public void start() {
-        try {
-            Util.printFileToConsole(context.getBundle().getResource("logo.txt"));
-        } catch (IOException e) {
-        }
-        System.out.println("APAMMAN started");
-    }
+	public ApamMan(){
+	}
+	public ApamMan(BundleContext context){
+		this.context = context;
+	}
 
-    public void stop() {
-    	System.out.println("APAMMAN stoped");
-    }
+	// when in Felix.
+	public void start() {
+		try {
+			Util.printFileToConsole(context.getBundle().getResource("logo.txt"));
+		} catch (IOException e) {
+		}
+		System.out.println("APAMMAN started");
+	}
 
-    
-    @Override
-    public void getSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dep, List<DependencyManager> selPath) {
-    }
-
-    @Override
-    public Instance resolveImpl(Composite composite, Implementation impl, DependencyDeclaration dep) {
-
-    	Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
-    	List<Filter> preferences = Util.toFilterList(dep.getInstancePreferences()) ;
-        if ((constraints == null) && (preferences == null)) {
-            for (Instance inst : impl.getInsts()) {
-                if (inst.isSharable() && Util.checkInstVisible(composite, inst))
-                    return inst;
-            }
-        }
-
-        Set<Instance> insts = new HashSet<Instance>();
-        for (Instance inst : impl.getInsts()) {
-            if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(composite, inst))
-                insts.add(inst);
-        }
-        if (!insts.isEmpty())
-            return impl.getPreferedComponent(insts, preferences);
-        return null;
-    }
-
-    @Override
-    public Set<Instance> resolveImpls(Composite composite, Implementation impl, DependencyDeclaration dep) {
-
-    	Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;	
-    	Set<Instance> insts = new HashSet<Instance>();
-        for (Instance inst : impl.getInsts()) {
-            if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(composite, inst))
-                insts.add(inst);
-        }
-        return insts;
-    }
-
-    @Override
-    public int getPriority() {
-        return -1;
-    }
-
-    @Override
-    public void newComposite(ManagerModel model, CompositeType composite) {
-    }
-
-    @Override
-    public Implementation findImplByName(CompositeType compoType, String implName) {
-        if (implName == null)
-            return null;
-        Implementation impl = CST.componentBroker.getImpl(implName);
-        if (impl == null)
-            return null;
-        if (Util.checkImplVisible(compoType, impl)) {
-            return impl;
-        }
-        return null;
-    }
-
-    @Override
-    public Specification findSpecByName(CompositeType compTypeFrom, String specName) {
-        if (specName == null)
-            return null;
-        return CST.componentBroker.getSpec(specName);
-    }
-
-    @Override
-    public Set<Implementation> resolveSpecs(CompositeType compoType, DependencyDeclaration dep) {
-        Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
-        if (spec == null) return null;
-        
-    	Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints()) ;
-        Set<Implementation> impls = new HashSet<Implementation>();
-
-        // select only those that are visible
-        for (Implementation impl : spec.getImpls()) {
-            if (Util.checkImplVisible(compoType, impl))
-                impls.add(impl);
-        }
-        // AND those that match the constraints
-        return spec.getSelectedComponents(impls, constraints);
-    }
-
-    @Override
-    public Implementation resolveSpec(CompositeType compoType, DependencyDeclaration dep) {
-        Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
-        if (spec == null)
-            return null;	
-
-    	Set<Implementation> impls = resolveSpecs (compoType, dep) ;
-        // and then the prefered ones.
-     	List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
-        return spec.getPreferedComponent(impls, preferences);
-    }
+	public void stop() {
+		System.out.println("APAMMAN stoped");
+	}
 
 
-    @Override
-    public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
-            Set<Instance> insts) {
-        // do not care
-    }
+	@Override
+	public void getSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dep, List<DependencyManager> selPath) {
+	}
 
-//	@Override
-//	public Set<String> selectComponentByName(CompositeType compoType, String name) {
-//		return null;
-//	}
+	@Override
+	public Instance resolveImpl(Composite composite, Implementation impl, DependencyDeclaration dep) {
+
+		Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
+		List<Filter> preferences = Util.toFilterList(dep.getInstancePreferences()) ;
+		if ((constraints == null) && (preferences == null)) {
+			for (Instance inst : impl.getInsts()) {
+				if (inst.isSharable() && Util.checkInstVisible(composite, inst))
+					return inst;
+			}
+		}
+
+		Set<Instance> insts = new HashSet<Instance>();
+		for (Instance inst : impl.getInsts()) {
+			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(composite, inst))
+				insts.add(inst);
+		}
+		if (!insts.isEmpty())
+			return impl.getPreferedComponent(insts, preferences);
+		return null;
+	}
+
+	@Override
+	public Set<Instance> resolveImpls(Composite composite, Implementation impl, DependencyDeclaration dep) {
+
+		Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;	
+		Set<Instance> insts = new HashSet<Instance>();
+		for (Instance inst : impl.getInsts()) {
+			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(composite, inst))
+				insts.add(inst);
+		}
+		return insts;
+	}
+
+	@Override
+	public int getPriority() {
+		return -1;
+	}
+
+	@Override
+	public void newComposite(ManagerModel model, CompositeType composite) {
+	}
+	
+	@Override
+	public Instance findInstByName(Composite compo, String instName) {
+		if (instName == null) return null;
+		Instance inst = CST.componentBroker.getInst(instName);
+		if (inst == null) return null;
+		if (Util.checkInstVisible(compo, inst)) {
+			return inst;
+		}
+		return null;
+	}
+	
+	@Override
+	public Implementation findImplByName(CompositeType compoType, String implName) {
+		if (implName == null)
+			return null;
+		Implementation impl = CST.componentBroker.getImpl(implName);
+		if (impl == null)
+			return null;
+		if (Util.checkImplVisible(compoType, impl)) {
+			return impl;
+		}
+		return null;
+	}
+
+	@Override
+	public Specification findSpecByName(CompositeType compTypeFrom, String specName) {
+		if (specName == null)
+			return null;
+		return CST.componentBroker.getSpec(specName);
+	}
 
 	@Override
 	public Component findComponentByName(CompositeType compoType, String componentName) {
-		Component ret = findSpecByName(compoType, componentName)  ;
-		if (ret == null) 
-			ret= findImplByName(compoType, componentName) ;
-		return ret;
+		Component ret = CST.componentBroker.getComponent (componentName) ;
+		if (ret == null) return null ;
+		if (ret instanceof Specification) return ret ;
+		if (ret instanceof Implementation) {
+			if (Util.checkImplVisible(compoType, (Implementation)ret)) 
+				return ret ;
+		}
+		//It is an instance
+		// TODO We do not have the composite instance at that point; cannot check the visibility !
+		//return the instance in all case: the resolution checks the visibility
+		//if (Util.checkInstVisible(compoFrom, (Instance)ret)) 
+		//return ret ;
+		return null ;
+		
 	}
 
-@Override
-public Implementation install(ComponentBundle selected) {
 	
-	return null;
-}
+	@Override
+	public Set<Implementation> resolveSpecs(CompositeType compoType, DependencyDeclaration dep) {
+		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
+		if (spec == null) return null;
 
-@Override
-public ComponentBundle findBundle(CompositeType compoType,
-		String bundleSymbolicName) {
-	
-	return null;
-}
+		Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints()) ;
+		Set<Implementation> impls = new HashSet<Implementation>();
+
+		// select only those that are visible
+		for (Implementation impl : spec.getImpls()) {
+			if (Util.checkImplVisible(compoType, impl))
+				impls.add(impl);
+		}
+		// AND those that match the constraints
+		return spec.getSelectedComponents(impls, constraints);
+	}
+
+	@Override
+	public Implementation resolveSpec(CompositeType compoType, DependencyDeclaration dep) {
+		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
+		if (spec == null)
+			return null;	
+
+		Set<Implementation> impls = resolveSpecs (compoType, dep) ;
+		// and then the prefered ones.
+		List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
+		return spec.getPreferedComponent(impls, preferences);
+	}
+
+
+	@Override
+	public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
+			Set<Instance> insts) {
+		// do not care
+	}
+
+
+	@Override
+	public ComponentBundle findBundle(CompositeType compoType,
+			String bundleSymbolicName, String componentName) {
+		return null;
+	}
 
 
 }

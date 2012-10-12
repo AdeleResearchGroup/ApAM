@@ -46,7 +46,7 @@ public interface DependencyInjectionManager extends FieldInterceptor {
 		 *  @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.substituteTarget
 		 *  
 		 */
-		public void resolve(DependencyInjectionManager injection);
+		public boolean resolve(DependencyInjectionManager injection);
 		
 	} 
 	

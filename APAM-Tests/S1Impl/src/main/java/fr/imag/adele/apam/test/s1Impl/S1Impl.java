@@ -24,16 +24,10 @@ public class S1Impl implements S1 {
 
     public void callS1(String s) {
 
-        //        System.out.println("S2  s2Spec; " + s2Spec);
-        //        System.out.println("S2  s2Interf; " + s2Interf);
-        //        System.out.println("S3_1 " + s3_1);
-        //        System.out.println("S3_2 " + s3_2);
-        //        System.out.println("S3_1  s3List " + s3List);
-
-        System.out.println("=== In S1Impl; S2  s2Spec; " + s2Spec.getName());
-        System.out.println("=== In S1Impl; S2  s2Interf; " + s2Interf.getName());
-        System.out.println("=== In S1Impl; S3_1 " + s3_1.getName());
-        System.out.println("=== In S1Impl; S3_2 " + s3_2.getName());
+        System.out.println("=== In fr.imag.adele.apam.test.s1Impl; S2  s2Spec; " + s2Spec.getName());
+        System.out.println("=== In fr.imag.adele.apam.test.s1Impl; S2  s2Interf; " + s2Interf.getName());
+        System.out.println("=== In fr.imag.adele.apam.test.s1Impl; S3_1 " + s3_1.getName());
+        System.out.println("=== In fr.imag.adele.apam.test.s1Impl; S3_2 " + s3_2.getName());
 
         s2Spec.callS2("From S1Impl to S2 ...") ;
         

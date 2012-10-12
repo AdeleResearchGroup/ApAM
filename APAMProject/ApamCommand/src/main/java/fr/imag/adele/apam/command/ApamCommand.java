@@ -106,12 +106,9 @@ public class ApamCommand {
 			}
 
 		}
-		System.out.println("< Searching " + componentName +" in specifications > " );
-		Specification spec = CST.apamResolver.findSpecByName(target, componentName);
-		if (spec ==null){
-			System.out.println("< Searching "+ componentName + " in implementations > " );
-			CST.apamResolver.findImplByName(target, componentName);
-		}
+		System.out.println("< Searching " + componentName +" in " + target+  " repositories> " );
+		CST.apamResolver.findComponentByName(target, componentName);
+		
 	}
 
 	/**
@@ -185,20 +182,20 @@ public class ApamCommand {
 
 
 	@Descriptor("Start a new instance of the target implementation in root composite")
-	public void l(@Descriptor("target implementation") String implementationName) {
-		launch (implementationName, "root") ;
+	public void l(@Descriptor("target implementation") String componentName) {
+		launch (componentName, "root") ;
 	}
 
 
 	@Descriptor("Start a new instance of the target implementation")
-	public void launch(@Descriptor("target implementation") String implementationName,
+	public void launch(@Descriptor("target implementation") String componentName,
 			@Descriptor("the name of the composite target or root ") String compositeTarget) {
 
 		Composite target = null;
 		CompositeType targetType = null;
 
 		if ("root".equals(compositeTarget)){
-			System.out.println("Resolving "+ implementationName + " on the root composite");
+			System.out.println("Resolving "+ componentName + " on the root composite");
 		} else {
 			target = apam.getComposite(compositeTarget);
 			if (target== null){
@@ -208,8 +205,14 @@ public class ApamCommand {
 			targetType = target.getCompType() ;
 		}
 
-		Implementation implementation =  CST.apamResolver.findImplByName(targetType, implementationName);
-		implementation.createInstance(target,null);
+		fr.imag.adele.apam.Component compo =  CST.apamResolver.findComponentByName(targetType, componentName);
+		if (compo instanceof Implementation)
+			((Implementation)compo).createInstance(target,null);
+		if (compo instanceof Specification) {
+			Implementation impl = CST.apamResolver.resolveSpecByName(targetType, componentName, null, null) ;
+			if (impl != null) 
+				impl.createInstance(null, null);
+		}
 	}
 
 	/**

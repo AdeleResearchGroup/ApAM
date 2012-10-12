@@ -26,6 +26,8 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.ContextualResolutionPolicy;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.DependencyPromotion;
+import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.core.ComponentReference;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InterfaceReference;
@@ -33,6 +35,8 @@ import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.Util;
+//import fr.imag.adele.obrMan.internal.OBRManager;
+//import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
 public class ApamResolverImpl implements ApamResolver {
 
@@ -268,12 +272,12 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	@Override
 	public boolean resolveWire(Instance client, String depName) {
-		logger.info("Resolving dependency " + depName + " from instance " + client.getName());
+		logger.info("Resolving dependency " + depName + " from instance " + client.getName() );
 		if ((depName == null) || (client == null)) {
 			logger.error("missing client or dependency name");
 			return false;
 		}
-		
+
 		//compute the set of constraints that apply to that resolution: inst + impl + spec + composite generique
 		DependencyDeclaration dependency = computeEffectiveDependency (client, depName) ;
 
@@ -344,7 +348,7 @@ public class ApamResolverImpl implements ApamResolver {
 				Instance inst = impl.createInstance(compo, null);
 
 				if (inst == null){// may happen if impl is non instantiable
-					logger.error("Failed creating instance of " + impl);
+					logger.error("Failed creating instance of " + impl );
 					return false;
 				}
 
@@ -407,7 +411,7 @@ public class ApamResolverImpl implements ApamResolver {
 			dependency = client.getSpec().getApformSpec().getDeclaration().getDependency(depName);
 			depComponent =client.getSpec();
 		}
-		
+
 		if (dependency == null) return null ;
 
 		//Now compute the inheritance instance, Implem, Spec.
@@ -542,34 +546,129 @@ public class ApamResolverImpl implements ApamResolver {
 	 * Look for an implementation with a given name "implName", visible from composite Type compoType.
 	 * 
 	 * @param compoType
-	 * @param implName
+	 * @param componentName
 	 * @return
 	 */
-	@Override
-	public Implementation findImplByName(CompositeType compoTypeFrom, String implName) {
-		if (compoTypeFrom == null)
-			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
-		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), 
-				implName, false, new ImplementationReference<ImplementationDeclaration>(implName));
 
-		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dep);
+	private <C extends Component> C findByName (CompositeType compoType, String componentName, Class<C> kind, Composite composite) {
+		if (componentName == null) return null;
 
-		Implementation impl = null;
-		logger.info("Looking for implementation " + implName + ": ");
+		if (compoType == null)
+			compoType = CompositeTypeImpl.getRootCompositeType();
+		DependencyDeclaration dep = new DependencyDeclaration (compoType.getImplDeclaration().getReference(), 
+				componentName, false, new ComponentReference<ComponentDeclaration>(componentName)) ; //new ImplementationReference<ImplementationDeclaration>(componentName));
+
+		List<DependencyManager> selectionPath = computeSelectionPath(compoType, dep);
+
+		Component compo = null;
+		logger.info("Looking for component " + componentName + ": ");
 		boolean deployed = false;
 		for (DependencyManager manager : selectionPath) {
-			if (!manager.getName().equals(CST.APAMMAN))
+			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
-			impl = manager.findImplByName(compoTypeFrom, implName);
+			if (kind == Instance.class)
+				compo = manager.findInstByName(composite, componentName);
+			else
+				compo = manager.findComponentByName(compoType, componentName);
 
-			if (impl != null) {
-				deployedImpl(compoTypeFrom, impl, deployed);
-				return impl;
+			if (compo != null) { //We found it, but maybe the wrong type
+				if (! kind.isAssignableFrom(compo.getClass())) {
+					logger.error ("Component " + componentName + " found by not a " + kind.getName()) ;
+					return null ;
+				}
+
+				if (compo instanceof Implementation) {
+					deployedImpl(compoType, (Implementation)compo, deployed);
+				}
+				return (C)compo;
 			}
 		}
 		return null;
 	}
+
+
+	@Override
+	public fr.imag.adele.apam.Component findComponentByName(CompositeType compoType, String componentName) {
+		return findByName (compoType, componentName, fr.imag.adele.apam.Component.class, null) ;
+	}
+
+	@Override
+	public Specification findSpecByName(CompositeType compoType, String specName) {
+		return findByName (compoType, specName, fr.imag.adele.apam.Specification.class, null) ;
+	}
+
+	@Override
+	public Implementation findImplByName(CompositeType compoType, String implName) {
+		return findByName (compoType, implName, fr.imag.adele.apam.Implementation.class, null) ;
+	}
+
+	public Instance findInstByName(Composite compo, String instName) {
+		CompositeType compoType = null ;
+		if (compo == null) {
+			compo = CompositeImpl.getRootAllComposites() ;
+			compoType = CompositeTypeImpl.getRootCompositeType() ;
+		}
+		else compoType = compo.getCompType() ;
+		return findByName (compoType, instName, fr.imag.adele.apam.Instance.class, compo) ;
+	}
+
+
+	//	@Override
+	//	public Component findComponentByName(CompositeType compoTypeFrom, String componentName) {
+	//		if (compoTypeFrom == null)
+	//			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
+	//		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), 
+	//				componentName, false, new ImplementationReference<ImplementationDeclaration>(componentName));
+	//
+	//		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dep);
+	//
+	//		Component compo = null;
+	//		logger.error("Looking for component " + componentName + ": ");
+	//		boolean deployed = false;
+	//		for (DependencyManager manager : selectionPath) {
+	//			if (!(manager.getName().equals(CST.APAMMAN) || manager.getName().equals(CST.UPDATEMAN)))
+	//				deployed = true;
+	//			logger.debug(manager.getName() + "  ");
+	//			compo = manager.findComponentByName(compoTypeFrom, componentName);
+	//
+	//			if (compo != null) {
+	//				if (compo instanceof Implementation) {
+	//					deployedImpl(compoTypeFrom, (Implementation)compo, deployed);
+	//				}
+	//				return compo;
+	//			}
+	//		}
+	//		return null;
+	//	}
+
+
+
+	//	@Override
+	//	public Implementation findImplByName(CompositeType compoTypeFrom, String implName) {
+	//		if (compoTypeFrom == null)
+	//			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
+	//		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), 
+	//				implName, false, new ImplementationReference<ImplementationDeclaration>(implName));
+	//
+	//		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dep);
+	//
+	//		Implementation impl = null;
+	//		logger.error("Looking for implementation " + implName + ": ");
+	//		boolean deployed = false;
+	//		for (DependencyManager manager : selectionPath) {
+	//			if (!manager.getName().equals(CST.APAMMAN))
+	//				deployed = true;
+	//			logger.debug(manager.getName() + "  ");
+	//			impl = manager.findImplByName(compoTypeFrom, implName);
+	//
+	//			if (impl != null) {
+	//				deployedImpl(compoTypeFrom, impl, deployed);
+	//				return impl;
+	//			}
+	//		}
+	//		return null;
+	//	}
 
 	/**
 	 * Look for an implementation with a given name "implName", visible from composite Type compoType.
@@ -578,36 +677,36 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param specName
 	 * @return
 	 */
-	@Override
-	public Specification findSpecByName(CompositeType compoTypeFrom, String specName) {
-
-		if (compoTypeFrom == null)
-			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
-		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), 
-				specName, false, new SpecificationReference(specName));
-
-		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dep);
-
-		Specification spec = null;
-		logger.info("Looking for specification " + specName + ": ");
-		boolean deployed = false;
-		for (DependencyManager manager : selectionPath) {
-			if (!manager.getName().equals(CST.APAMMAN))
-				deployed = true;
-			logger.debug(manager.getName() + "  ");
-			spec = manager.findSpecByName(compoTypeFrom, specName);
-			if (spec != null) {
-				if (deployed) {
-					logger.info("Deployed specificaiton " + specName);
-				} else
-					logger.info("Selected specificaiton " + specName);
-
-				return spec;
-			}
-		}
-		logger.error("Could not find specification " + specName);
-		return null;
-	}
+	//	@Override
+	//	public Specification findSpecByName(CompositeType compoTypeFrom, String specName) {
+	//
+	//		if (compoTypeFrom == null)
+	//			compoTypeFrom = CompositeTypeImpl.getRootCompositeType();
+	//		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), 
+	//				specName, false, new SpecificationReference(specName));
+	//
+	//		List<DependencyManager> selectionPath = computeSelectionPath(compoTypeFrom, dep);
+	//
+	//		Specification spec = null;
+	//		logger.error("Looking for specification " + specName + ": ");
+	//		boolean deployed = false;
+	//		for (DependencyManager manager : selectionPath) {
+	//			if (!manager.getName().equals(CST.APAMMAN))
+	//				deployed = true;
+	//			logger.debug(manager.getName() + "  ");
+	//			spec = manager.findSpecByName(compoTypeFrom, specName);
+	//			if (spec != null) {
+	//				if (deployed) {
+	//					logger.error("Deployed specificaiton " + specName);
+	//				} else
+	//					logger.error("Selected specificaiton " + specName);
+	//
+	//				return spec;
+	//			}
+	//		}
+	//		logger.error("Could not find specification " + specName);
+	//		return null;
+	//	}
 
 	/**
 	 * First looks for the specification defined by its name, and then resolve that specification.

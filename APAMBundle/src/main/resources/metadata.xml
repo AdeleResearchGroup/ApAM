@@ -17,7 +17,12 @@
 		<requires field="wireAdmin" proxy="false" nullable="false"
 			optional="true" />
 	</handler>
-
+	
+	<handler
+		classname="fr.imag.adele.apam.apformipojo.handlers.PropertyInjectionHandler"
+		name="properties" namespace="fr.imag.adele.apam">
+	</handler>
+	
 	<handler
 		classname="fr.imag.adele.apam.apformipojo.handlers.MessageProviderHandler"
 		name="producer" namespace="fr.imag.adele.apam">
@@ -40,15 +45,15 @@
 	<component name="APAM" classname="fr.imag.adele.apam.impl.APAMImpl"
 		immediate="true">
 		<provides />
-		<requires field="apamMan" proxy="false" filter="(factory.name=APAMMAN)" />
+<!-- 		<requires field="apamMan" proxy="false" filter="(factory.name=APAMMAN)" /> -->
 	</component>
 
-	<component name="APAMMAN" classname="fr.imag.adele.apam.impl.ApamMan"
-		immediate="true">
-		<provides/>
-		<callback transition="validate" method="start" />
-		<callback transition="invalidate" method="stop" />
-	</component>
+<!-- 	<component name="APAMMAN" classname="fr.imag.adele.apam.impl.ApamMan" -->
+<!-- 		immediate="true"> -->
+<!-- 		<provides /> -->
+<!-- 		<callback transition="validate" method="start" /> -->
+<!-- 		<callback transition="invalidate" method="stop" /> -->
+<!-- 	</component> -->
 
 	<component name="ApformIpojoLegacyTracker"
 		classname="fr.imag.adele.apam.apformipojo.legacy.ApformIpojoLegacyTracker"
@@ -61,8 +66,8 @@
 			<callback type="unbind" method="factoryUnbound" />
 		</requires>
 	</component>
-	
-	<instance name="APAMMAN-Instance" component="APAMMAN"></instance>
+
+<!-- 	<instance name="APAMMAN-Instance" component="APAMMAN"></instance> -->
 	<instance name="APAM-Instance" component="APAM"></instance>
 	<instance name="ApformIpojoLegacyTracker" component="ApformIpojoLegacyTracker"></instance>
 

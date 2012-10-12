@@ -176,15 +176,15 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 
 	@Override
 	public void unregister() {
-
+		logger.debug("unregister implementation " + this);
+		
 		/*
-		 * Notify managers
+		 * First Remove from broker. Therefore becomes "invisible".
 		 */
-		ApamManagers.notifyRemovedFromApam(this);
+		((ComponentBrokerImpl) CST.componentBroker).remove(this);
 
 		/*
 		 * remove all existing instances
-		 * 
 		 */
 		for (Instance inst : instances) {
 			((ComponentBrokerImpl)CST.componentBroker).removeInst(inst);
@@ -197,15 +197,15 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		for (CompositeType inComposite : inComposites) {
 			((CompositeTypeImpl)inComposite).removeImpl(this);
 		}
-
-		mySpec = null;
-		inComposites.clear();
-
-
 		/*
-		 * Remove from broker
+		 * Finally Notify managers
 		 */
-		((ComponentBrokerImpl) CST.componentBroker).remove(this);
+		ApamManagers.notifyRemovedFromApam(this);
+
+		//Do not remove inverse links, in case threads are still here.
+//		mySpec = null;
+//		inComposites.clear();
+
 
 	}
 
@@ -274,7 +274,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			((InstanceImpl)instance).register(initialProperties);
 			return instance;		
 		} catch (InvalidConfiguration configurationError) {
-			logger.error("Error instantiating implementation "+this.getName()+": exception registering instance in APAM",configurationError);
+			logger.error("Error instantiating implementation "+this.getName()+": exception registering instance in APAM "+configurationError.getMessage());
 		}	
 		return null;
 	}

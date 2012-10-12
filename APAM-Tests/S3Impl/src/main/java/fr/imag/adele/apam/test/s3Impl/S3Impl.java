@@ -28,7 +28,7 @@ public class S3Impl implements S3_1, S3_2, ApamComponent {
     @Override
     public void apamInit(Instance inst) {
         name = inst.getName();
-        System.out.println("S3Impl Started : " + inst.getName());
+        System.out.println("S3Impl Started modified: " + inst.getName());
     }
 
     @Override

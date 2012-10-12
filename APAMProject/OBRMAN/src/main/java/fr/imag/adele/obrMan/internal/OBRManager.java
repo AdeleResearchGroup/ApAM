@@ -102,6 +102,26 @@ public class OBRManager {
 		return (String) (aCap.getPropertiesAsMap().get(attr));
 	}
 
+	/**
+	 * Return the resource with the given symbolic name and containing the given component
+	 * @param symbolicName
+	 * @param componentName
+	 * @return
+	 */
+	public Selected lookForBundle (String symbolicName, String componentName) {
+		for (Resource res : allResources) {
+			if (!res.getSymbolicName().equals(symbolicName)) continue ;
+			Capability[] capabilities = res.getCapabilities();
+			for (Capability aCap : capabilities) {
+				if (aCap.getName().equals(CST.CAPABILITY_COMPONENT)
+					&& getAttributeInCapability(aCap, CST.NAME).equals(componentName)) {
+						return new Selected (res, aCap, this) ;	
+				}
+			}
+		}
+		return null ;
+	}
+				
 	public Set<Selected> lookForAll(String capability, String filterStr, Set<Filter> constraints) {
 		if (filterStr == null)
 			new Exception("no filter in lookfor all").printStackTrace();
@@ -216,33 +236,6 @@ public class OBRManager {
 		}
 		return getBestCandidate(allSelected) ;
 	}
-	//        if (allResources.isEmpty()) {
-	//            System.out.println("no resources in OBR");
-	//            return null;
-	//        }
-	//        try {
-	//            ApamFilter filter = ApamFilter.newInstance(filterStr);
-	//            for (Resource res : allResources) {
-	//                Capability[] capabilities = res.getCapabilities();
-	//                for (Capability aCap : capabilities) {
-	//                    if (aCap.getName().equals(capability)) { //allways apam-component
-	//                        if (filter.matchCase(aCap.getPropertiesAsMap())) {
-	//                            if ((constraints == null) || matchConstraints(aCap, constraints)) {
-	//                                System.out.println("-->Component " + getAttributeInCapability(aCap, CST.NAME)
-	//                                        + " found in bundle : " + res.getSymbolicName() + " From "
-	//                                        + compositeTypeName + " repositories : \n   " + repositoriesToString());
-	//                                return new Selected(this, res, aCap);
-	//                            }
-	//                        }
-	//                    }
-	//                }
-	//            }
-	//        } catch (Exception e) {
-	//            e.printStackTrace();
-	//        }
-	//        System.out.println("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
-	//        return null;
-	//    }
 
 	private void logFilterConstraintPreferences(String filterStr, Set<Filter> constraints, List<Filter> preferences,
 			boolean all) {
@@ -411,6 +404,9 @@ public class OBRManager {
 			this.obrManager = managerPrivate;
 			this.resource = res;
 			this.capability = cap;
+			if (res == null || cap == null || managerPrivate == null) {
+				new Exception("Invalid constructor for Selected").printStackTrace();
+			}
 		}
 
 		//@Override
@@ -419,6 +415,10 @@ public class OBRManager {
 		}
 
 		public String getComponentName () {
+			String name = getAttributeInCapability (capability, CST.NAME) ;
+			if (name == null) {
+				System.err.println("name in null in capability " + capability);
+			}
 			return getAttributeInCapability (capability, CST.NAME) ;
 		}
 		//@Override

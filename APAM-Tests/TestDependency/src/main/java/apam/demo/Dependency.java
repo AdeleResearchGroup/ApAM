@@ -11,7 +11,7 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.message.MessageProducer;
-import fr.imag.adele.apam.test.s2.S2;
+import apam.demo.S2;
 import apam.demo.S3_1;
 import apam.demo.S3_2;
 import fr.imag.adele.apam.test.s4.S4;

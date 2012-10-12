@@ -33,12 +33,14 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
+
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.obrMan.OBRManCommand;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
+
 //import fr.imag.adele.apam.impl.ComponentImpl;
 
 public class OBRMan implements DependencyManager, OBRManCommand {
@@ -63,7 +65,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Validate
-    public void start() {        
+    public void start() {
         // lookFor root.OBRMAN.cfg and create obrmanager for the root composite
         String rootModelurl = m_context.getProperty(ObrUtil.ROOT_MODEL_URL);
         // create obrmanager for the root composite
@@ -95,28 +97,28 @@ public class OBRMan implements DependencyManager, OBRManCommand {
      * @param implName : the symbolic name of the implementation to deploy.
      * @return
      */
-//    private Implementation installInstantiateImpl(Selected selected) {
-//    	String implName = selected.getComponentName() ;
-//        Implementation asmImpl = CST.ImplBroker.getImpl(implName);
-//        // Check if already deployed
-//        if (asmImpl == null) {
-//            // deploy selected resource
-//            boolean deployed = selected.obrManager.deployInstall(selected);
-//            if (!deployed) {
-//                System.err.print("> Could not install resource " + selected.resource);
-//                ObrUtil.printRes(selected.resource);
-//                return null;
-//            }
-//            // waiting for the implementation to be ready in Apam.
-//            asmImpl = CST.ImplBroker.getImpl(implName, true);
-//        } else { // do not install twice.
-//            // It is a logical deployement. The allready existing impl is not visible !
-//            // System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
-//            // asmImpl = CST.ASMImplBroker.addImpl(implComposite, asmImpl, null);
-//        }
-//
-//        return asmImpl;
-//    }
+    // private Implementation installInstantiateImpl(Selected selected) {
+    // String implName = selected.getComponentName() ;
+    // Implementation asmImpl = CST.ImplBroker.getImpl(implName);
+    // // Check if already deployed
+    // if (asmImpl == null) {
+    // // deploy selected resource
+    // boolean deployed = selected.obrManager.deployInstall(selected);
+    // if (!deployed) {
+    // System.err.print("> Could not install resource " + selected.resource);
+    // ObrUtil.printRes(selected.resource);
+    // return null;
+    // }
+    // // waiting for the implementation to be ready in Apam.
+    // asmImpl = CST.ImplBroker.getImpl(implName, true);
+    // } else { // do not install twice.
+    // // It is a logical deployement. The allready existing impl is not visible !
+    // // System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
+    // // asmImpl = CST.ASMImplBroker.addImpl(implComposite, asmImpl, null);
+    // }
+    //
+    // return asmImpl;
+    // }
 
     /**
      * Given the res OBR resource, supposed to contain the implementation implName.
@@ -126,9 +128,24 @@ public class OBRMan implements DependencyManager, OBRManCommand {
      * @param specName : the symbolic name of the implementation to deploy.
      * @return
      */
-    private Component installInstantiate(Selected selected) {
+    // private fr.imag.adele.apam.Component installInstantiate(Selected selected) {
+    // return installInstantiateInt(selected, false) ;
+    // }
 
-    	Component c = CST.componentBroker.getComponent (selected.getComponentName());
+    /**
+     * Instal ans instantiate the selected bundle, and return the component.
+     * If forced = false (default) does not try to install if the component is allready existing.
+     * 
+     * @param selected
+     * @param forced
+     * @return
+     */
+    private Component installInstantiate(Selected selected) {
+        if (selected == null)
+            return null;
+
+        String name = selected.getComponentName();
+        fr.imag.adele.apam.Component c = CST.componentBroker.getComponent(name);
         // Check if already deployed
         if (c == null) {
             // deploy selected resource
@@ -138,12 +155,11 @@ public class OBRMan implements DependencyManager, OBRManCommand {
                 ObrUtil.printRes(selected.resource);
                 return null;
             }
-            // waiting for the implementation to be ready in Apam.
-            c = CST.componentBroker.getWaitComponent(selected.getComponentName());
+            // waiting for the component to be ready in Apam.
+            c = CST.componentBroker.getWaitComponent(name);
         } else { // do not install twice.
-            // It is a logical deployement. The allready existing impl is not visible !
-            // System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
-            // asmImpl = CST.ASMImplBroker.addImpl(implComposite, asmImpl, null);
+            // It is a logical deployment. The already existing component is not visible !
+            // System.err.println("Logical deployment of : " + name + " found by OBRMAN but allready deployed.");
         }
 
         return c;
@@ -229,8 +245,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
                     constraints, preferences);
         }
         if (selected != null) {
-            String implName = obrManager.getAttributeInCapability(selected.capability, "impl-name");
-            impl = (Implementation)installInstantiate(selected);
+          //  String implName = obrManager.getAttributeInCapability(selected.capability, "impl-name");
+            impl = (Implementation) installInstantiate(selected);
             // System.out.println("deployed :" + impl);
             // printRes(selected);
             return impl;
@@ -269,30 +285,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         return resolveSpec(compoType, dep.getTarget(), constraints, preferences);
     }
 
-    @Override
-    public Implementation findImplByName(CompositeType compoType, String implName) {
-        if (implName == null) {
-            new Exception("parameter implName canot be null in findImplByName ").printStackTrace();
-        }
-
-        // Find the composite OBRManager
-        OBRManager obrManager = searchOBRManager(compoType);
-        if (obrManager == null)
-            return null;
-
-        Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + implName + ")", null, null);
-
-        if (selected == null)
-            return null;
-        if (!obrManager.getAttributeInCapability(selected.capability, CST.COMPONENT_TYPE).equals(CST.IMPLEMENTATION)) {
-            System.err.println("ERROR : " + implName + " is found but is not an Implementation");
-            return null;
-        }
-        return (Implementation)installInstantiate(selected);
-    }
-
-	@Override
-	public Component findComponentByName(CompositeType compoType, String componentName) {
+    private <C extends Component> C findByName(CompositeType compoType, String componentName,
+            Class<C> kind) {
         if (componentName == null)
             return null;
 
@@ -302,36 +296,113 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             return null;
 
         Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + componentName + ")", null, null);
-
-        Component c = installInstantiate(selected);
-        return c;
-	}
-
-    @Override
-    public Specification findSpecByName(CompositeType compoType, String specName) {
-
-        if (specName == null)
+        fr.imag.adele.apam.Component c = installInstantiate(selected);
+        if (c == null)
             return null;
-
-        // Find the composite OBRManager
-        OBRManager obrManager = searchOBRManager(compoType);
-        if (obrManager == null)
-            return null;
-
-        Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + specName + ")", null, null);
-
-        if (selected == null)
-            return null;
-
-        if (!obrManager.getAttributeInCapability(selected.capability, CST.COMPONENT_TYPE).equals(CST.SPECIFICATION)) {
-            System.err.println("ERROR : " + specName + " is found but is not a specification");
+        if (!kind.isAssignableFrom(c.getClass())) {
+            System.err.println("ERROR : " + componentName + " is found but is not a " + kind.getCanonicalName());
             return null;
         }
 
-        Specification spec = (Specification)installInstantiate(selected);
-        return spec;
-
+        // @SuppressWarnings("")
+        return (C) c;
     }
+
+    @Override
+    public Component findComponentByName(CompositeType compoType, String componentName) {
+        return findByName(compoType, componentName, fr.imag.adele.apam.Component.class);
+    }
+
+    @Override
+    public Specification findSpecByName(CompositeType compoType, String specName) {
+        return findByName(compoType, specName, fr.imag.adele.apam.Specification.class);
+    }
+
+    @Override
+    public Implementation findImplByName(CompositeType compoType, String implName) {
+        return findByName(compoType, implName, fr.imag.adele.apam.Implementation.class);
+    }
+
+    @Override
+    public Instance findInstByName(Composite compo, String instName) {
+        CompositeType compoType = compo.getCompType();
+        return findByName(compoType, instName, fr.imag.adele.apam.Instance.class);
+    }
+
+//	@Override
+//	public Implementation findImplByName(CompositeType compoType, String implName) {
+//		
+//		if (implName == null) {
+//			new Exception("parameter implName canot be null in findImplByName ").printStackTrace();
+//		}
+//
+//		// Find the composite OBRManager
+//		OBRManager obrManager = searchOBRManager(compoType);
+//		if (obrManager == null)
+//			return null;
+//
+//		Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + implName + ")", null, null);
+//
+//		if (selected == null)
+//			return null;
+//		if (!obrManager.getAttributeInCapability(selected.capability, CST.COMPONENT_TYPE).equals(CST.IMPLEMENTATION)) {
+//			System.err.println("ERROR : " + implName + " is found but is not an Implementation");
+//			return null;
+//		}
+//		return (Implementation)installInstantiate(selected);
+//	}
+
+//		if (componentName == null) return null;
+//
+//		// Find the composite OBRManager
+//		OBRManager obrManager = searchOBRManager(compoType);
+//		if (obrManager == null) return null;
+//
+//		Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + componentName + ")", null, null);
+//
+//		return installInstantiate(selected);
+//	}
+
+//	@Override
+//	public Specification findSpecByName(CompositeType compoType, String specName) {
+//		fr.imag.adele.apam.Component c = findByName (compoType,  specName, Specification.class) ;
+//		if (c == null) return null ;
+//		if (c instanceof Specification) return (Specification)c;
+//		System.err.println("ERROR : " + specName + " is found but is not a specification");
+//		return null;
+//	}
+
+//	@Override
+//	public Implementation findImplByName(CompositeType compoType, String implName) {
+//		fr.imag.adele.apam.Component c = findComponentByName (compoType,  implName) ;
+//		if (c == null) return null ;
+//		if (c instanceof Specification) return (Implementation)c;
+//		System.err.println("ERROR : " + implName + " is found but is not a implementation");
+//		return null;		
+//	}
+
+    // if (specName == null)
+    // return null;
+    //
+    // // Find the composite OBRManager
+    // OBRManager obrManager = searchOBRManager(compoType);
+    // if (obrManager == null)
+    // return null;
+    //
+    // Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + specName + ")", null, null);
+    //
+    // if (selected == null)
+    // return null;
+    //
+    // if (!obrManager.getAttributeInCapability(selected.capability, CST.COMPONENT_TYPE).equals(CST.SPECIFICATION)) {
+    // System.err.println("ERROR : " + specName + " is found but is not a specification");
+    // return null;
+    // }
+    //
+    // Specification spec = (Specification)installInstantiate(selected);
+    // return spec;
+//
+//}
 
     public OBRManager getOBRManager(String compositeTypeName) {
         return obrManagers.get(compositeTypeName);
@@ -339,8 +410,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     @Override
     public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl,
-            Instance inst,
-            Set<Instance> insts) {
+            Instance inst, Set<Instance> insts) {
         // Do not care
     }
 
@@ -359,7 +429,6 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         for (Repository repository : obrmanager.getRepositories()) {
             result += ("    >> " + repository.getURI() + "\n");
         }
-
         return result;
     }
 
@@ -377,16 +446,9 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     }
 
-	@Override
-	public Component install(ComponentBundle selected) {
-		if (selected instanceof Selected)
-			return installInstantiate((Selected)selected) ;
-		return null ;
-	}
-
-	@Override
-	public ComponentBundle findBundle(CompositeType compoType, String bundleSymbolicName) {
-        if (bundleSymbolicName == null) 
+    @Override
+    public ComponentBundle findBundle(CompositeType compoType, String bundleSymbolicName, String componentName) {
+        if (bundleSymbolicName == null || componentName == null)
             return null;
 
         // Find the composite OBRManager
@@ -394,8 +456,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         if (obrManager == null)
             return null;
 
-        return obrManager.lookFor("bundle", "(symbolicname=" + bundleSymbolicName + ")", null, null);
-	}
-
+        return obrManager.lookForBundle(bundleSymbolicName, componentName);
+    }
 
 }

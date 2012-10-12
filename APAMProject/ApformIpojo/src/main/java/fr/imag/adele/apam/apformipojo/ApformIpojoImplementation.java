@@ -12,12 +12,14 @@ import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.impl.ComponentImpl;
 
 public class ApformIpojoImplementation extends ApformIpojoComponent implements ApformImplementation {
 
@@ -104,7 +106,7 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
      * the API or implicitly by a dependency resolution)
      */	
     @Override
-    public ApformInstance createInstance(Map<String, String> initialproperties) {
+    public ApformInstance createInstance(Map<String, String> initialproperties) throws ComponentImpl.InvalidConfiguration {
         try {
 
             ApformIpojoInstance instance = null;
@@ -122,7 +124,7 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
             return instance;
 
         } catch (Exception cause) {
-            throw new IllegalArgumentException(cause);
+            throw new ComponentImpl.InvalidConfiguration(cause);
         }
 
     }

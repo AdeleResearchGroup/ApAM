@@ -2,6 +2,7 @@ package fr.imag.adele.apam;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,14 +24,18 @@ public class ApamManagers {
     private static Map<DependencyManager, Integer> dependencyManagersPrio	= new HashMap<DependencyManager, Integer>();
     private static List<DependencyManager>         dependencyManagers  		= new ArrayList<DependencyManager>();
 
+    
     /**
      * The list of dynamic manager listeners
      * 
-     * TODO this is a global list that is not filtered by the event that is expected, so that managers can
-     * get spurious notifications. We should add some way to classify listeners according to the expected
-     * event.
      */
-    private static Set<DynamicManager> dynamicManagers = new ConcurrentSkipListSet<DynamicManager>();
+    private static Set<DynamicManager> dynamicManagers = new ConcurrentSkipListSet<DynamicManager>(new Comparator<DynamicManager>() {
+
+		@Override
+		public int compare(DynamicManager manager1, DynamicManager manager2) {
+			return manager1.hashCode() - manager2.hashCode();
+		}
+	});
     
     /**
      * The list of component property listeners
@@ -160,7 +165,6 @@ public class ApamManagers {
     /*
      * Notification events for property changes
      */
-
     public static void notifyAttributeAdded(Component component, String attr, String value) {
         for (PropertyManager manager : ApamManagers.propertyManagers) {
             manager.attributeAdded(component, attr, value);
@@ -182,60 +186,15 @@ public class ApamManagers {
     /*
      * Notification events for dynamic events
      */
-    public static void notifyExternal(Instance inst) {
+    public static void notifyAddedInApam(Component newComponent) {
         for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.external(inst);
+            manager.addedInApam(newComponent);
         }
     }
 
-    public static void notifyAddedInApam(Instance newInst) {
+    public static void notifyRemovedFromApam(Component lostComponent) {
         for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.addedInApam(newInst);
+            manager.removedFromApam(lostComponent);
         }
     }
-
-    public static void notifyAddedInApam(Implementation newImpl) {
-        for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.addedInApam(newImpl);
-        }
-    }
-
-    public static void notifyRemovedFromApam(Instance lostInst) {
-        for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.removedFromApam(lostInst);
-        }
-    }
-
-    public static void notifyRemovedFromApam(Implementation lostImpl) {
-        for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.removedFromApam(lostImpl);
-        }
-    }
-    //
-    //
-    //    public static void notifyDeleted(Instance lost) {
-    //        for (DynamicManager manager : ApamManagers.dynamicManagers) {
-    //            manager.deleted(lost);
-    //        }
-    //    }
-    //
-    //    public static void notifyDeployed(CompositeType composite, Implementation implementation) {
-    //        for (DynamicManager manager : ApamManagers.dynamicManagers) {
-    //            manager.deployed(composite,implementation);
-    //        }
-    //    }
-    //
-    //    public static void notifyUninstalled(CompositeType composite, Implementation implementation) {
-    //        for (DynamicManager manager : ApamManagers.dynamicManagers) {
-    //            manager.uninstalled(composite,implementation);
-    //        }
-    //    }
-    //
-    //    public static void notifyHidden(CompositeType composite, Implementation implementation){
-    //        for (DynamicManager manager : ApamManagers.dynamicManagers) {
-    //            manager.hidden(composite,implementation);
-    //        }
-    //    }
-
-
 }

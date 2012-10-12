@@ -159,7 +159,8 @@ public class ApamCapability {
 			}
 		}
 
-		logger.error("     Component " + name + " not found in repositories " + repos);
+		//logger.error("     Component " + name + " not found in repositories " + repos);
+		CheckObr.error("     Component " + name + " not found in repositories " + repos);
 		return null;
 	}
 

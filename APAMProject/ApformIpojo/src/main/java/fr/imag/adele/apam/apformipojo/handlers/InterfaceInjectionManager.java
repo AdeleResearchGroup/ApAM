@@ -71,6 +71,8 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
      */
     private boolean            isResolved;
 
+    private final boolean 	isCollection;
+    
     public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, DependencyInjection injection) {
         
     	assert injection.getResource() instanceof InterfaceReference;
@@ -83,7 +85,7 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
         injectedValue 	= null;
         injectedType 	= null;
         isResolved 		= false;
-        
+        isCollection	= injection.isCollection();
     	resolver.addInjection(this);
     }
 
@@ -157,6 +159,8 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
             }
             
         	 */
+    		//System.out.println("add wire apform "+target);
+
             targetServices.add(target);
             injectedValue = null;
         }
@@ -173,6 +177,7 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
          * Remove this target and invalidate cache
          */
         synchronized (this) {
+        	//System.out.println("apform wire removed "+target);
             targetServices.remove(target);
             injectedValue = null;
         }
@@ -240,7 +245,8 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
              * 
              * Resolution has as side-effect a modification of the target services.
              */ 
-        	resolver.resolve(this);
+        	if (!resolver.resolve(this))
+        		return null;
         }
 
          return getFieldValue(fieldName);
@@ -278,7 +284,7 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
             /*
              * Handle first the most common case of scalar dependencies.
              */
-        	if (! injection.isCollection()) {
+        	if (! isCollection) {
             	/*
                  * Return the cached value, if it has not been invalidated.
                  */ 
@@ -290,6 +296,7 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
         		 */
                 isResolved = !targetServices.isEmpty();
         		injectedValue = targetServices.isEmpty() ? null : targetServices.iterator().next().getServiceObject();
+        		//System.err.println("calcul injected value "+injectedValue);
                 return injectedValue;        		
         	}
         	

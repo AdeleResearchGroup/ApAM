@@ -217,8 +217,8 @@ public class Apform2Apam {
         public Component reify() {
         	
         	/*
-        	 * Verify implementation is currently installed. If not installed wait for
-        	 * installation
+        	 * Verify implementation is currently installed. 
+        	 * If not installed wait for installation.
         	 */
         	String implementationName = getComponent().getDeclaration().getImplementation().getName();
         	CST.componentBroker.getWaitComponent(implementationName);
