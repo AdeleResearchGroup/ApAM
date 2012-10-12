@@ -73,6 +73,20 @@ public class OBRManager {
 		resolver = repoAdmin.resolver(repositories.toArray(new Repository[repositories.size()]));
 
 	}
+	
+	//TODO perfom update by polling in another Thread !
+	private void performRepositoriesUpdate(RepositoryAdmin repoAdmin){
+	    for (Repository repository : repositories) {
+            long oldvalue = repository.getLastModified();
+            Repository newRepository ;
+            try {
+                repoAdmin.addRepository(repository.getURI());
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+	}
 
 	// serious stuff now !
 	public String getAttributeInResource(Resource res, String capability, String attr) {

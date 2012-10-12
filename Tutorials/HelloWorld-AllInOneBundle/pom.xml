@@ -2,6 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<parent>
+		<groupId>fr.imag.adele.apam.tutorials</groupId>
+		<artifactId>apam-tutorials</artifactId>
+		<version>1.0.0</version>
+	</parent>
 	<artifactId>HelloWorld-AllInOneBundle</artifactId>
 	<packaging>bundle</packaging>
 
@@ -49,9 +54,4 @@
 		</plugins>
 	</build>
 
-	<parent>
-		<groupId>fr.imag.adele.apam.tutorials</groupId>
-		<artifactId>apam-tutorials</artifactId>
-		<version>0.0.1</version>
-	</parent>
 </project>

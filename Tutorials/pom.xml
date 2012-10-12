@@ -14,7 +14,7 @@
 	<groupId>fr.imag.adele.apam.tutorials</groupId>
 	<artifactId>apam-tutorials</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.1</version>
+	<version>1.0.0</version>
 	<name>Apam Tutorials</name>
 
 
@@ -233,5 +233,7 @@
 
 	<modules>
 		<module>HelloWorld-AllInOneBundle</module>
+		<module>TextGui</module>
+		<module>HelloWorld-Composite</module>
 	</modules>
 </project>

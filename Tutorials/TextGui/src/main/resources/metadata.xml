@@ -5,7 +5,7 @@
 	    classname="fr.imag.adele.apam.text.gui.impl.TextGuiImplementation">
 		<callback onInit="started" onRemove="stopped"/>
 		<definition name="name" type="string" field="name"/>
-		<dependency specification="Hello-Specification" field="hello"/>
+		<dependency field="hello"/>
 	</implementation>
 
 	<apam-instance name="TextGui-Inst" implementation="TextGui-Impl" >
