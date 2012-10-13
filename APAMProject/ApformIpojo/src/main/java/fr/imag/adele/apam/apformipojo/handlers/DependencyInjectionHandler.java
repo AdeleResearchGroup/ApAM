@@ -76,14 +76,20 @@ public class DependencyInjectionHandler extends ApformHandler {
     		MessageReference messageReference		= injection.getResource().as(MessageReference.class);
     		FieldInterceptor interceptor 			= null;
     		
-    		if (interfaceReference != null)
-    			interceptor 	= new InterfaceInjectionManager(getFactory(),getInstanceManager(),injection);
-    		
-    		if (messageReference != null)
-    			interceptor		= new MessageInjectionManager(getFactory(),getInstanceManager(),injection);
-
-    		if (interceptor == null)
-    			continue;
+    		try {
+    			
+	    		if (interfaceReference != null)
+	    			interceptor 	= new InterfaceInjectionManager(getFactory(),getInstanceManager(),injection);
+	    		
+	    		if (messageReference != null)
+	    			interceptor		= new MessageInjectionManager(getFactory(),getInstanceManager(),injection);
+	
+	    		if (interceptor == null)
+	    			continue;
+	    		
+    		} catch (ClassNotFoundException error) {
+    			throw new ConfigurationException("error injecting dependency "+injection.getName()+" :"+error.getLocalizedMessage());
+    		}
     		
     		if ( injection instanceof DependencyInjection.Field)  {
     			FieldMetadata field	= getPojoMetadata().getField(injection.getName());

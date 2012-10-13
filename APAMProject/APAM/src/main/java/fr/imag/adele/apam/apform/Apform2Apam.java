@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.apform;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.osgi.framework.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,16 @@ import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 public class Apform2Apam {
 	
     private static Logger logger = LoggerFactory.getLogger(Apform2Apam.class);
+  
+    private static List<String> platformPrivateProperties = Arrays.asList(new String[] { Constants.SERVICE_ID, Constants.OBJECTCLASS, 
+    																			 "factory.name", "instance.name" });
+
+    /**
+     * Check if a property is a platform private information that must not be propagated to APAM
+     */
+    public static boolean isPlatformPrivateProperty(String key) {
+        return platformPrivateProperties.contains(key);
+    }
     
     /**
      * The components that clients are waiting for deployment to complete
@@ -39,32 +51,32 @@ public class Apform2Apam {
     static private final List<Request> 			pending = new ArrayList<Request>();
     
     /**
-     * The base class of all the apform requests to add a new component to the APAM model. 
+     * A description of a waiting request in Apam
      * 
      * @author vega
      */
-    public static abstract class Request implements Runnable {
+    public static class Request {
 
-    	private final ApformComponent 	component;
-    	private boolean					isProcessing;
-    	private String 					requiredComponent;
+    	private final String 	description;
+    	private boolean			isProcessing;
+    	private String 			requiredComponent;
     	
-    	protected Request(ApformComponent component) {
-    		this.component		= component;
+    	Request(String description) {
+    		this.description	= description;
     		this.isProcessing	= false;
 		}
     	
     	/**
-    	 * The component to be reified in APAM
+    	 * The request description
     	 */
-    	public ApformComponent getComponent() {
-			return component;
+    	public String getDescription() {
+			return description;
 		}
     	
     	/**
     	 * Mark this request as started
     	 */
-    	private void started() {
+    	protected void started() {
     		isProcessing = true;
     		current.set(this);
     	}
@@ -72,7 +84,7 @@ public class Apform2Apam {
     	/**
     	 * Mark this request as finished
     	 */
-    	private void finished() {
+    	protected void finished() {
     		isProcessing = false;
     		current.remove();
     	}
@@ -114,7 +126,76 @@ public class Apform2Apam {
     		return requiredComponent;
     	}
 
+    }
+
+    /**
+     * The list of pending request
+     */
+    public static List<Request> getPending() {
+    	return Collections.unmodifiableList(pending);
+    }
+
+    /**
+     * The request executing in the context of the current thread.
+     * 
+     */
+    public static Request getCurrent() {
+    	Request currentRequest = current.get();
+    	if (currentRequest == null) {
+    		currentRequest = new Request("Thread "+Thread.currentThread().getName());
+    		currentRequest.started();
+    	}
+    	return currentRequest;
+    }
+    
+    /**
+     * Wait for a future component to be deployed
+     */
+    public static void waitForComponent(String componentName) {
+
+        synchronized (Apform2Apam.expectedComponents) {
+        	
+        	Request current = getCurrent();
+        	
+            Apform2Apam.expectedComponents.add(componentName);
+            try {
+                while (Apform2Apam.expectedComponents.contains(componentName)) {
+                	current.pending(componentName);
+                    Apform2Apam.expectedComponents.wait();
+                    current.resumed();
+                }
+            } catch (InterruptedException interrupted) {
+                interrupted.printStackTrace();
+            }
+            return;
+        }
+    }
+    
+    /**
+     * A request from apform to add a component to APAM, this is executed asynchronously and may block waiting
+     * for another components.
+     * 
+     * @author vega
+     * 
+     */
+    
+    private abstract static class ComponentAppearenceRequest extends Request implements Runnable {
+ 
+    	private final ApformComponent component;
+
+    	protected ComponentAppearenceRequest(ApformComponent component) {
+        	super("Adding component "+component.getDeclaration().getName());
+    		this.component = component;
+    	}
     	
+    	/**
+    	 * The component that needs to be reified in APAM
+    	 * @return
+    	 */
+        public ApformComponent getComponent() {
+        	return component;
+        }
+        
         @Override
         public void run() {
             try {
@@ -153,57 +234,13 @@ public class Apform2Apam {
             }
         	
         }
+        
 
-    }
-
-    /**
-     * The list of pending request
-     */
-    public static List<Request> getPending() {
-    	return Collections.unmodifiableList(pending);
-    }
-
-    /**
-     * The request executing in the context of the current thread.
-     * 
-     * Return null if the thread is not executing an Apform request.
-     */
-    public static Request getCurrent() {
-    	return current.get();
     }
     
-    /**
-     * Wait for a future component to be deployed
-     */
-    public static void waitForComponent(String componentName) {
+    private static class InstanceAppearenceProcessing extends ComponentAppearenceRequest {
 
-        synchronized (Apform2Apam.expectedComponents) {
-        	
-        	Request current = getCurrent();
-        	
-            Apform2Apam.expectedComponents.add(componentName);
-            try {
-                while (Apform2Apam.expectedComponents.contains(componentName)) {
-                	if (current != null) current.pending(componentName);
-                    Apform2Apam.expectedComponents.wait();
-                    if (current != null) current.resumed();
-                }
-            } catch (InterruptedException interrupted) {
-                interrupted.printStackTrace();
-            }
-            return;
-        }
-    }
-    
-    /**
-     * Task to handle instance appearance
-     * 
-     * @author vega
-     * 
-     */
-    private static class InstanceAppearenceProcessing extends Request {
-
-
+    	
         public InstanceAppearenceProcessing(ApformInstance instance) {
         	super(instance);
         }
@@ -237,7 +274,7 @@ public class Apform2Apam {
      * @author vega
      * 
      */
-    private static class ImplementationDeploymentProcessing extends Request {
+    private static class ImplementationDeploymentProcessing extends ComponentAppearenceRequest {
 
         public ImplementationDeploymentProcessing(ApformImplementation implementation) {
         	super(implementation);
@@ -273,7 +310,7 @@ public class Apform2Apam {
      * @author vega
      * 
      */
-    private static class SpecificationDeploymentProcessing extends Request {
+    private static class SpecificationDeploymentProcessing extends ComponentAppearenceRequest {
 
         public SpecificationDeploymentProcessing(ApformSpecification specification) {
         	super(specification);

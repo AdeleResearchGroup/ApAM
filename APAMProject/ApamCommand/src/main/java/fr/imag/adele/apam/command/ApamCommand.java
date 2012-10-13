@@ -30,7 +30,6 @@ import org.apache.felix.service.command.Descriptor;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
-//import fr.imag.adele.apam.Component; // a cause des annotations de iPOJO !!
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
@@ -39,7 +38,6 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.Apform2Apam.Request;
-import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.ResourceReference;
 
 /**
@@ -267,8 +265,7 @@ public class ApamCommand {
 	public void pending() {
 		System.out.println("Platform pernding requests");
 		for (Request pendingRequest : Apform2Apam.getPending()) {
-			ComponentDeclaration declaration = pendingRequest.getComponent().getDeclaration();
-			System.out.println("Adding component "+declaration.getName()+" is waiting for component "+pendingRequest.getRequiredComponent());
+			System.out.println(pendingRequest.getDescription()+" is waiting for component "+pendingRequest.getRequiredComponent());
 		}
 
 	}

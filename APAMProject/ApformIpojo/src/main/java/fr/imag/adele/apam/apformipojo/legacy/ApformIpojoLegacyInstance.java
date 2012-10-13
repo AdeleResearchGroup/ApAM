@@ -1,16 +1,14 @@
 package fr.imag.adele.apam.apformipojo.legacy;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.InstanceManager;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
@@ -57,7 +55,7 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
          * Propagate OSGI registry properties to APAM
          */
         for (String key : reference.getPropertyKeys()) {
-            if (!isOSGioriPojoProperty(key))
+            if (!Apform2Apam.isPlatformPrivateProperty(key))
                 this.declaration.getProperties().put(key, reference.getProperty(key).toString());
         }
 
@@ -120,11 +118,5 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
     	ipojoInstance.reconfigure(configuration);
     }
 
-    private static List<String> osgiAndiPojoProperties = Arrays.asList(new String[] { Constants.SERVICE_ID,
-            Constants.OBJECTCLASS, "factory.name", "instance.name" });
-
-    public static boolean isOSGioriPojoProperty(String key) {
-        return osgiAndiPojoProperties.contains(key);
-    }
     
 }
