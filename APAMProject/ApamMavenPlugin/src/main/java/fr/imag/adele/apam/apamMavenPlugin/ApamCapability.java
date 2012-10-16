@@ -220,7 +220,8 @@ public class ApamCapability {
 				CST.PROVIDE_MESSAGES), MessageReference.class);
 	}
 
-	private String getLocalAttrDefinition (String name) {
+	//Return the definition at the current component level 
+	public String getLocalAttrDefinition (String name) {
 		return propertiesTypes.get(name);
 	}
 
@@ -239,24 +240,6 @@ public class ApamCapability {
 	public String getAttrDefault (String name) {
 		return propertiesDefaults.get(name);
 	}
-
-	//	/**
-	//	 * returns true if the attribute can be found associated with this component members.
-	//	 * i.e. all the actual attributes plus those defined on component, 
-	//	 * and those defined above.
-	//	 * @return
-	//	 */
-	//	public boolean isValidAttrName (String name) {
-	//		if (Util.isFinalAttribute(name))  return true ;
-	//		return getAttrDefinition(name) != null ;
-	//		if (propertiesTypes.containsKey(name)) return true ;
-	//
-	//		if (getGroup() != null)
-	//			return getGroup().isValidAttrName(name) ;
-	//
-	//		return false ;
-	//	}
-
 
 	/**
 	 * returns all the attribute that can be found associated with this component members.

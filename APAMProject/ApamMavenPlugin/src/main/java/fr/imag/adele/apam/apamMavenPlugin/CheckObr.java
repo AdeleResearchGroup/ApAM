@@ -456,7 +456,7 @@ public class CheckObr {
 			error ("Implementation for state unavailable: " + compo.getName()) ;
 			return null;
 		}
-		String type = implCap.getAttrDefinition(ref.getIdentifier()) ;
+		String type = implCap.getLocalAttrDefinition(ref.getIdentifier()) ;
 		if (type == null) {
 			error ("The state attribute " + ref.getIdentifier() + " on implementation " 
 					+ compo.getName() + " is undefined.") ;
@@ -508,9 +508,15 @@ public class CheckObr {
 	 * 
 	 * @param component
 	 */
-	private static void checkOwn (CompositeDeclaration component) {
+	private static void checkOwn (CompositeDeclaration component) {				
 		Set<OwnedComponentDeclaration> owned = component.getOwnedComponents() ;
+
+		if (owned.isEmpty()) return ;
 		
+		//The composite must be a songleton
+		if (!component.isSingleton()) {
+			CheckObr.error("To define \"own\" clauses, composite " + component.getName() + " must be a singleton.") ; 
+		}
 		//check that a single own clause is defined for a component and its members
 		Set <String> compRef = new HashSet <String> () ;
 		for (OwnedComponentDeclaration own : owned) {
@@ -580,6 +586,11 @@ public class CheckObr {
 			if (cap == null) {
 				error ("Unknown component in own expression : " + compo.getName()) ;
 				continue ;
+			}
+			
+			//Check that the component is a singleton
+			if (!CST.SINGLETON.equals(cap.getProperty(CST.SINGLETON))) {
+				CheckObr.error("Invalid Grant clause. Component " + cap.getName() + " must be a singleton" );
 			}
 
 			//Check that grant state values are valid
