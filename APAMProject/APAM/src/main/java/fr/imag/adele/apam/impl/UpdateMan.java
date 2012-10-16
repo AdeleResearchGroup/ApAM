@@ -29,7 +29,7 @@ import fr.imag.adele.apam.core.ResolvableReference;
 public class UpdateMan implements DependencyManager, DynamicManager {
 
 	private static Set<String> deployed = new HashSet<String> () ;
-	static Logger logger = LoggerFactory.getLogger(ApamResolverImpl.class);
+	static Logger logger = LoggerFactory.getLogger(UpdateMan.class);
 
 	@Override
 	public String getName() {
@@ -124,8 +124,15 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 		if (sel == null || sel.getComponents() == null) {
 			System.out.println("no component to update ???");
 			return ;
-		}	
-		deployed.addAll(sel.getComponents()) ;
+		}
+		
+		/*
+		 * Be sure that the list is atomically updated
+		 */
+		synchronized (deployed) {
+			deployed.addAll(sel.getComponents());
+		}
+		
 	}
 
 	/**
@@ -136,7 +143,14 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	@Override
 	public void addedInApam(Component newComponent) {
 		logger.debug("Added : " + newComponent);
-		deployed.remove(newComponent.getName()) ;		
+		
+		/*
+		 * notifications can originate concurrently with updates, so we need to synchronize access
+		 * to the list of currently updating components.
+		 */
+		synchronized (deployed) {
+			deployed.remove(newComponent.getName());
+		}		
 	}
 
 	/**
@@ -146,12 +160,26 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	 * @param name
 	 */
 	private void waitComponent (String name) {
-		if (deployed.contains(name)) {
-			logger.info("Waiting for " + name + " update.");
-			Apform2Apam.waitForComponent(name) ;
-			logger.info( name + " update done.");			
-			deployed.remove(name) ;
-		}		
+		
+		/*
+		 * First try the fast case when there is no pending updates for this component
+		 */
+		synchronized (deployed) {
+			if (!deployed.contains(name))
+				return;
+		}
+		
+		/*
+		 * we wait for the component. 
+		 * 
+		 * INPORTANT Notice that we wait outside the synchronized block, because we must let notifications
+		 * proceed while we wait. Otherwise this would lead to a deadlock between the thread requiring the
+		 * component and the thread performing the deployment.
+		 */
+		logger.info("Waiting for " + name + " update.");
+		Apform2Apam.waitForComponent(name) ;
+		logger.info( name + " update done.");			
+
 	}
 
 	@Override

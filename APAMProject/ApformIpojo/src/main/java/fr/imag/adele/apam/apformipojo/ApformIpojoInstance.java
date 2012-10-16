@@ -100,7 +100,8 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 			declaration = new InstanceDeclaration(getFactory().getDeclaration().getReference(),instanceName,null);
 			for (Enumeration<String> properties = configuration.keys(); properties.hasMoreElements();) {
 				String property = properties.nextElement();
-				declaration.getProperties().put(property, configuration.get(property).toString());
+	            if (!Apform2Apam.isPlatformPrivateProperty(property))
+	            	declaration.getProperties().put(property, configuration.get(property).toString());
 			}
 		}
 

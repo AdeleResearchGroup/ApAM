@@ -12,7 +12,6 @@ import org.apache.felix.ipojo.ComponentFactory;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
-import org.apache.felix.ipojo.util.Logger;
 
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
@@ -30,62 +29,64 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
 
 	
 	/**
-	 * The factory of the source component of the dependency
-	 */
-	private final ComponentFactory 	factory;
-	
-	/**
 	 * The associated resolver
 	 */
-	private final Resolver		resolver;
+	private final Resolver				resolver;
 	
-
 	/**
 	 * The dependency injection managed by this dependency
 	 */
-	private final DependencyInjection injection;
+	private final DependencyInjection 	injection;
+
+	/**
+	 * The metadata of the field that must be injected
+	 */
+    private final Class<?>				fieldClass;
+    private final boolean 				isCollection;
 	
     /**
-     * The list of target services.
+     * The list of target APAM instances of this dependency.
      */
-    private final Set<Instance> targetServices;
+    private final Set<Instance> 		targetServices;
 
     /**
      * The last injected value.
      * 
      * This is a cached value that must be recalculated in case of update of the dependency.
      */
-    private Object             	injectedValue;
+    private Object             			injectedValue;
 
-    /**
-     * The last injected value type.
-     * 
-     * This is a cached value that must be recalculated in case of update of the dependency.
-     */
-    private String             injectedType;
-
-    /**
-     * Whether this dependency is satisfied by a target service.
-     * 
-     * This is a cached value that must be recalculated in case of update of the dependency.
-     */
-    private boolean            isResolved;
-
-    private final boolean 	isCollection;
     
-    public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, DependencyInjection injection) {
+    
+    public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, DependencyInjection injection) throws ClassNotFoundException {
         
     	assert injection.getResource() instanceof InterfaceReference;
     	
-    	this.factory	= factory;
         this.resolver 	= resolver;
         this.injection	= injection;
         
+        /*
+         * Get field metadata
+         * 
+         * TODO We keep a reference to the class of the field, this may prevent the class loader from
+         * being garbage collected and the class from being updated. We need to verify what is the
+         * behavior of OSGi when the class of a field is updated, and adjust this implementation
+         * accordingly.
+         */
+        
+
+        FieldMetadata field = factory.getPojoMetadata().getField(injection.getName());
+        String fieldType	= FieldMetadata.getReflectionType(field.getFieldType());
+        
+        this.fieldClass 	= factory.loadClass(fieldType);
+        this.isCollection	= injection.isCollection();
+
+        /*
+         * Initialize target services
+         */
         targetServices 	= new HashSet<Instance>();
         injectedValue 	= null;
-        injectedType 	= null;
-        isResolved 		= false;
-        isCollection	= injection.isCollection();
+        
     	resolver.addInjection(this);
     }
 
@@ -108,14 +109,21 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
 		dependencyDescription.addAttribute(new Attribute("name", injection.getName()));
 		dependencyDescription.addAttribute(new Attribute("type", injection.getResource().toString()));
 		dependencyDescription.addAttribute(new Attribute("isAggregate",	Boolean.toString(injection.isCollection())));
-		dependencyDescription.addAttribute(new Attribute("resolved",Boolean.toString(isResolved())));
-
-		if (isResolved()) {
-			for (Instance target : targetServices) {
-				Element bindingDescription = new Element("binding", ApformIpojoComponent.APAM_NAMESPACE);
-				bindingDescription.addAttribute(new Attribute("target", target.getName()));
-				dependencyDescription.addElement(bindingDescription);
-			}
+		
+		/*
+		 * show the current state of resolution. To avoid unnecessary synchronization overhead make a copy of the
+		 * current target services and do not use directly the field that can be concurrently modified
+		 */
+		Set<Instance> resolutions = new HashSet<Instance>();
+		synchronized (this) {
+			resolutions.addAll(targetServices);
+		}
+		
+		dependencyDescription.addAttribute(new Attribute("resolved",Boolean.toString(!resolutions.isEmpty())));
+		for (Instance target : resolutions) {
+			Element bindingDescription = new Element("binding", ApformIpojoComponent.APAM_NAMESPACE);
+			bindingDescription.addAttribute(new Attribute("target", target.getName()));
+			dependencyDescription.addElement(bindingDescription);
 		}
 		
 		return dependencyDescription;
@@ -140,27 +148,6 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
          * Add this target and invalidate cache
          */
         synchronized (this) {
-
-            /*
-             * In the case of scalar dependencies we try to not unnecessarily invalidate the cache by keeping the
-             * already used target.
-             * 
-             * TODO This is an anomalous case, the APAM should not add a new target to an scalar dependency without
-             * removing the previous ones. This may happen only if there is an application model that is not coherent
-             * with the dependency metadata.
-             */
-        	
-        	/*
-        	 * TODO  When substituting dependencies, the existing dependency is not removed before the new one is
-        	 * added, so we have to replace anyway. Modify APAM code to use substituteDependency 
-        	 * 
-            if (isScalar() && (targetServices.size() != 0)) {
-                return;
-            }
-            
-        	 */
-    		//System.out.println("add wire apform "+target);
-
             targetServices.add(target);
             injectedValue = null;
         }
@@ -177,7 +164,6 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
          * Remove this target and invalidate cache
          */
         synchronized (this) {
-        	//System.out.println("apform wire removed "+target);
             targetServices.remove(target);
             injectedValue = null;
         }
@@ -204,62 +190,67 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
         }
     }
 
-    /**
-     * Whether this dependency is satisfied by a target service.
-     * 
-     */
-    public boolean isResolved() {
-        synchronized (this) {
-            /*
-             * Return the cached value, if it has not been invalidated
-             */
-            if (injectedValue != null)
-                return isResolved;
-
-            /*
-             * update cached value
-             */
-            isResolved = !targetServices.isEmpty();
-
-            return isResolved;
-        }
-
-    }
-
+ 
     public void onSet(Object pojo, String fieldName, Object value) {
         // Nothing to do, this should never happen as we exclusively handle the field's value
     }
 
     public Object onGet(Object pojo, String fieldName, Object value) {
-
-        /*
-         * Verify if there is a service fault (a required dependency is not present) and delegate to APAM handling of
-         * this case.
-         */
-        if (!isResolved()) {
-
+    	
+        synchronized (this) {
+        	
+        	/*
+        	 * First try the fast path, use the cached value if still valid
+        	 */
+         	if (injectedValue != null)
+        		return injectedValue;
+         	
+         	/*
+         	 * Next handle the case in which we need to update the cached value, but the
+         	 * dependency is resolved
+         	 */
+         	if (! targetServices.isEmpty()) {
+            	injectedValue = getInjectedValue();
+            	return injectedValue;
+            }
+            
             /*
-             * Ask APAM to resolve the dependency. Depending on the application policies this may throw an error, or
-             * block the thread until the dependency is fulfilled, or keep the dependency unresolved in the case of
-             * optional dependencies.
+             * The worst case is when we need to resolve the dependency.
              * 
-             * Resolution has as side-effect a modification of the target services.
-             */ 
-        	if (!resolver.resolve(this))
-        		return null;
+             * IMPORTANT notice that resolution is performed outside the synchronization block. This is 
+             * because resolution is a side-effect process that can trigger wire notifications for this
+             * dependency. These notifications can originate in other threads (for example in the cases
+             * when the resolution triggers a deployment) and that would lead to deadlocks if we keep
+             * this object locked.
+             */
+        }
+        
+        /*
+         * Ask APAM to resolve the dependency. Depending on the application policies this may throw
+         * an error, or block the thread until the dependency is fulfilled, or do nothing.
+         * 
+         * Resolution has as side-effect a modification of the target services.
+         */ 
+       	resolver.resolve(this);
+ 
+   		/*
+		 * update cached values after resolution
+		 */
+         synchronized (this) {
+    		injectedValue 	= !targetServices.isEmpty() ? getInjectedValue() : null;
+    		return injectedValue;
         }
 
-         return getFieldValue(fieldName);
     }
 
     /**
      * Get the value to be injected in the field. The returned object depends on the cardinality of the dependency.
      * 
      * For scalar dependencies, returns directly the service object associated with the target instance. For unresolved
-     * optional dependencies it return null.
+     * dependencies returns null.
      * 
      * For aggregate dependencies, returns a collection of service objects. The kind of collection is chosen to match
-     * the declared class of the field. For unresolved optional dependencies returns an empty collection.
+     * the declared class of the field. For unresolved dependencies returns null.
      * 
      * In principle the returned object should not be aliased (by keeping a reference to it or passing it in parameters
      * to other classes), as it is potentially dynamically recalculated every time the field is accessed.
@@ -276,114 +267,58 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
      * dependency object.
      * 
      */
-    private Object getFieldValue(String fieldName) {
-
-        synchronized (this) {
+    private final Object getInjectedValue() {
+    	
+    	/*
+    	 * For scalar dependencies return any of the service objects wired
+    	 */
+    	if (! isCollection)
+    		return targetServices.iterator().next().getServiceObject();
+    	
+        /*
+         * For arrays, we need to reflectively build a type conforming array initialized
+         * to the list of service objects
+         */
+        if (fieldClass.isArray()) {
         	
-            
-            /*
-             * Handle first the most common case of scalar dependencies.
-             */
-        	if (! isCollection) {
-            	/*
-                 * Return the cached value, if it has not been invalidated.
-                 */ 
-        		if (injectedValue != null)
-        			return injectedValue;
-        		
-        		/*
-        		 * update cached value
-        		 */
-                isResolved = !targetServices.isEmpty();
-        		injectedValue = targetServices.isEmpty() ? null : targetServices.iterator().next().getServiceObject();
-        		//System.err.println("calcul injected value "+injectedValue);
-                return injectedValue;        		
-        	}
-        	
-            /* For the aggregate dependencies, the type of the returned Collection depends on the type of the declared field.
-             *  
-             * TODO Currently we only cache a single value for a dependency. For different collection types we need to
-             * evaluate if it is worth caching all accessed fields.
-             */
-
-            FieldMetadata field = factory.getPojoMetadata().getField(fieldName);
-            String fieldType	= FieldMetadata.getReflectionType(field.getFieldType());
-
-        	/*
-             * Return the cached value, if it has not been invalidated.
-             */ 
-           if (injectedValue != null && injectedType.equals(fieldType))
-                return injectedValue;
-
-	   		/*
-	   		 * update cached value to a private copy of the resolution target
-	   		 */
-            isResolved = !targetServices.isEmpty();
-            injectedValue = getServiceObjectCollection(fieldType);
-            injectedType = fieldType;
-
-            return injectedValue;
-        }
-
-    }
-
-    /**
-     * Returns a collection of service objects that is compatible with the class of the field that will be injected.
-     * 
-     */
-    private Object getServiceObjectCollection(String fieldType) {
-
-        try {
-
-            /*
-             * return the collection that better fits the field declaration
-             */
-            Class<?> fieldClass = factory.loadClass(fieldType);
-
-            /*
-             * For arrays we need to reflectively build a type conforming array 
-             */
-            if (fieldClass.isArray()) {
-            	
-                int index = 0;
-            	Object array = Array.newInstance(fieldClass.getComponentType(),targetServices.size());
-                for (Instance targetService : targetServices) {
-                	Array.set(array, index++, targetService.getServiceObject());
-                }
-               return array;
-            }
-
-            /*
-             * For collections use an erased Object collection
-             */
-            List<Object> serviceObjects = new ArrayList<Object>(targetServices.size());
+            int index = 0;
+        	Object array = Array.newInstance(fieldClass.getComponentType(),targetServices.size());
             for (Instance targetService : targetServices) {
-            	serviceObjects.add(targetService.getServiceObject());
+            	Array.set(array, index++, targetService.getServiceObject());
             }
-
- 
-            if (Vector.class.isAssignableFrom(fieldClass)) {
-                return new Vector<Object>(serviceObjects);
-            }
-
-            if (List.class.isAssignableFrom(fieldClass)) {
-                return serviceObjects;
-            }
-
-            if (Set.class.isAssignableFrom(fieldClass)) {
-                return new HashSet<Object>(serviceObjects);
-            }
-
-            if (Collection.class.isAssignableFrom(fieldClass)) {
-                return serviceObjects;
-            }
-
-        } catch (ClassNotFoundException unexpected) {
-            factory.getLogger().log(Logger.ERROR,"error accesing field for APAM dependency " + injection.getDependency().getIdentifier(),unexpected);
+           return array;
         }
+        
+        /*
+         * For collections, use an erased Object collection of the service objects, with
+         * the type that that better fits the class of the field
+         */
+        Collection<Object> serviceObjects = null;
 
-        return null;
+        if (Vector.class.isAssignableFrom(fieldClass)) {
+        	serviceObjects = new Vector<Object>(targetServices.size());
+        }
+        else if (List.class.isAssignableFrom(fieldClass)) {
+        	serviceObjects = new ArrayList<Object>(targetServices.size());
+        }
+        else if (Set.class.isAssignableFrom(fieldClass)) {
+        	serviceObjects = new HashSet<Object>(targetServices.size());
+        }
+        else if (Collection.class.isAssignableFrom(fieldClass)) {
+        	serviceObjects = new ArrayList<Object>(targetServices.size());
+        }
+        else 
+        	return null;
+        
+        /*
+         * fill the collection with the service objects
+         */
+        for (Instance targetService : targetServices) {
+        	serviceObjects.add(targetService.getServiceObject());
+        }
+        
+        return serviceObjects;
+
     }
-
 
 }
