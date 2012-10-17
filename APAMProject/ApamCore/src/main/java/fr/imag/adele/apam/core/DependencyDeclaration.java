@@ -64,7 +64,19 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
      */
     private String							missingException;
     
+
+    /**
+     * Whether a dependency matching this policy must be eagerly resolved
+     */
+    private Boolean					isEager;
     
+    /**
+     * Whether a resolution error must trigger a backtrack in the architecture
+     */
+
+    private Boolean 					mustHide;
+    
+
     public DependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource) {
 
         super(resource);
@@ -75,7 +87,9 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
         this.reference	= new Reference(component,id);
 
         this.isMultiple				= isMultiple;
-        this.missingPolicy			= MissingPolicy.OPTIONAL;
+        this.isEager				= null;
+        this.mustHide				= null;
+        this.missingPolicy			= null;
         this.missingException		= null;
         
         injections					= new ArrayList<DependencyInjection>();
@@ -91,7 +105,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     	clone.getImplementationPreferences().addAll(this.getImplementationPreferences());
     	clone.getInstancePreferences().addAll(this.getInstancePreferences());
     	
-    	clone.setMissingExeception(this.getMissingException());
+    	clone.setMissingException(this.getMissingException());
     	clone.setMissingPolicy(this.getMissingPolicy());
     	
     	return clone;
@@ -155,6 +169,29 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     }
     
     /**
+     * Whether dependencies matching this contextual policy must be resolved eagerly
+     */
+  	public Boolean isEager() {
+		return isEager;
+	}
+  	
+  	public void setEager(Boolean isEager) {
+  		this.isEager = isEager;
+  	}
+  	
+    /**
+     * Whether an error resolving a dependency matching this policy should trigger a backtrack
+     * in resolution
+     */
+  	public Boolean isHide() {
+		return mustHide;
+	}
+    
+  	public void setHide(Boolean mustHide) {
+  		this.mustHide = mustHide;
+  	}
+  	
+    /**
      * Get the exception associated with the missing policy
      */
     public String getMissingException() {
@@ -164,7 +201,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     /**
      * Set the missing exception used for this dependency
      */
-    public void setMissingExeception(String missingException) {
+    public void setMissingException(String missingException) {
         this.missingException = missingException;
     }    
 

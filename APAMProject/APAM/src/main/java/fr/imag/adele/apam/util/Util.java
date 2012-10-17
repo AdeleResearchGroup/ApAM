@@ -26,7 +26,6 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.CompositeDeclaration;
-import fr.imag.adele.apam.core.ContextualResolutionPolicy;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.ResourceReference;
@@ -571,6 +570,7 @@ public class Util {
 	 * For each dependency, we clone it, and we aggregate the constraints as found at all level, 
 	 * including the generic ones found in the composite type.
 	 * The dependencies returned are clones of the original ones.
+	 * 
 	 */
 	public static Set<DependencyDeclaration> computeAllEffectiveDependency (Instance client) {
 		if (client == null) return null ;
@@ -619,6 +619,31 @@ public class Util {
 	}
 
 	/**
+	 * A dependency may have properties fail= null, wait, exception; exception = null, exception
+	 * An contextual dependency can also have hide: null, true, false and eager: null, true, false 
+	 * The most local definition overrides the others. 
+	 * Exception null can be orriden by an exception; only generic exception overrides another non null one.
+	 * 
+	 * @param dependency
+	 * @param dep
+	 * @return
+	 */
+	private static void overrideDepFlags (DependencyDeclaration dependency, DependencyDeclaration dep, boolean generic) {
+		if (dependency.getMissingPolicy() == null) {
+			dependency.setMissingPolicy(dep.getMissingPolicy()) ;
+		} 
+
+		if (dependency.getMissingException() == null || (generic && dep.getMissingException() != null)) {
+			dependency.setMissingException(dep.getMissingException()) ;
+		}
+
+		if (generic) {
+			dependency.setHide(dep.isHide()) ;
+			dependency.setEager(dep.isEager()) ;
+		} 
+	}
+
+	/**
 	 * The dependencies "depName" that apply on a client are those of the instance, plus those of the implem, 
 	 * plus those of the spec, and finally those in the composite. 
 	 * We aggregate the constraints as found at all level, including the generic one found in the composite type.
@@ -652,6 +677,7 @@ public class Util {
 		while (group != null) {
 			for (DependencyDeclaration dep : group.getDeclaration().getDependencies()) {
 				if (dep.getIdentifier().equals(dependency.getIdentifier())) {
+					overrideDepFlags (dependency, dep, false);
 					dependency.getImplementationConstraints().addAll(dep.getImplementationConstraints()) ;
 					dependency.getInstanceConstraints().addAll(dep.getInstanceConstraints()) ;
 					dependency.getImplementationPreferences().addAll(dep.getImplementationPreferences()) ;
@@ -665,20 +691,22 @@ public class Util {
 		//Add the composite generic constraints
 		CompositeType compoType = client.getComposite().getCompType() ;
 		Map<String, String> validAttrs = client.getValidAttributes() ;
-		for ( ContextualResolutionPolicy  pol  : compoType.getCompoDeclaration().getContextualResolutionPolicies()) {
+		for ( DependencyDeclaration  genDep  : compoType.getCompoDeclaration().getContextualDependencies()) {
 
-			if (matchGenericDependency(client, pol, dependency)) {
-				if (Util.checkFilters(pol.getImplementationConstraints(), null, validAttrs, client.getName())) {
-					dependency.getImplementationConstraints().addAll(pol.getImplementationConstraints()) ;
+			if (matchGenericDependency(client, genDep, dependency)) {
+				overrideDepFlags (dependency, genDep, true) ;
+
+				if (Util.checkFilters(genDep.getImplementationConstraints(), null, validAttrs, client.getName())) {
+					dependency.getImplementationConstraints().addAll(genDep.getImplementationConstraints()) ;
 				}
-				if (Util.checkFilters(pol.getInstanceConstraints(), null, validAttrs, client.getName())) {
-					dependency.getInstanceConstraints().addAll(pol.getInstanceConstraints()) ;
+				if (Util.checkFilters(genDep.getInstanceConstraints(), null, validAttrs, client.getName())) {
+					dependency.getInstanceConstraints().addAll(genDep.getInstanceConstraints()) ;
 				}
-				if (Util.checkFilters(null, pol.getImplementationPreferences(), validAttrs, client.getName())) {
-					dependency.getImplementationPreferences().addAll(pol.getImplementationPreferences()) ;
+				if (Util.checkFilters(null, genDep.getImplementationPreferences(), validAttrs, client.getName())) {
+					dependency.getImplementationPreferences().addAll(genDep.getImplementationPreferences()) ;
 				}
-				if (Util.checkFilters(null, pol.getInstancePreferences(), validAttrs, client.getName())) {
-					dependency.getInstancePreferences().addAll(pol.getInstancePreferences()) ;
+				if (Util.checkFilters(null, genDep.getInstancePreferences(), validAttrs, client.getName())) {
+					dependency.getInstancePreferences().addAll(genDep.getInstancePreferences()) ;
 				}
 			}
 		}
@@ -694,7 +722,7 @@ public class Util {
 	 * @param clientDep the client dependency we are trying to resolve.
 	 * @return
 	 */
-	public static boolean matchGenericDependency(Instance compoInst, ContextualResolutionPolicy compoDep, DependencyDeclaration clientDep) {
+	public static boolean matchGenericDependency(Instance compoInst, DependencyDeclaration compoDep, DependencyDeclaration clientDep) {
 
 		String pattern = compoDep.getTarget().getName() ;
 		//Look for same dependency: the same specification, the same implementation or same resource name

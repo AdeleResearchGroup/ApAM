@@ -15,12 +15,10 @@ import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.ComponentReference;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ConstrainedReference;
-import fr.imag.adele.apam.core.ContextualResolutionPolicy;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.DependencyInjection;
 import fr.imag.adele.apam.core.DependencyPromotion;
 import fr.imag.adele.apam.core.GrantDeclaration;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 import fr.imag.adele.apam.core.InterfaceReference;
@@ -284,6 +282,10 @@ public class CheckObr {
 			CheckObr.checkConstraint(dep);
 			// Checking fields and complex dependencies
 			CheckObr.checkFieldTypeDep(dep);
+			
+			if (dep.isEager() != null || dep.isHide() != null) {
+				CheckObr.error("Cannot set flags \"eager\" or \"hide\" on a dependency " + dep.getIdentifier() );
+			}
 		}
 	}
 
@@ -456,6 +458,7 @@ public class CheckObr {
 			error ("Implementation for state unavailable: " + compo.getName()) ;
 			return null;
 		}
+		//Attribute state must be defined on the implementation.
 		String type = implCap.getLocalAttrDefinition(ref.getIdentifier()) ;
 		if (type == null) {
 			error ("The state attribute " + ref.getIdentifier() + " on implementation " 
@@ -619,19 +622,18 @@ public class CheckObr {
 	 * @param component
 	 */
 	private static void checkContextualDependencies (CompositeDeclaration component) {
-		ApamFilter f ;
-		for (ContextualResolutionPolicy pol : component.getContextualResolutionPolicies()) {
+		for (DependencyDeclaration pol : component.getContextualDependencies()) {
 			for (String constraint : pol.getImplementationConstraints()) {
-				f = ApamFilter.newInstance(constraint) ;
+				ApamFilter.newInstance(constraint) ;
 			}
 			for (String constraint : pol.getImplementationPreferences()) {
-				f = ApamFilter.newInstance(constraint) ;
+				ApamFilter.newInstance(constraint) ;
 			}
 			for (String constraint : pol.getInstanceConstraints()) {
-				f = ApamFilter.newInstance(constraint) ;
+				ApamFilter.newInstance(constraint) ;
 			}
 			for (String constraint : pol.getInstancePreferences()) {
-				f = ApamFilter.newInstance(constraint) ;
+				ApamFilter.newInstance(constraint) ;
 			}
 		}
 	}

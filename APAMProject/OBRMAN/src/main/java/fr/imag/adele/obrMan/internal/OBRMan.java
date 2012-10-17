@@ -459,4 +459,10 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         return obrManager.lookForBundle(bundleSymbolicName, componentName);
     }
 
+	@Override
+	public Implementation findImplByDependency(CompositeType compoType,
+			DependencyDeclaration dependency) {
+		return findImplByName(compoType, dependency.getTarget().getName());
+	}
+
 }

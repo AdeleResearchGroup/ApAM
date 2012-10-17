@@ -93,6 +93,7 @@ public interface DependencyManager {
 
     public Component findComponentByName(CompositeType compoType, String compName);
 
+    public Implementation findImplByDependency(CompositeType compoType, DependencyDeclaration dependency);
 
     /**
      * The manager is asked to find the "right" instance for the required implementation.
