@@ -20,6 +20,7 @@ import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
@@ -50,6 +51,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     // iPOJO injected
     private RepositoryAdmin               repoAdmin;
+    
+    private Apam    apam;
 
     private final Logger                  logger = LoggerFactory.getLogger(OBRMan.class);
 
