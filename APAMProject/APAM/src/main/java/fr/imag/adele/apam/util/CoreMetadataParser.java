@@ -27,7 +27,6 @@ import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.ComponentReference;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.ConstrainedReference;
-import fr.imag.adele.apam.core.ContextualResolutionPolicy;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.DependencyInjection;
 import fr.imag.adele.apam.core.DependencyPromotion;
@@ -476,7 +475,7 @@ public class CoreMetadataParser implements CoreParser {
         parseVisibility(content, declaration);
         parsePromotions(content, declaration);
         parseOwns(content, declaration);
-        parseContextualResolutions(content, declaration);
+        parseContextualDependencies(content, declaration);
 
     }
 
@@ -580,15 +579,44 @@ public class CoreMetadataParser implements CoreParser {
          * Iterate over all sub elements looking for dependency declarations
          */
         for (Element dependency : optional(element.getElements(CoreMetadataParser.DEPENDENCY, CoreMetadataParser.APAM))) {
-            parseDependency(dependency, component);
+            /*
+             * Add to component declaration
+             */
+            component.getDependencies().add(parseDependency(dependency, component));
         }
 
     }
+    
+    /**
+     * parse the required resources of a component
+     */
+    private void parseContextualDependencies(Element element, CompositeDeclaration component) {
+
+        /*
+         *	Skip the optional enclosing list 
+         */
+        for (Element dependencies : optional(element.getElements(CoreMetadataParser.DEPENDENCIES,
+                CoreMetadataParser.APAM))) {
+            parseDependencies(dependencies, component);
+        }
+
+        /*
+         * Iterate over all sub elements looking for dependency declarations
+         */
+        for (Element dependency : optional(element.getElements(CoreMetadataParser.DEPENDENCY, CoreMetadataParser.APAM))) {
+            /*
+             * Add to component declaration
+             */
+            component.getContextualDependencies().add(parseDependency(dependency, component));
+        }
+
+    }
+    
 
     /**
      * parse a dependency declaration
      */
-    private void parseDependency(Element element, ComponentDeclaration component) {
+    private DependencyDeclaration parseDependency(Element element, ComponentDeclaration component) {
 
         /*
          * Get the reference to the target of the dependency if specified
@@ -601,6 +629,7 @@ public class CoreMetadataParser implements CoreParser {
         String id = parseString(element, CoreMetadataParser.ATT_ID, false);
         boolean isMultiple = parseBoolean(element, CoreMetadataParser.ATT_MULTIPLE, false, true);
 
+ 
         DependencyDeclaration dependency = null;
 
         /*
@@ -719,9 +748,20 @@ public class CoreMetadataParser implements CoreParser {
          */
         String missingException = parseString(element, CoreMetadataParser.ATT_EXCEPTION, false);
         if (policy.equals(MissingPolicy.EXCEPTION) && missingException != null) {
-            dependency.setMissingExeception(missingException);
+            dependency.setMissingException(missingException);
         }
 
+        String isEager 	= parseString(element, CoreMetadataParser.ATT_EAGER,false);
+        String mustHide = parseString(element, CoreMetadataParser.ATT_HIDE,false);
+
+        if (isEager != null) {
+        	dependency.setEager(Boolean.parseBoolean(isEager));
+        }
+        
+        if (mustHide != null) {
+        	dependency.setHide(Boolean.parseBoolean(mustHide));
+        }
+        
         /*
          * Get the optional constraints and preferences
          */
@@ -735,10 +775,7 @@ public class CoreMetadataParser implements CoreParser {
             parsePreferences(preferences, dependency);
         }
 
-        /*
-         * Add to component declaration
-         */
-        component.getDependencies().add(dependency);
+        return dependency;
     }
 
     /**
@@ -999,66 +1036,6 @@ public class CoreMetadataParser implements CoreParser {
 
         for (Element start : optional(element.getElements(CoreMetadataParser.START, CoreMetadataParser.APAM))) {
             composite.getInstanceDeclarations().add(parseInstance(start));
-        }
-
-    }
-
-    /**
-     * Parse the list of contextual dependencies of a composite
-     */
-    private void parseContextualResolutions(Element element, final CompositeDeclaration composite) {
-
-        /*
-         * Iterate over all sub elements looking for contextual resolution policies 
-         */
-        for (Element declaration : optional(element.getElements())) {
-
-            /*
-             * Skip all unrelated declarations
-             */
-            if (!isApamDefinition(declaration))
-                continue;
-
-            if (!CoreMetadataParser.COMPONENT_REFERENCES.contains(declaration.getName()))
-                continue;
-
-            Element context = declaration;
-
-            /*
-             * Get the reference of the target of the contextual definition
-             */
-            ComponentReference<?> target = parseComponentReference(context, CoreMetadataParser.ATT_NAME, true);
-
-            boolean isEager = parseBoolean(context, CoreMetadataParser.ATT_EAGER, false, false);
-            boolean mustHide = parseBoolean(context, CoreMetadataParser.ATT_HIDE, false, false);
-
-            ContextualResolutionPolicy contextualPolicy = new ContextualResolutionPolicy(target, isEager, mustHide);
-            /*
-             * Get the optional missing exception specification
-             */
-            String missingException = parseString(context, CoreMetadataParser.ATT_EXCEPTION, false);
-            if (missingException != null) {
-                contextualPolicy.setMissingExeception(missingException);
-            }
-
-            /*
-             * Get the optional constraints and preferences
-             */
-            for (Element constraints : optional(context.getElements(CoreMetadataParser.CONSTRAINTS,
-                    CoreMetadataParser.APAM))) {
-                parseConstraints(constraints, contextualPolicy);
-            }
-
-            for (Element preferences : optional(context.getElements(CoreMetadataParser.PREFERENCES,
-                    CoreMetadataParser.APAM))) {
-                parsePreferences(preferences, contextualPolicy);
-            }
-
-            /*
-             * add to composite as contextual dependencies
-             */
-            composite.getContextualResolutionPolicies().add(contextualPolicy);
-
         }
 
     }

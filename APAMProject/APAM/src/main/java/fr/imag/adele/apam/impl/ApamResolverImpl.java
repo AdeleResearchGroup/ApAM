@@ -151,7 +151,7 @@ public class ApamResolverImpl implements ApamResolver {
 		DependencyDeclaration dependency = Util.computeEffectiveDependency (client, depName) ;
 
 		if (dependency == null) {
-			logger.error("dependency declaration not found " + depName);
+			logger.error("dependency declaration invalid or not found " + depName);
 			return false;
 		}
 

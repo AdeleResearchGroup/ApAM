@@ -261,6 +261,11 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	public void removedFromApam(Component lostComponent) {
 		logger.debug("Removed : " + lostComponent);
 	}
+	@Override
+	public Implementation findImplByDependency(CompositeType compoType,
+			DependencyDeclaration dependency) {
+		return  null;
+	}
 
 
 }

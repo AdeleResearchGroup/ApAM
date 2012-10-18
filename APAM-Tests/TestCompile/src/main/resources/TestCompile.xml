@@ -21,7 +21,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<specification name="S2Compile3" 
 		instantiable="false" shared="false" />
 	<specification name="S2Compile4" interfaces="{apam.test.compile.S2, AB}" 	
-	singleton="false"	/>
+	messages="apam.test.M1, apam.Test.M2" singleton="false"	/>
 	<specification name="S2Compile5"  
 		instantiable="false" shared="false" />
 
@@ -53,12 +53,12 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<definition name="x" type="string" />
 		<definition name="MyBool" type="boolean" />
 		<definition name="A2" type="int" value="5" />
-		<definition name="testEnum" type="{v1, v2, v3, v4, v5}" value="v3" />
+		<definition name="testEnum" type="v1, v2, v3, v4, v5" value="v3" />
 	</specification>
 
 	<specification name="S4Compile">
 		<property name="test-spec" value="coucou" type="string" />
-		<definition name="location" type="{exit, entrance, garage, bedroom}" />
+		<definition name="location" type="exit, entrance, garage, bedroom" />
 		<definition name="b" type="boolean" value="true" />
 		<definition name="c" type="string" />
 	</specification>
@@ -128,12 +128,12 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<definition name="houseState" field="state" internal="true"
 			type="{empty, night, vacation, emergency, threat}" value="night" />
 			
-		<definition name="location" type="{exit, entrance, garage, bedroom,…}" />
+		<definition name="location" type="exit, entrance, garage, bedroom" />
 		<property name="shared" value="false" />    
-
-		<dependency specification="S3Compile" id="S3Id">
+		<dependency method="getM1" />
+		<dependency specification="S3Compile" id="S3Id" multiple="true"> <!--  added="newT" removed="removedT" -->
 			<interface field="fieldS3" />
-<!-- 			<message field="mes1" /> -->
+			<message method="getAlsoM1" />
 <!-- 			<interface field="field2S3" /> -->
 			<constraints>
 				<implementation filter="(apam-composite=true)" />
@@ -260,7 +260,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	</instance>
 
 	<instance name="InstS2Impl" implementation="S3Impl" >
-		<property name="shared" value="false" />
+		<property name="shared" value="false" /> <!--  wrong -->
 	</instance>
 	<instance implementation="S2ImplCompile" name="S2CompoCompile2"> 
 			<dependency specification="S3Compile" id="S3Compile"/>		

@@ -191,5 +191,11 @@ public class ApamMan implements DependencyManager {
 		return null;
 	}
 
+	@Override
+	public Implementation findImplByDependency(CompositeType compoType,
+			DependencyDeclaration dependency) {
+		return findImplByName(compoType, dependency.getTarget().getName());
+	}
+
 
 }

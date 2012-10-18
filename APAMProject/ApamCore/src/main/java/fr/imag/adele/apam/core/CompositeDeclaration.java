@@ -41,7 +41,7 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	/**
 	 * The list of contextual resolution policies of this composite 
 	 */
-	private final List<ContextualResolutionPolicy> contextualResolutions;
+	private final List<DependencyDeclaration> contextualDependencies;
 	
 	/**
 	 * The list of dependencies promotions of this composite
@@ -58,7 +58,7 @@ public class CompositeDeclaration extends ImplementationDeclaration {
         this.visibility				= new VisibilityDeclaration();
         this.ownedComponents		= new HashSet<OwnedComponentDeclaration>();
         this.instances				= new ArrayList<InstanceDeclaration>();
-        this.contextualResolutions	= new ArrayList<ContextualResolutionPolicy>();
+        this.contextualDependencies	= new ArrayList<DependencyDeclaration>();
         this.promotions				= new ArrayList<DependencyPromotion>();
         
     }
@@ -143,8 +143,8 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     /**
      * The list of contextual dependencies
      */
-    public List<ContextualResolutionPolicy> getContextualResolutionPolicies() {
-		return contextualResolutions;
+    public List<DependencyDeclaration> getContextualDependencies() {
+		return contextualDependencies;
 	}
     
 
