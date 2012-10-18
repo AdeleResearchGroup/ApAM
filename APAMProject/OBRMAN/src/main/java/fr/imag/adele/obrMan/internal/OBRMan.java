@@ -223,14 +223,14 @@ public class OBRMan implements DependencyManager, OBRManCommand {
                         obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
                         obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
                     }
-                } catch (Exception e) {// if filed to load customized location, set default properties for the root model
+                } catch (Exception e) {// if failed to load customized location, set default properties for the root model
                     logger.error("Invalid Root URL Model. Cannot be read stream " + rootModelurl, e.getCause());
-//                    LinkedProperties obrModel = new LinkedProperties();
-//                    customizedRootModelLocation();
-//                    obrModel.put(ObrUtil.LOCAL_MAVEN_REPOSITORY, "true");
-//                    obrModel.put(ObrUtil.DEFAULT_OSGI_REPOSITORIES, "true");
-//                    obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
-//                    obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
+                    LinkedProperties obrModel = new LinkedProperties();
+                    customizedRootModelLocation();
+                    obrModel.put(ObrUtil.LOCAL_MAVEN_REPOSITORY, "true");
+                    obrModel.put(ObrUtil.DEFAULT_OSGI_REPOSITORIES, "true");
+                    obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
+                    obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
                 } 
             }
         }
@@ -277,7 +277,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         }
 
         // @SuppressWarnings("")
-        return (C) c;
+        return kind.cast(c);
     }
 
     @Override
@@ -316,16 +316,15 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public String printCompositeRepositories(String compositeTypeName) {
-        String result = "";
+    public Set<String> getCompositeRepositories(String compositeTypeName) {
+        Set<String> result = new HashSet<String>();
         OBRManager obrmanager = getOBRManager(compositeTypeName);
         if (obrmanager == null)
             return result;
-
-        result += (compositeTypeName + " (" + obrmanager.getRepositories().size() + ") : \n");
+     
         for (Repository repository : obrmanager.getRepositories()) {
-            result += ("    >> " + repository.getURI() + "\n");
-        }
+          result.add(repository.getURI());
+      }
         return result;
     }
 
@@ -336,6 +335,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
                obrModel.load(modellocation.openStream());
                OBRManager obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
                obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
+        }else{
+            throw new IOException("URL is null");
         }
     }
 
