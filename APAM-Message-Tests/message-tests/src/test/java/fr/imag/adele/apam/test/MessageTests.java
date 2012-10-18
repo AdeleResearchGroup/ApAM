@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.test;
 
 import static fr.imag.adele.apam.test.helpers.ApAMHelper.waitForIt;
+
 import static org.ops4j.pax.exam.CoreOptions.felix;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
@@ -24,9 +25,9 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.app1.spec.App1Spec;
-import fr.imag.adele.apam.app2.spec.App2Spec;
+//http://junit.sourceforge.net/javadoc/org/junit/Assert.html
+//import static junit.framework.Assert.assertNotNull;
+//import static junit.framework.Assert.assertNull;
 import fr.imag.adele.apam.test.helpers.ApAMHelper;
 
 /**
@@ -34,7 +35,7 @@ import fr.imag.adele.apam.test.helpers.ApAMHelper;
  * 
  */
 @RunWith(JUnit4TestRunner.class)
-public class OBRMANTest {
+public class MessageTests {
 //	
     @Inject
     protected BundleContext context;
@@ -47,6 +48,7 @@ public class OBRMANTest {
      */
     @Before
     public void setUp() {
+       
         apam = new ApAMHelper(context);
         // initialise the annoted mock object
 //        MockitoAnnotations.initMocks(this);
@@ -107,102 +109,88 @@ public class OBRMANTest {
     }
     
     /**
-     * Simple Test : Create a compositetype with obrman model and instantiate it then call the application service
-     * This composite must contains only the spec and the main impl of the composite
+     * Deploy a producer first , then instantiate
+     * This should deploy a consumer, instantiate and wire it to the producer  
      */
     @Test
-    public void simpleComposite() {
+    public void testRunProducerFirst(){
         waitForIt(100);
-        try {
-            String[] repos = {"jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.1-SNAPSHOT!/APPS-repo.xml"};
-            apam.setObrManInitialConfig("rootAPPS",repos,1);
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
         
-        CompositeType app2CompoType = apam.createCompositeType("APP2", "APP2_MAIN", null);
-
-        App2Spec app2Spec=  apam.createInstance (app2CompoType,App2Spec.class);
-      
-        System.out.println("\n==================Start call test=================== \n");
-
-        app2Spec.call("Call Main APP2 from Test");
-
-        System.out.println("\n=================End call test====================\n");
     }
-
- 
+    
 
     /**
-     * APP1 declare two repositories in ObrMan model
-     * The composite APP1 deploy and instantiate the composite APP2
-     * The composite APP2 will be inside the composite APP1
+     * Deploy a pull consumer first , then instantiate
+     * This should deploy a producer, instantiate and wire it to the consumer
+     */
+    @Test
+    public void testRunPullConsumerFirst(){
+        waitForIt(100);
+        
+    }
+    
+    /**
+     * Deploy a pull consumer first , then instantiate
+     * This should do nothing 
+     */
+    @Test
+    public void testRunPushConsumerFirst(){
+        waitForIt(100);
+        
+    }
+    
+    
+    /**
+     * A producer and a deployed push consumer
+     * verify wiring
+     */
+    @Test
+    public void pushConsumerAlreadyDeployed(){
+        waitForIt(100);
+        
+    }
+    
+    
+    /**
+     * A producer and a deployed pull consumer
+     * verify wiring
+     */
+    @Test
+    public void pullConsumerAlreadyDeployed(){
+        waitForIt(100);
+        
+    }
+    
+    /**
+     * A pull consumer and a deployed producer
+     * verify wiring
+     */
+    @Test
+    public void producerAlreadyDeployed1(){
+        waitForIt(100);
+        
+    }
+    
+    /**
+     * A push consumer and a deployed producer
+     * verify wiring
+     */
+    @Test
+    public void producerAlreadyDeployed2(){
+        waitForIt(100);
+        
+    }
+    
+    
+    
+    
+    /**
      * 
      */
     @Test
-    public void embeddedComposite() {
+    public void testDeployAndRunProducer(){
         waitForIt(100);
-
-        try {
-            String[] repos = {"jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.1-SNAPSHOT!/APPS-repo.xml"};
-            apam.setObrManInitialConfig("rootAPPS",repos,1);
-        } catch (IOException e) {
-            fail(e.getMessage());
-        }
-
-        CompositeType app1CompoType = apam.createCompositeType("APP1", "APP1_MAIN", null);
-
-        App1Spec app1Spec = apam.createInstance(app1CompoType, App1Spec.class);
-
-        System.out.println("\n==================Start call test=================== \n");
-
-        app1Spec.call("Call Main APP1 from Test");
-
-        System.out.println("\n=================End call test====================\n");
-    }
-
-    
-    /**
-     * APP1 declare one repository and APP2 composite in ObrMan model
-     * create the composite APP2 and call it
-     * create the composite APP1 which will call the composite APP2
-     * APP1 and APP2 will be on the same level of root composite.
-     */
-    @Test
-    public void movedCompositev1() {
-        waitForIt(100);
-
-        simpleComposite();
-
-        CompositeType app1CompoType = apam.createCompositeType("APP1.2", "APP1_MAIN", null);
         
-        CompositeType root = (CompositeType) app1CompoType.getInCompositeType().toArray()[0];
-        
-        assertEquals(2, root.getEmbedded().size()); // the root compositeType contains two composites
-
-        App1Spec app1Spec =  apam.createInstance(app1CompoType, App1Spec.class);
-
-        System.out.println("\n==================Start call test=================== \n");
-
-        app1Spec.call("Call Main APP1 from Test");
-
-        System.out.println("\n=================End call test====================\n");
-
-        assertEquals(1, app1CompoType.getEmbedded().size()); // app1 contains app2
-
-        assertEquals(1, root.getEmbedded().size()); // the root compositeType contains two composites
-
     }
-
-
-    /**
-     * APP1 declare one repository and APP2 composite in ObrMan model
-     * Try to create APP1 composite, but APP2 composite is missing
-     */
-    @Test
-    public void missingAPP2Composite() {
-        waitForIt(100);
-        apam.createCompositeType("APP1.2", "APP1_MAIN", null);       
-    }
-
+ 
 }

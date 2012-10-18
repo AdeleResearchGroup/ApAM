@@ -1,8 +1,8 @@
-package fr.imag.adele.apam.test;
+package fr.imag.adele.apam.test.helpers;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URL;
@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.osgi.framework.BundleContext;
+import org.ow2.chameleon.testing.helpers.IPOJOHelper;
 import org.ow2.chameleon.testing.helpers.OSGiHelper;
 
 import fr.imag.adele.apam.Apam;
@@ -24,12 +25,21 @@ public class ApAMHelper {
     private final BundleContext context;
 
     private final OSGiHelper    osgi;
+    
+    private final IPOJOHelper    ipojo;
 
-    public ApAMHelper(BundleContext pContext, OSGiHelper osgi) {
+    public ApAMHelper(BundleContext pContext) {
         context = pContext;
-        this.osgi = osgi;
+        osgi = new OSGiHelper(context);
+        ipojo = new IPOJOHelper(context);
+        
     }
 
+    public void dispose(){
+        osgi.dispose();
+        ipojo.dispose();
+    }
+    
     public void setObrManInitialConfig(String modelPrefix, String[] repos, int expectedSize ) throws IOException {
         URL obrModelAppUrl = context.getBundle().getResource(modelPrefix + ".OBRMAN.cfg");
 
@@ -103,5 +113,13 @@ public class ApAMHelper {
     public Set<String> getCompositeRepos(String compositeName){
         OBRManCommand obrman = getAService(OBRManCommand.class);
         return obrman.getCompositeRepositories(compositeName);
+    }
+    
+    public OSGiHelper getOSGiHelper(){
+        return osgi;
+    }
+    
+    public IPOJOHelper getIpojoHelper(){
+        return ipojo;
     }
 }

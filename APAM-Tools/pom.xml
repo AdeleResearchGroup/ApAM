@@ -9,5 +9,6 @@
   <packaging>pom</packaging>
   <modules>
   	<module>APAM-JMX</module>
+  	<module>APAMHelpers</module>
   </modules>
 </project>
