@@ -62,6 +62,11 @@
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.osgi.core</artifactId>
+				<version>${felix.osgi.version}</version>
+			</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S3</artifactId>

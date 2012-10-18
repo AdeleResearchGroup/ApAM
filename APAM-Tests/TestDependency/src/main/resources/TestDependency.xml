@@ -12,7 +12,7 @@
 
 
 <implementation name="MotorolaZ43" specification="CapteurTemp" 
-	classname="apam.demo.MotorolaZ43" >
+	classname="apam.test.dependency.MotorolaZ43" >
 	<property name="unit" value="C" />
 	<property name="OS" value="Linux, Android" />
 	<definition name="rate" type="{high, low, medium}" />
@@ -23,17 +23,17 @@
 	<property name="rate" value="high" />
 </apam-instance>
 
-<!-- La spec de SDep -->
-	<specification name="DepS2" interfaces="apam.demo.S2" />
+<!-- La spec de DepS3 -->
+	<specification name="DepS2" interfaces="apam.test.dependency.S2" />
 
-	<specification name="DepS3" interfaces="{apam.demo.S3_1,apam.demo.S3_2}" >
+	<specification name="DepS3" interfaces="{apam.test.dependency.S3_1,apam.test.dependency.S3_2}" >
 	    <definition name="location" type="{living, kitchen, bedroom}"    />
 	    <definition name="OS" type="{Linux, Windows, Android, IOS}" />
 		<definition name="MyBool"    type="boolean" />
 		
-<!-- 		<dependency specification="S4" /> -->
+		<dependency specification="S4" />
 	</specification>
-	
+ 
 	<specification name="test" >
 		<dependency specification="CapteurTemp" >
 			<constraints>
@@ -44,37 +44,40 @@
 	
 
 	<implementation name="S3Android"
-		classname="apam.demo.S3Impl" specification="DepS3">
+		classname="apam.test.dependency.S3Impl" specification="DepS3">
 		<property name="OS" value="Android" />
 		<property name="location" value="living" />
 		<property name="MyBool" value="true" />
 	</implementation>
 
 	<implementation name="S3IOS"
-		classname="apam.demo.S3Impl" specification="DepS3">
-		<property name="OS" value="Android, IOS" />
+		classname="apam.test.dependency.S3Impl" specification="DepS3">
+		<property name="OS" value="IOS" />
 		<property name="location" value="living" />
 		<property name="MyBool" value="true" />
 	</implementation>
 	
 	<implementation name="S3LunixIOS"
-		classname="apam.demo.S3Impl" specification="DepS3">
+		classname="apam.test.dependency.S3Impl" specification="DepS3">
 		<property name="OS" value="Android, Linux, IOS" />
 	</implementation>	
+
+	<implementation name="S3Linux"
+		classname="apam.test.dependency.S3Impl" specification="DepS3">
+		<property name="OS" value="Android, Linux" />
+	</implementation>
+
+
 	<apam-instance implementation="S3LunixIOS" name="S3LunixIOS-Ok">
 		<property name="location" value="living" />
 		<property name="MyBool" value="true" />
 	</apam-instance>
+	
 	<apam-instance implementation="S3LunixIOS" name="S3LunixIOS-Okbis">
 		<property name="location" value="living" />
 		<property name="MyBool" value="true" />
 	</apam-instance>
 	
-	
-	<implementation name="S3Linux"
-		classname="apam.demo.S3Impl" specification="DepS3">
-		<property name="OS" value="Android, Linux" />
-	</implementation>
 	<apam-instance implementation="S3Linux" name="s3Linux-living">
 		<property name="location" value="living" />
 		<property name="MyBool" value="true" />
@@ -87,13 +90,14 @@
 	<apam-instance name="s3IOS" implementation="S3IOS" />
 
 	<implementation name="Dependency"
-		classname="apam.demo.Dependency" specification="DepS2"  >
+		classname="apam.test.dependency.Dependency" specification="DepS2"  >
 		
-		<dependency field="s3" /> <!--  interface="apam.demo.S3_1" multiple="false" -->
+		<dependency field="s3" /> <!--  interface="apam.test.dependency.S3_1" multiple="false" -->
 
 		<dependency field="s3bis" >
 			<constraints>
-				<implementation filter="(OS*&gt;Android)" />
+<!-- 				<implementation filter="(OS*&gt;Android)" /> -->
+				<implementation filter="(OS*>Android)" />
 				<instance       filter="(&amp;(location=living)(MyBool=true))" />
 			</constraints>
 			<preferences>
@@ -139,47 +143,47 @@
 
 
 <!-- Les implems de DepS2 -->
-<!-- 	<implementation name="Impl1" message-fields="p1"  -->
-<!-- 		classname="apam.demo.S2Simple" specification="SDep" > -->
-<!-- 		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" value="bidon"/> -->
-<!-- 		<definition name="1-Bool" type="boolean" value="true" /> -->
-<!-- 		<definition name="1-String" type="string" /> -->
-<!-- 		<definition name="1-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" /> -->
-<!-- 		<definition name="enumeration1" type="{f1, f2, f3, f4}" /> -->
-<!-- 	</implementation> -->
+	<implementation name="Impl1" message-fields="p1" 
+		classname="apam.test.dependency.S2Simple" specification="DepS2" >
+		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" value="bidon"/>
+		<definition name="1-Bool" type="boolean" value="true" />
+		<definition name="1-String" type="string" />
+		<definition name="1-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" />
+		<definition name="enumeration1" type="{f1, f2, f3, f4}" />
+	</implementation>
 
-<!--  	<implementation name="Impl2" -->
-<!-- 		classname="apam.demo.S2ImplBis" specification="SDep" > -->
-<!-- 	</implementation> -->
+ 	<implementation name="Impl2"
+		classname="apam.test.dependency.S2ImplBis" specification="DepS2" >
+	</implementation>
 
-<!-- 	<implementation name="Impl3"  -->
-<!-- 		classname="apam.demo.S2Final" specification="SDep" > -->
-<!-- 	</implementation> -->
+	<implementation name="Impl2-bis" 
+		classname="apam.test.dependency.S2Final" specification="DepS2" >
+	</implementation>
 
 <!-- Les instances pre existantes -->
-<!-- 	<instance implementation="Impl1" name="inst1_2" > -->
-<!-- 	</instance> -->
+	<instance implementation="Impl1" name="inst1_2" >
+	</instance>
 
-<!-- 	<instance implementation="Impl1" name="inst1_3" > -->
-<!-- 	</instance> -->
+	<instance implementation="Impl1" name="inst1_3" >
+	</instance>
 
-<!-- 	<instance implementation="Impl1" name="inst1_4" > -->
-<!-- 	</instance> -->
+	<instance implementation="Impl1" name="inst1_4" >
+	</instance>
 
-<!-- 	<instance implementation="Impl1" name="inst1_5" > -->
-<!-- 	</instance> -->
+	<instance implementation="Impl1" name="inst1_5" >
+	</instance>
 
-<!-- 	<instance implementation="Impl1" name="inst1_6" > -->
-<!-- 	</instance> -->
+	<instance implementation="Impl1" name="inst1_6" >
+	</instance>
 
 <!-- Les implems de S3  -->
-<!-- 	<specification name="DepS3" -->
-<!-- 		interfaces="apam.demo.S3_1,apam.demo.S3_2"> -->
+<!--  	<specification name="DepS3" -->
+<!-- 		interfaces="apam.test.dependency.S3_1,apam.test.dependency.S3_2"> -->
 <!-- 	</specification> -->
+ 
 
-
-<!-- 	<implementation name="S3Impl2" -->
-<!-- 		classname="apam.demo.S3Impl" specification="DepS3"> -->
-<!-- 	</implementation> -->
+	<implementation name="apam.test.dependency.S3Impl"
+		classname="apam.test.dependency.S3Impl" specification="DepS3">
+	</implementation>
 
 </apam>

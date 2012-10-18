@@ -26,6 +26,9 @@ public interface ComponentBroker {
     public Implementation getImpl(String implName);
     public Instance       getInst(String instName);
 
+    public Instance getInstService (Object service) ; 
+    
+    public void removeComponent (Component component) ;
     /**
      * Returns all the components.
      * 

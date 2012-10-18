@@ -421,7 +421,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         return true;
     }
 
-    @Override
+//    @Override
     public void removeWire(Wire wire) {
         if (getApformInst().remWire(wire.getDestination(), wire.getDepName())) {
             wires.remove(wire);
