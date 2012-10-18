@@ -15,6 +15,8 @@ package fr.imag.adele.obrMan.internal;
  * limitations under the License.
  */
 
+import java.util.Set;
+
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Provides;
@@ -55,7 +57,12 @@ public class OBRManShell {
 //    @Descriptor("list repositories of a compositeType")
 //    @Descriptor("the name of the compositeType ") 
     public void cr(String compositeTypeName) {
-        System.out.println(obrmanCommand.printCompositeRepositories(compositeTypeName));
-
+        String result = "";
+        Set<String> repositories = obrmanCommand.getCompositeRepositories(compositeTypeName);
+        result += (compositeTypeName + " (" + repositories.size() + ") : \n");
+        for (String repository : repositories) {
+            result += ("    >> " + repository + "\n");
+        }
+        System.out.println(result);
     }
 }

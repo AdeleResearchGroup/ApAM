@@ -131,10 +131,10 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
  				if (! modelFileName.endsWith(".cfg"))
  					continue;
  				
- 				if (! modelFileName.startsWith("root"))
+ 				if (! modelFileName.startsWith(CST.ROOT_COMPOSITE_TYPE))
  					continue;
  				
-	            String managerName = modelFileName.substring("root".length()+1, modelFileName.lastIndexOf(".cfg"));
+	            String managerName = modelFileName.substring(CST.ROOT_COMPOSITE_TYPE.length()+1, modelFileName.lastIndexOf(".cfg"));
 				URL modelURL = modelFile.toURI().toURL();
 	            models.add(new ManagerModel(managerName, modelURL));
 	            

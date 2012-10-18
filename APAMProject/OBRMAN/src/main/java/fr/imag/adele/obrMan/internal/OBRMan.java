@@ -2,7 +2,6 @@ package fr.imag.adele.obrMan.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,13 +12,12 @@ import java.util.Set;
 
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
-import org.apache.felix.ipojo.annotations.Invalidate;
-import org.apache.felix.ipojo.annotations.Validate;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
@@ -33,15 +31,12 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
-
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.obrMan.OBRManCommand;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
-
-//import fr.imag.adele.apam.impl.ComponentImpl;
 
 public class OBRMan implements DependencyManager, OBRManCommand {
 
@@ -50,6 +45,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     // iPOJO injected
     private RepositoryAdmin               repoAdmin;
+
+    private Apam                          apam;
 
     private final Logger                  logger = LoggerFactory.getLogger(OBRMan.class);
 
@@ -64,73 +61,17 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         obrManagers = new HashMap<String, OBRManager>();
     }
 
-    @Validate
     public void start() {
-        // lookFor root.OBRMAN.cfg and create obrmanager for the root composite
-        String rootModelurl = m_context.getProperty(ObrUtil.ROOT_MODEL_URL);
-        // create obrmanager for the root composite
-        try {
-            URL urlModel = null;
-            if (rootModelurl != null) {
-                urlModel = (new File(rootModelurl)).toURI().toURL();
-            }
-            setInitialConfig(urlModel);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
         ApamManagers.addDependencyManager(this, 3);
         System.out.println("[OBRMAN] started");
     }
 
-    @Invalidate
     public void stop() {
         ApamManagers.removeDependencyManager(this);
         obrManagers.clear();
         System.out.println("[OBRMAN] stopped");
     }
 
-    /**
-     * Given the res OBR resource, supposed to contain the implementation implName.
-     * Install and start from the OBR repository.
-     * 
-     * @param res : OBR resource (to contain the implementation implName)
-     * @param implName : the symbolic name of the implementation to deploy.
-     * @return
-     */
-    // private Implementation installInstantiateImpl(Selected selected) {
-    // String implName = selected.getComponentName() ;
-    // Implementation asmImpl = CST.ImplBroker.getImpl(implName);
-    // // Check if already deployed
-    // if (asmImpl == null) {
-    // // deploy selected resource
-    // boolean deployed = selected.obrManager.deployInstall(selected);
-    // if (!deployed) {
-    // System.err.print("> Could not install resource " + selected.resource);
-    // ObrUtil.printRes(selected.resource);
-    // return null;
-    // }
-    // // waiting for the implementation to be ready in Apam.
-    // asmImpl = CST.ImplBroker.getImpl(implName, true);
-    // } else { // do not install twice.
-    // // It is a logical deployement. The allready existing impl is not visible !
-    // // System.out.println("Logical deployment of : " + implName + " found by OBRMAN but allready deployed.");
-    // // asmImpl = CST.ASMImplBroker.addImpl(implComposite, asmImpl, null);
-    // }
-    //
-    // return asmImpl;
-    // }
-
-    /**
-     * Given the res OBR resource, supposed to contain the implementation implName.
-     * Install and start from the OBR repository.
-     * 
-     * @param res : OBR resource (to contain the implementation implName)
-     * @param specName : the symbolic name of the implementation to deploy.
-     * @return
-     */
-    // private fr.imag.adele.apam.Component installInstantiate(Selected selected) {
-    // return installInstantiateInt(selected, false) ;
-    // }
 
     /**
      * Instal ans instantiate the selected bundle, and return the component.
@@ -194,17 +135,19 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     @Override
     public void newComposite(ManagerModel model, CompositeType compositeType) {
-        LinkedProperties obrModel = new LinkedProperties();
-        if (model == null)
-            return;
-        try {
-            obrModel.load(model.getURL().openStream());
-        } catch (IOException e) {
-            logger.error("Invalid OBRMAN Model. Cannot be read stream " + model.getURL(), e.getCause());
-            obrModel.put(ObrUtil.LOCAL_MAVEN_REPOSITORY, "true");
-            obrModel.put(ObrUtil.DEFAULT_OSGI_REPOSITORIES, "true");
+        OBRManager obrManager;
+        if (model == null) { // if no model for the compositeType, set the root composite model 
+            obrManager = searchOBRManager(compositeType);
+        } else {
+            try {// try to load the compositeType model
+                LinkedProperties obrModel = new LinkedProperties();
+                obrModel.load(model.getURL().openStream());
+                obrManager = new OBRManager(this, compositeType.getName(), repoAdmin, obrModel);
+            } catch (IOException e) {// if impossible to load the model for the compositeType, set the root composite model 
+                logger.error("Invalid OBRMAN Model. Cannot be read stream " + model.getURL(), e.getCause());
+                obrManager = searchOBRManager(compositeType);
+            }
         }
-        OBRManager obrManager = new OBRManager(this, compositeType.getName(), repoAdmin, obrModel);
         obrManagers.put(compositeType.getName(), obrManager);
     }
 
@@ -245,7 +188,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
                     constraints, preferences);
         }
         if (selected != null) {
-          //  String implName = obrManager.getAttributeInCapability(selected.capability, "impl-name");
+            // String implName = obrManager.getAttributeInCapability(selected.capability, "impl-name");
             impl = (Implementation) installInstantiate(selected);
             // System.out.println("deployed :" + impl);
             // printRes(selected);
@@ -262,12 +205,41 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             obrManager = obrManagers.get(compoType.getName());
         }
 
-        // Use the root composite if the model is not specified
+       // Use the root composite if the model is not specified
         if (obrManager == null) {
             obrManager = obrManagers.get(CST.ROOT_COMPOSITE_TYPE);
+            if (obrManager == null){ // If the root manager was never been initialized
+                // lookFor root.OBRMAN.cfg and create obrmanager for the root composite in a customized location
+                String rootModelurl = m_context.getProperty(ObrUtil.ROOT_MODEL_URL);
+                try {// try to load root obr model from the customized location
+                    if (rootModelurl != null) {
+                        URL urlModel = (new File(rootModelurl)).toURI().toURL();
+                        setInitialConfig(urlModel);
+                    }else {
+                        LinkedProperties obrModel = new LinkedProperties();
+                        customizedRootModelLocation();
+                        obrModel.put(ObrUtil.LOCAL_MAVEN_REPOSITORY, "true");
+                        obrModel.put(ObrUtil.DEFAULT_OSGI_REPOSITORIES, "true");
+                        obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
+                        obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
+                    }
+                } catch (Exception e) {// if failed to load customized location, set default properties for the root model
+                    logger.error("Invalid Root URL Model. Cannot be read stream " + rootModelurl, e.getCause());
+                    LinkedProperties obrModel = new LinkedProperties();
+                    customizedRootModelLocation();
+                    obrModel.put(ObrUtil.LOCAL_MAVEN_REPOSITORY, "true");
+                    obrModel.put(ObrUtil.DEFAULT_OSGI_REPOSITORIES, "true");
+                    obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
+                    obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
+                } 
+            }
         }
+       return obrManager;
+    }
 
-        return obrManager;
+    private void customizedRootModelLocation() {
+    
+        
     }
 
     @Override
@@ -305,7 +277,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         }
 
         // @SuppressWarnings("")
-        return (C) c;
+        return kind.cast(c);
     }
 
     @Override
@@ -329,81 +301,6 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         return findByName(compoType, instName, fr.imag.adele.apam.Instance.class);
     }
 
-//	@Override
-//	public Implementation findImplByName(CompositeType compoType, String implName) {
-//		
-//		if (implName == null) {
-//			new Exception("parameter implName canot be null in findImplByName ").printStackTrace();
-//		}
-//
-//		// Find the composite OBRManager
-//		OBRManager obrManager = searchOBRManager(compoType);
-//		if (obrManager == null)
-//			return null;
-//
-//		Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + implName + ")", null, null);
-//
-//		if (selected == null)
-//			return null;
-//		if (!obrManager.getAttributeInCapability(selected.capability, CST.COMPONENT_TYPE).equals(CST.IMPLEMENTATION)) {
-//			System.err.println("ERROR : " + implName + " is found but is not an Implementation");
-//			return null;
-//		}
-//		return (Implementation)installInstantiate(selected);
-//	}
-
-//		if (componentName == null) return null;
-//
-//		// Find the composite OBRManager
-//		OBRManager obrManager = searchOBRManager(compoType);
-//		if (obrManager == null) return null;
-//
-//		Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + componentName + ")", null, null);
-//
-//		return installInstantiate(selected);
-//	}
-
-//	@Override
-//	public Specification findSpecByName(CompositeType compoType, String specName) {
-//		fr.imag.adele.apam.Component c = findByName (compoType,  specName, Specification.class) ;
-//		if (c == null) return null ;
-//		if (c instanceof Specification) return (Specification)c;
-//		System.err.println("ERROR : " + specName + " is found but is not a specification");
-//		return null;
-//	}
-
-//	@Override
-//	public Implementation findImplByName(CompositeType compoType, String implName) {
-//		fr.imag.adele.apam.Component c = findComponentByName (compoType,  implName) ;
-//		if (c == null) return null ;
-//		if (c instanceof Specification) return (Implementation)c;
-//		System.err.println("ERROR : " + implName + " is found but is not a implementation");
-//		return null;		
-//	}
-
-    // if (specName == null)
-    // return null;
-    //
-    // // Find the composite OBRManager
-    // OBRManager obrManager = searchOBRManager(compoType);
-    // if (obrManager == null)
-    // return null;
-    //
-    // Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + specName + ")", null, null);
-    //
-    // if (selected == null)
-    // return null;
-    //
-    // if (!obrManager.getAttributeInCapability(selected.capability, CST.COMPONENT_TYPE).equals(CST.SPECIFICATION)) {
-    // System.err.println("ERROR : " + specName + " is found but is not a specification");
-    // return null;
-    // }
-    //
-    // Specification spec = (Specification)installInstantiate(selected);
-    // return spec;
-//
-//}
-
     public OBRManager getOBRManager(String compositeTypeName) {
         return obrManagers.get(compositeTypeName);
     }
@@ -419,31 +316,28 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public String printCompositeRepositories(String compositeTypeName) {
-        String result = "";
+    public Set<String> getCompositeRepositories(String compositeTypeName) {
+        Set<String> result = new HashSet<String>();
         OBRManager obrmanager = getOBRManager(compositeTypeName);
         if (obrmanager == null)
             return result;
-
-        result += (compositeTypeName + " (" + obrmanager.getRepositories().size() + ") : \n");
+     
         for (Repository repository : obrmanager.getRepositories()) {
-            result += ("    >> " + repository.getURI() + "\n");
-        }
+          result.add(repository.getURI());
+      }
         return result;
     }
 
     @Override
-    public void setInitialConfig(URL modellocation) {
+    public void setInitialConfig(URL modellocation) throws IOException {
         LinkedProperties obrModel = new LinkedProperties();
-        try {
-            if (modellocation != null)
-                obrModel.load(modellocation.openStream());
-            OBRManager obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
-            obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
-        } catch (Exception e) {
-            System.out.println("Invalid OBRMAN Model. Cannot be read stream " + obrModel);
+        if (modellocation != null){
+               obrModel.load(modellocation.openStream());
+               OBRManager obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
+               obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
+        }else{
+            throw new IOException("URL is null");
         }
-
     }
 
     @Override
@@ -459,10 +353,10 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         return obrManager.lookForBundle(bundleSymbolicName, componentName);
     }
 
-	@Override
-	public Implementation findImplByDependency(CompositeType compoType,
-			DependencyDeclaration dependency) {
-		return findImplByName(compoType, dependency.getTarget().getName());
-	}
+    @Override
+    public Implementation findImplByDependency(CompositeType compoType,
+            DependencyDeclaration dependency) {
+        return findImplByName(compoType, dependency.getTarget().getName());
+    }
 
 }

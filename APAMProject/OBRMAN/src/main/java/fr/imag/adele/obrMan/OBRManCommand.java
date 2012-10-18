@@ -1,12 +1,14 @@
 package fr.imag.adele.obrMan;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.Set;
 
 
 public interface OBRManCommand {
 
-    public String printCompositeRepositories(String compositeTypeName);
+    public Set<String> getCompositeRepositories(String compositeTypeName);
     
-    public void setInitialConfig(URL modellocation);
+    public void setInitialConfig(URL modellocation) throws IOException;
 
 }
