@@ -3,6 +3,8 @@ package fr.imag.adele.apam;
 import java.util.List;
 import java.util.Set;
 
+import fr.imag.adele.apam.core.DependencyDeclaration;
+
 public interface ApamResolver {
 
 	/**
@@ -44,6 +46,8 @@ public interface ApamResolver {
     public Specification  findSpecByName(CompositeType compoTypeFrom, String specName);
 
     public Component findComponentByName(CompositeType compoTypeFrom, String compName);
+
+	public Implementation findImplByDependency (CompositeType compoType, DependencyDeclaration dep) ;
 
 
     /**

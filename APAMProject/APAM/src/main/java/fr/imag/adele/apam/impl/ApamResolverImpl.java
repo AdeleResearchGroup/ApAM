@@ -155,24 +155,17 @@ public class ApamResolverImpl implements ApamResolver {
 			return false;
 		}
 
-		// Promotion control
-		Composite compo = getClientComposite(client);
-		// if it is a promotion, visibility and scope is the one of the embedding composite.
-		//DepMult depMult = getPromotion(client, dependency);
-		DependencyDeclaration promotionDependency = getPromotion(client, dependency);
 
 		Set<Instance> insts = null ;
 		Implementation impl = null;
 		Set<Implementation> impls = null;
 
-		//		if (depMult != null) { // it is a promotion
-		//			compo = compo.getComposite();
-		//			if ((depMult.getInsts() != null) && !depMult.getInsts().isEmpty()) {
-		//				insts = depMult.getInsts();
-		//				impl = ((Instance)insts.toArray()[0]).getImpl ();			
-		//				logger.info("Selected from promotion " + insts);
-		//			}
-		//		}
+		/*
+		 *  Promotion control
+		 */
+		Composite compo = getClientComposite(client);
+		DependencyDeclaration promotionDependency = getPromotion(client, dependency);
+		// if it is a promotion, visibility and scope is the one of the embedding composite.
 		if (promotionDependency != null) {
 			compo = compo.getComposite();
 			Set<Instance> promoInsts = client.getComposite().getWireDests(promotionDependency.getIdentifier());
@@ -183,14 +176,16 @@ public class ApamResolverImpl implements ApamResolver {
 			}
 		}
 
-		// normal case. Try to find the instances.
+		/*
+		 * Try to find the instances.
+		 */
 		if (insts == null) {
 			// Look for the implementation(s)
 			CompositeType compoType = compo.getCompType();
 			if (impl == null) {
 				if (dependency.getTarget() instanceof ImplementationReference) {
 					String implName = ((ImplementationReference<?>) dependency.getTarget()).getName();
-					impl = CST.apamResolver.findImplByName(compoType, implName);
+					impl = findImplByDependency(compoType, dependency);
 				} else {
 					if (dependency.isMultiple()) {
 						impls = this.resolveSpecByResources(compoType, dependency);
@@ -237,8 +232,10 @@ public class ApamResolverImpl implements ApamResolver {
 
 		if ((insts == null) || insts.isEmpty()) return false ;
 
-		// We got the instances. Create the wires.
-		//the set is a singleton if multiple = false.
+		/*
+		 *  We got the instances. Create the wires.
+		 *  the set is a singleton if multiple = false.
+		 */
 		boolean ok = false ;
 		for (Instance inst : insts) {
 			// For promotions we must wire the composite and wire the client if the target matches the client constraints
@@ -254,7 +251,9 @@ public class ApamResolverImpl implements ApamResolver {
 				}
 			}
 
-			//Not a promotion. Normal case: we wire the client toward all the instances.
+			/*
+			 * It is not a promotion. Normal case: we wire the client toward all the instances.
+			 */
 			else 	{
 				client.createWire(inst, depName);
 				ok = true ;
@@ -319,6 +318,33 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.info(" : deployed " + impl);
 		}
 		((CompositeTypeImpl)compoType).deploy(impl);
+	}
+
+	/**
+	 * Look for an implementation with a given dependency, visible from composite Type compoType.
+	 * 
+	 * @param compoType
+	 * @param componentName
+	 * @return
+	 */
+	public Implementation findImplByDependency (CompositeType compoType, DependencyDeclaration dep) {
+		if (dep == null) return null;
+		List<DependencyManager> selectionPath = computeSelectionPath(compoType, dep);
+
+		Implementation impl = null;
+		logger.info("Looking for implementation " + dep.getTarget().getName() + ": ");
+		boolean deployed = false;
+		for (DependencyManager manager : selectionPath) {
+			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
+				deployed = true;
+			logger.debug(manager.getName() + "  ");
+			impl = manager.findImplByDependency(compoType, dep);
+			if (impl != null) {
+				deployedImpl(compoType, impl, deployed);
+				return impl ;
+			}
+		}
+		return null;
 	}
 
 	/**
