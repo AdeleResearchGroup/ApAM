@@ -89,9 +89,7 @@ public class CST {
 	public static final String OBRMAN    = "OBRMAN";
 	public static final String UPDATEMAN = "UPDATEMAN";
 
-	// The entry point in the ASM : its brokers
-//	public static SpecificationBroker ComponentBroker = null;
-//	public static ImplementationBroker ComponentBroker = null;
+	// The entry point in the ASM : its broker
 	public static ComponentBroker componentBroker = null;
 	public static ApamResolver apamResolver = null;
 
@@ -100,8 +98,6 @@ public class CST {
 	public static APAMImpl apam = null;
 
 	public CST(APAMImpl theApam) {
-//		CST.componentBroker = new SpecificationBrokerImpl();
-//		CST.componentBroker = new ImplementationBrokerImpl();
 		CST.componentBroker = new ComponentBrokerImpl();
 		CST.apam = theApam;
 		CST.apamResolver = new ApamResolverImpl(theApam);

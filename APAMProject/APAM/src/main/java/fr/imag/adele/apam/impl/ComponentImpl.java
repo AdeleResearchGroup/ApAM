@@ -25,6 +25,7 @@ import fr.imag.adele.apam.core.ComponentDeclaration;
 import fr.imag.adele.apam.core.PropertyDefinition;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
+//import fr.imag.adele.apam.util.ApamFilter;
 
 public abstract class ComponentImpl extends ConcurrentHashMap<String, String> implements Component, Comparable<Component> {
 

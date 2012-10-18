@@ -1,7 +1,7 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
  xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
-	<composite name="S5CompEx" main="S5Impl" specification="S5"
+	<composite name="S5CompEx" main="S5Impl" specification="S5" singleton="true"
 		interfaces="[fr.imag.adele.apam.test.s5.S5,fr.imag.adele.apam.ApamComponent]">
 		
 		<dependency specification="S4" fail= "wait" exception="fr.imag.failedException" />
@@ -36,14 +36,14 @@
 			</own>
 <!-- 			<own specification="S2" property="location" value="bedroom"/> -->
 			
-			<specification name="Spec_A*" eager="true" hide="true" exception="CompositeDependencyException">
+			<dependency specification="Spec_A*" eager="true" hide="true" exception="CompositeDependencyException">
 				<constraints>
-					<constraint filter="(apam-composite=true)" />
+					<implementation filter="(apam-composite=true)" />
 				</constraints>
 				<preferences>
-					<constraint filter="(SCOPE=GLOBAL)" />
+					<implementation filter="(SCOPE=GLOBAL)" />
 				</preferences>
-			</specification>
+			</dependency>
 			
 		</contentMngt>
 	</composite>

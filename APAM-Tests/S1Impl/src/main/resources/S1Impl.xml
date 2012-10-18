@@ -43,7 +43,17 @@
 			<constraints>
 				<implementation filter="(impl-name=S1Impl)" />
 			</constraints>
+			<preferences>
+				<implementation filter="(OS=Linux)" />
+				<implementation filter="(impl-name=S2Impl)" />
+				<implementation filter="(impl-name=S3Impl)" />
+				<implementation filter="(impl-name=S1Impl)" />
+			</preferences>
 		</dependency>
+<!-- 		<dependency id="tos1" field="s1" /> -->
+<!-- 		<dependency field="s1" /> -->
+<!-- 		<dependency implementation="S1Impl" field="s1" /> -->
+<!-- 		<dependency interface="fr.imag.adele.apam.test.s1.S1" field="s1" multiple="false" /> -->
 	</implementation>
 
 	<composite name="S1MainCompo" main="S1Main">

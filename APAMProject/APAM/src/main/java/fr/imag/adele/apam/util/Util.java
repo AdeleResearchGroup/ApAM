@@ -620,15 +620,18 @@ public class Util {
 
 	/**
 	 * A dependency may have properties fail= null, wait, exception; exception = null, exception
-	 * An contextual dependency can also have hide: null, true, false and eager: null, true, false 
+	 * A contextual dependency can also have hide: null, true, false and eager: null, true, false 
 	 * The most local definition overrides the others. 
-	 * Exception null can be orriden by an exception; only generic exception overrides another non null one.
+	 * Exception null can be overriden by an exception; only generic exception overrides another non null one.
 	 * 
-	 * @param dependency
-	 * @param dep
+	 * @param dependency : the low level one that will be changed if needed
+	 * @param dep: the group dependency
+	 * @param generic: the dep comes from the composite type. It can override the exception, and has hidden and eager.
 	 * @return
 	 */
 	private static void overrideDepFlags (DependencyDeclaration dependency, DependencyDeclaration dep, boolean generic) {
+		//If set, cannot be changed by the group definition.
+		//NOTE: This strategy is because it cannot be compiled, and we do not want to make an error during resolution
 		if (dependency.getMissingPolicy() == null) {
 			dependency.setMissingPolicy(dep.getMissingPolicy()) ;
 		} 
@@ -647,6 +650,7 @@ public class Util {
 	 * The dependencies "depName" that apply on a client are those of the instance, plus those of the implem, 
 	 * plus those of the spec, and finally those in the composite. 
 	 * We aggregate the constraints as found at all level, including the generic one found in the composite type.
+	 * We compute also the dependency flags.
 	 * 
 	 * @param client
 	 * @param dependency

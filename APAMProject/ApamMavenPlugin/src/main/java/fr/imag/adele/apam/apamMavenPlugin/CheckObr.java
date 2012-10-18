@@ -593,7 +593,7 @@ public class CheckObr {
 			
 			//Check that the component is a singleton
 			if (!CST.SINGLETON.equals(cap.getProperty(CST.SINGLETON))) {
-				CheckObr.error("Invalid Grant clause. Component " + cap.getName() + " must be a singleton" );
+				CheckObr.error("Invalid Grant clause. Component " + cap.getProperty(CST.NAME) + " must be a singleton" );
 			}
 
 			//Check that grant state values are valid

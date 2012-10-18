@@ -334,37 +334,38 @@ public class ComponentBrokerImpl implements ComponentBroker{
 	 * from Apform
 	 */
 	
-    protected void removeSpec(Specification spec, boolean notify) {
-     	((SpecificationImpl)spec).unregister(); 	
-    }
     public void removeSpec(Specification spec) {
     	removeSpec(spec,true);
     }
-    public void remove(Specification spec) {
+    
+    protected void removeSpec(Specification spec, boolean notify) {
+     	((SpecificationImpl)spec).unregister(); 	
+    }
+    void remove(Specification spec) {
     	assert spec != null && specifications.contains(spec);
     	specifications.remove(spec);
     }
 
     
-	protected void removeImpl(Implementation implementation, boolean notify) {
-		((ComponentImpl) implementation).unregister();
-	}
 	public void removeImpl(Implementation implementation) {
 		removeImpl(implementation, true);
 	}
-	public void remove(Implementation implementation) {
+	protected void removeImpl(Implementation implementation, boolean notify) {
+		((ComponentImpl) implementation).unregister();
+	}
+	protected void remove(Implementation implementation) {
 		assert implementation != null && implementations.contains(implementation);
 		implementations.remove(implementation);
 	}
 
 	
-    public  void removeInst(Instance inst) {
+    public void removeInst(Instance inst) {
     	removeInst(inst,true);
     }
     protected void removeInst(Instance inst, boolean notify) {
         ((InstanceImpl)inst).unregister();
     }
-    public void remove(Instance instance) {
+    protected void remove(Instance instance) {
     	assert instance != null && instances.contains(instance);
     	instances.remove(instance);
     }
@@ -440,4 +441,26 @@ public class ComponentBrokerImpl implements ComponentBroker{
 			return null;
 		}
     }
+
+	@Override
+	public void removeComponent(Component component) {
+		if (component instanceof Specification) {
+			removeSpec ((Specification)component) ;
+		}
+		if (component instanceof Implementation) {
+			removeImpl ((Implementation)component) ;
+		}
+		if (component instanceof Instance) {
+			removeInst ((Instance)component) ;
+		}
+	}
+
+	@Override
+	public Instance getInstService(Object service) {
+		for (Instance inst : instances) {
+			if (inst.getServiceObject() == service) 
+				return inst ;
+		}
+		return null;
+	}
 }
