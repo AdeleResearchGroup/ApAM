@@ -1,6 +1,6 @@
 package fr.imag.adele.apam.test;
 
-import static fr.imag.adele.apam.test.helpers.ApAMHelper.waitForIt;
+import static fr.imag.adele.apam.test.ApAMHelper.waitForIt;
 import static org.ops4j.pax.exam.CoreOptions.felix;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
@@ -27,7 +27,6 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.app1.spec.App1Spec;
 import fr.imag.adele.apam.app2.spec.App2Spec;
-import fr.imag.adele.apam.test.helpers.ApAMHelper;
 
 /**
  * Test Suite
@@ -96,7 +95,7 @@ public class OBRMANTest {
     
     @Test
     public void testRootModel(){
-        waitForIt(100);
+        waitForIt(1000);
         int sizebefaore = apam.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE).size();
         try {
             apam.setObrManInitialConfig("wrongfilelocation",null,1);
@@ -112,7 +111,7 @@ public class OBRMANTest {
      */
     @Test
     public void simpleComposite() {
-        waitForIt(100);
+        waitForIt(1000);
         try {
             String[] repos = {"jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.1-SNAPSHOT!/APPS-repo.xml"};
             apam.setObrManInitialConfig("rootAPPS",repos,1);
@@ -141,7 +140,7 @@ public class OBRMANTest {
      */
     @Test
     public void embeddedComposite() {
-        waitForIt(100);
+        waitForIt(1000);
 
         try {
             String[] repos = {"jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.1-SNAPSHOT!/APPS-repo.xml"};
@@ -170,7 +169,7 @@ public class OBRMANTest {
      */
     @Test
     public void movedCompositev1() {
-        waitForIt(100);
+        waitForIt(1000);
 
         simpleComposite();
 
@@ -201,7 +200,7 @@ public class OBRMANTest {
      */
     @Test
     public void missingAPP2Composite() {
-        waitForIt(100);
+        waitForIt(1000);
         apam.createCompositeType("APP1.2", "APP1_MAIN", null);       
     }
 

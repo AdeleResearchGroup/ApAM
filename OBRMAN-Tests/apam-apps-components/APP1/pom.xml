@@ -12,8 +12,8 @@
 	<modules>
 		<module>APP1-MainSpec</module>
 		<module>APP1-S1-Spec</module>
-		<module>APP1-S2-Spec</module>
 		<module>APP1-S3-Spec</module>
+		<module>APP1-S2-Spec</module>
 		<module>APP1-MainImpl</module>
 		<module>APP1-S1-Impl</module>
 		<module>APP1-S2-Impl</module>
@@ -37,7 +37,7 @@
 					<configuration>
 						<noLocalObr>true</noLocalObr>
 						<dependencyObrList>
-							<param>file:/${basedir}/../../../apam-repositories/APPS/obr/APPS-repo.xml</param>
+							<param>file://${basedir}/../../../apam-repositories/APPS/obr/APPS-repo.xml</param>
 						</dependencyObrList>
 					</configuration>
 				</plugin>

@@ -86,12 +86,12 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			 <artifactId>APAMHelpers</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
+<!-- 			 <artifactId>APAMHelpers</artifactId> -->
+<!-- 			<version>0.0.1-SNAPSHOT</version> -->
+<!-- 			<scope>test</scope> -->
+<!-- 		</dependency> -->
 		
 		<!-- <dependency> -->
 		<!-- <groupId>fr.imag.adele.apam</groupId> -->
@@ -100,6 +100,24 @@
 		<!-- <type>bundle</type> -->
 		<!-- <scope>compile</scope> -->
 		<!-- </dependency> -->
+
+		<dependency>
+			<groupId>org.ow2.chameleon.testing</groupId>
+			<artifactId>osgi-helpers</artifactId>
+			<version>0.2.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>OBRMAN</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>APAM</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.apps.app1</groupId>
