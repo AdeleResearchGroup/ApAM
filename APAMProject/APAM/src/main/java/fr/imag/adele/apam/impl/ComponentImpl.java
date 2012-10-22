@@ -162,9 +162,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 
 	/**
 	 * This method removes a component from the Apam state model, it must ensure that the component is
-	 * no longer referenced by any other component or visible by the external API
+	 * no longer referenced by any other component or visible by the external API.
+	 * Should be called ONLY from the Broker.
 	 */
-	public abstract void unregister();
+	abstract void unregister();
 
 	/**
 	 * Components are uniquely represented in the Apam state model, so we use reference equality

@@ -109,7 +109,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 			}
 		} catch (Exception e) { 
 			e.printStackTrace() ;
-			}
+		}
 	}
 
 	/**
@@ -125,14 +125,14 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 			System.out.println("no component to update ???");
 			return ;
 		}
-		
+
 		/*
 		 * Be sure that the list is atomically updated
 		 */
 		synchronized (deployed) {
 			deployed.addAll(sel.getComponents());
 		}
-		
+
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	@Override
 	public void addedInApam(Component newComponent) {
 		logger.debug("Added : " + newComponent);
-		
+
 		/*
 		 * notifications can originate concurrently with updates, so we need to synchronize access
 		 * to the list of currently updating components.
@@ -160,7 +160,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	 * @param name
 	 */
 	private void waitComponent (String name) {
-		
+
 		/*
 		 * First try the fast case when there is no pending updates for this component
 		 */
@@ -168,7 +168,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 			if (!deployed.contains(name))
 				return;
 		}
-		
+
 		/*
 		 * we wait for the component. 
 		 * 
@@ -176,9 +176,16 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 		 * proceed while we wait. Otherwise this would lead to a deadlock between the thread requiring the
 		 * component and the thread performing the deployment.
 		 */
+
 		logger.info("Waiting for " + name + " update.");
 		Apform2Apam.waitForComponent(name) ;
-		logger.info( name + " update done.");			
+//		try {
+//			Thread.sleep(1000) ;
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		logger.info(name + " update done.");			
 
 	}
 
@@ -233,13 +240,18 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 		return null;
 	}
 
-
 	@Override
-	public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
-			Set<Instance> insts) {
-		// do not care
+	public Instance findInstByName(Composite composite, String instName) {
+		waitComponent(instName);
+		return null;
 	}
 
+	@Override
+	public Implementation findImplByDependency(CompositeType compoType,
+			DependencyDeclaration dependency) {
+		waitComponent(dependency.getTarget().getName());
+		return  null;
+	}
 
 	@Override
 	public Component findComponentByName(CompositeType compoType, String componentName) {
@@ -247,25 +259,24 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 		return null;
 	}
 
+	
 	@Override
 	public ComponentBundle findBundle(CompositeType compoType,
 			String bundleSymbolicName, String componentName) {
 		return null;
 	}
+
 	@Override
-	public Instance findInstByName(Composite composite, String instName) {
-		return null;
+	public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
+			Set<Instance> insts) {
+		// do not care
 	}
 
 	@Override
 	public void removedFromApam(Component lostComponent) {
 		logger.debug("Removed : " + lostComponent);
 	}
-	@Override
-	public Implementation findImplByDependency(CompositeType compoType,
-			DependencyDeclaration dependency) {
-		return  null;
-	}
+
 
 
 }

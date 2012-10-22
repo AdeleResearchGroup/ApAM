@@ -60,11 +60,12 @@ public class ApamMan implements DependencyManager {
 
 		Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
 		List<Filter> preferences = Util.toFilterList(dep.getInstancePreferences()) ;
-		if ((constraints == null) && (preferences == null)) {
+		if ((constraints.isEmpty()) && (preferences.isEmpty())) { 
 			for (Instance inst : impl.getInsts()) {
 				if (inst.isSharable() && Util.checkInstVisible(composite, inst))
 					return inst;
 			}
+			return null ;
 		}
 
 		Set<Instance> insts = new HashSet<Instance>();

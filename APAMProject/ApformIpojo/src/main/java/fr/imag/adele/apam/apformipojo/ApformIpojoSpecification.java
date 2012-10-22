@@ -10,6 +10,7 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
 public class ApformIpojoSpecification extends ApformIpojoComponent implements ApformSpecification {
 
@@ -72,7 +73,9 @@ public class ApformIpojoSpecification extends ApformIpojoComponent implements Ap
      */
     @Override
     protected void unbindFromApam(Apam apam) {
-        Apform2Apam.vanishSpecification(getName());
+       // Apform2Apam.vanishSpecification(getName());
+        ComponentBrokerImpl.disappearedComponent(getName()) ;
+
     }
 
 	@Override

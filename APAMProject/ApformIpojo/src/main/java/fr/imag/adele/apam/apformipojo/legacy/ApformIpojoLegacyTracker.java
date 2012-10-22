@@ -19,6 +19,7 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
 import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
 /**
  * This class tracks iPojo legacy implementations and instances and register
@@ -72,7 +73,8 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
             return;
 
         if (factory instanceof IPojoFactory) {
-            Apform2Apam.vanishImplementation(factory.getName());
+           // Apform2Apam.vanishImplementation(factory.getName());
+            ComponentBrokerImpl.disappearedComponent(factory.getName()) ;
         }
 
     }
@@ -140,7 +142,8 @@ public class ApformIpojoLegacyTracker implements ServiceTrackerCustomizer {
          * APAM
          */
 
-        Apform2Apam.vanishInstance(ipojoInstance.getInstanceName());
+        //Apform2Apam.vanishInstance(ipojoInstance.getInstanceName());
+        ComponentBrokerImpl.disappearedComponent(ipojoInstance.getInstanceName()) ;
     }
 
     /**

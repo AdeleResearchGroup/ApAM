@@ -39,9 +39,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
 	/**
 	 * NOTE We can not directly initialize the field because the constructor may throw an exception, so we need to
-	 * make an static block to be able to catch the exception. The root composite bootstraps the system, so normally
-	 * we SHOULD always be able to create it; if there is an exception, that means there is some bug an we can not
-	 * normally continue so we throw a class initialization exception.
+	 * make a static block to be able to catch the exception. The root composite bootstraps the system, so normally
+	 * we SHOULD always be able to create it; if there is an exception, that means there is some bug and we cannot
+	 * continue so we throw a class initialization exception.
 	 */
 	static {
 		CompositeType bootstrap = null;
@@ -268,46 +268,46 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     	super.register(initialProperties); 	
     }
     
-    @Override
-    public void unregister() {
-		/*
-		 * Notify managers and remove the implementation from the broker
-		 */ 
-    	super.unregister();
-
-    	/*
-    	 * Remove import relationships. 
-    	 * 
-    	 * NOTE We have to copy the list because we update it while iterating it
-    	 * 
-    	 */
-		for (CompositeType imported : new HashSet<CompositeType>(imports)) {
-	        removeImport(imported);
-		}
-
-		for (CompositeType importedBy : new HashSet<CompositeType>(invImports)) {
-	        ((CompositeTypeImpl)importedBy).removeImport(this);
-		}
-
-    	/*
-    	 * Remove opposite references from embedding composite types
-    	 * 
-    	 * TODO May be this should be done at the same type that the contains
-    	 * hierarchy, but this will require a refactor of the superclass to 
-    	 * have a fine control on the order of the steps.
-    	 */
-		for (CompositeType inComposite : invEmbedded) {
-	        ((CompositeTypeImpl)inComposite).removeEmbedded(this);
-		}
-		
-    	invEmbedded.clear();
-    	
-		/*
-		 * Remove from list of composite types
-		 */
-		CompositeTypeImpl.compositeTypes.remove(getName());
-
-    }
+//    @Override
+//    public void unregister() {
+//		/*
+//		 *  Remove the instances and notify managers
+//		 */ 
+//    	super.unregister();
+//
+//    	/*
+//    	 * Remove import relationships. 
+//    	 * 
+//    	 * NOTE We have to copy the list because we update it while iterating it
+//    	 * 
+//    	 */
+//		for (CompositeType imported : new HashSet<CompositeType>(imports)) {
+//	        removeImport(imported);
+//		}
+//
+//		for (CompositeType importedBy : new HashSet<CompositeType>(invImports)) {
+//	        ((CompositeTypeImpl)importedBy).removeImport(this);
+//		}
+//
+//    	/*
+//    	 * Remove opposite references from embedding composite types
+//    	 * 
+//    	 * TODO May be this should be done at the same type that the contains
+//    	 * hierarchy, but this will require a refactor of the superclass to 
+//    	 * have a fine control on the order of the steps.
+//    	 */
+//		for (CompositeType inComposite : invEmbedded) {
+//	        ((CompositeTypeImpl)inComposite).removeEmbedded(this);
+//		}
+//		
+//    	invEmbedded.clear();
+//    	
+//		/*
+//		 * Remove from list of composite types
+//		 */
+//		CompositeTypeImpl.compositeTypes.remove(getName());
+//
+//    }
 
     /**
      * Deploy (logically) a new implementation into this composite type.

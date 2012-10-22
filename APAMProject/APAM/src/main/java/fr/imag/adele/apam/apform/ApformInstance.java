@@ -47,5 +47,7 @@ public interface ApformInstance  extends ApformComponent {
     public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName);
 
     public void setInst(Instance asmInstImpl);
+    
+    public Instance getInst();
 
 }

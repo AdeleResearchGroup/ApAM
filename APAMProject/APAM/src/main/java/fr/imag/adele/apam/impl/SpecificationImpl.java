@@ -63,21 +63,16 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
     @Override
     public void unregister() {
     	
-    	/*
-    	 * Notify managers
-    	 * 
-    	 * TODO Add call back to remove specification?
-    	 */
-    	
-
-    	/*
+   	/*
     	 * Remove all implementations providing this specification
     	 * 
     	 * TODO Is this really necessary? We should consider the special case of
     	 * updates because we probably can reduce the impact of the modification.  
     	 */
         for (Implementation impl : implementations) {
-            ((ComponentBrokerImpl)CST.componentBroker).removeImpl(impl,false);
+            //((ComponentBrokerImpl)CST.componentBroker).removeImpl(impl);
+            ComponentBrokerImpl.disappearedComponent(impl) ;
+
         }
     	
         /*
@@ -88,7 +83,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
         /*
          * remove from broker
          */
-        ((ComponentBrokerImpl)CST.componentBroker).remove(this);
+        //((ComponentBrokerImpl)CST.componentBroker).remove(this);
     	
     }
 

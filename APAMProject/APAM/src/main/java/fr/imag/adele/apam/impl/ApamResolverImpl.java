@@ -184,7 +184,7 @@ public class ApamResolverImpl implements ApamResolver {
 			CompositeType compoType = compo.getCompType();
 			if (impl == null) {
 				if (dependency.getTarget() instanceof ImplementationReference) {
-					String implName = ((ImplementationReference<?>) dependency.getTarget()).getName();
+					//String implName = ((ImplementationReference<?>) dependency.getTarget()).getName();
 					impl = findImplByDependency(compoType, dependency);
 				} else {
 					if (dependency.isMultiple()) {

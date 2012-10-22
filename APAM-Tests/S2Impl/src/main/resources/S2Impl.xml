@@ -18,7 +18,7 @@
 		<dependency specification="S4" field="s4" />
 	</implementation>
 
-	<implementation name="TestUpdate"
+	<implementation name="T"
 		classname="fr.imag.adele.apam.test.s2Impl.TestUpdate" >
 		<dependency implementation="MotorolaZ43" field="temperature" />
 	</implementation>
