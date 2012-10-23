@@ -10,20 +10,11 @@
 	<artifactId>DISTRIMAN</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>DISTRIMAN</name>
-	<description>The Distribution and deployment Manager for APAM</description>
+	<name>Apam Distribution DependencyManager (DISTRIMAN)</name>
+	<description>The Apam Distribution DependencyManager</description>
 	<properties>
 		<bundle.symbolicName>DISTRIMAN</bundle.symbolicName>
 	</properties>
-
-	<repositories>
-		<repository>
-			<id>maven-barjo-repository-release</id>
-			<name>RoSe - Release</name>
-			<url>https://repository-barjo.forge.cloudbees.com/release/</url>
-			<layout>default</layout>
-		</repository>
-	</repositories>
 
 	<build>
 		<plugins>
@@ -45,18 +36,13 @@
 				<configuration>
 					<instructions>
 						<Bundle-Name>${project.name}</Bundle-Name>
-						<Bundle-Description>
-							Maven distribution manager
-						</Bundle-Description>
-						<Bundle-SymbolicName>
-							${project.artifactId}
-						</Bundle-SymbolicName>
-						<Bundle-Vendor>
-							Adele/LIG/ Grenoble University, France
-						</Bundle-Vendor>
+						<Bundle-Description>Apam distribution manager</Bundle-Description>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Bundle-Vendor>Adele/LIG/ Grenoble University, France</Bundle-Vendor>
 						<Bundle-Version>${project.version}</Bundle-Version>
-						<!-- <Export-Package>fr.imag.adele.obrMan</Export-Package> -->
-						<!-- <Private-Package>org.apache.felix.utils.*</Private-Package> -->
+                        <Import-Package>*</Import-Package>
+                        <Private-Package>fr.imag.adele.apam.distriman</Private-Package>
+                        <Export-Package/>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -72,30 +58,6 @@
 						</goals>
 					</execution>
 				</executions>
-
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.1</version>
-				<executions>
-					<execution>
-						<id>create-staging-area</id>
-						<phase>install</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<copy
-									file="${basedir}/target/${project.artifactId}-${project.version}.jar"
-									todir="${exportedFolder}/s-am" />
-								<copy
-									file="${basedir}/target/${project.artifactId}-${project.version}-sources.jar"
-									todir="${exportedFolder}/s-am/sources" />
-							</tasks>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -106,7 +68,25 @@
 			<artifactId>APAM</artifactId>
 			<version>${apam.current.version}</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.ipojo.annotations</artifactId>
+            <version>1.8.2</version>
+        </dependency>
+    </dependencies>
 
+    <repositories>
+        <repository>
+            <id>maven-barjo-repository-release</id>
+            <name>RoSe - Release</name>
+            <url>https://repository-barjo.forge.cloudbees.com/release/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
 
 </project>
