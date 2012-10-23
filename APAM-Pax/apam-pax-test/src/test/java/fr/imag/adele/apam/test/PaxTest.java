@@ -6,12 +6,6 @@ import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.vmOption;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import junit.framework.Assert;
 
 import org.junit.After;
@@ -30,31 +24,12 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.test.s3.S3_1;
-import fr.imag.adele.apam.test.s3.S3_2;
-import fr.imag.adele.apam.test.s4.S4;
+import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
 
-//import fr.imag.adele.apam.test.s4.S4;
 
 @RunWith(JUnit4TestRunner.class)
 public class PaxTest {
-
-	// S4 s4_1;
-	// S4 s4_2;
-	// S4 s4_3;
-	// Set<S3_1> s3_1set;
-	// S3_2[] s3_2array;
-	// S3_1 s3;
-	// S3_2 s3bis = null;;
-	//
-	// Set<S3_1> s3_1;
-	// S3_2[] s3_2;
-	//
-	// List<S3_1> s3s2;
-	// Set<S3_1> s3s;
-	//
-	// Instance myInst;
-	// String name;
 
 	@Inject
 	protected BundleContext context;
@@ -68,9 +43,6 @@ public class PaxTest {
 		}
 	}
 
-	/**
-	 * Done some initializations.
-	 */
 	@Before
 	public void setUp() {
 
@@ -117,8 +89,8 @@ public class PaxTest {
 		Option[] r = OptionUtils.combine(platform, bundles);
 
 		Option[] debug = options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
-		
-		//r = OptionUtils.combine(r, debug);
+
+		// r = OptionUtils.combine(r, debug);
 
 		// Option[] log =
 		// options(vmOption("-Dlog4j.file=./am.log4j.properties"));
@@ -131,75 +103,70 @@ public class PaxTest {
 		help.dispose();
 	}
 
+	/**
+	 * Creates an implementation and verifies if an correct instance of such implementation was added in APAM
+	 * @TODO Change this code to test in case of fr.imag.adele.apam.core.CompositeDeclaration
+	 */
 	@Test
-	public void InstanceCreationWithoutInjection(){
-			    
-		Implementation s3Impl = CST.apamResolver.findImplByName(null, "S3Impl");
-		
-		Instance inst=s3Impl.createInstance(null, null);
-		
-		Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
-		
-		boolean found=false;
-		
-		for(Instance i:CST.componentBroker.getInsts()){
+	public void AtomicInstanceCreationWithoutInjection() {
 
-			
-			if(inst==i) {
-				found=true;
-				break;
+		Implementation s3Impl = CST.apamResolver.findImplByName(null, "S3Impl");
+
+		//save the initial number of instances present in APAM
+		int counterInstanceBefore=CST.componentBroker.getInsts().size();
+		
+		Instance inst = s3Impl.createInstance(null, null);
+
+		ImplementationDeclaration initialImplDecl = inst.getImpl()
+				.getImplDeclaration();
+
+		boolean found = false;
+
+		//save the number of instances present in APAM after the creation of our own instance
+		int counterInstanceAfter=CST.componentBroker.getInsts().size();
+		
+		for (Instance i : CST.componentBroker.getInsts()) {
+
+			ImplementationDeclaration apamImplDecl = i.getImpl().getImplDeclaration();
+
+			if (apamImplDecl instanceof AtomicImplementationDeclaration
+					&& initialImplDecl instanceof AtomicImplementationDeclaration) {
+				AtomicImplementationDeclaration atomicApamInstance = (AtomicImplementationDeclaration) apamImplDecl;
+				AtomicImplementationDeclaration atomicBrokerInstance = (AtomicImplementationDeclaration) initialImplDecl;
+				
+				if(atomicApamInstance.getClassName().equals(atomicBrokerInstance.getClassName()))
+					found=true;
 			}
-			
+
 		}
-		
+
+		Assert.assertTrue((counterInstanceBefore+1)==counterInstanceAfter);
 		Assert.assertTrue(found);
-		
+
 	}
-	
-	
+
 	public void testRootModel() {
 
-//		S3_1 s3;
-//		S3_2 s3bis=null;
-//		
-//		S4 s4_1;
-//		S4 s4_2;
-//		S4 s4_3;
-//		Set<S3_1> s3_1set;
-//		S3_2[] s3_2array;
-//
-//		Set<S3_1> s3_1;
-//		S3_2[] s3_2;
-//
-//		List<S3_1> s3s2;
-//		Set<S3_1> s3s;
-//
-//		Instance myInst;
-//		String name;
-//
-//		Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
-//
-//		Map<String, Instance> S3Insts = new HashMap<String, Instance>();
-
-		// Implementation s3Impl = CST.apamResolver.findImplByName(null,
-		// "apam.test.dependency.S3Impl");
-
-//		Implementation s3Impl = CST.apamResolver.findImplByName(null, "S3Impl");
-
-//		Instance s3Inst=s3Impl.createInstance(null, null);
-		
-		
-//		Assert.assertTrue(s3Inst != null);
-		
-//		Assert.assertTrue(s3bis != null);
-		// assertTrue(s3 != null);
-
-		// assertEquals (CST.componentBroker.getInstService(s3).getName(),
-		// s3.getName()) ;
-		// assertEquals (CST.componentBroker.getInstService(s3bis).getName(),
-		// s3bis.getName()) ;
+		// S3_1 s3;
+		// S3_2 s3bis=null;
 		//
-		// //Checking constraints
+		// S4 s4_1;
+		// S4 s4_2;
+		// S4 s4_3;
+		// Set<S3_1> s3_1set;
+		// S3_2[] s3_2array;
+		//
+		// Set<S3_1> s3_1;
+		// S3_2[] s3_2;
+		//
+		// List<S3_1> s3s2;
+		// Set<S3_1> s3s;
+		//
+		// Instance myInst;
+		// String name;
+		//
+
+		//Checking constraints
 		// s3Inst = CST.componentBroker.getInstService(s3bis) ;
 		//
 		// assertTrue (s3Inst.match("(OS*>Android)" )) ;
@@ -264,3 +231,7 @@ public class PaxTest {
 	}
 
 }
+//Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
+//CST.componentBroker.getInstService(s3bis) ;
+//Instance s3Inst=s3Impl.createInstance(null, null);
+// Implementation s3Impl = CST.apamResolver.findImplByName(null,"apam.test.dependency.S3Impl");
