@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<apam  xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+
+
+  <implementation name="fr.imag.adele.apam.test.impl.S3Impl" 
+	    classname="fr.imag.adele.apam.test.impl.S3Impl"
+		specification="fr.imag.adele.apam.test.iface.S3">
+		<callback onInit="start" onRemove="stop" />
+  </implementation>
+  
+</apam>
