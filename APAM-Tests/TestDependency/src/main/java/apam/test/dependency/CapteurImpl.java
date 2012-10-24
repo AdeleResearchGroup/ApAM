@@ -1,7 +1,7 @@
 package apam.test.dependency;
 
-import apam.test.attr.ConfCapteur;
 import apam.test.attr.CapteurTemp;
+import apam.test.attr.ConfCapteur;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
 

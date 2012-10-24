@@ -31,7 +31,7 @@ public class Dependency implements S2, ApamComponent, Runnable {
 	public S3_1      s3;
     public S3_2      s3bis;
 
-    public Set<S3_1> s3_1;
+	public Set<S3_1> s3_1;
     public S3_2[]    s3_2;
 
     public List<S3_1> s3s2;
@@ -112,19 +112,11 @@ public class Dependency implements S2, ApamComponent, Runnable {
 	public Map<String, Instance> S3Insts;
 	public Implementation s3Impl;
 	public Instance s3Inst;
-	
-	public Instance getS3Inst() {
-		return s3Inst;
-	}
-
-	public void setS3Inst(Instance s3Inst) {
-		this.s3Inst = s3Inst;
-	}
 
 	public void p1(){
 		S3Insts = new HashMap<String, Instance> () ;
 		//Test simple dependency
-		s3Impl = CST.apamResolver.findImplByName(null, "apam.test.dependency.S3Impl");
+		s3Impl = CST.apamResolver.findImplByName(null, "S3Impl");
 	}
 	
 	public void p2(){
@@ -280,4 +272,19 @@ public class Dependency implements S2, ApamComponent, Runnable {
 		this.rmInst = rmInst;
 	}
 	
+    public S3_2 getS3bis() {
+		return s3bis;
+	}
+
+	public void setS3bis(S3_2 s3bis) {
+		this.s3bis = s3bis;
+	}
+	
+	public Instance getS3Inst() {
+		return s3Inst;
+	}
+
+	public void setS3Inst(Instance s3Inst) {
+		this.s3Inst = s3Inst;
+	}
 }

@@ -176,6 +176,13 @@
  			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S3Impl</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+ 			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 

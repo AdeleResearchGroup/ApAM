@@ -34,16 +34,17 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.test.s3.S3_1;
 
 @RunWith(JUnit4TestRunner.class)
 public class PaxTest {
 
 	@Inject
 	protected BundleContext context;
-	
+
 	OSGiHelper OSGihelper;
-	
-	private static final int CONST_WAIT_TIME=1000;
+
+	private static final int CONST_WAIT_TIME = 1000;
 
 	private static void waitForIt(int time) {
 		try {
@@ -57,7 +58,7 @@ public class PaxTest {
 	public void setUp() {
 
 		OSGihelper = new OSGiHelper(context);
-	
+
 	}
 
 	@Configuration
@@ -90,20 +91,25 @@ public class PaxTest {
 						.version("1.2.17"),
 				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S4")
 						.version("0.0.1-SNAPSHOT"),
+				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S5")
+						.version("0.0.1-SNAPSHOT"),
 				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S3")
 						.version("0.0.1-SNAPSHOT"),
 				mavenBundle().groupId("fr.imag.adele.apam")
 						.artifactId("TestAttrSpec").version("0.0.1-SNAPSHOT"),
 				mavenBundle().groupId("fr.imag.adele.apam")
-						.artifactId("TestDependency").version("0.0.1-SNAPSHOT")
+						.artifactId("TestDependency").version("0.0.1-SNAPSHOT"),
+				mavenBundle().groupId("fr.imag.adele.apam")
+						.artifactId("S3Impl").version("0.0.1-SNAPSHOT")
 
 		));
 
 		Option[] r = OptionUtils.combine(platform, bundles);
 
-		//Option[] debug = options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
+		// Option[] debug =
+		// options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
 
-		//r = OptionUtils.combine(r, debug);
+		// r = OptionUtils.combine(r, debug);
 
 		// Option[] log =
 		// options(vmOption("-Dlog4j.file=./am.log4j.properties"));
@@ -170,97 +176,108 @@ public class PaxTest {
 	}
 
 	/**
-	 * @TODO Implementing this test by using the API of APAM instead of requiring the Dependency.class application to be installed
+	 * @TODO Implementing this test by using the API of APAM instead of
+	 *       requiring the Dependency.class application to be installed
 	 */
 	@Test
-	public void CheckingConstraints(){
-		
+	public void CheckingConstraints() {
+
 		waitForIt(CONST_WAIT_TIME);
-		
-		Implementation s3Impl=CST.componentBroker.getImpl("Dependency");
+
+		Implementation s3Impl = CST.componentBroker.getImpl("Dependency");
 		Instance s3Inst = s3Impl.createInstance(null, null);
 
-		Dependency dependency=(Dependency)s3Inst.getServiceObject();
-		
+		Dependency dependency = (Dependency) s3Inst.getServiceObject();
+
 		dependency.p1();
 		dependency.p2();
-		
-		Assert.assertTrue(dependency.getS3Inst().match("(OS*>Android)" ));
+
+		Assert.assertTrue(dependency.getS3Inst().match("(OS*>Android)"));
 		Assert.assertTrue(dependency.getS3Inst().match("(&amp;(location=living)(MyBool=true))"));
-		
+
 	}
-	
+
 	/**
-	 * @TODO Implementing this test by using the API of APAM instead of requiring the Dependency.class application to be installed
+	 * @TODO Implementing this test by using the API of APAM instead of
+	 *       requiring the Dependency.class application to be installed
 	 */
 	@Test
-	public void CheckingConstraintsWereInjected(){
-		
+	public void CheckingConstraintsWereInjected() {
+
 		waitForIt(CONST_WAIT_TIME);
-		
-		Implementation s3Impl=CST.componentBroker.getImpl("Dependency");
+
+		Implementation s3Impl = CST.componentBroker.getImpl("Dependency");
 		Instance s3Inst = s3Impl.createInstance(null, null);
 
-		Dependency dependency=(Dependency)s3Inst.getServiceObject();
-		
+		Dependency dependency = (Dependency) s3Inst.getServiceObject();
+
 		dependency.p1();
 		dependency.p2();
-		
-		Assert.assertTrue(dependency.getS3_1set().size() != 0) ;
-		Assert.assertTrue(dependency.getS3_1set().containsAll (Arrays.asList(dependency.getS3_2array()))) ;
+
+		Assert.assertTrue(dependency.getS3_1set().size() != 0);
+		Assert.assertTrue(dependency.getS3_1set().containsAll(
+				Arrays.asList(dependency.getS3_2array())));
 	}
-	
+
 	/**
-	 * @TODO Implementing this test by using the API of APAM instead of requiring the Dependency.class application to be installed
+	 * @TODO Implementing this test by using the API of APAM instead of
+	 *       requiring the Dependency.class application to be installed
 	 */
 	@Test
-	public void DynamicInjectingMultipleDependencies(){
-		
+	public void DynamicInjectingMultipleDependencies() {
+
 		waitForIt(CONST_WAIT_TIME);
-		
-		Implementation s3Impl=CST.componentBroker.getImpl("Dependency");
+
+		Implementation s3Impl = CST.componentBroker.getImpl("Dependency");
 		Instance s3Inst = s3Impl.createInstance(null, null);
 
-		Dependency dependency=(Dependency)s3Inst.getServiceObject();
-		
+		Dependency dependency = (Dependency) s3Inst.getServiceObject();
+
 		dependency.p1();
 		dependency.p2();
 		dependency.p3();
-		
-		Assert.assertTrue(dependency.getS3_1set().contains(s3Inst.getServiceObject())) ;
-		Assert.assertTrue(dependency.getS3_1set().containsAll (Arrays.asList(dependency.getS3_2array()))) ;;
+
+		Assert.assertTrue(dependency.getS3_1set().contains(
+				dependency.getS3Inst().getServiceObject()));
+		Assert.assertTrue(dependency.getS3_1set().containsAll(
+				Arrays.asList(dependency.getS3_2array())));
+		;
 	}
-	
+
 	/**
-	 * @TODO Implementing this test by using the API of APAM instead of requiring the Dependency.class application to be installed
+	 * @TODO Implementing this test by using the API of APAM instead of
+	 *       requiring the Dependency.class application to be installed
 	 */
 	@Test
-	public void DynamicWireDeletionMultipleDependency(){
-		
+	public void DynamicWireDeletionMultipleDependency() {
+
 		waitForIt(CONST_WAIT_TIME);
-		
-		Implementation s3Impl=CST.componentBroker.getImpl("Dependency");
+
+		Implementation s3Impl = CST.componentBroker.getImpl("Dependency");
 		Instance s3Inst = s3Impl.createInstance(null, null);
 
-		Dependency dependency=(Dependency)s3Inst.getServiceObject();
-		
+		Dependency dependency = (Dependency) s3Inst.getServiceObject();
+
 		dependency.p1();
 		dependency.p2();
 		dependency.p3();
 		dependency.p4();
-		
-		Assert.assertTrue(!dependency.getS3_1set().contains(dependency.getRmInst().getServiceObject()));
-		Assert.assertTrue(dependency.getS3_1set().containsAll (Arrays.asList(dependency.getS3_2array()))) ;
-		
+
+		Assert.assertTrue(!dependency.getS3_1set().contains(
+				dependency.getRmInst().getServiceObject()));
+		Assert.assertTrue(dependency.getS3_1set().containsAll(
+				Arrays.asList(dependency.getS3_2array())));
+
 	}
-	
+
 	@Test
 	@Ignore
 	public void CheckIfConstrainstWereTakenIntoConsideration() {
 
 		waitForIt(CONST_WAIT_TIME);
 
-		//Implementation s3Impl = CST.apamResolver.findImplByName(null, "Dependency");
+		// Implementation s3Impl = CST.apamResolver.findImplByName(null,
+		// "Dependency");
 
 		final Set<String> constraints = new HashSet<String>() {
 			{
@@ -269,7 +286,7 @@ public class PaxTest {
 			}
 		};
 
-		final List<String> preferences = new ArrayList<String>(){
+		final List<String> preferences = new ArrayList<String>() {
 			{
 				add("(OS*&gt;Linux, IOS, Windows)");
 				add("(OS*&gt;Linux, IOS)");
@@ -277,25 +294,26 @@ public class PaxTest {
 			}
 		};
 
-		
-		Apam apam = (Apam) OSGihelper.getServiceObject(Apam.class.getName(), null);
-		
-		//CST.apamResolver.findComponentByName(null, "Dependency");
-		
-		Implementation s3Impl=CST.componentBroker.getImpl("Dependency");
+		Apam apam = (Apam) OSGihelper.getServiceObject(Apam.class.getName(),
+				null);
+
+		// CST.apamResolver.findComponentByName(null, "Dependency");
+
+		Implementation s3Impl = CST.componentBroker.getImpl("Dependency");
 		Instance inst = s3Impl.createInstance(null, null);
 
-		Dependency dependency=(Dependency)inst.getServiceObject();
-		
-		//apam.getComposite("Dependency").getComposite()
-		//CST.apamResolver.
-		Instance instance=CST.apamResolver.resolveImpl(null, s3Impl, constraints, preferences);
+		Dependency dependency = (Dependency) inst.getServiceObject();
 
-		System.out.println("instance name:"+instance.getName());
-		
-		//Instance inst = s3Impl.createInstance(null, null);
+		// apam.getComposite("Dependency").getComposite()
+		// CST.apamResolver.
+		Instance instance = CST.apamResolver.resolveImpl(null, s3Impl,
+				constraints, preferences);
 
-		//Instance s3Inst = CST.componentBroker.getInstService(s3bis);
+		System.out.println("instance name:" + instance.getName());
+
+		// Instance inst = s3Impl.createInstance(null, null);
+
+		// Instance s3Inst = CST.componentBroker.getInstService(s3bis);
 
 		// fr.imag.adele.apam.Component compo =
 		// CST.apamResolver.findComponentByName(targetType, componentName);
@@ -316,8 +334,8 @@ public class PaxTest {
 		// Checking constraints
 		// s3Inst = CST.componentBroker.getInstService(s3bis) ;
 
-//		Assert.assertTrue(s3Inst.match("(OS*>Android)")
-//				&& s3Inst.match("(&(location=living)(MyBool=true))"));
+		// Assert.assertTrue(s3Inst.match("(OS*>Android)")
+		// && s3Inst.match("(&(location=living)(MyBool=true))"));
 
 	}
 

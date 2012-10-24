@@ -7,63 +7,73 @@
 	express or implied. See the License for the specific language governing permissions 
 	and limitations under the License. -->
 
-<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
 
-<!-- <implementation name="MotorolaZ43" specification="CapteurTemp"  -->
-<!-- 	classname="apam.test.dependency.MotorolaZ43" > -->
-<!-- 	<property name="unit" value="C" /> -->
-<!-- 	<property name="OS" value="Linux, Android" /> -->
-<!-- 	<definition name="rate" type="{high, low, medium}" /> -->
-<!-- </implementation> -->
+	<!-- <implementation name="MotorolaZ43" specification="CapteurTemp" -->
+	<!-- classname="apam.test.dependency.MotorolaZ43" > -->
+	<!-- <property name="unit" value="C" /> -->
+	<!-- <property name="OS" value="Linux, Android" /> -->
+	<!-- <definition name="rate" type="{high, low, medium}" /> -->
+	<!-- </implementation> -->
 
-<apam-instance name="Kitchen1" implementation="MotorolaZ43" >
-	<property name="location" value="kitchen" />
-	<property name="rate" value="high" />
-</apam-instance>
+	<!-- <apam-instance name="Kitchen1" implementation="MotorolaZ43" > -->
+	<!-- <property name="location" value="kitchen" /> -->
+	<!-- <property name="rate" value="high" /> -->
+	<!-- </apam-instance> -->
 
-<!-- La spec de DepS3 -->
+	<!-- La spec de DepS3 -->
 	<specification name="DepS2" interfaces="apam.test.dependency.S2" />
 
-<!-- 	<specification name="DepS3" interfaces="apam.test.dependency.S3_1,apam.test.dependency.S3_2}" > -->
-<!-- 	    <definition name="location" type="{living, kitchen, bedroom}"    /> -->
-<!-- 	    <definition name="OS" type="{Linux, Windows, Android, IOS}" /> -->
-<!-- 		<definition name="MyBool"    type="boolean" /> -->
-		
-<!-- 		<dependency specification="S4" /> -->
-<!-- 	</specification> -->
- 
-	<specification name="test" >
-		<dependency specification="CapteurTemp" >
+	<specification name="DepS3"
+		interfaces="{fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2}">
+		<definition name="location" type="{living, kitchen, bedroom}" />
+		<definition name="OS" type="{Linux, Windows, Android, IOS}" />
+		<definition name="MyBool" type="boolean" />
+
+		<dependency specification="S4" />
+	</specification>
+
+	<!-- <specification name="DepS3" interfaces="apam.test.dependency.S3_1,apam.test.dependency.S3_2}" 
+		> -->
+	<!-- <definition name="location" type="{living, kitchen, bedroom}" /> -->
+	<!-- <definition name="OS" type="{Linux, Windows, Android, IOS}" /> -->
+	<!-- <definition name="MyBool" type="boolean" /> -->
+
+	<!-- <dependency specification="S4" /> -->
+	<!-- </specification> -->
+
+	<specification name="test">
+		<dependency specification="CapteurTemp">
 			<constraints>
-				<implementation filter="(&amp;(unit=celsius)(piece=kitchen))" />
+				<implementation filter="(unit=C)" />
 			</constraints>
 		</dependency>
 	</specification>
-	
 
-	<implementation name="CapteurAndroid"
-		classname="apam.test.dependency.CapteurImpl" specification="CapteurTemp">
+
+	<implementation name="CapteurAndroid" classname="apam.test.dependency.CapteurImpl"
+		specification="CapteurTemp">
 		<property name="OS" value="Android" />
 		<property name="location" value="living" />
 		<property name="MyBool" value="true" />
 	</implementation>
 
-	<implementation name="CapteurIOS"
-		classname="apam.test.dependency.CapteurImpl" specification="CapteurTemp">
+	<implementation name="CapteurIOS" classname="apam.test.dependency.CapteurImpl"
+		specification="CapteurTemp">
 		<property name="OS" value="IOS" />
 		<property name="location" value="living" />
 		<property name="MyBool" value="true" />
 	</implementation>
-	
-	<implementation name="CapteurLunixIOS"
-		classname="apam.test.dependency.CapteurImpl" specification="CapteurTemp">
-		<property name="OS" value="Android, Linux, IOS" />
-	</implementation>	
 
-	<implementation name="CapteurLinux"
-		classname="apam.test.dependency.CapteurImpl" specification="CapteurTemp">
+	<implementation name="CapteurLunixIOS" classname="apam.test.dependency.CapteurImpl"
+		specification="CapteurTemp">
+		<property name="OS" value="Android, Linux, IOS" />
+	</implementation>
+
+	<implementation name="CapteurLinux" classname="apam.test.dependency.CapteurImpl"
+		specification="CapteurTemp">
 		<property name="OS" value="Android, Linux" />
 	</implementation>
 
@@ -72,12 +82,12 @@
 		<property name="location" value="living" />
 		<property name="MyBool" value="true" />
 	</apam-instance>
-	
+
 	<apam-instance implementation="CapteurLunixIOS" name="capteurLunixIOS-Okbis">
 		<property name="location" value="living" />
 		<property name="MyBool" value="true" />
 	</apam-instance>
-	
+
 	<apam-instance implementation="CapteurLinux" name="capteurLinux-living">
 		<property name="location" value="living" />
 		<property name="MyBool" value="true" />
@@ -89,17 +99,18 @@
 
 	<apam-instance name="capteurIOS" implementation="CapteurIOS" />
 
+	<implementation name="Dependency" classname="apam.test.dependency.Dependency"
+		specification="DepS2">
 
-	<implementation name="Temp"
-		classname="apam.test.dependency.Temp" specification="DepS2"  >
+		<dependency field="s3" /> <!-- interface="apam.test.dependency.S3_1" multiple="false" -->
 
-		<dependency field="s4" /> <!-- interface "apam.test.dependency.S4" multiple="false" -->
+		<dependency field="s3_1set"/>
+		<dependency field="s3_2array"/>
 
-		<dependency specification="CapteurTemp" >
-			<interface field="kitchenTemp" />  
-			<interface field="kitchenConfig" />  
+		<dependency field="s3bis">
 			<constraints>
-				<instance filter="(location=kitchen)" /> 
+				<implementation filter="(OS*>Android)" />
+				<instance filter="(&amp;(location=living)(MyBool=true))" />
 			</constraints>
 			<preferences>
 				<implementation filter="(OS*&gt;Linux, IOS, Windows)" />
@@ -107,90 +118,146 @@
 				<implementation filter="(OS*&gt;IOS)" />
 			</preferences>
 		</dependency>
-			
-		<dependency specification="CapteurTemp" id="livingTemp"> <!--  multiple = true -->
+
+<!-- 		<dependency specification="DepS3" id="S3Dep"> -->
+<!-- 			<interface field="s3_1set" /> -->
+<!-- 			<interface field="s3_2array" /> -->
+<!-- 			<constraints> -->
+<!-- 				<implementation filter="(OS*&gt;Android)" /> -->
+<!-- 				<instance filter="(&amp;(location=living)(MyBool=true))" /> -->
+<!-- 			</constraints> -->
+<!-- 		</dependency> -->
+	</implementation>
+
+	<implementation name="Temp" classname="apam.test.dependency.Temp"
+		specification="DepS2">
+
+		<dependency field="s4" /> <!-- interface "apam.test.dependency.S4" multiple="false" -->
+
+		<dependency specification="CapteurTemp">
+			<interface field="kitchenTemp" />
+			<interface field="kitchenConfig" />
+			<constraints>
+				<instance filter="(location=kitchen)" />
+			</constraints>
+			<preferences>
+				<implementation filter="(OS*&gt;Linux, IOS, Windows)" />
+				<implementation filter="(OS*&gt;Linux, IOS)" />
+				<implementation filter="(OS*&gt;IOS)" />
+			</preferences>
+		</dependency>
+
+		<dependency specification="CapteurTemp" id="livingTemp"> <!-- multiple = true -->
 			<interface field="captSet" />
 			<interface field="confCaptArray" />
 			<constraints>
 				<implementation filter="(OS*>Android)" />
-				<instance       filter="(&amp;(location=living)(MyBool=true))" />
+				<instance filter="(&amp;(location=living)(MyBool=true))" />
 			</constraints>
 		</dependency>
 	</implementation>
 
-<!-- 		<dependency field="s3bis" > -->
-<!-- 			<constraints> -->
-<!-- 				<implementation filter="(OS*&gt;Android)" /> -->
-<!-- 				<implementation filter="(OS*>Android)" /> -->
-<!-- 				<instance       filter="(&amp;(location=living)(MyBool=true))" /> -->
-<!-- 			</constraints> -->
-<!-- 			<preferences> -->
-<!-- 				<implementation filter="(OS*>Linux, IOS, Windows)" /> -->
-<!-- 				<implementation filter="(OS*>Linux, IOS)" /> -->
-<!-- 				<implementation filter="(OS*>IOS)" /> -->
-<!-- 				 <instance filter="" />  -->
-<!-- 			</preferences> -->
-<!-- 		</dependency> -->
-		
-<!-- 		<dependency implementation="" field="s4_2" > -->
-<!-- 			<constraints> -->
-<!-- 				<instance filter="" /> -->
-<!-- 				<instance filter="" /> -->
-<!-- 			</constraints> -->
-<!-- 		</dependency> -->
-<!-- 		<dependency field="s4_3" > -->
-<!-- 			<preferences> -->
-<!-- 				<instance filter="" /> -->
-<!-- 				<instance filter="" /> -->
-<!-- 				<instance filter="" /> -->
-<!-- 			</preferences> -->
-<!-- 		</dependency> -->
+	<!-- <dependency field="s3bis" > -->
+	<!-- <constraints> -->
+	<!-- <implementation filter="(OS*&gt;Android)" /> -->
+	<!-- <implementation filter="(OS*>Android)" /> -->
+	<!-- <instance filter="(&amp;(location=living)(MyBool=true))" /> -->
+	<!-- </constraints> -->
+	<!-- <preferences> -->
+	<!-- <implementation filter="(OS*>Linux, IOS, Windows)" /> -->
+	<!-- <implementation filter="(OS*>Linux, IOS)" /> -->
+	<!-- <implementation filter="(OS*>IOS)" /> -->
+	<!-- <instance filter="" /> -->
+	<!-- </preferences> -->
+	<!-- </dependency> -->
 
-<!-- 	<instance implementation="Dependency" name="testDependencyINst" /> -->
+	<!-- <dependency implementation="" field="s4_2" > -->
+	<!-- <constraints> -->
+	<!-- <instance filter="" /> -->
+	<!-- <instance filter="" /> -->
+	<!-- </constraints> -->
+	<!-- </dependency> -->
+	<!-- <dependency field="s4_3" > -->
+	<!-- <preferences> -->
+	<!-- <instance filter="" /> -->
+	<!-- <instance filter="" /> -->
+	<!-- <instance filter="" /> -->
+	<!-- </preferences> -->
+	<!-- </dependency> -->
+
+	<!-- <instance implementation="Dependency" name="testDependencyINst" /> -->
 
 
-<!-- Les implems de DepS2 -->
-	<implementation name="Impl1" message-fields="p1" 
-		classname="apam.test.dependency.S2Simple" specification="DepS2" >
-		<definition name="fieldAttr" field="theFieldAttr" internal="true" type="string" value="bidon"/>
+	<!-- Les implems de DepS2 -->
+	<implementation name="Impl1" message-fields="p1"
+		classname="apam.test.dependency.S2Simple" specification="DepS2">
+		<definition name="fieldAttr" field="theFieldAttr" internal="true"
+			type="string" value="bidon" />
 		<definition name="1-Bool" type="boolean" value="true" />
 		<definition name="1-String" type="string" />
-		<definition name="1-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" />
+		<definition name="1-location"
+			type="{FinalLiving, FinalKitchen, FinalLedroom}" />
 		<definition name="enumeration1" type="{f1, f2, f3, f4}" />
 	</implementation>
 
- 	<implementation name="Impl2"
-		classname="apam.test.dependency.S2ImplBis" specification="DepS2" >
+	<implementation name="Impl2" classname="apam.test.dependency.S2ImplBis"
+		specification="DepS2">
 	</implementation>
 
-	<implementation name="Impl2-bis" 
-		classname="apam.test.dependency.S2Final" specification="DepS2" >
+	<implementation name="Impl2-bis" classname="apam.test.dependency.S2Final"
+		specification="DepS2">
 	</implementation>
 
-<!-- Les instances pre existantes -->
-	<instance implementation="Impl1" name="inst1_2" >
+	<!-- Les instances pre existantes -->
+	<instance implementation="Impl1" name="inst1_2">
 	</instance>
 
-	<instance implementation="Impl1" name="inst1_3" >
+	<instance implementation="Impl1" name="inst1_3">
 	</instance>
 
-	<instance implementation="Impl1" name="inst1_4" >
+	<instance implementation="Impl1" name="inst1_4">
 	</instance>
 
-	<instance implementation="Impl1" name="inst1_5" >
+	<instance implementation="Impl1" name="inst1_5">
 	</instance>
 
-	<instance implementation="Impl1" name="inst1_6" >
+	<instance implementation="Impl1" name="inst1_6">
 	</instance>
 
-<!-- Les implems de S3  -->
-<!--  	<specification name="DepS3" -->
-<!-- 		interfaces="apam.test.dependency.S3_1,apam.test.dependency.S3_2"> -->
-<!-- 	</specification> -->
- 
+	<!-- Les implems de S3 -->
+	<!-- <specification name="DepS3" -->
+	<!-- interfaces="apam.test.dependency.S3_1,apam.test.dependency.S3_2"> -->
+	<!-- </specification> -->
 
-<!-- 	<implementation name="apam.test.dependency.CapteurImpl" -->
-<!-- 		classname="apam.test.dependency.CapteurImpl" specification="DepS3"> -->
+
+	<!-- <implementation name="apam.test.dependency.CapteurImpl" -->
+	<!-- classname="apam.test.dependency.CapteurImpl" specification="DepS3"> -->
+	<!-- </implementation> -->
+
+<!-- 	<implementation name="S3Android" -->
+<!-- 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
+<!-- 		<property name="OS" value="Android" /> -->
+<!-- 		<property name="location" value="living" /> -->
+<!-- 		<property name="MyBool" value="true" /> -->
+<!-- 	</implementation> -->
+
+<!-- 	<implementation name="S3IOS" -->
+<!-- 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
+<!-- 		<property name="OS" value="IOS" /> -->
+<!-- 		<property name="location" value="living" /> -->
+<!-- 		<property name="MyBool" value="true" /> -->
+<!-- 	</implementation> -->
+
+<!-- 	<implementation name="S3LunixIOS" -->
+<!-- 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
+<!-- 		<property name="OS" value="Android, Linux, IOS" /> -->
+<!-- 		<property name="location" value="living" /> -->
+<!-- 		<property name="MyBool" value="true" /> -->
+<!-- 	</implementation> -->
+
+<!-- 	<implementation name="S3Linux" -->
+<!-- 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
+<!-- 		<property name="OS" value="Android, Linux" /> -->
 <!-- 	</implementation> -->
 
 </apam>
