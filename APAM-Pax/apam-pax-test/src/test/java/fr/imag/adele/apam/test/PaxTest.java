@@ -25,6 +25,9 @@ import org.ops4j.pax.exam.OptionUtils;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.ow2.chameleon.testing.helpers.OSGiHelper;
 
 import apam.test.dependency.Dependency;
@@ -34,7 +37,6 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.test.s3.S3_1;
 
 @RunWith(JUnit4TestRunner.class)
 public class PaxTest {
@@ -271,6 +273,38 @@ public class PaxTest {
 	}
 
 	@Test
+	public void MultipleConstraints() throws InvalidSyntaxException{
+		
+		waitForIt(CONST_WAIT_TIME);
+		
+		final Set<Filter> constraintsAglomerated = new HashSet<Filter>() {
+			{
+				add(FrameworkUtil.createFilter("(&(OS=Windows)(location=bedroom))"));
+			}
+		};
+		
+		final Set<Filter> constraintsSingle = new HashSet<Filter>() {
+			{
+				add(FrameworkUtil.createFilter("(OS=Windows)"));
+				add(FrameworkUtil.createFilter("(location=bedroom)"));
+			}
+		};
+		
+		Implementation s3Impl = CST.componentBroker.getImpl("Dependency");
+		Instance s3Inst = s3Impl.createInstance(null, null);
+
+		Dependency dependency = (Dependency) s3Inst.getServiceObject();
+		
+		
+		Instance instanceS3_1=CST.componentBroker.getInstService(dependency.getS3ImplWindowsBedroomTry1());
+		Instance instanceS3_2=CST.componentBroker.getInstService(dependency.getS3ImplWindowsBedroomTry2());
+		
+		Assert.assertTrue(instanceS3_1.match(constraintsAglomerated));
+		Assert.assertTrue(instanceS3_2.match(constraintsSingle));
+		
+	}
+	
+	@Test
 	@Ignore
 	public void CheckIfConstrainstWereTakenIntoConsideration() {
 
@@ -304,38 +338,10 @@ public class PaxTest {
 
 		Dependency dependency = (Dependency) inst.getServiceObject();
 
-		// apam.getComposite("Dependency").getComposite()
-		// CST.apamResolver.
 		Instance instance = CST.apamResolver.resolveImpl(null, s3Impl,
 				constraints, preferences);
 
 		System.out.println("instance name:" + instance.getName());
-
-		// Instance inst = s3Impl.createInstance(null, null);
-
-		// Instance s3Inst = CST.componentBroker.getInstService(s3bis);
-
-		// fr.imag.adele.apam.Component compo =
-		// CST.apamResolver.findComponentByName(targetType, componentName);
-		// if (compo instanceof Implementation)
-		// ((Implementation)compo).createInstance(target,null);
-		// if (compo instanceof Specification) {
-		// Implementation impl = CST.apamResolver.resolveSpecByName(targetType,
-		// componentName, null, null) ;
-		// if (impl != null)
-		// impl.createInstance(null, null);
-		// }
-		//
-		// Composite instanceApp = (Composite) CompoType.createInstance(null,
-		// null);
-
-		// CST.componentBroker.getSpec("lo")
-
-		// Checking constraints
-		// s3Inst = CST.componentBroker.getInstService(s3bis) ;
-
-		// Assert.assertTrue(s3Inst.match("(OS*>Android)")
-		// && s3Inst.match("(&(location=living)(MyBool=true))"));
 
 	}
 

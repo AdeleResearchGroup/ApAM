@@ -43,6 +43,9 @@ public class Dependency implements S2, ApamComponent, Runnable {
     public MessageProducer<M1> p1;
     public MessageProducer<M1> producerM1;
     
+    S3_2 S3ImplWindowsBedroomTry1;
+    S3_2 S3ImplWindowsBedroomTry2;
+    
     // Called (by Apam) each time an M3 message is available.
     public void getMyMessage (M2 m2) {
     	M1 m1 = null;
@@ -286,5 +289,21 @@ public class Dependency implements S2, ApamComponent, Runnable {
 
 	public void setS3Inst(Instance s3Inst) {
 		this.s3Inst = s3Inst;
+	}
+
+	public S3_2 getS3ImplWindowsBedroomTry1() {
+		return S3ImplWindowsBedroomTry1;
+	}
+
+	public void setS3ImplWindowsBedroomTry1(S3_2 s3ImplWindowsBedroomTry1) {
+		S3ImplWindowsBedroomTry1 = s3ImplWindowsBedroomTry1;
+	}
+
+	public S3_2 getS3ImplWindowsBedroomTry2() {
+		return S3ImplWindowsBedroomTry2;
+	}
+
+	public void setS3ImplWindowsBedroomTry2(S3_2 s3ImplWindowsBedroomTry2) {
+		S3ImplWindowsBedroomTry2 = s3ImplWindowsBedroomTry2;
 	}
 }

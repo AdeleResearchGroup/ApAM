@@ -104,8 +104,22 @@
 
 		<dependency field="s3" /> <!-- interface="apam.test.dependency.S3_1" multiple="false" -->
 
-		<dependency field="s3_1set"/>
-		<dependency field="s3_2array"/>
+		<dependency field="s3_1set" />
+		<dependency field="s3_2array" />
+
+		<dependency field="S3ImplWindowsBedroomTry1">
+			<constraints>
+				<implementation filter="(OS=Windows)" />
+				<implementation filter="(location=bedroom)" />
+			</constraints>
+		</dependency>
+		
+		<dependency field="S3ImplWindowsBedroomTry2">
+			<constraints>
+				<implementation filter="(&amp;(OS=Windows)(location=bedroom))" />
+			</constraints>
+		</dependency>
+
 
 		<dependency field="s3bis">
 			<constraints>
@@ -119,14 +133,14 @@
 			</preferences>
 		</dependency>
 
-<!-- 		<dependency specification="DepS3" id="S3Dep"> -->
-<!-- 			<interface field="s3_1set" /> -->
-<!-- 			<interface field="s3_2array" /> -->
-<!-- 			<constraints> -->
-<!-- 				<implementation filter="(OS*&gt;Android)" /> -->
-<!-- 				<instance filter="(&amp;(location=living)(MyBool=true))" /> -->
-<!-- 			</constraints> -->
-<!-- 		</dependency> -->
+		<!-- <dependency specification="DepS3" id="S3Dep"> -->
+		<!-- <interface field="s3_1set" /> -->
+		<!-- <interface field="s3_2array" /> -->
+		<!-- <constraints> -->
+		<!-- <implementation filter="(OS*&gt;Android)" /> -->
+		<!-- <instance filter="(&amp;(location=living)(MyBool=true))" /> -->
+		<!-- </constraints> -->
+		<!-- </dependency> -->
 	</implementation>
 
 	<implementation name="Temp" classname="apam.test.dependency.Temp"
@@ -234,30 +248,30 @@
 	<!-- classname="apam.test.dependency.CapteurImpl" specification="DepS3"> -->
 	<!-- </implementation> -->
 
-<!-- 	<implementation name="S3Android" -->
-<!-- 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
-<!-- 		<property name="OS" value="Android" /> -->
-<!-- 		<property name="location" value="living" /> -->
-<!-- 		<property name="MyBool" value="true" /> -->
-<!-- 	</implementation> -->
+	<!-- <implementation name="S3Android" -->
+	<!-- classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
+	<!-- <property name="OS" value="Android" /> -->
+	<!-- <property name="location" value="living" /> -->
+	<!-- <property name="MyBool" value="true" /> -->
+	<!-- </implementation> -->
 
-<!-- 	<implementation name="S3IOS" -->
-<!-- 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
-<!-- 		<property name="OS" value="IOS" /> -->
-<!-- 		<property name="location" value="living" /> -->
-<!-- 		<property name="MyBool" value="true" /> -->
-<!-- 	</implementation> -->
+	<!-- <implementation name="S3IOS" -->
+	<!-- classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
+	<!-- <property name="OS" value="IOS" /> -->
+	<!-- <property name="location" value="living" /> -->
+	<!-- <property name="MyBool" value="true" /> -->
+	<!-- </implementation> -->
 
-<!-- 	<implementation name="S3LunixIOS" -->
-<!-- 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
-<!-- 		<property name="OS" value="Android, Linux, IOS" /> -->
-<!-- 		<property name="location" value="living" /> -->
-<!-- 		<property name="MyBool" value="true" /> -->
-<!-- 	</implementation> -->
+	<!-- <implementation name="S3LunixIOS" -->
+	<!-- classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
+	<!-- <property name="OS" value="Android, Linux, IOS" /> -->
+	<!-- <property name="location" value="living" /> -->
+	<!-- <property name="MyBool" value="true" /> -->
+	<!-- </implementation> -->
 
-<!-- 	<implementation name="S3Linux" -->
-<!-- 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
-<!-- 		<property name="OS" value="Android, Linux" /> -->
-<!-- 	</implementation> -->
+	<!-- <implementation name="S3Linux" -->
+	<!-- classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3"> -->
+	<!-- <property name="OS" value="Android, Linux" /> -->
+	<!-- </implementation> -->
 
 </apam>

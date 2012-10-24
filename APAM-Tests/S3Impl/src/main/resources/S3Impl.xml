@@ -29,11 +29,34 @@
 			c="xxx" /> -->
 	</apam-instance>
 
-	<implementation name="S3Android"
+	<implementation name="S3ImplAndroidLiving"
 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3">
 		<property name="OS" value="Android" />
 		<property name="location" value="living" />
-		<property name="MyBool" value="true" />
+	</implementation>
+	
+	<implementation name="S3ImplIOSLiving"
+		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3">
+		<property name="OS" value="Android" />
+		<property name="location" value="living" />
+	</implementation>
+	
+	<implementation name="S3ImplWindowsBedroom"
+		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3">
+		<property name="OS" value="windows" />
+		<property name="location" value="bedroom" />
+	</implementation>
+	
+	<implementation name="S3ImplAndroidKitchen"
+		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3">
+		<property name="OS" value="IOS" />
+		<property name="location" value="kitchen" />
+	</implementation>
+	
+	<implementation name="S3ImplIOSKitchen"
+		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3">
+		<property name="OS" value="IOS" />
+		<property name="location" value="kitchen" />
 	</implementation>
 
 	<apam-instance implementation="S3Impl" name="S3Impl-instance">
