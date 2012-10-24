@@ -28,7 +28,6 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
     /**
      * The associated APAM instance
      */
-    @SuppressWarnings("unused")
     private Instance                  apamInstance;
 
     /**
@@ -71,6 +70,11 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
         this.apamInstance = apamInstance;
     }
 
+    @Override
+    public Instance getInst() {
+    	return this.apamInstance;
+    }
+    
     /**
      * Apform: get the service object of the instance
      */

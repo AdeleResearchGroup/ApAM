@@ -29,6 +29,7 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
 public class ApformIpojoInstance extends InstanceManager implements ApformInstance, DependencyInjectionManager.Resolver  {
@@ -132,6 +133,10 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 		this.apamInstance = apamInstance;
 	}
 
+	@Override
+	public Instance getInst() {
+		return apamInstance;
+	}
 	/**
 	 * The attached APAM instance
 	 */
@@ -228,7 +233,8 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 			Apform2Apam.newInstance(this);
 
 		if (state == ComponentInstance.INVALID)
-			Apform2Apam.vanishInstance(getInstanceName());
+			//Apform2Apam.vanishInstance(getInstanceName());
+			ComponentBrokerImpl.disappearedComponent(getInstanceName()) ;
 	}
 
 

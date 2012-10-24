@@ -4,10 +4,10 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 
 	<composite name="CompoTestAttr" main="TestAttr"
-		specification="STestAttr" interfaces="{fr.imag.adele.apam.testAttr.TestAttr}" />
+		specification="STestAttr" interfaces="{apam.test.attr.TestAttr}" />
 
 	<implementation name="TestAttr"
-		classname="fr.imag.adele.apam.testAttrImpl.TestAttrImpl" specification="STestAttr">
+		classname="apam.test.attrImpl.TestAttrImpl" specification="STestAttr">
 <!-- 		<property name="S1toS2Final-Attr" value="couscous" /> -->
 		<property name="spec-name" value="yyy"  />
 <!-- 		<property name="definition-xx" value="ttt" /> -->
@@ -20,6 +20,13 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<definition name="S1toS2Final-location" type="{FinalLiving, FinalKitchen, FinalLedroom}" />
 		<definition name="enumeration" type="{f1, f2, f3, f4}" />
 	</implementation>
+
+<implementation name="MotorolaZ43" specification="CapteurTemp" 
+	classname="apam.test.attrImpl.MotorolaZ43" >
+	<property name="unit" value="C" />
+	<property name="OS" value="Linux, Android" />
+	<definition name="rate" type="{high, low, medium}" />
+</implementation>
 
 
 <!-- 	<instance implementation="TestAttr" name="TestAttr_Instance" /> -->

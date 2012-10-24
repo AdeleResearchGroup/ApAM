@@ -16,6 +16,10 @@ public class S4Impl implements S4 {
     }
 
     @Override
+    public String getName() {
+    	return "S4Impl";
+    }
+    @Override
     public void callBackS4(String s) {
         System.out.println(" In call back S4 : " + s);
     }

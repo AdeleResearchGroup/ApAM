@@ -104,7 +104,7 @@ public interface Instance extends Component {
      * @param depName : name of the dependency
      * @return
      */
-    public boolean createWire(Instance to, String depName);
+    public boolean createWire(Instance to, String depName, boolean hasConstraints);
 
     /**
      * remove that wire.

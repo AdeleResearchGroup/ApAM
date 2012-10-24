@@ -1,27 +1,20 @@
 package apam.test.dependency;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.Filter;
-
+import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Wire;
-import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.message.MessageProducer;
-import apam.test.dependency.S2;
-import apam.test.dependency.S3_1;
-import apam.test.dependency.S3_2;
-import apam.test.dependency.S4;
+import fr.imag.adele.apam.test.s3.S3_1;
+import fr.imag.adele.apam.test.s3.S3_2;
 
 public class Dependency implements S2, ApamComponent, Runnable {
 
@@ -117,7 +110,6 @@ public class Dependency implements S2, ApamComponent, Runnable {
 	}
 
 	public Map<String, Instance> S3Insts;
-	//Test simple dependency
 	public Implementation s3Impl;
 	public Instance s3Inst;
 	
@@ -163,6 +155,7 @@ public class Dependency implements S2, ApamComponent, Runnable {
 //		Implementation s3Impl = CST.apamResolver.findImplByName(null, "apam.test.dependency.S3Impl");
 //		Instance s3Inst ;
 		p1();
+
 				
 		//System.out.println("\nChecking simple dependency");
 		assertTrue(s3bis != null) ;

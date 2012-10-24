@@ -39,9 +39,9 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
 	/**
 	 * NOTE We can not directly initialize the field because the constructor may throw an exception, so we need to
-	 * make an static block to be able to catch the exception. The root composite bootstraps the system, so normally
-	 * we SHOULD always be able to create it; if there is an exception, that means there is some bug an we can not
-	 * normally continue so we throw a class initialization exception.
+	 * make a static block to be able to catch the exception. The root composite bootstraps the system, so normally
+	 * we SHOULD always be able to create it; if there is an exception, that means there is some bug and we cannot
+	 * continue so we throw a class initialization exception.
 	 */
 	static {
 		CompositeType bootstrap = null;
@@ -209,27 +209,31 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
          * is resolved.
          * 
          */
+        
+        //Intent .....
+//        this.createInstance(composite, initialProperties) ;              
+        //Intent ...
+        
 		String mainComponent = getCompoDeclaration().getMainComponent().getName();
 		
-		mainImpl = CST.apamResolver.findImplByName(this,mainComponent);
+		//Maybe the unique case where we do not have a composite instance
+		mainImpl = CST.apamResolver.findImplByName(this, mainComponent);
 		if (mainImpl == null) {
 			/*
 			 *  It is a specification to resolve as the main implem. Do not select another composite
 			 */
 			Set<String> constraints = new HashSet<String>();
-//			ApamFilter noComposite = ApamFilter.newInstance("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
 			constraints.add("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
 			mainImpl = CST.apamResolver.resolveSpecByName(this, mainComponent, constraints, null);
         }
 		
 		/*
-		 * If we can not resolve the main implementation, we abort the registration in APAM, taking care of
+		 * If we cannot resolve the main implementation, we abort the registration in APAM, taking care of
 		 * undoing the partial processing already performed. 
 		 */
         if (mainImpl == null) {
         	unregister();
             throw new InvalidConfiguration("Cannot find main implementation " + mainComponent);
-
         }
         
         assert mainImpl != null;
@@ -271,15 +275,13 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     @Override
     public void unregister() {
 		/*
-		 * Notify managers and remove the implementation from the broker
+		 *  Remove the instances and notify managers
 		 */ 
     	super.unregister();
 
     	/*
     	 * Remove import relationships. 
-    	 * 
     	 * NOTE We have to copy the list because we update it while iterating it
-    	 * 
     	 */
 		for (CompositeType imported : new HashSet<CompositeType>(imports)) {
 	        removeImport(imported);
@@ -306,7 +308,6 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		 * Remove from list of composite types
 		 */
 		CompositeTypeImpl.compositeTypes.remove(getName());
-
     }
 
     /**

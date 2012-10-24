@@ -28,7 +28,7 @@ public interface ComponentBroker {
 
     public Instance getInstService (Object service) ; 
     
-    public void removeComponent (Component component) ;
+//    public void disappearedComponent (Component component) ;
     /**
      * Returns all the components.
      * 
@@ -115,5 +115,13 @@ public interface ComponentBroker {
      */
     public Instance addInst(Composite compo, ApformInstance apformInst);
 
+    /**
+     *  Uninstall the bundle containing the provided component.
+     *  WARNING: It removes also all the components inside that bundle.
+     *  WARNING: It removes the wires towards the removed component, but at next access to 
+     *  these components, Apam may re-install the same bundle (or another one having the needed component). 
+     * @param component
+     */
+	public void componentBundleRemove (Component component);
 
 }

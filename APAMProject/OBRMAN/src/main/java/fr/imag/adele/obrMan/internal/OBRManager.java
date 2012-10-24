@@ -164,8 +164,8 @@ public class OBRManager {
 		Selected winner = lookForPrefInt(capability, preferences, candidates) ;
 		if (winner == null)
 			return null;
-		System.out.println("   Found bundle : " + winner.resource.getSymbolicName() + " Component:  "
-				+ getAttributeInCapability(winner.capability, CST.IMPLNAME) + " \n  from "
+		System.out.println("   Best bundle : " + winner.resource.getSymbolicName() + " Component:  "
+				+ getAttributeInCapability(winner.capability, CST.IMPLNAME) + " from "
 				+ compositeTypeName + "  repositories : " + repositoriesToString());
 		return winner;
 	}

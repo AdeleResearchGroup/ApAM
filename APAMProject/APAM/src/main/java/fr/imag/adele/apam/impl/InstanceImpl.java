@@ -94,6 +94,11 @@ public class InstanceImpl extends ComponentImpl implements Instance {
             throw new UnsupportedOperationException("method not available in root instance");
         }
 
+		@Override
+		public Instance getInst() {
+	           throw new UnsupportedOperationException("method not available in root instance");
+		}
+
     }
 
     /**
@@ -144,6 +149,11 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     public void register(Map<String, String> initialproperties) throws InvalidConfiguration {
 
         /*
+         * Bind to the underlying execution platform instance
+         */
+        getApformInst().setInst(this);
+
+        /*
          * Opposite references from implementation and enclosing composite
          */
         ((ImplementationImpl) getImpl()).addInst(this);
@@ -153,21 +163,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
          * Terminates the initialization, and computes properties
          */
         initializeProperties(initialproperties);
-
-        /*
-         * Add to broker
-         */
-        ((ComponentBrokerImpl) CST.componentBroker).add(this);
-
-        /*
-         * Notify managers
-         */
-        ApamManagers.notifyAddedInApam(this);
-
-        /*
-         * Bind to the underlying execution platform instance
-         */
-        getApformInst().setInst(this);
 
         /*
          * Invoke the execution platform instance callback
@@ -181,7 +176,16 @@ public class InstanceImpl extends ComponentImpl implements Instance {
             // call backs methods
             fireCallbacks("onInit", service);
         }
-
+ 
+        /*
+         * Add to broker
+         */
+        ((ComponentBrokerImpl) CST.componentBroker).add(this);
+        
+        /*
+         * Notify managers
+         */
+        ApamManagers.notifyAddedInApam(this);
     }
 
     /**
@@ -196,7 +200,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
          * Remove from broker, and from its composites.
          * After that, it is invisible.
          */
-        ((ComponentBrokerImpl) CST.componentBroker).remove(this);
+//        ((ComponentBrokerImpl) CST.componentBroker).remove(this);
         ((ImplementationImpl) getImpl()).removeInst(this);
         ((CompositeImpl) getComposite()).removeInst(this);
 
@@ -238,12 +242,12 @@ public class InstanceImpl extends ComponentImpl implements Instance {
           ((WireImpl) wire).remove();
       }
 
-        /*
-         * Notify managers
-         */
-        ApamManagers.notifyRemovedFromApam(this);
-
-
+//        /*
+//         * Notify managers
+//         */
+//        ApamManagers.notifyRemovedFromApam(this);
+//
+//
 
     }
 
@@ -385,7 +389,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }
     
     @Override
-    public boolean createWire(Instance to, String depName) {
+    public boolean createWire(Instance to, String depName, boolean hasConstraints) {
         if ((to == null) || (depName == null))
             return false;
 
@@ -396,7 +400,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
         // creation
         if (getApformInst().setWire(to, depName)) {
-            Wire wire = new WireImpl(this, to, depName);
+            Wire wire = new WireImpl(this, to, depName, hasConstraints);
             wires.add(wire);
             ((InstanceImpl) to).invWires.add(wire);
         } else {

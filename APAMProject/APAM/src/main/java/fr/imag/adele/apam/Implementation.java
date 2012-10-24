@@ -25,16 +25,6 @@ public interface Implementation extends Component {
      */
     public ApformImplementation getApformImpl();
 
-//    /**
-//     * return the value of the shared attribute
-//     * 
-//     * @return
-//     */
-//    public boolean isSharable();
-
-    //
-    //    public void remove();
-
     /**
      * Creates an instance of that implementation, and initialize its properties with the set of provided properties.
      * The actual new service properties are those provided plus those found in the associated sam implementation, plus
@@ -45,7 +35,6 @@ public interface Implementation extends Component {
      * @return the instance
      */
     public Instance createInstance(Composite instCompo, Map<String, String> initialproperties);
-
 
     /**
      * @return the specification that this ASMImpls implements

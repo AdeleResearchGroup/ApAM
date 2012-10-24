@@ -1,8 +1,8 @@
-package fr.imag.adele.apam.testAttrImpl;
+package apam.test.attrImpl;
 
+import apam.test.attr.TestAttr;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.testAttr.TestAttr;
 
 public class TestAttrImpl implements TestAttr, ApamComponent {
 //    S2 s2;

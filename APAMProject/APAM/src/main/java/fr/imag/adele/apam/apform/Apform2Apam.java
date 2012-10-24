@@ -355,49 +355,49 @@ public class Apform2Apam {
         Apform2Apam.executor.execute(new SpecificationDeploymentProcessing(client));
     }
 
-    /**
-     * The instance called "instance name" just disappeared from the platform.
-     * 
-     * @param instanceName
-     */
-    public static void vanishInstance(String instanceName) {
-        Instance inst = CST.componentBroker.getInst(instanceName);
-        if (inst == null) {
-          // previous remove of the factory removed instances
-          // logger.warn("Unable to remove instance '{}' : non-existent instance", instanceName);
-            return;
-        }
-        ((ComponentBrokerImpl)CST.componentBroker).removeInst(inst);
-        
-    }
-
-    /**
-     * * The implementation called "implementation name" just disappeared from the platform.
-     * 
-     * @param implementationName
-     */
-    public static void vanishImplementation(String implementationName) {
-        Implementation impl = CST.componentBroker.getImpl(implementationName);
-        if (impl == null) {
-        	logger.warn("Vanish implementation does not exists: " + implementationName);
-            return;
-        }
-
-        ((ComponentBrokerImpl)CST.componentBroker).removeImpl(impl);
-    }
-
-    /**
-     * 
-     * @param specificationName
-     */
-    public static void vanishSpecification(String specificationName) {
-        Specification spec = CST.componentBroker.getSpec(specificationName);
-        if (spec == null) {
-        	logger.warn("Vanish specification does not exists: " + specificationName);
-            return;
-        }
-    	
-        ((ComponentBrokerImpl)CST.componentBroker).removeSpec(spec);
-    }
+//    /**
+//     * The instance called "instance name" just disappeared from the platform.
+//     * 
+//     * @param instanceName
+//     */
+//    public static void vanishInstance(String instanceName) {
+//        Instance inst = CST.componentBroker.getInst(instanceName);
+//        if (inst == null) {
+//          // previous remove of the factory removed instances
+//          // logger.warn("Unable to remove instance '{}' : non-existent instance", instanceName);
+//            return;
+//        }
+//        ((ComponentBrokerImpl)CST.componentBroker).removeInst(inst);
+//        
+//    }
+//
+//    /**
+//     * * The implementation called "implementation name" just disappeared from the platform.
+//     * 
+//     * @param implementationName
+//     */
+//    public static void vanishImplementation(String implementationName) {
+//        Implementation impl = CST.componentBroker.getImpl(implementationName);
+//        if (impl == null) {
+//        	logger.warn("Vanish implementation does not exists: " + implementationName);
+//            return;
+//        }
+//
+//        ((ComponentBrokerImpl)CST.componentBroker).removeImpl(impl);
+//    }
+//
+//    /**
+//     * 
+//     * @param specificationName
+//     */
+//    public static void vanishSpecification(String specificationName) {
+//        Specification spec = CST.componentBroker.getSpec(specificationName);
+//        if (spec == null) {
+//        	logger.warn("Vanish specification does not exists: " + specificationName);
+//            return;
+//        }
+//    	
+//        ((ComponentBrokerImpl)CST.componentBroker).removeSpec(spec);
+//    }
 
 }

@@ -1,6 +1,8 @@
 package fr.imag.adele.apam.test.s4;
 
 public interface S4 {
+	public String getName() ;
+	
     public void callS4(String msg);
 
     public void callS4_final(String msg);

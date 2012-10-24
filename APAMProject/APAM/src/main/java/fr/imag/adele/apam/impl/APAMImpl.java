@@ -297,6 +297,10 @@ public class APAMImpl implements Apam {
 		@Override
 		public void setInst(Instance asmInstImpl) {
 		}
+		@Override
+		public Instance getInst() {
+			return null;
+		}
 		
 		@Override
 		public void setProperty(String attr, String value) {

@@ -7,6 +7,7 @@ public class WireImpl implements Wire {
     private final InstanceImpl source;
     private final InstanceImpl destination;
     private final String       depName;    // field name for atomic dep; spec name for complex dep, dest type for
+    private final boolean 	   hasConstraints ;
 
     /**
      * Warning, only creates a Wire object. Does not chain that wire in the client and provider.
@@ -15,10 +16,11 @@ public class WireImpl implements Wire {
      * @param to
      * @param depName
      */
-    public WireImpl(Instance from, Instance to, String depName) {
+    public WireImpl(Instance from, Instance to, String depName, boolean hasConstraints) {
         source = (InstanceImpl) from;
         destination = (InstanceImpl) to;
         this.depName = depName;
+        this.hasConstraints = hasConstraints ;
     }
 
     @Override
@@ -34,6 +36,11 @@ public class WireImpl implements Wire {
     @Override
     public String getDepName() {
         return depName;
+    }
+
+    @Override
+    public boolean hasConstraints() {
+        return hasConstraints;
     }
 
     protected void remove() {
