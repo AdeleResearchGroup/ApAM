@@ -1,3 +1,7 @@
+
+#IDEA files
+*.iml
+
 # Eclipse files
 
 *.project
