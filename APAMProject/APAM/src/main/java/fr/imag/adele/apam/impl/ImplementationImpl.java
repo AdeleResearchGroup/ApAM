@@ -177,12 +177,6 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	@Override
 	public void unregister() {
 		logger.debug("unregister implementation " + this);
-		
-//		/*
-//		 * First Remove from broker. Therefore becomes "invisible".
-//		 */
-//		((ComponentBrokerImpl) CST.componentBroker).remove(this);
-
 		/*
 		 * remove all existing instances
 		 */
@@ -198,10 +192,6 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		for (CompositeType inComposite : inComposites) {
 			((CompositeTypeImpl)inComposite).removeImpl(this);
 		}
-//		/*
-//		 * Finally Notify managers
-//		 */
-//		ApamManagers.notifyRemovedFromApam(this);
 
 		//Do not remove inverse links, in case threads are still here.
 //		mySpec = null;

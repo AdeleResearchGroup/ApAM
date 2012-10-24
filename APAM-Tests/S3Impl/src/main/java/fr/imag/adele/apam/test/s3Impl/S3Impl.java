@@ -51,7 +51,5 @@ public class S3Impl implements S3_1, S3_2, ApamComponent {
 
     @Override
     public void apamRemove() {
-        // TODO Auto-generated method stub
-
     }
 }

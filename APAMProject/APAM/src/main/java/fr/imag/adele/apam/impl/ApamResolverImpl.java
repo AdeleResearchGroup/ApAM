@@ -237,16 +237,28 @@ public class ApamResolverImpl implements ApamResolver {
 		 *  the set is a singleton if multiple = false.
 		 */
 		boolean ok = false ;
+		
+		//If the dependency has constraints, the wire has to be re-evaluated when a provider property changes.
+		boolean hasConstraints = (!dependency.getImplementationConstraints().isEmpty() || !dependency.getInstanceConstraints().isEmpty()) ;
+		
 		for (Instance inst : insts) {
 			// For promotions we must wire the composite and wire the client if the target matches the client constraints
 			if (promotionDependency != null) { // it was a promotion, embedding composite must be linked as the source
-				client.getComposite().createWire(inst, promotionDependency.getIdentifier());
+				
+				//If the composite dependency has constraints, the wire has to be re-evaluated when a provider property changes.
+				boolean compoHasConstraints = (!promotionDependency.getImplementationConstraints().isEmpty() 
+						|| !promotionDependency.getInstanceConstraints().isEmpty()) ;
+				//if the composite dependency changes, the promoted dependency must be changed too !!
+				hasConstraints = hasConstraints || compoHasConstraints ;
+				
+				client.getComposite().createWire(inst, promotionDependency.getIdentifier(), compoHasConstraints);
 				logger.info("Promoting " + client + " -" + depName + "-> " + inst + "\n      as: "
 						+ client.getComposite() + " -" + promotionDependency.getIdentifier() + "-> " + inst);
+				
 				// wire the client only if the composite target matches the client constraints
 				if (inst.getImpl().match(Util.toFilter(dependency.getImplementationConstraints())) 
 						&& inst.match(Util.toFilter(dependency.getInstanceConstraints()))) {
-					client.createWire(inst, depName);
+					client.createWire(inst, depName, hasConstraints);
 					ok = true ;
 				}
 			}
@@ -255,7 +267,7 @@ public class ApamResolverImpl implements ApamResolver {
 			 * It is not a promotion. Normal case: we wire the client toward all the instances.
 			 */
 			else 	{
-				client.createWire(inst, depName);
+				client.createWire(inst, depName, hasConstraints);
 				ok = true ;
 			}
 		} 

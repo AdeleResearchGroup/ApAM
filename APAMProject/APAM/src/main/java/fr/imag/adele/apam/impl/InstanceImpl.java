@@ -389,7 +389,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }
     
     @Override
-    public boolean createWire(Instance to, String depName) {
+    public boolean createWire(Instance to, String depName, boolean hasConstraints) {
         if ((to == null) || (depName == null))
             return false;
 
@@ -400,7 +400,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
         // creation
         if (getApformInst().setWire(to, depName)) {
-            Wire wire = new WireImpl(this, to, depName);
+            Wire wire = new WireImpl(this, to, depName, hasConstraints);
             wires.add(wire);
             ((InstanceImpl) to).invWires.add(wire);
         } else {

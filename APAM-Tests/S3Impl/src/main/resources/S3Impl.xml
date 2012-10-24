@@ -26,7 +26,7 @@
 			c="xxx" /> -->
 	</apam-instance>
 
-	<apam-instance implementation="S3Impl" name="s3Impl-intAutre" />
+<!-- 	<apam-instance implementation="S3Impl" name="s3Impl-intAutre" /> -->
 <!-- 	<apam-instance implementation="S3Impl" name="S3Impl-instance1" /> -->
 <!-- 	<apam-instance implementation="S3Impl" name="S3Impl-instance2" /> -->
 <!-- 	<apam-instance implementation="S3Impl" name="S3Impl-instance3" /> -->

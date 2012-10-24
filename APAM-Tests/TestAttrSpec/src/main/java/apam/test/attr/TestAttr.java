@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.testAttr;
+package apam.test.attr;
 
 public interface TestAttr {
     public void callS1(String s);

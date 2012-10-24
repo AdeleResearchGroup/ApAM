@@ -78,7 +78,7 @@ public interface Component {
      * @param preferences
      * @return
      */
-    public <T extends Component> T getPreferedComponent(Set<T> candidates, List<Filter> preferences) ;
+    public <T extends Component> T getPreferedComponent(Set<T> candidates, List<Filter> preferences, Set<Filter> memberConstraints) ;
 
     /**
      * Return the "best" component among the candidates. 

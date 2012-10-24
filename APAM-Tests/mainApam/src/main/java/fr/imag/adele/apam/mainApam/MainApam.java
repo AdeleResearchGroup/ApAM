@@ -7,6 +7,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import apam.test.attr.TestAttr;
+
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
@@ -16,8 +18,6 @@ import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.test.s1.S1;
-import fr.imag.adele.apam.testAttr.TestAttr;
-//import fr.imag.adele.apam.test.s1TestAttr.S1TestAttr;
 
 public class MainApam implements Runnable, ApamComponent {
 	// injected

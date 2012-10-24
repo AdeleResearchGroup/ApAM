@@ -209,27 +209,31 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
          * is resolved.
          * 
          */
+        
+        //Intent .....
+//        this.createInstance(composite, initialProperties) ;              
+        //Intent ...
+        
 		String mainComponent = getCompoDeclaration().getMainComponent().getName();
 		
-		mainImpl = CST.apamResolver.findImplByName(this,mainComponent);
+		//Maybe the unique case where we do not have a composite instance
+		mainImpl = CST.apamResolver.findImplByName(this, mainComponent);
 		if (mainImpl == null) {
 			/*
 			 *  It is a specification to resolve as the main implem. Do not select another composite
 			 */
 			Set<String> constraints = new HashSet<String>();
-//			ApamFilter noComposite = ApamFilter.newInstance("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
 			constraints.add("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
 			mainImpl = CST.apamResolver.resolveSpecByName(this, mainComponent, constraints, null);
         }
 		
 		/*
-		 * If we can not resolve the main implementation, we abort the registration in APAM, taking care of
+		 * If we cannot resolve the main implementation, we abort the registration in APAM, taking care of
 		 * undoing the partial processing already performed. 
 		 */
         if (mainImpl == null) {
         	unregister();
             throw new InvalidConfiguration("Cannot find main implementation " + mainComponent);
-
         }
         
         assert mainImpl != null;
@@ -268,46 +272,43 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     	super.register(initialProperties); 	
     }
     
-//    @Override
-//    public void unregister() {
-//		/*
-//		 *  Remove the instances and notify managers
-//		 */ 
-//    	super.unregister();
-//
-//    	/*
-//    	 * Remove import relationships. 
-//    	 * 
-//    	 * NOTE We have to copy the list because we update it while iterating it
-//    	 * 
-//    	 */
-//		for (CompositeType imported : new HashSet<CompositeType>(imports)) {
-//	        removeImport(imported);
-//		}
-//
-//		for (CompositeType importedBy : new HashSet<CompositeType>(invImports)) {
-//	        ((CompositeTypeImpl)importedBy).removeImport(this);
-//		}
-//
-//    	/*
-//    	 * Remove opposite references from embedding composite types
-//    	 * 
-//    	 * TODO May be this should be done at the same type that the contains
-//    	 * hierarchy, but this will require a refactor of the superclass to 
-//    	 * have a fine control on the order of the steps.
-//    	 */
-//		for (CompositeType inComposite : invEmbedded) {
-//	        ((CompositeTypeImpl)inComposite).removeEmbedded(this);
-//		}
-//		
-//    	invEmbedded.clear();
-//    	
-//		/*
-//		 * Remove from list of composite types
-//		 */
-//		CompositeTypeImpl.compositeTypes.remove(getName());
-//
-//    }
+    @Override
+    public void unregister() {
+		/*
+		 *  Remove the instances and notify managers
+		 */ 
+    	super.unregister();
+
+    	/*
+    	 * Remove import relationships. 
+    	 * NOTE We have to copy the list because we update it while iterating it
+    	 */
+		for (CompositeType imported : new HashSet<CompositeType>(imports)) {
+	        removeImport(imported);
+		}
+
+		for (CompositeType importedBy : new HashSet<CompositeType>(invImports)) {
+	        ((CompositeTypeImpl)importedBy).removeImport(this);
+		}
+
+    	/*
+    	 * Remove opposite references from embedding composite types
+    	 * 
+    	 * TODO May be this should be done at the same type that the contains
+    	 * hierarchy, but this will require a refactor of the superclass to 
+    	 * have a fine control on the order of the steps.
+    	 */
+		for (CompositeType inComposite : invEmbedded) {
+	        ((CompositeTypeImpl)inComposite).removeEmbedded(this);
+		}
+		
+    	invEmbedded.clear();
+    	
+		/*
+		 * Remove from list of composite types
+		 */
+		CompositeTypeImpl.compositeTypes.remove(getName());
+    }
 
     /**
      * Deploy (logically) a new implementation into this composite type.

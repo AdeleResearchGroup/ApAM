@@ -241,7 +241,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	public boolean setProperty(String attr, String value) {
 		return setPropertyInt(attr, value, false);
 	}
-	
+
 	/**
 	 * Warning: to be used only by Apform for setting internal attributes.
 	 * Only Inhibits the message "Attribute " + attr +  " is an internal field attribute and cannot be set.");
@@ -251,7 +251,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * @return
 	 */
 	public boolean setPropertyInt(String attr, String value, boolean forced) {
-	
+
 		// attribute names are in lower case
 		//attr = attr ;
 
@@ -503,12 +503,40 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * 
 	 */
 	@Override
-	public <T extends Component> T getPreferedComponent(Set<T> candidates, List<Filter> preferences) {
+	public <T extends Component> T getPreferedComponent(Set<T> candidates, List<Filter> preferences, Set<Filter> memberConstraints) {
 		if (candidates == null || candidates.isEmpty()) return null ;
+
+		//Select only those implem with instances matching the constraints		
+		if (memberConstraints != null && !memberConstraints.isEmpty()) {
+			Set<T> withInsts = getPreferedComponent (candidates, memberConstraints) ;
+			String constraints = "" ;
+			for (Filter constraint : memberConstraints) {
+				constraints += (constraint + ", ");
+			}
+			String mess = "\nLooking for implems with instances matching " + constraints ;
+			constraints = "\n     Candidates: " ;
+			for (T t : candidates) {
+				constraints += t.getName() + ", " ;
+			}
+
+			if (!withInsts.isEmpty()) {
+				String trace = "";
+				for (T t : withInsts) 
+					trace += t.getName() + " " ;
+				logger.debug (mess + constraints + "\n     Implems matching instance constraints : " + trace) ;
+				candidates = withInsts ;
+			} else {
+				logger.debug (mess + constraints + "\n     No Implem is matching the instance constraints.") ;
+			}
+		}
+
 		if ((preferences == null) || preferences.isEmpty()) {
 			return getDefaultComponent(candidates);
 		}
 
+		/*
+		 * select the prefered one
+		 */
 		Set<T> valids = new HashSet<T> ();
 		for (Filter f : preferences) {
 			for (T compo : candidates) {
@@ -522,6 +550,27 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 			}
 		}
 		return getDefaultComponent(candidates) ;
+	}
+
+	/*
+	 * Look for the candidates that has at least a member matching the memberConstraints.
+	 * WARNING: do not check visibility constraints
+	 */
+	private <T extends Component> Set<T> getPreferedComponent(Set<T> candidates, Set<Filter> memberConstraints) {
+		Set<T> valids = new HashSet<T> ();
+
+		for (T compo : candidates) {
+			Set<Component> members = (Set<Component>) compo.getMembers() ;
+			//System.err.println("members de " + compo + " : " + members);
+			if (members == null || members.isEmpty()) break ; 
+			for (Component member : members) {
+				if (member.match(memberConstraints)) {
+					valids.add (compo) ;
+					break ;
+				}
+			}
+		}
+		return valids ;
 	}
 
 

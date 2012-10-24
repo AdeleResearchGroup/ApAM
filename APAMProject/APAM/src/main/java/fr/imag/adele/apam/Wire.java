@@ -7,5 +7,7 @@ public interface Wire {
     public Instance getDestination();
 
     public String getDepName();
+    
+    public boolean hasConstraints() ;
 
 }

@@ -1,27 +1,18 @@
 package apam.test.dependency;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.Filter;
-
+import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Wire;
-import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.message.MessageProducer;
-import apam.test.dependency.S2;
-import apam.test.dependency.S3_1;
-import apam.test.dependency.S3_2;
-import apam.test.dependency.S4;
+import fr.imag.adele.apam.test.s3.S3_1 ;
+import fr.imag.adele.apam.test.s3.S3_2 ;
 
 public class Dependency implements S2, ApamComponent, Runnable {
 
@@ -104,20 +95,20 @@ public class Dependency implements S2, ApamComponent, Runnable {
     }
     
 	public void run() {
-//        System.out.println("Dependency test Started : " + myInst.getName());
-//		System.out.println("S3bis = " + s3bis.getName());
-//		for (S3_1 s3 : s3_1set) 
-//			System.out.println("s3_1set : " + s3.getName());
-//		for (int i = 0; i < s3_2array.length; i++) 
-//			System.out.println("s3_2array : " + s3_2array[i].getName());
+        System.out.println("Dependency test Started : " + myInst.getName());
+		System.out.println("s3 = " + s3.getName());
+		for (S3_1 s3 : s3_1set) 
+			System.out.println("s3_1set : " + s3.getName());
+		for (int i = 0; i < s3_2array.length; i++) 
+			System.out.println("s3_2array : " + s3_2array[i].getName());
 		
 		
-		testDependency () ;
+		//testDependency () ;
 	}
 
 	public void testDependency () {
 	
-		Map<String, Instance> S3Insts = new HashMap<String, Instance> () ;
+		//Map<String, Instance> S3Insts = new HashMap<String, Instance> () ;
 		//Test simple dependency
 		Implementation s3Impl = CST.apamResolver.findImplByName(null, "apam.test.dependency.S3Impl");
 		Instance s3Inst ;
@@ -139,7 +130,7 @@ public class Dependency implements S2, ApamComponent, Runnable {
 		assertTrue (s3_1set.containsAll (Arrays.asList(s3_2array))) ;
 
 		//Checking Dynamic addition to multiple dependency
-	    System.out.println("/nChecking Dynamic addition to multiple dependency" ) ;	    
+	    System.out.println("\nChecking Dynamic addition to multiple dependency" ) ;	    
 	    s3Inst = s3Impl.createInstance(null, null);
 		assertTrue (s3_1set.contains(s3Inst.getServiceObject())) ;
 		assertTrue (s3_1set.containsAll (Arrays.asList(s3_2array))) ;
