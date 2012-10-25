@@ -357,7 +357,7 @@ public class ComponentBrokerImpl implements ComponentBroker{
 		Component component = CST.componentBroker.getComponent(componentName);
 		if (component == null) {
 			// previous remove of the factory removed instances
-			System.err.println ("Unable to remove instance '{}' : non-existent component" + componentName);
+			System.err.println ("Unable to remove instance '{}' : non-existent component : " + componentName);
 			return;
 		}
 		disappearedComponent(component) ;
