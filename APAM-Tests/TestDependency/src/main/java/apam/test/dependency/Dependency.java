@@ -43,8 +43,8 @@ public class Dependency implements S2, ApamComponent, Runnable {
     public MessageProducer<M1> p1;
     public MessageProducer<M1> producerM1;
     
-    S3_2 S3ImplWindowsBedroomTry1;
-    S3_2 S3ImplWindowsBedroomTry2;
+    S3_2 s3ImplWindowsBedroomTry1;
+    S3_2 s3ImplWindowsBedroomTry2;
     
     // Called (by Apam) each time an M3 message is available.
     public void getMyMessage (M2 m2) {
@@ -292,18 +292,18 @@ public class Dependency implements S2, ApamComponent, Runnable {
 	}
 
 	public S3_2 getS3ImplWindowsBedroomTry1() {
-		return S3ImplWindowsBedroomTry1;
+		return s3ImplWindowsBedroomTry1;
 	}
 
 	public void setS3ImplWindowsBedroomTry1(S3_2 s3ImplWindowsBedroomTry1) {
-		S3ImplWindowsBedroomTry1 = s3ImplWindowsBedroomTry1;
+		this.s3ImplWindowsBedroomTry1 = s3ImplWindowsBedroomTry1;
 	}
 
 	public S3_2 getS3ImplWindowsBedroomTry2() {
-		return S3ImplWindowsBedroomTry2;
+		return s3ImplWindowsBedroomTry2;
 	}
 
 	public void setS3ImplWindowsBedroomTry2(S3_2 s3ImplWindowsBedroomTry2) {
-		S3ImplWindowsBedroomTry2 = s3ImplWindowsBedroomTry2;
+		this.s3ImplWindowsBedroomTry2 = s3ImplWindowsBedroomTry2;
 	}
 }

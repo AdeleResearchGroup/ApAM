@@ -43,7 +43,7 @@
 	
 	<implementation name="S3ImplWindowsBedroom"
 		classname="fr.imag.adele.apam.test.s3Impl.S3Impl" specification="DepS3">
-		<property name="OS" value="windows" />
+		<property name="OS" value="Windows" />
 		<property name="location" value="bedroom" />
 	</implementation>
 	
@@ -58,6 +58,14 @@
 		<property name="OS" value="IOS" />
 		<property name="location" value="kitchen" />
 	</implementation>
+
+
+
+<apam-instance implementation="S3ImplAndroidLiving" name="S3ImplAndroidLiving-0"/>
+<apam-instance implementation="S3ImplIOSLiving" name="S3ImplIOSLiving-0"/>
+<apam-instance implementation="S3ImplWindowsBedroom" name="S3ImplWindowsBedroom-0"/>
+<apam-instance implementation="S3ImplAndroidKitchen" name="S3ImplAndroidKitchen-0"/>
+<apam-instance implementation="S3ImplIOSKitchen" name="S3ImplIOSKitchen-0"/>
 
 	<apam-instance implementation="S3Impl" name="S3Impl-instance">
 	</apam-instance>

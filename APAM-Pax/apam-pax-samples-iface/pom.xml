@@ -35,7 +35,7 @@
               ${project.artifactId}
             </Bundle-SymbolicName>
             <Export-Package>
-              fr.imag.adele.apam.test.iface
+              *.*
             </Export-Package> 
           </instructions>
         </configuration>

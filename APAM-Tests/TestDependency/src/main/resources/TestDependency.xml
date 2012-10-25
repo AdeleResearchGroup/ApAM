@@ -107,14 +107,14 @@
 		<dependency field="s3_1set" />
 		<dependency field="s3_2array" />
 
-		<dependency field="S3ImplWindowsBedroomTry1">
+		<dependency field="s3ImplWindowsBedroomTry1">
 			<constraints>
 				<implementation filter="(OS=Windows)" />
 				<implementation filter="(location=bedroom)" />
 			</constraints>
 		</dependency>
 		
-		<dependency field="S3ImplWindowsBedroomTry2">
+		<dependency field="s3ImplWindowsBedroomTry2">
 			<constraints>
 				<implementation filter="(&amp;(OS=Windows)(location=bedroom))" />
 			</constraints>

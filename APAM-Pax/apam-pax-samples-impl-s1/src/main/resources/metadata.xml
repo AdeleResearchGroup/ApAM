@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+
+
+	<implementation name="fr.imag.adele.apam.test.impl.S1Impl"
+		classname="fr.imag.adele.apam.test.impl.S1Impl" specification="fr.imag.adele.apam.test.iface.S1">
+		<callback onInit="start" onRemove="stop" />
+		<dependency field="s2" />
+		<dependency field="s3" />
+		<dependency field="eletronicInstancesInSet" />
+				
+		<dependency field="simpleDevice110v" >
+			<constraints>
+				<implementation filter="(manufacturer=philips)" />
+				<implementation filter="(voltage=110)" />
+			</constraints>
+		</dependency>
+		
+	</implementation>
+
+	<implementation name="SamsungSwitch"
+		classname="fr.imag.adele.apam.test.impl.device.GenericSwitch"
+		specification="eletronic-device">
+		<property name="manufacturer" value="samsung" />
+		<property name="voltage" value="220" />
+		<property name="hasDisplay" value="false" />
+	</implementation>
+
+	<implementation name="LgSwitch"
+		classname="fr.imag.adele.apam.test.impl.device.GenericSwitch"
+		specification="eletronic-device">
+		<property name="manufacturer" value="lg" />
+		<property name="voltage" value="220" />
+		<property name="hasDisplay" value="false" />
+	</implementation>
+
+
+	<implementation name="SiemensSwitch"
+		classname="fr.imag.adele.apam.test.impl.device.GenericSwitch"
+		specification="eletronic-device">
+		<property name="manufacturer" value="siemens" />
+		<property name="voltage" value="220" />
+		<property name="hasDisplay" value="false" />
+	</implementation>
+
+	<implementation name="BoschSwitch"
+		classname="fr.imag.adele.apam.test.impl.device.GenericSwitch"
+		specification="eletronic-device">
+		<property name="manufacturer" value="bosch" />
+		<property name="voltage" value="110" />
+		<property name="hasDisplay" value="false" />
+	</implementation>
+
+	<implementation name="philipsSwitch"
+		classname="fr.imag.adele.apam.test.impl.device.PhilipsSwitch"
+		specification="eletronic-device">
+		<property name="manufacturer" value="philips" />
+		<property name="voltage" value="110" />
+		<property name="hasDisplay" value="false" />
+	</implementation>
+
+<!-- 	<apam-instance implementation="fr.imag.adele.apam.test.impl.S1Impl" -->
+<!-- 		name="s1-root"> -->
+<!-- 	</apam-instance> -->
+
+</apam>
