@@ -109,76 +109,33 @@
 			<artifactId>APAM</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.apps.app1</groupId>
-			<artifactId>APP1-Spec</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.apps.app2</groupId>
-			<artifactId>APP2-Spec</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.apps.app1</groupId> -->
+<!-- 			<artifactId>APP1-Spec</artifactId> -->
+<!-- 			<version>0.0.1-SNAPSHOT</version> -->
+<!-- 			<scope>test</scope> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.apps.app2</groupId> -->
+<!-- 			<artifactId>APP2-Spec</artifactId> -->
+<!-- 			<version>0.0.1-SNAPSHOT</version> -->
+<!-- 			<scope>test</scope> -->
+<!-- 		</dependency> -->
 
 		<!-- Dependency Test -->
 
-		<!-- <dependency> -->
-		<!-- <groupId>fr.imag.adele.apam</groupId> -->
-		<!-- <artifactId>APAM</artifactId> -->
-		<!-- <version>0.0.1-SNAPSHOT</version> -->
-		<!-- <type>bundle</type> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>fr.imag.adele.apam</groupId> -->
-		<!-- <artifactId>S2</artifactId> -->
-		<!-- <version>0.0.1-SNAPSHOT</version> -->
-		<!-- <type>bundle</type> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>fr.imag.adele.apam</groupId> -->
-		<!-- <artifactId>TestAttrSpec</artifactId> -->
-		<!-- <version>0.0.1-SNAPSHOT</version> -->
-		<!-- <type>bundle</type> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.osgi.core</artifactId>
 			<version>${felix.osgi.version}</version>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>fr.imag.adele.apam</groupId> -->
-		<!-- <artifactId>S3</artifactId> -->
-		<!-- <version>0.0.1-SNAPSHOT</version> -->
-		<!-- <type>bundle</type> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>fr.imag.adele.apam</groupId> -->
-		<!-- <artifactId>S4</artifactId> -->
-		<!-- <version>0.0.1-SNAPSHOT</version> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
 
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>TestDependency</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
-
-
-
-		<!-- <dependency> -->
-		<!-- <groupId>fr.imag.adele.apam</groupId> -->
-		<!-- <artifactId>S3Impl</artifactId> -->
-		<!-- <version>0.0.1-SNAPSHOT</version> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
+<!-- 			<artifactId>TestDependency</artifactId> -->
+<!-- 			<version>0.0.1-SNAPSHOT</version> -->
+<!-- 			<scope>test</scope> -->
+<!-- 		</dependency> -->
 
 		<!-- new dependencies based on the separated tests -->
 

@@ -17,6 +17,8 @@ public class S1Impl implements S1
     Set<Eletronic> eletronicInstancesInSet;
     
     Eletronic[] eletronicInstancesInArray;
+    
+    Set<Eletronic> eletronicInstancesConstraintsInstance;
 
     public String whoami()
     {
@@ -53,6 +55,15 @@ public class S1Impl implements S1
 
 	public void setEletronicInstancesInArray(Eletronic[] eletronicInstancesInArray) {
 		this.eletronicInstancesInArray = eletronicInstancesInArray;
+	}
+
+	public Set<Eletronic> getEletronicInstancesConstraintsInstance() {
+		return eletronicInstancesConstraintsInstance;
+	}
+
+	public void setEletronicInstancesConstraintsInstance(
+			Set<Eletronic> eletronicInstancesConstraintsInstance) {
+		this.eletronicInstancesConstraintsInstance = eletronicInstancesConstraintsInstance;
 	}
 
 }

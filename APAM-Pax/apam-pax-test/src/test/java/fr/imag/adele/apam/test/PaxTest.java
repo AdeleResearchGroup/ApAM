@@ -5,18 +5,15 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-
-import java.util.ArrayList;
-import java.util.Arrays;
+import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.vmOption;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Inject;
@@ -25,21 +22,16 @@ import org.ops4j.pax.exam.OptionUtils;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.ow2.chameleon.testing.helpers.OSGiHelper;
 
-import apam.test.dependency.Dependency;
-import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.ComponentBroker;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.test.iface.device.Eletronic;
 import fr.imag.adele.apam.test.impl.S1Impl;
 import fr.imag.adele.apam.test.impl.device.GenericSwitch;
 
@@ -54,7 +46,7 @@ public class PaxTest {
 	// ApamResolver apamResolver;
 	// ComponentBroker apamBroker;
 
-	private static final int CONST_WAIT_TIME = 2000;
+	private static final int CONST_WAIT_TIME = 5000;
 
 	private static void waitForIt(int time) {
 		try {
@@ -119,10 +111,10 @@ public class PaxTest {
 
 		Option[] r = OptionUtils.combine(platform, bundles);
 
-		// Option[] debug =
-		// options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
+		Option[] debug =
+		 options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
 
-		// r = OptionUtils.combine(r, debug);
+//		r = OptionUtils.combine(r, debug);
 
 		// Option[] log =
 		// options(vmOption("-Dlog4j.file=./am.log4j.properties"));
@@ -194,7 +186,7 @@ public class PaxTest {
 	 * component
 	 */
 	@Test
-	public void CheckingConstraints() {
+	public void CheckingConstraintsImplementation() {
 
 		waitForIt(CONST_WAIT_TIME);
 
@@ -212,6 +204,101 @@ public class PaxTest {
 		Assert.assertTrue(philipsSwitch.match("(voltage=110)"));
 		Assert.assertTrue(philipsSwitch
 				.match("(&amp;(voltage=110)(manufacturer=philips))"));
+
+	}
+
+	/**
+	 * Verify if the constraints were used to inject the dependencies in the
+	 * component
+	 * 
+	 * @throws InvalidSyntaxException
+	 */
+	@Test
+	public void CheckingConstraintsInstance() throws InvalidSyntaxException {
+
+		waitForIt(CONST_WAIT_TIME);
+
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "95");
+					}
+				});
+
+		Implementation lgImpl = CST.apamResolver.findImplByName(null,
+				"LgSwitch");
+		final Instance lgInst = lgImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "100");
+					}
+				});
+
+		Implementation siemensImpl = CST.apamResolver.findImplByName(null,
+				"SiemensSwitch");
+		final Instance siemensInst = siemensImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "105");
+					}
+				});
+
+		Implementation boschImpl = CST.apamResolver.findImplByName(null,
+				"BoschSwitch");
+		final Instance boschInst = boschImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "110");
+					}
+				});
+
+		Implementation philipsImpl = CST.apamResolver.findImplByName(null,
+				"philipsSwitch");
+		final Instance philipsInst = philipsImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "117");
+					}
+				});
+
+		Set<Instance> validInstances = new HashSet<Instance>() {
+			{
+				add(boschInst);
+				add(siemensInst);
+				add(lgInst);
+				add(samsungInst);
+			}
+		};
+
+		waitForIt(CONST_WAIT_TIME);
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.test.impl.S1Impl");
+
+		// Set<Instance>
+		// instances=CST.componentBroker.getInsts(FrameworkUtil.createFilter("(voltageCurrent=-*)"));
+		// System.out.println("instances -----------------:"+instances.size());
+
+		Instance s1Inst = s1Impl.createInstance(null, null);
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
+			Instance p = CST.componentBroker.getInstService(e);
+			System.out.println("---- Voltage:"
+					+ p.getProperty("currentVoltage") + " / Name:"
+					+ p.getName());
+		}
+
+		System.out.println("-------- "
+				+ s1.getEletronicInstancesConstraintsInstance().size());
+
+		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance()
+				.containsAll(validInstances));
+
+		s1.getEletronicInstancesConstraintsInstance().removeAll(validInstances);
+
+		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance().size() == 0);
 
 	}
 
@@ -249,18 +336,20 @@ public class PaxTest {
 		GenericSwitch samsungSwitch = (GenericSwitch) sansungInst
 				.getServiceObject();
 
-
 		int finalSize = s1.getEletronicInstancesInSet().size();
 
 		// Make sure that one instance was added
 		Assert.assertTrue((finalSize - initialSize) == 1);
 
 	}
-	
+
 	/**
 	 * Keeping a set of a given type, verify if the number of elements in this
 	 * set are updated automatically after unplugging (remove wire) the
-	 * application that holds this set for the native array type 
+	 * application that holds this set for the native array type
+	 * 
+	 * @TODO Test only if the injection of the instaces are working in the
+	 *       native array type
 	 */
 	@Test
 	public void InjectionUpdateLinkForArrayType() {
@@ -295,135 +384,6 @@ public class PaxTest {
 
 		// Make sure that one instance was added
 		Assert.assertTrue((finalSize - initialSize) == 1);
-
-	}
-
-	/**
-	 * @TODO Implementing this test by using the API of APAM instead of
-	 *       requiring the Dependency.class application to be installed
-	 */
-	@Test
-	@Ignore
-	public void DynamicInjectingMultipleDependencies() {
-
-		waitForIt(CONST_WAIT_TIME);
-
-		Implementation s3Impl = CST.componentBroker.getImpl("Dependency");
-		Instance s3Inst = s3Impl.createInstance(null, null);
-
-		Dependency dependency = (Dependency) s3Inst.getServiceObject();
-
-		dependency.p1();
-		dependency.p2();
-		dependency.p3();
-
-		Assert.assertTrue(dependency.getS3_1set().contains(
-				dependency.getS3Inst().getServiceObject()));
-		Assert.assertTrue(dependency.getS3_1set().containsAll(
-				Arrays.asList(dependency.getS3_2array())));
-		;
-	}
-
-	/**
-	 * @TODO Implementing this test by using the API of APAM instead of
-	 *       requiring the Dependency.class application to be installed
-	 */
-	@Test
-	@Ignore
-	public void DynamicWireDeletionMultipleDependency() {
-
-		waitForIt(CONST_WAIT_TIME);
-
-		Implementation s3Impl = CST.componentBroker.getImpl("Dependency");
-		Instance s3Inst = s3Impl.createInstance(null, null);
-
-		Dependency dependency = (Dependency) s3Inst.getServiceObject();
-
-		dependency.p1();
-		dependency.p2();
-		dependency.p3();
-		dependency.p4();
-
-		Assert.assertTrue(!dependency.getS3_1set().contains(
-				dependency.getRmInst().getServiceObject()));
-		Assert.assertTrue(dependency.getS3_1set().containsAll(
-				Arrays.asList(dependency.getS3_2array())));
-
-	}
-
-	@Test
-	@Ignore
-	public void MultipleConstraints() throws InvalidSyntaxException {
-
-		waitForIt(CONST_WAIT_TIME);
-
-		final Set<Filter> constraintsAglomerated = new HashSet<Filter>() {
-			{
-				add(FrameworkUtil
-						.createFilter("(&(OS=Windows)(location=bedroom))"));
-			}
-		};
-
-		final Set<Filter> constraintsSingle = new HashSet<Filter>() {
-			{
-				add(FrameworkUtil.createFilter("(OS=Windows)"));
-				add(FrameworkUtil.createFilter("(location=bedroom)"));
-			}
-		};
-
-		Implementation s3Impl = CST.componentBroker.getImpl("Dependency");
-		Instance s3Inst = s3Impl.createInstance(null, null);
-
-		Dependency dependency = (Dependency) s3Inst.getServiceObject();
-
-		Instance instanceS3_1 = CST.componentBroker.getInstService(dependency
-				.getS3ImplWindowsBedroomTry1());
-		Instance instanceS3_2 = CST.componentBroker.getInstService(dependency
-				.getS3ImplWindowsBedroomTry2());
-
-		Assert.assertTrue(instanceS3_1.match(constraintsAglomerated));
-		Assert.assertTrue(instanceS3_2.match(constraintsSingle));
-
-	}
-
-	@Test
-	@Ignore
-	public void CheckIfConstrainstWereTakenIntoConsideration() {
-
-		waitForIt(CONST_WAIT_TIME);
-
-		// Implementation s3Impl = CST.apamResolver.findImplByName(null,
-		// "Dependency");
-
-		final Set<String> constraints = new HashSet<String>() {
-			{
-				add("(OS*>Android)");
-				add("(&(location=living)(MyBool=true))");
-			}
-		};
-
-		final List<String> preferences = new ArrayList<String>() {
-			{
-				add("(OS*&gt;Linux, IOS, Windows)");
-				add("(OS*&gt;Linux, IOS)");
-				add("(OS*&gt;IOS)");
-			}
-		};
-
-		Apam apam = (Apam) OSGihelper.getServiceObject(Apam.class.getName(),
-				null);
-
-		// CST.apamResolver.findComponentByName(null, "Dependency");
-
-		Implementation s3Impl = CST.componentBroker.getImpl("Dependency");
-		Instance inst = s3Impl.createInstance(null, null);
-
-		Dependency dependency = (Dependency) inst.getServiceObject();
-
-		Instance instance = CST.apamResolver.resolveImpl(null, s3Impl,
-				constraints, preferences);
-
-		System.out.println("instance name:" + instance.getName());
 
 	}
 
