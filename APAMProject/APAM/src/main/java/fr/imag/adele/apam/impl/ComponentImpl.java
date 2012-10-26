@@ -92,8 +92,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		for (String attr : props.keySet()) {
 			if (Util.validAttr(this.getName(), attr)) {
 				//At initialization, all valid attributes are ok for specs
-				if (group == null || validDef (attr, props.get(attr), true) != null)
-					put (attr, props.get(attr)) ;
+				Object val = validDef (attr, props.get(attr), true) ;
+				if (group == null || val != null)
+					put (attr, val) ;
 			}
 		}
 
@@ -215,7 +216,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	/**
 	 * Get the value of the property.
 	 * 
-	 * Attributes are supposed to be correct and inherited staticaly
+	 * Attributes are supposed to be correct and inherited statically
 	 * 
 	 */
 	@Override

@@ -127,9 +127,9 @@
 				<instance filter="(&amp;(location=living)(MyBool=true))" />
 			</constraints>
 			<preferences>
-				<implementation filter="(OS*&gt;Linux, IOS, Windows)" />
-				<implementation filter="(OS*&gt;Linux, IOS)" />
-				<implementation filter="(OS*&gt;IOS)" />
+				<implementation filter="(OS*>Linux, IOS, Windows)" />
+				<implementation filter="(OS*>Linux, IOS)" />
+				<implementation filter="(OS*>IOS)" />
 			</preferences>
 		</dependency>
 
