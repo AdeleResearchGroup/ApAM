@@ -397,32 +397,35 @@ public class Util {
 
 	/**
 	 * only string, int, boolean and enumerations attributes are accepted.
+	 * Return the value if it is correct.
+	 * For "int" returns an Integer object, otherwise it is the string "value"
 	 * 
 	 * @param value
 	 * @param type
 	 */
-	public static boolean checkAttrType(String attr, String value, String type) {
+	public static Object checkAttrType(String attr, String value, String type) {
 		if ((type == null) || (value == null))
-			return false;
+			return null;
 
 		if (type.equals("boolean")) {
 			if (value.equalsIgnoreCase(CST.V_TRUE) || value.equalsIgnoreCase(CST.V_FALSE)) 
-				return true ;
+				return value ;
 			logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
 					+ "\".  Boolean value expected");
-			return false;						
+			return null;						
 		}
 		if (type.equals("int") || type.equals("integer")) {
 			Set<String> values = Util.splitSet(value);
+			Integer valInt = null ;
 			try {
 				for (String val : values) {
-					Integer.parseInt(val);
+					valInt = Integer.parseInt(val);
 				}
-				return true;
+				return valInt;
 			} catch (Exception e) {
 				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
 						+ "\".  Integer value(s) expected");
-				return false;
+				return null;
 			}
 		}
 
@@ -432,20 +435,20 @@ public class Util {
 		//A single value : it must be only "string"
 		if (enumVals.size() == 1) {
 			if (type.equals("string")) 
-				return true ;
+				return value ;
 			logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr);
-			return false ;
+			return null ;
 		}
 
 		//It is an enumeration
 		Set<String> values = Util.splitSet(value);
 		if (enumVals.containsAll(values))
-			return true;
+			return value;
 
 		String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
 		+ "\".  Expected subset of: " + type;
 		logger.error(errorMes);
-		return false;
+		return null;
 	}
 
 	public static String[] stringArrayTrim(String[] strings) {

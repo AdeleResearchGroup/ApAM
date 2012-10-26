@@ -579,7 +579,7 @@ public class ApamCommand {
 	 * @param properties
 	 *            the properties
 	 */
-	private void printProperties(String indent, Map<String, String> properties) {
+	private void printProperties(String indent, Map<String, Object> properties) {
 		System.out.println(indent + "Properties : ");
 		for (String key : properties.keySet()) {
 			System.out.println(indent + "   " + key + " = " + properties.get(key));

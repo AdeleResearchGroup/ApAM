@@ -232,14 +232,14 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			<promote implementation="S3XX" dependency="S4Compile" to="compoS4" />  		<!--  wrong component -->
 			<promote implementation="S3Impl" dependency="S4Compile" to="wrongDep" /> 	<!--  wrong composite dep -->
 
-			<specification name="Spec_A*" eager="true" hide="true" exception="….CompositeDependencyException">
+			<dependency specification="Spec_A*" eager="true" hide="true" exception="….CompositeDependencyException">
 				<constraints>
-					<constraint filter="(apam-composite=true)" />
+					<implementation filter="(apam-composite=true)" />
 				</constraints>
 				<preferences>
-					<constraint filter="(SCOPE=GLOBAL)" />
+					<instance filter="(SCOPE=GLOBAL)" />
 				</preferences>
-			</specification>
+			</dependency>
 
 		</contentMngt>
 	</composite>

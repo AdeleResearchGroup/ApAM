@@ -27,7 +27,7 @@ import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 //import fr.imag.adele.apam.util.ApamFilter;
 
-public abstract class ComponentImpl extends ConcurrentHashMap<String, String> implements Component, Comparable<Component> {
+public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> implements Component, Comparable<Component> {
 
 	private final Object  componentId				= new Object();                 // only for hashCode
 	private static final long serialVersionUID 		= 1L;
@@ -92,7 +92,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		for (String attr : props.keySet()) {
 			if (Util.validAttr(this.getName(), attr)) {
 				//At initialization, all valid attributes are ok for specs
-				if (group == null || validDef (attr, props.get(attr), true))
+				if (group == null || validDef (attr, props.get(attr), true) != null)
 					put (attr, props.get(attr)) ;
 			}
 		}
@@ -220,7 +220,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 */
 	@Override
 	public String getProperty(String attr) {
-		return get(attr);
+		Object val = get(attr) ;
+		return (val == null) ? null : val.toString();
 	}
 
 	/**
@@ -229,7 +230,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 */
 
 	@Override
-	public Map<String, String> getAllProperties() {
+	public Map<String, Object> getAllProperties() {
 		return Collections.unmodifiableMap(this);
 	}
 
@@ -252,20 +253,18 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 */
 	public boolean setPropertyInt(String attr, String value, boolean forced) {
 
-		// attribute names are in lower case
-		//attr = attr ;
-
 		/*
 		 * Validate that the property is defined and the value is valid 
 		 */
 		if (!Util.validAttr(this.getName(), attr))
 			return false;
 
-		if (!validDef (attr, value, forced))
+		Object val = validDef (attr, value, forced) ;
+		if (val == null)
 			return false ;
 
 		//does the change, notifies, changes the platform and propagate to members
-		this.propagate (attr, value) ;
+		this.propagate (attr, val) ;
 		return true ;
 	}
 
@@ -277,9 +276,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * @param attr
 	 * @param value
 	 */
-	private void propagateInit (String attr, String value) {
+	private void propagateInit (String attr, Object value) {
 		//Notify the execution platform
-		getApformComponent().setProperty (attr,value);
+		getApformComponent().setProperty (attr, value.toString());
 
 		//Propagate to members recursively
 		for (Component member : getMembers()) {
@@ -295,12 +294,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * @param value attribute value
 	 */
 
-	private void propagate (String attr, String value) {
+	private void propagate (String attr, Object value) {
 		//Change value and notify managers
 		setInternalProperty(attr,value);
 
 		//Notify the execution platform
-		getApformComponent().setProperty (attr,value);
+		getApformComponent().setProperty (attr,value.toString());
 
 		//Propagate to members recursively
 		for (Component member : getMembers()) {
@@ -315,16 +314,16 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * TODO,IMPORTANT This method should be private, but it is actually directly invoked by 
 	 * apform to avoid notification loops. We need to refactor the different APIs of Apam.  
 	 */
-	public void setInternalProperty(String attr, String value) {
-		String oldValue = get(attr);
+	public void setInternalProperty(String attr, Object value) {
+		Object oldValue = get(attr);
 		put(attr, value);
 		/*
 		 * notify property managers
 		 */
 		if (oldValue == null)
-			ApamManagers.notifyAttributeAdded(this, attr, value) ;
+			ApamManagers.notifyAttributeAdded(this, attr, value.toString()) ;
 		else
-			ApamManagers.notifyAttributeChanged(this, attr, value, oldValue);
+			ApamManagers.notifyAttributeChanged(this, attr, value.toString(), oldValue.toString());
 	}
 
 	/**
@@ -435,15 +434,18 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 	 * Checks if attr is correctly defined for component ent
 	 * 	it must be explicitly defined in its upper groups,
 	 *  for the top group, it must be already existing. 
-	 * @param ent
+	 *  
+	 *  boolean Forced = true can be set only by Apform. 
+	 *  Needed when an internal attribute is set in the program, Apform propagates the value to the attribute.
+	 *  
 	 * @param attr
 	 * @param value
 	 * @return
 	 */
-	private boolean validDef (String attr, String value, boolean forced) {
+	private Object validDef (String attr, String value, boolean forced) {
 		if (Util.isFinalAttribute(attr)) {
 			logger.error("Cannot redefine final attribute \"" + attr + "\"");
-			return false;			
+			return null;			
 		}		
 
 		Component group = this.getGroup() ;
@@ -451,20 +453,20 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		//if the same attribute exists above, it is a redefinition.
 		if (group != null && group.getProperty(attr) != null) {
 			logger.error("Cannot redefine attribute \"" + attr + "\"");
-			return false;
+			return null;
 		}
 
 		PropertyDefinition definition = this.getAttrDefinition (attr) ;
 
 		if (definition == null) {
 			logger.error("Attribute \"" + attr + "=" + value + "\" is undefined.");
-			return false;
+			return null;
 		}
 
 		// there is a definition for attr
 		if (definition.isInternal() && !forced) {
 			logger.error("Attribute " + attr +  " is an internal field attribute and cannot be set.");
-			return false;
+			return null;
 		}
 
 		return Util.checkAttrType(attr, value, definition.getType());
@@ -610,7 +612,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, String> im
 		if ((goals == null) || goals.isEmpty())
 			return true;
 
-		Map<String,String> props = getAllProperties() ;
+		Map<String,Object> props = getAllProperties() ;
 		try {
 			for (Filter f : goals) {
 				if (!((ApamFilter) f).matchCase(props)) {

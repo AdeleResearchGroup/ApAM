@@ -392,7 +392,7 @@ public class ApamFilter implements Filter {
                     return false ;
                 }
                 if (validAttr.containsKey(attr)) {
-                	return Util.checkAttrType(attr, (String)value, validAttr.get(attr));
+                	return Util.checkAttrType(attr, (String)value, validAttr.get(attr)) != null;
                 }
             }
             return true ;
