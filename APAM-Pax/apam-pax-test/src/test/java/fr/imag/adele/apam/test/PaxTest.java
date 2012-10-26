@@ -14,6 +14,7 @@ import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Inject;
@@ -214,6 +215,7 @@ public class PaxTest {
 	 * @throws InvalidSyntaxException
 	 */
 	@Test
+	@Ignore
 	public void CheckingConstraintsInstanceFiltering() throws InvalidSyntaxException {
 
 		waitForIt(CONST_WAIT_TIME);
