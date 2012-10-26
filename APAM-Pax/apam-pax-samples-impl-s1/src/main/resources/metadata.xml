@@ -69,25 +69,20 @@
 	</implementation>
 
 <!-- 	<apam-instance implementation="SamsungSwitch" name="manually-created-1"> -->
-<!-- 		<property name="currentVoltage" value="100" /> -->
+<!-- 		<property name="currentVoltage" value="95" /> -->
 <!-- 	</apam-instance> -->
-
 <!-- 	<apam-instance implementation="LgSwitch" name="manually-created-2"> -->
 <!-- 		<property name="currentVoltage" value="101" /> -->
 <!-- 	</apam-instance> -->
-
 <!-- 	<apam-instance implementation="SiemensSwitch" name="manually-created-3"> -->
 <!-- 		<property name="currentVoltage" value="107" /> -->
 <!-- 	</apam-instance> -->
-
 <!-- 	<apam-instance implementation="BoschSwitch" name="manually-created-4"> -->
 <!-- 		<property name="currentVoltage" value="110" /> -->
 <!-- 	</apam-instance> -->
-
 <!-- 	<apam-instance implementation="philipsSwitch" name="manually-created-5"> -->
 <!-- 		<property name="currentVoltage" value="114" /> -->
 <!-- 	</apam-instance> -->
-
 <!-- 	<apam-instance implementation="LgSwitch" name="manually-created-6"> -->
 <!-- 		<property name="currentVoltage" value="117" /> -->
 <!-- 	</apam-instance> -->

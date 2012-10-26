@@ -94,16 +94,16 @@ public class PaxTest {
 						.version("1.6.6"),
 				mavenBundle().groupId("log4j").artifactId("log4j")
 						.version("1.2.17")
-//				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S4")
-//						.version("0.0.1-SNAPSHOT"),
-//				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S5")
-//						.version("0.0.1-SNAPSHOT"),
-//				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S3")
-//						.version("0.0.1-SNAPSHOT"),
-//				mavenBundle().groupId("fr.imag.adele.apam")
-//						.artifactId("TestAttrSpec").version("0.0.1-SNAPSHOT"),
-//				mavenBundle().groupId("fr.imag.adele.apam")
-//						.artifactId("TestDependency").version("0.0.1-SNAPSHOT")
+		// mavenBundle().groupId("fr.imag.adele.apam").artifactId("S4")
+		// .version("0.0.1-SNAPSHOT"),
+		// mavenBundle().groupId("fr.imag.adele.apam").artifactId("S5")
+		// .version("0.0.1-SNAPSHOT"),
+		// mavenBundle().groupId("fr.imag.adele.apam").artifactId("S3")
+		// .version("0.0.1-SNAPSHOT"),
+		// mavenBundle().groupId("fr.imag.adele.apam")
+		// .artifactId("TestAttrSpec").version("0.0.1-SNAPSHOT"),
+		// mavenBundle().groupId("fr.imag.adele.apam")
+		// .artifactId("TestDependency").version("0.0.1-SNAPSHOT")
 		// mavenBundle().groupId("fr.imag.adele.apam")
 		// .artifactId("S3Impl").version("0.0.1-SNAPSHOT"),
 		// mavenBundle().groupId("fr.imag.adele.apam.pax")
@@ -112,10 +112,9 @@ public class PaxTest {
 
 		Option[] r = OptionUtils.combine(platform, bundles);
 
-		Option[] debug =
-		 options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
+		Option[] debug = options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
 
-//		r = OptionUtils.combine(r, debug);
+		// r = OptionUtils.combine(r, debug);
 
 		// Option[] log =
 		// options(vmOption("-Dlog4j.file=./am.log4j.properties"));
@@ -210,13 +209,13 @@ public class PaxTest {
 
 	/**
 	 * Verify if the constraints were used to inject the dependencies in the
-	 * component
+	 * component by initial properties
 	 * 
 	 * @throws InvalidSyntaxException
 	 */
 	@Test
-	@Ignore
-	public void CheckingConstraintsInstanceFiltering() throws InvalidSyntaxException {
+	public void CheckingConstraintsInstanceFilteringByInitialProperty()
+			throws InvalidSyntaxException {
 
 		waitForIt(CONST_WAIT_TIME);
 
@@ -285,24 +284,109 @@ public class PaxTest {
 
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
 		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
 			Instance p = CST.componentBroker.getInstService(e);
 			System.out.println("---- Voltage:"
 					+ p.getProperty("currentVoltage") + " / Name:"
 					+ p.getName());
+
+			boolean found = false;
+
+			for (Instance l : validInstances)
+				if (l.getName().equals(p.getName())) {
+					found = true;
+					break;
+				}
+
+			// Check if all valid instances were injected
+			Assert.assertTrue(found);
+
 		}
 
-//		System.out.println("-------- "
-//				+ s1.getEletronicInstancesConstraintsInstance().size());
+		// check if there is no other instance injected
+		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance().size() == validInstances
+				.size());
 
-		Assert.assertNotNull(s1.getEletronicInstancesConstraintsInstance());
-		
-		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance()
-				.containsAll(validInstances));
+	}
 
-		s1.getEletronicInstancesConstraintsInstance().removeAll(validInstances);
+	/**
+	 * Verify if the constraints were used to inject the dependencies in the
+	 * component by set property
+	 * 
+	 * @throws InvalidSyntaxException
+	 */
+	@Test
+	public void CheckingConstraintsInstanceFilteringBySetProperty()
+			throws InvalidSyntaxException {
 
-		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance().size() == 0);
+		waitForIt(CONST_WAIT_TIME);
+
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null, null);
+
+		Implementation lgImpl = CST.apamResolver.findImplByName(null,
+				"LgSwitch");
+		final Instance lgInst = lgImpl.createInstance(null, null);
+
+		Implementation siemensImpl = CST.apamResolver.findImplByName(null,
+				"SiemensSwitch");
+		final Instance siemensInst = siemensImpl.createInstance(null, null);
+
+		Implementation boschImpl = CST.apamResolver.findImplByName(null,
+				"BoschSwitch");
+		final Instance boschInst = boschImpl.createInstance(null, null);
+
+		Implementation philipsImpl = CST.apamResolver.findImplByName(null,
+				"philipsSwitch");
+		final Instance philipsInst = philipsImpl.createInstance(null, null);
+
+		samsungInst.setProperty("currentVoltage", "95");
+		lgInst.setProperty("currentVoltage", "100");
+		siemensInst.setProperty("currentVoltage", "105");
+		boschInst.setProperty("currentVoltage", "110");
+		philipsInst.setProperty("currentVoltage", "117");
+
+		Set<Instance> validInstances = new HashSet<Instance>() {
+			{
+				add(boschInst);
+				add(siemensInst);
+				add(lgInst);
+				add(samsungInst);
+			}
+		};
+
+		waitForIt(CONST_WAIT_TIME);
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.test.impl.S1Impl");
+
+		Instance s1Inst = s1Impl.createInstance(null, null);
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
+			Instance p = CST.componentBroker.getInstService(e);
+			System.out.println("---- Voltage:"
+					+ p.getProperty("currentVoltage") + " / Name:"
+					+ p.getName());
+
+			boolean found = false;
+
+			for (Instance l : validInstances)
+				if (l.getName().equals(p.getName())) {
+					found = true;
+					break;
+				}
+
+			// Check if all valid instances were injected
+			Assert.assertTrue(found);
+
+		}
+
+		// check if there is no other instance injected
+		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance().size() == validInstances
+				.size());
 
 	}
 
