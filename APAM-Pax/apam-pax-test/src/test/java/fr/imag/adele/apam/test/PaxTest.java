@@ -92,17 +92,17 @@ public class PaxTest {
 				mavenBundle().groupId("org.slf4j").artifactId("slf4j-log4j12")
 						.version("1.6.6"),
 				mavenBundle().groupId("log4j").artifactId("log4j")
-						.version("1.2.17"),
-				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S4")
-						.version("0.0.1-SNAPSHOT"),
-				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S5")
-						.version("0.0.1-SNAPSHOT"),
-				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S3")
-						.version("0.0.1-SNAPSHOT"),
-				mavenBundle().groupId("fr.imag.adele.apam")
-						.artifactId("TestAttrSpec").version("0.0.1-SNAPSHOT"),
-				mavenBundle().groupId("fr.imag.adele.apam")
-						.artifactId("TestDependency").version("0.0.1-SNAPSHOT")
+						.version("1.2.17")
+//				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S4")
+//						.version("0.0.1-SNAPSHOT"),
+//				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S5")
+//						.version("0.0.1-SNAPSHOT"),
+//				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S3")
+//						.version("0.0.1-SNAPSHOT"),
+//				mavenBundle().groupId("fr.imag.adele.apam")
+//						.artifactId("TestAttrSpec").version("0.0.1-SNAPSHOT"),
+//				mavenBundle().groupId("fr.imag.adele.apam")
+//						.artifactId("TestDependency").version("0.0.1-SNAPSHOT")
 		// mavenBundle().groupId("fr.imag.adele.apam")
 		// .artifactId("S3Impl").version("0.0.1-SNAPSHOT"),
 		// mavenBundle().groupId("fr.imag.adele.apam.pax")
@@ -214,7 +214,7 @@ public class PaxTest {
 	 * @throws InvalidSyntaxException
 	 */
 	@Test
-	public void CheckingConstraintsInstance() throws InvalidSyntaxException {
+	public void CheckingConstraintsInstanceFiltering() throws InvalidSyntaxException {
 
 		waitForIt(CONST_WAIT_TIME);
 
@@ -290,9 +290,11 @@ public class PaxTest {
 					+ p.getName());
 		}
 
-		System.out.println("-------- "
-				+ s1.getEletronicInstancesConstraintsInstance().size());
+//		System.out.println("-------- "
+//				+ s1.getEletronicInstancesConstraintsInstance().size());
 
+		Assert.assertNotNull(s1.getEletronicInstancesConstraintsInstance());
+		
 		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance()
 				.containsAll(validInstances));
 
