@@ -20,7 +20,7 @@ public interface Apam {
     
     /**
      * Resolve compositeTypeName and, if successful, creates an instance of that type.
-     * It starts either because it implements the ApamComponnent interface,
+     * It starts either because it implements the ApamComponent interface,
      * of calling its getServiceObject method.
      */
     public Composite startAppli(String compositeTypeName);

@@ -1,7 +1,9 @@
 package apam.test.dependency;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.Apam;
@@ -11,32 +13,38 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.message.MessageProducer;
-import fr.imag.adele.apam.test.s3.S3_1 ;
-import fr.imag.adele.apam.test.s3.S3_2 ;
+import fr.imag.adele.apam.test.s3.S3_1;
+import fr.imag.adele.apam.test.s3.S3_2;
 
 public class Dependency implements S2, ApamComponent, Runnable {
 
     // Apam injected
-    Apam      apam;
-    S4        s4_1;
-    S4        s4_2;
-    S4        s4_3;
-    Set<S3_1> s3_1set;
-    S3_2[]    s3_2array;
-    S3_1      s3;
-    S3_2      s3bis;
+    public Apam      apam;
+    public S4        s4_1;
+    public S4        s4_2;
+    public S4        s4_3;
+    public Set<S3_1> s3_1set;
+    
+	public S3_2[]    s3_2array;
 
-    Set<S3_1> s3_1;
-    S3_2[]    s3_2;
 
-    List<S3_1> s3s2;
-    Set<S3_1> s3s;
+	public S3_1      s3;
+    public S3_2      s3bis;
+
+	public Set<S3_1> s3_1;
+    public S3_2[]    s3_2;
+
+    public List<S3_1> s3s2;
+    public Set<S3_1> s3s;
    
-    Instance   myInst;
-    String     name;
+    public Instance   myInst;
+    public String     name;
 
-    MessageProducer<M1> p1;
-    MessageProducer<M1> producerM1;
+    public MessageProducer<M1> p1;
+    public MessageProducer<M1> producerM1;
+    
+    S3_2 s3ImplWindowsBedroomTry1;
+    S3_2 s3ImplWindowsBedroomTry2;
     
     // Called (by Apam) each time an M3 message is available.
     public void getMyMessage (M2 m2) {
@@ -95,23 +103,54 @@ public class Dependency implements S2, ApamComponent, Runnable {
     }
     
 	public void run() {
-        System.out.println("Dependency test Started : " + myInst.getName());
-		System.out.println("s3 = " + s3.getName());
-		for (S3_1 s3 : s3_1set) 
-			System.out.println("s3_1set : " + s3.getName());
-		for (int i = 0; i < s3_2array.length; i++) 
-			System.out.println("s3_2array : " + s3_2array[i].getName());
-		
-		
-		//testDependency () ;
+//        System.out.println("Dependency test Started : " + myInst.getName());
+//		System.out.println("S3bis = " + s3bis.getName());
+//		for (S3_1 s3 : s3_1set) 
+//			System.out.println("s3_1set : " + s3.getName());
+//		for (int i = 0; i < s3_2array.length; i++) 
+//			System.out.println("s3_2array : " + s3_2array[i].getName());
+//		testDependency () ;
 	}
 
+	public Map<String, Instance> S3Insts;
+	public Implementation s3Impl;
+	public Instance s3Inst;
+
+	public void p1(){
+		S3Insts = new HashMap<String, Instance> () ;
+		//Test simple dependency
+		s3Impl = CST.apamResolver.findImplByName(null, "S3Impl");
+	}
+	
+	public void p2(){
+		s3Inst = CST.componentBroker.getInstService(s3bis) ;
+	}
+	
+	public void p3(){
+		System.out.println("/nChecking Dynamic addition to multiple dependency" ) ;	    
+	    s3Inst = s3Impl.createInstance(null, null);
+		
+	}
+	
+	Instance rmInst;
+	
+	
+
+	public void p4(){
+		System.out.println("Checking Dynamic Wire deletion to multiple dependency" ) ;
+		Wire w = (Wire)myInst.getWires().toArray()[0] ;
+		rmInst = w.getDestination() ;
+		myInst.removeWire(w) ;
+	}
+	
 	public void testDependency () {
 	
-		//Map<String, Instance> S3Insts = new HashMap<String, Instance> () ;
-		//Test simple dependency
-		Implementation s3Impl = CST.apamResolver.findImplByName(null, "apam.test.dependency.S3Impl");
-		Instance s3Inst ;
+//		Map<String, Instance> S3Insts = new HashMap<String, Instance> () ;
+//		//Test simple dependency
+//		Implementation s3Impl = CST.apamResolver.findImplByName(null, "apam.test.dependency.S3Impl");
+//		Instance s3Inst ;
+		p1();
+
 				
 		//System.out.println("\nChecking simple dependency");
 		assertTrue(s3bis != null) ;
@@ -120,7 +159,8 @@ public class Dependency implements S2, ApamComponent, Runnable {
 		assertEquals (CST.componentBroker.getInstService(s3bis).getName(), s3bis.getName()) ;
 		
 		//Checking constraints
-		s3Inst = CST.componentBroker.getInstService(s3bis) ;
+		//s3Inst = CST.componentBroker.getInstService(s3bis) ;
+		p2();
 		
 		assertTrue (s3Inst.match("(OS*>Android)" )) ;
 		assertTrue (s3Inst.match("(&amp;(location=living)(MyBool=true))")) ;
@@ -130,17 +170,18 @@ public class Dependency implements S2, ApamComponent, Runnable {
 		assertTrue (s3_1set.containsAll (Arrays.asList(s3_2array))) ;
 
 		//Checking Dynamic addition to multiple dependency
-	    System.out.println("\nChecking Dynamic addition to multiple dependency" ) ;	    
-	    s3Inst = s3Impl.createInstance(null, null);
+//	    System.out.println("/nChecking Dynamic addition to multiple dependency" ) ;	    
+//	    s3Inst = s3Impl.createInstance(null, null);
+		p3();
 		assertTrue (s3_1set.contains(s3Inst.getServiceObject())) ;
 		assertTrue (s3_1set.containsAll (Arrays.asList(s3_2array))) ;
 		
 		//Checking Dynamic Wire deletion to multiple dependency
-	    System.out.println("Checking Dynamic Wire deletion to multiple dependency" ) ;
-		Wire w = (Wire)myInst.getWires().toArray()[0] ;
-		Instance rmInst = w.getDestination() ;
-		myInst.removeWire(w) ;
-		//S3Insts.remove(s3Inst.getName()) ;
+//	    System.out.println("Checking Dynamic Wire deletion to multiple dependency" ) ;
+//		Wire w = (Wire)myInst.getWires().toArray()[0] ;
+//		Instance rmInst = w.getDestination() ;
+//		myInst.removeWire(w) ;
+		p4();
 		assertTrue (!s3_1set.contains(rmInst.getServiceObject()));
 		assertTrue (s3_1set.containsAll (Arrays.asList(s3_2array))) ;
 		
@@ -210,4 +251,59 @@ public class Dependency implements S2, ApamComponent, Runnable {
     public void apamRemove() {
     }
 
+    public Set<S3_1> getS3_1set() {
+		return s3_1set;
+	}
+
+	public void setS3_1set(Set<S3_1> s3_1set) {
+		this.s3_1set = s3_1set;
+	}
+	
+    public S3_2[] getS3_2array() {
+		return s3_2array;
+	}
+
+	public void setS3_2array(S3_2[] s3_2array) {
+		this.s3_2array = s3_2array;
+	}
+    
+	public Instance getRmInst() {
+		return rmInst;
+	}
+
+	public void setRmInst(Instance rmInst) {
+		this.rmInst = rmInst;
+	}
+	
+    public S3_2 getS3bis() {
+		return s3bis;
+	}
+
+	public void setS3bis(S3_2 s3bis) {
+		this.s3bis = s3bis;
+	}
+	
+	public Instance getS3Inst() {
+		return s3Inst;
+	}
+
+	public void setS3Inst(Instance s3Inst) {
+		this.s3Inst = s3Inst;
+	}
+
+	public S3_2 getS3ImplWindowsBedroomTry1() {
+		return s3ImplWindowsBedroomTry1;
+	}
+
+	public void setS3ImplWindowsBedroomTry1(S3_2 s3ImplWindowsBedroomTry1) {
+		this.s3ImplWindowsBedroomTry1 = s3ImplWindowsBedroomTry1;
+	}
+
+	public S3_2 getS3ImplWindowsBedroomTry2() {
+		return s3ImplWindowsBedroomTry2;
+	}
+
+	public void setS3ImplWindowsBedroomTry2(S3_2 s3ImplWindowsBedroomTry2) {
+		this.s3ImplWindowsBedroomTry2 = s3ImplWindowsBedroomTry2;
+	}
 }

@@ -45,22 +45,16 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>APAM</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<type>bundle</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S2</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<type>bundle</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>TestAttrSpec</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<type>bundle</type>
-			<scope>compile</scope>
 		</dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
@@ -71,7 +65,14 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S3</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		
 		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S3Impl</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			
+		</dependency>		
 <!-- 		<dependency> -->
 <!-- 			<groupId>fr.imag.adele.apam</groupId> -->
 <!-- 			<artifactId>S3</artifactId> -->
@@ -83,8 +84,7 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S4</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<type>bundle</type>
-			<scope>compile</scope>
+
 		</dependency>
 	</dependencies>
 </project>

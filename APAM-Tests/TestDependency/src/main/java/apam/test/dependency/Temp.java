@@ -2,10 +2,11 @@ package apam.test.dependency;
 
 import java.util.Set;
 
-import fr.imag.adele.apam.test.s4.S4;
-
 import apam.test.attr.CapteurTemp;
 import apam.test.attr.ConfCapteur;
+
+import fr.imag.adele.apam.test.s4.S4;
+
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;

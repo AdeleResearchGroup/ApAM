@@ -6,10 +6,15 @@ import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.vmOption;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Inject;
@@ -18,22 +23,31 @@ import org.ops4j.pax.exam.OptionUtils;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.ow2.chameleon.testing.helpers.OSGiHelper;
 
-import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
-
+import fr.imag.adele.apam.test.iface.device.Eletronic;
+import fr.imag.adele.apam.test.impl.S1Impl;
+import fr.imag.adele.apam.test.impl.device.GenericSwitch;
 
 @RunWith(JUnit4TestRunner.class)
 public class PaxTest {
 
 	@Inject
 	protected BundleContext context;
-	OSGiHelper help;
+
+	OSGiHelper OSGihelper;
+
+	// ApamResolver apamResolver;
+	// ComponentBroker apamBroker;
+
+	private static final int CONST_WAIT_TIME = 5000;
 
 	private static void waitForIt(int time) {
 		try {
@@ -46,9 +60,10 @@ public class PaxTest {
 	@Before
 	public void setUp() {
 
-		help = new OSGiHelper(context);
+		OSGihelper = new OSGiHelper(context);
+		// apamResolver = CST.apamResolver;
+		// apamBroker = CST.componentBroker;
 
-		waitForIt(1000);
 	}
 
 	@Configuration
@@ -78,19 +93,29 @@ public class PaxTest {
 				mavenBundle().groupId("org.slf4j").artifactId("slf4j-log4j12")
 						.version("1.6.6"),
 				mavenBundle().groupId("log4j").artifactId("log4j")
-						.version("1.2.17"),
-				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S3")
-						.version("0.0.1-SNAPSHOT"),
-				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S4")
-						.version("0.0.1-SNAPSHOT")
-
+						.version("1.2.17")
+//				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S4")
+//						.version("0.0.1-SNAPSHOT"),
+//				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S5")
+//						.version("0.0.1-SNAPSHOT"),
+//				mavenBundle().groupId("fr.imag.adele.apam").artifactId("S3")
+//						.version("0.0.1-SNAPSHOT"),
+//				mavenBundle().groupId("fr.imag.adele.apam")
+//						.artifactId("TestAttrSpec").version("0.0.1-SNAPSHOT"),
+//				mavenBundle().groupId("fr.imag.adele.apam")
+//						.artifactId("TestDependency").version("0.0.1-SNAPSHOT")
+		// mavenBundle().groupId("fr.imag.adele.apam")
+		// .artifactId("S3Impl").version("0.0.1-SNAPSHOT"),
+		// mavenBundle().groupId("fr.imag.adele.apam.pax")
+		// .artifactId("apam-pax-samples-impl-s1").version("1.6.0")
 		));
 
 		Option[] r = OptionUtils.combine(platform, bundles);
 
-		Option[] debug = options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
+		Option[] debug =
+		 options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
 
-		// r = OptionUtils.combine(r, debug);
+//		r = OptionUtils.combine(r, debug);
 
 		// Option[] log =
 		// options(vmOption("-Dlog4j.file=./am.log4j.properties"));
@@ -100,138 +125,303 @@ public class PaxTest {
 
 	@After
 	public void tearDown() {
-		help.dispose();
+		OSGihelper.dispose();
 	}
 
 	/**
-	 * Creates an implementation and verifies if an correct instance of such implementation was added in APAM
-	 * @TODO Change this code to test in case of fr.imag.adele.apam.core.CompositeDeclaration
+	 * Creates an implementation and verifies if an correct instance of such
+	 * implementation was added in APAM
+	 * 
+	 * @TODO Change this code to test in case of
+	 *       fr.imag.adele.apam.core.CompositeDeclaration
 	 */
 	@Test
 	public void AtomicInstanceCreationWithoutInjection() {
 
-		Implementation s3Impl = CST.apamResolver.findImplByName(null, "S3Impl");
+		waitForIt(CONST_WAIT_TIME);
 
-		//save the initial number of instances present in APAM
-		int counterInstanceBefore=CST.componentBroker.getInsts().size();
-		
-		Instance inst = s3Impl.createInstance(null, null);
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.test.impl.S1Impl");
+
+		// save the initial number of instances present in APAM
+		int counterInstanceBefore = CST.componentBroker.getInsts().size();
+
+		Instance inst = s1Impl.createInstance(null, null);
 
 		ImplementationDeclaration initialImplDecl = inst.getImpl()
 				.getImplDeclaration();
 
 		boolean found = false;
 
-		//save the number of instances present in APAM after the creation of our own instance
-		int counterInstanceAfter=CST.componentBroker.getInsts().size();
-		
+		// save the number of instances present in APAM after the creation of
+		// our own instance
+		int counterInstanceAfter = CST.componentBroker.getInsts().size();
+
 		for (Instance i : CST.componentBroker.getInsts()) {
 
-			ImplementationDeclaration apamImplDecl = i.getImpl().getImplDeclaration();
+			ImplementationDeclaration apamImplDecl = i.getImpl()
+					.getImplDeclaration();
 
 			if (apamImplDecl instanceof AtomicImplementationDeclaration
 					&& initialImplDecl instanceof AtomicImplementationDeclaration) {
-				AtomicImplementationDeclaration atomicApamInstance = (AtomicImplementationDeclaration) apamImplDecl;
-				AtomicImplementationDeclaration atomicBrokerInstance = (AtomicImplementationDeclaration) initialImplDecl;
-				
-				if(atomicApamInstance.getClassName().equals(atomicBrokerInstance.getClassName()))
-					found=true;
-			}
+				AtomicImplementationDeclaration atomicInitialInstance = (AtomicImplementationDeclaration) apamImplDecl;
+				AtomicImplementationDeclaration atomicApamInstance = (AtomicImplementationDeclaration) initialImplDecl;
 
+				if (atomicInitialInstance.getClassName().equals(
+						atomicApamInstance.getClassName())) {
+					found = true;
+					break;
+				}
+			}
 		}
 
-		Assert.assertTrue((counterInstanceBefore+1)==counterInstanceAfter);
+		// Checks if a new instance was added into APAM
+		Assert.assertTrue((counterInstanceBefore + 1) == counterInstanceAfter);
+		// Check if its a correct type
 		Assert.assertTrue(found);
 
 	}
 
-	public void testRootModel() {
+	/**
+	 * Verify if the constraints were used to inject the dependencies in the
+	 * component
+	 */
+	@Test
+	public void CheckingConstraintsImplementation() {
 
-		// S3_1 s3;
-		// S3_2 s3bis=null;
-		//
-		// S4 s4_1;
-		// S4 s4_2;
-		// S4 s4_3;
-		// Set<S3_1> s3_1set;
-		// S3_2[] s3_2array;
-		//
-		// Set<S3_1> s3_1;
-		// S3_2[] s3_2;
-		//
-		// List<S3_1> s3s2;
-		// Set<S3_1> s3s;
-		//
-		// Instance myInst;
-		// String name;
-		//
+		waitForIt(CONST_WAIT_TIME);
 
-		//Checking constraints
-		// s3Inst = CST.componentBroker.getInstService(s3bis) ;
-		//
-		// assertTrue (s3Inst.match("(OS*>Android)" )) ;
-		// assertTrue (s3Inst.match("(&(location=living)(MyBool=true))")) ;
-		//
-		// //multiple dependencies
-		// assertTrue (s3_1set.size() != 0) ;
-		// assertTrue (s3_1set.containsAll (Arrays.asList(s3_2array))) ;
-		//
-		// //Checking Dynamic addition to multiple dependency
-		// System.out.println("/nChecking Dynamic addition to multiple dependency"
-		// ) ;
-		// s3Inst = s3Impl.createInstance(null, null);
-		// assertTrue (s3_1set.contains(s3Inst.getServiceObject())) ;
-		// assertTrue (s3_1set.containsAll (Arrays.asList(s3_2array))) ;
-		//
-		// //Checking Dynamic Wire deletion to multiple dependency
-		// System.out.println("Checking Dynamic Wire deletion to multiple dependency"
-		// ) ;
-		// Wire w = (Wire)myInst.getWires().toArray()[0] ;
-		// Instance rmInst = w.getDestination() ;
-		// myInst.removeWire(w) ;
-		// //S3Insts.remove(s3Inst.getName()) ;
-		// assertTrue (!s3_1set.contains(rmInst.getServiceObject()));
-		// assertTrue (s3_1set.containsAll (Arrays.asList(s3_2array))) ;
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.test.impl.S1Impl");
 
-		// test delete instances
-		// Instance inst=CST.componentBroker.getInstService(s3bis) ;
-		// Wire wiresInst = (Wire)inst.getWires();
-		// for(Wire se:inst.getWires()){
-		// inst.removeWire(se);
-		// }
+		Instance s1Inst = s1Impl.createInstance(null, null);
 
-		// contraintes multiple
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
-		// contraintes implementations
-		// contraintes instances
+		Instance philipsSwitch = CST.componentBroker.getInstService(s1
+				.getSimpleDevice110v());
 
-		// heritage de contraintes
-		// contraintes générique
+		Assert.assertTrue(philipsSwitch.match("(manufacturer=philips)"));
+		Assert.assertTrue(philipsSwitch.match("(voltage=110)"));
+		Assert.assertTrue(philipsSwitch
+				.match("(&amp;(voltage=110)(manufacturer=philips))"));
 
-		// preferences
+	}
 
-		// instantiable
+	/**
+	 * Verify if the constraints were used to inject the dependencies in the
+	 * component
+	 * 
+	 * @throws InvalidSyntaxException
+	 */
+	@Test
+	@Ignore
+	public void CheckingConstraintsInstanceFiltering() throws InvalidSyntaxException {
 
-		// shared
+		waitForIt(CONST_WAIT_TIME);
 
-		// singleton
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "95");
+					}
+				});
 
-		// resolution interface
-		// resolution message
-		// resolution Spec
-		// resolution Implem
-		// resolution instance
+		Implementation lgImpl = CST.apamResolver.findImplByName(null,
+				"LgSwitch");
+		final Instance lgInst = lgImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "100");
+					}
+				});
 
-		// fail
-		// exception
-		// override exception
-		// override hidden
-		// wait
+		Implementation siemensImpl = CST.apamResolver.findImplByName(null,
+				"SiemensSwitch");
+		final Instance siemensInst = siemensImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "105");
+					}
+				});
+
+		Implementation boschImpl = CST.apamResolver.findImplByName(null,
+				"BoschSwitch");
+		final Instance boschInst = boschImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "110");
+					}
+				});
+
+		Implementation philipsImpl = CST.apamResolver.findImplByName(null,
+				"philipsSwitch");
+		final Instance philipsInst = philipsImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "117");
+					}
+				});
+
+		Set<Instance> validInstances = new HashSet<Instance>() {
+			{
+				add(boschInst);
+				add(siemensInst);
+				add(lgInst);
+				add(samsungInst);
+			}
+		};
+
+		waitForIt(CONST_WAIT_TIME);
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.test.impl.S1Impl");
+
+		// Set<Instance>
+		// instances=CST.componentBroker.getInsts(FrameworkUtil.createFilter("(voltageCurrent=-*)"));
+		// System.out.println("instances -----------------:"+instances.size());
+
+		Instance s1Inst = s1Impl.createInstance(null, null);
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
+			Instance p = CST.componentBroker.getInstService(e);
+			System.out.println("---- Voltage:"
+					+ p.getProperty("currentVoltage") + " / Name:"
+					+ p.getName());
+		}
+
+//		System.out.println("-------- "
+//				+ s1.getEletronicInstancesConstraintsInstance().size());
+
+		Assert.assertNotNull(s1.getEletronicInstancesConstraintsInstance());
+		
+		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance()
+				.containsAll(validInstances));
+
+		s1.getEletronicInstancesConstraintsInstance().removeAll(validInstances);
+
+		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance().size() == 0);
+
+	}
+
+	/**
+	 * Keeping a set of a given type, verify if the number of elements in this
+	 * set are updated automatically after unplugging (remove wire) the
+	 * application that holds this set for the Type Set
+	 */
+	@Test
+	public void InjectionUpdateLinkForSetType() {
+
+		waitForIt(CONST_WAIT_TIME);
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.test.impl.S1Impl");
+
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+		int initialSize = s1.getEletronicInstancesInSet().size();
+
+		for (Wire wire : s1Inst.getWires()) {
+
+			s1Inst.removeWire(wire);
+
+		}
+
+		Implementation sansungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+
+		Instance sansungInst = (Instance) sansungImpl
+				.createInstance(null, null);
+
+		GenericSwitch samsungSwitch = (GenericSwitch) sansungInst
+				.getServiceObject();
+
+		int finalSize = s1.getEletronicInstancesInSet().size();
+
+		// Make sure that one instance was added
+		Assert.assertTrue((finalSize - initialSize) == 1);
+
+	}
+
+	/**
+	 * Keeping a set of a given type, verify if the number of elements in this
+	 * set are updated automatically after unplugging (remove wire) the
+	 * application that holds this set for the native array type
+	 * 
+	 * @TODO Test only if the injection of the instaces are working in the
+	 *       native array type
+	 */
+	@Test
+	public void InjectionUpdateLinkForArrayType() {
+
+		waitForIt(CONST_WAIT_TIME);
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.test.impl.S1Impl");
+
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+		int initialSize = s1.getEletronicInstancesInArray().length;
+
+		for (Wire wire : s1Inst.getWires()) {
+
+			s1Inst.removeWire(wire);
+
+		}
+
+		Implementation sansungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+
+		Instance sansungInst = (Instance) sansungImpl
+				.createInstance(null, null);
+
+		GenericSwitch samsungSwitch = (GenericSwitch) sansungInst
+				.getServiceObject();
+
+		int finalSize = s1.getEletronicInstancesInArray().length;
+
+		// Make sure that one instance was added
+		Assert.assertTrue((finalSize - initialSize) == 1);
 
 	}
 
 }
-//Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
-//CST.componentBroker.getInstService(s3bis) ;
-//Instance s3Inst=s3Impl.createInstance(null, null);
-// Implementation s3Impl = CST.apamResolver.findImplByName(null,"apam.test.dependency.S3Impl");
+// Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
+// CST.componentBroker.getInstService(s3bis) ;
+// Instance s3Inst=s3Impl.createInstance(null, null);
+// Implementation s3Impl =
+// CST.apamResolver.findImplByName(null,"apam.test.dependency.S3Impl");
+
+// contraintes multiple
+
+// contraintes implementations
+// contraintes instances
+
+// heritage de contraintes
+// contraintes générique
+
+// preferences
+
+// instantiable
+
+// shared
+
+// singleton
+
+// resolution interface
+// resolution message
+// resolution Spec
+// resolution Implem
+// resolution instance
+
+// fail
+// exception
+// override exception
+// override hidden
+// wait

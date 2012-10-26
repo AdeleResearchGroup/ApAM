@@ -1,5 +1,5 @@
-<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">    
 
 <!-- 	<specification name="S3" -->
 <!-- 		interfaces="[fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2]"> -->
@@ -14,9 +14,9 @@
 
 
 	<specification name="S3"
-		interfaces="fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2">
+		interfaces="{fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2}">
 	    <definition name="location" type="{living, kitchen, bedroom}"    />
-	    <definition name="OS" type="{Linux, Windows, Android, IOS}" />
+	    <definition name="OS" type="{Linux, Windows, Android, IOS}"/>
 		<definition name="MyBool"    type="boolean" />
 		
 <!-- 		<dependency specification="S4" /> -->

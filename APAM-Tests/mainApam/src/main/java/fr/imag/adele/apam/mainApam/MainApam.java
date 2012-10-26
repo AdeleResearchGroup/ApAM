@@ -9,6 +9,7 @@ import java.util.Map;
 
 import apam.test.attr.TestAttr;
 
+
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;

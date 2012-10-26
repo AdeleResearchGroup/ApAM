@@ -44,7 +44,7 @@
 				<module>apam-pax-samples-impl-s2</module>
 				<module>apam-pax-samples-impl-s3</module>
 				<module>apam-pax-samples-impl-s4s5</module>
-				<module>apam-pax-test</module>
+				
 			</modules>
 		</profile>
 
