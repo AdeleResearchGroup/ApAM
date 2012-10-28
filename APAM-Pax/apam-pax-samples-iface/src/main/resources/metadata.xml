@@ -4,8 +4,9 @@
 	<specification name="eletronic-device" interfaces="fr.imag.adele.apam.test.iface.device.Eletronic">
 		<definition name="manufacturer" type="string" />
 		<definition name="voltage" type="{110, 220}" />
-		<definition name="currentVoltage" type="int" />
+		<definition name="currentVoltage" type="int" val="110"/>
 		<definition name="hasDisplay" type="boolean" />
+		<definition name="made" type="string" />
 	</specification>
 
 	<specification name="sensor"

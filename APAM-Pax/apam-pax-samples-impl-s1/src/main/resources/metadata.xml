@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
 
 
@@ -29,10 +28,10 @@
 	<implementation name="SamsungSwitch"
 		classname="fr.imag.adele.apam.test.impl.device.GenericSwitch"
 		specification="eletronic-device">
-		<definition name="currentVoltage" type="int" />
 		<property name="manufacturer" value="samsung" />
 		<property name="voltage" value="220" />
 		<property name="hasDisplay" value="false" />
+		<property name="made" value="china" />
 	</implementation>
 
 	<implementation name="LgSwitch"

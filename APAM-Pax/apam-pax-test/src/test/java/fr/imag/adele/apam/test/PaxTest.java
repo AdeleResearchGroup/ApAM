@@ -6,6 +6,7 @@ import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.vmOption;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,6 +28,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.ow2.chameleon.testing.helpers.OSGiHelper;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Wire;
@@ -474,6 +476,124 @@ public class PaxTest {
 		Assert.assertTrue((finalSize - initialSize) == 1);
 
 	}
+	
+	/**
+	 * 
+	 */
+	@Test
+	public void InheritedPropertyCannotBeChanged(){
+		
+		waitForIt(CONST_WAIT_TIME);
+		
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null, null);
+		
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.test.impl.S1Impl");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+	
+		//this should be updated correctly
+		samsungInst.setProperty("currentVoltage", "999");
+		//this should stay with the old value
+		samsungInst.setProperty("made", "deutschland");
+		
+		//this property should be updated since its not inherited
+		Assert.assertTrue(samsungInst.getProperty("currentVoltage").equals("999")) ;
+		
+		//this should stay the same, since its a property defined in the Samsung Switch component.
+		Assert.assertTrue(samsungInst.getProperty("made").equals("china")) ;
+		
+	}
+	
+	@Test
+	@Ignore
+	public void InheritedPropertyChanged(){
+		
+		waitForIt(CONST_WAIT_TIME);
+		
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null, null);
+		
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.test.impl.S1Impl");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+		
+		Component k=(Component)samsungInst;
+		
+		System.out.println("### Declaration Inst");
+		
+		for(String key:s1Inst.getSpec().getAllProperties().keySet()){
+			Object value=s1Inst.getSpec().getAllProperties().get(key);
+			System.out.println("------"+key+":"+value);
+		}
+		
+		System.out.println("### Declaration Impl");
+		
+		for(String key:s1Inst.getImpl().getSpec().getAllProperties().keySet()){
+			Object value=s1Inst.getImpl().getSpec().getAllProperties().get(key);
+			System.out.println("------"+key+":"+value);
+		}
+		
+		System.out.println("### Declaration Spec");
+		
+		for(String key:s1Inst.getSpec().getAllProperties().keySet()){
+			Object value=s1Inst.getSpec().getAllProperties().get(key);
+			System.out.println("------"+key+":"+value);
+		}
+		
+		System.out.println("### Spec");
+		
+		for(String key:s1Inst.getSpec().getAllProperties().keySet()){
+			Object value=s1Inst.getSpec().getAllProperties().get(key);
+			System.out.println("------"+key+":"+value);
+		}
+		
+		System.out.println("### Implem");
+		
+		for(String key:s1Inst.getImpl().getAllProperties().keySet()){
+			Object value=s1Inst.getImpl().getAllProperties().get(key);
+			System.out.println("------"+key+":"+value);
+		}
+		
+		System.out.println("### Instance");
+		
+		for(String key:s1Inst.getAllProperties().keySet()){
+			Object value=s1Inst.getAllProperties().get(key);
+			System.out.println("------"+key+":"+value);
+		}
+		
+		
+		System.out.println("----Before");
+		
+		for(String key:k.getAllProperties().keySet()){
+			Object value=k.getAllProperties().get(key);
+			System.out.println("------"+key+":"+value);
+		}
+		
+		
+		//this should stay with the old value
+		samsungInst.setProperty("voltage", "300");
+		//this should be updated correctly
+		samsungInst.setProperty("currentVoltage", "666");
+		
+		System.out.println("----After");
+		
+		for(String key:k.getAllProperties().keySet()){
+			Object value=k.getAllProperties().get(key);
+			System.out.println("------"+key+":"+value);
+		}
+		
+		//manufacturer
+		
+	}
 
 }
 // Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
@@ -481,8 +601,6 @@ public class PaxTest {
 // Instance s3Inst=s3Impl.createInstance(null, null);
 // Implementation s3Impl =
 // CST.apamResolver.findImplByName(null,"apam.test.dependency.S3Impl");
-
-// contraintes multiple
 
 // contraintes implementations
 // contraintes instances
