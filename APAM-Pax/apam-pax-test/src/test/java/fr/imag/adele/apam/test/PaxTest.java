@@ -9,10 +9,12 @@ import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.vmOption;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Assert;
 
+import org.apache.felix.ipojo.util.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -23,8 +25,12 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.OptionUtils;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.SynchronousBundleListener;
 import org.ow2.chameleon.testing.helpers.OSGiHelper;
 
 import fr.imag.adele.apam.CST;
@@ -42,35 +48,82 @@ import fr.imag.adele.apam.test.impl.device.GenericSwitch;
 public class PaxTest {
 
 	@Inject
-	protected BundleContext context;
+	public BundleContext context;
 
 	OSGiHelper OSGihelper;
 
-	// ApamResolver apamResolver;
-	// ComponentBroker apamBroker;
+	Logger logger;
 
-	private static final int CONST_WAIT_TIME = 5000;
+	private static final int CONST_WAIT_TIME = 100;
 
-	private static void waitForIt(int time) {
+	/**
+	 * This method allows to verify the state of the bundle to make sure that we can perform tasks on it
+	 * @param time
+	 */
+	private void waitForIt(int time) {
+		
 		try {
 			Thread.sleep(time);
 		} catch (InterruptedException e) {
-			assert false;
+			System.err.println("waitForIt failed.");
 		}
-	}
 
+		while (
+				//context.getBundle().getState() != Bundle.STARTING && 
+				context.getBundle().getState() != Bundle.ACTIVE //&&
+				//context.getBundle().getState() != Bundle.STOPPING
+				) {
+			try {
+				Thread.sleep(time);
+			} catch (InterruptedException e) {
+				System.err.println("waitForIt failed.");
+			}
+		}
+		
+	}
+	
 	@Before
 	public void setUp() {
-
+		
 		OSGihelper = new OSGiHelper(context);
-		// apamResolver = CST.apamResolver;
-		// apamBroker = CST.componentBroker;
 
+//		context.addBundleListener(new SynchronousBundleListener() {
+//			
+//			@Override
+//			public void bundleChanged(BundleEvent arg0) {
+//				System.out.println("type-active:"+(arg0.getBundle().getState()==Bundle.ACTIVE));
+//				System.out.println("type-installed:"+(arg0.getBundle().getState()==Bundle.INSTALLED));
+//				System.out.println("type-resolved:"+(arg0.getBundle().getState()==Bundle.RESOLVED));
+//				System.out.println("type-starting:"+(arg0.getBundle().getState()==Bundle.STARTING));
+//				System.out.println("type-stoping:"+(arg0.getBundle().getState()==Bundle.STOPPING));
+//				System.out.println("type-uninstalled:"+(arg0.getBundle().getState()==Bundle.UNINSTALLED));
+//			
+//				if(arg0.getBundle().getState()==Bundle.STOPPING)
+//					try {
+//						Thread.sleep(100);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//			}
+//		}); 
+		
 	}
 
+	@After
+	public void unsetUp(){
+		
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			System.err.println("waitForIt failed.");
+		}
+		
+	}
+	
 	@Configuration
 	public static Option[] apamConfig() {
-
+		
 		Option[] platform = options(felix(),
 				systemProperty("org.osgi.service.http.port").value("8080"));
 
@@ -96,26 +149,14 @@ public class PaxTest {
 						.version("1.6.6"),
 				mavenBundle().groupId("log4j").artifactId("log4j")
 						.version("1.2.17")
-		// mavenBundle().groupId("fr.imag.adele.apam").artifactId("S4")
-		// .version("0.0.1-SNAPSHOT"),
-		// mavenBundle().groupId("fr.imag.adele.apam").artifactId("S5")
-		// .version("0.0.1-SNAPSHOT"),
-		// mavenBundle().groupId("fr.imag.adele.apam").artifactId("S3")
-		// .version("0.0.1-SNAPSHOT"),
-		// mavenBundle().groupId("fr.imag.adele.apam")
-		// .artifactId("TestAttrSpec").version("0.0.1-SNAPSHOT"),
-		// mavenBundle().groupId("fr.imag.adele.apam")
-		// .artifactId("TestDependency").version("0.0.1-SNAPSHOT")
-		// mavenBundle().groupId("fr.imag.adele.apam")
-		// .artifactId("S3Impl").version("0.0.1-SNAPSHOT"),
-		// mavenBundle().groupId("fr.imag.adele.apam.pax")
-		// .artifactId("apam-pax-samples-impl-s1").version("1.6.0")
 		));
 
 		Option[] r = OptionUtils.combine(platform, bundles);
 
 		Option[] debug = options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
 
+
+		
 		// r = OptionUtils.combine(r, debug);
 
 		// Option[] log =
@@ -280,10 +321,6 @@ public class PaxTest {
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.test.impl.S1Impl");
 
-		// Set<Instance>
-		// instances=CST.componentBroker.getInsts(FrameworkUtil.createFilter("(voltageCurrent=-*)"));
-		// System.out.println("instances -----------------:"+instances.size());
-
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
@@ -438,7 +475,7 @@ public class PaxTest {
 	 * set are updated automatically after unplugging (remove wire) the
 	 * application that holds this set for the native array type
 	 * 
-	 * @TODO Test only if the injection of the instaces are working in the
+	 * @TODO Test only if the injection of the instances are working in the
 	 *       native array type
 	 */
 	@Test
@@ -478,7 +515,7 @@ public class PaxTest {
 	}
 	
 	/**
-	 * 
+	 * Ensures that inherited properties cannot be changed and inherited definitions can change
 	 */
 	@Test
 	public void InheritedPropertyCannotBeChanged(){
@@ -507,6 +544,72 @@ public class PaxTest {
 		//this should stay the same, since its a property defined in the Samsung Switch component.
 		Assert.assertTrue(samsungInst.getProperty("made").equals("china")) ;
 		
+	}
+	
+	/**
+	 * Ensures that initial properties are configured in the instance properly
+	 */
+	@Test
+	public void PropertyConfiguredWithInitialParameter(){
+		
+		waitForIt(CONST_WAIT_TIME);
+		
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		
+		Map<String,String> initialProperties=new HashMap<String, String>(){{
+			put("property-01", "configured");
+			put("property-02", "configured");
+			put("property-03", "configured");
+			put("property-04", "configured");
+			put("property-05", "configured");
+			put("currentVoltage", "999");
+			put("voltage", "300");
+			
+		}};
+		
+		Instance samsungInst = samsungImpl.createInstance(null, initialProperties);
+		
+		//all the initial properties should be inside of the instance
+		for(String key:initialProperties.keySet()){
+			Assert.assertTrue(samsungInst.getAllProperties().containsKey(key));
+			Assert.assertTrue(samsungInst.getProperty(key).equals(initialProperties.get(key)));
+		}
+	}
+
+	/**
+	 * Ensures that initial properties are configured in the instance properly
+	 */
+	@Test
+	public void PropertyConfiguredWithSetProperty(){
+		
+		waitForIt(CONST_WAIT_TIME);
+		
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		
+		Map<String,String> initialProperties=new HashMap<String, String>(){{
+			put("property-01", "configured-01");
+			put("property-02", "configured-02");
+			put("property-03", "configured-03");
+			put("property-04", "configured-04");
+			put("property-05", "configured-05");
+			
+		}};
+		
+		Instance samsungInst = samsungImpl.createInstance(null, null);
+		
+		samsungInst.setProperty("property-01", "configured-01");
+		samsungInst.setProperty("property-02", "configured-02");
+		samsungInst.setProperty("property-03", "configured-03");
+		samsungInst.setProperty("property-04", "configured-04");
+		samsungInst.setProperty("property-05", "configured-05");
+		
+		//all the initial properties should be inside of the instance
+		for(String key:initialProperties.keySet()){
+			Assert.assertTrue(samsungInst.getAllProperties().containsKey(key));
+			Assert.assertTrue(samsungInst.getProperty(key).equals(initialProperties.get(key)));
+		}
 	}
 	
 	@Test
