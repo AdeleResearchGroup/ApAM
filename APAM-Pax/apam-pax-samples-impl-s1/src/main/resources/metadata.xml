@@ -32,6 +32,12 @@
 		<property name="voltage" value="220" />
 		<property name="hasDisplay" value="false" />
 		<property name="made" value="china" />
+		
+		<definition name="property-01" value="default-01" type="string" />
+		<definition name="property-02" value="default-02" type="string" />
+		<definition name="property-03" value="default-03" type="string" />
+		<definition name="property-04" value="default-04" type="string" />
+		<definition name="property-05" value="default-05" type="string" />
 	</implementation>
 
 	<implementation name="LgSwitch"

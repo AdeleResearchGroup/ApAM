@@ -54,7 +54,7 @@ public class PaxTest {
 
 	Logger logger;
 
-	private static final int CONST_WAIT_TIME = 500;
+	private static final int CONST_WAIT_TIME = 1000;
 
 	/**
 	 * This method allows to verify the state of the bundle to make sure that we can perform tasks on it
@@ -539,7 +539,7 @@ public class PaxTest {
 		samsungInst.setProperty("made", "deutschland");
 		
 		//this property should be updated since its not inherited
-		Assert.assertTrue("Non-inherited properties could be update",samsungInst.getProperty("currentVoltage").equals("999")) ;
+		Assert.assertTrue("Non-inherited properties shall be updateable",samsungInst.getProperty("currentVoltage").equals("999")) ;
 
 		Assert.assertTrue("Inherited property shall not be changed",samsungInst.getProperty("made").equals("china")) ;
 		
@@ -562,8 +562,6 @@ public class PaxTest {
 			put("property-03", "configured");
 			put("property-04", "configured");
 			put("property-05", "configured");
-			put("currentVoltage", "999");
-			put("voltage", "300");
 		}};
 		
 		Instance samsungInst = samsungImpl.createInstance(null, initialProperties);
@@ -636,9 +634,6 @@ public class PaxTest {
 		
 		Assert.assertTrue("Internal property visible with wrong value", s1Inst.getAllProperties().get("stateInternal").equals("default"));
 		Assert.assertTrue("Non-Internal property visible with wrong value", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
-
-		s1Inst.setProperty("stateInternal", "changed");
-		s1Inst.setProperty("stateNotInternal", "changed");
 		
 		Assert.assertTrue("Internal property shall not be changeble through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
 		Assert.assertTrue("Non-Internal property shall be changeble through API", s1Inst.getAllProperties().get("stateNotInternal").equals("changed"));
@@ -683,6 +678,9 @@ public class PaxTest {
 		final String message="Instance did not receive the property defined by setProperty method call";
 		
 		for(String key:initialProperties.keySet()){
+			
+			System.out.println(key+":"+samsungInst.getAllProperties().get(key));
+			
 			Assert.assertTrue(message,samsungInst.getAllProperties().containsKey(key));
 			Assert.assertTrue(message,samsungInst.getProperty(key).equals(initialProperties.get(key)));
 		}
