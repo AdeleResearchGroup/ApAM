@@ -29,6 +29,8 @@
 
 	<specification interfaces="fr.imag.adele.apam.test.iface.S1"
 		name="fr.imag.adele.apam.test.iface.S1" architecture="true">
+		<definition name="stateInternal" field="stateInternal" type="string" internal="true" val="default" />
+		<definition name="stateNotInternal" field="stateNotInternal" type="string" internal="false" val="default" />
 		<provides />
 	</specification>
 

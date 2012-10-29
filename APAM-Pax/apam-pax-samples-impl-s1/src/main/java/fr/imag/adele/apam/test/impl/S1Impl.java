@@ -10,7 +10,11 @@ import fr.imag.adele.apam.test.iface.device.Eletronic;
 public class S1Impl implements S1
 {
 
+	String stateInternal;
+	String stateNotInternal;
+	
 	Eletronic simpleDevice110v;
+	
 	S2 s2;
     S3 s3;
     
@@ -64,6 +68,22 @@ public class S1Impl implements S1
 	public void setEletronicInstancesConstraintsInstance(
 			Set<Eletronic> eletronicInstancesConstraintsInstance) {
 		this.eletronicInstancesConstraintsInstance = eletronicInstancesConstraintsInstance;
+	}
+
+	public String getStateNotInternal() {
+		return stateNotInternal;
+	}
+
+	public void setStateNotInternal(String stateNotInternal) {
+		this.stateNotInternal = stateNotInternal;
+	}
+
+	public String getStateInternal() {
+		return stateInternal;
+	}
+
+	public void setStateInternal(String stateInternal) {
+		this.stateInternal = stateInternal;
 	}
 
 }

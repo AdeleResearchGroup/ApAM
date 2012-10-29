@@ -54,7 +54,7 @@ public class PaxTest {
 
 	Logger logger;
 
-	private static final int CONST_WAIT_TIME = 100;
+	private static final int CONST_WAIT_TIME = 500;
 
 	/**
 	 * This method allows to verify the state of the bundle to make sure that we can perform tasks on it
@@ -229,7 +229,7 @@ public class PaxTest {
 	 * component
 	 */
 	@Test
-	public void CheckingConstraintsImplementation() {
+	public void ConstraintsCheckingImplementation() {
 
 		waitForIt(CONST_WAIT_TIME);
 
@@ -257,7 +257,7 @@ public class PaxTest {
 	 * @throws InvalidSyntaxException
 	 */
 	@Test
-	public void CheckingConstraintsInstanceFilteringByInitialProperty()
+	public void ConstraintsCheckingInstanceFilteringByInitialProperty()
 			throws InvalidSyntaxException {
 
 		waitForIt(CONST_WAIT_TIME);
@@ -356,7 +356,7 @@ public class PaxTest {
 	 * @throws InvalidSyntaxException
 	 */
 	@Test
-	public void CheckingConstraintsInstanceFilteringBySetProperty()
+	public void ConstraintsCheckingInstanceFilteringBySetProperty()
 			throws InvalidSyntaxException {
 
 		waitForIt(CONST_WAIT_TIME);
@@ -518,7 +518,7 @@ public class PaxTest {
 	 * Ensures that inherited properties cannot be changed and inherited definitions can change
 	 */
 	@Test
-	public void InheritedPropertyCannotBeChanged(){
+	public void PropertyInheritedCannotBeChanged(){
 		
 		waitForIt(CONST_WAIT_TIME);
 		
@@ -539,10 +539,9 @@ public class PaxTest {
 		samsungInst.setProperty("made", "deutschland");
 		
 		//this property should be updated since its not inherited
-		Assert.assertTrue(samsungInst.getProperty("currentVoltage").equals("999")) ;
-		
-		//this should stay the same, since its a property defined in the Samsung Switch component.
-		Assert.assertTrue(samsungInst.getProperty("made").equals("china")) ;
+		Assert.assertTrue("Non-inherited properties could be update",samsungInst.getProperty("currentVoltage").equals("999")) ;
+
+		Assert.assertTrue("Inherited property shall not be changed",samsungInst.getProperty("made").equals("china")) ;
 		
 	}
 	
@@ -565,18 +564,94 @@ public class PaxTest {
 			put("property-05", "configured");
 			put("currentVoltage", "999");
 			put("voltage", "300");
-			
 		}};
 		
 		Instance samsungInst = samsungImpl.createInstance(null, initialProperties);
 		
+		Assert.assertNotNull("Instance could not be create through the API", samsungInst);
+		
 		//all the initial properties should be inside of the instance
 		for(String key:initialProperties.keySet()){
-			Assert.assertTrue(samsungInst.getAllProperties().containsKey(key));
-			Assert.assertTrue(samsungInst.getProperty(key).equals(initialProperties.get(key)));
+			
+			Assert.assertNotNull("Instance did not receive the initial property", samsungInst.getAllProperties().containsKey(key));
+			
+			Assert.assertNotNull("Instance did not receive the initial property",samsungInst.getAllProperties().get(key));
+			
+			Assert.assertTrue(samsungInst.getAllProperties().get(key).equals(initialProperties.get(key)));
 		}
 	}
 
+	@Test
+	public void PropertyDefinitionIsVisibleWithValPropertySet(){
+		waitForIt(CONST_WAIT_TIME);
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.test.impl.S1Impl");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+		
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+		
+		for(String key:s1Inst.getAllProperties().keySet()){
+			System.out.println(key+"="+s1Inst.getAllProperties().get(key.toString()));
+		}
+		
+		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal")!=null);
+		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal")!=null);
+		
+		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
+		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
+		
+	}
+	
+	@Test
+	public void PropertyDefinitionInternalAndNotInternalAreAPIVisible(){
+		
+		waitForIt(CONST_WAIT_TIME);
+
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.test.impl.S1Impl");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+		
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+				
+		s1Inst.setProperty("stateInternal", "default");
+		s1Inst.setProperty("stateNotInternal", "default");
+
+		for(String key:s1Inst.getAllProperties().keySet()){
+			System.out.println(key+"="+s1Inst.getAllProperties().get(key.toString()));
+		}
+		
+		System.out.println("--------------------");
+		
+		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal")!=null);
+		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal")!=null);
+		
+		Assert.assertTrue("Internal property not visible through API with the right value", s1Inst.getAllProperties().get("stateInternal").equals("default"));
+		Assert.assertTrue("Non-Internal property not visible through API with the right value", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
+		
+		s1Inst.setProperty("stateInternal", "changed");
+		s1Inst.setProperty("stateNotInternal", "changed");
+		
+		Assert.assertTrue("Internal property visible with wrong value", s1Inst.getAllProperties().get("stateInternal").equals("default"));
+		Assert.assertTrue("Non-Internal property visible with wrong value", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
+
+		s1Inst.setProperty("stateInternal", "changed");
+		s1Inst.setProperty("stateNotInternal", "changed");
+		
+		Assert.assertTrue("Internal property shall not be changeble through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
+		Assert.assertTrue("Non-Internal property shall be changeble through API", s1Inst.getAllProperties().get("stateNotInternal").equals("changed"));
+		
+		s1.setStateInternal("changed2");
+		s1.setStateNotInternal("changed2");
+		
+		Assert.assertTrue("Internal property shall not be changeble through the application", s1Inst.getAllProperties().get("stateInternal").equals("changed2"));
+		Assert.assertTrue("Non-Internal property shall be changeble through the application", s1Inst.getAllProperties().get("stateNotInternal").equals("changed2"));
+		
+	}
+	
+	
 	/**
 	 * Ensures that initial properties are configured in the instance properly
 	 */
@@ -605,15 +680,15 @@ public class PaxTest {
 		samsungInst.setProperty("property-04", "configured-04");
 		samsungInst.setProperty("property-05", "configured-05");
 		
-		//all the initial properties should be inside of the instance
+		final String message="Instance did not receive the property defined by setProperty method call";
+		
 		for(String key:initialProperties.keySet()){
-			Assert.assertTrue(samsungInst.getAllProperties().containsKey(key));
-			Assert.assertTrue(samsungInst.getProperty(key).equals(initialProperties.get(key)));
+			Assert.assertTrue(message,samsungInst.getAllProperties().containsKey(key));
+			Assert.assertTrue(message,samsungInst.getProperty(key).equals(initialProperties.get(key)));
 		}
 	}
 	
-	@Test
-	@Ignore
+
 	public void InheritedPropertyChanged(){
 		
 		waitForIt(CONST_WAIT_TIME);
