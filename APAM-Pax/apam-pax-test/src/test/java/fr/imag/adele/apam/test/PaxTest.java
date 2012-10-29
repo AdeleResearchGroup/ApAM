@@ -632,16 +632,13 @@ public class PaxTest {
 		s1Inst.setProperty("stateInternal", "changed");
 		s1Inst.setProperty("stateNotInternal", "changed");
 		
-		Assert.assertTrue("Internal property visible with wrong value", s1Inst.getAllProperties().get("stateInternal").equals("default"));
-		Assert.assertTrue("Non-Internal property visible with wrong value", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
-		
 		Assert.assertTrue("Internal property shall not be changeble through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
 		Assert.assertTrue("Non-Internal property shall be changeble through API", s1Inst.getAllProperties().get("stateNotInternal").equals("changed"));
 		
 		s1.setStateInternal("changed2");
 		s1.setStateNotInternal("changed2");
 		
-		Assert.assertTrue("Internal property shall not be changeble through the application", s1Inst.getAllProperties().get("stateInternal").equals("changed2"));
+		Assert.assertTrue("Internal property shall be changeble through the application", s1Inst.getAllProperties().get("stateInternal").equals("changed2"));
 		Assert.assertTrue("Non-Internal property shall be changeble through the application", s1Inst.getAllProperties().get("stateNotInternal").equals("changed2"));
 		
 	}
