@@ -1,6 +1,8 @@
 package fr.imag.adele.apam.test;
 
 import static fr.imag.adele.apam.test.ApAMHelper.waitForIt;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.felix;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
@@ -10,12 +12,13 @@ import static org.ops4j.pax.exam.container.def.PaxRunnerOptions.vmOption;
 
 import java.io.IOException;
 
-import static junit.framework.Assert.*;
+import junit.framework.TestCase;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.ops4j.pax.exam.Inject;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.OptionUtils;
@@ -33,7 +36,7 @@ import fr.imag.adele.apam.app2.spec.App2Spec;
  * 
  */
 @RunWith(JUnit4TestRunner.class)
-public class OBRMANTest {
+public class OBRMANTest extends TestCase{
 //	
     @Inject
     protected BundleContext context;

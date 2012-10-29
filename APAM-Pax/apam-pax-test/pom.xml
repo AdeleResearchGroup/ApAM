@@ -165,7 +165,11 @@
 			<version>3.0.0.M3</version>
 		</dependency>
 
-
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-inject</artifactId>
+			<version>3.0.0.M3</version>
+		</dependency>
 
 	</dependencies>
 
