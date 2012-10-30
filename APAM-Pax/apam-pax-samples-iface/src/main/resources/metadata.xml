@@ -27,6 +27,14 @@
 		name="eletronic-device-notsingleton-shared" interfaces="fr.imag.adele.apam.pax.test.iface.device.HouseMeter">
 	</specification>
 
+	<specification instantiable="false"
+		name="eletronic-device-notinstantiable" interfaces="fr.imag.adele.apam.pax.test.iface.device.HouseMeter">
+	</specification>
+	
+	<specification instantiable="true"
+		name="eletronic-device-instantiable" interfaces="fr.imag.adele.apam.pax.test.iface.device.HouseMeter">
+	</specification>
+
 	<specification name="sensor" interfaces="{fr.imag.adele.apam.pax.test.iface.S1}">
 		<definition name="location" type="{living, kitchen, bedroom}" />
 		<dependency specification="eletronic-device" />

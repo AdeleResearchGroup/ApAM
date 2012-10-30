@@ -53,6 +53,16 @@
 		specification="eletronic-device-notsingleton-shared">
 	</implementation>
 
+	<implementation name="HouseMeterInstantiable"
+		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		specification="eletronic-device-instantiable">
+	</implementation>
+	
+		<implementation name="HouseMeterNotInstantiable"
+		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		specification="eletronic-device-notinstantiable">
+	</implementation>
+
 	<implementation name="SamsungSwitch"
 		classname="fr.imag.adele.apam.pax.test.impl.device.GenericSwitch"
 		specification="eletronic-device">

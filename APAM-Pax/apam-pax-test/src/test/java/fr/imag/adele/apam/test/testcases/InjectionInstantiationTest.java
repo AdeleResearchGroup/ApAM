@@ -326,6 +326,48 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	}
 	
+	@Test
+	public void NotInstantiableInstance() {
+
+		waitForIt(Constants.CONST_WAIT_TIME);
+
+		Implementation impl = CST.apamResolver.findImplByName(null,
+				"HouseMeterNotInstantiable");
+
+		boolean failed=false;
+		
+		try {
+			Instance inst1 = impl.createInstance(null, null);	
+		} catch (Exception e) {
+			//nothing to do
+			failed=true;
+		}
+		
+		Assert.assertTrue("Not Instantiable instance shall not be instantiated by API or any other means", failed);
+		
+	}
+	
+	@Test
+	public void InstantiableInstance() {
+
+		waitForIt(Constants.CONST_WAIT_TIME);
+
+		Implementation impl = CST.apamResolver.findImplByName(null,
+				"HouseMeterInstantiable");
+
+		boolean failed=false;
+		
+		try {
+			Instance inst1 = impl.createInstance(null, null);	
+		} catch (Exception e) {
+			//nothing to do
+			failed=true;
+		}
+		
+		Assert.assertFalse("Instantiable instance shall be instantiated by API or any other means", failed);
+		
+	}
+	
 	/**
 	 * Test is singleton activated in the implementation really ensures that no
 	 * more than one instance is created in apam
