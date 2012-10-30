@@ -43,7 +43,7 @@
               ${project.artifactId}
             </Bundle-SymbolicName>
             <Export-Package>
-              fr.imag.adele.apam.test.impl
+              *.*
             </Export-Package> 
           </instructions>
         </configuration>

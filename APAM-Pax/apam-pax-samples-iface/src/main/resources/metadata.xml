@@ -1,22 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
-	<specification name="eletronic-device" interfaces="fr.imag.adele.apam.test.iface.device.Eletronic">
+	<specification name="eletronic-device"
+		interfaces="fr.imag.adele.apam.pax.test.iface.device.Eletronic">
 		<definition name="manufacturer" type="string" />
 		<definition name="voltage" type="{110, 220}" />
-		<definition name="currentVoltage" type="int"/>
+		<definition name="currentVoltage" type="int" />
 		<definition name="hasDisplay" type="boolean" />
 		<definition name="made" type="string" />
 	</specification>
 
-	<specification name="sensor"
-		interfaces="{fr.imag.adele.apam.test.iface.S1}">
+	<specification singleton="true" shared="false"
+		name="eletronic-device-singleton-notshared" interfaces="fr.imag.adele.apam.pax.test.iface.device.HouseMeter">
+	</specification>
+
+	<specification singleton="true" shared="true"
+		name="eletronic-device-singleton-shared" interfaces="fr.imag.adele.apam.pax.test.iface.device.HouseMeter">
+	</specification>
+
+	<specification singleton="false" shared="false"
+		name="eletronic-device-notsingleton-notshared" interfaces="fr.imag.adele.apam.pax.test.iface.device.HouseMeter">
+	</specification>
+
+	<specification singleton="false" shared="true"
+		name="eletronic-device-notsingleton-shared" interfaces="fr.imag.adele.apam.pax.test.iface.device.HouseMeter">
+	</specification>
+
+	<specification name="sensor" interfaces="{fr.imag.adele.apam.pax.test.iface.S1}">
 		<definition name="location" type="{living, kitchen, bedroom}" />
 		<dependency specification="eletronic-device" />
 	</specification>
 
-	<specification name="mobile"
-		interfaces="{fr.imag.adele.apam.test.iface.S2}">
+	<specification name="mobile" interfaces="fr.imag.adele.apam.pax.test.iface.S2">
 		<definition name="OS" type="{Linux, Windows, Android, IOS}" />
 		<dependency specification="eletronic-device" />
 	</specification>
@@ -27,37 +43,29 @@
 		<dependency specification="mobile" />
 	</specification>
 
-	<specification interfaces="fr.imag.adele.apam.test.iface.S1"
-		name="fr.imag.adele.apam.test.iface.S1" architecture="true">
-		<definition name="stateInternal" field="stateInternal" type="string" internal="true" value="default" />
-		<definition name="stateNotInternal" field="stateNotInternal" type="string" internal="false" value="default" />
-		<provides />
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S1"
+		name="fr.imag.adele.apam.pax.test.iface.S1">
 	</specification>
 
-	<specification interfaces="fr.imag.adele.apam.test.iface.S2"
-		name="fr.imag.adele.apam.test.iface.S2" architecture="true">
-		<provides />
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S2"
+		name="fr.imag.adele.apam.pax.test.iface.S2">
 	</specification>
 
-	<specification interfaces="fr.imag.adele.apam.test.iface.S3"
-		name="fr.imag.adele.apam.test.iface.S3" architecture="true">
-		<provides />
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S3"
+		name="fr.imag.adele.apam.pax.test.iface.S3">
 	</specification>
 
-	<specification interfaces="fr.imag.adele.apam.test.iface.S4"
-		name="fr.imag.adele.apam.test.iface.S4" architecture="true">
-		<provides />
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S4"
+		name="fr.imag.adele.apam.pax.test.iface.S4">
 	</specification>
 
-	<specification interfaces="fr.imag.adele.apam.test.iface.S5"
-		name="fr.imag.adele.apam.test.iface.S5" architecture="true">
-		<provides />
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S5"
+		name="fr.imag.adele.apam.pax.test.iface.S5">
 	</specification>
 
 	<specification
-		interfaces="fr.imag.adele.apam.test.iface.S4,fr.imag.adele.apam.test.iface.S5"
-		name="fr.imag.adele.apam.test.iface.S4S5" architecture="true">
-		<provides />
+		interfaces="fr.imag.adele.apam.pax.test.iface.S4,fr.imag.adele.apam.pax.test.iface.S5"
+		name="fr.imag.adele.apam.pax.test.iface.S4S5">
 	</specification>
 
 

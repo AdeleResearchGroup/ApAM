@@ -1,59 +1,59 @@
 <project>
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>fr.imag.adele.apam.pax</groupId>
+		<artifactId>APAM-Pax</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<packaging>bundle</packaging>
 	<groupId>fr.imag.adele.apam.pax</groupId>
-	<artifactId>APAM-Pax</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-    </parent>
-  <packaging>bundle</packaging>
-  <groupId>fr.imag.adele.apam.pax</groupId>
-  <artifactId>apam-pax-samples-impl-s1</artifactId>
-  <version>1.6.0</version>
-  <name>apam-pax-samples-impl-s1</name>
+	<artifactId>apam-pax-samples-impl-s1</artifactId>
+	<version>1.6.0</version>
+	<name>apam-pax-samples-impl-s1</name>
 
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>apache.snapshots</id>
-      <name>snapshot plugins</name>
-      <url>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>apache.snapshots</id>
+			<name>snapshot plugins</name>
+			<url>
         http://people.apache.org/repo/m2-snapshot-repository
       </url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 
-<dependencies>
-<dependency>
-  <groupId>fr.imag.adele.apam.pax</groupId>
-  <artifactId>apam-pax-samples-iface</artifactId>
-  <version>1.6.0</version>
-</dependency>
-</dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>fr.imag.adele.apam.pax</groupId>
+			<artifactId>apam-pax-samples-iface</artifactId>
+			<version>1.6.0</version>
+		</dependency>
+	</dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <version>1.4.3</version>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Bundle-SymbolicName>
-              ${project.artifactId}
-            </Bundle-SymbolicName>
-            <Export-Package>
-              *.*
-            </Export-Package> 
-          </instructions>
-        </configuration>
-      </plugin>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.4.3</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>
+							${project.artifactId}
+						</Bundle-SymbolicName>
+						<Export-Package>
+							*.*
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>ApamMavenPlugin</artifactId>
@@ -65,8 +65,8 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>  
-    
-    </plugins>
-  </build>
+			</plugin>
+
+		</plugins>
+	</build>
 </project>
