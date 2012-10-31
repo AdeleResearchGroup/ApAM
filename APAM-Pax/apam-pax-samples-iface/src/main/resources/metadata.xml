@@ -2,7 +2,7 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
-	<specification name="eletronic-device"
+	<specification name="eletronic-device" 
 		interfaces="fr.imag.adele.apam.pax.test.iface.device.Eletronic">
 		<definition name="manufacturer" type="string" />
 		<definition name="voltage" type="{110, 220}" />

@@ -3,14 +3,17 @@ package fr.imag.adele.apam.test.testcases;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
@@ -18,6 +21,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 import fr.imag.adele.apam.pax.test.impl.S1Impl;
 import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
 import fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch;
@@ -179,7 +183,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		Instance inst1 = impl.createInstance(null,
 				new HashMap<String, String>());
-		Instance inst2=null;
+		Instance inst2 = null;
 
 		try {
 			inst2 = impl.createInstance(null, new HashMap<String, String>());
@@ -192,10 +196,10 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		Assert.assertTrue(
 				"In case of a singleton not shared instance, after calling createInstance an exception should be raised",
-				inst1!=null);
+				inst1 != null);
 		Assert.assertTrue(
 				"In case of a singleton not shared instance, after calling createInstance an exception should be raised",
-				inst2==null);
+				inst2 == null);
 	}
 
 	/**
@@ -230,14 +234,10 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		Instance inst3 = CST.apamResolver.resolveImpl(rootComposite, impl,
 				new HashSet<String>(), new ArrayList<String>());
 
-		final String message="In case of a singleton and shared instance, all instances should be the same";
-		
-		Assert.assertTrue(
-				message,
-				inst1 == inst2);
-		Assert.assertTrue(
-				message,
-				inst2 == inst3);
+		final String message = "In case of a singleton and shared instance, all instances should be the same";
+
+		Assert.assertTrue(message, inst1 == inst2);
+		Assert.assertTrue(message, inst2 == inst3);
 
 	}
 
@@ -297,35 +297,33 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		}
 
 		impl.createInstance(null, null);
-		
-		boolean success=true;
+
+		boolean success = true;
 		try {
 			impl.createInstance(null, null);
-			impl.createInstance(null, null);	
+			impl.createInstance(null, null);
 		} catch (Exception e) {
-			success=false;
+			success = false;
 		}
-		
-		Assert.assertTrue("In case of a not singleton and shared instance, several instances of the same implementation can be created",success);
-		
+
+		Assert.assertTrue(
+				"In case of a not singleton and shared instance, several instances of the same implementation can be created",
+				success);
+
 		Instance inst1 = CST.apamResolver.resolveImpl(rootComposite, impl,
 				new HashSet<String>(), new ArrayList<String>());
 		Instance inst2 = CST.apamResolver.resolveImpl(rootComposite, impl,
 				new HashSet<String>(), new ArrayList<String>());
 		Instance inst3 = CST.apamResolver.resolveImpl(rootComposite, impl,
 				new HashSet<String>(), new ArrayList<String>());
-		
-		final String message="In case of a not singleton and shared instance, a new instance is never created, always recycled";
-		
-		Assert.assertTrue(
-				message,
-				inst1 == inst2);
-		Assert.assertTrue(
-				message,
-				inst2 == inst3);
+
+		final String message = "In case of a not singleton and shared instance, a new instance is never created, always recycled";
+
+		Assert.assertTrue(message, inst1 == inst2);
+		Assert.assertTrue(message, inst2 == inst3);
 
 	}
-	
+
 	@Test
 	public void NotInstantiableInstance() {
 
@@ -334,19 +332,21 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterNotInstantiable");
 
-		boolean failed=false;
-		
+		boolean failed = false;
+
 		try {
-			Instance inst1 = impl.createInstance(null, null);	
+			Instance inst1 = impl.createInstance(null, null);
 		} catch (Exception e) {
-			//nothing to do
-			failed=true;
+			// nothing to do
+			failed = true;
 		}
-		
-		Assert.assertTrue("Not Instantiable instance shall not be instantiated by API or any other means", failed);
-		
+
+		Assert.assertTrue(
+				"Not Instantiable instance shall not be instantiated by API or any other means",
+				failed);
+
 	}
-	
+
 	@Test
 	public void InstantiableInstance() {
 
@@ -355,93 +355,78 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterInstantiable");
 
-		boolean failed=false;
-		
+		boolean failed = false;
+
 		try {
-			Instance inst1 = impl.createInstance(null, null);	
+			Instance inst1 = impl.createInstance(null, null);
 		} catch (Exception e) {
-			//nothing to do
-			failed=true;
+			// nothing to do
+			failed = true;
 		}
-		
-		Assert.assertFalse("Instantiable instance shall be instantiated by API or any other means", failed);
-		
+
+		Assert.assertFalse(
+				"Instantiable instance shall be instantiated by API or any other means",
+				failed);
+
 	}
-	
-	/**
-	 * Test is singleton activated in the implementation really ensures that no
-	 * more than one instance is created in apam
-	 */
-	public void outro() {
+
+	@Test
+	public void PreferenceInjectionAttribute() throws InvalidSyntaxException {
+
 		waitForIt(Constants.CONST_WAIT_TIME);
+		
 
-		// Implementation s1Impl = CST.apamResolver.findImplByName(null,
-		// "fr.imag.adele.apam.test.impl.S1Impl");
-		// Instance s1Inst = s1Impl.createInstance(null, null);
-		// S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+		Implementation lgImpl = CST.apamResolver.findImplByName(null,
+				"LgSwitch");
+		final Instance lgInst = lgImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "100");
+					}
+				});
 
-		// Implementation s2Impl = CST.apamResolver.findImplByName(null,
-		// "fr.imag.adele.apam.pax.test.impl.S2Impl");
-		// Instance s2Inst = s2Impl.createInstance(null, null);
-		// S2Impl s2 = (S2Impl) s2Inst.getServiceObject();
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "500");
+					}
+				});
+		
+		Implementation siemensImpl = CST.apamResolver.findImplByName(null,
+				"SiemensSwitch");
+		final Instance siemensInst = siemensImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "105");
+					}
+				});
 
-		Implementation impl = CST.apamResolver.findImplByName(null,
-				"HouseMeterSingletonNotShared");
 
-		impl.createInstance(null, null);
+		System.out.println("Instances before injection request");
+		auxListInstances("\t");
+		
+		//Creates S1 instance (class that requires the injection)
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
-		boolean raised = false;
+		Instance s1Inst = s1Impl.createInstance(null, null);
 
-		try {
-			impl.createInstance(null, null);
-		} catch (NullPointerException e) {
-			raised = true;
-		}
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+		
+		Eletronic samsungSwitch = (Eletronic) samsungInst
+				.getServiceObject();
+		Eletronic lgSwitch = (Eletronic) lgInst.getServiceObject();
+		Eletronic siemensSwitch = (Eletronic) siemensInst
+				.getServiceObject();
 
+		System.out.println("Instances after injection request");
+		auxListInstances("\t");
+		
 		Assert.assertTrue(
-				"In case of a singleton not shared instance, after calling createInstance an exception should be raised",
-				raised);
-
-		Instance instance1 = CST.apamResolver.resolveImpl(null, impl,
-				new HashSet<String>() {
-					{
-						add("singleton=true");
-						add("shared=false");
-					}
-				}, null);
-
-		Instance instance2 = CST.apamResolver.resolveImpl(null, impl,
-				new HashSet<String>() {
-					{
-						add("singleton=true");
-						add("shared=false");
-					}
-				}, null);
-
-		System.out.println("1 ----- " + instance1);
-		System.out.println("2 ----- " + instance2);
-
-		//
-		// Implementation houseMeterImpl = CST.apamResolver.findImplByName(null,
-		// "HouseMeterSingletonNotShared");
-		//
-		// Instance houseMeterInst = houseMeterImpl.createInstance(null, null);
-		// HouseMeterSwitch houseMeter = (HouseMeterSwitch) houseMeterInst
-		// .getServiceObject();
-		// System.out.println("0--------" + houseMeter);
-		//
-		// System.out.println("1--------"
-		// + s1.getHouseMeterSingletonNotSharedInstance1());
-		// System.out.println("2--------"
-		// + s1.getHouseMeterSingletonNotSharedInstance2());
-
-		System.out.println("------------ Instances -------------");
-		for (Instance i : CST.componentBroker.getInsts()) {
-
-			System.out.println("Instance:" + i.getName());
-
-		}
-		System.out.println("------------ /Instances -------------");
+				String.format("The instance injected should be the one prefered, since there exist an instance which the preference is valid, instance %s was injected instead of %s",CST.componentBroker.getInstService(s1.getDevicePreference110v()).getName(),samsungInst.getName()),
+				s1.getDevicePreference110v() == samsungSwitch);
 
 	}
 }

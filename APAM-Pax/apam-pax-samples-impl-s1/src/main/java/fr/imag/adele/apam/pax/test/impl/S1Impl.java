@@ -24,6 +24,8 @@ public class S1Impl implements S1
     
     Set<Eletronic> eletronicInstancesConstraintsInstance;
     
+    Eletronic devicePreference110v;
+    
     public String whoami()
     {
         return this.getClass().getName();
@@ -84,6 +86,14 @@ public class S1Impl implements S1
 
 	public void setStateInternal(String stateInternal) {
 		this.stateInternal = stateInternal;
+	}
+
+	public Eletronic getDevicePreference110v() {
+		return devicePreference110v;
+	}
+
+	public void setDevicePreference110v(Eletronic devicePreference110v) {
+		this.devicePreference110v = devicePreference110v;
 	}
 
 }

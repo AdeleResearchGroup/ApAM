@@ -24,6 +24,12 @@
 			</constraints>
 		</dependency>
 
+		<dependency field="devicePreference110v">
+			<preferences>
+				<instance filter="(currentVoltage=500)" />
+			</preferences>
+		</dependency>
+
 		<dependency field="simpleDevice110v">
 			<constraints>
 				<implementation filter="(manufacturer=philips)" />
@@ -57,8 +63,8 @@
 		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
 		specification="eletronic-device-instantiable">
 	</implementation>
-	
-		<implementation name="HouseMeterNotInstantiable"
+
+	<implementation name="HouseMeterNotInstantiable"
 		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
 		specification="eletronic-device-notinstantiable">
 	</implementation>

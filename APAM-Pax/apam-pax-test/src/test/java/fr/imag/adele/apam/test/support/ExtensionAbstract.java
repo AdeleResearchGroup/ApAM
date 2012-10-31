@@ -18,6 +18,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.ow2.chameleon.testing.helpers.OSGiHelper;
 
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.Instance;
+
 public abstract class ExtensionAbstract {
 	
 	@Inject
@@ -51,6 +55,24 @@ public abstract class ExtensionAbstract {
 			}
 		}
 		
+	}
+	
+	protected void auxListInstances(String prefix) {
+		System.out.println(String.format("%s------------ Instances -------------",prefix));
+		for (Instance i : CST.componentBroker.getInsts()) {
+
+			System.out.println(String.format("%sInstance name %s ( oid: %s ) ",prefix,i.getName(),i.getServiceObject()));
+
+		}
+		System.out.println(String.format("%s------------ /Instances -------------",prefix));
+	}
+	
+	protected void auxListProperties(String prefix,Component component){
+		System.out.println(String.format("%s------------ Properties -------------",prefix));
+		for(String key:component.getAllProperties().keySet()){
+			System.out.println(key+"="+component.getAllProperties().get(key.toString()));
+		}
+		System.out.println(String.format("%s------------ /Properties -------------",prefix));
 	}
 	
 	@Before
