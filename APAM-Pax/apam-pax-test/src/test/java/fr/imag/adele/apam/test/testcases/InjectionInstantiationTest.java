@@ -3,7 +3,6 @@ package fr.imag.adele.apam.test.testcases;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import junit.framework.Assert;
 
@@ -13,7 +12,6 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
@@ -425,7 +423,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		auxListInstances("\t");
 		
 		Assert.assertTrue(
-				String.format("The instance injected should be the one prefered, since there exist an instance which the preference is valid, instance %s was injected instead of %s",CST.componentBroker.getInstService(s1.getDevicePreference110v()).getName(),samsungInst.getName()),
+				String.format("The instance injected should be the prefered one, since there exist an instance in which the preference is valid. The instance %s was injected instead of %s",CST.componentBroker.getInstService(s1.getDevicePreference110v()).getName(),samsungInst.getName()),
 				s1.getDevicePreference110v() == samsungSwitch);
 
 	}

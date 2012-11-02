@@ -178,6 +178,27 @@
 			<version>3.0.0.M3</version>
 		</dependency>
 
+
+		<!-- OBRMANTEST dependencies-->
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>OBRMAN</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.apps.app1</groupId>
+			<artifactId>APP1-Spec</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.apps.app2</groupId>
+			<artifactId>APP2-Spec</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 

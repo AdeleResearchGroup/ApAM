@@ -2,6 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<parent>
+		<artifactId>APAMProject.root</artifactId>
+		<groupId>fr.imag.adele.apam</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
 	<groupId>fr.imag.adele.apam.pax</groupId>
 	<artifactId>APAM-Pax</artifactId>
 	<packaging>pom</packaging>
@@ -44,6 +50,13 @@
 				<module>apam-pax-samples-impl-s2</module>
 				<module>apam-pax-samples-impl-s3</module>
 				<module>apam-pax-samples-impl-s4s5</module>
+				<!-- OBRMan test-->
+				<module>OBRMAN-Tests</module>
+<!--
+				<module>apam-apps</module>
+				<module>apam-repositories</module>
+				<module>run-obrman-tests</module>
+-->
 				
 			</modules>
 		</profile>
