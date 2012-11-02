@@ -46,6 +46,7 @@ public class OBRMANTest extends ExtensionAbstract {
 	 */
 	@Before
 	public void setUp() {
+		super.setUp();
 		apam = new ApAMHelper(context);
 	}
 
