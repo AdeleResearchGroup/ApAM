@@ -149,7 +149,9 @@ public abstract class ExtensionAbstract {
 
 	@After
 	public void tearDown() {
-		OSGihelper.dispose();
+		
+		if(OSGihelper!=null)		
+			OSGihelper.dispose();
 		
 		try {
 			Thread.sleep(100);
