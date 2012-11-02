@@ -139,7 +139,7 @@ public abstract class ExtensionAbstract {
 
 
 		
-		// r = OptionUtils.combine(r, debug);
+//		 r = OptionUtils.combine(r, debug);
 
 		// Option[] log =
 		// options(vmOption("-Dlog4j.file=./am.log4j.properties"));

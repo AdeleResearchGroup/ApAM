@@ -411,6 +411,8 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		Instance s1Inst = s1Impl.createInstance(null, null);
 
+		waitForIt(Constants.CONST_WAIT_TIME);
+		
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 		
 		Eletronic samsungSwitch = (Eletronic) samsungInst
@@ -421,11 +423,10 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		System.out.println("Instances after injection request");
 		auxListInstances("\t");
-		
 		Assert.assertTrue(
 				String.format("The instance injected should be the prefered one, since there exist an instance in which the preference is valid. The instance %s was injected instead of %s",CST.componentBroker.getInstService(s1.getDevicePreference110v()).getName(),samsungInst.getName()),
 				s1.getDevicePreference110v() == samsungSwitch);
-
+		
 	}
 }
 // Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
