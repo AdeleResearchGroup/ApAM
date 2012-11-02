@@ -419,12 +419,14 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		System.out.println("Instances after injection request");
 		auxListInstances("\t");
+		
+		Instance injectedInstance=CST.componentBroker.getInstService(s1.getDevicePreference110v());
+		
 		Assert.assertTrue(
 				String.format(
-						"The instance injected should be the prefered one, since there exist an instance in which the preference is valid. The instance %s was injected instead of %s",
-						CST.componentBroker.getInstService(
-								s1.getDevicePreference110v()).getName(),
-						samsungInst.getName()),
+						"The instance injected should be the prefered one (currentVoltage=500), since there exist an instance in which the preference is valid. The instance %s (currentVoltage:%s) was injected instead of %s (currentVoltage:%s)",
+						injectedInstance.getName(),injectedInstance.getAllProperties().get("currentVoltage"),
+						samsungInst.getName(),samsungInst.getAllProperties().get("currentVoltage")),
 				s1.getDevicePreference110v() == samsungSwitch);
 
 	}
@@ -481,7 +483,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		System.out.println("Instances after injection request");
 		auxListInstances("\t");
 		
-		Instance injectedInstance=CST.componentBroker.getInstService(s1.getDevicePreference110v());
+		Instance injectedInstance=CST.componentBroker.getInstService(s1.getDeviceConstraint110v());
 		
 		Assert.assertTrue(
 				String.format(
