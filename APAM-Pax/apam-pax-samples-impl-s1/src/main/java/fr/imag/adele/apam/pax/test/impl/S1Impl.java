@@ -26,6 +26,8 @@ public class S1Impl implements S1
     
     Eletronic devicePreference110v;
     
+    Eletronic deviceConstraint110v;
+    
     public String whoami()
     {
         return this.getClass().getName();
@@ -94,6 +96,14 @@ public class S1Impl implements S1
 
 	public void setDevicePreference110v(Eletronic devicePreference110v) {
 		this.devicePreference110v = devicePreference110v;
+	}
+
+	public Eletronic getDeviceConstraint110v() {
+		return deviceConstraint110v;
+	}
+
+	public void setDeviceConstraint110v(Eletronic deviceConstraint110v) {
+		this.deviceConstraint110v = deviceConstraint110v;
 	}
 
 }

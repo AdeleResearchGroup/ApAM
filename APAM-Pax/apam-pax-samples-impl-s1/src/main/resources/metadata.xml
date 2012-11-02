@@ -30,6 +30,17 @@
 			</preferences>
 		</dependency>
 
+		<dependency field="deviceConstraint110v">
+			<constraints>
+				<instance filter="(currentVoltage=500)" />
+			</constraints>
+			 
+			<preferences>
+			
+			</preferences>
+			
+		</dependency>
+
 		<dependency field="simpleDevice110v">
 			<constraints>
 				<implementation filter="(manufacturer=philips)" />

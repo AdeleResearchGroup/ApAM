@@ -372,7 +372,6 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	public void PreferenceInjectionAttribute() throws InvalidSyntaxException {
 
 		waitForIt(Constants.CONST_WAIT_TIME);
-		
 
 		Implementation lgImpl = CST.apamResolver.findImplByName(null,
 				"LgSwitch");
@@ -391,7 +390,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 						put("currentVoltage", "500");
 					}
 				});
-		
+
 		Implementation siemensImpl = CST.apamResolver.findImplByName(null,
 				"SiemensSwitch");
 		final Instance siemensInst = siemensImpl.createInstance(null,
@@ -401,33 +400,98 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 					}
 				});
 
-
 		System.out.println("Instances before injection request");
 		auxListInstances("\t");
-		
-		//Creates S1 instance (class that requires the injection)
+
+		// Creates S1 instance (class that requires the injection)
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 		Instance s1Inst = s1Impl.createInstance(null, null);
 
 		waitForIt(Constants.CONST_WAIT_TIME);
-		
+
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-		
-		Eletronic samsungSwitch = (Eletronic) samsungInst
-				.getServiceObject();
+
+		Eletronic samsungSwitch = (Eletronic) samsungInst.getServiceObject();
 		Eletronic lgSwitch = (Eletronic) lgInst.getServiceObject();
-		Eletronic siemensSwitch = (Eletronic) siemensInst
-				.getServiceObject();
+		Eletronic siemensSwitch = (Eletronic) siemensInst.getServiceObject();
 
 		System.out.println("Instances after injection request");
 		auxListInstances("\t");
 		Assert.assertTrue(
-				String.format("The instance injected should be the prefered one, since there exist an instance in which the preference is valid. The instance %s was injected instead of %s",CST.componentBroker.getInstService(s1.getDevicePreference110v()).getName(),samsungInst.getName()),
+				String.format(
+						"The instance injected should be the prefered one, since there exist an instance in which the preference is valid. The instance %s was injected instead of %s",
+						CST.componentBroker.getInstService(
+								s1.getDevicePreference110v()).getName(),
+						samsungInst.getName()),
 				s1.getDevicePreference110v() == samsungSwitch);
-		
+
 	}
+
+	@Test
+	public void ConstraintInjectionWhenEmptyPreferenceTagExistsAttribute()
+			throws InvalidSyntaxException {
+
+		waitForIt(Constants.CONST_WAIT_TIME);
+
+		Implementation lgImpl = CST.apamResolver.findImplByName(null,
+				"LgSwitch");
+		final Instance lgInst = lgImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "100");
+					}
+				});
+
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "500");
+					}
+				});
+
+		Implementation siemensImpl = CST.apamResolver.findImplByName(null,
+				"SiemensSwitch");
+		final Instance siemensInst = siemensImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "105");
+					}
+				});
+
+		System.out.println("Instances before injection request");
+		auxListInstances("\t");
+		// Creates S1 instance (class that requires the injection)
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl");
+
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		waitForIt(Constants.CONST_WAIT_TIME);
+
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+		Eletronic samsungSwitch = (Eletronic) samsungInst.getServiceObject();
+		Eletronic lgSwitch = (Eletronic) lgInst.getServiceObject();
+		Eletronic siemensSwitch = (Eletronic) siemensInst.getServiceObject();
+
+		System.out.println("Instances after injection request");
+		auxListInstances("\t");
+		
+		Instance injectedInstance=CST.componentBroker.getInstService(s1.getDevicePreference110v());
+		
+		Assert.assertTrue(
+				String.format(
+						"The instance injected should obey the contraints (currentVoltage=500) given in the xml, this does not happens when there is a <preference> tag with nothing declared inside. The instance %s (currentVoltage:%s) was injected instead of %s (currentVoltage:%s)",
+						injectedInstance.getName(),injectedInstance.getAllProperties().get("currentVoltage"),
+						samsungInst.getName(),samsungInst.getAllProperties().get("currentVoltage")),
+				s1.getDeviceConstraint110v() == samsungSwitch);
+
+	}
+
 }
 // Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
 // CST.componentBroker.getInstService(s3bis) ;
@@ -440,14 +504,6 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 // heritage de contraintes
 // contraintes générique
-
-// preferences
-
-// instantiable
-
-// shared
-
-// singleton
 
 // resolution interface
 // resolution message
