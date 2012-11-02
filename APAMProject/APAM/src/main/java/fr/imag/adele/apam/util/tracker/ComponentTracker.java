@@ -1,9 +1,6 @@
 package fr.imag.adele.apam.util.tracker;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.ComponentBroker;
-import fr.imag.adele.apam.DynamicManager;
+import fr.imag.adele.apam.*;
 import org.osgi.framework.Filter;
 
 import java.util.HashSet;
@@ -14,7 +11,7 @@ import java.util.Set;
  *
  *
  */
- abstract class ComponentTracker<T extends Component> implements  ComponentTrackerCustomizer<T>, DynamicManager {
+ public class ComponentTracker<T extends Component> implements  ComponentTrackerCustomizer<T>, DynamicManager<T> {
 
     /**
      * The Apam {@code ComponentBroker} being used by this tracker.
@@ -35,7 +32,7 @@ import java.util.Set;
     protected final ComponentTrackerCustomizer<T> customizer;
 
     public ComponentTracker(final Filter filter) {
-        this(filter, null);
+        this(filter,null);
     }
 
     public ComponentTracker(final Filter filter,final ComponentTrackerCustomizer<T> customizer) {
@@ -46,9 +43,36 @@ import java.util.Set;
     }
 
 
-    public abstract void open();
+    public void open(){
 
-    public abstract void close();
+        ApamManagers.addDynamicManager(this);
+        Set<T> presents = new HashSet<T>();
+        if (presents.getClass().getComponentType().isAssignableFrom(Instance.class)){
+            presents.addAll((Set<T>) broker.getInsts(filter));
+        } else if (presents.getClass().getComponentType().isAssignableFrom(Specification.class)){
+            presents.addAll((Set<T>) broker.getSpecs(filter));
+        } else if (presents.getClass().getComponentType().isAssignableFrom(Implementation.class)){
+            presents.addAll((Set<T>) broker.getImpls(filter));
+        }
+        synchronized (components){
+            for(T comp : presents){
+                components.add(comp);
+                customizer.addingComponent(comp);
+            }
+        }
+
+    }
+
+    public void close(){
+        ApamManagers.removeDynamicManager(this);
+
+        synchronized (components){
+            for(T comp : components){
+                customizer.removedComponent(comp);
+            }
+            components.clear();
+        }
+    }
 
     /*---------
       Default Customizer
@@ -64,4 +88,29 @@ import java.util.Set;
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
+    /*------------------
+       DynamicManager
+     -------------------*/
+
+    @Override
+    public void addedInApam(T newComponent) {
+        if (!newComponent.match(this.filter)){ //nothing to do
+            return;
+        }
+
+        synchronized (components){
+            customizer.addingComponent(newComponent);
+            components.add(newComponent);
+        }
+
+    }
+
+    @Override
+    public void removedFromApam(T lostComponent) {
+        synchronized (components){
+            if(components.remove(lostComponent)){
+                customizer.removedComponent(lostComponent);
+            }
+        }
+    }
 }
