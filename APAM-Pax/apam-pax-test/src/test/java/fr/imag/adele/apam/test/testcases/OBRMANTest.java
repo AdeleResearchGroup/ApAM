@@ -96,6 +96,7 @@ public class OBRMANTest extends ExtensionAbstract {
 
 	@After
 	public void tearDown() {
+		super.tearDown();
 		apam.dispose();
 	}
 
