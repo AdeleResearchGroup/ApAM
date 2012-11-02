@@ -16,7 +16,7 @@
 	<specification name="S3"
 		interfaces="{fr.imag.adele.apam.test.s3.S3_1,fr.imag.adele.apam.test.s3.S3_2}">
 	    <definition name="location" type="{living, kitchen, bedroom}"    />
-	    <definition name="OS" type="{Linux, Windows, Android, IOS}" />
+	    <definition name="OS" type="{Linux, Windows, Android, IOS}"/>
 		<definition name="MyBool"    type="boolean" />
 		
 <!-- 		<dependency specification="S4" /> -->

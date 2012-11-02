@@ -82,7 +82,7 @@
 		<profile>
 			<id>prepare-tests</id>
 			<modules>
-				<module>APAM-Tests</module>
+				<module>APAM-Pax</module>
 			</modules>
 		</profile>
 
@@ -90,7 +90,7 @@
 		<profile>
 			<id>run-tests</id>
 			<modules>
-				<module>APAM-Tests/apam-test</module>
+				<module>APAM-Pax/apam-pax-test</module>
 			</modules>
 		</profile>
 

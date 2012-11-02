@@ -102,9 +102,9 @@ public class CheckObr {
      * 
      * @param component the component to check
      */
-    public static Map<String, String> getValidProperties(ComponentDeclaration component) {
+	public static Map<String, Object> getValidProperties(ComponentDeclaration component) {
         // the attributes to return
-        Map<String, String> ret = new HashMap<String, String>();
+		Map<String, Object> ret = new HashMap <String, Object> ();
         // Properties of this component
         Map<String, String> properties = component.getProperties();
 
@@ -114,8 +114,9 @@ public class CheckObr {
 
         // return the valid attributes
         for (String attr : properties.keySet()) {
-            if (validDefObr(entCap, attr, properties.get(attr))) {
-                ret.put(attr, properties.get(attr));
+			Object val = validDefObr (entCap, attr, properties.get(attr)) ;
+			if (val != null) {
+				ret.put(attr, val) ;
             }
         }
 
@@ -171,6 +172,8 @@ public class CheckObr {
      * Checks if the attribute / values pair is valid for the component ent.
      * If a final attribute, it is ignored but returns false. (cannot be set).
      * 
+	 * For "int" returns an Integer object, otherwise it is the string "value"
+	 * 
      * @param entName
      * @param attr
      * @param value
@@ -178,7 +181,7 @@ public class CheckObr {
      * @param superGroupProps
      * @return
      */
-    private static boolean validDefObr(ApamCapability ent, String attr, String value) {
+	private static Object validDefObr (ApamCapability ent, String attr, String value) {
         if (Util.isFinalAttribute(attr))
             return false;
         if (!Util.validAttr(ent.getName(), attr))

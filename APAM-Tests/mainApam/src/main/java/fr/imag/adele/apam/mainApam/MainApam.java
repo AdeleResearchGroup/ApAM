@@ -293,12 +293,24 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals(impl.getProperty("s1i"), "5");
 		assertEquals(inst.getProperty("s1i"), "5");
 		impl.setProperty("s1i", "5, 7, 55,985"); // Ok
-		assertEquals(impl.getProperty("s1i"), "5, 7, 55,985");
-		assertEquals(inst.getProperty("s1i"), "5, 7, 55,985");
+		assertNotEquals(impl.getProperty("s1i"), "5, 7, 55,985");
+//		assertEquals(inst.getProperty("s1i"), "5, 7, 55,985");
 
-		impl.setProperty("s1i", "5, zz, 55,985"); // wrong
-		assertNotEquals(impl.getProperty("s1i"), "5, zz, 55,985");
+//		impl.setProperty("s1i", "5, zz, 55,985"); // wrong
+//		assertNotEquals(impl.getProperty("s1i"), "5, zz, 55,985");
 
+		boolean ok  ;
+		impl.setProperty("s1i", "5"); // for match tests
+		assertTrue (inst.match("(s1i>=4)")) ;
+		assertTrue (!inst.match("(s1i<=4)")) ;
+		assertTrue (!inst.match("(s1i>=6)")) ;
+		assertTrue (inst.match("(s1i<=6)")) ;
+		assertTrue (!inst.match("(s1i>=10)")) ;
+		assertTrue (inst.match("(s1i<=10)")) ;
+		assertTrue (inst.match("(s1i>=01)")) ;
+		assertTrue (!inst.match("(s1i<=01)")) ;
+		assertTrue (!inst.match("(s1i>=-61)")) ;
+		assertTrue (inst.match("(s1i<=-61)")) ;
 
 		impl.setProperty("S1-Attr", "5"); // error: cannot redefine
 		assertEquals(spec.getProperty("S1-Attr"), "New-value");
@@ -328,8 +340,7 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("\n");
 		System.out.println("OS value is : " + inst.getProperty("OS"));
 		System.out.println("toto does not exist. Its value is null");
-		boolean ok  ;
-
+		
 		//non instantiated attributes
 		ok = inst.match("(toto= Android  , Linux  , IOS)") ;
 		System.out.println("Matching: (toto= Android  , Linux  , IOS): " + ok);

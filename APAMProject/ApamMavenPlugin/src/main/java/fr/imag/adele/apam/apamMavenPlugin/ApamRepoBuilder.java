@@ -183,9 +183,9 @@ public class ApamRepoBuilder {
 
 
 	private void printProperties(StringBuffer obrContent, ComponentDeclaration component) {
-		Map<String, String> properties = CheckObr.getValidProperties(component) ;
+		Map<String, Object> properties = CheckObr.getValidProperties(component) ;
 		for (String attr : properties.keySet()) { 
-			generateProperty (obrContent, component, attr, properties.get(attr)) ;
+			generateProperty (obrContent, component, attr, properties.get(attr).toString()) ;
 		}
 
 		// definition attributes
@@ -206,18 +206,11 @@ public class ApamRepoBuilder {
 					// check for enum types
 					if ((type.charAt(0) == '{') || (type.charAt(0) == '[')) {
 						typeString =  type ;
-//						typeString = "[;";
-//						for (String one : Util.split(type)) {
-//							typeString += one + ";";
-//						}
-//						typeString += "]";
 					} else
 						CheckObr.error("Invalid type " + type + " in attribute definition " + definition.getName()
 								+ ". Supported: string, int, boolean, enumeration.");
 				}
 				if (typeString != null) {
-					//tempContent = tempContent + (" v='" + typeString + "' />\n");
-					//obrContent.append(tempContent);
 					generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + definition.getName(), typeString, defaultValue) ;
 				}
 			}

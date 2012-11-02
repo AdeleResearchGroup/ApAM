@@ -129,7 +129,7 @@ public interface Component {
      * Get the value of all the properties of the component, including those in the enclosing
      * groups
      */
-	public Map<String, String> getAllProperties();
+	public Map<String, Object> getAllProperties();
 
 	/**
 	 * Change the value of the specified properties of the component

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+
+
+	<implementation name="fr.imag.adele.apam.pax.test.impl.S2Impl"
+		classname="fr.imag.adele.apam.pax.test.impl.S2Impl" specification="fr.imag.adele.apam.pax.test.iface.S2">
+		<!-- <dependency field="s4"/> <dependency field="s5"/> -->
+		<callback onInit="start" onRemove="stop" />
+		<dependency field="houseMeter" />
+	</implementation>
+
+
+</apam>
