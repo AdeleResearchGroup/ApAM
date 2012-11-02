@@ -255,6 +255,7 @@
 			<url>dav:https://repository-apam.forge.cloudbees.com/snapshot</url>
 			<uniqueVersion>false</uniqueVersion>
 		</snapshotRepository>
+		
 	</distributionManagement>
 
 	<dependencyManagement>

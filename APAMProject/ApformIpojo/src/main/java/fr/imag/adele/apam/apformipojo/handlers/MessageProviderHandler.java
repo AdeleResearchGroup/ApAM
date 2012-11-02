@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.apformipojo.handlers;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -9,11 +10,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.ConfigurationException;
-import org.apache.felix.ipojo.FieldInterceptor;
+import org.apache.felix.ipojo.MethodInterceptor;
 import org.apache.felix.ipojo.architecture.HandlerDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
-import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.osgi.service.wireadmin.Producer;
 import org.osgi.service.wireadmin.Wire;
 import org.osgi.service.wireadmin.WireAdmin;
@@ -22,11 +22,12 @@ import org.osgi.service.wireadmin.WireConstants;
 import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
 import fr.imag.adele.apam.apformipojo.ApformIpojoImplementation;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.core.MessageProducerFieldInjection;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.core.MessageProducerMethodInterception;
 import fr.imag.adele.apam.core.MessageReference;
-import fr.imag.adele.apam.message.MessageProducer;
 import fr.imag.adele.apam.message.Message;
+import fr.imag.adele.apam.message.MessageProducer;
+import fr.imag.adele.apam.util.MessageReferenceExtended;
 
 
 /**
@@ -41,7 +42,7 @@ import fr.imag.adele.apam.message.Message;
  * @author vega
  *
  */
-public class MessageProviderHandler extends ApformHandler implements Producer, MessageProducer<Object>, FieldInterceptor {
+public class MessageProviderHandler extends ApformHandler implements Producer, MessageProducer<Object>, MethodInterceptor {
 
 
 	/**
@@ -121,16 +122,14 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
     		return;
     	
     	AtomicImplementationDeclaration primitive	= (AtomicImplementationDeclaration) declaration;
-    	for (MessageProducerFieldInjection messageField : primitive.getProducerInjections()) {
+    	for (MessageProducerMethodInterception messageMehod : primitive.getProducerInjections()) {
     		
-    		MessageReference messageReference = messageField.getResource().as(MessageReference.class);
+    	    MessageReferenceExtended messageReference = messageMehod.getResource().as(MessageReferenceExtended.class);
     		
     		if (messageReference == null)
     			continue;
-    		
-    		FieldMetadata field	= getPojoMetadata().getField(messageField.getFieldName());
     
-    		getInstanceManager().register(field,this);
+    		getInstanceManager().register(messageReference.getCallbackMetadata(),this);
 		}
     	
     }
@@ -266,14 +265,14 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 		}
 	}
 
-	/**
-	 * Injects this handler in all abstract consumer fields 
-	 */
-	@Override
-	public Object onGet(Object pojo, String fieldName, Object value) {
-		if(wires.isEmpty()) return null;
-		return this;
-	}
+//	/**
+//	 * Injects this handler in all abstract consumer fields 
+//	 */
+//	@Override
+//	public Object onGet(Object pojo, String fieldName, Object value) {
+//		if(wires.isEmpty()) return null;
+//		return this;
+//	}
 
 	@Override
 	public void start() {
@@ -281,6 +280,16 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 
 	@Override
 	public void stop() {
+	}
+	
+	@Override
+	public void onExit(Object pojo, Method method, Object returnedObj) {
+	    super.onExit(pojo, method, returnedObj);
+	    if (returnedObj instanceof Message){
+	        push((Message<?>)returnedObj);
+	    }else {
+	        push(returnedObj);
+	    }
 	}
 
 }

@@ -1,0 +1,7 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+
+	<specification name="P1" messages="fr.imag.adele.apam.test.message.M1"  >
+	</specification>
+
+</apam>

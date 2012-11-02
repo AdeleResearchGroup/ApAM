@@ -15,7 +15,7 @@ import java.util.Set;
  * @author vega
  * 
  */
-public abstract class ComponentDeclaration {
+public abstract class ComponentDeclaration{
 
     /**
      * The identifier of the service provider
@@ -252,14 +252,14 @@ public abstract class ComponentDeclaration {
      */
 	@SuppressWarnings("unchecked")
 	public <T extends ResourceReference> Set<T> getProvidedResources(Class<T> kind) {
-    	Set<ResourceReference> resources = new HashSet<ResourceReference>();
+    	Set<T> resources = new HashSet<T>();
     	for (ResourceReference resourceReference : providedResources) {
-			if (kind.isInstance(resourceReference))
-				resources.add(resourceReference);
+			if (kind.isInstance(resourceReference) )
+				resources.add((T) resourceReference);
 		}
-        return (Set<T>) resources;
+        return resources;
     }
-   
+	
 
     /**
      * Check if the specified resource is provided by this component

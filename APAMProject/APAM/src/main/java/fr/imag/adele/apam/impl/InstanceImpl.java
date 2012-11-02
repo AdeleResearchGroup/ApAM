@@ -24,6 +24,7 @@ import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.CallbackMethod;
+import fr.imag.adele.apam.core.CallbackMethod.CallbackTrigger;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 
 public class InstanceImpl extends ComponentImpl implements Instance {
@@ -174,7 +175,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
                 serviceComponent.apamInit(this);
             }
             // call backs methods
-            fireCallbacks("onInit", service);
+            fireCallbacks(CallbackTrigger.onInit, service);
         }
  
         /*
@@ -222,7 +223,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
                 serviceComponent.apamRemove();
             }
             // call back methods
-            fireCallbacks("onRemove", service);
+            fireCallbacks(CallbackTrigger.onRemove, service);
         }
 
         /*
@@ -251,7 +252,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
     }
 
-    private void fireCallbacks(String trigger, Object service) {
+    private void fireCallbacks(CallbackTrigger trigger, Object service) {
         if (getImpl().getDeclaration() instanceof AtomicImplementationDeclaration) {
             AtomicImplementationDeclaration atomicImpl = (AtomicImplementationDeclaration) getImpl().getDeclaration();
             Set<CallbackMethod> callbacks = atomicImpl.getCallback(trigger);
