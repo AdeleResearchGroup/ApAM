@@ -1,0 +1,237 @@
+<project>
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>APAMProject.root</artifactId>
+		<groupId>fr.imag.adele.apam</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
+
+	<packaging>bundle</packaging>
+	<groupId>fr.imag.adele.apam.pax</groupId>
+	<artifactId>apam-pax-test</artifactId>
+	<name>apam-pax-test</name>
+
+	<properties>
+		<apam.current.version>0.0.1-SNAPSHOT</apam.current.version>
+		<exam.version>2.5.0</exam.version>
+		<url.version>1.4.0</url.version>
+		<osgi.version>4.2.0</osgi.version>
+		<felix.osgi.version>1.4.0</felix.osgi.version>
+		<ipojo.version>1.8.0</ipojo.version>
+		<ipojo.plugin.version>1.8.0</ipojo.plugin.version>
+		<bundle.plugin.version>2.3.7</bundle.plugin.version>
+		<compiler.plugin.version>2.5.1</compiler.plugin.version>
+		<javadoc.plugin.version>2.8.1</javadoc.plugin.version>
+		<slf4j.version>1.6.6</slf4j.version>
+
+		<!-- Test dependencies version -->
+		<mockito.version>1.8.5</mockito.version>
+		<junit.version>4.8.2</junit.version>
+	</properties>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>apache.snapshots</id>
+			<name>snapshot plugins</name>
+			<url>
+        http://people.apache.org/repo/m2-snapshot-repository
+      </url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.compendium</artifactId>
+			<version>4.2.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam</artifactId>
+			<version>1.2.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-container-default
+			</artifactId>
+			<version>1.2.4</version>
+			<scope>test</scope>
+
+		</dependency>
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-junit</artifactId>
+			<version>1.2.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<type>jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.8.5</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.chameleon.testing</groupId>
+			<artifactId>osgi-helpers</artifactId>
+			<version>0.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>APAM</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>fr.imag.adele.apam.tests.apps.app1</groupId> -->
+		<!-- <artifactId>APP1-Spec</artifactId> -->
+		<!-- <version>0.0.1-SNAPSHOT</version> -->
+		<!-- <scope>test</scope> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>fr.imag.adele.apam.tests.apps.app2</groupId> -->
+		<!-- <artifactId>APP2-Spec</artifactId> -->
+		<!-- <version>0.0.1-SNAPSHOT</version> -->
+		<!-- <scope>test</scope> -->
+		<!-- </dependency> -->
+
+		<!-- Dependency Test -->
+
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.osgi.core</artifactId>
+			<version>${felix.osgi.version}</version>
+		</dependency>
+
+		<!-- <dependency> -->
+		<!-- <groupId>fr.imag.adele.apam</groupId> -->
+		<!-- <artifactId>TestDependency</artifactId> -->
+		<!-- <version>0.0.1-SNAPSHOT</version> -->
+		<!-- <scope>test</scope> -->
+		<!-- </dependency> -->
+
+		<!-- new dependencies based on the separated tests -->
+
+		<dependency>
+			<groupId>fr.imag.adele.apam.pax</groupId>
+			<artifactId>apam-pax-samples-iface</artifactId>
+			<version>1.6.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.imag.adele.apam.pax</groupId>
+			<artifactId>apam-pax-samples-impl-s1</artifactId>
+			<version>1.6.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.imag.adele.apam.pax</groupId>
+			<artifactId>apam-pax-samples-impl-s2</artifactId>
+			<version>1.6.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-inject</artifactId>
+			<version>3.0.0.M3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-inject</artifactId>
+			<version>3.0.0.M3</version>
+		</dependency>
+
+
+		<!-- OBRMANTEST dependencies-->
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>OBRMAN</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.apps.app1</groupId>
+			<artifactId>APP1-Spec</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.apps.app2</groupId>
+			<artifactId>APP2-Spec</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>1.4.3</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>
+							${project.artifactId}
+						</Bundle-SymbolicName>
+						<Export-Package>
+							fr.imag.adele.apam
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+
+
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
