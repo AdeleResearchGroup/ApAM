@@ -10,9 +10,9 @@
 	<artifactId>tests</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-<!-- 		<module>apam-apps-components</module> -->
-		<module>apam-apps</module>
-		<module>apam-repositories</module>
+		<module>services</module>
+		<module>obrman</module>
+	<!-- 		<module>apam-repositories</module>-->
 <!--		<module>run-obrman-tests</module>-->
 	</modules>
 	

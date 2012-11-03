@@ -2,10 +2,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>APAMProject.root</artifactId>
+		<artifactId>tests</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
 	<packaging>bundle</packaging>
@@ -13,23 +12,7 @@
 	<artifactId>apam-pax-test</artifactId>
 	<name>apam-pax-test</name>
 
-	<properties>
-		<apam.current.version>0.0.1-SNAPSHOT</apam.current.version>
-		<exam.version>2.5.0</exam.version>
-		<url.version>1.4.0</url.version>
-		<osgi.version>4.2.0</osgi.version>
-		<felix.osgi.version>1.4.0</felix.osgi.version>
-		<ipojo.version>1.8.0</ipojo.version>
-		<ipojo.plugin.version>1.8.0</ipojo.plugin.version>
-		<bundle.plugin.version>2.3.7</bundle.plugin.version>
-		<compiler.plugin.version>2.5.1</compiler.plugin.version>
-		<javadoc.plugin.version>2.8.1</javadoc.plugin.version>
-		<slf4j.version>1.6.6</slf4j.version>
-
-		<!-- Test dependencies version -->
-		<mockito.version>1.8.5</mockito.version>
-		<junit.version>4.8.2</junit.version>
-	</properties>
+	
 
 	<pluginRepositories>
 		<pluginRepository>
