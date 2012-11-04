@@ -230,6 +230,18 @@ public abstract class ComponentDeclaration {
         return null;
     }
 
+    /**
+     * Get the named property definition, if declared
+     */
+    public PropertyDefinition getPropertyDefinition(PropertyDefinition.Reference property) {
+    	
+    	if (! this.getReference().equals(property.getDeclaringComponent()))
+    		return null;
+    	
+    	return getPropertyDefinition(property.getIdentifier());
+
+    }
+    
     public boolean isDefined(String propertyName) {
         return getPropertyDefinition(propertyName) != null;
     }
