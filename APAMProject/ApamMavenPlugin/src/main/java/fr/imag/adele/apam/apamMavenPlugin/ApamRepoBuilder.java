@@ -1,11 +1,8 @@
 
 package fr.imag.adele.apam.apamMavenPlugin;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,20 +14,17 @@ import org.apache.maven.artifact.versioning.VersionRange;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ComponentDeclaration;
-import fr.imag.adele.apam.core.ComponentReference;
 import fr.imag.adele.apam.core.CompositeDeclaration;
 import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.InstanceDeclaration;
-import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.InterfaceReference;
 import fr.imag.adele.apam.core.MessageReference;
 import fr.imag.adele.apam.core.PropertyDefinition;
 import fr.imag.adele.apam.core.ResolvableReference;
 import fr.imag.adele.apam.core.SpecificationDeclaration;
 import fr.imag.adele.apam.core.SpecificationReference;
-import fr.imag.adele.apam.util.Util;
+import fr.imag.adele.apam.core.UndefinedReference;
 
 public class ApamRepoBuilder {
 
@@ -155,13 +149,24 @@ public class ApamRepoBuilder {
 
 	private void printProvided(StringBuffer obrContent, ComponentDeclaration component) {
 		if (component instanceof InstanceDeclaration) return ;
-
+		Set<UndefinedReference> undefinedMessages = new HashSet<UndefinedReference>();
+		Set<UndefinedReference> undefinedInterfaces = new HashSet<UndefinedReference>();
+        Set<UndefinedReference> undefinedReferences = component.getProvidedResources(UndefinedReference.class);
+        for (UndefinedReference undefinedReference : undefinedReferences) {
+            if (undefinedReference.getKind().isAssignableFrom(MessageReference.class)){
+                undefinedMessages.add(undefinedReference);
+            }else if(undefinedReference.getKind().isAssignableFrom(InterfaceReference.class)){
+                undefinedInterfaces.add(undefinedReference);
+            }
+        }
+        
 		Set<InterfaceReference> interfaces = component.getProvidedResources(InterfaceReference.class);
 		String val = setReference2String (interfaces) ;	
 		if (val != null)
 			generateProperty(obrContent, component, CST.PROVIDE_INTERFACES, setReference2String(interfaces)) ;
 
 		Set<MessageReference> messages = component.getProvidedResources(MessageReference.class);
+		
 		val = setReference2String (messages) ;	
 		if (val != null)
 			generateProperty(obrContent, component, CST.PROVIDE_MESSAGES, val);
@@ -171,7 +176,7 @@ public class ApamRepoBuilder {
 			if ((spec != null) && !spec.getName().isEmpty()) {
 				generateProperty(obrContent, component, CST.PROVIDE_SPECIFICATION, spec.getName()) ;
 				bundleRequiresSpecifications.add(spec) ;
-				CheckObr.checkImplProvide(component, spec.getName(), interfaces, messages);
+				CheckObr.checkImplProvide(component, spec.getName(), interfaces, messages,undefinedInterfaces,undefinedMessages);
 			}
 		}
 	}

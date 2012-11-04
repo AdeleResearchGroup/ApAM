@@ -1,18 +1,11 @@
 package fr.imag.adele.apam;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
-
+import fr.imag.adele.apam.impl.CompositeTypeImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.impl.CompositeTypeImpl;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 public class ApamManagers {
 

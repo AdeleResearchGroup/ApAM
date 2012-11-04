@@ -30,6 +30,7 @@ import fr.imag.adele.apam.core.DependencyDeclaration;
 import fr.imag.adele.apam.core.ImplementationReference;
 import fr.imag.adele.apam.core.ResourceReference;
 import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.core.UndefinedReference;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
 
 /**
@@ -753,5 +754,15 @@ public class Util {
 
 		return false;
 	}
+
+    public static String toStringUndefinedResource(Set<UndefinedReference> undefinedReferences) {
+        if ((undefinedReferences == null) || (undefinedReferences.size() == 0))
+            return null;
+        String ret = "{";
+        for (UndefinedReference undfinedReference : undefinedReferences) {
+            ret += undfinedReference.getSubject() + ", ";
+        }
+        return ret.substring(0, ret.length() - 2) + "}";
+    }
 
 }

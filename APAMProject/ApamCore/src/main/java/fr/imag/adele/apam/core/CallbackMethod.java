@@ -2,6 +2,10 @@ package fr.imag.adele.apam.core;
 
 
 public class CallbackMethod {
+    
+    public static enum CallbackTrigger {
+        Added, Removed, onInit, onRemove
+    }
     /**
      * The atomic implementation declaring this injection
      */
@@ -15,14 +19,15 @@ public class CallbackMethod {
     /**
      * The name of the trigger 
      */
-    protected final String trigger;
+    protected final CallbackTrigger trigger;
     
     /**
      * The method has Instance as a unique argument
      */
     protected boolean hasInstanceArgument = false;
 
-    public CallbackMethod(AtomicImplementationDeclaration implementation, String trigger, String methodName) {
+    
+    public CallbackMethod(AtomicImplementationDeclaration implementation, CallbackTrigger trigger, String methodName) {
 
         assert implementation != null;
         assert trigger != null;
@@ -50,7 +55,7 @@ public class CallbackMethod {
     /**
      * The name of the method trigger 
      */
-    public String getTrigger() {
+    public CallbackTrigger getTrigger() {
         return trigger;
     }
 
