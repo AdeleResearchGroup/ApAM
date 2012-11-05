@@ -90,7 +90,7 @@
 		<profile>
 			<id>run-tests</id>
 			<modules>
-				<module>test/pax-test</module>
+				<module>tests/pax-test</module>
 			</modules>
 		</profile>
 
