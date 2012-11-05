@@ -563,7 +563,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		Set<T> valids = new HashSet<T> ();
 
 		for (T compo : candidates) {
-			Set<Component> members = (Set<Component>) compo.getMembers() ;
+			Set<? extends Component> members =  compo.getMembers() ;
 			//System.err.println("members de " + compo + " : " + members);
 			if (members == null || members.isEmpty()) break ; 
 			for (Component member : members) {
