@@ -12,6 +12,7 @@
 	<modules>
 		<module>apam-apps</module>
 		<module>apam-repositories</module>
+		<module>obrman-pax</module>
 	</modules>
 	
 </project>

@@ -8,10 +8,9 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<groupId>fr.imag.adele.apam.pax</groupId>
-	<artifactId>APAM-Pax</artifactId>
+	<groupId>fr.imag.adele.apam.tests</groupId>
+	<artifactId>services</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>APAM-Pax</name>
 
 

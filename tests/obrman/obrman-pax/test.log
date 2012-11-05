@@ -1,0 +1,130 @@
+19:20:06.039 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:20:06.923 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:20:06.926 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:20:06.935 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@6504bc.]
+19:20:08.310 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:20:09.422 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:20:09.429 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:20:09.435 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@15fb38.]
+19:20:10.906 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:20:11.899 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:20:11.903 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:20:11.911 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@16de067.]
+19:20:13.896 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:20:14.939 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:20:14.943 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:20:14.951 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@4d2af2.]
+19:20:16.455 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:20:17.448 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:20:17.452 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:20:17.460 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@5e222e.]
+19:21:01.193 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:21:02.344 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running missingAPP2Composite in reactor
+19:21:03.824 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:21:03.837 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:21:03.863 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@6c5482.]
+19:21:05.331 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:21:06.354 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running movedCompositev1 in reactor
+19:21:09.122 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:21:09.128 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:21:09.129 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S1_IMPL-0 cannot delete
+19:21:09.130 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-0 cannot delete
+19:21:09.130 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_MAIN-0 cannot delete
+19:21:09.131 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S3_IMPL-0 cannot delete
+19:21:09.138 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S2_IMPL-0 cannot delete
+19:21:09.184 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@6e41b5.]
+19:21:10.612 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:21:11.592 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running simpleComposite in reactor
+19:21:12.963 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:21:12.966 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:21:12.967 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-0 cannot delete
+19:21:12.985 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@e33e18.]
+19:21:14.335 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:21:15.377 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running embeddedComposite in reactor
+19:21:17.126 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:21:17.129 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S3_IMPL-0 cannot delete
+19:21:17.129 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_MAIN-0 cannot delete
+19:21:17.130 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S2_IMPL-0 cannot delete
+19:21:17.130 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-0 cannot delete
+19:21:17.130 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-1 cannot delete
+19:21:17.131 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S1_IMPL-0 cannot delete
+19:21:17.132 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:21:17.162 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@89dd.]
+19:21:18.613 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:21:19.701 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running testRootModel in reactor
+19:21:20.860 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:21:20.870 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:21:20.878 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@7244ca.]
+19:25:37.141 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:25:38.302 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running missingAPP2Composite in reactor
+19:25:39.705 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:25:39.709 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:25:39.719 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@15e538e.]
+19:25:41.264 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:25:42.329 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running embeddedComposite in reactor
+19:25:44.098 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:25:44.103 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S2_IMPL-0 cannot delete
+19:25:44.103 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S1_IMPL-0 cannot delete
+19:25:44.104 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S3_IMPL-0 cannot delete
+19:25:44.104 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_MAIN-0 cannot delete
+19:25:44.105 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:25:44.108 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-1 cannot delete
+19:25:44.108 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-0 cannot delete
+19:25:44.142 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@89dd.]
+19:25:45.721 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:25:46.783 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running simpleComposite in reactor
+19:25:48.809 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:25:48.812 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:25:48.817 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-0 cannot delete
+19:25:48.827 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@15e538e.]
+19:25:50.449 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:25:51.493 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running testRootModel in reactor
+19:25:52.632 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:25:52.637 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:25:52.642 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@61373f.]
+19:25:54.200 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:25:55.240 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running movedCompositev1 in reactor
+19:25:58.205 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:25:58.208 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:25:58.208 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-0 cannot delete
+19:25:58.209 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S2_IMPL-0 cannot delete
+19:25:58.210 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_MAIN-0 cannot delete
+19:25:58.210 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S1_IMPL-0 cannot delete
+19:25:58.233 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S3_IMPL-0 cannot delete
+19:25:58.307 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@52d1a4.]
+19:28:38.471 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:28:39.736 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running simpleComposite in reactor
+19:28:41.179 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:28:41.181 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:28:41.183 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-0 cannot delete
+19:28:41.194 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@8b1a4f.]
+19:28:43.007 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:28:44.129 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running movedCompositev1 in reactor
+19:28:47.004 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:28:47.007 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S2_IMPL-0 cannot delete
+19:28:47.008 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S3_IMPL-0 cannot delete
+19:28:47.008 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:28:47.008 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_MAIN-0 cannot delete
+19:28:47.009 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-0 cannot delete
+19:28:47.009 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S1_IMPL-0 cannot delete
+19:28:48.503 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:28:49.559 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running testRootModel in reactor
+19:28:50.705 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:28:50.711 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:28:50.729 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@23756.]
+19:28:52.179 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:28:53.209 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running embeddedComposite in reactor
+19:28:55.053 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:28:55.057 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:28:55.060 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S1_IMPL-0 cannot delete
+19:28:55.061 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S2_IMPL-0 cannot delete
+19:28:55.061 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_S3_IMPL-0 cannot delete
+19:28:55.062 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-1 cannot delete
+19:28:55.087 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP2_MAIN-0 cannot delete
+19:28:55.088 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APP1_MAIN-0 cannot delete
+19:28:55.121 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@f19d6e.]
+19:28:57.116 [FelixStartLevel] INFO  o.o.pax.exam.rbc.internal.Activator - Name, port or host is null. So this RBC remains inactive.
+19:28:57.507 [RMI TCP Connection(1)-129.88.51.175] INFO  o.o.p.e.i.j.i.ContainerTestRunner - running missingAPP2Composite in reactor
+19:28:58.944 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component OBRMAN-Instance cannot delete
+19:28:58.947 [FelixStartLevel] ERROR f.i.a.apam.impl.ComponentBrokerImpl - Unknown component APAM-Instance cannot delete
+19:28:58.965 [FelixStartLevel] INFO  o.o.p.e.r.e.i.TestBundleObserver - Unregistered testcase [org.ops4j.pax.exam.raw.extender.intern.Probe@9c82f4.]

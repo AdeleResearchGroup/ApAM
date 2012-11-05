@@ -13,6 +13,4 @@ import fr.imag.adele.apam.test.testcases.PropertyTest;
 @SuiteClasses(value = { InjectionInstantiationTest.class, PropertyTest.class, ConstraintTest.class, OBRMANTest.class})
 public class AllSuites {
 
-	
-	
 }
