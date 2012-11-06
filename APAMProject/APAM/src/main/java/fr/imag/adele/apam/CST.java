@@ -95,7 +95,7 @@ public class CST {
 
 	// the Apam entry point.
 	
-	public static APAMImpl apam = null;
+	public static Apam apam = null;
 
 	public CST(APAMImpl theApam) {
 		CST.componentBroker = new ComponentBrokerImpl();
