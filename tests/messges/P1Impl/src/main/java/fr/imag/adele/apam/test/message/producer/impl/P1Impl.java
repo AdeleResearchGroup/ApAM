@@ -10,7 +10,7 @@ public class P1Impl {
     public Message<M1> produceM1() {
         double a =Math.random();
         double b = Math.random();
-        Message m = new Message(new M1(a, b));
+        Message<M1> m = new Message<M1>(new M1(a, b));
         m.getProperties().setProperty("vendor", "mehdi");
         return m ;
     }

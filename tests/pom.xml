@@ -9,18 +9,24 @@
 	<artifactId>tests</artifactId>
 	<packaging>pom</packaging>
 	<properties>
-		<url.version>1.4.0</url.version>
-		<exam.version>2.5.0</exam.version>
+		<url.version>1.5.0</url.version>
+		<exam.version>3.0.0.M3</exam.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
 
 			<!-- Junit Dependencies -->
+<!-- 			<dependency> -->
+<!-- 				<groupId>junit</groupId> -->
+<!-- 				<artifactId>junit</artifactId> -->
+<!-- 				<version>4.10</version> -->
+<!-- 			</dependency> -->
+
 			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>4.10</version>
+				<groupId>org.apache.servicemix.bundles</groupId>
+				<artifactId>org.apache.servicemix.bundles.junit</artifactId>
+				<version>4.9_2</version>
 			</dependency>
 			<!-- Felix and OSGi dependecies -->
 
@@ -37,12 +43,17 @@
 				<artifactId>osgi-helpers</artifactId>
 				<version>0.2.0</version>
 			</dependency>
+
+
 			<!-- @Inject anotation -->
+			<!-- javax.inject.Inject -->
+
 			<dependency>
-				<groupId>javax.inject</groupId>
-				<artifactId>javax.inject</artifactId>
-				<version>1</version>
+				<groupId>org.apache.geronimo.specs</groupId>
+				<artifactId>geronimo-atinject_1.0_spec</artifactId>
+				<version>1.0</version>
 			</dependency>
+
 			<!-- PAX EXAM DEPENDENCIES -->
 			<dependency>
 				<groupId>org.ops4j.pax.exam</groupId>

@@ -6,7 +6,7 @@
 		<groupId>fr.imag.adele.apam.tests</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-			<groupId>fr.imag.adele.apam.tests.obrman</groupId>
+	<groupId>fr.imag.adele.apam.tests.obrman</groupId>
 	<artifactId>obrman-pax</artifactId>
 
 	<dependencies>
@@ -16,11 +16,7 @@
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
+
 		<dependency>
 			<groupId>org.ops4j.pax.exam</groupId>
 			<artifactId>pax-exam-container-forked</artifactId>
