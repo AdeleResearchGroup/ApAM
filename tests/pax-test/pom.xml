@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -8,101 +8,12 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<packaging>bundle</packaging>
-	<groupId>fr.imag.adele.apam.pax</groupId>
+	
+	<groupId>fr.imag.adele.apam.tests</groupId>
 	<artifactId>apam-pax-test</artifactId>
 	<name>apam-pax-test</name>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
-			<version>4.2.0</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam</artifactId>
-			<version>1.2.4</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-container-default
-			</artifactId>
-			<version>1.2.4</version>
-			<scope>test</scope>
-
-		</dependency>
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-junit</artifactId>
-			<version>1.2.4</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
-			<type>jar</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>1.8.5</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.chameleon.testing</groupId>
-			<artifactId>osgi-helpers</artifactId>
-			<version>0.2.0</version>
-		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>APAM</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>fr.imag.adele.apam.tests.apps.app1</groupId> -->
-		<!-- <artifactId>APP1-Spec</artifactId> -->
-		<!-- <version>0.0.1-SNAPSHOT</version> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>fr.imag.adele.apam.tests.apps.app2</groupId> -->
-		<!-- <artifactId>APP2-Spec</artifactId> -->
-		<!-- <version>0.0.1-SNAPSHOT</version> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-
-		<!-- Dependency Test -->
-
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.osgi.core</artifactId>
-			<version>${felix.osgi.version}</version>
-		</dependency>
-
-		<!-- <dependency> -->
-		<!-- <groupId>fr.imag.adele.apam</groupId> -->
-		<!-- <artifactId>TestDependency</artifactId> -->
-		<!-- <version>0.0.1-SNAPSHOT</version> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-
-		<!-- new dependencies based on the separated tests -->
 
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests</groupId>
@@ -126,40 +37,54 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		</dependency>
 
 		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>javax.inject</artifactId>
-			<version>1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-inject</artifactId>
-			<version>3.0.0.M3</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-inject</artifactId>
-			<version>3.0.0.M3</version>
-		</dependency>
-
-
-		<!-- OBRMANTEST dependencies-->
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>OBRMAN</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.apps.app1</groupId>
-			<artifactId>APP1-Spec</artifactId>
+			<groupId>fr.imag.adele.apam.tests</groupId>
+			<artifactId>apam-helpers</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests.apps.app2</groupId>
-			<artifactId>APP2-Spec</artifactId>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-container-forked</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-link-mvn</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.ops4j.pax.url</groupId>
+			<artifactId>pax-url-aether</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>APAM</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>OBRMAN</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
@@ -170,13 +95,9 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-			
+				<groupId>org.apache.servicemix.tooling</groupId>
+				<artifactId>depends-maven-plugin</artifactId>
 			</plugin>
-
-
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

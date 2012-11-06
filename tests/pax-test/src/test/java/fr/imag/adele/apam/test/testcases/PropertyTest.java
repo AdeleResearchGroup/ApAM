@@ -15,7 +15,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.impl.S1Impl;
 import fr.imag.adele.apam.test.support.Constants;
-import fr.imag.adele.apam.test.support.ExtensionAbstract;
+import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
 public class PropertyTest extends ExtensionAbstract {
@@ -26,7 +26,7 @@ public class PropertyTest extends ExtensionAbstract {
 	@Test
 	public void PropertyInheritedCannotBeChanged(){
 		
-		waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
@@ -57,7 +57,7 @@ public class PropertyTest extends ExtensionAbstract {
 	@Test
 	public void PropertyConfiguredWithInitialParameter(){
 		
-		waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
@@ -87,7 +87,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 	@Test
 	public void PropertyDefinitionIsVisibleWithValPropertySet(){
-		waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -111,7 +111,7 @@ public class PropertyTest extends ExtensionAbstract {
 	@Test
 	public void PropertyDefinitionInternalAndNotInternalAreAPIVisible(){
 		
-		waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -156,7 +156,7 @@ public class PropertyTest extends ExtensionAbstract {
 	@Test
 	public void PropertyConfiguredWithSetProperty(){
 		
-		waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
@@ -192,7 +192,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 	public void InheritedPropertyChanged(){
 		
-		waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");

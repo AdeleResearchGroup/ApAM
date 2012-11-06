@@ -8,9 +8,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Inject;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
@@ -19,7 +17,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 import fr.imag.adele.apam.pax.test.impl.S1Impl;
 import fr.imag.adele.apam.test.support.Constants;
-import fr.imag.adele.apam.test.support.ExtensionAbstract;
+import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
 public class ConstraintTest extends ExtensionAbstract{
@@ -31,7 +29,7 @@ public class ConstraintTest extends ExtensionAbstract{
 	@Test
 	public void ConstraintsCheckingImplementation() {
 
-		waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -60,7 +58,7 @@ public class ConstraintTest extends ExtensionAbstract{
 	public void ConstraintsCheckingInstanceFilteringByInitialProperty()
 			throws InvalidSyntaxException {
 
-		waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
@@ -116,7 +114,7 @@ public class ConstraintTest extends ExtensionAbstract{
 			}
 		};
 
-		waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -159,7 +157,7 @@ public class ConstraintTest extends ExtensionAbstract{
 	public void ConstraintsCheckingInstanceFilteringBySetProperty()
 			throws InvalidSyntaxException {
 
-		waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
@@ -196,7 +194,7 @@ public class ConstraintTest extends ExtensionAbstract{
 			}
 		};
 
-		waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");

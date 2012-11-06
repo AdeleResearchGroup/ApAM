@@ -2,112 +2,33 @@ package fr.imag.adele.apam.tests.obrman.pax;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.provision;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
-import static org.ops4j.pax.exam.CoreOptions.vmOption;
-import static org.ops4j.pax.exam.CoreOptions.when;
-import static org.ops4j.pax.exam.CoreOptions.workingDirectory;
-import static org.ops4j.pax.exam.CoreOptions.composite;
-import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.OptionUtils;
-import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.util.PathUtils;
-import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.app1.spec.App1Spec;
 import fr.imag.adele.apam.app2.spec.App2Spec;
-import fr.imag.adele.apam.tests.obrman.pax.util.ApAMHelper;
-import fr.imag.adele.apam.tests.obrman.pax.util.ExtensionAbstract;
+import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 /**
  * Test Suite
  * 
  */
 @RunWith(JUnit4TestRunner.class)
-public class OBRMANTest extends ExtensionAbstract {
-    //
-    @Inject
-    protected BundleContext context;
-
-    private ApAMHelper      apam;
+public class OBRMANTest extends ExtensionAbstract{
 
     /**
      * Done some initializations.
      */
-    @Before
-    public void setUp() {
-        super.setUp();
-        apam = new ApAMHelper(context);
-    }
-
-    @Configuration
-    public static Option[] apamConfig() {
-        return options(
-                systemProperty("org.osgi.service.http.port").value("8080"),
-                systemProperty("pax.exam.system").value("default"),
-                cleanCaches(),
-             // Set logback configuration via system property.
-                // This way, both the driver and the container use the same configuration
-                systemProperty("logback.configurationFile").value("file:" + PathUtils.getBaseDir() +    "/src/test/resources/logback.xml"), 
-                
-//                systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("WARN"),
-     
-                mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.ipojo").version("1.8.0"),
-                mavenBundle().groupId("org.ow2.chameleon.testing").artifactId("osgi-helpers").version("0.2.0"),
-                mavenBundle().groupId("org.osgi").artifactId("org.osgi.compendium").version("4.2.0"),
-                mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.bundlerepository").version("1.6.6"),
-                mavenBundle().groupId("org.ops4j.pax.url") .artifactId("pax-url-mvn").version("1.3.5"),                
-                mavenBundle().groupId("fr.imag.adele.apam").artifactId("APAMBundle").version("0.0.1-SNAPSHOT"),
-                mavenBundle().groupId("fr.imag.adele.apam").artifactId("OBRMAN").version("0.0.1-SNAPSHOT"),
-                // add SLF4J and logback bundles
-                mavenBundle("org.slf4j", "slf4j-api").version("1.6.6"),
-                mavenBundle("ch.qos.logback", "logback-core").version("1.0.7"),
-                mavenBundle("ch.qos.logback", "logback-classic").version("1.0.7"),
-
-                
-                
-                junitBundles(),
-
-//        Option[] r = OptionUtils.combine(platform, bundles);
-
-//        Option[] debug = options(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"));
-
-        when(Boolean.getBoolean("isDebugEnabled")).useOptions(
-                vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"), systemTimeout(0))
-//        r = OptionUtils.combine(r, debug);
-//        workingDirectory("osgi-pax-exam")
-        // Option[] log =
-        // options(vmOption("-Dlog4j.file=./am.log4j.properties"));
-        // r = OptionUtils.combine(r, log);
-        );
-    }
-
-    @After
-    public void tearDown() {
-        super.tearDown();
-        apam.dispose();
-    }
-
+    
     @Test
     public void testRootModel() {
-        waitForIt(1000);
+        apam.waitForIt(1000);
         int sizebefaore = apam.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
                 .size();
         try {
@@ -126,7 +47,7 @@ public class OBRMANTest extends ExtensionAbstract {
      */
     @Test
     public void simpleComposite() {
-        waitForIt(1000);
+        apam.waitForIt(1000);
         try {
             String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.1-SNAPSHOT!/APPS-repo.xml" };
             apam.setObrManInitialConfig("rootAPPS", repos, 1);
@@ -148,29 +69,6 @@ public class OBRMANTest extends ExtensionAbstract {
                 .println("\n=================End call test====================\n");
     }
 
-//	<parent>
-//	<artifactId>OBRMAN-Tests</artifactId>
-//	<groupId>fr.imag.adele.apam.tests</groupId>
-//	<version>0.0.1-SNAPSHOT</version>
-//</parent>
-//
-//
-//<groupId>fr.imag.adele.apam.tests.obrman</groupId>
-//<artifactId>run-obrman-tests</artifactId>
-//
-//	
-//	---------------
-//	<parent>
-//	<artifactId>APAMProject.root</artifactId>
-//	<groupId>fr.imag.adele.apam</groupId>
-//	<version>0.0.1-SNAPSHOT</version>
-//	<relativePath>../../pom.xml</relativePath>
-//</parent>
-//
-//<packaging>bundle</packaging>
-//<groupId>fr.imag.adele.apam.pax</groupId>
-//<artifactId>apam-pax-test</artifactId>
-//<name>apam-pax-test</name>
 
     /**
      * APP1 declare two repositories in ObrMan model The composite APP1 deploy
@@ -180,7 +78,7 @@ public class OBRMANTest extends ExtensionAbstract {
      */
     @Test
     public void embeddedComposite() {
-        waitForIt(1000);
+        apam.waitForIt(1000);
 
         try {
             String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.1-SNAPSHOT!/APPS-repo.xml" };
@@ -210,7 +108,7 @@ public class OBRMANTest extends ExtensionAbstract {
      */
     @Test
     public void movedCompositev1() {
-        waitForIt(1000);
+        apam.waitForIt(1000);
 
         simpleComposite();
 
@@ -247,7 +145,7 @@ public class OBRMANTest extends ExtensionAbstract {
      */
     @Test
     public void missingAPP2Composite() {
-        waitForIt(1000);
+        apam.waitForIt(1000);
         apam.createCompositeType("APP1.2", "APP1_MAIN", null);
     }
 
