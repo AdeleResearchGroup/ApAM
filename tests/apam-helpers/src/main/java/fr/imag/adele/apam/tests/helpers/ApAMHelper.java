@@ -107,6 +107,7 @@ public class ApAMHelper {
             assert false;
         }
 
+        if(context!=null)
         while (
         // context.getBundle().getState() != Bundle.STARTING &&
         context.getBundle().getState() != Bundle.ACTIVE // &&

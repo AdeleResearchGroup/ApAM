@@ -47,7 +47,7 @@ public class ConstraintTest extends ExtensionAbstract{
 				.match("(&amp;(voltage=110)(manufacturer=philips))"));
 
 	}
-
+	
 	/**
 	 * Verify if the constraints were used to inject the dependencies in the
 	 * component by initial properties
