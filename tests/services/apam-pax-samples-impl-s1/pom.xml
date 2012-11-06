@@ -14,7 +14,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
 	<dependencies>
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests</groupId>
+			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-iface</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
@@ -25,13 +25,18 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-			
+				<configuration>
+					<instructions>
+						<Export-Package>
+							fr.imag.adele.apam.pax.test.impl,
+							fr.imag.adele.apam.pax.test.impl.device
+						</Export-Package>
+					</instructions>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
-		
-			</plugin>
+				<artifactId>ApamMavenPlugin</artifactId>			</plugin>
 
 		</plugins>
 	</build>

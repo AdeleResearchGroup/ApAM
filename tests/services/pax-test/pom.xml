@@ -3,34 +3,34 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>tests</artifactId>
-		<groupId>fr.imag.adele.apam</groupId>
+		<artifactId>services</artifactId>
+		<groupId>fr.imag.adele.apam.tests</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
 	
-	<groupId>fr.imag.adele.apam.tests</groupId>
+	<groupId>fr.imag.adele.apam.tests.services</groupId>
 	<artifactId>apam-pax-test</artifactId>
 	<name>apam-pax-test</name>
 
 	<dependencies>
 
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests</groupId>
+			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-iface</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests</groupId>
+			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-impl-s1</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<scope>test</scope>
+			
 		</dependency>
 
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests</groupId>
+			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-impl-s2</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>test</scope>

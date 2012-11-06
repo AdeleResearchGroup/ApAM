@@ -2,7 +2,7 @@
 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>bundle</packaging>
-	<groupId>fr.imag.adele.apam.tests</groupId>
+	<groupId>fr.imag.adele.apam.tests.services</groupId>
 	<artifactId>apam-pax-samples-iface</artifactId>
 	<name>apam-pax-samples-iface</name>
 	<build>

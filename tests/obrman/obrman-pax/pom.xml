@@ -6,6 +6,7 @@
 		<groupId>fr.imag.adele.apam.tests</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
+			<groupId>fr.imag.adele.apam.tests.obrman</groupId>
 	<artifactId>obrman-pax</artifactId>
 
 	<dependencies>
