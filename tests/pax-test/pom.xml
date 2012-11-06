@@ -23,7 +23,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests</groupId>
+			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-impl-s1</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>test</scope>
