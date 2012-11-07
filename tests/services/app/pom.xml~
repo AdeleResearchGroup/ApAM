@@ -1,0 +1,25 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>fr.imag.adele.apam.tests</groupId>
+		<artifactId>services</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<groupId>fr.imag.adele.apam.tests.app</groupId>
+	<artifactId>app</artifactId>
+	<packaging>pom</packaging>
+	<name>APAM-Test-App</name>
+
+
+	<modules>
+		<module>apam-pax-samples-iface</module>
+		<module>apam-pax-samples-impl-s1</module>
+		<module>apam-pax-samples-impl-s2</module>
+		<module>apam-pax-samples-impl-s3</module>
+		<module>apam-pax-samples-impl-s4s5</module>
+	</modules>
+
+</project>
