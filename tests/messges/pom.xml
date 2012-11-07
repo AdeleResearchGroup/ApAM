@@ -12,7 +12,7 @@
 	<modules>
 		<module>P1</module>
 		<module>P1Impl</module>
-		<module>C1Impl</module>
+		<module>C1Impl-Pull</module>
 <!-- 		<module>message-tests</module> -->
 	</modules>
 	

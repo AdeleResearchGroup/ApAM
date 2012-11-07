@@ -25,7 +25,7 @@ public class P1Impl {
                     Message<M1> m1 = produceM1();
                     System.out.println(m1.getProperties().getProperty("vendor") + " produce message M1 : " + m1.getData().getMoy() );
                     try {
-                        Thread.currentThread().sleep(2000);
+                        Thread.currentThread().sleep(500);
                     } catch (InterruptedException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();

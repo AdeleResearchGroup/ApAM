@@ -10,7 +10,7 @@
 	<packaging>pom</packaging>
 	<properties>
 		<url.version>1.5.0</url.version>
-		<exam.version>3.0.0.M3</exam.version>
+		<exam.version>3.0.0.M4</exam.version>
 	</properties>
 
 	<dependencyManagement>

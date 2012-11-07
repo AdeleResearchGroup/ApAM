@@ -7,5 +7,10 @@
 	</implementation>
 
 
+	<implementation name="P1ImplData" classname="fr.imag.adele.apam.test.message.producer.impl.P1ImplData" specification="P1"
+		push="produceM1" >
+		<callback onInit="start" onRemove="stop" />
+	</implementation>
+
 </apam>
 
