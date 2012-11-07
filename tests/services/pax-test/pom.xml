@@ -64,6 +64,16 @@
 			<artifactId>pax-exam-link-mvn</artifactId>
 			<scope>test</scope>
 		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.ops4j.pax.url</groupId> -->
+<!-- 			<artifactId>pax-url-link</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 		</dependency> -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.ops4j.pax.url</groupId> -->
+<!-- 			<artifactId>pax-url-classpath</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 		</dependency> -->
 
 		<dependency>
 			<groupId>org.ops4j.pax.url</groupId>
@@ -105,13 +115,13 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Export-Package>
-							*.*
-						</Export-Package>
-					</instructions>
-				</configuration>
+<!-- 				<configuration> -->
+<!-- 					<instructions> -->
+<!-- 						<Export-Package> -->
+<!-- 							*.* -->
+<!-- 						</Export-Package> -->
+<!-- 					</instructions> -->
+<!-- 				</configuration> -->
 			</plugin>
 		</plugins>
 	</build>

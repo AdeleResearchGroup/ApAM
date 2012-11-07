@@ -9,19 +9,19 @@
 	<artifactId>tests</artifactId>
 	<packaging>pom</packaging>
 	<properties>
-		<url.version>1.5.0</url.version>
-		<exam.version>3.0.0.M4</exam.version>
+		<url.version>1.4.0</url.version>
+		<exam.version>2.4.0</exam.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
 
 			<!-- Junit Dependencies -->
-<!-- 			<dependency> -->
-<!-- 				<groupId>junit</groupId> -->
-<!-- 				<artifactId>junit</artifactId> -->
-<!-- 				<version>4.10</version> -->
-<!-- 			</dependency> -->
+			<!-- <dependency> -->
+			<!-- <groupId>junit</groupId> -->
+			<!-- <artifactId>junit</artifactId> -->
+			<!-- <version>4.10</version> -->
+			<!-- </dependency> -->
 
 			<dependency>
 				<groupId>org.apache.servicemix.bundles</groupId>
@@ -72,7 +72,21 @@
 				<artifactId>pax-exam-link-mvn</artifactId>
 				<version>${exam.version}</version>
 			</dependency>
-
+			<dependency>
+				<groupId>org.ops4j.pax.url</groupId>
+				<artifactId>pax-url-link</artifactId>
+				<version>${url.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.url</groupId>
+				<artifactId>pax-url-commons</artifactId>
+				<version>${url.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.url</groupId>
+				<artifactId>pax-url-classpath</artifactId>
+				<version>${url.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.ops4j.pax.url</groupId>
 				<artifactId>pax-url-aether</artifactId>

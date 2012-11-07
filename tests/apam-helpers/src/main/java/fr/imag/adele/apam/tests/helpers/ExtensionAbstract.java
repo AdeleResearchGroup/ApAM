@@ -13,8 +13,8 @@ import javax.inject.Inject;
 
 import org.junit.After;
 import org.junit.Before;
-import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.util.PathUtils;
 import org.osgi.framework.BundleContext;
 
@@ -60,7 +60,7 @@ public abstract class ExtensionAbstract {
     public Option[] apamConfig() {
         return options(
                 systemProperty("org.osgi.service.http.port").value("8080"),
-//                systemProperty("pax.exam.system").value("default"),
+                systemProperty("pax.exam.system").value("default"),
                 cleanCaches(),
                 // Set logback configuration via system property.
                 // This way, both the driver and the container use the same configuration
@@ -77,6 +77,8 @@ public abstract class ExtensionAbstract {
                 mavenBundle().groupId("org.ops4j.pax.url").artifactId("pax-url-mvn").version("1.3.5"),
                 mavenBundle().groupId("fr.imag.adele.apam").artifactId("APAMBundle").version("0.0.1-SNAPSHOT"),
                 mavenBundle().groupId("fr.imag.adele.apam").artifactId("OBRMAN").version("0.0.1-SNAPSHOT"),
+//                mavenBundle("org.ops4j.pax.url", "pax-url-link").version("1.5.0"),
+
                 // add SLF4J and logback bundles
                 mavenBundle("org.slf4j", "slf4j-api").version("1.6.6"),
                 mavenBundle("ch.qos.logback", "logback-core").version("1.0.7"),

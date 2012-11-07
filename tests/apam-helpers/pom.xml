@@ -12,8 +12,6 @@
 	<packaging>bundle</packaging>
 
 	<dependencies>
-
-
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.framework</artifactId>
@@ -41,7 +39,7 @@
 			<artifactId>pax-exam-link-mvn</artifactId>
 			<scope>compile</scope>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>org.ops4j.pax.url</groupId>
 			<artifactId>pax-url-aether</artifactId>

@@ -1,9 +1,19 @@
-package fr.imag.adele.apam.test;
+package fr.imag.adele.apam.tests.message;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Queue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.test.message.M1;
+import fr.imag.adele.apam.test.message.consumer.impl.C1ImplData;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 /**
@@ -11,18 +21,8 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
  * 
  */
 @RunWith(JUnit4TestRunner.class)
-public class PushMessages extends ExtensionAbstract {
+public class PullMessages extends ExtensionAbstract {
 //	
-
-    /**
-     * Deploy a producer first , then instantiate
-     * This should deploy a consumer, instantiate and wire it to the producer
-     */
-    @Test
-    public void testRunProducerFirst() {
-        apam.waitForIt(100);
-
-    }
 
     /**
      * Deploy a pull consumer first , then instantiate
@@ -32,26 +32,21 @@ public class PushMessages extends ExtensionAbstract {
     public void testRunPullConsumerFirst() {
         apam.waitForIt(100);
 
-    }
+        Implementation consumerImpl = CST.apamResolver.findImplByName(null,
+                "C1Impl-Simple");
 
-    /**
-     * Deploy a pull consumer first , then instantiate
-     * This should do nothing
-     */
-    @Test
-    public void testRunPushConsumerFirst() {
-        apam.waitForIt(100);
+        assertNotNull(consumerImpl);
 
-    }
+        Instance consumerInst1 = consumerImpl.createInstance(null, null);
 
-    /**
-     * A producer and a deployed push consumer
-     * verify wiring
-     */
-    @Test
-    public void pushConsumerAlreadyDeployed() {
-        apam.waitForIt(100);
-
+        C1ImplData c1Data = (C1ImplData) consumerInst1.getServiceObject();
+        
+        Queue<M1> queue = c1Data.getQueue();
+       
+        assertNotNull(queue);
+        
+        assertEquals(consumerInst1.getWires().size(),1);
+        
     }
 
     /**
@@ -70,16 +65,6 @@ public class PushMessages extends ExtensionAbstract {
      */
     @Test
     public void producerAlreadyDeployed1() {
-        apam.waitForIt(100);
-
-    }
-
-    /**
-     * A push consumer and a deployed producer
-     * verify wiring
-     */
-    @Test
-    public void producerAlreadyDeployed2() {
         apam.waitForIt(100);
 
     }
