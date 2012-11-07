@@ -3,12 +3,12 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>APAM-Message-Tests</artifactId>
+		<artifactId>messages</artifactId>
 		<groupId>fr.imag.adele.apam.tests</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<groupId>fr.imag.adele.apam.tests.message</groupId>
-	<artifactId>C1Impl</artifactId>
+	<groupId>fr.imag.adele.apam.tests.messages</groupId>
+	<artifactId>C1Impl-Pull</artifactId>
 	<packaging>bundle</packaging>
 
 
@@ -26,20 +26,12 @@
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>ApamMavenPlugin</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>ipojo-bundle</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests.message</groupId>
+			<groupId>fr.imag.adele.apam.tests.messages</groupId>
 			<artifactId>P1</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

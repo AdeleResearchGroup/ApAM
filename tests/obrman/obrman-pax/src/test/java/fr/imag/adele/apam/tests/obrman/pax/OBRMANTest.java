@@ -7,7 +7,9 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeType;
@@ -19,14 +21,16 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
  * Test Suite
  * 
  */
-@RunWith(JUnit4TestRunner.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class OBRMANTest extends ExtensionAbstract{
 
+  
     /**
      * Done some initializations.
      */
     
-    @Test
+    @Test 
     public void testRootModel() {
         apam.waitForIt(1000);
         int sizebefaore = apam.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
