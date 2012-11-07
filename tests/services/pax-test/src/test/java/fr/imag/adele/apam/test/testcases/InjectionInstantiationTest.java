@@ -16,6 +16,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
@@ -492,6 +493,44 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 						samsungInst.getName(),samsungInst.getAllProperties().get("currentVoltage")),
 				s1.getDeviceConstraint110v() == samsungSwitch);
 
+	}
+	
+	@Test
+	public void FindImplByName(){
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		auxListInstances("before-");
+		
+		Implementation impl=CST.apamResolver.findImplByName(null,"fr.imag.adele.apam.pax.test.impl.S1Impl");
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		auxListInstances("after-");
+		
+		Assert.assertTrue("Should be possible to find an implementation by using its name.",impl!=null);
+
+	}	
+	
+	@Test
+	public void CompositeTypeInstantiation() {
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		// CompositeType appli3 = apam.createCompositeType(null, "TestS1Bis",
+		// null, "S1", null /* models */, null /* properties */);
+
+		CompositeType app = CST.apam.createCompositeType(null,
+				"eletronic-device-compotype", null, "eletronic-device",
+				new HashSet<ManagerModel>(), new HashMap<String, String>());
+
+		Assert.assertTrue(String.format("Failed to create the CompositeType"),
+				app != null);
+
+		Instance instApp = app
+				.createInstance(null /* composite */, null/* properties */);
+
+		Assert.assertTrue(
+				String.format("Failed to create the instance of CompositeType"),
+				instApp != null);
 	}
 
 }
