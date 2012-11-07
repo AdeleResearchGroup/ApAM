@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.pax.test.impl;
 
+import java.util.List;
 import java.util.Set;
 
 import fr.imag.adele.apam.pax.test.iface.S1;
@@ -25,6 +26,8 @@ public class S1Impl implements S1
     Set<Eletronic> eletronicInstancesConstraintsInstance;
     
     Eletronic devicePreference110v;
+    
+    Set<Eletronic> devicesPreference110v;
     
     Eletronic deviceConstraint110v;
     
@@ -104,6 +107,14 @@ public class S1Impl implements S1
 
 	public void setDeviceConstraint110v(Eletronic deviceConstraint110v) {
 		this.deviceConstraint110v = deviceConstraint110v;
+	}
+
+	public Set<Eletronic> getDevicesPreference110v() {
+		return devicesPreference110v;
+	}
+
+	public void setDevicesPreference110v(Set<Eletronic> devicesPreference110v) {
+		this.devicesPreference110v = devicesPreference110v;
 	}
 
 }

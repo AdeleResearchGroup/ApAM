@@ -392,6 +392,13 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 					}
 				});
 
+		final Instance samsungInst2 = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "500");
+					}
+				});
+
 		Implementation siemensImpl = CST.apamResolver.findImplByName(null,
 				"SiemensSwitch");
 		final Instance siemensInst = siemensImpl.createInstance(null,
@@ -420,15 +427,42 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		System.out.println("Instances after injection request");
 		auxListInstances("\t");
-		
-		Instance injectedInstance=CST.componentBroker.getInstService(s1.getDevicePreference110v());
-		
+
+		Instance injectedInstance = CST.componentBroker.getInstService(s1
+				.getDevicePreference110v());
+
 		Assert.assertTrue(
 				String.format(
 						"The instance injected should be the prefered one (currentVoltage=500), since there exist an instance in which the preference is valid. The instance %s (currentVoltage:%s) was injected instead of %s (currentVoltage:%s)",
-						injectedInstance.getName(),injectedInstance.getAllProperties().get("currentVoltage"),
-						samsungInst.getName(),samsungInst.getAllProperties().get("currentVoltage")),
-				s1.getDevicePreference110v() == samsungSwitch);
+						injectedInstance.getName(), injectedInstance
+								.getAllProperties().get("currentVoltage"),
+						samsungInst.getName(), samsungInst.getAllProperties()
+								.get("currentVoltage")), s1
+						.getDevicePreference110v() == samsungSwitch);
+
+		for (Eletronic e : s1.getDevicesPreference110v()) {
+
+			Instance injectedMultiInstance = CST.componentBroker
+					.getInstService(e);
+
+			Assert.assertTrue(
+					String.format(
+							"The instance injected should be the prefered one "
+									+ "(currentVoltage=500), since there exist an instance in which "
+									+ "the preference is valid. The instance %s (currentVoltage:%s) "
+									+ "was injected instead of %s (currentVoltage:%s) "
+									+ "or %s (currentVoltage:%s)",
+							injectedMultiInstance.getName(),
+							injectedMultiInstance.getAllProperties().get(
+									"currentVoltage"), samsungInst.getName(),
+							samsungInst.getAllProperties()
+									.get("currentVoltage"), samsungInst2
+									.getName(), samsungInst2.getAllProperties()
+									.get("currentVoltage")),
+					injectedMultiInstance == samsungInst2
+							|| injectedMultiInstance == samsungInst);
+
+		}
 
 	}
 
