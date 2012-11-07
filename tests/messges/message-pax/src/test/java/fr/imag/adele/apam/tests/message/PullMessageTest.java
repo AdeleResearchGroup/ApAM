@@ -63,6 +63,9 @@ public class PullMessageTest extends ExtensionAbstract {
        
         assertNotNull(queue);
         
+        Implementation producerImpl = CST.apamResolver.findImplByName(null,
+                "");
+        
         assertEquals(consumerInst1.getWires().size(),1);
         
     }

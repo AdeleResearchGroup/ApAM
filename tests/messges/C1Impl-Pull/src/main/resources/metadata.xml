@@ -4,8 +4,10 @@
 	<implementation name="C1Impl-Simple" classname="fr.imag.adele.apam.test.message.consumer.C1ImplData">
 		<callback onInit="start" onRemove="stop" />
 		<dependency pull="queueM1" />
-		
 	</implementation>
-
+	<implementation name="C1Impl-Auto" classname="fr.imag.adele.apam.test.message.consumer.C1ImplAutonome">
+		<callback onInit="start" onRemove="stop" />
+		<dependency pull="queueM1" />
+	</implementation>
 </apam>
 
