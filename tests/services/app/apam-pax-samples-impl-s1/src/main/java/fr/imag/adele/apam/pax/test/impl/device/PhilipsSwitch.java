@@ -4,7 +4,7 @@ import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 
 
 
-public class PhilipsSwitch implements Eletronic{
+public class PhilipsSwitch extends GenericSwitch implements Eletronic{
 
 	@Override
 	public void shutdown() {

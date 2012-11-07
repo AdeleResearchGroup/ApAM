@@ -508,31 +508,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		
 		Assert.assertTrue("Should be possible to find an implementation by using its name.",impl!=null);
 
-	}	
-	
-	@Test
-	public void CompositeTypeInstantiation() {
-
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-		// CompositeType appli3 = apam.createCompositeType(null, "TestS1Bis",
-		// null, "S1", null /* models */, null /* properties */);
-
-		CompositeType app = CST.apam.createCompositeType(null,
-				"eletronic-device-compotype", null, "eletronic-device",
-				new HashSet<ManagerModel>(), new HashMap<String, String>());
-
-		Assert.assertTrue(String.format("Failed to create the CompositeType"),
-				app != null);
-
-		Instance instApp = app
-				.createInstance(null /* composite */, null/* properties */);
-
-		Assert.assertTrue(
-				String.format("Failed to create the instance of CompositeType"),
-				instApp != null);
 	}
-
 }
 // Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
 // CST.componentBroker.getInstService(s3bis) ;

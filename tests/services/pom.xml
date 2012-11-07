@@ -16,6 +16,7 @@
 
 	<modules>
 		<module>app</module>
+		<module>pax-test</module>
 	</modules>
 
 </project>
