@@ -8,6 +8,8 @@
 *.settings
 *.classpath
 *.log
+*.*~
+
 
 # maven folders
 
