@@ -61,6 +61,7 @@ public class MainApam implements Runnable, ApamComponent {
 	}
 
 
+	@Deprecated
 	public void testFindImplByName () {
 		System.out.println("=========== start testFindImplByName");
 		System.out.println("testing findImplByName in OBR");
@@ -87,7 +88,7 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("=========== passed testFindImplByName\n\n");
 	}
 
-
+	@Deprecated
 	public void testCreateCompoRootS1toS2Final () {
 		System.out.println("=========== start testCreateCompoRootS1toS2Final");
 		if (apam != null) {
@@ -118,6 +119,7 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("=========== passed nested composite instance by API\n\n");
 	}
 
+	@Deprecated
 	public void testCreateCompoBySpec () {
 		System.out.println("=========== start testCreateCompoBySpec");
 		System.out.println(" Alternatively, a specification (S1) can be provided instead; it is resolved to find the main implem.\n");
@@ -133,6 +135,7 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("=========== passed testCreateCompoBySpec\n\n");
 	}
 
+	@Deprecated
 	public void testInitialAttributes () {
 		System.out.println("=========== start testInitialAttributes");
 		Map<String, String> props = new HashMap<String, String>();
