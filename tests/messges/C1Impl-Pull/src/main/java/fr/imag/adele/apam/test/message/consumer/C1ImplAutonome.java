@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.test.message.consumer.impl;
+package fr.imag.adele.apam.test.message.consumer;
 
 import java.util.Queue;
 

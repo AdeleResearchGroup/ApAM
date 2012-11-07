@@ -23,7 +23,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 				<configuration>
 					<instructions>
 						<Export-Package>
-							*.*
+							fr.imag.adele.apam.pax.test.impl
 						</Export-Package>
 					</instructions>
 				</configuration>

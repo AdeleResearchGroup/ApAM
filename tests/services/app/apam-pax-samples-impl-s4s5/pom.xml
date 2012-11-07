@@ -22,7 +22,7 @@
 				<configuration>
 					<instructions>
 						<Export-Package>
-							*.*
+							fr.imag.adele.apam.pax.test.impl
 						</Export-Package>
 					</instructions>
 				</configuration>

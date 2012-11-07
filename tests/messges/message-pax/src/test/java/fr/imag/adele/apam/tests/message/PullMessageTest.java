@@ -2,18 +2,24 @@ package fr.imag.adele.apam.tests.message;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.ops4j.pax.exam.CoreOptions.bundle;
+import static org.ops4j.pax.exam.CoreOptions.options;
 
 import java.util.Queue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.OptionUtils;
+import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.util.PathUtils;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.test.message.M1;
-import fr.imag.adele.apam.test.message.consumer.impl.C1ImplData;
+import fr.imag.adele.apam.test.message.consumer.C1ImplData;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 /**
@@ -21,9 +27,21 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
  * 
  */
 @RunWith(JUnit4TestRunner.class)
-public class PullMessages extends ExtensionAbstract {
-//	
+public class PullMessageTest extends ExtensionAbstract {
 
+    
+    @Override
+    @Configuration
+    public Option[] apamConfig() {
+        // TODO Auto-generated method stub
+        Option[] optionHerited = super.apamConfig();
+        Option[] wireAdmin =  options(
+                //wireAdmin
+                bundle("file:" + PathUtils.getBaseDir() +"/bundle/wireadmin.jar"));
+        Option[] r = OptionUtils.combine(optionHerited, wireAdmin);
+        return r;
+    }
+    
     /**
      * Deploy a pull consumer first , then instantiate
      * This should deploy a producer, instantiate and wire it to the consumer

@@ -1,7 +1,7 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
-	<implementation name="C1Impl-Simple" classname="fr.imag.adele.apam.test.message.consumer.impl.C1ImplData">
+	<implementation name="C1Impl-Simple" classname="fr.imag.adele.apam.test.message.consumer.C1ImplData">
 		<callback onInit="start" onRemove="stop" />
 		<dependency pull="queueM1" />
 		
