@@ -27,8 +27,6 @@ public class S1Impl implements S1
     
     Eletronic devicePreference110v;
     
-    Set<Eletronic> devicesPreference110v;
-    
     Eletronic deviceConstraint110v;
     
     public String whoami()
@@ -107,14 +105,6 @@ public class S1Impl implements S1
 
 	public void setDeviceConstraint110v(Eletronic deviceConstraint110v) {
 		this.deviceConstraint110v = deviceConstraint110v;
-	}
-
-	public Set<Eletronic> getDevicesPreference110v() {
-		return devicesPreference110v;
-	}
-
-	public void setDevicesPreference110v(Set<Eletronic> devicesPreference110v) {
-		this.devicesPreference110v = devicesPreference110v;
 	}
 
 }

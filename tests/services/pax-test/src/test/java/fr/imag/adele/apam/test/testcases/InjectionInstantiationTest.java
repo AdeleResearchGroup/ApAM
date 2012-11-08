@@ -442,30 +442,6 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 								.get("currentVoltage")), s1
 						.getDevicePreference110v() == samsungSwitch);
 
-		for (Eletronic e : s1.getDevicesPreference110v()) {
-
-			Instance injectedMultiInstance = CST.componentBroker
-					.getInstService(e);
-
-			Assert.assertTrue(
-					String.format(
-							"The instance injected should be the prefered one "
-									+ "(currentVoltage=500), since there exist an instance in which "
-									+ "the preference is valid. The instance %s (currentVoltage:%s) "
-									+ "was injected instead of %s (currentVoltage:%s) "
-									+ "or %s (currentVoltage:%s)",
-							injectedMultiInstance.getName(),
-							injectedMultiInstance.getAllProperties().get(
-									"currentVoltage"), samsungInst.getName(),
-							samsungInst.getAllProperties()
-									.get("currentVoltage"), samsungInst2
-									.getName(), samsungInst2.getAllProperties()
-									.get("currentVoltage")),
-					injectedMultiInstance == samsungInst2
-							|| injectedMultiInstance == samsungInst);
-
-		}
-
 	}
 
 	@Test
