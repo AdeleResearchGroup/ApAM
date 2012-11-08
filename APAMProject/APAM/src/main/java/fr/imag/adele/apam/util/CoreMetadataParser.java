@@ -1825,9 +1825,9 @@ public class CoreMetadataParser implements CoreParser {
 
         @Override
         public boolean checkCallback(String callbackName, boolean mandatoryInstance) throws NoSuchMethodException {
-            Set<MethodMetadata> metadataMethods ;
+            Set<MethodMetadata> metadataMethods;
             Set<Method> reflectionMethods;
-            
+
             if (mandatoryInstance) {
                 getMethodsWithArgFromMetadata(callbackName, Instance.class.getCanonicalName(), 1);
                 getMethodsWithArgFromReflection(callbackName, Instance.class.getCanonicalName(), 1);
@@ -1837,7 +1837,7 @@ public class CoreMetadataParser implements CoreParser {
                 getMethodsWithArgFromMetadata(callbackName, null, 0);
                 getMethodsWithArgFromReflection(callbackName, null, 0);
             }
-            //TODO FINISH THIS
+            // TODO FINISH THIS
             /*
              * Get iPojo metadata
              */
@@ -1981,44 +1981,48 @@ public class CoreMetadataParser implements CoreParser {
             if (instrumentedCode != null) {
                 for (Method method : instrumentedCode.getDeclaredMethods()) {
                     if (method.getName().equals(methodName) && (method.getParameterTypes().length == numberOfArgument)) {
-                        Type parameterType = method.getGenericParameterTypes()[0];
-                        Class<?> parameterClass = null;
+                        if (numberOfArgument > 0) {
+                            Type parameterType = method.getGenericParameterTypes()[0];
+                            Class<?> parameterClass = null;
 
-                        if (parameterType instanceof Class)
-                            parameterClass = (Class<?>) parameterType;
-                        if (parameterType instanceof ParameterizedType) {
-                            parameterClass = (Class<?>) ((ParameterizedType) parameterType).getRawType();
-                        }
+                            if (parameterType instanceof Class)
+                                parameterClass = (Class<?>) parameterType;
+                            if (parameterType instanceof ParameterizedType) {
+                                parameterClass = (Class<?>) ((ParameterizedType) parameterType).getRawType();
+                            }
 
-                        if ((parameterClass != null) && Message.class.equals(parameterClass)) {
+                            if ((parameterClass != null) && Message.class.equals(parameterClass)) {
 
-                            if (Message.class.equals(parameterClass)) { // Verify if the parameter type is a
-                                                                        // parameterized generic Message<D> ant try to
-                                                                        // get its actual payload
-                                if (parameterType instanceof ParameterizedType) {
-                                    Type[] genericParameters = ((ParameterizedType) parameterType)
-                                            .getActualTypeArguments();
-                                    if ((genericParameters.length == 1) && (genericParameters[0] instanceof Class))
-                                        if (type != null) { // verify with the given type
-                                            if (((Class<?>) genericParameters[0]).getCanonicalName().equals(type)) {
+                                if (Message.class.equals(parameterClass)) { // Verify if the parameter type is a
+                                                                            // parameterized generic Message<D> ant try
+                                                                            // to
+                                                                            // get its actual payload
+                                    if (parameterType instanceof ParameterizedType) {
+                                        Type[] genericParameters = ((ParameterizedType) parameterType)
+                                                .getActualTypeArguments();
+                                        if ((genericParameters.length == 1) && (genericParameters[0] instanceof Class))
+                                            if (type != null) { // verify with the given type
+                                                if (((Class<?>) genericParameters[0]).getCanonicalName().equals(type)) {
+                                                    methodsReflectionMetadata.put(method, new MessageReferenceExtended(
+                                                            type, true));
+                                                }
+                                            } else {
                                                 methodsReflectionMetadata.put(method, new MessageReferenceExtended(
-                                                        type, true));
+                                                        ((Class<?>) genericParameters[0]).getCanonicalName(), true));
                                             }
-                                        } else {
+                                    }
+                                } else { // Otherwise it is the type of the actual message payload
+                                    if (type != null) { // verify with the given type
+                                        if (type.equals(parameterClass.getCanonicalName())) {
                                             methodsReflectionMetadata.put(method, new MessageReferenceExtended(
-                                                    ((Class<?>) genericParameters[0]).getCanonicalName(), true));
+                                                    parameterClass
+                                                            .getCanonicalName()));
                                         }
-                                }
-                            } else { // Otherwise it is the type of the actual message payload
-                                if (type != null) { // verify with the given type
-                                    if (type.equals(parameterClass.getCanonicalName())) {
+                                    } else {
                                         methodsReflectionMetadata.put(method, new MessageReferenceExtended(
                                                 parameterClass
                                                         .getCanonicalName()));
                                     }
-                                } else {
-                                    methodsReflectionMetadata.put(method, new MessageReferenceExtended(parameterClass
-                                            .getCanonicalName()));
                                 }
                             }
                         }
