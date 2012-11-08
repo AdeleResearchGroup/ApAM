@@ -318,8 +318,7 @@ public class CoreMetadataParser implements CoreParser {
         Class<?> instrumentedCode = null;
         try {
             pojoMetadata = new PojoMetadata(element);
-            instrumentedCode = ((className != CoreParser.UNDEFINED) && (introspector != null)) ? introspector
-                    .getInstrumentedClass(className) : null;
+            instrumentedCode = ((className != CoreParser.UNDEFINED) && (introspector != null)) ? introspector.getInstrumentedClass(className) : null;
         } catch (ClassNotFoundException e) {
             errorHandler.error(Severity.ERROR, "Apam component " + name + ": " + "the component class " + className
                     + " can not be loaded");

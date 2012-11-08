@@ -1,13 +1,10 @@
 package fr.imag.adele.apam.apformipojo.handlers;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -47,7 +44,8 @@ import fr.imag.adele.apam.util.ApAMQueue;
  * 
  * @author vega
  *
- */public class MessageInjectionManager implements DependencyInjectionManager, Consumer {// MessageConsumer<Object>
+ */
+public class MessageInjectionManager implements DependencyInjectionManager, Consumer {// MessageConsumer<Object>
 
     /**
      * The registered name of this iPojo handler

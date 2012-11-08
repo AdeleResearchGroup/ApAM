@@ -282,12 +282,11 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	protected Instance instantiate(Composite composite) throws InvalidConfiguration {
 		
 		if (! this.isInstantiable()) {
-			logger.error("Implementation " + this + " is not instantiable");
-			return null;
+			throw new InvalidConfiguration("Implementation " + this + " is not instantiable");
 		}
+		
 		if (this.isSingleton() && !instances.isEmpty()) {
-			logger.error("Implementation " + this + " is a singleton and an instance exists");
-			return null;		
+			throw new InvalidConfiguration("Implementation " + this + " is a singleton and an instance exists");		
 		}
 
 		return reify(composite,getApformImpl().createInstance(null));

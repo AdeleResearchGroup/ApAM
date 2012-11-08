@@ -24,6 +24,7 @@ import org.osgi.framework.BundleContext;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager;
@@ -196,6 +197,37 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 		
 
 	}
+	
+	/**
+	 * Delegate APAM to remove the currently resolved dependency and force a new resolution
+	 * the next time the injected dependency is accessed
+	 * 
+	 */
+	@Override
+	public boolean unresolve(DependencyInjectionManager injection) {
+
+		/*
+		 * This instance is not actually yet managed by APAM
+		 */
+		if (apamInstance == null) {
+			System.err.println("resolve failure for client " + getInstanceName() + " : ASM instance unkown");
+			return false;
+		}
+
+		Apam apam = getFactory().getApam();
+		if (apam == null) {
+			System.err.println("resolve failure for client " + getInstanceName() + " : APAM not found");
+			return false;
+		}
+
+		DependencyDeclaration dependency = injection.getDependencyInjection().getDependency();
+		for (Wire outgoing : apamInstance.getWires(dependency.getIdentifier())) {
+			outgoing.remove();
+		}
+		
+		return true;
+	}	
+	
 
 	/**
 	 * Notify instance activation/deactivation
@@ -347,6 +379,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 		} catch (Exception ignored) {
 			getLogger().log(Logger.ERROR, "error invoking callback "+callback.getMethod()+" for property "+attr, ignored);
 		}		
-	}	
+	}
+
 
 }

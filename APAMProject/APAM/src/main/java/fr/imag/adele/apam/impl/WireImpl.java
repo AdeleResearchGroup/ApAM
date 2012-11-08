@@ -43,7 +43,7 @@ public class WireImpl implements Wire {
         return hasConstraints;
     }
 
-    protected void remove() {
+    public void remove() {
         source.removeWire(this);
         destination.removeInvWire(this);
     }

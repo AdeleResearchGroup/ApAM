@@ -4,9 +4,9 @@ import java.util.Set;
 
 public class GrantDeclaration {
 
-	public final DependencyDeclaration.Reference dependency;
+	private final DependencyDeclaration.Reference dependency;
 	
-	public final Set<String> states;
+	private final Set<String> states;
 	
 	public GrantDeclaration(DependencyDeclaration.Reference dependency, Set<String> states) {
 		this.dependency = dependency;

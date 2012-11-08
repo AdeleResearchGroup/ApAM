@@ -83,8 +83,8 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
 
         assert component != null;
         
-        id = (id == null) ? getTarget().as(fr.imag.adele.apam.core.Reference.class).getIdentifier() : id;
-        this.reference	= new Reference(component,id);
+        id 							= (id == null) ? getTarget().as(fr.imag.adele.apam.core.Reference.class).getIdentifier() : id;
+        this.reference				= new Reference(component,id);
 
         this.isMultiple				= isMultiple;
         this.isEager				= null;
@@ -93,6 +93,20 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
         this.missingException		= null;
         
         injections					= new ArrayList<DependencyInjection>();
+    }
+    
+    @Override
+    public boolean equals(Object object) {
+    	if (! (object instanceof DependencyDeclaration))
+    		return false;
+    	
+    	DependencyDeclaration that = (DependencyDeclaration) object;
+    	return this.reference.equals(that.reference);
+    }
+    
+    @Override
+    public int hashCode() {
+    	return reference.hashCode();
     }
     
     @Override
