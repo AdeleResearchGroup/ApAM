@@ -243,6 +243,8 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
 
     public String printDependencyDeclaration(String indent) {
         String ret = indent + " dependency id: " + getIdentifier() + ". toward " + getTarget();
+    
+        
         if (!injections.isEmpty()) {
             // ret += "\n         Injected dependencies";
             for (DependencyInjection inj : injections) {
@@ -250,6 +252,20 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
             }
         }
 
+        if (getCallback(CallbackTrigger.Bind)!=null && !getCallback(CallbackTrigger.Bind).isEmpty()) {
+            ret += "\n         added";
+            for (CallbackMethod inj : getCallback(CallbackTrigger.Bind)) {
+                ret += "\n            " + inj.methodName;
+            }
+        }
+        
+        if (getCallback(CallbackTrigger.Unbind)!=null && !getCallback(CallbackTrigger.Unbind).isEmpty()) {
+            ret += "\n         removed";
+            for (CallbackMethod inj : getCallback(CallbackTrigger.Unbind)) {
+                ret += "\n            " + inj.methodName;
+            }
+        }
+        
         if (!getImplementationConstraints().isEmpty()) {
             ret += "\n         Implementation Constraints";
             for (String inj : getImplementationConstraints()) {

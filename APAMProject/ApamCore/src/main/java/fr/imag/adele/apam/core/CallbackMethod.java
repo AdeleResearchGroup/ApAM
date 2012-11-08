@@ -21,11 +21,6 @@ public class CallbackMethod {
      */
     protected final CallbackTrigger trigger;
     
-    /**
-     * The method has Instance as a unique argument
-     */
-    protected boolean hasInstanceArgument = false;
-
     
     public CallbackMethod(AtomicImplementationDeclaration implementation, CallbackTrigger trigger, String methodName) {
 
@@ -65,11 +60,11 @@ public class CallbackMethod {
             switch (trigger) {
                 case Bind:                   
                 case Unbind:
-                    hasInstanceArgument = implementation.getInstrumentation().checkCallback(methodName,true);
+                     implementation.getInstrumentation().getCallbacks(methodName,true);
                     return true;
                 case onInit:
                 case onRemove:
-                    hasInstanceArgument = implementation.getInstrumentation().checkCallback(methodName,false);
+                    implementation.getInstrumentation().getCallbacks(methodName,false);
                     return true;
                 default:
                     return false;
@@ -81,9 +76,7 @@ public class CallbackMethod {
     
     }
 
-    public boolean hasAnInstanceArgument(){
-        return hasInstanceArgument;
-    }
+
     
     @Override
     public String toString() {

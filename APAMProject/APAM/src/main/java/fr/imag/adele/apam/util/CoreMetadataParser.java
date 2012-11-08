@@ -320,7 +320,8 @@ public class CoreMetadataParser implements CoreParser {
         Class<?> instrumentedCode = null;
         try {
             pojoMetadata = new PojoMetadata(element);
-            instrumentedCode = ((className != CoreParser.UNDEFINED) && (introspector != null)) ? introspector.getInstrumentedClass(className) : null;
+            instrumentedCode = ((className != CoreParser.UNDEFINED) && (introspector != null)) ? introspector
+                    .getInstrumentedClass(className) : null;
         } catch (ClassNotFoundException e) {
             errorHandler.error(Severity.ERROR, "Apam component " + name + ": " + "the component class " + className
                     + " can not be loaded");
@@ -1823,86 +1824,29 @@ public class CoreMetadataParser implements CoreParser {
         }
 
         @Override
-        public boolean checkCallback(String callbackName, boolean mandatoryInstance) throws NoSuchMethodException {
-//            Set<MethodMetadata> metadataMethods;
-//            Set<Method> reflectionMethods;
-//
-//            if (mandatoryInstance) {
-//                getMethodsWithArgFromMetadata(callbackName, Instance.class.getCanonicalName(), 1);
-//                getMethodsWithArgFromReflection(callbackName, Instance.class.getCanonicalName(), 1);
-//            } else {
-//                getMethodsWithArgFromMetadata(callbackName, Instance.class.getCanonicalName(), 1);
-//                getMethodsWithArgFromReflection(callbackName, Instance.class.getCanonicalName(), 1);
-//                getMethodsWithArgFromMetadata(callbackName, null, 0);
-//                getMethodsWithArgFromReflection(callbackName, null, 0);
-//            }
-            // TODO FINISH THIS
-            /*
-             * Get iPojo metadata
-             */
-            MethodMetadata methodIPojoMetadata = null;
+        public  Set<MethodMetadata> getCallbacks(String callbackName, boolean mandatoryInstance) throws NoSuchMethodException {
+            Set<MethodMetadata> metadataMethods = new HashSet<MethodMetadata>();
+
             if (pojoMetadata != null) {
                 for (MethodMetadata method : pojoMetadata.getMethods(callbackName)) {
-                    if (method.getMethodArguments().length <= 1) {
-                        methodIPojoMetadata = method;
+                    if (method.getMethodArguments().length == 1) {
+                        String parameterType = method.getMethodArguments()[0];
+                        /*
+                         * Check If the single parameter type is an Apam Instance 
+                         */
+                        if (Instance.class.getCanonicalName().equals(parameterType))
+                            metadataMethods.add(method);
+                    } else if (!mandatoryInstance & method.getMethodArguments().length == 0) {
+                        metadataMethods.add(method);
                     }
-
                 }
             }
 
-            /*
-             * Try to get reflection information if available,.
-             */
-            Method methodReflectionMetadata = null;
-            if (instrumentedCode != null) {
-                try {
-                    for (Method method : instrumentedCode.getDeclaredMethods()) {
-                        if (method.getName().equals(callbackName) && (method.getParameterTypes().length <= 1))
-                            methodReflectionMetadata = method;
-                    }
-                } catch (Exception e) {
-                }
+            if (metadataMethods.isEmpty()){
+                throw new NoSuchMethodException("unavailable callback Or wrong argument : " + callbackName);
             }
-
-            /*
-             * Try to use reflection information
-             */
-            if (methodReflectionMetadata != null) {
-                if (methodReflectionMetadata.getGenericParameterTypes().length == 1) {
-                    Type parameterType = methodReflectionMetadata.getGenericParameterTypes()[0];
-                    Class<?> parameterClass = null;
-
-                    if (parameterType instanceof Class)
-                        parameterClass = (Class<?>) parameterType;
-                    if (parameterType instanceof ParameterizedType) {
-                        parameterClass = (Class<?>) ((ParameterizedType) parameterType).getRawType();
-                    }
-                    /*
-                     * Verify if the parameter type is an Apam Instance
-                     */
-                    if ((parameterClass != null) && Instance.class.equals(parameterClass)) {
-                        return true;
-                    }
-                } else
-                    return false;
-
-            }
-
-            /*
-             * Try to use iPojo metadata
-             */
-            if (methodIPojoMetadata != null) {
-                if (methodIPojoMetadata.getMethodArguments().length == 1) {
-                    String parameterType = methodIPojoMetadata.getMethodArguments()[0];
-                    /*
-                     * Check If the single parameter type is an Apam Instance 
-                     */
-                    if (Instance.class.getCanonicalName().equals(parameterType))
-                        return true;
-                } else
-                    return false;
-            }
-            throw new NoSuchMethodException("unavailable callback Or wrong argument : " + callbackName);
+            
+            return metadataMethods;
         }
 
         private Map<MethodMetadata, MessageReferenceExtended>

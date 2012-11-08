@@ -43,7 +43,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         /**
          * The call back method specified, it return true if the method has a unique argument which is Instance
          */
-        public boolean checkCallback(String callbackName, boolean mandatoryInstanceArgument) throws NoSuchMethodException;
+        public Set<?> getCallbacks(String callbackName, boolean mandatoryInstanceArgument) throws NoSuchMethodException;
         
         /**
          * The type of return method specified in java call back method
@@ -173,7 +173,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
     }
 
     public void addCallback(CallbackMethod callback) {
-       if(callbacks.get(callback.trigger)==null){
+       if(callbacks.get(callback.trigger)==null){ // Initialize list of call back
            callbacks.put(callback.trigger,new HashSet<CallbackMethod>());
        }       
        callbacks.get(callback.trigger).add(callback);

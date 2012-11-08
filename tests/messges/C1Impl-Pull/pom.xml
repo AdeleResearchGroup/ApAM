@@ -35,7 +35,12 @@
 			<artifactId>P1</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>APAM</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 

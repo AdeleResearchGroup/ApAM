@@ -2,6 +2,7 @@ package fr.imag.adele.apam.test.message.consumer;
 
 import java.util.Queue;
 
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.test.message.M1;
 
 public class C1ImplAutonome {
@@ -19,7 +20,7 @@ public class C1ImplAutonome {
                 while (running) {
 
                     try {
-                        Thread.currentThread().sleep(500);
+                        Thread.currentThread().sleep(2000);
                         if (queueM1 == null) {
                             System.err.println("no producer wired");
                         } else {
@@ -46,4 +47,15 @@ public class C1ImplAutonome {
         running = false;
         System.out.println("Consumer stopped");
     }
+    
+    public void bindProducer(Instance inst){
+        System.out.println("---------------BIND-------------------");
+        System.out.println("-------------"+ inst.getName()+" -------------------");
+    }
+    
+    public void unBindProducer(Instance inst){
+        System.out.println("---------------UNBIND-------------------");
+        System.out.println("-------------"+ inst.getName()+" -------------------"); 
+    }
+    
 }

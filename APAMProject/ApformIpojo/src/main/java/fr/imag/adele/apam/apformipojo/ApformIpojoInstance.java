@@ -1,7 +1,6 @@
 package fr.imag.adele.apam.apformipojo;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -18,6 +17,7 @@ import org.apache.felix.ipojo.handlers.configuration.ConfigurationHandlerDescrip
 import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceDescription;
 import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceHandlerDescription;
 import org.apache.felix.ipojo.metadata.Element;
+import org.apache.felix.ipojo.parser.MethodMetadata;
 import org.apache.felix.ipojo.util.Callback;
 import org.apache.felix.ipojo.util.Logger;
 import org.osgi.framework.Bundle;
@@ -44,37 +44,42 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     /**
      * The property used to configure this instance with its declaration
      */
-    public final static String              ATT_DECLARATION = "declaration";
+    public final static String                       ATT_DECLARATION = "declaration";
 
     /**
      * Whether this instance was created directly using the APAM API
      */
-    private final boolean                   isApamCreated;
+    private final boolean                            isApamCreated;
 
     /**
      * The declaration of the instance
      */
-    private InstanceDeclaration             declaration;
+    private InstanceDeclaration                      declaration;
 
     /**
      * The APAM instance associated to this component instance
      */
-    private Instance                        apamInstance;
+    private Instance                                 apamInstance;
 
     /**
      * The list of injected fields handled by this instance
      */
-    private Set<DependencyInjectionManager> injectedFields;
+    private Set<DependencyInjectionManager>          injectedFields;
 
     /**
      * The list of callbacks to notify when a property is set
      */
-    private Map<String, Callback>           propertyCallbacks;
-    
+    private Map<String, Callback>                    propertyCallbacks;
+
     /**
      * The list of callbacks to notify when onInit, onRemove
      */
-    private Map<CallbackTrigger, Callback>  lifeCycleCallbacks;
+    private Map<CallbackTrigger, Set<Callback>>      lifeCycleCallbacks;
+
+    /**
+     * The list of callbacks to notify when bind, Unbind
+     */
+    Map<CallbackTrigger, Map<String, Set<Callback>>> dependencyCallback;
 
     public ApformIpojoInstance(ApformIpojoImplementation implementation, boolean isApamCreated, BundleContext context,
             HandlerManager[] handlers) {
@@ -84,7 +89,35 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
         this.isApamCreated = isApamCreated;
         injectedFields = new HashSet<DependencyInjectionManager>();
         propertyCallbacks = new HashMap<String, Callback>();
-        lifeCycleCallbacks = new HashMap<CallbackTrigger, Callback>();
+        dependencyCallback = new HashMap<CallbackTrigger, Map<String, Set<Callback>>>();
+        lifeCycleCallbacks = new HashMap<CallbackTrigger, Set<Callback>>();
+        if (getFactory().hasInstrumentedCode()) {
+            AtomicImplementationDeclaration primitive = (AtomicImplementationDeclaration) implementation
+                    .getDeclaration();
+            loadCallbacks(primitive, CallbackTrigger.onInit);
+            loadCallbacks(primitive, CallbackTrigger.onRemove);
+
+        }
+
+    }
+
+    private void loadCallbacks(AtomicImplementationDeclaration primitive, CallbackTrigger trigger) {
+        Set<CallbackMethod> callbackMethods = primitive.getCallback(trigger);
+        for (CallbackMethod callbackMethod : callbackMethods) {
+            Set<MethodMetadata> metadatas;
+            try {
+                metadatas = (Set<MethodMetadata>) primitive.getInstrumentation().getCallbacks(
+                        callbackMethod.getMethodName(), false);
+                for (MethodMetadata methodMetadata : metadatas) {
+                    if (lifeCycleCallbacks.get(trigger) == null) {
+                        lifeCycleCallbacks.put(trigger, new HashSet<Callback>());
+                    }
+                    lifeCycleCallbacks.get(trigger).add(new Callback(methodMetadata, this));
+                }
+            } catch (NoSuchMethodException e) {
+                System.err.println("life cycle failure, when trigger : " + trigger + " " + e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -154,7 +187,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
                     serviceComponent.apamInit(getApamInstance());
                 }
                 // call backs methods
-                fireCallbacks(CallbackTrigger.onInit, service);
+                fireCallbacks(CallbackTrigger.onInit, lifeCycleCallbacks);
 
             } else { // stopping the instance
                 Object service = getServiceObject();
@@ -163,7 +196,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
                     serviceComponent.apamRemove();
                 }
                 // call back methods
-                fireCallbacks(CallbackTrigger.onRemove, service);
+                fireCallbacks(CallbackTrigger.onRemove, lifeCycleCallbacks);
             }
         }
     }
@@ -202,13 +235,14 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
         propertyCallbacks.put(property, callback);
     }
 
-    /**
-     * Adds a new callback lifeCycleCallback
-     */
-    public void addCallback(CallbackTrigger trigger, Callback callback) {
-        lifeCycleCallbacks.put(trigger, callback);
-    }
-    
+//
+//    /**
+//     * Adds a new callback lifeCycleCallback
+//     */
+//    public void addCallback(CallbackTrigger trigger, Callback callback) {
+//        lifeCycleCallbacks.put(trigger, callback);
+//    }
+
     /**
      * Delegate APAM to resolve a given injection.
      * 
@@ -239,35 +273,35 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 
     }
 
-	/**
-	 * Delegate APAM to remove the currently resolved dependency and force a new resolution
-	 * the next time the injected dependency is accessed
-	 * 
-	 */
-	@Override
-	public boolean unresolve(DependencyInjectionManager injection) {
-	
-		/*
-		 * This instance is not actually yet managed by APAM
-		 */
-		if (apamInstance == null) {
-			System.err.println("unresolve failure for client " + getInstanceName() + " : ASM instance unkown");
-			return false;
-		}
-	
-		Apam apam = getFactory().getApam();
-		if (apam == null) {
-			System.err.println("unresolve failure for client " + getInstanceName() + " : APAM not found");
-			return false;
-		}
-	
-		DependencyDeclaration dependency = injection.getDependencyInjection().getDependency();
-		for (Wire outgoing : apamInstance.getWires(dependency.getIdentifier())) {
-			outgoing.remove();
-		}
-		
-		return true;
-	}	
+    /**
+     * Delegate APAM to remove the currently resolved dependency and force a new resolution
+     * the next time the injected dependency is accessed
+     * 
+     */
+    @Override
+    public boolean unresolve(DependencyInjectionManager injection) {
+
+        /*
+         * This instance is not actually yet managed by APAM
+         */
+        if (apamInstance == null) {
+            System.err.println("unresolve failure for client " + getInstanceName() + " : ASM instance unkown");
+            return false;
+        }
+
+        Apam apam = getFactory().getApam();
+        if (apam == null) {
+            System.err.println("unresolve failure for client " + getInstanceName() + " : APAM not found");
+            return false;
+        }
+
+        DependencyDeclaration dependency = injection.getDependencyInjection().getDependency();
+        for (Wire outgoing : apamInstance.getWires(dependency.getIdentifier())) {
+            outgoing.remove();
+        }
+
+        return true;
+    }
 
     /**
      * Notify instance activation/deactivation
@@ -346,6 +380,11 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
             }
         }
 
+        /*
+         * perform callback bind
+         */
+        fireCallbacks(destInst, depName, dependencyCallback.get(CallbackTrigger.Bind));
+
         return true;
     }
 
@@ -374,8 +413,15 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
             }
         }
 
+        /*
+         * perform callback unbind
+         */
+        fireCallbacks(destInst,depName, dependencyCallback.get(CallbackTrigger.Unbind));
+
         return true;
     }
+
+
 
     /**
      * Apform: substitute dependency
@@ -416,40 +462,61 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
         if (pojo == null || callback == null)
             return;
 
-		try {
-			callback.call(pojo,new Object[] {value});
-		} catch (Exception ignored) {
-			getLogger().log(Logger.ERROR, "error invoking callback "+callback.getMethod()+" for property "+attr, ignored);
-		}		
-	}
+        try {
+            callback.call(pojo, new Object[] { value });
+        } catch (Exception ignored) {
+            getLogger().log(Logger.ERROR, "error invoking callback " + callback.getMethod() + " for property " + attr,
+                    ignored);
+        }
+    }
+    
+    private void fireCallbacks(Instance destInstance, String depName, Map<String, Set<Callback>> map) {
+        Set<Callback> callbacks = map.get(depName);
+       performCallbacks(destInstance,callbacks);
+    }
 
-    private void fireCallbacks(CallbackTrigger trigger, Object service) {
-        if (getInst().getImpl().getDeclaration() instanceof AtomicImplementationDeclaration) {
-            AtomicImplementationDeclaration atomicImpl = (AtomicImplementationDeclaration) getInst().getImpl().getDeclaration();
-            Set<CallbackMethod> callbacks = atomicImpl.getCallback(trigger);
-            if (callbacks != null) {
-                for (CallbackMethod callbackMethod : callbacks) {
-                    Method callback;
+    private void fireCallbacks(CallbackTrigger trigger, Map<CallbackTrigger, Set<Callback>> mapCallbacks) {
+        Set<Callback> callbacks = mapCallbacks.get(trigger);
+      performCallbacks(getApamInstance(),callbacks);
+    }
+
+    private void performCallbacks(Instance inst, Set<Callback> callbacks) {
+        if (callbacks != null) {
+            for (Callback callback : callbacks) {
+                if (callback.getArguments().length == 1) {
                     try {
-                        if (callbackMethod.hasAnInstanceArgument()) {
-                            callback = service.getClass().getMethod(callbackMethod.getMethodName(), Instance.class);
-                            callback.invoke(service, this);
-                        } else {
-                            callback = service.getClass().getMethod(callbackMethod.getMethodName());
-                            callback.invoke(service);
-                        }
+                        callback.call(new Object[]{inst});
                     } catch (NoSuchMethodException e) {
-                        e.printStackTrace();
-                    } catch (IllegalArgumentException e) {
+                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     } catch (IllegalAccessException e) {
+                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     } catch (InvocationTargetException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                } else if (callback.getArguments().length == 0) {
+                    try {
+                        callback.call();
+                    } catch (NoSuchMethodException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
             }
         }
+        
     }
-    
- }
+
+   
+    public void addCallbackDependency(CallbackTrigger trigger, Map<String, Set<Callback>> callbackDependecy) {
+        dependencyCallback.put(trigger, callbackDependecy);
+    }
+}

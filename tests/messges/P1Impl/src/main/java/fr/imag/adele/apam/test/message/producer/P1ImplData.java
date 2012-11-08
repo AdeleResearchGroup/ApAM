@@ -22,7 +22,7 @@ public class P1ImplData {
                     M1 m1 = produceM1();
                     System.out.println(" produce message M1 : " + m1.getMoy() );
                     try {
-                        Thread.currentThread().sleep(500);
+                        Thread.currentThread().sleep(1500);
                     } catch (InterruptedException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();

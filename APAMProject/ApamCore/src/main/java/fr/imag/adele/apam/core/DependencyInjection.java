@@ -1,5 +1,7 @@
 package fr.imag.adele.apam.core;
 
+import fr.imag.adele.apam.core.CallbackMethod.CallbackTrigger;
+
 /**
  * This class declares a field or method in a java implementation that must be injected with a resource by the runtime
  * when resolving dependencies.
@@ -266,4 +268,6 @@ public abstract class DependencyInjection {
         }
 
     }
+
+  
 }
