@@ -26,9 +26,9 @@ public interface DependencyInjectionManager extends FieldInterceptor {
 		 * 
 		 * The resolver can asynchronously update the dependency to modify the binding.
 	 	 *
-		 *  @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.addTarget
-		 *  @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.removeTarget
-		 *  @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.substituteTarget
+		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.addTarget
+		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.removeTarget
+		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.substituteTarget
 		 *  
 		 */
 		public void addInjection(DependencyInjectionManager injection);
@@ -36,17 +36,26 @@ public interface DependencyInjectionManager extends FieldInterceptor {
 		/**
 		 * Request to lazily resolve an injection.
 		 * 
-		 *  This method is invoked by a injection manager to calculate its initial binding
-		 *  when it is first accessed.
+		 * This method is invoked by a injection manager to calculate its initial binding
+		 * when it is first accessed.
 		 *  
-		 *  The resolver must call back the manager to modify the resolved target.
+		 * The resolver must call back the manager to modify the resolved target.
 		 *   
-		 *  @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.addTarget
-		 *  @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.removeTarget
-		 *  @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.substituteTarget
+		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.addTarget
+		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.removeTarget
+		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.substituteTarget
 		 *  
 		 */
 		public boolean resolve(DependencyInjectionManager injection);
+		
+		/**
+		 * Request to remove an injection.
+		 * 
+		 * This method is invoked by a injection manager to signify that the component
+		 * wants to force the resolution of the dependency the next access
+		 *  
+		 */
+		public boolean unresolve(DependencyInjectionManager injection);
 		
 	} 
 	

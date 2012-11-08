@@ -90,7 +90,7 @@ public interface Component {
      */
     public <T extends Component> T getDefaultComponent (Set<T> candidates) ;
     
-     /**
+    /**
      * Match.
      * 
      * @param goal the goal

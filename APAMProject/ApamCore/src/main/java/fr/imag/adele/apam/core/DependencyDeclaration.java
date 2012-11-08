@@ -91,17 +91,31 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
         super(resource);
 
         assert component != null;
+        
+        id 						= (id == null) ? getTarget().as(fr.imag.adele.apam.core.Reference.class).getIdentifier() : id;
+        this.reference			= new Reference(component,id);
 
-        id = (id == null) ? getTarget().as(fr.imag.adele.apam.core.Reference.class).getIdentifier() : id;
-        this.reference = new Reference(component, id);
-
-        this.isMultiple = isMultiple;
-        this.isEager = null;
-        this.mustHide = null;
-        this.missingPolicy = null;
-        this.missingException = null;
-        this.callbacks = new HashMap<CallbackTrigger, Set<CallbackMethod>>();
-        injections = new ArrayList<DependencyInjection>();
+        this.isMultiple 		= isMultiple;
+        this.isEager 			= null;
+        this.mustHide 			= null;
+        this.missingPolicy 		= null;
+        this.missingException 	= null;
+        this.callbacks 			= new HashMap<CallbackTrigger, Set<CallbackMethod>>();
+        this.injections			= new ArrayList<DependencyInjection>();
+    }
+    
+    @Override
+    public boolean equals(Object object) {
+    	if (! (object instanceof DependencyDeclaration))
+    		return false;
+    	
+    	DependencyDeclaration that = (DependencyDeclaration) object;
+    	return this.reference.equals(that.reference);
+    }
+    
+    @Override
+    public int hashCode() {
+    	return reference.hashCode();
     }
 
     @Override

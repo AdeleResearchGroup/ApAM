@@ -35,7 +35,7 @@
 		<module>ApformIpojo</module>
 		<module>APAMBundle</module>
 		<!--<module>CONFMAN</module> -->
-		<!--<module>DYNAMAN</module> -->
+		<module>DYNAMAN</module>
 		<!--<module>DISTRIMAN</module> -->
 	</modules>
 </project>

@@ -245,7 +245,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 	@Override
 	public void setOwner(Composite owner) {
 
-		assert !isUsed();
+		assert (isUsed() && owner == rootComposite) || ( !isUsed() && owner != null);
 
 		CompositeImpl previousOwner = (CompositeImpl)getComposite();
 		super.setOwner(owner);

@@ -192,7 +192,12 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
 
  
     public void onSet(Object pojo, String fieldName, Object value) {
-        // Nothing to do, this should never happen as we exclusively handle the field's value
+        /*
+         * If the field is nullified we interpret this as an indication from the
+         * component to release the currently bound instances and force a resolution
+         */
+    	if (value == null)
+    		resolver.unresolve(this);
     }
 
     public Object onGet(Object pojo, String fieldName, Object value) {

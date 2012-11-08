@@ -9,5 +9,7 @@ public interface Wire {
     public String getDepName();
     
     public boolean hasConstraints() ;
+    
+    public void remove();
 
 }
