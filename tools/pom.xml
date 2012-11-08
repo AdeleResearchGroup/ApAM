@@ -5,9 +5,9 @@
     <groupId>fr.imag.adele.apam</groupId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>APAM-Tools</artifactId>
+  <artifactId>tools</artifactId>
   <packaging>pom</packaging>
   <modules>
-  	<module>APAM-JMX</module>
+  	<module>jmx</module>
   </modules>
 </project>

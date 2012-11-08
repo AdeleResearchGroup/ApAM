@@ -45,7 +45,7 @@ import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 @org.apache.felix.ipojo.annotations.Component(name = "DYNAMAN" , immediate=true)
 @Provides
 
-public class DynamicManagerImplementation implements DependencyManager, DynamicManager<Component>, PropertyManager {
+public class DynamicManagerImplementation implements DependencyManager, DynamicManager, PropertyManager {
 
 	private final static Logger	logger = LoggerFactory.getLogger(DynamicManagerImplementation.class);
 

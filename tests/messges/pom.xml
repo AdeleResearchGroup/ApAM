@@ -2,17 +2,17 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>APAMProject.root</artifactId>
+		<artifactId>tests</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<groupId>fr.imag.adele.apam.tests</groupId>
-	<artifactId>APAM-Message-Tests</artifactId>
+	<artifactId>messages</artifactId>
 	<packaging>pom</packaging>
 	<modules>
 		<module>P1</module>
 		<module>P1Impl</module>
-		<module>C1Impl</module>
+		<module>C1Impl-Pull</module>
 <!-- 		<module>message-tests</module> -->
 	</modules>
 	

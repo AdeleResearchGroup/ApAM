@@ -41,9 +41,9 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         public boolean isCollectionField(String fieldName) throws NoSuchFieldException;
 
         /**
-         * The call back method specified, it return if the method has a unique Instance
+         * The call back method specified, it return true if the method has a unique argument which is Instance
          */
-        public boolean checkCallback(String callbackName) throws NoSuchMethodException;
+        public boolean checkCallback(String callbackName, boolean mandatoryInstanceArgument) throws NoSuchMethodException;
         
         /**
          * The type of return method specified in java call back method
@@ -172,7 +172,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         return ret;
     }
 
-    public void addCallbacks(CallbackMethod callback) {
+    public void addCallback(CallbackMethod callback) {
        if(callbacks.get(callback.trigger)==null){
            callbacks.put(callback.trigger,new HashSet<CallbackMethod>());
        }       

@@ -166,19 +166,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         initializeProperties(initialproperties);
 
         /*
-         * Invoke the execution platform instance callback
-         */
-        if (!(this instanceof Composite)) {
-            Object service = getApformInst().getServiceObject();
-            if (service instanceof ApamComponent) {
-                ApamComponent serviceComponent = (ApamComponent) service;
-                serviceComponent.apamInit(this);
-            }
-            // call backs methods
-            fireCallbacks(CallbackTrigger.onInit, service);
-        }
- 
-        /*
          * Add to broker
          */
         ((ComponentBrokerImpl) CST.componentBroker).add(this);
@@ -212,19 +199,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
             ((WireImpl) wire).remove();
         }
  
-        /*
-         * Invoke the execution platform instance callback
-         */
-        if (!(this instanceof Composite)) {
-        	logger.debug("remove Atomic Instance " + this);
-            Object service = getApformInst().getServiceObject();
-            if (service instanceof ApamComponent) {
-                ApamComponent serviceComponent = (ApamComponent) service;
-                serviceComponent.apamRemove();
-            }
-            // call back methods
-            fireCallbacks(CallbackTrigger.onRemove, service);
-        }
+       
 
         /*
          * Unbind from the underlying execution platform instance
@@ -252,34 +227,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
     }
 
-    private void fireCallbacks(CallbackTrigger trigger, Object service) {
-        if (getImpl().getDeclaration() instanceof AtomicImplementationDeclaration) {
-            AtomicImplementationDeclaration atomicImpl = (AtomicImplementationDeclaration) getImpl().getDeclaration();
-            Set<CallbackMethod> callbacks = atomicImpl.getCallback(trigger);
-            if (callbacks != null) {
-                for (CallbackMethod callbackMethod : callbacks) {
-                    Method callback;
-                    try {
-                        if (callbackMethod.hasAnInstanceArgument()) {
-                            callback = service.getClass().getMethod(callbackMethod.getMethodName(), Instance.class);
-                            callback.invoke(service, this);
-                        } else {
-                            callback = service.getClass().getMethod(callbackMethod.getMethodName());
-                            callback.invoke(service);
-                        }
-                    } catch (NoSuchMethodException e) {
-                        e.printStackTrace();
-                    } catch (IllegalArgumentException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
+
 
     /**
      * Change the owner (enclosing composite) of this instance.

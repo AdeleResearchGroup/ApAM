@@ -4,7 +4,7 @@ package fr.imag.adele.apam.core;
 public class CallbackMethod {
     
     public static enum CallbackTrigger {
-        Added, Removed, onInit, onRemove
+        Bind, Unbind, onInit, onRemove
     }
     /**
      * The atomic implementation declaring this injection
@@ -62,11 +62,23 @@ public class CallbackMethod {
     
     public boolean isValidInstrumentation() {
         try {
-            hasInstanceArgument = implementation.getInstrumentation().checkCallback(methodName);
-            return true;
+            switch (trigger) {
+                case Bind:                   
+                case Unbind:
+                    hasInstanceArgument = implementation.getInstrumentation().checkCallback(methodName,true);
+                    return true;
+                case onInit:
+                case onRemove:
+                    hasInstanceArgument = implementation.getInstrumentation().checkCallback(methodName,false);
+                    return true;
+                default:
+                    return false;
+            }
+           
         } catch (NoSuchMethodException e) {
             return false;
         }
+    
     }
 
     public boolean hasAnInstanceArgument(){

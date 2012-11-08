@@ -132,6 +132,8 @@ public class CoreMetadataParser implements CoreParser {
     private static final String  ATT_METHOD              = "method";
     private static final String  ATT_PUSH                = "push";
     private static final String  ATT_PULL                = "pull";
+    private static final String  ATT_BIND                = "added";
+    private static final String  ATT_UNBIND              = "removed";
 
     private static final String  VALUE_OPTIONAL          = "optional";
     private static final String  VALUE_WAIT              = "wait";
@@ -393,11 +395,10 @@ public class CoreMetadataParser implements CoreParser {
         Set<MessageReference> declaredMessages = declaration.getProvidedResources(MessageReference.class);
         for (MessageProducerMethodInterception messageMethod : declaration.getProducerInjections()) {
             ResourceReference resourceRef = messageMethod.getResource();
-            if (resourceRef instanceof UndefinedReference){
-                if (!((UndefinedReference)resourceRef).getKind().isAssignableFrom(MessageReference.class))
+            if (resourceRef instanceof UndefinedReference) {
+                if (!((UndefinedReference) resourceRef).getKind().isAssignableFrom(MessageReference.class))
                     continue;
             }
-                
 
             if (declaredMessages.contains(messageMethod.getResource()))
                 continue;
@@ -427,11 +428,11 @@ public class CoreMetadataParser implements CoreParser {
             String onRemove = parseString(callback, CoreMetadataParser.ATT_ON_REMOVE, false);
 
             if (onInit != null) {
-                declaration.addCallbacks(parseCallback(declaration, CallbackTrigger.onInit, onInit));
+                declaration.addCallback(parseCallback(declaration, CallbackTrigger.onInit, onInit));
             }
 
             if (onRemove != null) {
-                declaration.addCallbacks(parseCallback(declaration, CallbackTrigger.onRemove, onRemove));
+                declaration.addCallback(parseCallback(declaration, CallbackTrigger.onRemove, onRemove));
             }
 
         }
@@ -741,6 +742,32 @@ public class CoreMetadataParser implements CoreParser {
             errorHandler.error(Severity.ERROR, "dependency target must be specified " + element);
             target = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
             dependency = new DependencyDeclaration(component.getReference(), id, isMultiple, target);
+        }
+
+        /*
+         * look for bind and unbind callbacks 
+         */
+        String bindCallback = parseString(element, CoreMetadataParser.ATT_BIND, false);
+        String unbindCallback = parseString(element, CoreMetadataParser.ATT_UNBIND, false);
+        if (component instanceof AtomicImplementationDeclaration) {
+            if (bindCallback != null) {
+                CallbackMethod callback = new CallbackMethod((AtomicImplementationDeclaration) component,
+                        CallbackTrigger.Bind, bindCallback);
+                if (!callback.isValidInstrumentation())
+                    errorHandler.error(Severity.ERROR, "the specified method \"" + bindCallback + "\" in \""
+                            + CoreMetadataParser.ATT_BIND
+                            + "\" is invalid or not founded");
+                dependency.addCallback(callback);
+            }
+            if (unbindCallback != null) {
+                CallbackMethod callback = new CallbackMethod((AtomicImplementationDeclaration) component,
+                        CallbackTrigger.Unbind, unbindCallback);
+                if (!callback.isValidInstrumentation())
+                    errorHandler.error(Severity.ERROR, "the specified method \"" + unbindCallback + "\" in \""
+                            + CoreMetadataParser.ATT_UNBIND
+                            + "\" is invalid or not founded");
+                dependency.addCallback(callback);
+            }
         }
 
         /*
@@ -1351,7 +1378,7 @@ public class CoreMetadataParser implements CoreParser {
 
         if (mandatory) {
             errorHandler.error(Severity.ERROR, "resource name must be specified in " + element.getName());
-            return new UndefinedReference(element.getName(),ResourceReference.class);
+            return new UndefinedReference(element.getName(), ResourceReference.class);
         }
 
         return null;
@@ -1716,7 +1743,7 @@ public class CoreMetadataParser implements CoreParser {
                 String collectionType = ApamIpojoInstrumentation.getCollectionType(fieldReflectionMetadata);
                 if (collectionType != null)
                     return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(collectionType)
-                            : new UndefinedReference(fieldName,InterfaceReference.class);
+                            : new UndefinedReference(fieldName, InterfaceReference.class);
 
                 /*
                  * Then verify if it is a message
@@ -1724,7 +1751,8 @@ public class CoreMetadataParser implements CoreParser {
                 String messageType = ApamIpojoInstrumentation.getMessageType(fieldReflectionMetadata);
                 if (messageType != null)
                     return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType)
-                            : new UndefinedReference(fieldName,MessageReference.class);;
+                            : new UndefinedReference(fieldName, MessageReference.class);
+                ;
 
                 /*
                  * Otherwise it's a normal field we just return its type name
@@ -1743,7 +1771,7 @@ public class CoreMetadataParser implements CoreParser {
                 String collectionType = ApamIpojoInstrumentation.getCollectionType(fieldIPojoMetadata);
                 if (collectionType != null)
                     return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(collectionType)
-                            : new UndefinedReference(fieldName,InterfaceReference.class);
+                            : new UndefinedReference(fieldName, InterfaceReference.class);
 
                 /*
                  * Then verify if it is a message
@@ -1751,7 +1779,7 @@ public class CoreMetadataParser implements CoreParser {
                 String messageType = ApamIpojoInstrumentation.getMessageType(fieldIPojoMetadata);
                 if (messageType != null)
                     return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType)
-                            : new UndefinedReference(fieldName,MessageReference.class);
+                            : new UndefinedReference(fieldName, MessageReference.class);
 
                 /*
                  * Otherwise it's a normal field we just return its type name
@@ -1795,7 +1823,20 @@ public class CoreMetadataParser implements CoreParser {
         }
 
         @Override
-        public boolean checkCallback(String callbackName) throws NoSuchMethodException {
+        public boolean checkCallback(String callbackName, boolean mandatoryInstance) throws NoSuchMethodException {
+            Set<MethodMetadata> metadataMethods ;
+            Set<Method> reflectionMethods;
+            
+            if (mandatoryInstance) {
+                getMethodsWithArgFromMetadata(callbackName, Instance.class.getCanonicalName(), 1);
+                getMethodsWithArgFromReflection(callbackName, Instance.class.getCanonicalName(), 1);
+            } else {
+                getMethodsWithArgFromMetadata(callbackName, Instance.class.getCanonicalName(), 1);
+                getMethodsWithArgFromReflection(callbackName, Instance.class.getCanonicalName(), 1);
+                getMethodsWithArgFromMetadata(callbackName, null, 0);
+                getMethodsWithArgFromReflection(callbackName, null, 0);
+            }
+            //TODO FINISH THIS
             /*
              * Get iPojo metadata
              */
@@ -1865,11 +1906,11 @@ public class CoreMetadataParser implements CoreParser {
         }
 
         private Map<MethodMetadata, MessageReferenceExtended>
-                getMethodsWithArgFromMetadata(String methodName, String type) {
+                getMethodsWithArgFromMetadata(String methodName, String type, int numberOfArgument) {
             Map<MethodMetadata, MessageReferenceExtended> methodsIPojoMetadata = new HashMap<MethodMetadata, MessageReferenceExtended>();
             if (pojoMetadata != null) {
                 for (MethodMetadata method : pojoMetadata.getMethods(methodName)) {
-                    if (method.getMethodArguments().length == 1) {
+                    if (method.getMethodArguments().length == numberOfArgument) {
                         String parameterType = method.getMethodArguments()[0];
                         MessageReferenceExtended mRef;
                         /*
@@ -1933,11 +1974,12 @@ public class CoreMetadataParser implements CoreParser {
             return methodsIPojoMetadata;
         }
 
-        private Map<Method, MessageReferenceExtended> getMethodsWithArgFromReflection(String methodName, String type) {
+        private Map<Method, MessageReferenceExtended> getMethodsWithArgFromReflection(String methodName, String type,
+                int numberOfArgument) {
             Map<Method, MessageReferenceExtended> methodsReflectionMetadata = new HashMap<Method, MessageReferenceExtended>();
             if (instrumentedCode != null) {
                 for (Method method : instrumentedCode.getDeclaredMethods()) {
-                    if (method.getName().equals(methodName) && (method.getParameterTypes().length == 1)) {
+                    if (method.getName().equals(methodName) && (method.getParameterTypes().length == numberOfArgument)) {
                         Type parameterType = method.getGenericParameterTypes()[0];
                         Class<?> parameterClass = null;
 
@@ -1985,6 +2027,20 @@ public class CoreMetadataParser implements CoreParser {
             return methodsReflectionMetadata;
         }
 
+        private static Class<?> getParameterizedType(Type type) {
+
+            if (type instanceof ParameterizedType) {
+                Type[] parameters = ((ParameterizedType) type).getActualTypeArguments();
+                if ((parameters.length == 1) && (parameters[0] instanceof Class))
+                    return (Class<?>) parameters[0];
+                else
+                    return null;
+            }
+
+            return null;
+
+        }
+
         private Map<Method, MessageReferenceExtended>
                 getMethodsWithReturnFromReflection(String methodName, String type) {
             Map<Method, MessageReferenceExtended> methodsReflectionMetadata = new HashMap<Method, MessageReferenceExtended>();
@@ -1992,8 +2048,11 @@ public class CoreMetadataParser implements CoreParser {
                 for (Method method : instrumentedCode.getDeclaredMethods()) {
                     if ((method.getName().equals(methodName)) && (!method.getReturnType().equals(Void.TYPE))) {
                         if (method.getReturnType().getCanonicalName().equals(Message.class.getCanonicalName())) {
-                            // TODO verify the parameter Type
-                            System.out.println("Something to do here : " + method.getReturnType());
+                            Class<?> parameterType = getParameterizedType(method.getGenericReturnType());
+                            if (parameterType != null) {
+                                methodsReflectionMetadata.put(method, new MessageReferenceExtended(parameterType
+                                        .getCanonicalName()));
+                            }
                         } else {
                             if (type != null) {
                                 if (method.getReturnType().getCanonicalName().equals(type)) {
@@ -2041,7 +2100,7 @@ public class CoreMetadataParser implements CoreParser {
 
             if (mr != null) {
                 if (mr.isResourceUndefined())
-                    return new UndefinedReference(methodName,MessageReference.class);
+                    return new UndefinedReference(methodName, MessageReference.class);
                 else
                     return mr;
             }
@@ -2053,10 +2112,11 @@ public class CoreMetadataParser implements CoreParser {
         public ResourceReference getCallbackArgType(String methodName, String type) throws NoSuchMethodException {
             // get methods from metadata
             Map<MethodMetadata, MessageReferenceExtended> methodsMetadata = getMethodsWithArgFromMetadata(methodName,
-                    type);
+                    type, 1);
 
             // get method from reflection
-            Map<Method, MessageReferenceExtended> methodsReflection = getMethodsWithArgFromReflection(methodName, type);
+            Map<Method, MessageReferenceExtended> methodsReflection = getMethodsWithArgFromReflection(methodName, type,
+                    1);
 
             MessageReferenceExtended mr = null;
 
@@ -2078,7 +2138,7 @@ public class CoreMetadataParser implements CoreParser {
 
             if (mr != null) {
                 if (mr.isResourceUndefined())
-                    return new UndefinedReference(methodName,MessageReference.class);
+                    return new UndefinedReference(methodName, MessageReference.class);
                 else
                     return mr;
             }

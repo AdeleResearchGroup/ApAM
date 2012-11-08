@@ -1,11 +1,16 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
  xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
  
-	<implementation name="P1Impl" classname="fr.imag.adele.apam.test.message.producer.impl.P1Impl" specification="P1"
+	<implementation name="P1Impl" classname="fr.imag.adele.apam.test.message.producer.P1Impl" specification="P1"
 		push="produceM1" >
 		<callback onInit="start" onRemove="stop" />
 	</implementation>
 
+
+	<implementation name="P1ImplData" classname="fr.imag.adele.apam.test.message.producer.P1ImplData" specification="P1"
+		push="produceM1" >
+		<callback onInit="start" onRemove="stop" />
+	</implementation>
 
 </apam>
 
