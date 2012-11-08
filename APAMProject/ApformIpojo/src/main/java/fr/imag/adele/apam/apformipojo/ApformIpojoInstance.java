@@ -69,6 +69,11 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      * The list of callbacks to notify when a property is set
      */
     private Map<String, Callback>           propertyCallbacks;
+    
+    /**
+     * The list of callbacks to notify when onInit, onRemove
+     */
+    private Map<CallbackTrigger, Callback>  lifeCycleCallbacks;
 
     public ApformIpojoInstance(ApformIpojoImplementation implementation, boolean isApamCreated, BundleContext context,
             HandlerManager[] handlers) {
@@ -78,6 +83,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
         this.isApamCreated = isApamCreated;
         injectedFields = new HashSet<DependencyInjectionManager>();
         propertyCallbacks = new HashMap<String, Callback>();
+        lifeCycleCallbacks = new HashMap<CallbackTrigger, Callback>();
     }
 
     @Override
@@ -195,6 +201,13 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
         propertyCallbacks.put(property, callback);
     }
 
+    /**
+     * Adds a new callback lifeCycleCallback
+     */
+    public void addCallback(CallbackTrigger trigger, Callback callback) {
+        lifeCycleCallbacks.put(trigger, callback);
+    }
+    
     /**
      * Delegate APAM to resolve a given injection.
      * 

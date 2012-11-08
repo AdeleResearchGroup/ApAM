@@ -1825,18 +1825,18 @@ public class CoreMetadataParser implements CoreParser {
 
         @Override
         public boolean checkCallback(String callbackName, boolean mandatoryInstance) throws NoSuchMethodException {
-            Set<MethodMetadata> metadataMethods;
-            Set<Method> reflectionMethods;
-
-            if (mandatoryInstance) {
-                getMethodsWithArgFromMetadata(callbackName, Instance.class.getCanonicalName(), 1);
-                getMethodsWithArgFromReflection(callbackName, Instance.class.getCanonicalName(), 1);
-            } else {
-                getMethodsWithArgFromMetadata(callbackName, Instance.class.getCanonicalName(), 1);
-                getMethodsWithArgFromReflection(callbackName, Instance.class.getCanonicalName(), 1);
-                getMethodsWithArgFromMetadata(callbackName, null, 0);
-                getMethodsWithArgFromReflection(callbackName, null, 0);
-            }
+//            Set<MethodMetadata> metadataMethods;
+//            Set<Method> reflectionMethods;
+//
+//            if (mandatoryInstance) {
+//                getMethodsWithArgFromMetadata(callbackName, Instance.class.getCanonicalName(), 1);
+//                getMethodsWithArgFromReflection(callbackName, Instance.class.getCanonicalName(), 1);
+//            } else {
+//                getMethodsWithArgFromMetadata(callbackName, Instance.class.getCanonicalName(), 1);
+//                getMethodsWithArgFromReflection(callbackName, Instance.class.getCanonicalName(), 1);
+//                getMethodsWithArgFromMetadata(callbackName, null, 0);
+//                getMethodsWithArgFromReflection(callbackName, null, 0);
+//            }
             // TODO FINISH THIS
             /*
              * Get iPojo metadata
