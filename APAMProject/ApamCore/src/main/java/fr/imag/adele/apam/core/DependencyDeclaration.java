@@ -117,7 +117,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     public int hashCode() {
     	return reference.hashCode();
     }
-    
+
     @Override
     public DependencyDeclaration clone() {
 

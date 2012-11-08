@@ -410,8 +410,6 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 		}		
 	}
 
-
-    
     private void fireCallbacks(CallbackTrigger trigger, Object service) {
         if (getInst().getImpl().getDeclaration() instanceof AtomicImplementationDeclaration) {
             AtomicImplementationDeclaration atomicImpl = (AtomicImplementationDeclaration) getInst().getImpl().getDeclaration();
@@ -440,4 +438,5 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
             }
         }
     }
-}
+    
+ }
