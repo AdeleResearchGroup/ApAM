@@ -30,12 +30,6 @@
 			</preferences>
 		</dependency>
 
-		<dependency field="devicesPreference110v">
-			<preferences>
-				<instance filter="(currentVoltage=500)" />
-			</preferences>
-		</dependency>
-
 		<dependency field="deviceConstraint110v">
 			<constraints>
 				<instance filter="(currentVoltage=500)" />
