@@ -8,6 +8,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
@@ -274,5 +275,156 @@ public class PropertyTest extends ExtensionAbstract {
 		
 	}
 
+	@Test
+	public void PropertiesDataTypeAndLDAPFilteringForIntegers()
+			throws InvalidSyntaxException {
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "95");
+					}
+				});
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		auxListProperties("\t", samsungInst);
+
+		// int
+
+		String templateMessage = "Calling match method with filter = %s, should result in True since currentVoltage is %n";
+		String message = "";
+		
+		message = String
+				.format(templateMessage,
+						"(currentVoltage>=95)",
+						samsungInst.getProperty("currentVoltage"));
+
+		Assert.assertTrue(message,samsungInst.match("(currentVoltage>=95)"));
+
+		message = String
+				.format(templateMessage,
+						"(currentVoltage<=95)",
+						samsungInst.getProperty("currentVoltage"));
+		
+		Assert.assertTrue(message,samsungInst.match("(currentVoltage<=95)"));
+
+		message = String
+				.format(templateMessage,
+						"(currentVoltage<=101)",
+						samsungInst.getProperty("currentVoltage"));
+		
+		Assert.assertTrue(message,samsungInst.match("(currentVoltage<=101)"));
+
+		message = String
+				.format(templateMessage,
+						"(currentVoltage<=96)",
+						samsungInst.getProperty("currentVoltage"));
+		
+		Assert.assertTrue(message,samsungInst.match("(currentVoltage<=96)"));
+		
+		message = String
+				.format(templateMessage,
+						"(currentVoltage>=94)",
+						samsungInst.getProperty("currentVoltage"));
+
+		Assert.assertTrue(message,samsungInst.match("(currentVoltage>=94)"));
+
+	}
+
+	@Test
+	public void PropertiesDataTypeAndLDAPFilteringForBoolean()
+			throws InvalidSyntaxException {
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "95");
+					}
+				});
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		auxListProperties("\t", samsungInst);
+
+		String message = "";
+		
+		message = String
+				.format("Calling match method with filter = %s, should result in True since hasDisplay is %b",
+						"(hasDisplay=false)",
+						samsungInst.getProperty("hasDisplay"));
+
+		Assert.assertTrue(message,samsungInst.match("(hasDisplay=false)"));
+
+		message = String
+				.format("Calling match method with filter = %s, should result in False since hasDisplay is %b",
+						"(hasDisplay=true)",
+						samsungInst.getProperty("hasDisplay"));
+
+		Assert.assertFalse(message,samsungInst.match("(hasDisplay=true)"));
+
+	}
+	
+	@Test
+	public void PropertiesDataTypeAndLDAPFilteringForString()
+			throws InvalidSyntaxException {
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "95");
+					}
+				});
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		auxListProperties("\t", samsungInst);
+
+		String templateMessage = "Calling match method with filter = %s, should result in True since impl-name is %s";
+		String message = "";
+		
+		message = String
+				.format(templateMessage,
+						"(impl-name=Samsung*)",
+						samsungInst.getProperty("impl-name"));
+
+		Assert.assertTrue(message,samsungInst.match("(impl-name=Samsung*)"));
+
+		message = String
+				.format(templateMessage,
+						"(impl-name=*amsungSwitch)",
+						samsungInst.getProperty("impl-name"));
+
+		Assert.assertTrue(message,samsungInst.match("(impl-name=*amsungSwitch)"));
+
+		message = String
+				.format(templateMessage,
+						"(impl-name=*amsung*)",
+						samsungInst.getProperty("impl-name"));
+
+		Assert.assertTrue(message,samsungInst.match("(impl-name=*amsung*)"));
+		
+		templateMessage = "Calling match method with filter = %s, should result in False since impl-name is %s";
+		
+		message = String
+				.format(templateMessage,
+						"(impl-name=SamsunG*)",
+						samsungInst.getProperty("impl-name"));
+
+		Assert.assertFalse(message,samsungInst.match("(impl-name=SamsunG*)"));
+
+	}
 	
 }

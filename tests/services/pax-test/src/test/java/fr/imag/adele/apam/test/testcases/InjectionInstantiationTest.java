@@ -407,7 +407,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 						put("currentVoltage", "105");
 					}
 				});
-
+		
 		System.out.println("Instances before injection request");
 		auxListInstances("\t");
 

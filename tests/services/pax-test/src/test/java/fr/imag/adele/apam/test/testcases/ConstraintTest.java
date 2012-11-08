@@ -104,7 +104,7 @@ public class ConstraintTest extends ExtensionAbstract{
 						put("currentVoltage", "117");
 					}
 				});
-
+		
 		Set<Instance> validInstances = new HashSet<Instance>() {
 			{
 				add(boschInst);
@@ -122,6 +122,8 @@ public class ConstraintTest extends ExtensionAbstract{
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
+		
+		
 		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
 			Instance p = CST.componentBroker.getInstService(e);
 			System.out.println("---- Voltage:"
@@ -144,7 +146,7 @@ public class ConstraintTest extends ExtensionAbstract{
 		// check if there is no other instance injected
 		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance().size() == validInstances
 				.size());
-
+		
 	}
 
 	/**
@@ -226,5 +228,7 @@ public class ConstraintTest extends ExtensionAbstract{
 				.size());
 
 	}
+	
+
 	
 }
