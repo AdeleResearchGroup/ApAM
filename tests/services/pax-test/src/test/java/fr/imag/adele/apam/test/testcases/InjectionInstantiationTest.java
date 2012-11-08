@@ -325,25 +325,27 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	@Test
 	public void NotInstantiableInstance() {
-
+	
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+	
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterNotInstantiable");
-
+	
 		boolean failed = false;
-
+	
+		Instance inst1=null;
+		
 		try {
-			Instance inst1 = impl.createInstance(null, null);
+			inst1 = impl.createInstance(null, null);
 		} catch (Exception e) {
 			// nothing to do
 			failed = true;
 		}
-
+	
 		Assert.assertTrue(
 				"Not Instantiable instance shall not be instantiated by API or any other means",
-				failed);
-
+				failed||inst1==null);
+	
 	}
 
 	@Test
