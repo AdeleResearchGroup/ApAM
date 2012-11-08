@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
+import org.apache.felix.bundlerepository.Resource;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.slf4j.Logger;
@@ -89,6 +91,11 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         fr.imag.adele.apam.Component c = CST.componentBroker.getComponent(name);
         // Check if already deployed
         if (c == null) {
+            // check if the resource is already deployed
+            if (alreadyDeployed(selected)){
+                System.err.print("Already installed resource : " + selected.getResource().getSymbolicName());
+                return null;
+            }
             // deploy selected resource
             boolean deployed = selected.obrManager.deployInstall(selected);
             if (!deployed) {
@@ -104,6 +111,15 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         }
 
         return c;
+    }
+
+    private boolean alreadyDeployed(Selected selected) {
+        for (Resource resource : selected.obrManager.getRunningResources().getResources()) {
+            if (resource.equals(selected.resource)){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

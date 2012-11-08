@@ -302,6 +302,7 @@ public class OBRManager {
 		// change the state of the local repository, which produces the IllegalStateException.
 		while (!deployed) {
 			try {
+			    
 				resolver.add(selected.resource);
 				// printRes(res);
 				if (resolver.resolve()) {
@@ -556,6 +557,10 @@ public class OBRManager {
 		return tempList;
 	}
 
+	public Repository getRunningResources(){
+	    return runningbundles;
+	}
+	
 	//
 	protected List<String> repositoriesToString() {
 		List<String> repoString = new ArrayList<String>();
