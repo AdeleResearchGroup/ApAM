@@ -103,19 +103,21 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 
     private void loadCallbacks(AtomicImplementationDeclaration primitive, CallbackTrigger trigger) {
         Set<CallbackMethod> callbackMethods = primitive.getCallback(trigger);
-        for (CallbackMethod callbackMethod : callbackMethods) {
-            Set<MethodMetadata> metadatas;
-            try {
-                metadatas = (Set<MethodMetadata>) primitive.getInstrumentation().getCallbacks(
-                        callbackMethod.getMethodName(), false);
-                for (MethodMetadata methodMetadata : metadatas) {
-                    if (lifeCycleCallbacks.get(trigger) == null) {
-                        lifeCycleCallbacks.put(trigger, new HashSet<Callback>());
+        if (callbackMethods != null) {
+            for (CallbackMethod callbackMethod : callbackMethods) {
+                Set<MethodMetadata> metadatas;
+                try {
+                    metadatas = (Set<MethodMetadata>) primitive.getInstrumentation().getCallbacks(
+                            callbackMethod.getMethodName(), false);
+                    for (MethodMetadata methodMetadata : metadatas) {
+                        if (lifeCycleCallbacks.get(trigger) == null) {
+                            lifeCycleCallbacks.put(trigger, new HashSet<Callback>());
+                        }
+                        lifeCycleCallbacks.get(trigger).add(new Callback(methodMetadata, this));
                     }
-                    lifeCycleCallbacks.get(trigger).add(new Callback(methodMetadata, this));
+                } catch (NoSuchMethodException e) {
+                    System.err.println("life cycle failure, when trigger : " + trigger + " " + e.getMessage());
                 }
-            } catch (NoSuchMethodException e) {
-                System.err.println("life cycle failure, when trigger : " + trigger + " " + e.getMessage());
             }
         }
     }
@@ -416,12 +418,10 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
         /*
          * perform callback unbind
          */
-        fireCallbacks(destInst,depName, dependencyCallback.get(CallbackTrigger.Unbind));
+        fireCallbacks(destInst, depName, dependencyCallback.get(CallbackTrigger.Unbind));
 
         return true;
     }
-
-
 
     /**
      * Apform: substitute dependency
@@ -469,15 +469,15 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
                     ignored);
         }
     }
-    
+
     private void fireCallbacks(Instance destInstance, String depName, Map<String, Set<Callback>> map) {
         Set<Callback> callbacks = map.get(depName);
-       performCallbacks(destInstance,callbacks);
+        performCallbacks(destInstance, callbacks);
     }
 
     private void fireCallbacks(CallbackTrigger trigger, Map<CallbackTrigger, Set<Callback>> mapCallbacks) {
         Set<Callback> callbacks = mapCallbacks.get(trigger);
-      performCallbacks(getApamInstance(),callbacks);
+        performCallbacks(getApamInstance(), callbacks);
     }
 
     private void performCallbacks(Instance inst, Set<Callback> callbacks) {
@@ -485,7 +485,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
             for (Callback callback : callbacks) {
                 if (callback.getArguments().length == 1) {
                     try {
-                        callback.call(new Object[]{inst});
+                        callback.call(new Object[] { inst });
                     } catch (NoSuchMethodException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -512,10 +512,9 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
                 }
             }
         }
-        
+
     }
 
-   
     public void addCallbackDependency(CallbackTrigger trigger, Map<String, Set<Callback>> callbackDependecy) {
         dependencyCallback.put(trigger, callbackDependecy);
     }
