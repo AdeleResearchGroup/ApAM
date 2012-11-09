@@ -10,8 +10,15 @@
 	<packaging>pom</packaging>
 	<properties>
 		<url.version>1.4.0</url.version>
-		<exam.version>2.4.0</exam.version>
+		<exam.version>3.0.0-SNAPSHOT</exam.version>
 	</properties>
+
+	<repositories>
+		<repository>
+			<id>ops4j-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/ops4j-snapshots/</url>
+		</repository>
+	</repositories>
 
 	<dependencyManagement>
 		<dependencies>
@@ -92,6 +99,11 @@
 				<artifactId>pax-url-aether</artifactId>
 				<version>${url.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-spi</artifactId>
+				<version>${exam.version}</version>
+			</dependency>
 
 		</dependencies>
 
@@ -112,7 +124,8 @@
 					</executions>
 				</plugin>
 				<plugin>
-					<!-- This plugin allow to use versionAsProject() by generating a file in maven/dependencies.properties -->
+					<!-- This plugin allow to use versionAsProject() by generating a file 
+						in maven/dependencies.properties -->
 					<groupId>org.apache.servicemix.tooling</groupId>
 					<artifactId>depends-maven-plugin</artifactId>
 					<version>1.2</version>
@@ -130,7 +143,8 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
