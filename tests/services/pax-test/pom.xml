@@ -99,6 +99,13 @@
 			<scope>test</scope>
 		</dependency>
 
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.2</version>
+		</dependency>
+
 	</dependencies>
 
 
@@ -115,13 +122,13 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-<!-- 				<configuration> -->
-<!-- 					<instructions> -->
-<!-- 						<Export-Package> -->
-<!-- 							*.* -->
-<!-- 						</Export-Package> -->
-<!-- 					</instructions> -->
-<!-- 				</configuration> -->
+				<!-- <configuration> -->
+				<!-- <instructions> -->
+				<!-- <Export-Package> -->
+				<!-- *.* -->
+				<!-- </Export-Package> -->
+				<!-- </instructions> -->
+				<!-- </configuration> -->
 			</plugin>
 		</plugins>
 	</build>

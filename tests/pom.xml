@@ -92,6 +92,11 @@
 				<artifactId>pax-url-aether</artifactId>
 				<version>${url.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-spi</artifactId>
+				<version>${exam.version}</version>
+			</dependency>
 
 		</dependencies>
 
