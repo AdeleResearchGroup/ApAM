@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 
+import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resource;
@@ -91,9 +92,9 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         fr.imag.adele.apam.Component c = CST.componentBroker.getComponent(name);
         // Check if already deployed
         if (c == null) {
-            // check if the resource is already deployed
+//            // check if the resource is already deployed
             if (alreadyDeployed(selected)){
-                System.err.print("Already installed resource : " + selected.getResource().getSymbolicName());
+                System.err.println("Already installed resource : " + selected.getResource().getSymbolicName());
                 return null;
             }
             // deploy selected resource
@@ -103,6 +104,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
                 ObrUtil.printRes(selected.resource);
                 return null;
             }
+            // wait loading of all components of the resource installed
+            componentLoading(selected.resource);
             // waiting for the component to be ready in Apam.
             c = CST.componentBroker.getWaitComponent(name);
         } else { // do not install twice.
@@ -111,6 +114,16 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         }
 
         return c;
+    }
+
+    private void componentLoading(Resource resource) {
+        Capability[] caps = resource.getCapabilities();
+        for (Capability capability : caps) {
+            if (capability.getName().equals(CST.CAPABILITY_COMPONENT)){
+                CST.componentBroker.getWaitComponent((String) capability.getPropertiesAsMap().get(CST.NAME));
+            }
+        }
+        
     }
 
     private boolean alreadyDeployed(Selected selected) {
