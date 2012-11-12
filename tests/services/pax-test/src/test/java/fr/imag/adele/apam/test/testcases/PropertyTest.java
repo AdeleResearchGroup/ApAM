@@ -21,8 +21,7 @@ import fr.imag.adele.apam.pax.test.impl.S1Impl;
 import fr.imag.adele.apam.test.support.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-@RunWith(PaxExam.class)
-@ExamReactorStrategy(PerMethod.class)
+@RunWith(JUnit4TestRunner.class)
 public class PropertyTest extends ExtensionAbstract {
 
 	/**

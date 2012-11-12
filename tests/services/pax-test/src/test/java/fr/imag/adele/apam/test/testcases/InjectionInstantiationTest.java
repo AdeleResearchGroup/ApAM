@@ -30,8 +30,7 @@ import fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch;
 import fr.imag.adele.apam.test.support.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-@RunWith(PaxExam.class)
-@ExamReactorStrategy(PerMethod.class)
+@RunWith(JUnit4TestRunner.class)
 public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	/**
@@ -447,6 +446,54 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 						.getDevicePreference110v() == samsungSwitch);
 
 	}
+	
+	@Test
+	public void PreferenceInjectionAttributeMultipleInstances() throws InvalidSyntaxException {
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "500");
+					}
+				});
+
+		final Instance samsungInst2 = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "500");
+					}
+				});
+
+		System.out.println("Instances before injection request");
+		auxListInstances("\t");
+
+		// Creates S1 instance (class that requires the injection)
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl");
+
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+		Eletronic samsungSwitch = (Eletronic) samsungInst.getServiceObject();
+
+		System.out.println("Instances after injection request");
+		auxListInstances("\t");
+
+		Instance injectedInstance = CST.componentBroker.getInstService(s1
+				.getDevicePreference110v());
+
+		Assert.assertTrue(injectedInstance==samsungInst || injectedInstance==samsungInst2);
+		
+		
+
+	}	
 
 	@Test
 	public void ConstraintInjectionWhenEmptyPreferenceTagExistsAttribute()
