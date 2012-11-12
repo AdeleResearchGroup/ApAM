@@ -13,8 +13,8 @@ import javax.inject.Inject;
 
 import org.junit.After;
 import org.junit.Before;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.util.PathUtils;
 import org.osgi.framework.BundleContext;
 
@@ -65,7 +65,7 @@ public abstract class ExtensionAbstract {
                 // Set logback configuration via system property.
                 // This way, both the driver and the container use the same configuration
                 systemProperty("logback.configurationFile").value(
-                        "file:" + PathUtils.getBaseDir() + "/src/test/resources/logback.xml"),
+                        "file:" + PathUtils.getBaseDir() + "/src/log/logback.xml"),
 
                  systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"),
 

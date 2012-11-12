@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.ops4j.pax.exam.util.PathUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.ow2.chameleon.testing.helpers.IPOJOHelper;
@@ -41,9 +42,10 @@ public class ApAMHelper {
         ipojo.dispose();
     }
 
-    public void setObrManInitialConfig(String modelPrefix, String[] repos, int expectedSize) throws IOException {
-        URL obrModelAppUrl = context.getBundle().getResource(modelPrefix + ".OBRMAN.cfg");
-
+    public void setObrManInitialConfig(String modelPrefix, String[] repos, int expectedSize) throws IOException  {
+//        URL obrModelAppUrl = context.getBundle().getResource(modelPrefix + ".OBRMAN.cfg");
+        URL obrModelAppUrl = new URL("file:" + PathUtils.getBaseDir() + "/models/" + modelPrefix + ".OBRMAN.cfg");
+        
         System.out.println(modelPrefix + " >>> " + obrModelAppUrl);
 
         OBRManCommand obrman = getAService(OBRManCommand.class);
@@ -59,11 +61,12 @@ public class ApAMHelper {
 
     }
 
-    public CompositeType createCompositeType(String name, String main, String mainSpec) {
+    public CompositeType createCompositeType(String name, String main, String mainSpec) throws IOException {
         waitForIt(100);
 
-        URL obrModelAppUrl = context.getBundle().getResource(name + ".OBRMAN.cfg");
-
+//        URL obrModelAppUrl = context.getBundle().getResource(name + ".OBRMAN.cfg");
+        URL obrModelAppUrl = new URL("file:" + PathUtils.getBaseDir() + "/models/" + name + ".OBRMAN.cfg");
+        
         System.out.println(name + " >>> " + obrModelAppUrl);
 
         ManagerModel model = new ManagerModel("OBRMAN", obrModelAppUrl);
