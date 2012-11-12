@@ -6,6 +6,7 @@ import java.util.HashSet;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -375,6 +376,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
+	@Ignore
 	public void PreferenceInjectionAttribute() throws InvalidSyntaxException {
 
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
