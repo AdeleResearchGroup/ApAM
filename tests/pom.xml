@@ -17,6 +17,10 @@
 		<repository>
 			<id>ops4j-snapshots</id>
 			<url>https://oss.sonatype.org/content/repositories/ops4j-snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
 		</repository>
 	</repositories>
 
