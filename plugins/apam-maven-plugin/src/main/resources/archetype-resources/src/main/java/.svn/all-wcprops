@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 120
+/repos/asf/!svn/ver/1061158/felix/releases/maven-ipojo-plugin-1.8.0/src/main/resources/archetype-resources/src/main/java
+END
+HelloComponent.java
+K 25
+svn:wc:ra_dav:version-url
+V 140
+/repos/asf/!svn/ver/1061158/felix/releases/maven-ipojo-plugin-1.8.0/src/main/resources/archetype-resources/src/main/java/HelloComponent.java
+END
+source.txt
+K 25
+svn:wc:ra_dav:version-url
+V 131
+/repos/asf/!svn/ver/1061158/felix/releases/maven-ipojo-plugin-1.8.0/src/main/resources/archetype-resources/src/main/java/source.txt
+END

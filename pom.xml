@@ -9,10 +9,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>fr.imag.adele.apam</groupId>
-	<artifactId>APAMProject.root</artifactId>
+	<artifactId>apam-project</artifactId>
 	<packaging>pom</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>APAMProject.root</name>
+	<name>ApAM Project</name>
 
 
 	<properties>
@@ -401,11 +401,12 @@
 				<artifactId>wagon-webdav-jackrabbit</artifactId>
 				<version>2.2</version>
 			</extension>
-<!-- 			<extension> -->
-<!-- 				<groupId>org.apache.maven.plugins</groupId> -->
-<!-- 				<artifactId>maven-compiler-plugin</artifactId> -->
-<!-- 				<version>${compiler.plugin.version}</version> -->
-<!-- 			</extension> -->
+			<extension>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${compiler.plugin.version}</version>
+			</extension>
+			
 <!-- 			<extension> -->
 <!-- 				<groupId>org.apache.felix</groupId> -->
 <!-- 				<artifactId>maven-bundle-plugin</artifactId> -->
@@ -417,7 +418,6 @@
 	</build>
 
 	<modules>
-		<module>APAMProject</module>
-
+		<module>framework</module>
 	</modules>
 </project>

@@ -492,27 +492,27 @@ public class ApamJMXImpl implements ApamJMX {
 
     }
 
-    /**
-     * Test instances.
-     * 
-     * @param indent
-     *            the indent
-     * @param instances
-     *            the instances
-     * @throws ConnectionException
-     *             the connection exception
-     */
-    private String testInstances(String indent, Set<Instance> instances) {
-        String text="";
-        if (instances == null)
-            return text;
-        for (Instance instance : instances) {
-            text+="\n"+printInstance(indent, instance);
-            text+=("\n"+"ASMImpl " + instance.getImpl());
-            text+=("\nASMSpec " + instance.getSpec());
-        }
-        return text;
-    }
+//    /**
+//     * Test instances.
+//     * 
+//     * @param indent
+//     *            the indent
+//     * @param instances
+//     *            the instances
+//     * @throws ConnectionException
+//     *             the connection exception
+//     */
+//    private String testInstances(String indent, Set<Instance> instances) {
+//        String text="";
+//        if (instances == null)
+//            return text;
+//        for (Instance instance : instances) {
+//            text+="\n"+printInstance(indent, instance);
+//            text+=("\n"+"ASMImpl " + instance.getImpl());
+//            text+=("\nASMSpec " + instance.getSpec());
+//        }
+//        return text;
+//    }
 
     /**
      * Prints the instance.
@@ -615,14 +615,14 @@ public class ApamJMXImpl implements ApamJMX {
      * 
      * @param indent
      *            the indent
-     * @param properties
+     * @param map
      *            the properties
      */
-    private String printProperties(String indent, Map<String, String> properties) {
+    private String printProperties(String indent, Map<String, Object> map) {
         String text="";
         text+=("\n"+indent + "Properties : ");
-        for (String key : properties.keySet()) {
-            text+=("\n"+indent + "   " + key + " = " + properties.get(key));
+        for (String key : map.keySet()) {
+            text+=("\n"+indent + "   " + key + " = " + map.get(key));
         }
         return text;
     }

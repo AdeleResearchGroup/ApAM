@@ -11,41 +11,36 @@
 
 	<groupId>fr.imag.adele.apam.tests.services</groupId>
 	<artifactId>apam-pax-test</artifactId>
-	<name>apam-pax-test</name>
+	<name>ApAM PaxExam Services Tests</name>
 
 	<dependencies>
 
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-iface</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-impl-s1</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 
 		</dependency>
 
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-impl-s2</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests</groupId>
 			<artifactId>apam-helpers</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.exam</groupId>
@@ -88,8 +83,8 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>APAM</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>apam-runtime</artifactId>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

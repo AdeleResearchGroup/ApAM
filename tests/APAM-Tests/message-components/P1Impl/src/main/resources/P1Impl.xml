@@ -1,0 +1,9 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+	<implementation name="P1Impl" classname="fr.imag.adele.apam.test.producer.p1.P1Impl" specification="P1"
+		message-field="producer">
+		
+	</implementation>
+
+	
+</apam>
+

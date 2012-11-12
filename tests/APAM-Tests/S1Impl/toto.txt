@@ -1,0 +1,3 @@
+03/09/2012 14:41:08 - Invalid attribute value "elsewhere" for attribute "location".  Expected: "{living kitchen bedroom }"
+03/09/2012 14:41:08 - ERROR: in S1toS2Final, attribute "s1tos2final-attr" used but not defined.
+03/09/2012 14:41:08 - Invalid attribute value "xxx" for attribute "s1tos2final-bool".  Boolean value expected
