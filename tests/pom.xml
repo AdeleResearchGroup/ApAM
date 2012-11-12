@@ -195,7 +195,7 @@
 	<modules>
 		<module>helpers</module>
 		<module>services</module>
-		<module>obrman</module>
+<!-- 		<module>obrman</module> -->
 		<!-- <module>messages</module> -->
 	</modules>
 
