@@ -16,7 +16,7 @@ import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
 import fr.imag.adele.apam.test.support.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-//@RunWith(JUnit4TestRunner.class)
+@RunWith(JUnit4TestRunner.class)
 public class CompositeTest extends ExtensionAbstract {
 
 	@Test

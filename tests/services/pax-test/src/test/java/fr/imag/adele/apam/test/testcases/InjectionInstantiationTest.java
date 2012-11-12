@@ -26,7 +26,7 @@ import fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch;
 import fr.imag.adele.apam.test.support.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
-//@RunWith(JUnit4TestRunner.class)
+@RunWith(JUnit4TestRunner.class)
 public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	/**
@@ -371,7 +371,6 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	@Ignore
 	public void PreferenceInjectionAttribute() throws InvalidSyntaxException {
 
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
