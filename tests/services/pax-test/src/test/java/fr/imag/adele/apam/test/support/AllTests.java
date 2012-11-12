@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.test.support;
 
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
