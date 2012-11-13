@@ -6,7 +6,6 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -27,8 +26,7 @@ public class PropertyTest extends ExtensionAbstract {
 	@Test
 	public void PropertyInheritedCannotBeChanged(){
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
+				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null, null);
@@ -58,8 +56,7 @@ public class PropertyTest extends ExtensionAbstract {
 	@Test
 	public void PropertyConfiguredWithInitialParameter(){
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
+				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		
@@ -88,8 +85,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 	@Test
 	public void PropertyDefinitionIsVisibleWithValPropertySet(){
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 		
@@ -112,8 +108,7 @@ public class PropertyTest extends ExtensionAbstract {
 	@Test
 	public void PropertyDefinitionInternalAndNotInternalAreAPIVisible(){
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 		
@@ -157,8 +152,7 @@ public class PropertyTest extends ExtensionAbstract {
 	@Test
 	public void PropertyConfiguredWithSetProperty(){
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
+				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		
@@ -193,8 +187,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 	public void InheritedPropertyChanged(){
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
+				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null, null);
@@ -279,8 +272,6 @@ public class PropertyTest extends ExtensionAbstract {
 	public void PropertiesDataTypeAndLDAPFilteringForIntegers()
 			throws InvalidSyntaxException {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null,
@@ -340,8 +331,7 @@ public class PropertyTest extends ExtensionAbstract {
 	public void PropertiesDataTypeAndLDAPFilteringForBoolean()
 			throws InvalidSyntaxException {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null,
@@ -377,8 +367,7 @@ public class PropertyTest extends ExtensionAbstract {
 	public void PropertiesDataTypeAndLDAPFilteringForString()
 			throws InvalidSyntaxException {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null,

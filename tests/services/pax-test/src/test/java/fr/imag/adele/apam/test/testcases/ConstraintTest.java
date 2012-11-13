@@ -28,8 +28,7 @@ public class ConstraintTest extends ExtensionAbstract{
 	@Test
 	public void ConstraintsCheckingImplementation() {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
@@ -57,8 +56,7 @@ public class ConstraintTest extends ExtensionAbstract{
 	public void ConstraintsCheckingInstanceFilteringByInitialProperty()
 			throws InvalidSyntaxException {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null,
@@ -158,8 +156,7 @@ public class ConstraintTest extends ExtensionAbstract{
 	public void ConstraintsCheckingInstanceFilteringBySetProperty()
 			throws InvalidSyntaxException {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null, null);
