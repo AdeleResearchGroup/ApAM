@@ -419,5 +419,6 @@
 
 	<modules>
 		<module>framework</module>
+		<module>plugins</module>
 	</modules>
 </project>
