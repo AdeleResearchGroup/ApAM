@@ -25,7 +25,7 @@
 
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
+				<artifactId>apam-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
@@ -33,13 +33,13 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.messages</groupId>
 			<artifactId>P1</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>APAM</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>apam-runtime</artifactId>
+			<version>${apam.current.version}</version>
 		</dependency>
 	</dependencies>
 

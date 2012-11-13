@@ -13,7 +13,7 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests</groupId>
 			<artifactId>apam-helpers</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.apps.app2</groupId>
 			<artifactId>APP2-Spec</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -73,14 +73,14 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>APAM</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>apam-runtime</artifactId>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>OBRMAN</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>obrman</artifactId>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

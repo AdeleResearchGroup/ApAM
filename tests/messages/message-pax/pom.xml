@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests</groupId>
 			<artifactId>apam-helpers</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -60,32 +60,32 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>APAM</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>apam-runtime</artifactId>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>OBRMAN</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>obrman</artifactId>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.messages</groupId>
 			<artifactId>C1Impl-Pull</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.messages</groupId>
 			<artifactId>P1</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.messages</groupId>
 			<artifactId>P1Impl</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -98,6 +98,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
