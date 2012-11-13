@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
@@ -371,6 +372,42 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
+	public void CallbackInit(){
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl");
+		
+		Instance s1Instance=s1Impl.createInstance(null, new HashMap<String, String>());
+		
+		S1Impl s1=(S1Impl)s1Instance.getServiceObject();
+		
+		Assert.assertTrue("The init method declared in <callback> tag should have been called during the bundle start", s1.getIsOnInitCallbackCalled());
+		
+	}
+	
+	@Test
+	public void CallbackRemove() throws BundleException{
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl");
+		
+		Instance s1Instance=s1Impl.createInstance(null, new HashMap<String, String>());
+		
+		S1Impl s1=(S1Impl)s1Instance.getServiceObject();
+		
+		Assert.assertFalse("The remove method declared in <callback> tag should NOT have been called during the bundle start", s1.getIsOnRemoveCallbackCalled());
+		
+		s1.getContext().getBundle().stop();
+
+		Assert.assertTrue("The remove method declared in <callback> tag should have been called during the bundle stop", s1.getIsOnRemoveCallbackCalled());
+		
+	}
+	
+	@Test
 	public void PreferenceInjectionAttribute() throws InvalidSyntaxException {
 
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
@@ -586,7 +623,8 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 // resolution Spec
 // resolution Implem
 // resolution instance
-
+//CST.apamResolver.
+//CST.componentBroker.
 // fail
 // exception
 // override exception

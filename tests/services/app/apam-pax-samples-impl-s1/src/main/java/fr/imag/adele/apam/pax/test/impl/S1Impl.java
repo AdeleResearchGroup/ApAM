@@ -1,7 +1,8 @@
 package fr.imag.adele.apam.pax.test.impl;
 
-import java.util.List;
 import java.util.Set;
+
+import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.pax.test.iface.S1;
 import fr.imag.adele.apam.pax.test.iface.S2;
@@ -10,7 +11,9 @@ import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 
 public class S1Impl implements S1
 {
-
+	Boolean isOnInitCallbackCalled=false;
+	Boolean isOnRemoveCallbackCalled=false;
+	
 	String stateInternal;
 	String stateNotInternal;
 	
@@ -29,6 +32,12 @@ public class S1Impl implements S1
     
     Eletronic deviceConstraint110v;
     
+    BundleContext context;
+    
+    public S1Impl(BundleContext context){
+    	this.context=context;
+    }
+    
     public String whoami()
     {
         return this.getClass().getName();
@@ -36,10 +45,12 @@ public class S1Impl implements S1
     
     public void start(){
     	System.out.println("Starting:"+this.getClass().getName());
+    	isOnInitCallbackCalled=true;
     }
     
     public void stop(){
     	System.out.println("Stopping:"+this.getClass().getName());
+    	isOnRemoveCallbackCalled=true;
     }
 
 	public Eletronic getSimpleDevice110v() {
@@ -105,6 +116,30 @@ public class S1Impl implements S1
 
 	public void setDeviceConstraint110v(Eletronic deviceConstraint110v) {
 		this.deviceConstraint110v = deviceConstraint110v;
+	}
+
+	public Boolean getIsOnInitCallbackCalled() {
+		return isOnInitCallbackCalled;
+	}
+
+	public void setIsOnInitCallbackCalled(Boolean isOnInitCallbackCalled) {
+		this.isOnInitCallbackCalled = isOnInitCallbackCalled;
+	}
+
+	public Boolean getIsOnRemoveCallbackCalled() {
+		return isOnRemoveCallbackCalled;
+	}
+
+	public void setIsOnRemoveCallbackCalled(Boolean isOnRemoveCallbackCalled) {
+		this.isOnRemoveCallbackCalled = isOnRemoveCallbackCalled;
+	}
+
+	public BundleContext getContext() {
+		return context;
+	}
+
+	public void setContext(BundleContext context) {
+		this.context = context;
 	}
 
 }
