@@ -2,18 +2,202 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>APAMProject.root</artifactId>
+		<artifactId>apam-project</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<groupId>fr.imag.adele.apam</groupId>
-	<artifactId>tests</artifactId>
+	<artifactId>apam-tests</artifactId>
 	<packaging>pom</packaging>
+	<properties>
+		<url.version>1.4.0</url.version>
+		<exam.version>3.0.0-SNAPSHOT</exam.version>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>ops4j-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/ops4j-snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+
+			<!-- Junit Dependencies -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.10</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.servicemix.bundles</groupId>
+				<artifactId>org.apache.servicemix.bundles.junit</artifactId>
+				<version>4.9_2</version>
+			</dependency>
+			<!-- Felix and OSGi dependecies -->
+
+			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.framework</artifactId>
+				<version>4.0.3</version>
+			</dependency>
+
+			<!-- OSGi and iPOJO Helpers -->
+			<dependency>
+				<groupId>org.ow2.chameleon.testing</groupId>
+				<artifactId>osgi-helpers</artifactId>
+				<version>0.2.0</version>
+			</dependency>
+
+
+			<!-- @Inject anotation -->
+			<!-- javax.inject.Inject -->
+
+			<dependency>
+				<groupId>org.apache.geronimo.specs</groupId>
+				<artifactId>geronimo-atinject_1.0_spec</artifactId>
+				<version>1.0</version>
+			</dependency>
+
+			<!-- PAX EXAM DEPENDENCIES -->
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-container-forked</artifactId>
+				<version>${exam.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-junit4</artifactId>
+				<version>${exam.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-link-assembly</artifactId>
+				<version>${exam.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.url</groupId>
+				<artifactId>pax-url-link</artifactId>
+				<version>${url.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.url</groupId>
+				<artifactId>pax-url-commons</artifactId>
+				<version>${url.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.url</groupId>
+				<artifactId>pax-url-classpath</artifactId>
+				<version>${url.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.url</groupId>
+				<artifactId>pax-url-aether</artifactId>
+				<version>${url.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.url</groupId>
+				<artifactId>pax-url-mvn</artifactId>
+				<version>1.3.5</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-spi</artifactId>
+				<version>${exam.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-core</artifactId>
+				<version>1.0.7</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>1.0.7</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>apam-bundle</artifactId>
+				<version>${apam.current.version}</version>
+			</dependency>
+		</dependencies>
+
+	</dependencyManagement>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>fr.imag.adele.apam</groupId>
+					<artifactId>apam-maven-plugin</artifactId>
+					<version>${apam.current.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>apam-bundle</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<!-- This plugin allow to use versionAsProject() by generating a file in maven/dependencies.properties -->
+					<groupId>org.apache.servicemix.tooling</groupId>
+					<artifactId>depends-maven-plugin</artifactId>
+					<version>1.2</version>
+					<executions>
+						<execution>
+							<id>generate-depends-file</id>
+							<phase>generate-resources</phase>
+							<goals>
+								<goal>generate-depends-file</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.servicemix.tooling</groupId>
+										<artifactId>depends-maven-plugin</artifactId>
+										<versionRange>[1.2,)</versionRange>
+										<goals>
+											<goal>generate-depends-file</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 	<modules>
+		<module>helpers</module>
 		<module>services</module>
-		<module>obrman</module>
-	<!-- 		<module>apam-repositories</module>-->
-<!--		<module>run-obrman-tests</module>-->
+<!-- 		<module>obrman</module> -->
+		<!-- <module>messages</module> -->
 	</modules>
-	
+
+	<name>Tests for ApAM framework and managers</name>
 </project>

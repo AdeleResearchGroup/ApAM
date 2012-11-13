@@ -1,0 +1,11 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+	<implementation name="S5Impl"
+		classname="fr.imag.adele.apam.test.s5Impl.S5Impl" specification="S5">
+		<dependency field="s2_inv" />
+		<property name="s5b" value="false" />
+		<property name="s5c" value="vals5c" />
+		<definition name="state" type="{1,2,3}"  />
+		
+	</implementation>
+</apam>

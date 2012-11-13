@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/repos/asf/!svn/ver/1061158/felix/releases/maven-ipojo-plugin-1.8.0/src/main/resources/archetype-resources
+END
+pom.xml
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/repos/asf/!svn/ver/1061158/felix/releases/maven-ipojo-plugin-1.8.0/src/main/resources/archetype-resources/pom.xml
+END
+bundle.properties
+K 25
+svn:wc:ra_dav:version-url
+V 124
+/repos/asf/!svn/ver/1061158/felix/releases/maven-ipojo-plugin-1.8.0/src/main/resources/archetype-resources/bundle.properties
+END

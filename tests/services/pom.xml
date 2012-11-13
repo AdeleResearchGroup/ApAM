@@ -3,24 +3,20 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>tests</artifactId>
+		<artifactId>apam-tests</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<groupId>fr.imag.adele.apam.pax</groupId>
-	<artifactId>APAM-Pax</artifactId>
+	<groupId>fr.imag.adele.apam.tests</groupId>
+	<artifactId>services</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>APAM-Pax</name>
 
 
 	<modules>
-		<module>apam-pax-samples-iface</module>
-		<module>apam-pax-samples-impl-s1</module>
-		<module>apam-pax-samples-impl-s2</module>
-		<module>apam-pax-samples-impl-s3</module>
-		<module>apam-pax-samples-impl-s4s5</module>
+		<module>app</module>
+		<module>pax-test</module>
 	</modules>
 
+	<name>ApAM services tests</name>
 </project>
