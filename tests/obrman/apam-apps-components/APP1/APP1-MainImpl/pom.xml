@@ -21,7 +21,7 @@
 			</plugin>
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
+				<artifactId>apam-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
@@ -53,7 +53,7 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>APAM</artifactId>
+			<artifactId>apam-runtime</artifactId>
 			<version>${apam.current.version}</version>
 		</dependency>
 	</dependencies>

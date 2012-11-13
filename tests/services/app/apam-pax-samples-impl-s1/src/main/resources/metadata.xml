@@ -34,11 +34,11 @@
 			<constraints>
 				<instance filter="(currentVoltage=500)" />
 			</constraints>
-			 
+
 			<preferences>
-			
+
 			</preferences>
-			
+
 		</dependency>
 
 		<dependency field="simpleDevice110v">
@@ -127,24 +127,35 @@
 		<property name="voltage" value="110" />
 		<property name="hasDisplay" value="false" />
 	</implementation>
+<!-- 
+	<implementation name="APP1_MAIN"
+		classname="fr.imag.adele.apam.app1.main.impl.MainApp1" specification="APP1_MAIN_SPEC">
+		<property name="vendor" value="apam-team" />
+		<dependency specification="APP1_S1_SPEC">
+			<interface field="s1" />
+		</dependency>
+		<dependency specification="APP1_S2_SPEC">
+			<interface field="s2" />
+		</dependency>
+		<dependency specification="APP2_SPEC">
+			<interface field="app2" />
+		</dependency>
+	</implementation>
+ -->
 
-	<!-- <apam-instance implementation="SamsungSwitch" name="manually-created-1"> -->
-	<!-- <property name="currentVoltage" value="95" /> -->
-	<!-- </apam-instance> -->
-	<!-- <apam-instance implementation="LgSwitch" name="manually-created-2"> -->
-	<!-- <property name="currentVoltage" value="101" /> -->
-	<!-- </apam-instance> -->
-	<!-- <apam-instance implementation="SiemensSwitch" name="manually-created-3"> -->
-	<!-- <property name="currentVoltage" value="107" /> -->
-	<!-- </apam-instance> -->
-	<!-- <apam-instance implementation="BoschSwitch" name="manually-created-4"> -->
-	<!-- <property name="currentVoltage" value="110" /> -->
-	<!-- </apam-instance> -->
-	<!-- <apam-instance implementation="philipsSwitch" name="manually-created-5"> -->
-	<!-- <property name="currentVoltage" value="114" /> -->
-	<!-- </apam-instance> -->
-	<!-- <apam-instance implementation="LgSwitch" name="manually-created-6"> -->
-	<!-- <property name="currentVoltage" value="117" /> -->
-	<!-- </apam-instance> -->
+	<!--
 
+	<composite name="S1Impl-composite" main="fr.imag.adele.apam.pax.test.impl.S1Impl" shared="true">
+		<contentMngt>
+			<borrow instance="false" />
+			<borrow implementation="false" />
+			<local instance="true" />
+			<local implementation="true" />
+		</contentMngt>
+	</composite>
+	
+ 
+	<apam-instance name="APP1-instance" implementation="APP1" />
+ 	-->
+ 	
 </apam>
