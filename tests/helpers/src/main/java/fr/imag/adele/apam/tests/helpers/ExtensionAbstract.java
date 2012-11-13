@@ -54,6 +54,7 @@ public abstract class ExtensionAbstract {
     @Before
     public void setUp() {
         apam = new ApAMHelper(context);
+        apam.waitForIt(1000);
     }
 
     @Configuration
