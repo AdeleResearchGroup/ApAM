@@ -18,6 +18,11 @@
 			<artifactId>apam-pax-samples-iface</artifactId>
 			<version>${apam.current.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework</artifactId>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 
 	<build>

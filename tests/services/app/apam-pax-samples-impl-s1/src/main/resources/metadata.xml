@@ -142,9 +142,7 @@
 		</dependency>
 	</implementation>
  -->
-
-	<!--
-
+ 	<!--
 	<composite name="S1Impl-composite" main="fr.imag.adele.apam.pax.test.impl.S1Impl" shared="true">
 		<contentMngt>
 			<borrow instance="false" />
@@ -154,7 +152,7 @@
 		</contentMngt>
 	</composite>
 	
- 
+
 	<apam-instance name="APP1-instance" implementation="APP1" />
  	-->
  	
