@@ -47,7 +47,7 @@ public class CompositeTest extends ExtensionAbstract {
 
 		CompositeType composite = CST.apam.createCompositeType(null,
 				"eletronic-device-compotype", null, "eletronic-device", null,
-				null);
+				new HashMap<String, String>());
 		Assert.assertTrue(composite != null);
 
 		Instance instance = composite.createInstance(null, null);
