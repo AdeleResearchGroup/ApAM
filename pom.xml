@@ -420,5 +420,6 @@
 	<modules>
 		<module>framework</module>
 		<module>plugins</module>
+		<module>managers</module>
 	</modules>
 </project>

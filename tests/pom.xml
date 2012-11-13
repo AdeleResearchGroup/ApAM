@@ -19,8 +19,12 @@
 			<url>https://oss.sonatype.org/content/repositories/ops4j-snapshots/</url>
 			<snapshots>
 				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
+				<updatePolicy>daily</updatePolicy>
 			</snapshots>
+		</repository>
+		<repository>
+			<id>maven-central</id>
+			<url>http://repo.maven.apache.org/maven2/</url>
 		</repository>
 	</repositories>
 
