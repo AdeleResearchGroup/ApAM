@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -22,6 +23,7 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 public class CompositeTest extends ExtensionAbstract {
 
 	@Test
+	@Ignore
 	public void CompositeTypeInstantiation() {
 
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
@@ -40,6 +42,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	@Test
+	@Ignore
 	public void CompositeTypeRetrieveServiceObject() {
 
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
@@ -64,6 +67,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	@Test
+	@Ignore
 	public void CompositeIsolatedTest() {
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
