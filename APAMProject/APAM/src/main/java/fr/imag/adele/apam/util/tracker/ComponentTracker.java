@@ -47,6 +47,9 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
     }
 
 
+    /**
+     * Start to track the Component.
+     */
     public void open(){
 
         ApamManagers.addDynamicManager(listener);
@@ -67,6 +70,9 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
 
     }
 
+    /**
+     * Close the tracker, stop tracking the Component.
+     */
     public void close(){
         ApamManagers.removeDynamicManager(listener);
 
@@ -78,6 +84,9 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
         }
     }
 
+    /**
+     * @return The Component tracked by this ComponentTracker.
+     */
     public Set<T> getComponents(){
         Set<T> tracked = new HashSet<T>();
 
@@ -88,6 +97,9 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
     }
 
 
+    /**
+     * @return The numbers of Component track by this ComponentTracker.
+     */
     public int size(){
         synchronized (components){
             return components.size();
