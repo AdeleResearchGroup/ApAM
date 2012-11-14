@@ -1,15 +1,18 @@
 package fr.imag.adele.apam.test.message.producer;
 
+import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.test.message.M1;
 
-public class P1ImplData {
+public class P1ImplAutonome {
     Thread t;
     boolean running=true;
     
-    public M1 produceM1() {
+    public Message<M1> produceM1() {
         double a =Math.random();
         double b = Math.random();
-        return new M1(a, b) ;
+        Message<M1> m = new Message<M1>(new M1(a, b));
+        m.getProperties().setProperty("vendor", "mehdi");
+        return m ;
     }
 
     public void start() {
@@ -19,10 +22,10 @@ public class P1ImplData {
             public void run() {
       
                 while (running) {
-                    M1 m1 = produceM1();
-                    System.out.println(" produce message M1 : " + m1.getMoy() );
+                    Message<M1> m1 = produceM1();
+                    System.out.println(m1.getProperties().getProperty("vendor") + " produce message M1 : " + m1.getData().getMoy() );
                     try {
-                        Thread.currentThread().sleep(1500);
+                        Thread.currentThread().sleep(500);
                     } catch (InterruptedException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();

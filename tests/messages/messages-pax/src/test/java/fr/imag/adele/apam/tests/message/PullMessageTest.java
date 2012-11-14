@@ -9,9 +9,9 @@ import java.util.Queue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.OptionUtils;
-import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.util.PathUtils;
 
@@ -67,6 +67,8 @@ public class PullMessageTest extends ExtensionAbstract {
                 "");
         
         assertEquals(consumerInst1.getWires().size(),1);
+        
+        
         
     }
 

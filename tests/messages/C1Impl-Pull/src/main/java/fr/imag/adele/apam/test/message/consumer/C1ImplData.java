@@ -5,7 +5,6 @@ import java.util.Queue;
 import fr.imag.adele.apam.test.message.M1;
 
 public class C1ImplData {
-    Thread    t;
 
     Queue<M1> queueM1;
 

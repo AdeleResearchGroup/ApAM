@@ -7,10 +7,14 @@
 	</implementation>
 
 
-	<implementation name="P1ImplData" classname="fr.imag.adele.apam.test.message.producer.P1ImplData" specification="P1"
+	<implementation name="P1ImplAutonome" classname="fr.imag.adele.apam.test.message.producer.P1ImplAutonome" specification="P1"
 		push="produceM1" >
 		<callback onInit="start" onRemove="stop" />
 	</implementation>
 
+	<implementation name="P1ImplDataAutonome" classname="fr.imag.adele.apam.test.message.producer.P1ImplDataAutonome" specification="P1"
+		push="produceM1" >
+		<callback onInit="start" onRemove="stop" />
+	</implementation>
 </apam>
 

@@ -177,12 +177,22 @@
 			<organization>LIG / Adele</organization>
 		</developer>
 		<developer>
-			<id>mehdidamou</id>
+			<id>Elmehdi</id>
 			<name>Elmehdi Damou</name>
 			<email>elmehdi.damou@imag.fr</email>
 			<roles>
 				<role>Developer</role>
 				<role>Theses student</role>
+			</roles>
+			<organization>LIG / Adele</organization>
+		</developer>
+		<developer>
+			<id>Jander</id>
+			<name>Jander Nascimento</name>
+			<email>jbotnascimento@gmail.com</email>
+			<roles>
+				<role>Developer</role>
+				<role>Engineer</role>
 			</roles>
 			<organization>LIG / Adele</organization>
 		</developer>

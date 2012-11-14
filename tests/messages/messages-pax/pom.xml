@@ -10,7 +10,7 @@
 
 
 	<groupId>fr.imag.adele.apam.tests.messages</groupId>
-	<artifactId>message-pax</artifactId>
+	<artifactId>messages-pax</artifactId>
 
 	<description>Message interactions Tests</description>
 
@@ -46,13 +46,26 @@
 			<artifactId>pax-exam-link-assembly</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.ops4j.pax.url</groupId>
+			<artifactId>pax-url-classpath</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ops4j.pax.url</groupId>
+			<artifactId>pax-url-commons</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.url</groupId>
 			<artifactId>pax-url-aether</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.ops4j.pax.url</groupId>
+			<artifactId>pax-url-link</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.framework</artifactId>
