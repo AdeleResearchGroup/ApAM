@@ -22,8 +22,6 @@ public class CompositeTest extends ExtensionAbstract {
 	@Test
 	public void CompositeTypeInstantiation() {
 
-		apam.waitForIt(2000);
-
 		CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
 				null, "S2Impl-composite");
 

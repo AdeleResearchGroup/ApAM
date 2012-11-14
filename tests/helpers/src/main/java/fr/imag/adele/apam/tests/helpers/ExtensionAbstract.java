@@ -31,9 +31,11 @@ import fr.imag.adele.apam.Instance;
 public abstract class ExtensionAbstract {
 
 	// Based on the current running, no test should take longer than 2 minute
-	// (some tests are freezing)
 	@Rule
 	public TestRule globalTimeout = new Timeout(120000);
+
+	@Rule
+	public TestName name = new TestName();
 
 	@Inject
 	public BundleContext context;
@@ -41,9 +43,6 @@ public abstract class ExtensionAbstract {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public ApAMHelper apam;
-
-	@Rule
-	public TestName name = new TestName();
 
 	protected void auxListInstances(String prefix) {
 		System.out.println(String.format(
