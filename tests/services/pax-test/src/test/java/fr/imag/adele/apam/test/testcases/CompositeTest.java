@@ -14,7 +14,6 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
-import fr.imag.adele.apam.test.support.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
@@ -22,10 +21,17 @@ public class CompositeTest extends ExtensionAbstract {
 
 	@Test
 	public void CompositeTypeInstantiation() {
-		
-		CompositeType ct=(CompositeType)CST.apamResolver.findImplByName(null, "S1Impl-composite");
-		
-		Instance instApp = ct.createInstance(null, new HashMap<String, String>());
+
+		apam.waitForIt(2000);
+
+		CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
+				null, "S2Impl-composite");
+
+		Assert.assertTrue("Failed to create the instance of CompositeType",
+				ct != null);
+
+		Instance instApp = ct.createInstance(null,
+				new HashMap<String, String>());
 
 		Assert.assertTrue("Failed to create the instance of CompositeType",
 				instApp != null);
@@ -33,12 +39,14 @@ public class CompositeTest extends ExtensionAbstract {
 
 	@Test
 	public void CompositeTypeRetrieveServiceObject() {
-		
+
 		CompositeType composite = CST.apam.createCompositeType(null,
 				"eletronic-device-compotype", null, "eletronic-device",
 				new HashSet<ManagerModel>(), new HashMap<String, String>());
-		
-		Assert.assertTrue(composite != null);
+
+		Assert.assertTrue(
+				"Should be possible to create a composite through API using createCompositeType method",
+				composite != null);
 
 		Instance instance = composite.createInstance(null, null);
 
@@ -54,18 +62,11 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void CompositeIsolatedTest() {
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
+	public void FetchImplationThatHasComposite() {
+		Implementation impl = (Implementation) CST.apamResolver.findImplByName(
+				null, "fr.imag.adele.apam.pax.test.impl.S2Impl");
 
-		CompositeType c = (CompositeType) CST.apamResolver.findComponentByName(null,
-				"S1Impl-composite");
-
-		Implementation s1Impl = CST.apamResolver.findImplByName(null,
-				"fr.imag.adele.apam.pax.test.impl.S1Impl");
-
-		// s1Impl.createInstance(c, new HashMap<String, String>());
-		//
-		// s1Impl.createInstance(instCompo, initialproperties)
+		Assert.assertTrue("Failed to create the Implementation", impl != null);
 	}
 
 }
