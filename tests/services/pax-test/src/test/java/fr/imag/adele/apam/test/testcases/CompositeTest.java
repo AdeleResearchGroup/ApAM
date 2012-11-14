@@ -24,14 +24,9 @@ public class CompositeTest extends ExtensionAbstract {
 	@Test
 	public void CompositeTypeInstantiation() {
 		
-		CompositeType app = CST.apam.createCompositeType("",
-				"eletronic-device-compotype", null, "eletronic-device",
-				new HashSet<ManagerModel>(), new HashMap<String, String>());
-
-		Assert.assertTrue("Failed to create the CompositeType", app != null);
-
-		Instance instApp = app
-				.createInstance(null /* composite */, null/* properties */);
+		CompositeType ct=(CompositeType)CST.apamResolver.findImplByName(null, "S1Impl-composite");
+		
+		Instance instApp = ct.createInstance(null, new HashMap<String, String>());
 
 		Assert.assertTrue("Failed to create the instance of CompositeType",
 				instApp != null);
@@ -40,7 +35,7 @@ public class CompositeTest extends ExtensionAbstract {
 	@Test
 	public void CompositeTypeRetrieveServiceObject() {
 		
-		CompositeType composite = CST.apam.createCompositeType("",
+		CompositeType composite = CST.apam.createCompositeType("philipsSwitch",
 				"eletronic-device-compotype", "", "eletronic-device",
 				new HashSet<ManagerModel>(), new HashMap<String, String>());
 		
