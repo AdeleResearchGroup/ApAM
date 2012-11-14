@@ -15,6 +15,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.util.PathUtils;
@@ -29,6 +31,10 @@ import fr.imag.adele.apam.Instance;
 
 public abstract class ExtensionAbstract {
 
+	//Based on the current running, no test should take longer than 2 minute (some tests are freezing)
+	@Rule
+    public TestRule  globalTimeout= new Timeout(120000);
+	
     @Inject
     public BundleContext context;
     
@@ -68,31 +74,25 @@ public abstract class ExtensionAbstract {
     public Option[] apamConfig() {
         return options(
                 systemProperty("org.osgi.service.http.port").value("8080"),
-//                systemProperty("pax.exam.system").value("default"),
                 cleanCaches(),
-                // Set logback configuration via system property.
-                // This way, both the driver and the container use the same configuration
                 systemProperty("logback.configurationFile").value(
                         "file:" + PathUtils.getBaseDir() + "/log/logback.xml"),
-
                  systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"),
-
                 mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.ipojo").version("1.8.0"),
                 mavenBundle().groupId("org.ow2.chameleon.testing").artifactId("osgi-helpers").version("0.2.0"),
                 mavenBundle().groupId("org.osgi").artifactId("org.osgi.compendium").version("4.2.0"),
                 mavenBundle().groupId("org.apache.felix").artifactId("org.apache.felix.bundlerepository").version("1.6.6"),
                 mavenBundle().groupId("org.ops4j.pax.url").artifactId("pax-url-mvn").version("1.3.5"),
-//              mavenBundle("org.ops4j.pax.url", "pax-url-link").version("1.5.0"),
                 mavenBundle().groupId("fr.imag.adele.apam").artifactId("apam-bundle").version("0.0.1-SNAPSHOT"),
                 mavenBundle().groupId("fr.imag.adele.apam").artifactId("obrman").version("0.0.1-SNAPSHOT"),
-                  // add SLF4J and logback bundles
                 mavenBundle("org.slf4j", "slf4j-api").version("1.6.6"),
                 mavenBundle("ch.qos.logback", "logback-core").version("1.0.7"),
                 mavenBundle("ch.qos.logback", "logback-classic").version("1.0.7"),
-                // this bundle
                 junitBundles(),
-                mavenBundle("fr.imag.adele.apam.tests", "apam-helpers").version("0.0.1-SNAPSHOT"),
-                
+//                mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-iface").versionAsInProject(),//version("0.0.1-SNAPSHOT"),
+//                mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-impl-s1").versionAsInProject(),
+//                mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-impl-s2").versionAsInProject(),                
+                mavenBundle("fr.imag.adele.apam.tests", "apam-helpers").version("0.0.1-SNAPSHOT"),   
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(
                         vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"), systemTimeout(0))
         );
