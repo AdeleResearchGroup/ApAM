@@ -40,8 +40,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void AtomicInstanceCreationWithoutInjection() {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
@@ -92,8 +91,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void InjectionUpdateLinkForSetType() {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
@@ -136,8 +134,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void InjectionUpdateLinkForArrayType() {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
@@ -175,8 +172,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	 */
 	@Test
 	public void SingletonNotSharedInstance() {
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterSingletonNotShared");
 
@@ -208,8 +204,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void SingletonSharedInstance() {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterSingletonShared");
 
@@ -243,8 +238,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void NotSingletonNotSharedInstance() {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterNotSingletonNotShared");
 
@@ -281,8 +275,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void NotSingletonSharedInstance() {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterNotSingletonShared");
 
@@ -326,8 +319,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void NotInstantiableInstance() {
 	
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-	
+			
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterNotInstantiable");
 	
@@ -351,8 +343,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void InstantiableInstance() {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterInstantiable");
 
@@ -374,8 +365,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void CallbackInit(){
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
+				
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 		
@@ -390,8 +380,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void CallbackRemove() throws BundleException{
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
+				
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 		
@@ -410,8 +399,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void PreferenceInjectionAttribute() throws InvalidSyntaxException {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation lgImpl = CST.apamResolver.findImplByName(null,
 				"LgSwitch");
 		final Instance lgInst = lgImpl.createInstance(null,
@@ -483,8 +471,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void PreferenceInjectionAttributeMultipleInstances() throws InvalidSyntaxException {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null,
@@ -532,8 +519,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	public void ConstraintInjectionWhenEmptyPreferenceTagExistsAttribute()
 			throws InvalidSyntaxException {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation lgImpl = CST.apamResolver.findImplByName(null,
 				"LgSwitch");
 		final Instance lgInst = lgImpl.createInstance(null,
@@ -594,8 +580,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void FindImplByName(){
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
+				
 		auxListInstances("before-");
 		
 		Implementation impl=CST.apamResolver.findImplByName(null,"fr.imag.adele.apam.pax.test.impl.S1Impl");

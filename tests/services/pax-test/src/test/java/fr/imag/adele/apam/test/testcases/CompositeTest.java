@@ -9,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
@@ -24,17 +23,10 @@ public class CompositeTest extends ExtensionAbstract {
 
 	@Test
 	public void CompositeTypeInstantiation() {
-
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-		CompositeType app = CST.apam.createCompositeType(null,
-				"eletronic-device-compotype", null, "eletronic-device",
-				new HashSet<ManagerModel>(), new HashMap<String, String>());
-
-		Assert.assertTrue("Failed to create the CompositeType", app != null);
-
-		Instance instApp = app
-				.createInstance(null /* composite */, null/* properties */);
+		
+		CompositeType ct=(CompositeType)CST.apamResolver.findImplByName(null, "S1Impl-composite");
+		
+		Instance instApp = ct.createInstance(null, new HashMap<String, String>());
 
 		Assert.assertTrue("Failed to create the instance of CompositeType",
 				instApp != null);
@@ -42,12 +34,11 @@ public class CompositeTest extends ExtensionAbstract {
 
 	@Test
 	public void CompositeTypeRetrieveServiceObject() {
-
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-		CompositeType composite = CST.apam.createCompositeType(null,
-				"eletronic-device-compotype", null, "eletronic-device", null,
-				new HashMap<String, String>());
+		
+		CompositeType composite = CST.apam.createCompositeType("philipsSwitch",
+				"eletronic-device-compotype", "", "eletronic-device",
+				new HashSet<ManagerModel>(), new HashMap<String, String>());
+		
 		Assert.assertTrue(composite != null);
 
 		Instance instance = composite.createInstance(null, null);
@@ -73,7 +64,7 @@ public class CompositeTest extends ExtensionAbstract {
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
-		//s1Impl.createInstance(c, new HashMap<String, String>());
+		// s1Impl.createInstance(c, new HashMap<String, String>());
 		//
 		// s1Impl.createInstance(instCompo, initialproperties)
 	}
