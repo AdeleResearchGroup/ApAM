@@ -132,7 +132,7 @@ public class OBRManager {
 		logFilterConstraintPreferences(filterStr, constraints, null, true);
 
 		if (allResources.isEmpty()) {
-			System.out.println("no resources in OBR");
+			logger.debug("no resources in OBR");
 			return null;
 		}
 		try {
@@ -143,7 +143,7 @@ public class OBRManager {
 					if (aCap.getName().equals(capability)) {
 						if (filter.matchCase(aCap.getPropertiesAsMap())) {
 							if ((constraints == null) || matchConstraints(aCap, constraints)) {
-								System.out.println("-->Component " + getAttributeInCapability(aCap, CST.NAME)
+							    logger.debug("-->Component " + getAttributeInCapability(aCap, CST.NAME)
 										+ " found in bundle : " + res.getSymbolicName() + " From "
 										+ compositeTypeName + " repositories : \n   " + repositoriesToString());
 								allRes.add(new Selected(res, aCap, this));
@@ -156,7 +156,7 @@ public class OBRManager {
 			e.printStackTrace();
 		}
 		if (allRes.isEmpty())
-			System.out.println("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
+		    logger.debug("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
 		return allRes;
 	}
 
@@ -164,7 +164,7 @@ public class OBRManager {
 		Selected winner = lookForPrefInt(capability, preferences, candidates) ;
 		if (winner == null)
 			return null;
-		System.out.println("   Best bundle : " + winner.resource.getSymbolicName() + " Component:  "
+		logger.debug("   Best bundle : " + winner.resource.getSymbolicName() + " Component:  "
 				+ getAttributeInCapability(winner.capability, CST.IMPLNAME) + " from "
 				+ compositeTypeName + "  repositories : " + repositoriesToString());
 		return winner;
@@ -222,7 +222,7 @@ public class OBRManager {
 
 	private Selected lookFor(String capability, String filterStr, Set<Filter> constraints) {
 		if (filterStr == null) {
-			System.out.println("No filter for lookFor");
+		    logger.debug("No filter for lookFor");
 			return null;
 		}
 
@@ -231,7 +231,7 @@ public class OBRManager {
 
 		Set<Selected> allSelected = lookForAll(capability, filterStr, constraints) ;
 		if (allSelected == null || allSelected.isEmpty()) {
-			System.out.println("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
+		    logger.debug("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
 			return null;
 		}
 		return getBestCandidate(allSelected) ;
@@ -262,7 +262,7 @@ public class OBRManager {
 			}
 		}
 
-		System.out.println(debugMessage);
+		logger.debug(debugMessage);
 	}
 
 	/**
@@ -311,13 +311,13 @@ public class OBRManager {
 				}
 				deployed = true;
 			} catch (IllegalStateException e) {
-				System.out.println("OBR changed state. Resolving again " + selected.resource.getSymbolicName());
+			    logger.debug("OBR changed state. Resolving again " + selected.resource.getSymbolicName());
 			}
 		}
 
 		Reason[] reqs = resolver.getUnsatisfiedRequirements();
 		for (Reason req : reqs) {
-			System.out.println("Unable to resolve: " + req.getRequirement());
+		    logger.error("Unable to resolve: " + req.getRequirement());
 		}
 		return false;
 	}
@@ -334,13 +334,12 @@ public class OBRManager {
 				if (localMavenOBRRepo) {
 					URL localMavenObrUrl = findLocalMavenRepository();
 					if (localMavenObrUrl==null){
-						System.out.println("Error : localRepository not found in : " + settings.getPath());
+					    logger.error("localRepository not found in : " + settings.getPath());
 					}
 					try {
 						declaredRepositories.add(repoAdmin.addRepository(localMavenObrUrl));
 					} catch (Exception e) {
-						System.out.println("Error when adding default local repository to repoAdmin");
-						e.printStackTrace();
+					    logger.error("Error when adding default local repository to repoAdmin",e.getCause());
 					}
 				}
 			} else if (ObrUtil.DEFAULT_OSGI_REPOSITORIES.equals(key)) {
@@ -366,7 +365,7 @@ public class OBRManager {
 						declaredRepositories.addAll(manager.getRepositories());
 					} else {
 						// If the compositeType is not present, do nothing
-						System.out.println("The composite " + compositeTypeName + " reference a missing compiste "
+						logger.error("The composite " + compositeTypeName + " reference a missing compiste "
 								+ compoTypeName);
 					}
 				}
@@ -384,8 +383,7 @@ public class OBRManager {
 
 				repoList.add(repoAdmin.addRepository(url));
 			} catch (Exception e) {
-				System.out.println("Invalid OBR repository address :" + repoUrlStr);
-				e.printStackTrace();
+			    logger.error("Invalid OBR repository address :" + repoUrlStr,e.getCause());
 			}
 		}
 		return repoList;
@@ -418,7 +416,7 @@ public class OBRManager {
 		public String getComponentName () {
 			String name = getAttributeInCapability (capability, CST.NAME) ;
 			if (name == null) {
-				System.err.println("name in null in capability " + capability);
+				logger.error("name in null in capability " + capability);
 			}
 			return getAttributeInCapability (capability, CST.NAME) ;
 		}

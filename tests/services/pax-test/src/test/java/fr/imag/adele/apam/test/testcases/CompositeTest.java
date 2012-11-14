@@ -9,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -35,8 +34,8 @@ public class CompositeTest extends ExtensionAbstract {
 	@Test
 	public void CompositeTypeRetrieveServiceObject() {
 		
-		CompositeType composite = CST.apam.createCompositeType("philipsSwitch",
-				"eletronic-device-compotype", "", "eletronic-device",
+		CompositeType composite = CST.apam.createCompositeType(null,
+				"eletronic-device-compotype", null, "eletronic-device",
 				new HashSet<ManagerModel>(), new HashMap<String, String>());
 		
 		Assert.assertTrue(composite != null);
@@ -58,7 +57,7 @@ public class CompositeTest extends ExtensionAbstract {
 	public void CompositeIsolatedTest() {
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-		Composite c = (Composite) CST.apamResolver.findComponentByName(null,
+		CompositeType c = (CompositeType) CST.apamResolver.findComponentByName(null,
 				"S1Impl-composite");
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,

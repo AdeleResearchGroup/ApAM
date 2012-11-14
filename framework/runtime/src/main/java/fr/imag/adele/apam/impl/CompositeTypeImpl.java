@@ -15,11 +15,13 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.core.CompositeDeclaration;
@@ -28,7 +30,7 @@ import fr.imag.adele.apam.core.CompositeDeclaration;
 
 public class CompositeTypeImpl extends ImplementationImpl implements CompositeType {
 
-	@SuppressWarnings("unused")
+	
 	private static Logger 		logger 				= LoggerFactory.getLogger(CompositeTypeImpl.class);
 	private static final long 	serialVersionUID 	= 1L;
 	
@@ -216,22 +218,38 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         
 		String mainComponent = getCompoDeclaration().getMainComponent().getName();
 		
-		//Maybe the unique case where we do not have a composite instance
-		mainImpl = CST.apamResolver.findImplByName(this, mainComponent);
-		if (mainImpl == null) {
-			/*
-			 *  It is a specification to resolve as the main implem. Do not select another composite
-			 */
-			Set<String> constraints = new HashSet<String>();
-			constraints.add("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
-			mainImpl = CST.apamResolver.resolveSpecByName(this, mainComponent, constraints, null);
-        }
+		Component mComponent = CST.apamResolver.findComponentByName(this, mainComponent);
+		if (mComponent!=null && mComponent instanceof Implementation){
+		    logger.debug("The main component of " + this.getName() + " is an Implementation : " + mComponent.getName());
+		  //Maybe the unique case where we do not have a composite instance
+		    mainImpl = (Implementation) mComponent;
+		    
+		}else if (mComponent!=null && mComponent instanceof Specification) {
+		    logger.debug("The main component of " + this.getName() + " is a Specification : " + mComponent.getName());
+		    /*
+             *  It is a specification to resolve as the main implem. Do not select another composite
+             */
+            Set<String> constraints = new HashSet<String>();
+            constraints.add("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
+            mainImpl = CST.apamResolver.resolveSpecByName(this, mainComponent, constraints, null);
+		}
+//		//Maybe the unique case where we do not have a composite instance
+//		mainImpl = CST.apamResolver.findImplByName(this, mainComponent);
+//		if (mainImpl == null) {
+//			/*
+//			 *  It is a specification to resolve as the main implem. Do not select another composite
+//			 */
+//			Set<String> constraints = new HashSet<String>();
+//			constraints.add("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
+//			mainImpl = CST.apamResolver.resolveSpecByName(this, mainComponent, constraints, null);
+//        }
 		
 		/*
 		 * If we cannot resolve the main implementation, we abort the registration in APAM, taking care of
 		 * undoing the partial processing already performed. 
 		 */
         if (mainImpl == null) {
+            logger.debug("The main component is " + mComponent);
         	unregister();
             throw new InvalidConfiguration("Cannot find main implementation " + mainComponent);
         }

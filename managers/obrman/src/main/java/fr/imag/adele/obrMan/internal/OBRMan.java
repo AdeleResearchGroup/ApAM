@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
@@ -66,15 +65,17 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     public void start() {
         ApamManagers.addDependencyManager(this, 3);
-        System.out.println("[OBRMAN] started");
+        logger.info("[OBRMAN] started");
     }
 
     public void stop() {
         ApamManagers.removeDependencyManager(this);
         obrManagers.clear();
-        System.out.println("[OBRMAN] stopped");
+        logger.info("[OBRMAN] stopped");
     }
 
+    static List<String> onLoadingResource  = new ArrayList<String>();
+    static List<String> onLoadingComponent = new ArrayList<String>();
 
     /**
      * Instal ans instantiate the selected bundle, and return the component.
@@ -89,46 +90,70 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             return null;
 
         String name = selected.getComponentName();
+        if (!onLoadingComponent.contains(name)){
+            onLoadingComponent.add(name);
+        }
         fr.imag.adele.apam.Component c = CST.componentBroker.getComponent(name);
+        boolean deployed = false;
         // Check if already deployed
         if (c == null) {
-//            // check if the resource is already deployed
-            if (alreadyDeployed(selected)){
-                System.err.println("Already installed resource : " + selected.getResource().getSymbolicName());
-                return null;
+            logger.debug("Start verifying resource : " + selected.resource.getSymbolicName() +" for : " + name);
+            if (onLoadingResource.contains(selected.resource.getSymbolicName())) { // check if the resource still
+                                                                                   // loading
+                logger.debug("The " + selected.getResource().getSymbolicName() + " which contains " + name
+                        + " is on loading!");
+                deployed = true;
+            } else if (alreadyDeployed(selected)) {// check if the resource is already deployed
+                logger.debug("The component " + name + " is on an already installed resource : "
+                        + selected.getResource().getSymbolicName());
+                onLoadingComponent.remove(name);
+                return CST.componentBroker.getComponent(name);
+            } else {
+                // deploy selected resource
+                onLoadingResource.add(selected.resource.getSymbolicName());
+                deployed = selected.obrManager.deployInstall(selected);
             }
-            // deploy selected resource
-            boolean deployed = selected.obrManager.deployInstall(selected);
             if (!deployed) {
-                System.err.print("could not install resource ");
+                logger.error("could not install resource ");
+                onLoadingResource.remove(selected.resource.getSymbolicName());
                 ObrUtil.printRes(selected.resource);
                 return null;
             }
+
             // wait loading of all components of the resource installed
-            componentLoading(selected.resource);
+            componentLoading(name, selected.resource);
             // waiting for the component to be ready in Apam.
             c = CST.componentBroker.getWaitComponent(name);
         } else { // do not install twice.
             // It is a logical deployment. The already existing component is not visible !
             // System.err.println("Logical deployment of : " + name + " found by OBRMAN but allready deployed.");
         }
-
+        onLoadingComponent.remove(name);
+        onLoadingResource.remove(selected.resource);
+        logger.debug("Finish Loading Resource : " + selected.resource.getSymbolicName() + " for : " +name);
+        logger.debug("on loading resources : "  + onLoadingResource);
         return c;
     }
 
-    private void componentLoading(Resource resource) {
+    private void componentLoading(String name, Resource resource) {
+        logger.debug("Now Loading : " +resource.getSymbolicName() + " for : " +name);
+        logger.debug("ComponentOnLoading : " + onLoadingComponent );
         Capability[] caps = resource.getCapabilities();
         for (Capability capability : caps) {
-            if (capability.getName().equals(CST.CAPABILITY_COMPONENT)){
+            if (capability.getName().equals(CST.CAPABILITY_COMPONENT) && !onLoadingComponent.contains((String) capability.getPropertiesAsMap().get(CST.NAME))) {
+                logger.debug("Loading : " + (String) capability.getPropertiesAsMap().get(CST.NAME));
+                onLoadingComponent.add((String) capability.getPropertiesAsMap().get(CST.NAME));
                 CST.componentBroker.getWaitComponent((String) capability.getPropertiesAsMap().get(CST.NAME));
+                onLoadingComponent.remove((String) capability.getPropertiesAsMap().get(CST.NAME));
+                logger.debug("Loaded : " +(String) capability.getPropertiesAsMap().get(CST.NAME));
             }
         }
-        
+
     }
 
     private boolean alreadyDeployed(Selected selected) {
         for (Resource resource : selected.obrManager.getRunningResources().getResources()) {
-            if (resource.equals(selected.resource)){
+            if (resource.equals(selected.resource)) {
                 return true;
             }
         }
@@ -165,14 +190,15 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     @Override
     public void newComposite(ManagerModel model, CompositeType compositeType) {
         OBRManager obrManager;
-        if (model == null) { // if no model for the compositeType, set the root composite model 
+        if (model == null) { // if no model for the compositeType, set the root composite model
             obrManager = searchOBRManager(compositeType);
         } else {
             try {// try to load the compositeType model
                 LinkedProperties obrModel = new LinkedProperties();
                 obrModel.load(model.getURL().openStream());
                 obrManager = new OBRManager(this, compositeType.getName(), repoAdmin, obrModel);
-            } catch (IOException e) {// if impossible to load the model for the compositeType, set the root composite model 
+            } catch (IOException e) {// if impossible to load the model for the compositeType, set the root composite
+                                     // model
                 logger.error("Invalid OBRMAN Model. Cannot be read stream " + model.getURL(), e.getCause());
                 obrManager = searchOBRManager(compositeType);
             }
@@ -234,17 +260,17 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             obrManager = obrManagers.get(compoType.getName());
         }
 
-       // Use the root composite if the model is not specified
+        // Use the root composite if the model is not specified
         if (obrManager == null) {
             obrManager = obrManagers.get(CST.ROOT_COMPOSITE_TYPE);
-            if (obrManager == null){ // If the root manager was never been initialized
+            if (obrManager == null) { // If the root manager was never been initialized
                 // lookFor root.OBRMAN.cfg and create obrmanager for the root composite in a customized location
                 String rootModelurl = m_context.getProperty(ObrUtil.ROOT_MODEL_URL);
                 try {// try to load root obr model from the customized location
                     if (rootModelurl != null) {
                         URL urlModel = (new File(rootModelurl)).toURI().toURL();
                         setInitialConfig(urlModel);
-                    }else {
+                    } else {
                         LinkedProperties obrModel = new LinkedProperties();
                         customizedRootModelLocation();
                         obrModel.put(ObrUtil.LOCAL_MAVEN_REPOSITORY, "true");
@@ -252,7 +278,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
                         obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
                         obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
                     }
-                } catch (Exception e) {// if failed to load customized location, set default properties for the root model
+                } catch (Exception e) {// if failed to load customized location, set default properties for the root
+                                       // model
                     logger.error("Invalid Root URL Model. Cannot be read stream " + rootModelurl, e.getCause());
                     LinkedProperties obrModel = new LinkedProperties();
                     customizedRootModelLocation();
@@ -260,15 +287,14 @@ public class OBRMan implements DependencyManager, OBRManCommand {
                     obrModel.put(ObrUtil.DEFAULT_OSGI_REPOSITORIES, "true");
                     obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
                     obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
-                } 
+                }
             }
         }
-       return obrManager;
+        return obrManager;
     }
 
     private void customizedRootModelLocation() {
-    
-        
+
     }
 
     @Override
@@ -301,7 +327,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         if (c == null)
             return null;
         if (!kind.isAssignableFrom(c.getClass())) {
-            System.err.println("ERROR : " + componentName + " is found but is not a " + kind.getCanonicalName());
+            logger.error("ERROR : " + componentName + " is found but is not a " + kind.getCanonicalName());
             return null;
         }
 
@@ -350,21 +376,21 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         OBRManager obrmanager = getOBRManager(compositeTypeName);
         if (obrmanager == null)
             return result;
-     
+
         for (Repository repository : obrmanager.getRepositories()) {
-          result.add(repository.getURI());
-      }
+            result.add(repository.getURI());
+        }
         return result;
     }
 
     @Override
     public void setInitialConfig(URL modellocation) throws IOException {
         LinkedProperties obrModel = new LinkedProperties();
-        if (modellocation != null){
-               obrModel.load(modellocation.openStream());
-               OBRManager obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
-               obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
-        }else{
+        if (modellocation != null) {
+            obrModel.load(modellocation.openStream());
+            OBRManager obrManager = new OBRManager(this, CST.ROOT_COMPOSITE_TYPE, repoAdmin, obrModel);
+            obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
+        } else {
             throw new IOException("URL is null");
         }
     }

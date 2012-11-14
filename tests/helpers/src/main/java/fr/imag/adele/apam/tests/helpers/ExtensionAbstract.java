@@ -13,10 +13,14 @@ import javax.inject.Inject;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.util.PathUtils;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
@@ -27,10 +31,12 @@ public abstract class ExtensionAbstract {
 
     @Inject
     public BundleContext context;
+    
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     public ApAMHelper   apam;
 
-
+    @Rule public TestName name = new TestName();
 
     protected void auxListInstances(String prefix) {
         System.out.println(String.format("%s------------ Instances -------------", prefix));
@@ -54,6 +60,7 @@ public abstract class ExtensionAbstract {
     @Before
     public void setUp() {
         apam = new ApAMHelper(context);
+        logger.info("[Run Test : " + name.getMethodName()+ "]");
         apam.waitForIt(1000);
     }
 

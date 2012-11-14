@@ -137,7 +137,7 @@ public class APAMImpl implements Apam {
     /**
      * Creates a composite type from the specified parameters 
      */
-    public CompositeType createCompositeType(CompositeType parent,
+    private CompositeType createCompositeType(CompositeType parent,
     		String name, String specification, String mainComponent,
             Set<ManagerModel> models, Map<String, String> properties) {
 
@@ -224,7 +224,7 @@ public class APAMImpl implements Apam {
     	public ApamOnlyCompositeType(String name, String specificationName, String mainName, Set<ManagerModel> models, Map<String,String> properties) {
     		assert name != null && mainName != null && models != null;
     		
-    		SpecificationReference specification = specificationName != null? new SpecificationReference(specificationName) : null;
+    		SpecificationReference specification = ((specificationName != null)&&(!specificationName.trim().isEmpty()))? new SpecificationReference(specificationName) : null;
     		ComponentReference<?>  mainComponent = new ComponentReference<ComponentDeclaration>(mainName);
     		
     		declaration = new CompositeDeclaration(name,specification, mainComponent);

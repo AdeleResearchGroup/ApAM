@@ -83,7 +83,7 @@ public class ComponentBrokerImpl implements ComponentBroker{
 			return implementation;
 
 		} catch (InvalidConfiguration configurationError) {
-			logger.error("Error adding implementation: exception in APAM registration",configurationError);
+			logger.error("Error adding implementation: exception in APAM registration",configurationError.getCause());
 		}
 		return null;
 	}
