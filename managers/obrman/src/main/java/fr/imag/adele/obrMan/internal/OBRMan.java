@@ -116,6 +116,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             if (!deployed) {
                 logger.error("could not install resource ");
                 onLoadingResource.remove(selected.resource.getSymbolicName());
+                onLoadingComponent.remove(name);
                 ObrUtil.printRes(selected.resource);
                 return null;
             }
@@ -129,7 +130,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             // System.err.println("Logical deployment of : " + name + " found by OBRMAN but allready deployed.");
         }
         onLoadingComponent.remove(name);
-        onLoadingResource.remove(selected.resource);
+        onLoadingResource.remove(selected.resource.getSymbolicName());
         logger.debug("Finish Loading Resource : " + selected.resource.getSymbolicName() + " for : " +name);
         logger.debug("on loading resources : "  + onLoadingResource);
         return c;

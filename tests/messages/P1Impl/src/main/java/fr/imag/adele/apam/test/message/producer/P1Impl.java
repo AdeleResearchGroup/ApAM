@@ -5,7 +5,7 @@ import java.util.Properties;
 import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.test.message.M1;
 
-public class P1Impl {
+public class P1Impl implements MyProducer{
     
     
     public Message<M1> produceM1(Properties properties) {

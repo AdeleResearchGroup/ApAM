@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.tests.helpers;
 
+import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
@@ -93,6 +94,8 @@ public abstract class ExtensionAbstract {
 //                mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-impl-s1").versionAsInProject(),
 //                mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-impl-s2").versionAsInProject(),                
                 mavenBundle("fr.imag.adele.apam.tests", "apam-helpers").version("0.0.1-SNAPSHOT"),   
+//                when(bundle("file:" + PathUtils.getBaseDir() +"/bundle/wireadmin.jar")!=null).useOptions(
+//                        bundle("file:" + PathUtils.getBaseDir() +"/bundle/wireadmin.jar")),
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(
                         vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"), systemTimeout(0))
         );
