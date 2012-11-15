@@ -141,16 +141,8 @@
 			<interface field="app2" />
 		</dependency>
 	</implementation>
+
  -->
- 	
-	<composite name="S1Impl-composite" main="fr.imag.adele.apam.pax.test.impl.S1Impl" shared="true">
-		<contentMngt>
-			<borrow instance="false" />
-			<borrow implementation="false" />
-			<local instance="true" />
-			<local implementation="true" />
-		</contentMngt>
-	</composite>
 	
 
 <!-- 	<apam-instance name="APP1-instance" implementation="APP1" /> -->
