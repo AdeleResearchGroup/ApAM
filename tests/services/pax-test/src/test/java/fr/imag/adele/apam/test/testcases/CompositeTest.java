@@ -60,11 +60,30 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void FetchImplationThatHasComposite() {
-		Implementation impl = (Implementation) CST.apamResolver.findImplByName(
-				null, "fr.imag.adele.apam.pax.test.impl.S2Impl");
+	public void FetchImplThatHasComposite() {
 
-		Assert.assertTrue("Failed to create the Implementation", impl != null);
+		CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
+				null, "S2Impl-composite-1");
+		
+		apam.waitForIt(2000);
+		
+		CompositeType ct2 = (CompositeType) CST.apamResolver.findImplByName(
+				null, "S2Impl-composite-2");
+
+		String general="From two composites based on the same impl, both should be fetchable/instantiable from apam. %s";
+		
+		Assert.assertTrue(String.format(general,"The first one failed to be fetched."),ct1 != null);
+		Assert.assertTrue(String.format(general,"The second one failed to be fetched."),ct2 != null);
+
+		Instance ip1 = ct1.createInstance(null, new HashMap<String, String>());
+		Instance ip2 = ct2.createInstance(null, new HashMap<String, String>());
+
+		Assert.assertTrue(String.format(general,"The first one failed to instantiate."),ip1 != null);
+		Assert.assertTrue(String.format(general,"The second one failed to instantiate."),ip2 != null);
+		
+		System.err.println("-------------");
+		auxListInstances("\t");
+
 	}
 
 }

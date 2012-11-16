@@ -12,8 +12,8 @@
 		<contentMngt>
 			<borrow instance="false" />
 			<borrow implementation="false" />
-			<local instance="true" />
-			<local implementation="true" />
+<!-- 			<local instance="true" /> -->
+<!-- 			<local implementation="true" /> -->
 		</contentMngt>
 	</composite>
 	
@@ -22,8 +22,8 @@
 		<contentMngt>
 			<borrow instance="false" />
 			<borrow implementation="false" />
-			<local instance="true" />
-			<local implementation="true" />
+<!-- 			<local instance="true" /> -->
+<!-- 			<local implementation="true" /> -->
 		</contentMngt>
 	</composite>
 
