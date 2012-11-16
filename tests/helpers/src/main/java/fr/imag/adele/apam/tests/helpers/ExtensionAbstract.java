@@ -78,6 +78,10 @@ public abstract class ExtensionAbstract {
 
 	@Configuration
 	public Option[] apamConfig() {
+		return config();
+	}
+
+	public Option[] config(){
 		return options(
 				systemProperty("org.osgi.service.http.port").value("8080"),
 				cleanCaches(),
@@ -113,7 +117,7 @@ public abstract class ExtensionAbstract {
 								vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"),
 								systemTimeout(0)));
 	}
-
+	
 	@After
 	public void tearDown() {
 		apam.dispose();
