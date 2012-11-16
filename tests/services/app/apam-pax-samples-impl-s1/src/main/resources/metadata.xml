@@ -80,14 +80,13 @@
 		specification="eletronic-device-notinstantiable">
 	</implementation>
 
-	<implementation name="SamsungSwitch"
+	<implementation name="SamsungSwitch" 
 		classname="fr.imag.adele.apam.pax.test.impl.device.GenericSwitch"
 		specification="eletronic-device">
 		<property name="manufacturer" value="samsung" />
 		<property name="voltage" value="220" />
 		<property name="hasDisplay" value="false" />
 		<property name="made" value="china" />
-
 		<definition name="property-01" value="default-01" type="string" />
 		<definition name="property-02" value="default-02" type="string" />
 		<definition name="property-03" value="default-03" type="string" />
