@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.tests.helpers;
 
+import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
@@ -104,12 +105,7 @@ public abstract class ExtensionAbstract {
 				mavenBundle("ch.qos.logback", "logback-classic").version(
 						"1.0.7"),
 				junitBundles(),
-				// mavenBundle("fr.imag.adele.apam.tests.services",
-				// "apam-pax-samples-iface").versionAsInProject(),//version("0.0.1-SNAPSHOT"),
-				// mavenBundle("fr.imag.adele.apam.tests.services",
-				// "apam-pax-samples-impl-s1").versionAsInProject(),
-				// mavenBundle("fr.imag.adele.apam.tests.services",
-				// "apam-pax-samples-impl-s2").versionAsInProject(),
+				
 				mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
 						.version("0.0.1-SNAPSHOT"),
 				when(Boolean.getBoolean("isDebugEnabled"))

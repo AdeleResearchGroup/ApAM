@@ -18,8 +18,11 @@ import org.ops4j.pax.exam.util.PathUtils;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.test.message.M1;
 import fr.imag.adele.apam.test.message.consumer.C1ImplData;
+import fr.imag.adele.apam.test.message.producer.MyProducer;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 /**
@@ -48,8 +51,6 @@ public class PullMessageTest extends ExtensionAbstract {
      */
     @Test
     public void testRunPullConsumerFirst() {
-        apam.waitForIt(100);
-
         Implementation consumerImpl = CST.apamResolver.findImplByName(null,
                 "C1Impl-Simple");
 
@@ -63,12 +64,24 @@ public class PullMessageTest extends ExtensionAbstract {
        
         assertNotNull(queue);
         
-        Implementation producerImpl = CST.apamResolver.findImplByName(null,
-                "");
-        
         assertEquals(consumerInst1.getWires().size(),1);
         
+        Instance producerInst = (Instance) (consumerInst1.getWires().toArray(new Wire[0])[0]).getDestination();
         
+        assertNotNull(producerInst);
+        
+        MyProducer p = (MyProducer) producerInst.getServiceObject();
+        
+        Message<M1> m = p.produceM1(null);
+
+        
+        System.out.println("Send " + m.getData());
+        
+        apam.waitForIt(2000);
+        
+        System.out.println("Received " + queue.poll());
+        
+//        assertEquals(queue.poll(),m.getData());
         
     }
 

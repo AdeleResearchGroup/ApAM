@@ -2,19 +2,19 @@
  xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
  
 	<implementation name="P1Impl" classname="fr.imag.adele.apam.test.message.producer.P1Impl" specification="P1"
-		push="produceM1" >
+		push="produceM1" messages="fr.imag.adele.apam.test.message.M1">
 		<callback onInit="start" onRemove="stop" />
 	</implementation>
 
 
-	<implementation name="P1ImplAutonome" classname="fr.imag.adele.apam.test.message.producer.P1ImplAutonome" specification="P1"
-		push="produceM1" >
-		<callback onInit="start" onRemove="stop" />
-	</implementation>
+<!-- 	<implementation name="P1ImplAutonome" classname="fr.imag.adele.apam.test.message.producer.P1ImplAutonome" specification="P1" -->
+<!-- 		push="produceM1" > -->
+<!-- 		<callback onInit="start" onRemove="stop" /> -->
+<!-- 	</implementation> -->
 
-	<implementation name="P1ImplDataAutonome" classname="fr.imag.adele.apam.test.message.producer.P1ImplDataAutonome" specification="P1"
-		push="produceM1" >
-		<callback onInit="start" onRemove="stop" />
-	</implementation>
+<!-- 	<implementation name="P1ImplDataAutonome" classname="fr.imag.adele.apam.test.message.producer.P1ImplDataAutonome" specification="P1" -->
+<!-- 		push="produceM1" > -->
+<!-- 		<callback onInit="start" onRemove="stop" /> -->
+<!-- 	</implementation> -->
 </apam>
 
