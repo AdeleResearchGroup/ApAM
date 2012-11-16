@@ -10,7 +10,6 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
@@ -20,10 +19,10 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 public class CompositeTest extends ExtensionAbstract {
 
 	@Test
-	public void CompositeTypeInstantiation() {
+	public void CompositeTypeInstantiation_01() {
 
 		CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
-				null, "S2Impl-composite");
+				null, "S2Impl-composite-1");
 
 		Assert.assertTrue("Failed to create the instance of CompositeType",
 				ct != null);
@@ -34,33 +33,9 @@ public class CompositeTest extends ExtensionAbstract {
 		Assert.assertTrue("Failed to create the instance of CompositeType",
 				instApp != null);
 	}
-
+	
 	@Test
-	public void CompositeTypeRetrieveServiceObject() {
-
-		CompositeType composite = CST.apam.createCompositeType(null,
-				"eletronic-device-compotype", null, "eletronic-device",
-				new HashSet<ManagerModel>(), new HashMap<String, String>());
-
-		Assert.assertTrue(
-				"Should be possible to create a composite through API using createCompositeType method",
-				composite != null);
-
-		Instance instance = composite.createInstance(null, null);
-
-		Assert.assertTrue("Failed to create instance of the compotype",
-				instance != null);
-
-		GenericSwitch serviceObject = (GenericSwitch) instance
-				.getServiceObject();
-
-		Assert.assertTrue("Failed to retrieve service as object ",
-				serviceObject != null);
-
-	}
-
-	@Test
-	public void FetchImplThatHasComposite() {
+	public void FetchImplThatHasComposite_02() {
 
 		CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
 				null, "S2Impl-composite-1");
@@ -83,6 +58,30 @@ public class CompositeTest extends ExtensionAbstract {
 		
 		System.err.println("-------------");
 		auxListInstances("\t");
+
+	}
+
+	@Test
+	public void CompositeTypeRetrieveServiceObject_03() {
+
+		CompositeType composite = CST.apam.createCompositeType(null,
+				"eletronic-device-compotype", null, "eletronic-device",
+				new HashSet<ManagerModel>(), new HashMap<String, String>());
+
+		Assert.assertTrue(
+				"Should be possible to create a composite through API using createCompositeType method",
+				composite != null);
+
+		Instance instance = composite.createInstance(null, null);
+
+		Assert.assertTrue("Failed to create instance of the compotype",
+				instance != null);
+
+		GenericSwitch serviceObject = (GenericSwitch) instance
+				.getServiceObject();
+
+		Assert.assertTrue("Failed to retrieve service as object ",
+				serviceObject != null);
 
 	}
 
