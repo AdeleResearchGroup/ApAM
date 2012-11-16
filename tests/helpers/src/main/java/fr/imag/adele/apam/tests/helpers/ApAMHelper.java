@@ -142,4 +142,12 @@ public class ApAMHelper {
     public IPOJOHelper getIpojoHelper() {
         return ipojo;
     }
+    
+    public void printBundleList(){
+        System.out.println("---------List of installed bundle--------");
+        for (Bundle bundle : context.getBundles()) {
+            System.out.println("- " + bundle.getLocation() + " ["+bundle.getState()+"]" );
+        }
+        System.out.println("---------End of List of installed bundle--------");
+    }
 }

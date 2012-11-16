@@ -6,5 +6,5 @@ import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.test.message.M1;
 
 public interface MyProducer {
-    public Message<M1> produceM1(Properties properties) ;
+    public Message<String> produceM1(Properties properties) ;
 }
