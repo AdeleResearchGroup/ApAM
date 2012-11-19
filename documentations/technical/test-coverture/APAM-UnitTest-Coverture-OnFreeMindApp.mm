@@ -51,7 +51,7 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1353066015126" ID="ID_1595772935" MODIFIED="1353074583451" TEXT="Dependency">
+<node CREATED="1353066015126" ID="ID_1595772935" MODIFIED="1353316544438" TEXT="Dependency">
 <node CREATED="1353075661607" ID="ID_916344715" MODIFIED="1353076800476" TEXT="set/array types">
 <node CREATED="1353071915367" ID="ID_1456627929" MODIFIED="1353075217660" TEXT="check if the class instantiated is exactly of the same type as the requested-01">
 <icon BUILTIN="button_ok"/>
@@ -80,7 +80,7 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1353075584486" ID="ID_1134906873" MODIFIED="1353075604047" TEXT="instantiable">
+<node CREATED="1353075584486" ID="ID_1134906873" MODIFIED="1353316530836" TEXT="instantiable">
 <node CREATED="1353075027047" ID="ID_1273627382" MODIFIED="1353075224469" TEXT="!instantiable, should not allow to create an instance manually-08">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -92,19 +92,22 @@
 <node CREATED="1353075111719" ID="ID_968919845" MODIFIED="1353075224468" TEXT="init callback, should be called when the components starts-10">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353075141416" ID="ID_384580446" MODIFIED="1353075224468" TEXT="remove callback, should be called when the components starts-11">
+<node CREATED="1353075141416" ID="ID_384580446" MODIFIED="1353085786890" TEXT="remove callback, should be called when the components is uninstalled-11">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1353075257352" ID="ID_1845106728" MODIFIED="1353076139629" TEXT="preference">
+<node CREATED="1353075257352" ID="ID_1845106728" MODIFIED="1353316551326" TEXT="preference">
 <node CREATED="1353075782472" ID="ID_1933538834" MODIFIED="1353076608931" TEXT="injected instance should respect the preference (if its satisfiable)-12">
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353076140408" ID="ID_1990480808" MODIFIED="1353076608931" TEXT="injected instance with different impl should respect the preference (if its satisfiable)-13">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353076476440" ID="ID_500157770" MODIFIED="1353076608931" TEXT="respect constraint where there is an empty preference tag in the xml-14">
+<node CREATED="1353076476440" FOLDED="true" ID="ID_500157770" MODIFIED="1353313491297" TEXT="respect constraint where there is an empty preference tag in the xml-14">
 <icon BUILTIN="button_ok"/>
+<node CREATED="1353313460239" ID="ID_633668789" MODIFIED="1353313460239" TEXT="">
+<node CREATED="1353313460264" ID="ID_1219775830" MODIFIED="1353313460264" TEXT=""/>
+</node>
 </node>
 <node CREATED="1353076557752" ID="ID_533005585" MODIFIED="1353076608931" TEXT="should be possible find an impl by its name-15">
 <icon BUILTIN="button_ok"/>
@@ -140,8 +143,13 @@
 <node CREATED="1353077202712" ID="ID_1802016001" MODIFIED="1353077204742" TEXT="application"/>
 <node CREATED="1353077208472" ID="ID_1719755842" MODIFIED="1353077210118" TEXT="own"/>
 </node>
-<node CREATED="1353075841416" FOLDED="true" ID="ID_1642355188" MODIFIED="1353077765147" POSITION="right" TEXT="OBRMan">
-<node CREATED="1353077625512" ID="ID_852943712" MODIFIED="1353077625512" TEXT=""/>
+<node CREATED="1353075841416" ID="ID_1642355188" MODIFIED="1353085358873" POSITION="right" TEXT="OBRMan">
+<node CREATED="1353085358875" ID="ID_1347548977" MODIFIED="1353085447680" TEXT="should raise an exception in case of a invalid configuration path is given">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353077625512" ID="ID_852943712" MODIFIED="1353085682813" TEXT="load and instantiate a component from repository">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node CREATED="1353076837416" ID="ID_295652406" MODIFIED="1353076845686" POSITION="left" TEXT="ApamMAN"/>
 </node>
