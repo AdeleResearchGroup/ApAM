@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Wire;
 
 public abstract class ExtensionAbstract {
 
@@ -67,6 +68,16 @@ public abstract class ExtensionAbstract {
 		}
 		System.out.println(String.format(
 				"%s------------ /Properties -------------", prefix));
+	}
+	
+	protected void auxDisconectWires(Instance instance){
+		
+		for (Wire wire : instance.getWires()) {
+
+			instance.removeWire(wire);
+
+		}
+		
 	}
 
 	@Before

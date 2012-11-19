@@ -21,12 +21,8 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(JUnit4TestRunner.class)
 public class ConstraintTest extends ExtensionAbstract{
 	
-	/**
-	 * Verify if the constraints were used to inject the dependencies in the
-	 * component
-	 */
 	@Test
-	public void ConstraintsCheckingImplementation() {
+	public void ConstraintsCheckingImplementation_01() {
 
 		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
@@ -46,14 +42,8 @@ public class ConstraintTest extends ExtensionAbstract{
 
 	}
 	
-	/**
-	 * Verify if the constraints were used to inject the dependencies in the
-	 * component by initial properties
-	 * 
-	 * @throws InvalidSyntaxException
-	 */
 	@Test
-	public void ConstraintsCheckingInstanceFilteringByInitialProperty()
+	public void ConstraintsCheckingInstanceFilteringByInitialProperty_02()
 			throws InvalidSyntaxException {
 
 		
@@ -146,14 +136,8 @@ public class ConstraintTest extends ExtensionAbstract{
 		
 	}
 
-	/**
-	 * Verify if the constraints were used to inject the dependencies in the
-	 * component by set property
-	 * 
-	 * @throws InvalidSyntaxException
-	 */
 	@Test
-	public void ConstraintsCheckingInstanceFilteringBySetProperty()
+	public void ConstraintsCheckingInstanceFilteringBySetProperty_03()
 			throws InvalidSyntaxException {
 
 		

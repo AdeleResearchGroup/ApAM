@@ -30,14 +30,11 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	/**
-	 * Creates an implementation and verifies if an correct instance of such
-	 * implementation was added in APAM
-	 * 
 	 * @TODO Change this code to test in case of
 	 *       fr.imag.adele.apam.core.CompositeDeclaration
 	 */
 	@Test
-	public void AtomicInstanceCreationWithoutInjection() {
+	public void AtomicInstanceCreationWithoutInjection_01() {
 
 		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
@@ -82,14 +79,8 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	}
 
-	/**
-	 * Keeping a set of a given type, verify if the number of elements in this
-	 * set are updated automatically after unplugging (remove wire) the
-	 * application that holds this set for the Type Set
-	 */
 	@Test
-	public void InjectionUpdateLinkForSetType() {
-
+	public void InjectionUpdateLinkForSetType_02() {
 		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -100,11 +91,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		int initialSize = s1.getEletronicInstancesInSet().size();
 
-		for (Wire wire : s1Inst.getWires()) {
-
-			s1Inst.removeWire(wire);
-
-		}
+		auxDisconectWires(s1Inst);
 
 		Implementation sansungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
@@ -123,17 +110,12 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	/**
-	 * Keeping a set of a given type, verify if the number of elements in this
-	 * set are updated automatically after unplugging (remove wire) the
-	 * application that holds this set for the native array type
-	 * 
 	 * @TODO Test only if the injection of the instances are working in the
 	 *       native array type
 	 */
 	@Test
-	public void InjectionUpdateLinkForArrayType() {
+	public void InjectionUpdateLinkForArrayType_03() {
 
-		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
@@ -165,12 +147,8 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	}
 
-	/**
-	 * Test is singleton activated in the implementation really ensures that no
-	 * more than one instance is created in apam
-	 */
 	@Test
-	public void SingletonNotSharedInstance() {
+	public void SingletonNotSharedInstance_04() {
 		
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterSingletonNotShared");
@@ -196,12 +174,8 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 				inst2 == null);
 	}
 
-	/**
-	 * Test is singleton activated in the implementation really ensures that no
-	 * more than one instance is created in apam
-	 */
 	@Test
-	public void SingletonSharedInstance() {
+	public void SingletonSharedInstance_05() {
 
 		
 		Implementation impl = CST.apamResolver.findImplByName(null,
@@ -235,7 +209,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void NotSingletonNotSharedInstance() {
+	public void NotSingletonNotSharedInstance_06() {
 
 		
 		Implementation impl = CST.apamResolver.findImplByName(null,
@@ -272,8 +246,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void NotSingletonSharedInstance() {
-
+	public void NotSingletonSharedInstance_07() {
 		
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterNotSingletonShared");
@@ -316,7 +289,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void NotInstantiableInstance() {
+	public void NotInstantiableInstance_08() {
 	
 			
 		Implementation impl = CST.apamResolver.findImplByName(null,
@@ -340,7 +313,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void InstantiableInstance() {
+	public void InstantiableInstance_09() {
 
 		
 		Implementation impl = CST.apamResolver.findImplByName(null,
@@ -362,7 +335,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void CallbackInit(){
+	public void CallbackInit_10(){
 		
 				
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
@@ -377,7 +350,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void CallbackRemove() throws BundleException{
+	public void CallbackRemove_11() throws BundleException{
 		
 				
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
@@ -396,7 +369,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PreferenceInjectionAttribute() throws InvalidSyntaxException {
+	public void PreferenceInjectionAttribute_12() throws InvalidSyntaxException {
 
 		
 		Implementation lgImpl = CST.apamResolver.findImplByName(null,
@@ -469,9 +442,17 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PreferenceInjectionAttributeMultipleInstances() throws InvalidSyntaxException {
-
+	public void PreferenceInjectionAttributeDiffImpl_13() throws InvalidSyntaxException {
 		
+		Implementation lgImpl = CST.apamResolver.findImplByName(null,
+				"LgSwitch");
+		final Instance lgInst = lgImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "100");
+					}
+				});
+
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null,
@@ -481,13 +462,25 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 					}
 				});
 
-		final Instance samsungInst2 = samsungImpl.createInstance(null,
+		Implementation philipsImpl = CST.apamResolver.findImplByName(null,
+				"philipsSwitch");
+		
+		final Instance philipsInst2 = philipsImpl.createInstance(null,
 				new HashMap<String, String>() {
 					{
 						put("currentVoltage", "500");
 					}
 				});
 
+		Implementation siemensImpl = CST.apamResolver.findImplByName(null,
+				"SiemensSwitch");
+		final Instance siemensInst = siemensImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "105");
+					}
+				});
+		
 		System.out.println("Instances before injection request");
 		auxListInstances("\t");
 
@@ -502,21 +495,29 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
 		Eletronic samsungSwitch = (Eletronic) samsungInst.getServiceObject();
+		Eletronic philipsSwitch2 = (Eletronic) philipsInst2.getServiceObject();
+		Eletronic lgSwitch = (Eletronic) lgInst.getServiceObject();
+		Eletronic siemensSwitch = (Eletronic) siemensInst.getServiceObject();
 
 		System.out.println("Instances after injection request");
 		auxListInstances("\t");
 
 		Instance injectedInstance = CST.componentBroker.getInstService(s1
 				.getDevicePreference110v());
-
-		Assert.assertTrue(injectedInstance==samsungInst || injectedInstance==samsungInst2);
-		
-		
+		Assert.assertTrue(
+				String.format(
+						"The instance injected should be the prefered one (currentVoltage=500), since there exist an instance in which the preference is valid. The instance %s (currentVoltage:%s) was injected instead of %s (currentVoltage:%s)",
+						injectedInstance.getName(), injectedInstance
+								.getAllProperties().get("currentVoltage"),
+						samsungInst.getName(), samsungInst.getAllProperties()
+								.get("currentVoltage")), s1
+						.getDevicePreference110v() == samsungSwitch||s1
+						.getDevicePreference110v() == philipsSwitch2);		
 
 	}	
 
 	@Test
-	public void ConstraintInjectionWhenEmptyPreferenceTagExistsAttribute()
+	public void ConstraintInjectionWhenEmptyPreferenceTagExistsAttribute_14()
 			throws InvalidSyntaxException {
 
 		
@@ -578,8 +579,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void FindImplByName(){
-		
+	public void FindImplByName_15(){
 				
 		auxListInstances("before-");
 		
@@ -588,7 +588,6 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		auxListInstances("after-");
 		
 		Assert.assertTrue("Should be possible to find an implementation by using its name.",impl!=null);
-
 	}
 }
 // Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
@@ -596,12 +595,6 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 // Instance s3Inst=s3Impl.createInstance(null, null);
 // Implementation s3Impl =
 // CST.apamResolver.findImplByName(null,"apam.test.dependency.S3Impl");
-
-// contraintes implementations
-// contraintes instances
-
-// heritage de contraintes
-// contraintes générique
 
 // resolution interface
 // resolution message

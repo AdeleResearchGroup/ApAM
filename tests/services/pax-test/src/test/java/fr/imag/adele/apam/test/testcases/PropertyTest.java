@@ -25,7 +25,7 @@ public class PropertyTest extends ExtensionAbstract {
 	 * Ensures that inherited properties cannot be changed and inherited definitions can change
 	 */
 	@Test
-	public void PropertyInheritedCannotBeChanged(){
+	public void PropertyInheritedCannotBeChanged_01(){
 		
 				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
@@ -55,7 +55,7 @@ public class PropertyTest extends ExtensionAbstract {
 	 * Ensures that initial properties are configured in the instance properly
 	 */
 	@Test
-	public void PropertyConfiguredWithInitialParameter(){
+	public void PropertyConfiguredWithInitialParameter_02(){
 		
 				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
@@ -84,74 +84,11 @@ public class PropertyTest extends ExtensionAbstract {
 		}
 	}
 
-	@Test
-	public void PropertyDefinitionIsVisibleWithValPropertySet(){
-		
-		Implementation s1Impl = CST.apamResolver.findImplByName(null,
-				"fr.imag.adele.apam.pax.test.impl.S1Impl");
-		
-		Instance s1Inst = s1Impl.createInstance(null, null);
-		
-		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-		
-		for(String key:s1Inst.getAllProperties().keySet()){
-			System.out.println(key+"="+s1Inst.getAllProperties().get(key.toString()));
-		}
-		
-		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal")!=null);
-		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal")!=null);
-		
-		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
-		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
-		
-	}
-	
-	@Test
-	public void PropertyDefinitionInternalAndNotInternalAreAPIVisible(){
-		
-		
-		Implementation s1Impl = CST.apamResolver.findImplByName(null,
-				"fr.imag.adele.apam.pax.test.impl.S1Impl");
-		
-		Instance s1Inst = s1Impl.createInstance(null, null);
-		
-		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-				
-		s1Inst.setProperty("stateInternal", "default");
-		s1Inst.setProperty("stateNotInternal", "default");
-
-		for(String key:s1Inst.getAllProperties().keySet()){
-			System.out.println(key+"="+s1Inst.getAllProperties().get(key.toString()));
-		}
-		
-		System.out.println("--------------------");
-		
-		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal")!=null);
-		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal")!=null);
-		
-		Assert.assertTrue("Internal property not visible through API with the right value", s1Inst.getAllProperties().get("stateInternal").equals("default"));
-		Assert.assertTrue("Non-Internal property not visible through API with the right value", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
-		
-		s1Inst.setProperty("stateInternal", "changed");
-		s1Inst.setProperty("stateNotInternal", "changed");
-		
-		Assert.assertTrue("Internal property shall not be changeble through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
-		Assert.assertTrue("Non-Internal property shall be changeble through API", s1Inst.getAllProperties().get("stateNotInternal").equals("changed"));
-		
-		s1.setStateInternal("changed2");
-		s1.setStateNotInternal("changed2");
-		
-		Assert.assertTrue("Internal property shall be changeble through the application", s1Inst.getAllProperties().get("stateInternal").equals("changed2"));
-		Assert.assertTrue("Non-Internal property shall be changeble through the application", s1Inst.getAllProperties().get("stateNotInternal").equals("changed2"));
-		
-	}
-	
-	
 	/**
 	 * Ensures that initial properties are configured in the instance properly
 	 */
 	@Test
-	public void PropertyConfiguredWithSetProperty(){
+	public void PropertyConfiguredWithSetProperty_03(){
 		
 				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
@@ -184,9 +121,65 @@ public class PropertyTest extends ExtensionAbstract {
 			Assert.assertTrue(message,samsungInst.getProperty(key).equals(initialProperties.get(key)));
 		}
 	}
+	
+	@Test
+	public void PropertyDefinitionInternalAndNotInternalAreAPIVisible_04(){
+		
+		
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+		
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+				
+		s1Inst.setProperty("stateInternal", "default");
+		s1Inst.setProperty("stateNotInternal", "default");
+
+		for(String key:s1Inst.getAllProperties().keySet()){
+			System.out.println(key+"="+s1Inst.getAllProperties().get(key.toString()));
+		}
+		
+		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal")!=null);
+		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal")!=null);
+		
+		Assert.assertTrue("Internal property not visible through API with the right value", s1Inst.getAllProperties().get("stateInternal").equals("default"));
+		Assert.assertTrue("Non-Internal property not visible through API with the right value", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
+		
+		s1Inst.setProperty("stateInternal", "changed");
+		s1Inst.setProperty("stateNotInternal", "changed");
+		
+		Assert.assertTrue("Internal property shall not be changeble through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
+		Assert.assertTrue("Non-Internal property shall be changeble through API", s1Inst.getAllProperties().get("stateNotInternal").equals("changed"));
+		
+		s1.setStateInternal("changed2");
+		s1.setStateNotInternal("changed2");
+		
+		Assert.assertTrue("Internal property shall be changeble through the application", s1Inst.getAllProperties().get("stateInternal").equals("changed2"));
+		Assert.assertTrue("Non-Internal property shall be changeble through the application", s1Inst.getAllProperties().get("stateNotInternal").equals("changed2"));
+		
+	}
 
 	@Test
-	public void PropertiesDataTypeAndLDAPFilteringForIntegers()
+	public void PropertyDefinitionIsVisibleWithValPropertySetXML_05(){
+		
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+		
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+		
+		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal")!=null);
+		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal")!=null);
+		
+		Assert.assertTrue("Internal property value not visible through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
+		Assert.assertTrue("Non-Internal property value not visible through API", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
+		
+	}
+	
+	@Test
+	public void PropertiesDataTypeAndLDAPFilteringForIntegers_06()
 			throws InvalidSyntaxException {
 
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
@@ -245,7 +238,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void PropertiesDataTypeAndLDAPFilteringForBoolean()
+	public void PropertiesDataTypeAndLDAPFilteringForBoolean_07()
 			throws InvalidSyntaxException {
 
 		
@@ -281,7 +274,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PropertiesDataTypeAndLDAPFilteringForString()
+	public void PropertiesDataTypeAndLDAPFilteringForString_08()
 			throws InvalidSyntaxException {
 
 		
