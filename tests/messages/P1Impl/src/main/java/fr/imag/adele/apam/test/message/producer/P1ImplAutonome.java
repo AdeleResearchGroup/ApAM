@@ -9,12 +9,12 @@ public class P1ImplAutonome implements MyProducer {
     Thread t;
     boolean running=true;
     
-    public Message<String> produceM1(Properties prop) {
+    public String produceM1(Properties prop) {
         double a =Math.random();
         double b = Math.random();
         Message<M1> m = new Message<M1>(new M1(a, b));
         m.getProperties().setProperty("vendor", "mehdi");
-        return new Message<String>(Double.toString(a)) ;
+        return (Double.toString(a)) ;
     }
 
     public void start() {
@@ -24,8 +24,8 @@ public class P1ImplAutonome implements MyProducer {
             public void run() {
                 int i=0;
                 while (running) {
-                    Message<String> m1 = produceM1(null);
-                    System.out.println(" produce message M1 : " + m1.getData() );
+                    String m1 = produceM1(null);
+                    System.out.println(" produce message M1 : " + m1 );
                     i++;
                    
                 }
