@@ -33,8 +33,8 @@ import fr.imag.adele.apam.Wire;
 public abstract class ExtensionAbstract {
 
 	// Based on the current running, no test should take longer than 2 minute
-//	@Rule
-//	public TestRule globalTimeout = new Timeout(120000);
+	@Rule
+	public TestRule globalTimeout = new Timeout(120000);
 
 	@Rule
 	public TestName name = new TestName();

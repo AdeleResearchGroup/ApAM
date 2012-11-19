@@ -51,7 +51,7 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1353066015126" ID="ID_1595772935" MODIFIED="1353316544438" TEXT="Dependency">
+<node CREATED="1353066015126" ID="ID_1595772935" MODIFIED="1353316598237" TEXT="Dependency">
 <node CREATED="1353075661607" ID="ID_916344715" MODIFIED="1353076800476" TEXT="set/array types">
 <node CREATED="1353071915367" ID="ID_1456627929" MODIFIED="1353075217660" TEXT="check if the class instantiated is exactly of the same type as the requested-01">
 <icon BUILTIN="button_ok"/>
@@ -113,10 +113,18 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
+<node CREATED="1353316599105" ID="ID_209507505" MODIFIED="1353316659376" TEXT="error handling">
+<node CREATED="1353316606452" ID="ID_1742264459" MODIFIED="1353316654377" TEXT="in &lt;dependency&gt; fail wait should cause thread to be halted">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1353316660323" ID="ID_929298761" MODIFIED="1353316747777" TEXT="in &lt;dependency&gt; tag, if fail is configured to &quot;exception&quot; the exception declared in the property should be thrown">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
 </node>
 </node>
 <node CREATED="1353066000806" ID="ID_1984824160" MODIFIED="1353077178051" POSITION="left" TEXT="Composite">
-<node CREATED="1353076999720" ID="ID_1637874218" MODIFIED="1353077002285" TEXT="instantiation">
+<node CREATED="1353076999720" ID="ID_1637874218" MODIFIED="1353332025098" TEXT="instantiation">
 <node CREATED="1353076702920" ID="ID_1910174465" MODIFIED="1353076973683" TEXT="should be possible to instantiate one composite-01">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -124,6 +132,9 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353076955016" ID="ID_1396045592" MODIFIED="1353077032748" TEXT="should be possible to retrieve the service object of a composite-03">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353332025894" ID="ID_1509607474" MODIFIED="1353332074612" TEXT="enclosed dependency instantiation should instantiate automatically indirect dependency-04">
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353077063784" ID="ID_158894754" MODIFIED="1353077097851" TEXT="in case meta-composites, the inner composite instantiation should instantiate the outers">

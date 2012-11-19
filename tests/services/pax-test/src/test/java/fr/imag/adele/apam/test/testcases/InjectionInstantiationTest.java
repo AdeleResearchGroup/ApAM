@@ -21,6 +21,9 @@ import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.core.ImplementationDeclaration;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 import fr.imag.adele.apam.pax.test.impl.S1Impl;
+import fr.imag.adele.apam.pax.test.impl.S2InnerImpl;
+import fr.imag.adele.apam.pax.test.impl.S2MiddleImpl;
+import fr.imag.adele.apam.pax.test.impl.S2OutterImpl;
 import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
 import fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch;
 import fr.imag.adele.apam.test.support.Constants;
@@ -290,7 +293,6 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	@Test
 	public void NotInstantiableInstance_08() {
-	
 			
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterNotInstantiable");
@@ -589,6 +591,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		
 		Assert.assertTrue("Should be possible to find an implementation by using its name.",impl!=null);
 	}
+	
 }
 // Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
 // CST.componentBroker.getInstService(s3bis) ;
