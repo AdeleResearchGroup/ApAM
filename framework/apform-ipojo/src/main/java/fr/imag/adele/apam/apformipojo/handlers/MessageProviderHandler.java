@@ -200,7 +200,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 	}
 
 	@Override
-	public void consumersConnected(Wire[] newWires) {
+	public synchronized void consumersConnected(Wire[] newWires) {
 		wires.clear();
 
 		if (newWires == null || newWires.length == 0)
@@ -246,11 +246,28 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 
 	private void push(Message<Object> message) {
 		
+	    
 		if (message.getData() == null)
 			return;
+	     
+        /*
+         * Create a local copy of the current list of wire sto avoid synchronization
+         * problems
+         */
+        
+        List<Wire> currentWires = new ArrayList<Wire>(); 
+        synchronized (this) {
+            currentWires.addAll(wires);
+        }
 		
-		for (Wire wire : wires) {
-			
+        /*
+         * broadcast to all wires
+         */
+		for (Wire wire : currentWires) {
+
+	          if (!wire.isConnected())
+	              continue;
+
 			/*
 			 * Verify that the data is one of the supported flavors and send
 			 */

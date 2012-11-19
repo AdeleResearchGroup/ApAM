@@ -1,6 +1,6 @@
 package fr.imag.adele.apam.tests.helpers;
 
-import static org.ops4j.pax.exam.CoreOptions.bundle;
+
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
@@ -28,12 +28,13 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Wire;
 
 public abstract class ExtensionAbstract {
 
 	// Based on the current running, no test should take longer than 2 minute
-	@Rule
-	public TestRule globalTimeout = new Timeout(120000);
+//	@Rule
+//	public TestRule globalTimeout = new Timeout(120000);
 
 	@Rule
 	public TestName name = new TestName();
@@ -68,6 +69,16 @@ public abstract class ExtensionAbstract {
 		System.out.println(String.format(
 				"%s------------ /Properties -------------", prefix));
 	}
+	
+	protected void auxDisconectWires(Instance instance){
+		
+		for (Wire wire : instance.getWires()) {
+
+			instance.removeWire(wire);
+
+		}
+		
+	}
 
 	@Before
 	public void setUp() {
@@ -77,11 +88,11 @@ public abstract class ExtensionAbstract {
 	}
 
 	@Configuration
-	public Option[] apamConfig() {
+	public static Option[] apamConfig() {
 		return config();
 	}
 
-	public Option[] config(){
+	public static Option[] config(){
 		return options(
 				systemProperty("org.osgi.service.http.port").value("8080"),
 				cleanCaches(),

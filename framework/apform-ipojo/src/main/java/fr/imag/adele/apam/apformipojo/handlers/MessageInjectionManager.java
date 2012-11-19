@@ -19,6 +19,8 @@ import org.osgi.service.wireadmin.Consumer;
 import org.osgi.service.wireadmin.Wire;
 import org.osgi.service.wireadmin.WireAdmin;
 import org.osgi.service.wireadmin.WireConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
@@ -47,6 +49,7 @@ import fr.imag.adele.apam.util.ApAMQueue;
  */
 public class MessageInjectionManager implements DependencyInjectionManager, Consumer {// MessageConsumer<Object>
 
+    Logger logger  = LoggerFactory.getLogger(getClass());
     /**
      * The registered name of this iPojo handler
      */
@@ -363,6 +366,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
                 wireProperties.put(MessageProviderHandler.ATT_PROVIDER_ID, messageProducer.providerId);
                 Wire wire = wireAdmin.createWire(messageProducer.producerId, getConsumerId(), wireProperties);
                 wires.put(target.getName(),wire);
+                
             }
         }
 
