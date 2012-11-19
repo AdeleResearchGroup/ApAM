@@ -447,6 +447,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
 		Eletronic samsungSwitch = (Eletronic) samsungInst.getServiceObject();
+		Eletronic samsungSwitch2 = (Eletronic) samsungInst2.getServiceObject();
 		Eletronic lgSwitch = (Eletronic) lgInst.getServiceObject();
 		Eletronic siemensSwitch = (Eletronic) siemensInst.getServiceObject();
 
@@ -455,7 +456,6 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		Instance injectedInstance = CST.componentBroker.getInstService(s1
 				.getDevicePreference110v());
-
 		Assert.assertTrue(
 				String.format(
 						"The instance injected should be the prefered one (currentVoltage=500), since there exist an instance in which the preference is valid. The instance %s (currentVoltage:%s) was injected instead of %s (currentVoltage:%s)",
@@ -463,7 +463,8 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 								.getAllProperties().get("currentVoltage"),
 						samsungInst.getName(), samsungInst.getAllProperties()
 								.get("currentVoltage")), s1
-						.getDevicePreference110v() == samsungSwitch);
+						.getDevicePreference110v() == samsungSwitch||s1
+						.getDevicePreference110v() == samsungSwitch2);
 
 	}
 	

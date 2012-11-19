@@ -74,8 +74,10 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         logger.info("[OBRMAN] stopped");
     }
 
-    static List<String> onLoadingResource  = new ArrayList<String>();
-    static List<String> onLoadingComponent = new ArrayList<String>();
+//    static List<String> onLoadingResource  = new ArrayList<String>();
+//    static Map<String,Integer> onLoadingResourceRequests  = new HashMap<String,Integer>();
+//    static List<String> onLoadingComponent = new ArrayList<String>();
+    static StackLoading stack = new StackLoading();
 
     /**
      * Instal ans instantiate the selected bundle, and return the component.
@@ -90,66 +92,36 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             return null;
 
         String name = selected.getComponentName();
-        if (!onLoadingComponent.contains(name)){
-            onLoadingComponent.add(name);
-        }
         fr.imag.adele.apam.Component c = CST.componentBroker.getComponent(name);
-        boolean deployed = false;
         // Check if already deployed
         if (c == null) {
-            logger.debug("Start verifying resource : " + selected.resource.getSymbolicName() +" for : " + name);
-            if (onLoadingResource.contains(selected.resource.getSymbolicName())) { // check if the resource still
-                                                                                   // loading
-                logger.debug("The " + selected.getResource().getSymbolicName() + " which contains " + name
-                        + " is on loading!");
-                deployed = true;
-            } else if (alreadyDeployed(selected)) {// check if the resource is already deployed
-                logger.debug("The component " + name + " is on an already installed resource : "
-                        + selected.getResource().getSymbolicName());
-                onLoadingComponent.remove(name);
-                return CST.componentBroker.getComponent(name);
-            } else {
-                // deploy selected resource
-                onLoadingResource.add(selected.resource.getSymbolicName());
-                deployed = selected.obrManager.deployInstall(selected);
-            }
+            // deploy selected resource
+            boolean deployed = selected.obrManager.deployInstall(selected);
             if (!deployed) {
-                logger.error("could not install resource ");
-                onLoadingResource.remove(selected.resource.getSymbolicName());
-                onLoadingComponent.remove(name);
+                System.err.print("could not install resource ");
                 ObrUtil.printRes(selected.resource);
                 return null;
             }
-
-            // wait loading of all components of the resource installed
-            componentLoading(name, selected.resource);
             // waiting for the component to be ready in Apam.
             c = CST.componentBroker.getWaitComponent(name);
         } else { // do not install twice.
             // It is a logical deployment. The already existing component is not visible !
             // System.err.println("Logical deployment of : " + name + " found by OBRMAN but allready deployed.");
         }
-        onLoadingComponent.remove(name);
-        onLoadingResource.remove(selected.resource.getSymbolicName());
-        logger.debug("Finish Loading Resource : " + selected.resource.getSymbolicName() + " for : " +name);
-        logger.debug("on loading resources : "  + onLoadingResource);
+
         return c;
+        
     }
 
     private void componentLoading(String name, Resource resource) {
-        logger.debug("Now Loading : " +resource.getSymbolicName() + " for : " +name);
-        logger.debug("ComponentOnLoading : " + onLoadingComponent );
+        logger.debug("Loading Components of : " + resource.getSymbolicName() + " for : " + name);
         Capability[] caps = resource.getCapabilities();
         for (Capability capability : caps) {
-            if (capability.getName().equals(CST.CAPABILITY_COMPONENT) && !onLoadingComponent.contains((String) capability.getPropertiesAsMap().get(CST.NAME))) {
-                logger.debug("Loading : " + (String) capability.getPropertiesAsMap().get(CST.NAME));
-                onLoadingComponent.add((String) capability.getPropertiesAsMap().get(CST.NAME));
-                CST.componentBroker.getWaitComponent((String) capability.getPropertiesAsMap().get(CST.NAME));
-                onLoadingComponent.remove((String) capability.getPropertiesAsMap().get(CST.NAME));
-                logger.debug("Loaded : " +(String) capability.getPropertiesAsMap().get(CST.NAME));
+            if (capability.getName().equals(CST.CAPABILITY_COMPONENT)){
+                  //  && !stack.isOnloadingComponent((String) capability.getPropertiesAsMap().get(CST.NAME))) {
+                stack.loadAndLoaded(resource, (String) capability.getPropertiesAsMap().get(CST.NAME), true);//((String) capability.getPropertiesAsMap().get(CST.NAME),true);
             }
         }
-
     }
 
     private boolean alreadyDeployed(Selected selected) {

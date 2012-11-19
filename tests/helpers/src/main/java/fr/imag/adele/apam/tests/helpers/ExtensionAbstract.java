@@ -32,8 +32,8 @@ import fr.imag.adele.apam.Instance;
 public abstract class ExtensionAbstract {
 
 	// Based on the current running, no test should take longer than 2 minute
-	@Rule
-	public TestRule globalTimeout = new Timeout(120000);
+//	@Rule
+//	public TestRule globalTimeout = new Timeout(120000);
 
 	@Rule
 	public TestName name = new TestName();
@@ -76,44 +76,48 @@ public abstract class ExtensionAbstract {
 		apam.waitForIt(1000);
 	}
 
-//	@Configuration
-//	public static Option[] apamConfig() {
-//		return options(
-//				systemProperty("org.osgi.service.http.port").value("8080"),
-//				cleanCaches(),
-//				systemProperty("logback.configurationFile").value(
-//						"file:" + PathUtils.getBaseDir() + "/log/logback.xml"),
-//				systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level")
-//						.value("NONE"),
-//				mavenBundle().groupId("org.apache.felix")
-//						.artifactId("org.apache.felix.ipojo").version("1.8.0"),
-//				mavenBundle().groupId("org.ow2.chameleon.testing")
-//						.artifactId("osgi-helpers").version("0.2.0"),
-//				mavenBundle().groupId("org.osgi")
-//						.artifactId("org.osgi.compendium").version("4.2.0"),
-//				mavenBundle().groupId("org.apache.felix")
-//						.artifactId("org.apache.felix.bundlerepository")
-//						.version("1.6.6"),
-//				mavenBundle().groupId("org.ops4j.pax.url")
-//						.artifactId("pax-url-mvn").version("1.3.5"),
-//				mavenBundle().groupId("fr.imag.adele.apam")
-//						.artifactId("apam-bundle").version("0.0.1-SNAPSHOT"),
-//				mavenBundle().groupId("fr.imag.adele.apam")
-//						.artifactId("obrman").version("0.0.1-SNAPSHOT"),
-//				mavenBundle("org.slf4j", "slf4j-api").version("1.6.6"),
-//				mavenBundle("ch.qos.logback", "logback-core").version("1.0.7"),
-//				mavenBundle("ch.qos.logback", "logback-classic").version(
-//						"1.0.7"),
-//				junitBundles(),
-//				
-//				mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
-//						.version("0.0.1-SNAPSHOT"),
-//				when(Boolean.getBoolean("isDebugEnabled"))
-//						.useOptions(
-//								vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"),
-//								systemTimeout(0)));
-//	}
+	@Configuration
+	public static Option[] apamConfig() {
+		return config();
+	}
 
+	public static Option[] config(){
+		return options(
+				systemProperty("org.osgi.service.http.port").value("8080"),
+				cleanCaches(),
+				systemProperty("logback.configurationFile").value(
+						"file:" + PathUtils.getBaseDir() + "/log/logback.xml"),
+				systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level")
+						.value("NONE"),
+				mavenBundle().groupId("org.apache.felix")
+						.artifactId("org.apache.felix.ipojo").version("1.8.0"),
+				mavenBundle().groupId("org.ow2.chameleon.testing")
+						.artifactId("osgi-helpers").version("0.2.0"),
+				mavenBundle().groupId("org.osgi")
+						.artifactId("org.osgi.compendium").version("4.2.0"),
+				mavenBundle().groupId("org.apache.felix")
+						.artifactId("org.apache.felix.bundlerepository")
+						.version("1.6.6"),
+				mavenBundle().groupId("org.ops4j.pax.url")
+						.artifactId("pax-url-mvn").version("1.3.5"),
+				mavenBundle().groupId("fr.imag.adele.apam")
+						.artifactId("apam-bundle").version("0.0.1-SNAPSHOT"),
+				mavenBundle().groupId("fr.imag.adele.apam")
+						.artifactId("obrman").version("0.0.1-SNAPSHOT"),
+				mavenBundle("org.slf4j", "slf4j-api").version("1.6.6"),
+				mavenBundle("ch.qos.logback", "logback-core").version("1.0.7"),
+				mavenBundle("ch.qos.logback", "logback-classic").version(
+						"1.0.7"),
+				junitBundles(),
+				
+				mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
+						.version("0.0.1-SNAPSHOT"),
+				when(Boolean.getBoolean("isDebugEnabled"))
+						.useOptions(
+								vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"),
+								systemTimeout(0)));
+	}
+	
 	@After
 	public void tearDown() {
 		apam.dispose();
