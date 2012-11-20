@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>apam-core</artifactId>
+		<artifactId>apam-runtime</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>

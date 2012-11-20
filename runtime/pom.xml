@@ -19,7 +19,7 @@
 	</parent>
 
 
-	<artifactId>apam-core</artifactId>
+	<artifactId>apam-runtime</artifactId>
 	<packaging>pom</packaging>
 	<name>ApAM Runtime</name>
 
