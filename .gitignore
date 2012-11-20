@@ -28,4 +28,5 @@ distributions/*-distribution/bundle
 distributions/*-distribution/felix-cache
 distributions/*-distribution/load
 distributions/*-distribution/bin
+distributions/*-distribution/apam*
 
