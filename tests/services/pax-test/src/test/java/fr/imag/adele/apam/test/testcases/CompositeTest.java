@@ -15,7 +15,6 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.pax.test.device.DeadsManSwitch;
-import fr.imag.adele.apam.pax.test.impl.S2Impl;
 import fr.imag.adele.apam.pax.test.impl.S2InnerImpl;
 import fr.imag.adele.apam.pax.test.impl.S2MiddleImpl;
 import fr.imag.adele.apam.pax.test.impl.S2OutterImpl;

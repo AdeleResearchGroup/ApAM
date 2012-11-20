@@ -95,6 +95,12 @@
 <node CREATED="1353075141416" ID="ID_384580446" MODIFIED="1353085786890" TEXT="remove callback, should be called when the components is uninstalled-11">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1353422621394" ID="ID_1384277878" MODIFIED="1353422757933" TEXT="in dependency tag, the method spec. in added should be called when the dependency is satified">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353422670626" ID="ID_1652284443" MODIFIED="1353422762997" TEXT="in dependency tag, the method spec. in &quot;removed&quot; attribute should be called when the dependency wire is removed">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node CREATED="1353075257352" ID="ID_1845106728" MODIFIED="1353316551326" TEXT="preference">
 <node CREATED="1353075782472" ID="ID_1933538834" MODIFIED="1353076608931" TEXT="injected instance should respect the preference (if its satisfiable)-12">
@@ -147,13 +153,10 @@
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
-<node CREATED="1353077038120" ID="ID_1357881613" MODIFIED="1353077290758" TEXT=""/>
 <node CREATED="1353077178936" ID="ID_817521693" MODIFIED="1353077182374" TEXT="start"/>
 <node CREATED="1353077184248" ID="ID_914230240" MODIFIED="1353077186598" TEXT="borrow"/>
 <node CREATED="1353077190840" ID="ID_1475045056" MODIFIED="1353077192166" TEXT="local"/>
-<node CREATED="1353077196808" ID="ID_1525157524" MODIFIED="1353077213100" TEXT="friend">
-<icon BUILTIN="info"/>
-</node>
+<node CREATED="1353077196808" ID="ID_1525157524" MODIFIED="1353416497236" TEXT="friend"/>
 <node CREATED="1353077202712" ID="ID_1802016001" MODIFIED="1353077204742" TEXT="application"/>
 <node CREATED="1353077208472" ID="ID_1719755842" MODIFIED="1353077210118" TEXT="own"/>
 </node>
