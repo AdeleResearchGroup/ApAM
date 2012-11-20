@@ -177,6 +177,15 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	@Override
 	public void unregister() {
 		logger.debug("unregister implementation " + this);
+		
+		/*
+         * Remove opposite references from specification and enclosing composite types
+         */
+        ((SpecificationImpl) getSpec()).removeImpl(this);
+        for (CompositeType inComposite : inComposites) {
+            ((CompositeTypeImpl)inComposite).removeImpl(this);
+        }
+        
 		/*
 		 * remove all existing instances
 		 */
@@ -185,13 +194,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			ComponentBrokerImpl.disappearedComponent(inst) ;
 		}
 
-		/*
-		 * Remove opposite references from specification and enclosing composite types
-		 */
-		((SpecificationImpl) getSpec()).removeImpl(this);
-		for (CompositeType inComposite : inComposites) {
-			((CompositeTypeImpl)inComposite).removeImpl(this);
-		}
+		
 
 		//Do not remove inverse links, in case threads are still here.
 //		mySpec = null;

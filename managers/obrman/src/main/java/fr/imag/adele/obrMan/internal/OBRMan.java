@@ -14,6 +14,7 @@ import org.apache.felix.bundlerepository.Capability;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resource;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.slf4j.Logger;
@@ -74,7 +75,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         logger.info("[OBRMAN] stopped");
     }
 
-//    static List<String> onLoadingResource  = new ArrayList<String>();
+    static List<String> onLoadingResource  = new ArrayList<String>();
 //    static Map<String,Integer> onLoadingResourceRequests  = new HashMap<String,Integer>();
 //    static List<String> onLoadingComponent = new ArrayList<String>();
 //    static StackLoading stack = new StackLoading();
@@ -95,6 +96,11 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         fr.imag.adele.apam.Component c = CST.componentBroker.getComponent(name);
         // Check if already deployed
         if (c == null) {
+            
+            if (bundleDeployed(selected.resource.getSymbolicName())){
+                logger.info("The bundle " + selected.resource.getSymbolicName() + " is already installed!");
+                return null;
+            }
             // deploy selected resource
             boolean deployed = selected.obrManager.deployInstall(selected);
             if (!deployed) {
@@ -132,6 +138,19 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 //        }
 //        return false;
 //    }
+
+    private boolean bundleDeployed(String symbolicName) {
+        Bundle[] bunldes = m_context.getBundles();
+        for (Bundle bundle : bunldes) {
+            if (bundle.getSymbolicName()!=null && bundle.getSymbolicName().equals(symbolicName)){
+                if (bundle.getState() == Bundle.ACTIVE || bundle.getState() ==Bundle.STARTING || bundle.getState() ==Bundle.UNINSTALLED ){
+                    return false;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public String getName() {

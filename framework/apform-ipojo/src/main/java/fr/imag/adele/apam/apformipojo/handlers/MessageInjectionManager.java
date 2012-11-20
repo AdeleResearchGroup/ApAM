@@ -183,23 +183,31 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
         consumerDescription.addAttribute(new Attribute("field", injection.getName()));
         consumerDescription.addAttribute(new Attribute("type", injection.getResource().toString()));
         consumerDescription.addAttribute(new Attribute("isAggregate",   Boolean.toString(injection.isCollection())));
-        consumerDescription.addAttribute(new Attribute("resolved",Boolean.toString(isResolved())));
 
-        if (isResolved()) {
-            
-            consumerDescription.addAttribute(new Attribute("consumer.id",consumerId));
-            consumerDescription.addAttribute(new Attribute("flavors",Arrays.toString(messageFlavors)));
-            consumerDescription.addAttribute(new Attribute("buffered",Integer.toString(buffer.size())));
-
-            for (Wire wire : wires.values()) {
-                
-                Element wireInfo = new Element("wire",ApformIpojoComponent.APAM_NAMESPACE);
-                wireInfo.addAttribute(new Attribute("producer.id",(String)wire.getProperties().get(WireConstants.WIREADMIN_PRODUCER_PID)));
-                wireInfo.addAttribute(new Attribute("flavors",Arrays.toString(wire.getFlavors())));
-                consumerDescription.addElement(wireInfo);
-            }
-        
+        /*
+         * show the current state of resolution. To avoid unnecessary synchronization overhead make a copy of the
+         * current target services and do not use directly the field that can be concurrently modified
+         */
+        Set<Wire> resolutions = new HashSet<Wire>();
+        synchronized (this) {
+            resolutions.addAll(wires.values());
         }
+
+            
+        consumerDescription.addAttribute(new Attribute("resolved",Boolean.toString(!resolutions.isEmpty())));
+        consumerDescription.addAttribute(new Attribute("consumer.id",consumerId));
+        consumerDescription.addAttribute(new Attribute("flavors",Arrays.toString(messageFlavors)));
+        consumerDescription.addAttribute(new Attribute("buffered",Integer.toString(buffer.size())));
+
+        for (Wire wire : resolutions) {
+            
+            Element wireInfo = new Element("wire",ApformIpojoComponent.APAM_NAMESPACE);
+            wireInfo.addAttribute(new Attribute("producer.id",(String)wire.getProperties().get(WireConstants.WIREADMIN_PRODUCER_PID)));
+            wireInfo.addAttribute(new Attribute("flavors",Arrays.toString(wire.getFlavors())));
+            consumerDescription.addElement(wireInfo);
+        }
+        
+
         
         return consumerDescription;
     
@@ -235,43 +243,23 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
      */
     public Object onGet(Object pojo, String fieldName, Object value) {
 
-        /*
-         * Verify if there is a service fault (a required dependency is not present) and delegate to APAM handling of
-         * this case.
-         */
-        if (!isResolved()) {
-
-            /*
-             * Ask APAM to resolve the dependency. Depending on the application policies this may throw an error, or
-             * block the thread until the dependency is fulfilled, or keep the dependency unresolved in the case of
-             * optional dependencies.
-             * 
-             * Resolution has as side-effect a modification of the target services.
-             */ 
-            instance.resolve(this);
-        }
-      
-         return getFieldValue(fieldName);
-    }
-
-    /**
-     * Get the value to be injected in the field. The returned object depends on the resolution of the dependency
-     * associated to this injection.
-     * 
-     * If the dependency is resolved we inject a value from the message buffer in the field. Otherwise
-     * we return null to signal the program an unresolved dependency.
-     * 
-     */
-    private Object getFieldValue(String fieldName) {
-       synchronized (this) {
-            if (consumer != null) {
+        synchronized (this) {
+            if (consumer != null)
                 return fieldBuffer;
-            }else {
-                return null;
-            }
         }
 
+        /*
+         * Ask APAM to resolve the dependency. Depending on the application policies this may throw an error, or
+         * block the thread until the dependency is fulfilled, or keep the dependency unresolved in the case of
+         * optional dependencies.
+         * 
+         * Resolution has as side-effect a modification of the target services.
+         */ 
+        instance.resolve(this);
+      
+        return consumer !=null ? fieldBuffer : null;
     }
+
     
     /**
      * Get access to the wireadmin, via the DependencyInjectionHandler
@@ -440,16 +428,6 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
         }
     }
 
-    /**
-     * Whether this dependency is satisfied by a target service.
-     * 
-     */
-    public boolean isResolved() {
-        synchronized (this) {
-            return !targetServices.isEmpty();
-        }
-
-    }
 
     /**
      * Consumes a message and put it in the buffer for later retrieval.
