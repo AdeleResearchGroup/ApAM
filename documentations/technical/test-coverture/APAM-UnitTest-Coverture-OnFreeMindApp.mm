@@ -95,10 +95,10 @@
 <node CREATED="1353075141416" ID="ID_384580446" MODIFIED="1353085786890" TEXT="remove callback, should be called when the components is uninstalled-11">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353422621394" ID="ID_1384277878" MODIFIED="1353422757933" TEXT="in dependency tag, the method spec. in added should be called when the dependency is satified">
+<node CREATED="1353422621394" ID="ID_1384277878" MODIFIED="1353428957246" TEXT="in dependency tag, the method spec. in added should be called when the dependency is satified-16">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353422670626" ID="ID_1652284443" MODIFIED="1353422762997" TEXT="in dependency tag, the method spec. in &quot;removed&quot; attribute should be called when the dependency wire is removed">
+<node CREATED="1353422670626" ID="ID_1652284443" MODIFIED="1353428960637" TEXT="in dependency tag, the method spec. in &quot;removed&quot; attribute should be called when the dependency wire is removed-16">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
