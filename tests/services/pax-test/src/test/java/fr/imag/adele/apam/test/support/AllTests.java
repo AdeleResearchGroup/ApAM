@@ -9,14 +9,9 @@ import fr.imag.adele.apam.test.testcases.ConstraintTest;
 import fr.imag.adele.apam.test.testcases.InjectionInstantiationTest;
 import fr.imag.adele.apam.test.testcases.PropertyTest;
 
-
-
 @RunWith(Suite.class)
-@SuiteClasses({ 
-	CompositeTest.class,
-	ConstraintTest.class, 
-	InjectionInstantiationTest.class, 
-	PropertyTest.class} )
+@SuiteClasses({ CompositeTest.class, ConstraintTest.class,
+		InjectionInstantiationTest.class, PropertyTest.class })
 public class AllTests {
 
 }

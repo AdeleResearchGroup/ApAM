@@ -142,4 +142,20 @@ public class S1Impl implements S1
 		this.context = context;
 	}
 
+	public S2 getS2() {
+		return s2;
+	}
+
+	public void setS2(S2 s2) {
+		this.s2 = s2;
+	}
+
+	public S3 getS3() {
+		return s3;
+	}
+
+	public void setS3(S3 s3) {
+		this.s3 = s3;
+	}
+
 }
