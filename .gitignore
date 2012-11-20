@@ -23,8 +23,8 @@ obr.xml
 *-repo.xml
 
 # apam distribution
-*distribution/conf
-*distribution/bundle
-*distribution/felix-cache
-*distribution/load
-*distribution/bin
+-distribution/conf
+-distribution/bundle
+-distribution/felix-cache
+-distribution/load
+-distribution/bin
