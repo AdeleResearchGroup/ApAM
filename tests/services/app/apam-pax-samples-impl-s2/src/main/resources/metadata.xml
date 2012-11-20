@@ -49,11 +49,11 @@
 		</contentMngt>
 	</composite>
 
-	<composite name="S2Impl-composite-2" main="fr.imag.adele.apam.pax.test.impl.S2Impl"
-		shared="true">
+	<composite name="S2Impl-composite-eager" main="fr.imag.adele.apam.pax.test.impl.S2Impl">
 		<contentMngt>
-			<borrow instance="false" />
-			<borrow implementation="false" />
+			<dependency specification="eletronic-device"
+				eager="true">
+			</dependency>
 		</contentMngt>
 	</composite>
 

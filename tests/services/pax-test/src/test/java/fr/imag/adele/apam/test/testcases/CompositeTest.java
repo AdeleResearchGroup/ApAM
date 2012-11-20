@@ -2,9 +2,9 @@ package fr.imag.adele.apam.test.testcases;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -14,7 +14,8 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.pax.test.iface.S2;
+import fr.imag.adele.apam.pax.test.device.DeadsManSwitch;
+import fr.imag.adele.apam.pax.test.impl.S2Impl;
 import fr.imag.adele.apam.pax.test.impl.S2InnerImpl;
 import fr.imag.adele.apam.pax.test.impl.S2MiddleImpl;
 import fr.imag.adele.apam.pax.test.impl.S2OutterImpl;
@@ -129,22 +130,29 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	@Ignore
-	public void Metacomposite() {
+	public void CompositeWithEagerDependency_05() {
 		CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
-				null, "S2Impl-meta-composite");
+				null, "S2Impl-composite-eager");
 		
-		Assert.assertTrue(ct1!=null);
+		String message="During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
 		
-		auxListInstances("before-");
+		Assert.assertTrue(String.format(message, "Although, the test failed to retrieve the composite"),ct1!=null);
+		
+		auxListInstances("instances existing before the test-");
 		
 		Instance instance=ct1.createInstance(null, new HashMap<String, String>());
 		
-		//(S1Impl)instance.getServiceObject()
+		Assert.assertTrue(String.format(message, "Although, the test failed to instantiate the composite"),instance!=null);
 		
-		auxListInstances("after-");
+		//Force injection (for debuggin purposes)
+		//S2Impl im=(S2Impl)instance.getServiceObject();
+		//im.getDeadMansSwitch();
+		
+		List<Instance> pool=auxLookForInstanceOf(DeadsManSwitch.class.getCanonicalName());
+		
+		auxListInstances("intances existing after the test-");
 
-		Assert.assertTrue(instance!=null);
+		Assert.assertTrue(String.format(message, "Although, there exist no instance of dependence required(DeadsManSwitch.class), which means that it was not injected."),pool.size()==1);
 		
 	}
 

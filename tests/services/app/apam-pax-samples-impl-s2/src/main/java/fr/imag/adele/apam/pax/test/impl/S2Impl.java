@@ -39,4 +39,12 @@ public class S2Impl implements S2
 		this.houseMeter = houseMeter;
 	}
 
+	public Eletronic getDeadMansSwitch() {
+		return deadMansSwitch;
+	}
+
+	public void setDeadMansSwitch(Eletronic deadMansSwitch) {
+		this.deadMansSwitch = deadMansSwitch;
+	}
+
 }

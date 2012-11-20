@@ -124,7 +124,7 @@
 </node>
 </node>
 <node CREATED="1353066000806" ID="ID_1984824160" MODIFIED="1353077178051" POSITION="left" TEXT="Composite">
-<node CREATED="1353076999720" ID="ID_1637874218" MODIFIED="1353332025098" TEXT="instantiation">
+<node CREATED="1353076999720" ID="ID_1637874218" MODIFIED="1353406251643" TEXT="instantiation">
 <node CREATED="1353076702920" ID="ID_1910174465" MODIFIED="1353076973683" TEXT="should be possible to instantiate one composite-01">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -135,6 +135,9 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353332025894" ID="ID_1509607474" MODIFIED="1353332074612" TEXT="enclosed dependency instantiation should instantiate automatically indirect dependency-04">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353406252448" ID="ID_868172689" MODIFIED="1353412015763" TEXT="if dependency is marked as eager, it should be instantiated as soon as the bundle is ready-05">
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353077063784" ID="ID_158894754" MODIFIED="1353077097851" TEXT="in case meta-composites, the inner composite instantiation should instantiate the outers">
