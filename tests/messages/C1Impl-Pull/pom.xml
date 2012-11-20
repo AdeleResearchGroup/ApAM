@@ -38,7 +38,7 @@
 
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-runtime</artifactId>
+			<artifactId>apam-core</artifactId>
 			<version>${apam.current.version}</version>
 		</dependency>
 	</dependencies>

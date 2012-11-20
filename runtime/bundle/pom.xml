@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>apam-core</artifactId>
+		<groupId>fr.imag.adele.apam</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>apam-bundle</artifactId>
+	<packaging>bundle</packaging>
+	<name>ApAM Bundle</name>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-Description>
+							APAM Bundle for OSGi
+						</Bundle-Description>
+						<Private-Package>
+							fr.imag.adele.apam.impl,
+							fr.imag.adele.apam.apformipojo.legacy
+						</Private-Package>
+						<Export-Package>
+							fr.imag.adele.apam,
+							fr.imag.adele.apam.core,
+							fr.imag.adele.apam.apform,
+							fr.imag.adele.apam.message,
+							fr.imag.adele.apam.util,
+							fr.imag.adele.apam.apformipojo,
+							fr.imag.adele.apam.apformipojo.handlers
+						</Export-Package>
+						<IPOJO-Extension>
+							implementation:fr.imag.adele.apam.apformipojo.ApformIpojoImplementation,
+							composite:fr.imag.adele.apam.apformipojo.ApformIpojoCompositeType,
+							specification:fr.imag.adele.apam.apformipojo.ApformIpojoSpecification,
+							apam-instance:fr.imag.adele.apam.apformipojo.ApformIpojoInstanceDeclaration
+							<!-- TODO instance:fr.imag.adele.apam.apformipojo.ApformIpojoInstanceDeclaration, 
+								: In iPojo 1.8.0 component type extension identifiers are matched without 
+								considering the namespace. This definition will then conflict with iPojo 
+								composites. From iPojo 1.8.2 this issue will be resolved and the extension 
+								definition must include a namespace qualifier. fr.imag.adele.apam composite:fr.imag.adele.apam.composite.CompositeType -->
+						</IPOJO-Extension>
+					</instructions>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-ipojo-plugin</artifactId>
+			</plugin>
+
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>apform-ipojo</artifactId>
+			<version>${apam.current.version}</version>
+		</dependency>
+	</dependencies>
+
+</project>
