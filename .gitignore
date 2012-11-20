@@ -24,7 +24,7 @@ obr.xml
 
 # apam distribution
 *-distribution/conf
-*-distribution/bundle/
-*-distribution/felix-cache/
+*-distribution/bundle
+*-distribution/felix-cache
 *-distribution/load
 *-distribution/bin
