@@ -236,4 +236,76 @@ public class CompositeTest extends ExtensionAbstract {
 
 	}
 
+	@Test
+	public void CompositeContentMngtBorrowNothingInstance() {
+
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-borrow-nothing-instance");
+
+		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-b");
+
+		Composite composite_a = (Composite) cta.createInstance(null, null);
+		Composite composite_b = (Composite) ctb.createInstance(null, null);
+
+		Instance a = composite_a.getMainInst();
+
+		Instance b = composite_b.getMainInst();
+
+		S3GroupAImpl ga = (S3GroupAImpl) a.getServiceObject();
+
+		S3GroupBImpl gb = (S3GroupBImpl) b.getServiceObject();
+
+		gb.getElement();
+		
+		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+		
+		ga.getElement();
+
+		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		String messageTemplate = "Composite that do not allow anything to be borrowed (<borrow instance='false' />) never should borrow other composite instance. %s";
+
+		String message=String.format(messageTemplate, "Although, an instance from composite B was injected in composite A even if A is marked with borrow instance='false'");
+		
+		Assert.assertTrue(message,ga.getElement() != gb.getElement());
+
+	}
+	
+	@Test
+	public void CompositeContentMngtBorrowNothingImplementation() {
+
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-borrow-nothing-implementation");
+
+		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-b");
+
+		Composite composite_a = (Composite) cta.createInstance(null, null);
+		Composite composite_b = (Composite) ctb.createInstance(null, null);
+
+		Instance a = composite_a.getMainInst();
+
+		Instance b = composite_b.getMainInst();
+
+		S3GroupAImpl ga = (S3GroupAImpl) a.getServiceObject();
+
+		S3GroupBImpl gb = (S3GroupBImpl) b.getServiceObject();
+
+		gb.getElement();
+		
+		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+		
+		ga.getElement();
+
+		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		String messageTemplate = "Composite that do not allow anything to be borrowed (<borrow instance='false' />) never should borrow other composite instance. %s";
+
+		String message=String.format(messageTemplate, "Although, an instance from composite B was injected in composite A even if A is marked with borrow instance='false'");
+		
+		Assert.assertTrue(message,ga.getElement() != gb.getElement());
+
+	}
+	
 }

@@ -53,6 +53,27 @@
 			<local implementation="true" />
 		</contentMngt>
 	</composite>
+<!-- 
+	<implementation name="borrowSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.BorrowSwitch"
+		specification="eletronic-device">
+		<property name="manufacturer" value="borrow" />
+		<property name="voltage" value="110" />
+		<property name="hasDisplay" value="false" />
+	</implementation>
+ -->
+
+	<composite name="composite-a-borrow-nothing-instance" main="group-a">
+		<contentMngt>
+			<borrow instance="false" />
+		</contentMngt>
+	</composite>
+	
+	<composite name="composite-a-borrow-nothing-implementation" main="group-a">
+		<contentMngt>
+			<borrow implementation="false" />
+		</contentMngt>
+	</composite>
 
 	<composite name="composite-b" main="group-b">
 		<contentMngt>
