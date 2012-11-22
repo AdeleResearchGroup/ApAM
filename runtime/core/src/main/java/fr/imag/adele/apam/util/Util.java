@@ -321,7 +321,8 @@ public class Util {
 		Composite toCompo = toInst.getComposite();
 		//        CompositeType toCompoType = toInst.getComposite().getCompType();
 		CompositeType fromCompoType = compoFrom.getCompType();
-
+		CompositeType toCompoType   = toInst.getComposite().getCompType();
+		
 		if (compoFrom == toCompo)
 			return true;
 
@@ -331,18 +332,18 @@ public class Util {
 			return false;
 
 		if (compoFrom.dependsOn(toCompo)) {
-			String friend = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility()
+			String friend = ((CompositeDeclaration) toCompoType.getDeclaration()).getVisibility()
 			.getFriendInstances();
 			if ((friend != null) && Util.checkInstVisibilityExpression(friend, toInst))
 				return true;
 		}
 		if (compoFrom.getAppliComposite() == toCompo.getAppliComposite()) {
-			String appli = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility()
+			String appli = ((CompositeDeclaration) toCompoType.getDeclaration()).getVisibility()
 			.getApplicationInstances();
 			if ((appli != null) && Util.checkInstVisibilityExpression(appli, toInst))
 				return true;
 		}
-		String local = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getLocalInstances();
+		String local = ((CompositeDeclaration) toCompoType.getDeclaration()).getVisibility().getLocalInstances();
 		if ((local != null) && Util.checkInstVisibilityExpression(local, toInst))
 			return false;
 		return true;
