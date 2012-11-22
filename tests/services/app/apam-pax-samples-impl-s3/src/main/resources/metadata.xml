@@ -47,6 +47,12 @@
 			<local instance="true" />
 		</contentMngt>
 	</composite>
+	
+	<composite name="composite-a-local-implementation" main="group-a">
+		<contentMngt>
+			<local implementation="true" />
+		</contentMngt>
+	</composite>
 
 	<composite name="composite-b" main="group-b">
 		<contentMngt>

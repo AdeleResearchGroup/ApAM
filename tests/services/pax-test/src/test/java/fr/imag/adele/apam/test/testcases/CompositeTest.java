@@ -198,6 +198,42 @@ public class CompositeTest extends ExtensionAbstract {
 
 	}
 	
+	@Test
+	public void ComponentMngtLocalWithImplementation() {
 
+		final String messageTemplate = "Two composites A and B, each of them have their own mainimpl as IA and IB. " +
+				"Both IA and IB have an attribute that depends on the specification X. " +
+				"If an X instance is created into A and this instance is marked as local, this instance cannot be used by other composite. %s";
+		
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-local-implementation");
+
+		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-b");
+
+		Composite composite_a = (Composite) cta.createInstance(null, null);
+		Composite composite_b = (Composite) ctb.createInstance(null, null);
+
+		Instance a = composite_a.getMainInst();
+
+		Instance b = composite_b.getMainInst();
+
+		S3GroupAImpl ga = (S3GroupAImpl) a.getServiceObject();
+
+		S3GroupBImpl gb = (S3GroupBImpl) b.getServiceObject();
+
+		//Force instantiation one given specification inside the composite A
+		ga.getElement();
+
+		//Force instantiation of the same specification as before in composite B
+		gb.getElement();
+
+		auxListInstances("---");
+		
+		String message=String.format(messageTemplate, "But A marked with '<local implementation='true'>' allowed its instance to be used by another composite");
+		
+		Assert.assertTrue(message,ga.getElement() != gb.getElement());
+
+	}
 
 }
