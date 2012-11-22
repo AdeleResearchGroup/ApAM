@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.ComponentBroker;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
@@ -50,6 +51,8 @@ public abstract class ExtensionAbstract {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public ApAMHelper apam;
+	
+	protected ComponentBroker broker;
 
 	protected List<Instance> auxLookForInstanceOf(String clazz){
 		
@@ -111,6 +114,7 @@ public abstract class ExtensionAbstract {
 	@Before
 	public void setUp() {
 		apam = new ApAMHelper(context);
+		broker=CST.componentBroker;
 		logger.info("[Run Test : " + name.getMethodName() + "]");
 		apam.waitForIt(1000);
 	}
