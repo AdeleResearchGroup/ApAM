@@ -19,7 +19,7 @@
 
 	<artifactId>apam-declarations</artifactId>
 	<packaging>jar</packaging>
-	<name>ApAM Core</name>
+	<name>ApAM Declarations</name>
 	<description>Core concept declarations</description>
 
 </project>

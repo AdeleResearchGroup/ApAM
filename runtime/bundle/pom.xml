@@ -34,6 +34,7 @@
 							fr.imag.adele.apam.apform,
 							fr.imag.adele.apam.message,
 							fr.imag.adele.apam.util,
+                            fr.imag.adele.apam.util.tracker,
 							fr.imag.adele.apam.apformipojo,
 							fr.imag.adele.apam.apformipojo.handlers
 						</Export-Package>

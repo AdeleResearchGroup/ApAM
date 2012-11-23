@@ -5,10 +5,18 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.tracker.ComponentTrackerCustomizer;
 import fr.imag.adele.apam.util.tracker.InstanceTracker;
+import org.apache.felix.ipojo.ComponentInstance;
+import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Validate;
+import org.apache.felix.ipojo.api.composite.CompositeComponentType;
+import org.apache.felix.ipojo.api.composite.ImportedService;
+import org.apache.felix.ipojo.composite.CompositeServiceContext;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.log.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +30,62 @@ public class Distriman  implements ComponentTrackerCustomizer<Instance>{
     private final InstanceTracker tracker;
 
 
+    private CompositeServiceContext roseContext;
+
+    private final CompositeComponentType roseComp;
     private final BundleContext context;
 
     public Distriman(BundleContext context) {
-        this.context = context;
         this.tracker = new InstanceTracker(ApamFilter.newInstance(""),this);
+        this.context = context;
+
+        //define the RoSe composite
+        roseComp = new CompositeComponentType();
+        roseComp.setBundleContext(context);
+        roseComp.setComponentTypeName("Apam::Distriman:rose");
+        roseComp.setPublic(true);
+
+        //Import all RoSe factory
+        ImportedService roseFacDep = new ImportedService().setAggregate(true).setOptional(false);
+        roseFacDep.setFilter("(factory.name=RoSe_*)");
+        roseFacDep.setSpecification(Factory.class.getName());
+        roseFacDep.setId("RoSe_Factories");
+        roseComp.addSubService(roseFacDep);
+
+        //Import the HttpService
+        ImportedService httpService = new ImportedService().setAggregate(false).setOptional(false);
+        httpService.setSpecification(HttpService.class.getName());
+        httpService.setId("http");
+        roseComp.addSubService(httpService);
+
+        //Import the LogService
+        ImportedService logService = new ImportedService().setAggregate(false).setOptional(true);
+        logService.setSpecification(LogService.class.getName());
+        logService.setId("logger");
+        roseComp.addSubService(logService);
+
+        roseComp.addInstance(new org.apache.felix.ipojo.api.composite.Instance("RoSe_Wui").addProperty("wui.root","/apam"));
+        roseComp.addInstance(new org.apache.felix.ipojo.api.composite.Instance("MyComp"));
+
+
+//        //For JsonConfigurator
+//        roseComp.addInstance( new org.apache.felix.ipojo.api.composite.Instance("RoSe_configurator.json"));
+//
+//        roseComp.addInstance(new org.apache.felix.ipojo.api.composite.Instance("json-service-provider-org.json"));
+//
+//        ExportedService fileListener = new ExportedService().setOptional(true).setAggregate(true);
+//        fileListener.setSpecification(ArtifactListener.class.getName());
+//        roseComp.addService(fileListener);
+//
+//        ExportedService fileInstaller = new ExportedService().setOptional(true).setAggregate(true);
+//        fileInstaller.setSpecification(ArtifactInstaller.class.getName());
+//        roseComp.addService(fileInstaller);
+//
+//        //Test
+//        ExportedService roseTest = new ExportedService().setOptional(true).setAggregate(true);
+//        roseTest.setSpecification(RoseMachine.class.getName());
+//        roseComp.addService(roseTest);
+
     }
 
     public String getName() {
@@ -36,6 +95,26 @@ public class Distriman  implements ComponentTrackerCustomizer<Instance>{
     @Validate
     private void init(){
         logInfo("Starting...");
+
+        //Start the RoSe Composite
+        roseComp.start();
+        try {
+            ComponentInstance instance = roseComp.createInstance();
+            roseContext = new CompositeServiceContext(context,instance);
+            instance.start();
+
+            ServiceReference[] prefs = roseContext.getAllServiceReferences(null,null);
+//            for(ServiceReference ref : prefs){
+//                System.out.println(ref);
+//            }
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        //roseContext = (CompositeServiceContext) roseComp.getFactory().getBundleContext();
+
         //Add Distriman to Apam
         logInfo("Successfully initialized");
     }
@@ -43,6 +122,7 @@ public class Distriman  implements ComponentTrackerCustomizer<Instance>{
     @Invalidate
     private void stop(){
         logInfo("Stopping...");
+        roseComp.stop();
         //Remove Distriman from Apam
         logInfo("Successfully stopped");
     }
@@ -58,7 +138,8 @@ public class Distriman  implements ComponentTrackerCustomizer<Instance>{
 
     @Override
     public void addingComponent(Instance component) {
-        //To change body of implemented methods use File | Settings | File Templates.
+      //  Dictionary<String,?> properties = new Hashtable<String, Object>();
+      //  roseContext.registerService("",component.getServiceObject(),null);
     }
 
     @Override

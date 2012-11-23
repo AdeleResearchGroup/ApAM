@@ -2,18 +2,19 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<artifactId>APAMProject</artifactId>
-		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <artifactId>apam-managers</artifactId>
+        <groupId>fr.imag.adele.apam</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 	<artifactId>DISTRIMAN</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>Apam Distribution DependencyManager (DISTRIMAN)</name>
-	<description>The Apam Distribution DependencyManager</description>
+	<name>Apam DistriMan</name>
+	<description>The Apam Distribution Manager</description>
 	<properties>
-		<bundle.symbolicName>DISTRIMAN</bundle.symbolicName>
+		<bundle.symbolicName>Apam::DistriMan</bundle.symbolicName>
 	</properties>
 
 	<build>
@@ -63,11 +64,11 @@
 	</build>
 
 	<dependencies>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>APAM</artifactId>
-			<version>${apam.current.version}</version>
-		</dependency>
+        <dependency>
+            <artifactId>apam-core</artifactId>
+            <groupId>fr.imag.adele.apam</groupId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -75,11 +76,32 @@
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.ipojo.annotations</artifactId>
-            <version>1.8.2</version>
+            <artifactId>org.apache.felix.ipojo.api</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.ipojo</artifactId>
+            <version>1.8.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.ipojo.composite</artifactId>
+            <version>1.8.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.chameleon.rose</groupId>
+            <artifactId>rose-core</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.fileinstall</artifactId>
+            <version>3.1.6</version>
         </dependency>
     </dependencies>
 
+    <!--
     <repositories>
         <repository>
             <id>maven-barjo-repository-release</id>
@@ -88,5 +110,6 @@
             <layout>default</layout>
         </repository>
     </repositories>
+    -->
 
 </project>

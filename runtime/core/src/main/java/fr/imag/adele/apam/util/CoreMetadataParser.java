@@ -566,7 +566,7 @@ public class CoreMetadataParser implements CoreParser {
             String methodName) {
         CallbackMethod callback = new CallbackMethod(implementation, trigger, methodName);
         if (!callback.isValidInstrumentation())
-            errorHandler.error(Severity.ERROR, "the specified method \"" + methodName + "\" in \"" + trigger
+            errorHandler.error(Severity.ERROR, implementation.getName() + " : the specified method \"" + methodName + "\" in \"" + trigger
                     + "\" is invalid or not founded");
         return callback;
 
@@ -755,7 +755,7 @@ public class CoreMetadataParser implements CoreParser {
                 CallbackMethod callback = new CallbackMethod((AtomicImplementationDeclaration) component,
                         CallbackTrigger.Bind, bindCallback);
                 if (!callback.isValidInstrumentation())
-                    errorHandler.error(Severity.ERROR, "the specified method \"" + bindCallback + "\" in \""
+                    errorHandler.error(Severity.ERROR, component.getName() + " : the specified method \"" + bindCallback + "\" in \""
                             + CoreMetadataParser.ATT_BIND
                             + "\" is invalid or not founded");
                 dependency.addCallback(callback);
@@ -764,7 +764,7 @@ public class CoreMetadataParser implements CoreParser {
                 CallbackMethod callback = new CallbackMethod((AtomicImplementationDeclaration) component,
                         CallbackTrigger.Unbind, unbindCallback);
                 if (!callback.isValidInstrumentation())
-                    errorHandler.error(Severity.ERROR, "the specified method \"" + unbindCallback + "\" in \""
+                    errorHandler.error(Severity.ERROR,  component.getName() + " : the specified method \"" + unbindCallback + "\" in \""
                             + CoreMetadataParser.ATT_UNBIND
                             + "\" is invalid or not founded");
                 dependency.addCallback(callback);
@@ -849,7 +849,7 @@ public class CoreMetadataParser implements CoreParser {
         }
 
         if (!injection.isValidInstrumentation())
-            errorHandler.error(Severity.ERROR, "the specified \"" + CoreMetadataParser.ATT_FIELD + "\" or \""
+            errorHandler.error(Severity.ERROR, atomic.getName() + " : the specified \"" + CoreMetadataParser.ATT_FIELD + "\" or \""
                     + CoreMetadataParser.ATT_PUSH + "\" or \"" + CoreMetadataParser.ATT_PULL + "\" is invalid "
                     + element.getName());
 

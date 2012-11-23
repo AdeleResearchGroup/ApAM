@@ -120,7 +120,7 @@ public abstract class ExtensionAbstract {
 	}
 
 	@Configuration
-	public static Option[] apamConfig() {
+	public Option[] apamConfig() {
 		return config();
 	}
 
