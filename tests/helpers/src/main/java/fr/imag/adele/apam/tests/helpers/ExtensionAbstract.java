@@ -79,7 +79,7 @@ public abstract class ExtensionAbstract {
 	
 	protected void auxListInstances(String prefix) {
 		System.out.println(String.format(
-				"%s------------ Instances -------------", prefix));
+				"%s------------ Instances (Total:%d) -------------", prefix,CST.componentBroker.getInsts().size()));
 		for (Instance i : CST.componentBroker.getInsts()) {
 
 			System.out.println(String.format("%sInstance name %s ( oid: %s ) ",

@@ -146,21 +146,10 @@
 <node CREATED="1353406252448" ID="ID_868172689" MODIFIED="1353412015763" TEXT="if dependency is marked as eager, it should be instantiated as soon as the bundle is ready-05">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353077111176" ID="ID_1509995545" MODIFIED="1353077140556" TEXT="declared composites should be loaded into apam right after the platform initialization">
-<icon BUILTIN="button_cancel"/>
-</node>
 </node>
 <node CREATED="1353077178936" ID="ID_817521693" MODIFIED="1353077182374" TEXT="start"/>
 <node CREATED="1353491514835" ID="ID_357512040" MODIFIED="1353491518043" TEXT="promotion"/>
 <node CREATED="1353491520963" ID="ID_1528052278" MODIFIED="1353491524764" TEXT="visibility">
-<node CREATED="1353077184248" ID="ID_914230240" MODIFIED="1353077186598" TEXT="borrow">
-<node CREATED="1353490893539" ID="ID_189222500" MODIFIED="1353595956303" TEXT="specifing instance=&apos;false&apos;">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353595942531" ID="ID_447616809" MODIFIED="1353595960215" TEXT="specifing implementation=&apos;false&apos;">
-<icon BUILTIN="button_ok"/>
-</node>
-</node>
 <node CREATED="1353077190840" ID="ID_1475045056" MODIFIED="1353587369160" TEXT="local">
 <node CREATED="1353490737684" ID="ID_31658279" MODIFIED="1353587363629" TEXT="test local declaration filtering by &apos;instance=true&apos;">
 <icon BUILTIN="button_ok"/>
@@ -169,9 +158,20 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
+<node CREATED="1353077184248" ID="ID_914230240" MODIFIED="1353598196963" TEXT="borrow">
+<node CREATED="1353490893539" ID="ID_189222500" MODIFIED="1353595956303" TEXT="specifing instance=&apos;false&apos;">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353595942531" ID="ID_447616809" MODIFIED="1353595960215" TEXT="specifing implementation=&apos;false&apos;">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
 <node CREATED="1353077196808" ID="ID_1525157524" MODIFIED="1353416497236" TEXT="friend">
-<node CREATED="1353494521059" ID="ID_170356469" MODIFIED="1353494547688" TEXT="if the composites are siblings they should share instances">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353494521059" ID="ID_170356469" MODIFIED="1353685847041" TEXT="specifing instance=&apos;false&apos;">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353685833809" ID="ID_160277144" MODIFIED="1353685849664" TEXT="specifing implementation=&apos;false&apos;">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1353077202712" ID="ID_1802016001" MODIFIED="1353077204742" TEXT="application">
