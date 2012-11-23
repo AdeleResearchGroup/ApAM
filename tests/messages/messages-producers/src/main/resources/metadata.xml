@@ -1,0 +1,44 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
+ 
+	<implementation name="M1Producer" 
+	classname="fr.imag.adele.apam.test.message.producer.M1Producer" specification="M1-producer-Spec"
+		push="produceM1">
+		<callback onInit="start" onRemove="stop" />
+	</implementation>
+
+<implementation name="M2Producer" 
+	classname="fr.imag.adele.apam.test.message.producer.M2Producer" specification="M2-producer-Spec"
+		push="produceM2">
+		<callback onInit="start" onRemove="stop" />
+	</implementation>
+	
+	<implementation name="M3Producer" 
+	classname="fr.imag.adele.apam.test.message.producer.M3Producer" specification="M3-producer-Spec"
+		push="produceM3">
+		<callback onInit="start" onRemove="stop" />
+	</implementation>
+	
+	<implementation name="M13Producer" 
+	classname="fr.imag.adele.apam.test.message.producer.M13Producer" specification="M13-producer-Spec"
+		push="produceM1,produceM3">
+		<callback onInit="start" onRemove="stop" />
+	</implementation>
+	<implementation name="M123Producer" 
+	classname="fr.imag.adele.apam.test.message.producer.M123Producer" specification="M123-producer-Spec"
+		push="produceM1,produceM2,produceM3">
+		<callback onInit="start" onRemove="stop" />
+	</implementation>
+	
+	<implementation name="M23Producer" 
+	classname="fr.imag.adele.apam.test.message.producer.M23Producer" specification="M23-producer-Spec"
+		push="produceM2,produceM3">
+		<callback onInit="start" onRemove="stop" />
+	</implementation>
+	<implementation name="M12Producer" 
+	classname="fr.imag.adele.apam.test.message.producer.M12Producer" specification="M12-producer-Spec"
+		push="produceM1,produceM2">
+		<callback onInit="start" onRemove="stop" />
+	</implementation>
+</apam>
+

@@ -8,7 +8,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<groupId>fr.imag.adele.apam.tests.messages</groupId>
-	<artifactId>P1Impl</artifactId>
+	<artifactId>messages-producers</artifactId>
 	<packaging>bundle</packaging>
 
 
@@ -33,7 +33,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.messages</groupId>
-			<artifactId>P1</artifactId>
+			<artifactId>messages-specifications</artifactId>
 			<version>${apam.current.version}</version>
 		</dependency>
 

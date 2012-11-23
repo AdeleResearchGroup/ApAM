@@ -1,0 +1,26 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+
+	<specification name="M1-producer-Spec" messages="fr.imag.adele.apam.test.message.M1">
+	</specification>
+
+	<specification name="M2-producer-Spec" messages="fr.imag.adele.apam.test.message.M2">
+	</specification>
+
+	<specification name="M3-producer-Spec" messages="fr.imag.adele.apam.test.message.M3">
+	</specification>
+
+	<specification name="M13-producer-Spec" messages="fr.imag.adele.apam.test.message.M1,fr.imag.adele.apam.test.message.M3">
+	</specification>
+
+	<specification name="M23-producer-Spec" messages="fr.imag.adele.apam.test.message.M2,fr.imag.adele.apam.test.message.M3">
+	</specification>
+
+	<specification name="M12-producer-Spec" messages="fr.imag.adele.apam.test.message.M1,fr.imag.adele.apam.test.message.M2">
+	</specification>
+
+	<specification name="M123-producer-Spec"
+		messages="fr.imag.adele.apam.test.message.M1,fr.imag.adele.apam.test.message.M2,fr.imag.adele.apam.test.message.M3">
+	</specification>
+
+</apam>

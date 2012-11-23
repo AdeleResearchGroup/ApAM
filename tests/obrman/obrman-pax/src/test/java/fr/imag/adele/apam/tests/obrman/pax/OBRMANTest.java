@@ -30,13 +30,13 @@ public class OBRMANTest extends ExtensionAbstract{
     @Test 
     public void testRootModel() {
         apam.waitForIt(1000);
-        int sizebefaore = apam.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
+        int sizebefore = apam.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
                 .size();
         try {
             apam.setObrManInitialConfig("wrongfilelocation", null, 1);
             fail("wrongfilelocation");
         } catch (IOException e) {
-            assertEquals(sizebefaore,
+            assertEquals(sizebefore,
                     apam.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE).size());
         }
     }

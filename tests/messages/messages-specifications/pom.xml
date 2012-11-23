@@ -8,9 +8,12 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<groupId>fr.imag.adele.apam.tests.messages</groupId>
-	<artifactId>C1Impl-Pull</artifactId>
-	<packaging>bundle</packaging>
 
+
+	<artifactId>messages-specifications</artifactId>
+
+	<packaging>bundle</packaging>
+	
 
 	<build>
 		<plugins>
@@ -29,19 +32,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<dependencies>
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.messages</groupId>
-			<artifactId>P1</artifactId>
-			<version>${apam.current.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-core</artifactId>
-			<version>${apam.current.version}</version>
-		</dependency>
-	</dependencies>
-
-
 </project>
