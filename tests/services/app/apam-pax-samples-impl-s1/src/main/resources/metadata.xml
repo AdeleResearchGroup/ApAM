@@ -129,7 +129,7 @@
 
 	<implementation name="S1Impl-added-removed-callback"
 		classname="fr.imag.adele.apam.pax.test.impl.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
-		<dependency field="s2" added="bind" removed="unbind" />
+<!-- 		<dependency field="s2" added="bind" removed="unbind" /> -->
 		<!-- This is the correct one, but its not implemented 		
 		<dependency field="s2" added="start" removed="stop" /> 
 		-->
