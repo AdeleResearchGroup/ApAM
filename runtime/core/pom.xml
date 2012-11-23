@@ -11,7 +11,7 @@
 	<artifactId>apam-core</artifactId>
 	<packaging>jar</packaging>
 
-	<name>ApAM Runtime</name>
+	<name>ApAM Core</name>
 	<description>APAM Runtime and Implementation of the API</description>
 	
 	<build>

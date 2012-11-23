@@ -41,35 +41,17 @@
 
 		<!-- Profile used to build apam core bundles -->
 		<profile>
-			<id>Apam</id>
+			<id>runtime</id>
 			<modules>
-				<module>APAMProject/ApamCore</module>
-				<module>APAMProject/Apam</module>
-				<module>APAMProject/ApformIpojo</module>
-			</modules>
-		</profile>
-
-		<!-- Profile used to build apam commande bundles -->
-		<profile>
-			<id>ApamShell</id>
-			<modules>
-				<module>APAMProject/ApamCommand</module>
+				<module>runtime</module>
 			</modules>
 		</profile>
 
 		<!-- Profile used to build OBRMAN bundles -->
 		<profile>
-			<id>ObrMan</id>
+			<id>plugins</id>
 			<modules>
-				<module>APAMProject/OBRMAN</module>
-			</modules>
-		</profile>
-
-		<!-- Profile used to build OBRMAN bundles -->
-		<profile>
-			<id>ApamMavenPlugin</id>
-			<modules>
-				<module>APAMProject/ApamMavenPlugin</module>
+				<module>plugins</module>
 			</modules>
 		</profile>
 
