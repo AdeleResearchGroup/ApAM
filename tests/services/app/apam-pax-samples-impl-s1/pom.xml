@@ -34,6 +34,17 @@
 			<artifactId>org.osgi.compendium</artifactId>
 			<version>${felix.osgi.version}</version>
 		</dependency>
+		<dependency>
+			<artifactId>apam-core</artifactId>
+			<groupId>fr.imag.adele.apam</groupId>
+			<version>${apam.current.version}</version>
+			<scope>test</scope>
+		</dependency>	
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>apam-core</artifactId>
+			<version>${apam.current.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
