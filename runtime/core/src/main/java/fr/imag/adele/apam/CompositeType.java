@@ -2,7 +2,7 @@ package fr.imag.adele.apam;
 
 import java.util.Set;
 
-import fr.imag.adele.apam.core.CompositeDeclaration;
+import fr.imag.adele.apam.declarations.CompositeDeclaration;
 
 public interface CompositeType extends Implementation {
     /**

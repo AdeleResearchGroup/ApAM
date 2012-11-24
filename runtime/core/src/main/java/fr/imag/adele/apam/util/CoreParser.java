@@ -2,7 +2,7 @@ package fr.imag.adele.apam.util;
 
 import java.util.List;
 
-import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
 
 /**
  * This class represents a tool being able to parse one of the different APAM Core representations

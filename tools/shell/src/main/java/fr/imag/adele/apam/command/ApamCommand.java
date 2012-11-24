@@ -38,7 +38,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.Apform2Apam.Request;
-import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.declarations.ResourceReference;
 
 /**
  * 

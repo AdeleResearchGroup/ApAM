@@ -2,7 +2,7 @@ package fr.imag.adele.apam.util;
 
 import org.apache.felix.ipojo.parser.MethodMetadata;
 
-import fr.imag.adele.apam.core.MessageReference;
+import fr.imag.adele.apam.declarations.MessageReference;
 
 public class MessageReferenceExtended extends MessageReference {
 

@@ -12,19 +12,19 @@ import org.apache.felix.ipojo.xml.parser.SchemaResolver;
 import org.apache.maven.artifact.versioning.VersionRange;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.core.ComponentDeclaration;
-import fr.imag.adele.apam.core.CompositeDeclaration;
-import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.InstanceDeclaration;
-import fr.imag.adele.apam.core.InterfaceReference;
-import fr.imag.adele.apam.core.MessageReference;
-import fr.imag.adele.apam.core.PropertyDefinition;
-import fr.imag.adele.apam.core.ResolvableReference;
-import fr.imag.adele.apam.core.SpecificationDeclaration;
-import fr.imag.adele.apam.core.SpecificationReference;
-import fr.imag.adele.apam.core.UndefinedReference;
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.InterfaceReference;
+import fr.imag.adele.apam.declarations.MessageReference;
+import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.declarations.UndefinedReference;
 
 public class ApamRepoBuilder {
 

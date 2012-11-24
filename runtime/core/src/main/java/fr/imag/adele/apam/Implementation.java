@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.apform.ApformImplementation;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 
 
 public interface Implementation extends Component {

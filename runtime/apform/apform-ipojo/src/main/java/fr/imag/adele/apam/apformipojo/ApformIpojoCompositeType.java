@@ -11,7 +11,7 @@ import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.ApformCompositeType;
-import fr.imag.adele.apam.core.CompositeDeclaration;
+import fr.imag.adele.apam.declarations.CompositeDeclaration;
 
 public class ApformIpojoCompositeType extends ApformIpojoImplementation implements ApformCompositeType {
 

@@ -1,6 +1,5 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,24 +20,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.core.ComponentDeclaration;
-import fr.imag.adele.apam.core.ComponentReference;
-import fr.imag.adele.apam.core.CompositeDeclaration;
-import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.DependencyInjection;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.ImplementationReference;
-import fr.imag.adele.apam.core.InstanceDeclaration;
-import fr.imag.adele.apam.core.InterfaceReference;
-import fr.imag.adele.apam.core.MessageReference;
-import fr.imag.adele.apam.core.PropertyDefinition;
-import fr.imag.adele.apam.core.ResourceReference;
-import fr.imag.adele.apam.core.SpecificationDeclaration;
-import fr.imag.adele.apam.core.SpecificationReference;
-import fr.imag.adele.apam.impl.ComponentImpl;
-import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentReference;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.InterfaceReference;
+import fr.imag.adele.apam.declarations.MessageReference;
+import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.util.Util;
 
 

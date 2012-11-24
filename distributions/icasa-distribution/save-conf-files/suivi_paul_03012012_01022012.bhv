@@ -1,0 +1,353 @@
+<behavior startdate="2011.10.27.00.00.00" factor="1440">
+   
+  <!--  including journee_ajout_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->	
+    <move room="livingroom"  	person="paul" />	<delay value="190" />	<!-- till 11h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <delay value="300" />
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_ajout_1.txt - end -->
+   
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <delay value="100" />
+    <delay value="170" />
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+   
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+  
+  <!--  including journee_normale_1.txt - start -->
+    <move room="bedroom"  	person="paul" />	<delay value="420" />	<!-- till 7h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h10  -->
+    <move room="bedroom"  	person="paul" />	<delay value="10" />	<!-- till 7h20  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 7h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 8h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 11h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="10" />	<!-- till 11h10  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 11h40  -->
+    <move room="livingroom"  	person="paul" />	<delay value="20" />	<!-- till 12h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="60" />	<!-- till 13h00  -->
+    <move room="bedroom"  	person="paul" />	<delay value="60" />	<!-- till 14h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="180" />	<!-- till 17h00  -->
+    <move room="kitchen"  	person="paul" />	<delay value="10" />	<!-- till 17h10  -->
+    <move room="livingroom"  	person="paul" />	<delay value="90" />	<!-- till 18h40  -->
+    <move room="kitchen"  	person="paul" />	<delay value="20" />	<!-- till 19h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="30" />	<!-- till 19h30  -->
+    <move room="kitchen"  	person="paul" />	<delay value="30" />	<!-- till 20h00  -->
+    <move room="livingroom"  	person="paul" />	<delay value="120" />	<!-- till 22h00  -->
+    <move room="bathroom"  	person="paul" />	<delay value="20" />	<!-- till 22h20  -->
+    <move room="bedroom"  	person="paul" />	<delay value="100" />	<!-- till 24h00  -->
+  <!--  including journee_normale_1.txt - end -->
+   
+</behavior>

@@ -2,7 +2,7 @@ package fr.imag.adele.apam.apform;
 
 import java.util.Map;
 
-import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
 public interface ApformImplementation extends ApformComponent {

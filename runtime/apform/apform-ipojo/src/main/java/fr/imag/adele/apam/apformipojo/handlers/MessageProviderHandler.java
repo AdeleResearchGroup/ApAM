@@ -21,10 +21,10 @@ import org.osgi.service.wireadmin.WireConstants;
 
 import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
 import fr.imag.adele.apam.apformipojo.ApformIpojoImplementation;
-import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.MessageProducerMethodInterception;
-import fr.imag.adele.apam.core.MessageReference;
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.MessageProducerMethodInterception;
+import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.message.MessageProducer;
 import fr.imag.adele.apam.util.MessageReferenceExtended;

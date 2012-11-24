@@ -4,8 +4,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
-import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.ResolvableReference;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.ResolvableReference;
 
 /**
  * Interface that each manager MUST implement. Used by APAM to resolve the dependencies and manage the application.

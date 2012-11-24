@@ -16,7 +16,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.InstanceDeclaration;
 
 public class ApformIpojoInstanceDeclaration extends ApformIpojoComponent {
 

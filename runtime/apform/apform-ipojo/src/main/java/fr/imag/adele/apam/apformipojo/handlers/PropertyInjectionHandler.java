@@ -15,9 +15,9 @@ import org.apache.felix.ipojo.util.Callback;
 import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
 import fr.imag.adele.apam.apformipojo.ApformIpojoImplementation;
 import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
-import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.PropertyDefinition;
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.impl.InstanceImpl;
 
 public class PropertyInjectionHandler extends ApformHandler implements FieldInterceptor {

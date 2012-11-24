@@ -24,7 +24,7 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.core.CompositeDeclaration;
+import fr.imag.adele.apam.declarations.CompositeDeclaration;
 
 //import fr.imag.adele.sam.Implementation;
 

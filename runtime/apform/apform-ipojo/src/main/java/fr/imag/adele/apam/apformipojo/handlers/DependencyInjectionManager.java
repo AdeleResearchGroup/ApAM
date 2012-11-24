@@ -4,7 +4,7 @@ import org.apache.felix.ipojo.FieldInterceptor;
 import org.apache.felix.ipojo.metadata.Element;
 
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.core.DependencyInjection;
+import fr.imag.adele.apam.declarations.DependencyInjection;
 
 /**
  * This class represents a kind of injection manager for a dependency. The injection manager is in charge of translating

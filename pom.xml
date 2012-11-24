@@ -39,15 +39,30 @@
 
 	<profiles>
 
-		<!-- Profile used to build apam core bundles -->
+        <profile>
+            <id>all</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>runtime</module>
+                <module>plugins</module>
+                <module>tools</module>
+                <module>distributions</module>
+            </modules>
+        </profile>
+
+
+		<!-- Profile used to build ApAM core bundles -->
 		<profile>
 			<id>runtime</id>
+
 			<modules>
 				<module>runtime</module>
 			</modules>
 		</profile>
 
-		<!-- Profile used to build OBRMAN bundles -->
+		<!-- Profile used to build ApAM plugins -->
 		<profile>
 			<id>plugins</id>
 			<modules>
@@ -55,6 +70,13 @@
 			</modules>
 		</profile>
 
+        <!-- Profile used to build ApAM distributions -->
+        <profile>
+            <id>distributions</id>
+            <modules>
+                <module>distributions</module>
+            </modules>
+        </profile>
 
 
 		<!-- Profile used in order to run the tests -->
@@ -244,12 +266,6 @@
 			<id>objectweb-old-release</id>
 			<name>ow2 Maven Repository [OLD]</name>
 			<url>http://maven.ow2.org/maven2</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
 		</repository>
 
 		<!-- cloudbee repo -->
@@ -443,11 +459,5 @@
 
 	</build>
 
-	<modules>
-		<module>runtime</module>
-		<module>plugins</module>
-		<module>tools</module>
-		<module>distributions</module>
-<!-- 		<module>managers</module> -->
-	</modules>
+
 </project>
