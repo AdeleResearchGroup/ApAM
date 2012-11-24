@@ -308,7 +308,7 @@ public class CoreMetadataParser implements CoreParser {
     private AtomicImplementationDeclaration parsePrimitive(Element element) {
 
         String name = parseName(element);
-        SpecificationReference specification = parseSpecificationReference(element,
+        SpecificationReference specification = parseSpecificationReference(name,element,
                 CoreMetadataParser.ATT_SPECIFICATION, false);
 
         String className = parseString(name,element, CoreMetadataParser.ATT_CLASSNAME, true);
@@ -448,9 +448,9 @@ public class CoreMetadataParser implements CoreParser {
     private CompositeDeclaration parseComposite(Element element) {
 
         String name = parseName(element);
-        SpecificationReference specification = parseSpecificationReference(element,
+        SpecificationReference specification = parseSpecificationReference(name,element,
                 CoreMetadataParser.ATT_SPECIFICATION, false);
-        ComponentReference<?> implementation = parseAnyComponentReference(element,
+        ComponentReference<?> implementation = parseAnyComponentReference(name,element,
                 CoreMetadataParser.ATT_MAIN_IMPLEMENTATION, true);
 
         CompositeDeclaration declaration = new CompositeDeclaration(name, specification, implementation);
@@ -494,7 +494,7 @@ public class CoreMetadataParser implements CoreParser {
     private InstanceDeclaration parseInstance(Element element) {
 
         String name = parseName(element);
-        ImplementationReference<?> implementation = parseImplementationReference(element,
+        ImplementationReference<?> implementation = parseImplementationReference(name,element,
                 CoreMetadataParser.ATT_IMPLEMENTATION, true);
 
         /*
@@ -520,7 +520,7 @@ public class CoreMetadataParser implements CoreParser {
             if (!CoreMetadataParser.isApamDefinition(triggerCondition))
                 continue;
 
-            ConstrainedReference triggerDeclaration = new ConstrainedReference(parseResolvableReference(
+            ConstrainedReference triggerDeclaration = new ConstrainedReference(parseResolvableReference(name,
                     triggerCondition, CoreMetadataParser.ATT_NAME, true));
 
             /*
@@ -630,7 +630,7 @@ public class CoreMetadataParser implements CoreParser {
         /*
          * Get the reference to the target of the dependency if specified
          */
-        ResolvableReference target = parseResolvableReference(element, false);
+        ResolvableReference target = parseResolvableReference(component.getName(),element, false);
 
         /*
          * All dependencies have an optional identifier and multiplicity specification
@@ -977,7 +977,7 @@ public class CoreMetadataParser implements CoreParser {
 
         Element state = states[0];
 
-        composite.setStateProperty(parsePropertyReference(state, true));
+        composite.setStateProperty(parsePropertyReference(composite.getName(),state, true));
     }
 
     /**
@@ -1035,7 +1035,7 @@ public class CoreMetadataParser implements CoreParser {
     private void parsePromotions(Element element, CompositeDeclaration composite) {
         for (Element promotion : optional(element.getElements(CoreMetadataParser.PROMOTE, CoreMetadataParser.APAM))) {
 
-            DependencyDeclaration.Reference source = parseDependencyReference(promotion, true);
+            DependencyDeclaration.Reference source = parseDependencyReference(composite.getName(),promotion, true);
             String target = parseString(composite.getName(),promotion, CoreMetadataParser.ATT_TO);
 
             composite.getPromotions().add(
@@ -1050,7 +1050,7 @@ public class CoreMetadataParser implements CoreParser {
     private void parseOwns(Element element, CompositeDeclaration composite) {
         for (Element owned : optional(element.getElements(CoreMetadataParser.OWN, CoreMetadataParser.APAM))) {
 
-            PropertyDefinition.Reference property = parsePropertyReference(owned, true);
+            PropertyDefinition.Reference property = parsePropertyReference(composite.getName(),owned, true);
             String values = parseString(composite.getName(),owned, CoreMetadataParser.ATT_VALUE);
 
             OwnedComponentDeclaration ownedComponent = new OwnedComponentDeclaration(property, new HashSet<String>(
@@ -1061,7 +1061,7 @@ public class CoreMetadataParser implements CoreParser {
              */
             for (Element grant : optional(owned.getElements(CoreMetadataParser.GRANT, CoreMetadataParser.APAM))) {
 
-                ComponentReference<?> definingComponent = parseComponentReference(grant, true);
+                ComponentReference<?> definingComponent = parseComponentReference(composite.getName(),grant, true);
                 String identifier = parseString(composite.getName(),grant, CoreMetadataParser.ATT_DEPENDENCY, false);
                 identifier = identifier != null ? identifier : ownedComponent.getComponent().getName();
                 DependencyDeclaration.Reference dependency = new DependencyDeclaration.Reference(definingComponent,
@@ -1213,8 +1213,8 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * Get an specification reference coded in an attribute
      */
-    private SpecificationReference parseSpecificationReference(Element element, String attribute, boolean mandatory) {
-        String specification = parseString(parseName(element),element, attribute, mandatory);
+    private SpecificationReference parseSpecificationReference(String inComponent,Element element, String attribute, boolean mandatory) {
+        String specification = parseString(inComponent,element, attribute, mandatory);
         return ((specification == null) && !mandatory) ? null : new SpecificationReference(specification);
     }
 
@@ -1222,8 +1222,8 @@ public class CoreMetadataParser implements CoreParser {
      * Get an implementation reference coded in an attribute
      */
     private ImplementationReference<?>
-            parseImplementationReference(Element element, String attribute, boolean mandatory) {
-        String implementation = parseString(parseName(element),element, attribute, mandatory);
+            parseImplementationReference(String inComponent,Element element, String attribute, boolean mandatory) {
+        String implementation = parseString(inComponent,element, attribute, mandatory);
         return ((implementation == null) && !mandatory) ? null
                 : new ImplementationReference<ImplementationDeclaration>(implementation);
     }
@@ -1231,53 +1231,53 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * Get an instance reference coded in an attribute
      */
-    private InstanceReference parseInstanceReference(Element element, String attribute, boolean mandatory) {
-        String instance = parseString(parseName(element),element, attribute, mandatory);
+    private InstanceReference parseInstanceReference(String inComponent,Element element, String attribute, boolean mandatory) {
+        String instance = parseString(inComponent,element, attribute, mandatory);
         return ((instance == null) && !mandatory) ? null : new InstanceReference(instance);
     }
 
     /**
      * Get a generic component reference coded in an attribute
      */
-    private ComponentReference<?> parseAnyComponentReference(Element element, String attribute, boolean mandatory) {
-        String component = parseString(parseName(element),element, attribute, mandatory);
+    private ComponentReference<?> parseAnyComponentReference(String inComponent,Element element, String attribute, boolean mandatory) {
+        String component = parseString(inComponent,element, attribute, mandatory);
         return ((component == null) && !mandatory) ? null : new ComponentReference<ComponentDeclaration>(component);
     }
 
     /**
      * Get an interface reference coded in an attribute
      */
-    private InterfaceReference parseInterfaceReference(Element element, String attribute, boolean mandatory) {
-        String interfaceName = parseString(parseName(element),element, attribute, mandatory);
+    private InterfaceReference parseInterfaceReference(String inComponent,Element element, String attribute, boolean mandatory) {
+        String interfaceName = parseString(inComponent,element, attribute, mandatory);
         return ((interfaceName == null) && !mandatory) ? null : new InterfaceReference(interfaceName);
     }
 
     /**
      * Get a message reference coded in an attribute
      */
-    private MessageReference parseMessageReference(Element element, String attribute, boolean mandatory) {
-        String messageName = parseString(parseName(element),element, attribute, mandatory);
+    private MessageReference parseMessageReference(String inComponent,Element element, String attribute, boolean mandatory) {
+        String messageName = parseString(inComponent,element, attribute, mandatory);
         return ((messageName == null) && !mandatory) ? null : new MessageReference(messageName);
     }
 
     /**
      * Get a component reference coded in an attribute
      */
-    private ComponentReference<?> parseComponentReference(Element element, String attribute, boolean mandatory) {
+    private ComponentReference<?> parseComponentReference(String inComponent,Element element, String attribute, boolean mandatory) {
 
         String referenceKind = getReferenceKind(element, attribute);
 
         if (CoreMetadataParser.SPECIFICATION.equals(referenceKind))
-            return parseSpecificationReference(element, attribute, mandatory);
+            return parseSpecificationReference(inComponent,element, attribute, mandatory);
 
         if (CoreMetadataParser.IMPLEMENTATION.equals(referenceKind))
-            return parseImplementationReference(element, attribute, mandatory);
+            return parseImplementationReference(inComponent,element, attribute, mandatory);
 
         if (CoreMetadataParser.INSTANCE.equals(referenceKind))
-            return parseInstanceReference(element, attribute, mandatory);
+            return parseInstanceReference(inComponent,element, attribute, mandatory);
 
         if (CoreMetadataParser.COMPONENT.equals(referenceKind))
-            return parseAnyComponentReference(element, attribute, mandatory);
+            return parseAnyComponentReference(inComponent,element, attribute, mandatory);
 
         if (mandatory) {
             errorHandler.error(Severity.ERROR, "component name must be specified in " + element);
@@ -1300,7 +1300,7 @@ public class CoreMetadataParser implements CoreParser {
      * Get a component reference implicitly coded in the element (either in a name attribute or an attribute named
      * after the kind of reference)
      */
-    private ComponentReference<?> parseComponentReference(Element element, boolean mandatory) {
+    private ComponentReference<?> parseComponentReference(String inComponent,Element element, boolean mandatory) {
 
         String attribute = CoreMetadataParser.UNDEFINED;
 
@@ -1331,15 +1331,15 @@ public class CoreMetadataParser implements CoreParser {
         if (attribute.equals(CoreMetadataParser.UNDEFINED) && !mandatory)
             return null;
 
-        return parseComponentReference(element, attribute, mandatory);
+        return parseComponentReference(inComponent,element, attribute, mandatory);
     }
 
     /**
      * Get a dependency declaration reference coded in the element
      */
-    private DependencyDeclaration.Reference parseDependencyReference(Element element, boolean mandatory) {
+    private DependencyDeclaration.Reference parseDependencyReference(String inComponent,Element element, boolean mandatory) {
 
-        ComponentReference<?> definingComponent = parseComponentReference(element, mandatory);
+        ComponentReference<?> definingComponent = parseComponentReference(inComponent,element, mandatory);
         String identifier = parseString(definingComponent.getName(),element, CoreMetadataParser.ATT_DEPENDENCY, mandatory);
 
         if (!mandatory && (definingComponent == null || identifier == null)) {
@@ -1352,9 +1352,9 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * Get a property declaration reference coded in the element
      */
-    private PropertyDefinition.Reference parsePropertyReference(Element element, boolean mandatory) {
+    private PropertyDefinition.Reference parsePropertyReference(String inComponent,Element element, boolean mandatory) {
 
-        ComponentReference<?> definingComponent = parseComponentReference(element, mandatory);
+        ComponentReference<?> definingComponent = parseComponentReference(inComponent,element, mandatory);
         String identifier = parseString(definingComponent.getName(),element, CoreMetadataParser.ATT_PROPERTY, mandatory);
 
         if (!mandatory && (definingComponent == null || identifier == null)) {
@@ -1367,15 +1367,15 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * Get a resource reference coded in an attribute
      */
-    private ResourceReference parseResourceReference(Element element, String attribute, boolean mandatory) {
+    private ResourceReference parseResourceReference(String inComponent, Element element, String attribute, boolean mandatory) {
 
         String referenceKind = getReferenceKind(element, attribute);
 
         if (CoreMetadataParser.INTERFACE.equals(referenceKind))
-            return parseInterfaceReference(element, attribute, mandatory);
+            return parseInterfaceReference(inComponent,element, attribute, mandatory);
 
         if (CoreMetadataParser.MESSAGE.equals(referenceKind))
-            return parseMessageReference(element, attribute, mandatory);
+            return parseMessageReference(inComponent,element, attribute, mandatory);
 
         if (mandatory) {
             errorHandler.error(Severity.ERROR, "resource name must be specified in " + element.getName());
@@ -1394,15 +1394,15 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * Get a resolvable reference coded in an attribute
      */
-    private ResolvableReference parseResolvableReference(Element element, String attribute, boolean mandatory) {
+    private ResolvableReference parseResolvableReference(String inComponent,Element element, String attribute, boolean mandatory) {
 
         String referenceKind = getReferenceKind(element, attribute);
 
         if (CoreMetadataParser.COMPONENT_REFERENCES.contains(referenceKind))
-            return parseComponentReference(element, attribute, mandatory);
+            return parseComponentReference(inComponent,element, attribute, mandatory);
 
         if (CoreMetadataParser.RESOURCE_REFERENCES.contains(referenceKind))
-            return parseResourceReference(element, attribute, mandatory);
+            return parseResourceReference(inComponent,element, attribute, mandatory);
 
         if (mandatory) {
             errorHandler.error(Severity.ERROR, "component name or resource must be specified in " + element.getName());
@@ -1426,7 +1426,7 @@ public class CoreMetadataParser implements CoreParser {
      * Get a resolvable reference implicitly coded in the element (either in a name attribute or an attribute named
      * after the kind of reference)
      */
-    private ResolvableReference parseResolvableReference(Element element, boolean mandatory) {
+    private ResolvableReference parseResolvableReference(String inComponent,Element element, boolean mandatory) {
 
         String attribute = CoreMetadataParser.UNDEFINED;
 
@@ -1457,7 +1457,7 @@ public class CoreMetadataParser implements CoreParser {
         if (attribute.equals(CoreMetadataParser.UNDEFINED) && !mandatory)
             return null;
 
-        return parseResolvableReference(element, attribute, mandatory);
+        return parseResolvableReference(inComponent,element, attribute, mandatory);
     }
 
     /**
