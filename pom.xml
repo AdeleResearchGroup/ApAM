@@ -39,6 +39,7 @@
 
 	<profiles>
 
+        <!-- Profile used to build ApAM  -->
         <profile>
             <id>all</id>
             <activation>
@@ -52,6 +53,13 @@
             </modules>
         </profile>
 
+        <!-- Profile used to build icasa component -->
+        <profile>
+            <id>icasa-components</id>
+            <modules>
+                <module>simulation</module>
+            </modules>
+        </profile>
 
 		<!-- Profile used to build ApAM core bundles -->
 		<profile>

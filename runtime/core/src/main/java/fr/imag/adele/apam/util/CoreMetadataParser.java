@@ -256,20 +256,20 @@ public class CoreMetadataParser implements CoreParser {
         parseProperties(element, component);
         parseDependencies(element, component);
 
-        boolean isInstantiable = parseBoolean(element, CoreMetadataParser.ATT_INSTANTIABLE, false, true);
-        boolean isExclusive = parseBoolean(element, CoreMetadataParser.ATT_EXCLUSIVE, false, false);
-        boolean isSingleton = parseBoolean(element, CoreMetadataParser.ATT_SINGLETON, false, false);
-        boolean isShared = parseBoolean(element, CoreMetadataParser.ATT_SHARED, false, true);
+        boolean isInstantiable = parseBoolean(component.getName(),element, CoreMetadataParser.ATT_INSTANTIABLE, false, true);
+        boolean isExclusive = parseBoolean(component.getName(),element, CoreMetadataParser.ATT_EXCLUSIVE, false, false);
+        boolean isSingleton = parseBoolean(component.getName(),element, CoreMetadataParser.ATT_SINGLETON, false, false);
+        boolean isShared = parseBoolean(component.getName(),element, CoreMetadataParser.ATT_SHARED, false, true);
 
         component.setExclusive(isExclusive);
         component.setInstantiable(isInstantiable);
         component.setSingleton(isSingleton);
         component.setShared(isShared);
 
-        boolean isDefinedInstantiable = parseisDefinedBoolean(element, CoreMetadataParser.ATT_INSTANTIABLE);
-        boolean isDefinedExclusive = parseisDefinedBoolean(element, CoreMetadataParser.ATT_EXCLUSIVE);
-        boolean isDefinedSingleton = parseisDefinedBoolean(element, CoreMetadataParser.ATT_SINGLETON);
-        boolean isDefinedShared = parseisDefinedBoolean(element, CoreMetadataParser.ATT_SHARED);
+        boolean isDefinedInstantiable = parseisDefinedBoolean(component.getName(),element, CoreMetadataParser.ATT_INSTANTIABLE);
+        boolean isDefinedExclusive = parseisDefinedBoolean(component.getName(),element, CoreMetadataParser.ATT_EXCLUSIVE);
+        boolean isDefinedSingleton = parseisDefinedBoolean(component.getName(),element, CoreMetadataParser.ATT_SINGLETON);
+        boolean isDefinedShared = parseisDefinedBoolean(component.getName(),element, CoreMetadataParser.ATT_SHARED);
 
         component.setDefinedExclusive(isDefinedExclusive);
         component.setDefinedInstantiable(isDefinedInstantiable);
@@ -311,7 +311,7 @@ public class CoreMetadataParser implements CoreParser {
         SpecificationReference specification = parseSpecificationReference(element,
                 CoreMetadataParser.ATT_SPECIFICATION, false);
 
-        String className = parseString(element, CoreMetadataParser.ATT_CLASSNAME, true);
+        String className = parseString(name,element, CoreMetadataParser.ATT_CLASSNAME, true);
 
         /*
          * load Pojo instrumentation metadata
@@ -337,7 +337,7 @@ public class CoreMetadataParser implements CoreParser {
         /*
          *  Parse message producer method injection
          */
-        String messageMethods = parseString(element, CoreMetadataParser.ATT_PUSH, false);
+        String messageMethods = parseString(name,element, CoreMetadataParser.ATT_PUSH, false);
         for (String messageMethod : Util.split(messageMethods)) {
 
             /*
@@ -425,8 +425,8 @@ public class CoreMetadataParser implements CoreParser {
          * Iterate over all sub elements looking for callback declarations
          */
         for (Element callback : optional(element.getElements(CoreMetadataParser.CALLBACK, CoreMetadataParser.APAM))) {
-            String onInit = parseString(callback, CoreMetadataParser.ATT_ON_INIT, false);
-            String onRemove = parseString(callback, CoreMetadataParser.ATT_ON_REMOVE, false);
+            String onInit = parseString(name,callback, CoreMetadataParser.ATT_ON_INIT, false);
+            String onRemove = parseString(name,callback, CoreMetadataParser.ATT_ON_REMOVE, false);
 
             if (onInit != null) {
                 declaration.addCallback(parseCallback(declaration, CallbackTrigger.onInit, onInit));
@@ -528,7 +528,7 @@ public class CoreMetadataParser implements CoreParser {
              */
             for (Element constraints : optional(triggerCondition.getElements(CoreMetadataParser.CONSTRAINTS,
                     CoreMetadataParser.APAM))) {
-                parseConstraints(constraints, triggerDeclaration);
+                parseConstraints(name,constraints, triggerDeclaration);
             }
 
             triggerDeclarations.add(triggerDeclaration);
@@ -545,8 +545,8 @@ public class CoreMetadataParser implements CoreParser {
      */
     private void parseProvidedResources(Element element, ComponentDeclaration component) {
 
-        String interfaces = parseString(element, CoreMetadataParser.ATT_INTERFACES, false);
-        String messages = parseString(element, CoreMetadataParser.ATT_MESSAGES, false);
+        String interfaces = parseString(component.getName(),element, CoreMetadataParser.ATT_INTERFACES, false);
+        String messages = parseString(component.getName(),element, CoreMetadataParser.ATT_MESSAGES, false);
 
         for (String interfaceName : Util.split(interfaces)) {
             component.getProvidedResources().add(new InterfaceReference(interfaceName));
@@ -635,8 +635,8 @@ public class CoreMetadataParser implements CoreParser {
         /*
          * All dependencies have an optional identifier and multiplicity specification
          */
-        String id = parseString(element, CoreMetadataParser.ATT_ID, false);
-        boolean isMultiple = parseBoolean(element, CoreMetadataParser.ATT_MULTIPLE, false, true);
+        String id = parseString(component.getName(),element, CoreMetadataParser.ATT_ID, false);
+        boolean isMultiple = parseBoolean(component.getName(),element, CoreMetadataParser.ATT_MULTIPLE, false, true);
 
         DependencyDeclaration dependency = null;
 
@@ -748,8 +748,8 @@ public class CoreMetadataParser implements CoreParser {
         /*
          * look for bind and unbind callbacks 
          */
-        String bindCallback = parseString(element, CoreMetadataParser.ATT_BIND, false);
-        String unbindCallback = parseString(element, CoreMetadataParser.ATT_UNBIND, false);
+        String bindCallback = parseString(component.getName(),element, CoreMetadataParser.ATT_BIND, false);
+        String unbindCallback = parseString(component.getName(),element, CoreMetadataParser.ATT_UNBIND, false);
         if (component instanceof AtomicImplementationDeclaration) {
             if (bindCallback != null) {
                 CallbackMethod callback = new CallbackMethod((AtomicImplementationDeclaration) component,
@@ -774,19 +774,19 @@ public class CoreMetadataParser implements CoreParser {
         /*
          * Get the optional missing policy
          */
-        MissingPolicy policy = parsePolicy(element, CoreMetadataParser.ATT_FAIL, false, MissingPolicy.OPTIONAL);
+        MissingPolicy policy = parsePolicy(component.getName(),element, CoreMetadataParser.ATT_FAIL, false, MissingPolicy.OPTIONAL);
         dependency.setMissingPolicy(policy);
 
         /*
          * Get the optional missing exception specification
          */
-        String missingException = parseString(element, CoreMetadataParser.ATT_EXCEPTION, false);
+        String missingException = parseString(component.getName(),element, CoreMetadataParser.ATT_EXCEPTION, false);
         if (policy.equals(MissingPolicy.EXCEPTION) && missingException != null) {
             dependency.setMissingException(missingException);
         }
 
-        String isEager = parseString(element, CoreMetadataParser.ATT_EAGER, false);
-        String mustHide = parseString(element, CoreMetadataParser.ATT_HIDE, false);
+        String isEager = parseString(component.getName(),element, CoreMetadataParser.ATT_EAGER, false);
+        String mustHide = parseString(component.getName(),element, CoreMetadataParser.ATT_HIDE, false);
 
         if (isEager != null) {
             dependency.setEager(Boolean.parseBoolean(isEager));
@@ -801,12 +801,12 @@ public class CoreMetadataParser implements CoreParser {
          */
         for (Element constraints : optional(element
                 .getElements(CoreMetadataParser.CONSTRAINTS, CoreMetadataParser.APAM))) {
-            parseConstraints(constraints, dependency);
+            parseConstraints(component.getName(),constraints, dependency);
         }
 
         for (Element preferences : optional(element
                 .getElements(CoreMetadataParser.PREFERENCES, CoreMetadataParser.APAM))) {
-            parsePreferences(preferences, dependency);
+            parsePreferences(component.getName(),preferences, dependency);
         }
 
         return dependency;
@@ -818,13 +818,13 @@ public class CoreMetadataParser implements CoreParser {
     private DependencyInjection parseDependencyInjection(Element element, AtomicImplementationDeclaration atomic,
             boolean mandatory) {
 
-        String field = parseString(element, CoreMetadataParser.ATT_FIELD, false);
+        String field = parseString(atomic.getName(),element, CoreMetadataParser.ATT_FIELD, false);
 //        String method = parseString(element, CoreMetadataParser.ATT_METHOD, false);
 
-        String push = parseString(element, CoreMetadataParser.ATT_PUSH, false);
-        String pull = parseString(element, CoreMetadataParser.ATT_PULL, false);
+        String push = parseString(atomic.getName(),element, CoreMetadataParser.ATT_PUSH, false);
+        String pull = parseString(atomic.getName(),element, CoreMetadataParser.ATT_PULL, false);
 
-        String type = parseString(element, CoreMetadataParser.ATT_TYPE, false);
+        String type = parseString(atomic.getName(),element, CoreMetadataParser.ATT_TYPE, false);
 
         if ((field == null) && (push == null) && (pull == null) && mandatory)
             errorHandler.error(Severity.ERROR, "attribute \"" + CoreMetadataParser.ATT_FIELD + "\" or \""
@@ -859,11 +859,11 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * parse a constraints declaration
      */
-    private void parseConstraints(Element element, ConstrainedReference reference) {
+    private void parseConstraints(String componentName,Element element, ConstrainedReference reference) {
 
         for (Element constraint : optional(element.getElements())) {
 
-            String filter = parseString(constraint, CoreMetadataParser.ATT_FILTER);
+            String filter = parseString(componentName,constraint, CoreMetadataParser.ATT_FILTER);
 
             if (constraint.getName().equals(CoreMetadataParser.IMPLEMENTATION) ||
                     constraint.getName().equals(CoreMetadataParser.CONSTRAINT))
@@ -879,11 +879,11 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * parse a preferences declaration
      */
-    private void parsePreferences(Element element, ConstrainedReference reference) {
+    private void parsePreferences(String componentName,Element element, ConstrainedReference reference) {
 
         for (Element preference : optional(element.getElements())) {
 
-            String filter = parseString(preference, CoreMetadataParser.ATT_FILTER);
+            String filter = parseString(componentName,preference, CoreMetadataParser.ATT_FILTER);
 
             if (preference.getName().equals(CoreMetadataParser.IMPLEMENTATION) ||
                     preference.getName().equals(CoreMetadataParser.CONSTRAINT))
@@ -914,12 +914,12 @@ public class CoreMetadataParser implements CoreParser {
 
         for (Element definition : optional(element.getElements(CoreMetadataParser.DEFINITION, CoreMetadataParser.APAM))) {
 
-            String name = parseString(definition, CoreMetadataParser.ATT_NAME);
-            String type = parseString(definition, CoreMetadataParser.ATT_TYPE);
-            String defaultValue = parseString(definition, CoreMetadataParser.ATT_VALUE, false);
-            String field = parseString(definition, CoreMetadataParser.ATT_FIELD, false);
-            String callback = parseString(definition, CoreMetadataParser.ATT_METHOD, false);
-            boolean internal = parseBoolean(definition, CoreMetadataParser.ATT_INTERNAL, false, false);
+            String name = parseString(component.getName(),definition, CoreMetadataParser.ATT_NAME);
+            String type = parseString(component.getName(),definition, CoreMetadataParser.ATT_TYPE);
+            String defaultValue = parseString(component.getName(),definition, CoreMetadataParser.ATT_VALUE, false);
+            String field = parseString(component.getName(),definition, CoreMetadataParser.ATT_FIELD, false);
+            String callback = parseString(component.getName(),definition, CoreMetadataParser.ATT_METHOD, false);
+            boolean internal = parseBoolean(component.getName(),definition, CoreMetadataParser.ATT_INTERNAL, false, false);
 
             component.getPropertyDefinitions().add(
                     new PropertyDefinition(component, name, type, defaultValue, field, callback, internal));
@@ -943,8 +943,8 @@ public class CoreMetadataParser implements CoreParser {
             /*
              * If a name is specified, get the associated value
              */
-            String name = parseString(property, ATT_NAME);
-            String value = parseString(property, ATT_VALUE);
+            String name = parseString(component.getName(),property, ATT_NAME);
+            String value = parseString(component.getName(),property, ATT_VALUE);
             component.getProperties().put(name, value);
 
             /**
@@ -952,7 +952,7 @@ public class CoreMetadataParser implements CoreParser {
              */
             // if (component instanceof SpecificationDeclaration && !Util.isPredefinedAttribute(name)) {
             if (component instanceof SpecificationDeclaration) {
-                String type = parseString(property, ATT_TYPE);
+                String type = parseString(component.getName(),property, ATT_TYPE);
                 component.getPropertyDefinitions().add(
                         new PropertyDefinition(component, name, type, value, null, null, false));
             }
@@ -987,8 +987,8 @@ public class CoreMetadataParser implements CoreParser {
 
         for (Element rule : optional(element.getElements())) {
 
-            String implementationsRule = parseString(rule, CoreMetadataParser.ATT_IMPLEMENTATION, false);
-            String instancesRule = parseString(rule, CoreMetadataParser.ATT_INSTANCE, false);
+            String implementationsRule = parseString(composite.getName(),rule, CoreMetadataParser.ATT_IMPLEMENTATION, false);
+            String instancesRule = parseString(composite.getName(),rule, CoreMetadataParser.ATT_INSTANCE, false);
 
             if (rule.getName().equals(CoreMetadataParser.BORROW)) {
                 if (implementationsRule != null) {
@@ -1036,7 +1036,7 @@ public class CoreMetadataParser implements CoreParser {
         for (Element promotion : optional(element.getElements(CoreMetadataParser.PROMOTE, CoreMetadataParser.APAM))) {
 
             DependencyDeclaration.Reference source = parseDependencyReference(promotion, true);
-            String target = parseString(promotion, CoreMetadataParser.ATT_TO);
+            String target = parseString(composite.getName(),promotion, CoreMetadataParser.ATT_TO);
 
             composite.getPromotions().add(
                     new DependencyPromotion(source, new DependencyDeclaration.Reference(composite.getReference(),
@@ -1051,7 +1051,7 @@ public class CoreMetadataParser implements CoreParser {
         for (Element owned : optional(element.getElements(CoreMetadataParser.OWN, CoreMetadataParser.APAM))) {
 
             PropertyDefinition.Reference property = parsePropertyReference(owned, true);
-            String values = parseString(owned, CoreMetadataParser.ATT_VALUE);
+            String values = parseString(composite.getName(),owned, CoreMetadataParser.ATT_VALUE);
 
             OwnedComponentDeclaration ownedComponent = new OwnedComponentDeclaration(property, new HashSet<String>(
                     Arrays.asList(Util.split(values))));
@@ -1062,12 +1062,12 @@ public class CoreMetadataParser implements CoreParser {
             for (Element grant : optional(owned.getElements(CoreMetadataParser.GRANT, CoreMetadataParser.APAM))) {
 
                 ComponentReference<?> definingComponent = parseComponentReference(grant, true);
-                String identifier = parseString(grant, CoreMetadataParser.ATT_DEPENDENCY, false);
+                String identifier = parseString(composite.getName(),grant, CoreMetadataParser.ATT_DEPENDENCY, false);
                 identifier = identifier != null ? identifier : ownedComponent.getComponent().getName();
                 DependencyDeclaration.Reference dependency = new DependencyDeclaration.Reference(definingComponent,
                         identifier);
 
-                String states = parseString(grant, CoreMetadataParser.ATT_WHEN, true);
+                String states = parseString(composite.getName(),grant, CoreMetadataParser.ATT_WHEN, true);
 
                 GrantDeclaration grantDeclaration = new GrantDeclaration(dependency, new HashSet<String>(Arrays
                         .asList(Util.split(states))));
@@ -1129,17 +1129,17 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * Get a string attribute value
      */
-    private final String parseString(Element element, String attribute, boolean mandatory) {
+    private final String parseString(String componentName, Element element, String attribute, boolean mandatory) {
         String value = element.getAttribute(attribute);
 
         if (mandatory && (value == null)) {
-            errorHandler.error(Severity.ERROR, "attribute \"" + attribute + "\" must be specified in "
+            errorHandler.error(Severity.ERROR, "in component \"" + componentName + "\" attribute \"" + attribute + "\" must be specified in "
                     + element.getName());
             value = CoreParser.UNDEFINED;
         }
 
         if (mandatory && (value != null) && value.trim().isEmpty()) {
-            errorHandler.error(Severity.ERROR, "attribute \"" + attribute + "\" cannot be empty in "
+            errorHandler.error(Severity.ERROR, "in component \"" + componentName + "\" attribute \"" + attribute + "\" cannot be empty in "
                     + element.getName());
             value = CoreParser.UNDEFINED;
         }
@@ -1150,30 +1150,30 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * Get a mandatory string attribute value
      */
-    private final String parseString(Element element, String attribute) {
-        return parseString(element, attribute, true);
+    private final String parseString(String componentName,Element element, String attribute) {
+        return parseString(componentName,element, attribute, true);
     }
 
     /**
      * Get a mandatory element name
      */
     private final String parseName(Element element) {
-        return parseString(element, CoreMetadataParser.ATT_NAME);
+        return parseString( element.getAttribute(CoreMetadataParser.ATT_NAME),element, CoreMetadataParser.ATT_NAME);
     }
 
     /**
      * Get a boolean attribute value
      */
-    private boolean parseBoolean(Element element, String attribute, boolean mandatory, boolean defaultValue) {
-        String valueString = parseString(element, attribute, mandatory);
+    private boolean parseBoolean(String componentName,Element element, String attribute, boolean mandatory, boolean defaultValue) {
+        String valueString = parseString(componentName,element, attribute, mandatory);
         return ((valueString == null) && !mandatory) ? defaultValue : Boolean.parseBoolean(valueString);
     }
 
     /**
      * Get a boolean attribute value
      */
-    private boolean parseisDefinedBoolean(Element element, String attribute) {
-        return (parseString(element, attribute, false) != null);
+    private boolean parseisDefinedBoolean(String componentName,Element element, String attribute) {
+        return (parseString(componentName,element, attribute, false) != null);
     }
 
     /**
@@ -1186,9 +1186,9 @@ public class CoreMetadataParser implements CoreParser {
     /**
      * Get a missing policy attribute value
      */
-    private MissingPolicy parsePolicy(Element element, String attribute, boolean mandatory, MissingPolicy defaultValue) {
+    private MissingPolicy parsePolicy(String componentName,Element element, String attribute, boolean mandatory, MissingPolicy defaultValue) {
 
-        String encodedPolicy = parseString(element, attribute, mandatory);
+        String encodedPolicy = parseString(componentName,element, attribute, mandatory);
 
         if ((encodedPolicy == null) && !mandatory)
             return defaultValue;
@@ -1214,7 +1214,7 @@ public class CoreMetadataParser implements CoreParser {
      * Get an specification reference coded in an attribute
      */
     private SpecificationReference parseSpecificationReference(Element element, String attribute, boolean mandatory) {
-        String specification = parseString(element, attribute, mandatory);
+        String specification = parseString(parseName(element),element, attribute, mandatory);
         return ((specification == null) && !mandatory) ? null : new SpecificationReference(specification);
     }
 
@@ -1223,7 +1223,7 @@ public class CoreMetadataParser implements CoreParser {
      */
     private ImplementationReference<?>
             parseImplementationReference(Element element, String attribute, boolean mandatory) {
-        String implementation = parseString(element, attribute, mandatory);
+        String implementation = parseString(parseName(element),element, attribute, mandatory);
         return ((implementation == null) && !mandatory) ? null
                 : new ImplementationReference<ImplementationDeclaration>(implementation);
     }
@@ -1232,7 +1232,7 @@ public class CoreMetadataParser implements CoreParser {
      * Get an instance reference coded in an attribute
      */
     private InstanceReference parseInstanceReference(Element element, String attribute, boolean mandatory) {
-        String instance = parseString(element, attribute, mandatory);
+        String instance = parseString(parseName(element),element, attribute, mandatory);
         return ((instance == null) && !mandatory) ? null : new InstanceReference(instance);
     }
 
@@ -1240,7 +1240,7 @@ public class CoreMetadataParser implements CoreParser {
      * Get a generic component reference coded in an attribute
      */
     private ComponentReference<?> parseAnyComponentReference(Element element, String attribute, boolean mandatory) {
-        String component = parseString(element, attribute, mandatory);
+        String component = parseString(parseName(element),element, attribute, mandatory);
         return ((component == null) && !mandatory) ? null : new ComponentReference<ComponentDeclaration>(component);
     }
 
@@ -1248,7 +1248,7 @@ public class CoreMetadataParser implements CoreParser {
      * Get an interface reference coded in an attribute
      */
     private InterfaceReference parseInterfaceReference(Element element, String attribute, boolean mandatory) {
-        String interfaceName = parseString(element, attribute, mandatory);
+        String interfaceName = parseString(parseName(element),element, attribute, mandatory);
         return ((interfaceName == null) && !mandatory) ? null : new InterfaceReference(interfaceName);
     }
 
@@ -1256,7 +1256,7 @@ public class CoreMetadataParser implements CoreParser {
      * Get a message reference coded in an attribute
      */
     private MessageReference parseMessageReference(Element element, String attribute, boolean mandatory) {
-        String messageName = parseString(element, attribute, mandatory);
+        String messageName = parseString(parseName(element),element, attribute, mandatory);
         return ((messageName == null) && !mandatory) ? null : new MessageReference(messageName);
     }
 
@@ -1340,7 +1340,7 @@ public class CoreMetadataParser implements CoreParser {
     private DependencyDeclaration.Reference parseDependencyReference(Element element, boolean mandatory) {
 
         ComponentReference<?> definingComponent = parseComponentReference(element, mandatory);
-        String identifier = parseString(element, CoreMetadataParser.ATT_DEPENDENCY, mandatory);
+        String identifier = parseString(definingComponent.getName(),element, CoreMetadataParser.ATT_DEPENDENCY, mandatory);
 
         if (!mandatory && (definingComponent == null || identifier == null)) {
             return null;
@@ -1355,7 +1355,7 @@ public class CoreMetadataParser implements CoreParser {
     private PropertyDefinition.Reference parsePropertyReference(Element element, boolean mandatory) {
 
         ComponentReference<?> definingComponent = parseComponentReference(element, mandatory);
-        String identifier = parseString(element, CoreMetadataParser.ATT_PROPERTY, mandatory);
+        String identifier = parseString(definingComponent.getName(),element, CoreMetadataParser.ATT_PROPERTY, mandatory);
 
         if (!mandatory && (definingComponent == null || identifier == null)) {
             return null;
@@ -2050,7 +2050,7 @@ public class CoreMetadataParser implements CoreParser {
                 if (mr.isResourceUndefined())
                     return new UndefinedReference(methodName, MessageReference.class);
                 else
-                    return mr;
+                    return (ResourceReference)mr;
             }
             // no method was found
             throw new NoSuchMethodException("unavailable method : " + methodName);
