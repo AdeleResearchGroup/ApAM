@@ -1,0 +1,27 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+	<implementation name="KitchenApp-Impl"
+		classname="fr.imag.adele.apam.application.kitchen.impl.KitchenAppImpl"
+		interfaces="fr.imag.adele.apam.application.kitchen.KitchenApp"
+		messages="fr.imag.adele.apam.application.kitchen.KitchenMessage"
+		specification="KitchenApp" push="sendKitchenMessage">
+       
+		<dependency specification="Microwave">
+			<interface field="microwave" />
+			<message push="consumeMicrowaveMessage" />
+			<constraints>
+				<instance filter="(location=kitchen)" />
+			</constraints>
+		</dependency>
+		<dependency specification="Oven">
+			<interface field="oven" />
+			<message push="consumeOvenMessage" />
+			<constraints>
+				<instance filter="(location=kitchen)" />
+			</constraints>
+		</dependency>
+	</implementation>
+
+</apam>

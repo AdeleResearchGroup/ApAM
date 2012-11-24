@@ -1,0 +1,18 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+	
+	<specification name="MediaPlayer"
+		interfaces="fr.imag.adele.apam.application.mediacenter.MediaPlayer">
+		<dependency specification="Speaker">
+			<constraints>
+				<instance filter="(location=livingroom)" />
+			</constraints>
+		</dependency>
+		<dependency specification="TvScreen">
+			<constraints>
+				<instance filter="(location=livingroom)" />
+			</constraints>
+		</dependency>
+	</specification>
+
+
+</apam>

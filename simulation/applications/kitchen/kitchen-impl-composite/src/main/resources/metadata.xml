@@ -1,0 +1,28 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+	<!-- *********** ************ -->
+	<!--   Kitchen App Composite  -->
+	<!-- *********** ************ -->
+	<composite name="KitchenAppComposite" specification="KitchenApp"
+		mainImplem="KitchenApp-Impl">
+
+		<owns component="Microwave">
+			<constraints>
+				<instance filter="(location=kitchen)" />
+			</constraints>
+		</owns>
+		<owns component="Oven">
+			<constraints>
+				<instance filter="(location=kitchen)" />
+			</constraints>
+		</owns>
+	</composite>
+
+
+	<!-- *********** ************ -->
+	<!--        Instance         -->
+	<!-- *********** ************ -->
+
+	<apam-instance implementation="KitchenAppComposite"
+		name="KitchenAppComposite-Instance" />
+
+</apam>

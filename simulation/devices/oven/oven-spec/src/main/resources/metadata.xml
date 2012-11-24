@@ -1,0 +1,9 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+	<specification name="Oven"
+		interfaces="fr.imag.adele.apam.device.oven.Oven"
+		messages="java.lang.String">
+
+			<definition name="location" type="string" />
+
+	</specification>
+</apam>

@@ -237,7 +237,7 @@ public abstract class DependencyInjection {
 
         @Override
         public boolean isCollection() {
-            if (isCollection != null) {
+            if (isCollection == null) {
                 try {
                     isCollection = implementation.getInstrumentation().isCollectionArgument(methodName, type);
                 } catch (NoSuchMethodException e) {

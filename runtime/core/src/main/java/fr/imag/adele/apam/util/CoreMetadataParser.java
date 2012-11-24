@@ -827,12 +827,12 @@ public class CoreMetadataParser implements CoreParser {
         String type = parseString(atomic.getName(),element, CoreMetadataParser.ATT_TYPE, false);
 
         if ((field == null) && (push == null) && (pull == null) && mandatory)
-            errorHandler.error(Severity.ERROR, "attribute \"" + CoreMetadataParser.ATT_FIELD + "\" or \""
+            errorHandler.error(Severity.ERROR, "in the component \"" + atomic.getName()+  "\" dependency attribute \"" + CoreMetadataParser.ATT_FIELD + "\" or \""
                     + CoreMetadataParser.ATT_PUSH + "\" or \"" + CoreMetadataParser.ATT_PULL
                     + "\" must be specified in " + element.getName());
 
         if ((field == null) && CoreMetadataParser.INTERFACE.equals(element.getName()) && mandatory)
-            errorHandler.error(Severity.ERROR, "attribute \""
+            errorHandler.error(Severity.ERROR, "in the component \"" + atomic.getName()+  "\" dependency attribute \""
                     + CoreMetadataParser.ATT_FIELD + "\" must be specified in " + element.getName());
 
         if ((field == null) && (push == null) && (pull == null)) {
