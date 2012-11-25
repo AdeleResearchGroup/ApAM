@@ -55,7 +55,7 @@ public class SimulatedSmartphone extends AbstractDevice implements Smartphone,
 	@Override
 	public synchronized void unbindSimulatedEnvironment(SimulatedEnvironment environment) {
 		m_env = null;
-		location = getEnvironmentId();
+        location = "outside";
 	}
 
 

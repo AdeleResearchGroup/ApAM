@@ -61,6 +61,14 @@
             </modules>
         </profile>
 
+        <!-- Profile used to build icasa component -->
+        <profile>
+            <id>tools</id>
+            <modules>
+                <module>tools</module>
+            </modules>
+        </profile>
+
 		<!-- Profile used to build ApAM core bundles -->
 		<profile>
 			<id>runtime</id>

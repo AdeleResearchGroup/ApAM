@@ -6,7 +6,8 @@
 <specification name="TvScreen"
 		interfaces="fr.imag.adele.apam.device.tvscreen.TvScreen">
 
-			<definition name="location" type="{kitchen, livingroom}"/>
+    <definition name="location" type="{outside,hall,livingroom,bedroom,bathroom,kitchen}" />
 
-	</specification>
+
+</specification>
 </apam>

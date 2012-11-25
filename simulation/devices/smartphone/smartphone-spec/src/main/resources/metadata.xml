@@ -5,7 +5,8 @@
 	<specification name="Smartphone"
 		interfaces="fr.imag.adele.apam.device.smartphone.Smartphone">
 
-			<definition name="location" type="string" />
+        <definition name="location" type="{outside,hall,livingroom,bedroom,bathroom,kitchen}" />
 
-	</specification>
+
+    </specification>
 </apam>

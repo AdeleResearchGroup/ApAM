@@ -57,6 +57,7 @@ public class SimulatedTvScreen extends AbstractDevice implements TvScreen,
 	public synchronized void unbindSimulatedEnvironment(SimulatedEnvironment environment) {
 		m_env = null;
 		location = getEnvironmentId();
+        location = "outside";
 	}
 
     

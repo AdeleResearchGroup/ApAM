@@ -3,20 +3,16 @@
       xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
-    <implementation name="APAM.TvScreen"
+    <implementation name="APAM.TvScreen" instantiable="false"
                     classname="fr.imag.adele.apam.device.tvscreen.impl.SimulatedTvScreen"
                     specification="TvScreen" interfaces="fr.imag.adele.apam.device.tvscreen.TvScreen">
 
-        <definition name="location" type="string"/>
+        <definition name="location" type="{outside,hall,livingroom,bedroom,bathroom,kitchen}" field="location" internal="true"/>
+
         <definition name="fault" value="no" type="string"/>
         <definition name="state" value="deactivated" type="string"/>
 
-        <property name="instantiable" value="false"/>
 
-
-        <!--ipojo:properties>
-            <ipojo:Property name="location" field="location"/>
-        </ipojo:properties-->
 
         <ipojo:provides
                 specifications="{fr.liglab.adele.icasa.environment.SimulatedDevice,fr.liglab.adele.icasa.device.GenericDevice}">

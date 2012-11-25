@@ -57,7 +57,7 @@ public class SimulatedSpeaker extends AbstractDevice implements Speaker,
 	@Override
 	public synchronized void unbindSimulatedEnvironment(SimulatedEnvironment environment) {
 		m_env = null;
-		location = getEnvironmentId();
+        location = "outside";
 	}
 
  

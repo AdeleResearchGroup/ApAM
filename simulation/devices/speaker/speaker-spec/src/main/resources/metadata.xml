@@ -1,11 +1,12 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
-	<specification name="Speaker"
-		interfaces="fr.imag.adele.apam.device.speaker.Speaker">
+<specification name="Speaker"
+               interfaces="fr.imag.adele.apam.device.speaker.Speaker">
 
-        <definition name="location" type="{kitchen, livingroom}"/>
+    <definition name="location" type="{outside,hall,livingroom,bedroom,bathroom,kitchen}" />
 
-	</specification>
+
+</specification>
 </apam>

@@ -38,8 +38,6 @@ public class SimulatedOven extends AbstractDevice implements Oven, SimulatedDevi
 
 	private String state;
 
-	protected Queue<String> room;
-
 	private volatile SimulatedEnvironment m_env;
 
 	private Timer timer;
@@ -67,6 +65,7 @@ public class SimulatedOven extends AbstractDevice implements Oven, SimulatedDevi
 	@Override
 	public synchronized void unbindSimulatedEnvironment(SimulatedEnvironment environment) {
 		m_env = null;
+        location = "outside";
 	}
 
 	public String getLocation() {
@@ -104,7 +103,7 @@ public class SimulatedOven extends AbstractDevice implements Oven, SimulatedDevi
 	}
 
     public String sendData(String message){
-                 return message;
+       return message;
     }
 	/**
 	 * @param fault
@@ -129,12 +128,7 @@ public class SimulatedOven extends AbstractDevice implements Oven, SimulatedDevi
 
 		public void run() {
 			System.out.println("Oven ("+location+")  >> Timer end for the task --> " + message);	
-			if (room!=null){
-				System.out.println("Oven ("+location+")  >> consumer not null!");
-				sendData(message);
-			}else {
-				System.out.println("Oven ("+location+")  >> unavailable oven message consumers!");
-			}
+			sendData(message);
 			timer.cancel();
 			timer.purge();
 		}

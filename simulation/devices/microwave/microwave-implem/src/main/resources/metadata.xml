@@ -2,24 +2,20 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
-    <implementation name="APAM.MicroWave"
+    <implementation name="APAM.MicroWave" instantiable="false"
                     classname="fr.imag.adele.apam.device.microwave.impl.SimulatedMicrowave"
                     specification="Microwave" interfaces="{fr.imag.adele.apam.device.microwave.Microwave}"
                     messages="java.lang.String" push="sendData">
 
 
-        <definition name="location" type="string" />
+        <definition name="location" type="{outside,hall,livingroom,bedroom,bathroom,kitchen}" field="location" internal="true"/>
+
         <definition name="fault" value="no" type="string" />
         <definition name="state" value="deactivated" type="string" />
 
 
 
-        <property name="instantiable" value="false" />
 
-
-        <!--ipojo:properties>
-            <ipojo:Property name="location" field="location" />
-        </ipojo:properties-->
 
         <ipojo:provides
                 specifications="{fr.liglab.adele.icasa.environment.SimulatedDevice,fr.liglab.adele.icasa.device.GenericDevice}">
