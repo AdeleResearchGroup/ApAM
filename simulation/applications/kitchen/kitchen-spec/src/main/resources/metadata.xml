@@ -3,11 +3,10 @@
       xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 	<specification name="KitchenApp"
-		interfaces="fr.imag.adele.apam.application.kitchen.KitchenApp"
-		messages="fr.imag.adele.apam.application.kitchen.KitchenMessage">
-
+		interfaces="fr.imag.adele.apam.application.kitchen.KitchenApp">
+<!--
 		<dependency specification="Microwave" />
-		<dependency specification="Oven" />
+		<dependency specification="Oven" />-->
 	</specification>
 
 	

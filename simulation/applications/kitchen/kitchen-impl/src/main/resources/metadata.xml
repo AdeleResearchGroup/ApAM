@@ -4,24 +4,10 @@
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 	<implementation name="KitchenApp-Impl"
 		classname="fr.imag.adele.apam.application.kitchen.impl.KitchenAppImpl"
-		interfaces="fr.imag.adele.apam.application.kitchen.KitchenApp"
-		messages="fr.imag.adele.apam.application.kitchen.KitchenMessage"
-		specification="KitchenApp" push="sendKitchenMessage">
+		specification="KitchenApp" >
        
-		<dependency specification="Microwave">
-			<interface field="microwave" />
-			<message push="consumeMicrowaveMessage" />
-			<constraints>
-				<instance filter="(location=kitchen)" />
-			</constraints>
-		</dependency>
-		<dependency specification="Oven">
-			<interface field="oven" />
-			<message push="consumeOvenMessage" />
-			<constraints>
-				<instance filter="(location=kitchen)" />
-			</constraints>
-		</dependency>
+		<dependency field="lights"/>
+		<dependency field="presenceSensor"/>
 	</implementation>
 
 </apam>

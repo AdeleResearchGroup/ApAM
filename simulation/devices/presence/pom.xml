@@ -1,21 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>scenario-icasa</artifactId>
+    <artifactId>icasa-apam-devices</artifactId>
     <groupId>fr.imag.adele.apam</groupId>
     <version>0.0.1-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
-  <artifactId>icasa-apam-devices</artifactId>
+  <artifactId>apam-presence</artifactId>
   <packaging>pom</packaging>
-  <name>Apam devices for iCasa</name>
-  <modules>
-  	<module>light</module>
-  	<module>presence</module>
-  	<module>oven</module>
-  	<module>microwave</module>
-  	<module>tvscreen</module>
-  	<module>speaker</module>
-  	<module>smartphone</module>
+  <name>presence device (ApAM)</name>
+  <modules>    
+  	<module>presence-implem</module>
   </modules>
 </project>
