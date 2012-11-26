@@ -17,7 +17,7 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 

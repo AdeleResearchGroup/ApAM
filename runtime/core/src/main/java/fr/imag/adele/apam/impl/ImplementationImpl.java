@@ -21,11 +21,11 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.core.CompositeDeclaration;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.ImplementationReference;
-import fr.imag.adele.apam.core.ResourceReference;
-import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.util.Util;
 
 public class ImplementationImpl extends ComponentImpl implements Implementation {

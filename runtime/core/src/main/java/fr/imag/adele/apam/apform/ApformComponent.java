@@ -2,7 +2,7 @@ package fr.imag.adele.apam.apform;
 
 import org.osgi.framework.Bundle;
 
-import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
 
 public interface ApformComponent {
 

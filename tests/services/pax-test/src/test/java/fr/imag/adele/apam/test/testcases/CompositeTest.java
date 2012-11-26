@@ -168,7 +168,7 @@ public class CompositeTest extends ExtensionAbstract {
 				"If an X instance is created into A and this instance is marked as local, this instance cannot be used by other composite. %s";
 		
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a");
+				null, "composite-a-local-instance");
 
 		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-b");
@@ -305,6 +305,126 @@ public class CompositeTest extends ExtensionAbstract {
 		String message=String.format(messageTemplate, "Although, an instance from composite B was injected in composite A even if A is marked with borrow instance='false'");
 		
 		Assert.assertTrue(message,ga.getElement() != gb.getElement());
+
+	}
+
+	@Test
+	public void CompositeContentMngtFriendNothingImplementation() {
+
+		CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a");
+		
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-friend-nothing-implementation");
+
+		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-b");
+		
+		Implementation ia=CST.apamResolver.findImplByName(null, "group-a");
+		
+		Composite composite_root = (Composite) ctroot.createInstance(null, null);
+		Composite composite_a = (Composite) cta.createInstance(composite_root, null);
+		Composite composite_b = (Composite) ctb.createInstance(composite_root, null);
+
+		Instance instanceFriend1=ia.createInstance(composite_a, null);
+		
+		Instance instanceFriend2=ia.createInstance(composite_b, null);
+
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceFriend1.getServiceObject();
+
+		S3GroupAImpl ga2 = (S3GroupAImpl) instanceFriend2.getServiceObject();
+
+		ga1.getElement();
+		
+		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+		
+		ga2.getElement();
+
+		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		String messageTemplate = "An instance belonging to a composite that do not export any implementation to friends (<friend implementation=\"false\" />), should not be visible (used/injected) by another composite, even if they are friends. %s";
+
+		String message=String.format(messageTemplate, "Although the instance was injeted externally into their friends.");
+		
+		Assert.assertTrue(message,ga1.getElement() != ga2.getElement());
+
+	}
+	
+	@Test
+	public void CompositeContentMngtFriendNothingInstance() {
+
+		CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a");
+		
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-friend-nothing-instance");
+
+		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-b");
+		
+		Implementation ia=CST.apamResolver.findImplByName(null, "group-a");
+		
+		Composite composite_root = (Composite) ctroot.createInstance(null, null);
+		Composite composite_a = (Composite) cta.createInstance(composite_root, null);
+		Composite composite_b = (Composite) ctb.createInstance(composite_root, null);
+
+		Instance instanceFriend1=ia.createInstance(composite_a, null);
+		
+		Instance instanceFriend2=ia.createInstance(composite_b, null);
+
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceFriend1.getServiceObject();
+
+		S3GroupAImpl ga2 = (S3GroupAImpl) instanceFriend2.getServiceObject();
+
+		ga1.getElement();
+		
+		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+		
+		ga2.getElement();
+
+		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		String messageTemplate = "An instance belonging to a composite that do not export any instance to friends (<friend instance=\"false\" />), should not be visible (used/injected) by another composite, even if they are friends. %s";
+
+		String message=String.format(messageTemplate, "Although the instance was injeted externally into their friends.");
+		
+		Assert.assertTrue(message,ga1.getElement() != ga2.getElement());
+
+	}	
+	
+	@Test
+	public void CompositeContentMngtApplicationNothingInstance() {
+		
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-application-nothing-instance");
+
+		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-b");
+		
+		Implementation ia=CST.apamResolver.findImplByName(null, "group-a");
+		
+		Composite composite_a = (Composite) cta.createInstance(null, null);
+		Composite composite_b = (Composite) ctb.createInstance(null, null);
+
+		Instance instanceApp1=ia.createInstance(composite_a, null);
+		
+		Instance instanceApp2=ia.createInstance(composite_b, null);
+
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+
+		S3GroupAImpl ga2 = (S3GroupAImpl) instanceApp2.getServiceObject();
+
+		ga1.getElement();
+		
+		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+		
+		ga2.getElement();
+
+		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		String message= "A composite instance protected into application level should NOT be visible/injected by other composites.";
+		
+		Assert.assertTrue(message,ga1.getElement() != ga2.getElement());
 
 	}
 	

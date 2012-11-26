@@ -8,10 +8,10 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.ImplementationReference;
-import fr.imag.adele.apam.core.ResourceReference;
-import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
 
 /**
@@ -54,7 +54,7 @@ public abstract class PendingRequest<T extends Component> {
 	}
 	
 	/**
-	 * The context in wich the resolution is requested
+	 * The context in which the resolution is requested
 	 */
 	public abstract Composite getContext();
 		

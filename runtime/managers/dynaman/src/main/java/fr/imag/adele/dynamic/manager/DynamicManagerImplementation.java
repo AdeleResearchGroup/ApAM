@@ -28,10 +28,11 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.PropertyManager;
 import fr.imag.adele.apam.ResolutionException;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.ResolvableReference;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
+import fr.imag.adele.apam.impl.CompositeImpl;
 
 
 /**
@@ -75,9 +76,28 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	 */
 	@Validate
 	private @SuppressWarnings("unused") synchronized void start()  {
+		
+		/*
+		 * Create the default content manager to be associated with the root composite
+		 */
+		try {
+			Composite root				= CompositeImpl.getRootAllComposites();
+			ContentManager rootContent	= new ContentManager(this,root);
+			contentManagers.put(root,rootContent);
+		} catch (InvalidConfiguration ignored) {
+		}
+		
+		/*
+		 * Register with APAM 
+		 */
 		ApamManagers.addDependencyManager(this,getPriority());
 		ApamManagers.addDynamicManager(this);
 		ApamManagers.addPropertyManager(this);
+
+		/*
+		 * TODO if Dynaman is started or restarted after APAM, should we verify if there
+		 * are already created composites? 
+		 */
 	}
 	
 	/**
@@ -198,9 +218,6 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 	public void propertyChanged(Instance instance, String property) {		
 		ContentManager owner = contentManagers.get(instance.getComposite());
-		if (owner == null)
-			return;
-		
 		boolean wasOwned = instance.isUsed();
 		
 		/*
@@ -292,11 +309,11 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	public Implementation resolveSpec(CompositeType compoTypeFrom, DependencyDeclaration dependency) {
 		
 		/*
-		 * In case of retry of a waiting request we simply return to avoid blocking or killing the unrelated thread that 
-		 * triggered the recalculation
+		 * In case of retry of a waiting or dynamic request we simply return to avoid blocking or killing
+		 * the unrelated thread that triggered the recalculation
 		 * 
 		 */
-		if (PendingRequest.isRetry())
+		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
 			return null;
 		
 		/*
@@ -325,11 +342,11 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	public Set<Implementation> resolveSpecs(CompositeType compoTypeFrom, DependencyDeclaration dependency) {
 		
 		/*
-		 * In case of retry of a waiting request we simply return to avoid blocking or killing the unrelated thread that 
-		 * triggered the recalculation
+		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
+		 * the unrelated thread that triggered the recalculation
 		 * 
 		 */
-		if (PendingRequest.isRetry())
+		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
 			return null;
 		
 		/*
@@ -358,11 +375,11 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	public Implementation findImplByDependency(CompositeType compoType,	DependencyDeclaration dependency) {
 		
 		/*
-		 * In case of retry of a waiting request we simply return to avoid blocking or killing the unrelated thread that 
-		 * triggered the recalculation
+		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
+		 * the unrelated thread that triggered the recalculation
 		 * 
 		 */
-		if (PendingRequest.isRetry())
+		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
 			return null;
 		
 		/*
@@ -391,11 +408,11 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	public Instance resolveImpl(Composite compo, Implementation impl, DependencyDeclaration dependency) {
 		
 		/*
-		 * In case of retry of a waiting request we simply return to avoid blocking or killing the unrelated thread that 
-		 * triggered the recalculation
+		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
+		 * the unrelated thread that triggered the recalculation
 		 * 
 		 */
-		if (PendingRequest.isRetry())
+		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
 			return null;
 		
 		/*
@@ -433,11 +450,11 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	public Set<Instance> resolveImpls(Composite compo, Implementation impl, DependencyDeclaration dependency) {
 		
 		/*
-		 * In case of retry of a waiting request we simply return to avoid blocking or killing the unrelated thread that 
-		 * triggered the recalculation
+		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
+		 * the unrelated thread that triggered the recalculation
 		 * 
 		 */
-		if (PendingRequest.isRetry())
+		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
 			return null;
 		
 		/*

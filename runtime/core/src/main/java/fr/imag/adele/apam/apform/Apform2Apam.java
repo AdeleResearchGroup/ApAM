@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.declarations.SpecificationReference;
 
 
 public class Apform2Apam {

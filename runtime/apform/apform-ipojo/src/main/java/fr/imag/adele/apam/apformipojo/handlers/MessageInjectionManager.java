@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
 import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
-import fr.imag.adele.apam.core.DependencyInjection;
-import fr.imag.adele.apam.core.MessageReference;
+import fr.imag.adele.apam.declarations.DependencyInjection;
+import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.util.ApAMQueue;
 

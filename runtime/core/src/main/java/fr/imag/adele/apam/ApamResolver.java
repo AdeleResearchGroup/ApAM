@@ -3,7 +3,7 @@ package fr.imag.adele.apam;
 import java.util.List;
 import java.util.Set;
 
-import fr.imag.adele.apam.core.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
 
 public interface ApamResolver {
 

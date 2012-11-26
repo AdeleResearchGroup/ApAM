@@ -34,7 +34,7 @@
 		<module>obrman-distribution</module>
 		<module>dynaman-distribution</module>
 		<module>obrman-dynaman-distribution</module>
-<!-- 		<module>apam-icasa-distribution</module>		 -->
+ 		<module>icasa-distribution</module>
 	</modules>
   <build>
     <plugins>

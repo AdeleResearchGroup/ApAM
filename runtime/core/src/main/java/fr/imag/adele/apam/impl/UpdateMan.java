@@ -23,8 +23,8 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
-import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.ResolvableReference;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.ResolvableReference;
 
 public class UpdateMan implements DependencyManager, DynamicManager {
 

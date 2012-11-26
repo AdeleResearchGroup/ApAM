@@ -1,8 +1,0 @@
-<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
-	<specification name="Speaker"
-		interfaces="fr.imag.adele.apam.device.speaker.Speaker">
-		<definitions>
-			<definition name="location" type="string" />
-		</definitions> 
-	</specification>
-</apam>

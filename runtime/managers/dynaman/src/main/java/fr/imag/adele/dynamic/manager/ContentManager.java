@@ -16,12 +16,14 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Wire;
-import fr.imag.adele.apam.core.CompositeDeclaration;
-import fr.imag.adele.apam.core.GrantDeclaration;
-import fr.imag.adele.apam.core.ImplementationReference;
-import fr.imag.adele.apam.core.OwnedComponentDeclaration;
-import fr.imag.adele.apam.core.PropertyDefinition;
-import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.DependencyInjection;
+import fr.imag.adele.apam.declarations.GrantDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
+import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.CompositeImpl;
 import fr.imag.adele.apam.impl.InstanceImpl;
@@ -85,6 +87,12 @@ public class ContentManager  {
 	 */
 	private Map<GrantDeclaration, List<PendingRequest<?>>> pendingGrants;
 	
+	
+	/**
+	 * The list of dynamic dependencies that must be updated without waiting
+	 * for lazy resolution
+	 */
+	private List<DynamicResolutionRequest> dynamicRequests;
 	
 	/**
 	 * Initializes the content manager
@@ -191,7 +199,13 @@ public class ContentManager  {
 			}
 		}
 		
-		
+		/*
+		 * Initialize list of dynamic dependencies
+		 */
+		dynamicRequests	= new ArrayList<DynamicResolutionRequest>();
+		for (Instance conained : composite.getContainInsts()) {
+			verifyDynamicDependencies(conained);
+		}
 	}
 	
 	/**
@@ -384,6 +398,38 @@ public class ContentManager  {
 	}
 	
 	/**
+	 * Try to resolve all the dynamic requests that are potentially satisfied by a given instance
+	 */
+	private void resolveDynamicRequests(Instance candidate) {
+		for (DynamicResolutionRequest request : dynamicRequests) {
+			if (request.isSatisfiedBy(candidate))
+				request.resolve();
+		}
+	}
+
+	/**
+	 * Verify if a contained instance has declared dynamic isntances
+	 */
+	private void verifyDynamicDependencies(Instance instance) {
+		
+		for (DependencyDeclaration dependency : Util.computeAllEffectiveDependency(instance)) {
+
+			boolean hasField =  false;
+			for (DependencyInjection injection : dependency.getInjections()) {
+				if (injection instanceof DependencyInjection.Field) {
+					hasField = true;
+					break;
+				}
+			}
+			/*
+			 * ignore lazy dependencies
+			 */
+			if (! hasField || dependency.isMultiple() || dependency.isEager())
+				dynamicRequests.add(new DynamicResolutionRequest(CST.apamResolver,instance,dependency));
+		}
+	}
+	
+	/**
 	 * Updates the contents of this composite when a new implementation is added in APAM
 	 */
 	public synchronized void implementationAdded(Implementation implementation) {
@@ -416,9 +462,18 @@ public class ContentManager  {
 		 * verify if the new instance satisfies any pending resolutions in
 		 * this composite
 		 */
-		if (instance.isSharable() && Util.checkInstVisible(getComposite(),instance))
+		if (instance.isSharable() && Util.checkInstVisible(getComposite(),instance)) {
 			resolveRequestsWaitingFor(instance);
+			resolveDynamicRequests(instance);
+		}
+
+		/*
+		 * verify if a newly contained instance has dynamic dependencies  
+		 */
+		if ( instance.getComposite().equals(getComposite()))
+			verifyDynamicDependencies(instance);
 	}
+
 
 	/**
 	 * Updates the contents of this composite when a contained instance is removed from APAM

@@ -9,8 +9,8 @@ import org.osgi.framework.Filter;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.core.ResolvableReference;
-import fr.imag.adele.apam.core.ResourceReference;
+import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.ResourceReference;
 
 public interface ComponentBroker {
  

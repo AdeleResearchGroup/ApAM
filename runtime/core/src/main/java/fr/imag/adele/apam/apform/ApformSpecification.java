@@ -1,6 +1,6 @@
 package fr.imag.adele.apam.apform;
 
-import fr.imag.adele.apam.core.SpecificationDeclaration;
+import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 
 public interface ApformSpecification  extends ApformComponent {
 	/**

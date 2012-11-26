@@ -10,9 +10,9 @@ import org.osgi.framework.Bundle;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.ImplementationReference;
-import fr.imag.adele.apam.core.InterfaceReference;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.InterfaceReference;
 
 /**
  * This class allow integrating legacy iPojo components in the APAM runtime

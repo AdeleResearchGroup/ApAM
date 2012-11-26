@@ -1,0 +1,43 @@
+<behavior startdate="2011.10.27.00.00.00" factor="1440">
+	
+	<create-environment envId="kitchen"  leftX="411" topY="371" rightX="658" bottomY="580" />	
+	<add-device deviceID="SekuSensor-AAA-20119215-S" type="iCASA.PresenceSensor" />
+	<add-device deviceID="TermoSensor-AAA-20119215-S" type="iCASA.Thermometer" description="Kitchen Thermometer Sensor 1" />
+	<add-device deviceID="PhotoSensor-AAA-20119215-S" type="iCASA.Photometer" />
+	<add-device deviceID="IKAE-79C-WXFHH-532349-K4" type="iCASA.BinaryLight" />	
+	<move-device deviceID="SekuSensor-AAA-20119215-S" location="kitchen" />
+	<move-device deviceID="TermoSensor-AAA-20119215-S" location="kitchen" />
+	<move-device deviceID="PhotoSensor-AAA-20119215-S" location="kitchen" />
+	<move-device deviceID="IKAE-79C-WXFHH-532349-K4" location="kitchen" />
+	<modify-environment location="kitchen" variable="temperature" value="296.15"/>
+	
+	<create-environment envId="livingroom"  leftX="414" topY="18" rightX="658" bottomY="370" />
+	<add-device deviceID="TermoSensor-AAA-20119915-F" type="iCASA.Thermometer" />
+	<add-device deviceID="Elektro-Halogen4000-453147-08234-88" type="iCASA.DimmerLight" />	
+	<add-device deviceID="AKAIKAI-SciHiFi-867626-54000245-445564" type="iCASA.AudioSource" />
+	<add-device deviceID="TermoSensor-AAA-2597844-X" type="iCASA.Thermometer" />
+	<add-device deviceID="Heather-AAA-20119215-S" type="iCASA.Heater" />		
+	<move-device deviceID="TermoSensor-AAA-20119915-F" location="livingroom" />
+	<move-device deviceID="Elektro-Halogen4000-453147-08234-88" location="livingroom" />	
+	<move-device deviceID="AKAIKAI-SciHiFi-867626-54000245-445564" location="livingroom" />
+	<move-device deviceID="TermoSensor-AAA-2597844-X" location="livingroom" />
+	<move-device deviceID="Heather-AAA-20119215-S" location="livingroom" />
+	<modify-environment location="livingroom" variable="temperature" value="295.15"/>
+	
+	
+	<create-environment envId="bedroom"  leftX="55" topY="371" rightX="314" bottomY="580" />	
+	<add-device deviceID="TermoSensor-AAA-201168416-D" type="iCASA.Thermometer" />	
+	<add-device deviceID="Elektro-Halogen4000-985614-65891-78" type="iCASA.DimmerLight" />	
+	<move-device deviceID="TermoSensor-AAA-201168416-D" location="bedroom" />	
+	<move-device deviceID="Elektro-Halogen4000-985614-65891-78" location="bedroom" />	
+	<modify-environment location="bedroom" variable="temperature" value="294.15"/>
+
+	<create-environment envId="bathroom"  leftX="58" topY="18" rightX="312" bottomY="370" />	
+	<add-device deviceID="TermoSensor-ABC-1231234-ZZ" type="iCASA.Thermometer" />	
+	<add-device deviceID="IKAE-Chb-45X-DDPQS-254-33" type="iCASA.BinaryLight" />		
+	<move-device deviceID="TermoSensor-ABC-1231234-ZZ" location="bathroom" />	
+	<move-device deviceID="IKAE-Chb-45X-DDPQS-254-33" location="bathroom" />	
+	<modify-environment location="bathroom" variable="temperature" value="293.15"/>
+	
+	
+</behavior>

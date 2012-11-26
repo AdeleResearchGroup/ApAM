@@ -290,7 +290,7 @@ public class OBRManager {
 	/**
 	 * Deploys, installs and instantiate
 	 * 
-	 * @param res
+	 * @param selected
 	 * @return
 	 */
 	public boolean deployInstall(Selected selected) {

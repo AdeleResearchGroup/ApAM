@@ -10,8 +10,8 @@ import org.osgi.framework.ServiceReference;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.core.ImplementationReference;
-import fr.imag.adele.apam.core.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.InstanceDeclaration;
 
 public class ApformIpojoLegacyInstance implements ApformInstance {
 

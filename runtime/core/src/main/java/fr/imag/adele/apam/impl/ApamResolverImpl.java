@@ -23,16 +23,16 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.DependencyPromotion;
-import fr.imag.adele.apam.core.ComponentDeclaration;
-import fr.imag.adele.apam.core.ComponentReference;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.ImplementationReference;
-import fr.imag.adele.apam.core.InterfaceReference;
-import fr.imag.adele.apam.core.MessageReference;
-import fr.imag.adele.apam.core.ResolvableReference;
-import fr.imag.adele.apam.core.SpecificationReference;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.DependencyPromotion;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentReference;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.InterfaceReference;
+import fr.imag.adele.apam.declarations.MessageReference;
+import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamResolverImpl implements ApamResolver {

@@ -17,14 +17,14 @@ import org.osgi.service.wireadmin.WireAdmin;
 
 import fr.imag.adele.apam.apformipojo.ApformIpojoImplementation;
 import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
-import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.core.CallbackMethod;
-import fr.imag.adele.apam.core.CallbackMethod.CallbackTrigger;
-import fr.imag.adele.apam.core.DependencyDeclaration;
-import fr.imag.adele.apam.core.DependencyInjection;
-import fr.imag.adele.apam.core.ImplementationDeclaration;
-import fr.imag.adele.apam.core.InterfaceReference;
-import fr.imag.adele.apam.core.MessageReference;
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.declarations.CallbackMethod;
+import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.DependencyInjection;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.InterfaceReference;
+import fr.imag.adele.apam.declarations.MessageReference;
 
 public class DependencyInjectionHandler extends ApformHandler {
 

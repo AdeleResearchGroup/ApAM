@@ -7,7 +7,7 @@ import java.util.Set;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apform.ApformComponent;
-import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
 
 public interface Component {
 

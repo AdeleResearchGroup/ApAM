@@ -83,7 +83,7 @@
 									<artifactId>apam-bundle</artifactId>
 									<version>${apam.current.version}</version>
 								</artifactItem>
-								<artifactItem>
+                                <artifactItem>
 									<groupId>fr.imag.adele.apam</groupId>
 									<artifactId>apam-shell</artifactId>
 									<version>${apam.current.version}</version>
@@ -98,6 +98,15 @@
 									<artifactId>org.apache.felix.fileinstall</artifactId>
 									<version>3.2.0</version>
 								</artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.felix</groupId>
+                                    <artifactId>org.apache.felix.configadmin</artifactId>
+                                    <version>1.2.8</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.felix</groupId>
+                                    <artifactId>org.apache.felix.ipojo.annotations</artifactId>
+                                </artifactItem>
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
 									<artifactId>org.apache.felix.log</artifactId>

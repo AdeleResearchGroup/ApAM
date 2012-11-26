@@ -45,7 +45,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.core.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.util.Util;
 
 /**

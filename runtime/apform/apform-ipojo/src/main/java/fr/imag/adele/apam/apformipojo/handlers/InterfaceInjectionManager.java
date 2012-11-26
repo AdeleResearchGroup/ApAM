@@ -15,8 +15,8 @@ import org.apache.felix.ipojo.parser.FieldMetadata;
 
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
-import fr.imag.adele.apam.core.DependencyInjection;
-import fr.imag.adele.apam.core.InterfaceReference;
+import fr.imag.adele.apam.declarations.DependencyInjection;
+import fr.imag.adele.apam.declarations.InterfaceReference;
 
 /**
  * This class keeps track of an APAM interface dependency, it handles the calculation of the target 
