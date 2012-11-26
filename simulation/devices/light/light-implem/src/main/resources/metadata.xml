@@ -2,7 +2,7 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
-	<implementation name="APAM.Light" instantiable="false"
+	<implementation name="light" instantiable="false"
 		classname="fr.imag.adele.apam.device.light.impl.SimulatedBinaryLight">
 
 			<definition name="location" type="{outside,hall,livingroom,bedroom,bathroom,kitchen}" field="location" internal="true"/>

@@ -24,7 +24,9 @@ public class KitchenAppImpl implements KitchenApp {
     private boolean presence =false;
 
     public void start(){
+        System.out.println("Start OK!");
         if (presenceSensor!=null){
+            System.out.println("Presence OK!");
             presenceListener = new MyPresenceListener();
             presenceSensor.addListener(presenceListener);
             presence = presenceSensor.getSensedPresence();
@@ -32,17 +34,25 @@ public class KitchenAppImpl implements KitchenApp {
         }
     }
 
+    public void bindLight(Instance instance){
+        System.out.println("New instance bind " + instance.getName());
+    }
+
+    public void unBindLight(Instance instance){
+        System.out.println("Instance unbind " + instance.getName());
+    }
+
     public void stop(){
+        System.out.println("Stop OK!");
         if (presenceSensor!=null){
-
             presenceSensor.removeListener(presenceListener);
-
         }
     }
 
 
     public void setLightsStates(boolean state){
         if (lights!=null){
+            System.out.println("lights OK");
             for( BinaryLight light : lights  ){
                 light.setPowerStatus(presence);
             }
@@ -53,6 +63,7 @@ public class KitchenAppImpl implements KitchenApp {
 
         @Override
         public void notifyDeviceEvent(String s) {
+            System.out.println("Presence sense " +  s);
             presence = presenceSensor.getSensedPresence();
             setLightsStates(presence);
         }
