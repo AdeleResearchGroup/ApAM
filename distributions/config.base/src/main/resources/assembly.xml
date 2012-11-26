@@ -1,0 +1,33 @@
+<assembly>
+    <id>distribution</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <fileSets>
+		<fileSet>
+			<directory>${basedir}</directory>
+			<includes>
+				<include>bin/*</include>
+				<include>bundle/*</include>
+				<include>conf/*</include>
+				<include>neededBundles/*</include>
+				<include>load/*</include>
+				<include>WEB-INF/*</include>
+				<include>apam</include>
+				<include>apam.bat</include>
+				<include>apamDebug</include>
+				<include>apamDebug.bat</include>
+			</includes>
+			<excludes>
+				<exclude>pom.xml</exclude>
+				<exclude>.settings/*</exclude>
+				<exclude>.project</exclude>
+				<exclude>.classpath</exclude>
+				<exclude>save-conf-files/*</exclude>
+				<exclude>assembly.xml</exclude>
+				<exclude>target/*</exclude>
+			</excludes>
+		</fileSet>
+	</fileSets>
+</assembly>

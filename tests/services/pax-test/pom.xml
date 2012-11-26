@@ -37,6 +37,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>fr.imag.adele.apam.tests.services</groupId>
+			<artifactId>apam-pax-samples-impl-s3</artifactId>
+			<version>${apam.current.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>fr.imag.adele.apam.tests</groupId>
 			<artifactId>apam-helpers</artifactId>
 			<version>${apam.current.version}</version>
@@ -89,7 +96,7 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-runtime</artifactId>
+			<artifactId>apam-core</artifactId>
 			<version>${apam.current.version}</version>
 			<scope>test</scope>
 		</dependency>

@@ -290,7 +290,6 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 	@Test
 	public void NotInstantiableInstance_08() {
-	
 			
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterNotInstantiable");
@@ -589,6 +588,32 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		
 		Assert.assertTrue("Should be possible to find an implementation by using its name.",impl!=null);
 	}
+	
+	@Test
+	public void AddedRemovedCallbackInDependencyDeclaration_16(){
+		
+		String message="Into an <implementation>, when declaring a dependency, we may specify methods to be called as soon as the dependency is wired or unwired, those are 'added' and 'removed' attributes respectively. %s";
+		
+		Implementation impl=CST.apamResolver.findImplByName(null,"S1Impl-added-removed-callback");
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		Instance instance=impl.createInstance(null, new HashMap<String, String>());
+		
+		S1Impl s1=(S1Impl)instance.getServiceObject();
+		
+		Assert.assertTrue(String.format(message, "Although 'added' method should not be called before the resolution of the dependency"),s1.getIsOnInitCallbackCalled()==false);
+		Assert.assertTrue(String.format(message, "Although 'remove' method should not be called before the resolution of the dependency"),s1.getIsOnRemoveCallbackCalled()==false);
+		
+		s1.getS2();
+		
+		Assert.assertTrue(String.format(message, "Although 'added' method was not called during the wiring process(dependency resolution)"),s1.getIsOnInitCallbackCalled()==true);
+		
+		auxDisconectWires(instance);
+		
+		Assert.assertTrue(String.format(message, "Although 'remove' method was not called during the unwiring process"),s1.getIsOnRemoveCallbackCalled()==true);
+
+	}	
+	
 }
 // Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
 // CST.componentBroker.getInstService(s3bis) ;

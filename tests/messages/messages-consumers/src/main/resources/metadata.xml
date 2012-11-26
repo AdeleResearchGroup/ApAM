@@ -1,0 +1,53 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+
+	<implementation name="M1Consumer" classname="fr.imag.adele.apam.test.message.consumer.M1ConsumerPull">
+		<callback onInit="start" onRemove="stop" />
+		<dependency pull="queueM1" />
+	</implementation>
+	<implementation name="M2Consumer" classname="fr.imag.adele.apam.test.message.consumer.M2ConsumerPull">
+		<callback onInit="start" onRemove="stop" />
+		<dependency pull="queueM2" />
+	</implementation>
+	<implementation name="M3Consumer" classname="fr.imag.adele.apam.test.message.consumer.M3ConsumerPull">
+		<callback onInit="start" onRemove="stop" />
+		<dependency pull="queueM3" />
+	</implementation>
+	<implementation name="M123Consumer" classname="fr.imag.adele.apam.test.message.consumer.M123ConsumerPull">
+		<callback onInit="start" onRemove="stop" />
+		<dependency specification="M123-producer-Spec">
+			<message pull="queueM1" />
+			<message pull="queueM2" />
+			<message pull="queueM3" />
+		</dependency>
+	</implementation>
+
+	<implementation name="M13Consumer" classname="fr.imag.adele.apam.test.message.consumer.M13ConsumerPull">
+		<callback onInit="start" onRemove="stop" />
+		<dependency specification="M13-producer-Spec">
+			<message pull="queueM1" />
+			<message pull="queueM3" />
+		</dependency>
+	</implementation>
+
+	<implementation name="M12Consumer" classname="fr.imag.adele.apam.test.message.consumer.M12ConsumerPull">
+		<callback onInit="start" onRemove="stop" />
+		<dependency specification="M12-producer-Spec">
+			<message pull="queueM1" />
+			<message pull="queueM2" />
+		</dependency>
+	</implementation>
+
+	<implementation name="M23Consumer" classname="fr.imag.adele.apam.test.message.consumer.M23ConsumerPull">
+		<callback onInit="start" onRemove="stop" />
+		<dependency specification="M23-producer-Spec">
+			<message pull="queueM2" />
+			<message pull="queueM3" />
+		</dependency>
+	</implementation>
+	
+	
+	
+
+</apam>
+

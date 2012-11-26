@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.osgi.framework.BundleContext;
 
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.iface.S1;
 import fr.imag.adele.apam.pax.test.iface.S2;
 import fr.imag.adele.apam.pax.test.iface.S3;
@@ -49,6 +50,16 @@ public class S1Impl implements S1
     }
     
     public void stop(){
+    	System.out.println("Stopping:"+this.getClass().getName());
+    	isOnRemoveCallbackCalled=true;
+    }
+    
+    public void bind(Instance instance){
+    	System.out.println("Starting:"+this.getClass().getName());
+    	isOnInitCallbackCalled=true;
+    }
+    
+    public void unbind(Instance instance){
     	System.out.println("Stopping:"+this.getClass().getName());
     	isOnRemoveCallbackCalled=true;
     }
@@ -140,6 +151,22 @@ public class S1Impl implements S1
 
 	public void setContext(BundleContext context) {
 		this.context = context;
+	}
+
+	public S2 getS2() {
+		return s2;
+	}
+
+	public void setS2(S2 s2) {
+		this.s2 = s2;
+	}
+
+	public S3 getS3() {
+		return s3;
+	}
+
+	public void setS3(S3 s3) {
+		this.s3 = s3;
 	}
 
 }

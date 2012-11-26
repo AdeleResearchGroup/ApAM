@@ -10,6 +10,9 @@ import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.CoreOptions.when;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.junit.After;
@@ -27,14 +30,17 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.ComponentBroker;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.core.ImplementationDeclaration;
 
 public abstract class ExtensionAbstract {
 
 	// Based on the current running, no test should take longer than 2 minute
-//	@Rule
-//	public TestRule globalTimeout = new Timeout(120000);
+	@Rule
+	public TestRule globalTimeout = new Timeout(120000);
 
 	@Rule
 	public TestName name = new TestName();
@@ -45,7 +51,32 @@ public abstract class ExtensionAbstract {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public ApAMHelper apam;
+	
+	protected ComponentBroker broker;
 
+	protected List<Instance> auxLookForInstanceOf(String clazz){
+		
+		List<Instance> pool=new ArrayList<Instance>();
+		
+		for (Instance i : CST.componentBroker.getInsts()) {
+			
+			ImplementationDeclaration apamImplDecl = i.getImpl()
+					.getImplDeclaration();
+
+			if (apamImplDecl instanceof AtomicImplementationDeclaration) {
+				
+				AtomicImplementationDeclaration atomicInitialInstance = (AtomicImplementationDeclaration) apamImplDecl;
+				
+				if (atomicInitialInstance.getClassName().equals(
+						clazz)) {
+					pool.add(i);
+				}
+			}
+		}
+		
+		return pool;
+	}
+	
 	protected void auxListInstances(String prefix) {
 		System.out.println(String.format(
 				"%s------------ Instances -------------", prefix));
@@ -83,12 +114,13 @@ public abstract class ExtensionAbstract {
 	@Before
 	public void setUp() {
 		apam = new ApAMHelper(context);
+		broker=CST.componentBroker;
 		logger.info("[Run Test : " + name.getMethodName() + "]");
 		apam.waitForIt(1000);
 	}
 
 	@Configuration
-	public static Option[] apamConfig() {
+	public Option[] apamConfig() {
 		return config();
 	}
 
