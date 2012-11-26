@@ -1,0 +1,253 @@
+Merge branch 'master' of https://github.com/AdeleResearchGroup/ApAM
+
+Conflicts:
+	framework/runtime/APAM felix-framework-3.2.2.launch
+	runtime/managers/confman/pom.xml
+	runtime/managers/samman/pom.xml
+	runtime/managers/samman/src/main/java/fr/imag/adele/samMan/SamMan.java
+	runtime/managers/samman/src/main/resources/metadata.xml
+#
+# It looks like you may be committing a merge.
+# If this is not correct, please remove the file
+#	.git/MERGE_HEAD
+# and try again.
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch and 'origin/master' have diverged,
+# and have 3 and 29 different commits each, respectively.
+#
+# Changes to be committed:
+#
+#	modified:   .gitignore
+#	new file:   distributions/config.base/assembly.xml
+#	new file:   distributions/config.base/pom.xml
+#	new file:   distributions/config.base/src/main/resources/apam
+#	new file:   distributions/config.base/src/main/resources/apam.bat
+#	new file:   distributions/config.base/src/main/resources/apamDebug
+#	new file:   distributions/config.base/src/main/resources/apamDebug.bat
+#	new file:   distributions/config.base/src/main/resources/assembly.xml
+#	new file:   distributions/config.base/src/main/resources/conf/config.properties
+#	new file:   distributions/config.base/src/main/resources/conf/log4j.properties
+#	new file:   distributions/config.base/src/main/resources/conf/root.OBRMAN.cfg
+#	new file:   distributions/config.base/src/main/resources/neededBundles/wireadmin.jar
+#	new file:   distributions/dynaman-distribution/pom.xml
+#	new file:   distributions/obrman-distribution/pom.xml
+#	new file:   distributions/obrman-dynaman-distribution/pom.xml
+#	new file:   distributions/pom.xml
+#	new file:   distributions/simple-distribution/pom.xml
+#	modified:   documentations/technical/ApamSpec-Summary.docx
+#	modified:   documentations/technical/test-coverture/APAM-UnitTest-Coverture-OnFreeMindApp.mm
+#	modified:   documentations/technical/test-coverture/APAM-UnitTest-Coverture-OnFreeMindApp.png
+#	deleted:    framework/runtime/APAM felix-framework-3.2.2.launch
+#	deleted:    managers/distriman/src/main/java/fr/imag/adele/apam/distriman/Distriman.java
+#	deleted:    old/ApamMavenPlugInOld/pom.xml
+#	deleted:    old/ApamMavenPlugInOld/src/main/java/fr/imag/adele/apam/apamMavenPlugIn/ApamMavenPlugin.java
+#	deleted:    old/ApamMavenPlugInOld/src/main/java/fr/imag/adele/apam/apamMavenPlugIn/ApamRepoBuilder.java
+#	modified:   plugins/apam-maven-plugin/pom.xml
+#	modified:   plugins/apam-maven-plugin/src/main/resources/log4j.xml
+#	modified:   pom.xml
+#	renamed:    framework/apform-ipojo/pom.xml -> runtime/apform/apform-ipojo/pom.xml
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoComponent.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoComponent.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoCompositeType.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoCompositeType.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoImplementation.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoImplementation.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoInstance.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoInstance.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoInstanceDeclaration.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoInstanceDeclaration.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoSpecification.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/ApformIpojoSpecification.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/ApformHandler.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/ApformHandler.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/DependencyInjectionHandler.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/DependencyInjectionHandler.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/DependencyInjectionManager.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/DependencyInjectionManager.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/InterfaceInjectionManager.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/InterfaceInjectionManager.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/MessageInjectionManager.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/MessageInjectionManager.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/MessageProviderHandler.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/MessageProviderHandler.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/PropertyInjectionHandler.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/handlers/PropertyInjectionHandler.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/legacy/ApformIPojoLegacyImplementation.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/legacy/ApformIPojoLegacyImplementation.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/legacy/ApformIpojoLegacyInstance.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/legacy/ApformIpojoLegacyInstance.java
+#	renamed:    framework/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/legacy/ApformIpojoLegacyTracker.java -> runtime/apform/apform-ipojo/src/main/java/fr/imag/adele/apam/apformipojo/legacy/ApformIpojoLegacyTracker.java
+#	renamed:    framework/pom.xml -> runtime/apform/pom.xml
+#	renamed:    framework/bundle/pom.xml -> runtime/bundle/pom.xml
+#	renamed:    framework/bundle/src/main/resources/logo.txt -> runtime/bundle/src/main/resources/logo.txt
+#	renamed:    framework/bundle/src/main/resources/metadata.xml -> runtime/bundle/src/main/resources/metadata.xml
+#	renamed:    framework/runtime/META-INF/LICENSE -> runtime/core/META-INF/LICENSE
+#	renamed:    framework/runtime/META-INF/MANIFEST.MF -> runtime/core/META-INF/MANIFEST.MF
+#	renamed:    framework/runtime/META-INF/NOTICE -> runtime/core/META-INF/NOTICE
+#	renamed:    framework/runtime/META-INF/maven/org.apache.felix/org.apache.felix.utils/pom.properties -> runtime/core/META-INF/maven/org.apache.felix/org.apache.felix.utils/pom.properties
+#	renamed:    framework/runtime/META-INF/maven/org.apache.felix/org.apache.felix.utils/pom.xml -> runtime/core/META-INF/maven/org.apache.felix/org.apache.felix.utils/pom.xml
+#	renamed:    framework/runtime/metadata.xml -> runtime/core/metadata.xml
+#	renamed:    framework/runtime/pom.xml -> runtime/core/pom.xml
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/Apam.java -> runtime/core/src/main/java/fr/imag/adele/apam/Apam.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/ApamComponent.java -> runtime/core/src/main/java/fr/imag/adele/apam/ApamComponent.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/ApamManagers.java -> runtime/core/src/main/java/fr/imag/adele/apam/ApamManagers.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/ApamResolver.java -> runtime/core/src/main/java/fr/imag/adele/apam/ApamResolver.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/CST.java -> runtime/core/src/main/java/fr/imag/adele/apam/CST.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/Component.java -> runtime/core/src/main/java/fr/imag/adele/apam/Component.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/ComponentBroker.java -> runtime/core/src/main/java/fr/imag/adele/apam/ComponentBroker.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/Composite.java -> runtime/core/src/main/java/fr/imag/adele/apam/Composite.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/CompositeType.java -> runtime/core/src/main/java/fr/imag/adele/apam/CompositeType.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/DependencyManager.java -> runtime/core/src/main/java/fr/imag/adele/apam/DependencyManager.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/DynamicManager.java -> runtime/core/src/main/java/fr/imag/adele/apam/DynamicManager.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/Implementation.java -> runtime/core/src/main/java/fr/imag/adele/apam/Implementation.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/Instance.java -> runtime/core/src/main/java/fr/imag/adele/apam/Instance.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/ManagerModel.java -> runtime/core/src/main/java/fr/imag/adele/apam/ManagerModel.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/PropertyManager.java -> runtime/core/src/main/java/fr/imag/adele/apam/PropertyManager.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/ResolutionException.java -> runtime/core/src/main/java/fr/imag/adele/apam/ResolutionException.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/Specification.java -> runtime/core/src/main/java/fr/imag/adele/apam/Specification.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/Wire.java -> runtime/core/src/main/java/fr/imag/adele/apam/Wire.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/apform/Apform2Apam.java -> runtime/core/src/main/java/fr/imag/adele/apam/apform/Apform2Apam.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/apform/ApformComponent.java -> runtime/core/src/main/java/fr/imag/adele/apam/apform/ApformComponent.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/apform/ApformCompositeType.java -> runtime/core/src/main/java/fr/imag/adele/apam/apform/ApformCompositeType.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/apform/ApformImplementation.java -> runtime/core/src/main/java/fr/imag/adele/apam/apform/ApformImplementation.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/apform/ApformInstance.java -> runtime/core/src/main/java/fr/imag/adele/apam/apform/ApformInstance.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/apform/ApformSpecification.java -> runtime/core/src/main/java/fr/imag/adele/apam/apform/ApformSpecification.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/APAMImpl.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/APAMImpl.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/ApamMan.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/ApamMan.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/ApamResolverImpl.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/ApamResolverImpl.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/ComponentBrokerImpl.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/ComponentBrokerImpl.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/ComponentImpl.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/ComponentImpl.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/CompositeImpl.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/CompositeImpl.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/CompositeTypeImpl.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/CompositeTypeImpl.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/ImplementationImpl.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/ImplementationImpl.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/InstanceImpl.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/InstanceImpl.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/SpecificationImpl.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/SpecificationImpl.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/UpdateMan.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/UpdateMan.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/impl/WireImpl.java -> runtime/core/src/main/java/fr/imag/adele/apam/impl/WireImpl.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/message/Message.java -> runtime/core/src/main/java/fr/imag/adele/apam/message/Message.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/message/MessageConsumer.java -> runtime/core/src/main/java/fr/imag/adele/apam/message/MessageConsumer.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/message/MessageProducer.java -> runtime/core/src/main/java/fr/imag/adele/apam/message/MessageProducer.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/message/Strategy.java -> runtime/core/src/main/java/fr/imag/adele/apam/message/Strategy.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/util/ApAMQueue.java -> runtime/core/src/main/java/fr/imag/adele/apam/util/ApAMQueue.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/util/ApamComponentXML.java -> runtime/core/src/main/java/fr/imag/adele/apam/util/ApamComponentXML.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/util/ApamFilter.java -> runtime/core/src/main/java/fr/imag/adele/apam/util/ApamFilter.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/util/ApamInstall.java -> runtime/core/src/main/java/fr/imag/adele/apam/util/ApamInstall.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/util/CoreMetadataParser.java -> runtime/core/src/main/java/fr/imag/adele/apam/util/CoreMetadataParser.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/util/CoreParser.java -> runtime/core/src/main/java/fr/imag/adele/apam/util/CoreParser.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/util/MessageReferenceExtended.java -> runtime/core/src/main/java/fr/imag/adele/apam/util/MessageReferenceExtended.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/util/Util.java -> runtime/core/src/main/java/fr/imag/adele/apam/util/Util.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/util/tracker/ComponentTracker.java -> runtime/core/src/main/java/fr/imag/adele/apam/util/tracker/ComponentTracker.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/util/tracker/ComponentTrackerCustomizer.java -> runtime/core/src/main/java/fr/imag/adele/apam/util/tracker/ComponentTrackerCustomizer.java
+#	renamed:    framework/runtime/src/main/java/fr/imag/adele/apam/util/tracker/InstanceTracker.java -> runtime/core/src/main/java/fr/imag/adele/apam/util/tracker/InstanceTracker.java
+#	renamed:    framework/core/pom.xml -> runtime/declarations/pom.xml
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/AtomicImplementationDeclaration.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/AtomicImplementationDeclaration.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/CallbackMethod.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/CallbackMethod.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/ComponentDeclaration.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/ComponentDeclaration.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/ComponentReference.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/ComponentReference.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/CompositeDeclaration.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/CompositeDeclaration.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/ConstrainedReference.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/ConstrainedReference.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/DependencyDeclaration.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/DependencyDeclaration.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/DependencyInjection.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/DependencyInjection.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/DependencyPromotion.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/DependencyPromotion.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/GrantDeclaration.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/GrantDeclaration.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/ImplementationDeclaration.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/ImplementationDeclaration.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/ImplementationReference.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/ImplementationReference.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/InstanceDeclaration.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/InstanceDeclaration.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/InstanceReference.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/InstanceReference.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/InterfaceReference.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/InterfaceReference.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/MessageProducerMethodInterception.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/MessageProducerMethodInterception.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/MessageReference.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/MessageReference.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/MissingPolicy.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/MissingPolicy.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/OwnedComponentDeclaration.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/OwnedComponentDeclaration.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/PropertyDefinition.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/PropertyDefinition.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/Reference.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/Reference.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/ReleaseDeclaration.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/ReleaseDeclaration.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/ResolvableReference.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/ResolvableReference.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/ResourceReference.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/ResourceReference.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/SpecificationDeclaration.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/SpecificationDeclaration.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/SpecificationReference.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/SpecificationReference.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/UndefinedReference.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/UndefinedReference.java
+#	renamed:    framework/core/src/main/java/fr/imag/adele/apam/core/VisibilityDeclaration.java -> runtime/declarations/src/main/java/fr/imag/adele/apam/core/VisibilityDeclaration.java
+#	renamed:    managers/distriman/pom.xml -> runtime/managers/distriman/pom.xml
+#	new file:   runtime/managers/distriman/src/main/java/fr/imag/adele/apam/distriman/Distriman.java
+#	renamed:    managers/dynaman/pom.xml -> runtime/managers/dynaman/pom.xml
+#	renamed:    managers/dynaman/src/main/java/fr/imag/adele/dynamic/manager/ContentManager.java -> runtime/managers/dynaman/src/main/java/fr/imag/adele/dynamic/manager/ContentManager.java
+#	renamed:    managers/dynaman/src/main/java/fr/imag/adele/dynamic/manager/DynamicManagerImplementation.java -> runtime/managers/dynaman/src/main/java/fr/imag/adele/dynamic/manager/DynamicManagerImplementation.java
+#	renamed:    managers/dynaman/src/main/java/fr/imag/adele/dynamic/manager/PendingRequest.java -> runtime/managers/dynaman/src/main/java/fr/imag/adele/dynamic/manager/PendingRequest.java
+#	renamed:    managers/obrman/pom.xml -> runtime/managers/obrman/pom.xml
+#	renamed:    managers/obrman/src/main/java/fr/imag/adele/obrMan/OBRManCommand.java -> runtime/managers/obrman/src/main/java/fr/imag/adele/obrMan/OBRManCommand.java
+#	renamed:    managers/obrman/src/main/java/fr/imag/adele/obrMan/internal/LinkedProperties.java -> runtime/managers/obrman/src/main/java/fr/imag/adele/obrMan/internal/LinkedProperties.java
+#	renamed:    managers/obrman/src/main/java/fr/imag/adele/obrMan/internal/OBRMan.java -> runtime/managers/obrman/src/main/java/fr/imag/adele/obrMan/internal/OBRMan.java
+#	renamed:    managers/obrman/src/main/java/fr/imag/adele/obrMan/internal/OBRManShell.java -> runtime/managers/obrman/src/main/java/fr/imag/adele/obrMan/internal/OBRManShell.java
+#	renamed:    managers/obrman/src/main/java/fr/imag/adele/obrMan/internal/OBRManager.java -> runtime/managers/obrman/src/main/java/fr/imag/adele/obrMan/internal/OBRManager.java
+#	renamed:    managers/obrman/src/main/java/fr/imag/adele/obrMan/internal/ObrUtil.java -> runtime/managers/obrman/src/main/java/fr/imag/adele/obrMan/internal/ObrUtil.java
+#	new file:   runtime/managers/obrman/src/main/java/fr/imag/adele/obrMan/internal/StackLoading.java
+#	renamed:    managers/obrman/src/main/resources/metadata.xml -> runtime/managers/obrman/src/main/resources/metadata.xml
+#	renamed:    managers/pom.xml -> runtime/managers/pom.xml
+#	new file:   runtime/pom.xml
+#	modified:   tests/helpers/pom.xml
+#	modified:   tests/helpers/src/main/java/fr/imag/adele/apam/tests/helpers/ExtensionAbstract.java
+#	deleted:    tests/messages/C1Impl-Pull/src/main/resources/metadata.xml
+#	deleted:    tests/messages/P1/src/main/resources/metadata.xml
+#	deleted:    tests/messages/P1Impl/src/main/java/fr/imag/adele/apam/test/message/producer/MyProducer.java
+#	deleted:    tests/messages/P1Impl/src/main/java/fr/imag/adele/apam/test/message/producer/P1Impl.java
+#	deleted:    tests/messages/P1Impl/src/main/resources/metadata.xml
+#	renamed:    tests/messages/C1Impl-Pull/.gitignore -> tests/messages/messages-consumers/.gitignore
+#	renamed:    tests/messages/C1Impl-Pull/src/main/java/fr/imag/adele/apam/test/message/consumer/C1ImplAutonome.java -> tests/messages/messages-consumers/C1ImplAutonome.java
+#	renamed:    tests/messages/C1Impl-Pull/src/main/java/fr/imag/adele/apam/test/message/consumer/C1ImplData.java -> tests/messages/messages-consumers/C1ImplData.java
+#	renamed:    tests/messages/C1Impl-Pull/pom.xml -> tests/messages/messages-consumers/pom.xml
+#	new file:   tests/messages/messages-consumers/src/main/java/fr/imag/adele/apam/test/message/consumer/M123ConsumerPull.java
+#	new file:   tests/messages/messages-consumers/src/main/java/fr/imag/adele/apam/test/message/consumer/M12ConsumerPull.java
+#	new file:   tests/messages/messages-consumers/src/main/java/fr/imag/adele/apam/test/message/consumer/M13ConsumerPull.java
+#	new file:   tests/messages/messages-consumers/src/main/java/fr/imag/adele/apam/test/message/consumer/M1ConsumerPull.java
+#	new file:   tests/messages/messages-consumers/src/main/java/fr/imag/adele/apam/test/message/consumer/M23ConsumerPull.java
+#	new file:   tests/messages/messages-consumers/src/main/java/fr/imag/adele/apam/test/message/consumer/M2ConsumerPull.java
+#	new file:   tests/messages/messages-consumers/src/main/java/fr/imag/adele/apam/test/message/consumer/M3ConsumerPull.java
+#	new file:   tests/messages/messages-consumers/src/main/resources/metadata.xml
+#	modified:   tests/messages/messages-pax/pom.xml
+#	modified:   tests/messages/messages-pax/src/test/java/fr/imag/adele/apam/tests/message/PullMessageTest.java
+#	renamed:    tests/messages/P1Impl/.gitignore -> tests/messages/messages-producers/.gitignore
+#	renamed:    tests/messages/P1Impl/src/main/java/fr/imag/adele/apam/test/message/producer/P1ImplAutonome.java -> tests/messages/messages-producers/P1ImplAutonome.java
+#	renamed:    tests/messages/P1Impl/src/main/java/fr/imag/adele/apam/test/message/producer/P1ImplDataAutonome.java -> tests/messages/messages-producers/P1ImplDataAutonome.java
+#	renamed:    tests/messages/P1Impl/pom.xml -> tests/messages/messages-producers/pom.xml
+#	new file:   tests/messages/messages-producers/src/main/java/fr/imag/adele/apam/test/message/producer/M123Producer.java
+#	new file:   tests/messages/messages-producers/src/main/java/fr/imag/adele/apam/test/message/producer/M12Producer.java
+#	new file:   tests/messages/messages-producers/src/main/java/fr/imag/adele/apam/test/message/producer/M13Producer.java
+#	new file:   tests/messages/messages-producers/src/main/java/fr/imag/adele/apam/test/message/producer/M1Producer.java
+#	new file:   tests/messages/messages-producers/src/main/java/fr/imag/adele/apam/test/message/producer/M23Producer.java
+#	new file:   tests/messages/messages-producers/src/main/java/fr/imag/adele/apam/test/message/producer/M2Producer.java
+#	new file:   tests/messages/messages-producers/src/main/java/fr/imag/adele/apam/test/message/producer/M3Producer.java
+#	new file:   tests/messages/messages-producers/src/main/resources/metadata.xml
+#	renamed:    tests/messages/P1/pom.xml -> tests/messages/messages-specifications/pom.xml
+#	renamed:    tests/messages/P1/src/main/java/fr/imag/adele/apam/test/message/M1.java -> tests/messages/messages-specifications/src/main/java/fr/imag/adele/apam/test/message/M1.java
+#	new file:   tests/messages/messages-specifications/src/main/java/fr/imag/adele/apam/test/message/M2.java
+#	new file:   tests/messages/messages-specifications/src/main/java/fr/imag/adele/apam/test/message/M3.java
+#	new file:   tests/messages/messages-specifications/src/main/resources/metadata.xml
+#	modified:   tests/obrman/apam-apps-components/APP1/APP1-MainImpl/pom.xml
+#	modified:   tests/obrman/obrman-pax/pom.xml
+#	modified:   tests/obrman/obrman-pax/src/test/java/fr/imag/adele/apam/tests/obrman/pax/OBRMANTest.java
+#	modified:   tests/services/app/apam-pax-samples-impl-s1/pom.xml
+#	modified:   tests/services/app/apam-pax-samples-impl-s1/src/main/java/fr/imag/adele/apam/pax/test/impl/S1Impl.java
+#	modified:   tests/services/app/apam-pax-samples-impl-s1/src/main/resources/metadata.xml
+#	modified:   tests/services/app/apam-pax-samples-impl-s2/pom.xml
+#	modified:   tests/services/app/apam-pax-samples-impl-s2/src/main/java/fr/imag/adele/apam/pax/test/impl/S2Impl.java
+#	new file:   tests/services/app/apam-pax-samples-impl-s2/src/main/java/fr/imag/adele/apam/pax/test/impl/S2InnerImpl.java
+#	new file:   tests/services/app/apam-pax-samples-impl-s2/src/main/java/fr/imag/adele/apam/pax/test/impl/S2MiddleImpl.java
+#	new file:   tests/services/app/apam-pax-samples-impl-s2/src/main/java/fr/imag/adele/apam/pax/test/impl/S2OutterImpl.java
+#	modified:   tests/services/app/apam-pax-samples-impl-s2/src/main/resources/metadata.xml
+#	new file:   tests/services/app/apam-pax-samples-impl-s3/src/main/java/fr/imag/adele/apam/pax/test/impl/S3GroupAImpl.java
+#	new file:   tests/services/app/apam-pax-samples-impl-s3/src/main/java/fr/imag/adele/apam/pax/test/impl/S3GroupBImpl.java
+#	new file:   tests/services/app/apam-pax-samples-impl-s3/src/main/java/fr/imag/adele/apam/pax/test/impl/S3GroupCImpl.java
+#	new file:   tests/services/app/apam-pax-samples-impl-s3/src/main/java/fr/imag/adele/apam/pax/test/impl/S3GroupDImpl.java
+#	new file:   tests/services/app/apam-pax-samples-impl-s3/src/main/java/fr/imag/adele/apam/pax/test/impl/S3GroupEImpl.java
+#	new file:   tests/services/app/apam-pax-samples-impl-s3/src/main/java/fr/imag/adele/apam/pax/test/impl/S3GroupFImpl.java
+#	deleted:    tests/services/app/apam-pax-samples-impl-s3/src/main/java/fr/imag/adele/apam/pax/test/impl/S3Impl.java
+#	modified:   tests/services/app/apam-pax-samples-impl-s3/src/main/resources/metadata.xml
+#	modified:   tests/services/pax-test/pom.xml
+#	modified:   tests/services/pax-test/src/test/java/fr/imag/adele/apam/test/support/AllTests.java
+#	modified:   tests/services/pax-test/src/test/java/fr/imag/adele/apam/test/testcases/CompositeTest.java
+#	modified:   tests/services/pax-test/src/test/java/fr/imag/adele/apam/test/testcases/InjectionInstantiationTest.java
+#	modified:   tests/services/pax-test/src/test/java/fr/imag/adele/apam/test/testcases/PropertyTest.java
+#	modified:   tools/jmx/pom.xml
+#	modified:   tools/shell/pom.xml
+#
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	modified:   documentations/technical/ApamSpec-Summary.docx
+#	modified:   tests/helpers/log/logback.xml
+#	modified:   tests/messages/messages-pax/log/logback.xml
+#	modified:   tests/obrman/obrman-pax/log/logback.xml
+#	modified:   tests/services/pax-test/log/logback.xml
+#
+
