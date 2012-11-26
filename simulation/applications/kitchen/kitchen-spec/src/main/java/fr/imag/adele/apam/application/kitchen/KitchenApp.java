@@ -2,7 +2,7 @@ package fr.imag.adele.apam.application.kitchen;
 
 
 public interface KitchenApp {
-    public void setLightStates(boolean state)  ;
+    public void setLightsStates(boolean state)  ;
 	/*public void stopAllDevices();
 	
 	public void stopMicrowave();

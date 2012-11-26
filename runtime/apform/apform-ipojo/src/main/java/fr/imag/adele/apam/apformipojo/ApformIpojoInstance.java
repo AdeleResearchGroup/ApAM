@@ -251,7 +251,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      * NOTE nothing is returned from this method, the call to APAM has as
      * side-effect the update of the dependency.
      * 
-     * @param dependency
+     * @param injection
      */
     @Override
     public boolean resolve(DependencyInjectionManager injection) {

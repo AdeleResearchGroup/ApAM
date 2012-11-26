@@ -79,6 +79,7 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
         m_env = environment;
         System.out.println("Bound to simulated environment "
                 + environment.getEnvironmentId());
+        location= m_env.getEnvironmentId();
         notifyEnvironment(illuminance());
     }
 
@@ -87,6 +88,7 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
             SimulatedEnvironment environment) {
         notifyEnvironment(-illuminance());
         m_env = null;
+        location= "outside";
         System.out.println("Unbound from simulated environment "
                 + environment.getEnvironmentId());
     }
