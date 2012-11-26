@@ -8,6 +8,7 @@
     <composite name="kitchen" specification="KitchenApp"
                main="KitchenApp-Impl" singleton="true">
         <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
             <local instance="true"/>
             <own implementation="light" property="location" value="kitchen"/>
             <own implementation="presence" property="location" value="kitchen"/>
@@ -16,12 +17,25 @@
 
     </composite>
 
+    <composite name="livingroom" specification="KitchenApp"
+               main="KitchenApp-Impl" singleton="true">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+            <local instance="true"/>
+            <own implementation="light" property="location" value="livingroom"/>
+            <own implementation="presence" property="location" value="livingroom"/>
+
+        </contentMngt>
+
+    </composite>
 
     <!-- *********** ************ -->
     <!--        Instance         -->
     <!-- *********** ************ -->
 
     <apam-instance implementation="kitchen"
-                   name="kitchen-apam-Instance" />
+                   name="ikitchen" />
+    <apam-instance implementation="livingroom"
+                   name="ilivingroom" />
 
 </apam>

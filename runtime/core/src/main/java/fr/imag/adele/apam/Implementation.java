@@ -34,7 +34,7 @@ public interface Implementation extends Component {
      * @param initialproperties the initial properties
      * @return the instance
      */
-    public Instance createInstance(Composite instCompo, Map<String, String> initialproperties);
+    public Instance createInstance(Composite instCompo, Map<String, Object> initialproperties);
 
     /**
      * @return the specification that this ASMImpls implements
@@ -151,7 +151,7 @@ public interface Implementation extends Component {
      * Among the instance in "candidates", return the instance that matches the maximum number of constraints, taken in
      * the order
      * 
-     * @param preferences. The preferences ordered from the most important (first).
+
      */
 //    public Instance getPreferedInst(Set<Instance> candidates, List<Filter> preferences);
 

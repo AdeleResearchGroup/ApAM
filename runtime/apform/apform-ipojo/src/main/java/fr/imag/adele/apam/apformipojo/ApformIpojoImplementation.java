@@ -108,7 +108,7 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
      * the API or implicitly by a dependency resolution)
      */	
     @Override
-    public ApformInstance createInstance(Map<String, String> initialproperties) throws ComponentImpl.InvalidConfiguration {
+    public ApformInstance createInstance(Map<String, Object> initialproperties) throws ComponentImpl.InvalidConfiguration {
         try {
 
             ApformIpojoInstance instance = null;

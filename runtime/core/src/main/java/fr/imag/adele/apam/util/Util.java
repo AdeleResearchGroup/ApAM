@@ -405,19 +405,19 @@ public class Util {
 	 * @param value
 	 * @param type
 	 */
-	public static Object checkAttrType(String attr, String value, String type) {
+	public static Object checkAttrType(String attr, Object value, String type) {
 		if ((type == null) || (value == null))
 			return null;
 
 		if (type.equals("boolean")) {
-			if (value.equalsIgnoreCase(CST.V_TRUE) || value.equalsIgnoreCase(CST.V_FALSE)) 
+			if (String.valueOf(value).equalsIgnoreCase(CST.V_TRUE) || String.valueOf(value).equalsIgnoreCase(CST.V_FALSE))
 				return value ;
 			logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
 					+ "\".  Boolean value expected");
 			return null;						
 		}
 		if (type.equals("int") || type.equals("integer")) {
-			Set<String> values = Util.splitSet(value);
+			Set<String> values = Util.splitSet(String.valueOf(value));
 			Integer valInt = null ;
 			try {
 				for (String val : values) {
@@ -443,7 +443,7 @@ public class Util {
 		}
 
 		//It is an enumeration
-		Set<String> values = Util.splitSet(value);
+		Set<String> values = Util.splitSet(String.valueOf(value));
 		if (enumVals.containsAll(values))
 			return value;
 
@@ -471,7 +471,7 @@ public class Util {
 		return ret + "}";
 	}
 
-	public static boolean checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr,
+	public static boolean checkFilters(Set<String> filters, List<String> listFilters, Map<String, Object> validAttr,
 			String comp) {
 		boolean ok = true;
 		if (filters != null) {
@@ -658,7 +658,7 @@ public class Util {
 	 * We compute also the dependency flags.
 	 * 
 	 * @param client
-	 * @param dependency
+	 * @param depName
 	 * @return
 	 */
 	public static DependencyDeclaration computeEffectiveDependency (Instance client, String depName) {
@@ -699,7 +699,7 @@ public class Util {
 
 		//Add the composite generic constraints
 		CompositeType compoType = client.getComposite().getCompType() ;
-		Map<String, String> validAttrs = client.getValidAttributes() ;
+		Map<String, Object> validAttrs = client.getValidAttributes() ;
 		for ( DependencyDeclaration  genDep  : compoType.getCompoDeclaration().getContextualDependencies()) {
 
 			if (matchGenericDependency(client, genDep, dependency)) {
@@ -727,7 +727,7 @@ public class Util {
 	 * matches the compoClient dependency declaration.
 	 * 
 	 * @param compoInst the composite instance containing the client
-	 * @param genericDeps the dependencies of the composite: a regExpression
+	 * @param compoDep the dependencies of the composite: a regExpression
 	 * @param clientDep the client dependency we are trying to resolve.
 	 * @return
 	 */

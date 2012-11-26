@@ -41,7 +41,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 
    
     @Override
-	public void register(Map<String,String> initialProperties) throws InvalidConfiguration {
+	public void register(Map<String,Object> initialProperties) throws InvalidConfiguration {
         /*
          * Terminates the initalisation, and computes properties
          */

@@ -16,7 +16,7 @@ public class TextGuiImplementation {
     private JFrame         frame;
     private JTextField     textField;
     private JButton        callBtn;
-    private String name;
+    private String name ="APAM Say Hello";
     
     private HelloService hello;
 
@@ -47,7 +47,13 @@ public class TextGuiImplementation {
             public void actionPerformed(ActionEvent e) {
                 String msg = textField.getText();
                 if (msg != null & msg.trim().length() > 0) {
-                    hello.sayHello(msg);
+                    String lang = hello.getLang();
+                    if (lang!=null){
+                        frame.setTitle(name + " in " + lang );
+                        frame.repaint();
+                        hello.sayHello(msg);
+                    }
+
                     textField.setText("");
                 }
             }

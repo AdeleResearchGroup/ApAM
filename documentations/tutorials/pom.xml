@@ -233,7 +233,13 @@
 
 	<modules>
 		<module>HelloWorld-AllInOneBundle</module>
-		<module>TextGui</module>
+        <module>HelloWorld-Spec</module>
+        <module>TextGui</module>
+		<module>HelloWorld-Ar</module>
+		<module>HelloWorld-En</module>
+		<module>HelloWorld-Es</module>
+		<module>HelloWorld-Po</module>
+		<module>HelloWorld-Fr</module>
 		<module>HelloWorld-Composite</module>
 	</modules>
 </project>

@@ -77,12 +77,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * to be called once the Apam entity is fully initialized.
 	 * Computes all its attributes, including inheritance. 
 	 */
-	public void initializeProperties (Map<String, String> initialProperties) {
+	public void initializeProperties (Map<String, Object> initialProperties) {
 		/*
 		 * get the initial attributes from declaration and overriden initial
 		 * properties
 		 */
-		Map<String, String> props = new HashMap<String, String> (getDeclaration().getProperties()) ;
+		Map<String, Object> props = new HashMap<String, Object> (getDeclaration().getProperties()) ;
+
 		if (initialProperties != null)
 			props.putAll(initialProperties);
 
@@ -158,7 +159,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * This methods adds a newly created component to the Apam state model, so that it is visible to the
 	 * external API
 	 */
-	public abstract void register(Map<String, String> initialProperties) throws InvalidConfiguration;
+	public abstract void register(Map<String, Object> initialProperties) throws InvalidConfiguration;
 
 
 	/**
@@ -240,7 +241,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * the property manager, the underlying execution platform (apform), and propagates to members
 	 */
 	@Override
-	public boolean setProperty(String attr, String value) {
+	public boolean setProperty(String attr, Object value) {
 		return setPropertyInt(attr, value, false);
 	}
 
@@ -252,7 +253,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param forced
 	 * @return
 	 */
-	public boolean setPropertyInt(String attr, String value, boolean forced) {
+	public boolean setPropertyInt(String attr, Object value, boolean forced) {
 
 		/*
 		 * Validate that the property is defined and the value is valid 
@@ -273,7 +274,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * During initialisation, set the new (attrbute, value) in the object, 
 	 * in the platform, and propagates to the members recursively.
 	 * Does not notify managers.
-	 * @param com the component to which is added the attribute.
+
 	 * @param attr
 	 * @param value
 	 */
@@ -290,7 +291,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	/**
 	 * set the value, update apform and the platform, notify managers and propagates to the members, recursively
-	 * @param com the component on which ot set the attribute
+
 	 * @param attr attribute name
 	 * @param value attribute value
 	 */
@@ -334,9 +335,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * the value to avoid partial modifications ?
 	 */
 	@Override
-	public boolean setAllProperties(Map<String, String> properties) {
+	public boolean setAllProperties(Map<String, Object> properties) {
 		for (String attr : properties.keySet()) {
-			String value = properties.get(attr);
+			Object value = properties.get(attr);
 			if (! setProperty(attr, value))
 				return false;
 		}
@@ -391,7 +392,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	/**
 	 * TODO. Should we notify at all levels ?
-	 * @param ent
 	 * @param attr
 	 */
 	private void propagateRemove (String attr) {
@@ -404,8 +404,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	/**
 	 * Tries to find the definition of attribute "attr" associated with component "component".
-	 * Returns null if the attribute is not explicitly defined 
-	 * @param component
+	 * Returns null if the attribute is not explicitly defined
 	 * @param attr
 	 * @return
 	 */
@@ -443,7 +442,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param value
 	 * @return
 	 */
-	private Object validDef (String attr, String value, boolean forced) {
+	private Object validDef (String attr, Object value, boolean forced) {
 		if (Util.isFinalAttribute(attr)) {
 			logger.error("Cannot redefine final attribute \"" + attr + "\"");
 			return null;			
@@ -668,8 +667,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 	@Override
-	public Map<String, String> getValidAttributes () {
-		Map<String, String> ret = new HashMap <String, String> () ;
+	public Map<String, Object> getValidAttributes () {
+		Map<String, Object> ret = new HashMap <String, Object> () ;
 		for (PropertyDefinition def: declaration.getPropertyDefinitions()) {
 			ret.put(def.getName(), def.getType());
 		}

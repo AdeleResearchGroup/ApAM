@@ -5,9 +5,10 @@
 		<groupId>fr.imag.adele.apam.tutorials</groupId>
 		<artifactId>apam-tutorials</artifactId>
 		<version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
 	</parent>
 	
-	<artifactId>TextGui</artifactId>
+	<artifactId>HelloGui</artifactId>
 	<packaging>bundle</packaging>
 	<!-- Repositories List -->
 	<repositories>
@@ -24,8 +25,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>fr.imag.adele.apam.tutorials</groupId>
-			<artifactId>HelloWorld-AllInOneBundle</artifactId>
-			<version>1.0.0</version>
+			<artifactId>HelloWorld-Specification</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -44,12 +45,12 @@
 			</plugin>
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
+				<artifactId>apam-maven-plugin</artifactId>
 				<version>0.0.1-SNAPSHOT</version>
 				<executions>
 					<execution>
 						<goals>
-							<goal>ipojo-bundle</goal>
+							<goal>apam-bundle</goal>
 						</goals>
 					</execution>
 				</executions>

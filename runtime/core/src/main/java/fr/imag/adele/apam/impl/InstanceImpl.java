@@ -142,7 +142,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }
 
     @Override
-    public void register(Map<String, String> initialproperties) throws InvalidConfiguration {
+    public void register(Map<String, Object> initialproperties) throws InvalidConfiguration {
 
         /*
          * Bind to the underlying execution platform instance

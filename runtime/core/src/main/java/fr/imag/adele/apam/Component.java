@@ -123,7 +123,7 @@ public interface Component {
     /**
      * Set the value of the property for this component
      */
-	public boolean setProperty(String attr, String value);
+	public boolean setProperty(String attr, Object value);
 
     /**
      * Get the value of all the properties of the component, including those in the enclosing
@@ -134,7 +134,7 @@ public interface Component {
 	/**
 	 * Change the value of the specified properties of the component
 	 */
-    public boolean setAllProperties(Map<String, String> properties);
+    public boolean setAllProperties(Map<String, Object> properties);
 
 	/**
 	 * Removes the specified property of the component
@@ -152,6 +152,6 @@ public interface Component {
      */
     public Component getGroup ();
     
-	public Map<String, String> getValidAttributes () ;
+	public Map<String, Object> getValidAttributes () ;
 
 }

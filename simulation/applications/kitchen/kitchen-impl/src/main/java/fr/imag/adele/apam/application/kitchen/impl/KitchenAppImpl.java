@@ -1,11 +1,7 @@
 package fr.imag.adele.apam.application.kitchen.impl;
 
-import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.application.kitchen.KitchenApp;
-import fr.imag.adele.apam.application.kitchen.KitchenMessage;
-import fr.imag.adele.apam.device.microwave.Microwave;
-import fr.imag.adele.apam.device.oven.Oven;
 import fr.liglab.adele.icasa.device.DeviceListener;
 import fr.liglab.adele.icasa.device.light.BinaryLight;
 import fr.liglab.adele.icasa.device.presence.PresenceSensor;
@@ -19,7 +15,7 @@ public class KitchenAppImpl implements KitchenApp {
 
     private PresenceSensor presenceSensor;
 
-    private  MyPresenceListener presenceListener;
+    private  MyPresenceListener presenceListener = new MyPresenceListener();
 
     private boolean presence =false;
 
@@ -27,11 +23,24 @@ public class KitchenAppImpl implements KitchenApp {
         System.out.println("Start OK!");
         if (presenceSensor!=null){
             System.out.println("Presence OK!");
-            presenceListener = new MyPresenceListener();
             presenceSensor.addListener(presenceListener);
             presence = presenceSensor.getSensedPresence();
             setLightsStates(presence);
         }
+    }
+
+
+    public void bindPresence(Instance instance){
+        System.out.println("New instance bind " + instance.getName());
+        //presenceSensor.removeListener(presenceListener);
+        presenceSensor.addListener(presenceListener);
+        presence = presenceSensor.getSensedPresence();
+        setLightsStates(presence);
+    }
+
+    public void unBindPresence(Instance instance){
+        System.out.println("Instance unbind " + instance.getName());
+
     }
 
     public void bindLight(Instance instance){

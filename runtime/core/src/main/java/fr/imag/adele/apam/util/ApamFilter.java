@@ -361,7 +361,7 @@ public class ApamFilter implements Filter {
         return toString().hashCode();
     }
 
-    public boolean validateAttr(Map<String, String> validAttr, String f, String spec) {
+    public boolean validateAttr(Map<String, Object> validAttr, String f, String spec) {
         switch (op) {
             case AND:
             case OR: {
@@ -392,7 +392,7 @@ public class ApamFilter implements Filter {
                     return false ;
                 }
                 if (validAttr.containsKey(attr)) {
-                	return Util.checkAttrType(attr, (String)value, validAttr.get(attr)) != null;
+                	return Util.checkAttrType(attr, value, (String)validAttr.get(attr)) != null;
                 }
             }
             return true ;

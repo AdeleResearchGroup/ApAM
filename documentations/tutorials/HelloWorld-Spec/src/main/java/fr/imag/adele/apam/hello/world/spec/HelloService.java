@@ -6,4 +6,7 @@ public interface HelloService {
      * @param texte the string received, 
      */
     public void sayHello(String texte);
+
+
+    public String getLang();
 }

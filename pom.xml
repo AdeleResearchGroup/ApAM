@@ -53,6 +53,14 @@
             </modules>
         </profile>
 
+        <!-- Profile used to build tutorials -->
+        <profile>
+            <id>tutorials</id>
+            <modules>
+                <module>documentations/tutorials</module>
+            </modules>
+        </profile>
+
         <!-- Profile used to build icasa component -->
         <profile>
             <id>icasa-components</id>
@@ -61,7 +69,7 @@
             </modules>
         </profile>
 
-        <!-- Profile used to build icasa component -->
+        <!-- Profile used to build tools -->
         <profile>
             <id>tools</id>
             <modules>
