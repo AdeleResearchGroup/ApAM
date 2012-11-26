@@ -90,6 +90,11 @@
 		</contentMngt>
 	</composite>		
 
+	<composite name="composite-a-application-nothing-instance" main="group-a">
+		<contentMngt>
+			<application instance="false"/>
+		</contentMngt>
+	</composite>
 
 	<composite name="composite-b" main="group-b">
 		<contentMngt>

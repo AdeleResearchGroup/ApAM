@@ -175,8 +175,11 @@
 </node>
 </node>
 <node CREATED="1353077202712" ID="ID_1802016001" MODIFIED="1353077204742" TEXT="application">
-<node CREATED="1353494454820" ID="ID_687247415" MODIFIED="1353494477142" TEXT="composites that share a parent (except root) should share instances">
+<node CREATED="1353494454820" ID="ID_687247415" MODIFIED="1353938187513" TEXT="composites that share a parent (except root) should share instances">
 <icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1353933736682" ID="ID_1998386380" MODIFIED="1353938194468" TEXT="specifing instance=&apos;false&apos;">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1353077208472" ID="ID_1719755842" MODIFIED="1353491531074" TEXT="own"/>

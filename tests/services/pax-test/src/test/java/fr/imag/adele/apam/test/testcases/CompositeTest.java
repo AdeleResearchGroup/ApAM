@@ -392,4 +392,40 @@ public class CompositeTest extends ExtensionAbstract {
 
 	}	
 	
+	@Test
+	public void CompositeContentMngtApplicationNothingInstance() {
+		
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-application-nothing-instance");
+
+		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-b");
+		
+		Implementation ia=CST.apamResolver.findImplByName(null, "group-a");
+		
+		Composite composite_a = (Composite) cta.createInstance(null, null);
+		Composite composite_b = (Composite) ctb.createInstance(null, null);
+
+		Instance instanceApp1=ia.createInstance(composite_a, null);
+		
+		Instance instanceApp2=ia.createInstance(composite_b, null);
+
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+
+		S3GroupAImpl ga2 = (S3GroupAImpl) instanceApp2.getServiceObject();
+
+		ga1.getElement();
+		
+		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+		
+		ga2.getElement();
+
+		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		String message= "A composite instance protected into application level should NOT be visible/injected by other composites.";
+		
+		Assert.assertTrue(message,ga1.getElement() != ga2.getElement());
+
+	}
+	
 }
