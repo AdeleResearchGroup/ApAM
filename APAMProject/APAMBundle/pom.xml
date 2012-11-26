@@ -38,6 +38,7 @@
 						</Private-Package>
 						<Export-Package>
 							fr.imag.adele.apam,
+							fr.imag.adele.apam.impl,
 							fr.imag.adele.apam.core,
 							fr.imag.adele.apam.apform,
 							fr.imag.adele.apam.message,

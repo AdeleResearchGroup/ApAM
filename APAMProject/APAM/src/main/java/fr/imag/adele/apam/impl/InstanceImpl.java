@@ -1,7 +1,5 @@
 package fr.imag.adele.apam.impl;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,7 +10,6 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
@@ -22,9 +19,6 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.core.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.core.CallbackMethod;
-import fr.imag.adele.apam.core.CallbackMethod.CallbackTrigger;
 import fr.imag.adele.apam.core.InstanceDeclaration;
 
 public class InstanceImpl extends ComponentImpl implements Instance {

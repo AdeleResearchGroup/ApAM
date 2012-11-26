@@ -54,7 +54,7 @@ public abstract class PendingRequest<T extends Component> {
 	}
 	
 	/**
-	 * The context in wich the resolution is requested
+	 * The context in which the resolution is requested
 	 */
 	public abstract Composite getContext();
 		

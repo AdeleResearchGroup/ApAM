@@ -33,7 +33,13 @@ public class ApamManagers {
     /**
      * The list of component property listeners
      */
-    private static Set<PropertyManager> propertyManagers = new ConcurrentSkipListSet<PropertyManager>();
+    private static Set<PropertyManager> propertyManagers = new ConcurrentSkipListSet<PropertyManager>(new Comparator<PropertyManager>() {
+
+		@Override
+		public int compare(PropertyManager manager1, PropertyManager manager2) {
+			return manager1.hashCode() - manager2.hashCode();
+		}
+	});
 
 
     /**
