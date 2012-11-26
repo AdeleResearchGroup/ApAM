@@ -15,6 +15,10 @@
 		name="eletronic-device-singleton-notshared" interfaces="fr.imag.adele.apam.pax.test.iface.device.HouseMeter">
 	</specification>
 
+	<specification singleton="true" shared="false"
+		name="eletronic-device-private" interfaces="fr.imag.adele.apam.pax.test.iface.device.Eletronic">
+	</specification>
+
 	<specification singleton="true" shared="true"
 		name="eletronic-device-singleton-shared" interfaces="fr.imag.adele.apam.pax.test.iface.device.HouseMeter">
 	</specification>
