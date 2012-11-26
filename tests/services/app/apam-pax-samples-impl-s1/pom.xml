@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>fr.imag.adele.apam.tests.app</groupId>
@@ -16,7 +16,27 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-iface</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.framework</artifactId>
+			<version>${felix.osgi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.osgi.core</artifactId>
+			<version>${felix.osgi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.osgi.compendium</artifactId>
+			<version>${felix.osgi.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>apam-core</artifactId>
+			<groupId>fr.imag.adele.apam</groupId>
+			<version>${apam.current.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -36,7 +56,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 			</plugin>
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>			</plugin>
+				<artifactId>apam-maven-plugin</artifactId>
+			</plugin>
 
 		</plugins>
 	</build>

@@ -2,11 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>APAM-Tools</artifactId>
+		<artifactId>apam-tools</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
   </parent>
-	<artifactId>APAM-JMX</artifactId>
+	<artifactId>apam-jmx</artifactId>
 	<packaging>bundle</packaging>
 	<build>
 		<plugins>
@@ -29,7 +29,7 @@
 
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>APAM</artifactId>
+			<artifactId>apam-core</artifactId>
 			<version>${apam.current.version}</version>
 		</dependency>
 		<dependency>
@@ -38,4 +38,5 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+	<name>JMX connector for ApAM</name>
 </project>

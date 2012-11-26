@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>tests</artifactId>
+		<artifactId>apam-tests</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
@@ -11,7 +11,6 @@
 	<groupId>fr.imag.adele.apam.tests</groupId>
 	<artifactId>services</artifactId>
 	<packaging>pom</packaging>
-	<name>APAM-Pax</name>
 
 
 	<modules>
@@ -19,4 +18,5 @@
 		<module>pax-test</module>
 	</modules>
 
+	<name>ApAM services tests</name>
 </project>

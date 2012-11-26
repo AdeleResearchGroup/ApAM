@@ -19,7 +19,7 @@
 			</plugin>
  			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
+				<artifactId>apam-maven-plugin</artifactId>
 			</plugin>	
 		</plugins>
  	</build>

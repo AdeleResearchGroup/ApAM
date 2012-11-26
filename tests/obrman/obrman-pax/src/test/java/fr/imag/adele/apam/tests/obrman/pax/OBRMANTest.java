@@ -30,13 +30,13 @@ public class OBRMANTest extends ExtensionAbstract{
     @Test 
     public void testRootModel() {
         apam.waitForIt(1000);
-        int sizebefaore = apam.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
+        int sizebefore = apam.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
                 .size();
         try {
             apam.setObrManInitialConfig("wrongfilelocation", null, 1);
             fail("wrongfilelocation");
         } catch (IOException e) {
-            assertEquals(sizebefaore,
+            assertEquals(sizebefore,
                     apam.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE).size());
         }
     }
@@ -49,15 +49,17 @@ public class OBRMANTest extends ExtensionAbstract{
     @Test
     public void simpleComposite() {
         apam.waitForIt(1000);
+        CompositeType app2CompoType = null;
         try {
             String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.1-SNAPSHOT!/APPS-repo.xml" };
             apam.setObrManInitialConfig("rootAPPS", repos, 1);
+            app2CompoType = apam.createCompositeType("APP2",
+                    "APP2_MAIN", null);
         } catch (IOException e) {
             fail(e.getMessage());
         }
 
-        CompositeType app2CompoType = apam.createCompositeType("APP2",
-                "APP2_MAIN", null);
+      
 
         App2Spec app2Spec = apam.createInstance(app2CompoType, App2Spec.class);
 
@@ -80,16 +82,16 @@ public class OBRMANTest extends ExtensionAbstract{
     @Test
     public void embeddedComposite() {
         apam.waitForIt(1000);
-
+        CompositeType app1CompoType = null;
         try {
             String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.1-SNAPSHOT!/APPS-repo.xml" };
             apam.setObrManInitialConfig("rootAPPS", repos, 1);
+            app1CompoType = apam.createCompositeType("APP1",
+                    "APP1_MAIN", null);
         } catch (IOException e) {
             fail(e.getMessage());
         }
 
-        CompositeType app1CompoType = apam.createCompositeType("APP1",
-                "APP1_MAIN", null);
 
         App1Spec app1Spec = apam.createInstance(app1CompoType, App1Spec.class);
 
@@ -113,8 +115,13 @@ public class OBRMANTest extends ExtensionAbstract{
 
         simpleComposite();
 
-        CompositeType app1CompoType = apam.createCompositeType("APP1.2",
-                "APP1_MAIN", null);
+        CompositeType app1CompoType = null;
+        try {
+            app1CompoType = apam.createCompositeType("APP1.2",
+                    "APP1_MAIN", null);
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
 
         CompositeType root = (CompositeType) app1CompoType.getInCompositeType()
                 .toArray()[0];
@@ -147,7 +154,11 @@ public class OBRMANTest extends ExtensionAbstract{
     @Test
     public void missingAPP2Composite() {
         apam.waitForIt(1000);
-        apam.createCompositeType("APP1.2", "APP1_MAIN", null);
+        try {
+            apam.createCompositeType("APP1.2", "APP1_MAIN", null);
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
     }
 
 }

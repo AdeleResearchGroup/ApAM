@@ -26,15 +26,7 @@
 				</plugin>
 				<plugin>
 					<groupId>fr.imag.adele.apam</groupId>
-					<artifactId>ApamMavenPlugin</artifactId>
-					<version>${apam.current.version}</version>
-					<executions>
-						<execution>
-							<goals>
-								<goal>ipojo-bundle</goal>
-							</goals>
-						</execution>
-					</executions>
+					<artifactId>apam-maven-plugin</artifactId>
 					<configuration>
 						<noLocalObr>true</noLocalObr>
 					</configuration>

@@ -2,26 +2,41 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>APAMProject.root</artifactId>
+		<artifactId>apam-project</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>tests</artifactId>
+	<artifactId>apam-tests</artifactId>
 	<packaging>pom</packaging>
 	<properties>
 		<url.version>1.4.0</url.version>
-		<exam.version>2.4.0</exam.version>
+		<exam.version>3.0.0-SNAPSHOT</exam.version>
 	</properties>
+
+	<repositories>
+		<repository>
+			<id>ops4j-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/ops4j-snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>maven-central</id>
+			<url>http://repo.maven.apache.org/maven2/</url>
+		</repository>
+	</repositories>
 
 	<dependencyManagement>
 		<dependencies>
 
 			<!-- Junit Dependencies -->
-			<!-- <dependency> -->
-			<!-- <groupId>junit</groupId> -->
-			<!-- <artifactId>junit</artifactId> -->
-			<!-- <version>4.10</version> -->
-			<!-- </dependency> -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.10</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.apache.servicemix.bundles</groupId>
@@ -29,7 +44,6 @@
 				<version>4.9_2</version>
 			</dependency>
 			<!-- Felix and OSGi dependecies -->
-
 
 			<dependency>
 				<groupId>org.apache.felix</groupId>
@@ -92,7 +106,31 @@
 				<artifactId>pax-url-aether</artifactId>
 				<version>${url.version}</version>
 			</dependency>
-
+			<dependency>
+				<groupId>org.ops4j.pax.url</groupId>
+				<artifactId>pax-url-mvn</artifactId>
+				<version>1.3.5</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-spi</artifactId>
+				<version>${exam.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-core</artifactId>
+				<version>1.0.7</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>1.0.7</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>apam-bundle</artifactId>
+				<version>${apam.current.version}</version>
+			</dependency>
 		</dependencies>
 
 	</dependencyManagement>
@@ -101,12 +139,12 @@
 			<plugins>
 				<plugin>
 					<groupId>fr.imag.adele.apam</groupId>
-					<artifactId>ApamMavenPlugin</artifactId>
+					<artifactId>apam-maven-plugin</artifactId>
 					<version>${apam.current.version}</version>
 					<executions>
 						<execution>
 							<goals>
-								<goal>ipojo-bundle</goal>
+								<goal>apam-bundle</goal>
 							</goals>
 						</execution>
 					</executions>
@@ -128,7 +166,15 @@
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.12.4</version>
+					<dependencies>
+						<dependency>
+							<groupId>org.apache.maven.surefire</groupId>
+							<artifactId>surefire-junit47</artifactId>
+							<version>2.12.4</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
 				<plugin>
@@ -159,9 +205,11 @@
 		</pluginManagement>
 	</build>
 	<modules>
-		<module>apam-helpers</module>
-		<module>obrman</module>
+		<module>helpers</module>
 		<module>services</module>
+		<module>obrman</module>
+		<!-- <module>messages</module> -->
 	</modules>
 
+	<name>Tests for ApAM framework and managers</name>
 </project>

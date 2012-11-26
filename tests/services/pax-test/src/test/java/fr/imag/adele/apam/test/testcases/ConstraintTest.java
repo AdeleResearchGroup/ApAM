@@ -4,8 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -22,15 +21,10 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(JUnit4TestRunner.class)
 public class ConstraintTest extends ExtensionAbstract{
 	
-	/**
-	 * Verify if the constraints were used to inject the dependencies in the
-	 * component
-	 */
 	@Test
-	public void ConstraintsCheckingImplementation() {
+	public void ConstraintsCheckingImplementation_01() {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
@@ -48,18 +42,11 @@ public class ConstraintTest extends ExtensionAbstract{
 
 	}
 	
-	/**
-	 * Verify if the constraints were used to inject the dependencies in the
-	 * component by initial properties
-	 * 
-	 * @throws InvalidSyntaxException
-	 */
 	@Test
-	public void ConstraintsCheckingInstanceFilteringByInitialProperty()
+	public void ConstraintsCheckingInstanceFilteringByInitialProperty_02()
 			throws InvalidSyntaxException {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null,
@@ -104,7 +91,7 @@ public class ConstraintTest extends ExtensionAbstract{
 						put("currentVoltage", "117");
 					}
 				});
-
+		
 		Set<Instance> validInstances = new HashSet<Instance>() {
 			{
 				add(boschInst);
@@ -122,6 +109,8 @@ public class ConstraintTest extends ExtensionAbstract{
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
+		
+		
 		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
 			Instance p = CST.componentBroker.getInstService(e);
 			System.out.println("---- Voltage:"
@@ -144,21 +133,14 @@ public class ConstraintTest extends ExtensionAbstract{
 		// check if there is no other instance injected
 		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance().size() == validInstances
 				.size());
-
+		
 	}
 
-	/**
-	 * Verify if the constraints were used to inject the dependencies in the
-	 * component by set property
-	 * 
-	 * @throws InvalidSyntaxException
-	 */
 	@Test
-	public void ConstraintsCheckingInstanceFilteringBySetProperty()
+	public void ConstraintsCheckingInstanceFilteringBySetProperty_03()
 			throws InvalidSyntaxException {
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
+		
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null, null);
@@ -226,5 +208,7 @@ public class ConstraintTest extends ExtensionAbstract{
 				.size());
 
 	}
+	
+
 	
 }

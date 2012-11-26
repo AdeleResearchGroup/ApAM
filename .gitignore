@@ -1,6 +1,9 @@
+#mac files
+.DS_Store
 
 #IDEA files
 *.iml
+.idea
 
 # Eclipse files
 
@@ -19,3 +22,12 @@ target
 
 obr.xml
 *-repo.xml
+
+# apam distribution
+distributions/*-distribution/conf
+distributions/*-distribution/bundle
+distributions/*-distribution/felix-cache
+distributions/*-distribution/load
+distributions/*-distribution/bin
+distributions/*-distribution/apam*
+

@@ -1,8 +1,10 @@
 package fr.imag.adele.apam.pax.test.impl;
 
-import java.util.List;
 import java.util.Set;
 
+import org.osgi.framework.BundleContext;
+
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.iface.S1;
 import fr.imag.adele.apam.pax.test.iface.S2;
 import fr.imag.adele.apam.pax.test.iface.S3;
@@ -10,7 +12,9 @@ import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 
 public class S1Impl implements S1
 {
-
+	Boolean isOnInitCallbackCalled=false;
+	Boolean isOnRemoveCallbackCalled=false;
+	
 	String stateInternal;
 	String stateNotInternal;
 	
@@ -27,9 +31,13 @@ public class S1Impl implements S1
     
     Eletronic devicePreference110v;
     
-    Set<Eletronic> devicesPreference110v;
-    
     Eletronic deviceConstraint110v;
+    
+    BundleContext context;
+    
+    public S1Impl(BundleContext context){
+    	this.context=context;
+    }
     
     public String whoami()
     {
@@ -38,10 +46,22 @@ public class S1Impl implements S1
     
     public void start(){
     	System.out.println("Starting:"+this.getClass().getName());
+    	isOnInitCallbackCalled=true;
     }
     
     public void stop(){
     	System.out.println("Stopping:"+this.getClass().getName());
+    	isOnRemoveCallbackCalled=true;
+    }
+    
+    public void bind(Instance instance){
+    	System.out.println("Starting:"+this.getClass().getName());
+    	isOnInitCallbackCalled=true;
+    }
+    
+    public void unbind(Instance instance){
+    	System.out.println("Stopping:"+this.getClass().getName());
+    	isOnRemoveCallbackCalled=true;
     }
 
 	public Eletronic getSimpleDevice110v() {
@@ -109,12 +129,44 @@ public class S1Impl implements S1
 		this.deviceConstraint110v = deviceConstraint110v;
 	}
 
-	public Set<Eletronic> getDevicesPreference110v() {
-		return devicesPreference110v;
+	public Boolean getIsOnInitCallbackCalled() {
+		return isOnInitCallbackCalled;
 	}
 
-	public void setDevicesPreference110v(Set<Eletronic> devicesPreference110v) {
-		this.devicesPreference110v = devicesPreference110v;
+	public void setIsOnInitCallbackCalled(Boolean isOnInitCallbackCalled) {
+		this.isOnInitCallbackCalled = isOnInitCallbackCalled;
+	}
+
+	public Boolean getIsOnRemoveCallbackCalled() {
+		return isOnRemoveCallbackCalled;
+	}
+
+	public void setIsOnRemoveCallbackCalled(Boolean isOnRemoveCallbackCalled) {
+		this.isOnRemoveCallbackCalled = isOnRemoveCallbackCalled;
+	}
+
+	public BundleContext getContext() {
+		return context;
+	}
+
+	public void setContext(BundleContext context) {
+		this.context = context;
+	}
+
+	public S2 getS2() {
+		return s2;
+	}
+
+	public void setS2(S2 s2) {
+		this.s2 = s2;
+	}
+
+	public S3 getS3() {
+		return s3;
+	}
+
+	public void setS3(S3 s3) {
+		this.s3 = s3;
 	}
 
 }

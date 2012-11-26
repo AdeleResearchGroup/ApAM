@@ -1,0 +1,27 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+    <!-- *********** ************ -->
+    <!--   Kitchen App Composite  -->
+    <!-- *********** ************ -->
+    <composite name="kitchen" specification="KitchenApp"
+               main="KitchenApp-Impl" singleton="true">
+        <contentMngt>
+            <local instance="true"/>
+            <own implementation="light" property="location" value="kitchen"/>
+            <own implementation="presence" property="location" value="kitchen"/>
+
+        </contentMngt>
+
+    </composite>
+
+
+    <!-- *********** ************ -->
+    <!--        Instance         -->
+    <!-- *********** ************ -->
+
+    <apam-instance implementation="kitchen"
+                   name="kitchen-apam-Instance" />
+
+</apam>

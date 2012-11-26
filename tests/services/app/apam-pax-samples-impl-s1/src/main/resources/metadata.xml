@@ -30,21 +30,15 @@
 			</preferences>
 		</dependency>
 
-		<dependency field="devicesPreference110v">
-			<preferences>
-				<instance filter="(currentVoltage=500)" />
-			</preferences>
-		</dependency>
-
 		<dependency field="deviceConstraint110v">
 			<constraints>
 				<instance filter="(currentVoltage=500)" />
 			</constraints>
-			 
+
 			<preferences>
-			
+
 			</preferences>
-			
+
 		</dependency>
 
 		<dependency field="simpleDevice110v">
@@ -93,7 +87,6 @@
 		<property name="voltage" value="220" />
 		<property name="hasDisplay" value="false" />
 		<property name="made" value="china" />
-
 		<definition name="property-01" value="default-01" type="string" />
 		<definition name="property-02" value="default-02" type="string" />
 		<definition name="property-03" value="default-03" type="string" />
@@ -134,23 +127,12 @@
 		<property name="hasDisplay" value="false" />
 	</implementation>
 
-	<!-- <apam-instance implementation="SamsungSwitch" name="manually-created-1"> -->
-	<!-- <property name="currentVoltage" value="95" /> -->
-	<!-- </apam-instance> -->
-	<!-- <apam-instance implementation="LgSwitch" name="manually-created-2"> -->
-	<!-- <property name="currentVoltage" value="101" /> -->
-	<!-- </apam-instance> -->
-	<!-- <apam-instance implementation="SiemensSwitch" name="manually-created-3"> -->
-	<!-- <property name="currentVoltage" value="107" /> -->
-	<!-- </apam-instance> -->
-	<!-- <apam-instance implementation="BoschSwitch" name="manually-created-4"> -->
-	<!-- <property name="currentVoltage" value="110" /> -->
-	<!-- </apam-instance> -->
-	<!-- <apam-instance implementation="philipsSwitch" name="manually-created-5"> -->
-	<!-- <property name="currentVoltage" value="114" /> -->
-	<!-- </apam-instance> -->
-	<!-- <apam-instance implementation="LgSwitch" name="manually-created-6"> -->
-	<!-- <property name="currentVoltage" value="117" /> -->
-	<!-- </apam-instance> -->
+	<implementation name="S1Impl-added-removed-callback"
+		classname="fr.imag.adele.apam.pax.test.impl.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
+		<dependency field="s2" added="bind" removed="unbind" />
+		<!-- This is the correct one, but its not implemented 		
+		<dependency field="s2" added="start" removed="stop" /> 
+		-->
+	</implementation>
 
 </apam>

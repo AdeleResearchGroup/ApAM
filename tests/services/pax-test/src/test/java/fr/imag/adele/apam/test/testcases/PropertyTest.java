@@ -3,14 +3,13 @@ package fr.imag.adele.apam.test.testcases;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.impl.S1Impl;
@@ -24,10 +23,9 @@ public class PropertyTest extends ExtensionAbstract {
 	 * Ensures that inherited properties cannot be changed and inherited definitions can change
 	 */
 	@Test
-	public void PropertyInheritedCannotBeChanged(){
+	public void PropertyInheritedCannotBeChanged_01(){
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
+				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		final Instance samsungInst = samsungImpl.createInstance(null, null);
@@ -55,10 +53,9 @@ public class PropertyTest extends ExtensionAbstract {
 	 * Ensures that initial properties are configured in the instance properly
 	 */
 	@Test
-	public void PropertyConfiguredWithInitialParameter(){
+	public void PropertyConfiguredWithInitialParameter_02(){
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
+				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		
@@ -85,79 +82,13 @@ public class PropertyTest extends ExtensionAbstract {
 		}
 	}
 
-	@Test
-	public void PropertyDefinitionIsVisibleWithValPropertySet(){
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-		Implementation s1Impl = CST.apamResolver.findImplByName(null,
-				"fr.imag.adele.apam.pax.test.impl.S1Impl");
-		
-		Instance s1Inst = s1Impl.createInstance(null, null);
-		
-		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-		
-		for(String key:s1Inst.getAllProperties().keySet()){
-			System.out.println(key+"="+s1Inst.getAllProperties().get(key.toString()));
-		}
-		
-		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal")!=null);
-		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal")!=null);
-		
-		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
-		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
-		
-	}
-	
-	@Test
-	public void PropertyDefinitionInternalAndNotInternalAreAPIVisible(){
-		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-
-		Implementation s1Impl = CST.apamResolver.findImplByName(null,
-				"fr.imag.adele.apam.pax.test.impl.S1Impl");
-		
-		Instance s1Inst = s1Impl.createInstance(null, null);
-		
-		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-				
-		s1Inst.setProperty("stateInternal", "default");
-		s1Inst.setProperty("stateNotInternal", "default");
-
-		for(String key:s1Inst.getAllProperties().keySet()){
-			System.out.println(key+"="+s1Inst.getAllProperties().get(key.toString()));
-		}
-		
-		System.out.println("--------------------");
-		
-		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal")!=null);
-		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal")!=null);
-		
-		Assert.assertTrue("Internal property not visible through API with the right value", s1Inst.getAllProperties().get("stateInternal").equals("default"));
-		Assert.assertTrue("Non-Internal property not visible through API with the right value", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
-		
-		s1Inst.setProperty("stateInternal", "changed");
-		s1Inst.setProperty("stateNotInternal", "changed");
-		
-		Assert.assertTrue("Internal property shall not be changeble through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
-		Assert.assertTrue("Non-Internal property shall be changeble through API", s1Inst.getAllProperties().get("stateNotInternal").equals("changed"));
-		
-		s1.setStateInternal("changed2");
-		s1.setStateNotInternal("changed2");
-		
-		Assert.assertTrue("Internal property shall be changeble through the application", s1Inst.getAllProperties().get("stateInternal").equals("changed2"));
-		Assert.assertTrue("Non-Internal property shall be changeble through the application", s1Inst.getAllProperties().get("stateNotInternal").equals("changed2"));
-		
-	}
-	
-	
 	/**
 	 * Ensures that initial properties are configured in the instance properly
 	 */
 	@Test
-	public void PropertyConfiguredWithSetProperty(){
+	public void PropertyConfiguredWithSetProperty_03(){
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
+				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 		
@@ -189,90 +120,208 @@ public class PropertyTest extends ExtensionAbstract {
 		}
 	}
 	
-
-	public void InheritedPropertyChanged(){
+	@Test
+	public void PropertyDefinitionInternalAndNotInternalAreAPIVisible_04(){
 		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
-		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
-				"SamsungSwitch");
-		final Instance samsungInst = samsungImpl.createInstance(null, null);
 		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 		
 		Instance s1Inst = s1Impl.createInstance(null, null);
-
+		
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-		
-		Component k=(Component)samsungInst;
-		
-		System.out.println("### Declaration Inst");
-		
-		for(String key:s1Inst.getSpec().getAllProperties().keySet()){
-			Object value=s1Inst.getSpec().getAllProperties().get(key);
-			System.out.println("------"+key+":"+value);
-		}
-		
-		System.out.println("### Declaration Impl");
-		
-		for(String key:s1Inst.getImpl().getSpec().getAllProperties().keySet()){
-			Object value=s1Inst.getImpl().getSpec().getAllProperties().get(key);
-			System.out.println("------"+key+":"+value);
-		}
-		
-		System.out.println("### Declaration Spec");
-		
-		for(String key:s1Inst.getSpec().getAllProperties().keySet()){
-			Object value=s1Inst.getSpec().getAllProperties().get(key);
-			System.out.println("------"+key+":"+value);
-		}
-		
-		System.out.println("### Spec");
-		
-		for(String key:s1Inst.getSpec().getAllProperties().keySet()){
-			Object value=s1Inst.getSpec().getAllProperties().get(key);
-			System.out.println("------"+key+":"+value);
-		}
-		
-		System.out.println("### Implem");
-		
-		for(String key:s1Inst.getImpl().getAllProperties().keySet()){
-			Object value=s1Inst.getImpl().getAllProperties().get(key);
-			System.out.println("------"+key+":"+value);
-		}
-		
-		System.out.println("### Instance");
-		
+				
+		s1Inst.setProperty("stateInternal", "default");
+		s1Inst.setProperty("stateNotInternal", "default");
+
 		for(String key:s1Inst.getAllProperties().keySet()){
-			Object value=s1Inst.getAllProperties().get(key);
-			System.out.println("------"+key+":"+value);
+			System.out.println(key+"="+s1Inst.getAllProperties().get(key.toString()));
 		}
 		
+		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal")!=null);
+		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal")!=null);
 		
-		System.out.println("----Before");
+		Assert.assertTrue("Internal property not visible through API with the right value", s1Inst.getAllProperties().get("stateInternal").equals("default"));
+		Assert.assertTrue("Non-Internal property not visible through API with the right value", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
 		
-		for(String key:k.getAllProperties().keySet()){
-			Object value=k.getAllProperties().get(key);
-			System.out.println("------"+key+":"+value);
-		}
+		s1Inst.setProperty("stateInternal", "changed");
+		s1Inst.setProperty("stateNotInternal", "changed");
 		
+		Assert.assertTrue("Internal property shall not be changeble through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
+		Assert.assertTrue("Non-Internal property shall be changeble through API", s1Inst.getAllProperties().get("stateNotInternal").equals("changed"));
 		
-		//this should stay with the old value
-		samsungInst.setProperty("voltage", "300");
-		//this should be updated correctly
-		samsungInst.setProperty("currentVoltage", "666");
+		s1.setStateInternal("changed2");
+		s1.setStateNotInternal("changed2");
 		
-		System.out.println("----After");
-		
-		for(String key:k.getAllProperties().keySet()){
-			Object value=k.getAllProperties().get(key);
-			System.out.println("------"+key+":"+value);
-		}
-		
-		//manufacturer
+		Assert.assertTrue("Internal property shall be changeble through the application", s1Inst.getAllProperties().get("stateInternal").equals("changed2"));
+		Assert.assertTrue("Non-Internal property shall be changeble through the application", s1Inst.getAllProperties().get("stateNotInternal").equals("changed2"));
 		
 	}
 
+	@Test
+	public void PropertyDefinitionIsVisibleWithValPropertySetXML_05(){
+		
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+		
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+		
+		Assert.assertTrue("Internal property not visible through API", s1Inst.getAllProperties().get("stateInternal")!=null);
+		Assert.assertTrue("Non-Internal property not visible through API", s1Inst.getAllProperties().get("stateNotInternal")!=null);
+		
+		Assert.assertTrue("Internal property value not visible through API", s1Inst.getAllProperties().get("stateInternal").equals("default"));
+		Assert.assertTrue("Non-Internal property value not visible through API", s1Inst.getAllProperties().get("stateNotInternal").equals("default"));
+		
+	}
+	
+	@Test
+	public void PropertiesDataTypeAndLDAPFilteringForIntegers_06()
+			throws InvalidSyntaxException {
+
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "95");
+					}
+				});
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		auxListProperties("\t", samsungInst);
+
+		// int
+
+		String templateMessage = "Calling match method with filter = %s, should result in True since currentVoltage is %n";
+		String message = "";
+		
+		message = String
+				.format(templateMessage,
+						"(currentVoltage>=95)",
+						samsungInst.getProperty("currentVoltage"));
+
+		Assert.assertTrue(message,samsungInst.match("(currentVoltage>=95)"));
+
+		message = String
+				.format(templateMessage,
+						"(currentVoltage<=95)",
+						samsungInst.getProperty("currentVoltage"));
+		
+		Assert.assertTrue(message,samsungInst.match("(currentVoltage<=95)"));
+
+		message = String
+				.format(templateMessage,
+						"(currentVoltage<=101)",
+						samsungInst.getProperty("currentVoltage"));
+		
+		Assert.assertTrue(message,samsungInst.match("(currentVoltage<=101)"));
+
+		message = String
+				.format(templateMessage,
+						"(currentVoltage<=96)",
+						samsungInst.getProperty("currentVoltage"));
+		
+		Assert.assertTrue(message,samsungInst.match("(currentVoltage<=96)"));
+		
+		message = String
+				.format(templateMessage,
+						"(currentVoltage>=94)",
+						samsungInst.getProperty("currentVoltage"));
+
+		Assert.assertTrue(message,samsungInst.match("(currentVoltage>=94)"));
+
+	}
+
+	@Test
+	public void PropertiesDataTypeAndLDAPFilteringForBoolean_07()
+			throws InvalidSyntaxException {
+
+		
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "95");
+					}
+				});
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		auxListProperties("\t", samsungInst);
+
+		String message = "";
+		
+		message = String
+				.format("Calling match method with filter = %s, should result in True since hasDisplay is %b",
+						"(hasDisplay=false)",
+						samsungInst.getProperty("hasDisplay"));
+
+		Assert.assertTrue(message,samsungInst.match("(hasDisplay=false)"));
+
+		message = String
+				.format("Calling match method with filter = %s, should result in False since hasDisplay is %b",
+						"(hasDisplay=true)",
+						samsungInst.getProperty("hasDisplay"));
+
+		Assert.assertFalse(message,samsungInst.match("(hasDisplay=true)"));
+
+	}
+	
+	@Test
+	public void PropertiesDataTypeAndLDAPFilteringForString_08()
+			throws InvalidSyntaxException {
+
+		
+		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
+				"SamsungSwitch");
+		final Instance samsungInst = samsungImpl.createInstance(null,
+				new HashMap<String, String>() {
+					{
+						put("currentVoltage", "95");
+					}
+				});
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		auxListProperties("\t", samsungInst);
+
+		String templateMessage = "Calling match method with filter = %s, should result in True since impl-name is %s";
+		String message = "";
+		
+		message = String
+				.format(templateMessage,
+						"(impl-name=Samsung*)",
+						samsungInst.getProperty("impl-name"));
+
+		Assert.assertTrue(message,samsungInst.match("(impl-name=Samsung*)"));
+
+		message = String
+				.format(templateMessage,
+						"(impl-name=*amsungSwitch)",
+						samsungInst.getProperty("impl-name"));
+
+		Assert.assertTrue(message,samsungInst.match("(impl-name=*amsungSwitch)"));
+
+		message = String
+				.format(templateMessage,
+						"(impl-name=*amsung*)",
+						samsungInst.getProperty("impl-name"));
+
+		Assert.assertTrue(message,samsungInst.match("(impl-name=*amsung*)"));
+		
+		templateMessage = "Calling match method with filter = %s, should result in False since impl-name is %s";
+		
+		message = String
+				.format(templateMessage,
+						"(impl-name=SamsunG*)",
+						samsungInst.getProperty("impl-name"));
+
+		Assert.assertFalse(message,samsungInst.match("(impl-name=SamsunG*)"));
+
+	}
 	
 }

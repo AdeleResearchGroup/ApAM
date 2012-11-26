@@ -11,7 +11,7 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-iface</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -30,7 +30,7 @@
 			</plugin>
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
+				<artifactId>apam-maven-plugin</artifactId>
 			</plugin>
 
 		</plugins>

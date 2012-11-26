@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2010-2011 Université Joseph Fourier Licensed under the Apache License, Version 2.0 (the "License"); you may 
+	not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS 
+	IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language 
+	governing permissions and limitations under the License. -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<!-- Project parent -->
+	<parent>
+		<groupId>fr.imag.adele.apam</groupId>
+		<artifactId>apam-distributions</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<!-- Project coordinates -->
+
+	<artifactId>apam-simple-distribution</artifactId>
+	<packaging>pom</packaging>
+
+	<!-- Project description -->
+	<name>ApAM Simple Distribution</name>
+
+	<!-- Project dependencies -->
+	<dependencies>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>config.base</artifactId>
+			<version>${apam.current.version}</version>
+			<type>zip</type>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+			</plugin>
+			<!-- Copy dependencies -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<!-- Copy bundles in the 'bundle' directory -->
+					<execution>
+						<id>copy-felix-binaries</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.main</artifactId>
+									<version>4.0.3</version>
+									<destFileName>felix.jar</destFileName>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${basedir}/bin</outputDirectory>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+
+					<!-- Copy bundles in the 'bundle' directory -->
+					<execution>
+						<id>copy-platform-bundles</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<!-- ApAM -->
+								<artifactItem>
+									<groupId>fr.imag.adele.apam</groupId>
+									<artifactId>apam-bundle</artifactId>
+									<version>${apam.current.version}</version>
+								</artifactItem>
+                                <artifactItem>
+									<groupId>fr.imag.adele.apam</groupId>
+									<artifactId>apam-shell</artifactId>
+									<version>${apam.current.version}</version>
+								</artifactItem>
+								<!-- Felix Dependencies -->
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.bundlerepository</artifactId>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.fileinstall</artifactId>
+									<version>3.2.0</version>
+								</artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.felix</groupId>
+                                    <artifactId>org.apache.felix.configadmin</artifactId>
+                                    <version>1.2.8</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.felix</groupId>
+                                    <artifactId>org.apache.felix.ipojo.annotations</artifactId>
+                                </artifactItem>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.log</artifactId>
+									<version>1.0.1</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.osgi</groupId>
+									<artifactId>org.osgi.compendium</artifactId>
+									<version>4.2.0</version>
+								</artifactItem>
+								<!--GOGO -->
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.gogo.command</artifactId>
+									<version>0.12.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.gogo.runtime</artifactId>
+									<version>0.10.0</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.gogo.shell</artifactId>
+									<version>0.10.0</version>
+								</artifactItem>
+								<!-- iPOJO -->
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.ipojo.arch.gogo</artifactId>
+									<version>1.0.1</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.apache.felix</groupId>
+									<artifactId>org.apache.felix.ipojo</artifactId>
+								</artifactItem>
+
+								<!-- Logger -->
+								<artifactItem>
+									<groupId>org.apache.log4j</groupId>
+									<artifactId>com.springsource.org.apache.log4j</artifactId>
+									<version>1.2.16</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.slf4j</groupId>
+									<artifactId>slf4j-api</artifactId>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.slf4j</groupId>
+									<artifactId>slf4j-log4j12</artifactId>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${basedir}/bundle</outputDirectory>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+
+					<!-- Copy bundles in the 'bundle' directory -->
+					<execution>
+						<id>copy-autoload-bundles</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<excludeArtifactIds>config.base</excludeArtifactIds>
+							<outputDirectory>${basedir}/bundle</outputDirectory>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<excludeTransitive>true</excludeTransitive>
+						</configuration>
+					</execution>
+
+					<!-- copy inherited config files -->
+					<execution>
+						<id>unpack-inherited-config</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeGroupIds>fr.imag.adele.apam</includeGroupIds>
+							<includeArtifactIds>config.base</includeArtifactIds>
+							<includeVersion>${apam.project.version}</includeVersion>
+							<outputDirectory>
+								${project.build.directory}/distrib-temp/
+							</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+
+					<!-- copy inherited config files -->
+					<execution>
+						<id>copy-inherited-config</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<copy failonerror="true" overwrite="true" todir="${basedir}/">
+									<fileset dir="${project.build.directory}/distrib-temp/">
+										<include name="*" />
+										<exclude name="*.txt" />
+										<exclude name="conf/*" />
+										<exclude name="assembly.xml" />
+										<exclude name="neededBundles" />
+									</fileset>
+								</copy>
+								<copy failonerror="true" overwrite="false" todir="${basedir}/">
+									<fileset dir="${project.build.directory}/distrib-temp/">
+										<include name="*.txt" />
+										<include name="conf/*" />
+									</fileset>
+								</copy>
+								<copy failonerror="true" overwrite="true" todir="${basedir}/bundle/">
+									<fileset dir="${project.build.directory}/distrib-temp/neededBundles/">
+										<include name="*.jar" />
+									</fileset>
+								</copy>
+							</target>
+						</configuration>
+					</execution>
+
+					<!-- copy configuration files -->
+					<execution>
+						<id>copy-config</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<mkdir dir="${basedir}/load/" />
+								<copy failonerror="false" todir="${basedir}/load/">
+									<fileset dir="${basedir}/save-conf-files/" />
+								</copy>
+
+							</target>
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+
+			<!-- clean implementation -->
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>.</directory>
+							<includes>
+								<include>bin/*</include>
+								<include>bundle/*</include>
+								<include>bin</include>
+								<include>bundle</include>
+								<include>felix-cache/**/*</include>
+								<include>felix-cache</include>
+								<include>load/*</include>
+								<include>load</include>
+								<include>apam.bat</include>
+								<include>apamDebug.bat</include>
+								<include>apam</include>
+								<include>apamDebug</include>
+							</includes>
+							<excludes>
+								<exclude>README.txt</exclude>
+								<exclude>pom.xml</exclude>
+								<exclude>save-conf-files/*</exclude>
+							</excludes>
+							<followSymlinks>false</followSymlinks>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+
+			<!-- generate distribution zip -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<appendAssemblyId>false</appendAssemblyId>
+							<descriptors>
+								<descriptor>${project.build.directory}/distrib-temp/assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
