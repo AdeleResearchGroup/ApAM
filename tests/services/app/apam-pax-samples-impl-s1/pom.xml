@@ -22,7 +22,6 @@
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.framework</artifactId>
 			<version>${felix.osgi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -38,7 +37,6 @@
 			<artifactId>apam-core</artifactId>
 			<groupId>fr.imag.adele.apam</groupId>
 			<version>${apam.current.version}</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
