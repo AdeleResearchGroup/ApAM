@@ -2,10 +2,8 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
-	<implementation name="APAM.Oven" instantiable="false"
-		classname="fr.imag.adele.apam.device.oven.impl.SimulatedOven"
-		specification="Oven" interfaces="fr.imag.adele.apam.device.oven.Oven"
-		messages="java.lang.String" push="sendData">
+	<implementation name="APAM.Light" instantiable="false"
+		classname="fr.imag.adele.apam.device.light.impl.SimulatedBinaryLight">
 
 			<definition name="location" type="{outside,hall,livingroom,bedroom,bathroom,kitchen}" field="location" internal="true"/>
 
@@ -13,11 +11,13 @@
 			<definition name="state" value="deactivated" type="string" />
 
 		<ipojo:provides
-			specifications="{fr.liglab.adele.icasa.environment.SimulatedDevice,fr.liglab.adele.icasa.device.GenericDevice}">
+			specifications="{fr.liglab.adele.icasa.environment.SimulatedDevice,fr.liglab.adele.icasa.device.GenericDevice,fr.liglab.adele.icasa.device.light.BinaryLight}">
 			<ipojo:property name="service.description" type="string" />
 			<ipojo:property name="device.serialNumber" field="m_serialNumber"
 				type="string" />
-			<ipojo:property name="fault" value="no" field="fault" />
+            <ipojo:property name="light.powerStatus" value="false" field="m_powerStatus" />
+            <ipojo:property name="light.maxIlluminance" value="100.0d" field="m_maxIlluminance" />
+            <ipojo:property name="fault" value="no" field="fault" />
 			<ipojo:property name="state" value="deactivated"
 				field="state" />
 		</ipojo:provides>

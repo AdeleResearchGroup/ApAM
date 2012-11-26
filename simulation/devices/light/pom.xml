@@ -9,6 +9,6 @@
   <packaging>pom</packaging>
   <name>light device (ApAM)</name>
   <modules>    
-  	<module>light-spec</module>
+  	<module>light-implem</module>
   </modules>
 </project>
