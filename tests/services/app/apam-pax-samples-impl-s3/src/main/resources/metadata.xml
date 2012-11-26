@@ -6,40 +6,47 @@
 		classname="fr.imag.adele.apam.pax.test.impl.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
 		<dependency field="element"/>
-		<dependency field="c"/>
+		<dependency field="c" />
+	</implementation>
+	
+	<implementation name="group-a-private-component"
+		classname="fr.imag.adele.apam.pax.test.impl.S3GroupAImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" specification="eletronic-device-private" />
+		<dependency field="c" />
 	</implementation>
 
 	<implementation name="group-b"
 		classname="fr.imag.adele.apam.pax.test.impl.S3GroupBImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element"/>	
-		<dependency field="d"/>
-		<dependency field="e"/>	
+		<dependency field="element" />
+		<dependency field="d" />
+		<dependency field="e" />
 	</implementation>
 
 	<implementation name="group-c"
 		classname="fr.imag.adele.apam.pax.test.impl.S3GroupCImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element"/>
+		<dependency field="element" />
 	</implementation>
 
 	<implementation name="group-d"
 		classname="fr.imag.adele.apam.pax.test.impl.S3GroupDImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element"/>
+		<dependency field="element" />
 	</implementation>
 
 	<implementation name="group-e"
 		classname="fr.imag.adele.apam.pax.test.impl.S3GroupEImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element"/>
-		<dependency field="f"/>
+		<dependency field="element" />
+		<dependency field="f" />
 	</implementation>
 
 	<implementation name="group-f"
 		classname="fr.imag.adele.apam.pax.test.impl.S3GroupFImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element"/>
+		<dependency field="element" />
 	</implementation>
 
 	<composite name="composite-a" main="group-a">
@@ -50,51 +57,58 @@
 			<local instance="true" />
 		</contentMngt>
 	</composite>
-	
+
 	<composite name="composite-a-local-implementation" main="group-a">
 		<contentMngt>
 			<local implementation="true" />
 		</contentMngt>
 	</composite>
-<!-- 
-	<implementation name="borrowSwitch"
-		classname="fr.imag.adele.apam.pax.test.impl.BorrowSwitch"
-		specification="eletronic-device">
-		<property name="manufacturer" value="borrow" />
-		<property name="voltage" value="110" />
-		<property name="hasDisplay" value="false" />
-	</implementation>
- -->
+	<!-- <implementation name="borrowSwitch" classname="fr.imag.adele.apam.pax.test.impl.BorrowSwitch" 
+		specification="eletronic-device"> <property name="manufacturer" value="borrow" 
+		/> <property name="voltage" value="110" /> <property name="hasDisplay" value="false" 
+		/> </implementation> -->
 
 	<composite name="composite-a-borrow-nothing-instance" main="group-a">
 		<contentMngt>
 			<borrow instance="false" />
 		</contentMngt>
 	</composite>
-	
-	<composite name="composite-a-borrow-nothing-implementation" main="group-a">
+
+	<composite name="composite-a-borrow-nothing-implementation"
+		main="group-a">
 		<contentMngt>
 			<borrow implementation="false" />
 		</contentMngt>
 	</composite>
-	
-	<composite name="composite-a-friend-nothing-implementation" main="group-a">
+
+	<composite name="composite-a-friend-nothing-implementation"
+		main="group-a">
 		<contentMngt>
 			<friend implementation="false" />
 		</contentMngt>
 	</composite>
-	
+
 	<composite name="composite-a-friend-nothing-instance" main="group-a">
 		<contentMngt>
 			<friend instance="false" />
 		</contentMngt>
-	</composite>		
+	</composite>
 
-	<composite name="composite-a-application-nothing-instance" main="group-a">
+	<composite name="composite-a-application-nothing-instance"
+		main="group-a">
 		<contentMngt>
-			<application instance="false"/>
+			<application instance="false" />
 		</contentMngt>
 	</composite>
+
+	<composite name="composite-a-exception" main="group-a-private-component">
+		<contentMngt>
+			<dependency specification="eletronic-device-private" 
+				fail="exception" exception="fr.imag.adele.apam.pax.test.impl.FailException" />
+		</contentMngt>
+	</composite>
+
+
 
 	<composite name="composite-b" main="group-b">
 		<contentMngt>
@@ -107,18 +121,18 @@
 	</composite>
 
 	<composite name="composite-d" main="group-d">
-		<contentMngt> 
+		<contentMngt>
 		</contentMngt>
 	</composite>
-	
+
 	<composite name="composite-e" main="group-e">
 		<contentMngt>
 		</contentMngt>
-	</composite>	
-	
+	</composite>
+
 	<composite name="composite-f" main="group-f">
 		<contentMngt>
 		</contentMngt>
-	</composite>	
+	</composite>
 
 </apam>

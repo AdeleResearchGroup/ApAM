@@ -16,6 +16,8 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.pax.test.device.DeadsManSwitch;
+import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
+import fr.imag.adele.apam.pax.test.impl.FailException;
 import fr.imag.adele.apam.pax.test.impl.S2InnerImpl;
 import fr.imag.adele.apam.pax.test.impl.S2MiddleImpl;
 import fr.imag.adele.apam.pax.test.impl.S2OutterImpl;
@@ -427,5 +429,49 @@ public class CompositeTest extends ExtensionAbstract {
 		Assert.assertTrue(message,ga1.getElement() != ga2.getElement());
 
 	}
+	
+	@Test
+	public void CompositeContentMngtDependencyFailException() {
+		
+		CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-exception");
+		
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-exception");
+		
+		Composite composite_root = (Composite) ctroot.createInstance(null, null);
+		
+		Composite composite_a = (Composite) cta.createInstance(composite_root, null);
+
+		Instance instanceApp1=composite_a.getMainInst();
+		
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+		
+		String messageTemplate= "In contentMngt->dependency if we adopt fail='exception' exception='A', the exception A should be throw in case the dependency is not satifiable. %s";
+		
+		boolean exception=false;
+		boolean exceptionType=false;
+		
+		try{
+			
+			Eletronic injected=ga1.getElement();
+			System.out.println("Element:"+injected);
+			
+		}catch(Exception e){
+			exception=true;
+			
+			if(e instanceof FailException){
+				exceptionType=true;
+			}
+			
+		}
+		
+		String messageException=String.format(messageTemplate, "But no exception was thrown");
+		String messageExceptionType=String.format(messageTemplate, "But the exception thrown was not of the proper type (A)");
+		
+		Assert.assertTrue(messageException,exception);
+		Assert.assertTrue(messageExceptionType,exceptionType);
+
+	}	
 	
 }
