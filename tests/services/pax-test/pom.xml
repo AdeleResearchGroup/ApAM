@@ -26,6 +26,7 @@
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-impl-s1</artifactId>
 			<version>${apam.current.version}</version>
+			<scope>test</scope>
 
 		</dependency>
 
