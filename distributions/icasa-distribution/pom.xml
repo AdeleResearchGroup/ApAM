@@ -14,7 +14,7 @@
         <groupId>fr.imag.adele.apam</groupId>
         <artifactId>apam-obrman-distribution</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../obrman-distribution</relativePath>
+        <relativePath>../obrman-distribution/pom.xml</relativePath>
     </parent>
 
     <!-- Project coordinates -->
@@ -31,6 +31,11 @@
             <groupId>de.akquinet.gomobile</groupId>
             <artifactId>deployment-admin-impl</artifactId>
             <version>1.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>dynaman</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.akquinet.gomobile</groupId>

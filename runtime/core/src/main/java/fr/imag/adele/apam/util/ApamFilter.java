@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class ApamFilter implements Filter {
-	private static Logger logger = LoggerFactory.getLogger(ApamFilter.class);
+    private static Logger logger = LoggerFactory.getLogger(ApamFilter.class);
 
     /* filter operators */
     private static final int          EQUAL     = 1;
@@ -82,11 +82,11 @@ public class ApamFilter implements Filter {
     /**
      * Constructs a {@link ApamFilter} object. This filter object may be
      * used to match a {@link org.osgi.framework.ServiceReference} or a Dictionary.
-     * 
+     *
      * <p>
      * If the filter cannot be parsed, an {@link org.osgi.framework.InvalidSyntaxException} will be thrown with a human
      * readable message where the filter became unparsable.
-     * 
+     *
      * @param filterString the filter string.
      * @exception InvalidSyntaxException If the filter parameter contains an
      *                invalid filter string that cannot be parsed.
@@ -101,7 +101,7 @@ public class ApamFilter implements Filter {
     }
 
     public static ApamFilter newInstance(String filterString, boolean ignoreCase)
-    throws InvalidSyntaxException {
+            throws InvalidSyntaxException {
         return new Parser(filterString, ignoreCase).parse();
     }
 
@@ -135,7 +135,7 @@ public class ApamFilter implements Filter {
      * <p>
      * This <code>Filter</code> is executed using the keys and values of the referenced service's properties. The keys
      * are case insensitively matched with this <code>Filter</code>.
-     * 
+     *
      * @param reference The reference to the service whose properties are
      *            used in the match.
      * @return <code>true</code> if the service's properties match this <code>Filter</code>; <code>false</code>
@@ -150,7 +150,7 @@ public class ApamFilter implements Filter {
      * Filter using a <code>Dictionary</code>. This <code>Filter</code> is
      * executed using the specified <code>Dictionary</code>'s keys and
      * values. The keys are case insensitively matched with this <code>Filter</code>.
-     * 
+     *
      * @param dictionary The <code>Dictionary</code> whose keys are used in
      *            the match.
      * @return <code>true</code> if the <code>Dictionary</code>'s keys and
@@ -167,7 +167,7 @@ public class ApamFilter implements Filter {
      * Filter with case sensitivity using a <code>Dictionary</code>. This <code>Filter</code> is executed using the
      * specified <code>Dictionary</code>'s keys and values. The keys are case
      * sensitively matched with this <code>Filter</code>.
-     * 
+     *
      * @param dictionary The <code>Dictionary</code> whose keys are used in
      *            the match.
      * @return <code>true</code> if the <code>Dictionary</code>'s keys and
@@ -183,7 +183,7 @@ public class ApamFilter implements Filter {
      * Filter using a <code>Map</code>. This <code>Filter</code> is
      * executed using the specified <code>Map</code>'s keys and
      * values. The keys are case insensitively matched with this <code>Filter</code>.
-     * 
+     *
      * @param map The <code>Map</code> whose keys are used in
      *            the match.
      * @return <code>true</code> if the <code>Map</code>'s keys and
@@ -199,7 +199,7 @@ public class ApamFilter implements Filter {
      * Returns this <code>Filter</code>'s filter string.
      * <p>
      * The filter string is normalized by removing whitespace which does not affect the meaning of the filter.
-     * 
+     *
      * @return This <code>Filter</code>'s filter string.
      */
     @Override
@@ -215,7 +215,7 @@ public class ApamFilter implements Filter {
      * Returns this <code>Filter</code>'s normalized filter string.
      * <p>
      * The filter string is normalized by removing whitespace which does not affect the meaning of the filter.
-     * 
+     *
      * @return This <code>Filter</code>'s filter string.
      */
     private String normalize() {
@@ -326,10 +326,10 @@ public class ApamFilter implements Filter {
 
     /**
      * Compares this <code>Filter</code> to another <code>Filter</code>.
-     * 
+     *
      * <p>
      * This implementation returns the result of calling <code>this.toString().equals(obj.toString()</code>.
-     * 
+     *
      * @param obj The object to compare against this <code>Filter</code>.
      * @return If the other object is a <code>Filter</code> object, then
      *         returns the result of calling <code>this.toString().equals(obj.toString()</code>; <code>false</code>
@@ -350,10 +350,10 @@ public class ApamFilter implements Filter {
 
     /**
      * Returns the hashCode for this <code>Filter</code>.
-     * 
+     *
      * <p>
      * This implementation returns the result of calling <code>this.toString().hashCode()</code>.
-     * 
+     *
      * @return The hashCode of this <code>Filter</code>.
      */
     @Override
@@ -392,7 +392,7 @@ public class ApamFilter implements Filter {
                     return false ;
                 }
                 if (validAttr.containsKey(attr)) {
-                	return Util.checkAttrType(attr, (String)value, validAttr.get(attr)) != null;
+                    return Util.checkAttrType(attr, (String)value, validAttr.get(attr)) != null;
                 }
             }
             return true ;
@@ -402,7 +402,7 @@ public class ApamFilter implements Filter {
 
     /**
      * Tries to see if the attribute "attrName" is imposed by the constraint, in which case it returns its value.
-     * 
+     *
      * @param attrName
      * @return
      */
@@ -444,7 +444,7 @@ public class ApamFilter implements Filter {
     /**
      * Internal match routine. Dictionary parameter must support
      * case-insensitive get.
-     * 
+     *
      * @param properties A dictionary whose keys are used in the match.
      * @return If the Dictionary's keys match the filter, return <code>true</code>. Otherwise, return <code>false</code>
      *         .
@@ -559,7 +559,7 @@ public class ApamFilter implements Filter {
 
     /**
      * Encode the value string such that '(', '*', ')' and '\' are escaped.
-     * 
+     *
      * @param value unencoded value string.
      * @return encoded value string.
      */
@@ -710,7 +710,7 @@ public class ApamFilter implements Filter {
     }
 
     private boolean compare_Collection(int operation,
-            Collection collection, Object value2) {
+                                       Collection collection, Object value2) {
         if ((op == ApamFilter.SUBSET) || (op == ApamFilter.SUPERSET)) {
             Set set = new HashSet();
             if (value2 != null) {
@@ -734,7 +734,7 @@ public class ApamFilter implements Filter {
     }
 
     private boolean compare_ObjectArray(int operation, Object[] array,
-            Object value2) {
+                                        Object value2) {
         for (Object element : array) {
             if (compare(operation, element, value2)) {
                 return true;
@@ -744,7 +744,7 @@ public class ApamFilter implements Filter {
     }
 
     private boolean compare_PrimitiveArray(int operation, Class type,
-            Object primarray, Object value2) {
+                                           Object primarray, Object value2) {
         if (Integer.TYPE.isAssignableFrom(type)) {
             int[] array = (int[]) primarray;
             for (int element : array) {
@@ -821,7 +821,7 @@ public class ApamFilter implements Filter {
     }
 
     private boolean compare_String(int operation, String string,
-            Object value2) {
+                                   Object value2) {
         switch (operation) {
             case SUBSTRING: {
                 String[] substrings = (String[]) value2;
@@ -965,7 +965,7 @@ public class ApamFilter implements Filter {
     }
 
     private boolean compare_Short(int operation, short shortval,
-            Object value2) {
+                                  Object value2) {
         if (operation == ApamFilter.SUBSTRING) {
             return false;
         }
@@ -992,7 +992,7 @@ public class ApamFilter implements Filter {
     }
 
     private boolean compare_Character(int operation, char charval,
-            Object value2) {
+                                      Object value2) {
         if (operation == ApamFilter.SUBSTRING) {
             return false;
         }
@@ -1009,10 +1009,10 @@ public class ApamFilter implements Filter {
             }
             case APPROX: {
                 return (charval == charval2)
-                || (Character.toUpperCase(charval) == Character
+                        || (Character.toUpperCase(charval) == Character
                         .toUpperCase(charval2))
                         || (Character.toLowerCase(charval) == Character
-                                .toLowerCase(charval2));
+                        .toLowerCase(charval2));
             }
             case GREATER: {
                 return charval >= charval2;
@@ -1025,12 +1025,12 @@ public class ApamFilter implements Filter {
     }
 
     private boolean compare_Boolean(int operation, boolean boolval,
-            Object value2) {
+                                    Object value2) {
         if (operation == ApamFilter.SUBSTRING) {
             return false;
         }
         boolean boolval2 = Boolean.valueOf(((String) value2).trim())
-        .booleanValue();
+                .booleanValue();
         switch (operation) {
             case APPROX:
             case EQUAL:
@@ -1043,7 +1043,7 @@ public class ApamFilter implements Filter {
     }
 
     private boolean compare_Float(int operation, float floatval,
-            Object value2) {
+                                  Object value2) {
         if (operation == ApamFilter.SUBSTRING) {
             return false;
         }
@@ -1070,7 +1070,7 @@ public class ApamFilter implements Filter {
     }
 
     private boolean compare_Double(int operation, double doubleval,
-            Object value2) {
+                                   Object value2) {
         if (operation == ApamFilter.SUBSTRING) {
             return false;
         }
@@ -1099,7 +1099,7 @@ public class ApamFilter implements Filter {
     private static final Class[] constructorType = new Class[] { String.class };
 
     private boolean compare_Comparable(int operation, Comparable value1,
-            Object value2) {
+                                       Object value2) {
         if (operation == ApamFilter.SUBSTRING) {
             return false;
         }
@@ -1114,7 +1114,7 @@ public class ApamFilter implements Filter {
                 AccessController.doPrivileged(new SetAccessibleAction(
                         constructor));
             value2 = constructor
-            .newInstance(new Object[] { ((String) value2).trim() });
+                    .newInstance(new Object[] { ((String) value2).trim() });
         } catch (IllegalAccessException e) {
             return false;
         } catch (InvocationTargetException e) {
@@ -1139,7 +1139,7 @@ public class ApamFilter implements Filter {
     }
 
     private boolean compare_Unknown(int operation, Object value1,
-            Object value2) {
+                                    Object value2) {
         if (operation == ApamFilter.SUBSTRING) {
             return false;
         }
@@ -1154,7 +1154,7 @@ public class ApamFilter implements Filter {
                 AccessController.doPrivileged(new SetAccessibleAction(
                         constructor));
             value2 = constructor
-            .newInstance(new Object[] { ((String) value2).trim() });
+                    .newInstance(new Object[] { ((String) value2).trim() });
         } catch (IllegalAccessException e) {
             return false;
         } catch (InvocationTargetException e) {
@@ -1176,10 +1176,10 @@ public class ApamFilter implements Filter {
 
     /**
      * Map a string for an APPROX (~=) comparison.
-     * 
+     *
      * This implementation removes white spaces. This is the minimum
      * implementation allowed by the OSGi spec.
-     * 
+     *
      * @param input Input string.
      * @return String ready for APPROX comparison.
      */
@@ -1232,7 +1232,7 @@ public class ApamFilter implements Filter {
             if (pos != filterChars.length) {
                 throw new InvalidSyntaxException(
                         "Extraneous trailing characters: "
-                        + filterstring.substring(pos), filterstring);
+                                + filterstring.substring(pos), filterstring);
             }
             return filter;
         }
@@ -1557,7 +1557,7 @@ public class ApamFilter implements Filter {
 
         private void skipWhiteSpace() {
             for (int length = filterChars.length; (pos < length)
-            && Character.isWhitespace(filterChars[pos]);) {
+                    && Character.isWhitespace(filterChars[pos]);) {
                 pos++;
             }
         }
@@ -1575,7 +1575,7 @@ public class ApamFilter implements Filter {
 
         /**
          * Create a case insensitive dictionary from the specified dictionary.
-         * 
+         *
          * @param dictionary
          * @throws IllegalArgumentException If <code>dictionary</code> contains
          *             case variants of the same key name.

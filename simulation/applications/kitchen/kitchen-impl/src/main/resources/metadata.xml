@@ -11,7 +11,7 @@
                 <implementation filter="(name=light)"/>
             </constraints>
         </dependency>
-        <dependency field="presenceSensor">
+        <dependency field="presenceSensor" added="bindPresence" removed="unBindPresence">
             <constraints>
                 <implementation filter="(name=presence)"/>
             </constraints>

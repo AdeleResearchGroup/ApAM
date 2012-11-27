@@ -1,0 +1,13 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd"	>
+
+
+
+    <implementation name="hw-fr"
+                    classname="fr.imag.adele.apam.hello.world.impl.HelloImplementation"
+                    specification="Hello-Specification">
+        <callback onInit="start" onRemove="stop"/>
+        <definition type="string" name="lang" value="fr" field="lang"/>
+    </implementation>
+
+</apam>

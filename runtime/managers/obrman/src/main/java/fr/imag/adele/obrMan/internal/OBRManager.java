@@ -138,11 +138,14 @@ public class OBRManager {
 		try {
 			ApamFilter filter = ApamFilter.newInstance(filterStr);
 			for (Resource res : allResources) {
+                if (obrMan.bundleInactif(res.getSymbolicName())){
+                    continue;
+                }
 				Capability[] capabilities = res.getCapabilities();
 				for (Capability aCap : capabilities) {
 					if (aCap.getName().equals(capability)) {
 						if (filter.matchCase(aCap.getPropertiesAsMap())) {
-							if ((constraints == null) || matchConstraints(aCap, constraints)) {
+							if ((constraints == null) || matchConstraints(aCap, constraints) ) {
 							    logger.debug("-->Component " + getAttributeInCapability(aCap, CST.NAME)
 										+ " found in bundle : " + res.getSymbolicName() + " From "
 										+ compositeTypeName + " repositories : \n   " + repositoriesToString());
@@ -521,8 +524,13 @@ public class OBRManager {
 		return (best == null) ? null : best;
 	}
 
+    private boolean isStopped(Selected current) {
 
-	protected URL findLocalMavenRepository() {
+        return false;  //To change body of created methods use File | Settings | File Templates.
+    }
+
+
+    protected URL findLocalMavenRepository() {
 
 		// try to find the maven settings.xml file
 		settings = ObrUtil.searchSettingsFromM2Home();

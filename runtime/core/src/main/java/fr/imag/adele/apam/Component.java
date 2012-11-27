@@ -11,16 +11,16 @@ import fr.imag.adele.apam.declarations.ComponentDeclaration;
 
 public interface Component {
 
-	/**
-	 * The name of the component
-	 */
+    /**
+     * The name of the component
+     */
     public String getName();
 
     /**
      * The underlying entity in the execution platform
      */
     public ApformComponent getApformComponent();
-    
+
     /**
      * The component declaration
      */
@@ -46,7 +46,7 @@ public interface Component {
      * Whether the component is shared
      */
     public boolean isShared() ;
-    
+
     /**
      * Get a component provided its name
      * @param name
@@ -89,10 +89,10 @@ public interface Component {
      * @return
      */
     public <T extends Component> T getDefaultComponent (Set<T> candidates) ;
-    
+
     /**
      * Match.
-     * 
+     *
      * @param goal the goal
      * @return true is the instance matches the goal
      */
@@ -100,7 +100,7 @@ public interface Component {
 
     /**
      * Match.
-     * 
+     *
      * @param goal the goal
      * @return true is the instance matches the goal
      */
@@ -108,7 +108,7 @@ public interface Component {
 
     /**
      * return true if the instance matches ALL the constraints in the set.
-     * 
+     *
      * @param goals
      * @return
      */
@@ -123,22 +123,22 @@ public interface Component {
     /**
      * Set the value of the property for this component
      */
-	public boolean setProperty(String attr, String value);
+    public boolean setProperty(String attr, String value);
 
     /**
      * Get the value of all the properties of the component, including those in the enclosing
      * groups
      */
-	public Map<String, Object> getAllProperties();
+    public Map<String, Object> getAllProperties();
 
-	/**
-	 * Change the value of the specified properties of the component
-	 */
+    /**
+     * Change the value of the specified properties of the component
+     */
     public boolean setAllProperties(Map<String, String> properties);
 
-	/**
-	 * Removes the specified property of the component
-	 */
+    /**
+     * Removes the specified property of the component
+     */
     public boolean removeProperty(String attr);
 
     /**
@@ -151,7 +151,7 @@ public interface Component {
      * return the representant of this group member. Null if root (Specification)
      */
     public Component getGroup ();
-    
-	public Map<String, String> getValidAttributes () ;
+
+    public Map<String, String> getValidAttributes () ;
 
 }

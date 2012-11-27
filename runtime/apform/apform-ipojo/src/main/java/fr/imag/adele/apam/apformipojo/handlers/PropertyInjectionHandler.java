@@ -114,7 +114,7 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
     	for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
     		
     		if (definition.getField() != null && definition.getField().equals(fieldName)) {
-    			getInstanceManager().getApamInstance().getProperty(definition.getName());
+    			return getInstanceManager().getApamInstance().getProperty(definition.getName());
     		}
     		
     	}
@@ -143,7 +143,7 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
     	for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
     		
     		if (definition.getField() != null && definition.getField().equals(fieldName)) {
-    			((InstanceImpl)getInstanceManager().getApamInstance()).setPropertyInt(definition.getName(),(String) value, true);
+    			((InstanceImpl)getInstanceManager().getApamInstance()).setPropertyInt(definition.getName(), (String)value, true);
     		}
     		
     	}

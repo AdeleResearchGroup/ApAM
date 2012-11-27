@@ -236,12 +236,12 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		return ! inComposites.contains(CompositeTypeImpl.getRootCompositeType()) && inComposites.size()==1;
 	}
 
-	@Override
+/*	@Override
 	public boolean isInstantiable() {
 		String instantiable = (String) get(CST.INSTANTIABLE);
 		return (instantiable == null) ? true : instantiable.equals(CST.V_TRUE);
 	}
-
+  */
 	/**
 	 * From an implementation, create an instance. Creates both the apform and APAM instances.
 	 * Can be called from the API. 
@@ -291,7 +291,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		if (this.isSingleton() && !instances.isEmpty()) {
 			throw new InvalidConfiguration("Implementation " + this + " is a singleton and an instance exists");		
 		}
-
+        //TODO Ce n'est pas normal de passer null a l'instanciation!!!!!
 		return reify(composite,getApformImpl().createInstance(null));
 	}
 

@@ -1,0 +1,22 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+    <!-- *********** ************ -->
+    <!--   Kitchen App Composite  -->
+    <!-- *********** ************ -->
+    <composite name="kitchen" specification="room-spec"
+               main="room" singleton="true">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+            <local instance="true"/>
+            <own implementation="light" property="location" value="kitchen"/>
+            <own implementation="presence" property="location" value="kitchen"/>
+
+        </contentMngt>
+
+    </composite>
+
+
+
+</apam>

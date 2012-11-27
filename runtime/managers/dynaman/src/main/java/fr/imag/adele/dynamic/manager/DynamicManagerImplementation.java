@@ -124,7 +124,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	 * 
 	 */
 	public int getPriority() {
-		return 0;
+		return 5;
 	}
 
 	
@@ -217,9 +217,14 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	public void propertyChanged(Instance instance, String property) {		
-		ContentManager owner = contentManagers.get(instance.getComposite());
-		boolean wasOwned = instance.isUsed();
-		
+
+	//	boolean wasOwned = instance.isUsed();
+
+        for (ContentManager content : contentManagers.values()) {
+            content.verifyOwnership(instance);
+        }
+
+        ContentManager owner = contentManagers.get(instance.getComposite());
 		/*
 		 * Delegate to the content manager
 		 */
@@ -231,13 +236,9 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		 * We simulate as if the instance just appeared unused in APAM. In this way,
 		 * it is considered again for ownership.
 		 */
-		boolean ownerLost = wasOwned && ! instance.isUsed();
+		//boolean ownerLost = wasOwned && ! instance.isUsed();
 		
-		if (ownerLost) {
-			for (ContentManager content : contentManagers.values()) {
-				content.instanceAdded(instance);
-			}
-		}
+
 
 	}
 
@@ -313,9 +314,12 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		 * the unrelated thread that triggered the recalculation
 		 * 
 		 */
-		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
+        System.out.println("Dep " + dependency.getIdentifier()  + " Policy " + dependency.getMissingPolicy() );
+
+        if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
 			return null;
-		
+
+        System.out.println("Dep " + dependency.getIdentifier()  + " Policy " + dependency.getMissingPolicy() );
 		/*
 		 * Apply failure policies
 		 */
@@ -490,6 +494,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 	@Override
 	public void getSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dependency, List<DependencyManager> selPath) {
+        selPath.add(selPath.size(), this);
 	}
 
 	@Override

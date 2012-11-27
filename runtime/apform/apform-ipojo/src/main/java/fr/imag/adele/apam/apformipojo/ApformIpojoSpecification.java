@@ -16,7 +16,7 @@ public class ApformIpojoSpecification extends ApformIpojoComponent implements Ap
 
     /**
      * Build a new factory with the specified metadata
-     * 
+     *
      * @param context
      * @param metadata
      * @throws ConfigurationException
@@ -25,20 +25,20 @@ public class ApformIpojoSpecification extends ApformIpojoComponent implements Ap
         super(context, metadata);
 
     }
-    
+
     @Override
     public SpecificationDeclaration getDeclaration() {
-    	return (SpecificationDeclaration) super.getDeclaration();
+        return (SpecificationDeclaration) super.getDeclaration();
     }
 
-	@Override
-	public boolean hasInstrumentedCode() {
-		return false;
-	}
+    @Override
+    public boolean hasInstrumentedCode() {
+        return false;
+    }
 
     /**
      * Gets the class name.
-     * 
+     *
      * @return the class name.
      * @see org.apache.felix.ipojo.IPojoFactory#getClassName()
      */
@@ -47,15 +47,15 @@ public class ApformIpojoSpecification extends ApformIpojoComponent implements Ap
         return this.getDeclaration().getName();
     }
 
-	@Override
-	public boolean isInstantiable() {
-		return false;
-	}
+    @Override
+    public boolean isInstantiable() {
+        return false;
+    }
 
-	@Override
-	public ApformIpojoInstance createApamInstance(IPojoContext context, HandlerManager[] handlers) {
-		throw new UnsupportedOperationException("APAM specification is not instantiable");
-	}
+    @Override
+    public ApformIpojoInstance createApamInstance(IPojoContext context, HandlerManager[] handlers) {
+        throw new UnsupportedOperationException("APAM specification is not instantiable");
+    }
 
 
     /**
@@ -68,21 +68,21 @@ public class ApformIpojoSpecification extends ApformIpojoComponent implements Ap
 
     /**
      * Unregister this implementation from APAM
-     * 
+     *
      * @param apam
      */
     @Override
     protected void unbindFromApam(Apam apam) {
-       // Apform2Apam.vanishSpecification(getName());
+        // Apform2Apam.vanishSpecification(getName());
         ComponentBrokerImpl.disappearedComponent(getName()) ;
 
     }
 
-	@Override
-	public void setProperty(String attr, String value) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void setProperty(String attr, String value) {
+        // TODO Auto-generated method stub
 
-    
+    }
+
+
 }

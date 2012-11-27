@@ -26,29 +26,29 @@ import fr.liglab.adele.icasa.environment.SimulatedEnvironment;
 
 /**
  * Implementation of a simulated Oven device.
- * 
+ *
  */
 
 public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight, SimulatedDevice {
 
-	private String m_serialNumber;
+    private String m_serialNumber;
 
-	private String fault;
+    private String fault;
 
-	private String state;
+    private String state;
 
-	private volatile SimulatedEnvironment m_env;
+    private volatile SimulatedEnvironment m_env;
 
     private double m_maxIlluminance;
 
     private volatile boolean m_powerStatus;
 
-	protected String location;
+    protected String location;
 
 
-	public String getSerialNumber() {
-		return m_serialNumber;
-	}
+    public String getSerialNumber() {
+        return m_serialNumber;
+    }
     @Override
     public synchronized boolean getPowerStatus() {
         return m_powerStatus;
@@ -56,17 +56,21 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
 
     @Override
     public synchronized boolean setPowerStatus(boolean status) {
-        boolean save = m_powerStatus;
-        double illuminanceBefore = illuminance();
-        m_powerStatus = status;
-        double illuminanceAfter = illuminance();
-        System.out.println("Power status set to " + status);
-        if (m_env != null) {
-            notifyEnvironment(illuminanceAfter - illuminanceBefore);
+        if (getState().equals(BinaryLight.STATE_ACTIVATED)){
+            boolean save = m_powerStatus;
+            double illuminanceBefore = illuminance();
+            m_powerStatus = status;
+            double illuminanceAfter = illuminance();
+            System.out.println("Power status set to " + status);
+            if (m_env != null) {
+                notifyEnvironment(illuminanceAfter - illuminanceBefore);
+            }
+            notifyListeners();
+            return save;
         }
-        notifyListeners();
-        return save;
+        return m_powerStatus;
     }
+
 
     @Override
     public synchronized String getEnvironmentId() {

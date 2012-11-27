@@ -1,0 +1,24 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+
+
+    <composite name="livingroom" specification="room-spec"
+               main="room" singleton="true">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+            <local instance="true"/>
+            <own implementation="light" property="location" value="livingroom"/>
+            <own implementation="presence" property="location" value="livingroom"/>
+
+        </contentMngt>
+
+    </composite>
+
+    <!-- *********** ************ -->
+    <!--        Instance         -->
+    <!-- *********** ************ -->
+    <apam-instance implementation="livingroom"  name="ilivingroom" />
+
+</apam>

@@ -30,7 +30,7 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
 
     /**
      * Build a new factory with the specified metadata
-     * 
+     *
      * @param context
      * @param metadata
      * @throws ConfigurationException
@@ -41,45 +41,45 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
 
     @Override
     public void check(Element element) throws ConfigurationException {
-    	super.check(element);
-    	specification = null;
+        super.check(element);
+        specification = null;
     }
-    
+
     @Override
     public ImplementationDeclaration getDeclaration() {
-    	return (ImplementationDeclaration) super.getDeclaration();
+        return (ImplementationDeclaration) super.getDeclaration();
     }
-    
+
     /**
      * Get the provided specification representation
      */
     @Override
-	public ApformSpecification getSpecification() {
-		return specification;
-	}
+    public ApformSpecification getSpecification() {
+        return specification;
+    }
 
-    
+
     /**
      * Register this implementation with APAM
      */
     protected void bindToApam(Apam apam) {
-    	
-    	/*
-    	 * Cross-reference to provided interface, if already installed in APAM
-    	 */
-    	if (getDeclaration().getSpecification() != null) {
-    		String specName = getDeclaration().getSpecification().getName();
-    		Specification provided = CST.componentBroker.getSpec(specName);
-    		if (provided != null && provided.getApformSpec() != null)
-    			specification = provided.getApformSpec();
-    	}
-    	
+
+        /*
+           * Cross-reference to provided interface, if already installed in APAM
+           */
+        if (getDeclaration().getSpecification() != null) {
+            String specName = getDeclaration().getSpecification().getName();
+            Specification provided = CST.componentBroker.getSpec(specName);
+            if (provided != null && provided.getApformSpec() != null)
+                specification = provided.getApformSpec();
+        }
+
         Apform2Apam.newImplementation(this);
     }
 
     /**
      * Unregister this implementation from APAM
-     * 
+     *
      * @param apam
      */
     protected void unbindFromApam(Apam apam) {
@@ -87,14 +87,14 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
         ComponentBrokerImpl.disappearedComponent(getName()) ;
 
     }
-    
+
 
     private final ThreadLocal<Boolean> insideApamCall = new ThreadLocal<Boolean>() {
-                                                          @Override
-                                                          protected Boolean initialValue() {
-                                                              return false;
-                                                          };
-                                                      };
+        @Override
+        protected Boolean initialValue() {
+            return false;
+        };
+    };
 
     private final boolean isApamCall() {
         return insideApamCall.get();
@@ -103,10 +103,10 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
     /**
      * Creates an instance of the implementation, and initialize its properties with the set of
      * provided properties.
-     * 
+     *
      * NOTE this method is called when an instance is created by the APAM platform (explicitly by
      * the API or implicitly by a dependency resolution)
-     */	
+     */
     @Override
     public ApformInstance createInstance(Map<String, String> initialproperties) throws ComponentImpl.InvalidConfiguration {
         try {
@@ -130,31 +130,31 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
         }
 
     }
-    
-    
-	/**
-	 * Creates the iPOjo instance corresponding to a newly created native APAM instance.
-	 * 
-	 * NOTE this method can be called by APAM or from an iPojo instance declaration
-	 */ 
-	@Override
-	public ApformIpojoInstance createApamInstance(IPojoContext context, HandlerManager[] handlers) {
-		return new ApformIpojoInstance(this, isApamCall(), context, handlers);
-	}
 
-	@Override
-	public boolean hasInstrumentedCode() {
-		return true;
-	}
 
-	@Override
-	public boolean isInstantiable() {
-		return true;
-	}
+    /**
+     * Creates the iPOjo instance corresponding to a newly created native APAM instance.
+     *
+     * NOTE this method can be called by APAM or from an iPojo instance declaration
+     */
+    @Override
+    public ApformIpojoInstance createApamInstance(IPojoContext context, HandlerManager[] handlers) {
+        return new ApformIpojoInstance(this, isApamCall(), context, handlers);
+    }
 
-	@Override
-	public void setProperty(String attr, String value) {
-		// TODO change factory publication?
-	}
- 
+    @Override
+    public boolean hasInstrumentedCode() {
+        return true;
+    }
+
+    @Override
+    public boolean isInstantiable() {
+        return true;
+    }
+
+    @Override
+    public void setProperty(String attr, String value) {
+        // TODO change factory publication?
+    }
+
 }
