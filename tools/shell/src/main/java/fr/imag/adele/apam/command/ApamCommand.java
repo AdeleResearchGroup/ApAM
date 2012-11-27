@@ -61,7 +61,7 @@ public class ApamCommand {
      */
     @ServiceProperty(name = "osgi.command.function", value = "{}")
     String[] m_function = new String[] { "put",  "specs", "implems", "insts", "spec", "implem", "inst", "dump", "compoTypes",
-            "compoType", "compos", "compo", "wire", "launch", "pending", "up", "l" };
+            "compoType", "compos", "compo", "wire", "launch", "pending", "up", "l" , "hello" };
 
     // Apam injected
     @Requires
@@ -69,14 +69,23 @@ public class ApamCommand {
 
 
     /**
-     * ASMSpec.
      *
-     * @param specificationName
-     *            the specification name
      */
     @Descriptor("Updates the target component")
     public void up(@Descriptor("target component to update. Warning: updates the whole Bundle.") String componentName) {
         CST.apamResolver.updateComponent (componentName) ;
+    }
+
+
+    @Descriptor("Change hello language")
+    public void hello(@Descriptor("instance name") String instanceName,@Descriptor("language name") String langName, @Descriptor("expression to say hello in the corresponding language")  String langExpression){
+        Instance inst = CST.componentBroker.getInst(instanceName);
+        if (inst!=null){
+            inst.setProperty("lang", langName);
+            inst.setProperty("expr",langExpression);
+        }else{
+            System.out.println("The instance " + instanceName + " not exist !");
+        }
     }
 
     /**
@@ -221,8 +230,8 @@ public class ApamCommand {
     /**
      * ASMInst.
      *
-     * @param implementationName
-     *            the implementation name
+     * @param instanceName
+     *            the instance name
      */
     @Descriptor("Display informations about the target instance")
     public void inst(@Descriptor("target implementation") String instanceName) {
@@ -489,8 +498,6 @@ public class ApamCommand {
      *            the indent
      * @param instance
      *            the instance
-     * @throws ConnectionException
-     *             the connection exception
      */
     private void printInstance(String indent, Instance instance) {
         if (instance == null)
@@ -543,8 +550,6 @@ public class ApamCommand {
      *            the indent
      * @param impl
      *            the impl
-     * @throws ConnectionException
-     *             the connection exception
      */
     private void printImplementation(String indent, Implementation impl) {
         System.out.println(indent + "----- [ ASMImpl : " + impl + " ] -----");

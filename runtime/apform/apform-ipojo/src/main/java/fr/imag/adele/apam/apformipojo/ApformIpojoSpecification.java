@@ -79,7 +79,7 @@ public class ApformIpojoSpecification extends ApformIpojoComponent implements Ap
     }
 
 	@Override
-	public void setProperty(String attr, String value) {
+	public void setProperty(String attr, Object value) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -153,7 +153,7 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
 	}
 
 	@Override
-	public void setProperty(String attr, String value) {
+	public void setProperty(String attr, Object value) {
 		// TODO change factory publication?
 	}
  

@@ -4,11 +4,12 @@
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
 
-    <implementation name="hw-ar"
+    <implementation name="hw-g"
                     classname="fr.imag.adele.apam.hello.world.impl.HelloImplementation"
                     specification="Hello-Specification">
         <callback onInit="start" onRemove="stop"/>
-        <definition name="lang" type="string" value="ar" field="lang"/>
+        <definition name="lang" type="string" value="Arabic" field="lang" />
+        <definition name="expr" type="string" value="Salam" field="expr"/>
     </implementation>
 
 </apam>

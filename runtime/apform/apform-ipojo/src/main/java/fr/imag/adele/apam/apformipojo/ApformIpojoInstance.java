@@ -454,7 +454,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     }
 
     @Override
-    public void setProperty(String attr, String value) {
+    public void setProperty(String attr, Object value) {
 
         Object pojo = getPojoObject();
         Callback callback = propertyCallbacks.get(attr);

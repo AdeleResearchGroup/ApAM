@@ -1,0 +1,39 @@
+package fr.imag.adele.apam.hello.world.impl;
+
+import fr.imag.adele.apam.hello.world.spec.HelloService;
+
+public class HelloImplementation implements HelloService{
+
+
+    String lang;
+
+    String expr;
+    /**
+     * @see HelloService#sayHello(String)
+     */
+    @Override
+    public void sayHello(String texte) {
+        System.out.println(expr +", " + texte);
+    }
+
+    @Override
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String language){
+        System.out.println("The language has been changed to " + language );
+        lang = language;
+    }
+
+    //Called by APAM when an instance of this implementation is created
+    public void start(){
+        System.out.println("--> " + expr +  "HelloService Start");
+    }
+
+    // Called by APAM when an instance of this implementation is removed
+    public void stop(){
+        System.out.println("--> " + expr +  " HelloService Stop");
+    }
+
+}

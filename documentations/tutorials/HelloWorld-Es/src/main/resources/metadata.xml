@@ -3,7 +3,7 @@ xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.co
 
 
 
-    <implementation name="Hello-Implementation-Spanish"
+    <implementation name="hw-sp"
                     classname="fr.imag.adele.apam.hello.world.impl.HelloImplementation"
                     specification="Hello-Specification">
         <callback onInit="start" onRemove="stop"/>

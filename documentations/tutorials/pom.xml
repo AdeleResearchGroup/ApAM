@@ -240,6 +240,7 @@
 		<module>HelloWorld-Es</module>
 		<module>HelloWorld-Po</module>
 		<module>HelloWorld-Fr</module>
+		<module>HelloWorld-Generic</module>
 		<module>HelloWorld-Composite</module>
 	</modules>
 </project>
