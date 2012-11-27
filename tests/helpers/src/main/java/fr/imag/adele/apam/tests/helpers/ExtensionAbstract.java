@@ -1,6 +1,5 @@
 package fr.imag.adele.apam.tests.helpers;
 
-
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
@@ -22,7 +21,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
-import org.junit.rules.Timeout;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.util.PathUtils;
@@ -42,7 +40,8 @@ public abstract class ExtensionAbstract {
 
 	// Based on the current running, no test should take longer than 2 minute
 	@Rule
-	public TestRule globalTimeout = new Timeout(120000);
+	public TestRule globalTimeout = new ApamTimeoutRule(isDebugModeOn() ? null
+			: 2000);
 
 	@Rule
 	public TestName name = new TestName();
@@ -53,35 +52,35 @@ public abstract class ExtensionAbstract {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	public ApAMHelper apam;
-	
+
 	protected ComponentBroker broker;
 
-	protected List<Instance> auxLookForInstanceOf(String clazz){
-		
-		List<Instance> pool=new ArrayList<Instance>();
-		
+	protected List<Instance> auxLookForInstanceOf(String clazz) {
+
+		List<Instance> pool = new ArrayList<Instance>();
+
 		for (Instance i : CST.componentBroker.getInsts()) {
-			
+
 			ImplementationDeclaration apamImplDecl = i.getImpl()
 					.getImplDeclaration();
 
 			if (apamImplDecl instanceof AtomicImplementationDeclaration) {
-				
+
 				AtomicImplementationDeclaration atomicInitialInstance = (AtomicImplementationDeclaration) apamImplDecl;
-				
-				if (atomicInitialInstance.getClassName().equals(
-						clazz)) {
+
+				if (atomicInitialInstance.getClassName().equals(clazz)) {
 					pool.add(i);
 				}
 			}
 		}
-		
+
 		return pool;
 	}
-	
+
 	protected void auxListInstances(String prefix) {
 		System.out.println(String.format(
-				"%s------------ Instances (Total:%d) -------------", prefix,CST.componentBroker.getInsts().size()));
+				"%s------------ Instances (Total:%d) -------------", prefix,
+				CST.componentBroker.getInsts().size()));
 		for (Instance i : CST.componentBroker.getInsts()) {
 
 			System.out.println(String.format("%sInstance name %s ( oid: %s ) ",
@@ -102,21 +101,21 @@ public abstract class ExtensionAbstract {
 		System.out.println(String.format(
 				"%s------------ /Properties -------------", prefix));
 	}
-	
-	protected void auxDisconectWires(Instance instance){
-		
+
+	protected void auxDisconectWires(Instance instance) {
+
 		for (Wire wire : instance.getWires()) {
 
 			instance.removeWire(wire);
 
 		}
-		
+
 	}
 
 	@Before
 	public void setUp() {
 		apam = new ApAMHelper(context);
-		broker=CST.componentBroker;
+		broker = CST.componentBroker;
 		logger.info("[Run Test : " + name.getMethodName() + "]");
 		apam.waitForIt(1000);
 	}
@@ -126,18 +125,23 @@ public abstract class ExtensionAbstract {
 		return config();
 	}
 
-	public static Option[] config(){
-		
+	private static boolean isDebugModeOn() {
 		RuntimeMXBean RuntimemxBean = ManagementFactory.getRuntimeMXBean();
 		List<String> arguments = RuntimemxBean.getInputArguments();
-		
-		boolean debugModeOn=false;
-		
+
+		boolean debugModeOn = false;
+
 		for (String string : arguments) {
-			debugModeOn=string.indexOf("agentlib")!=-1;
-			if(debugModeOn) break;
+			debugModeOn = string.indexOf("jdwp") != -1;
+			if (debugModeOn)
+				break;
 		}
-		
+
+		return debugModeOn;
+	}
+
+	public static Option[] config() {
+
 		return options(
 				systemProperty("org.osgi.service.http.port").value("8080"),
 				cleanCaches(),
@@ -165,15 +169,15 @@ public abstract class ExtensionAbstract {
 				mavenBundle("ch.qos.logback", "logback-classic").version(
 						"1.0.7"),
 				junitBundles(),
-				
+
 				mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
 						.version("0.0.1-SNAPSHOT"),
-				when(debugModeOn)
+				when(isDebugModeOn())
 						.useOptions(
-								vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"),
+								vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5007"),
 								systemTimeout(0)));
 	}
-	
+
 	@After
 	public void tearDown() {
 		apam.dispose();
