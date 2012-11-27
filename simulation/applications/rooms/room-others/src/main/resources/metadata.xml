@@ -1,0 +1,58 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+    <!-- *********** ************ -->
+    <!--   Hall App Composite  -->
+    <!-- *********** ************ -->
+    <composite name="hall" specification="room-spec"
+               main="room" singleton="true">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+            <local instance="true"/>
+            <own implementation="light" property="location" value="hall"/>
+            <own implementation="presence" property="location" value="hall"/>
+
+        </contentMngt>
+
+    </composite>
+
+    <!-- *********** ************ -->
+    <!--   BedRoom App Composite  -->
+    <!-- *********** ************ -->
+    <composite name="bedroom" specification="room-spec"
+               main="room" singleton="true">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+            <local instance="true"/>
+            <own implementation="light" property="location" value="bedroom"/>
+            <own implementation="presence" property="location" value="bedroom"/>
+
+        </contentMngt>
+
+    </composite>
+
+    <!-- *********** ************ -->
+    <!--   Bathroom App Composite  -->
+    <!-- *********** ************ -->
+    <composite name="bathroom" specification="room-spec"
+               main="room" singleton="true">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+            <local instance="true"/>
+            <own implementation="light" property="location" value="bathroom"/>
+            <own implementation="presence" property="location" value="bathroom"/>
+
+        </contentMngt>
+
+    </composite>
+
+    <!-- *********** ************ -->
+    <!--        Instance         -->
+    <!-- *********** ************ -->
+
+    <apam-instance implementation="bathroom"   name="ibathroom" />
+    <apam-instance implementation="bedroom"  name="ibedroom" />
+    <apam-instance implementation="hall"  name="ihall" />
+
+</apam>

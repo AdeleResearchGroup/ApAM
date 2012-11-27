@@ -1,0 +1,21 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
+                          org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
+    <implementation name="room"
+                    classname="fr.imag.adele.apam.application.room.impl.RoomImpl"
+                    specification="room-spec">
+        <callback onInit="start" onRemove="stop"/>
+        <dependency field="lights" added="bindLight" removed="unBindLight">
+            <constraints>
+                <implementation filter="(name=light)"/>
+            </constraints>
+        </dependency>
+        <dependency field="presenceSensor" added="bindPresence" removed="unBindPresence">
+            <constraints>
+                <implementation filter="(name=presence)"/>
+            </constraints>
+        </dependency>
+    </implementation>
+
+</apam>
