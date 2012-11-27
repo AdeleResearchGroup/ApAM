@@ -95,7 +95,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         // Check if already deployed
         if (c == null) {
             
-            if (bundleDeployed(selected.resource.getSymbolicName())){
+            if (bundleInactif(selected.resource.getSymbolicName())){
                 logger.info("The bundle " + selected.resource.getSymbolicName() + " is already installed!");
                 return null;
             }
@@ -137,7 +137,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 //        return false;
 //    }
 
-    private boolean bundleDeployed(String symbolicName) {
+    public boolean bundleInactif(String symbolicName) {
         Bundle[] bunldes = m_context.getBundles();
         for (Bundle bundle : bunldes) {
             if (bundle.getSymbolicName()!=null && bundle.getSymbolicName().equals(symbolicName)){

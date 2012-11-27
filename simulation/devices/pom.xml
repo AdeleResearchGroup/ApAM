@@ -12,10 +12,10 @@
   <modules>
   	<module>light</module>
   	<module>presence</module>
-  	<module>oven</module>
+  	<!--<module>oven</module>
   	<module>microwave</module>
   	<module>tvscreen</module>
   	<module>speaker</module>
-  	<module>smartphone</module>
+  	<module>smartphone</module>      -->
   </modules>
 </project>

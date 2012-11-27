@@ -124,7 +124,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	 * 
 	 */
 	public int getPriority() {
-		return 0;
+		return 5;
 	}
 
 	
@@ -314,9 +314,12 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		 * the unrelated thread that triggered the recalculation
 		 * 
 		 */
-		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
+        System.out.println("Dep " + dependency.getIdentifier()  + " Policy " + dependency.getMissingPolicy() );
+
+        if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
 			return null;
-		
+
+        System.out.println("Dep " + dependency.getIdentifier()  + " Policy " + dependency.getMissingPolicy() );
 		/*
 		 * Apply failure policies
 		 */
@@ -491,6 +494,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 	@Override
 	public void getSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dependency, List<DependencyManager> selPath) {
+        selPath.add(selPath.size(), this);
 	}
 
 	@Override

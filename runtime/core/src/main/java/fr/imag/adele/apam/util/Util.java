@@ -473,6 +473,7 @@ public class Util {
 
     public static boolean checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr,
                                        String comp) {
+        System.out.println("Filters : " + filters + " valid : " + validAttr);
         boolean ok = true;
         if (filters != null) {
             for (String f : filters) {
@@ -525,6 +526,7 @@ public class Util {
         //Look for same dependency: the same specification, the same implementation or same resource name
         //Constraints are not taken into account
         //		for (DependencyDeclaration compoDep : compoDeps) {
+        System.out.println(" Comp");
         if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { // same nature
             if (compoDep.getTarget().equals(clientDep.getTarget())) {
                 if (!multiple || compoDep.isMultiple())
@@ -708,9 +710,9 @@ public class Util {
                 if (Util.checkFilters(genDep.getImplementationConstraints(), null, validAttrs, client.getName())) {
                     dependency.getImplementationConstraints().addAll(genDep.getImplementationConstraints()) ;
                 }
-                if (Util.checkFilters(genDep.getInstanceConstraints(), null, validAttrs, client.getName())) {
+               // if (Util.checkFilters(genDep.getInstanceConstraints(), null, validAttrs, client.getName())) {
                     dependency.getInstanceConstraints().addAll(genDep.getInstanceConstraints()) ;
-                }
+                //}
                 if (Util.checkFilters(null, genDep.getImplementationPreferences(), validAttrs, client.getName())) {
                     dependency.getImplementationPreferences().addAll(genDep.getImplementationPreferences()) ;
                 }
@@ -736,6 +738,7 @@ public class Util {
         String pattern = compoDep.getTarget().getName() ;
         //Look for same dependency: the same specification, the same implementation or same resource name
         //Constraints are not taken into account
+        System.out.println("client " + clientDep.getTarget()  +" compo " + compoDep.getTarget());
         if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { // same nature
             if (clientDep.getTarget().getName().matches(pattern)) {
                 return true;
@@ -752,7 +755,7 @@ public class Util {
                 }
             }
         }
-
+        System.out.println("NO match!!");
         return false;
     }
 

@@ -32,7 +32,7 @@ public class KitchenAppImpl implements KitchenApp {
 
     public void bindPresence(Instance instance){
         System.out.println("New instance bind " + instance.getName());
-        //presenceSensor.removeListener(presenceListener);
+        presenceSensor.removeListener(presenceListener);
         presenceSensor.addListener(presenceListener);
         presence = presenceSensor.getSensedPresence();
         setLightsStates(presence);
@@ -73,8 +73,10 @@ public class KitchenAppImpl implements KitchenApp {
         @Override
         public void notifyDeviceEvent(String s) {
             System.out.println("Presence sense " +  s);
-            presence = presenceSensor.getSensedPresence();
-            setLightsStates(presence);
+            if (presenceSensor!=null){
+                presence = presenceSensor.getSensedPresence();
+                setLightsStates(presence);
+            }
         }
     }
 
