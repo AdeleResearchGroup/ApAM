@@ -10,6 +10,8 @@ import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.CoreOptions.when;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,6 +127,17 @@ public abstract class ExtensionAbstract {
 	}
 
 	public static Option[] config(){
+		
+		RuntimeMXBean RuntimemxBean = ManagementFactory.getRuntimeMXBean();
+		List<String> arguments = RuntimemxBean.getInputArguments();
+		
+		boolean debugModeOn=false;
+		
+		for (String string : arguments) {
+			debugModeOn=string.indexOf("agentlib")!=-1;
+			if(debugModeOn) break;
+		}
+		
 		return options(
 				systemProperty("org.osgi.service.http.port").value("8080"),
 				cleanCaches(),
@@ -155,7 +168,7 @@ public abstract class ExtensionAbstract {
 				
 				mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
 						.version("0.0.1-SNAPSHOT"),
-				when(Boolean.getBoolean("isDebugEnabled"))
+				when(debugModeOn)
 						.useOptions(
 								vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"),
 								systemTimeout(0)));
