@@ -14,7 +14,7 @@
         <groupId>fr.imag.adele.apam</groupId>
         <artifactId>apam-obrman-distribution</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>../obrman-dynaman-distribution</relativePath>
+        <relativePath>../obrman-distribution/pom.xml</relativePath>
     </parent>
 
     <!-- Project coordinates -->
