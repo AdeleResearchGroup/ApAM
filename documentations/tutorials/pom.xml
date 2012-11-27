@@ -236,7 +236,7 @@
         <module>HelloWorld-Spec</module>
         <module>HelloWorld</module>
         <module>HelloGui</module>
-         <!--   <module>NewHelloWorld</module>-->
+        <module>NewHelloWorld</module>
         <!--<module>HelloWorld-Ar</module>
           <module>HelloWorld-AllInOneBundle</module>
           <module>HelloWorld-En</module>
