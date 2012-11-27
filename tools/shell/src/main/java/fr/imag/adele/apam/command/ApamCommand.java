@@ -61,7 +61,7 @@ public class ApamCommand {
      */
     @ServiceProperty(name = "osgi.command.function", value = "{}")
     String[] m_function = new String[] { "put",  "specs", "implems", "insts", "spec", "implem", "inst", "dump", "compoTypes",
-            "compoType", "compos", "compo", "wire", "launch", "pending", "up", "l" , "hello" };
+            "compoType", "compos", "compo", "wire", "launch", "pending", "up", "l" , "set" };
 
     // Apam injected
     @Requires
@@ -76,9 +76,9 @@ public class ApamCommand {
         CST.apamResolver.updateComponent (componentName) ;
     }
 
-
+    //TODO Generalize this function to all kind of services.
     @Descriptor("Change hello language")
-    public void hello(@Descriptor("instance name") String instanceName,@Descriptor("language name") String langName, @Descriptor("expression to say hello in the corresponding language")  String langExpression){
+    public void set(@Descriptor("instance name") String instanceName,@Descriptor("language name") String langName, @Descriptor("expression to say hello in the corresponding language")  String langExpression){
         Instance inst = CST.componentBroker.getInst(instanceName);
         try{
             if (inst!=null){
