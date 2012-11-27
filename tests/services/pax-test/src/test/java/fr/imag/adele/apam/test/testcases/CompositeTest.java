@@ -26,6 +26,7 @@ import fr.imag.adele.apam.pax.test.impl.S3GroupBImpl;
 import fr.imag.adele.apam.pax.test.impl.S3GroupCImpl;
 import fr.imag.adele.apam.pax.test.impl.S3GroupDImpl;
 import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
+import fr.imag.adele.apam.test.testcases.TestTemp.ThreadWrapper;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
@@ -434,10 +435,10 @@ public class CompositeTest extends ExtensionAbstract {
 	public void CompositeContentMngtDependencyFailException() {
 		
 		CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-exception");
+				null, "composite-a-fail-exception");
 		
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-exception");
+				null, "composite-a-fail-exception");
 		
 		Composite composite_root = (Composite) ctroot.createInstance(null, null);
 		
@@ -472,6 +473,45 @@ public class CompositeTest extends ExtensionAbstract {
 		Assert.assertTrue(messageException,exception);
 		Assert.assertTrue(messageExceptionType,exceptionType);
 
+	}	
+	
+	@Test
+	public void CompositeContentMngtDependencyFailWait() {
+
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-fail-wait");
+
+		Composite composite_a = (Composite) cta.createInstance(null, null);
+
+		Instance instanceApp1 = composite_a.getMainInst();
+
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+
+		ThreadWrapper wrapper=new ThreadWrapper(ga1);
+		wrapper.setDaemon(true);
+		wrapper.start();
+		
+		apam.waitForIt(3000);
+		
+		String message="In case of composite dependency been maked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
+		
+		Assert.assertTrue(message,wrapper.isAlive());
+	}
+	
+	//Require by the test CompositeContentMngtDependencyFailWait
+	class ThreadWrapper extends Thread {
+
+		final S3GroupAImpl group;
+		
+		public ThreadWrapper(S3GroupAImpl group){
+			this.group=group;
+		}
+		
+		@Override
+		public void run() {
+			System.out.println("Element injected:"+group.getElement());
+		}
+		
 	}	
 	
 	@Test

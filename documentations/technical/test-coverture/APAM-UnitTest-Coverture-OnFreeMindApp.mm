@@ -156,8 +156,8 @@
 <node CREATED="1353947943098" ID="ID_1719612626" MODIFIED="1353948946022" TEXT="exception">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353947946554" ID="ID_360439714" MODIFIED="1353947958070" TEXT="wait">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353947946554" ID="ID_360439714" MODIFIED="1354029050396" TEXT="wait">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>
@@ -206,7 +206,7 @@
 <node CREATED="1353942131367" ID="ID_1134763459" MODIFIED="1353942145773" TEXT="specification">
 <icon BUILTIN="button_cancel"/>
 </node>
-<node CREATED="1353942135769" ID="ID_891832927" MODIFIED="1353942148492" TEXT="property+value">
+<node CREATED="1353942135769" ID="ID_891832927" MODIFIED="1354027676541" TEXT="property+value">
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
