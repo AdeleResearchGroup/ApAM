@@ -80,11 +80,15 @@ public class ApamCommand {
     @Descriptor("Change hello language")
     public void hello(@Descriptor("instance name") String instanceName,@Descriptor("language name") String langName, @Descriptor("expression to say hello in the corresponding language")  String langExpression){
         Instance inst = CST.componentBroker.getInst(instanceName);
+        try{
         if (inst!=null){
             inst.setProperty("lang", langName);
             inst.setProperty("expr",langExpression);
         }else{
             System.out.println("The instance " + instanceName + " not exist !");
+        }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 

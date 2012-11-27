@@ -28,12 +28,12 @@ public class HelloImplementation implements HelloService{
 
     //Called by APAM when an instance of this implementation is created
     public void start(){
-        System.out.println("--> " + expr +  "HelloService Start");
+        System.out.println("--> " + lang +  " HelloService Start");
     }
 
     // Called by APAM when an instance of this implementation is removed
     public void stop(){
-        System.out.println("--> " + expr +  " HelloService Stop");
+        System.out.println("--> HelloService Stop ");
     }
 
 }

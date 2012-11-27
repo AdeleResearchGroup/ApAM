@@ -36,10 +36,10 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
     /**
      * This class represents the Apam root instance.
-     * 
+     *
      * This is an APAM concept without mapping at the execution platform level, we build an special
      * apform object to represent it.
-     * 
+     *
      */
     private static class SystemRootInstance implements ApformInstance {
 
@@ -51,9 +51,9 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
         @Override
         public Bundle getBundle() {
-        	return null;
+            return null;
         }
-        
+
         @Override
         public InstanceDeclaration getDeclaration() {
             return declaration;
@@ -86,14 +86,14 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
         @Override
         public boolean substWire(Instance oldDestInst, Instance newDestInst,
-                String depName) {
+                                 String depName) {
             throw new UnsupportedOperationException("method not available in root instance");
         }
 
-		@Override
-		public Instance getInst() {
-	           throw new UnsupportedOperationException("method not available in root instance");
-		}
+        @Override
+        public Instance getInst() {
+            throw new UnsupportedOperationException("method not available in root instance");
+        }
 
     }
 
@@ -142,12 +142,8 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }
 
     @Override
-    public void register(Map<String, Object> initialproperties) throws InvalidConfiguration {
+    public void register(Map<String, String> initialproperties) throws InvalidConfiguration {
 
-        /*
-         * Bind to the underlying execution platform instance
-         */
-        getApformInst().setInst(this);
 
         /*
          * Opposite references from implementation and enclosing composite
@@ -161,13 +157,18 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         initializeProperties(initialproperties);
 
         /*
+        * Bind to the underlying execution platform instance
+        */
+        getApformInst().setInst(this);
+
+        /*
          * Add to broker
          */
         ((ComponentBrokerImpl) CST.componentBroker).add(this);
-        
+
         /*
-         * Notify managers
-         */
+        * Notify managers
+        */
         ApamManagers.notifyAddedInApam(this);
     }
 
@@ -177,12 +178,12 @@ public class InstanceImpl extends ComponentImpl implements Instance {
      */
     @Override
     public void unregister() {
-    	logger.debug("unregister instance " + this);
-    	
+        logger.debug("unregister instance " + this);
+
         /*
-         * Remove from broker, and from its composites.
-         * After that, it is invisible.
-         */
+        * Remove from broker, and from its composites.
+        * After that, it is invisible.
+        */
 //        ((ComponentBrokerImpl) CST.componentBroker).remove(this);
         ((ImplementationImpl) getImpl()).removeInst(this);
         ((CompositeImpl) getComposite()).removeInst(this);
@@ -193,25 +194,25 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         for (Wire wire : invWires) {
             ((WireImpl) wire).remove();
         }
- 
-       
+
+
 
         /*
-         * Unbind from the underlying execution platform instance
-         */
+        * Unbind from the underlying execution platform instance
+        */
         getApformInst().setInst(null);
-        
+
         /*
-         * Do no remove the outgoing wires, in case a Thread is still here.
-         * If so, the dependency will be resolved again !
-         * TODO Should only remove the invWire ! But weird: wired only in a direction ...
-         */
+        * Do no remove the outgoing wires, in case a Thread is still here.
+        * If so, the dependency will be resolved again !
+        * TODO Should only remove the invWire ! But weird: wired only in a direction ...
+        */
 //      myImpl = null;
 //      myComposite = null;
-        
-      for (Wire wire : wires) {
-          ((WireImpl) wire).remove();
-      }
+
+        for (Wire wire : wires) {
+            ((WireImpl) wire).remove();
+        }
 
 //        /*
 //         * Notify managers
@@ -226,17 +227,17 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
     /**
      * Change the owner (enclosing composite) of this instance.
-     * 
+     *
      * This is only allowed for unused instances and is the only dynamic
      * modification of the composite hierarchy allowed so far.
-     * 
+     *
      * An owner instance must become unused again, before changing of
      * owner.
-     * 
+     *
      */
     public void setOwner(Composite owner) {
 
-		assert (isUsed() && owner == CompositeImpl.getRootAllComposites()) || ( !isUsed() && owner != null);
+        assert (isUsed() && owner == CompositeImpl.getRootAllComposites()) || ( !isUsed() && owner != null);
 
         ((CompositeImpl) getComposite()).removeInst(this);
         this.myComposite = owner;
@@ -334,7 +335,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         }
         return w;
     }
-    
+
     @Override
     public boolean createWire(Instance to, String depName, boolean hasConstraints) {
         if ((to == null) || (depName == null))
@@ -368,11 +369,11 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         ((ImplementationImpl) getImpl()).addUses(to.getImpl());
         if ((SpecificationImpl) getSpec() != null)
             ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
-        
+
         return true;
     }
 
-//    @Override
+    //    @Override
     public void removeWire(Wire wire) {
         if (getApformInst().remWire(wire.getDestination(), wire.getDepName())) {
             wires.remove(wire);
@@ -449,10 +450,10 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }
 
 
-	@Override
-	public Set<Component> getMembers() {
-		return Collections.emptySet();
-	}
+    @Override
+    public Set<Component> getMembers() {
+        return Collections.emptySet();
+    }
 
     @Override
     public Component getGroup() {

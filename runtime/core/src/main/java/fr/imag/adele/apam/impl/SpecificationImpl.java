@@ -14,77 +14,77 @@ import fr.imag.adele.apam.apform.ApformSpecification;
 
 
 public class SpecificationImpl extends ComponentImpl implements Specification {
-	
-	private static final long serialVersionUID = -2752578219337076677L;
-	
+
+    private static final long serialVersionUID = -2752578219337076677L;
+
     private final Set<Implementation> implementations = Collections
-    .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
+            .newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
     /*
      * All relation requires, derived from all the used implementations
      */
     private final Set<Specification>  requires        = Collections
-    .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>()); 
+            .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());
 
     /*
-     * All reverse requires, the opposite of requires
-     */
+    * All reverse requires, the opposite of requires
+    */
     private final Set<Specification>  invRequires     = Collections
-    .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());  // all
+            .newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());  // all
 
 //    //spec created empty only to be associated with implementations that do not implement a spec.
 //    private boolean dummySpec = false ;
-    
+
     protected SpecificationImpl(ApformSpecification apfSpec) throws InvalidConfiguration {
-    	super(apfSpec);
+        super(apfSpec);
     }
 
-   
+
     @Override
-	public void register(Map<String,Object> initialProperties) throws InvalidConfiguration {
+    public void register(Map<String,String> initialProperties) throws InvalidConfiguration {
         /*
          * Terminates the initalisation, and computes properties
          */
         initializeProperties(initialProperties) ;
 
-    	/*
-    	 * Add to broker
-    	 */
-        ((ComponentBrokerImpl) CST.componentBroker).add(this);
-        
         /*
-    	 * Notify managers
-    	 * 
-    	 * Add call back to add specification?
-         */
+           * Add to broker
+           */
+        ((ComponentBrokerImpl) CST.componentBroker).add(this);
+
+        /*
+        * Notify managers
+        *
+        * Add call back to add specification?
+        */
         ApamManagers.notifyAddedInApam(this) ;
-	}
+    }
 
     @Override
     public void unregister() {
-    	
-   	/*
-    	 * Remove all implementations providing this specification
-    	 * 
-    	 * TODO Is this really necessary? We should consider the special case of
-    	 * updates because we probably can reduce the impact of the modification.  
-    	 */
+
+        /*
+           * Remove all implementations providing this specification
+           *
+           * TODO Is this really necessary? We should consider the special case of
+           * updates because we probably can reduce the impact of the modification.
+           */
         for (Implementation impl : implementations) {
             //((ComponentBrokerImpl)CST.componentBroker).removeImpl(impl);
             ComponentBrokerImpl.disappearedComponent(impl) ;
 
         }
-    	
+
         /*
-         * TODO What to do with implementations that reference this specification
-         * in its dependencies?
-         */
-        
+        * TODO What to do with implementations that reference this specification
+        * in its dependencies?
+        */
+
         /*
-         * remove from broker
-         */
+        * remove from broker
+        */
         //((ComponentBrokerImpl)CST.componentBroker).remove(this);
-    	
+
     }
 
     @Override
@@ -171,17 +171,17 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
     public Set<Implementation> getImpls() {
         return Collections.unmodifiableSet(implementations);
     }
-    
-	@Override
-	public Set<? extends Component> getMembers() {
-		//return new HashSet <Component> (implementations) ;
-		return Collections.unmodifiableSet(implementations);
-	}
 
-	@Override
-	public Component getGroup() {
-		return null;
-	}
+    @Override
+    public Set<? extends Component> getMembers() {
+        //return new HashSet <Component> (implementations) ;
+        return Collections.unmodifiableSet(implementations);
+    }
+
+    @Override
+    public Component getGroup() {
+        return null;
+    }
 }
 
 //    @Override

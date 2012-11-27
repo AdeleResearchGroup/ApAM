@@ -81,7 +81,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		}
 
 		@Override
-		public ApformInstance createInstance(Map<String, Object> initialproperties) {
+		public ApformInstance createInstance(Map<String, String> initialproperties) {
 			throw new UnsupportedOperationException("method not available in root type");
 		}
 
@@ -145,7 +145,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	}
 
 	@Override
-	public void register(Map<String, Object> initialProperties) throws InvalidConfiguration {
+	public void register(Map<String, String> initialProperties) throws InvalidConfiguration {
 
 		/*
 		 * Opposite references from specification and enclosing composite type
@@ -249,7 +249,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 * Must check if source composite can instantiate this implementation.
 	 */
 	@Override
-	public Instance createInstance(Composite composite, Map<String, Object> initialProperties) {
+	public Instance createInstance(Composite composite, Map<String, String> initialProperties) {
 
 		if ((composite != null) && !Util.checkImplVisible(composite.getCompType(), this)) {
 			logger.error("cannot instantiate " + this + ". It is not visible from composite " + composite);

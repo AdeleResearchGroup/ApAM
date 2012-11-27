@@ -82,7 +82,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     Map<CallbackTrigger, Map<String, Set<Callback>>> dependencyCallback;
 
     public ApformIpojoInstance(ApformIpojoImplementation implementation, boolean isApamCreated, BundleContext context,
-            HandlerManager[] handlers) {
+                               HandlerManager[] handlers) {
 
         super(implementation, context, handlers);
 
@@ -247,10 +247,10 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
 
     /**
      * Delegate APAM to resolve a given injection.
-     * 
+     *
      * NOTE nothing is returned from this method, the call to APAM has as
      * side-effect the update of the dependency.
-     * 
+     *
      * @param injection
      */
     @Override
@@ -278,7 +278,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     /**
      * Delegate APAM to remove the currently resolved dependency and force a new resolution
      * the next time the injected dependency is accessed
-     * 
+     *
      */
     @Override
     public boolean unresolve(DependencyInjectionManager injection) {
@@ -454,7 +454,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     }
 
     @Override
-    public void setProperty(String attr, Object value) {
+    public void setProperty(String attr, String value) {
 
         Object pojo = getPojoObject();
         Callback callback = propertyCallbacks.get(attr);

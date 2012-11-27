@@ -8,7 +8,7 @@ public interface ApformComponent {
 
 	public ComponentDeclaration getDeclaration () ;
 
-	public void setProperty(String attr, Object value);
+	public void setProperty(String attr, String value);
 	
     /**
      * Get the bundle in which is located this component.

@@ -217,9 +217,14 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	public void propertyChanged(Instance instance, String property) {		
-		ContentManager owner = contentManagers.get(instance.getComposite());
-		boolean wasOwned = instance.isUsed();
-		
+
+	//	boolean wasOwned = instance.isUsed();
+
+        for (ContentManager content : contentManagers.values()) {
+            content.verifyOwnership(instance);
+        }
+
+        ContentManager owner = contentManagers.get(instance.getComposite());
 		/*
 		 * Delegate to the content manager
 		 */
@@ -231,13 +236,9 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		 * We simulate as if the instance just appeared unused in APAM. In this way,
 		 * it is considered again for ownership.
 		 */
-		boolean ownerLost = wasOwned && ! instance.isUsed();
+		//boolean ownerLost = wasOwned && ! instance.isUsed();
 		
-		if (ownerLost) {
-			for (ContentManager content : contentManagers.values()) {
-				content.instanceAdded(instance);
-			}
-		}
+
 
 	}
 

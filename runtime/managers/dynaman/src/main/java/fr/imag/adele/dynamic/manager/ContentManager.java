@@ -317,7 +317,7 @@ public class ContentManager  {
 	/**
 	 * Verifies if the specified instance must be owned by this composite
 	 */
-	private void verifyOwnership(Instance instance) {
+	public void verifyOwnership(Instance instance) {
 		
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
 
@@ -455,7 +455,7 @@ public class ContentManager  {
 		 * In the current implementation the first invoked content manager silently
 		 * gets the ownership of the instance. 
 		 */
-		if (! instance.isUsed())
+		//if (! instance.isUsed())
 			verifyOwnership(instance);
 		
 		/*
@@ -586,14 +586,15 @@ public class ContentManager  {
 		 * Verify if property change triggers an ownership loss
 		 * 
 		 */
-		verifyRelinquish(instance);
+		//verifyRelinquish(instance);
 		
 		/*
 		 * verify if the modified instance satisfies any pending resolutions in
 		 * this composite
 		 */
 		resolveRequestsWaitingFor(instance);
-		
+
+        resolveDynamicRequests(instance);
 	}
 
 
