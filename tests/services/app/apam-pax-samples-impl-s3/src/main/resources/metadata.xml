@@ -108,7 +108,11 @@
 		</contentMngt>
 	</composite>
 
-
+	<composite name="composite-a-hide" main="group-a-private-component">
+		<contentMngt>
+			<dependency specification="eletronic-device-private" hide="true" />
+		</contentMngt>
+	</composite>
 
 	<composite name="composite-b" main="group-b">
 		<contentMngt>

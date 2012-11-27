@@ -146,8 +146,8 @@
 <node CREATED="1353406252448" ID="ID_868172689" MODIFIED="1353412015763" TEXT="if dependency is marked as eager, it should be instantiated as soon as the bundle is ready-05">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353494079795" ID="ID_1345503897" MODIFIED="1353941942788" TEXT="hide">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353494079795" ID="ID_1345503897" MODIFIED="1354019770015" TEXT="hide">
+<icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353942786441" ID="ID_1613299564" MODIFIED="1353948957198" TEXT="exception">
 <icon BUILTIN="button_ok"/>

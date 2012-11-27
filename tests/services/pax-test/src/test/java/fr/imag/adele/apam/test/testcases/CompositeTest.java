@@ -474,4 +474,36 @@ public class CompositeTest extends ExtensionAbstract {
 
 	}	
 	
+	@Test
+	public void CompositeContentMngtDependencyHide() {
+		
+		CompositeType ctaroot = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-hide");
+		
+		Composite composite_root = (Composite) ctaroot.createInstance(null, null);//composite_root
+		
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-hide");
+
+		Composite composite_a = (Composite) cta.createInstance(composite_root, null);//inner composite with hide='true'
+		
+		Instance instanceApp1=composite_a.getMainInst();
+		
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+		//force injection
+		ga1.getElement();
+		
+		auxListInstances("\t");
+		
+		List<Instance> instancesOfImplementation=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupAImpl");
+	
+		
+		String messageTemplate="Using hiding into a dependency of a composite should cause the instance of this component to be removed in case of an dependency of such componenent was satisfiable, instead the its instance is still visible. There are %d instances, and should be only 1 (the root composite that encloses the dependency with hide='true')";
+
+		String message=String.format(messageTemplate, instancesOfImplementation.size());
+		
+		Assert.assertTrue(message,instancesOfImplementation.size()==1);
+
+	}
+	
 }
