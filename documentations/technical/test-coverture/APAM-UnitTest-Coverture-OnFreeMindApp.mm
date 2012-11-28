@@ -120,11 +120,11 @@
 </node>
 </node>
 <node CREATED="1353316599105" ID="ID_209507505" MODIFIED="1353316659376" TEXT="error handling">
-<node CREATED="1353316606452" ID="ID_1742264459" MODIFIED="1353316654377" TEXT="in &lt;dependency&gt; fail wait should cause thread to be halted">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353316606452" ID="ID_1742264459" MODIFIED="1354121548995" TEXT="fail=&quot;wait&quot;">
+<icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353316660323" ID="ID_929298761" MODIFIED="1353316747777" TEXT="in &lt;dependency&gt; tag, if fail is configured to &quot;exception&quot; the exception declared in the property should be thrown">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353316660323" ID="ID_929298761" MODIFIED="1354121555748" TEXT="fail=&quot;exception&quot;">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>

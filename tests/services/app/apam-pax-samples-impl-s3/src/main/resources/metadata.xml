@@ -5,10 +5,26 @@
 	<implementation name="group-a"
 		classname="fr.imag.adele.apam.pax.test.impl.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element"/>
+		<dependency field="element" />
 		<dependency field="c" />
 	</implementation>
-	
+
+	<implementation name="group-a-fail-wait"
+		classname="fr.imag.adele.apam.pax.test.impl.S3GroupAImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" specification="eletronic-device-private"
+			fail="wait" />
+		<dependency field="c" />
+	</implementation>
+
+	<implementation name="group-a-fail-exception"
+		classname="fr.imag.adele.apam.pax.test.impl.S3GroupAImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" specification="eletronic-device-private"
+			fail="exception" exception="fr.imag.adele.apam.pax.test.impl.FailException" />
+		<dependency field="c" />
+	</implementation>
+
 	<implementation name="group-a-private-component"
 		classname="fr.imag.adele.apam.pax.test.impl.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
@@ -103,29 +119,29 @@
 
 	<composite name="composite-a-fail-exception" main="group-a-private-component">
 		<contentMngt>
-			<dependency specification="eletronic-device-private" 
-				fail="exception" exception="fr.imag.adele.apam.pax.test.impl.FailException" />
+			<dependency specification="eletronic-device-private" fail="exception"
+				exception="fr.imag.adele.apam.pax.test.impl.FailException" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-fail-wait" main="group-a-private-component">
 		<contentMngt>
-			<dependency specification="eletronic-device-private" 
-				fail="wait"/>
+			<dependency specification="eletronic-device-private" fail="wait" />
 		</contentMngt>
-	</composite>	
+	</composite>
 
 	<composite name="composite-a-hide" main="group-a-private-component">
 		<contentMngt>
 			<dependency specification="eletronic-device-private" hide="true" />
 		</contentMngt>
 	</composite>
-	
-	<composite name="composite-a-own-specification" main="group-a" singleton="true">
+
+	<composite name="composite-a-own-specification" main="group-a"
+		singleton="true">
 		<contentMngt>
-			<own specification="eletronic-device" property="voltage" value="110"/>
+			<own specification="eletronic-device" property="voltage" value="110" />
 		</contentMngt>
-	</composite>	
+	</composite>
 
 	<composite name="composite-b" main="group-b">
 		<contentMngt>
