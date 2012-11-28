@@ -71,14 +71,38 @@ public interface Component {
      */
     public <T extends Component> Set<T> getSelectedComponents(Set<T> candidates, Set<Filter> constraints) ;
 
-    /**
-     * Return the component, among the candidates, that satisfies the best the preferences.
-     * @param <T>
-     * @param candidates
-     * @param preferences
-     * @return
-     */
-    public <T extends Component> T getPreferedComponent(Set<T> candidates, List<Filter> preferences, Set<Filter> memberConstraints) ;
+	/**
+	 * Return the candidates that best matches the preferences
+	 * Take the preferences in orden: m candidates
+	 * find  the n candidates that match the constraint.
+	 * 		if n= 0 ignore the constraint
+	 *      if n=1 return it.
+	 * iterate with the n candidates.
+	 * At the end, if n > 1 return the default one.
+	 * 
+	 * @param <T>
+	 * @param candidates
+	 * @param preferences
+	 * @return
+	 */
+	public <T extends Component> T getPrefered (Set<T> candidates, List<Filter> preferences ) ;
+
+	/**
+	 * Return the set (if no preferences), of component matching the constraints, and then selected following the preferences.
+	 * If preferences set, return a single component, otherwise returns all the components matching the constraints.
+	 * @param <T> A component type
+	 * @param candidates
+	 * @param preferences
+	 * @param constraints
+	 * @return
+	 */
+	public <T extends Component> Set<T> getConstraintsPreferedComponent(Set<T> candidates, List<Filter> preferences, Set<Filter> constraints) ;
+
+	/**
+	 * returns the component for which at least one member satisfies the constraints and preferences.
+	 * If none, returns the default component.
+	 */
+	public <T extends Component> T getPreferedComponentFromMembers(Set<T> candidates, List<Filter> memberPreferences, Set<Filter> memberConstraints) ;
 
     /**
      * Return the "best" component among the candidates. 
