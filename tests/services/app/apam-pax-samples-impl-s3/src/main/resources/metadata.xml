@@ -120,6 +120,12 @@
 			<dependency specification="eletronic-device-private" hide="true" />
 		</contentMngt>
 	</composite>
+	
+	<composite name="composite-a-own-specification" main="group-a" singleton="true">
+		<contentMngt>
+			<own specification="eletronic-device" property="voltage" value="110"/>
+		</contentMngt>
+	</composite>	
 
 	<composite name="composite-b" main="group-b">
 		<contentMngt>

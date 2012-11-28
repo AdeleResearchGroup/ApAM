@@ -472,44 +472,7 @@ public class CompositeTest extends ExtensionAbstract {
 
 	}	
 	
-	@Test
-	public void CompositeContentMngtDependencyFailWait() {
 
-		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-fail-wait");
-
-		Composite composite_a = (Composite) cta.createInstance(null, null);
-
-		Instance instanceApp1 = composite_a.getMainInst();
-
-		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
-
-		ThreadWrapper wrapper=new ThreadWrapper(ga1);
-		wrapper.setDaemon(true);
-		wrapper.start();
-		
-		apam.waitForIt(3000);
-		
-		String message="In case of composite dependency been maked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
-		
-		Assert.assertTrue(message,wrapper.isAlive());
-	}
-	
-	//Require by the test CompositeContentMngtDependencyFailWait
-	class ThreadWrapper extends Thread {
-
-		final S3GroupAImpl group;
-		
-		public ThreadWrapper(S3GroupAImpl group){
-			this.group=group;
-		}
-		
-		@Override
-		public void run() {
-			System.out.println("Element injected:"+group.getElement());
-		}
-		
-	}	
 	
 	@Test
 	public void CompositeContentMngtDependencyHide() {

@@ -203,14 +203,14 @@
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
-<node CREATED="1353942131367" ID="ID_1134763459" MODIFIED="1353942145773" TEXT="specification">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353942131367" ID="ID_1134763459" MODIFIED="1354112574434" TEXT="specification">
+<icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353942135769" ID="ID_891832927" MODIFIED="1354027676541" TEXT="property+value">
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
-<node CREATED="1353942099737" ID="ID_324659060" MODIFIED="1353942312276" TEXT="start">
+<node CREATED="1353942099737" FOLDED="true" ID="ID_324659060" MODIFIED="1354102675201" TEXT="start">
 <node CREATED="1353942275194" ID="ID_535914399" MODIFIED="1353942307053" TEXT="trigger">
 <icon BUILTIN="button_cancel"/>
 </node>
