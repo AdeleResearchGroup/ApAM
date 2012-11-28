@@ -3,7 +3,6 @@ package fr.imag.adele.apam.tests.helpers;
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
@@ -122,7 +121,10 @@ public abstract class ExtensionAbstract {
 
 	@Configuration
 	public Option[] apamConfig() {
-		return config();
+
+		Option conf[] = config().toArray(new Option[0]);
+
+		return conf;
 	}
 
 	private static boolean isDebugModeOn() {
@@ -140,42 +142,48 @@ public abstract class ExtensionAbstract {
 		return debugModeOn;
 	}
 
-	public static Option[] config() {
+	public List<Option> config() {
 
-		return options(
-				systemProperty("org.osgi.service.http.port").value("8080"),
-				cleanCaches(),
-				systemProperty("logback.configurationFile").value(
-						"file:" + PathUtils.getBaseDir() + "/log/logback.xml"),
-				systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level")
-						.value("NONE"),
-				mavenBundle().groupId("org.apache.felix")
-						.artifactId("org.apache.felix.ipojo").version("1.8.0"),
-				mavenBundle().groupId("org.ow2.chameleon.testing")
-						.artifactId("osgi-helpers").version("0.2.0"),
-				mavenBundle().groupId("org.osgi")
-						.artifactId("org.osgi.compendium").version("4.2.0"),
-				mavenBundle().groupId("org.apache.felix")
-						.artifactId("org.apache.felix.bundlerepository")
-						.version("1.6.6"),
-				mavenBundle().groupId("org.ops4j.pax.url")
-						.artifactId("pax-url-mvn").version("1.3.5"),
-				mavenBundle().groupId("fr.imag.adele.apam")
-						.artifactId("apam-bundle").version("0.0.1-SNAPSHOT"),
-				mavenBundle().groupId("fr.imag.adele.apam")
-						.artifactId("obrman").version("0.0.1-SNAPSHOT"),
-				mavenBundle("org.slf4j", "slf4j-api").version("1.6.6"),
-				mavenBundle("ch.qos.logback", "logback-core").version("1.0.7"),
-				mavenBundle("ch.qos.logback", "logback-classic").version(
-						"1.0.7"),
-				junitBundles(),
+		List<Option> config = new ArrayList<Option>();
+		config.add(systemProperty("org.osgi.service.http.port").value("8080"));
+		config.add(cleanCaches());
+		config.add(systemProperty("logback.configurationFile").value(
+				"file:" + PathUtils.getBaseDir() + "/log/logback.xml"));
+		config.add(systemProperty(
+				"org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"));
+		config.add(mavenBundle().groupId("org.apache.felix")
+				.artifactId("org.apache.felix.ipojo").version("1.8.0"));
+		config.add(mavenBundle().groupId("org.ow2.chameleon.testing")
+				.artifactId("osgi-helpers").version("0.2.0"));
+		config.add(mavenBundle().groupId("org.osgi")
+				.artifactId("org.osgi.compendium").version("4.2.0"));
+		config.add(mavenBundle().groupId("org.apache.felix")
+				.artifactId("org.apache.felix.bundlerepository")
+				.version("1.6.6"));
+		config.add(mavenBundle().groupId("org.ops4j.pax.url")
+				.artifactId("pax-url-mvn").version("1.3.5"));
+		config.add(mavenBundle().groupId("fr.imag.adele.apam")
+				.artifactId("apam-bundle").version("0.0.1-SNAPSHOT"));
+		config.add(mavenBundle().groupId("fr.imag.adele.apam")
+				.artifactId("obrman").version("0.0.1-SNAPSHOT"));
+		config.add(mavenBundle("org.slf4j", "slf4j-api").version("1.6.6"));
+		;
+		config.add(mavenBundle("ch.qos.logback", "logback-core").version(
+				"1.0.7"));
+		config.add(mavenBundle("ch.qos.logback", "logback-classic").version(
+				"1.0.7"));
+		config.add(junitBundles());
+		config.add(mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
+				.version("0.0.1-SNAPSHOT"));
 
-				mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
-						.version("0.0.1-SNAPSHOT"),
-				when(isDebugModeOn())
-						.useOptions(
-								vmOption(String.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",Constants.CONST_DEBUG_PORT)),
-								systemTimeout(0)));
+		config.add(when(isDebugModeOn())
+				.useOptions(
+						vmOption(String
+								.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
+										Constants.CONST_DEBUG_PORT)),
+						systemTimeout(0)));
+		
+		return config;
 	}
 
 	@After
