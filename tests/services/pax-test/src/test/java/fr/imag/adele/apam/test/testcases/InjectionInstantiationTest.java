@@ -128,7 +128,9 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
 		Instance s1Inst = s1Impl.createInstance(null, null);
-
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
 		int initialSize = s1.getEletronicInstancesInArray().length;
