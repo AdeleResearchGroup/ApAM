@@ -23,10 +23,7 @@ import fr.imag.adele.apam.pax.test.impl.S2MiddleImpl;
 import fr.imag.adele.apam.pax.test.impl.S2OutterImpl;
 import fr.imag.adele.apam.pax.test.impl.S3GroupAImpl;
 import fr.imag.adele.apam.pax.test.impl.S3GroupBImpl;
-import fr.imag.adele.apam.pax.test.impl.S3GroupCImpl;
-import fr.imag.adele.apam.pax.test.impl.S3GroupDImpl;
 import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
-import fr.imag.adele.apam.test.testcases.TestTemp.ThreadWrapper;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)

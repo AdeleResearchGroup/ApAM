@@ -174,7 +174,7 @@ public abstract class ExtensionAbstract {
 						.version("0.0.1-SNAPSHOT"),
 				when(isDebugModeOn())
 						.useOptions(
-								vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5008"),
+								vmOption(String.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",Constants.CONST_DEBUG_PORT)),
 								systemTimeout(0)));
 	}
 
