@@ -15,11 +15,11 @@ package fr.imag.adele.apam.command;
  * limitations under the License.
  */
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
@@ -77,18 +77,33 @@ public class ApamCommand {
     }
 
     //TODO Generalize this function to all kind of services.
-    @Descriptor("Change hello language")
-    public void set(@Descriptor("instance name") String instanceName,@Descriptor("language name") String langName, @Descriptor("expression to say hello in the corresponding language")  String langExpression){
-        Instance inst = CST.componentBroker.getInst(instanceName);
+    @Descriptor("Change properties of an instance language")
+    public void set(@Descriptor("instance name") String instanceName,@Descriptor("an URL file.properties or a list of value=property, ex : \"lang=french vendor=adele\" ")String fileOrList){
+
+        URL  url;
+        Properties properties = new Properties();
         try{
+            url = new URL(fileOrList);
+            properties.load(url.openStream());
+        }catch (MalformedURLException e){
+            try {
+                properties.load( new StringReader(fileOrList));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (!properties.isEmpty()){
+            Instance inst = CST.componentBroker.getInst(instanceName);
+
             if (inst!=null){
-                inst.setProperty("lang", langName);
-                inst.setProperty("expr",langExpression);
+                //TODO verify values of properties with some types (string, int, double, string[])
+               inst.setAllProperties((Map<String, String>) properties);
             }else{
                 System.out.println("The instance " + instanceName + " not exist !");
             }
-        }catch (Exception e){
-            e.printStackTrace();
+
         }
     }
 
