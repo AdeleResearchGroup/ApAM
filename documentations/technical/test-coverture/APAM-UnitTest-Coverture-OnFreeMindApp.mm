@@ -120,11 +120,11 @@
 </node>
 </node>
 <node CREATED="1353316599105" ID="ID_209507505" MODIFIED="1353316659376" TEXT="error handling">
-<node CREATED="1353316606452" ID="ID_1742264459" MODIFIED="1353316654377" TEXT="in &lt;dependency&gt; fail wait should cause thread to be halted">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353316606452" ID="ID_1742264459" MODIFIED="1354121548995" TEXT="fail=&quot;wait&quot;">
+<icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353316660323" ID="ID_929298761" MODIFIED="1353316747777" TEXT="in &lt;dependency&gt; tag, if fail is configured to &quot;exception&quot; the exception declared in the property should be thrown">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353316660323" ID="ID_929298761" MODIFIED="1354121555748" TEXT="fail=&quot;exception&quot;">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>
@@ -146,8 +146,8 @@
 <node CREATED="1353406252448" ID="ID_868172689" MODIFIED="1353412015763" TEXT="if dependency is marked as eager, it should be instantiated as soon as the bundle is ready-05">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353494079795" ID="ID_1345503897" MODIFIED="1353941942788" TEXT="hide">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353494079795" ID="ID_1345503897" MODIFIED="1354019770015" TEXT="hide">
+<icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353942786441" ID="ID_1613299564" MODIFIED="1353948957198" TEXT="exception">
 <icon BUILTIN="button_ok"/>
@@ -156,8 +156,8 @@
 <node CREATED="1353947943098" ID="ID_1719612626" MODIFIED="1353948946022" TEXT="exception">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353947946554" ID="ID_360439714" MODIFIED="1353947958070" TEXT="wait">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1353947946554" ID="ID_360439714" MODIFIED="1354029050396" TEXT="wait">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>
@@ -203,14 +203,14 @@
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
-<node CREATED="1353942131367" ID="ID_1134763459" MODIFIED="1353942145773" TEXT="specification">
+<node CREATED="1353942131367" ID="ID_1134763459" MODIFIED="1354112574434" TEXT="specification">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353942135769" ID="ID_891832927" MODIFIED="1354027676541" TEXT="property+value">
 <icon BUILTIN="button_cancel"/>
 </node>
-<node CREATED="1353942135769" ID="ID_891832927" MODIFIED="1353942148492" TEXT="property+value">
-<icon BUILTIN="button_cancel"/>
 </node>
-</node>
-<node CREATED="1353942099737" ID="ID_324659060" MODIFIED="1353942312276" TEXT="start">
+<node CREATED="1353942099737" FOLDED="true" ID="ID_324659060" MODIFIED="1354102675201" TEXT="start">
 <node CREATED="1353942275194" ID="ID_535914399" MODIFIED="1353942307053" TEXT="trigger">
 <icon BUILTIN="button_cancel"/>
 </node>

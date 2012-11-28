@@ -60,6 +60,7 @@ public class ApamMan implements DependencyManager {
 
 		Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
 		List<Filter> preferences = Util.toFilterList(dep.getInstancePreferences()) ;
+		
 		if ((constraints.isEmpty()) && (preferences.isEmpty())) { 
 			for (Instance inst : impl.getInsts()) {
 				if (inst.isSharable() && Util.checkInstVisible(composite, inst))
@@ -74,7 +75,7 @@ public class ApamMan implements DependencyManager {
 				insts.add(inst);
 		}
 		if (!insts.isEmpty())
-			return impl.getPreferedComponent(insts, preferences, null);
+			return impl.getPrefered(insts, preferences);
 		return null;
 	}
 
@@ -154,6 +155,7 @@ public class ApamMan implements DependencyManager {
 		if (spec == null) return null;
 
 		Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints()) ;
+		List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
 		Set<Implementation> impls = new HashSet<Implementation>();
 
 		// select only those that are visible
@@ -162,7 +164,8 @@ public class ApamMan implements DependencyManager {
 				impls.add(impl);
 		}
 		// AND those that match the constraints
-		return spec.getSelectedComponents(impls, constraints);
+		
+		return spec.getConstraintsPreferedComponent(impls, preferences, constraints);
 	}
 
 	@Override
@@ -170,34 +173,17 @@ public class ApamMan implements DependencyManager {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null)
 			return null;	
-
-		Set<Implementation> impls = resolveSpecs (compoType, dep) ;
-		Set<Filter> instConstraints = Util.toFilter(dep.getInstanceConstraints()) ;
-
-		/*
-		 * keep only the implems that have at least an instance matching the instance constraints.
-		 */
-//		if (!dep.getInstanceConstraints().isEmpty()) {
-//			Set<Implementation> validImpls = new HashSet <Implementation> () ;
-//			//TODO WRONG implem, we should call resolveImple, but we do not hte the composite instance !!
-//			for (Implementation impl : impls) {
-//				//	if (resolveImpls(composite, impl, dep) != null) {
-//				if (impl.getInsts() != null) {
-//					for (Instance inst : impl.getInsts()) {
-//						if (inst.match(instConstraints)) {
-//							validImpls.add (impl) ;
-//							break ;
-//						}
-//					}
-//				}
-//			}
-//			if (!validImpls.isEmpty())
-//				impls = validImpls ;
-//		}
-
-		// and then the prefered ones.
-		List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
-		return spec.getPreferedComponent(impls, preferences, instConstraints);
+		
+		//List of visible implementations that satisfy the constraints.
+		Set<Implementation> candidates = resolveSpecs (compoType, dep) ;
+		if (candidates == null || candidates.isEmpty()) 
+			return null ;	
+		if (candidates.size() == 1) 
+			return candidates.iterator().next() ;
+		
+		List<Filter> instPreferences = Util.toFilterList(dep.getInstancePreferences()) ;
+		Set<Filter> instConstraints  = Util.toFilter(dep.getInstanceConstraints()) ;
+		return spec.getPreferedComponentFromMembers(candidates, instPreferences, instConstraints) ;
 	}
 
 

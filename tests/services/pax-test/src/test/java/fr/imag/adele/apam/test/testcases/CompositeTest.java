@@ -2,7 +2,6 @@ package fr.imag.adele.apam.test.testcases;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,16 +14,11 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.pax.test.device.DeadsManSwitch;
-import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
-import fr.imag.adele.apam.pax.test.impl.FailException;
 import fr.imag.adele.apam.pax.test.impl.S2InnerImpl;
 import fr.imag.adele.apam.pax.test.impl.S2MiddleImpl;
 import fr.imag.adele.apam.pax.test.impl.S2OutterImpl;
 import fr.imag.adele.apam.pax.test.impl.S3GroupAImpl;
 import fr.imag.adele.apam.pax.test.impl.S3GroupBImpl;
-import fr.imag.adele.apam.pax.test.impl.S3GroupCImpl;
-import fr.imag.adele.apam.pax.test.impl.S3GroupDImpl;
 import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
@@ -132,33 +126,6 @@ public class CompositeTest extends ExtensionAbstract {
 		}catch(ClassCastException castException){
 			Assert.fail("Enclosed implementation do not correspond to the right implementation. AImpl->BImpl->CImpl but the wrong implementation was injected");
 		}
-		
-	}
-	
-	@Test
-	public void CompositeWithEagerDependency_05() {
-		CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
-				null, "S2Impl-composite-eager");
-		
-		String message="During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
-		
-		Assert.assertTrue(String.format(message, "Although, the test failed to retrieve the composite"),ct1!=null);
-		
-		auxListInstances("instances existing before the test-");
-		
-		Instance instance=ct1.createInstance(null, new HashMap<String, String>());
-		
-		Assert.assertTrue(String.format(message, "Although, the test failed to instantiate the composite"),instance!=null);
-		
-		//Force injection (for debuggin purposes)
-		//S2Impl im=(S2Impl)instance.getServiceObject();
-		//im.getDeadMansSwitch();
-		
-		List<Instance> pool=auxLookForInstanceOf(DeadsManSwitch.class.getCanonicalName());
-		
-		auxListInstances("intances existing after the test-");
-
-		Assert.assertTrue(String.format(message, "Although, there exist no instance of dependence required(DeadsManSwitch.class), which means that it was not injected."),pool.size()==1);
 		
 	}
 	
@@ -429,49 +396,5 @@ public class CompositeTest extends ExtensionAbstract {
 		Assert.assertTrue(message,ga1.getElement() != ga2.getElement());
 
 	}
-	
-	@Test
-	public void CompositeContentMngtDependencyFailException() {
-		
-		CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-exception");
-		
-		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-exception");
-		
-		Composite composite_root = (Composite) ctroot.createInstance(null, null);
-		
-		Composite composite_a = (Composite) cta.createInstance(composite_root, null);
-
-		Instance instanceApp1=composite_a.getMainInst();
-		
-		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
-		
-		String messageTemplate= "In contentMngt->dependency if we adopt fail='exception' exception='A', the exception A should be throw in case the dependency is not satifiable. %s";
-		
-		boolean exception=false;
-		boolean exceptionType=false;
-		
-		try{
-			
-			Eletronic injected=ga1.getElement();
-			System.out.println("Element:"+injected);
-			
-		}catch(Exception e){
-			exception=true;
-			
-			if(e instanceof FailException){
-				exceptionType=true;
-			}
-			
-		}
-		
-		String messageException=String.format(messageTemplate, "But no exception was thrown");
-		String messageExceptionType=String.format(messageTemplate, "But the exception thrown was not of the proper type (A)");
-		
-		Assert.assertTrue(messageException,exception);
-		Assert.assertTrue(messageExceptionType,exceptionType);
-
-	}	
 	
 }
