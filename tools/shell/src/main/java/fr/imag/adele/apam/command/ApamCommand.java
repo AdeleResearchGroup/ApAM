@@ -61,7 +61,7 @@ public class ApamCommand {
      */
     @ServiceProperty(name = "osgi.command.function", value = "{}")
     String[] m_function = new String[] { "put",  "specs", "implems", "insts", "spec", "implem", "inst", "dump", "compoTypes",
-            "compoType", "compos", "compo", "wire", "launch", "pending", "up", "l" , "set" };
+            "compoType", "compos", "compo", "wire", "launch", "pending", "up", "l" , "sv" };
 
     // Apam injected
     @Requires
@@ -76,16 +76,18 @@ public class ApamCommand {
         CST.apamResolver.updateComponent (componentName) ;
     }
 
-    //TODO Generalize this function to all kind of services.
-    @Descriptor("Change properties of an instance language")
-    public void set(@Descriptor("instance name") String instanceName,@Descriptor("an URL file.properties or a list of value=property, ex : \"lang=french vendor=adele\" ")String fileOrList){
+
+    @Descriptor("Change properties of an instance")
+    public void sv(@Descriptor("instance name") String instanceName,@Descriptor("an URL file.properties or a list of value=property, ex : \"lang=french vendor=adele\" ")String fileOrList){
 
         URL  url;
         Properties properties = new Properties();
+        String[] props = new String[0];
         try{
             url = new URL(fileOrList);
             properties.load(url.openStream());
         }catch (MalformedURLException e){
+            props =  fileOrList.split(" ");
             try {
                 properties.load( new StringReader(fileOrList));
             } catch (IOException e1) {
@@ -94,18 +96,42 @@ public class ApamCommand {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (!properties.isEmpty()){
-            Instance inst = CST.componentBroker.getInst(instanceName);
+        if (properties.isEmpty() && props==null) return;
 
-            if (inst!=null){
-                //TODO verify values of properties with some types (string, int, double, string[])
-               inst.setAllProperties((Map<String, String>) properties);
-            }else{
-                System.out.println("The instance " + instanceName + " not exist !");
-            }
+        Instance inst = CST.componentBroker.getInst(instanceName);
 
+        if (inst!=null){
+            //TODO verify values of properties with some types (string, int, double, string[])
+            //TODO for now only string are used
+            Map<String, String> config = transformToMap(properties,props);
+            inst.setAllProperties( config);
+        }else{
+            System.out.println("The instance " + instanceName + " not exist !");
         }
+
+
     }
+
+    private Map<String,String> transformToMap(Properties properties, String[] props) {
+        Map<String,String> map = new HashMap<String, String>();
+        if (!properties.isEmpty()){
+            for (Object o : properties.keySet()) {
+                String key = (String) o;
+                map.put(key, (String) properties.get(o));
+            }
+        }
+        if (props!=null){
+            for (String prop : props) {
+                String[]propVa = prop.split("=");
+                if (propVa.length>1){
+                    map.put(propVa[0],propVa[1]);
+                }
+            }
+        }
+        return map;
+    }
+
+
 
     /**
      * Resolver Commands.
@@ -116,6 +142,7 @@ public class ApamCommand {
     public void put(@Descriptor("the name of the component to resolve ") String componentName){
         put(componentName,"root");
     }
+
 
     @Descriptor("Resolve apam components on the target composite")
     public void put(@Descriptor("the name of the component to resolve ") String componentName,
