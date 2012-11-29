@@ -1,27 +1,25 @@
 package fr.imag.adele.apam.test.testcases;
 
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-
-import java.util.HashMap;
-import java.util.List;
-
+import fr.imag.adele.apam.*;
+import fr.imag.adele.apam.pax.test.device.DeadsManSwitch;
+import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
+import fr.imag.adele.apam.pax.test.impl.FailException;
+import fr.imag.adele.apam.pax.test.impl.S2Impl;
+import fr.imag.adele.apam.pax.test.impl.S3GroupAImpl;
+import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
+import fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch;
+import fr.imag.adele.apam.pax.test.impl.device.PhilipsSwitch;
+import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 import junit.framework.Assert;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.pax.test.device.DeadsManSwitch;
-import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
-import fr.imag.adele.apam.pax.test.impl.FailException;
-import fr.imag.adele.apam.pax.test.impl.S3GroupAImpl;
-import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
+import java.util.HashMap;
+import java.util.List;
+
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
 @RunWith(JUnit4TestRunner.class)
 public class DynamanDependentTest extends ExtensionAbstract {
@@ -55,7 +53,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 		apam.waitForIt(3000);
 
-		String message = "In case of composite dependency been maked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
+		String message = "In case of composite dependency been marked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
 
 		Assert.assertTrue(message, wrapper.isAlive());
 	}
@@ -92,13 +90,13 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 		apam.waitForIt(3000);
 
-		String message = "In case of dependency been maked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
+		String message = "In case of dependency been marked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
 
 		Assert.assertTrue(message, wrapper.isAlive());
 	}
 	
 	@Test
-	public void CompositeFailException() {
+	public void CompositeDependencyFailException() {
 
 		Implementation group_a = (Implementation) CST.apamResolver.findImplByName(
 				null, "group-a-fail-exception");
@@ -188,12 +186,11 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				"Although, the test failed to instantiate the composite"),
 				instance != null);
 
-		// Force injection (for debuggin purposes)
-		// S2Impl im=(S2Impl)instance.getServiceObject();
-		// im.getDeadMansSwitch();
+		//Force injection (for debuggin purposes)
+		//S2Impl im=(S2Impl)instance.getServiceObject();
+		//im.getDeadMansSwitch();
 
-		List<Instance> pool = auxLookForInstanceOf(DeadsManSwitch.class
-				.getCanonicalName());
+		List<Instance> pool = auxLookForInstanceOf(PhilipsSwitch.class.getCanonicalName());
 
 		auxListInstances("instances existing after the test-");
 

@@ -54,7 +54,7 @@ public abstract class ExtensionAbstract {
 
 	protected ComponentBroker broker;
 
-	protected List<Instance> auxLookForInstanceOf(String clazz) {
+	protected List<Instance> auxLookForInstanceOf(String ... clazz) {
 
 		List<Instance> pool = new ArrayList<Instance>();
 
@@ -67,9 +67,13 @@ public abstract class ExtensionAbstract {
 
 				AtomicImplementationDeclaration atomicInitialInstance = (AtomicImplementationDeclaration) apamImplDecl;
 
-				if (atomicInitialInstance.getClassName().equals(clazz)) {
-					pool.add(i);
-				}
+                for(String classname:clazz){
+
+                    if (atomicInitialInstance.getClassName().equals(classname)) {
+                        pool.add(i);
+                    }
+
+                }
 			}
 		}
 

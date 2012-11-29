@@ -39,6 +39,9 @@
 	<composite name="S2Impl-composite-eager" main="fr.imag.adele.apam.pax.test.impl.S2Impl">
 		<contentMngt>
 			<dependency specification="eletronic-device" eager="true">
+				<constraints>
+					<implementation filter="manufacturer=philips"/>
+				</constraints>
 			</dependency>
 		</contentMngt>
 	</composite>
