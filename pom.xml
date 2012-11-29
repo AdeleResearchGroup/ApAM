@@ -49,6 +49,7 @@
                 <module>runtime</module>
                 <module>plugins</module>
                 <module>tools</module>
+                <module>documentations/tutorials</module>
                 <module>distributions</module>
             </modules>
         </profile>
