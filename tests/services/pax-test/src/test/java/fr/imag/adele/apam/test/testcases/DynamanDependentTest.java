@@ -20,7 +20,6 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 import fr.imag.adele.apam.pax.test.impl.FailException;
-import fr.imag.adele.apam.pax.test.impl.S2Impl;
 import fr.imag.adele.apam.pax.test.impl.S3GroupAImpl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
@@ -31,7 +30,6 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	@Override
 	@Configuration
 	public Option[] apamConfig() {
-		// TODO Auto-generated method stub
 		
 		List<Option> defaultOptions = super.config();
 		defaultOptions.add(mavenBundle("fr.imag.adele.apam", "dynaman")
@@ -39,17 +37,6 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		
 		return defaultOptions.toArray(new Option[0]);
 	}
-	
-//	@Override
-//	public List<Option> config() {
-//
-//		List<Option> defaultOptions = super.config();
-//		defaultOptions.add(mavenBundle("fr.imag.adele.apam", "dynaman")
-//				.version("0.0.1-SNAPSHOT"));
-//
-//		return defaultOptions;
-//
-//	}
 
 	@Test
 	public void CompositeContentMngtDependencyFailWait() {
