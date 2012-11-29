@@ -9,6 +9,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
@@ -17,24 +18,24 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.pax.test.device.DeadsManSwitch;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 import fr.imag.adele.apam.pax.test.impl.FailException;
 import fr.imag.adele.apam.pax.test.impl.S3GroupAImpl;
+import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
 public class DynamanDependentTest extends ExtensionAbstract {
 
 	@Override
-	public List<Option> config() {
-
+	@Configuration
+	public Option[] apamConfig() {
+		
 		List<Option> defaultOptions = super.config();
 		defaultOptions.add(mavenBundle("fr.imag.adele.apam", "dynaman")
 				.version("0.0.1-SNAPSHOT"));
-
-		return defaultOptions;
-
+		
+		return defaultOptions.toArray(new Option[0]);
 	}
 
 	@Test
@@ -55,7 +56,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 		apam.waitForIt(3000);
 
-		String message = "In case of composite dependency been maked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
+		String message = "In case of composite dependency been marked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
 
 		Assert.assertTrue(message, wrapper.isAlive());
 	}
@@ -92,13 +93,13 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 		apam.waitForIt(3000);
 
-		String message = "In case of dependency been maked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
+		String message = "In case of dependency been marked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
 
 		Assert.assertTrue(message, wrapper.isAlive());
 	}
 	
 	@Test
-	public void CompositeFailException() {
+	public void CompositeDependencyFailException() {
 
 		Implementation group_a = (Implementation) CST.apamResolver.findImplByName(
 				null, "group-a-fail-exception");
@@ -181,20 +182,29 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 		auxListInstances("instances existing before the test-");
 
-		Instance instance = ct1.createInstance(null,
+		Composite instanceComposite = (Composite)ct1.createInstance(null,
 				new HashMap<String, String>());
 
+		Implementation implS2=CST.apamResolver.findImplByName(
+				null, "fr.imag.adele.apam.pax.test.impl.S2Impl");
+		
+		Instance instance=implS2.createInstance(instanceComposite, null);
+		
 		Assert.assertTrue(String.format(message,
 				"Although, the test failed to instantiate the composite"),
 				instance != null);
 
-		// Force injection (for debuggin purposes)
-		// S2Impl im=(S2Impl)instance.getServiceObject();
-		// im.getDeadMansSwitch();
-
-		List<Instance> pool = auxLookForInstanceOf(DeadsManSwitch.class
-				.getCanonicalName());
-
+		//Force injection (for debuggin purposes)
+		//S2Impl im=(S2Impl)instance.getServiceObject();
+		//im.getDeadMansSwitch();
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		List<Instance> pool = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.device.PhilipsSwitch",
+				"fr.imag.adele.apam.pax.test.impl.device.GenericSwitch",
+				"fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch",
+				"fr.imag.adele.apam.pax.test.device.DeadsManSwitch");
+		
 		auxListInstances("instances existing after the test-");
 
 		Assert.assertTrue(
@@ -292,5 +302,70 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		Assert.assertTrue(message, instancesOfImplementation.size() == 1);
 
 	}
+	
+	@Test
+	public void CompositeContentMngtStartTriggerBySpecification(){
+		auxListInstances("INSTANCE-t1-");
+		
+		String checkingFor="specification";
+		
+		CompositeType composite=(CompositeType)CST.apamResolver.findImplByName(
+				null, "composite-a-start-by-"+checkingFor);
+		Composite compositeInstance=(Composite)composite.createInstance(null, null);
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		Implementation trigger=CST.apamResolver.findImplByName(
+				null, "group-a-start-trigger");
+		
+		Instance triggerInstance=trigger.createInstance(compositeInstance, null);
+		
+		Assert.assertTrue(triggerInstance!=null);
+		
+		List<Instance> instancesOfB=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupBImpl");
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		auxListInstances("INSTANCE-t2-");
+		
+		String messageTemplate="Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
+		String message=String.format(messageTemplate, checkingFor);
+		Assert.assertTrue(message,instancesOfB.size()==1);
+		
+	}
+	
+	@Test
+	public void CompositeContentMngtStartTriggerByImplementation(){
+		auxListInstances("INSTANCE-t1-");
+		
+		String checkingFor="implementation";
+		
+		CompositeType composite=(CompositeType)CST.apamResolver.findImplByName(
+				null, "composite-a-start-by-"+checkingFor);
+		Composite compositeInstance=(Composite)composite.createInstance(null, null);
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		Implementation trigger=CST.apamResolver.findImplByName(
+				null, "group-a-start-trigger");
+		
+		Instance triggerInstance=trigger.createInstance(compositeInstance, null);
+		
+		Assert.assertTrue(triggerInstance!=null);
+		
+		List<Instance> instancesOfB=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupBImpl");
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		auxListInstances("INSTANCE-t2-");
+		
+		String messageTemplate="Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
+		String message=String.format(messageTemplate, checkingFor);
+		Assert.assertTrue(message,instancesOfB.size()==1);
+		
+	}	
+
+	
+
 
 }

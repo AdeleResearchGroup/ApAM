@@ -168,4 +168,40 @@
 		</contentMngt>
 	</composite>
 
+	<implementation name="group-b-started-by-trigger"
+		classname="fr.imag.adele.apam.pax.test.impl.S3GroupBImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" />
+	</implementation>
+
+	<implementation name="group-a-start-trigger"
+		classname="fr.imag.adele.apam.pax.test.impl.S3GroupAImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" />
+		<dependency field="c" />
+	</implementation>
+
+	<composite name="composite-a-start-by-specification" main="group-a" singleton="true">
+		<contentMngt>
+			<start implementation="group-b-started-by-trigger" name="creates-B">
+				<trigger>
+					<specification name="fr.imag.adele.apam.pax.test.iface.S3" />
+					<!-- <implementation name="group-a-start-trigger" />  -->
+				</trigger>
+			</start>
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-start-by-implementation" main="group-a" singleton="true">
+		<contentMngt>
+			<start implementation="group-b-started-by-trigger" name="creates-B">
+				<trigger>
+					<implementation name="group-a-start-trigger" />
+				</trigger>
+			</start>
+		</contentMngt>
+	</composite>	
+
+
+
 </apam>

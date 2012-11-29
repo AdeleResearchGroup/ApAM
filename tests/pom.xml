@@ -131,6 +131,11 @@
 				<artifactId>apam-bundle</artifactId>
 				<version>${apam.current.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>dynaman</artifactId>
+				<version>${apam.current.version}</version>
+			</dependency>
 		</dependencies>
 
 	</dependencyManagement>

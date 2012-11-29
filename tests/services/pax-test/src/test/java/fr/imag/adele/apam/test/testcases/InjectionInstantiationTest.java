@@ -87,6 +87,8 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		Instance s1Inst = s1Impl.createInstance(null, null);
 
+        apam.waitForIt(Constants.CONST_WAIT_TIME);
+
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
 		int initialSize = s1.getEletronicInstancesInSet().size();
@@ -147,13 +149,19 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		Instance sansungInst = (Instance) sansungImpl
 				.createInstance(null, null);
 
+        apam.waitForIt(Constants.CONST_WAIT_TIME);
+
 		GenericSwitch samsungSwitch = (GenericSwitch) sansungInst
 				.getServiceObject();
 
 		int finalSize = s1.getEletronicInstancesInArray().length;
 
+        String messageTemplate="We use as dependency a multiple field(Set type) to receive all instances available of the type %s, after create a new instance this Set should receive the new instance";
+
+        String message=String.format(messageTemplate, Eletronic.class.getCanonicalName());
+
 		// Make sure that one instance was added
-		Assert.assertTrue((finalSize - initialSize) == 1);
+		Assert.assertTrue(message,(finalSize - initialSize) == 1);
 
 	}
 
