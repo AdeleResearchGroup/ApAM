@@ -1,25 +1,28 @@
 package fr.imag.adele.apam.test.testcases;
 
-import fr.imag.adele.apam.*;
-import fr.imag.adele.apam.pax.test.device.DeadsManSwitch;
-import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
-import fr.imag.adele.apam.pax.test.impl.FailException;
-import fr.imag.adele.apam.pax.test.impl.S2Impl;
-import fr.imag.adele.apam.pax.test.impl.S3GroupAImpl;
-import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
-import fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch;
-import fr.imag.adele.apam.pax.test.impl.device.PhilipsSwitch;
-import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+
+import java.util.HashMap;
+import java.util.List;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
-import java.util.HashMap;
-import java.util.List;
-
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
+import fr.imag.adele.apam.pax.test.impl.FailException;
+import fr.imag.adele.apam.pax.test.impl.S2Impl;
+import fr.imag.adele.apam.pax.test.impl.S3GroupAImpl;
+import fr.imag.adele.apam.tests.helpers.Constants;
+import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
 public class DynamanDependentTest extends ExtensionAbstract {
@@ -179,9 +182,14 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 		auxListInstances("instances existing before the test-");
 
-		Instance instance = ct1.createInstance(null,
+		Composite instanceComposite = (Composite)ct1.createInstance(null,
 				new HashMap<String, String>());
 
+		Implementation implS2=CST.apamResolver.findImplByName(
+				null, "fr.imag.adele.apam.pax.test.impl.S2Impl");
+		
+		Instance instance=implS2.createInstance(instanceComposite, null);
+		
 		Assert.assertTrue(String.format(message,
 				"Although, the test failed to instantiate the composite"),
 				instance != null);
@@ -189,9 +197,14 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		//Force injection (for debuggin purposes)
 		//S2Impl im=(S2Impl)instance.getServiceObject();
 		//im.getDeadMansSwitch();
-
-		List<Instance> pool = auxLookForInstanceOf(PhilipsSwitch.class.getCanonicalName());
-
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		List<Instance> pool = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.device.PhilipsSwitch",
+				"fr.imag.adele.apam.pax.test.impl.device.GenericSwitch",
+				"fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch",
+				"fr.imag.adele.apam.pax.test.device.DeadsManSwitch");
+		
 		auxListInstances("instances existing after the test-");
 
 		Assert.assertTrue(

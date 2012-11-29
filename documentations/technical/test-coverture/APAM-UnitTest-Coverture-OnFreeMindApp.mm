@@ -1,6 +1,6 @@
 <map version="0.9.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
-<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1353076828406" TEXT="APAM-Unit test coverture">
+<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1354182410062" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
 <node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1353066634176" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1353071117012" TEXT="Inherited properties should not be updateable-01">
@@ -146,6 +146,9 @@
 <node CREATED="1353406252448" ID="ID_868172689" MODIFIED="1353412015763" TEXT="if dependency is marked as eager, it should be instantiated as soon as the bundle is ready-05">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1354189278496" ID="ID_1165923695" MODIFIED="1354189297127" TEXT="eager=&apos;true&apos; with specification">
+<icon BUILTIN="button_cancel"/>
+</node>
 <node CREATED="1353494079795" ID="ID_1345503897" MODIFIED="1354019770015" TEXT="hide">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -210,7 +213,7 @@
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
-<node CREATED="1353942099737" FOLDED="true" ID="ID_324659060" MODIFIED="1354102675201" TEXT="start">
+<node CREATED="1353942099737" ID="ID_324659060" MODIFIED="1354189660842" TEXT="start">
 <node CREATED="1353942275194" ID="ID_535914399" MODIFIED="1353942307053" TEXT="trigger">
 <icon BUILTIN="button_cancel"/>
 </node>
