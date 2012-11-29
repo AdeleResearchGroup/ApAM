@@ -9,6 +9,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
@@ -28,15 +29,27 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 public class DynamanDependentTest extends ExtensionAbstract {
 
 	@Override
-	public List<Option> config() {
-
+	@Configuration
+	public Option[] apamConfig() {
+		// TODO Auto-generated method stub
+		
 		List<Option> defaultOptions = super.config();
 		defaultOptions.add(mavenBundle("fr.imag.adele.apam", "dynaman")
 				.version("0.0.1-SNAPSHOT"));
-
-		return defaultOptions;
-
+		
+		return defaultOptions.toArray(new Option[0]);
 	}
+	
+//	@Override
+//	public List<Option> config() {
+//
+//		List<Option> defaultOptions = super.config();
+//		defaultOptions.add(mavenBundle("fr.imag.adele.apam", "dynaman")
+//				.version("0.0.1-SNAPSHOT"));
+//
+//		return defaultOptions;
+//
+//	}
 
 	@Test
 	public void CompositeContentMngtDependencyFailWait() {
@@ -302,5 +315,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		Assert.assertTrue(message, instancesOfImplementation.size() == 1);
 
 	}
+
+
 
 }
