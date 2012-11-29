@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 
+import java.util.List;
 import java.util.Queue;
 
 import org.junit.Test;
@@ -19,9 +20,6 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Wire;
-import fr.imag.adele.apam.test.message.M1;
-import fr.imag.adele.apam.test.message.consumer.C1ImplData;
-import fr.imag.adele.apam.test.message.producer.MyProducer;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 /**
@@ -32,16 +30,14 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 public class PullMessageTest extends ExtensionAbstract {
 
     
-    
-    @Configuration()
+    @Override
+    @Configuration
     public Option[] apamConfig() {
-        Option[] optionHerited = config();
-        Option[] wireAdmin =  options(
-                //wireAdmin
-                bundle("file:/" + PathUtils.getBaseDir() +"/bundle/wireadmin.jar")
-               );
-        Option[] r = OptionUtils.combine(optionHerited, wireAdmin);
-        return r;
+        List<Option> optionHerited = config();
+        
+        optionHerited.add(bundle("file:/" + PathUtils.getBaseDir() +"/bundle/wireadmin.jar"));
+        
+        return optionHerited.toArray(new Option[0]);
     }
     
     /**
