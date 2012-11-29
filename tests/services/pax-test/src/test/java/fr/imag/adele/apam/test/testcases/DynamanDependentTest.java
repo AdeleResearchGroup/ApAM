@@ -302,7 +302,70 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		Assert.assertTrue(message, instancesOfImplementation.size() == 1);
 
 	}
+	
+	@Test
+	public void CompositeContentMngtStartTriggerBySpecification(){
+		auxListInstances("INSTANCE-t1-");
+		
+		String checkingFor="specification";
+		
+		CompositeType composite=(CompositeType)CST.apamResolver.findImplByName(
+				null, "composite-a-start-by-"+checkingFor);
+		Composite compositeInstance=(Composite)composite.createInstance(null, null);
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		Implementation trigger=CST.apamResolver.findImplByName(
+				null, "group-a-start-trigger");
+		
+		Instance triggerInstance=trigger.createInstance(compositeInstance, null);
+		
+		Assert.assertTrue(triggerInstance!=null);
+		
+		List<Instance> instancesOfB=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupBImpl");
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		auxListInstances("INSTANCE-t2-");
+		
+		String messageTemplate="Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
+		String message=String.format(messageTemplate, checkingFor);
+		Assert.assertTrue(message,instancesOfB.size()==1);
+		
+	}
+	
+	@Test
+	public void CompositeContentMngtStartTriggerByImplementation(){
+		auxListInstances("INSTANCE-t1-");
+		
+		String checkingFor="implementation";
+		
+		CompositeType composite=(CompositeType)CST.apamResolver.findImplByName(
+				null, "composite-a-start-by-"+checkingFor);
+		Composite compositeInstance=(Composite)composite.createInstance(null, null);
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		Implementation trigger=CST.apamResolver.findImplByName(
+				null, "group-a-start-trigger");
+		
+		Instance triggerInstance=trigger.createInstance(compositeInstance, null);
+		
+		Assert.assertTrue(triggerInstance!=null);
+		
+		List<Instance> instancesOfB=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupBImpl");
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		auxListInstances("INSTANCE-t2-");
+		
+		String messageTemplate="Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
+		String message=String.format(messageTemplate, checkingFor);
+		Assert.assertTrue(message,instancesOfB.size()==1);
+		
+	}	
 
+	
 
 
 }
