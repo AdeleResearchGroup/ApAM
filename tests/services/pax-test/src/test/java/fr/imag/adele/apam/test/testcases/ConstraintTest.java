@@ -22,7 +22,7 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 public class ConstraintTest extends ExtensionAbstract{
 	
 	@Test
-	public void ConstraintsCheckingImplementation_01() {
+	public void ConstraintsCheckingImplementation_tc009() {
 
 		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
@@ -43,7 +43,7 @@ public class ConstraintTest extends ExtensionAbstract{
 	}
 	
 	@Test
-	public void ConstraintsCheckingInstanceFilteringByInitialProperty_02()
+	public void ConstraintsCheckingInstanceFilteringByInitialProperty_tc010()
 			throws InvalidSyntaxException {
 
 		
@@ -137,7 +137,7 @@ public class ConstraintTest extends ExtensionAbstract{
 	}
 
 	@Test
-	public void ConstraintsCheckingInstanceFilteringBySetProperty_03()
+	public void ConstraintsCheckingInstanceFilteringBySetProperty_tc011()
 			throws InvalidSyntaxException {
 
 		
