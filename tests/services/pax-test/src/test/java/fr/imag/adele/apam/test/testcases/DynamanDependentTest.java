@@ -151,21 +151,14 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				null, "composite-a-own-specification");
 
 		Composite composite_a = (Composite) cta.createInstance(null, null);
-
-		Implementation dependencyImpl = CST.apamResolver.findImplByName(null,
-				"group-a");
-
-		Instance dependencyInstance = dependencyImpl.createInstance(null, null);
-
-		S3GroupAImpl group_a = (S3GroupAImpl) dependencyInstance
-				.getServiceObject();
-
-		Instance inst = CST.componentBroker
-				.getInstService(group_a.getElement());
-
+		
+		Implementation device = CST.apamResolver.findImplByName(
+				null, "BoschSwitch");
+		Instance deviceinst=device.createInstance(null, null);
+		
 		String message = "When a composite declares to own a specification, that means every instance of that specification should be owned by that composite. This test failed, the actual owner composite of that component and the one that declares to be the owner are different";
-
-		Assert.assertTrue(message, inst.getComposite() == composite_a);
+		
+		Assert.assertTrue(message, deviceinst.getComposite() == composite_a);
 
 	}
 

@@ -186,7 +186,6 @@
 			<start implementation="group-b-started-by-trigger" name="creates-B">
 				<trigger>
 					<specification name="fr.imag.adele.apam.pax.test.iface.S3" />
-					<!-- <implementation name="group-a-start-trigger" />  -->
 				</trigger>
 			</start>
 		</contentMngt>
