@@ -67,7 +67,7 @@
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
             <artifactId>apform-ipojo</artifactId>
-            <version>${apam.current.version}</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
