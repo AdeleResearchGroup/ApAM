@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>fr.imag.adele.apam</groupId>
 		<artifactId>apam-project</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.1</version>
 	</parent>
 
 	<artifactId>apam-distributions</artifactId>
