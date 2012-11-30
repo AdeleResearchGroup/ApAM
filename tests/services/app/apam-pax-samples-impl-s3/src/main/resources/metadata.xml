@@ -113,7 +113,8 @@
 	<composite name="composite-a-application-nothing-instance"
 		main="group-a">
 		<contentMngt>
-			<application instance="false" />
+			<local instance="true"/>
+			<application instance="true" />
 		</contentMngt>
 	</composite>
 

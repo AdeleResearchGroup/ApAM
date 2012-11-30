@@ -364,6 +364,12 @@ public class CompositeTest extends ExtensionAbstract {
 	@Test
 	public void CompositeContentMngtApplicationNothingInstance() {
 		
+		CompositeType appCompositeType = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a");
+		
+		Composite appComposite=(Composite)appCompositeType.createInstance(null, null);
+		
+		
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a-application-nothing-instance");
 
@@ -372,8 +378,8 @@ public class CompositeTest extends ExtensionAbstract {
 		
 		Implementation ia=CST.apamResolver.findImplByName(null, "group-a");
 		
-		Composite composite_a = (Composite) cta.createInstance(null, null);
-		Composite composite_b = (Composite) ctb.createInstance(null, null);
+		Composite composite_a = (Composite) cta.createInstance(appComposite, null);
+		Composite composite_b = (Composite) ctb.createInstance(appComposite, null);
 
 		Instance instanceApp1=ia.createInstance(composite_a, null);
 		
@@ -391,9 +397,9 @@ public class CompositeTest extends ExtensionAbstract {
 
 		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
 		
-		String message= "A composite instance protected into application level should NOT be visible/injected by other composites.";
+		String message= "A composite that share its dependencies into application level, should be allow to inject its instances into other composites that are into the same application.";
 		
-		Assert.assertTrue(message,ga1.getElement() != ga2.getElement());
+		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
 
 	}
 	
