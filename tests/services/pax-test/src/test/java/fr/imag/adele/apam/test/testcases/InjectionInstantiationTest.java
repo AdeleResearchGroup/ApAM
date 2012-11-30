@@ -386,7 +386,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PreferenceInjectionAttribute_12() throws InvalidSyntaxException {
+	public void PreferenceInjectionAttributeSingleImplementationMultipleInstance_12() throws InvalidSyntaxException {
 
 		
 		Implementation lgImpl = CST.apamResolver.findImplByName(null,
@@ -459,7 +459,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PreferenceInjectionAttributeDiffImpl_13() throws InvalidSyntaxException {
+	public void PreferenceInjectionAttributeMultipleImplementationSingleInstance_13() throws InvalidSyntaxException {
 		
 		Implementation lgImpl = CST.apamResolver.findImplByName(null,
 				"LgSwitch");
@@ -482,7 +482,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		Implementation philipsImpl = CST.apamResolver.findImplByName(null,
 				"philipsSwitch");
 		
-		final Instance philipsInst2 = philipsImpl.createInstance(null,
+		final Instance philipsInst = philipsImpl.createInstance(null,
 				new HashMap<String, String>() {
 					{
 						put("currentVoltage", "500");
@@ -512,7 +512,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
 		Eletronic samsungSwitch = (Eletronic) samsungInst.getServiceObject();
-		Eletronic philipsSwitch2 = (Eletronic) philipsInst2.getServiceObject();
+		Eletronic philipsSwitch = (Eletronic) philipsInst.getServiceObject();
 		Eletronic lgSwitch = (Eletronic) lgInst.getServiceObject();
 		Eletronic siemensSwitch = (Eletronic) siemensInst.getServiceObject();
 
@@ -521,6 +521,9 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		Instance injectedInstance = CST.componentBroker.getInstService(s1
 				.getDevicePreference110v());
+		
+		System.out.println("Injected:"+injectedInstance);
+		
 		Assert.assertTrue(
 				String.format(
 						"The instance injected should be the prefered one (currentVoltage=500), since there exist an instance in which the preference is valid. The instance %s (currentVoltage:%s) was injected instead of %s (currentVoltage:%s)",
@@ -529,7 +532,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 						samsungInst.getName(), samsungInst.getAllProperties()
 								.get("currentVoltage")), s1
 						.getDevicePreference110v() == samsungSwitch||s1
-						.getDevicePreference110v() == philipsSwitch2);		
+						.getDevicePreference110v() == philipsSwitch);		
 
 	}	
 
