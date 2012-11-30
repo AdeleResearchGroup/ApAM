@@ -5,8 +5,9 @@
 		<artifactId>apam-apform</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
 	</parent>
-	
+
 	<artifactId>apform-ipojo</artifactId>
 	<packaging>jar</packaging>
 	<name>ApAM For iPojo Runtime</name>

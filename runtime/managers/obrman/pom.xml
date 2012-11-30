@@ -5,6 +5,7 @@
 		<artifactId>apam-managers</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>obrman</artifactId>
 	<packaging>bundle</packaging>

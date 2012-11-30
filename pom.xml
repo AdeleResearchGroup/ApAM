@@ -17,7 +17,7 @@
 
 	<properties>
 		<!-- apam version -->
-		<apam.current.version>0.0.1-SNAPSHOT</apam.current.version>
+		<apam.current.version>${project.version}</apam.current.version>
 
 		<!-- Dependencies version -->
 		<osgi.version>4.2.0</osgi.version>
