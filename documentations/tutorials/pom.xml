@@ -13,7 +13,7 @@
     <parent>
         <groupId>fr.imag.adele.apam</groupId>
         <artifactId>apam-project</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.2-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 	<groupId>fr.imag.adele.apam.tutorials</groupId>
