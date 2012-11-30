@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>fr.imag.adele.apam.tutorials</groupId>
 		<artifactId>apam-tutorials</artifactId>
-		<version>1.0.0</version>
+        <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
 	</parent>
 	
@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam.tutorials</groupId>
 			<artifactId>HelloWorld-Specification</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>${apam.current.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -36,17 +36,11 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
-					</instructions>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<version>${apam.current.version}</version>
 				<executions>
 					<execution>
 						<goals>
