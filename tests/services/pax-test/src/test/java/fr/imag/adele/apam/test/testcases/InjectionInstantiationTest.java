@@ -34,7 +34,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	 *       fr.imag.adele.apam.core.CompositeDeclaration
 	 */
 	@Test
-	public void AtomicInstanceCreationWithoutInjection_01() {
+	public void AtomicInstanceCreationWithoutInjection_tc012() {
 
 		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
@@ -80,7 +80,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void InjectionUpdateLinkForSetType_02() {
+	public void InjectionUpdateLinkForSetType_tc013() {
 		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -124,7 +124,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	 *       native array type
 	 */
 	@Test
-	public void InjectionUpdateLinkForArrayType_03() {
+	public void InjectionUpdateLinkForArrayType_tc014() {
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -166,7 +166,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void SingletonNotSharedInstance_04() {
+	public void SingletonNotSharedInstance_tc015() {
 		
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterSingletonNotShared");
@@ -193,7 +193,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void SingletonSharedInstance_05() {
+	public void SingletonSharedInstance_tc013() {
 
 		
 		Implementation impl = CST.apamResolver.findImplByName(null,
@@ -227,7 +227,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void NotSingletonNotSharedInstance_06() {
+	public void NotSingletonNotSharedInstance_tc017() {
 
 		
 		Implementation impl = CST.apamResolver.findImplByName(null,
@@ -264,7 +264,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void NotSingletonSharedInstance_07() {
+	public void NotSingletonSharedInstance_tc018() {
 		
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterNotSingletonShared");
@@ -307,7 +307,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void NotInstantiableInstance_08() {
+	public void NotInstantiableInstance_tc019() {
 			
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"HouseMeterNotInstantiable");
@@ -330,7 +330,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void InstantiableInstance_09() {
+	public void InstantiableInstance_tc020() {
 
 		
 		Implementation impl = CST.apamResolver.findImplByName(null,
@@ -352,7 +352,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void CallbackInit_10(){
+	public void CallbackInit_tc021(){
 		
 				
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
@@ -367,7 +367,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void CallbackRemove_11() throws BundleException{
+	public void CallbackRemove_tc022() throws BundleException{
 		
 				
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
@@ -386,7 +386,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PreferenceInjectionAttributeSingleImplementationMultipleInstance_12() throws InvalidSyntaxException {
+	public void PreferenceInjectionAttributeSingleImplementationMultipleInstance_tc024() throws InvalidSyntaxException {
 
 		
 		Implementation lgImpl = CST.apamResolver.findImplByName(null,
@@ -459,7 +459,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PreferenceInjectionAttributeMultipleImplementationSingleInstance_13() throws InvalidSyntaxException {
+	public void PreferenceInjectionAttributeMultipleImplementationSingleInstance_tc025() throws InvalidSyntaxException {
 		
 		Implementation lgImpl = CST.apamResolver.findImplByName(null,
 				"LgSwitch");
@@ -537,7 +537,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}	
 
 	@Test
-	public void ConstraintInjectionWhenEmptyPreferenceTagExistsAttribute_14()
+	public void ConstraintInjectionWhenEmptyPreferenceTagExistsAttribute_tc026()
 			throws InvalidSyntaxException {
 
 		
@@ -599,7 +599,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void FindImplByName_15(){
+	public void FindImplByName_tc027(){
 				
 		auxListInstances("before-");
 		
@@ -611,7 +611,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void AddedRemovedCallbackInDependencyDeclaration_16(){
+	public void AddedRemovedCallbackInDependencyDeclaration_tc023(){
 		
 		String message="Into an <implementation>, when declaring a dependency, we may specify methods to be called as soon as the dependency is wired or unwired, those are 'added' and 'removed' attributes respectively. %s";
 		
