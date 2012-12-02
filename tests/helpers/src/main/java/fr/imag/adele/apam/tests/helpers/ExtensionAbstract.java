@@ -32,101 +32,98 @@ import fr.imag.adele.apam.ComponentBroker;
 
 public abstract class ExtensionAbstract extends TestUtils {
 
-	// Based on the current running, no test should take longer than 2 minute
-	@Rule
-	public TestRule globalTimeout = new ApamTimeoutRule(isDebugModeOn() ? null
-			: 120000);
+    // Based on the current running, no test should take longer than 2 minute
+    @Rule
+    public TestRule globalTimeout = new ApamTimeoutRule(isDebugModeOn() ? null
+            : 120000);
 
-	@Rule
-	public TestName name = new TestName();
+    @Rule
+    public TestName name = new TestName();
 
-	@Inject
-	public BundleContext context;
+    @Inject
+    public BundleContext context;
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
-	public ApAMHelper apam;
+    public ApAMHelper apam;
 
-	protected ComponentBroker broker;
+    protected ComponentBroker broker;
 
-	public List<Option> config() {
+    public List<Option> config() {
 
-		List<Option> config = new ArrayList<Option>();
-		config.add(systemProperty("org.osgi.service.http.port").value("8080"));
-		config.add(cleanCaches());
-		config.add(systemProperty("logback.configurationFile").value(
-				"file:" + PathUtils.getBaseDir() + "/log/logback.xml"));
-		config.add(systemProperty(
-				"org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"));
-		config.add(mavenBundle().groupId("org.apache.felix")
-				.artifactId("org.apache.felix.ipojo").version("1.8.0"));
-		config.add(mavenBundle().groupId("org.ow2.chameleon.testing")
-				.artifactId("osgi-helpers").version("0.2.0"));
-		config.add(mavenBundle().groupId("org.osgi")
-				.artifactId("org.osgi.compendium").version("4.2.0"));
-		config.add(mavenBundle().groupId("org.apache.felix")
-				.artifactId("org.apache.felix.bundlerepository")
-				.version("1.6.6"));
-		config.add(mavenBundle().groupId("org.ops4j.pax.url")
-				.artifactId("pax-url-mvn").version("1.3.5"));
-		config.add(mavenBundle().groupId("fr.imag.adele.apam")
-				.artifactId("apam-bundle").version("0.0.1-SNAPSHOT"));
-		config.add(mavenBundle().groupId("fr.imag.adele.apam")
-				.artifactId("obrman").version("0.0.1-SNAPSHOT"));
-		config.add(mavenBundle("org.slf4j", "slf4j-api").version("1.6.6"));
-		;
-		config.add(mavenBundle("ch.qos.logback", "logback-core").version(
-				"1.0.7"));
-		config.add(mavenBundle("ch.qos.logback", "logback-classic").version(
-				"1.0.7"));
-		config.add(junitBundles());
-		config.add(mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
-				.version("0.0.1-SNAPSHOT"));
+        List<Option> config = new ArrayList<Option>();
+        config.add(systemProperty("org.osgi.service.http.port").value("8080"));
+        config.add(cleanCaches());
+        config.add(systemProperty("logback.configurationFile").value(
+                "file:" + PathUtils.getBaseDir() + "/log/logback.xml"));
+        config.add(systemProperty(
+                "org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"));
+        config.add(mavenBundle().groupId("org.apache.felix")
+                .artifactId("org.apache.felix.ipojo").versionAsInProject());
+        config.add(mavenBundle().groupId("org.ow2.chameleon.testing")
+                .artifactId("osgi-helpers").versionAsInProject());
+        config.add(mavenBundle().groupId("org.osgi")
+                .artifactId("org.osgi.compendium").version("4.2.0"));
+        config.add(mavenBundle().groupId("org.apache.felix")
+                .artifactId("org.apache.felix.bundlerepository").versionAsInProject());
+        config.add(mavenBundle().groupId("org.ops4j.pax.url")
+                .artifactId("pax-url-mvn").versionAsInProject());
+        config.add(mavenBundle().groupId("fr.imag.adele.apam")
+                .artifactId("apam-bundle").versionAsInProject());
+        config.add(mavenBundle().groupId("fr.imag.adele.apam")
+                .artifactId("obrman").versionAsInProject());
+        config.add(mavenBundle("org.slf4j", "slf4j-api").versionAsInProject());
 
-		config.add(when(isDebugModeOn())
-				.useOptions(
-						vmOption(String
-								.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
-										Constants.CONST_DEBUG_PORT)),
-						systemTimeout(0)));
+        config.add(mavenBundle("ch.qos.logback", "logback-core").versionAsInProject());
+        config.add(mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject());
+        config.add(junitBundles());
+        config.add(mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
+                .versionAsInProject());
 
-		return config;
-	}
+        config.add(when(isDebugModeOn())
+                .useOptions(
+                        vmOption(String
+                                .format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
+                                        Constants.CONST_DEBUG_PORT)),
+                        systemTimeout(0)));
 
-	@Configuration
-	public Option[] apamConfig() {
+        return config;
+    }
 
-		Option conf[] = config().toArray(new Option[0]);
+    @Configuration
+    public Option[] apamConfig() {
 
-		return conf;
-	}
+        Option conf[] = config().toArray(new Option[0]);
 
-	@Before
-	public void setUp() {
-		apam = new ApAMHelper(context);
-		broker = CST.componentBroker;
-		logger.info("[Run Test : " + name.getMethodName() + "]");
-		apam.waitForIt(1000);
-	}
+        return conf;
+    }
 
-	@After
-	public void tearDown() {
-		apam.dispose();
-	}
+    @Before
+    public void setUp() {
+        apam = new ApAMHelper(context);
+        broker = CST.componentBroker;
+        logger.info("[Run Test : " + name.getMethodName() + "]");
+        apam.waitForIt(1000);
+    }
 
-	private static boolean isDebugModeOn() {
-		RuntimeMXBean RuntimemxBean = ManagementFactory.getRuntimeMXBean();
-		List<String> arguments = RuntimemxBean.getInputArguments();
+    @After
+    public void tearDown() {
+        apam.dispose();
+    }
 
-		boolean debugModeOn = false;
+    private static boolean isDebugModeOn() {
+        RuntimeMXBean RuntimemxBean = ManagementFactory.getRuntimeMXBean();
+        List<String> arguments = RuntimemxBean.getInputArguments();
 
-		for (String string : arguments) {
-			debugModeOn = string.indexOf("jdwp") != -1;
-			if (debugModeOn)
-				break;
-		}
+        boolean debugModeOn = false;
 
-		return debugModeOn;
-	}
+        for (String string : arguments) {
+            debugModeOn = string.indexOf("jdwp") != -1;
+            if (debugModeOn)
+                break;
+        }
+
+        return debugModeOn;
+    }
 
 }

@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>APP2</artifactId>
 		<groupId>fr.imag.adele.apam.tests.apps</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
 	</parent>
 	<groupId>fr.imag.adele.apam.tests.apps.app2</groupId>
 	<artifactId>APP2-Composite</artifactId>

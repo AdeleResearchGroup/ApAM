@@ -4,7 +4,8 @@
 	<parent>
 		<artifactId>apam-project</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>apam-tests</artifactId>
 	<packaging>pom</packaging>
@@ -129,12 +130,12 @@
 			<dependency>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-bundle</artifactId>
-				<version>${apam.current.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>dynaman</artifactId>
-				<version>${apam.current.version}</version>
+				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 
@@ -145,7 +146,7 @@
 				<plugin>
 					<groupId>fr.imag.adele.apam</groupId>
 					<artifactId>apam-maven-plugin</artifactId>
-					<version>${apam.current.version}</version>
+					<version>${project.version}</version>
 					<executions>
 						<execution>
 							<goals>
