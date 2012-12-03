@@ -2,7 +2,6 @@ package fr.imag.adele.apam.test.testcases;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,9 +14,6 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.pax.test.device.DeadsManSwitch;
-import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
-import fr.imag.adele.apam.pax.test.impl.FailException;
 import fr.imag.adele.apam.pax.test.impl.S2InnerImpl;
 import fr.imag.adele.apam.pax.test.impl.S2MiddleImpl;
 import fr.imag.adele.apam.pax.test.impl.S2OutterImpl;
@@ -30,7 +26,7 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 public class CompositeTest extends ExtensionAbstract {
 
 	@Test
-	public void CompositeTypeInstantiation_01() {
+	public void CompositeTypeInstantiation_tc028() {
 
 		CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
 				null, "S2Impl-composite-1");
@@ -46,7 +42,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void FetchImplThatHasComposite_02() {
+	public void FetchImplThatHasComposite_tc029() {
 
 		CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
 				null, "S2Impl-composite-1");
@@ -73,7 +69,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void CompositeTypeRetrieveServiceObject_03() {
+	public void CompositeTypeRetrieveServiceObject_tc030() {
 
 		CompositeType composite = CST.apam.createCompositeType(null,
 				"eletronic-device-compotype", null, "eletronic-device",
@@ -97,7 +93,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test 
-	public void CascadeDependencyInstantiation_04(){
+	public void CascadeDependencyInstantiation_tc031(){
 		
 		Implementation ct1 = (Implementation) CST.apamResolver.findImplByName(
 				null, "fr.imag.adele.apam.pax.test.impl.S2InnerImpl");
@@ -134,34 +130,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void CompositeWithEagerDependency_05() {
-		CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
-				null, "S2Impl-composite-eager");
-		
-		String message="During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
-		
-		Assert.assertTrue(String.format(message, "Although, the test failed to retrieve the composite"),ct1!=null);
-		
-		auxListInstances("instances existing before the test-");
-		
-		Instance instance=ct1.createInstance(null, new HashMap<String, String>());
-		
-		Assert.assertTrue(String.format(message, "Although, the test failed to instantiate the composite"),instance!=null);
-		
-		//Force injection (for debuggin purposes)
-		//S2Impl im=(S2Impl)instance.getServiceObject();
-		//im.getDeadMansSwitch();
-		
-		List<Instance> pool=auxLookForInstanceOf(DeadsManSwitch.class.getCanonicalName());
-		
-		auxListInstances("intances existing after the test-");
-
-		Assert.assertTrue(String.format(message, "Although, there exist no instance of dependence required(DeadsManSwitch.class), which means that it was not injected."),pool.size()==1);
-		
-	}
-	
-	@Test
-	public void ComponentMngtLocalWithInstance() {
+	public void ComponentMngtLocalWithInstance_tc032() {
 
 		final String messageTemplate = "Two composites A and B, each of them have their own mainimpl as IA and IB. " +
 				"Both IA and IB have an attribute that depends on the specification X. " +
@@ -199,7 +168,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void ComponentMngtLocalWithImplementation() {
+	public void ComponentMngtLocalWithImplementation_tc033() {
 
 		final String messageTemplate = "Two composites A and B, each of them have their own mainimpl as IA and IB. " +
 				"Both IA and IB have an attribute that depends on the specification X. " +
@@ -237,7 +206,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void CompositeContentMngtBorrowNothingInstance() {
+	public void CompositeContentMngtBorrowNothingInstance_tc034() {
 
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a-borrow-nothing-instance");
@@ -273,7 +242,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void CompositeContentMngtBorrowNothingImplementation() {
+	public void CompositeContentMngtBorrowNothingImplementation_tc035() {
 
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a-borrow-nothing-implementation");
@@ -309,7 +278,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void CompositeContentMngtFriendNothingImplementation() {
+	public void CompositeContentMngtFriendNothingImplementation_tc036() {
 
 		CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a");
@@ -351,7 +320,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void CompositeContentMngtFriendNothingInstance() {
+	public void CompositeContentMngtFriendNothingInstance_tc037() {
 
 		CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a");
@@ -393,7 +362,13 @@ public class CompositeTest extends ExtensionAbstract {
 	}	
 	
 	@Test
-	public void CompositeContentMngtApplicationNothingInstance() {
+	public void CompositeContentMngtApplicationNothingInstance_tc038() {
+		
+		CompositeType appCompositeType = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a");
+		
+		Composite appComposite=(Composite)appCompositeType.createInstance(null, null);
+		
 		
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a-application-nothing-instance");
@@ -403,8 +378,8 @@ public class CompositeTest extends ExtensionAbstract {
 		
 		Implementation ia=CST.apamResolver.findImplByName(null, "group-a");
 		
-		Composite composite_a = (Composite) cta.createInstance(null, null);
-		Composite composite_b = (Composite) ctb.createInstance(null, null);
+		Composite composite_a = (Composite) cta.createInstance(appComposite, null);
+		Composite composite_b = (Composite) ctb.createInstance(appComposite, null);
 
 		Instance instanceApp1=ia.createInstance(composite_a, null);
 		
@@ -422,124 +397,9 @@ public class CompositeTest extends ExtensionAbstract {
 
 		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
 		
-		String message= "A composite instance protected into application level should NOT be visible/injected by other composites.";
+		String message= "A composite that share its dependencies into application level, should be allow to inject its instances into other composites that are into the same application.";
 		
-		Assert.assertTrue(message,ga1.getElement() != ga2.getElement());
-
-	}
-	
-	@Test
-	public void CompositeContentMngtDependencyFailException() {
-		
-		CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-fail-exception");
-		
-		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-fail-exception");
-		
-		Composite composite_root = (Composite) ctroot.createInstance(null, null);
-		
-		Composite composite_a = (Composite) cta.createInstance(composite_root, null);
-
-		Instance instanceApp1=composite_a.getMainInst();
-		
-		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
-		
-		String messageTemplate= "In contentMngt->dependency if we adopt fail='exception' exception='A', the exception A should be throw in case the dependency is not satifiable. %s";
-		
-		boolean exception=false;
-		boolean exceptionType=false;
-		
-		try{
-			
-			Eletronic injected=ga1.getElement();
-			System.out.println("Element:"+injected);
-			
-		}catch(Exception e){
-			exception=true;
-			
-			if(e instanceof FailException){
-				exceptionType=true;
-			}
-			
-		}
-		
-		String messageException=String.format(messageTemplate, "But no exception was thrown");
-		String messageExceptionType=String.format(messageTemplate, "But the exception thrown was not of the proper type (A)");
-		
-		Assert.assertTrue(messageException,exception);
-		Assert.assertTrue(messageExceptionType,exceptionType);
-
-	}	
-	
-	@Test
-	public void CompositeContentMngtDependencyFailWait() {
-
-		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-fail-wait");
-
-		Composite composite_a = (Composite) cta.createInstance(null, null);
-
-		Instance instanceApp1 = composite_a.getMainInst();
-
-		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
-
-		ThreadWrapper wrapper=new ThreadWrapper(ga1);
-		wrapper.setDaemon(true);
-		wrapper.start();
-		
-		apam.waitForIt(3000);
-		
-		String message="In case of composite dependency been maked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
-		
-		Assert.assertTrue(message,wrapper.isAlive());
-	}
-	
-	//Require by the test CompositeContentMngtDependencyFailWait
-	class ThreadWrapper extends Thread {
-
-		final S3GroupAImpl group;
-		
-		public ThreadWrapper(S3GroupAImpl group){
-			this.group=group;
-		}
-		
-		@Override
-		public void run() {
-			System.out.println("Element injected:"+group.getElement());
-		}
-		
-	}	
-	
-	@Test
-	public void CompositeContentMngtDependencyHide() {
-		
-		CompositeType ctaroot = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-hide");
-		
-		Composite composite_root = (Composite) ctaroot.createInstance(null, null);//composite_root
-		
-		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-hide");
-
-		Composite composite_a = (Composite) cta.createInstance(composite_root, null);//inner composite with hide='true'
-		
-		Instance instanceApp1=composite_a.getMainInst();
-		
-		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
-		//force injection
-		ga1.getElement();
-		
-		auxListInstances("\t");
-		
-		List<Instance> instancesOfImplementation=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupAImpl");
-	
-		
-		String messageTemplate="Using hiding into a dependency of a composite should cause the instance of this component to be removed in case of an dependency of such componenent was satisfiable, instead the its instance is still visible. There are %d instances, and should be only 1 (the root composite that encloses the dependency with hide='true')";
-
-		String message=String.format(messageTemplate, instancesOfImplementation.size());
-		
-		Assert.assertTrue(message,instancesOfImplementation.size()==1);
+		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
 
 	}
 	

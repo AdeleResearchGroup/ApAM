@@ -3,8 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>fr.imag.adele.apam.tests.obrman</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
 		<artifactId>apam-apps-components</artifactId>
+        <relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>fr.imag.adele.apam.tests.apps.components</groupId>
 	<artifactId>APP1</artifactId>

@@ -23,7 +23,7 @@ public class PropertyTest extends ExtensionAbstract {
 	 * Ensures that inherited properties cannot be changed and inherited definitions can change
 	 */
 	@Test
-	public void PropertyInheritedCannotBeChanged_01(){
+	public void PropertyInheritedCannotBeChanged_tc001(){
 		
 				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
@@ -53,7 +53,7 @@ public class PropertyTest extends ExtensionAbstract {
 	 * Ensures that initial properties are configured in the instance properly
 	 */
 	@Test
-	public void PropertyConfiguredWithInitialParameter_02(){
+	public void PropertyConfiguredWithInitialParameter_tc002(){
 		
 				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
@@ -86,7 +86,7 @@ public class PropertyTest extends ExtensionAbstract {
 	 * Ensures that initial properties are configured in the instance properly
 	 */
 	@Test
-	public void PropertyConfiguredWithSetProperty_03(){
+	public void PropertyConfiguredWithSetProperty_tc003(){
 		
 				
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
@@ -121,7 +121,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PropertyDefinitionInternalAndNotInternalAreAPIVisible_04(){
+	public void PropertyDefinitionInternalAndNotInternalAreAPIVisible_tc004(){
 		
 		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
@@ -159,7 +159,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void PropertyDefinitionIsVisibleWithValPropertySetXML_05(){
+	public void PropertyDefinitionIsVisibleWithValPropertySetXML_tc005(){
 		
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -177,7 +177,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PropertiesDataTypeAndLDAPFilteringForIntegers_06()
+	public void PropertiesDataTypeAndLDAPFilteringForIntegers_tc006()
 			throws InvalidSyntaxException {
 
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
@@ -236,7 +236,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void PropertiesDataTypeAndLDAPFilteringForBoolean_07()
+	public void PropertiesDataTypeAndLDAPFilteringForBoolean_tc007()
 			throws InvalidSyntaxException {
 
 		
@@ -272,7 +272,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PropertiesDataTypeAndLDAPFilteringForString_08()
+	public void PropertiesDataTypeAndLDAPFilteringForString_tc008()
 			throws InvalidSyntaxException {
 
 		
