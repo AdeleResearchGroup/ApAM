@@ -112,8 +112,8 @@ public class InstanceImpl extends ComponentImpl implements Instance {
          * allows bootstraping the system
          * 
          */
-        ((ImplementationImpl) getImpl()).addInst(this);
-
+        if (rootImplementation == CompositeTypeImpl.getRootCompositeType())
+        	((ImplementationImpl) getImpl()).addInst(this);
     }
 
     /**

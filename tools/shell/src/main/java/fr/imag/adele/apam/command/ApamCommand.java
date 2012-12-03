@@ -147,19 +147,18 @@ public class ApamCommand {
     @Descriptor("Resolve apam components on the target composite")
     public void put(@Descriptor("the name of the component to resolve ") String componentName,
                     @Descriptor("the name of the composite target or root ") String compositeTarget) {
-        CompositeType target = null;
+        Composite target = null;
         String compositeName = null;
         if ("root".equals(compositeTarget)){
             compositeName = "root";
-            System.out.println("Resolving "+ componentName + " on the " + compositeName +" composite");
+//            System.out.println("Resolving "+ componentName + " on the " + compositeName +" composite");
         } else {
-            target = apam.getCompositeType(compositeTarget);
-            compositeName = target.getName();
+            target = apam.getComposite(compositeTarget);
             if (target== null){
                 System.out.println("Invalid composite name "+ compositeTarget);
                 return;
             }
-
+            compositeName = target.getName();
         }
         System.out.println("< Searching " + componentName +" in " + compositeName+  " repositories> " );
         fr.imag.adele.apam.Component component= CST.apamResolver.findComponentByName(target, componentName);
@@ -250,7 +249,7 @@ public class ApamCommand {
                        @Descriptor("the name of the composite target or root ") String compositeTarget) {
 
         Composite target = null;
-        CompositeType targetType = null;
+//        CompositeType targetType = null;
 
         if ("root".equals(compositeTarget)){
             System.out.println("Resolving "+ componentName + " on the root composite");
@@ -260,14 +259,14 @@ public class ApamCommand {
                 System.out.println("Invalid composite instance "+ compositeTarget);
                 return;
             }
-            targetType = target.getCompType() ;
+           // targetType = target.getCompType() ;
         }
 
-        fr.imag.adele.apam.Component compo =  CST.apamResolver.findComponentByName(targetType, componentName);
+        fr.imag.adele.apam.Component compo =  CST.apamResolver.findComponentByName(target, componentName);
         if (compo instanceof Implementation)
             ((Implementation)compo).createInstance(target,null);
         if (compo instanceof Specification) {
-            Implementation impl = CST.apamResolver.resolveSpecByName(targetType, componentName, null, null) ;
+            Implementation impl = CST.apamResolver.resolveSpecByName(target, componentName, null, null) ;
             if (impl != null)
                 impl.createInstance(null, null);
         }

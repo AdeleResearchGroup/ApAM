@@ -14,7 +14,7 @@
 	<name>ApAM Gogo Shell</name>
 	<description>The Apam Gogo Shell</description>
 	<properties>
-		<bundle.symbolicName>ApAM.Shell</bundle.symbolicName>
+		<bundle.symbolicName>ApAM_Shell</bundle.symbolicName>
 	</properties>
 
 	<build>
