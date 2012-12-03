@@ -2,12 +2,8 @@ package fr.imag.adele.apam;
 
 import java.net.URL;
 import java.util.Collection;
-//import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-//import org.osgi.framework.Filter;
-
 
 public interface Apam {
 
@@ -68,7 +64,7 @@ public interface Apam {
 
     /**
      * 
-     * @return all the root composite types (embeded in the system root composite type)
+     * @return all the root composite types (embedded in the system root composite type)
      */
     public Collection<CompositeType> getRootCompositeTypes();
 
