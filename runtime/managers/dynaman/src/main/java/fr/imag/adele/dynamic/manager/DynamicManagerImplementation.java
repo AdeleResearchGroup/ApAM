@@ -307,7 +307,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	@Override
-	public Implementation resolveSpec(CompositeType compoTypeFrom, DependencyDeclaration dependency) {
+	public Implementation resolveSpec(Instance client, DependencyDeclaration dependency) {
 		
 		/*
 		 * In case of retry of a waiting or dynamic request we simply return to avoid blocking or killing
@@ -333,7 +333,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			}
 			
 			case WAIT : {
-				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver,compoTypeFrom, dependency);
+				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver,client, dependency);
 				block(request);
 				return request.getResolution().iterator().next();
 			}
@@ -343,7 +343,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	@Override
-	public Set<Implementation> resolveSpecs(CompositeType compoTypeFrom, DependencyDeclaration dependency) {
+	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dependency) {
 		
 		/*
 		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
@@ -366,7 +366,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			}
 			
 			case WAIT : {
-				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver,compoTypeFrom, dependency);
+				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver,client, dependency);
 				block(request);
 				return request.getResolution();
 			}
@@ -376,7 +376,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	@Override
-	public Implementation findImplByDependency(CompositeType compoType,	DependencyDeclaration dependency) {
+	public Implementation findImplByDependency(Instance client, DependencyDeclaration dependency) {
 		
 		/*
 		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
@@ -399,7 +399,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			}
 			
 			case WAIT : {
-				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver,compoType, dependency);
+				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver, client, dependency);
 				block(request);
 				return request.getResolution().iterator().next();
 			}
@@ -409,7 +409,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	@Override
-	public Instance resolveImpl(Composite compo, Implementation impl, DependencyDeclaration dependency) {
+	public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dependency) {
 		
 		/*
 		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
@@ -441,7 +441,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 				/*
 				 * Otherwise block the current thread and schedule a dynamic resolution
 				 */
-				PendingRequest.ImplementationResolution request = new PendingRequest.ImplementationResolution((ApamResolverImpl)CST.apamResolver,compo,impl,dependency);
+				PendingRequest.ImplementationResolution request = new PendingRequest.ImplementationResolution((ApamResolverImpl)CST.apamResolver,client,impl,dependency);
 				block(request);
 				return request.getResolution().iterator().next();
 			}
@@ -451,7 +451,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Composite compo, Implementation impl, DependencyDeclaration dependency) {
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dependency) {
 		
 		/*
 		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
@@ -483,7 +483,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 				/*
 				 * Otherwise block the current thread and schedule a dynamic resolution
 				 */
-				PendingRequest.ImplementationResolution request = new PendingRequest.ImplementationResolution((ApamResolverImpl)CST.apamResolver,compo,impl,dependency);
+				PendingRequest.ImplementationResolution request = new PendingRequest.ImplementationResolution((ApamResolverImpl)CST.apamResolver,client,impl,dependency);
 				block(request);
 				return request.getResolution();
 			}
@@ -493,7 +493,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	@Override
-	public void getSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dependency, List<DependencyManager> selPath) {
+	public void getSelectionPath(Instance client, DependencyDeclaration dependency, List<DependencyManager> selPath) {
         selPath.add(selPath.size(), this);
 	}
 
@@ -516,22 +516,22 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 	
 	@Override
-	public Instance findInstByName(Composite composite, String instName) {
-		return (Instance) findComponentByName(composite.getCompType(), instName);
+	public Instance findInstByName(Instance client, String instName) {
+		return (Instance) findComponentByName(client, instName);
 	}
 
 	@Override
-	public Implementation findImplByName(CompositeType compoType, String implName) {
-		return (Implementation) findComponentByName(compoType, implName);
+	public Implementation findImplByName(Instance client, String implName) {
+		return (Implementation) findComponentByName(client, implName);
 	}
 
 	@Override
-	public Specification findSpecByName(CompositeType compoType, String specName) {
-		return (Specification) findComponentByName(compoType, specName);
+	public Specification findSpecByName(Instance client, String specName) {
+		return (Specification) findComponentByName(client, specName);
 	}
 
 	@Override
-	public Component findComponentByName(CompositeType compoType, String compName) {
+	public Component findComponentByName(Instance client, String compName) {
 		return null;
 	}
 

@@ -39,15 +39,15 @@ public interface ApamResolver {
      * @param implName
      * @return
      */
-    public Instance       findInstByName(Composite compoFrom, String instName);
+    public Instance       findInstByName(Instance client, String instName);
 
-    public Implementation findImplByName(CompositeType compoTypeFrom, String implName);
+    public Implementation findImplByName(Instance client, String implName);
 
-    public Specification  findSpecByName(CompositeType compoTypeFrom, String specName);
+    public Specification  findSpecByName(Instance client, String specName);
 
-    public Component findComponentByName(CompositeType compoTypeFrom, String compName);
+    public Component findComponentByName(Instance client, String compName);
 
-	public Implementation findImplByDependency (CompositeType compoType, DependencyDeclaration dep) ;
+	public Implementation findImplByDependency (Instance client, DependencyDeclaration dep) ;
 
 
     /**
@@ -62,7 +62,7 @@ public interface ApamResolver {
      *            number of preferences, taken in the order, and stopping at the first failure.
      * @return
      */
-    public Implementation resolveSpecByName(CompositeType compoTypeFrom, String specName,
+    public Implementation resolveSpecByName(Instance client, String specName,
             Set<String> constraints, List<String> preferences);
 
     /**
@@ -80,8 +80,8 @@ public interface ApamResolver {
      *            number of preferences, taken in the order, and stopping at the first failure.
      * @return
      */
-    public Implementation resolveSpecByInterface(CompositeType compoTypeFrom,  String interfaceName, Set<String> constraints, List<String> preferences);
-    public Implementation resolveSpecByMessage  (CompositeType compoTypeFrom,  String messageName,   Set<String> constraints, List<String> preferences);
+    public Implementation resolveSpecByInterface(Instance client,  String interfaceName, Set<String> constraints, List<String> preferences);
+    public Implementation resolveSpecByMessage  (Instance client,  String messageName,   Set<String> constraints, List<String> preferences);
 
     /**
      * Look for an instance of "impl" that satisfies the constraints. That instance must be either
@@ -96,7 +96,7 @@ public interface ApamResolver {
      *            maximum
      * @return
      */
-    public Instance resolveImpl(Composite compo, Implementation impl, Set<String> constraints, List<String> preferences);
+    public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences);
 
     /**
      * Look for all the existing instance of "impl" that satisfy the constraints.
@@ -109,7 +109,7 @@ public interface ApamResolver {
      * @param constraints. The constraints to satisfy. They must be all satisfied.
      * @return
      */
-    public Set<Instance> resolveImpls(Composite compo, Implementation impl, Set<String> constraints);
+    public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints);
 
 
 }

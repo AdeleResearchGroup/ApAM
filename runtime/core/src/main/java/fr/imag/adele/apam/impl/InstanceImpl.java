@@ -104,7 +104,8 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         super(new SystemRootInstance(rootImplementation, name));
 
         myImpl = rootImplementation;
-        myComposite = null;
+        //WARNING: this is a trick to have a dummy root instance, both an instance and its composite.
+        myComposite = (Composite)this;
 
         /*
          * NOTE the root instance is automatically registered in Apam in a specific way that

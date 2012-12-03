@@ -27,7 +27,7 @@ public interface DependencyManager {
     	public Set<String> getComponents ();
     }
         
-    public ComponentBundle findBundle(Instance client, String bundleSymbolicName, String componentName);
+    public ComponentBundle findBundle(CompositeType context, String bundleSymbolicName, String componentName);
     /**
      * Provided that a dependency resolution is required by client,
      * each manager is asked if it want to be involved. If this manager is not involved, it does nothing. If involved,

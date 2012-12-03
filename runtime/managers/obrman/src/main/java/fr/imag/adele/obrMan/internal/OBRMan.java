@@ -398,9 +398,9 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Implementation findImplByDependency(CompositeType compoType,
+    public Implementation findImplByDependency(Instance client,
             DependencyDeclaration dependency) {
-        return findImplByName(compoType, dependency.getTarget().getName());
+        return findImplByName(client, dependency.getTarget().getName());
     }
 
 }
