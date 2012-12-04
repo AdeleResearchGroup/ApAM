@@ -394,6 +394,46 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 	}
 	
+	
+	@Test
+	public void CompositeContentMngtDisputeAmongInjectionAndOwnInstanceIntoComposite_tc048() {
+		
+		Implementation sharedDependencyImpl = (Implementation) CST.apamResolver.findImplByName(
+				null, "BoschSwitch");
+		
+		CompositeType compositeAImpl = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a");
+		
+		Composite compositeA=(Composite)compositeAImpl.createInstance(null, null);
+
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+//		Instance sharedDependency=sharedDependencyImpl.createInstance(null, null); //works
+		Instance sharedDependency=sharedDependencyImpl.createInstance(compositeA, null); //do not works
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		S3GroupAImpl s3b=(S3GroupAImpl)compositeA.getMainInst().getServiceObject();
+		s3b.getElement();
+		
+		System.out.println("Original composite:"+sharedDependency.getComposite());
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		CompositeType compositeBImpl = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-dispute-inject-own");
+
+		Composite compositeB = (Composite) compositeBImpl.createInstance(null, null);
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		System.out.println("Composite after the own composite instantiation:"+sharedDependency.getComposite());
+		
+		String message="Class A needs the instance (that is already located inside another composite) IC, when B composite (declaring that owns IC) is instantiated, the IC should receive as parent composite the composite B. This did not happened";
+		
+		Assert.assertTrue(message,sharedDependency.getComposite() == compositeB);
+
+	}
 
 
 }
