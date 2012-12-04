@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.pax.test.impl;
+package fr.imag.adele.apam.pax.test.s3.impl;
 
 public class FailException extends Exception {
 

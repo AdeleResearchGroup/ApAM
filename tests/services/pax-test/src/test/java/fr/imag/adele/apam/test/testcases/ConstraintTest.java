@@ -128,11 +128,10 @@ public class ConstraintTest extends ExtensionAbstract{
 			{
 				add(siemensInst);
 				add(lgInst);
+				add(boschInst);
 				add(samsungInst);
 			}
 		};
-
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -140,7 +139,7 @@ public class ConstraintTest extends ExtensionAbstract{
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
-		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
 		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
 			Instance p = CST.componentBroker.getInstService(e);
@@ -203,15 +202,16 @@ public class ConstraintTest extends ExtensionAbstract{
 		boschInst.setProperty("currentVoltage", "110");
 		philipsInst.setProperty("currentVoltage", "117");
 		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
 		Set<Instance> validInstances = new HashSet<Instance>() {
 			{
 				add(siemensInst);
 				add(lgInst);
+				add(boschInst);
 				add(samsungInst);
 			}
 		};
-
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -219,6 +219,8 @@ public class ConstraintTest extends ExtensionAbstract{
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
 		auxListInstanceReferencedBy("#################",s1.getEletronicInstancesConstraintsInstance());
 		
 		
@@ -245,11 +247,9 @@ public class ConstraintTest extends ExtensionAbstract{
 		auxListInstances("--------------");
 
 		// check if there is no other instance injected
-		Assert.assertTrue("The number of valid instances and the number of injected instances differ, instances not expected were injected",s1.getEletronicInstancesConstraintsInstance().size() == validInstances
+		Assert.assertTrue(String.format("The number of valid instances and the number of injected instances differ, instances not expected were injected. %d injected instead of %d",s1.getEletronicInstancesConstraintsInstance().size(),validInstances.size()),s1.getEletronicInstancesConstraintsInstance().size() == validInstances
 				.size());
 
 	}
-	
-
 	
 }
