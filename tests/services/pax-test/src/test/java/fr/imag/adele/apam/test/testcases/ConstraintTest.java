@@ -94,7 +94,6 @@ public class ConstraintTest extends ExtensionAbstract{
 		
 		Set<Instance> validInstances = new HashSet<Instance>() {
 			{
-				add(boschInst);
 				add(siemensInst);
 				add(lgInst);
 				add(samsungInst);
@@ -169,7 +168,6 @@ public class ConstraintTest extends ExtensionAbstract{
 
 		Set<Instance> validInstances = new HashSet<Instance>() {
 			{
-				add(boschInst);
 				add(siemensInst);
 				add(lgInst);
 				add(samsungInst);
@@ -197,14 +195,15 @@ public class ConstraintTest extends ExtensionAbstract{
 					found = true;
 					break;
 				}
-
-			// Check if all valid instances were injected
-			Assert.assertTrue(found);
+			
+			// Check if all valid instances were injected 
+			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was injectected even if its does not obey the constraint (currentVoltage&lt;=110)", p.getName(),p.getProperty("currentVoltage")),p.match("(currentVoltage&lt;=110)"));
+			Assert.assertTrue(String.format("Instance %s was not found in the list of valid instances", p.getName()),found);
 
 		}
 
 		// check if there is no other instance injected
-		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance().size() == validInstances
+		Assert.assertTrue("The number of valid instances and the number of injected instances differ, instances not expected were injected",s1.getEletronicInstancesConstraintsInstance().size() == validInstances
 				.size());
 
 	}
