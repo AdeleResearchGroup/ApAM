@@ -242,6 +242,9 @@
 <node CREATED="1354297652923" ID="ID_41966136" MODIFIED="1354628609824" TEXT="dispute between dependency and composite with own, own should have priority-tc047">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1354635868184" ID="ID_123141354" MODIFIED="1354635996473" TEXT="dispute one instance between a composite and an own in another, when the instance is already inside one composite-tc048">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 </node>
