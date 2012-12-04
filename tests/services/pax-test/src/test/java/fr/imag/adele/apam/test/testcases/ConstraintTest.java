@@ -136,6 +136,8 @@ public class ConstraintTest extends ExtensionAbstract{
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
@@ -215,14 +217,14 @@ public class ConstraintTest extends ExtensionAbstract{
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
-
+		
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
-
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
-		auxListInstanceReferencedBy("#################",s1.getEletronicInstancesConstraintsInstance());
+		//auxListInstanceReferencedBy("#################",s1.getEletronicInstancesConstraintsInstance());
+		auxListInstances("-------Available instances before using the list-------");	
 		
+		System.out.println("Size of the injected list:"+s1.getEletronicInstancesConstraintsInstance().size());
 		
 		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
 			Instance p = CST.componentBroker.getInstService(e);
@@ -244,7 +246,7 @@ public class ConstraintTest extends ExtensionAbstract{
 
 		}
 
-		auxListInstances("--------------");
+		auxListInstances("-------Available instances after using the list-------");
 
 		// check if there is no other instance injected
 		Assert.assertTrue(String.format("The number of valid instances and the number of injected instances differ, instances not expected were injected. %d injected instead of %d",s1.getEletronicInstancesConstraintsInstance().size(),validInstances.size()),s1.getEletronicInstancesConstraintsInstance().size() == validInstances
