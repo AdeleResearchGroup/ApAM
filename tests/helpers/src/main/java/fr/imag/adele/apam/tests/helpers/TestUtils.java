@@ -1,6 +1,8 @@
 package fr.imag.adele.apam.tests.helpers;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import fr.imag.adele.apam.CST;
@@ -40,6 +42,31 @@ public abstract class TestUtils {
 		}
 
 		return pool;
+	}
+	
+	protected Instance auxListInstanceReferencedBy(Object instance){
+		
+		return CST.componentBroker.getInstService(instance);
+		
+	}
+	
+	protected List<Instance> auxListInstanceReferencedBy(String prefix,Collection instances){
+		
+		List<Instance> res=new ArrayList<Instance>();
+		
+		for(Object instance:instances){
+			
+			Instance i=CST.componentBroker.getInstService(instance);
+			
+			res.add(i);
+			
+			System.out.println(String.format("%sInstance name %s ( oid: %s ) ",
+					prefix, i.getName(), i.getServiceObject()));
+			
+		}
+		
+		return res;
+		
 	}
 	
 	protected void auxListInstances(String prefix) {

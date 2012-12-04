@@ -4,7 +4,8 @@
 	<parent>
 		<groupId>fr.imag.adele.apam.tests.app</groupId>
 		<artifactId>app</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
 	</parent>
 	<packaging>bundle</packaging>
 	<groupId>fr.imag.adele.apam.tests.services</groupId>
@@ -16,7 +17,7 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-iface</artifactId>
-			<version>${apam.current.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
@@ -36,7 +37,7 @@
 		<dependency>
 			<artifactId>apam-core</artifactId>
 			<groupId>fr.imag.adele.apam</groupId>
-			<version>${apam.current.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 

@@ -52,18 +52,18 @@ public class ApamMan implements DependencyManager {
 
 
 	@Override
-	public void getSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dep, List<DependencyManager> selPath) {
+	public void getSelectionPath(Instance client, DependencyDeclaration dep, List<DependencyManager> selPath) {
 	}
 
 	@Override
-	public Instance resolveImpl(Composite composite, Implementation impl, DependencyDeclaration dep) {
+	public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dep) {
 
 		Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
 		List<Filter> preferences = Util.toFilterList(dep.getInstancePreferences()) ;
 		
 		if ((constraints.isEmpty()) && (preferences.isEmpty())) { 
 			for (Instance inst : impl.getInsts()) {
-				if (inst.isSharable() && Util.checkInstVisible(composite, inst))
+				if (inst.isSharable() && Util.checkInstVisible(client.getComposite(), inst))
 					return inst;
 			}
 			return null ;
@@ -71,7 +71,7 @@ public class ApamMan implements DependencyManager {
 
 		Set<Instance> insts = new HashSet<Instance>();
 		for (Instance inst : impl.getInsts()) {
-			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(composite, inst))
+			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(client.getComposite(), inst))
 				insts.add(inst);
 		}
 		if (!insts.isEmpty())
@@ -80,12 +80,12 @@ public class ApamMan implements DependencyManager {
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Composite composite, Implementation impl, DependencyDeclaration dep) {
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dep) {
 
 		Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;	
 		Set<Instance> insts = new HashSet<Instance>();
 		for (Instance inst : impl.getInsts()) {
-			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(composite, inst))
+			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(client.getComposite(), inst))
 				insts.add(inst);
 		}
 		return insts;
@@ -101,56 +101,54 @@ public class ApamMan implements DependencyManager {
 	}
 
 	@Override
-	public Instance findInstByName(Composite compo, String instName) {
+	public Instance findInstByName(Instance client, String instName) {
 		if (instName == null) return null;
 		Instance inst = CST.componentBroker.getInst(instName);
 		if (inst == null) return null;
-		if (Util.checkInstVisible(compo, inst)) {
+		if (Util.checkInstVisible(client.getComposite(), inst)) {
 			return inst;
 		}
 		return null;
 	}
 
 	@Override
-	public Implementation findImplByName(CompositeType compoType, String implName) {
+	public Implementation findImplByName(Instance client, String implName) {
 		if (implName == null)
 			return null;
 		Implementation impl = CST.componentBroker.getImpl(implName);
 		if (impl == null)
 			return null;
-		if (Util.checkImplVisible(compoType, impl)) {
+		if (Util.checkImplVisible(client.getComposite().getCompType(), impl)) {
 			return impl;
 		}
 		return null;
 	}
 
 	@Override
-	public Specification findSpecByName(CompositeType compTypeFrom, String specName) {
+	public Specification findSpecByName(Instance client, String specName) {
 		if (specName == null)
 			return null;
 		return CST.componentBroker.getSpec(specName);
 	}
 
 	@Override
-	public Component findComponentByName(CompositeType compoType, String componentName) {
+	public Component findComponentByName(Instance client, String componentName) {
 		Component ret = CST.componentBroker.getComponent (componentName) ;
 		if (ret == null) return null ;
 		if (ret instanceof Specification) return ret ;
 		if (ret instanceof Implementation) {
-			if (Util.checkImplVisible(compoType, (Implementation)ret)) 
+			if (Util.checkImplVisible(client.getComposite().getCompType(), (Implementation)ret)) 
 				return ret ;
 		}
 		//It is an instance
-		// TODO We do not have the composite instance at that point; cannot check the visibility !
-		//return the instance in all case: the resolution checks the visibility
-		//if (Util.checkInstVisible(compoFrom, (Instance)ret)) 
-		//return ret ;
+		if (Util.checkInstVisible(client.getComposite(), (Instance)ret)) 
+			return ret ;
 		return null ;
 	}
 
 
 	@Override
-	public Set<Implementation> resolveSpecs(CompositeType compoType, DependencyDeclaration dep) {
+	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null) return null;
 
@@ -160,7 +158,7 @@ public class ApamMan implements DependencyManager {
 
 		// select only those that are visible
 		for (Implementation impl : spec.getImpls()) {
-			if (Util.checkImplVisible(compoType, impl))
+			if (Util.checkImplVisible(client.getComposite().getCompType(), impl))
 				impls.add(impl);
 		}
 		// AND those that match the constraints
@@ -169,13 +167,13 @@ public class ApamMan implements DependencyManager {
 	}
 
 	@Override
-	public Implementation resolveSpec(CompositeType compoType, DependencyDeclaration dep) {
+	public Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null)
 			return null;	
 		
 		//List of visible implementations that satisfy the constraints.
-		Set<Implementation> candidates = resolveSpecs (compoType, dep) ;
+		Set<Implementation> candidates = resolveSpecs (client, dep) ;
 		if (candidates == null || candidates.isEmpty()) 
 			return null ;	
 		if (candidates.size() == 1) 
@@ -195,15 +193,13 @@ public class ApamMan implements DependencyManager {
 
 
 	@Override
-	public ComponentBundle findBundle(CompositeType compoType,
-			String bundleSymbolicName, String componentName) {
+	public ComponentBundle findBundle(CompositeType context, String bundleSymbolicName, String componentName) {
 		return null;
 	}
 
 	@Override
-	public Implementation findImplByDependency(CompositeType compoType,
-			DependencyDeclaration dependency) {
-		return findImplByName(compoType, dependency.getTarget().getName());
+	public Implementation findImplByDependency(Instance client,	DependencyDeclaration dependency) {
+		return findImplByName(client, dependency.getTarget().getName());
 	}
 
 

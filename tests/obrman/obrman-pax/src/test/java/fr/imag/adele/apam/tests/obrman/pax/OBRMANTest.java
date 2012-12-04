@@ -51,7 +51,7 @@ public class OBRMANTest extends ExtensionAbstract{
         apam.waitForIt(1000);
         CompositeType app2CompoType = null;
         try {
-            String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.1-SNAPSHOT!/APPS-repo.xml" };
+            String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.2-SNAPSHOT!/APPS-repo.xml" };
             apam.setObrManInitialConfig("rootAPPS", repos, 1);
             app2CompoType = apam.createCompositeType("APP2",
                     "APP2_MAIN", null);
@@ -84,7 +84,7 @@ public class OBRMANTest extends ExtensionAbstract{
         apam.waitForIt(1000);
         CompositeType app1CompoType = null;
         try {
-            String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.1-SNAPSHOT!/APPS-repo.xml" };
+            String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/APPS/0.0.2-SNAPSHOT!/APPS-repo.xml" };
             apam.setObrManInitialConfig("rootAPPS", repos, 1);
             app1CompoType = apam.createCompositeType("APP1",
                     "APP1_MAIN", null);

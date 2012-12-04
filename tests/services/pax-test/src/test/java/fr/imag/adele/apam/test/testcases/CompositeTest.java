@@ -26,7 +26,7 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 public class CompositeTest extends ExtensionAbstract {
 
 	@Test
-	public void CompositeTypeInstantiation_01() {
+	public void CompositeTypeInstantiation_tc028() {
 
 		CompositeType ct = (CompositeType) CST.apamResolver.findImplByName(
 				null, "S2Impl-composite-1");
@@ -42,7 +42,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void FetchImplThatHasComposite_02() {
+	public void FetchImplThatHasComposite_tc029() {
 
 		CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
 				null, "S2Impl-composite-1");
@@ -69,7 +69,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void CompositeTypeRetrieveServiceObject_03() {
+	public void CompositeTypeRetrieveServiceObject_tc030() {
 
 		CompositeType composite = CST.apam.createCompositeType(null,
 				"eletronic-device-compotype", null, "eletronic-device",
@@ -93,7 +93,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test 
-	public void CascadeDependencyInstantiation_04(){
+	public void CascadeDependencyInstantiation_tc031(){
 		
 		Implementation ct1 = (Implementation) CST.apamResolver.findImplByName(
 				null, "fr.imag.adele.apam.pax.test.impl.S2InnerImpl");
@@ -130,7 +130,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void ComponentMngtLocalWithInstance() {
+	public void ComponentMngtLocalWithInstance_tc032() {
 
 		final String messageTemplate = "Two composites A and B, each of them have their own mainimpl as IA and IB. " +
 				"Both IA and IB have an attribute that depends on the specification X. " +
@@ -168,7 +168,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void ComponentMngtLocalWithImplementation() {
+	public void ComponentMngtLocalWithImplementation_tc033() {
 
 		final String messageTemplate = "Two composites A and B, each of them have their own mainimpl as IA and IB. " +
 				"Both IA and IB have an attribute that depends on the specification X. " +
@@ -206,7 +206,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void CompositeContentMngtBorrowNothingInstance() {
+	public void CompositeContentMngtBorrowNothingInstance_tc034() {
 
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a-borrow-nothing-instance");
@@ -242,7 +242,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void CompositeContentMngtBorrowNothingImplementation() {
+	public void CompositeContentMngtBorrowNothingImplementation_tc035() {
 
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a-borrow-nothing-implementation");
@@ -278,7 +278,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void CompositeContentMngtFriendNothingImplementation() {
+	public void CompositeContentMngtFriendNothingImplementation_tc036() {
 
 		CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a");
@@ -320,7 +320,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void CompositeContentMngtFriendNothingInstance() {
+	public void CompositeContentMngtFriendNothingInstance_tc037() {
 
 		CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a");
@@ -362,7 +362,13 @@ public class CompositeTest extends ExtensionAbstract {
 	}	
 	
 	@Test
-	public void CompositeContentMngtApplicationNothingInstance() {
+	public void CompositeContentMngtApplicationNothingInstance_tc038() {
+		
+		CompositeType appCompositeType = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a");
+		
+		Composite appComposite=(Composite)appCompositeType.createInstance(null, null);
+		
 		
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a-application-nothing-instance");
@@ -372,8 +378,8 @@ public class CompositeTest extends ExtensionAbstract {
 		
 		Implementation ia=CST.apamResolver.findImplByName(null, "group-a");
 		
-		Composite composite_a = (Composite) cta.createInstance(null, null);
-		Composite composite_b = (Composite) ctb.createInstance(null, null);
+		Composite composite_a = (Composite) cta.createInstance(appComposite, null);
+		Composite composite_b = (Composite) ctb.createInstance(appComposite, null);
 
 		Instance instanceApp1=ia.createInstance(composite_a, null);
 		
@@ -391,9 +397,9 @@ public class CompositeTest extends ExtensionAbstract {
 
 		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
 		
-		String message= "A composite instance protected into application level should NOT be visible/injected by other composites.";
+		String message= "A composite that share its dependencies into application level, should be allow to inject its instances into other composites that are into the same application.";
 		
-		Assert.assertTrue(message,ga1.getElement() != ga2.getElement());
+		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
 
 	}
 	

@@ -4,7 +4,8 @@
 	<parent>
 		<artifactId>obrman</artifactId>
 		<groupId>fr.imag.adele.apam.tests</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>apam-repositories</artifactId>
 	<packaging>pom</packaging>

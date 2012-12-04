@@ -33,13 +33,13 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		
 		List<Option> defaultOptions = super.config();
 		defaultOptions.add(mavenBundle("fr.imag.adele.apam", "dynaman")
-				.version("0.0.1-SNAPSHOT"));
+				.versionAsInProject());
 		
 		return defaultOptions.toArray(new Option[0]);
 	}
 
 	@Test
-	public void CompositeContentMngtDependencyFailWait() {
+	public void CompositeContentMngtDependencyFailWait_tc039() {
 
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a-fail-wait");
@@ -61,155 +61,8 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		Assert.assertTrue(message, wrapper.isAlive());
 	}
 
-	// Require by the test CompositeContentMngtDependencyFailWait
-	class ThreadWrapper extends Thread {
-
-		final S3GroupAImpl group;
-
-		public ThreadWrapper(S3GroupAImpl group) {
-			this.group = group;
-		}
-
-		@Override
-		public void run() {
-			System.out.println("Element injected:" + group.getElement());
-		}
-
-	}
-
 	@Test
-	public void CompositeDependencyFailWait() {
-
-		Implementation cta = (Implementation) CST.apamResolver.findImplByName(
-				null, "group-a-fail-wait");
-
-		Instance instanceApp1 = cta.createInstance(null, null);
-
-		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
-		
-		ThreadWrapper wrapper = new ThreadWrapper(ga1);
-		wrapper.setDaemon(true);
-		wrapper.start();
-
-		apam.waitForIt(3000);
-
-		String message = "In case of dependency been marked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
-
-		Assert.assertTrue(message, wrapper.isAlive());
-	}
-	
-	@Test
-	public void CompositeDependencyFailException() {
-
-		Implementation group_a = (Implementation) CST.apamResolver.findImplByName(
-				null, "group-a-fail-exception");
-	
-		Instance instance_a = (Instance) group_a.createInstance(null,
-				null);
-
-		S3GroupAImpl ga1 = (S3GroupAImpl) instance_a.getServiceObject();
-
-		String messageTemplate = "In dependency if we adopt fail='exception' exception='A', the exception A should be throw in case the dependency is not satifiable. %s";
-
-		boolean exception = false;
-		boolean exceptionType = false;
-
-		try {
-
-			Eletronic injected = ga1.getElement();
-			System.out.println("Element:" + injected);
-
-		} catch (Exception e) {
-			exception = true;
-
-			System.err.println("-------------- Exception raised -----------------");
-			
-			e.printStackTrace();
-			
-			System.err.println("-------------- /Exception raised -----------------");
-			
-			if (e instanceof FailException) {
-				exceptionType = true;
-			}
-
-		}
-
-		String messageException = String.format(messageTemplate,
-				"But no exception was thrown");
-		String messageExceptionType = String.format(messageTemplate,
-				"But the exception thrown was not of the proper type (A)");
-
-		Assert.assertTrue(messageException, exception);
-		Assert.assertTrue(messageExceptionType, exceptionType);
-
-	}
-	
-	@Test
-	public void CompositeContentMngtOwnSpecification() {
-
-		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-own-specification");
-
-		Composite composite_a = (Composite) cta.createInstance(null, null);
-		
-		Implementation device = CST.apamResolver.findImplByName(
-				null, "BoschSwitch");
-		Instance deviceinst=device.createInstance(null, null);
-		
-		String message = "When a composite declares to own a specification, that means every instance of that specification should be owned by that composite. This test failed, the actual owner composite of that component and the one that declares to be the owner are different";
-		
-		Assert.assertTrue(message, deviceinst.getComposite() == composite_a);
-
-	}
-
-	@Test
-	public void CompositeWithEagerDependency_05() {
-		CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
-				null, "S2Impl-composite-eager");
-
-		String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
-
-		Assert.assertTrue(String.format(message,
-				"Although, the test failed to retrieve the composite"),
-				ct1 != null);
-
-		auxListInstances("instances existing before the test-");
-
-		Composite instanceComposite = (Composite)ct1.createInstance(null,
-				new HashMap<String, String>());
-
-		Implementation implS2=CST.apamResolver.findImplByName(
-				null, "fr.imag.adele.apam.pax.test.impl.S2Impl");
-		
-		Instance instance=implS2.createInstance(instanceComposite, null);
-		
-		Assert.assertTrue(String.format(message,
-				"Although, the test failed to instantiate the composite"),
-				instance != null);
-
-		//Force injection (for debuggin purposes)
-		//S2Impl im=(S2Impl)instance.getServiceObject();
-		//im.getDeadMansSwitch();
-		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
-		List<Instance> pool = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.device.PhilipsSwitch",
-				"fr.imag.adele.apam.pax.test.impl.device.GenericSwitch",
-				"fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch",
-				"fr.imag.adele.apam.pax.test.device.DeadsManSwitch");
-		
-		auxListInstances("instances existing after the test-");
-
-		Assert.assertTrue(
-				String.format(
-						message,
-						"Although, there exist no instance of dependence required(DeadsManSwitch.class), which means that it was not injected."),
-				pool.size() == 1);
-
-	}
-
-	@Test
-	public void CompositeContentMngtDependencyFailException() {
+	public void CompositeContentMngtDependencyFailException_tc040() {
 
 		CompositeType ctroot = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a-fail-exception");
@@ -261,9 +114,218 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		Assert.assertTrue(messageExceptionType, exceptionType);
 
 	}
+	
+	// Require by the test CompositeContentMngtDependencyFailWait
+	class ThreadWrapper extends Thread {
+
+		final S3GroupAImpl group;
+
+		public ThreadWrapper(S3GroupAImpl group) {
+			this.group = group;
+		}
+
+		@Override
+		public void run() {
+			System.out.println("Element injected:" + group.getElement());
+		}
+
+	}
 
 	@Test
-	public void CompositeContentMngtDependencyHide() {
+	public void CompositeWithEagerDependency_tc041() {
+		CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
+				null, "S2Impl-composite-eager");
+
+		String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
+
+		Assert.assertTrue(String.format(message,
+				"Although, the test failed to retrieve the composite"),
+				ct1 != null);
+
+		auxListInstances("instances existing before the test-");
+
+		Composite instanceComposite = (Composite)ct1.createInstance(null,
+				new HashMap<String, String>());
+
+		Implementation implS2=CST.apamResolver.findImplByName(
+				null, "fr.imag.adele.apam.pax.test.impl.S2Impl");
+		
+		Instance instance=implS2.createInstance(instanceComposite, null);
+		
+		Assert.assertTrue(String.format(message,
+				"Although, the test failed to instantiate the composite"),
+				instance != null);
+
+		//Force injection (for debuggin purposes)
+		//S2Impl im=(S2Impl)instance.getServiceObject();
+		//im.getDeadMansSwitch();
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		List<Instance> pool = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.device.PhilipsSwitch",
+				"fr.imag.adele.apam.pax.test.impl.device.GenericSwitch",
+				"fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch",
+				"fr.imag.adele.apam.pax.test.device.DeadsManSwitch");
+		
+		auxListInstances("instances existing after the test-");
+
+		Assert.assertTrue(
+				String.format(
+						message,
+						"Although, there exist no instance of dependence required(DeadsManSwitch.class), which means that it was not injected."),
+				pool.size() == 1);
+
+	}
+	
+	@Test
+	public void CompositeContentMngtStartTriggerBySpecification_tc042(){
+		auxListInstances("INSTANCE-t1-");
+		
+		String checkingFor="specification";
+		
+		CompositeType composite=(CompositeType)CST.apamResolver.findImplByName(
+				null, "composite-a-start-by-"+checkingFor);
+		Composite compositeInstance=(Composite)composite.createInstance(null, null);
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		Implementation trigger=CST.apamResolver.findImplByName(
+				null, "group-a-start-trigger");
+		
+		Instance triggerInstance=trigger.createInstance(compositeInstance, null);
+		
+		Assert.assertTrue(triggerInstance!=null);
+		
+		List<Instance> instancesOfB=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupBImpl");
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		auxListInstances("INSTANCE-t2-");
+		
+		String messageTemplate="Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
+		String message=String.format(messageTemplate, checkingFor);
+		Assert.assertTrue(message,instancesOfB.size()==1);
+		
+	}
+	
+	@Test
+	public void CompositeContentMngtStartTriggerByImplementation_tc043(){
+		auxListInstances("INSTANCE-t1-");
+		
+		String checkingFor="implementation";
+		
+		CompositeType composite=(CompositeType)CST.apamResolver.findImplByName(
+				null, "composite-a-start-by-"+checkingFor);
+		Composite compositeInstance=(Composite)composite.createInstance(null, null);
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		Implementation trigger=CST.apamResolver.findImplByName(
+				null, "group-a-start-trigger");
+		
+		Instance triggerInstance=trigger.createInstance(compositeInstance, null);
+		
+		Assert.assertTrue(triggerInstance!=null);
+		
+		List<Instance> instancesOfB=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupBImpl");
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		auxListInstances("INSTANCE-t2-");
+		
+		String messageTemplate="Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
+		String message=String.format(messageTemplate, checkingFor);
+		Assert.assertTrue(message,instancesOfB.size()==1);
+		
+	}	
+	
+	@Test
+	public void CompositeDependencyFailWait_tc044() {
+
+		Implementation cta = (Implementation) CST.apamResolver.findImplByName(
+				null, "group-a-fail-wait");
+
+		Instance instanceApp1 = cta.createInstance(null, null);
+
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+		
+		ThreadWrapper wrapper = new ThreadWrapper(ga1);
+		wrapper.setDaemon(true);
+		wrapper.start();
+
+		apam.waitForIt(3000);
+
+		String message = "In case of dependency been marked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
+
+		Assert.assertTrue(message, wrapper.isAlive());
+	}
+	
+	@Test
+	public void CompositeDependencyFailException_tc045() {
+
+		Implementation group_a = (Implementation) CST.apamResolver.findImplByName(
+				null, "group-a-fail-exception");
+	
+		Instance instance_a = (Instance) group_a.createInstance(null,
+				null);
+
+		S3GroupAImpl ga1 = (S3GroupAImpl) instance_a.getServiceObject();
+
+		String messageTemplate = "In dependency if we adopt fail='exception' exception='A', the exception A should be throw in case the dependency is not satifiable. %s";
+
+		boolean exception = false;
+		boolean exceptionType = false;
+
+		try {
+
+			Eletronic injected = ga1.getElement();
+			System.out.println("Element:" + injected);
+
+		} catch (Exception e) {
+			exception = true;
+
+			System.err.println("-------------- Exception raised -----------------");
+			
+			e.printStackTrace();
+			
+			System.err.println("-------------- /Exception raised -----------------");
+			
+			if (e instanceof FailException) {
+				exceptionType = true;
+			}
+
+		}
+
+		String messageException = String.format(messageTemplate,
+				"But no exception was thrown");
+		String messageExceptionType = String.format(messageTemplate,
+				"But the exception thrown was not of the proper type (A)");
+
+		Assert.assertTrue(messageException, exception);
+		Assert.assertTrue(messageExceptionType, exceptionType);
+
+	}
+	
+	@Test
+	public void CompositeContentMngtOwnSpecification_tc046() {
+
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-own-specification");
+
+		Composite composite_a = (Composite) cta.createInstance(null, null);
+		
+		Implementation device = CST.apamResolver.findImplByName(
+				null, "BoschSwitch");
+		Instance deviceinst=device.createInstance(null, null);
+		
+		String message = "When a composite declares to own a specification, that means every instance of that specification should be owned by that composite. This test failed, the actual owner composite of that component and the one that declares to be the owner are different";
+		
+		Assert.assertTrue(message, deviceinst.getComposite() == composite_a);
+
+	}
+
+	@Test
+	public void CompositeContentMngtDependencyHide_tc047() {
 
 		CompositeType ctaroot = (CompositeType) CST.apamResolver
 				.findImplByName(null, "composite-a-hide");
@@ -296,67 +358,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 	}
 	
-	@Test
-	public void CompositeContentMngtStartTriggerBySpecification(){
-		auxListInstances("INSTANCE-t1-");
-		
-		String checkingFor="specification";
-		
-		CompositeType composite=(CompositeType)CST.apamResolver.findImplByName(
-				null, "composite-a-start-by-"+checkingFor);
-		Composite compositeInstance=(Composite)composite.createInstance(null, null);
-		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
-		Implementation trigger=CST.apamResolver.findImplByName(
-				null, "group-a-start-trigger");
-		
-		Instance triggerInstance=trigger.createInstance(compositeInstance, null);
-		
-		Assert.assertTrue(triggerInstance!=null);
-		
-		List<Instance> instancesOfB=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupBImpl");
-		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
-		auxListInstances("INSTANCE-t2-");
-		
-		String messageTemplate="Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
-		String message=String.format(messageTemplate, checkingFor);
-		Assert.assertTrue(message,instancesOfB.size()==1);
-		
-	}
-	
-	@Test
-	public void CompositeContentMngtStartTriggerByImplementation(){
-		auxListInstances("INSTANCE-t1-");
-		
-		String checkingFor="implementation";
-		
-		CompositeType composite=(CompositeType)CST.apamResolver.findImplByName(
-				null, "composite-a-start-by-"+checkingFor);
-		Composite compositeInstance=(Composite)composite.createInstance(null, null);
-		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
-		Implementation trigger=CST.apamResolver.findImplByName(
-				null, "group-a-start-trigger");
-		
-		Instance triggerInstance=trigger.createInstance(compositeInstance, null);
-		
-		Assert.assertTrue(triggerInstance!=null);
-		
-		List<Instance> instancesOfB=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupBImpl");
-		
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
-		
-		auxListInstances("INSTANCE-t2-");
-		
-		String messageTemplate="Its possible to create an instance according to the appearance of a certain %s by using <start/> element with <trigger/>. The expected instance was not created when the trigger was launched.";
-		String message=String.format(messageTemplate, checkingFor);
-		Assert.assertTrue(message,instancesOfB.size()==1);
-		
-	}	
+
 
 	
 

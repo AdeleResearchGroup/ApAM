@@ -20,6 +20,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformCompositeType;
@@ -212,18 +213,19 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
          * 
          */
         
-        //Intent .....
-//        this.createInstance(composite, initialProperties) ;              
-        //Intent ...
-        
+        /*
+         * This is a false composite / instance, not registered anywhere,only in the insts set 
+         * just to provide an instance to the find and resolve.
+         * To be removed before registering.
+         */
+        Composite dummyComposite = new CompositeImpl (this, "dummyComposite") ;
+                
 		String mainComponent = getCompoDeclaration().getMainComponent().getName();
 		
-		Component mComponent = CST.apamResolver.findComponentByName(this, mainComponent);
+		Component mComponent = CST.apamResolver.findComponentByName(dummyComposite, mainComponent);
 		if (mComponent!=null && mComponent instanceof Implementation){
 		    logger.debug("The main component of " + this.getName() + " is an Implementation : " + mComponent.getName());
-		  //Maybe the unique case where we do not have a composite instance
-		    mainImpl = (Implementation) mComponent;
-		    
+		    mainImpl = (Implementation) mComponent;		    
 		}else if (mComponent!=null && mComponent instanceof Specification) {
 		    logger.debug("The main component of " + this.getName() + " is a Specification : " + mComponent.getName());
 		    /*
@@ -231,18 +233,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
              */
             Set<String> constraints = new HashSet<String>();
             constraints.add("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
-            mainImpl = CST.apamResolver.resolveSpecByName(this, mainComponent, constraints, null);
+            mainImpl = CST.apamResolver.resolveSpecByName(dummyComposite, mainComponent, constraints, null);
 		}
-//		//Maybe the unique case where we do not have a composite instance
-//		mainImpl = CST.apamResolver.findImplByName(this, mainComponent);
-//		if (mainImpl == null) {
-//			/*
-//			 *  It is a specification to resolve as the main implem. Do not select another composite
-//			 */
-//			Set<String> constraints = new HashSet<String>();
-//			constraints.add("(!(" + CST.APAM_COMPOSITETYPE + "=" + CST.V_TRUE + "))");
-//			mainImpl = CST.apamResolver.resolveSpecByName(this, mainComponent, constraints, null);
-//        }
 		
 		/*
 		 * If we cannot resolve the main implementation, we abort the registration in APAM, taking care of
@@ -279,6 +271,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         boolean isConformingMainImplem = providesResources;
         assert isConformingMainImplem;
         
+        //Remove the dummy Instance
+       //
         /*
 		 * add to list of composite types
 		 */
@@ -287,6 +281,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		/*
 		 * Complete normal registration
 		 */
+		
     	super.register(initialProperties); 	
     }
     

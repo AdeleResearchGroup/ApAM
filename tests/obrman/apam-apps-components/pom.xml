@@ -4,7 +4,8 @@
 	<parent>
 		<artifactId>obrman</artifactId>
 		<groupId>fr.imag.adele.apam.tests</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>fr.imag.adele.apam.tests.obrman</groupId>
 	<artifactId>apam-apps-components</artifactId>
@@ -27,7 +28,7 @@
 				<plugin>
 					<groupId>fr.imag.adele.apam</groupId>
 					<artifactId>apam-maven-plugin</artifactId>
-					<extensions></extensions>
+
 					<configuration>
 						<noLocalObr>true</noLocalObr>
 					</configuration>
