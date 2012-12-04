@@ -239,6 +239,9 @@
 <node CREATED="1353942131367" ID="ID_1134763459" MODIFIED="1354296536032" TEXT="specification-tc046">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1354297652923" ID="ID_41966136" MODIFIED="1354297707878" TEXT="between own and dependency injection, own should have priority">
+<icon BUILTIN="button_cancel"/>
+</node>
 </node>
 </node>
 </node>

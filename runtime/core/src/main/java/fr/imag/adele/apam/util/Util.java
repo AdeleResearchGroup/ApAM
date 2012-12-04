@@ -540,7 +540,7 @@ public class Util {
         //		for (DependencyDeclaration compoDep : compoDeps) {
         //Look if the client requires one of the resources provided by the specification
         if (compoDep.getTarget() instanceof SpecificationReference) {
-            Specification spec = CST.apamResolver.findSpecByName(compoInst.getComposite().getCompType(),
+            Specification spec = CST.apamResolver.findSpecByName(compoInst,
                     ((SpecificationReference) compoDep.getTarget()).getName());
             if ((spec != null) && spec.getDeclaration().getProvidedResources().contains(clientDep.getTarget()))
                 if (!multiple || compoDep.isMultiple())
@@ -550,7 +550,7 @@ public class Util {
             //and the client requires a resource provided by that implementation
             if (compoDep.getTarget() instanceof ImplementationReference) {
                 String implName = ((ImplementationReference<?>) compoDep.getTarget()).getName();
-                Implementation impl = CST.apamResolver.findImplByName(compoInst.getComposite().getCompType(), implName);
+                Implementation impl = CST.apamResolver.findImplByName(compoInst, implName);
                 if (impl != null) {
                     //The client requires the specification implemented by that implementation
                     if (clientDep.getTarget() instanceof SpecificationReference) {
@@ -749,7 +749,7 @@ public class Util {
         if (compoDep.getTarget() instanceof SpecificationReference) {
             if (clientDep.getTarget() instanceof ImplementationReference) {
                 String implName = ((ImplementationReference<?>) clientDep.getTarget()).getName();
-                Implementation impl = CST.apamResolver.findImplByName(compoInst.getComposite().getCompType(), implName);
+                Implementation impl = CST.apamResolver.findImplByName(compoInst, implName);
                 if (impl != null && impl.getSpec().getName().matches(pattern)) {
                     return true ;
                 }

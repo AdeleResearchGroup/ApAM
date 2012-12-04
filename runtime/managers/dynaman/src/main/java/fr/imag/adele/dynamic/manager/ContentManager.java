@@ -117,7 +117,7 @@ public class ContentManager  {
 			/*
 			 * Get the component that defines the property, notice that this may deploy the implementation if not yet installed
 			 */
-			Component implementation = CST.apamResolver.findComponentByName(composite.getCompType(),propertyReference.getDeclaringComponent().getName());
+			Component implementation = CST.apamResolver.findComponentByName(composite.getMainInst(),propertyReference.getDeclaringComponent().getName());
 			
 			/*
 			 * In case the implementation providing the state is not available signal an error. 
@@ -358,7 +358,11 @@ public class ContentManager  {
 
 	/**
 	 * Verifies the specified instance to see if ownership is still valid
+	 * 
+	 * TODO BUG dynamic ownership is not considering all instances when a new owner composite appears
+	 * and it must invalidate all the wires that are no longer valid with the new visibility rules 
 	 */
+	@SuppressWarnings("unused")
 	private void verifyRelinquish(Instance instance) {
 		
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {

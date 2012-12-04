@@ -158,17 +158,17 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     // at the end
     @Override
     public void
-            getSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dep, List<DependencyManager> involved) {
+            getSelectionPath(Instance client, DependencyDeclaration dep, List<DependencyManager> involved) {
         involved.add(involved.size(), this);
     }
 
     @Override
-    public Instance resolveImpl(Composite composite, Implementation impl, DependencyDeclaration dep) {
+    public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dep) {
         return null;
     }
 
     @Override
-    public Set<Instance> resolveImpls(Composite composite, Implementation impl, DependencyDeclaration dep) {
+    public Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dep) {
         return null;
     }
 
@@ -288,18 +288,18 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Set<Implementation> resolveSpecs(CompositeType compoType, DependencyDeclaration dep) {
+    public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep) {
         Set<Implementation> ret = new HashSet<Implementation>();
-        ret.add(resolveSpec(compoType, dep));
+        ret.add(resolveSpec(client, dep));
         return ret;
     }
 
     @Override
-    public Implementation resolveSpec(CompositeType compoType, DependencyDeclaration dep) {
+    public Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
         Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints());
         List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences());
 
-        return resolveSpec(compoType, dep.getTarget(), constraints, preferences);
+        return resolveSpec(client.getComposite().getCompType(), dep.getTarget(), constraints, preferences);
     }
 
     private <C extends Component> C findByName(CompositeType compoType, String componentName,
@@ -326,24 +326,23 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Component findComponentByName(CompositeType compoType, String componentName) {
-        return findByName(compoType, componentName, fr.imag.adele.apam.Component.class);
+    public Component findComponentByName(Instance client, String componentName) {
+        return findByName(client.getComposite().getCompType(), componentName, fr.imag.adele.apam.Component.class);
     }
 
     @Override
-    public Specification findSpecByName(CompositeType compoType, String specName) {
-        return findByName(compoType, specName, fr.imag.adele.apam.Specification.class);
+    public Specification findSpecByName(Instance client, String specName) {
+        return findByName(client.getComposite().getCompType(), specName, fr.imag.adele.apam.Specification.class);
     }
 
     @Override
-    public Implementation findImplByName(CompositeType compoType, String implName) {
-        return findByName(compoType, implName, fr.imag.adele.apam.Implementation.class);
+    public Implementation findImplByName(Instance client, String implName) {
+        return findByName(client.getComposite().getCompType(), implName, fr.imag.adele.apam.Implementation.class);
     }
 
     @Override
-    public Instance findInstByName(Composite compo, String instName) {
-        CompositeType compoType = compo.getCompType();
-        return findByName(compoType, instName, fr.imag.adele.apam.Instance.class);
+    public Instance findInstByName(Instance client, String instName) {
+        return findByName(client.getComposite().getCompType(), instName, fr.imag.adele.apam.Instance.class);
     }
 
     public OBRManager getOBRManager(String compositeTypeName) {
@@ -399,9 +398,9 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Implementation findImplByDependency(CompositeType compoType,
+    public Implementation findImplByDependency(Instance client,
             DependencyDeclaration dependency) {
-        return findImplByName(compoType, dependency.getTarget().getName());
+        return findImplByName(client, dependency.getTarget().getName());
     }
 
 }

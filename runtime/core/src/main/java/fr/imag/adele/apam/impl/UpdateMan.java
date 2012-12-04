@@ -65,16 +65,17 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	 * @param compo
 	 * @return
 	 */
-	public static void updateComponent (Component compo) {
-		if (compo instanceof Instance) {
-			compo = ((Instance) compo).getImpl() ;
-		}
+	public static void updateComponent (Implementation impl) {
+//		Composite compo = client.getComposite() ;
+//		if (compo instanceof Instance) {
+//			compo = ((Instance) compo).getImpl() ;
+//		}
 		try {
-			Bundle bundle = compo.getApformComponent().getBundle ();
-			String implName = compo.getName() ;
+			Bundle bundle = impl.getApformComponent().getBundle ();
+			String implName = impl.getName() ;
 
 			//return the composite type that physically deployed the bundle
-			CompositeType compoTypeFrom = ((ComponentImpl)compo).getFirstDeployed();  
+			CompositeType compoTypeFrom = impl.getFirstDeployed();  
 
 			List<DependencyManager> selectionPath = ApamManagers.getManagers();
 			logger.info("Updating implementation " + implName + " in composite " + compoTypeFrom );
@@ -102,9 +103,9 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 						e.printStackTrace();
 					}
 					//compo = manager.install(sel) ; //does not install if the same version
-					if (compo instanceof Implementation)
-						ApamResolverImpl.deployedImpl(compoTypeFrom, (Implementation)compo, deployed);
-					return ;
+					//if (compo instanceof Implementation)
+					//TODO is that needed ?	ApamResolverImpl.deployedImpl(compoTypeFrom, impl, deployed);
+					//return ;
 				}
 			}
 		} catch (Exception e) { 
@@ -179,28 +180,21 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 
 		logger.info("Waiting for " + name + " update.");
 		Apform2Apam.waitForComponent(name) ;
-//		try {
-//			Thread.sleep(1000) ;
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		logger.info(name + " update done.");			
-
 	}
 
 	@Override
-	public void getSelectionPath(CompositeType compTypeFrom, DependencyDeclaration dep, List<DependencyManager> selPath) {
+	public void getSelectionPath(Instance client, DependencyDeclaration dep, List<DependencyManager> selPath) {
 	}
 
 	@Override
-	public Instance resolveImpl(Composite composite, Implementation impl, DependencyDeclaration dep) {
+	public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dep) {
 		waitComponent (impl.getName()) ;
 		return null;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Composite composite, Implementation impl, DependencyDeclaration dep) {
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dep) {
 		waitComponent (impl.getName());
 		return null;
 	}
@@ -210,19 +204,19 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public Implementation findImplByName(CompositeType compoType, String implName) {
+	public Implementation findImplByName(Instance client, String implName) {
 		waitComponent (implName)  ;
 		return null;
 	}
 
 	@Override
-	public Specification findSpecByName(CompositeType compTypeFrom, String specName) {
+	public Specification findSpecByName(Instance client, String specName) {
 		waitComponent (specName);
 		return null;
 	}
 
 	@Override
-	public Set<Implementation> resolveSpecs(CompositeType compoType, DependencyDeclaration dep) {
+	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null) return null;
 
@@ -231,7 +225,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public Implementation resolveSpec(CompositeType compoType, DependencyDeclaration dep) {
+	public Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null)
 			return null;	
@@ -241,28 +235,27 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public Instance findInstByName(Composite composite, String instName) {
+	public Instance findInstByName(Instance client, String instName) {
 		waitComponent(instName);
 		return null;
 	}
 
 	@Override
-	public Implementation findImplByDependency(CompositeType compoType,
+	public Implementation findImplByDependency(Instance client,
 			DependencyDeclaration dependency) {
 		waitComponent(dependency.getTarget().getName());
 		return  null;
 	}
 
 	@Override
-	public Component findComponentByName(CompositeType compoType, String componentName) {
+	public Component findComponentByName(Instance client, String componentName) {
 		waitComponent(componentName);
 		return null;
 	}
 
 	
 	@Override
-	public ComponentBundle findBundle(CompositeType compoType,
-			String bundleSymbolicName, String componentName) {
+	public ComponentBundle findBundle(CompositeType context, String bundleSymbolicName, String componentName) {
 		return null;
 	}
 

@@ -157,7 +157,7 @@ public class APAMImpl implements Apam {
     	 * If the provided specification is not installed force a resolution
     	 */
     	if (specification != null && CST.componentBroker.getSpec(specification) == null) {
-    		CST.apamResolver.findSpecByName(parent,specification);
+    		CST.apamResolver.findSpecByName(parent.getInst(),specification);
     	}
     	
     	return (CompositeType) CST.componentBroker.addImpl(parent,apfCompo);

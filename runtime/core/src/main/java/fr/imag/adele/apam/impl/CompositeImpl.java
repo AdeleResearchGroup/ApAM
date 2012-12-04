@@ -35,7 +35,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 	static {
 		Composite bootstrap = null;
 		try {
-			bootstrap 	= new CompositeImpl();
+			bootstrap 	= new CompositeImpl(CompositeTypeImpl.getRootCompositeType(),"rootComposite");
 		} catch (Exception e) {
 			throw new ExceptionInInitializerError(e);
 		}
@@ -44,7 +44,15 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		}
 	}
 
+	/**
+	 * The root instance and the root composite are the same object. getComposite() returns this.
+	 * @return
+	 */
 	public static Composite getRootAllComposites() {
+		return CompositeImpl.rootComposite;
+	}
+
+	public static Instance getRootInstance() {
 		return CompositeImpl.rootComposite;
 	}
 
@@ -88,14 +96,13 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
 
     /**
-     * This is an special constructor only used for the root instance of the system 
+     * This is an special constructor only used for the root instance of the system, and the dummy instance during construction 
      */
-	private CompositeImpl() throws InvalidConfiguration {
+	CompositeImpl(CompositeType compoType, String name) throws InvalidConfiguration {
 		
-		super(CompositeTypeImpl.getRootCompositeType(),"rootComposite");
-		
-		this.mainInst 		= null;
+		super(compoType, name);
 
+		this.mainInst 		= null;
     	/*
     	 * NOTE the root instance is automatically registered in Apam in a specific way that
     	 * allows bootstraping the system
@@ -104,6 +111,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		this.father			= null;
 		this.appliComposite = null;
 	}
+
 
     /**
      * Whether this is the system root composite
@@ -126,8 +134,6 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		 */
 		father = ((CompositeImpl)composite).isSystemRoot() ? null : composite;
 		appliComposite = father == null ? this : father.getAppliComposite();
-
-
 	}
 
 	@Override

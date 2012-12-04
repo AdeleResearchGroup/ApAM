@@ -9,7 +9,7 @@
   <packaging>pom</packaging>
   <modules>
   	<module>shell</module>
-  	<module>jmx</module>
+<!--   	<module>jmx</module> -->
   </modules>
   <name>Tools projects for ApAM</name>
 </project>

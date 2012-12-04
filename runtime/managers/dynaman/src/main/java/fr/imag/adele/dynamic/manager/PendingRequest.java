@@ -5,7 +5,6 @@ import java.util.Set;
 
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
@@ -164,12 +163,12 @@ public abstract class PendingRequest<T extends Component> {
 	 */
 	public static class SpecificationResolution extends PendingRequest<Implementation> {
 	
-		private final CompositeType composite;
+		private final Instance client;
 		
-		public SpecificationResolution(ApamResolverImpl resolver, CompositeType composite, DependencyDeclaration dependency) {
+		public SpecificationResolution(ApamResolverImpl resolver, Instance client, DependencyDeclaration dependency) {
 			super(resolver,dependency);
 			
-			this.composite = composite;
+			this.client = client;
 		}
 		
 		/*
@@ -184,7 +183,7 @@ public abstract class PendingRequest<T extends Component> {
 		 */
 		@Override
 		public Composite getContext() {
-			return (Composite) composite.getInst();
+			return  client.getComposite();
 		}
 
 	
@@ -194,7 +193,7 @@ public abstract class PendingRequest<T extends Component> {
 			 * First consider the case the target is a named implementation
 			 */
 			if (dependency.getTarget() instanceof ImplementationReference<?>) {
-				Implementation result = resolver.findImplByDependency(composite,dependency);
+				Implementation result = resolver.findImplByDependency(client,dependency);
 				return result != null ? Collections.singleton(result) : null;
 			}
 			
@@ -202,11 +201,11 @@ public abstract class PendingRequest<T extends Component> {
 			 * Next consider resolution by provided resource
 			 */
 			if (! dependency.isMultiple()) {
-				Implementation result = resolver.resolveSpecByResource(composite,dependency);
+				Implementation result = resolver.resolveSpecByResource(client,dependency);
 				return result != null ? Collections.singleton(result) : null;
 			}
 			else {
-				return resolver.resolveSpecByResources(composite,dependency);
+				return resolver.resolveSpecByResources(client,dependency);
 			}
 		}
 	
@@ -259,27 +258,27 @@ public abstract class PendingRequest<T extends Component> {
 	 */
 	public static class ImplementationResolution extends PendingRequest<Instance> {
 	
-		private final Composite			composite;
+		private final Instance			client;
 		private final Implementation 	implementation;
 		
-		public ImplementationResolution(ApamResolverImpl resolver, Composite composite, Implementation implementation, DependencyDeclaration dependency) {
+		public ImplementationResolution(ApamResolverImpl resolver, Instance client, Implementation implementation, DependencyDeclaration dependency) {
 			super(resolver,dependency);
 			
-			this.composite		= composite;
+			this.client		= client;
 			this.implementation	= implementation;
 		}
 		
 		@Override
 		public Composite getContext() {
-			return composite;
+			return client.getComposite();
 		}
 	
 		@Override
 		protected Set<Instance> retry() {
 			if (dependency.isMultiple())
-				return resolver.resolveImpls(composite, implementation, dependency);
+				return resolver.resolveImpls(client, implementation, dependency);
 			else
-				return Collections.singleton(resolver.resolveImpl(composite, implementation, dependency));
+				return Collections.singleton(resolver.resolveImpl(client, implementation, dependency));
 		}
 	
 		@Override
