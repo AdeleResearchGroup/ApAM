@@ -20,7 +20,7 @@
 			<constraints>
 				<!-- <instance filter="(&amp;(currentVoltage &gt;= 105)(currentVoltage 
 					&lt;= 115))" /> -->
-				<instance filter="(currentVoltage&lt;110)" />
+				<instance filter="(currentVoltage&lt;=110)" />
 			</constraints>
 		</dependency>
 
