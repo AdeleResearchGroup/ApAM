@@ -71,7 +71,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<implementation name="S2ImplCompile2" specification="S2Compile" singleton="true"
 		instantiable="false" shared="false"
 		classname="apam.test.compile.S2Impl" 
-		messages="{M1, M2}" message-fields="{p2, p1}" interfaces="{apam.test.compile.S2, A.B}" />		
+		messages="{M1, M2}" interfaces="{apam.test.compile.S2, A.B}" />		
 	<implementation name="S2ImplCompile3" specification="S2Compile" singleton="false"
 		instantiable="true" shared="false"
 		classname="apam.test.compile.S2Impl" interfaces="{apam.test.compile.S2, A.B}" />		
@@ -114,7 +114,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<dependency field="s4_1" exception="fr.imag. ….failedException"/>
 		<dependency field="s4_2" />		
 		<dependency message="apam.test.compile.M2" field="fM2"/>  		
-		<dependency method="getT2" />		
+		<dependency message="getT2" />		
 		<ipojo:requires field="apam" />
 	</implementation>
 
@@ -130,10 +130,10 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			
 		<definition name="location" type="exit, entrance, garage, bedroom" />
 		<property name="shared" value="false" />    
-		<dependency method="getM1" />
+		<dependency message="getM1" />
 		<dependency specification="S3Compile" id="S3Id" multiple="true"> <!--  added="newT" removed="removedT" -->
 			<interface field="fieldS3" />
-			<message method="getAlsoM1" />
+			<message pull="getAlsoM1" />
 <!-- 			<interface field="field2S3" /> -->
 			<constraints>
 				<implementation filter="(apam-composite=true)" />

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -657,20 +658,24 @@ public class CheckObr {
      * @param component
      */
     private static void checkContextualDependencies(CompositeDeclaration component) {
+    	try {
         for (DependencyDeclaration pol : component.getContextualDependencies()) {
             for (String constraint : pol.getImplementationConstraints()) {
-                ApamFilter.newInstance(constraint);
+                ApamFilter.newInstance(constraint, false);
             }
             for (String constraint : pol.getImplementationPreferences()) {
-                ApamFilter.newInstance(constraint);
+                ApamFilter.newInstance(constraint, false);
             }
             for (String constraint : pol.getInstanceConstraints()) {
-                ApamFilter.newInstance(constraint);
+                ApamFilter.newInstance(constraint, false);
             }
             for (String constraint : pol.getInstancePreferences()) {
-                ApamFilter.newInstance(constraint);
+                ApamFilter.newInstance(constraint, false);
             }
         }
+    	} catch (InvalidSyntaxException e) {
+    		error (e.getMessage()) ;
+    	}
     }
 
     /**

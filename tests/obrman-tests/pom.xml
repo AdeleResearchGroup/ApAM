@@ -8,7 +8,7 @@
         <relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>fr.imag.adele.apam.tests</groupId>
-	<artifactId>obrman</artifactId>
+	<artifactId>obrman-tests</artifactId>
 	<packaging>pom</packaging>
 	<modules>
 		<module>apam-apps</module>

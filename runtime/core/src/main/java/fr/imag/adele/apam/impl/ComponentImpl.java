@@ -705,7 +705,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
     @Override
     public boolean match(String goal) {
-        return goal == null || match(ApamFilter.newInstance(goal));
+    	if (goal == null) return true ;
+    	ApamFilter f = ApamFilter.newInstance(goal) ;
+    	if (f == null) return false ;
+        return match(f);
     }
 
     @Override
