@@ -35,6 +35,8 @@ public class ConstraintTest extends ExtensionAbstract{
 		Instance philipsSwitch = CST.componentBroker.getInstService(s1
 				.getSimpleDevice110v());
 
+		philipsSwitch.setProperty("currentVoltage", "110");
+		
 		String currentVoltage=philipsSwitch.getProperty("currentVoltage");
 		String voltage=philipsSwitch.getProperty("voltage");
 		
@@ -50,12 +52,12 @@ public class ConstraintTest extends ExtensionAbstract{
 		
 		Assert.assertTrue(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
 		
-		expression="(currentVoltage < 111)";
+		expression="(currentVoltage <= 110)";
 		result=true;
 		
 		Assert.assertTrue(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
 		
-		expression="(currentVoltage > 110)";
+		expression="(currentVoltage >= 111)";
 		result=false;
 		
 		Assert.assertFalse(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
@@ -126,11 +128,10 @@ public class ConstraintTest extends ExtensionAbstract{
 			{
 				add(siemensInst);
 				add(lgInst);
+				add(boschInst);
 				add(samsungInst);
 			}
 		};
-
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -138,7 +139,7 @@ public class ConstraintTest extends ExtensionAbstract{
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
-		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
 		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
 			Instance p = CST.componentBroker.getInstService(e);
@@ -155,15 +156,17 @@ public class ConstraintTest extends ExtensionAbstract{
 				}
 
 			// Check if all valid instances were injected 
-			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was injected even if its does not obey the constraint (currentVoltage&lt;110)", p.getName(),p.getProperty("currentVoltage")),p.match("currentVoltage&lt;110"));
-			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was not found in the list of valid instances for the constraint (currentVoltage&lt;110)", p.getName(),p.getProperty("currentVoltage")),found);
+			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was injected even if its does not obey the constraint (currentVoltage<=110)", p.getName(),p.getProperty("currentVoltage")),
+					p.match("(currentVoltage<=110)"));
+			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was not found in the list of valid instances for the constraint (currentVoltage<=110)", p.getName(),p.getProperty("currentVoltage")),
+					found);
 
 		}
 
 		auxListInstances("--------------");
 		
 		// check if there is no other instance injected
-		Assert.assertTrue("The number of valid instances and the number of injected instances differ, instances not expected were injected",s1.getEletronicInstancesConstraintsInstance().size() == validInstances
+		Assert.assertTrue(String.format("The number of valid instances and the number of injected instances differ, instances not expected were injected. %d injected instead of %d",s1.getEletronicInstancesConstraintsInstance().size(),validInstances.size()),s1.getEletronicInstancesConstraintsInstance().size() == validInstances
 				.size());
 		
 	}
@@ -199,15 +202,16 @@ public class ConstraintTest extends ExtensionAbstract{
 		boschInst.setProperty("currentVoltage", "110");
 		philipsInst.setProperty("currentVoltage", "117");
 		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
 		Set<Instance> validInstances = new HashSet<Instance>() {
 			{
 				add(siemensInst);
 				add(lgInst);
+				add(boschInst);
 				add(samsungInst);
 			}
 		};
-
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
@@ -215,6 +219,8 @@ public class ConstraintTest extends ExtensionAbstract{
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
 		auxListInstanceReferencedBy("#################",s1.getEletronicInstancesConstraintsInstance());
 		
 		
@@ -233,19 +239,17 @@ public class ConstraintTest extends ExtensionAbstract{
 				}
 			
 			// Check if all valid instances were injected 
-			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was injected even if its does not obey the constraint (currentVoltage&lt;110)", p.getName(),p.getProperty("currentVoltage")),p.match("currentVoltage &lt; 110"));
-			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was not found in the list of valid instances for the constraint (currentVoltage&lt;110)", p.getName(),p.getProperty("currentVoltage")),found);
+			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was injected even if its does not obey the constraint (currentVoltage <= 110)", p.getName(),p.getProperty("currentVoltage")),p.match("(currentVoltage <= 110)"));
+			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was not found in the list of valid instances for the constraint (currentVoltage <= 110)", p.getName(),p.getProperty("currentVoltage")),found);
 
 		}
 
 		auxListInstances("--------------");
 
 		// check if there is no other instance injected
-		Assert.assertTrue("The number of valid instances and the number of injected instances differ, instances not expected were injected",s1.getEletronicInstancesConstraintsInstance().size() == validInstances
+		Assert.assertTrue(String.format("The number of valid instances and the number of injected instances differ, instances not expected were injected. %d injected instead of %d",s1.getEletronicInstancesConstraintsInstance().size(),validInstances.size()),s1.getEletronicInstancesConstraintsInstance().size() == validInstances
 				.size());
 
 	}
-	
-
 	
 }
