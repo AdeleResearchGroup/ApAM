@@ -32,18 +32,21 @@ public class ApamRepoBuilder {
 	 * Metadata (in internal format).
 	 */
 
-	private List<ComponentDeclaration> components ;
 
 	private Set<SpecificationReference> bundleRequiresSpecifications = new HashSet <SpecificationReference> ();
+
+	private static List <ComponentDeclaration> components   ;
+//	private static List <ComponentDeclaration> dependencies ;
 
 	/**
 	 * Flag describing if we need or not use local XSD files (i.e. use the {@link SchemaResolver} or not). If
 	 * <code>true</code> the local XSD are not used.
 	 */
 
-	public ApamRepoBuilder(List<ComponentDeclaration> components, List<URL> OBRRepos) {
+	public ApamRepoBuilder(List<ComponentDeclaration> components, List<ComponentDeclaration> dependencies) {
 		this.components = components ;
-		ApamCapability.init(components, OBRRepos) ;
+//		this.dependencies = dependencies ;
+		ApamCapability.init(components, dependencies) ;
 	}
 
 	public StringBuffer writeOBRFile() {

@@ -3,14 +3,15 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>APAM-Tests</artifactId>
+		<artifactId>APAM-Tests-Old</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
 	</parent>
+
 
 	<artifactId>S1Impl</artifactId>
 	<packaging>bundle</packaging>
-	<name>S1ImplMain</name>
+	<name>S1Impl</name>
 
 	<build>
 		<plugins>
@@ -21,59 +22,56 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-<!-- 				<configuration> -->
-<!-- 					<obrRepository>${basedir}/repoh.xml</obrRepository> -->
-<!-- 				</configuration> -->
+				<!-- <configuration> -->
+				<!-- <obrRepository>${basedir}/repoh.xml</obrRepository> -->
+				<!-- </configuration> -->
 			</plugin>
 
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
-				<configuration>
-					<metadata>src/main/resources/S1Impl.xml</metadata>
-<!-- 					<noLocalObr>false</noLocalObr>
-					<dependencyObrList>
-						<param>file:/F:/Maven/.m2/repository.xml</param>
-						<param>retest..falseURL</param>
-					</dependencyObrList>
- -->				</configuration>
+				<artifactId>apam-maven-plugin</artifactId>
+<!-- 				<version>${project.version}</version> -->
 				<executions>
 					<execution>
 						<goals>
-							<goal>ipojo-bundle</goal>
+							<goal>apam-bundle</goal>
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<metadata>src/main/resources/S1Impl.xml</metadata>
+					<!-- <noLocalObr>false</noLocalObr> <dependencyObrList> <param>file:/F:/Maven/.m2/repository.xml</param> 
+						<param>retest..falseURL</param> </dependencyObrList> -->
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>APAM</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>apam-core</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S2</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S1</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S3</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>

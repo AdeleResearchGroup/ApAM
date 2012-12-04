@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<modelVersion>4.0.0</modelVersion>
   	<parent>
-		<artifactId>APAM-Tests</artifactId>
+		<artifactId>APAM-Tests-Old</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.0.2-SNAPSHOT</version>
 	</parent>
 	
 	
@@ -27,12 +27,12 @@
 			
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<artifactId>apam-maven-plugin</artifactId>
+				<version>0.0.2-SNAPSHOT</version>
 				<executions>
 					<execution>
 						<goals>
-							<goal>ipojo-bundle</goal>
+							<goal>apam-bundle</goal>
 						</goals>
 						<configuration>
 							<metadata>src/main/resources/TestAttrSpec.xml</metadata>
@@ -42,6 +42,7 @@
 			</plugin>
 		</plugins>
 	</build>
+
 	<dependencies>
 	</dependencies>
 
