@@ -35,10 +35,40 @@ public class ConstraintTest extends ExtensionAbstract{
 		Instance philipsSwitch = CST.componentBroker.getInstService(s1
 				.getSimpleDevice110v());
 
-		Assert.assertTrue(philipsSwitch.match("(manufacturer=philips)"));
-		Assert.assertTrue(philipsSwitch.match("(voltage=110)"));
-		Assert.assertTrue(philipsSwitch
-				.match("(&amp;(voltage=110)(manufacturer=philips))"));
+		String currentVoltage=philipsSwitch.getProperty("currentVoltage");
+		String voltage=philipsSwitch.getProperty("voltage");
+		
+		String messageTemplate="The filter %s should result in a %s statement since currentVoltage:%s and voltage:%s";
+		
+		String expression="(manufacturer=philips)";
+		Boolean result=true;
+		
+		Assert.assertTrue(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		
+		expression="(voltage=110)";
+		result=true;
+		
+		Assert.assertTrue(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		
+		expression="(currentVoltage < 111)";
+		result=true;
+		
+		Assert.assertTrue(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		
+		expression="(currentVoltage > 110)";
+		result=false;
+		
+		Assert.assertFalse(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		
+		expression="(futfut)";
+		result=false;
+		
+		Assert.assertFalse(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		
+		expression="(&amp;(false)(manufacturer=philips))";
+		result=false;
+		
+		Assert.assertFalse(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
 
 	}
 	
@@ -124,13 +154,16 @@ public class ConstraintTest extends ExtensionAbstract{
 					break;
 				}
 
-			// Check if all valid instances were injected
-			Assert.assertTrue(found);
+			// Check if all valid instances were injected 
+			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was injected even if its does not obey the constraint (currentVoltage&lt;110)", p.getName(),p.getProperty("currentVoltage")),p.match("currentVoltage&lt;110"));
+			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was not found in the list of valid instances for the constraint (currentVoltage&lt;110)", p.getName(),p.getProperty("currentVoltage")),found);
 
 		}
 
+		auxListInstances("--------------");
+		
 		// check if there is no other instance injected
-		Assert.assertTrue(s1.getEletronicInstancesConstraintsInstance().size() == validInstances
+		Assert.assertTrue("The number of valid instances and the number of injected instances differ, instances not expected were injected",s1.getEletronicInstancesConstraintsInstance().size() == validInstances
 				.size());
 		
 	}
@@ -159,13 +192,13 @@ public class ConstraintTest extends ExtensionAbstract{
 		Implementation philipsImpl = CST.apamResolver.findImplByName(null,
 				"philipsSwitch");
 		final Instance philipsInst = philipsImpl.createInstance(null, null);
-
+		
 		samsungInst.setProperty("currentVoltage", "95");
 		lgInst.setProperty("currentVoltage", "100");
 		siemensInst.setProperty("currentVoltage", "105");
 		boschInst.setProperty("currentVoltage", "110");
 		philipsInst.setProperty("currentVoltage", "117");
-
+		
 		Set<Instance> validInstances = new HashSet<Instance>() {
 			{
 				add(siemensInst);
@@ -182,6 +215,9 @@ public class ConstraintTest extends ExtensionAbstract{
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
+		auxListInstanceReferencedBy("#################",s1.getEletronicInstancesConstraintsInstance());
+		
+		
 		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
 			Instance p = CST.componentBroker.getInstService(e);
 			System.out.println("---- Voltage:"
@@ -197,10 +233,12 @@ public class ConstraintTest extends ExtensionAbstract{
 				}
 			
 			// Check if all valid instances were injected 
-			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was injectected even if its does not obey the constraint (currentVoltage&lt;=110)", p.getName(),p.getProperty("currentVoltage")),p.match("(currentVoltage&lt;=110)"));
-			Assert.assertTrue(String.format("Instance %s was not found in the list of valid instances", p.getName()),found);
+			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was injected even if its does not obey the constraint (currentVoltage&lt;110)", p.getName(),p.getProperty("currentVoltage")),p.match("currentVoltage &lt; 110"));
+			Assert.assertTrue(String.format("Instance %s (currentVoltage:%s) was not found in the list of valid instances for the constraint (currentVoltage&lt;110)", p.getName(),p.getProperty("currentVoltage")),found);
 
 		}
+
+		auxListInstances("--------------");
 
 		// check if there is no other instance injected
 		Assert.assertTrue("The number of valid instances and the number of injected instances differ, instances not expected were injected",s1.getEletronicInstancesConstraintsInstance().size() == validInstances
