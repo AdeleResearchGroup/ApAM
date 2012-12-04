@@ -1,0 +1,16 @@
+#mac files
+.DS_Store
+
+
+# apam source files
+.idea
+.project
+.settings
+ApAM.iml
+distributions
+documentations
+plugins
+runtime
+simulation
+tests
+tools
