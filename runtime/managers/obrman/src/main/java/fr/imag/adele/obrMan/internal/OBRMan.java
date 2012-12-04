@@ -213,7 +213,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         // end
 
         f = ApamFilter.newInstance("(" + CST.COMPONENT_TYPE + "=" + CST.IMPLEMENTATION + ")");
-        constraints.add(f);
+        if (f != null) constraints.add(f);
 
         fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
         Implementation impl = null;

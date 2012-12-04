@@ -1,19 +1,20 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
-  
-  	<parent>
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
 		<artifactId>APAM-Tests-Old</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
-	
-  <artifactId>MainApam</artifactId>
-  <packaging>bundle</packaging>
-  <name>MainApam</name>
-  <description>test du main</description>
-  
+
+	<artifactId>MainApam</artifactId>
+	<packaging>bundle</packaging>
+	<name>MainApam</name>
+	<description>test du main</description>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -24,7 +25,7 @@
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 			</plugin>
- 			<plugin>
+			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
 				<version>${project.version}</version>
@@ -37,44 +38,44 @@
 							<metadata>src/main/resources/mainApam.xml</metadata>
 						</configuration>
 					</execution>
-				</executions>			
-			</plugin>	
+				</executions>
+			</plugin>
 		</plugins>
- 	</build>
+	</build>
 	<dependencies>
-       <dependency>
-           <groupId>org.apache.felix</groupId>
-           <artifactId>org.osgi.core</artifactId>
-				<scope>provided</scope>
-       </dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.osgi.core</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>apam-core</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
-		</dependency>		
+		</dependency>
 		<dependency>
-		  	<groupId>fr.imag.adele.apam</groupId>
-  			<artifactId>S1</artifactId>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S1</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
-		</dependency>		
+		</dependency>
 		<dependency>
-		  	<groupId>fr.imag.adele.apam</groupId>
-  			<artifactId>S2</artifactId>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S2</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
-		</dependency>		
+		</dependency>
 		<dependency>
-		  	<groupId>fr.imag.adele.apam</groupId>
-  			<artifactId>S5</artifactId>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S5</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>TestAttrSpec</artifactId>

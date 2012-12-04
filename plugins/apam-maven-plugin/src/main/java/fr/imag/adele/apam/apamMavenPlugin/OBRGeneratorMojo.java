@@ -78,20 +78,20 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 	 * 
 	 * @parameter expression="${dependencyObrList}"
 	 */
-	private List<URL>                       dependencyObrList;
+//	private List<URL>                       dependencyObrList;
 
 	/**
 	 * 
 	 * 
 	 * @parameter expression="${noLocalObr}"
 	 */
-	private boolean                         noLocalObr;
+//	private boolean                         noLocalObr;
 
 	// The list of bundle dependencies of the form "groupId.name.version"
-	public static Set<String>               bundleDependencies = new HashSet<String>();
-
+//	public static Set<String>               bundleDependencies = new HashSet<String>();
+//
 	public static Map<String, VersionRange> versionRange       = new HashMap<String, VersionRange>();
-
+//
 	public static String                    thisBundleVersion;
 
 	Logger                                  logger             = LoggerFactory.getLogger(OBRGeneratorMojo.class);
@@ -113,21 +113,22 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 		currentProjectGroupId= getProject().getGroupId() ;
 		currentProjectArtifactId = getProject().getArtifactId();
 		currentProjectVersion = getProject().getVersion();
+		thisBundleVersion = getProject().getVersion().replace('-', '.');
 
 		try {
 			// Computing the list of OBR repositories in which will be extracted the dependencies.
 			// The repo in which we compile will be the first one
 			// The local repository is at the end
-			if (dependencyObrList == null)
-				dependencyObrList = new ArrayList<URL>();
-			URL obrRepository = getObrRepoFromMavenPlugin();
-			if (obrRepository != null)
-				dependencyObrList.add(0, obrRepository);
-			if (!noLocalObr) {
-				File local = new File(localRepository.getBasedir() + File.separator + "repository.xml");
-				if (local.exists())
-					dependencyObrList.add(local.toURI().toURL());
-			}
+//			if (dependencyObrList == null)
+//				dependencyObrList = new ArrayList<URL>();
+//			URL obrRepository = getObrRepoFromMavenPlugin();
+//			if (obrRepository != null)
+//				dependencyObrList.add(0, obrRepository);
+//			if (!noLocalObr) {
+//				File local = new File(localRepository.getBasedir() + File.separator + "repository.xml");
+//				if (local.exists())
+//					dependencyObrList.add(local.toURI().toURL());
+//			}
 
 			getLog().info("Start bundle header manipulation");
 			File jar = getProject().getArtifact().getFile();
@@ -141,6 +142,10 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			List <ComponentDeclaration> dependencies = new ArrayList <ComponentDeclaration> ();
 			for (Object artifact : getProject().getDependencyArtifacts()) {
 				if (artifact instanceof Artifact) {
+					Artifact dependency = (Artifact) artifact;
+					VersionRange range = dependency.getVersionRange();
+					OBRGeneratorMojo.versionRange.put(dependency.getArtifactId(), range);
+
 					deps += ((Artifact) artifact).getBaseVersion().replace('-', '.') ;
 					dependencies.addAll(getComponentFromJar(((Artifact) artifact).getFile()));
 				}
@@ -191,19 +196,19 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			// System.out.println("obr Repository = " + obrRepository);
 			// } else obrRepository = localRepository.getBasedir() + File.separator +"repository.xml" ;
 
-			Set<URL> missingRepo = new HashSet<URL>();
-			for (URL obrUrl : dependencyObrList) {
-
-				try{
-					InputStream is=    obrUrl.openStream();
-					is.close();
-				}catch (Exception e){
-					logger.error("File not found at : " + obrUrl);
-
-					missingRepo.add(obrUrl);
-				}
-			}
-			dependencyObrList.removeAll(missingRepo);
+//			Set<URL> missingRepo = new HashSet<URL>();
+//			for (URL obrUrl : dependencyObrList) {
+//
+//				try{
+//					InputStream is=    obrUrl.openStream();
+//					is.close();
+//				}catch (Exception e){
+//					logger.error("File not found at : " + obrUrl);
+//
+//					missingRepo.add(obrUrl);
+//				}
+//			}
+//			dependencyObrList.removeAll(missingRepo);
 
 			ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencies);
 			StringBuffer obrContent = arb.writeOBRFile();
@@ -284,33 +289,33 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 	}
 
 
-	private URL getObrRepoFromMavenPlugin() {
-		List<Plugin> plugins = getProject().getBuildPlugins();
-		System.out.print(" Used plug in Maven : ");
-		for (Plugin plugin : plugins) {
-			System.out.print(plugin.getArtifactId() + "  ");
-			if (plugin.getArtifactId().equals("maven-bundle-plugin")) {
-				Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration();
-				if (configuration.getChild("obrRepository") != null) {
-					String repoName = configuration.getChild("obrRepository").getValue();
-					System.out.println("trouve : " + configuration.getChild("obrRepository").getValue());
-					File fileRepo = new File(repoName);
-					if (fileRepo.exists()) {
-						try {
-							return fileRepo.toURI().toURL();
-						} catch (MalformedURLException e) {
-							e.printStackTrace();
-						}
-					} else {
-						logger.error("OBR Repository " + repoName + " does not exist");
-						return null;
-					}
-				} else
-					return null;
-			}
-		}
-		System.out.println("");
-		return null;
-	}
+//	private URL getObrRepoFromMavenPlugin() {
+//		List<Plugin> plugins = getProject().getBuildPlugins();
+//		System.out.print(" Used plug in Maven : ");
+//		for (Plugin plugin : plugins) {
+//			System.out.print(plugin.getArtifactId() + "  ");
+//			if (plugin.getArtifactId().equals("maven-bundle-plugin")) {
+//				Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration();
+//				if (configuration.getChild("obrRepository") != null) {
+//					String repoName = configuration.getChild("obrRepository").getValue();
+//					System.out.println("trouve : " + configuration.getChild("obrRepository").getValue());
+//					File fileRepo = new File(repoName);
+//					if (fileRepo.exists()) {
+//						try {
+//							return fileRepo.toURI().toURL();
+//						} catch (MalformedURLException e) {
+//							e.printStackTrace();
+//						}
+//					} else {
+//						logger.error("OBR Repository " + repoName + " does not exist");
+//						return null;
+//					}
+//				} else
+//					return null;
+//			}
+//		}
+//		System.out.println("");
+//		return null;
+//	}
 
 }

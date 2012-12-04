@@ -514,7 +514,7 @@ public class CheckObr {
             return true;
 
         try {
-            ApamFilter f = ApamFilter.newInstance(expr);
+            ApamFilter f = ApamFilter.newInstance(expr, false);
         } catch (Exception e) {
             error("Bad filter in visibility expression " + expr);
             return false;
