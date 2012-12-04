@@ -214,6 +214,7 @@
 		<module>helpers</module>
 		<module>services</module>
 		<module>obrman-tests</module>
+        <module>pax-test</module>
 		<!-- <module>messages</module> -->
 	</modules>
 

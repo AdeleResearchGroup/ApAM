@@ -1,0 +1,37 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>fr.imag.adele.apam.tests.obrman</groupId>
+		<version>0.0.2-SNAPSHOT</version>
+		<artifactId>app1.obrman.test</artifactId>
+        <relativePath>../pom.xml</relativePath>
+	</parent>
+	<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
+	<artifactId>app1.private.components</artifactId>
+    <name>App1 private Components</name>
+	<packaging>pom</packaging>
+	<modules>
+		<module>APP1-MainSpec</module>
+		<module>APP1-S1-Spec</module>
+		<module>APP1-S3-Spec</module>
+		<module>APP1-S2-Spec</module>
+		<module>APP1-MainImpl</module>
+		<module>APP1-S1-Impl</module>
+		<module>APP1-S2-Impl</module>
+		<module>APP1-S3-Impl</module>
+	</modules>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<configuration>
+						<obrRepository>${basedir}/../../../repositories/${project.parent.artifactId}/obr/${project.parent.artifactId}-repo.xml</obrRepository>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

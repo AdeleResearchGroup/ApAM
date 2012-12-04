@@ -3,8 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>services</artifactId>
-		<groupId>fr.imag.adele.apam.tests</groupId>
+		<artifactId>apam-tests</artifactId>
+		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
 	</parent>
@@ -12,10 +12,10 @@
 
 	<groupId>fr.imag.adele.apam.tests.services</groupId>
 	<artifactId>apam-pax-test</artifactId>
-	<name>ApAM PaxExam Services Tests</name>
+	<name>ApAM PaxExam Tests</name>
 
 	<dependencies>
-
+        <!-- Components for tests-->
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-iface</artifactId>
@@ -45,14 +45,8 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests</groupId>
-			<artifactId>apam-helpers</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<!-- <dependency> <groupId>junit</groupId> <artifactId>junit</artifactId> 
-			<version>4.10</version> </dependency> -->		
+
+		<!-- Pax Exam -->
 		<dependency>
 			<groupId>org.ops4j.pax.exam</groupId>
 			<artifactId>pax-exam-container-forked</artifactId>
@@ -90,12 +84,13 @@
 			<artifactId>pax-url-aether</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+        <!-- Felix Framework -->
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.framework</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <!-- Apam -->
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>apam-core</artifactId>
@@ -108,8 +103,27 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-
-
+        <!--Apam Helpers for Test-->
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests</groupId>
+            <artifactId>apam-helpers</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Obrman applications tests -->
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app1.public</groupId>
+            <artifactId>APP1-Spec</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app2.public</groupId>
+            <artifactId>APP2-Spec</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Log  -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>

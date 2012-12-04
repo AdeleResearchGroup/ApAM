@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+
+	<implementation name="group-a"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupAImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" />
+		<dependency field="c" />
+	</implementation>
+
+	<implementation name="group-a-fail-wait"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupAImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" specification="eletronic-device-private"
+			fail="wait" />
+		<dependency field="c" />
+	</implementation>
+
+	<implementation name="group-a-fail-exception"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupAImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" specification="eletronic-device-private"
+			fail="exception" exception="fr.imag.adele.apam.pax.test.s3.impl.FailException" />
+		<dependency field="c" />
+	</implementation>
+
+	<implementation name="group-a-private-component"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupAImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" specification="eletronic-device-private" />
+		<dependency field="c" />
+	</implementation>
+
+	<implementation name="group-b"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupBImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" />
+		<dependency field="d" />
+		<dependency field="e" />
+	</implementation>
+
+	<implementation name="group-c"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupCImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" />
+	</implementation>
+
+	<implementation name="group-d"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupDImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" />
+	</implementation>
+
+	<implementation name="group-e"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupEImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" />
+		<dependency field="f" />
+	</implementation>
+
+	<implementation name="group-f"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupFImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" />
+	</implementation>
+
+	<composite name="composite-a" main="group-a">
+	</composite>
+
+	<composite name="composite-a-local-instance" main="group-a">
+		<contentMngt>
+			<local instance="true" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-local-implementation" main="group-a">
+		<contentMngt>
+			<local implementation="true" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-borrow-nothing-instance" main="group-a">
+		<contentMngt>
+			<borrow instance="false" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-borrow-nothing-implementation"
+		main="group-a">
+		<contentMngt>
+			<borrow implementation="false" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-friend-nothing-implementation"
+		main="group-a">
+		<contentMngt>
+			<friend implementation="false" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-friend-nothing-instance" main="group-a">
+		<contentMngt>
+			<friend instance="false" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-application-nothing-instance"
+		main="group-a">
+		<contentMngt>
+			<local instance="true"/>
+			<application instance="true" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-fail-exception" main="group-a-private-component">
+		<contentMngt>
+			<dependency specification="eletronic-device-private" fail="exception"
+				exception="fr.imag.adele.apam.pax.test.s3.impl.FailException" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-fail-wait" main="group-a-private-component">
+		<contentMngt>
+			<dependency specification="eletronic-device-private" fail="wait" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-hide" main="group-a-private-component">
+		<contentMngt>
+			<dependency specification="eletronic-device-private" hide="true" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-own-specification" main="group-a"
+		singleton="true">
+		<contentMngt>
+			<own specification="eletronic-device" property="voltage" value="110" />
+		</contentMngt>
+	</composite>
+
+	<implementation name="group-a-dispute-inject-own"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupAImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" />
+		<dependency field="c" />
+	</implementation>
+
+	<composite name="composite-a-dispute-inject-own" main="group-a"
+		singleton="true">
+		<contentMngt>
+			<own specification="eletronic-device" property="voltage" value="110" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-b" main="group-b">
+		<contentMngt>
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-c" main="group-c">
+		<contentMngt>
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-d" main="group-d">
+		<contentMngt>
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-e" main="group-e">
+		<contentMngt>
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-f" main="group-f">
+		<contentMngt>
+		</contentMngt>
+	</composite>
+
+	<implementation name="group-b-started-by-trigger"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupBImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" />
+	</implementation>
+
+	<implementation name="group-a-start-trigger"
+		classname="fr.imag.adele.apam.pax.test.s3.impl.S3GroupAImpl"
+		specification="fr.imag.adele.apam.pax.test.iface.S3">
+		<dependency field="element" />
+		<dependency field="c" />
+	</implementation>
+
+	<composite name="composite-a-start-by-specification" main="group-a" singleton="true">
+		<contentMngt>
+			<start implementation="group-b-started-by-trigger" name="creates-B">
+				<trigger>
+					<specification name="fr.imag.adele.apam.pax.test.iface.S3" />
+				</trigger>
+			</start>
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-start-by-implementation" main="group-a" singleton="true">
+		<contentMngt>
+			<start implementation="group-b-started-by-trigger" name="creates-B">
+				<trigger>
+					<implementation name="group-a-start-trigger" />
+				</trigger>
+			</start>
+		</contentMngt>
+	</composite>	
+
+</apam>

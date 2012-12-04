@@ -11,9 +11,9 @@
 	<artifactId>obrman-tests</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>apam-apps</module>
-		<module>apam-repositories</module>
-		<module>obrman-pax</module>
+		<module>app2</module>
+        <module>app1</module>
+		<module>repositories</module>
 	</modules>
 	
 </project>

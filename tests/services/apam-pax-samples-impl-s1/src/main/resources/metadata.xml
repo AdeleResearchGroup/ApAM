@@ -1,0 +1,138 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+
+	<implementation name="fr.imag.adele.apam.pax.test.impl.S1Impl"
+		classname="fr.imag.adele.apam.pax.test.impl.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
+
+		<callback onInit="start" onRemove="stop" />
+
+		<definition name="stateInternal" field="stateInternal"
+			type="string" internal="true" value="default" />
+		<definition name="stateNotInternal" field="stateNotInternal"
+			type="string" internal="false" value="default" />
+
+		<dependency field="s2" />
+		<dependency field="s3" />
+		<dependency field="eletronicInstancesInSet" />
+		<dependency field="eletronicInstancesInArray" />
+
+		<dependency field="eletronicInstancesConstraintsInstance">
+			<constraints>
+				<!-- <instance filter="(&amp;(currentVoltage &gt;= 105)(currentVoltage 
+					&lt;= 115))" /> -->
+				<instance filter="(currentVoltage&lt;=110)" />
+			</constraints>
+		</dependency>
+
+		<dependency field="devicePreference110v">
+			<preferences>
+				<instance filter="(currentVoltage=500)" />
+			</preferences>
+		</dependency>
+
+		<dependency field="deviceConstraint110v">
+			<constraints>
+				<instance filter="(currentVoltage=500)" />
+			</constraints>
+
+			<preferences>
+
+			</preferences>
+
+		</dependency>
+
+		<dependency field="simpleDevice110v">
+			<constraints>
+				<implementation filter="(manufacturer=philips)" />
+				<implementation filter="(voltage=110)" />
+			</constraints>
+		</dependency>
+
+	</implementation>
+
+	<implementation name="HouseMeterSingletonNotShared"
+		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		specification="eletronic-device-singleton-notshared">
+	</implementation>
+
+	<implementation name="HouseMeterSingletonShared"
+		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		specification="eletronic-device-singleton-shared">
+	</implementation>
+
+	<implementation name="HouseMeterNotSingletonNotShared"
+		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		specification="eletronic-device-notsingleton-notshared">
+	</implementation>
+
+	<implementation name="HouseMeterNotSingletonShared"
+		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		specification="eletronic-device-notsingleton-shared">
+	</implementation>
+
+	<implementation name="HouseMeterInstantiable"
+		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		specification="eletronic-device-instantiable">
+	</implementation>
+
+	<implementation name="HouseMeterNotInstantiable"
+		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		specification="eletronic-device-notinstantiable">
+	</implementation>
+
+	<implementation name="SamsungSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.device.GenericSwitch"
+		specification="eletronic-device">
+		<property name="manufacturer" value="samsung" />
+		<property name="voltage" value="220" />
+		<property name="hasDisplay" value="false" />
+		<property name="made" value="china" />
+		<definition name="property-01" value="default-01" type="string" />
+		<definition name="property-02" value="default-02" type="string" />
+		<definition name="property-03" value="default-03" type="string" />
+		<definition name="property-04" value="default-04" type="string" />
+		<definition name="property-05" value="default-05" type="string" />
+	</implementation>
+
+	<implementation name="LgSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.device.GenericSwitch"
+		specification="eletronic-device">
+		<property name="manufacturer" value="lg" />
+		<property name="voltage" value="220" />
+		<property name="hasDisplay" value="false" />
+	</implementation>
+
+
+	<implementation name="SiemensSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.device.GenericSwitch"
+		specification="eletronic-device">
+		<property name="manufacturer" value="siemens" />
+		<property name="voltage" value="220" />
+		<property name="hasDisplay" value="false" />
+	</implementation>
+
+	<implementation name="BoschSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.device.GenericSwitch"
+		specification="eletronic-device">
+		<property name="manufacturer" value="bosch" />
+		<property name="voltage" value="110" />
+		<property name="hasDisplay" value="false" />
+	</implementation>
+
+	<implementation name="philipsSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.device.PhilipsSwitch"
+		specification="eletronic-device">
+		<property name="manufacturer" value="philips" />
+		<property name="voltage" value="110" />
+		<property name="hasDisplay" value="false" />
+	</implementation>
+
+	<implementation name="S1Impl-added-removed-callback"
+		classname="fr.imag.adele.apam.pax.test.impl.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
+		<dependency field="s2" added="bind" removed="unbind" />
+		<!-- This is the correct one, but its not implemented 		
+		<dependency field="s2" added="start" removed="stop" /> 
+		-->
+	</implementation>
+
+</apam>
