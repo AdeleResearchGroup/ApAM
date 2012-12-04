@@ -35,6 +35,8 @@ public class ConstraintTest extends ExtensionAbstract{
 		Instance philipsSwitch = CST.componentBroker.getInstService(s1
 				.getSimpleDevice110v());
 
+		philipsSwitch.setProperty("currentVoltage", "110");
+		
 		String currentVoltage=philipsSwitch.getProperty("currentVoltage");
 		String voltage=philipsSwitch.getProperty("voltage");
 		
@@ -50,7 +52,7 @@ public class ConstraintTest extends ExtensionAbstract{
 		
 		Assert.assertTrue(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
 		
-		expression="(currentVoltage < 111)";
+		expression="(currentVoltage <= 111)";
 		result=true;
 		
 		Assert.assertTrue(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
