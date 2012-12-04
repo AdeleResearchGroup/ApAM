@@ -1,10 +1,10 @@
-package fr.imag.adele.apam.pax.test.impl;
+package fr.imag.adele.apam.pax.test.s3.impl;
 
 import fr.imag.adele.apam.pax.test.iface.S3;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 
 
-public class S3GroupDImpl implements S3
+public class S3GroupCImpl implements S3
 {
 
 	Eletronic element;

@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.osgi.framework.Bundle;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
@@ -19,8 +20,8 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
-import fr.imag.adele.apam.pax.test.impl.FailException;
-import fr.imag.adele.apam.pax.test.impl.S3GroupAImpl;
+import fr.imag.adele.apam.pax.test.s3.impl.FailException;
+import fr.imag.adele.apam.pax.test.s3.impl.S3GroupAImpl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
@@ -357,9 +358,41 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		Assert.assertTrue(message, instancesOfImplementation.size() == 1);
 
 	}
-	
 
+	@Test
+	public void CompositeContentMngtDisputeAmongInjectionAndOwn_tc047() {
 
+		Implementation sharedDependencyImpl = (Implementation) CST.apamResolver.findImplByName(
+				null, "BoschSwitch");
+		
+		Instance sharedDependency=sharedDependencyImpl.createInstance(null, null);
+		
+		CompositeType compositeAImpl = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a");
+		
+		Composite compositeA=(Composite)compositeAImpl.createInstance(null, null);
+		
+		S3GroupAImpl s3b=(S3GroupAImpl)compositeA.getMainInst().getServiceObject();
+		s3b.getElement();
+		
+		System.out.println("Original composite:"+sharedDependency.getComposite());
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		CompositeType compositeBImpl = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-dispute-inject-own");
+
+		Composite compositeB = (Composite) compositeBImpl.createInstance(null, null);
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+
+		System.out.println("Composite after the own composite instantiation:"+sharedDependency.getComposite());
+		
+		String message="Class A needs the instance IC, when B composite (declaring that owns IC) is instantiated, the IC should receive as parent composite the composite B. This did not happened";
+		
+		Assert.assertTrue(message,sharedDependency.getComposite() == compositeB);
+
+	}
 	
 
 
