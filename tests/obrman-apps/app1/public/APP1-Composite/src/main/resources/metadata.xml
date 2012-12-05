@@ -1,0 +1,15 @@
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+
+	<composite name="APP1" main="APP1_MAIN" shared="true">
+		<contentMngt>
+			<import instance="false" implementation="false" />
+
+			<export instance="false" implementation="false" />
+
+		</contentMngt>
+
+
+	</composite>
+	<apam-instance name="APP1-instance" implementation="APP1" />
+</apam>

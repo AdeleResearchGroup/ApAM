@@ -1,0 +1,36 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>app1.obrman.test</artifactId>
+		<groupId>fr.imag.adele.apam.tests.obrman</groupId>
+		<version>0.0.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+	</parent>
+    <groupId>fr.imag.adele.apam.tests.obrman.app1.public</groupId>
+	<artifactId>app1.public.components</artifactId>
+    <name>App1 Public Components</name>
+	<packaging>pom</packaging>
+	<modules>
+		<module>APP1-Spec</module>
+		<module>../private</module>
+		<module>APP1-Composite</module>
+	</modules>
+	<build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>${bundle.plugin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <obrRepository>${basedir}/../../../repositories/public.components/obr/app-store.xml</obrRepository>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+	</build>
+
+
+</project>

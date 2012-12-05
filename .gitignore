@@ -32,3 +32,10 @@ distributions/*-distribution/load
 distributions/*-distribution/bin
 distributions/*-distribution/apam*
 
+#merge files
+
+*.orig
+*.REMOTE.*
+*.LOCAL.*
+*.BACKUP.*
+*.BASE.*
