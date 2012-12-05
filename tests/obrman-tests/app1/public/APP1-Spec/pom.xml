@@ -25,5 +25,13 @@
 			</plugin>
 		</plugins>
 	</build>
+    <dependencies>
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.obrman.app2.public</groupId>
+            <artifactId>APP2-Spec</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
 
 </project>

@@ -76,6 +76,8 @@ public class ApamCapability {
 	}
 
 	public static void init (List<ComponentDeclaration> components, List<ComponentDeclaration> dependencies) {
+        capabilities.clear();
+        missing.clear();
 		for (ComponentDeclaration dcl : components) {
 			new ApamCapability(dcl) ;
 		}
