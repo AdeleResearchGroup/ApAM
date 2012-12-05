@@ -70,47 +70,47 @@
 
 	<composite name="composite-a-local-instance" main="group-a">
 		<contentMngt>
-			<local instance="true" />
+			<export instance="false" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-local-implementation" main="group-a">
 		<contentMngt>
-			<local implementation="true" />
+			<export implementation="true" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-borrow-nothing-instance" main="group-a">
 		<contentMngt>
-			<borrow instance="false" />
+			<import instance="false" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-borrow-nothing-implementation"
 		main="group-a">
 		<contentMngt>
-			<borrow implementation="false" />
+			<import implementation="false" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-friend-nothing-implementation"
 		main="group-a">
 		<contentMngt>
-			<friend implementation="false" />
+<!--			<friend implementation="false" /> -->
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-friend-nothing-instance" main="group-a">
 		<contentMngt>
-			<friend instance="false" />
+<!--			<friend instance="false" /> -->
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-application-nothing-instance"
 		main="group-a">
 		<contentMngt>
-			<local instance="true"/>
-			<application instance="true" />
+			<export instance="false"/>
+			<exportApp instance="true" />
 		</contentMngt>
 	</composite>
 
