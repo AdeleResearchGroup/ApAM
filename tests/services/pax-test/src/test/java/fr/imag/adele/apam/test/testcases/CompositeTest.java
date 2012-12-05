@@ -20,6 +20,7 @@ import fr.imag.adele.apam.pax.test.impl.S2OutterImpl;
 import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
 import fr.imag.adele.apam.pax.test.s3.impl.S3GroupAImpl;
 import fr.imag.adele.apam.pax.test.s3.impl.S3GroupBImpl;
+import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
@@ -206,10 +207,10 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void CompositeContentMngtBorrowNothingInstance_tc034() {
+	public void CompositeContentMngtImportNothingInstance_tc034() {
 
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-borrow-nothing-instance");
+				null, "composite-a-import-nothing-instance");
 
 		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-b");
@@ -242,10 +243,10 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void CompositeContentMngtBorrowNothingImplementation_tc035() {
+	public void CompositeContentMngtImportNothingImplementation_tc035() {
 
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-borrow-nothing-implementation");
+				null, "composite-a-import-nothing-implementation");
 
 		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-b");
@@ -278,7 +279,7 @@ public class CompositeTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void CompositeContentMngtApplicationNothingInstance_tc038() {
+	public void CompositeContentMngtExportApplicationEverythingGlobalNothingInstance_tc038() {
 		
 		CompositeType appCompositeType = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a");
@@ -287,7 +288,7 @@ public class CompositeTest extends ExtensionAbstract {
 		
 		
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
-				null, "composite-a-application-nothing-instance");
+				null, "composite-a-export-application-everything-global-nothing");
 
 		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-b");
@@ -307,6 +308,8 @@ public class CompositeTest extends ExtensionAbstract {
 
 		ga1.getElement();
 		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
 		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
 		
 		ga2.getElement();
@@ -318,5 +321,92 @@ public class CompositeTest extends ExtensionAbstract {
 		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
 
 	}
+	
+	@Test
+	public void CompositeContentMngtExportApplicationNothingGlobalEverythingInstance_tc048() {
+		
+		CompositeType appCompositeType = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a");
+		
+		Composite appCompositeA=(Composite)appCompositeType.createInstance(null, null);
+		
+		CompositeType appCompositeTypeC = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-c");
+		
+		Composite appCompositeC=(Composite)appCompositeTypeC.createInstance(null, null);
+		
+		
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-export-application-nothing-global-everything");
+
+		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-b");
+		
+		Implementation ia=CST.apamResolver.findImplByName(null, "group-a");
+		
+		Composite composite_a = (Composite) cta.createInstance(appCompositeA, null);
+		Composite composite_b = (Composite) ctb.createInstance(appCompositeC, null);
+
+		Instance instanceApp1=ia.createInstance(composite_a, null);
+		
+		Instance instanceApp2=ia.createInstance(composite_b, null);
+
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+
+		S3GroupAImpl ga2 = (S3GroupAImpl) instanceApp2.getServiceObject();
+
+		ga1.getElement();
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+		
+		ga2.getElement();
+
+		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		String message= "Consider composite A, instantiated into a composite SA, and B, into a composite SB. If A declares that export nothing to all app but everything to global, the global take over, and the instances of A should be visible in B";
+		
+		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
+
+	}
+	
+	@Test
+	public void CompositeContentMngtExportApplicationNothingGlobalEverythingInstance_tc049() {
+		
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-export-application-nothing-global-everything");
+
+		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-b");
+		
+		Implementation ia=CST.apamResolver.findImplByName(null, "group-a");
+		
+		Composite composite_a = (Composite) cta.createInstance(null, null);
+		Composite composite_b = (Composite) ctb.createInstance(null, null);
+
+		Instance instanceApp1=ia.createInstance(composite_a, null);
+		
+		Instance instanceApp2=ia.createInstance(composite_b, null);
+
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+
+		S3GroupAImpl ga2 = (S3GroupAImpl) instanceApp2.getServiceObject();
+
+		ga1.getElement();
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+		
+		ga2.getElement();
+
+		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		String message= "Consider composite A, instantiated into the ROOT composite, and B, into the ROOT composite. If A declares that export nothing to all app but everything to global, the global take over, and the instances of A should be visible in B";
+		
+		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
+
+	}	
 	
 }

@@ -126,7 +126,7 @@
 <node CREATED="1353076657096" ID="ID_1884842516" MODIFIED="1354295617312" TEXT="should be possible to instantiate two composites, based on the same impl, sequentially-tc029">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353076955016" ID="ID_1396045592" MODIFIED="1354295629853" TEXT="should be possible to retrieve the service object of a composite-tc030">
+<node CREATED="1353076955016" ID="ID_1396045592" MODIFIED="1354717031610" TEXT="should be possible to retrieve the service object of a composite-tc030">
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353332025894" ID="ID_1509607474" MODIFIED="1354295637086" TEXT="enclosed dependency instantiation should instantiate automatically indirect dependency-tc031">
@@ -141,14 +141,14 @@
 </node>
 <node CREATED="1353491520963" ID="ID_1528052278" MODIFIED="1353491524764" TEXT="visibility">
 <node CREATED="1353077190840" ID="ID_1475045056" MODIFIED="1353587369160" TEXT="local">
-<node CREATED="1353490737684" ID="ID_31658279" MODIFIED="1354295772624" TEXT="test local declaration filtering by &apos;instance=true&apos;-tc032">
-<icon BUILTIN="button_ok"/>
+<node CREATED="1353490737684" ID="ID_31658279" MODIFIED="1354718477586" TEXT="test local declaration filtering by &apos;instance=true&apos;-tc032">
+<icon BUILTIN="messagebox_warning"/>
 </node>
-<node CREATED="1353587369924" ID="ID_1774818195" MODIFIED="1354295791153" TEXT="test local declaration filtering by &apos;implementation=true&apos;-tc033">
-<icon BUILTIN="button_ok"/>
+<node CREATED="1353587369924" ID="ID_1774818195" MODIFIED="1354718483010" TEXT="test local declaration filtering by &apos;implementation=true&apos;-tc033">
+<icon BUILTIN="messagebox_warning"/>
 </node>
 </node>
-<node CREATED="1353077184248" ID="ID_914230240" MODIFIED="1353598196963" TEXT="borrow">
+<node CREATED="1353077184248" ID="ID_914230240" MODIFIED="1354710170087" TEXT="import">
 <node CREATED="1353490893539" ID="ID_189222500" MODIFIED="1354295825200" TEXT="specifing instance=&apos;false&apos;-tc034">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -156,16 +156,14 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1353077196808" ID="ID_1525157524" MODIFIED="1353416497236" TEXT="friend">
-<node CREATED="1353685833809" ID="ID_160277144" MODIFIED="1354295921680" TEXT="specifing implementation=&apos;false&apos;-tc036">
+<node CREATED="1354720048703" ID="ID_1119045837" MODIFIED="1354720050152" TEXT="export">
+<node CREATED="1353933736682" ID="ID_1998386380" MODIFIED="1354720282676" TEXT="export true for app and false for global-tc038">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353494521059" ID="ID_170356469" MODIFIED="1354295941966" TEXT="specifing instance=&apos;false&apos;-tc037">
+<node CREATED="1354720291055" ID="ID_817592161" MODIFIED="1354721454162" TEXT="export false for app and true for global, Both in different composites-tc048">
 <icon BUILTIN="button_ok"/>
 </node>
-</node>
-<node CREATED="1353077202712" ID="ID_1802016001" MODIFIED="1353077204742" TEXT="application">
-<node CREATED="1353933736682" ID="ID_1998386380" MODIFIED="1354295969213" TEXT="specifing instance=&apos;true&apos; and local instance=&apos;true&apos;-tc038">
+<node CREATED="1354720921759" ID="ID_1848111957" MODIFIED="1354721457522" TEXT="export false for app and true for global, Both in root composite-tc049">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>

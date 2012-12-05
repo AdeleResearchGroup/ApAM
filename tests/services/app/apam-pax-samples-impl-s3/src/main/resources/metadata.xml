@@ -80,24 +80,32 @@
 		</contentMngt>
 	</composite>
 
-	<composite name="composite-a-borrow-nothing-instance" main="group-a">
+	<composite name="composite-a-import-nothing-instance" main="group-a">
 		<contentMngt>
 			<import instance="false" />
 		</contentMngt>
 	</composite>
 
-	<composite name="composite-a-borrow-nothing-implementation"
+	<composite name="composite-a-import-nothing-implementation"
 		main="group-a">
 		<contentMngt>
 			<import implementation="false" />
 		</contentMngt>
 	</composite>
 
-	<composite name="composite-a-application-nothing-instance"
+	<composite name="composite-a-export-application-everything-global-nothing"
 		main="group-a">
 		<contentMngt>
-			<export instance="false"/>
+			<export instance="false" />
 			<exportApp instance="true" />
+		</contentMngt>
+	</composite>
+
+	<composite name="composite-a-export-application-nothing-global-everything"
+		main="group-a">
+		<contentMngt>
+			<export instance="true" />
+			<exportApp instance="false" />
 		</contentMngt>
 	</composite>
 
