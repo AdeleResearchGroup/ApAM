@@ -116,19 +116,6 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 		thisBundleVersion = getProject().getVersion().replace('-', '.');
 
 		try {
-			// Computing the list of OBR repositories in which will be extracted the dependencies.
-			// The repo in which we compile will be the first one
-			// The local repository is at the end
-//			if (dependencyObrList == null)
-//				dependencyObrList = new ArrayList<URL>();
-//			URL obrRepository = getObrRepoFromMavenPlugin();
-//			if (obrRepository != null)
-//				dependencyObrList.add(0, obrRepository);
-//			if (!noLocalObr) {
-//				File local = new File(localRepository.getBasedir() + File.separator + "repository.xml");
-//				if (local.exists())
-//					dependencyObrList.add(local.toURI().toURL());
-//			}
 
 			getLog().info("Start bundle header manipulation");
 			File jar = getProject().getArtifact().getFile();
@@ -138,77 +125,15 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			/*
 			 * Get the definition of the components needed to compile
 			 */
-			String deps = "Component dependencies analyzed: " ;
 			List <ComponentDeclaration> dependencies = new ArrayList <ComponentDeclaration> ();
 			for (Object artifact : getProject().getDependencyArtifacts()) {
 				if (artifact instanceof Artifact) {
 					Artifact dependency = (Artifact) artifact;
 					VersionRange range = dependency.getVersionRange();
 					OBRGeneratorMojo.versionRange.put(dependency.getArtifactId(), range);
-
-					deps += ((Artifact) artifact).getBaseVersion().replace('-', '.') ;
 					dependencies.addAll(getComponentFromJar(((Artifact) artifact).getFile()));
 				}
 			}
-			getLog().info(deps) ;			
-			
-			/*
-			JarFile jarFile = new JarFile(jar);
-			Manifest manifest = jarFile.getManifest();
-			// manifest.getAttributes("").
-			Attributes iPOJOmetadata = manifest.getMainAttributes();
-			String ipojoMetadata = iPOJOmetadata.getValue("iPOJO-Components");
-
-			iPOJOmetadata = null;
-			manifest = null;
-			jarFile.close();
-			if (ipojoMetadata == null) {
-				getLog().info(" No iPOJO metadata - Failed ");
-				return;
-			}
-			getLog().info("Parsing iPOJO metadata - SUCCESS ");
-			Element root = ManifestMetadataParser
-			.parseHeaderMetadata(ipojoMetadata);
-
-			thisBundleVersion = getProject().getVersion().replace('-', '.');
-			for (Object artifact : getProject().getDependencyArtifacts()) {
-				if (artifact instanceof Artifact) {
-					Artifact dependency = (Artifact) artifact;
-					// 0.0.1.SNAPSHOT not 0.0.1-SNAPSHOT
-					String version = dependency.getBaseVersion().replace('-', '.');
-					VersionRange range = dependency.getVersionRange();
-					OBRGeneratorMojo.bundleDependencies.add(dependency.getArtifactId() + "/" + version);
-					OBRGeneratorMojo.versionRange.put(dependency.getArtifactId(), range);
-				}
-			}
-
-			// Debug
-			String validDependencies = "Valid dependencies: ";
-			for (String dep : OBRGeneratorMojo.bundleDependencies) {
-				validDependencies += " " + dep;
-			}
-			logger.debug(validDependencies);
-
-			List<ComponentDeclaration> components = Util.getComponents(root);
-*/
-			// //In case the repository.xml is in another directory than Maven.
-			// if (obrRepository != null) {
-			// System.out.println("obr Repository = " + obrRepository);
-			// } else obrRepository = localRepository.getBasedir() + File.separator +"repository.xml" ;
-
-//			Set<URL> missingRepo = new HashSet<URL>();
-//			for (URL obrUrl : dependencyObrList) {
-//
-//				try{
-//					InputStream is=    obrUrl.openStream();
-//					is.close();
-//				}catch (Exception e){
-//					logger.error("File not found at : " + obrUrl);
-//
-//					missingRepo.add(obrUrl);
-//				}
-//			}
-//			dependencyObrList.removeAll(missingRepo);
 
 			ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencies);
 			StringBuffer obrContent = arb.writeOBRFile();
@@ -273,49 +198,27 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			manifest = null;
 			jarFile.close();
 			if (ipojoMetadata == null) {
-				getLog().info(" No iPOJO metadata for " + jar );
+				getLog().info(" No Apam metadata for " + jar );
 				return Collections.EMPTY_LIST;
 			}
-			getLog().info("Parsing iPOJO metadata for " + jar + " - SUCCESS ");
+			getLog().info("Parsing Apam metadata for " + jar + " - SUCCESS ");
 			Element root = ManifestMetadataParser
 			.parseHeaderMetadata(ipojoMetadata);
-			return Util.getComponents(root);
+			List<ComponentDeclaration> ret = Util.getComponents(root);
+			String contains = "    contains components: " ;
+			for (ComponentDeclaration comp : ret) {
+				contains += comp.getName() + " ";
+			}
+			getLog().info(contains) ;
+			return ret ;
 			
 		} catch (Exception e) {
-			getLog().info("Parsing iPOJO metadata for " + jar + " - FAILED ");
+			getLog().info("Parsing Apam metadata for " + jar + " - FAILED ");
 			e.printStackTrace() ;
 		}
 		return null ;
 	}
 
 
-//	private URL getObrRepoFromMavenPlugin() {
-//		List<Plugin> plugins = getProject().getBuildPlugins();
-//		System.out.print(" Used plug in Maven : ");
-//		for (Plugin plugin : plugins) {
-//			System.out.print(plugin.getArtifactId() + "  ");
-//			if (plugin.getArtifactId().equals("maven-bundle-plugin")) {
-//				Xpp3Dom configuration = (Xpp3Dom) plugin.getConfiguration();
-//				if (configuration.getChild("obrRepository") != null) {
-//					String repoName = configuration.getChild("obrRepository").getValue();
-//					System.out.println("trouve : " + configuration.getChild("obrRepository").getValue());
-//					File fileRepo = new File(repoName);
-//					if (fileRepo.exists()) {
-//						try {
-//							return fileRepo.toURI().toURL();
-//						} catch (MalformedURLException e) {
-//							e.printStackTrace();
-//						}
-//					} else {
-//						logger.error("OBR Repository " + repoName + " does not exist");
-//						return null;
-//					}
-//				} else
-//					return null;
-//			}
-//		}
-//		System.out.println("");
-//		return null;
-//	}
 
 }

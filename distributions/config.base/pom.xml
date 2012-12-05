@@ -20,6 +20,7 @@
 		<groupId>fr.imag.adele.apam</groupId>
 		<artifactId>apam-distributions</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
 	</parent>
   <!-- Project coordinates -->
   <artifactId>config.base</artifactId>

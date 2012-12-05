@@ -212,8 +212,9 @@
 	</build>
 	<modules>
 		<module>helpers</module>
-		<module>services</module>
-		<module>obrman-tests</module>
+		<module>services-apps</module>
+		<module>obrman-apps</module>
+        <module>messages-apps</module>
         <module>pax-test</module>
 		<!-- <module>messages</module> -->
 	</modules>

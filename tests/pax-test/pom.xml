@@ -15,35 +15,7 @@
 	<name>ApAM PaxExam Tests</name>
 
 	<dependencies>
-        <!-- Components for tests-->
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-iface</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-impl-s1</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-
-		</dependency>
-
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-impl-s2</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-impl-s3</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
 
 
 		<!-- Pax Exam -->
@@ -109,6 +81,41 @@
             <artifactId>apam-helpers</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <!-- Components for tests-->
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-iface</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-impl-s1</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-impl-s2</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.services</groupId>
+            <artifactId>apam-pax-samples-impl-s3</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- messages components tests -->
+        <dependency>
+            <groupId>fr.imag.adele.apam.tests.messages</groupId>
+            <artifactId>messages-specifications</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <!-- Obrman applications tests -->
         <dependency>

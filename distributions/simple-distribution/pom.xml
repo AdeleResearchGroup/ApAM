@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>config.base</artifactId>
-			<version>${apam.current.version}</version>
+			<version>${project.version}</version>
 			<type>zip</type>
 		</dependency>
 	</dependencies>
@@ -81,12 +81,12 @@
 								<artifactItem>
 									<groupId>fr.imag.adele.apam</groupId>
 									<artifactId>apam-bundle</artifactId>
-									<version>${apam.current.version}</version>
+                                    <version>${project.version}</version>
 								</artifactItem>
                                 <artifactItem>
 									<groupId>fr.imag.adele.apam</groupId>
 									<artifactId>apam-shell</artifactId>
-									<version>${apam.current.version}</version>
+                                    <version>${project.version}</version>
 								</artifactItem>
 								<!-- Felix Dependencies -->
 								<artifactItem>
@@ -190,7 +190,7 @@
 						<configuration>
 							<includeGroupIds>fr.imag.adele.apam</includeGroupIds>
 							<includeArtifactIds>config.base</includeArtifactIds>
-							<includeVersion>${apam.project.version}</includeVersion>
+							<includeVersion>${project.version}</includeVersion>
 							<outputDirectory>
 								${project.build.directory}/distrib-temp/
 							</outputDirectory>
