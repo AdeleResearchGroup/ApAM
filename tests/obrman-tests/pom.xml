@@ -12,6 +12,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>apam-apps</module>
+		<module>apam-apps-components</module>
 		<module>apam-repositories</module>
 		<module>obrman-pax</module>
 	</modules>
