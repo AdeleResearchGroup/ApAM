@@ -8,6 +8,9 @@
 			<export instance="false" implementation="false" />
 
 		</contentMngt>
+        <contentMngt>
+
+        </contentMngt>
 
 	</composite>
 	<apam-instance name="APP1-instance" implementation="APP1" />

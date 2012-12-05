@@ -3,12 +3,14 @@
 
 
 	<composite name="APP2" main="APP2_MAIN" shared="true" specification="APP2_SPEC" interfaces="fr.imag.adele.apam.app2.spec.App2Spec">
-		<contentMngt>
+        <definition name="tt" type="string"/>
+        <contentMngt>
 			<import instance="false" implementation="false" />
 
 			<export instance="false" implementation="false" />
-
+            <export instance="false" implementation="false" />
 		</contentMngt>
+
 	</composite>
 
 	<apam-instance name="APP2-instance" implementation="APP2" />

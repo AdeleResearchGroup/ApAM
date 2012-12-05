@@ -13,23 +13,23 @@ public class VisibilityDeclaration {
 	/**
 	 * The borrow content
 	 */
-	private String borrowImplementations;
+	private String importImplementations;
 	
-	private String borrowInstances;
+	private String importInstances;
 	
 	/**
 	 * The friend imported content
 	 */
-	private String friendImplementations;
+//	private String friendImplementations;
 	
-	private String friendInstances;
+// private String friendInstances;
 	
 	/**
 	 * The local content
 	 */
-	private String localImplementations;
+	private String exportImplementations;
 	
-	private String localInstances;
+	private String exportInstances;
 	
 	/**
 	 * The application content
@@ -43,58 +43,58 @@ public class VisibilityDeclaration {
 	/**
 	 * An expression that must be satisfied by all imported implementations 
 	 */
-	public String getBorrowImplementations() {
-		return borrowImplementations;
+	public String getImportImplementations() {
+		return importImplementations;
 	}
 
 	public void setBorrowImplementations(String borrowImplementations) {
-		this.borrowImplementations = borrowImplementations;
+		this.importImplementations = borrowImplementations;
 	}
 
 	/**
 	 * An expression that must be satisfied by all imported instances 
 	 */
-	public String getBorrowInstances() {
-		return borrowInstances;
+	public String getImportInstances() {
+		return importInstances;
 	}
 	
-	public void setBorrowInstances(String borrowInstances) {
-		this.borrowInstances = borrowInstances;
+	public void setImportInstances(String borrowInstances) {
+		this.importInstances = borrowInstances;
 	}
 
 	/**
 	 * An expression that must be satisfied by all exported implementations that
 	 * are available for friend composites 
 	 */
-	public String getFriendImplementations() {
-		return friendImplementations;
-	}
-	public void setFriendImplementations(String friendImplementations) {
-		this.friendImplementations = friendImplementations;
-	}
-
-	/**
-	 * An expression that must be satisfied by all exported instances that
-	 * are available for friend composites 
-	 */
-	public String getFriendInstances() {
-		return friendInstances;
-	}
-
-	public void setFriendInstances(String friendInstances) {
-		this.friendInstances = friendInstances;
-	}
+//	public String getFriendImplementations() {
+//		return friendImplementations;
+//	}
+//	public void setFriendImplementations(String friendImplementations) {
+//		this.friendImplementations = friendImplementations;
+//	}
+//
+//	/**
+//	 * An expression that must be satisfied by all exported instances that
+//	 * are available for friend composites 
+//	 */
+//	public String getFriendInstances() {
+//		return friendInstances;
+//	}
+//
+//	public void setFriendInstances(String friendInstances) {
+//		this.friendInstances = friendInstances;
+//	}
 
 	/**
 	 * An expression that must be satisfied by all implementations that
 	 * are not available for exporting 
 	 */
-	public String getLocalImplementations() {
-		return localImplementations;
+	public String getExportImplementations() {
+		return exportImplementations;
 	}
 
-	public void setLocalImplementations(String localImplementations) {
-		this.localImplementations = localImplementations;
+	public void setExportImplementations(String localImplementations) {
+		this.exportImplementations = localImplementations;
 	}
 
 
@@ -102,12 +102,12 @@ public class VisibilityDeclaration {
 	 * An expression that must be satisfied by all instances that
 	 * are not available for exporting 
 	 */
-	public String getLocalInstances() {
-		return localInstances;
+	public String getExportInstances() {
+		return exportInstances;
 	}
 
-	public void setLocalInstances(String localInstances) {
-		this.localInstances = localInstances;
+	public void setExportInstances(String localInstances) {
+		this.exportInstances = localInstances;
 	}
 
 	/**

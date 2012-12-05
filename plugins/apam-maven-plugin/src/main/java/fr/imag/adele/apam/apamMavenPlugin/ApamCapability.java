@@ -83,7 +83,11 @@ public class ApamCapability {
 	}
 
 	public static ApamCapability get(ComponentReference<?> reference) {
-		return capabilities.get(reference.getName());
+		ApamCapability cap = capabilities.get(reference.getName()) ;
+		if (cap == null) {
+			logger.error("Component " + reference.getName() + " is not in your Maven dependencies.") ;
+		}
+		return cap;
 	}
 
 	public static ComponentDeclaration getDcl(ComponentReference<?> reference) {

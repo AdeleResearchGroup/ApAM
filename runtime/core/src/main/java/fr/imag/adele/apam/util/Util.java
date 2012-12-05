@@ -161,88 +161,10 @@ public class Util {
 		}
 	}
 
-	//    /**
-	//     * Orders the array in lexicographical order.
-	//     *
-	//     * @param interfaces
-	//     */
-	//    public static String[] orderInterfaces(String[] interfaces) {
-	//        if (interfaces == null)
-	//            return null;
-	//        boolean ok = false;
-	//        String tmp;
-	//        while (!ok) {
-	//            ok = true;
-	//            for (int i = 0; i < interfaces.length - 1; i++) {
-	//                if (interfaces[i].compareTo(interfaces[i + 1]) > 0) {
-	//                    tmp = interfaces[i];
-	//                    interfaces[i] = interfaces[i + 1];
-	//                    interfaces[i + 1] = tmp;
-	//                    ok = false;
-	//                }
-	//            }
-	//        }
-	//        return interfaces;
-	//    }
-
-	//    /**
-	//     * compares the two arrays of interfaces. They may be in a different order. Returns true if they contain exactly the
-	//     * same interfaces (strings).
-	//     *
-	//     * @param i1 : an array of strings
-	//     * @param i2
-	//     * @return
-	//     */
-	//    public static boolean sameInterfaces(String[] i1, String[] i2) {
-	//        if ((i1 == null) || (i2 == null) || (i1.length == 0) || (i2.length == 0))
-	//            return false;
-	//        if (i1.length != i2.length)
-	//            return false;
-	//        if ((i1.length == 1) && (i1[0].equals(i2[0])))
-	//            return true;
-	//
-	//        for (int i = 0; i < i1.length; i++) {
-	//            if (!i1[i].equals(i2[i]))
-	//                return false;
-	//        }
-	//        return true;
-	//    }
-
-	//    public static String ANDLDAP(String... params) {
-	//        StringBuilder sb = new StringBuilder("(&");
-	//        for (String p : params) {
-	//            sb.append(p);
-	//        }
-	//        sb.append(")");
-	//        return sb.toString();
-	//    }
-	//
-	//    public static Filter buildFilter(Set<Filter> filters) {
-	//        if ((filters == null) || (filters.size() == 0))
-	//            return null;
-	//        String ldap = null;
-	//        for (Filter f : filters) {
-	//            if (ldap == null) {
-	//                ldap = f.toString();
-	//            } else {
-	//                ldap = Util.ANDLDAP(ldap, f.toString());
-	//            }
-	//        }
-	//        Filter ret = null;
-	//        try {
-	//            ret = org.osgi.framework.FrameworkUtil.createFilter(ldap);
-	//        } catch (InvalidSyntaxException e) {
-	//            logger.debug("Invalid filters : ");
-	//            for (Filter f : filters) {
-	//                logger.debug("   " + f.toString());
-	//                ;
-	//            }
-	//            e.printStackTrace();
-	//        }
-	//        return ret;
-	//    }
-
-	public static boolean checkImplVisibilityExpression(String expre, Implementation impl) {
+	/*
+	 * return true if expression is null, "true" or if the component matches the expression.
+	 */
+	public static boolean checkVisibilityExpression(String expre, Component comp) {
 		if ((expre == null) || expre.equals(CST.V_TRUE))
 			return true;
 		if (expre.equals(CST.V_FALSE))
@@ -250,15 +172,23 @@ public class Util {
 		Filter f = ApamFilter.newInstance(expre);
 		if (f == null)
 			return false;
-		return impl.match(f);
+		return comp.match(f);
 	}
 
+//	public static boolean checkInstVisibilityExpression(String expre, Instance inst) {
+//		if ((expre == null) || expre.equals(CST.V_TRUE))
+//			return true;
+//		if (expre.equals(CST.V_FALSE))
+//			return false;
+//		Filter f = ApamFilter.newInstance(expre);
+//		if (f == null)
+//			return false;
+//		return inst.match(f);
+//	}
+
 	/**
-	 * Implementation toImpl can be borrowed by composite type compoFrom if :
-	 * compoFrom accepts to borrow the service
-	 * toImpl is inside compoFrom.
-	 * attribute friendImplementation is set, and toImpl is inside a friend and matches the attribute.
-	 * toImpl does not matches the attribute localImplementation.
+	 * Implementation toImpl is exported if it matches the export clause in at least one of it composite types.
+	 * compoFrom can see toImpl if toImpl is visible or if it is in the same composite type. 
 	 *
 	 * @param compoFrom
 	 * @param toImpl
@@ -268,12 +198,12 @@ public class Util {
 		if (toImpl.getInCompositeType().isEmpty() || toImpl.getInCompositeType().contains(compoFrom))
 			return true;
 
-		// First check inst can be borrowed
-		String borrow = ((CompositeDeclaration) compoFrom.getDeclaration()).getVisibility().getBorrowImplementations(); // getProperty(CST.A_BORROWIMPLEM));
-		if ((borrow != null) && (Util.checkImplVisibilityExpression(borrow, toImpl) == false))
+		// First check if toImpl can be imported (borrowed) in compoFrom
+		String imports = ((CompositeDeclaration) compoFrom.getDeclaration()).getVisibility().getImportImplementations(); 
+		if (Util.checkVisibilityExpression(imports, toImpl) == false)
 			return false;
 
-		// true if at least one composite type that own toImpl accepts to lend it to compoFrom.
+		// true if at least one composite type that owns toImpl exports it.
 		for (CompositeType compoTo : toImpl.getInCompositeType()) {
 			if (Util.checkImplVisibleInCompo(compoFrom, toImpl, compoTo))
 				return true;
@@ -283,76 +213,65 @@ public class Util {
 
 	public static boolean
 	checkImplVisibleInCompo(CompositeType compoFrom, Implementation toImpl, CompositeType compoTo) {
-		if (compoFrom == compoTo)
+		if (compoFrom == compoTo) 
 			return true;
-		if (compoFrom.isFriend(compoTo)) {
-			String friend = ((CompositeDeclaration) compoTo.getDeclaration()).getVisibility()
-			.getFriendImplementations(); // .getProperty(CST.A_FRIENDIMPLEM));
-			//            String friend = ((String) compoTo.getProperty(CST.A_FRIENDIMPLEM));
-			if ((friend != null) && Util.checkImplVisibilityExpression(friend, toImpl))
-				return true;
-		}
-		String local = ((CompositeDeclaration) compoTo.getDeclaration()).getVisibility().getLocalImplementations();
-		//        String local = ((String) compoTo.getProperty(CST.A_LOCALIMPLEM));
-		if ((local != null) && Util.checkImplVisibilityExpression(local, toImpl))
-			return false;
-		return true;
+		String exports = ((CompositeDeclaration) compoTo.getDeclaration()).getVisibility().getExportImplementations();
+		return Util.checkVisibilityExpression(exports, toImpl) ;
 	}
+		
+//		if (compoFrom.isFriend(compoTo)) {
+//			String friend = ((CompositeDeclaration) compoTo.getDeclaration()).getVisibility()
+//			.getFriendImplementations(); // .getProperty(CST.A_FRIENDIMPLEM));
+//			//            String friend = ((String) compoTo.getProperty(CST.A_FRIENDIMPLEM));
+//			if ((friend != null) && Util.checkVisibilityExpression(friend, toImpl))
+//				return true;
+//		}
+//		String local = ((CompositeDeclaration) compoTo.getDeclaration()).getVisibility().getLocalImplementations();
+//		if ((local != null) && Util.checkVisibilityExpression(local, toImpl))
+//			return false;
+//		return true;
+//	}
 
-	public static boolean checkInstVisibilityExpression(String expre, Instance inst) {
-		if ((expre == null) || expre.equals(CST.V_TRUE))
-			return true;
-		if (expre.equals(CST.V_FALSE))
-			return false;
-		Filter f = ApamFilter.newInstance(expre);
-		if (f == null)
-			return false;
-		return inst.match(f);
-	}
 
 	/**
-	 * Instance toInst can be borrowed by composite compoFrom if :
-	 * compoFrom accepts to borrow the attribute
-	 * toInst is inside compoFrom.
-	 * attribute friendInstance is set, and toInst is inside a friend and matches the attribute.
-	 * attribute appliInstance is set, and toInst is in same appli and matches the attribute.
-	 * toInst does not matches the attribute localInstance.
+	 * Instance toInst is visible from composite compoFrom if :
+	 * compoFrom can import toInst AND
+	 * 		toInst is inside compoFrom or 
+	 * 		toInst is in same appli than compoFrom or
+	 * 		toInst is global.
 	 *
-	 * @param compoFrom
+	 * @param fromCompo
 	 * @param toInst
 	 * @return
 	 */
-	public static boolean checkInstVisible(Composite compoFrom, Instance toInst) {
+	public static boolean checkInstVisible(Composite fromCompo, Instance toInst) {
 		Composite toCompo = toInst.getComposite();
-		//        CompositeType toCompoType = toInst.getComposite().getCompType();
-		CompositeType fromCompoType = compoFrom.getCompType();
+		CompositeType fromCompoType = fromCompo.getCompType();
 		CompositeType toCompoType   = toInst.getComposite().getCompType();
 
-		if (compoFrom == toCompo)
+		if (fromCompo == toCompo)
 			return true;
 
-		// First check inst can be borrowed
-		String borrow = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getBorrowInstances();
-		if ((borrow != null) && (Util.checkInstVisibilityExpression(borrow, toInst) == false))
+		// First check if toInst can be imported by fromCompo
+		String imports = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getImportInstances();
+		if (Util.checkVisibilityExpression(imports, toInst) == false)
 			return false;
 
-		if (compoFrom.dependsOn(toCompo)) {
-			String friend = ((CompositeDeclaration) toCompoType.getDeclaration()).getVisibility()
-			.getFriendInstances();
-			if ((friend != null) && Util.checkInstVisibilityExpression(friend, toInst))
-				return true;
-		}
-		if (compoFrom.getAppliComposite() == toCompo.getAppliComposite()) {
+		//exported ?
+		String exports = ((CompositeDeclaration) toCompoType.getDeclaration()).getVisibility().getExportInstances();
+		if (Util.checkVisibilityExpression(exports, toInst))
+			return true;
+
+		//exportApp ?
+		if (fromCompo.getAppliComposite() == toCompo.getAppliComposite()) {
 			String appli = ((CompositeDeclaration) toCompoType.getDeclaration()).getVisibility()
 			.getApplicationInstances();
-			if ((appli != null) && Util.checkInstVisibilityExpression(appli, toInst))
+			if ((appli != null) && Util.checkVisibilityExpression(appli, toInst))
 				return true;
 		}
-		String local = ((CompositeDeclaration) toCompoType.getDeclaration()).getVisibility().getLocalInstances();
-		if ((local != null) && Util.checkInstVisibilityExpression(local, toInst))
-			return false;
-		return true;
+		return false;
 	}
+
 
 	public static boolean isInheritedAttribute(String attr) {
 		if (isReservedAttributePrefix(attr))
