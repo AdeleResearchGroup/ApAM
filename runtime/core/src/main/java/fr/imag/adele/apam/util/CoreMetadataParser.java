@@ -93,10 +93,10 @@ public class CoreMetadataParser implements CoreParser {
     private static final String  PROMOTE                 = "promote";
     private static final String  GRANT                   = "grant";
     private static final String  STATE                   = "state";
-    private static final String  BORROW                  = "borrow";
-    private static final String  LOCAL                   = "local";
-    private static final String  FRIEND                  = "friend";
-    private static final String  APPLICATION             = "application";
+    private static final String  IMPORTS                 = "import";
+    private static final String  EXPORT                  = "export";
+//    private static final String  FRIEND                  = "friend";
+    private static final String  EXPORTAPP               = "exportApp";
     private static final String  CALLBACK                = "callback";
 
     private static final String  ATT_NAME                = "name";
@@ -990,35 +990,35 @@ public class CoreMetadataParser implements CoreParser {
             String implementationsRule = parseString(composite.getName(),rule, CoreMetadataParser.ATT_IMPLEMENTATION, false);
             String instancesRule = parseString(composite.getName(),rule, CoreMetadataParser.ATT_INSTANCE, false);
 
-            if (rule.getName().equals(CoreMetadataParser.BORROW)) {
+            if (rule.getName().equals(CoreMetadataParser.IMPORTS)) {
                 if (implementationsRule != null) {
                     composite.getVisibility().setBorrowImplementations(implementationsRule);
                 }
                 if (instancesRule != null) {
-                    composite.getVisibility().setBorrowInstances(instancesRule);
+                    composite.getVisibility().setImportInstances(instancesRule);
                 }
             }
 
-            if (rule.getName().equals(CoreMetadataParser.FRIEND)) {
+//            if (rule.getName().equals(CoreMetadataParser.FRIEND)) {
+//                if (implementationsRule != null) {
+//                    composite.getVisibility().setFriendImplementations(implementationsRule);
+//                }
+//                if (instancesRule != null) {
+//                    composite.getVisibility().setFriendInstances(instancesRule);
+//                }
+//            }
+
+            if (rule.getName().equals(CoreMetadataParser.EXPORT)) {
                 if (implementationsRule != null) {
-                    composite.getVisibility().setFriendImplementations(implementationsRule);
-                }
-                if (instancesRule != null) {
-                    composite.getVisibility().setFriendInstances(instancesRule);
-                }
-            }
-
-            if (rule.getName().equals(CoreMetadataParser.LOCAL)) {
-                if (implementationsRule != null) {
-                    composite.getVisibility().setLocalImplementations(implementationsRule);
+                    composite.getVisibility().setExportImplementations(implementationsRule);
                 }
 
                 if (instancesRule != null) {
-                    composite.getVisibility().setLocalInstances(instancesRule);
+                    composite.getVisibility().setExportInstances(instancesRule);
                 }
             }
 
-            if (rule.getName().equals(CoreMetadataParser.APPLICATION)) {
+            if (rule.getName().equals(CoreMetadataParser.EXPORTAPP)) {
 
                 if (instancesRule != null) {
                     composite.getVisibility().setApplicationInstances(instancesRule);
