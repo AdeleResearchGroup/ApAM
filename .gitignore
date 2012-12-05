@@ -22,6 +22,7 @@ target
 
 obr.xml
 *-repo.xml
+~*
 
 # apam distribution
 distributions/*-distribution/conf

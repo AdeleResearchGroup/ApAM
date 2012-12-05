@@ -93,19 +93,6 @@
 		</contentMngt>
 	</composite>
 
-	<composite name="composite-a-friend-nothing-implementation"
-		main="group-a">
-		<contentMngt>
-<!--			<friend implementation="false" /> -->
-		</contentMngt>
-	</composite>
-
-	<composite name="composite-a-friend-nothing-instance" main="group-a">
-		<contentMngt>
-<!--			<friend instance="false" /> -->
-		</contentMngt>
-	</composite>
-
 	<composite name="composite-a-application-nothing-instance"
 		main="group-a">
 		<contentMngt>
