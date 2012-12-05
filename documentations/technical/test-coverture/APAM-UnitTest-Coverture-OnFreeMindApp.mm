@@ -166,6 +166,9 @@
 <node CREATED="1354720921759" ID="ID_1848111957" MODIFIED="1354721457522" TEXT="export false for app and true for global, Both in root composite-tc049">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1354723044639" ID="ID_775391030" MODIFIED="1354723248409" TEXT="export true for global, In different composites-tc050">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 <node CREATED="1353943098647" ID="ID_1485505744" MODIFIED="1353943999397" TEXT="promotion">

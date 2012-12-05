@@ -109,6 +109,12 @@
 		</contentMngt>
 	</composite>
 
+	<composite name="composite-a-export-global-everything" main="group-a">
+		<contentMngt>
+			<export instance="true" />
+		</contentMngt>
+	</composite>
+
 	<composite name="composite-a-fail-exception" main="group-a-private-component">
 		<contentMngt>
 			<dependency specification="eletronic-device-private" fail="exception"
@@ -187,7 +193,8 @@
 		<dependency field="c" />
 	</implementation>
 
-	<composite name="composite-a-start-by-specification" main="group-a" singleton="true">
+	<composite name="composite-a-start-by-specification" main="group-a"
+		singleton="true">
 		<contentMngt>
 			<start implementation="group-b-started-by-trigger" name="creates-B">
 				<trigger>
@@ -197,7 +204,8 @@
 		</contentMngt>
 	</composite>
 
-	<composite name="composite-a-start-by-implementation" main="group-a" singleton="true">
+	<composite name="composite-a-start-by-implementation" main="group-a"
+		singleton="true">
 		<contentMngt>
 			<start implementation="group-b-started-by-trigger" name="creates-B">
 				<trigger>
@@ -205,6 +213,6 @@
 				</trigger>
 			</start>
 		</contentMngt>
-	</composite>	
+	</composite>
 
 </apam>

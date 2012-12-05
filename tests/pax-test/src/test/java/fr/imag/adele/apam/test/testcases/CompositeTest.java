@@ -409,4 +409,52 @@ public class CompositeTest extends ExtensionAbstract {
 
 	}	
 	
+	@Test
+	public void CompositeContentMngtExportGlobalEverythingInstance_tc050() {
+		
+		CompositeType appCompositeType = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a");
+		
+		Composite appCompositeA=(Composite)appCompositeType.createInstance(null, null);
+		
+		CompositeType appCompositeTypeC = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-c");
+		
+		Composite appCompositeC=(Composite)appCompositeTypeC.createInstance(null, null);
+		
+		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-a-export-global-everything");
+
+		CompositeType ctb = (CompositeType) CST.apamResolver.findImplByName(
+				null, "composite-b");
+		
+		Implementation ia=CST.apamResolver.findImplByName(null, "group-a");
+		
+		Composite composite_a = (Composite) cta.createInstance(appCompositeA, null);
+		Composite composite_b = (Composite) ctb.createInstance(appCompositeC, null);
+
+		Instance instanceApp1=ia.createInstance(composite_a, null);
+		
+		Instance instanceApp2=ia.createInstance(composite_b, null);
+
+		S3GroupAImpl ga1 = (S3GroupAImpl) instanceApp1.getServiceObject();
+
+		S3GroupAImpl ga2 = (S3GroupAImpl) instanceApp2.getServiceObject();
+
+		ga1.getElement();
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		auxListInstances("bbbbbbbbbbbbbbbbbbbbbbbb");
+		
+		ga2.getElement();
+
+		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
+		
+		String message= "Consider composite A, instantiated into a composite SA, and B, into a composite SB. If A declares that export everything globally, its instances should be visible/injected in B";
+		
+		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
+
+	}	
+	
 }
