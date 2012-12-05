@@ -4,13 +4,13 @@
 
 	<composite name="APP2" main="APP2_MAIN" shared="true" specification="APP2_SPEC" interfaces="fr.imag.adele.apam.app2.spec.App2Spec">
 		<contentMngt>
-			<borrow instance="false" />
-			<borrow implementation="false" />
-			<local instance="true" />
-			<local implementation="true" />
+			<import instance="false" implementation="false" />
+
+			<export instance="false" implementation="false" />
+
 		</contentMngt>
-
-
 	</composite>
+
 	<apam-instance name="APP2-instance" implementation="APP2" />
+
 </apam>

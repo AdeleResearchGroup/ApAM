@@ -3,10 +3,10 @@
 
 	<composite name="APP1" main="APP1_MAIN" shared="true">
 		<contentMngt>
-			<borrow instance="false" />
-			<borrow implementation="false" />
-			<local instance="true" />
-			<local implementation="true" />
+			<import instance="false" implementation="false" />
+
+			<export instance="false" implementation="false" />
+
 		</contentMngt>
 
 	</composite>

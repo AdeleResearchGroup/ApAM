@@ -8,8 +8,8 @@
     </parent>
 
     <groupId>fr.imag.adele.apam.tests.obrman.repositories</groupId>
-    <artifactId>APPS</artifactId>
-
+    <artifactId>public.repository</artifactId>
+    <name>Generated Public Repository</name>
     <packaging>bundle</packaging>
     <build>
         <plugins>
@@ -24,50 +24,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xml-maven-plugin</artifactId>
-                <configuration>
-                    <transformationSets>
-                        <transformationSet>
-                            <parameters>
-                                <parameter>
-                                    <name>groupid</name>
-                                    <value>fr.imag.adele.apam.tests.apps.components.app2</value>
-                                </parameter>
-                            </parameters>
-                        </transformationSet>
-                    </transformationSets>
-                </configuration>
-            </plugin>
-            <!--This plugin's configuration is used to store Eclipse m2e settings
-                   only. It has no influence on the Maven build itself. -->
-            <plugin>
-                <groupId>org.eclipse.m2e</groupId>
-                <artifactId>lifecycle-mapping</artifactId>
-                <version>1.0.0</version>
-                <configuration>
-                    <lifecycleMappingMetadata>
-                        <pluginExecutions>
-                            <pluginExecution>
-                                <pluginExecutionFilter>
-                                    <groupId>org.codehaus.mojo</groupId>
-                                    <artifactId>xml-maven-plugin</artifactId>
-                                    <versionRange>
-                                        [1.0.0,)
-                                    </versionRange>
-                                    <goals>
-                                        <goal>transform</goal>
-                                    </goals>
-                                </pluginExecutionFilter>
-                                <action>
-                                    <ignore></ignore>
-                                </action>
-                            </pluginExecution>
-                        </pluginExecutions>
-                    </lifecycleMappingMetadata>
-                </configuration>
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-
-    </dependencies>
 </project>

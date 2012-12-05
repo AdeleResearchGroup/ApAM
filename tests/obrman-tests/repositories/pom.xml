@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>obrman-tests</artifactId>
+		<artifactId>obrman-apps-test</artifactId>
 		<groupId>fr.imag.adele.apam.tests</groupId>
 		<version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -10,6 +10,7 @@
 	<artifactId>apam-repositories</artifactId>
 	<packaging>pom</packaging>
 	<groupId>fr.imag.adele.apam.tests.obrman</groupId>
+    <name>Generated repositories</name>
 	<modules>
 		<module>app1.private.components</module>
 		<module>app2.private.components</module>

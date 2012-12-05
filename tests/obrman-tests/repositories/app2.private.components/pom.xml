@@ -8,7 +8,8 @@
         <relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>fr.imag.adele.apam.tests.obrman.repositories</groupId>
-	<artifactId>app2.private</artifactId>
+	<artifactId>app2.repository</artifactId>
+    <name>App2 Generated Repository</name>
 	<packaging>bundle</packaging>
 	<build>
 		<plugins>
@@ -26,34 +27,7 @@
 				<artifactId>xml-maven-plugin</artifactId>
 
 			</plugin>
-			<!--This plugin's configuration is used to store Eclipse m2e settings 
-				only. It has no influence on the Maven build itself. -->
-			<plugin>
-				<groupId>org.eclipse.m2e</groupId>
-				<artifactId>lifecycle-mapping</artifactId>
-				<version>1.0.0</version>
-				<configuration>
-					<lifecycleMappingMetadata>
-						<pluginExecutions>
-							<pluginExecution>
-								<pluginExecutionFilter>
-									<groupId>org.codehaus.mojo</groupId>
-									<artifactId>xml-maven-plugin</artifactId>
-									<versionRange>
-										[1.0.0,)
-									</versionRange>
-									<goals>
-										<goal>transform</goal>
-									</goals>
-								</pluginExecutionFilter>
-								<action>
-									<ignore></ignore>
-								</action>
-							</pluginExecution>
-						</pluginExecutions>
-					</lifecycleMappingMetadata>
-				</configuration>
-			</plugin>
+
 		</plugins>
 	</build>
 
