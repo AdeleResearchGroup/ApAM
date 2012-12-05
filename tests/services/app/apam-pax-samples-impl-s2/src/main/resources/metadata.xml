@@ -51,8 +51,7 @@
 	<composite name="S2Impl-composite-1" main="fr.imag.adele.apam.pax.test.impl.S2Impl"
 		shared="true">
 		<contentMngt>
-			<borrow instance="false" />
-			<borrow implementation="false" />
+			<import instance="false" implementation="false" />
 		</contentMngt>
 	</composite>
 
