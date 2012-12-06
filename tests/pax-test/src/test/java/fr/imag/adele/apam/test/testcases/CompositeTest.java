@@ -328,12 +328,14 @@ public class CompositeTest extends ExtensionAbstract {
 		CompositeType appCompositeType = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-a");
 		
-		Composite appCompositeA=(Composite)appCompositeType.createInstance(null, null);
+		Composite superparent=(Composite)appCompositeType.createInstance(null, null);
+		
+		Composite appCompositeA=(Composite)appCompositeType.createInstance(superparent, null);
 		
 		CompositeType appCompositeTypeC = (CompositeType) CST.apamResolver.findImplByName(
 				null, "composite-c");
 		
-		Composite appCompositeC=(Composite)appCompositeTypeC.createInstance(null, null);
+		Composite appCompositeC=(Composite)appCompositeTypeC.createInstance(superparent, null);
 		
 		
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(

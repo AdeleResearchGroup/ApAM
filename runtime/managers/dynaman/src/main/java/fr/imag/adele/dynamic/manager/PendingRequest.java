@@ -23,6 +23,11 @@ import fr.imag.adele.apam.impl.ApamResolverImpl;
 public abstract class PendingRequest<T extends Component> {
 
 	/**
+	 * The source of the dependency
+	 */
+	protected final Instance source;
+	
+	/**
 	 * The resolver
 	 */
 	protected final ApamResolverImpl resolver;
@@ -39,10 +44,15 @@ public abstract class PendingRequest<T extends Component> {
 	/**
 	 * Builds a new pending request reification
 	 */
-	protected PendingRequest(ApamResolverImpl resolver, DependencyDeclaration dependency) {
+	protected PendingRequest(ApamResolverImpl resolver, Instance source, DependencyDeclaration dependency) {
 		this.resolver		= resolver;
+		this.source			= source;
 		this.dependency		= dependency;
 		this.resolution		= null;
+	}
+	
+	public Instance getSource() {
+		return source;
 	}
 	
 	/**
@@ -55,7 +65,9 @@ public abstract class PendingRequest<T extends Component> {
 	/**
 	 * The context in which the resolution is requested
 	 */
-	public abstract Composite getContext();
+	public Composite getContext() {
+		return source.getComposite();
+	}
 		
 	/**
 	 * Block the current thread until a component satisfying the request is available.
@@ -163,37 +175,17 @@ public abstract class PendingRequest<T extends Component> {
 	 */
 	public static class SpecificationResolution extends PendingRequest<Implementation> {
 	
-		private final Instance client;
-		
-		public SpecificationResolution(ApamResolverImpl resolver, Instance client, DependencyDeclaration dependency) {
-			super(resolver,dependency);
-			
-			this.client = client;
+		public SpecificationResolution(ApamResolverImpl resolver, Instance source, DependencyDeclaration dependency) {
+			super(resolver,source,dependency);
 		}
 		
-		/*
-		 * Get the source composite.
-		 * 
-		 * TODO We should always have the source composite for a resolution request in order to 
-		 * apply the right contextual policies. We need to modify the dependency manager API.
-		 * 
-		 * In the mean time, we use an arbitrary instance of the composite type of the request.
-		 * This works because all the implementation visibility policies are based on composite
-		 * types and the ownership rules suppose singleton composite types.
-		 */
-		@Override
-		public Composite getContext() {
-			return  client.getComposite();
-		}
-
-	
 		@Override
 		protected Set<Implementation> retry() {
 			/*
 			 * First consider the case the target is a named implementation
 			 */
 			if (dependency.getTarget() instanceof ImplementationReference<?>) {
-				Implementation result = resolver.findImplByDependency(client,dependency);
+				Implementation result = resolver.findImplByDependency(getSource(),dependency);
 				return result != null ? Collections.singleton(result) : null;
 			}
 			
@@ -201,11 +193,11 @@ public abstract class PendingRequest<T extends Component> {
 			 * Next consider resolution by provided resource
 			 */
 			if (! dependency.isMultiple()) {
-				Implementation result = resolver.resolveSpecByResource(client,dependency);
+				Implementation result = resolver.resolveSpecByResource(getSource(),dependency);
 				return result != null ? Collections.singleton(result) : null;
 			}
 			else {
-				return resolver.resolveSpecByResources(client,dependency);
+				return resolver.resolveSpecByResources(getSource(),dependency);
 			}
 		}
 	
@@ -258,27 +250,20 @@ public abstract class PendingRequest<T extends Component> {
 	 */
 	public static class ImplementationResolution extends PendingRequest<Instance> {
 	
-		private final Instance			client;
 		private final Implementation 	implementation;
 		
-		public ImplementationResolution(ApamResolverImpl resolver, Instance client, Implementation implementation, DependencyDeclaration dependency) {
-			super(resolver,dependency);
+		public ImplementationResolution(ApamResolverImpl resolver, Instance source, Implementation implementation, DependencyDeclaration dependency) {
+			super(resolver,source,dependency);
 			
-			this.client		= client;
 			this.implementation	= implementation;
 		}
 		
 		@Override
-		public Composite getContext() {
-			return client.getComposite();
-		}
-	
-		@Override
 		protected Set<Instance> retry() {
 			if (dependency.isMultiple())
-				return resolver.resolveImpls(client, implementation, dependency);
+				return resolver.resolveImpls(getSource(), implementation, dependency);
 			else
-				return Collections.singleton(resolver.resolveImpl(client, implementation, dependency));
+				return Collections.singleton(resolver.resolveImpl(getSource(), implementation, dependency));
 		}
 	
 		@Override

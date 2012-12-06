@@ -1,5 +1,6 @@
 package fr.imag.adele.dynamic.manager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,8 +71,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	/**
 	 * This method is automatically invoked when the manager is validated
 	 * 
-	 * TODO Should we try to synchronize with existing composite types in
-	 * APAM?
+	 * TODO Should we try to synchronize with existing composites in APAM?
 	 * 
 	 */
 	@Validate
@@ -110,6 +110,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		ApamManagers.removeDynamicManager(this);
 		ApamManagers.removePropertyManager(this);
 	}
+	
     
 	/**
 	 * Dynamic manager identifier
@@ -136,128 +137,63 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 	
 	/**
-	 * Dynaman does not have its own model, all the information is in the component declaration.
-	 * 
+	 * Set the ownership of an instance to one of the requesting composites, signal any detected conflict
 	 */
-	@Override
-	public void newComposite(ManagerModel model, CompositeType composite) {
-	}
-	
+	private void verifyOwnership(Instance instance) {
 
-	@Override
-	public void addedInApam(Component component) {
+		/*
+		 * Get the current container and owner
+		 */
+		ContentManager container 	= contentManagers.get(instance.getComposite());
+		ContentManager owner		= container.owns(instance) ? container : null;
 		
 		/*
-		 * Create content manager associated to composites
+		 * Get the list of composites requesting ownership
 		 */
-		try {
-			if (component instanceof Composite) {
-				Composite composite = (Composite) component;
+		List<ContentManager> requesters = new ArrayList<ContentManager>();
+		StringBuffer requestersNames	= new StringBuffer();
+		
+		for (ContentManager manager : contentManagers.values()) {
+			if (manager.requestOwnership(instance)) {
+				requesters.add(manager);
 				
-				if (contentManagers.get(composite) != null) {
-					logger.error("Composite already added in APAM "+composite.getName());
-					return;
-				}
-				
-				ContentManager content = new ContentManager(this,composite);
-				contentManagers.put(composite,content);
-				
-				/*
-				 * For all the existing unused instances we simulate the same behavior as
-				 * if the instance just appeared in APAM. In this way, they are considered
-				 * for ownership in the newly created composite.
-				 */
-				for (Instance instance : CST.componentBroker.getInsts()) {
-					if (!instance.isUsed())
-						content.instanceAdded(instance);
-				}
+				requestersNames.append(" ");
+				requestersNames.append(manager.getComposite().getName());
 			}
-		} catch (InvalidConfiguration error) {
-			logger.error("Error creating content manager",error);
 		}
 		
 		/*
-		 * Update the contents of all impacted composites
-		 */
-		for (ContentManager content : contentManagers.values()) {
-			
-			if (component instanceof Instance) {
-				Instance instance = (Instance) component;
-				content.instanceAdded(instance);
-			}
-
-			if (component instanceof Implementation) {
-				Implementation implementation = (Implementation) component;
-				content.implementationAdded(implementation);
-			}
-
-		}
-	}
-
-	@Override
-	public void removedFromApam(Component component) {
-		
-		if (component instanceof Composite) {
-			Composite composite = (Composite) component;
-			
-			ContentManager content = contentManagers.remove(composite);
-			content.dispose();
-		}
-		
-		/*
-		 * Remove from the associated content manager
-		 */
-		if (component instanceof Instance) {
-			Instance instance 		= (Instance) component;
-			ContentManager owner	= contentManagers.get(instance.getComposite());
-			if (owner != null)
-				owner.instanceRemoved(instance);
-		}
-		
-	}
-
-	public void propertyChanged(Instance instance, String property) {		
-
-	//	boolean wasOwned = instance.isUsed();
-
-        for (ContentManager content : contentManagers.values()) {
-            content.verifyOwnership(instance);
-        }
-
-        ContentManager owner = contentManagers.get(instance.getComposite());
-		/*
-		 * Delegate to the content manager
-		 */
-		owner.propertyChanged(instance, property);
-		
-		/*
-		 * If the property change triggered an ownership loss, look for a new owner.
+		 * If there is conflicting requests signal an error
 		 * 
-		 * We simulate as if the instance just appeared unused in APAM. In this way,
-		 * it is considered again for ownership.
+		 * TODO In some cases we could do more than simply logging the error. Perhaps avoiding creating composites
+		 * that will produce conflicts.
 		 */
-		//boolean ownerLost = wasOwned && ! instance.isUsed();
+		if (requesters.size() > 1) {
+			logger.error("Conflict in ownership : composites ("+requestersNames+") request ownership of instance "+instance.getName());
+		}
 		
-
-
-	}
-
-	@Override
-	public void attributeChanged(Component component, String attr, String newValue, String oldValue) {
-		if (component instanceof Instance)
-			propertyChanged((Instance) component,attr);
-	}
-
-	@Override
-	public void attributeRemoved(Component component, String attr, String oldValue) {
-		if (component instanceof Instance)
-			propertyChanged((Instance) component,attr);
-	}
-
-	@Override
-	public void attributeAdded(Component component, String attr, String newValue) {
-		if (component instanceof Instance)
-			propertyChanged((Instance) component,attr);
+		/*
+		 * If there is no ownership request continue processing event
+		 */
+		if (requesters.isEmpty())
+			return;
+		
+		/*
+		 * Choose an owner arbitrarily among requesters (try to keep the current owner if exists)
+		 */
+		ContentManager newOwner = requesters.isEmpty() ? null : requesters.contains(container) ? container : requesters.get(0);
+		
+		/*
+		 * Revoke ownership to previous owner (if it has changed)
+		 */
+		if (owner != null && (newOwner == null || ! newOwner.equals(owner)))
+			owner.revokeOwnership(instance);
+		
+		/*
+		 * Grant ownership to new owner
+		 */
+		if (newOwner != null)
+			newOwner.grantOwnership(instance);
 	}
 
 	/**
@@ -265,15 +201,15 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	 * a component satisfying the request is available.
 	 */
 	private void block (PendingRequest<?> request) {
-		ContentManager owner = contentManagers.get(request.getContext());
-		owner.addPendingRequest(request);
+		ContentManager manager = contentManagers.get(request.getContext());
+		manager.addPendingRequest(request);
 		request.block();
-		owner.removePendingRequest(request);
+		manager.removePendingRequest(request);
 	}
 	
 	
 	/**
-	 * Get the exception object associated with a missing dependency
+	 * Throws the exception associated with a missing dependency
 	 */
 	private void throwMissingException(DependencyDeclaration dependency) {
 		try {
@@ -305,6 +241,139 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		}
 		
 	}
+	
+	
+	/**
+	 * Dynaman does not have its own model, all the information is in the component declaration.
+	 * 
+	 */
+	@Override
+	public void newComposite(ManagerModel model, CompositeType composite) {
+	}
+	
+
+	@Override
+	public void addedInApam(Component component) {
+		
+		/*
+		 * Create a content manager associated to newly created composite
+		 */
+		if (component instanceof Composite) {
+			
+			Composite composite = (Composite) component;
+			
+			if (contentManagers.get(composite) != null) {
+				logger.error("Composite already added in APAM "+composite.getName());
+				return;
+			}
+
+			try {
+
+				ContentManager manager = new ContentManager(this,composite);
+				contentManagers.put(composite,manager);
+				
+				/*
+				 * For all the existing instances we consider the impact of the newly created composite
+				 * in ownership
+				 */
+				for (Instance instance : CST.componentBroker.getInsts()) {
+					verifyOwnership(instance);
+				}
+				
+			} catch (InvalidConfiguration error) {
+				
+				/*
+				 * TODO We should not add the composite in APAM if the content manager could not be created,
+				 * but currently there is no way for a manager to signal an error in creation.
+				 */
+				logger.error("Error creating content manager for composite "+component.getName(),error);
+			}
+		}
+		
+		/*
+		 * Verify ownership of newly created instances
+		 */
+		if (component instanceof Instance) {
+			Instance instance = (Instance) component;
+			verifyOwnership(instance);
+		}
+
+		/*
+		 * Update the contents of all impacted composites
+		 */
+		for (ContentManager manager : contentManagers.values()) {
+			
+			if (component instanceof Instance) {
+				Instance instance = (Instance) component;
+				manager.instanceAdded(instance);
+			}
+
+			if (component instanceof Implementation) {
+				Implementation implementation = (Implementation) component;
+				manager.implementationAdded(implementation);
+			}
+
+		}
+	}
+
+	@Override
+	public void removedFromApam(Component component) {
+
+		/*
+		 * Remove the instance from the associated content manager
+		 */
+		if (component instanceof Instance) {
+			Instance instance 		= (Instance) component;
+			ContentManager manager	= contentManagers.get(instance.getComposite());
+			manager.instanceRemoved(instance);
+		}
+
+		/*
+		 * Remove a content manager when its composite is removed
+		 */
+		if (component instanceof Composite) {
+			ContentManager manager = contentManagers.remove((Composite) component);
+			manager.dispose();
+		}
+		
+		
+	}
+
+	public void propertyChanged(Instance instance, String property) {		
+
+		/*
+		 * verify possible ownership change
+		 */
+       	verifyOwnership(instance);
+
+		
+		/*
+		 * Update the contents of all impacted composites
+		 */
+       for (ContentManager manager : contentManagers.values()) {
+        	manager.propertyChanged(instance, property);
+        }
+		
+	}
+
+	@Override
+	public void attributeChanged(Component component, String attr, String newValue, String oldValue) {
+		if (component instanceof Instance)
+			propertyChanged((Instance) component,attr);
+	}
+
+	@Override
+	public void attributeRemoved(Component component, String attr, String oldValue) {
+		if (component instanceof Instance)
+			propertyChanged((Instance) component,attr);
+	}
+
+	@Override
+	public void attributeAdded(Component component, String attr, String newValue) {
+		if (component instanceof Instance)
+			propertyChanged((Instance) component,attr);
+	}
+
 
 	@Override
 	public Implementation resolveSpec(Instance client, DependencyDeclaration dependency) {
@@ -314,12 +383,9 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		 * the unrelated thread that triggered the recalculation
 		 * 
 		 */
-        System.out.println("Dep " + dependency.getIdentifier()  + " Policy " + dependency.getMissingPolicy() );
-
         if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
 			return null;
 
-        System.out.println("Dep " + dependency.getIdentifier()  + " Policy " + dependency.getMissingPolicy() );
 		/*
 		 * Apply failure policies
 		 */

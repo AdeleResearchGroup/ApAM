@@ -563,7 +563,7 @@ public class Util {
 	private static void overrideDepFlags (DependencyDeclaration dependency, DependencyDeclaration dep, boolean generic) {
 		//If set, cannot be changed by the group definition.
 		//NOTE: This strategy is because it cannot be compiled, and we do not want to make an error during resolution
-		if (dependency.getMissingPolicy() == null) {
+		if (dependency.getMissingPolicy() == null || (generic && dep.getMissingPolicy() != null)) {
 			dependency.setMissingPolicy(dep.getMissingPolicy()) ;
 		}
 
