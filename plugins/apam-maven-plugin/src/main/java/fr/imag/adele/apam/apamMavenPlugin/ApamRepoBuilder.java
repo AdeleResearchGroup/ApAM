@@ -83,11 +83,11 @@ public class ApamRepoBuilder {
 	}
 	
 	   private void printOBRMavenElement(StringBuffer obrContent, String indent) {
-		    /*  obrContent.append("   <capability name='" + CST.MAVEN + "'>\n");
+		      obrContent.append("   <capability name='" + CST.MAVEN + "'>\n");
 		      obrContent.append("      <p n='" + CST.GROUP_ID + "' v='" + OBRGeneratorMojo.currentProjectGroupId + "' />\n");
 		      obrContent.append("      <p n='" + CST.ARTIFACT_ID + "' v='" + OBRGeneratorMojo.currentProjectArtifactId + "' />\n");
 		      obrContent.append("      <p n='" + CST.VERSION + "' v='" + OBRGeneratorMojo.currentProjectVersion + "' />\n");
-		      obrContent.append("   </capability>\n");*/
+		      obrContent.append("   </capability>\n");
 		    }
 
 	

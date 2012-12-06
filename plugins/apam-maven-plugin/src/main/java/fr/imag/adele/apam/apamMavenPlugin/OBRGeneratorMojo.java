@@ -75,7 +75,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
      * @required
      * @readonly
      */
-	private String currentProjectGroupId ;
+	public static String currentProjectGroupId ;
 
     /**
      * The project artifactID
@@ -83,7 +83,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
      * @required
      * @readonly
      */
-	private String currentProjectArtifactId ;
+    public static String currentProjectArtifactId ;
 
     /**
      * The project version
@@ -91,7 +91,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
      * @required
      * @readonly
      */
-	private String currentProjectVersion ;
+    public static String currentProjectVersion ;
 
     /**
      * The project file
