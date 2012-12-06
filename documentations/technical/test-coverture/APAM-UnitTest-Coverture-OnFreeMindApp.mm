@@ -140,14 +140,6 @@
 </node>
 </node>
 <node CREATED="1353491520963" ID="ID_1528052278" MODIFIED="1353491524764" TEXT="visibility">
-<node CREATED="1353077190840" ID="ID_1475045056" MODIFIED="1353587369160" TEXT="local">
-<node CREATED="1353490737684" ID="ID_31658279" MODIFIED="1354718477586" TEXT="test local declaration filtering by &apos;instance=true&apos;-tc032">
-<icon BUILTIN="messagebox_warning"/>
-</node>
-<node CREATED="1353587369924" ID="ID_1774818195" MODIFIED="1354718483010" TEXT="test local declaration filtering by &apos;implementation=true&apos;-tc033">
-<icon BUILTIN="messagebox_warning"/>
-</node>
-</node>
 <node CREATED="1353077184248" ID="ID_914230240" MODIFIED="1354710170087" TEXT="import">
 <node CREATED="1353490893539" ID="ID_189222500" MODIFIED="1354295825200" TEXT="specifing instance=&apos;false&apos;-tc034">
 <icon BUILTIN="button_ok"/>
@@ -157,17 +149,25 @@
 </node>
 </node>
 <node CREATED="1354720048703" ID="ID_1119045837" MODIFIED="1354720050152" TEXT="export">
-<node CREATED="1353933736682" ID="ID_1998386380" MODIFIED="1354720282676" TEXT="export true for app and false for global-tc038">
+<node CREATED="1353933736682" ID="ID_1998386380" MODIFIED="1354783298706" TEXT="exportApp=&apos;true&apos; and export=&apos;false&apos; for global-tc038">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1354720291055" ID="ID_817592161" MODIFIED="1354721454162" TEXT="export false for app and true for global, Both in different composites-tc048">
+<node CREATED="1354720291055" ID="ID_817592161" MODIFIED="1354782075277" TEXT="exportApp=&apos;false&apos; export=&apos;true&apos;, Both in different composites-tc048">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1354720921759" ID="ID_1848111957" MODIFIED="1354721457522" TEXT="export false for app and true for global, Both in root composite-tc049">
+<node CREATED="1354720921759" ID="ID_1848111957" MODIFIED="1354782030766" TEXT="exportApp=&apos;false&apos; export=&apos;true&apos;, Both in root composite-tc049">
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1354723044639" ID="ID_775391030" MODIFIED="1354723248409" TEXT="export true for global, In different composites-tc050">
 <icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353077190840" ID="ID_1475045056" MODIFIED="1354726431079" TEXT="private">
+<node CREATED="1353490737684" ID="ID_31658279" MODIFIED="1354727812612" TEXT="test local declaration filtering by &apos;instance=true&apos;-tc032">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353587369924" ID="ID_1774818195" MODIFIED="1354727817692" TEXT="test local declaration filtering by &apos;implementation=true&apos;-tc033">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 </node>
