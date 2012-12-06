@@ -18,6 +18,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 import fr.imag.adele.apam.pax.test.s3.impl.FailException;
 import fr.imag.adele.apam.pax.test.s3.impl.S3GroupAImpl;
@@ -192,11 +193,14 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		Implementation trigger=CST.apamResolver.findImplByName(
 				null, "group-a-start-trigger");
 		
+		Implementation triggered =CST.apamResolver.findImplByName(
+				null, "group-b-started-by-trigger");
+		
 		Instance triggerInstance=trigger.createInstance(compositeInstance, null);
 		
 		Assert.assertTrue(triggerInstance!=null);
 		
-		List<Instance> instancesOfB=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupBImpl");
+		List<Instance> instancesOfB=auxLookForInstanceOf(((AtomicImplementationDeclaration)triggered.getImplDeclaration()).getClassName());
 		
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
@@ -225,9 +229,12 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		
 		Instance triggerInstance=trigger.createInstance(compositeInstance, null);
 		
+		Implementation triggered =CST.apamResolver.findImplByName(
+				null, "group-b-started-by-trigger");
+		
 		Assert.assertTrue(triggerInstance!=null);
 		
-		List<Instance> instancesOfB=auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupBImpl");
+		List<Instance> instancesOfB=auxLookForInstanceOf(((AtomicImplementationDeclaration)triggered.getImplDeclaration()).getClassName());
 		
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		

@@ -333,6 +333,11 @@ public class ContentManager  {
 				continue;
 			
 			/*
+			 * Remove from the list of pending dynamic containment
+			 */
+			dynamicContains.remove(pendingInstance);
+
+			/*
 			 * Otherwise try to instantiate the specified implementation.
 			 * 
 			 * TODO BUG We are initializing the properties of the instance, but we lost the dependency overrides. We need to
@@ -341,10 +346,6 @@ public class ContentManager  {
 			Implementation implementation = CST.apamResolver.findImplByName(composite.getMainInst(),pendingInstance.getImplementation().getName());			
 			implementation.createInstance(getComposite(), pendingInstance.getProperties());
 
-			/*
-			 * Remove from the list of pending dynamic containment
-			 */
-			pendingInstances.remove(pendingInstance);
 		}
 	}
 	
