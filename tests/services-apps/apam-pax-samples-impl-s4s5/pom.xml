@@ -22,7 +22,7 @@
 				<configuration>
 					<instructions>
 						<Export-Package>
-							fr.imag.adele.apam.pax.test.impl
+							fr.imag.adele.apam.pax.test.implS45
 						</Export-Package>
 					</instructions>
 				</configuration>

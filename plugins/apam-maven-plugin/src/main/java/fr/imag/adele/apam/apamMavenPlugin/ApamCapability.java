@@ -148,20 +148,11 @@ public class ApamCapability {
 	public Set<ResourceReference> getProvideResources () {
 		//		if (dcl != null) {
 		return dcl.getProvidedResources() ;
-		//		}
-		//		Set<ResourceReference> references = new HashSet<ResourceReference>();
-		//		references.addAll(getProvideInterfaces()) ;
-		//		references.addAll(getProvideMessages()) ;
-		//		return references;
 	}
 
 
 	public Set<MessageReference> getProvideMessages () {
-		//		if (dcl != null) {
 		return dcl.getProvidedResources(MessageReference.class) ;
-		//		}
-		//		return asSet(getAttributeInCap(cap,
-		//				CST.PROVIDE_MESSAGES), MessageReference.class);
 	}
 
 	//Return the definition at the current component level 

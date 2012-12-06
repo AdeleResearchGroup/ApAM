@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.pax.test.impl;
+package fr.imag.adele.apam.pax.test.implS1;
 
 import java.util.Set;
 

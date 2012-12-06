@@ -3,7 +3,7 @@
 
 
   <implementation name="fr.imag.adele.apam.pax.test.impl.S4S5Impl" 
-	    classname="fr.imag.adele.apam.pax.test.impl.S4S5Impl"
+	    classname="fr.imag.adele.apam.pax.test.implS45.S4S5Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S4S5">
 		<callback onInit="start" onRemove="stop" />
   </implementation>

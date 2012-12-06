@@ -120,7 +120,8 @@ public class ApamRepoBuilder {
 		if (component instanceof CompositeDeclaration) {
 			CompositeDeclaration composite = (CompositeDeclaration) component;
 			generateProperty (obrContent, component, CST.APAM_COMPOSITE, CST.V_TRUE);
-			generateProperty (obrContent, component, CST.APAM_MAIN_COMPONENT, composite.getMainComponent().getName()) ;
+			if (composite.getMainComponent() != null)
+				generateProperty (obrContent, component, CST.APAM_MAIN_COMPONENT, composite.getMainComponent().getName()) ;
 			CheckObr.checkCompoMain((CompositeDeclaration) component);
 			//check the information for composite : grant, start, own, visibility etc.
 			CheckObr.checkCompositeContent ((CompositeDeclaration) component) ;

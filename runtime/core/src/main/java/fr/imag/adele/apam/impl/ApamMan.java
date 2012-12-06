@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
@@ -139,6 +140,7 @@ public class ApamMan implements DependencyManager {
 		if (ret instanceof Implementation) {
 			if (Util.checkImplVisible(client.getComposite().getCompType(), (Implementation)ret)) 
 				return ret ;
+			return null ;
 		}
 		//It is an instance
 		if (Util.checkInstVisible(client.getComposite(), (Instance)ret)) 
@@ -150,7 +152,10 @@ public class ApamMan implements DependencyManager {
 	@Override
 	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
-		if (spec == null) return null;
+		if (spec == null) {
+			System.err.println("No spec for " + dep.getTarget().getName()); 
+			return null;
+		}
 
 		Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints()) ;
 		List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;

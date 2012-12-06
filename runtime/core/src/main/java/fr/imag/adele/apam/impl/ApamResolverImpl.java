@@ -593,7 +593,7 @@ public class ApamResolverImpl implements ApamResolver {
         List<DependencyManager> selectionPath = computeSelectionPath(client, dependency);
 
         Set<Instance> insts = null;
-        logger.info("Looking for an instance of " + impl + ": ");
+        logger.info("Looking for instances of " + impl + ": ");
         for (DependencyManager manager : selectionPath) {
             logger.debug(manager.getName() + "  ");
             insts = manager.resolveImpls(client, impl, dependency);

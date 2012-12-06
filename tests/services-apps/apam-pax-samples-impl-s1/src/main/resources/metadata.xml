@@ -2,7 +2,7 @@
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
 	<implementation name="fr.imag.adele.apam.pax.test.impl.S1Impl"
-		classname="fr.imag.adele.apam.pax.test.impl.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
+		classname="fr.imag.adele.apam.pax.test.implS1.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
 
 		<callback onInit="start" onRemove="stop" />
 
@@ -51,37 +51,37 @@
 	</implementation>
 
 	<implementation name="HouseMeterSingletonNotShared"
-		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
 		specification="eletronic-device-singleton-notshared">
 	</implementation>
 
 	<implementation name="HouseMeterSingletonShared"
-		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
 		specification="eletronic-device-singleton-shared">
 	</implementation>
 
 	<implementation name="HouseMeterNotSingletonNotShared"
-		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
 		specification="eletronic-device-notsingleton-notshared">
 	</implementation>
 
 	<implementation name="HouseMeterNotSingletonShared"
-		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
 		specification="eletronic-device-notsingleton-shared">
 	</implementation>
 
 	<implementation name="HouseMeterInstantiable"
-		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
 		specification="eletronic-device-instantiable">
 	</implementation>
 
 	<implementation name="HouseMeterNotInstantiable"
-		classname="fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
 		specification="eletronic-device-notinstantiable">
 	</implementation>
 
 	<implementation name="SamsungSwitch"
-		classname="fr.imag.adele.apam.pax.test.impl.device.GenericSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
 		specification="eletronic-device">
 		<property name="manufacturer" value="samsung" />
 		<property name="voltage" value="220" />
@@ -95,7 +95,7 @@
 	</implementation>
 
 	<implementation name="LgSwitch"
-		classname="fr.imag.adele.apam.pax.test.impl.device.GenericSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
 		specification="eletronic-device">
 		<property name="manufacturer" value="lg" />
 		<property name="voltage" value="220" />
@@ -104,7 +104,7 @@
 
 
 	<implementation name="SiemensSwitch"
-		classname="fr.imag.adele.apam.pax.test.impl.device.GenericSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
 		specification="eletronic-device">
 		<property name="manufacturer" value="siemens" />
 		<property name="voltage" value="220" />
@@ -112,7 +112,7 @@
 	</implementation>
 
 	<implementation name="BoschSwitch"
-		classname="fr.imag.adele.apam.pax.test.impl.device.GenericSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
 		specification="eletronic-device">
 		<property name="manufacturer" value="bosch" />
 		<property name="voltage" value="110" />
@@ -120,7 +120,7 @@
 	</implementation>
 
 	<implementation name="philipsSwitch"
-		classname="fr.imag.adele.apam.pax.test.impl.device.PhilipsSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.PhilipsSwitch"
 		specification="eletronic-device">
 		<property name="manufacturer" value="philips" />
 		<property name="voltage" value="110" />
@@ -128,7 +128,7 @@
 	</implementation>
 
 	<implementation name="S1Impl-added-removed-callback"
-		classname="fr.imag.adele.apam.pax.test.impl.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
+		classname="fr.imag.adele.apam.pax.test.implS1.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
 		<dependency field="s2" added="bind" removed="unbind" />
 		<!-- This is the correct one, but its not implemented 		
 		<dependency field="s2" added="start" removed="stop" /> 

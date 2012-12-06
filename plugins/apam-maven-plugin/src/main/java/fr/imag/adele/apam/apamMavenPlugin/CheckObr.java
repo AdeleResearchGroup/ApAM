@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,6 +20,7 @@ import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.DependencyInjection;
 import fr.imag.adele.apam.declarations.DependencyPromotion;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
@@ -28,9 +30,11 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.Reference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 
@@ -256,8 +260,60 @@ public class CheckObr {
         return true;
     }
 
+    
+    private static Set<ResourceReference> getAllProvidedResources (ImplementationDeclaration composite) {
+    	ComponentDeclaration spec = null ;
+    	Set<ResourceReference> specResources ;
+    	if (composite.getSpecification() != null)
+    		spec = ApamCapability.getDcl(composite.getSpecification()) ;
+    	if (spec == null) 
+    		specResources = Collections.EMPTY_SET ;
+    	else specResources = spec.getProvidedResources() ;
+    	
+		Set<ResourceReference> compoResources = composite.getProvidedResources() ;
+		if (specResources == null) {
+			if (compoResources == null) 
+				return Collections.EMPTY_SET ;
+			specResources = new HashSet<ResourceReference> () ;
+		}
+		if (compoResources != null) 
+			specResources.addAll(compoResources) ;
+		return specResources ;
+    }
+    
+    /**
+     * Get the provided resources of a given kind, for example Services or Messages. 
+     * 
+     * We use subclasses of ResourceReference as tags to identify kinds of resources. To add a new kind
+     * of resource a new subclass must be added.
+     * 
+     * Notice that we return a set of resource references but typed to particular subtype of references,
+     * the unchecked downcast is then safe at runtime.
+     */
+	@SuppressWarnings("unchecked")
+	public static <T extends ResourceReference> Set<T> getProvidedResources(Set<ResourceReference> resources, Class<T> kind) {
+    	Set<T> res = new HashSet<T>();
+    	for (ResourceReference resourceReference : resources) {
+			if (kind.isInstance(resourceReference) )
+				res.add((T) resourceReference);
+		}
+        return res;
+    }
+
+    
     public static void checkCompoMain(CompositeDeclaration composite) {
         String name = composite.getName();
+
+        Set <ResourceReference> allProvidedResources = getAllProvidedResources (composite);
+        //Abstract composite have no main implem, but must not provide any resource
+        if (composite.getMainComponent() == null) {
+        	if (!getAllProvidedResources (composite).isEmpty()) {
+        		error ("Composite " + name + " does not declare a main implementation, but provides resources " 
+        				+ getAllProvidedResources (composite)) ;
+        	}     	      	
+        	return ;
+        }
+        
         String implName = composite.getMainComponent().getName();
         ApamCapability cap = ApamCapability.get(composite.getMainComponent());
         if (cap == null) {
@@ -273,14 +329,14 @@ public class CheckObr {
         }
 
         Set<MessageReference> mainMessages = cap.getProvideMessages();
-        Set<MessageReference> compositeMessages = composite.getProvidedResources(MessageReference.class);
+        Set<MessageReference> compositeMessages = getProvidedResources(allProvidedResources, MessageReference.class);
         if (!mainMessages.containsAll(compositeMessages))
             CheckObr.error("In " + name + " Invalid main implementation. " + implName
                     + " produces messages " + mainMessages
                     + " instead of " + compositeMessages);
 
         Set<InterfaceReference> mainInterfaces = cap.getProvideInterfaces();
-        Set<InterfaceReference> compositeInterfaces = composite.getProvidedResources(InterfaceReference.class);
+        Set<InterfaceReference> compositeInterfaces = getProvidedResources(allProvidedResources, InterfaceReference.class);
         if (!mainInterfaces.containsAll(compositeInterfaces))
             CheckObr.error("In " + name + " Invalid main implementation. " + implName
                     + " implements " + mainInterfaces

@@ -23,6 +23,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 //import fr.imag.adele.apam.util.ApamFilter;
@@ -65,8 +66,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
         if (apform == null)
             throw new InvalidConfiguration("Null apform instance while creating component");
-
-        //assert apform != null;
 
         this.apform 		= apform;
         this.declaration	= apform.getDeclaration();
@@ -787,5 +786,16 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
         return ret ;
     }
 
+    @Override
+    public Set<ResourceReference> getAllProvidedResources () {
+		Set<ResourceReference> allResources  = new HashSet<ResourceReference> () ;
+		Component current = this ;
+		while (current != null) {
+			if (current.getDeclaration().getProvidedResources() != null)
+				allResources.addAll (current.getDeclaration().getProvidedResources()) ;
+			current = current.getGroup() ;
+		}
+		return allResources ;
+    }
 
 }
