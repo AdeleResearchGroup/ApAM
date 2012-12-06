@@ -1,8 +1,5 @@
 package fr.imag.adele.dynamic.manager;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
 import fr.imag.adele.apam.ApamResolver;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -25,7 +22,7 @@ import fr.imag.adele.apam.declarations.SpecificationReference;
  * @author vega
  *
  */
-public class DynamicResolutionRequest implements Runnable {
+public class DynamicResolutionRequest {
 
 	/**
 	 * The APAM resolver
@@ -54,6 +51,12 @@ public class DynamicResolutionRequest implements Runnable {
 		this.isScheduled	= false;
 	}
 	
+	/**
+	 * The source of the dependency
+	 */
+	public Instance getSource() {
+		return source;
+	}
 	
 	/**
 	 * Test whether the specified instance is a possible candidate to resolve this request. This
@@ -91,7 +94,8 @@ public class DynamicResolutionRequest implements Runnable {
 			valid = implementation.getSpec().getDeclaration().getReference().equals(dependency.getTarget());
 
 		if (dependency.getTarget() instanceof ResourceReference)
-			valid = implementation.getDeclaration().getProvidedResources().contains(dependency.getTarget());
+			valid = implementation.getDeclaration().getProvidedResources().contains(dependency.getTarget()) ||
+					implementation.getSpec().getDeclaration().getProvidedResources().contains(dependency.getTarget());
 		
 		/*
 		 * TODO we could also validate constraints and visibility but this may be costly, and will be done
@@ -113,16 +117,14 @@ public class DynamicResolutionRequest implements Runnable {
 
 	}
 
-    /**
-     * The event executor. We use a pool of a threads to handle notification to APAM of underlying platform
-     * events, without blocking the platform thread.
-     */
-    static private final Executor backgroundResolver      			= Executors.newCachedThreadPool();
+	/**
+	 * The dynamic request that is being resolved in the current thread, if any 
+	 */
 	static private ThreadLocal<DynamicResolutionRequest> current	= new ThreadLocal<DynamicResolutionRequest>();
 	
 
     /**
-     * Schedule a recalculation of this dependency in the background
+     * Perform a recalculation of this dependency
      */
     public synchronized void resolve() {
     	
@@ -134,14 +136,32 @@ public class DynamicResolutionRequest implements Runnable {
     	if (isScheduled)
     		return;
     	
-   		isScheduled = true;	
-    	backgroundResolver.execute(this);
+    	/*
+    	 * Invoke resolver to try to find a solution to the dynamic dependency.
+    	 * 
+    	 * IMPORTANT Notice that resolution is performed in the context of the thread that triggered the
+    	 * recalculation event. If resolution fails, the resolver must simply ignore the failure, otherwise
+    	 * this will block or kill an unrelated thread. This is insured by the dynamic manager. 
+    	 * 
+    	 * We need to evaluate if it is safer to resolve dynamic dependencies in a background thread, but this
+    	 * mat introduce some race conditions
+    	 */
+		try {
+			beginResolve();
+			resolver.resolveWire(source, dependency.getIdentifier());
+		}
+		catch (Throwable ignoredError) {
+		}
+		finally {
+			endResolve();
+		}
     }
 
     /**
      * Start of resolution
      */
 	private void beginResolve() {
+   		isScheduled = true;	
 		current.set(this);
 	}
 	
@@ -153,22 +173,6 @@ public class DynamicResolutionRequest implements Runnable {
 		isScheduled = false;
 	}
 
-	@Override
-	public void run() {
-		synchronized (this) {
-			try {
-				beginResolve();
-				resolver.resolveWire(source, dependency.getIdentifier());
-			}
-			catch (Throwable ignoredError) {
-			}
-			finally {
-				endResolve();
-			}
-		}
-	}
-    
-	
 	/**
 	 * Whether the current thread is performing a resolution retry
 	 */

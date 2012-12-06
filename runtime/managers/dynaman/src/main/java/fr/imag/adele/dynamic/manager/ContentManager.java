@@ -17,10 +17,12 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.declarations.ConstrainedReference;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.DependencyInjection;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationReference;
@@ -40,6 +42,11 @@ public class ContentManager  {
 
 	@SuppressWarnings("unused")
 	private final static Logger	logger = LoggerFactory.getLogger(ContentManager.class);
+
+	/**
+	 * The declaration of the composite type
+	 */
+	private final CompositeDeclaration declaration;
 	
 	/**
 	 * The managed composite 
@@ -47,17 +54,37 @@ public class ContentManager  {
 	private final Composite composite;
 	
 	/**
-	 * The declaration of the composite type
+	 * The instances that are owned by this content manager. This is a subset of the 
+	 * contained instances of the composite.
 	 */
-	private final CompositeDeclaration declaration;
+	private Map<OwnedComponentDeclaration, Set<Instance>> owned;
 
+	/**
+	 * The list of contained instances that must be dynamically created when the
+	 * specified triggering condition is satisfied
+	 */
+	private List<InstanceDeclaration> dynamicContains;
+
+	/**
+	 * The list of dynamic dependencies that must be updated without waiting for
+	 * lazy resolution
+	 */
+	private List<DynamicResolutionRequest> dynamicDependencies;
+	
+	/**
+	 * The list of waiting resolutions in this composite
+	 */
+	private List<PendingRequest<?>> waitingResolutions;
+
+	
 	/**
 	 * The current state of the content manager
 	 */
 	private String state;
 
 	/**
-	 * The instance that holds the state of the content manager
+	 * The instance that holds the state of the content manager. This instance is
+	 * automatically created inside the composite at start of content manager.
 	 */
 	private Instance	stateHolder;
 
@@ -67,32 +94,17 @@ public class ContentManager  {
 	private String 		stateProperty;
 	
 	/**
-	 * The contained instances that are owned by this content manager
-	 */
-	private Map<OwnedComponentDeclaration, Set<Instance>> owned;
-
-	/**
-	 * The current granted dependencies 
+	 * The active grant in the current state 
 	 */
 	private Map<OwnedComponentDeclaration, GrantDeclaration> granted;
 
 	/**
-	 * The list of pending resolutions in this composite
-	 */
-	private List<PendingRequest<?>> pendingResolutions;
-
-	/**
 	 * The list of pending resolutions waiting for a grant. This is a subset
-	 * of the pending resolutions indexed by the associated grant.
+	 * of the waiting resolutions indexed by the associated grant.
 	 */
 	private Map<GrantDeclaration, List<PendingRequest<?>>> pendingGrants;
 	
 	
-	/**
-	 * The list of dynamic dependencies that must be updated without waiting
-	 * for lazy resolution
-	 */
-	private List<DynamicResolutionRequest> dynamicRequests;
 	
 	/**
 	 * Initializes the content manager
@@ -103,7 +115,7 @@ public class ContentManager  {
 		this.declaration	= composite.getCompType().getCompoDeclaration();
 		
 		/*
-		 * Initialize state
+		 * Initialize state information
 		 */
 		
 		this.stateHolder		= null;
@@ -122,18 +134,15 @@ public class ContentManager  {
 			/*
 			 * In case the implementation providing the state is not available signal an error. 
 			 * 
-			 * TODO We should not add the composite in APAM, but currently there is no way for a manager
-			 * to avoid reification
 			 */
 			if (implementation == null || ! (implementation instanceof Implementation)) {
 				throw new InvalidConfiguration("Invalid state declaration, implementation can not be found "+propertyReference.getDeclaringComponent().getName());
 			}
 
 			/*
-			 * Eagerly instantiate an instance to hold the state
+			 * Eagerly instantiate an instance to hold the state.
 			 *
-			 * TODO In case the main instance can be used to hold state we avoid creating additional objects,
-			 * we need to evaluate if it is useful or not
+			 * In case the main instance can be used to hold state we avoid creating additional objects.
 			 */
 			if (composite.getMainInst().getImpl().equals(implementation)) {
 				this.stateHolder 	= composite.getMainInst();
@@ -149,8 +158,6 @@ public class ContentManager  {
 			/*
 			 * In case the property providing the state is not defined signal an error. 
 			 * 
-			 * TODO We should not add the composite in APAM, but currently there is no way for a manager
-			 * to avoid reification
 			 */
 			if (propertyDefinition == null ) {
 				throw new InvalidConfiguration("Invalid state declaration, property not defined "+propertyReference.getIdentifier());
@@ -158,7 +165,6 @@ public class ContentManager  {
 			
 			this.stateProperty	= propertyDefinition.getName();
 			
-
 			/*
 			 * compute the initial state of the composite
 			 */
@@ -166,6 +172,28 @@ public class ContentManager  {
 
 		}
 
+
+		/*
+		 * Initialize the list of dynamic dependencies
+		 */
+		dynamicDependencies	= new ArrayList<DynamicResolutionRequest>();
+
+		/*
+		 * Initialize the list of dynamic contains
+		 */
+		dynamicContains	= new ArrayList<InstanceDeclaration>();
+		
+		for (InstanceDeclaration instanceDeclaration : declaration.getInstanceDeclarations()) {
+			
+			Implementation implementation = CST.apamResolver.findImplByName(composite.getMainInst(),instanceDeclaration.getImplementation().getName());			
+			
+			if (implementation == null || ! (implementation instanceof Implementation)) {
+				throw new InvalidConfiguration("Invalid instance declaration, implementation can not be found "+instanceDeclaration.getImplementation().getName());
+			}
+
+			dynamicContains.add(instanceDeclaration);
+		}
+		
 		/*
 		 * Initialize ownership information
 		 */
@@ -189,9 +217,9 @@ public class ContentManager  {
 		}
 		
 		/*
-		 * Initialize the list of pending resolutions (initially empty)
+		 * Initialize the list of waiting resolutions
 		 */
-		pendingResolutions	= new ArrayList<PendingRequest<?>>();
+		waitingResolutions	= new ArrayList<PendingRequest<?>>();
 		pendingGrants		= new HashMap<GrantDeclaration, List<PendingRequest<?>>>();
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
 			for (GrantDeclaration grant : ownedDeclaration.getGrants()) {
@@ -200,12 +228,13 @@ public class ContentManager  {
 		}
 		
 		/*
-		 * Initialize list of dynamic dependencies
+		 * Trigger an initial update of dynamic containment and instances
 		 */
-		dynamicRequests	= new ArrayList<DynamicResolutionRequest>();
-		for (Instance conained : composite.getContainInsts()) {
-			verifyDynamicDependencies(conained);
+		for (Instance contained : composite.getContainInsts()) {
+			updateDynamicDependencies(contained);
 		}
+		
+		updateContainementTriggers();
 	}
 	
 	/**
@@ -215,6 +244,112 @@ public class ContentManager  {
 		return composite;
 	}
 
+	/**
+	 * Updates the list of dynamic dependencies when a new instance is added to the composite
+	 */
+	private void updateDynamicDependencies(Instance instance) {
+		
+		assert instance.getComposite().equals(getComposite());
+		
+		for (DependencyDeclaration dependency : Util.computeAllEffectiveDependency(instance)) {
+
+			boolean hasField =  false;
+			for (DependencyInjection injection : dependency.getInjections()) {
+				if (injection instanceof DependencyInjection.Field) {
+					hasField = true;
+					break;
+				}
+			}
+			
+			if (! hasField || dependency.isMultiple() || dependency.isEager())
+				dynamicDependencies.add(new DynamicResolutionRequest(CST.apamResolver,instance,dependency));
+				
+		}
+	}
+
+	/**
+	 * Verifies if the triggering conditions of pending dynamic contained instances are satisfied
+	 */
+	private synchronized void updateContainementTriggers() {
+		
+		/*
+		 * Iterate over all pending dynamic instances 
+		 */
+		
+		List<InstanceDeclaration> pendingInstances = new ArrayList<InstanceDeclaration>(this.dynamicContains);
+		
+		for (InstanceDeclaration pendingInstance : pendingInstances) {
+			
+			/*
+			 * verify if all triggering conditions are satisfied
+			 */
+			boolean satisfied = true;
+			for (ConstrainedReference trigger : pendingInstance.getTriggers()) {
+				
+				/*
+				 * evaluate the specified trigger
+				 */
+				boolean satisfiedTrigger = false;
+				for (Instance candidate : getComposite().getContainInsts()) {
+
+					/*
+					 * ignore non matching candidates
+					 */
+					
+					String target = trigger.getTarget().getName();
+					
+					if (trigger.getTarget() instanceof SpecificationReference && !candidate.getSpec().getName().equals(target))
+						continue;
+
+					if (trigger.getTarget() instanceof ImplementationReference<?> && !candidate.getImpl().getName().equals(target))
+						continue;
+
+					if (!candidate.match(Util.toFilter(trigger.getInstanceConstraints())))
+						continue;
+
+					if (!candidate.getImpl().match(	Util.toFilter(trigger.getImplementationConstraints())))
+						continue;
+
+					/*
+					 * Stop evaluation at first match 
+					 */
+					satisfiedTrigger = true;
+					break;
+				}
+				
+				/*
+				 * stop at the first unsatisfied trigger
+				 */
+				if (! satisfiedTrigger) {
+					satisfied = false;
+					break;
+					
+				}
+			}
+			
+			/*
+			 * If triggering conditions are not satisfied, just keep it in the list of pending instances  
+			 */
+			if (! satisfied)
+				continue;
+			
+			/*
+			 * Remove from the list of pending dynamic containment
+			 */
+			dynamicContains.remove(pendingInstance);
+
+			/*
+			 * Otherwise try to instantiate the specified implementation.
+			 * 
+			 * TODO BUG We are initializing the properties of the instance, but we lost the dependency overrides. We need to
+			 * modify the API to allow specifying explicitly an instance declaration for Implementation.craeteInstance.
+			 */
+			Implementation implementation = CST.apamResolver.findImplByName(composite.getMainInst(),pendingInstance.getImplementation().getName());			
+			implementation.createInstance(getComposite(), pendingInstance.getProperties());
+
+		}
+	}
+	
 	/**
 	 * Handle state changes in the composite
 	 */
@@ -315,15 +450,61 @@ public class ContentManager  {
 	}
 	
 	/**
-	 * Verifies if the specified instance must be owned by this composite
+	 * Whether the specified instance is owned by this composite
 	 */
-	public void verifyOwnership(Instance instance) {
+	public boolean owns(Instance instance) {
+	
+		if (!instance.getComposite().equals(getComposite()))
+			return false;
 		
+		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
+			if (owned.get(ownedDeclaration).contains(instance))
+				return true;
+		}
+		
+		return false;
+		
+	}
+	
+	/**
+	 * Whether this composite requests ownership of the specified instance
+	 */
+	public boolean requestOwnership(Instance instance) {
+		
+		/*
+		 * Iterate over all ownership declarations and verify if the instance matches the specified
+		 * condition
+		 */
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
 
 
+			boolean matchType = false;	
+			
+			if (ownedDeclaration.getComponent() instanceof SpecificationReference)
+				matchType = instance.getSpec().getDeclaration().getReference().equals(ownedDeclaration.getComponent());
+			
+			if (ownedDeclaration.getComponent() instanceof ImplementationReference<?>)
+				matchType = instance.getImpl().getDeclaration().getReference().equals(ownedDeclaration.getComponent());
+			
+			String propertyValue 	= instance.getProperty(ownedDeclaration.getProperty().getIdentifier());
+			boolean matchProperty	= propertyValue != null && ownedDeclaration.getValues().contains(propertyValue);
+			
+			if (matchType && matchProperty)
+				return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Accord ownership of the specified instance to this composite 
+	 */
+	public void grantOwnership(Instance instance) {
+		
+		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
+
 			/*
-			 * Verify if the instance matches the ownership criteria
+			 * find matching declaration
 			 */
 			boolean matchType = false;	
 			
@@ -341,15 +522,24 @@ public class ContentManager  {
 			
 			if (!matchProperty)
 				continue;
-			
+
 			/*
-			 * Get ownership of the instance
+			 * get ownership
 			 */
 			((InstanceImpl)instance).setOwner(getComposite());
 			owned.get(ownedDeclaration).add(instance);
 			
 			/*
-			 * Grant access to the instance to the pending granted requests
+			 * Force recalculation of dependencies that may have been invalidated by the ownership change
+			 * 
+			 */
+			for (Wire incoming : instance.getInvWires()) {
+				if (! Util.checkInstVisible(incoming.getSource().getComposite(),instance))
+					incoming.remove();
+			}
+			
+			/*
+			 * preempt previous users of the instance and give access to granted waiting requests
 			 */
 			preempt(instance, granted.get(ownedDeclaration));
 			
@@ -357,37 +547,16 @@ public class ContentManager  {
 	}
 
 	/**
-	 * Verifies the specified instance to see if ownership is still valid
+	 * Revokes ownership of the specified instance
 	 * 
-	 * TODO BUG dynamic ownership is not considering all instances when a new owner composite appears
-	 * and it must invalidate all the wires that are no longer valid with the new visibility rules 
 	 */
-	@SuppressWarnings("unused")
-	private void verifyRelinquish(Instance instance) {
+	public void revokeOwnership(Instance instance) {
 		
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
-			
-			/*
-			 * ignore instances not owned
-			 */
-			if (! owned.get(ownedDeclaration).contains(instance))
-				continue;
-			
-			/*
-			 * verify property value matches the required values
-			 */
-			String propertyValue	= instance.getProperty(ownedDeclaration.getProperty().getIdentifier());
-			boolean matchProperty	= propertyValue != null && ownedDeclaration.getValues().contains(propertyValue);
-			
-			/*
-			 * Relinquish instance if no longer matches criteria
-			 */
-			if (! matchProperty) {
-				owned.get(ownedDeclaration).remove(instance);
-				((InstanceImpl) instance).setOwner(CompositeImpl.getRootAllComposites());
-			}
+			owned.get(ownedDeclaration).remove(instance);
 		}
-			
+
+		((InstanceImpl) instance).setOwner(CompositeImpl.getRootAllComposites());
 	}
 
 
@@ -395,7 +564,7 @@ public class ContentManager  {
 	 * Try to resolve all the pending requests that are potentially satisfied by a given component
 	 */
 	private void resolveRequestsWaitingFor(Component candidate) {
-		for (PendingRequest<?> request : pendingResolutions) {
+		for (PendingRequest<?> request : waitingResolutions) {
 			if (request.isSatisfiedBy(candidate))
 				request.resolve();
 		}
@@ -405,33 +574,12 @@ public class ContentManager  {
 	 * Try to resolve all the dynamic requests that are potentially satisfied by a given instance
 	 */
 	private void resolveDynamicRequests(Instance candidate) {
-		for (DynamicResolutionRequest request : dynamicRequests) {
+		for (DynamicResolutionRequest request : dynamicDependencies) {
 			if (request.isSatisfiedBy(candidate))
 				request.resolve();
 		}
 	}
 
-	/**
-	 * Verify if a contained instance has declared dynamic isntances
-	 */
-	private void verifyDynamicDependencies(Instance instance) {
-		
-		for (DependencyDeclaration dependency : Util.computeAllEffectiveDependency(instance)) {
-
-			boolean hasField =  false;
-			for (DependencyInjection injection : dependency.getInjections()) {
-				if (injection instanceof DependencyInjection.Field) {
-					hasField = true;
-					break;
-				}
-			}
-			/*
-			 * ignore lazy dependencies
-			 */
-			if (! hasField || dependency.isMultiple() || dependency.isEager())
-				dynamicRequests.add(new DynamicResolutionRequest(CST.apamResolver,instance,dependency));
-		}
-	}
 	
 	/**
 	 * Updates the contents of this composite when a new implementation is added in APAM
@@ -453,18 +601,7 @@ public class ContentManager  {
 	public synchronized void instanceAdded(Instance instance) {
 		
 		/*
-		 * verify if the instance should be owned by this composite
-		 * 
-		 * TODO We need to verify that there is no conflicting ownership declarations.
-		 * In the current implementation the first invoked content manager silently
-		 * gets the ownership of the instance. 
-		 */
-		//if (! instance.isUsed())
-			verifyOwnership(instance);
-		
-		/*
-		 * verify if the new instance satisfies any pending resolutions in
-		 * this composite
+		 * verify if the new instance satisfies any pending resolutions in this composite
 		 */
 		if (instance.isSharable() && Util.checkInstVisible(getComposite(),instance)) {
 			resolveRequestsWaitingFor(instance);
@@ -472,27 +609,105 @@ public class ContentManager  {
 		}
 
 		/*
-		 * verify if a newly contained instance has dynamic dependencies  
+		 * verify if a newly contained instance has dynamic dependencies or satisfies a trigger
 		 */
-		if ( instance.getComposite().equals(getComposite()))
-			verifyDynamicDependencies(instance);
+		if ( instance.getComposite().equals(getComposite())) {
+			updateDynamicDependencies(instance);
+			updateContainementTriggers();
+		}
+	}
+
+	/**
+	 * Verifies all the effects of a property change in a contained instance
+	 * 
+	 */
+	public synchronized void propertyChanged(Instance instance, String property) {
+
+		/*
+		 * verify if the modified instance satisfies any pending resolutions and dynamic
+		 * dependencies in this composite
+		 */
+		if (instance.isSharable() && Util.checkInstVisible(getComposite(),instance)) {
+			resolveRequestsWaitingFor(instance);
+	        resolveDynamicRequests(instance);
+		}
+
+        
+		/*
+		 * For modified contained instances
+		 */
+		if ( instance.getComposite().equals(getComposite())) {
+			
+			/*
+			 * update triggers
+			 */
+			updateContainementTriggers();
+			
+			/*
+			 * Force recalculation of dependencies that may have been invalidated by
+			 * the property change
+			 * 
+			 */
+			for (Wire incoming : instance.getInvWires()) {
+				if (incoming.hasConstraints())
+					incoming.remove();
+			}
+
+			/*
+			 * Verify if property change triggers a state change
+			 */
+			if (stateHolder != null && stateHolder.equals(instance) && stateProperty.equals(property))
+				stateChanged(stateHolder.getProperty(stateProperty));
+
+		}
+
 	}
 
 
 	/**
 	 * Updates the contents of this composite when a contained instance is removed from APAM
+	 * 
 	 */
 	public synchronized void instanceRemoved(Instance instance) {
 		
 		assert instance.getComposite().equals(getComposite());
 
+		/*
+		 * update state
+		 */
 		if (instance == stateHolder)
 			stateHolder = null;
 		
+		/*
+		 * update list of owned instances
+		 */
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
 			if (owned.get(ownedDeclaration).contains(instance))
 				owned.get(ownedDeclaration).remove(instance);
 		}
+		
+		/*
+		 * update list of dynamic dependencies
+		 */
+		List<DynamicResolutionRequest> removedDynamicRequests = new ArrayList<DynamicResolutionRequest>();
+		for (DynamicResolutionRequest dynamicDependency : dynamicDependencies) {
+			if (dynamicDependency.getSource().equals(instance))
+				removedDynamicRequests.add(dynamicDependency);
+		}
+		
+		dynamicDependencies.removeAll(removedDynamicRequests);
+		
+		/*
+		 * update list of waiting requests
+		 */
+		List<PendingRequest<?>> removedWaitingResolutions = new ArrayList<PendingRequest<?>>();
+		for (PendingRequest<?> pendingRequest : waitingResolutions) {
+			if (pendingRequest.getSource().equals(instance))
+				removedWaitingResolutions.add(pendingRequest);
+		}
+		
+		waitingResolutions.removeAll(removedWaitingResolutions);
+		
 	}
 	
 	/**
@@ -518,7 +733,7 @@ public class ContentManager  {
 		/*
 		 * add to the list of pending requests
 		 */
-		pendingResolutions.add(request);
+		waitingResolutions.add(request);
 		
 		/*
 		 * Verify if the request corresponds to a grant for an owned instance, and
@@ -551,7 +766,7 @@ public class ContentManager  {
 	 */
 	public synchronized void removePendingRequest(PendingRequest<?> request) {
 
-		pendingResolutions.remove(request);
+		waitingResolutions.remove(request);
 
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
 			for (GrantDeclaration grant :ownedDeclaration.getGrants()) {
@@ -562,47 +777,6 @@ public class ContentManager  {
 	}
 
 	
-	/**
-	 * Verifies all the effects of a property change in a contained instance
-	 * 
-	 */
-	public synchronized void propertyChanged(Instance instance, String property) {
-
-		assert instance.getComposite().equals(getComposite());
-
-		/*
-		 * Force recalculation of dependencies that may have been invalidated by
-		 * the property change
-		 * 
-		 */
-		for (Wire incoming : instance.getInvWires()) {
-			if (incoming.hasConstraints())
-				incoming.remove();
-		}
-
-		/*
-		 * Verify if property change triggers a state change
-		 */
-		if (stateHolder != null && stateHolder.equals(instance) && stateProperty.equals(property))
-			stateChanged(stateHolder.getProperty(stateProperty));
-		
-		/*
-		 * Verify if property change triggers an ownership loss
-		 * 
-		 */
-		//verifyRelinquish(instance);
-		
-		/*
-		 * verify if the modified instance satisfies any pending resolutions in
-		 * this composite
-		 */
-		resolveRequestsWaitingFor(instance);
-
-        resolveDynamicRequests(instance);
-	}
-
-
-
 	/**
 	 * The composite is removed
 	 */

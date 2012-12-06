@@ -132,12 +132,6 @@
 <node CREATED="1353332025894" ID="ID_1509607474" MODIFIED="1354295637086" TEXT="enclosed dependency instantiation should instantiate automatically indirect dependency-tc031">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353494079795" ID="ID_1345503897" MODIFIED="1354019770015" TEXT="hide">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353942786441" ID="ID_1613299564" MODIFIED="1353948957198" TEXT="exception">
-<icon BUILTIN="button_ok"/>
-</node>
 </node>
 <node CREATED="1353491520963" ID="ID_1528052278" MODIFIED="1353491524764" TEXT="visibility">
 <node CREATED="1353077184248" ID="ID_914230240" MODIFIED="1354710170087" TEXT="import">
@@ -196,8 +190,8 @@
 <node CREATED="1353406252448" ID="ID_868172689" MODIFIED="1354296263222" TEXT="if dependency is marked as eager, it should be instantiated as soon as the bundle is ready-tc041">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1354189278496" ID="ID_1165923695" MODIFIED="1354296033046" TEXT="eager=&apos;true&apos; with specification">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1354189278496" ID="ID_1165923695" MODIFIED="1354807642467" TEXT="eager=&apos;true&apos; with specification-tc051">
+<icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1354296592137" ID="ID_196649933" MODIFIED="1354296610871" TEXT="hide=&apos;true&apos;-tc047">
 <icon BUILTIN="button_ok"/>

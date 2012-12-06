@@ -160,12 +160,11 @@ public class ApamCommand {
             }
             compositeName = target.getName();
         }
+
         System.out.println("< Searching " + componentName +" in " + compositeName+  " repositories> " );
-        fr.imag.adele.apam.Component component= CST.apamResolver.findComponentByName(target, componentName);
-        if (component!=null)
-            System.out.println(">> " + component.getName() + " deployed!");
-        else
-            System.out.println(">> Deployment failed for " + componentName);
+        fr.imag.adele.apam.Component component=null;
+        Thread t  = new Thread(new AsyncFind(component,target,componentName, false) );
+        t.start();
     }
 
     /**
@@ -261,15 +260,9 @@ public class ApamCommand {
             }
            // targetType = target.getCompType() ;
         }
-
-        fr.imag.adele.apam.Component compo =  CST.apamResolver.findComponentByName(target, componentName);
-        if (compo instanceof Implementation)
-            ((Implementation)compo).createInstance(target,null);
-        if (compo instanceof Specification) {
-            Implementation impl = CST.apamResolver.resolveSpecByName(target, componentName, null, null) ;
-            if (impl != null)
-                impl.createInstance(null, null);
-        }
+        fr.imag.adele.apam.Component compo = null;
+        Thread t  = new Thread(new AsyncFind(compo,target,componentName,true) );
+         t.start();
     }
 
     /**
