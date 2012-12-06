@@ -179,6 +179,52 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	}
 	
 	@Test
+	public void CompositeWithEagerDependencyExplicitySpecification_tc051() {
+		CompositeType ct1 = (CompositeType) CST.apamResolver.findImplByName(
+				null, "S2Impl-composite-eager-forceEager");
+
+		String message = "During this test, we enforce the resolution of the dependency by signaling dependency as eager='true'. %s";
+
+		Assert.assertTrue(String.format(message,
+				"Although, the test failed to retrieve the composite"),
+				ct1 != null);
+
+		auxListInstances("instances existing before the test-");
+
+		Composite instanceComposite = (Composite)ct1.createInstance(null,
+				new HashMap<String, String>());
+
+		Implementation implS2=CST.apamResolver.findImplByName(
+				null, "fr.imag.adele.apam.pax.test.impl.S2Impl-forceEager");
+		
+		Instance instance=implS2.createInstance(instanceComposite, null);
+		
+		Assert.assertTrue(String.format(message,
+				"Although, the test failed to instantiate the composite"),
+				instance != null);
+
+		//Force injection (for debuggin purposes)
+		//S2Impl im=(S2Impl)instance.getServiceObject();
+		//im.getDeadMansSwitch();
+		
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		List<Instance> pool = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.device.PhilipsSwitch",
+				"fr.imag.adele.apam.pax.test.impl.device.GenericSwitch",
+				"fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch",
+				"fr.imag.adele.apam.pax.test.device.DeadsManSwitch");
+		
+		auxListInstances("instances existing after the test-");
+
+		Assert.assertTrue(
+				String.format(
+						message,
+						"Although, there exist no instance of dependence required(DeadsManSwitch.class), which means that it was not injected."),
+				pool.size() == 1);
+
+	}	
+	
+	@Test
 	public void CompositeContentMngtStartTriggerBySpecification_tc042(){
 		auxListInstances("INSTANCE-t1-");
 		
