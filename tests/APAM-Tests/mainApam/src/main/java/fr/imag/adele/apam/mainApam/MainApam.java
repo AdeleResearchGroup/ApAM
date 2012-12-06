@@ -61,11 +61,23 @@ public class MainApam implements Runnable, ApamComponent {
 	}
 
 
-	@Deprecated
 	public void testFindImplByName () {
-		System.out.println("=========== start testFindImplByName");
+		System.out.println("=====MODIFIED====== start testFindImplByName");
 		System.out.println("testing findImplByName in OBR");
-		Implementation implem = CST.apamResolver.findImplByName(null,"S1toS2Final");
+
+		System.out.println("Empty spec");
+		Specification spec = CST.apamResolver.findSpecByName(null,"dummySpec");
+		assertTrue(spec != null);
+
+		System.out.println("Abstract composite with empty spec");
+		Implementation implem = CST.apamResolver.findImplByName(null,"AbstractCompositeType");
+		assertTrue(implem != null);
+
+		System.out.println("Abstract composite without spec");
+		implem = CST.apamResolver.findImplByName(null,"AbstractCompositeTypeNoSpec");
+		assertTrue(implem != null);
+
+		implem = CST.apamResolver.findImplByName(null,"S1toS2Final");
 		assertTrue(implem != null);
 
 		System.out.println("Deploying S1Impl bundle should deploy also the implems and composites. Composite S1CompoFinal is created and started.");
@@ -297,10 +309,10 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals(inst.getProperty("s1i"), "5");
 		impl.setProperty("s1i", "5, 7, 55,985"); // Ok
 		assertNotEquals(impl.getProperty("s1i"), "5, 7, 55,985");
-//		assertEquals(inst.getProperty("s1i"), "5, 7, 55,985");
+		//		assertEquals(inst.getProperty("s1i"), "5, 7, 55,985");
 
-//		impl.setProperty("s1i", "5, zz, 55,985"); // wrong
-//		assertNotEquals(impl.getProperty("s1i"), "5, zz, 55,985");
+		//		impl.setProperty("s1i", "5, zz, 55,985"); // wrong
+		//		assertNotEquals(impl.getProperty("s1i"), "5, zz, 55,985");
 
 		boolean ok  ;
 		impl.setProperty("s1i", "5"); // for match tests
@@ -323,12 +335,12 @@ public class MainApam implements Runnable, ApamComponent {
 		String s = "to set the field attribute" ;
 		((TestAttr)inst.getServiceObject()).callS1 (s) ; //callS1 sets the attribute to s 
 		assertEquals(inst.getProperty("fieldAttr"), s);
-		 s = "second value" ;
+		s = "second value" ;
 		((TestAttr)inst.getServiceObject()).callS1 (s) ; //callS1 sets the attribute to s 
 		assertEquals(inst.getProperty("fieldAttr"), s);
 		inst.setProperty("fieldAttr", "a Value") ;
 		assertEquals(inst.getProperty("fieldAttr"), s);
-		
+
 
 		inst.setProperty("fieldAttr", "test"); // error: cannot set
 		assertNotEquals(impl.getProperty("fieldAttr"), "test");
@@ -343,7 +355,7 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("\n");
 		System.out.println("OS value is : " + inst.getProperty("OS"));
 		System.out.println("toto does not exist. Its value is null");
-		
+
 		//non instantiated attributes
 		ok = inst.match("(toto= Android  , Linux  , IOS)") ;
 		System.out.println("Matching: (toto= Android  , Linux  , IOS): " + ok);
@@ -593,11 +605,11 @@ public class MainApam implements Runnable, ApamComponent {
 
 		testFindImplByName () ;
 		//testCompoURL () ;
-		testCreateCompoRootS1toS2Final () ;
-		testCreateCompoBySpec () ;
-		testInitialAttributes () ;
-		testSettingAttributes () ;
-		testImplemWithoutSpec () ;
+//		testCreateCompoRootS1toS2Final () ;
+//		testCreateCompoBySpec () ;
+//		testInitialAttributes () ;
+//		testSettingAttributes () ;
+//		testImplemWithoutSpec () ;
 	}
 
 

@@ -21,9 +21,9 @@ import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
-import fr.imag.adele.apam.pax.test.impl.S1Impl;
-import fr.imag.adele.apam.pax.test.impl.device.GenericSwitch;
-import fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch;
+import fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch;
+import fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch;
+import fr.imag.adele.apam.pax.test.implS1.S1Impl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 

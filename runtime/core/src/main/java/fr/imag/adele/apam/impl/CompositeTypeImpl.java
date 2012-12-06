@@ -26,6 +26,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.declarations.ResourceReference;
 
 //import fr.imag.adele.sam.Implementation;
 
@@ -200,27 +201,54 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         }
 		
         /*
-         * Resolve main implementation.
-         * 
-         * First we try to find an implementation with the name of the main component, if we fail to find one we
-         * assume the name corresponds to a specification which is resolved. 
-         * Notice that resolution of the main component is done in the context of this composite type, 
-         * so it will be  deployed in this context if necessary.
-         * 
-         * WARNING this is done after the composite type is added to the hierarchy but before it is completely
-         * registered as a normal implementation. We do not call super.register until the main implementation
-         * is resolved.
-         * 
+         * Resolve main implementation. Does nothing if it is an abstract composite.
          */
+        resolveMainImplem () ;
         
         /*
-         * This is a false composite / instance, not registered anywhere,only in the insts set 
+		 * add to list of composite types
+		 */
+		CompositeTypeImpl.compositeTypes.put(getName(),this);
+		
+		/*
+		 * Complete normal registration
+		 */		
+    	super.register(initialProperties); 	
+    }        
+    
+    /*
+     * Resolve main implementation.
+     * 
+     * First we try to find an implementation with the name of the main component, if we fail to find one we
+     * assume the name corresponds to a specification which is resolved. 
+     * Notice that resolution of the main component is done in the context of this composite type, 
+     * so it will be  deployed in this context if necessary.
+     * 
+     * WARNING this is done after the composite type is added to the hierarchy but before it is completely
+     * registered as a normal implementation. We do not call super.register until the main implementation
+     * is resolved.
+     * 
+     */
+    private void resolveMainImplem () throws InvalidConfiguration {        
+    	/*
+    	 * Abstract Composite
+    	 */
+    	if (getCompoDeclaration().getMainComponent() == null) {
+    		if (!getAllProvidedResources().isEmpty()) {
+            	unregister();
+            	throw new InvalidConfiguration("invalid composite type " 
+                        + getName() + ". No Main implementation but provides resources " + getAllProvidedResources());
+    		}
+    		return ;
+    	}
+    	
+		String mainComponent = getCompoDeclaration().getMainComponent().getName();
+        /*
+         * This is a false composite / instance, not registered anywhere. 
          * just to provide an instance to the find and resolve.
-         * To be removed before registering.
          */
         Composite dummyComposite = new CompositeImpl (this, "dummyComposite") ;
                 
-		String mainComponent = getCompoDeclaration().getMainComponent().getName();
 		
 		Component mComponent = CST.apamResolver.findComponentByName(dummyComposite, mainComponent);
 		if (mComponent!=null && mComponent instanceof Implementation){
@@ -246,7 +274,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
             throw new InvalidConfiguration("Cannot find main implementation " + mainComponent);
         }
         
-        assert mainImpl != null;
+        //assert mainImpl != null;
         
         if (! mainImpl.getInCompositeType().contains(this)) deploy(mainImpl) ;
 		
@@ -254,8 +282,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
          * Check that the main implementation conforms to the declaration of the composite
          * 
          */
-        boolean providesResources = mainImpl.getDeclaration().getProvidedResources().containsAll(getSpec().getDeclaration().getProvidedResources());
-        
+        boolean providesResources = mainImpl.getAllProvidedResources().containsAll(getAllProvidedResources()); 
 
 		/*
 		 * If the main implementation is not conforming, we abort the registration in APAM, taking care of
@@ -268,22 +295,11 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
                     + "do no provide all the expected resources : " + getSpec().getDeclaration().getProvidedResources());
         }
 
-        boolean isConformingMainImplem = providesResources;
-        assert isConformingMainImplem;
-        
-        //Remove the dummy Instance
-       //
-        /*
-		 * add to list of composite types
-		 */
-		CompositeTypeImpl.compositeTypes.put(getName(),this);
-		
-		/*
-		 * Complete normal registration
-		 */
-		
-    	super.register(initialProperties); 	
+        //TODO Other control, other than provided resources ?
+//        boolean isConformingMainImplem = providesResources;
+//        assert isConformingMainImplem;
     }
+    
     
     @Override
     public void unregister() {

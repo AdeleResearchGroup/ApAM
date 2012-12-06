@@ -21,6 +21,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.util.Util;
 
 public class InstanceImpl extends ComponentImpl implements Instance {
 
@@ -339,6 +340,10 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
     @Override
     public boolean createWire(Instance to, String depName, boolean hasConstraints) {
+    	
+//    	assert !Util.checkInstVisible(getComposite(), to) ;
+    	assert Util.checkInstVisible(getComposite(), to) ;
+    	
         if ((to == null) || (depName == null))
             return false;
 

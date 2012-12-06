@@ -80,9 +80,10 @@ public abstract class ExtensionAbstract extends TestUtils {
         config.add(mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
                 .versionAsInProject());
 
+        config.add(vmOption("-ea"));
         config.add(when(isDebugModeOn())
                 .useOptions(
-                        vmOption(String
+                		vmOption(String
                                 .format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
                                         Constants.CONST_DEBUG_PORT)),
                         systemTimeout(0)));

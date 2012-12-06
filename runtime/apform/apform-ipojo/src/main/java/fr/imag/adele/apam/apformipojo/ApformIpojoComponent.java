@@ -124,7 +124,7 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
 
                 if (declaration instanceof CompositeDeclaration) {
                     CompositeDeclaration composite = (CompositeDeclaration) declaration;
-                    if (composite.getSpecification() != null ) {
+                    if (composite.getSpecification() != null && composite.getMainComponent() != null) {
                         componentDescription.addAttribute(new Attribute("main",composite.getMainComponent().getName()));
                     }
                 }
