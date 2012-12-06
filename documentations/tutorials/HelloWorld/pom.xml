@@ -32,11 +32,7 @@
             <artifactId>apam-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.ipojo.annotations</artifactId>
-            <version>1.8.0</version>
-        </dependency>
+
 	</dependencies>
 
 	<!-- Build Description -->

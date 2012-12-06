@@ -22,7 +22,7 @@
 		<osgi.version>4.2.0</osgi.version>
 		<felix.osgi.version>1.4.0</felix.osgi.version>
 		<ipojo.version>1.8.0</ipojo.version>
-		<ipojo.plugin.version>1.8.0</ipojo.plugin.version>
+		<ipojo.plugin.version>1.8.6</ipojo.plugin.version>
 		<bundle.plugin.version>2.3.7</bundle.plugin.version>
 		<compiler.plugin.version>2.5.1</compiler.plugin.version>
 		<javadoc.plugin.version>2.9</javadoc.plugin.version>
@@ -331,7 +331,7 @@
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.apache.felix.ipojo</artifactId>
 				<version>${ipojo.version}</version>
-			</dependency>
+            </dependency>
 			<dependency>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>org.apache.felix.ipojo.metadata</artifactId>
