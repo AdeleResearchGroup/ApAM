@@ -126,7 +126,7 @@
 <node CREATED="1353076657096" ID="ID_1884842516" MODIFIED="1354295617312" TEXT="should be possible to instantiate two composites, based on the same impl, sequentially-tc029">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353076955016" ID="ID_1396045592" MODIFIED="1354295629853" TEXT="should be possible to retrieve the service object of a composite-tc030">
+<node CREATED="1353076955016" ID="ID_1396045592" MODIFIED="1354717031610" TEXT="should be possible to retrieve the service object of a composite-tc030">
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1353332025894" ID="ID_1509607474" MODIFIED="1354295637086" TEXT="enclosed dependency instantiation should instantiate automatically indirect dependency-tc031">
@@ -140,15 +140,7 @@
 </node>
 </node>
 <node CREATED="1353491520963" ID="ID_1528052278" MODIFIED="1353491524764" TEXT="visibility">
-<node CREATED="1353077190840" ID="ID_1475045056" MODIFIED="1353587369160" TEXT="local">
-<node CREATED="1353490737684" ID="ID_31658279" MODIFIED="1354295772624" TEXT="test local declaration filtering by &apos;instance=true&apos;-tc032">
-<icon BUILTIN="button_ok"/>
-</node>
-<node CREATED="1353587369924" ID="ID_1774818195" MODIFIED="1354295791153" TEXT="test local declaration filtering by &apos;implementation=true&apos;-tc033">
-<icon BUILTIN="button_ok"/>
-</node>
-</node>
-<node CREATED="1353077184248" ID="ID_914230240" MODIFIED="1353598196963" TEXT="borrow">
+<node CREATED="1353077184248" ID="ID_914230240" MODIFIED="1354710170087" TEXT="import">
 <node CREATED="1353490893539" ID="ID_189222500" MODIFIED="1354295825200" TEXT="specifing instance=&apos;false&apos;-tc034">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -156,17 +148,26 @@
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
-<node CREATED="1353077196808" ID="ID_1525157524" MODIFIED="1353416497236" TEXT="friend">
-<node CREATED="1353685833809" ID="ID_160277144" MODIFIED="1354295921680" TEXT="specifing implementation=&apos;false&apos;-tc036">
+<node CREATED="1354720048703" ID="ID_1119045837" MODIFIED="1354720050152" TEXT="export">
+<node CREATED="1353933736682" ID="ID_1998386380" MODIFIED="1354783298706" TEXT="exportApp=&apos;true&apos; and export=&apos;false&apos; for global-tc038">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353494521059" ID="ID_170356469" MODIFIED="1354295941966" TEXT="specifing instance=&apos;false&apos;-tc037">
+<node CREATED="1354720291055" ID="ID_817592161" MODIFIED="1354782075277" TEXT="exportApp=&apos;false&apos; export=&apos;true&apos;, Both in different composites-tc048">
 <icon BUILTIN="button_ok"/>
 </node>
-</node>
-<node CREATED="1353077202712" ID="ID_1802016001" MODIFIED="1353077204742" TEXT="application">
-<node CREATED="1353933736682" ID="ID_1998386380" MODIFIED="1354295969213" TEXT="specifing instance=&apos;true&apos; and local instance=&apos;true&apos;-tc038">
+<node CREATED="1354720921759" ID="ID_1848111957" MODIFIED="1354782030766" TEXT="exportApp=&apos;false&apos; export=&apos;true&apos;, Both in root composite-tc049">
 <icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1354723044639" ID="ID_775391030" MODIFIED="1354723248409" TEXT="export true for global, In different composites-tc050">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353077190840" ID="ID_1475045056" MODIFIED="1354726431079" TEXT="private">
+<node CREATED="1353490737684" ID="ID_31658279" MODIFIED="1354727812612" TEXT="test local declaration filtering by &apos;instance=true&apos;-tc032">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1353587369924" ID="ID_1774818195" MODIFIED="1354727817692" TEXT="test local declaration filtering by &apos;implementation=true&apos;-tc033">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 </node>
@@ -240,6 +241,9 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1354297652923" ID="ID_41966136" MODIFIED="1354628609824" TEXT="dispute between dependency and composite with own, own should have priority-tc047">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1354635868184" ID="ID_123141354" MODIFIED="1354635996473" TEXT="dispute one instance between a composite and an own in another, when the instance is already inside one composite-tc048">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>

@@ -514,7 +514,7 @@ public class CheckObr {
             return true;
 
         try {
-            ApamFilter f = ApamFilter.newInstance(expr);
+            ApamFilter f = ApamFilter.newInstance(expr, false);
         } catch (Exception e) {
             error("Bad filter in visibility expression " + expr);
             return false;
@@ -525,19 +525,19 @@ public class CheckObr {
     private static void checkVisibility(CompositeDeclaration component) {
         VisibilityDeclaration visiDcl = component.getVisibility();
         if (!visibilityExpression(visiDcl.getApplicationInstances()))
-            error("bad expression in Application visibility: " + visiDcl.getApplicationInstances());
-        if (!visibilityExpression(visiDcl.getFriendImplementations()))
-            error("bad expression in Friend implementation visibility: " + visiDcl.getFriendImplementations());
-        if (!visibilityExpression(visiDcl.getFriendInstances()))
-            error("bad expression in Friend instance visibility: " + visiDcl.getFriendInstances());
-        if (!visibilityExpression(visiDcl.getLocalImplementations()))
-            error("bad expression in Local implementation visibility: " + visiDcl.getLocalImplementations());
-        if (!visibilityExpression(visiDcl.getLocalInstances()))
-            error("bad expression in Local instance visibility: " + visiDcl.getLocalInstances());
-        if (!visibilityExpression(visiDcl.getBorrowImplementations()))
-            error("bad expression in Borrow implementation visibility: " + visiDcl.getBorrowImplementations());
-        if (!visibilityExpression(visiDcl.getBorrowInstances()))
-            error("bad expression in Borrow instance visibility: " + visiDcl.getBorrowInstances());
+            error("bad expression in ExportApp visibility: " + visiDcl.getApplicationInstances());
+//        if (!visibilityExpression(visiDcl.getFriendImplementations()))
+//            error("bad expression in Friend implementation visibility: " + visiDcl.getFriendImplementations());
+//        if (!visibilityExpression(visiDcl.getFriendInstances()))
+//            error("bad expression in Friend instance visibility: " + visiDcl.getFriendInstances());
+        if (!visibilityExpression(visiDcl.getExportImplementations()))
+            error("bad expression in Export implementation visibility: " + visiDcl.getExportImplementations());
+        if (!visibilityExpression(visiDcl.getExportInstances()))
+            error("bad expression in Export instance visibility: " + visiDcl.getExportInstances());
+        if (!visibilityExpression(visiDcl.getImportImplementations()))
+            error("bad expression in Imports implementation visibility: " + visiDcl.getImportImplementations());
+        if (!visibilityExpression(visiDcl.getImportInstances()))
+            error("bad expression in Imports instance visibility: " + visiDcl.getImportInstances());
     }
 
     /**

@@ -37,12 +37,14 @@ import fr.imag.adele.apam.util.Util;
 
 public class ApamCapability {
 
-	private static Logger logger = LoggerFactory.getLogger(ApamCapability.class);
+//	private static Logger logger = LoggerFactory.getLogger(ApamCapability.class);
 
 	private static Map<String, ApamCapability> capabilities = new HashMap<String, ApamCapability>();
 	//	private static List <ComponentDeclaration> components   = new ArrayList<ComponentDeclaration>();
 	//	private static List <ComponentDeclaration> dependencies = new ArrayList<ComponentDeclaration>();
+	private static Set<String> missing = new HashSet<String>();
 
+	
 	//	Capability cap = null ;
 	public ComponentDeclaration dcl = null ;
 	private boolean isFinalized		= false;
@@ -74,6 +76,8 @@ public class ApamCapability {
 	}
 
 	public static void init (List<ComponentDeclaration> components, List<ComponentDeclaration> dependencies) {
+		capabilities.clear() ;
+		missing.clear() ;
 		for (ComponentDeclaration dcl : components) {
 			new ApamCapability(dcl) ;
 		}
@@ -83,7 +87,12 @@ public class ApamCapability {
 	}
 
 	public static ApamCapability get(ComponentReference<?> reference) {
-		return capabilities.get(reference.getName());
+		ApamCapability cap = capabilities.get(reference.getName()) ;
+		if (cap == null && !missing.contains(reference.getName())) {
+			missing.add(reference.getName()) ;
+			CheckObr.error("Component " + reference.getName() + " is not in your Maven dependencies.") ;
+		}
+		return cap;
 	}
 
 	public static ComponentDeclaration getDcl(ComponentReference<?> reference) {

@@ -1,0 +1,74 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>obrman-apps-test</artifactId>
+		<groupId>fr.imag.adele.apam.tests</groupId>
+		<version>0.0.2-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>apam-repositories</artifactId>
+	<packaging>pom</packaging>
+	<groupId>fr.imag.adele.apam.tests.obrman</groupId>
+    <name>Generated repositories</name>
+	<modules>
+		<module>app1.private.components</module>
+		<module>app2.private.components</module>
+		<module>public.components</module>
+	</modules>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>xml-maven-plugin</artifactId>
+					<version>1.0</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>transform</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<transformationSets>
+							<transformationSet>
+								<dir>${basedir}/obr</dir>
+								<stylesheet>../xsl/mvn-url.xslt</stylesheet>
+								<outputDir>${basedir}/src/main/resources</outputDir>
+							</transformationSet>
+						</transformationSets>
+					</configuration>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.codehaus.mojo</groupId>
+										<artifactId>xml-maven-plugin</artifactId>
+										<versionRange>
+											[1.0.0,)
+										</versionRange>
+										<goals>
+											<goal>transform</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

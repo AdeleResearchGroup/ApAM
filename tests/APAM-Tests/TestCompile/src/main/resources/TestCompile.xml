@@ -206,11 +206,10 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 				</trigger>
 			</start>
 
-			<borrow implementation="(b=true)" instance="false" />
-			<local  implementation="true" instance="true" />
-			<local  implementation="((c)" /> 							<!-- Invalid filter -->
-			<friend implementation="(name=xxx)" instance="(yyy=tt)" /> 	<!--  cannot be checked --> 
-			<application />
+			<import implementation="(b=true)" instance="false" />
+			<export  implementation="true" instance="true" />
+			<export  implementation="((c)" /> 							<!-- Invalid filter -->
+			<exportApp instance="(yyy=tt)" /> 	<!--  cannot be checked --> 
 
 
 			<own specification="S4Compile" property="location" value="living, bedroom, kitchen">
