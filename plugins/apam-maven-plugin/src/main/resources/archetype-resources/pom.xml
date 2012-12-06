@@ -27,7 +27,7 @@
 			</plugin>
 			<plugin>
 				<groupId>fr.adele.imag.apam</groupId>
-				<artifactId>maven-ipojo-plugin</artifactId>
+				<artifactId>apam-maven-plugin</artifactId>
 				<executions>
 					<execution>
 						<goals>
