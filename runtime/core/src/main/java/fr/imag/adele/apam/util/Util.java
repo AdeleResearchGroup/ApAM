@@ -175,16 +175,28 @@ public class Util {
 		return comp.match(f);
 	}
 
-//	public static boolean checkInstVisibilityExpression(String expre, Instance inst) {
-//		if ((expre == null) || expre.equals(CST.V_TRUE))
-//			return true;
-//		if (expre.equals(CST.V_FALSE))
-//			return false;
-//		Filter f = ApamFilter.newInstance(expre);
-//		if (f == null)
-//			return false;
-//		return inst.match(f);
-//	}
+
+	public static Set<Implementation> getVisibleImpls (Instance client, Set<Implementation> impls) {
+		if (impls == null) return null ;
+		Set<Implementation> ret = new HashSet <Implementation> () ;
+		CompositeType compo = client.getComposite().getCompType() ;
+		for (Implementation impl : impls) {
+			if (checkImplVisible(compo, impl))
+				ret.add(impl) ;
+		}
+		return ret ;
+	}
+	
+	public static Set<Instance> getVisibleInsts (Instance client, Set<Instance> insts) {
+		if (insts == null) return null ;
+		Set<Instance> ret = new HashSet <Instance> () ;
+		Composite compo = client.getComposite() ;
+		for (Instance inst : insts) {
+			if (checkInstVisible(compo, inst))
+				ret.add(inst) ;
+		}
+		return ret ;
+	}
 
 	/**
 	 * Implementation toImpl is exported if it matches the export clause in at least one of it composite types.
@@ -218,19 +230,6 @@ public class Util {
 		String exports = ((CompositeDeclaration) compoTo.getDeclaration()).getVisibility().getExportImplementations();
 		return Util.checkVisibilityExpression(exports, toImpl) ;
 	}
-		
-//		if (compoFrom.isFriend(compoTo)) {
-//			String friend = ((CompositeDeclaration) compoTo.getDeclaration()).getVisibility()
-//			.getFriendImplementations(); // .getProperty(CST.A_FRIENDIMPLEM));
-//			//            String friend = ((String) compoTo.getProperty(CST.A_FRIENDIMPLEM));
-//			if ((friend != null) && Util.checkVisibilityExpression(friend, toImpl))
-//				return true;
-//		}
-//		String local = ((CompositeDeclaration) compoTo.getDeclaration()).getVisibility().getLocalImplementations();
-//		if ((local != null) && Util.checkVisibilityExpression(local, toImpl))
-//			return false;
-//		return true;
-//	}
 
 
 	/**

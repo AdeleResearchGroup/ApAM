@@ -197,7 +197,7 @@ public abstract class PendingRequest<T extends Component> {
 				return result != null ? Collections.singleton(result) : null;
 			}
 			else {
-				return resolver.resolveSpecByResources(getSource(),dependency);
+				return resolver.resolveAllDependency(getSource(),dependency, null);
 			}
 		}
 	

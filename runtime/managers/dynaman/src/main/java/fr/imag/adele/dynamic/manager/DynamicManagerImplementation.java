@@ -409,7 +409,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	@Override
-	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dependency) {
+	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dependency, Set<Instance> insts) {
 		
 		/*
 		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing

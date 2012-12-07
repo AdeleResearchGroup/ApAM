@@ -38,7 +38,7 @@
 
 	<composite name="S2Impl-composite-eager" main="fr.imag.adele.apam.pax.test.implS2.S2Impl">
 		<contentMngt>
-			<dependency specification="eletronic-device" eager="true">
+			<dependency interface=".*Eletronic" eager="true">
 			</dependency>
 		</contentMngt>
 	</composite>
@@ -56,7 +56,7 @@
 	</implementation>
 	
 	<implementation name="fr.imag.adele.apam.pax.test.impl.S2Impl-forceEager"
-		classname="fr.imag.adele.apam.pax.test.impl.S2Impl" specification="fr.imag.adele.apam.pax.test.iface.S2">
+		classname="fr.imag.adele.apam.pax.test.implS2.S2Impl" specification="fr.imag.adele.apam.pax.test.iface.S2">
 		<dependency field="deadMansSwitch" specification="eletronic-device" />
 	</implementation>
 

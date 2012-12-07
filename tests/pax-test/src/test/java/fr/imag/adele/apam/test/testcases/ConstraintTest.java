@@ -136,12 +136,12 @@ public class ConstraintTest extends ExtensionAbstract{
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
+//		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
 		Instance s1Inst = s1Impl.createInstance(null, null);
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
+//		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
 		for (Eletronic e : s1.getEletronicInstancesConstraintsInstance()) {
 			Instance p = CST.componentBroker.getInstService(e);

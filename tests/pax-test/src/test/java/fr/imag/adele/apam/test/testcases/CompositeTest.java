@@ -308,6 +308,9 @@ public class CompositeTest extends ExtensionAbstract {
 
 		S3GroupAImpl ga2 = (S3GroupAImpl) instanceApp2.getServiceObject();
 
+		System.out.println("instanceApp1 is in appli " + instanceApp1.getAppliComposite()) ;
+		System.out.println("instanceApp2 is in appli " + instanceApp2.getAppliComposite()) ;
+		
 		ga1.getElement();
 		
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
@@ -320,7 +323,7 @@ public class CompositeTest extends ExtensionAbstract {
 		
 		String message= "A composite that share its dependencies into application level, should be allowED to inject its instances into other composites that are into the same application.";
 //They are not in the same application !		
-//		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
+		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
 
 	}
 	

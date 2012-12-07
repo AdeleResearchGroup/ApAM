@@ -261,9 +261,20 @@ public class ContentManager  {
 				}
 			}
 			
-			if (! hasField || dependency.isMultiple() || dependency.isEager())
-				dynamicDependencies.add(new DynamicResolutionRequest(CST.apamResolver,instance,dependency));
-				
+//			if (! hasField || dependency.isMultiple() || dependency.isEager())
+//				dynamicDependencies.add(new DynamicResolutionRequest(CST.apamResolver,instance,dependency));
+			if (! hasField || dependency.isMultiple() || dependency.isEffectiveEager()) {
+				DynamicResolutionRequest dynamicRequest = new DynamicResolutionRequest(CST.apamResolver,instance,dependency);
+				dynamicDependencies.add(dynamicRequest);
+
+				/*
+				 * Force initial resolution of eager dependency
+				 */
+				if (dependency.isEffectiveEager())
+					dynamicRequest.resolve();
+			}			
+			
+			
 		}
 	}
 

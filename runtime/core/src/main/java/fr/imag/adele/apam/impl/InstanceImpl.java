@@ -339,10 +339,10 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     }
 
     @Override
-    public boolean createWire(Instance to, String depName, boolean hasConstraints) {
+    public boolean createWire(Instance to, String depName, boolean hasConstraints, boolean promotion) {
     	
-//    	assert !Util.checkInstVisible(getComposite(), to) ;
-    	assert Util.checkInstVisible(getComposite(), to) ;
+    	if (!promotion)
+    		assert Util.checkInstVisible(getComposite(), to) ;
     	
         if ((to == null) || (depName == null))
             return false;

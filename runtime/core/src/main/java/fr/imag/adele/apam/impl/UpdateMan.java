@@ -216,7 +216,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep) {
+	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep, Set<Instance> insts) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null) return null;
 
