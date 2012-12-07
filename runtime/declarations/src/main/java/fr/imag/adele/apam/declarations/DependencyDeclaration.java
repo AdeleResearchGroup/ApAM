@@ -45,7 +45,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     /**
      * The map of list of call back methods associated to the same trigger
      */
-    private Map<CallbackTrigger, Set<CallbackMethod>> callbacks;
+    private final Map<CallbackTrigger, Set<CallbackMethod>> callbacks;
 
     /**
      * The reference to this declaration
@@ -124,6 +124,9 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
         DependencyDeclaration clone = new DependencyDeclaration(this.reference.getDeclaringComponent(), this.reference
                 .getIdentifier(), this.isMultiple(), this.getTarget());
 
+        clone.callbacks.putAll(this.callbacks);
+        clone.injections.addAll(this.injections);
+        
         clone.getImplementationConstraints().addAll(this.getImplementationConstraints());
         clone.getInstanceConstraints().addAll(this.getInstanceConstraints());
         clone.getImplementationPreferences().addAll(this.getImplementationPreferences());
@@ -199,6 +202,10 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
         return isEager;
     }
 
+    public boolean isEffectiveEager() {
+    	return isEager != null ? isEager : false;
+    }
+    
     public void setEager(Boolean isEager) {
         this.isEager = isEager;
     }

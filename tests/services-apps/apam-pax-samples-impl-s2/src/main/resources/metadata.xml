@@ -38,7 +38,7 @@
 
 	<composite name="S2Impl-composite-eager" main="fr.imag.adele.apam.pax.test.implS2.S2Impl">
 		<contentMngt>
-			<dependency specification="eletronic-device" eager="true">
+			<dependency interface=".*Eletronic" eager="true">
 			</dependency>
 		</contentMngt>
 	</composite>
