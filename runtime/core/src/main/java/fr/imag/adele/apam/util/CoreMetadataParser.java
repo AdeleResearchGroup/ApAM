@@ -96,7 +96,7 @@ public class CoreMetadataParser implements CoreParser {
     private static final String  IMPORTS                 = "import";
     private static final String  EXPORT                  = "export";
 //    private static final String  FRIEND                  = "friend";
-    private static final String  EXPORTAPP               = "exportApp";
+    private static final String  EXPORTAPP               = "exportapp";
     private static final String  CALLBACK                = "callback";
 
     private static final String  ATT_NAME                = "name";
@@ -607,7 +607,7 @@ public class CoreMetadataParser implements CoreParser {
          */
         for (Element dependencies : optional(element.getElements(CoreMetadataParser.DEPENDENCIES,
                 CoreMetadataParser.APAM))) {
-            parseDependencies(dependencies, component);
+        	parseContextualDependencies(dependencies, component);
         }
 
         /*
