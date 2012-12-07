@@ -184,17 +184,9 @@ public class ApamResolverImpl implements ApamResolver {
 		 * Try to find the instances.
 		 */
 		if (insts == null) {
-			// Look for the implementation(s)
-			//A direct implementation dependency
-			if (dependency.getTarget() instanceof ImplementationReference) {
-				impl = findImplByName(refClient, dependency.getTarget().getName());
-				if (impl != null) impls.add(impl) ;
-				insts = resolveImpls(refClient, impl, dependency) ;
-			} else {
-				insts = new HashSet <Instance> () ;
-				//insts loaded here
-				impls = this.resolveSpecByResources(refClient, dependency, insts);
-			}
+			// Look for the implementation(s) and instances
+			insts = new HashSet <Instance> () ;
+			impls = this.resolveAllDependency(refClient, dependency, insts);
 		}
 		if ((impls == null || impls.isEmpty()) && insts.isEmpty()) {
 			logger.error("Failed to resolve " + dependency.getTarget()
@@ -515,7 +507,7 @@ public class ApamResolverImpl implements ApamResolver {
 		return null;
 	}
 
-	public Set<Implementation> resolveSpecByResources(Instance client, DependencyDeclaration dependency, Set<Instance> insts) {
+	public Set<Implementation> resolveAllDependency(Instance client, DependencyDeclaration dependency, Set<Instance> insts) {
 
 		logger.info("Looking for all implems with" + dependency);
 		if (client == null)
