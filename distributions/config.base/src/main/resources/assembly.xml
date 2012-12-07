@@ -18,6 +18,7 @@
 				<include>apam.bat</include>
 				<include>apamDebug</include>
 				<include>apamDebug.bat</include>
+				<include>log/*</include>
 			</includes>
 			<excludes>
 				<exclude>pom.xml</exclude>
