@@ -56,8 +56,6 @@ public interface DependencyManager {
     /**
      * The manager is asked to find the "right" implementation for the specification defined by the resources it
      * implements.
-     * WARNING : since a specification may implement more than one resource, it can be ambiguous.
-     * If an implementation has to be created, it must be inside compoType.
      * 
      * @param client the instance calling implem (and where to create implementation, if
      *            needed). Cannot be null.
@@ -70,7 +68,24 @@ public interface DependencyManager {
      */
     public Implementation resolveSpec(Instance client, DependencyDeclaration dependency);
     
-    public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dependency);
+    
+    /**
+     * The manager is asked to find the "right" implementation for the specification defined by the resources it
+     * implements.
+     * Returns all the implementations that are visible and that satisfy the constraints, preferences not taken into account.
+     * Add in insts (if present) all the instances of the implems (visible or not) 
+     * 	that satisfy the instance constraints that are visible.
+     * 
+     * @param client the instance calling implem (and where to create implementation, if
+     *            needed). Cannot be null.
+     * @param dependency a dependency declaration containing the type and name of the resource. It can be
+     *            -the specification Name (new SpecificationReference (specName))
+     *            -an interface name (new InterfaceReference (interfaceName))
+     *            -a message name (new MessageReference (dataTypeName))
+     *            - or any future resource ...
+     * @return the implementations if resolved, null otherwise
+     */
+    public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dependency, Set<Instance> insts);
 
     /**
      * The manager is asked to find the component given its name and type.

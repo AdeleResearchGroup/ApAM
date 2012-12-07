@@ -288,7 +288,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep) {
+    public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep, Set<Instance> insts) {
         Set<Implementation> ret = new HashSet<Implementation>();
         ret.add(resolveSpec(client, dep));
         return ret;

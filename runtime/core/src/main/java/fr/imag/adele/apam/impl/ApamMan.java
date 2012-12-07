@@ -20,6 +20,7 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.util.Select;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements DependencyManager {
@@ -76,7 +77,7 @@ public class ApamMan implements DependencyManager {
 				insts.add(inst);
 		}
 		if (!insts.isEmpty())
-			return impl.getPrefered(insts, preferences);
+			return Select.getPrefered(insts, preferences);
 		return null;
 	}
 
@@ -150,7 +151,8 @@ public class ApamMan implements DependencyManager {
 
 
 	@Override
-	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep) {
+	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep, Set<Instance> insts) {
+		
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null) {
 			System.err.println("No spec for " + dep.getTarget().getName()); 
@@ -158,17 +160,26 @@ public class ApamMan implements DependencyManager {
 		}
 
 		Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints()) ;
-		List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
-		Set<Implementation> impls = new HashSet<Implementation>();
+//		List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
+		Set<Implementation> impls = (Set<Implementation>)spec.getMembers();
 
-		// select only those that are visible
-		for (Implementation impl : spec.getImpls()) {
-			if (Util.checkImplVisible(client.getComposite().getCompType(), impl))
-				impls.add(impl);
+		// Select those that match the constraints		
+		impls = Select.getConstraintsComponents(impls, constraints);
+		Set<Instance> validInsts ;
+		if (impls != null && insts != null) {
+			constraints = Util.toFilter(dep.getInstanceConstraints()) ;
+			//Compute all the instances visible and satisfying the constraints  ;
+			for (Implementation impl : impls) {
+				validInsts = (Set<Instance>)Select.getConstraintsComponents(impl.getMembers(), constraints) ;
+				if (validInsts != null) {
+					validInsts = Util.getVisibleInsts(client, validInsts) ;
+					if (validInsts != null)
+							insts.addAll(validInsts) ;
+				}
+			}
 		}
-		// AND those that match the constraints
-		
-		return spec.getConstraintsPreferedComponent(impls, preferences, constraints);
+		// returns only those that are visible
+		return Util.getVisibleImpls(client, impls) ;
 	}
 
 	@Override
@@ -178,7 +189,7 @@ public class ApamMan implements DependencyManager {
 			return null;	
 		
 		//List of visible implementations that satisfy the constraints.
-		Set<Implementation> candidates = resolveSpecs (client, dep) ;
+		Set<Implementation> candidates = resolveSpecs (client, dep, null) ;
 		if (candidates == null || candidates.isEmpty()) 
 			return null ;	
 		if (candidates.size() == 1) 
@@ -186,7 +197,7 @@ public class ApamMan implements DependencyManager {
 		
 		List<Filter> instPreferences = Util.toFilterList(dep.getInstancePreferences()) ;
 		Set<Filter> instConstraints  = Util.toFilter(dep.getInstanceConstraints()) ;
-		return spec.getPreferedComponentFromMembers(candidates, instPreferences, instConstraints) ;
+		return Select.getPreferedComponentFromMembers(candidates, instPreferences, instConstraints) ;
 	}
 
 
