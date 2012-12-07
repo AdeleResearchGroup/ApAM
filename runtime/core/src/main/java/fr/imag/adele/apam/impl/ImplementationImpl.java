@@ -117,9 +117,9 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			String specificationName	= declaration.getSpecification().getName();
 			Specification specification = CST.componentBroker.getSpec(specificationName);
 			
-			if (specification == null) {
-				throw new InvalidConfiguration("Specification not installed " + specificationName + " for implementation " + declaration.getName());
-			}
+//			if (specification == null) {
+//				throw new InvalidConfiguration("Specification not installed " + specificationName + " for implementation " + declaration.getName());
+//			}
 			
 			assert specification != null;
 			mySpec = specification;

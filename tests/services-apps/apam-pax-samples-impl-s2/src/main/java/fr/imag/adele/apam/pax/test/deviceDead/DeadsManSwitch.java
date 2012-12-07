@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.pax.test.device;
+package fr.imag.adele.apam.pax.test.deviceDead;
 
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 

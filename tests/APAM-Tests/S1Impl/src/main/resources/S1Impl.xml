@@ -69,13 +69,12 @@
 		</dependency>
 		
 		<contentMngt>
-				<borrow implementation="false" instance="false" />
-				<local  implementation="true"  instance="true"  />
+				<import implementation="false" instance="false" />
+				<export  implementation="true"  instance="true"  />
 		</contentMngt>	
 		
 	</composite>
 
-		
 		
 </apam>
 

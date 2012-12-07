@@ -1,17 +1,15 @@
-package fr.imag.adele.apam.pax.test.s3.impl;
+package fr.imag.adele.apam.pax.test.implS3;
 
 import fr.imag.adele.apam.pax.test.iface.S3;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 
 
-public class S3GroupBImpl implements S3
+public class S3GroupAImpl implements S3
 {
 
 	Eletronic element;
 	
-	S3 d;
-	
-	S3 e;
+	S3 c;
 	
     public String whoami()
     {
@@ -26,20 +24,12 @@ public class S3GroupBImpl implements S3
 		this.element = element;
 	}
 
-	public S3 getD() {
-		return d;
+	public S3 getC() {
+		return c;
 	}
 
-	public void setD(S3 d) {
-		this.d = d;
+	public void setC(S3 c) {
+		this.c = c;
 	}
 
-	public S3 getE() {
-		return e;
-	}
-
-	public void setE(S3 e) {
-		this.e = e;
-	}
-    
 }

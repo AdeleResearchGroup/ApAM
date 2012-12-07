@@ -23,7 +23,7 @@
 				<configuration>
 					<instructions>
 						<Export-Package>
-							fr.imag.adele.apam.pax.test.s3.impl
+							fr.imag.adele.apam.pax.test.implS3
 						</Export-Package>
 					</instructions>
 				</configuration>

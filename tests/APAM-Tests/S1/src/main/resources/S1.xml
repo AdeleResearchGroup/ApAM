@@ -2,7 +2,7 @@
  xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
 	<specification name="S1" interfaces="fr.imag.adele.apam.test.s1.S1"  >
-			<property name="S1-Enum2" value="coucou" type="{s1-1, s1-2, s1-3}"/>
+<!-- 			<property name="S1-Enum2" value="coucou" type="{s1-1, s1-2, s1-3}"/> -->
 			<property name="S1-Enum" value="s1-2" type="{s1-1, s1-2, s1-3}"/>
 			<definition name="s1b" type="boolean" value="true" />
 			<definition name="s1c" type="string" />
@@ -12,5 +12,11 @@
 			<definition name="OS" type="{Linux, Windows, Android, IOS}" />
 
 	</specification>
+	
+	<specification name="dummySpec"></specification>	
+	
+	<composite name="AbstractCompositeType" specification="dummySpec"></composite>
+	<composite name="AbstractCompositeTypeNoSpec" ></composite>
+	
 
 </apam>

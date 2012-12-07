@@ -23,8 +23,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 				<configuration>
 					<instructions>
 						<Export-Package>
-							fr.imag.adele.apam.pax.test.device,
-							fr.imag.adele.apam.pax.test.impl
+							fr.imag.adele.apam.pax.test.deviceDead,
+							fr.imag.adele.apam.pax.test.implS2
 						</Export-Package>
 					</instructions>
 				</configuration>

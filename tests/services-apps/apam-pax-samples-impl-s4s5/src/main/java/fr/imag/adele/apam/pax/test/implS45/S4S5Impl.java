@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.pax.test.impl;
+package fr.imag.adele.apam.pax.test.implS45;
 
 import fr.imag.adele.apam.pax.test.iface.S4;
 import fr.imag.adele.apam.pax.test.iface.S5;

@@ -1,6 +1,6 @@
-<repository lastmodified='20121205042129.878'>
-  <resource id='APP1-Composite/0.0.2.SNAPSHOT' symbolicname='APP1-Composite' presentationname='APP1-Composite' uri='/E:/maven-repository/fr/imag/adele/apam/tests/obrman/app1/public/APP1-Composite/0.0.2-SNAPSHOT/APP1-Composite-0.0.2-SNAPSHOT.jar' version='0.0.2.SNAPSHOT'>
-    <size>3427</size>
+<repository lastmodified='20121206125619.354'>
+  <resource id='APP1-Composite/0.0.2.SNAPSHOT' symbolicname='APP1-Composite' presentationname='APP1-Composite' uri='/F:/Maven/.m2/fr/imag/adele/apam/tests/obrman/app1/public/APP1-Composite/0.0.2-SNAPSHOT/APP1-Composite-0.0.2-SNAPSHOT.jar' version='0.0.2.SNAPSHOT'>
+    <size>3426</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -38,7 +38,7 @@
     <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
   </resource>
-  <resource id='APP1-Spec/0.0.2.SNAPSHOT' symbolicname='APP1-Spec' presentationname='APP1-Spec' uri='/E:/maven-repository/fr/imag/adele/apam/tests/obrman/app1/public/APP1-Spec/0.0.2-SNAPSHOT/APP1-Spec-0.0.2-SNAPSHOT.jar' version='0.0.2.SNAPSHOT'>
+  <resource id='APP1-Spec/0.0.2.SNAPSHOT' symbolicname='APP1-Spec' presentationname='APP1-Spec' uri='/F:/Maven/.m2/fr/imag/adele/apam/tests/obrman/app1/public/APP1-Spec/0.0.2-SNAPSHOT/APP1-Spec-0.0.2-SNAPSHOT.jar' version='0.0.2.SNAPSHOT'>
     <size>4079</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
@@ -72,8 +72,8 @@
     <require name='package' filter='(&amp;(package=org.apache.felix.ipojo)(version&gt;=1.8.0))' extend='false' multiple='false' optional='false'>Import package org.apache.felix.ipojo;version=1.8.0</require>
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
   </resource>
-  <resource id='APP2-Composite/0.0.2.SNAPSHOT' symbolicname='APP2-Composite' presentationname='App2 Composite' uri='/E:/maven-repository/fr/imag/adele/apam/tests/obrman/app2/public/APP2-Composite/0.0.2-SNAPSHOT/APP2-Composite-0.0.2-SNAPSHOT.jar' version='0.0.2.SNAPSHOT'>
-    <size>3734</size>
+  <resource id='APP2-Composite/0.0.2.SNAPSHOT' symbolicname='APP2-Composite' presentationname='App2 Composite' uri='/F:/Maven/.m2/fr/imag/adele/apam/tests/obrman/app2/public/APP2-Composite/0.0.2-SNAPSHOT/APP2-Composite-0.0.2-SNAPSHOT.jar' version='0.0.2.SNAPSHOT'>
+    <size>3736</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>
@@ -117,8 +117,8 @@
     <require name='package' filter='(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))' extend='false' multiple='false' optional='false'>Import package org.osgi.service.cm;version=1.2</require>
     <require name='apam-component' filter='(name=APP2_SPEC)' extend='false' multiple='false' optional='false'>specification dependency toward APP2_SPEC</require>
   </resource>
-  <resource id='APP2-Spec/0.0.2.SNAPSHOT' symbolicname='APP2-Spec' presentationname='App2 Composite Specification' uri='/E:/maven-repository/fr/imag/adele/apam/tests/obrman/app2/public/APP2-Spec/0.0.2-SNAPSHOT/APP2-Spec-0.0.2-SNAPSHOT.jar' version='0.0.2.SNAPSHOT'>
-    <size>4074</size>
+  <resource id='APP2-Spec/0.0.2.SNAPSHOT' symbolicname='APP2-Spec' presentationname='App2 Composite Specification' uri='/F:/Maven/.m2/fr/imag/adele/apam/tests/obrman/app2/public/APP2-Spec/0.0.2-SNAPSHOT/APP2-Spec-0.0.2-SNAPSHOT.jar' version='0.0.2.SNAPSHOT'>
+    <size>4072</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name='bundle'>

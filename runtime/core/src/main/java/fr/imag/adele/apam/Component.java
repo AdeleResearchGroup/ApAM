@@ -8,6 +8,7 @@ import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ResourceReference;
 
 public interface Component {
 
@@ -177,5 +178,8 @@ public interface Component {
     public Component getGroup ();
 
     public Map<String, String> getValidAttributes () ;
+    
+    public Set<ResourceReference> getAllProvidedResources () ;
+
 
 }

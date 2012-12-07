@@ -451,7 +451,7 @@ public class CoreMetadataParser implements CoreParser {
         SpecificationReference specification = parseSpecificationReference(name,element,
                 CoreMetadataParser.ATT_SPECIFICATION, false);
         ComponentReference<?> implementation = parseAnyComponentReference(name,element,
-                CoreMetadataParser.ATT_MAIN_IMPLEMENTATION, true);
+                CoreMetadataParser.ATT_MAIN_IMPLEMENTATION, false);
 
         CompositeDeclaration declaration = new CompositeDeclaration(name, specification, implementation);
         parseComponent(element, declaration);
