@@ -107,11 +107,7 @@
                                     <groupId>org.apache.felix</groupId>
                                     <artifactId>org.apache.felix.ipojo.annotations</artifactId>
                                 </artifactItem>
-								<artifactItem>
-									<groupId>org.apache.felix</groupId>
-									<artifactId>org.apache.felix.log</artifactId>
-									<version>1.0.1</version>
-								</artifactItem>
+
 								<artifactItem>
 									<groupId>org.osgi</groupId>
 									<artifactId>org.osgi.compendium</artifactId>
@@ -145,19 +141,34 @@
 								</artifactItem>
 
 								<!-- Logger -->
-								<artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.felix</groupId>
+                                    <artifactId>org.apache.felix.log</artifactId>
+                                    <version>1.0.1</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ch.qos.logback</groupId>
+                                    <artifactId>logback-core</artifactId>
+                                    <version>1.0.7</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ch.qos.logback</groupId>
+                                    <artifactId>logback-classic</artifactId>
+                                    <version>1.0.7</version>
+                                </artifactItem>
+							<!--	<artifactItem>
 									<groupId>org.apache.log4j</groupId>
 									<artifactId>com.springsource.org.apache.log4j</artifactId>
 									<version>1.2.16</version>
-								</artifactItem>
+								</artifactItem>-->
 								<artifactItem>
 									<groupId>org.slf4j</groupId>
 									<artifactId>slf4j-api</artifactId>
 								</artifactItem>
-								<artifactItem>
+								<!--<artifactItem>
 									<groupId>org.slf4j</groupId>
 									<artifactId>slf4j-log4j12</artifactId>
-								</artifactItem>
+								</artifactItem>-->
 							</artifactItems>
 							<outputDirectory>${basedir}/bundle</outputDirectory>
 							<overWriteSnapshots>true</overWriteSnapshots>
@@ -219,6 +230,7 @@
 										<include name="*" />
 										<exclude name="*.txt" />
 										<exclude name="conf/*" />
+										<exclude name="log/*" />
 										<exclude name="assembly.xml" />
 										<exclude name="neededBundles" />
 									</fileset>
@@ -226,6 +238,7 @@
 								<copy failonerror="true" overwrite="false" todir="${basedir}/">
 									<fileset dir="${project.build.directory}/distrib-temp/">
 										<include name="*.txt" />
+										<include name="log/*" />
 										<include name="conf/*" />
 									</fileset>
 								</copy>
@@ -276,6 +289,8 @@
 								<include>felix-cache</include>
 								<include>load/*</include>
 								<include>load</include>
+                                <include>log</include>
+                                <include>log/*</include>
 								<include>apam.bat</include>
 								<include>apamDebug.bat</include>
 								<include>apam</include>
