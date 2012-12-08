@@ -14,7 +14,6 @@ import java.util.Set;
 
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.Filter;
-import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -448,7 +447,6 @@ public class Util {
 		boolean multiple = clientDep.isMultiple();
 		//Look for same dependency: the same specification, the same implementation or same resource name
 		//Constraints are not taken into account
-		//		for (DependencyDeclaration compoDep : compoDeps) {
 
 		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { // same nature
 			if (compoDep.getTarget().equals(clientDep.getTarget())) {

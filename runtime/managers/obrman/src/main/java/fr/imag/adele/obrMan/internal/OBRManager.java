@@ -74,19 +74,19 @@ public class OBRManager {
 
 	}
 	
-	//TODO perfom update by polling in another Thread !
-	private void performRepositoriesUpdate(RepositoryAdmin repoAdmin){
-	    for (Repository repository : repositories) {
-            long oldvalue = repository.getLastModified();
-            Repository newRepository ;
-            try {
-                repoAdmin.addRepository(repository.getURI());
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-	}
+//	//TODO perfom update by polling in another Thread !
+//	private void performRepositoriesUpdate(RepositoryAdmin repoAdmin){
+//	    for (Repository repository : repositories) {
+//            long oldvalue = repository.getLastModified();
+//            Repository newRepository ;
+//            try {
+//                repoAdmin.addRepository(repository.getURI());
+//            } catch (Exception e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//        }
+//	}
 
 	// serious stuff now !
 	public String getAttributeInResource(Resource res, String capability, String attr) {
@@ -524,10 +524,10 @@ public class OBRManager {
 		return (best == null) ? null : best;
 	}
 
-    private boolean isStopped(Selected current) {
-
-        return false;  //To change body of created methods use File | Settings | File Templates.
-    }
+//    private boolean isStopped(Selected current) {
+//
+//        return false;  //To change body of created methods use File | Settings | File Templates.
+//    }
 
 
     protected URL findLocalMavenRepository() {

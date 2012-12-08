@@ -11,7 +11,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.ApamResolver;
@@ -24,17 +23,16 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
-import fr.imag.adele.apam.declarations.DependencyPromotion;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.DependencyPromotion;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Select;
 import fr.imag.adele.apam.util.Util;
 
@@ -184,9 +182,9 @@ public class ApamResolverImpl implements ApamResolver {
 		 * Try to find the instances.
 		 */
 		if (insts == null) {
-			// Look for the implementation(s) and instances
+			// Look for the valid implementation(s) and instances.
 			insts = new HashSet <Instance> () ;
-			impls = this.resolveAllDependency(refClient, dependency, insts);
+			impls = this.resolveDependency(refClient, dependency, insts);
 		}
 		if ((impls == null || impls.isEmpty()) && insts.isEmpty()) {
 			logger.error("Failed to resolve " + dependency.getTarget()
@@ -198,10 +196,17 @@ public class ApamResolverImpl implements ApamResolver {
 		 * We have all the visible implems, and all the existing visible instances
 		 * satisfying the constraints.
 		 * WARNING: impls can be null and insts not ; and vice-versa
-		 * If No existing instance. Create one.
+		 * If No existing instance, take the best implem and create one instance. Only return that implementation.
 		 */
 		if (insts.isEmpty()) {
-			impl = Select.getPrefered(impls, Util.toFilterList(dependency.getImplementationPreferences())) ;
+			if (impls.size()== 1) {
+				impl=impls.iterator().next() ;
+			} else {
+				impl = Select.getPrefered(impls, Util.toFilterList(dependency.getImplementationPreferences())) ;
+				impls.clear () ;
+				impls.add(impl) ;
+			}  
+
 			Instance inst = impl.createInstance(compo, null);
 			if (inst == null){// may happen if impl is non instantiable
 				logger.error("Failed creating instance of " + impl );
@@ -209,21 +214,9 @@ public class ApamResolverImpl implements ApamResolver {
 			}
 
 			insts.add(inst);
-			impls.clear () ;
-			impls.add(impl) ;
 			logger.info("Instantiated " + inst);
-		} else
-			logger.info("selected : " + insts) ;
-
-		/*
-		 * If dependency is not multiple, select the best instance and implem.
-		 * Return a single element in both impls and insts
-		 */
-		if (!dependency.isMultiple()) {
-			Instance inst = Select.selectBestInstance (impls, insts, dependency) ;
-			insts.clear();
-			insts.add(inst) ;
-		}
+		} 
+		logger.info("Selected : " + insts) ;
 
 		/*
 		 *  We got the instances. Create the wires.
@@ -268,7 +261,7 @@ public class ApamResolverImpl implements ApamResolver {
 
 		// notify the managers
 		ApamResolverImpl.notifySelection(client, dependency.getTarget(), depName,
-				((Instance) insts.toArray()[0]).getImpl(), null, insts);
+				insts.iterator().next().getImpl(), null, insts);
 		return ok;
 	}
 
@@ -322,36 +315,12 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.info(" : logically deployed " + impl);
 		} else {// it was unused so far.
 			((ComponentImpl)impl).setFirstDeployed(compoType);
-			logger.info(" : deployed " + impl);
+			if (deployed) 
+				logger.info(" : deployed " + impl);				
+			else
+				logger.info(" : was here, unused " + impl);
 		}
 		((CompositeTypeImpl)compoType).deploy(impl);
-	}
-
-	/**
-	 * Look for an implementation with a given dependency, visible from composite Type compoType.
-	 *
-	 * @param compoType
-	 * @param componentName
-	 * @return
-	 */
-	public Implementation findImplByDependency (Instance client, DependencyDeclaration dep) {
-		if (dep == null) return null;
-		List<DependencyManager> selectionPath = computeSelectionPath(client, dep);
-
-		Implementation impl = null;
-		logger.info("Looking for implementation " + dep.getTarget().getName() + ": ");
-		boolean deployed = false;
-		for (DependencyManager manager : selectionPath) {
-			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
-				deployed = true;
-			logger.debug(manager.getName() + "  ");
-			impl = manager.findImplByDependency(client, dep);
-			if (impl != null) {
-				deployedImpl(client, impl, deployed);
-				return impl ;
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -369,7 +338,7 @@ public class ApamResolverImpl implements ApamResolver {
 
 		CompositeType compoType = CompositeTypeImpl.getRootCompositeType();
 		DependencyDeclaration dep = new DependencyDeclaration (compoType.getImplDeclaration().getReference(),
-				componentName, false, new ComponentReference<ComponentDeclaration>(componentName)) ; //new ImplementationReference<ImplementationDeclaration>(componentName));
+				componentName, false, new ComponentReference<ComponentDeclaration>(componentName)) ; 
 
 		List<DependencyManager> selectionPath = computeSelectionPath(client, dep);
 
@@ -380,10 +349,7 @@ public class ApamResolverImpl implements ApamResolver {
 			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
-//			if (kind == Instance.class)
-//				compo = manager.findInstByName(client, componentName);
-//			else
-				compo = manager.findComponentByName(client, componentName);
+			compo = manager.findComponentByName(client, componentName);
 
 			if (compo != null) { //We found it, but maybe the wrong type
 				if (! kind.isAssignableFrom(compo.getClass())) {
@@ -394,7 +360,7 @@ public class ApamResolverImpl implements ApamResolver {
 				if (compo instanceof Implementation) {
 					deployedImpl(client, (Implementation)compo, deployed);
 				}
-				return kind.cast(compo) ;//(C)compo;
+				return kind.cast(compo) ;
 			}
 		}
 		return null;
@@ -448,26 +414,7 @@ public class ApamResolverImpl implements ApamResolver {
 		dep.getImplementationConstraints().addAll(constraints) ;
 		dep.getImplementationPreferences().addAll(preferences) ;
 
-		List<DependencyManager> selectionPath = computeSelectionPath(client, dep);
-
-		if (constraints.isEmpty() && preferences.isEmpty())
-			logger.info("Looking a \"" + specName + "\" implementation.");
-		else
-			logger.info("Looking a \"" + specName + "\" implementation. Constraints:" + constraints
-					+ ". Preferences: " + preferences);
-		boolean deployed = false;
-		for (DependencyManager manager : selectionPath) {
-			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
-				deployed = true;
-			logger.debug(manager.getName() + "  ");
-			Implementation impl = manager.resolveSpec(client, dep) ;
-
-			if (impl != null) {
-				deployedImpl(client, impl, deployed);
-				return impl;
-			}
-		}
-		return null;
+		return resolveSpecByResource(client, dep) ;
 	}
 
 	/**
@@ -493,13 +440,15 @@ public class ApamResolverImpl implements ApamResolver {
 
 		List<DependencyManager> selectionPath = computeSelectionPath(client, dependency);        
 		Implementation impl = null;
+		Set<Implementation> impls = null;
 		boolean deployed = false;
 		for (DependencyManager manager : selectionPath) {
 			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
-			impl = manager.resolveSpec(client, dependency);
-			if (impl != null) {
+			impls = manager.resolveDependency(client, dependency, null);
+			if (impls != null && !impls.isEmpty()) {
+				impl=impls.iterator().next() ;
 				deployedImpl(client, impl, deployed);
 				return impl;
 			}
@@ -507,7 +456,27 @@ public class ApamResolverImpl implements ApamResolver {
 		return null;
 	}
 
-	public Set<Implementation> resolveAllDependency(Instance client, DependencyDeclaration dependency, Set<Instance> insts) {
+	/**
+	 * Performs a complete resolution of the dependency EXCEPT : isMultiple always assumed to be True, and preferences ignored.
+	 * 
+	 * The manager is asked to find the "right" implementation and instances for the provided dependency.
+	 * First computes all the implementations that satisfy the constraints, preferences not taken into account.
+	 * Add in insts (if present) all the instances of the implems (visible or not) 
+	 * 	that satisfy the instance constraints and that are visible.
+	 * Returns those  implementations that are visible.
+	 * 
+	 * @param client the instance calling implem (and where to create implementation, if
+	 *            needed). Cannot be null.
+	 * @param dependency a dependency declaration containing the type and name of the dependency target. It can be
+	 *            -the specification Name (new SpecificationReference (specName))
+	 *            -an implementation name (new ImplementationRefernece (name)
+	 *            -an interface name (new InterfaceReference (interfaceName))
+	 *            -a message name (new MessageReference (dataTypeName))
+	 *            - or any future resource ...
+	 * @return the implementations if resolved, null otherwise
+	 * @return in insts, the valid instances, null if none.
+	 */
+	public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dependency, Set<Instance> insts) {
 
 		logger.info("Looking for all implems with" + dependency);
 		if (client == null)
@@ -520,15 +489,21 @@ public class ApamResolverImpl implements ApamResolver {
 			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
 				deployed = true;
 			logger.debug(manager.getName() + "  ");
-			impls = manager.resolveSpecs(client, dependency, insts);
-			if (impls != null && !impls.isEmpty() && deployed) {
-				for (Implementation impl : impls) {
-					deployedImpl(client, impl, deployed);
+			impls = manager.resolveDependency(client, dependency, insts);
+			/*
+			 * Not all found implementations will be used for this resolution (in particular if simple dependency).
+			 * Only consider as deployed those found by OBR.
+			 * Those found by ApamMan and unused will be marked as deployed, only when really used by the resolution. 
+			 */
+			if (impls != null && !impls.isEmpty()) {
+				if (deployed) {
+					for (Implementation impl : impls)
+						deployedImpl(client, impl, deployed);
 				}
-				return impls ;
+				return impls;
 			}
 		}
-		return null;
+		return impls;
 	}
 
 	/**

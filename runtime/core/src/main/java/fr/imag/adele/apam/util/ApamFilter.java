@@ -42,7 +42,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.apache.felix.utils.version.VersionTable;
 
 
 /**
@@ -50,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * support for the SUPERSET (&gt;*) and SUBSET (&lt;*) operators.
  * This filter also has a few optimizations (cached transformation).
  */
-
+@SuppressWarnings("rawtypes") 
 public class ApamFilter implements Filter {
     private static Logger logger = LoggerFactory.getLogger(ApamFilter.class);
 
@@ -594,7 +593,8 @@ public class ApamFilter implements Filter {
 
         return encoded ? new String(output, 0, cursor) : value;
     }
-
+    
+    @SuppressWarnings("unchecked") 
     private Collection getSet(Object value) {
         Collection s;
         if (value instanceof Set) {
@@ -621,6 +621,7 @@ public class ApamFilter implements Filter {
         return s;
     }
 
+    @SuppressWarnings("unchecked") 
     private boolean compare(int operation, Object value1, Object value2) {
         if ((op == ApamFilter.SUPERSET) || (op == ApamFilter.SUBSET)) {
             Collection s1 = getSet(value1);
@@ -709,6 +710,7 @@ public class ApamFilter implements Filter {
         return compare_Unknown(operation, value1, value2); // RFC 59
     }
 
+    @SuppressWarnings("unchecked") 
     private boolean compare_Collection(int operation,
                                        Collection collection, Object value2) {
         if ((op == ApamFilter.SUBSET) || (op == ApamFilter.SUPERSET)) {
@@ -1098,6 +1100,7 @@ public class ApamFilter implements Filter {
 
     private static final Class[] constructorType = new Class[] { String.class };
 
+    @SuppressWarnings("unchecked") 
     private boolean compare_Comparable(int operation, Comparable value1,
                                        Object value2) {
         if (operation == ApamFilter.SUBSTRING) {
@@ -1138,6 +1141,7 @@ public class ApamFilter implements Filter {
         return false;
     }
 
+    @SuppressWarnings("unchecked") 
     private boolean compare_Unknown(int operation, Object value1,
                                     Object value2) {
         if (operation == ApamFilter.SUBSTRING) {
@@ -1286,6 +1290,7 @@ public class ApamFilter implements Filter {
             return parse_item();
         }
 
+        @SuppressWarnings("unchecked") 
         private ApamFilter parse_and() throws InvalidSyntaxException {
             int lookahead = pos;
             skipWhiteSpace();
@@ -1306,6 +1311,7 @@ public class ApamFilter implements Filter {
                     .toArray(new ApamFilter[operands.size()]));
         }
 
+        @SuppressWarnings("unchecked") 
         private ApamFilter parse_or() throws InvalidSyntaxException {
             int lookahead = pos;
             skipWhiteSpace();
@@ -1489,6 +1495,7 @@ public class ApamFilter implements Filter {
             return sb.toString();
         }
 
+        @SuppressWarnings("unchecked") 
         private Object parse_substring() throws InvalidSyntaxException {
             StringBuffer sb = new StringBuffer(filterChars.length - pos);
 
@@ -1569,6 +1576,7 @@ public class ApamFilter implements Filter {
      * operation using a String key as no other operations are used by the
      * Filter implementation.
      */
+    @SuppressWarnings("unchecked") 
     private static class CaseInsensitiveDictionary extends Dictionary {
         private final Dictionary dictionary;
         private final String[]   keys;

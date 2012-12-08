@@ -508,7 +508,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		Instance s1Inst = s1Impl.createInstance(null, null);
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
+//		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 

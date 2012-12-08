@@ -1,6 +1,5 @@
 package fr.imag.adele.apam;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

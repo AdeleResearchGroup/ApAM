@@ -52,40 +52,26 @@ public interface DependencyManager {
      */
     public void newComposite(ManagerModel model, CompositeType composite);
 
-
+    
     /**
-     * The manager is asked to find the "right" implementation for the specification defined by the resources it
-     * implements.
+     * Performs a complete resolution of the dependency.
+     * 
+     * The manager is asked to find the "right" implementations and instances for the provided dependency.
+     * If dependency is simple (not multiple), returns a singleton, and a single element in insts.
      * 
      * @param client the instance calling implem (and where to create implementation, if
      *            needed). Cannot be null.
-     * @param dependency a dependency declaration containing the type and name of the resource. It can be
+     * @param dependency a dependency declaration containing the type and name of the dependency target. It can be
      *            -the specification Name (new SpecificationReference (specName))
+     *            -an implementation name (new ImplementationRefernece (name)
      *            -an interface name (new InterfaceReference (interfaceName))
      *            -a message name (new MessageReference (dataTypeName))
      *            - or any future resource ...
+     * @param insts : an empty set in input, or null. If null, do not try to find the instances.
      * @return the implementations if resolved, null otherwise
+     * @return in insts, the valid instances, null if none.
      */
-    public Implementation resolveSpec(Instance client, DependencyDeclaration dependency);
-    
-    
-    /**
-     * The manager is asked to find the "right" implementation for the specification defined by the resources it
-     * implements.
-     * Returns all the implementations that are visible and that satisfy the constraints, preferences not taken into account.
-     * Add in insts (if present) all the instances of the implems (visible or not) 
-     * 	that satisfy the instance constraints that are visible.
-     * 
-     * @param client the instance calling implem (and where to create implementation, if
-     *            needed). Cannot be null.
-     * @param dependency a dependency declaration containing the type and name of the resource. It can be
-     *            -the specification Name (new SpecificationReference (specName))
-     *            -an interface name (new InterfaceReference (interfaceName))
-     *            -a message name (new MessageReference (dataTypeName))
-     *            - or any future resource ...
-     * @return the implementations if resolved, null otherwise
-     */
-    public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dependency, Set<Instance> insts);
+    public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dependency, Set<Instance> insts);
 
     /**
      * The manager is asked to find the component given its name and type.
@@ -105,7 +91,6 @@ public interface DependencyManager {
 
     public Component findComponentByName(Instance client, String compName);
 
-    public Implementation findImplByDependency(Instance client, DependencyDeclaration dependency);
 
     /**
      * The manager is asked to find the "right" instance for the required implementation.

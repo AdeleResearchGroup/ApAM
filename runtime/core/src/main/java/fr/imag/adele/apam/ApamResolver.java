@@ -3,8 +3,6 @@ package fr.imag.adele.apam;
 import java.util.List;
 import java.util.Set;
 
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
-
 public interface ApamResolver {
 
 	/**
@@ -47,7 +45,7 @@ public interface ApamResolver {
 
     public Component findComponentByName(Instance client, String compName);
 
-	public Implementation findImplByDependency (Instance client, DependencyDeclaration dep) ;
+//	public Implementation findImplByDependency (Instance client, DependencyDeclaration dep) ;
 
 
     /**
@@ -110,6 +108,8 @@ public interface ApamResolver {
      * @return
      */
     public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints);
+    
+    
 
 
 }
