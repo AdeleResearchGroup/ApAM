@@ -1,17 +1,16 @@
 package fr.imag.adele.apam.impl;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
@@ -19,7 +18,11 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.util.Select;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements DependencyManager {
@@ -58,27 +61,28 @@ public class ApamMan implements DependencyManager {
 
 	@Override
 	public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dep) {
-
-		Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
+		//		Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
 		List<Filter> preferences = Util.toFilterList(dep.getInstancePreferences()) ;
-		
-		if ((constraints.isEmpty()) && (preferences.isEmpty())) { 
-			for (Instance inst : impl.getInsts()) {
-				if (inst.isSharable() && Util.checkInstVisible(client.getComposite(), inst))
-					return inst;
-			}
-			return null ;
-		}
-
-		Set<Instance> insts = new HashSet<Instance>();
-		for (Instance inst : impl.getInsts()) {
-			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(client.getComposite(), inst))
-				insts.add(inst);
-		}
-		if (!insts.isEmpty())
-			return impl.getPrefered(insts, preferences);
-		return null;
+		return Select.getPrefered(resolveImpls(client, impl, dep), preferences) ;
 	}
+
+	//		if ((constraints.isEmpty()) && (preferences.isEmpty())) { 
+	//			for (Instance inst : impl.getInsts()) {
+	//				if (inst.isSharable() && Util.checkInstVisible(client.getComposite(), inst))
+	//					return inst;
+	//			}
+	//			return null ;
+	//		}
+	//
+	//		Set<Instance> insts = new HashSet<Instance>();
+	//		for (Instance inst : impl.getInsts()) {
+	//			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(client.getComposite(), inst))
+	//				insts.add(inst);
+	//		}
+	//		if (!insts.isEmpty())
+	//			return Select.getPrefered(insts, preferences);
+	//		return null;
+	//	}
 
 	@Override
 	public Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dep) {
@@ -148,46 +152,110 @@ public class ApamMan implements DependencyManager {
 		return null ;
 	}
 
-
+	/**
+	 * dep can be a specification, an implementation or a resource: interface or message.
+	 * We have to find out all the implementations and all the instances that can be a target for that dependency 
+	 * and satisfy visibility and the constraints,
+	 * 
+	 * First compute all the implementations, visible or not that is a good target; 
+	 * then add in insts all the instances of these implementations that satisfy the constraints and are visible.
+	 * 
+	 * If parameter insts is null, do not take care of the instances.
+	 * 
+	 * Then remove the implementations that are not visible  .
+	 * 
+	 */
 	@Override
-	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep) {
-		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
-		if (spec == null) {
-			System.err.println("No spec for " + dep.getTarget().getName()); 
-			return null;
-		}
-
+	@SuppressWarnings("unchecked") 
+	public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dep, Set<Instance> insts) {
 		Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints()) ;
-		List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences()) ;
-		Set<Implementation> impls = new HashSet<Implementation>();
+		Set<Implementation> impls = null ;
+		String name = dep.getTarget().getName() ;
 
-		// select only those that are visible
-		for (Implementation impl : spec.getImpls()) {
-			if (Util.checkImplVisible(client.getComposite().getCompType(), impl))
-				impls.add(impl);
+		if (dep.getTarget() instanceof SpecificationReference) {
+			Specification spec = CST.componentBroker.getSpec(dep.getTarget().getName());
+			if (spec == null) {
+				System.err.println("No spec for " + dep.getTarget().getName()); 
+				return null;
+			}
+			impls = spec.getImpls();
+		} else 	{
+			impls = new HashSet<Implementation> () ;
+			if (dep.getTarget() instanceof ResourceReference) {
+				for (Implementation impl : CST.componentBroker.getImpls()) {
+					for (ResourceReference ref : impl.getAllProvidedResources())  {
+						if (ref.equals(dep.getTarget())) 
+							impls.add(impl) ;
+					}
+				}
+			} else 
+				if (dep.getTarget() instanceof ImplementationReference) {
+					Implementation impl = CST.componentBroker.getImpl(name);
+					if (impl != null) 
+						impls.add(impl) ;
+				}
 		}
-		// AND those that match the constraints
+
+		/*
+		 * We have in impls all the implementations satisfying the dependency target (type and name only).
+		 * Select only those that satisfy the constraints (visible or not)
+		 */
+		impls = Select.getConstraintsComponents(impls, constraints);
+		if (impls == null || impls.isEmpty()) return null ;
+
+		/*
+		 * Take all the instances of these implementations satisfying the dependency constraints.
+		 */		
+		if (insts != null) {
+			Set<Instance> validInsts ;
+			constraints = Util.toFilter(dep.getInstanceConstraints()) ;
+			//Compute all the instances visible and satisfying the constraints  ;
+			for (Implementation impl : impls) {
+				validInsts = (Set<Instance>)Select.getConstraintsComponents(impl.getMembers(), constraints) ;
+				if (validInsts != null && !validInsts.isEmpty()) {
+					validInsts = Util.getVisibleInsts(client, validInsts) ;
+					if (validInsts != null && !validInsts.isEmpty())
+						insts.addAll(validInsts) ;
+				}
+			}
+		}
 		
-		return spec.getConstraintsPreferedComponent(impls, preferences, constraints);
+		// returns only those implems that are visible
+		impls = Util.getVisibleImpls(client, impls) ;
+		if (dep.isMultiple()) return impls ;
+		
+		/*
+		 * If dependency is not multiple, select the best instance and implem.
+		 * Return a single element in both impls and insts
+		 */
+		if (insts != null && !insts.isEmpty()) {
+			//logger.debug("Candidates : " + insts) ;
+			Instance inst = Select.selectBestInstance (impls, insts, dep) ;
+			insts.clear();
+			insts.add(inst) ;
+			return Collections.singleton(inst.getImpl()) ;
+		} 
+		List<Filter> implPreferences = Util.toFilterList(dep.getImplementationPreferences()) ;
+			return Collections.singleton(Select.getPrefered(impls, implPreferences)) ;
 	}
 
-	@Override
-	public Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
-		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
-		if (spec == null)
-			return null;	
-		
-		//List of visible implementations that satisfy the constraints.
-		Set<Implementation> candidates = resolveSpecs (client, dep) ;
-		if (candidates == null || candidates.isEmpty()) 
-			return null ;	
-		if (candidates.size() == 1) 
-			return candidates.iterator().next() ;
-		
-		List<Filter> instPreferences = Util.toFilterList(dep.getInstancePreferences()) ;
-		Set<Filter> instConstraints  = Util.toFilter(dep.getInstanceConstraints()) ;
-		return spec.getPreferedComponentFromMembers(candidates, instPreferences, instConstraints) ;
-	}
+//	@Override
+//	public Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
+//		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
+//		if (spec == null)
+//			return null;	
+//
+//		//List of visible implementations that satisfy the constraints.
+//		Set<Implementation> candidates = resolveDependency (client, dep, null) ;
+//		if (candidates == null || candidates.isEmpty()) 
+//			return null ;	
+//		if (candidates.size() == 1) 
+//			return candidates.iterator().next() ;
+//
+//		List<Filter> instPreferences = Util.toFilterList(dep.getInstancePreferences()) ;
+//		Set<Filter> instConstraints  = Util.toFilter(dep.getInstanceConstraints()) ;
+//		return Select.getPreferedComponentFromMembers(candidates, instPreferences, instConstraints) ;
+//	}
 
 
 	@Override
@@ -202,10 +270,10 @@ public class ApamMan implements DependencyManager {
 		return null;
 	}
 
-	@Override
-	public Implementation findImplByDependency(Instance client,	DependencyDeclaration dependency) {
-		return findImplByName(client, dependency.getTarget().getName());
-	}
+//	@Override
+//	public Implementation findImplByDependency(Instance client,	DependencyDeclaration dependency) {
+//		return findImplByName(client, dependency.getTarget().getName());
+//	}
 
 
 }

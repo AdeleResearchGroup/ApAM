@@ -375,41 +375,41 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 
-	@Override
-	public Implementation resolveSpec(Instance client, DependencyDeclaration dependency) {
-		
-		/*
-		 * In case of retry of a waiting or dynamic request we simply return to avoid blocking or killing
-		 * the unrelated thread that triggered the recalculation
-		 * 
-		 */
-        if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
-			return null;
+//	@Override
+//	public Implementation resolveSpec(Instance client, DependencyDeclaration dependency) {
+//		
+//		/*
+//		 * In case of retry of a waiting or dynamic request we simply return to avoid blocking or killing
+//		 * the unrelated thread that triggered the recalculation
+//		 * 
+//		 */
+//        if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
+//			return null;
+//
+//		/*
+//		 * Apply failure policies
+//		 */
+//		switch (dependency.getMissingPolicy()) {
+//			case OPTIONAL : {
+//				return null;
+//			}
+//			
+//			case EXCEPTION : {
+//				throwMissingException(dependency);
+//			}
+//			
+//			case WAIT : {
+//				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver,client, dependency);
+//				block(request);
+//				return request.getResolution().iterator().next();
+//			}
+//		}
+//		
+//		return null;
+//	}
 
-		/*
-		 * Apply failure policies
-		 */
-		switch (dependency.getMissingPolicy()) {
-			case OPTIONAL : {
-				return null;
-			}
-			
-			case EXCEPTION : {
-				throwMissingException(dependency);
-			}
-			
-			case WAIT : {
-				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver,client, dependency);
-				block(request);
-				return request.getResolution().iterator().next();
-			}
-		}
-		
-		return null;
-	}
-
 	@Override
-	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dependency) {
+	public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dependency, Set<Instance> insts) {
 		
 		/*
 		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
@@ -441,38 +441,38 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		return null;
 	}
 
-	@Override
-	public Implementation findImplByDependency(Instance client, DependencyDeclaration dependency) {
-		
-		/*
-		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
-		 * the unrelated thread that triggered the recalculation
-		 * 
-		 */
-		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
-			return null;
-		
-		/*
-		 * Apply failure policies
-		 */
-		switch (dependency.getMissingPolicy()) {
-			case OPTIONAL : {
-				return null;
-			}
-			
-			case EXCEPTION : {
-				throwMissingException(dependency);
-			}
-			
-			case WAIT : {
-				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver, client, dependency);
-				block(request);
-				return request.getResolution().iterator().next();
-			}
-		}
-		
-		return null;
-	}
+//	@Override
+//	public Implementation findImplByDependency(Instance client, DependencyDeclaration dependency) {
+//		
+//		/*
+//		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
+//		 * the unrelated thread that triggered the recalculation
+//		 * 
+//		 */
+//		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
+//			return null;
+//		
+//		/*
+//		 * Apply failure policies
+//		 */
+//		switch (dependency.getMissingPolicy()) {
+//			case OPTIONAL : {
+//				return null;
+//			}
+//			
+//			case EXCEPTION : {
+//				throwMissingException(dependency);
+//			}
+//			
+//			case WAIT : {
+//				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver, client, dependency);
+//				block(request);
+//				return request.getResolution().iterator().next();
+//			}
+//		}
+//		
+//		return null;
+//	}
 
 	@Override
 	public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dependency) {

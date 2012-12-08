@@ -18,11 +18,9 @@ import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
@@ -47,7 +45,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     // iPOJO injected
     private RepositoryAdmin               repoAdmin;
 
-    private Apam                          apam;
+//    private Apam                          apam;
 
     private final Logger                  logger = LoggerFactory.getLogger(OBRMan.class);
 
@@ -288,14 +286,13 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep) {
+    public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dep, Set<Instance> insts) {
         Set<Implementation> ret = new HashSet<Implementation>();
         ret.add(resolveSpec(client, dep));
         return ret;
     }
 
-    @Override
-    public Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
+    private Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
         Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints());
         List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences());
 
@@ -397,10 +394,10 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         return obrManager.lookForBundle(bundleSymbolicName, componentName);
     }
 
-    @Override
-    public Implementation findImplByDependency(Instance client,
-            DependencyDeclaration dependency) {
-        return findImplByName(client, dependency.getTarget().getName());
-    }
+//    @Override
+//    public Implementation findImplByDependency(Instance client,
+//            DependencyDeclaration dependency) {
+//        return findImplByName(client, dependency.getTarget().getName());
+//    }
 
 }

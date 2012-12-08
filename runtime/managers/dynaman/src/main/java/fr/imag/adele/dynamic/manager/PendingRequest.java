@@ -185,7 +185,7 @@ public abstract class PendingRequest<T extends Component> {
 			 * First consider the case the target is a named implementation
 			 */
 			if (dependency.getTarget() instanceof ImplementationReference<?>) {
-				Implementation result = resolver.findImplByDependency(getSource(),dependency);
+				Implementation result = resolver.findImplByName(getSource(),dependency.getTarget().getName());
 				return result != null ? Collections.singleton(result) : null;
 			}
 			
@@ -197,7 +197,7 @@ public abstract class PendingRequest<T extends Component> {
 				return result != null ? Collections.singleton(result) : null;
 			}
 			else {
-				return resolver.resolveSpecByResources(getSource(),dependency);
+				return resolver.resolveDependency(getSource(),dependency, null);
 			}
 		}
 	

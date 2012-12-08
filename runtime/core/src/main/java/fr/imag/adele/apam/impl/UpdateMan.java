@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.DynamicManager;
@@ -66,10 +65,6 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	 * @return
 	 */
 	public static void updateComponent (Implementation impl) {
-//		Composite compo = client.getComposite() ;
-//		if (compo instanceof Instance) {
-//			compo = ((Instance) compo).getImpl() ;
-//		}
 		try {
 			Bundle bundle = impl.getApformComponent().getBundle ();
 			String implName = impl.getName() ;
@@ -81,7 +76,6 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 			logger.info("Updating implementation " + implName + " in composite " + compoTypeFrom );
 
 			ComponentBundle sel = null;
-			boolean deployed = false;
 			for (DependencyManager manager : selectionPath) {
 				if (manager.getName().equals(CST.APAMMAN) || manager.getName().equals(CST.UPDATEMAN)) continue ;
 				logger.debug(manager.getName() + "  ");
@@ -102,10 +96,6 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					//compo = manager.install(sel) ; //does not install if the same version
-					//if (compo instanceof Implementation)
-					//TODO is that needed ?	ApamResolverImpl.deployedImpl(compoTypeFrom, impl, deployed);
-					//return ;
 				}
 			}
 		} catch (Exception e) { 
@@ -216,7 +206,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public Set<Implementation> resolveSpecs(Instance client, DependencyDeclaration dep) {
+	public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dep, Set<Instance> insts) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null) return null;
 
@@ -224,15 +214,6 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 		return null;
 	}
 
-	@Override
-	public Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
-		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
-		if (spec == null)
-			return null;	
-
-		waitComponent (spec.getName());
-		return null;
-	}
 
 	@Override
 	public Instance findInstByName(Instance client, String instName) {
@@ -240,12 +221,6 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 		return null;
 	}
 
-	@Override
-	public Implementation findImplByDependency(Instance client,
-			DependencyDeclaration dependency) {
-		waitComponent(dependency.getTarget().getName());
-		return  null;
-	}
 
 	@Override
 	public Component findComponentByName(Instance client, String componentName) {
