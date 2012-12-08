@@ -97,6 +97,9 @@
 							!org.ops4j.pax.exam.junit,
 							*
 						</Import-Package>
+						<Export-Package>
+							fr.*
+						</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>
