@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fr.imag.adele.apam.*;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.osgi.framework.Bundle;
@@ -19,6 +18,16 @@ import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
@@ -37,8 +46,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     // iPOJO injected
     private RepositoryAdmin               repoAdmin;
 
- 
-    private Apam apam;
+    private Apam                          apam;
 
     private final Logger                  logger = LoggerFactory.getLogger(OBRMan.class);
 
@@ -64,7 +72,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         logger.info("[OBRMAN] stopped");
     }
 
-    static List<String> onLoadingResource  = new ArrayList<String>();
+    static List<String> onLoadingResource = new ArrayList<String>();
+
 //    static Map<String,Integer> onLoadingResourceRequests  = new HashMap<String,Integer>();
 //    static List<String> onLoadingComponent = new ArrayList<String>();
 //    static StackLoading stack = new StackLoading();
@@ -85,8 +94,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         fr.imag.adele.apam.Component c = CST.componentBroker.getComponent(name);
         // Check if already deployed
         if (c == null) {
-            
-            if (bundleInactif(selected.resource.getSymbolicName())){
+
+            if (bundleInactif(selected.resource.getSymbolicName())) {
                 logger.info("The bundle " + selected.resource.getSymbolicName() + " is already installed!");
                 return null;
             }
@@ -105,7 +114,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         }
 
         return c;
-        
+
     }
 
 //    private void componentLoading(String name, Resource resource) {
@@ -131,8 +140,9 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     public boolean bundleInactif(String symbolicName) {
         Bundle[] bunldes = m_context.getBundles();
         for (Bundle bundle : bunldes) {
-            if (bundle.getSymbolicName()!=null && bundle.getSymbolicName().equals(symbolicName)){
-                if (bundle.getState() == Bundle.ACTIVE || bundle.getState() ==Bundle.STARTING || bundle.getState() ==Bundle.UNINSTALLED ){
+            if (bundle.getSymbolicName() != null && bundle.getSymbolicName().equals(symbolicName)) {
+                if (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING
+                        || bundle.getState() == Bundle.UNINSTALLED) {
                     return false;
                 }
                 return true;
@@ -204,7 +214,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         // end
 
         f = ApamFilter.newInstance("(" + CST.COMPONENT_TYPE + "=" + CST.IMPLEMENTATION + ")");
-        if (f != null) constraints.add(f);
+        if (f != null)
+            constraints.add(f);
 
         fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
         Implementation impl = null;
@@ -385,6 +396,28 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             return null;
 
         return obrManager.lookForBundle(bundleSymbolicName, componentName);
+    }
+
+    /**
+     * Update resources from repositories
+     * @param compositeName the name of the composite to update or *
+     */
+    public boolean updateRepos(String compositeName) {
+        if (compositeName == null) return false;
+        OBRManager obrmanager=null ;
+        if (compositeName.equals("*")) {
+            for (OBRManager obrManager2 : obrManagers.values()) {
+                obrManager2.updateListOfResources(repoAdmin);
+            }
+            return true;
+        } else if (compositeName.equals("root")) {
+            obrmanager = getOBRManager(CST.ROOT_COMPOSITE_TYPE);
+        } else {
+            obrmanager = getOBRManager(compositeName);
+        }
+        if (obrmanager==null) return false;
+        obrmanager.updateListOfResources(repoAdmin);
+        return true;
     }
 
 //    @Override

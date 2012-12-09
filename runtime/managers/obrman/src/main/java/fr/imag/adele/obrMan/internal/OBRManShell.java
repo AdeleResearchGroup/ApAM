@@ -45,7 +45,7 @@ public class OBRManShell {
      * Defines the functions (commands).
      */
     @ServiceProperty(name = "osgi.command.function", value = "{}")
-    String[]      m_function = new String[] { "cr" };
+    String[]      m_function = new String[] { "cr", "ur" };
 
     // ipojo injected
     @Requires
@@ -65,4 +65,17 @@ public class OBRManShell {
         }
         System.out.println(result);
     }
+    
+    public void ur(String compositeTypeName) {
+        
+       boolean state = obrmanCommand.updateRepos(compositeTypeName);
+       if (state){
+           System.out.println("Update " + compositeTypeName + " repositories performed");
+       }else {
+           System.out.println("Update " + compositeTypeName + " repositories failed");
+       }
+       
+    
+    }
+    
 }

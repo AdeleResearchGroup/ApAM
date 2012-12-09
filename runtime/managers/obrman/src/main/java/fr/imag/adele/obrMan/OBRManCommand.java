@@ -10,5 +10,7 @@ public interface OBRManCommand {
     public Set<String> getCompositeRepositories(String compositeTypeName);
     
     public void setInitialConfig(URL modellocation) throws IOException;
+    
+    public boolean updateRepos(String compositeName);
 
 }

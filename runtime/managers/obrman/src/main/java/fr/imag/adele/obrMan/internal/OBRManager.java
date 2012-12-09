@@ -31,16 +31,18 @@ import fr.imag.adele.apam.util.ApamFilter;
 
 public class OBRManager {
 
-	private final Resolver       resolver;
+	private Resolver       resolver;
+	
+	private LinkedProperties obrModel;
 
-	private List<Repository>     repositories;
+	private List<Repository>     repositories= new ArrayList<Repository>();
 
-	private final List<Resource> allResources;
+	private final List<Resource> allResources =  new ArrayList<Resource>();
 
 	private final String         compositeTypeName;
 
 	private final OBRMan         obrMan;
-
+	
 	private final Logger         logger = LoggerFactory.getLogger(OBRManager.class);
 
 	private final Repository     runningbundles;
@@ -49,29 +51,13 @@ public class OBRManager {
 
 	private File settings;
 
-	public OBRManager(OBRMan obrman, String compositeTypeName, RepositoryAdmin repoAdmin, LinkedProperties obrModel) {
-		allResources = new ArrayList<Resource>();
-		repositories = new ArrayList<Repository>();
+	public OBRManager(OBRMan obrman, String compositeTypeName, RepositoryAdmin repoAdmin, LinkedProperties obrModel1) {
 		this.compositeTypeName = compositeTypeName;
 		runningbundles = repoAdmin.getLocalRepository();
 		systembundle = repoAdmin.getSystemRepository();
 		obrMan = obrman;
-		// First Read model if it exist
-		if (obrModel != null) {
-			repositories = getRepositoriesFromModel(obrModel, repoAdmin);
-		}
-
-		// Get resources from repositories and remove them from repoAdmin.
-		for (Repository repository : repositories) {
-			allResources.addAll(Arrays.asList(repository.getResources()));
-			repoAdmin.removeRepository(repository.getURI());
-		}
-
-		// Add the system as repository
-		repositories.add(0, runningbundles);
-		repositories.add(0, systembundle);
-		resolver = repoAdmin.resolver(repositories.toArray(new Repository[repositories.size()]));
-
+		this.obrModel = obrModel1;
+		updateListOfResources(repoAdmin);
 	}
 	
 //	//TODO perfom update by polling in another Thread !
@@ -574,5 +560,23 @@ public class OBRManager {
 			repoString.add(repo.getURI());
 		}
 		return repoString;
+	}
+	
+	protected void updateListOfResources(RepositoryAdmin repoAdmin){
+	 // First Read model if it exist
+        if (obrModel != null) {
+            repositories = getRepositoriesFromModel(obrModel, repoAdmin);
+        }
+        allResources.clear();
+        // Get resources from repositories and remove them from repoAdmin.
+        for (Repository repository : repositories) {
+            allResources.addAll(Arrays.asList(repository.getResources()));
+            repoAdmin.removeRepository(repository.getURI());
+        }
+
+        // Add the system as repository
+        repositories.add(0, runningbundles);
+        repositories.add(0, systembundle);
+        resolver = repoAdmin.resolver(repositories.toArray(new Repository[repositories.size()]));
 	}
 }

@@ -98,6 +98,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		 * TODO if Dynaman is started or restarted after APAM, should we verify if there
 		 * are already created composites? 
 		 */
+		  logger.info("[DYNAMAN] started");
 	}
 	
 	/**
@@ -109,6 +110,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		ApamManagers.removeDependencyManager(this);
 		ApamManagers.removeDynamicManager(this);
 		ApamManagers.removePropertyManager(this);
+		logger.info("[DYNAMAN] stopped");
 	}
 	
     
