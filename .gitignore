@@ -31,7 +31,7 @@ distributions/*-distribution/felix-cache
 distributions/*-distribution/load
 distributions/*-distribution/bin
 distributions/*-distribution/apam*
-
+distributions/*-distribution/log/*
 #merge files
 
 *.orig

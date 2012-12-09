@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.*;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.osgi.framework.Bundle;
@@ -18,15 +19,6 @@ import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.DependencyManager;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
@@ -45,7 +37,10 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     // iPOJO injected
     private RepositoryAdmin               repoAdmin;
 
-//    private Apam                          apam;
+    /**
+     *
+     */
+    private Apam apam;
 
     private final Logger                  logger = LoggerFactory.getLogger(OBRMan.class);
 

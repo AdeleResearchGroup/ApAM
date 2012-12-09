@@ -16,7 +16,7 @@
 	<component name="OBRMAN" classname="fr.imag.adele.obrMan.internal.OBRMan"
 		immediate="true">
 		<provides specifications="fr.imag.adele.obrMan.OBRManCommand"/>
-<!-- 		<requires field="apam" proxy="false"/> -->
+	    <requires field="apam" proxy="false"/>
 		<requires field="repoAdmin" proxy="false"/>
 		<callback transition="validate" method="start" />
 		<callback transition="invalidate" method="stop" />
