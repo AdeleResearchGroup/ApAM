@@ -37,9 +37,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     // iPOJO injected
     private RepositoryAdmin               repoAdmin;
 
-    /**
-     *
-     */
+ 
     private Apam apam;
 
     private final Logger                  logger = LoggerFactory.getLogger(OBRMan.class);

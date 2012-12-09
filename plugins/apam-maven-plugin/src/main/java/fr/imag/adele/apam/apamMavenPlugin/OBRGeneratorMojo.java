@@ -14,26 +14,34 @@
  */
 package fr.imag.adele.apam.apamMavenPlugin;
 
-import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.util.Util;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.ManifestMetadataParser;
 import org.apache.felix.ipojo.plugin.ManipulatorMojo;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.VersionRange;
-import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.felix.ipojo.plugin.MavenReporter;
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.util.*;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.util.Util;
+//import org.apache.felix.ipojo.plugin.MavenReporter;
 
 /**
  * Packages an OSGi jar "iPOJO bundle" as an "APAM bundle".

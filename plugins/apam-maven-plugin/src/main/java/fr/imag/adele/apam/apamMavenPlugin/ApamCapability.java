@@ -1,8 +1,5 @@
 package fr.imag.adele.apam.apamMavenPlugin;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,28 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.felix.bundlerepository.Capability;
-import org.apache.felix.bundlerepository.DataModelHelper;
-import org.apache.felix.bundlerepository.Property;
-import org.apache.felix.bundlerepository.Repository;
-import org.apache.felix.bundlerepository.Resource;
-import org.apache.felix.bundlerepository.impl.DataModelHelperImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.util.Util;
 
 
 
@@ -56,7 +40,7 @@ public class ApamCapability {
 	private Map <String, String> finalProperties = new HashMap <String, String> () ;
 
 
-	//If true, no obr repository found. Cannot look for the other components
+	//If true, no obr repository found. Cannot look for the other componentss
 	//	private static boolean noRepository = true ;
 	//
 	//	private static DataModelHelper dataModelHelper; 
