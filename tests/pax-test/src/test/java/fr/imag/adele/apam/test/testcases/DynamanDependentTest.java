@@ -149,7 +149,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				new HashMap<String, String>());
 
 		Implementation implS2=CST.apamResolver.findImplByName(
-				null, "fr.imag.adele.apam.pax.test.impl.S2Impl");
+				null, "fr.imag.adele.apam.pax.test.implS2.S2Impl");
 		
 		Instance instance=implS2.createInstance(instanceComposite, null);
 		
@@ -163,10 +163,10 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
-		List<Instance> pool = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.device.PhilipsSwitch",
-				"fr.imag.adele.apam.pax.test.impl.device.GenericSwitch",
-				"fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch",
-				"fr.imag.adele.apam.pax.test.device.DeadsManSwitch");
+		List<Instance> pool = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.deviceSwitch.PhilipsSwitch",
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
+				"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch");
 		
 		auxListInstances("instances existing after the test-");
 
@@ -195,7 +195,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				new HashMap<String, String>());
 
 		Implementation implS2=CST.apamResolver.findImplByName(
-				null, "fr.imag.adele.apam.pax.test.impl.S2Impl-forceEager");
+				null, "fr.imag.adele.apam.pax.test.implS2.S2Impl-forceEager");
 		
 		Instance instance=implS2.createInstance(instanceComposite, null);
 		
@@ -209,10 +209,10 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
-		List<Instance> pool = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.device.PhilipsSwitch",
-				"fr.imag.adele.apam.pax.test.impl.device.GenericSwitch",
-				"fr.imag.adele.apam.pax.test.impl.device.HouseMeterSwitch",
-				"fr.imag.adele.apam.pax.test.device.DeadsManSwitch");
+		List<Instance> pool = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.deviceSwitch.PhilipsSwitch",
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
+				"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch");
 		
 		auxListInstances("instances existing after the test-");
 
@@ -400,7 +400,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 		auxListInstances("\t");
 
-		List<Instance> instancesOfImplementation = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.S3GroupAImpl");
+		List<Instance> instancesOfImplementation = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl");
 
 		String messageTemplate = "Using hiding into a dependency of a composite should cause the instance of this component to be removed in case of an dependency of such componenent was satisfiable, instead the its instance is still visible. There are %d instances, and should be only 1 (the root composite that encloses the dependency with hide='true')";
 

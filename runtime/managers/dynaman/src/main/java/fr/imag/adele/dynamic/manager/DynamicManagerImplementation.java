@@ -202,7 +202,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	 * Registers the request in the context composite, and blocks the current thread until
 	 * a component satisfying the request is available.
 	 */
-	private void block (PendingRequest<?> request) {
+	private void block (PendingRequest request) {
 		ContentManager manager = contentManagers.get(request.getContext());
 		manager.addPendingRequest(request);
 		request.block();
@@ -377,39 +377,6 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 
-//	@Override
-//	public Implementation resolveSpec(Instance client, DependencyDeclaration dependency) {
-//		
-//		/*
-//		 * In case of retry of a waiting or dynamic request we simply return to avoid blocking or killing
-//		 * the unrelated thread that triggered the recalculation
-//		 * 
-//		 */
-//        if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
-//			return null;
-//
-//		/*
-//		 * Apply failure policies
-//		 */
-//		switch (dependency.getMissingPolicy()) {
-//			case OPTIONAL : {
-//				return null;
-//			}
-//			
-//			case EXCEPTION : {
-//				throwMissingException(dependency);
-//			}
-//			
-//			case WAIT : {
-//				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver,client, dependency);
-//				block(request);
-//				return request.getResolution().iterator().next();
-//			}
-//		}
-//		
-//		return null;
-//	}
-
 	@Override
 	public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dependency, Set<Instance> insts) {
 		
@@ -434,7 +401,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			}
 			
 			case WAIT : {
-				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver,client, dependency);
+				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver,client, dependency, insts);
 				block(request);
 				return request.getResolution();
 			}
@@ -443,120 +410,14 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		return null;
 	}
 
-//	@Override
-//	public Implementation findImplByDependency(Instance client, DependencyDeclaration dependency) {
-//		
-//		/*
-//		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
-//		 * the unrelated thread that triggered the recalculation
-//		 * 
-//		 */
-//		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
-//			return null;
-//		
-//		/*
-//		 * Apply failure policies
-//		 */
-//		switch (dependency.getMissingPolicy()) {
-//			case OPTIONAL : {
-//				return null;
-//			}
-//			
-//			case EXCEPTION : {
-//				throwMissingException(dependency);
-//			}
-//			
-//			case WAIT : {
-//				PendingRequest.SpecificationResolution request = new PendingRequest.SpecificationResolution((ApamResolverImpl)CST.apamResolver, client, dependency);
-//				block(request);
-//				return request.getResolution().iterator().next();
-//			}
-//		}
-//		
-//		return null;
-//	}
 
 	@Override
 	public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dependency) {
-		
-		/*
-		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
-		 * the unrelated thread that triggered the recalculation
-		 * 
-		 */
-		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
-			return null;
-		
-		/*
-		 * Apply failure policies
-		 */
-		switch (dependency.getMissingPolicy()) {
-			case OPTIONAL : {
-				return null;
-			}
-			
-			case EXCEPTION : {
-				throwMissingException(dependency);
-			}
-			
-			case WAIT : {
-				/*
-				 * avoid blocking the resolution if an instance can be created
-				 */
-				if ( impl.isInstantiable())
-					return null;
-				
-				/*
-				 * Otherwise block the current thread and schedule a dynamic resolution
-				 */
-				PendingRequest.ImplementationResolution request = new PendingRequest.ImplementationResolution((ApamResolverImpl)CST.apamResolver,client,impl,dependency);
-				block(request);
-				return request.getResolution().iterator().next();
-			}
-		}
-		
 		return null;
 	}
 
 	@Override
 	public Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dependency) {
-		
-		/*
-		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
-		 * the unrelated thread that triggered the recalculation
-		 * 
-		 */
-		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
-			return null;
-		
-		/*
-		 * Apply failure policies
-		 */
-		switch (dependency.getMissingPolicy()) {
-			case OPTIONAL : {
-				return null;
-			}
-			
-			case EXCEPTION : {
-				throwMissingException(dependency);
-			}
-			
-			case WAIT : {
-				/*
-				 * avoid blocking the resolution if an instance can be created
-				 */
-				if ( impl.isInstantiable())
-					return null;
-				
-				/*
-				 * Otherwise block the current thread and schedule a dynamic resolution
-				 */
-				PendingRequest.ImplementationResolution request = new PendingRequest.ImplementationResolution((ApamResolverImpl)CST.apamResolver,client,impl,dependency);
-				block(request);
-				return request.getResolution();
-			}
-		}
-		
 		return null;
 	}
 
