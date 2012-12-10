@@ -203,7 +203,7 @@ public class CompositeTest extends ExtensionAbstract {
 		String message=String.format(messageTemplate, "But A marked with <export implementation=false />" +
 				" allowed its instance to be used by another composite");
 //Normal !		
-//		Assert.assertTrue(message,ga.getElement() != gb.getElement());
+		Assert.assertTrue(message,ga.getElement() == gb.getElement());
 
 	}
 
@@ -276,7 +276,7 @@ public class CompositeTest extends ExtensionAbstract {
 		String message=String.format(messageTemplate, "Although, an instance from composite B was injected in composite A even if A is marked with <import implementation='false' />");
 		//The fact the implem is not visible does not mean we cannot resolve : it can be deployed again, 
 		//and it is possible to see its instances anyway !.
-//		Assert.assertTrue(message,ga.getElement() != gb.getElement());
+		Assert.assertTrue(message,ga.getElement() == gb.getElement());
 
 	}
 	
@@ -373,8 +373,8 @@ public class CompositeTest extends ExtensionAbstract {
 		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
 		
 		String message= "Consider composite A, instantiated into a composite SA, and B, into a composite SB. If A declares that export nothing to all app but everything to global, the global take over, and the instances of A should be visible in B";
-	// Test faux : ce sont deux appli differentes	
-//		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
+	// Test faux ?? : ce sont deux appli differentes	
+		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
 
 	}
 	

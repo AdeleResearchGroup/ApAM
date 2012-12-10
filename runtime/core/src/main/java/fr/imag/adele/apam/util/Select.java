@@ -134,6 +134,7 @@ public class Select {
 		if (preferences == null || preferences.isEmpty()) {
 			return getDefaultComponent(candidates) ;
         }
+		if (candidates.size() == 1) return candidates.iterator().next() ;
 
         Set<T> valids = new HashSet<T> ();
         for (Filter f : preferences) {

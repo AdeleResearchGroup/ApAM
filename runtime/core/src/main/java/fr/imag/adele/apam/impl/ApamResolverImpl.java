@@ -506,67 +506,6 @@ public class ApamResolverImpl implements ApamResolver {
 		return impls;
 	}
 
-	/**
-	 * Look for an instance of "impl" that satisfies the constraints. That instance must be either
-	 * - shared and visible from "compo", or
-	 * - instantiated if impl is visible from the composite type.
-	 *
-	 * @param compo. the composite that will contain the instance, if created, or from which the shared instance is
-	 *            visible.
-	 * @param impl
-	 * @param constraints. The constraints to satisfy. They must be all satisfied.
-	 * @param preferences. If more than one implementation satisfies the constraints, returns the one that satisfies the
-	 *            maximum
-	 * @return
-	 */
-	public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dependency) {
-		if (client == null)
-			client = CompositeImpl.getRootInstance();
-
-		List<DependencyManager> selectionPath = computeSelectionPath(client, dependency);
-
-		Instance inst = null;
-		logger.info("Looking for an instance of " + impl + ": ");
-		for (DependencyManager manager : selectionPath) {
-			logger.debug(manager.getName() + "  ");
-			inst = manager.resolveImpl(client, impl, dependency);
-			if (inst != null) {
-				return inst;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Look for all the existing instance of "impl" that satisfy the constraints.
-	 * These instances must be either shared and visible from "compo".
-	 * If no existing instance can be found, one is created if impl is visible from the composite type.
-	 *
-	 * @param compo. the composite that will contain the instance, if created, or from which the shared instance is
-	 *            visible.
-	 * @param impl
-	 * @param constraints. The constraints to satisfy. They must be all satisfied.
-	 * @return
-	 */
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dependency) {
-		if (client == null)
-			client = CompositeImpl.getRootInstance();
-
-		List<DependencyManager> selectionPath = computeSelectionPath(client, dependency);
-
-		Set<Instance> insts = null;
-		logger.info("Looking for instances of " + impl + ": ");
-		for (DependencyManager manager : selectionPath) {
-			logger.debug(manager.getName() + "  ");
-			insts = manager.resolveImpls(client, impl, dependency);
-			if ((insts != null) && !insts.isEmpty()) {
-				logger.debug("selected " + insts);
-				return insts;
-			}
-		}
-		return Collections.emptySet();
-
-	}
 
 	/**
 	 * Once the resolution terminated, either successful or not, the managers are notified of the current
@@ -585,11 +524,9 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 	}
 
-
 	@Override
 	public Implementation resolveSpecByInterface(Instance client,
-			String interfaceName, Set<String> constraints,
-			List<String> preferences) {
+			String interfaceName, Set<String> constraints, List<String> preferences) {
 		DependencyDeclaration dep = new DependencyDeclaration (client.getComposite().getCompType().getDeclaration().getReference(),
 				interfaceName, false, new InterfaceReference(interfaceName));
 
@@ -613,25 +550,33 @@ public class ApamResolverImpl implements ApamResolver {
 	@Override
 	public Instance resolveImpl(Instance client, Implementation impl,
 			Set<String> constraints, List<String> preferences) {
-
-		DependencyDeclaration dep = new DependencyDeclaration (client.getComposite().getCompType().getDeclaration().getReference(),
-				impl.getName(), false, new ImplementationReference<ImplementationDeclaration>(impl.getName()));
-
-		dep.getImplementationConstraints().addAll(constraints) ;
-		dep.getImplementationPreferences().addAll(preferences) ;
-
-		return resolveImpl(client, impl, dep);
+		Set<Instance> insts = resolveImpls(client, impl,constraints) ;
+		if (insts == null || insts.isEmpty()) return null ;
+		return Select.getPrefered(insts, Util.toFilterList(preferences));
 	}
 
 	@Override
 	public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
+		if (client == null)
+			client = CompositeImpl.getRootInstance();
 
 		DependencyDeclaration dep = new DependencyDeclaration (client.getComposite().getCompType().getDeclaration().getReference(),
 				impl.getName(), true, new ImplementationReference<ImplementationDeclaration>(impl.getName()));
-
 		dep.getImplementationConstraints().addAll(constraints) ;
 
-		return resolveImpls(client, impl, dep);
+		List<DependencyManager> selectionPath = computeSelectionPath(client, dep);
+
+		Set<Instance> insts = null;
+		logger.info("Looking for instances of " + impl + ": ");
+		for (DependencyManager manager : selectionPath) {
+			logger.debug(manager.getName() + "  ");
+			insts = manager.resolveImpls(client, impl, constraints);
+			if ((insts != null) && !insts.isEmpty()) {
+				logger.debug("selected " + insts);
+				return insts;
+			}
+		}
+		return Collections.emptySet();
 	}
 
 	@Override

@@ -412,12 +412,12 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 
 	@Override
-	public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dependency) {
+	public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences) {
 		return null;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dependency) {
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
 		return null;
 	}
 
