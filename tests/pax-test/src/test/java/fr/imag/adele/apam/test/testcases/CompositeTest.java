@@ -73,7 +73,7 @@ public class CompositeTest extends ExtensionAbstract {
 	public void CompositeTypeRetrieveServiceObject_tc030() {
 
 		CompositeType composite = CST.apam.createCompositeType(null,
-				"eletronic-device-compotype", null, "eletronic-device",
+				"eletronic-device-compotype", null, "philipsSwitch",
 				new HashSet<ManagerModel>(), new HashMap<String, String>());
 
 		Assert.assertTrue(
