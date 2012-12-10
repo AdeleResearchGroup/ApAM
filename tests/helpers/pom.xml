@@ -58,11 +58,11 @@
 			<artifactId>apam-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>obrman</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
+<!-- 			<artifactId>obrman</artifactId> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
             <artifactId>dynaman</artifactId>

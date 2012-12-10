@@ -54,143 +54,174 @@ public abstract class ExtensionAbstract extends TestUtils {
 	public List<Option> config() {
 
 		List<Option> config = new ArrayList<Option>();
-		config.add(systemProperty("org.osgi.service.http.port").value("8080"));
-		config.add(cleanCaches());
-		config.add(systemProperty("logback.configurationFile").value(
-				"file:" + PathUtils.getBaseDir() + "/log/logback.xml"));
-		config.add(systemProperty(
-				"org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"));
+
+		config.add(packInitialConfig());
 		config.add(packOSGi());
 		config.add(packPax());
 		config.add(packApamCore());
 		config.add(packApamObrMan());
+		//config.add(packAppForTestBundles());
 		config.add(packLog());
 		config.add(junitBundles());
-				config.add(mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
-							.versionAsInProject());
-		//config.add(packAppForTestBundles());
 		config.add(packDebugConfiguration());
 		config.add(vmOption("-ea"));
 
 		return config;
 	}
-	
-//	 public List<Option> config() {
-//
-//	        List<Option> config = new ArrayList<Option>();
-//	        config.add(systemProperty("org.osgi.service.http.port").value("8080"));
-//	        config.add(cleanCaches());
-//	        config.add(systemProperty("logback.configurationFile").value(
-//	                "file:" + PathUtils.getBaseDir() + "/log/logback.xml"));
-//	        config.add(systemProperty(
-//	                "org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"));
-//	        config.add(mavenBundle().groupId("org.apache.felix")
-//	                .artifactId("org.apache.felix.ipojo").versionAsInProject());
-//	        config.add(mavenBundle().groupId("org.ow2.chameleon.testing")
-//	                .artifactId("osgi-helpers").versionAsInProject());
-//	        config.add(mavenBundle().groupId("org.osgi")
-//	                .artifactId("org.osgi.compendium").version("4.2.0"));
-//	        config.add(mavenBundle().groupId("org.apache.felix")
-//	                .artifactId("org.apache.felix.bundlerepository").versionAsInProject());
-//	        config.add(mavenBundle().groupId("org.ops4j.pax.url")
-//	                .artifactId("pax-url-mvn").versionAsInProject());
-//	        config.add(mavenBundle().groupId("fr.imag.adele.apam")
-//	                .artifactId("apam-bundle").versionAsInProject());
-//	        config.add(mavenBundle().groupId("fr.imag.adele.apam")
-//	                .artifactId("obrman").versionAsInProject());
-//	        config.add(mavenBundle("org.slf4j", "slf4j-api").versionAsInProject());
-//
-//	        config.add(mavenBundle("ch.qos.logback", "logback-core").versionAsInProject());
-//	        config.add(mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject());
-//	        config.add(junitBundles());
-//	        config.add(mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
-//	                .versionAsInProject());
-//
-//	        config.add(vmOption("-ea"));
-//	        config.add(when(isDebugModeOn())
-//	                .useOptions(
-//	                		vmOption(String
-//	                                .format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
-//	                                        Constants.CONST_DEBUG_PORT)),
-//	                        systemTimeout(0)));
-//
-//	        return config;
-//	    }
 
-	protected CompositeOption packApamCore(){
-		
-		CompositeOption apamCoreConfig = new DefaultCompositeOption(mavenBundle().groupId("fr.imag.adele.apam")
-				.artifactId("apam-bundle").versionAsInProject());
-		
+	// public List<Option> config() {
+	//
+	// List<Option> config = new ArrayList<Option>();
+	// config.add(systemProperty("org.osgi.service.http.port").value("8080"));
+	// config.add(cleanCaches());
+	// config.add(systemProperty("logback.configurationFile").value(
+	// "file:" + PathUtils.getBaseDir() + "/log/logback.xml"));
+	// config.add(systemProperty(
+	// "org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"));
+	// config.add(mavenBundle().groupId("org.apache.felix")
+	// .artifactId("org.apache.felix.ipojo").versionAsInProject());
+	// config.add(mavenBundle().groupId("org.ow2.chameleon.testing")
+	// .artifactId("osgi-helpers").versionAsInProject());
+	// config.add(mavenBundle().groupId("org.osgi")
+	// .artifactId("org.osgi.compendium").version("4.2.0"));
+	// config.add(mavenBundle().groupId("org.apache.felix")
+	// .artifactId("org.apache.felix.bundlerepository").versionAsInProject());
+	// config.add(mavenBundle().groupId("org.ops4j.pax.url")
+	// .artifactId("pax-url-mvn").versionAsInProject());
+	// config.add(mavenBundle().groupId("fr.imag.adele.apam")
+	// .artifactId("apam-bundle").versionAsInProject());
+	// config.add(mavenBundle().groupId("fr.imag.adele.apam")
+	// .artifactId("obrman").versionAsInProject());
+	// config.add(mavenBundle("org.slf4j", "slf4j-api").versionAsInProject());
+	//
+	// config.add(mavenBundle("ch.qos.logback",
+	// "logback-core").versionAsInProject());
+	// config.add(mavenBundle("ch.qos.logback",
+	// "logback-classic").versionAsInProject());
+	// config.add(junitBundles());
+	// config.add(mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
+	// .versionAsInProject());
+	//
+	// config.add(vmOption("-ea"));
+	// config.add(when(isDebugModeOn())
+	// .useOptions(
+	// vmOption(String
+	// .format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
+	// Constants.CONST_DEBUG_PORT)),
+	// systemTimeout(0)));
+	//
+	// return config;
+	// }
+
+	protected CompositeOption packInitialConfig() {
+
+		CompositeOption initial = new DefaultCompositeOption(systemProperty(
+				"org.osgi.service.http.port").value("8080"), cleanCaches(),
+				systemProperty("logback.configurationFile").value(
+						"file:" + PathUtils.getBaseDir() + "/log/logback.xml"),
+				systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level")
+						.value("NONE"));
+
+		return initial;
+	}
+
+	protected CompositeOption packApamCore() {
+
+		CompositeOption apamCoreConfig = new DefaultCompositeOption(
+				mavenBundle().groupId("fr.imag.adele.apam")
+						.artifactId("apam-bundle").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
+						.versionAsInProject());
+
 		return apamCoreConfig;
 	}
-	
-	protected CompositeOption packApamObrMan(){
-		CompositeOption apamObrmanConfig = new DefaultCompositeOption(mavenBundle().groupId("fr.imag.adele.apam")
-				.artifactId("obrman").versionAsInProject());
-		
+
+	protected CompositeOption packApamObrMan() {
+		CompositeOption apamObrmanConfig = new DefaultCompositeOption(
+				mavenBundle().groupId("fr.imag.adele.apam")
+						.artifactId("obrman").versionAsInProject());
+
 		return apamObrmanConfig;
 	}
-	
-	protected CompositeOption packPax(){
-		CompositeOption paxConfig = new DefaultCompositeOption(mavenBundle().groupId("org.ops4j.pax.url")
-				.artifactId("pax-url-mvn").versionAsInProject());
+
+	protected CompositeOption packPax() {
+		CompositeOption paxConfig = new DefaultCompositeOption(mavenBundle()
+				.groupId("org.ops4j.pax.url").artifactId("pax-url-mvn")
+				.versionAsInProject());
 		return paxConfig;
 	}
-	
-	protected CompositeOption packOSGi(){
-		CompositeOption osgiConfig = new DefaultCompositeOption(mavenBundle().groupId("org.apache.felix")
+
+	protected CompositeOption packOSGi() {
+		CompositeOption osgiConfig = new DefaultCompositeOption(mavenBundle()
+				.groupId("org.apache.felix")
 				.artifactId("org.apache.felix.ipojo").versionAsInProject(),
 				mavenBundle().groupId("org.ow2.chameleon.testing")
-				.artifactId("osgi-helpers").versionAsInProject(),
+						.artifactId("osgi-helpers").versionAsInProject(),
 				mavenBundle().groupId("org.osgi")
-				.artifactId("org.osgi.compendium").version("4.2.0"),
+						.artifactId("org.osgi.compendium").version("4.2.0"),
 				mavenBundle().groupId("org.apache.felix")
-				.artifactId("org.apache.felix.bundlerepository")
-				.versionAsInProject());
-		
+						.artifactId("org.apache.felix.bundlerepository")
+						.versionAsInProject());
+
 		return osgiConfig;
-				
+
 	}
-	
-	protected CompositeOption packLog(){
-		CompositeOption logConfig = new DefaultCompositeOption(mavenBundle("ch.qos.logback", "logback-core")
-				.versionAsInProject(),mavenBundle("ch.qos.logback", "logback-classic")
-				.versionAsInProject(),
-				mavenBundle("org.slf4j", "slf4j-api").versionAsInProject());
-		
+
+	protected CompositeOption packLog() {
+		CompositeOption logConfig = new DefaultCompositeOption(mavenBundle(
+				"ch.qos.logback", "logback-core").versionAsInProject(),
+				mavenBundle("ch.qos.logback", "logback-classic")
+						.versionAsInProject(), mavenBundle("org.slf4j",
+						"slf4j-api").versionAsInProject());
+
 		return logConfig;
 	}
-	
-	protected CompositeOption packDebugConfiguration(){
-		CompositeOption debugConfig = new DefaultCompositeOption(when(isDebugModeOn())
-				.useOptions(
-						vmOption(String
-								.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
-										Constants.CONST_DEBUG_PORT)),
-						systemTimeout(0)));
-		
+
+	protected CompositeOption packDebugConfiguration() {
+		CompositeOption debugConfig = new DefaultCompositeOption(
+				when(isDebugModeOn())
+						.useOptions(
+								vmOption(String
+										.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
+												Constants.CONST_DEBUG_PORT)),
+								systemTimeout(0)));
+
 		return debugConfig;
 	}
-	
+
 	protected CompositeOption packAppForTestBundles() {
 
-		CompositeOption testAppBundle = new DefaultCompositeOption(
-				mavenBundle("fr.imag.adele.apam.tests", "apam-helpers").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.messages", "messages-specifications").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private", "APP1-MainImpl").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private", "APP1-MainSpec").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private", "APP1-S1-Spec").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private", "APP1-S2-Spec").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private", "APP1-S3-Spec").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.public", "APP1-Spec").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.private", "APP2-MainImpl").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.private", "APP2-MainSpec").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.public", "APP2-Spec").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-iface").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-impl-s1").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-impl-s2").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-impl-s3").versionAsInProject());
+		CompositeOption testAppBundle = new DefaultCompositeOption(mavenBundle(
+				"fr.imag.adele.apam.tests", "apam-helpers")
+				.versionAsInProject(), mavenBundle(
+				"fr.imag.adele.apam.tests.messages", "messages-specifications")
+				.versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private",
+						"APP1-MainImpl").versionAsInProject(), mavenBundle(
+						"fr.imag.adele.apam.tests.obrman.app1.private",
+						"APP1-MainSpec").versionAsInProject(), mavenBundle(
+						"fr.imag.adele.apam.tests.obrman.app1.private",
+						"APP1-S1-Spec").versionAsInProject(), mavenBundle(
+						"fr.imag.adele.apam.tests.obrman.app1.private",
+						"APP1-S2-Spec").versionAsInProject(), mavenBundle(
+						"fr.imag.adele.apam.tests.obrman.app1.private",
+						"APP1-S3-Spec").versionAsInProject(), mavenBundle(
+						"fr.imag.adele.apam.tests.obrman.app1.public",
+						"APP1-Spec").versionAsInProject(), mavenBundle(
+						"fr.imag.adele.apam.tests.obrman.app2.private",
+						"APP2-MainImpl").versionAsInProject(), mavenBundle(
+						"fr.imag.adele.apam.tests.obrman.app2.private",
+						"APP2-MainSpec").versionAsInProject(), mavenBundle(
+						"fr.imag.adele.apam.tests.obrman.app2.public",
+						"APP2-Spec").versionAsInProject(), mavenBundle(
+						"fr.imag.adele.apam.tests.services",
+						"apam-pax-samples-iface").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services",
+						"apam-pax-samples-impl-s1").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services",
+						"apam-pax-samples-impl-s2").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services",
+						"apam-pax-samples-impl-s3").versionAsInProject());
 
 		return testAppBundle;
 
