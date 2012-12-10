@@ -144,6 +144,14 @@ public abstract class ExtensionAbstract extends TestUtils {
 		return apamObrmanConfig;
 	}
 
+	protected CompositeOption packApamDynaMan() {
+		CompositeOption apamObrmanConfig = new DefaultCompositeOption(
+				mavenBundle("fr.imag.adele.apam", "dynaman")
+						.versionAsInProject());
+
+		return apamObrmanConfig;
+	}
+
 	protected CompositeOption packPax() {
 		CompositeOption paxConfig = new DefaultCompositeOption(mavenBundle()
 				.groupId("org.ops4j.pax.url").artifactId("pax-url-mvn")
@@ -233,6 +241,24 @@ public abstract class ExtensionAbstract extends TestUtils {
 		Option conf[] = config().toArray(new Option[0]);
 
 		return conf;
+	}
+	
+	//@Configuration
+	public Option[] apamConfig2(){
+		List<Option> config = new ArrayList<Option>();
+
+		config.add(packInitialConfig());
+		config.add(packOSGi());
+		config.add(packPax());
+		config.add(packApamCore());
+		config.add(packApamObrMan());
+		config.add(packApamDynaMan());
+		config.add(packLog());
+		config.add(junitBundles());
+		config.add(packDebugConfiguration());
+		config.add(vmOption("-ea"));
+		
+		return config.toArray(new Option[0]);
 	}
 
 	@Before
