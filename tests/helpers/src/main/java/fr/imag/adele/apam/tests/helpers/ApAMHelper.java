@@ -125,7 +125,8 @@ public class ApAMHelper {
     }
 
     public <S> S getAService(Class<S> clazz) {
-        S s = clazz.cast(osgi.getServiceObject(clazz.getName(), null));
+        Object o = osgi.getServiceObject(clazz.getName(), null);
+        S s = clazz.cast(o);
         assertNotNull(s);
         return s;
     }

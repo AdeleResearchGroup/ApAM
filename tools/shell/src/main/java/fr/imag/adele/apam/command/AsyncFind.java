@@ -1,6 +1,10 @@
 package fr.imag.adele.apam.command;
 
-import fr.imag.adele.apam.*;
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Specification;
 
 /**
  * Created with IntelliJ IDEA.

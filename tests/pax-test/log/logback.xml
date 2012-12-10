@@ -21,7 +21,7 @@
   
   <root level="DEBUG">
     <appender-ref ref="STDOUT"/>
-    <appender-ref ref="TEST_LOG"/>
+<!--     <appender-ref ref="TEST_LOG"/> -->
   </root>
   <logger name="org.ops4j.pax.exam" level="ERROR"/> 
   
