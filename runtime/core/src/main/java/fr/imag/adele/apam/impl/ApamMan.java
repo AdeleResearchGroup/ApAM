@@ -60,37 +60,19 @@ public class ApamMan implements DependencyManager {
 	}
 
 	@Override
-	public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dep) {
+	public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences) {
 		//		Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
-		List<Filter> preferences = Util.toFilterList(dep.getInstancePreferences()) ;
-		return Select.getPrefered(resolveImpls(client, impl, dep), preferences) ;
+		List<Filter> f = Util.toFilterList(preferences) ;
+		return Select.getPrefered(resolveImpls(client, impl, constraints), f) ;
 	}
 
-	//		if ((constraints.isEmpty()) && (preferences.isEmpty())) { 
-	//			for (Instance inst : impl.getInsts()) {
-	//				if (inst.isSharable() && Util.checkInstVisible(client.getComposite(), inst))
-	//					return inst;
-	//			}
-	//			return null ;
-	//		}
-	//
-	//		Set<Instance> insts = new HashSet<Instance>();
-	//		for (Instance inst : impl.getInsts()) {
-	//			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(client.getComposite(), inst))
-	//				insts.add(inst);
-	//		}
-	//		if (!insts.isEmpty())
-	//			return Select.getPrefered(insts, preferences);
-	//		return null;
-	//	}
-
 	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dep) {
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
 
-		Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;	
+		Set<Filter> f = Util.toFilter(constraints) ;	
 		Set<Instance> insts = new HashSet<Instance>();
 		for (Instance inst : impl.getInsts()) {
-			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(client.getComposite(), inst))
+			if (inst.isSharable() && inst.match(f) && Util.checkInstVisible(client.getComposite(), inst))
 				insts.add(inst);
 		}
 		return insts;

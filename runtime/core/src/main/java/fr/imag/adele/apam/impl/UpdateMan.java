@@ -178,13 +178,13 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dep) {
+	public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences) {
 		waitComponent (impl.getName()) ;
 		return null;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dep) {
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
 		waitComponent (impl.getName());
 		return null;
 	}
