@@ -22,6 +22,8 @@ import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.options.CompositeOption;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.util.PathUtils;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -32,99 +34,202 @@ import fr.imag.adele.apam.ComponentBroker;
 
 public abstract class ExtensionAbstract extends TestUtils {
 
-    // Based on the current running, no test should take longer than 2 minute
-    @Rule
-    public TestRule globalTimeout = new ApamTimeoutRule(isDebugModeOn() ? null
-            : 120000);
+	// Based on the current running, no test should take longer than 2 minute
+	@Rule
+	public TestRule globalTimeout = new ApamTimeoutRule(isDebugModeOn() ? null
+			: 120000);
 
-    @Rule
-    public TestName name = new TestName();
+	@Rule
+	public TestName name = new TestName();
 
-    @Inject
-    public BundleContext context;
+	@Inject
+	public BundleContext context;
 
-    private Logger logger = LoggerFactory.getLogger(getClass());
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
-    public ApAMHelper apam;
+	public ApAMHelper apam;
 
-    protected ComponentBroker broker;
+	protected ComponentBroker broker;
 
-    public List<Option> config() {
+	public List<Option> config() {
 
-        List<Option> config = new ArrayList<Option>();
-        config.add(systemProperty("org.osgi.service.http.port").value("8080"));
-        config.add(cleanCaches());
-        config.add(systemProperty("logback.configurationFile").value(
-                "file:" + PathUtils.getBaseDir() + "/log/logback.xml"));
-        config.add(systemProperty(
-                "org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"));
-        config.add(mavenBundle().groupId("org.apache.felix")
-                .artifactId("org.apache.felix.ipojo").versionAsInProject());
-        config.add(mavenBundle().groupId("org.ow2.chameleon.testing")
-                .artifactId("osgi-helpers").versionAsInProject());
-        config.add(mavenBundle().groupId("org.osgi")
-                .artifactId("org.osgi.compendium").version("4.2.0"));
-        config.add(mavenBundle().groupId("org.apache.felix")
-                .artifactId("org.apache.felix.bundlerepository").versionAsInProject());
-        config.add(mavenBundle().groupId("org.ops4j.pax.url")
-                .artifactId("pax-url-mvn").versionAsInProject());
-        config.add(mavenBundle().groupId("fr.imag.adele.apam")
-                .artifactId("apam-bundle").versionAsInProject());
-        config.add(mavenBundle().groupId("fr.imag.adele.apam")
-                .artifactId("obrman").versionAsInProject());
-        config.add(mavenBundle("org.slf4j", "slf4j-api").versionAsInProject());
+		List<Option> config = new ArrayList<Option>();
+		config.add(systemProperty("org.osgi.service.http.port").value("8080"));
+		config.add(cleanCaches());
+		config.add(systemProperty("logback.configurationFile").value(
+				"file:" + PathUtils.getBaseDir() + "/log/logback.xml"));
+		config.add(systemProperty(
+				"org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"));
+		config.add(packOSGi());
+		config.add(packPax());
+		config.add(packApamCore());
+		config.add(packApamObrMan());
+		config.add(packLog());
+		config.add(junitBundles());
+				config.add(mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
+							.versionAsInProject());
+		//config.add(packAppForTestBundles());
+		config.add(packDebugConfiguration());
+		config.add(vmOption("-ea"));
 
-        config.add(mavenBundle("ch.qos.logback", "logback-core").versionAsInProject());
-        config.add(mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject());
-        config.add(junitBundles());
-        config.add(mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
-                .versionAsInProject());
+		return config;
+	}
+	
+//	 public List<Option> config() {
+//
+//	        List<Option> config = new ArrayList<Option>();
+//	        config.add(systemProperty("org.osgi.service.http.port").value("8080"));
+//	        config.add(cleanCaches());
+//	        config.add(systemProperty("logback.configurationFile").value(
+//	                "file:" + PathUtils.getBaseDir() + "/log/logback.xml"));
+//	        config.add(systemProperty(
+//	                "org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"));
+//	        config.add(mavenBundle().groupId("org.apache.felix")
+//	                .artifactId("org.apache.felix.ipojo").versionAsInProject());
+//	        config.add(mavenBundle().groupId("org.ow2.chameleon.testing")
+//	                .artifactId("osgi-helpers").versionAsInProject());
+//	        config.add(mavenBundle().groupId("org.osgi")
+//	                .artifactId("org.osgi.compendium").version("4.2.0"));
+//	        config.add(mavenBundle().groupId("org.apache.felix")
+//	                .artifactId("org.apache.felix.bundlerepository").versionAsInProject());
+//	        config.add(mavenBundle().groupId("org.ops4j.pax.url")
+//	                .artifactId("pax-url-mvn").versionAsInProject());
+//	        config.add(mavenBundle().groupId("fr.imag.adele.apam")
+//	                .artifactId("apam-bundle").versionAsInProject());
+//	        config.add(mavenBundle().groupId("fr.imag.adele.apam")
+//	                .artifactId("obrman").versionAsInProject());
+//	        config.add(mavenBundle("org.slf4j", "slf4j-api").versionAsInProject());
+//
+//	        config.add(mavenBundle("ch.qos.logback", "logback-core").versionAsInProject());
+//	        config.add(mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject());
+//	        config.add(junitBundles());
+//	        config.add(mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
+//	                .versionAsInProject());
+//
+//	        config.add(vmOption("-ea"));
+//	        config.add(when(isDebugModeOn())
+//	                .useOptions(
+//	                		vmOption(String
+//	                                .format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
+//	                                        Constants.CONST_DEBUG_PORT)),
+//	                        systemTimeout(0)));
+//
+//	        return config;
+//	    }
 
-        config.add(vmOption("-ea"));
-        config.add(when(isDebugModeOn())
-                .useOptions(
-                		vmOption(String
-                                .format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
-                                        Constants.CONST_DEBUG_PORT)),
-                        systemTimeout(0)));
+	protected CompositeOption packApamCore(){
+		
+		CompositeOption apamCoreConfig = new DefaultCompositeOption(mavenBundle().groupId("fr.imag.adele.apam")
+				.artifactId("apam-bundle").versionAsInProject());
+		
+		return apamCoreConfig;
+	}
+	
+	protected CompositeOption packApamObrMan(){
+		CompositeOption apamObrmanConfig = new DefaultCompositeOption(mavenBundle().groupId("fr.imag.adele.apam")
+				.artifactId("obrman").versionAsInProject());
+		
+		return apamObrmanConfig;
+	}
+	
+	protected CompositeOption packPax(){
+		CompositeOption paxConfig = new DefaultCompositeOption(mavenBundle().groupId("org.ops4j.pax.url")
+				.artifactId("pax-url-mvn").versionAsInProject());
+		return paxConfig;
+	}
+	
+	protected CompositeOption packOSGi(){
+		CompositeOption osgiConfig = new DefaultCompositeOption(mavenBundle().groupId("org.apache.felix")
+				.artifactId("org.apache.felix.ipojo").versionAsInProject(),
+				mavenBundle().groupId("org.ow2.chameleon.testing")
+				.artifactId("osgi-helpers").versionAsInProject(),
+				mavenBundle().groupId("org.osgi")
+				.artifactId("org.osgi.compendium").version("4.2.0"),
+				mavenBundle().groupId("org.apache.felix")
+				.artifactId("org.apache.felix.bundlerepository")
+				.versionAsInProject());
+		
+		return osgiConfig;
+				
+	}
+	
+	protected CompositeOption packLog(){
+		CompositeOption logConfig = new DefaultCompositeOption(mavenBundle("ch.qos.logback", "logback-core")
+				.versionAsInProject(),mavenBundle("ch.qos.logback", "logback-classic")
+				.versionAsInProject(),
+				mavenBundle("org.slf4j", "slf4j-api").versionAsInProject());
+		
+		return logConfig;
+	}
+	
+	protected CompositeOption packDebugConfiguration(){
+		CompositeOption debugConfig = new DefaultCompositeOption(when(isDebugModeOn())
+				.useOptions(
+						vmOption(String
+								.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
+										Constants.CONST_DEBUG_PORT)),
+						systemTimeout(0)));
+		
+		return debugConfig;
+	}
+	
+	protected CompositeOption packAppForTestBundles() {
 
-        return config;
-    }
+		CompositeOption testAppBundle = new DefaultCompositeOption(
+				mavenBundle("fr.imag.adele.apam.tests", "apam-helpers").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.messages", "messages-specifications").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private", "APP1-MainImpl").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private", "APP1-MainSpec").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private", "APP1-S1-Spec").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private", "APP1-S2-Spec").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private", "APP1-S3-Spec").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.public", "APP1-Spec").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.private", "APP2-MainImpl").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.private", "APP2-MainSpec").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.public", "APP2-Spec").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-iface").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-impl-s1").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-impl-s2").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services", "apam-pax-samples-impl-s3").versionAsInProject());
 
-    @Configuration
-    public Option[] apamConfig() {
+		return testAppBundle;
 
-        Option conf[] = config().toArray(new Option[0]);
+	}
 
-        return conf;
-    }
+	@Configuration
+	public Option[] apamConfig() {
 
-    @Before
-    public void setUp() {
-        apam = new ApAMHelper(context);
-        broker = CST.componentBroker;
-        logger.info("[Run Test : " + name.getMethodName() + "]");
-        apam.waitForIt(1000);
-    }
+		Option conf[] = config().toArray(new Option[0]);
 
-    @After
-    public void tearDown() {
-        apam.dispose();
-    }
+		return conf;
+	}
 
-    private static boolean isDebugModeOn() {
-        RuntimeMXBean RuntimemxBean = ManagementFactory.getRuntimeMXBean();
-        List<String> arguments = RuntimemxBean.getInputArguments();
+	@Before
+	public void setUp() {
+		apam = new ApAMHelper(context);
+		broker = CST.componentBroker;
+		logger.info("[Run Test : " + name.getMethodName() + "]");
+		apam.waitForIt(1000);
+	}
 
-        boolean debugModeOn = false;
+	@After
+	public void tearDown() {
+		apam.dispose();
+	}
 
-        for (String string : arguments) {
-            debugModeOn = string.indexOf("jdwp") != -1;
-            if (debugModeOn)
-                break;
-        }
+	private static boolean isDebugModeOn() {
+		RuntimeMXBean RuntimemxBean = ManagementFactory.getRuntimeMXBean();
+		List<String> arguments = RuntimemxBean.getInputArguments();
 
-        return debugModeOn;
-    }
+		boolean debugModeOn = false;
+
+		for (String string : arguments) {
+			debugModeOn = string.indexOf("jdwp") != -1;
+			if (debugModeOn)
+				break;
+		}
+
+		return debugModeOn;
+	}
 
 }

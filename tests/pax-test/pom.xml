@@ -78,171 +78,171 @@
 
 		<!-- for testing without obrman -->
 
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-bundle</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
+<!-- 			<artifactId>apam-bundle</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-core</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
+<!-- 			<artifactId>apam-core</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-declarations</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
+<!-- 			<artifactId>apam-declarations</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apform-ipojo</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
+<!-- 			<artifactId>apform-ipojo</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>dynaman</artifactId>
-			<scope>test</scope>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
+<!-- 			<artifactId>dynaman</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>obrman</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
+<!-- 			<artifactId>obrman</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests</groupId>
-			<artifactId>apam-helpers</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests</groupId> -->
+<!-- 			<artifactId>apam-helpers</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.messages</groupId>
-			<artifactId>messages-specifications</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.messages</groupId> -->
+<!-- 			<artifactId>messages-specifications</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
-			<artifactId>APP1-MainImpl</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId> -->
+<!-- 			<artifactId>APP1-MainImpl</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
-			<artifactId>APP1-MainSpec</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId> -->
+<!-- 			<artifactId>APP1-MainSpec</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
-			<artifactId>APP1-S1-Spec</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId> -->
+<!-- 			<artifactId>APP1-S1-Spec</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
-			<artifactId>APP1-S2-Spec</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId> -->
+<!-- 			<artifactId>APP1-S2-Spec</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
-			<artifactId>APP1-S3-Spec</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId> -->
+<!-- 			<artifactId>APP1-S3-Spec</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.obrman.app1.public</groupId>
-			<artifactId>APP1-Spec</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.obrman.app1.public</groupId> -->
+<!-- 			<artifactId>APP1-Spec</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.obrman.app2.private</groupId>
-			<artifactId>APP2-MainImpl</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.obrman.app2.private</groupId> -->
+<!-- 			<artifactId>APP2-MainImpl</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.obrman.app2.private</groupId>
-			<artifactId>APP2-MainSpec</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.obrman.app2.private</groupId> -->
+<!-- 			<artifactId>APP2-MainSpec</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.obrman.app2.public</groupId>
-			<artifactId>APP2-Spec</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.obrman.app2.public</groupId> -->
+<!-- 			<artifactId>APP2-Spec</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-iface</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.services</groupId> -->
+<!-- 			<artifactId>apam-pax-samples-iface</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-impl-s1</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.services</groupId> -->
+<!-- 			<artifactId>apam-pax-samples-impl-s1</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-impl-s2</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.services</groupId> -->
+<!-- 			<artifactId>apam-pax-samples-impl-s2</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
-		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-impl-s3</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam.tests.services</groupId> -->
+<!-- 			<artifactId>apam-pax-samples-impl-s3</artifactId> -->
+<!-- 			<scope>test</scope> -->
+<!-- 			<version>${project.version}</version> -->
+<!-- 		</dependency> -->
 
 
 

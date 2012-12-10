@@ -23,6 +23,7 @@ target
 obr.xml
 *-repo.xml
 ~*
+app-store.xml
 
 # apam distribution
 distributions/*-distribution/conf
