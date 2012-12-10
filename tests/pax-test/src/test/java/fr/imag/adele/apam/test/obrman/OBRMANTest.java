@@ -4,9 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 import fr.imag.adele.apam.CST;
@@ -22,22 +25,37 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(JUnit4TestRunner.class)
 public class OBRMANTest extends ExtensionAbstract{
 
+	static OBRMANHelper obrmanhelper;
   
+	@Before
+	public void constructor(){
+		obrmanhelper=new OBRMANHelper(context);
+	}
+	
+	@Override
+	public List<Option> config() {
+		List<Option> obrmanconfig=super.config();
+		obrmanconfig.add(packApamObrMan());
+		obrmanconfig.add(packAppForTestBundles());
+		
+		return obrmanconfig;
+	}
+	
     /**
      * Done some initializations.
      */
     
     @Test 
     public void testRootModel() {
-        apam.waitForIt(1000);
-        int sizebefore = apam.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
+    	obrmanhelper.waitForIt(1000);
+        int sizebefore = obrmanhelper.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE)
                 .size();
         try {
-            apam.setObrManInitialConfig("wrongfilelocation", null, 1);
+        	obrmanhelper.setObrManInitialConfig("wrongfilelocation", null, 1);
             fail("wrongfilelocation");
         } catch (IOException e) {
             assertEquals(sizebefore,
-                    apam.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE).size());
+            		obrmanhelper.getCompositeRepos(CST.ROOT_COMPOSITE_TYPE).size());
         }
     }
 
@@ -48,12 +66,12 @@ public class OBRMANTest extends ExtensionAbstract{
      */
     @Test
     public void simpleComposite() {
-        apam.waitForIt(1000);
+    	obrmanhelper.waitForIt(1000);
         CompositeType app2CompoType = null;
         try {
             String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/0.0.2-SNAPSHOT!/app-store.xml" };
-            apam.setObrManInitialConfig("rootAPPS", repos, 1);
-            app2CompoType = apam.createCompositeType("APP2",
+            obrmanhelper.setObrManInitialConfig("rootAPPS", repos, 1);
+            app2CompoType = obrmanhelper.createCompositeType("APP2",
                     "APP2_MAIN", null);
         } catch (IOException e) {
             fail(e.getMessage());
@@ -61,7 +79,7 @@ public class OBRMANTest extends ExtensionAbstract{
 
       
 
-        App2Spec app2Spec = apam.createInstance(app2CompoType, App2Spec.class);
+        App2Spec app2Spec = obrmanhelper.createInstance(app2CompoType, App2Spec.class);
 
         System.out
                 .println("\n==================Start call test=================== \n");
@@ -85,8 +103,8 @@ public class OBRMANTest extends ExtensionAbstract{
         CompositeType app1CompoType = null;
         try {
             String[] repos = { "jar:mvn:fr.imag.adele.apam.tests.obrman.repositories/public.repository/0.0.2-SNAPSHOT!/app-store.xml" };
-            apam.setObrManInitialConfig("rootAPPS", repos, 1);
-            app1CompoType = apam.createCompositeType("APP1",
+            obrmanhelper.setObrManInitialConfig("rootAPPS", repos, 1);
+            app1CompoType = obrmanhelper.createCompositeType("APP1",
                     "APP1_MAIN", null);
         } catch (IOException e) {
 
@@ -118,7 +136,7 @@ public class OBRMANTest extends ExtensionAbstract{
 
         CompositeType app1CompoType = null;
         try {
-            app1CompoType = apam.createCompositeType("APP1.2",
+            app1CompoType = obrmanhelper.createCompositeType("APP1.2",
                     "APP1_MAIN", null);
         } catch (IOException e) {
             fail(e.getMessage());
@@ -130,7 +148,7 @@ public class OBRMANTest extends ExtensionAbstract{
         assertEquals(2, root.getEmbedded().size()); // the root compositeType
                                                     // contains two composites
 
-        App1Spec app1Spec = apam.createInstance(app1CompoType, App1Spec.class);
+        App1Spec app1Spec = obrmanhelper.createInstance(app1CompoType, App1Spec.class);
 
         System.out
                 .println("\n==================Start call test=================== \n");
@@ -154,9 +172,9 @@ public class OBRMANTest extends ExtensionAbstract{
      */
     @Test
     public void missingAPP2Composite() {
-        apam.waitForIt(1000);
+    	obrmanhelper.waitForIt(1000);
         try {
-            apam.createCompositeType("APP1.2", "APP1_MAIN", null);
+        	obrmanhelper.createCompositeType("APP1.2", "APP1_MAIN", null);
         } catch (IOException e) {
             fail(e.getMessage());
         }
