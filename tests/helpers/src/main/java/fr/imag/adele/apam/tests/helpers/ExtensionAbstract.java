@@ -60,7 +60,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 		config.add(packPax());
 		config.add(packApamCore());
 		config.add(packApamObrMan());
-		//config.add(packAppForTestBundles());
+		config.add(packAppForTestBundles());
 		config.add(packLog());
 		config.add(junitBundles());
 		config.add(packDebugConfiguration());
