@@ -1,11 +1,19 @@
 package fr.imag.adele.apam.test.testcases;
 
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
+import static org.ops4j.pax.exam.CoreOptions.vmOption;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 import fr.imag.adele.apam.CST;
@@ -73,7 +81,7 @@ public class CompositeTest extends ExtensionAbstract {
 	public void CompositeTypeRetrieveServiceObject_tc030() {
 
 		CompositeType composite = CST.apam.createCompositeType(null,
-				"eletronic-device-compotype", null, "eletronic-device",
+				"eletronic-device-compotype", null, "philipsSwitch",
 				new HashSet<ManagerModel>(), new HashMap<String, String>());
 
 		Assert.assertTrue(
@@ -203,7 +211,7 @@ public class CompositeTest extends ExtensionAbstract {
 		String message=String.format(messageTemplate, "But A marked with <export implementation=false />" +
 				" allowed its instance to be used by another composite");
 //Normal !		
-//		Assert.assertTrue(message,ga.getElement() != gb.getElement());
+		Assert.assertTrue(message,ga.getElement() == gb.getElement());
 
 	}
 
@@ -276,7 +284,7 @@ public class CompositeTest extends ExtensionAbstract {
 		String message=String.format(messageTemplate, "Although, an instance from composite B was injected in composite A even if A is marked with <import implementation='false' />");
 		//The fact the implem is not visible does not mean we cannot resolve : it can be deployed again, 
 		//and it is possible to see its instances anyway !.
-//		Assert.assertTrue(message,ga.getElement() != gb.getElement());
+		Assert.assertTrue(message,ga.getElement() == gb.getElement());
 
 	}
 	
@@ -373,8 +381,8 @@ public class CompositeTest extends ExtensionAbstract {
 		auxListInstances("aaaaaaaaaaaaaaaaaaaaaaaa");
 		
 		String message= "Consider composite A, instantiated into a composite SA, and B, into a composite SB. If A declares that export nothing to all app but everything to global, the global take over, and the instances of A should be visible in B";
-	// Test faux : ce sont deux appli differentes	
-//		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
+	// Test faux ?? : ce sont deux appli differentes	
+		Assert.assertTrue(message,ga1.getElement() == ga2.getElement());
 
 	}
 	

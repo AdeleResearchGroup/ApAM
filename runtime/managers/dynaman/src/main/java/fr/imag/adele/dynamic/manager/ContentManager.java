@@ -74,7 +74,7 @@ public class ContentManager  {
 	/**
 	 * The list of waiting resolutions in this composite
 	 */
-	private List<PendingRequest<?>> waitingResolutions;
+	private List<PendingRequest> waitingResolutions;
 
 	
 	/**
@@ -102,7 +102,7 @@ public class ContentManager  {
 	 * The list of pending resolutions waiting for a grant. This is a subset
 	 * of the waiting resolutions indexed by the associated grant.
 	 */
-	private Map<GrantDeclaration, List<PendingRequest<?>>> pendingGrants;
+	private Map<GrantDeclaration, List<PendingRequest>> pendingGrants;
 	
 	
 	
@@ -219,11 +219,11 @@ public class ContentManager  {
 		/*
 		 * Initialize the list of waiting resolutions
 		 */
-		waitingResolutions	= new ArrayList<PendingRequest<?>>();
-		pendingGrants		= new HashMap<GrantDeclaration, List<PendingRequest<?>>>();
+		waitingResolutions	= new ArrayList<PendingRequest>();
+		pendingGrants		= new HashMap<GrantDeclaration, List<PendingRequest>>();
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
 			for (GrantDeclaration grant : ownedDeclaration.getGrants()) {
-				pendingGrants.put(grant, new ArrayList<PendingRequest<?>>());
+				pendingGrants.put(grant, new ArrayList<PendingRequest>());
 			}
 		}
 		
@@ -453,7 +453,7 @@ public class ContentManager  {
 		/*
 		 * try to resolve pending requests of this grant
 		 */
-		for (PendingRequest<?> request : pendingGrants.get(grant)) {
+		for (PendingRequest request : pendingGrants.get(grant)) {
 			if (request.isSatisfiedBy(ownedInstance))
 				request.resolve();
 		}
@@ -575,7 +575,7 @@ public class ContentManager  {
 	 * Try to resolve all the pending requests that are potentially satisfied by a given component
 	 */
 	private void resolveRequestsWaitingFor(Component candidate) {
-		for (PendingRequest<?> request : waitingResolutions) {
+		for (PendingRequest request : waitingResolutions) {
 			if (request.isSatisfiedBy(candidate))
 				request.resolve();
 		}
@@ -711,8 +711,8 @@ public class ContentManager  {
 		/*
 		 * update list of waiting requests
 		 */
-		List<PendingRequest<?>> removedWaitingResolutions = new ArrayList<PendingRequest<?>>();
-		for (PendingRequest<?> pendingRequest : waitingResolutions) {
+		List<PendingRequest> removedWaitingResolutions = new ArrayList<PendingRequest>();
+		for (PendingRequest pendingRequest : waitingResolutions) {
 			if (pendingRequest.getSource().equals(instance))
 				removedWaitingResolutions.add(pendingRequest);
 		}
@@ -739,7 +739,7 @@ public class ContentManager  {
 	/**
 	 * Add a new pending request in the content of the composite
 	 */
-	public synchronized void addPendingRequest(PendingRequest<?> request) {
+	public synchronized void addPendingRequest(PendingRequest request) {
 		
 		/*
 		 * add to the list of pending requests
@@ -775,7 +775,7 @@ public class ContentManager  {
 	/**
 	 * Remove a pending request from the content of the composite
 	 */
-	public synchronized void removePendingRequest(PendingRequest<?> request) {
+	public synchronized void removePendingRequest(PendingRequest request) {
 
 		waitingResolutions.remove(request);
 

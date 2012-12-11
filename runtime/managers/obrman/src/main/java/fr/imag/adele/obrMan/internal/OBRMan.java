@@ -164,12 +164,12 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Instance resolveImpl(Instance client, Implementation impl, DependencyDeclaration dep) {
+    public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences) {
         return null;
     }
 
     @Override
-    public Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dep) {
+    public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
         return null;
     }
 
@@ -291,8 +291,12 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     @Override
     public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dep, Set<Instance> insts) {
+    	Implementation impl = resolveSpec(client, dep);
+    	if (impl == null)
+    		return null;
+    	
         Set<Implementation> ret = new HashSet<Implementation>();
-        ret.add(resolveSpec(client, dep));
+        ret.add(impl);
         return ret;
     }
 

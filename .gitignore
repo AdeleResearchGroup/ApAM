@@ -23,6 +23,7 @@ target
 obr.xml
 *-repo.xml
 ~*
+app-store.xml
 
 # apam distribution
 distributions/*-distribution/conf
@@ -30,6 +31,7 @@ distributions/*-distribution/bundle
 distributions/*-distribution/felix-cache
 distributions/*-distribution/load
 distributions/*-distribution/bin
+distributions/*-distribution/log
 distributions/*-distribution/apam*
 distributions/*-distribution/log/*
 #merge files

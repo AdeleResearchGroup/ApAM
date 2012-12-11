@@ -230,16 +230,8 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     /**
      * Change the owner (enclosing composite) of this instance.
      *
-     * This is only allowed for unused instances and is the only dynamic
-     * modification of the composite hierarchy allowed so far.
-     *
-     * An owner instance must become unused again, before changing of
-     * owner.
-     *
      */
     public void setOwner(Composite owner) {
-
-        assert (isUsed() && owner == CompositeImpl.getRootAllComposites()) || ( !isUsed() && owner != null);
 
         ((CompositeImpl) getComposite()).removeInst(this);
         this.myComposite = owner;

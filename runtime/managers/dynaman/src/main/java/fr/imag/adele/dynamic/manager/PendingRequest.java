@@ -1,6 +1,5 @@
 package fr.imag.adele.dynamic.manager;
 
-import java.util.Collections;
 import java.util.Set;
 
 import fr.imag.adele.apam.Component;
@@ -16,11 +15,9 @@ import fr.imag.adele.apam.impl.ApamResolverImpl;
 /**
  * This class is used to represent the pending requests that are waiting for resolution.
  * 
- * There is one subclass of this generic request for each of the stages of the resolution
- * process where the request can be blocked
  * 
  */
-public abstract class PendingRequest<T extends Component> {
+public class PendingRequest {
 
 	/**
 	 * The source of the dependency
@@ -28,26 +25,32 @@ public abstract class PendingRequest<T extends Component> {
 	protected final Instance source;
 	
 	/**
-	 * The resolver
-	 */
-	protected final ApamResolverImpl resolver;
-	/**
 	 * The dependency to resolve
 	 */
 	protected final DependencyDeclaration dependency;
+
+	/**
+	 * The requested instances
+	 */
+	protected final Set<Instance> insts;
+	/**
+	 * The resolver
+	 */
+	protected final ApamResolverImpl resolver;
 	
 	/**
 	 * The result of the resolution
 	 */
-	private Set<T> resolution;
+	private Set<Implementation> resolution;
 
 	/**
 	 * Builds a new pending request reification
 	 */
-	protected PendingRequest(ApamResolverImpl resolver, Instance source, DependencyDeclaration dependency) {
+	protected PendingRequest(ApamResolverImpl resolver, Instance source, DependencyDeclaration dependency, Set<Instance> insts) {
 		this.resolver		= resolver;
 		this.source			= source;
 		this.dependency		= dependency;
+		this.insts			= insts;
 		this.resolution		= null;
 	}
 	
@@ -101,11 +104,11 @@ public abstract class PendingRequest<T extends Component> {
 	/**
 	 * The result of the resolution
 	 */
-	public synchronized Set<T> getResolution() {
+	public synchronized Set<Implementation> getResolution() {
 		return resolution;
 	}
 
-	private static ThreadLocal<PendingRequest<?>> current = new ThreadLocal<PendingRequest<?>>();
+	private static ThreadLocal<PendingRequest> current = new ThreadLocal<PendingRequest>();
 
 	private void beginResolve() {
 		current.set(this);
@@ -125,7 +128,7 @@ public abstract class PendingRequest<T extends Component> {
 	/**
 	 * The request that is being resolved by the current thread
 	 */
-	public static PendingRequest<?> current() {
+	public static PendingRequest current() {
 		return current.get();
 	}
 	
@@ -158,7 +161,9 @@ public abstract class PendingRequest<T extends Component> {
 	/**
 	 * Retries the resolution of the request
 	 */
-	protected abstract Set<T> retry();
+	protected Set<Implementation> retry() {
+		return resolver.resolveDependency(source, dependency, insts);
+	}
 
 	
 	/**
@@ -167,126 +172,46 @@ public abstract class PendingRequest<T extends Component> {
 	 * This is used as a hint to avoid unnecessarily retrying a resolution that is not
 	 * concerned with an event.
 	 */
-	public abstract boolean isSatisfiedBy(Component candidate);
-
-	
-	/**
-	 * This class represents an specification resolution request
-	 */
-	public static class SpecificationResolution extends PendingRequest<Implementation> {
-	
-		public SpecificationResolution(ApamResolverImpl resolver, Instance source, DependencyDeclaration dependency) {
-			super(resolver,source,dependency);
-		}
+	public boolean isSatisfiedBy(Component candidate) {
 		
-		@Override
-		protected Set<Implementation> retry() {
-			/*
-			 * First consider the case the target is a named implementation
-			 */
-			if (dependency.getTarget() instanceof ImplementationReference<?>) {
-				Implementation result = resolver.findImplByName(getSource(),dependency.getTarget().getName());
-				return result != null ? Collections.singleton(result) : null;
-			}
-			
-			/*
-			 * Next consider resolution by provided resource
-			 */
-			if (! dependency.isMultiple()) {
-				Implementation result = resolver.resolveSpecByResource(getSource(),dependency);
-				return result != null ? Collections.singleton(result) : null;
-			}
-			else {
-				return resolver.resolveDependency(getSource(),dependency, null);
-			}
-		}
-	
-		@Override
-		public boolean isSatisfiedBy(Component candidate) {
-			Implementation implementation = null;
-			
-			if (candidate instanceof Implementation)
-				implementation = (Implementation) candidate;
-			
-			if (candidate instanceof Instance)
-				implementation	= ((Instance) candidate).getImpl();
-			
-			if (implementation == null)
-				return false;
-			
-			/*
-			 * Validate the implementation matches the requested specification
-			 */
-			boolean valid = false;
-			
-			if (dependency.getTarget() instanceof ImplementationReference<?>)
-				valid = implementation.getDeclaration().getReference().equals(dependency.getTarget());
-	
-			if (dependency.getTarget() instanceof SpecificationReference)
-				valid = implementation.getSpec().getDeclaration().getReference().equals(dependency.getTarget());
-	
-			if (dependency.getTarget() instanceof ResourceReference)
-				valid = implementation.getDeclaration().getProvidedResources().contains(dependency.getTarget());
-			
-			
-			/*
-			 * TODO we could also validate constraints but this may be costly, and will be done again by
-			 * ApamMan
-			 * 
-			 * for (String constraint : getDependency().getImplementationConstraints()) {
-			 * 		if (!implementation.match(constraint))
-			 *			valid = false;
-			 * }
-			 *
-			 */
-			
-			return valid;
-		}
-
-	}
-
-	/**
-	 * This class represents an implementation resolution request
-	 */
-	public static class ImplementationResolution extends PendingRequest<Instance> {
-	
-		private final Implementation 	implementation;
+		Implementation implementation = null;
 		
-		public ImplementationResolution(ApamResolverImpl resolver, Instance source, Implementation implementation, DependencyDeclaration dependency) {
-			super(resolver,source,dependency);
-			
-			this.implementation	= implementation;
-		}
+		if (candidate instanceof Implementation)
+			implementation = (Implementation) candidate;
 		
-		@Override
-		protected Set<Instance> retry() {
-			if (dependency.isMultiple())
-				return resolver.resolveImpls(getSource(), implementation, dependency);
-			else
-				return Collections.singleton(resolver.resolveImpl(getSource(), implementation, dependency));
-		}
-	
-		@Override
-		public boolean isSatisfiedBy(Component candidate) {
-			
-			if (candidate instanceof Instance)
-				return ((Instance) candidate).getImpl().equals(implementation);
-			
-			
-			/*
-			 * TODO we could also validate constraints but this may be costly, and will be done again by
-			 * ApamMan
-			 * 
-			 * for (String constraint : getDependency().getInstanceConstraints()) {
-			 * 		if (!candidate.match(constraint))
-			 *			return false;
-			 * }
-			 *
-			 */
-			
+		if (candidate instanceof Instance)
+			implementation	= ((Instance) candidate).getImpl();
+		
+		if (implementation == null)
 			return false;
-		}
+		
+		/*
+		 * Validate the implementation matches the requested specification
+		 */
+		boolean valid = false;
+		
+		if (dependency.getTarget() instanceof ImplementationReference<?>)
+			valid = implementation.getDeclaration().getReference().equals(dependency.getTarget());
 
+		if (dependency.getTarget() instanceof SpecificationReference)
+			valid = implementation.getSpec().getDeclaration().getReference().equals(dependency.getTarget());
+
+		if (dependency.getTarget() instanceof ResourceReference)
+			valid = implementation.getAllProvidedResources().contains(dependency.getTarget());
+		
+		
+		/*
+		 * TODO we could also validate constraints but this may be costly, and will be done again by
+		 * ApamMan
+		 * 
+		 * for (String constraint : getDependency().getImplementationConstraints()) {
+		 * 		if (!implementation.match(constraint))
+		 *			valid = false;
+		 * }
+		 *
+		 */
+		
+		return valid;
 		
 	}
 
