@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.distriman;
+package fr.imag.adele.apam.distriman.internal;
 
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.util.ApamFilter;

@@ -64,4 +64,11 @@ public class InstanceDeclaration extends ComponentDeclaration {
 	public ComponentReference<?> getGroupReference() {
 		return getImplementation();
 	}
+
+
+    public static class RemoteDeclaration extends CompositeDeclaration {
+        public RemoteDeclaration(String name, SpecificationReference specification, ComponentReference<?> mainComponent) {
+            super(name, specification, mainComponent);
+        }
+    }
 }
