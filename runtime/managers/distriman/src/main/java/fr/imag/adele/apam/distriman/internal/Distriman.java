@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.distriman;
+package fr.imag.adele.apam.distriman.internal;
 
 import fr.imag.adele.apam.CST;
 import org.apache.felix.ipojo.annotations.Instantiate;
