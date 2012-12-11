@@ -144,11 +144,18 @@ public class Apform2Apam {
     	}
     	return currentRequest;
     }
-    
+
     /**
      * Wait for a future component to be deployed
      */
     public static void waitForComponent(String componentName) {
+           waitForComponent(componentName,0);
+    }
+
+    /**
+     * Wait for a future component to be deployed
+     */
+    public static void waitForComponent(String componentName, long timeout) {
 
         synchronized (Apform2Apam.expectedComponents) {
         	
@@ -158,7 +165,7 @@ public class Apform2Apam {
             try {
                 while (Apform2Apam.expectedComponents.contains(componentName)) {
                 	current.pending(componentName);
-                    Apform2Apam.expectedComponents.wait();
+                    Apform2Apam.expectedComponents.wait(timeout);
                     current.resumed();
                 }
             } catch (InterruptedException interrupted) {

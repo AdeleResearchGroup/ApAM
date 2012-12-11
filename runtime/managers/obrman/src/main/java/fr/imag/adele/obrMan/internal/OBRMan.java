@@ -84,7 +84,6 @@ public class OBRMan implements DependencyManager, OBRManCommand {
      * If forced = false (default) does not try to install if the component is allready existing.
      * 
      * @param selected
-     * @param forced
      * @return
      */
     private Component installInstantiate(Selected selected) {

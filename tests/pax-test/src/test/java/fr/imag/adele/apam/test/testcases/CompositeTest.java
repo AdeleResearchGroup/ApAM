@@ -1,11 +1,19 @@
 package fr.imag.adele.apam.test.testcases;
 
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
+import static org.ops4j.pax.exam.CoreOptions.vmOption;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
 import fr.imag.adele.apam.CST;
@@ -73,7 +81,7 @@ public class CompositeTest extends ExtensionAbstract {
 	public void CompositeTypeRetrieveServiceObject_tc030() {
 
 		CompositeType composite = CST.apam.createCompositeType(null,
-				"eletronic-device-compotype", null, "eletronic-device",
+				"eletronic-device-compotype", null, "philipsSwitch",
 				new HashSet<ManagerModel>(), new HashMap<String, String>());
 
 		Assert.assertTrue(

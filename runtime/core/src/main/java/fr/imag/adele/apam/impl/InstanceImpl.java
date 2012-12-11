@@ -160,14 +160,14 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         initializeProperties(initialproperties);
 
         /*
-        * Bind to the underlying execution platform instance
-        */
-        getApformInst().setInst(this);
-
-        /*
          * Add to broker
          */
         ((ComponentBrokerImpl) CST.componentBroker).add(this);
+
+        /*
+        * Bind to the underlying execution platform instance
+        */
+        getApformInst().setInst(this);
 
         /*
         * Notify managers

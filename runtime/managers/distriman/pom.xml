@@ -5,7 +5,7 @@
     <parent>
         <artifactId>apam-managers</artifactId>
         <groupId>fr.imag.adele.apam</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 	<artifactId>DISTRIMAN</artifactId>
@@ -42,7 +42,12 @@
 						<Bundle-Vendor>Adele/LIG/ Grenoble University, France</Bundle-Vendor>
 						<Bundle-Version>${project.version}</Bundle-Version>
                         <Import-Package>*</Import-Package>
-                        <Private-Package>fr.imag.adele.apam.distriman</Private-Package>
+                        <Private-Package>
+                            fr.imag.adele.apam.distriman,
+                            fr.imag.adele.apam.distriman.internal,
+                            fr.imag.adele.apam.distriman.disco,
+                            javax.jmdns*
+                        </Private-Package>
                         <Export-Package/>
 					</instructions>
 				</configuration>
@@ -67,7 +72,7 @@
         <dependency>
             <artifactId>apam-core</artifactId>
             <groupId>fr.imag.adele.apam</groupId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -98,6 +103,11 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.fileinstall</artifactId>
             <version>3.1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.jmdns</groupId>
+            <artifactId>jmdns</artifactId>
+            <version>3.4.1</version>
         </dependency>
     </dependencies>
 
