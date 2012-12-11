@@ -33,7 +33,7 @@ distributions/*-distribution/load
 distributions/*-distribution/bin
 distributions/*-distribution/log
 distributions/*-distribution/apam*
-distributions/*-distribution/log/*
+distributions/*-distribution/log/*.*
 #merge files
 
 *.orig
