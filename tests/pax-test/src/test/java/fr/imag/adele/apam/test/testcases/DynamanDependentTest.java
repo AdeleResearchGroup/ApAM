@@ -33,7 +33,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	public Option[] apamConfig() {
 		
 		List<Option> defaultOptions = super.config();
-		defaultOptions.add(mavenBundle("fr.imag.adele.apam", "dynaman")
+		defaultOptions.add(0, mavenBundle("fr.imag.adele.apam", "dynaman")
 				.versionAsInProject());
 		
 		return defaultOptions.toArray(new Option[0]);

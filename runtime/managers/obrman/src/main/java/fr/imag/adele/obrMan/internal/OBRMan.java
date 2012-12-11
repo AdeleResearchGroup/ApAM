@@ -27,6 +27,7 @@ import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
@@ -290,14 +291,14 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dep, Set<Instance> insts) {
+    public Resolved resolveDependency(Instance client, DependencyDeclaration dep, boolean needsInstances) {
     	Implementation impl = resolveSpec(client, dep);
     	if (impl == null)
     		return null;
     	
         Set<Implementation> ret = new HashSet<Implementation>();
         ret.add(impl);
-        return ret;
+        return new Resolved (ret, null);
     }
 
     private Implementation resolveSpec(Instance client, DependencyDeclaration dep) {

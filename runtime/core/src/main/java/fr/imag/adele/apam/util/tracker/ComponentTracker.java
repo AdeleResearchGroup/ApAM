@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.util.tracker;
 
 import fr.imag.adele.apam.*;
+
 import org.osgi.framework.Filter;
 
 import java.util.HashSet;
@@ -128,7 +129,7 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
     private class ComponentListener implements DynamicManager{
 
 
-        public void addedInApam(Component newComponent) {
+        public void addedComponent(Component newComponent) {
 
 
             if (!newComponent.match(filter)){ //nothing to do
@@ -146,7 +147,7 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
 
         }
 
-        public void removedFromApam(Component lostComponent) {
+        public void removedComponent(Component lostComponent) {
             if (!type.isInstance(lostComponent)){
                 return;
             }
@@ -157,6 +158,18 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
                 }
             }
         }
+
+		@Override
+		public void removedWire(Wire wire) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void addedWire(Wire wire) {
+			// TODO Auto-generated method stub
+			
+		}
 
     }
 }
