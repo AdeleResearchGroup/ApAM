@@ -33,7 +33,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	public Option[] apamConfig() {
 		
 		List<Option> defaultOptions = super.config();
-		defaultOptions.add(packApamDynaMan());
+		defaultOptions.add(0,packApamDynaMan());
 		
 		return defaultOptions.toArray(new Option[0]);
 	}
