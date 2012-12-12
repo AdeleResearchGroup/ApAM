@@ -110,7 +110,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				"But the exception thrown was not of the proper type (A)");
 
 		Assert.assertTrue(messageException, exception);
-//		Assert.assertTrue(messageExceptionType, exceptionType);
+		Assert.assertTrue(messageExceptionType, exceptionType);
 
 	}
 	
@@ -353,7 +353,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				"But the exception thrown was not of the proper type (A)");
 
 		Assert.assertTrue(messageException, exception);
-		//Assert.assertTrue(messageExceptionType, exceptionType);
+		Assert.assertTrue(messageExceptionType, exceptionType);
 
 	}
 	
