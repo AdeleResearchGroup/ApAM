@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><repository lastmodified="20121210024730.628">
+<?xml version="1.0" encoding="UTF-8"?><repository lastmodified="20121212124335.216">
   <resource id="APP1-Composite/0.0.2.SNAPSHOT" symbolicname="APP1-Composite" presentationname="APP1-Composite" uri="mvn:fr.imag.adele.apam.tests.obrman.app1.public/APP1-Composite/0.0.2-SNAPSHOT" version="0.0.2.SNAPSHOT">
     <size>3427</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
@@ -39,7 +39,7 @@
     <require name="package" filter="(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))" extend="false" multiple="false" optional="false">Import package org.osgi.service.cm;version=1.2</require>
   </resource>
   <resource id="APP1-Spec/0.0.2.SNAPSHOT" symbolicname="APP1-Spec" presentationname="APP1-Spec" uri="mvn:fr.imag.adele.apam.tests.obrman.app1.public/APP1-Spec/0.0.2-SNAPSHOT" version="0.0.2.SNAPSHOT">
-    <size>4082</size>
+    <size>4081</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name="bundle">
@@ -73,7 +73,7 @@
     <require name="package" filter="(&amp;(package=org.osgi.service.cm)(version&gt;=1.2.0))" extend="false" multiple="false" optional="false">Import package org.osgi.service.cm;version=1.2</require>
   </resource>
   <resource id="APP2-Composite/0.0.2.SNAPSHOT" symbolicname="APP2-Composite" presentationname="App2 Composite" uri="mvn:fr.imag.adele.apam.tests.obrman.app2.public/APP2-Composite/0.0.2-SNAPSHOT" version="0.0.2.SNAPSHOT">
-    <size>3738</size>
+    <size>3735</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name="bundle">
@@ -118,7 +118,7 @@
     <require name="apam-component" filter="(name=APP2_SPEC)" extend="false" multiple="false" optional="false">specification dependency toward APP2_SPEC</require>
   </resource>
   <resource id="APP2-Spec/0.0.2.SNAPSHOT" symbolicname="APP2-Spec" presentationname="App2 Composite Specification" uri="mvn:fr.imag.adele.apam.tests.obrman.app2.public/APP2-Spec/0.0.2-SNAPSHOT" version="0.0.2.SNAPSHOT">
-    <size>4073</size>
+    <size>4072</size>
     <documentation>http://equipes-liglab.imag.fr/adele/</documentation>
     <license>http://www.apache.org/licenses/LICENSE-2.0.html</license>
     <capability name="bundle">
