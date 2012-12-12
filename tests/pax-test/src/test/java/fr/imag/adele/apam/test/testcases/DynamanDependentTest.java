@@ -34,8 +34,6 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		
 		List<Option> defaultOptions = super.config();
 		defaultOptions.add(0,packApamDynaMan());
-
-				.versionAsInProject());
 		return defaultOptions.toArray(new Option[0]);
 	}
 
