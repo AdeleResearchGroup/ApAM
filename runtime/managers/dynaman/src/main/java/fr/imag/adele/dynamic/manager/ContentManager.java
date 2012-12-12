@@ -635,16 +635,6 @@ public class ContentManager  {
 	public synchronized void propertyChanged(Instance instance, String property) {
 
 		/*
-		 * verify if the modified instance satisfies any pending resolutions and dynamic
-		 * dependencies in this composite
-		 */
-		if (instance.isSharable() && Util.checkInstVisible(getComposite(),instance)) {
-			resolveRequestsWaitingFor(instance);
-	        resolveDynamicRequests(instance);
-		}
-
-        
-		/*
 		 * For modified contained instances
 		 */
 		if ( instance.getComposite().equals(getComposite())) {
@@ -670,6 +660,15 @@ public class ContentManager  {
 			if (stateHolder != null && stateHolder.equals(instance) && stateProperty.equals(property))
 				stateChanged(stateHolder.getProperty(stateProperty));
 
+		}
+
+		/*
+		 * verify if the modified instance satisfies any pending resolutions and dynamic
+		 * dependencies in this composite
+		 */
+		if (instance.isSharable() && Util.checkInstVisible(getComposite(),instance)) {
+			resolveRequestsWaitingFor(instance);
+	        resolveDynamicRequests(instance);
 		}
 
 	}
@@ -727,8 +726,6 @@ public class ContentManager  {
 	 * If the target of the wire is a non sharable instance, the released instance can
 	 * potentially be used by a pending requests.
 	 * 
-	 * TODO Currently there is no manager notification when a wire is removed so this
-	 * case is not being considered, change API of dynamic manager. 
 	 */
 	public synchronized void wireRemoved(Wire wire) {
 		Instance instance = wire.getDestination();

@@ -1,11 +1,10 @@
 package fr.imag.adele.dynamic.manager;
 
-import java.util.Set;
-
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -30,9 +29,10 @@ public class PendingRequest {
 	protected final DependencyDeclaration dependency;
 
 	/**
-	 * The requested instances
+	 * Whether instances must be resolved
 	 */
-	protected final Set<Instance> insts;
+	protected final boolean needsInstances;
+	
 	/**
 	 * The resolver
 	 */
@@ -41,16 +41,16 @@ public class PendingRequest {
 	/**
 	 * The result of the resolution
 	 */
-	private Set<Implementation> resolution;
+	private Resolved resolution;
 
 	/**
 	 * Builds a new pending request reification
 	 */
-	protected PendingRequest(ApamResolverImpl resolver, Instance source, DependencyDeclaration dependency, Set<Instance> insts) {
+	protected PendingRequest(ApamResolverImpl resolver, Instance source, DependencyDeclaration dependency, boolean needsInstances) {
 		this.resolver		= resolver;
 		this.source			= source;
 		this.dependency		= dependency;
-		this.insts			= insts;
+		this.needsInstances	= needsInstances;
 		this.resolution		= null;
 	}
 	
@@ -71,7 +71,44 @@ public class PendingRequest {
 	public Composite getContext() {
 		return source.getComposite();
 	}
+	
+	/**
+	 * Whether this request was resolved by the last resolution retry
+	 */
+	private boolean isResolved() {
 		
+		if (resolution == null)
+			return false;
+		
+		/*
+		 * if a matching instance was required and found, it is resolved
+		 */
+		if (needsInstances) {
+			if (resolution.instances != null && !resolution.instances.isEmpty())
+				return true;
+		}
+		
+		/*
+		 * If there is no matching implementations, it can not be resolved
+		 */
+		if (resolution.implementations == null || resolution.implementations.isEmpty())
+			return false;
+		
+		/*
+		 * If an instance is needed there must be at least one instantiable implementation, 
+		 * otherwise any matching implementation is valid 
+		 */
+		boolean hasInstantiable = false;
+		for (Implementation implementation : resolution.implementations) {
+			if (implementation.isInstantiable()) {
+				hasInstantiable = true;
+				break;
+			}
+		}				
+		
+		return needsInstances ? hasInstantiable : true;
+	}
+	
 	/**
 	 * Block the current thread until a component satisfying the request is available.
 	 * 
@@ -85,7 +122,7 @@ public class PendingRequest {
 				/*
 				 * wait for resolution
 				 */
-				while (resolution == null)
+				while (!isResolved())
 					this.wait();
 				
 				
@@ -95,19 +132,38 @@ public class PendingRequest {
 	}
 
 	/**
-	 * Tests whether this request is blocked waiting for resolution
-	 */
-	public synchronized boolean isResoved() {
-		return this.resolution != null;
-	}
-
-	/**
 	 * The result of the resolution
 	 */
-	public synchronized Set<Implementation> getResolution() {
+	public synchronized Resolved getResolution() {
 		return resolution;
 	}
 
+	/**
+	 * Tries to resolve the request and wakes up the blocked thread
+	 */
+	public void resolve() {
+
+		/*
+		 * avoid multiple concurrent resolutions
+		 */
+		if (!isResolved())
+			return;
+
+		/*
+		 * try to resolve
+		 */
+		synchronized (this) {
+			try {
+				beginResolve();
+				resolution = resolver.resolveDependency(source, dependency, needsInstances);
+				this.notifyAll();
+			} finally {
+				endResolve();
+			}
+		}
+	}
+
+	
 	private static ThreadLocal<PendingRequest> current = new ThreadLocal<PendingRequest>();
 
 	private void beginResolve() {
@@ -131,41 +187,7 @@ public class PendingRequest {
 	public static PendingRequest current() {
 		return current.get();
 	}
-	
-	/**
-	 * Tries to resolve the request and wakes up the blocked thread
-	 */
-	public void resolve() {
-
-		/*
-		 * avoid multiple concurrent resolutions
-		 */
-		if (resolution != null)
-			return;
-
-		/*
-		 * try to resolve
-		 */
-		synchronized (this) {
-			try {
-				beginResolve();
-				resolution = retry();
-				this.notifyAll();
-			} finally {
-				endResolve();
-			}
-		}
-	}
-
-	
-	/**
-	 * Retries the resolution of the request
-	 */
-	protected Set<Implementation> retry() {
-		return resolver.resolveDependency(source, dependency, insts);
-	}
-
-	
+		
 	/**
 	 * Decides whether the specified component could potentially resolve this request.
 	 * 
