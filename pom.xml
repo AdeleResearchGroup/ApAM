@@ -18,6 +18,7 @@
 		<!-- apam version -->
 		<apam.current.version>${project.version}</apam.current.version>
 
+  
 		<!-- Dependencies version -->
 		<osgi.version>4.2.0</osgi.version>
 		<felix.osgi.version>1.4.0</felix.osgi.version>
@@ -41,8 +42,12 @@
         <profile>
             <id>analyze</id>
 			<activation>
-                <property>sonar</property>
-				<value>true</value>
+
+                <property>
+                    <name>sonar</name>
+                    <value>true</value>
+                </property>
+
             </activation>
             <modules>
                 <module>runtime</module>
