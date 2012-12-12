@@ -118,8 +118,8 @@
 </node>
 </node>
 </node>
-<node CREATED="1353066000806" ID="ID_1984824160" MODIFIED="1353943097622" POSITION="left" TEXT="Composite">
-<node CREATED="1353076999720" ID="ID_1637874218" MODIFIED="1353942785446" TEXT="instantiation">
+<node CREATED="1353066000806" ID="ID_1984824160" MODIFIED="1355230810259" POSITION="left" TEXT="Composite">
+<node CREATED="1353076999720" ID="ID_1637874218" MODIFIED="1355230811828" TEXT="instantiation">
 <node CREATED="1353076702920" ID="ID_1910174465" MODIFIED="1354295603002" TEXT="should be possible to instantiate one composite-tc028">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -131,6 +131,9 @@
 </node>
 <node CREATED="1353332025894" ID="ID_1509607474" MODIFIED="1354295637086" TEXT="enclosed dependency instantiation should instantiate automatically indirect dependency-tc031">
 <icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1355230826914" ID="ID_1608610292" MODIFIED="1355230840111" TEXT="create a composite without mainimpl">
+<icon BUILTIN="button_cancel"/>
 </node>
 </node>
 <node CREATED="1353491520963" ID="ID_1528052278" MODIFIED="1353491524764" TEXT="visibility">
