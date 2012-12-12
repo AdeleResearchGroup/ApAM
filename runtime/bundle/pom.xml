@@ -26,7 +26,8 @@
                         </Bundle-Description>
                         <Private-Package>
                             fr.imag.adele.apam.impl,
-                            fr.imag.adele.apam.apformipojo.legacy
+                            fr.imag.adele.apam.apform.legacy.ipojo,
+                            fr.imag.adele.apam.apform.legacy.osgi
                         </Private-Package>
                         <Export-Package>
                             fr.imag.adele.apam,
@@ -37,19 +38,19 @@
                             fr.imag.adele.apam.message,
                             fr.imag.adele.apam.util,
                             fr.imag.adele.apam.util.tracker,
-                            fr.imag.adele.apam.apformipojo,
-                            fr.imag.adele.apam.apformipojo.handlers
+                            fr.imag.adele.apam.apform.impl,
+                            fr.imag.adele.apam.apform.impl.handlers
                         </Export-Package>
                         <IPOJO-Extension>
-                            implementation:fr.imag.adele.apam.apformipojo.ApformIpojoImplementation,
-                            composite:fr.imag.adele.apam.apformipojo.ApformIpojoCompositeType,
-                            specification:fr.imag.adele.apam.apformipojo.ApformIpojoSpecification,
-                            apam-instance:fr.imag.adele.apam.apformipojo.ApformIpojoInstanceDeclaration
+                            implementation:fr.imag.adele.apam.apform.impl.ApformImplementationImpl,
+                            composite:fr.imag.adele.apam.apform.impl.ApformCompositeTypeImpl,
+                            specification:fr.imag.adele.apam.apform.impl.ApformSpecificationImpl,
+                            apam-instance:fr.imag.adele.apam.apform.impl.ApformInstanceDeclaration
                             <!-- TODO instance:fr.imag.adele.apam.apformipojo.ApformIpojoInstanceDeclaration,
                                        : In iPojo 1.8.0 component type extension identifiers are matched without
                                        considering the namespace. This definition will then conflict with iPojo
                                        composites. From iPojo 1.8.2 this issue will be resolved and the extension
-                                       definition must include a namespace qualifier. fr.imag.adele.apam composite:fr.imag.adele.apam.composite.CompositeType -->
+                                       definition must include a namespace qualifier. fr.imag.adele.apam composite:fr.imag.adele.apam.apform.impl.ApformCompositeTypeImpl -->
                         </IPOJO-Extension>
                     </instructions>
                 </configuration>

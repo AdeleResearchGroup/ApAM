@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo;
+package fr.imag.adele.apam.apform.impl;
 
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.HandlerManager;
@@ -12,7 +12,7 @@ import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
-public class ApformIpojoSpecification extends ApformIpojoComponent implements ApformSpecification {
+public class ApformSpecificationImpl extends ApformComponentImpl implements ApformSpecification {
 
     /**
      * Build a new factory with the specified metadata
@@ -21,7 +21,7 @@ public class ApformIpojoSpecification extends ApformIpojoComponent implements Ap
      * @param metadata
      * @throws ConfigurationException
      */
-    public ApformIpojoSpecification(BundleContext context, Element metadata) throws ConfigurationException {
+    public ApformSpecificationImpl(BundleContext context, Element metadata) throws ConfigurationException {
         super(context, metadata);
 
     }
@@ -53,7 +53,7 @@ public class ApformIpojoSpecification extends ApformIpojoComponent implements Ap
     }
 
     @Override
-    public ApformIpojoInstance createApamInstance(IPojoContext context, HandlerManager[] handlers) {
+    public ApformInstanceImpl createApamInstance(IPojoContext context, HandlerManager[] handlers) {
         throw new UnsupportedOperationException("APAM specification is not instantiable");
     }
 

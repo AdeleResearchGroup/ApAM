@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo.handlers;
+package fr.imag.adele.apam.apform.impl.handlers;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
 
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
+import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
 import fr.imag.adele.apam.declarations.DependencyInjection;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 
@@ -103,7 +103,7 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
      */
     public Element getDescription() {
     	
-		Element dependencyDescription = new Element("injection", ApformIpojoComponent.APAM_NAMESPACE);
+		Element dependencyDescription = new Element("injection", ApformComponentImpl.APAM_NAMESPACE);
 		dependencyDescription.addAttribute(new Attribute("dependency", injection.getDependency().getIdentifier()));
 		dependencyDescription.addAttribute(new Attribute("target", injection.getDependency().getTarget().toString()));
 		dependencyDescription.addAttribute(new Attribute("name", injection.getName()));
@@ -121,7 +121,7 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
 		
 		dependencyDescription.addAttribute(new Attribute("resolved",Boolean.toString(!resolutions.isEmpty())));
 		for (Instance target : resolutions) {
-			Element bindingDescription = new Element("binding", ApformIpojoComponent.APAM_NAMESPACE);
+			Element bindingDescription = new Element("binding", ApformComponentImpl.APAM_NAMESPACE);
 			bindingDescription.addAttribute(new Attribute("target", target.getName()));
 			dependencyDescription.addElement(bindingDescription);
 		}
@@ -139,7 +139,7 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     }
     
     /* (non-Javadoc)
-	 * @see fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager#addTarget(fr.imag.adele.apam.Instance)
+	 * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#addTarget(fr.imag.adele.apam.Instance)
 	 */
     @Override
 	public void addTarget(Instance target) {
@@ -155,7 +155,7 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     }
 
     /* (non-Javadoc)
-	 * @see fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager#removeTarget(fr.imag.adele.apam.Instance)
+	 * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#removeTarget(fr.imag.adele.apam.Instance)
 	 */
     @Override
 	public void removeTarget(Instance target) {
@@ -170,7 +170,7 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     }
 
     /* (non-Javadoc)
-	 * @see fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager#substituteTarget(fr.imag.adele.apam.Instance, fr.imag.adele.apam.Instance)
+	 * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#substituteTarget(fr.imag.adele.apam.Instance, fr.imag.adele.apam.Instance)
 	 */
     @Override
 	public void substituteTarget(Instance oldTarget, Instance newTarget) {

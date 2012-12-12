@@ -1,11 +1,9 @@
-package fr.imag.adele.apam.apformipojo.legacy;
+package fr.imag.adele.apam.apform.legacy.osgi;
 
 import java.util.Map;
-import java.util.Properties;
 
-import org.apache.felix.ipojo.ComponentInstance;
-import org.apache.felix.ipojo.IPojoFactory;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
 
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
@@ -19,7 +17,7 @@ import fr.imag.adele.apam.declarations.InterfaceReference;
 
  *
  */
-public class ApformIPojoLegacyImplementation implements ApformImplementation {
+public class ApformOSGiImplementation implements ApformImplementation {
 
 	/**
 	 * A legacy implementation declaration
@@ -28,6 +26,8 @@ public class ApformIPojoLegacyImplementation implements ApformImplementation {
 
 		protected Declaration(String name) {
 			super(name, null);
+			
+			setInstantiable(false);
 		}
 
 		@Override
@@ -36,6 +36,7 @@ public class ApformIPojoLegacyImplementation implements ApformImplementation {
 		}
 		
 	}
+	
 	/**
 	 * A reference to a legacy declaration
 	 *
@@ -47,27 +48,29 @@ public class ApformIPojoLegacyImplementation implements ApformImplementation {
 		}
 		
 	}
+	
 	/**
-	 * The associated iPojo factory
+	 * The prototype instance used to create this implementtaion
 	 */
-	private final IPojoFactory factory;
+	private final ApformOSGiInstance prototype;
 	
 	/**
 	 * The declaration of this implementation
 	 */
 	private final ImplementationDeclaration declaration;
 	
-	public ApformIPojoLegacyImplementation(IPojoFactory factory) {
-		this.factory 		= factory;
-		this.declaration	= new Declaration(factory.getName());
-		for (String providedIntereface : factory.getComponentDescription().getprovidedServiceSpecification()) {
+	public ApformOSGiImplementation(ApformOSGiInstance prototype) {
+		this.prototype		= prototype;
+		this.declaration	= new Declaration(prototype.getDeclaration().getImplementation().getName());
+
+		for (String providedIntereface : (String[]) prototype.getServiceReference().getProperty(Constants.OBJECTCLASS)) {
 			declaration.getProvidedResources().add(new InterfaceReference(providedIntereface));
 		}
 	}
 	
 	@Override
 	public Bundle getBundle() {
-		return factory.getBundleContext().getBundle();
+		return prototype.getBundle();
 	}
 	
 	/**
@@ -75,18 +78,7 @@ public class ApformIPojoLegacyImplementation implements ApformImplementation {
 	 */
 	@Override
 	public ApformInstance createInstance(Map<String, String> initialProperties) {
-		
-		try {
-			Properties configuration = new Properties();
-			if (initialProperties != null)
-				configuration.putAll(initialProperties);
-			
-			ComponentInstance ipojoInstance = factory.createComponentInstance(configuration);
-			return new ApformIpojoLegacyInstance(ipojoInstance);
-			
-		} catch (Exception cause) {
-			throw new IllegalArgumentException(cause);
-		}
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -102,8 +94,6 @@ public class ApformIPojoLegacyImplementation implements ApformImplementation {
 
 	@Override
 	public void setProperty(String attr, String value) {
-		// TODO see if can reconfigure factory publication
-		
 	}
 
 }
