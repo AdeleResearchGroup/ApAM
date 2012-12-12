@@ -68,7 +68,7 @@ public interface DependencyManager {
 	 * @return the implementations if resolved, null otherwise
 	 * @return in insts, the valid instances, null if none.
 	 */
-	public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dependency, Set<Instance> insts);
+	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances);
 
 	/**
 	 * The instance client asks for a component given its name and type.

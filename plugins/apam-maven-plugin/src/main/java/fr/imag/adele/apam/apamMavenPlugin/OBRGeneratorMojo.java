@@ -114,6 +114,12 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
      */
     private File baseDirectory;
 
+
+    /**
+     * Contains all classes and resources
+     */
+    public static ClasspathDescriptor classpathDescriptor;
+
     /**
 	 * Execute method : this method launches the OBR generation.
 	 * 
@@ -128,14 +134,14 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 
 
 		thisBundleVersion = currentProjectVersion.replace('-', '.');
-
+        classpathDescriptor = new ClasspathDescriptor();
 		try {
 
 			getLog().info("Start bundle header manipulation");
 
 			//The jar to compile
 			List<ComponentDeclaration> components = getComponentFromJar(artifact.getFile());
-
+            classpathDescriptor.add(artifact.getFile());
 			/*
 			 * Get the definition of the components needed to compile
 			 */
@@ -158,10 +164,11 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 					VersionRange range = dependency.getVersionRange();
 					OBRGeneratorMojo.versionRange.put(dependency.getArtifactId(), range);
 					dependencies.addAll(getComponentFromJar(((Artifact) artifact).getFile()));
+                    classpathDescriptor.add(dependency.getFile());
 				}
 			}
 
-			ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencies);
+            ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencies);
 			StringBuffer obrContent = arb.writeOBRFile();
 			if (CheckObr.getFailedChecking()) {
 				throw new MojoExecutionException("Metadata Apam compilation failed.");

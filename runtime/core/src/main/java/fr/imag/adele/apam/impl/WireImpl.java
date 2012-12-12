@@ -47,4 +47,8 @@ public class WireImpl implements Wire {
         source.removeWire(this);
         destination.removeInvWire(this);
     }
+    
+
+    
+
 }

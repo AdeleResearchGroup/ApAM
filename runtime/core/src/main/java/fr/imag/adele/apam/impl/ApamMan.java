@@ -16,6 +16,7 @@ import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
@@ -149,7 +150,7 @@ public class ApamMan implements DependencyManager {
 	 */
 	@Override
 	@SuppressWarnings("unchecked") 
-	public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dep, Set<Instance> insts) {
+	public Resolved resolveDependency(Instance client, DependencyDeclaration dep, boolean needsInstances) {
 		Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints()) ;
 		Set<Implementation> impls = null ;
 		String name = dep.getTarget().getName() ;
@@ -183,12 +184,15 @@ public class ApamMan implements DependencyManager {
 		 * Select only those that satisfy the constraints (visible or not)
 		 */
 		impls = Select.getConstraintsComponents(impls, constraints);
-		if (impls == null || impls.isEmpty()) return null ;
+		if (impls == null || impls.isEmpty()) 
+			return null ;
 
 		/*
 		 * Take all the instances of these implementations satisfying the dependency constraints.
 		 */		
-		if (insts != null) {
+		Set<Instance> insts = null ;
+		if (needsInstances) {
+			insts = new HashSet<Instance> () ;
 			Set<Instance> validInsts ;
 			constraints = Util.toFilter(dep.getInstanceConstraints()) ;
 			//Compute all the instances visible and satisfying the constraints  ;
@@ -204,7 +208,10 @@ public class ApamMan implements DependencyManager {
 		
 		// returns only those implems that are visible
 		impls = Util.getVisibleImpls(client, impls) ;
-		if (dep.isMultiple()) return impls ;
+		if (impls.isEmpty() && (insts == null || insts.isEmpty()))
+				return null ;
+		if (dep.isMultiple()) 
+			return new Resolved (impls, insts) ;
 		
 		/*
 		 * If dependency is not multiple, select the best instance and implem.
@@ -215,29 +222,11 @@ public class ApamMan implements DependencyManager {
 			Instance inst = Select.selectBestInstance (impls, insts, dep) ;
 			insts.clear();
 			insts.add(inst) ;
-			return Collections.singleton(inst.getImpl()) ;
+			return new Resolved (Collections.singleton(inst.getImpl()), insts) ;
 		} 
 		List<Filter> implPreferences = Util.toFilterList(dep.getImplementationPreferences()) ;
-			return Collections.singleton(Select.getPrefered(impls, implPreferences)) ;
+		return new Resolved (Collections.singleton(Select.getPrefered(impls, implPreferences)), null) ;
 	}
-
-//	@Override
-//	public Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
-//		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
-//		if (spec == null)
-//			return null;	
-//
-//		//List of visible implementations that satisfy the constraints.
-//		Set<Implementation> candidates = resolveDependency (client, dep, null) ;
-//		if (candidates == null || candidates.isEmpty()) 
-//			return null ;	
-//		if (candidates.size() == 1) 
-//			return candidates.iterator().next() ;
-//
-//		List<Filter> instPreferences = Util.toFilterList(dep.getInstancePreferences()) ;
-//		Set<Filter> instConstraints  = Util.toFilter(dep.getInstanceConstraints()) ;
-//		return Select.getPreferedComponentFromMembers(candidates, instPreferences, instConstraints) ;
-//	}
 
 
 	@Override
@@ -246,16 +235,8 @@ public class ApamMan implements DependencyManager {
 		// do not care
 	}
 
-
 	@Override
 	public ComponentBundle findBundle(CompositeType context, String bundleSymbolicName, String componentName) {
 		return null;
 	}
-
-//	@Override
-//	public Implementation findImplByDependency(Instance client,	DependencyDeclaration dependency) {
-//		return findImplByName(client, dependency.getTarget().getName());
-//	}
-
-
 }

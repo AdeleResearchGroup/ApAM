@@ -28,7 +28,9 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.PropertyManager;
 import fr.imag.adele.apam.ResolutionException;
+import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
@@ -255,7 +257,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	
 
 	@Override
-	public void addedInApam(Component component) {
+	public void addedComponent(Component component) {
 		
 		/*
 		 * Create a content manager associated to newly created composite
@@ -319,7 +321,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	@Override
-	public void removedFromApam(Component component) {
+	public void removedComponent(Component component) {
 
 		/*
 		 * Remove the instance from the associated content manager
@@ -378,8 +380,8 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 
 	@Override
-	public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dependency, Set<Instance> insts) {
-		
+	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
+			
 		/*
 		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
 		 * the unrelated thread that triggered the recalculation
@@ -463,6 +465,19 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	public Component findComponentByName(Instance client, String compName) {
 		return null;
 	}
+
+	@Override
+	public void removedWire(Wire wire) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addedWire(Wire wire) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 
 

@@ -92,8 +92,24 @@ public class ApamManagers {
      * 
      * @return the list of known managers
      */
-    public static List<DependencyManager> getManagers() {
+    public static List<DependencyManager> getDependencyManagers() {
         return Collections.unmodifiableList(dependencyManagers);
+    }
+
+    /**
+     * 
+     * @return the list of known managers
+     */
+    public static Set<DynamicManager> getDynamicManagers() {
+        return Collections.unmodifiableSet(dynamicManagers);
+    }
+
+    /**
+     * 
+     * @return the list of known managers
+     */
+    public static Set<PropertyManager> getPropertyManagers() {
+        return Collections.unmodifiableSet(propertyManagers);
     }
 
     /**
@@ -189,13 +205,13 @@ public class ApamManagers {
      */
     public static void notifyAddedInApam(Component newComponent) {
         for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.addedInApam(newComponent);
+            manager.addedComponent(newComponent);
         }
     }
 
     public static void notifyRemovedFromApam(Component lostComponent) {
         for (DynamicManager manager : ApamManagers.dynamicManagers) {
-            manager.removedFromApam(lostComponent);
+            manager.removedComponent(lostComponent);
         }
     }
 }

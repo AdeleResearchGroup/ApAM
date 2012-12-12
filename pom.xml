@@ -37,7 +37,20 @@
 	</properties>
 
 	<profiles>
-
+<!-- Profile used to build ApAM  -->
+        <profile>
+            <id>analyze</id>
+			<activation>
+                <property>sonar</property>
+				<value>true</value>
+            </activation>
+            <modules>
+                <module>runtime</module>
+                <module>plugins</module>
+                <module>tools</module>
+				<module>tests</module>
+            </modules>
+        </profile>
         <!-- Profile used to build ApAM  -->
         <profile>
             <id>all</id>
@@ -441,6 +454,11 @@
 						</execution>
 					</executions>
 				</plugin>
+				 <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
+        <version>2.0</version>
+      </plugin>
 			</plugins>
 		</pluginManagement>
 
