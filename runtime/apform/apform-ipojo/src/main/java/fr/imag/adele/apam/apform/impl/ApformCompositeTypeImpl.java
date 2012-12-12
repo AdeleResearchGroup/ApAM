@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo;
+package fr.imag.adele.apam.apform.impl;
 
 import java.net.URL;
 import java.util.Enumeration;
@@ -13,7 +13,7 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 
-public class ApformIpojoCompositeType extends ApformIpojoImplementation implements ApformCompositeType {
+public class ApformCompositeTypeImpl extends ApformImplementationImpl implements ApformCompositeType {
 
    
     /**
@@ -28,7 +28,7 @@ public class ApformIpojoCompositeType extends ApformIpojoImplementation implemen
      * @param metadata
      * @throws ConfigurationException
      */
-    public ApformIpojoCompositeType(BundleContext context, Element metadata) throws ConfigurationException {
+    public ApformCompositeTypeImpl(BundleContext context, Element metadata) throws ConfigurationException {
         super(context, metadata);
 
         @SuppressWarnings("unchecked")

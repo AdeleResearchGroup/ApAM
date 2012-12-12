@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo;
+package fr.imag.adele.apam.apform.impl;
 
 import java.util.Properties;
 
@@ -18,7 +18,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 
-public class ApformIpojoInstanceDeclaration extends ApformIpojoComponent {
+public class ApformInstanceDeclaration extends ApformComponentImpl {
 
     /**
      * A dynamic reference to the apform implementation
@@ -34,7 +34,7 @@ public class ApformIpojoInstanceDeclaration extends ApformIpojoComponent {
     /**
      * Creates a new declaration
      */
-    public ApformIpojoInstanceDeclaration(BundleContext context, Element element) throws ConfigurationException {
+    public ApformInstanceDeclaration(BundleContext context, Element element) throws ConfigurationException {
         super(context, element);
         try {
             String classFilter		= "(" + Constants.OBJECTCLASS + "=" + Factory.class.getName() + ")";
@@ -74,7 +74,7 @@ public class ApformIpojoInstanceDeclaration extends ApformIpojoComponent {
     }
 
     @Override
-    public ApformIpojoInstance createApamInstance(IPojoContext context, HandlerManager[] handlers) {
+    public ApformInstanceImpl createApamInstance(IPojoContext context, HandlerManager[] handlers) {
         throw new UnsupportedOperationException("APAM instance declaration is not instantiable");
     }
 
@@ -110,7 +110,7 @@ public class ApformIpojoInstanceDeclaration extends ApformIpojoComponent {
 
                 Factory factory 			= (Factory) this.context.getService(reference);
                 Properties configuration	= new Properties();
-                configuration.put(ApformIpojoInstance.ATT_DECLARATION, ApformIpojoInstanceDeclaration.this.getDeclaration());
+                configuration.put(ApformInstanceImpl.ATT_DECLARATION, ApformInstanceDeclaration.this.getDeclaration());
                 iPojoInstance = factory.createComponentInstance(configuration);
 
                 return factory;

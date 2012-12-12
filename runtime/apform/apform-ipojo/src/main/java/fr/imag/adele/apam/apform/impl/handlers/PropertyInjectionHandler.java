@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo.handlers;
+package fr.imag.adele.apam.apform.impl.handlers;
 
 import java.util.Dictionary;
 
@@ -12,9 +12,9 @@ import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.apache.felix.ipojo.parser.MethodMetadata;
 import org.apache.felix.ipojo.util.Callback;
 
-import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
-import fr.imag.adele.apam.apformipojo.ApformIpojoImplementation;
-import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
+import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
+import fr.imag.adele.apam.apform.impl.ApformImplementationImpl;
+import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
@@ -31,10 +31,10 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
 	@Override
 	public void initializeComponentFactory(ComponentTypeDescription typeDesc, Element metadata) throws ConfigurationException {
 		
-    	if (!(getFactory() instanceof ApformIpojoImplementation))
+    	if (!(getFactory() instanceof ApformImplementationImpl))
     		return;
 
-    	ApformIpojoImplementation implementation	= (ApformIpojoImplementation) getFactory();
+    	ApformImplementationImpl implementation	= (ApformImplementationImpl) getFactory();
     	ImplementationDeclaration declaration		= implementation.getDeclaration();
     	
     	if (! (declaration instanceof AtomicImplementationDeclaration))
@@ -69,10 +69,10 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
          * assume metadata is correct.
          */
 
-    	if (!(getFactory() instanceof ApformIpojoImplementation))
+    	if (!(getFactory() instanceof ApformImplementationImpl))
     		return;
 
-    	ApformIpojoImplementation implementation	= (ApformIpojoImplementation) getFactory();
+    	ApformImplementationImpl implementation	= (ApformImplementationImpl) getFactory();
     	ImplementationDeclaration declaration		= implementation.getDeclaration();
     	
     	if (! (declaration instanceof AtomicImplementationDeclaration))
@@ -101,10 +101,10 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
             return value;
 		}
 		
-    	if (!(getFactory() instanceof ApformIpojoImplementation))
+    	if (!(getFactory() instanceof ApformImplementationImpl))
     		return value;
 
-    	ApformIpojoImplementation implementation	= (ApformIpojoImplementation) getFactory();
+    	ApformImplementationImpl implementation	= (ApformImplementationImpl) getFactory();
     	ImplementationDeclaration declaration		= implementation.getDeclaration();
     	
     	if (! (declaration instanceof AtomicImplementationDeclaration))
@@ -130,10 +130,10 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
             return;
 		}
 		
-    	if (!(getFactory() instanceof ApformIpojoImplementation))
+    	if (!(getFactory() instanceof ApformImplementationImpl))
     		return;
 
-    	ApformIpojoImplementation implementation	= (ApformIpojoImplementation) getFactory();
+    	ApformImplementationImpl implementation	= (ApformImplementationImpl) getFactory();
     	ImplementationDeclaration declaration		= implementation.getDeclaration();
     	
     	if (! (declaration instanceof AtomicImplementationDeclaration))
@@ -169,8 +169,8 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
         public Element getHandlerInfo() {
             Element root = super.getHandlerInfo();
 
-            if (propertyHandler.getInstanceManager() instanceof ApformIpojoInstance) {
-                ApformIpojoInstance instance = (ApformIpojoInstance) propertyHandler.getInstanceManager();
+            if (propertyHandler.getInstanceManager() instanceof ApformInstanceImpl) {
+                ApformInstanceImpl instance = (ApformInstanceImpl) propertyHandler.getInstanceManager();
                 for (PropertyDefinition definition : instance.getFactory().getDeclaration().getPropertyDefinitions()) {
                 	
                 	/*
@@ -184,11 +184,11 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
                 	String method	= definition.getCallback();
                 	String value	= instance.getApamInstance() != null ? instance.getApamInstance().getProperty(name) :  null;
                 	
-                	Element property = new Element("property", ApformIpojoComponent.APAM_NAMESPACE);
-                	property.addAttribute(new Attribute("name", ApformIpojoComponent.APAM_NAMESPACE, name));
-                	property.addAttribute(new Attribute("field", ApformIpojoComponent.APAM_NAMESPACE, field != null ? field : ""));
-                	property.addAttribute(new Attribute("method", ApformIpojoComponent.APAM_NAMESPACE, method != null ? method : ""));
-                	property.addAttribute(new Attribute("value", ApformIpojoComponent.APAM_NAMESPACE, value != null ? value : ""));
+                	Element property = new Element("property", ApformComponentImpl.APAM_NAMESPACE);
+                	property.addAttribute(new Attribute("name", ApformComponentImpl.APAM_NAMESPACE, name));
+                	property.addAttribute(new Attribute("field", ApformComponentImpl.APAM_NAMESPACE, field != null ? field : ""));
+                	property.addAttribute(new Attribute("method", ApformComponentImpl.APAM_NAMESPACE, method != null ? method : ""));
+                	property.addAttribute(new Attribute("value", ApformComponentImpl.APAM_NAMESPACE, value != null ? value : ""));
 
                 	root.addElement(property);
                 }

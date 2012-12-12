@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo.handlers;
+package fr.imag.adele.apam.apform.impl.handlers;
 
 import org.apache.felix.ipojo.FieldInterceptor;
 import org.apache.felix.ipojo.metadata.Element;
@@ -26,9 +26,9 @@ public interface DependencyInjectionManager extends FieldInterceptor {
 		 * 
 		 * The resolver can asynchronously update the dependency to modify the binding.
 	 	 *
-		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.addTarget
-		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.removeTarget
-		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.substituteTarget
+		 * @see fr.imag.adele.apam.apform.impl.InterfaceInjectionManager.addTarget
+		 * @see fr.imag.adele.apam.apform.impl.InterfaceInjectionManager.removeTarget
+		 * @see fr.imag.adele.apam.apform.impl.InterfaceInjectionManager.substituteTarget
 		 *  
 		 */
 		public void addInjection(DependencyInjectionManager injection);
@@ -41,9 +41,9 @@ public interface DependencyInjectionManager extends FieldInterceptor {
 		 *  
 		 * The resolver must call back the manager to modify the resolved target.
 		 *   
-		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.addTarget
-		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.removeTarget
-		 * @see fr.imag.adele.apam.apformipojo.InterfaceInjectionManager.substituteTarget
+		 * @see fr.imag.adele.apam.apform.impl.InterfaceInjectionManager.addTarget
+		 * @see fr.imag.adele.apam.apform.impl.InterfaceInjectionManager.removeTarget
+		 * @see fr.imag.adele.apam.apform.impl.InterfaceInjectionManager.substituteTarget
 		 *  
 		 */
 		public boolean resolve(DependencyInjectionManager injection);
