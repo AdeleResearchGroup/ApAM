@@ -15,6 +15,7 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
@@ -345,8 +346,9 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         }
 
         // creation
+        Wire wire ;
         if (getApformInst().setWire(to, depName)) {
-            Wire wire = new WireImpl(this, to, depName, hasConstraints);
+            wire = new WireImpl(this, to, depName, hasConstraints);
             wires.add(wire);
             ((InstanceImpl) to).invWires.add(wire);
         } else {
@@ -368,6 +370,11 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         if ((SpecificationImpl) getSpec() != null)
             ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
 
+        //Notify Dynamic managers that a new wire has been created
+        for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
+            manager.addedWire(wire);
+        }
+
         return true;
     }
 
@@ -376,6 +383,12 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         if (getApformInst().remWire(wire.getDestination(), wire.getDepName())) {
             wires.remove(wire);
             ((ImplementationImpl) getImpl()).removeUses(wire.getDestination().getImpl());
+            
+            //Notify Dynamic managers that a  wire has been deleted. A new resolution can be possible now.
+            for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
+                manager.removedWire(wire);
+            }
+
         } else {
             logger.error("INTERNAL ERROR: wire from " + this + " to " + wire.getDestination()
                     + " could not be removed in the real instance.");

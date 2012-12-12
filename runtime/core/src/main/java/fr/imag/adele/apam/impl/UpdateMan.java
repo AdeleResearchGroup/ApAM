@@ -20,7 +20,9 @@ import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
@@ -72,7 +74,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 			//return the composite type that physically deployed the bundle
 			CompositeType compoTypeFrom = impl.getFirstDeployed();  
 
-			List<DependencyManager> selectionPath = ApamManagers.getManagers();
+			List<DependencyManager> selectionPath = ApamManagers.getDependencyManagers();
 			logger.info("Updating implementation " + implName + " in composite " + compoTypeFrom );
 
 			ComponentBundle sel = null;
@@ -132,7 +134,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	 * @param component
 	 */
 	@Override
-	public void addedInApam(Component newComponent) {
+	public void addedComponent(Component newComponent) {
 		logger.debug("Added : " + newComponent);
 
 		/*
@@ -206,7 +208,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dep, Set<Instance> insts) {
+	public Resolved resolveDependency(Instance client, DependencyDeclaration dep, boolean needsInstances) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null) return null;
 
@@ -241,8 +243,14 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public void removedFromApam(Component lostComponent) {
+	public void removedComponent(Component lostComponent) {
 		logger.debug("Removed : " + lostComponent);
+	}
+	@Override
+	public void removedWire(Wire wire) {
+	}
+	@Override
+	public void addedWire(Wire wire) {
 	}
 
 
