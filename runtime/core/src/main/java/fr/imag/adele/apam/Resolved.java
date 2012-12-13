@@ -11,4 +11,5 @@ public class Resolved {
 		this.implementations = implementations ;
 		this.instances = instances ;
 	}
+
 }

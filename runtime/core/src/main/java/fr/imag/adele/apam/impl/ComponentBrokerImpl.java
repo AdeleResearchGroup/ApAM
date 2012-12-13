@@ -416,7 +416,7 @@ public class ComponentBrokerImpl implements ComponentBroker{
 	}
 
 	@Override
-	public Component getWaitComponent(String name) {
+	public Component getWaitComponent(String name,long timeout) {
 		Component compo = getComponent(name);
 		if ( compo != null)
 			return compo;
@@ -424,14 +424,19 @@ public class ComponentBrokerImpl implements ComponentBroker{
 		/*
 		 * If not found wait and try again 
 		 */
-		Apform2Apam.waitForComponent(name);
+		Apform2Apam.waitForComponent(name,timeout);
 		compo = getComponent(name);
 
-		if (compo == null) // should never occur
+		if (compo == null) // occur when timeout elapsed
 			logger.debug("wake up but component is not present " + name);
 
 		return compo;
 	}
+
+    @Override
+    public Component getWaitComponent(String name) {
+        return getWaitComponent(name,0);
+    }
 
 	@Override
 	public Instance getInstService(Object service) {
