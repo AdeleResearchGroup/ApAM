@@ -46,7 +46,6 @@
                             *</Import-Package>
                         <Private-Package>
                             fr.imag.adele.apam.distriman,
-                            fr.imag.adele.apam.distriman.internal,
                             fr.imag.adele.apam.distriman.disco,
                             javax.jmdns*
                         </Private-Package>

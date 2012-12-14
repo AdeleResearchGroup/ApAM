@@ -1,11 +1,9 @@
-package fr.imag.adele.apam.distriman.internal;
+package fr.imag.adele.apam.distriman;
 
 import fr.imag.adele.apam.*;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.distriman.LocalMachine;
-import fr.imag.adele.apam.distriman.RemoteMachineFactory;
 import fr.imag.adele.apam.distriman.disco.MachineDiscovery;
 import org.apache.felix.ipojo.annotations.*;
 import org.osgi.framework.BundleContext;
