@@ -42,6 +42,5 @@ public class ComponentReference <D extends ComponentDeclaration> extends Referen
 	@Override
 	protected final String getIdentifier() {
 		return getName();
-	};
-	
+	}
 }

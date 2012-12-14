@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.distriman;
 
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformCompositeType;
@@ -93,6 +94,20 @@ public class RemoteMachineFactory implements ApformCompositeType {
 
         return machine;
     }
+
+    /**
+     * @param url The RemoteMachine url
+     * @return The Instance of the composite representing the machine of given <code>url</code>
+     */
+    public Instance getRemoteMachineInstance(String url){
+        RemoteMachine machine;
+        synchronized (machines){
+            machine = machines.get(url);
+        }
+
+        return machine.getInst();
+    }
+
 
     @Override
     public ApformSpecification getSpecification() {
