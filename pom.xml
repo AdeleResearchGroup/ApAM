@@ -50,18 +50,18 @@
             </activation>
 			<properties>
 			<sonar.jdbc.url>
-                  jdbc:mysql://sonar-adele.rhcloud.com:3306/sonar?useUnicode=true&amp;characterEncoding=utf8;rewriteBatchedStatements=true
+                  jdbc:mysql://127.5.31.129:3306/sonar?useUnicode=true&amp;characterEncoding=utf8&amp;rewriteBatchedStatements=true
                 </sonar.jdbc.url>
                 <sonar.jdbc.driverClassName>com.mysql.jdbc.Driver</sonar.jdbc.driverClassName>
 				<sonar.host.url>http://sonar-adele.rhcloud.com</sonar.host.url>
-				<sonar.jdbc.username>${env.sonaruser}</sonar.jdbc.username>
-                <sonar.jdbc.password>${env.sonarpass}</sonar.jdbc.password>
+				<sonar.jdbc.username>${sonaruser}</sonar.jdbc.username>
+                <sonar.jdbc.password>${sonarpass}</sonar.jdbc.password>
 			</properties>
             <modules>
                 <module>runtime</module>
                 <module>plugins</module>
                 <module>tools</module>
-				<module>tests</module>
+				<module>tests/pax-test</module>
             </modules>
         </profile>
         <!-- Profile used to build ApAM  -->

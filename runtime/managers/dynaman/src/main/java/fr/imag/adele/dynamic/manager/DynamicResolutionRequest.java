@@ -97,22 +97,6 @@ public class DynamicResolutionRequest {
 			valid = implementation.getDeclaration().getProvidedResources().contains(dependency.getTarget()) ||
 					implementation.getSpec().getDeclaration().getProvidedResources().contains(dependency.getTarget());
 		
-		/*
-		 * TODO we could also validate constraints and visibility but this may be costly, and will be done
-		 * again by ApamMan
-		 * 
-		 * valid = valid && instance.isSharable() && Util.checkInstVisible(source.getComposite(), instance);
-		 * 
-		 * for (String constraint : dependency.getImplementationConstraints()) {
-		 * 		valid = valid && implementation.match(constraint);
-		 * }
-		 * 
-		 * for (String constraint : dependency.getInstanceConstraints()) {
-		 * 	    valid = valid && instance.match(constraint);
-		 * }
-		 *
-		 */
-		
 		return valid;
 
 	}

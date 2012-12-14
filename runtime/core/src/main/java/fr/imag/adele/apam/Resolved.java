@@ -16,4 +16,5 @@ public class Resolved {
 			this.instances = null ;
 		else this.instances = instances ;
 	}
+
 }

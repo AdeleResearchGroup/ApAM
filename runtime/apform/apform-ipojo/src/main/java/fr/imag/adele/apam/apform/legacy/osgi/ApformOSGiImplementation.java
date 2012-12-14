@@ -3,7 +3,6 @@ package fr.imag.adele.apam.apform.legacy.osgi;
 import java.util.Map;
 
 import org.osgi.framework.Bundle;
-import org.osgi.framework.Constants;
 
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
@@ -50,7 +49,7 @@ public class ApformOSGiImplementation implements ApformImplementation {
 	}
 	
 	/**
-	 * The prototype instance used to create this implementtaion
+	 * The prototype instance used to create this implementation
 	 */
 	private final ApformOSGiInstance prototype;
 	
@@ -61,11 +60,9 @@ public class ApformOSGiImplementation implements ApformImplementation {
 	
 	public ApformOSGiImplementation(ApformOSGiInstance prototype) {
 		this.prototype		= prototype;
+		
 		this.declaration	= new Declaration(prototype.getDeclaration().getImplementation().getName());
-
-		for (String providedIntereface : (String[]) prototype.getServiceReference().getProperty(Constants.OBJECTCLASS)) {
-			declaration.getProvidedResources().add(new InterfaceReference(providedIntereface));
-		}
+		declaration.getProvidedResources().add(new InterfaceReference(prototype.getRegisteredInterface()));
 	}
 	
 	@Override

@@ -222,17 +222,6 @@ public class PendingRequest {
 			valid = implementation.getAllProvidedResources().contains(dependency.getTarget());
 		
 		
-		/*
-		 * TODO we could also validate constraints but this may be costly, and will be done again by
-		 * ApamMan
-		 * 
-		 * for (String constraint : getDependency().getImplementationConstraints()) {
-		 * 		if (!implementation.match(constraint))
-		 *			valid = false;
-		 * }
-		 *
-		 */
-		
 		return valid;
 		
 	}

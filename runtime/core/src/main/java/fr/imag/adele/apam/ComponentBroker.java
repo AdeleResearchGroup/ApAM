@@ -58,7 +58,16 @@ public interface ComponentBroker {
      */
     public Component getWaitComponent(String name) ;
 
-    
+    /**
+     * If the component is not present, wait for the apparition of the component.
+     * WARNING: may be locked forever !
+     * @param name
+     * @param timeout
+     * @return
+     */
+    public Component getWaitComponent(String name,long timeout) ;
+
+
     /// specification
 
     /**

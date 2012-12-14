@@ -1,12 +1,16 @@
 package fr.imag.adele.apam.apform.legacy.osgi;
 
 
+import org.apache.felix.ipojo.Factory;
 import org.apache.felix.ipojo.Pojo;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.Validate;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
@@ -55,46 +59,46 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
     /**
      * Callback to handle instance binding
      */
-    public boolean instanceBound(ServiceReference reference) {
+    public synchronized boolean instanceBound(ServiceReference reference) {
 
     	/*
-    	 * Register instance
+    	 * Register instances associated with the reference and the implementation if needed
     	 */
-        ApformOSGiInstance apformInstance = new ApformOSGiInstance(reference);
-        Apform2Apam.newInstance(apformInstance);
-        
-        /*
-         * Create implementation when the first instance is bound
-         */
-        Implementation implementation = CST.componentBroker.getImpl(apformInstance.getDeclaration().getImplementation().getName());
-        if (implementation == null) {
-        	factoryBound(apformInstance);
-        }
+    	for (String registeredInterface : (String[]) reference.getProperty(Constants.OBJECTCLASS)) {
+           
+    		ApformOSGiInstance apformInstance = new ApformOSGiInstance(reference,registeredInterface);
+            Apform2Apam.newInstance(apformInstance);
+            
+            Implementation implementation = CST.componentBroker.getImpl(apformInstance.getDeclaration().getImplementation().getName());
+            if (implementation == null) {
+            	factoryBound(apformInstance);
+            }
 
+		}
+        
         return true;
     }
 
     /**
      * Callback to handle instance unbinding
      */
-    public void instanceUnbound(ServiceReference reference) {
+    public synchronized void instanceUnbound(ServiceReference reference) {
     	
-        Instance instance 					= CST.componentBroker.getInst(ApformOSGiInstance.getInstanceName(reference));
-        ApformOSGiInstance apformInstance 	= (ApformOSGiInstance) instance.getApformInst();
         
-    	/*
-    	 * Unregister instance
-    	 */
-    	ComponentBrokerImpl.disappearedComponent(apformInstance.getDeclaration().getName()) ;
+        for (String instanceName : ApformOSGiInstance.getInstanceNames(reference)) {
 
-        /*
-         * Unregister implementation when the last instance is unbound
-         */
-        Implementation implementation = CST.componentBroker.getImpl(apformInstance.getDeclaration().getImplementation().getName());
-        if (implementation.getInsts().isEmpty()) {
-        	factoryUnbound(apformInstance);
-        }
-    
+        	Instance instance 					= CST.componentBroker.getInst(instanceName);
+            ApformOSGiInstance apformInstance 	= (ApformOSGiInstance) instance.getApformInst();
+
+            ComponentBrokerImpl.disappearedComponent(apformInstance.getDeclaration().getName()) ;
+
+            Implementation implementation = CST.componentBroker.getImpl(apformInstance.getDeclaration().getImplementation().getName());
+            if (implementation.getInsts().isEmpty()) {
+            	factoryUnbound(apformInstance);
+            }
+
+		}
+        
     }
 
     /**
@@ -117,8 +121,14 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
      */
     @Validate
     public void start() {
-        instancesServiceTracker = new ServiceTracker(context,"*", this);
-        instancesServiceTracker.open();
+    	
+    	Filter filter;
+		try {
+			filter = context.createFilter("(" + Constants.OBJECTCLASS + "=*)");
+	        instancesServiceTracker = new ServiceTracker(context,filter, this);
+	        instancesServiceTracker.open();
+		} catch (InvalidSyntaxException ignored) {
+		}
     }
 
     /**
@@ -142,7 +152,7 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
          * ignore services that are iPojo, these are treated separately
          */
         Object service = context.getService(reference);
-        if (service instanceof Pojo)
+        if (service instanceof Pojo || service instanceof Factory)
         	return null;
         
         
@@ -166,22 +176,29 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
     @Override
     public void modifiedService(ServiceReference reference, Object service) {
 
-        /*
-         * If the service is not reified in APAM, just ignore event
-         */
-        Instance inst = CST.componentBroker.getInst(ApformOSGiInstance.getInstanceName(reference));
-        if (inst == null)
-            return;
+        for (String instanceName : ApformOSGiInstance.getInstanceNames(reference)) {
 
-        /*
-         * Otherwise propagate property changes to Apam
-         */
-        for (String key : reference.getPropertyKeys()) {
-            if (!Apform2Apam.isPlatformPrivateProperty(key)) {
-                String value = reference.getProperty(key).toString();
-                if (value != inst.getProperty(key))
-                    inst.setProperty(key, value);
+        	Instance instance = CST.componentBroker.getInst(instanceName);
+
+            /*
+             * If the service is not reified in APAM, just ignore event
+             */
+            if (instance == null)
+                continue;
+
+            /*
+             * Otherwise propagate property changes to Apam
+             */
+            for (String key : reference.getPropertyKeys()) {
+                if (!Apform2Apam.isPlatformPrivateProperty(key)) {
+                    String value = reference.getProperty(key).toString();
+                    if (value != instance.getProperty(key))
+                    	instance.setProperty(key, value);
+                }
             }
         }
-    }
+
+        }
+        
+
 }
