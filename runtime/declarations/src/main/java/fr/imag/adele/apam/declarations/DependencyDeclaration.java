@@ -85,6 +85,13 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
 
     private Boolean                                   mustHide;
 
+    /**
+     * 
+     * @param component the name of the component who had the reference
+     * @param id the id of the dependency
+     * @param isMultiple define if this dependency is multiple
+     * @param resource the resource which we should look for
+     */
     public DependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple,
             ResolvableReference resource) {
 
