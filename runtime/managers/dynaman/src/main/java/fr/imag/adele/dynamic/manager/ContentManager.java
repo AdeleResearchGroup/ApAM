@@ -16,6 +16,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
@@ -444,9 +445,18 @@ public class ContentManager  {
 		 * revoke all non granted wires
 		 */
 		for (Wire incoming : ownedInstance.getInvWires()) {
-			boolean granted	= 	incoming.getSource().getImpl().getDeclaration().getDependency(grant.getDependency()) != null ||
-								incoming.getSource().getSpec().getDeclaration().getDependency(grant.getDependency()) != null;
-			if (! granted)
+			
+			ComponentReference<?> sourceImplementation	= incoming.getSource().getImpl().getDeclaration().getReference();
+			ComponentReference<?> sourceSpecification	= incoming.getSource().getSpec().getDeclaration().getReference();
+			String sourceDependency						= incoming.getDepName();
+			
+			ComponentReference<?> grantSource			= grant.getDependency().getDeclaringComponent();
+			String grantDependency						= grant.getDependency().getIdentifier();
+			
+			boolean matchSource 						= grantSource.equals(sourceImplementation) || grantSource.equals(sourceSpecification);
+			boolean matchDependency						= grantDependency.equals(sourceDependency);
+
+			if (!matchSource || !matchDependency)
 				incoming.remove();
 		}
 
@@ -744,29 +754,32 @@ public class ContentManager  {
 		waitingResolutions.add(request);
 		
 		/*
-		 * Verify if the request corresponds to a grant for an owned instance, and
-		 * index it to accelerate scheduling of grants
+		 * Verify if the request corresponds to a grant for an owned instance
 		 */
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
+
+			GrantDeclaration currentGrant = granted.get(ownedDeclaration);
+
 			for (GrantDeclaration grant :ownedDeclaration.getGrants()) {
 				
+				ComponentReference<?> sourceImplementation	= request.getSource().getImpl().getDeclaration().getReference();
+				ComponentReference<?> sourceSpecification	= request.getSource().getSpec().getDeclaration().getReference();
+				String sourceDependency						= request.getDependency().getIdentifier();
+				
+				ComponentReference<?> grantSource			= grant.getDependency().getDeclaringComponent();
+				String grantDependency						= grant.getDependency().getIdentifier();
+				
+				boolean matchSource 						= grantSource.equals(sourceImplementation) || grantSource.equals(sourceSpecification);
+				boolean matchDependency						= grantDependency.equals(sourceDependency);
+
 				/*
-				 * TODO BUG This test may fail if the resolution dependency is defined in the
-				 * specification or refined in the instance. Dependency declaration equality
-				 * is defined based on the name of the dependency PLUS the defining component.
-				 * 
-				 * Comparing only the name of the dependency is not correct. Because it is 
-				 * possible, and frequent, to have dependencies with the same name in different
-				 * implementations or specifications.
-				 * 
-				 * The right test will be to get the actual implementation of the  source instance
-				 * of the resolution and compare it to grant.getDependency().getDeclaringComponent(),
-				 * but this information currently is not available in the dependency manager API 
-				 * 
-				 * TODO BUG if the grant is currently active preempt any non granted wires
+				 * add request to list of pending grants and try to preempt the owned instances
 				 */
-				if (request.getDependency().equals(grant.getDependency()))
+				if (matchSource && matchDependency) {
 					pendingGrants.get(grant).add(request);
+					if (currentGrant != null && currentGrant.equals(grant))
+						preempt(ownedDeclaration, grant);
+				}
 			}
 		}
 	}
