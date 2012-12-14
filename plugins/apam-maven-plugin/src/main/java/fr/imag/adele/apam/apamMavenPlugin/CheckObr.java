@@ -371,7 +371,7 @@ public class CheckObr {
 			
 			//Checking if the exception is existing
 			String except = dep.getMissingException() ;
-			if (OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(except) == null) {
+			if (except!=null && OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(except) == null) {
 				error ("Exception " + except + " undefined in dependency " + dep) ;
 			}
 		}
@@ -778,7 +778,7 @@ public class CheckObr {
 				
 				//Checking if the exception is existing
 				String except = pol.getMissingException() ;
-				if (OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(except) == null) {
+				if (except != null && OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(except) == null) {
 					error ("Exception " + except + " undefined in generic dependency " + pol) ;
 				}
 
