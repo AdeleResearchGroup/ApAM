@@ -53,6 +53,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     private final BundleContext           m_context;
 
+    private long timeout = 10000;
+
     /**
      * OBRMAN activated, register with APAM
      */
@@ -107,7 +109,14 @@ public class OBRMan implements DependencyManager, OBRManCommand {
                 return null;
             }
             // waiting for the component to be ready in Apam.
-            c = CST.componentBroker.getWaitComponent(name);
+            c = CST.componentBroker.getWaitComponent(name,timeout);
+            if (c!=null &&c instanceof Implementation){
+                for (String instanceName : selected.getInstancesOfSelectedImpl()) {
+                    CST.componentBroker.getWaitComponent(instanceName,timeout);
+                }
+            }
+
+                 
         } else { // do not install twice.
             // It is a logical deployment. The already existing component is not visible !
             // System.err.println("Logical deployment of : " + name + " found by OBRMAN but allready deployed.");
@@ -295,9 +304,13 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     	if (impl == null)
     		return null;
     	
-        Set<Implementation> ret = new HashSet<Implementation>();
-        ret.add(impl);
-        return new Resolved (ret, null);
+        Set<Implementation> implementations = new HashSet<Implementation>();
+        implementations.add(impl);
+        Set<Instance> instances = null;
+        if (needsInstances){
+            instances = impl.getInsts();
+        }
+        return new Resolved (implementations, instances);
     }
 
     private Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
