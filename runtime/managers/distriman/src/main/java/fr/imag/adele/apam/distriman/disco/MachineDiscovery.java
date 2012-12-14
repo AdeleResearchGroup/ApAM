@@ -1,16 +1,23 @@
 package fr.imag.adele.apam.distriman.disco;
 
-import fr.imag.adele.apam.distriman.RemoteMachineFactory;
-import org.apache.felix.ipojo.annotations.*;
-import org.osgi.framework.BundleContext;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.UUID;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.UUID;
+
+import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Instantiate;
+import org.apache.felix.ipojo.annotations.Invalidate;
+import org.apache.felix.ipojo.annotations.Property;
+import org.apache.felix.ipojo.annotations.Requires;
+import org.apache.felix.ipojo.annotations.Validate;
+import org.osgi.framework.BundleContext;
+
+import fr.imag.adele.apam.distriman.NodePool;
 
 /**
  * <p>The MachineDiscovery component allows for the discovery of other
@@ -58,14 +65,15 @@ public class MachineDiscovery implements ServiceListener {
     private String name = UUID.randomUUID().toString();
 
 
-    private final RemoteMachineFactory machineFactory;
+    @Requires
+    private NodePool machineFactory;
 
     /**
      * @param context The BundleContext injected by iPOJO.
      */
     public MachineDiscovery(BundleContext context) {
         this.context = context;
-        this.machineFactory = new RemoteMachineFactory(context); //singleton
+        //this.machineFactory = new RemoteMachineFactory(context); //singleton
     }
 
     /**

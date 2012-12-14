@@ -1,17 +1,20 @@
 package fr.imag.adele.apam.distriman;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Instantiate;
+import org.apache.felix.ipojo.annotations.Provides;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.impl.ComponentImpl;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * ApformCompositeType of and the factory of RemoteMachine.
@@ -19,7 +22,11 @@ import java.util.Set;
  *
  * @ThreadSafe
  */
-public class RemoteMachineFactory implements ApformCompositeType {
+
+@Component
+@Instantiate
+@Provides
+public class RemoteMachineFactory implements NodePool,ApformCompositeType {
     private static String PROP_MY_NAME = "DistriManMachine";
 
     private final CompositeDeclaration declaration;
@@ -40,7 +47,7 @@ public class RemoteMachineFactory implements ApformCompositeType {
         declaration.setInstantiable(false);
 
         //Add the ApformCompositeType to Apam
-        Apform2Apam.newImplementation(this);
+        //Apform2Apam.newImplementation(this);
     }
 
     @Override
@@ -108,4 +115,8 @@ public class RemoteMachineFactory implements ApformCompositeType {
     public Bundle getBundle() {
         return my_context.getBundle();
     }
+
+	public Map<String, RemoteMachine> getMachines() {
+		return machines;
+	}
 }
