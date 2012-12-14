@@ -34,8 +34,6 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		
 		List<Option> defaultOptions = super.config();
 		defaultOptions.add(0,packApamDynaMan());
-
-				.versionAsInProject());
 		return defaultOptions.toArray(new Option[0]);
 	}
 
@@ -112,7 +110,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				"But the exception thrown was not of the proper type (A)");
 
 		Assert.assertTrue(messageException, exception);
-//		Assert.assertTrue(messageExceptionType, exceptionType);
+		Assert.assertTrue(messageExceptionType, exceptionType);
 
 	}
 	
@@ -355,7 +353,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				"But the exception thrown was not of the proper type (A)");
 
 		Assert.assertTrue(messageException, exception);
-		//Assert.assertTrue(messageExceptionType, exceptionType);
+		Assert.assertTrue(messageExceptionType, exceptionType);
 
 	}
 	

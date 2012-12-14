@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo.legacy;
+package fr.imag.adele.apam.apform.legacy.ipojo;
 
 import java.util.Properties;
 
@@ -13,7 +13,7 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 
-public class ApformIpojoLegacyInstance implements ApformInstance {
+public class ApformIpojoInstance implements ApformInstance {
 
     /**
      * The iPojo instance represented by this proxy
@@ -35,9 +35,9 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
      * 
      * @param ipojoInstance
      */
-    public ApformIpojoLegacyInstance(ComponentInstance ipojoInstance) {
+    public ApformIpojoInstance(ComponentInstance ipojoInstance) {
         this.ipojoInstance = ipojoInstance;
-        ImplementationReference<?> implementation = new ApformIPojoLegacyImplementation.Reference(ipojoInstance
+        ImplementationReference<?> implementation = new ApformIPojoImplementation.Reference(ipojoInstance
                 .getFactory().getName());
         this.declaration = new InstanceDeclaration(implementation, ipojoInstance.getInstanceName(), null);
     }
@@ -47,7 +47,7 @@ public class ApformIpojoLegacyInstance implements ApformInstance {
      * 
      * @param ipojoInstance
      */
-    public ApformIpojoLegacyInstance(ComponentInstance ipojoInstance, ServiceReference reference) {
+    public ApformIpojoInstance(ComponentInstance ipojoInstance, ServiceReference reference) {
         this(ipojoInstance);
 
         /*

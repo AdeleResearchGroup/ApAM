@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo;
+package fr.imag.adele.apam.apform.impl;
 
 import java.util.Dictionary;
 import java.util.Iterator;
@@ -21,9 +21,9 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.apform.ApformComponent;
-import fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionHandler;
-import fr.imag.adele.apam.apformipojo.handlers.MessageProviderHandler;
-import fr.imag.adele.apam.apformipojo.handlers.PropertyInjectionHandler;
+import fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionHandler;
+import fr.imag.adele.apam.apform.impl.handlers.MessageProviderHandler;
+import fr.imag.adele.apam.apform.impl.handlers.PropertyInjectionHandler;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
@@ -37,9 +37,9 @@ import fr.imag.adele.apam.util.CoreMetadataParser;
 import fr.imag.adele.apam.util.CoreMetadataParser.IntrospectionService;
 import fr.imag.adele.apam.util.CoreParser;
 
-public abstract class ApformIpojoComponent extends ComponentFactory implements ApformComponent, IntrospectionService, CoreParser.ErrorHandler {
+public abstract class ApformComponentImpl extends ComponentFactory implements ApformComponent, IntrospectionService, CoreParser.ErrorHandler {
 
-    public ApformIpojoComponent(BundleContext context, Element element) throws ConfigurationException {
+    public ApformComponentImpl(BundleContext context, Element element) throws ConfigurationException {
         super(context,element);
         apamTracker = new ApamTracker(context);
     }
@@ -80,7 +80,7 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
         /**
          * Creates the Apam Implementation Description.
          */
-        protected Description(ApformIpojoComponent factory) {
+        protected Description(ApformComponentImpl factory) {
             super(factory);
 
             for (InterfaceReference providedInterface : getFactory().getDeclaration().getProvidedResources(InterfaceReference.class)) {
@@ -95,8 +95,8 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
          * Redefines with covariant result type.
          **/
         @Override
-        public ApformIpojoComponent getFactory() {
-            return (ApformIpojoComponent) super.getFactory();
+        public ApformComponentImpl getFactory() {
+            return (ApformComponentImpl) super.getFactory();
         }
 
         /**
@@ -279,7 +279,7 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
      * TODO  Notice that for Apam an instance declaration is a kind of component, but from Ipojo point
      * of view it is a factory, so this may seem misguiding
      */
-    public abstract ApformIpojoInstance createApamInstance(IPojoContext context, HandlerManager[] handlers);
+    public abstract ApformInstanceImpl createApamInstance(IPojoContext context, HandlerManager[] handlers);
 
     /**
      * Creates an instance.
@@ -299,7 +299,7 @@ public abstract class ApformIpojoComponent extends ComponentFactory implements A
         /*
            * Create a native APAM instance and configure it.
            */
-        ApformIpojoInstance instance = createApamInstance(context,handlers);
+        ApformInstanceImpl instance = createApamInstance(context,handlers);
 
         try {
             instance.configure(m_componentMetadata, configuration);

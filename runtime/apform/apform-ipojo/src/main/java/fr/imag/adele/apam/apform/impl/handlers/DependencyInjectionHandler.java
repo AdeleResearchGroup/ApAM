@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo.handlers;
+package fr.imag.adele.apam.apform.impl.handlers;
 
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -15,8 +15,8 @@ import org.apache.felix.ipojo.parser.MethodMetadata;
 import org.apache.felix.ipojo.util.Callback;
 import org.osgi.service.wireadmin.WireAdmin;
 
-import fr.imag.adele.apam.apformipojo.ApformIpojoImplementation;
-import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
+import fr.imag.adele.apam.apform.impl.ApformImplementationImpl;
+import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.CallbackMethod;
 import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
@@ -62,10 +62,10 @@ public class DependencyInjectionHandler extends ApformHandler {
          * assume metadata is correct.
          */
 
-        if (!(getFactory() instanceof ApformIpojoImplementation))
+        if (!(getFactory() instanceof ApformImplementationImpl))
             return;
 
-        ApformIpojoImplementation implementation = (ApformIpojoImplementation) getFactory();
+        ApformImplementationImpl implementation = (ApformImplementationImpl) getFactory();
         ImplementationDeclaration declaration = implementation.getDeclaration();
 
         if (!(declaration instanceof AtomicImplementationDeclaration))
@@ -105,7 +105,7 @@ public class DependencyInjectionHandler extends ApformHandler {
         }
 
         /*
-         * Load Bind Unbind callback into the ApformIpojoInstance
+         * Load Bind Unbind callback into the ApformInstanceImpl
          */
         for (DependencyDeclaration dependencyDeclaration : primitive.getDependencies()) {
             loadBindUnbindCallback(primitive, dependencyDeclaration, CallbackTrigger.Bind);
@@ -154,8 +154,8 @@ public class DependencyInjectionHandler extends ApformHandler {
         public Element getHandlerInfo() {
             Element root = super.getHandlerInfo();
 
-            if (dependencyHandler.getInstanceManager() instanceof ApformIpojoInstance) {
-                ApformIpojoInstance instance = (ApformIpojoInstance) dependencyHandler.getInstanceManager();
+            if (dependencyHandler.getInstanceManager() instanceof ApformInstanceImpl) {
+                ApformInstanceImpl instance = (ApformInstanceImpl) dependencyHandler.getInstanceManager();
                 for (DependencyInjectionManager dependency : instance.getInjections()) {
                     root.addElement(dependency.getDescription());
                 }

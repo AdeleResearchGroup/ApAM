@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo.handlers;
+package fr.imag.adele.apam.apform.impl.handlers;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.apformipojo.ApformIpojoComponent;
-import fr.imag.adele.apam.apformipojo.ApformIpojoInstance;
+import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
+import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
 import fr.imag.adele.apam.declarations.DependencyInjection;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.message.Message;
@@ -58,12 +58,12 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     /**
      * The source component of the dependency
      */
-    private final ApformIpojoComponent  component;
+    private final ApformComponentImpl  component;
     
     /**
      * The associated resolver
      */
-    private final ApformIpojoInstance   instance;
+    private final ApformInstanceImpl   instance;
     
     /**
      * The dependency injection managed by this dependency
@@ -120,7 +120,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     private ApAMQueue<Object> fieldBuffer;
     
     
-    public MessageInjectionManager(ApformIpojoComponent component, ApformIpojoInstance instance, DependencyInjection injection) throws ConfigurationException {
+    public MessageInjectionManager(ApformComponentImpl component, ApformInstanceImpl instance, DependencyInjection injection) throws ConfigurationException {
         
         assert injection.getResource() instanceof MessageReference;
         
@@ -177,7 +177,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
      */
     public Element getDescription() {
 
-        Element consumerDescription = new Element("injection", ApformIpojoComponent.APAM_NAMESPACE);
+        Element consumerDescription = new Element("injection", ApformComponentImpl.APAM_NAMESPACE);
         consumerDescription.addAttribute(new Attribute("dependency", injection.getDependency().getIdentifier()));
         consumerDescription.addAttribute(new Attribute("target", injection.getDependency().getTarget().toString()));
         consumerDescription.addAttribute(new Attribute("field", injection.getName()));
@@ -201,7 +201,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
 
         for (Wire wire : resolutions) {
             
-            Element wireInfo = new Element("wire",ApformIpojoComponent.APAM_NAMESPACE);
+            Element wireInfo = new Element("wire",ApformComponentImpl.APAM_NAMESPACE);
             wireInfo.addAttribute(new Attribute("producer.id",(String)wire.getProperties().get(WireConstants.WIREADMIN_PRODUCER_PID)));
             wireInfo.addAttribute(new Attribute("flavors",Arrays.toString(wire.getFlavors())));
             consumerDescription.addElement(wireInfo);
@@ -220,7 +220,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
      * requested handler
      */
     @SuppressWarnings("unchecked")
-    private static <T extends Handler> T getHandler(ApformIpojoInstance instance, String namespace, String handlerId) {
+    private static <T extends Handler> T getHandler(ApformInstanceImpl instance, String namespace, String handlerId) {
         String qualifiedHandlerId = namespace+":"+handlerId;
         return (T) instance.getHandler(qualifiedHandlerId);
         
@@ -266,7 +266,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
      * 
      */
     private WireAdmin getWireAdmin() {
-        DependencyInjectionHandler handler = getHandler(ApformIpojoComponent.APAM_NAMESPACE,DependencyInjectionHandler.NAME);
+        DependencyInjectionHandler handler = getHandler(ApformComponentImpl.APAM_NAMESPACE,DependencyInjectionHandler.NAME);
         return handler.getWireAdmin();
     }
 
@@ -314,13 +314,13 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
      * instance
      */
     public MessageProducerIdentifier getMessageProducer(Instance target) {
-        MessageProviderHandler providerHandler = getHandler((ApformIpojoInstance)target.getApformInst(),ApformIpojoComponent.APAM_NAMESPACE,MessageProviderHandler.NAME);
+        MessageProviderHandler providerHandler = getHandler((ApformInstanceImpl)target.getApformInst(),ApformComponentImpl.APAM_NAMESPACE,MessageProviderHandler.NAME);
         return new MessageProducerIdentifier(providerHandler.getProviderId(),providerHandler.getProducerId());
     }
     
      
     /* (non-Javadoc)
-     * @see fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager#addTarget(fr.imag.adele.apam.Instance)
+     * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#addTarget(fr.imag.adele.apam.Instance)
      */
     @Override
     public void addTarget(Instance target) {
@@ -338,7 +338,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
                 properties.put(WireConstants.WIREADMIN_CONSUMER_FLAVORS,messageFlavors);
                 properties.put("service.pid",consumerId);
                 
-                MessageProviderHandler providerHandler = getHandler(ApformIpojoComponent.APAM_NAMESPACE,MessageProviderHandler.NAME);
+                MessageProviderHandler providerHandler = getHandler(ApformComponentImpl.APAM_NAMESPACE,MessageProviderHandler.NAME);
                 consumer = providerHandler.getHandlerManager().getContext().registerService(Consumer.class.getCanonicalName(), this, properties);
             }
             
@@ -361,7 +361,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     }
 
     /* (non-Javadoc)
-     * @see fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager#removeTarget(fr.imag.adele.apam.Instance)
+     * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#removeTarget(fr.imag.adele.apam.Instance)
      */
     @Override
     public void removeTarget(Instance target) {
@@ -393,7 +393,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     }
 
     /* (non-Javadoc)
-     * @see fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager#substituteTarget(fr.imag.adele.apam.Instance, fr.imag.adele.apam.Instance)
+     * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#substituteTarget(fr.imag.adele.apam.Instance, fr.imag.adele.apam.Instance)
      */
     @Override
     public void substituteTarget(Instance oldTarget, Instance newTarget) {

@@ -320,6 +320,11 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		}
 	}
 
+
+	@Override
+	public void addedWire(Wire wire) {
+	}
+
 	@Override
 	public void removedComponent(Component component) {
 
@@ -341,6 +346,16 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		}
 		
 		
+	}
+
+	@Override
+	public void removedWire(Wire wire) {
+		/*
+		 * Update the contents of all impacted composites
+		 */
+		for (ContentManager manager : contentManagers.values()) {
+			manager.wireRemoved(wire);
+		}
 	}
 
 	public void propertyChanged(Instance instance, String property) {		
@@ -403,7 +418,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			}
 			
 			case WAIT : {
-				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver,client, dependency, insts);
+				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver, client, dependency, needsInstances);
 				block(request);
 				return request.getResolution();
 			}
@@ -465,20 +480,5 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	public Component findComponentByName(Instance client, String compName) {
 		return null;
 	}
-
-	@Override
-	public void removedWire(Wire wire) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addedWire(Wire wire) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
 
 }

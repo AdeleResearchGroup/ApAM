@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo;
+package fr.imag.adele.apam.apform.impl;
 
 
 import java.util.Map;
@@ -21,7 +21,7 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
-public class ApformIpojoImplementation extends ApformIpojoComponent implements ApformImplementation {
+public class ApformImplementationImpl extends ApformComponentImpl implements ApformImplementation {
 
     /**
      * The specification provided by this implementation
@@ -35,7 +35,7 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
      * @param metadata
      * @throws ConfigurationException
      */
-    public ApformIpojoImplementation(BundleContext context, Element metadata) throws ConfigurationException {
+    public ApformImplementationImpl(BundleContext context, Element metadata) throws ConfigurationException {
         super(context, metadata);
     }
 
@@ -111,14 +111,14 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
     public ApformInstance createInstance(Map<String, String> initialproperties) throws ComponentImpl.InvalidConfiguration {
         try {
 
-            ApformIpojoInstance instance = null;
+            ApformInstanceImpl instance = null;
 
             try {
                 insideApamCall.set(true);
                 Properties configuration = new Properties();
                 if (initialproperties != null)
                     configuration.putAll(initialproperties);
-                instance = (ApformIpojoInstance) createComponentInstance(configuration);
+                instance = (ApformInstanceImpl) createComponentInstance(configuration);
             } finally {
                 insideApamCall.set(false);
             }
@@ -138,8 +138,8 @@ public class ApformIpojoImplementation extends ApformIpojoComponent implements A
      * NOTE this method can be called by APAM or from an iPojo instance declaration
      */
     @Override
-    public ApformIpojoInstance createApamInstance(IPojoContext context, HandlerManager[] handlers) {
-        return new ApformIpojoInstance(this, isApamCall(), context, handlers);
+    public ApformInstanceImpl createApamInstance(IPojoContext context, HandlerManager[] handlers) {
+        return new ApformInstanceImpl(this, isApamCall(), context, handlers);
     }
 
     @Override

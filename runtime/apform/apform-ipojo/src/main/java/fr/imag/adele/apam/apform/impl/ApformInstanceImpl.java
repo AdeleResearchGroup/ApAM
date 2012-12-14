@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.apformipojo;
+package fr.imag.adele.apam.apform.impl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
@@ -30,7 +30,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.apformipojo.handlers.DependencyInjectionManager;
+import fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.CallbackMethod;
 import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
@@ -39,7 +39,7 @@ import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
-public class ApformIpojoInstance extends InstanceManager implements ApformInstance, DependencyInjectionManager.Resolver {
+public class ApformInstanceImpl extends InstanceManager implements ApformInstance, DependencyInjectionManager.Resolver {
 
     /**
      * The property used to configure this instance with its declaration
@@ -81,7 +81,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
      */
     Map<CallbackTrigger, Map<String, Set<Callback>>> dependencyCallback;
 
-    public ApformIpojoInstance(ApformIpojoImplementation implementation, boolean isApamCreated, BundleContext context,
+    public ApformInstanceImpl(ApformImplementationImpl implementation, boolean isApamCreated, BundleContext context,
                                HandlerManager[] handlers) {
 
         super(implementation, context, handlers);
@@ -123,8 +123,8 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     }
 
     @Override
-    public ApformIpojoImplementation getFactory() {
-        return (ApformIpojoImplementation) super.getFactory();
+    public ApformImplementationImpl getFactory() {
+        return (ApformImplementationImpl) super.getFactory();
     }
 
     @Override
@@ -143,7 +143,7 @@ public class ApformIpojoInstance extends InstanceManager implements ApformInstan
     public void configure(Element metadata, Dictionary configuration) throws ConfigurationException {
 
         String instanceName = (String) configuration.get("instance.name");
-        declaration = (InstanceDeclaration) configuration.get(ApformIpojoInstance.ATT_DECLARATION);
+        declaration = (InstanceDeclaration) configuration.get(ApformInstanceImpl.ATT_DECLARATION);
 
         if (isApamCreated || (declaration == null)) {
             declaration = new InstanceDeclaration(getFactory().getDeclaration().getReference(), instanceName, null);
