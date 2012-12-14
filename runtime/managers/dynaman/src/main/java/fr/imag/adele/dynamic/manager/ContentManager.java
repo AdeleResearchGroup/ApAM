@@ -762,6 +762,8 @@ public class ContentManager  {
 				 * The right test will be to get the actual implementation of the  source instance
 				 * of the resolution and compare it to grant.getDependency().getDeclaringComponent(),
 				 * but this information currently is not available in the dependency manager API 
+				 * 
+				 * TODO BUG if the grant is currently active preempt any non granted wires
 				 */
 				if (request.getDependency().equals(grant.getDependency()))
 					pendingGrants.get(grant).add(request);
