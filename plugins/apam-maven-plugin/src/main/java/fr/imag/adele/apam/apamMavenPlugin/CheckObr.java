@@ -368,6 +368,12 @@ public class CheckObr {
 			if (dep.isEager() != null || dep.isHide() != null) {
 				CheckObr.error("Cannot set flags \"eager\" or \"hide\" on a dependency " + dep.getIdentifier());
 			}
+			
+			//Checking if the exception is existing
+			String except = dep.getMissingException() ;
+			if (OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(except) == null) {
+				error ("Exception " + except + " undefined in dependency " + dep) ;
+			}
 		}
 	}
 
@@ -769,6 +775,13 @@ public class CheckObr {
 				for (String constraint : pol.getInstancePreferences()) {
 					ApamFilter.newInstance(constraint, false);
 				}
+				
+				//Checking if the exception is existing
+				String except = pol.getMissingException() ;
+				if (OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(except) == null) {
+					error ("Exception " + except + " undefined in generic dependency " + pol) ;
+				}
+
 			}
 		} catch (InvalidSyntaxException e) {
 			error (e.getMessage()) ;
