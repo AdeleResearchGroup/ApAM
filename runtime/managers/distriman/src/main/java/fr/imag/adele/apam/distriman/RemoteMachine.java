@@ -26,6 +26,8 @@ public class RemoteMachine  implements ApformInstance{
 
     private final RemoteMachineFactory my_impl;
 
+    private Instance apamInstance = null;
+
     private static Logger logger = LoggerFactory.getLogger(RemoteMachine.class);
 
     private final InstanceDeclaration my_declaration;
@@ -96,11 +98,12 @@ public class RemoteMachine  implements ApformInstance{
 
     @Override
     public void setInst(Instance asmInstImpl) {
+        this.apamInstance=asmInstImpl;
 
     }
 
     @Override
     public Instance getInst() {
-        return null;
+        return apamInstance;
     }
 }

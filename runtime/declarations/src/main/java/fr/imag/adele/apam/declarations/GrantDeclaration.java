@@ -20,4 +20,10 @@ public class GrantDeclaration {
 	public Set<String> getStates() {
 		return states;
 	}
+	
+	@Override
+	public String toString() {
+		return "<grant when " + states + " " + dependency.getDeclaringComponent() + " dependency=\"" 
+				+ dependency.getIdentifier() + "\"/>" ;
+	}
 }

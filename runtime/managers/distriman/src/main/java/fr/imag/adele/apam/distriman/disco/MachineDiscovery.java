@@ -1,16 +1,23 @@
 package fr.imag.adele.apam.distriman.disco;
 
-import fr.imag.adele.apam.distriman.RemoteMachineFactory;
-import org.apache.felix.ipojo.annotations.*;
-import org.osgi.framework.BundleContext;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.UUID;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.UUID;
+
+import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Instantiate;
+import org.apache.felix.ipojo.annotations.Invalidate;
+import org.apache.felix.ipojo.annotations.Requires;
+import org.apache.felix.ipojo.annotations.Validate;
+
+import fr.imag.adele.apam.distriman.LocalMachine;
+import fr.imag.adele.apam.distriman.NodePool;
+import fr.imag.adele.apam.distriman.RemoteMachineFactory;
 
 /**
  * <p>The MachineDiscovery component allows for the discovery of other
@@ -29,21 +36,8 @@ public class MachineDiscovery implements ServiceListener {
     /**
      * The mdns type to be used.
      */
-    private static String MDNS_TYPE = "_apam._http._tcp.local.";
+    public static String MDNS_TYPE = "_apam._http._tcp.local.";
 
-    /**
-     * The port to be used. (HttpService port)
-     * TODO init from properties
-     */
-    protected int HTTP_PORT = 8080;
-
-    @Property(name = "host",value = "localhost",mandatory = true)
-    protected String HOST;
-
-    /**
-     * <code>BundleContext</code>, inject by iPOJO in the constructor.
-     */
-    private final BundleContext context;
 
     /**
      * JmDNS, Java Multicast DNS,
@@ -58,24 +52,26 @@ public class MachineDiscovery implements ServiceListener {
     private String name = UUID.randomUUID().toString();
 
 
-    private final RemoteMachineFactory machineFactory;
+    @Requires
+    private NodePool machineFactory;
 
     /**
-     * @param context The BundleContext injected by iPOJO.
+     * @param machineFactory the RemoteMachineFactory that instantiate new RemoteMachine.
      */
-    public MachineDiscovery(BundleContext context) {
-        this.context = context;
-        this.machineFactory = new RemoteMachineFactory(context); //singleton
+    public MachineDiscovery(RemoteMachineFactory machineFactory) {
+        this.machineFactory = machineFactory; //singleton
     }
 
     /**
      * Start the MachineDiscovery instance. Initialize <code>jmDNS</code>.
+     *
+     * @param host the hostname of the InetAddress to be used.
      */
     @Validate
-    private void start() {
+    public void start(String host) {
         try {
             //Create the jmdns server
-            InetAddress address = InetAddress.getByName(HOST);
+            InetAddress address = InetAddress.getByName(host);
             jmDNS = JmDNS.create(address);
         } catch (IOException e){
             //TODO log an error
@@ -100,19 +96,10 @@ public class MachineDiscovery implements ServiceListener {
 
         //Add this as a listener in order to track change
         jmDNS.addServiceListener(MDNS_TYPE,this);
-
-        //Register this machine
-        try{
-            jmDNS.registerService(ServiceInfo.create(MDNS_TYPE, name, HTTP_PORT, "/apam/machine"));
-        }catch (IOException e){
-            try {  jmDNS.close();  } catch(IOException e1) { }
-            throw new RuntimeException(e);
-        }
-
     }
 
     @Invalidate
-    private void stop()  {
+    public void stop()  {
         //unregister this machine.
         jmDNS.unregisterAllServices();
 
@@ -124,6 +111,11 @@ public class MachineDiscovery implements ServiceListener {
         } catch (IOException e) {
             //TODO log WARNING
         }
+    }
+
+    public void registerLocal(LocalMachine local) throws IOException{
+        //Register a local machine
+        jmDNS.registerService(ServiceInfo.create(local.getType(), local.getName(), local.getPort(), local.getPath()));
     }
 
 

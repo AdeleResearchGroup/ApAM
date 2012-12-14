@@ -25,12 +25,12 @@
 
 	<implementation name="S2Impl"
 		classname="fr.imag.adele.apam.test.s2Impl.S2Impl" specification="S2">
-		<dependency field="s4_1" />
-		<dependency field="s4_2" />
-		<dependency field="s3s" />
-		<dependency field="s3s2" />
+		<dependency field="s4_1" id="S4_1"/>
+		<dependency field="s4_2" specification="S4" id="S4_2"/>
+		<dependency field="s3s" implementation="S3Impl" id="S3Mult"/>
+		<dependency field="s3s2" id="S3s2"/>
 		<dependency field="s3_2" />
-		<dependency field="s3" />
+		<dependency field="s3" id="S3"/>
 	</implementation>
 	<implementation name="S2ImplBis"
 		classname="fr.imag.adele.apam.test.s2Impl.S2ImplBis" specification="S2">

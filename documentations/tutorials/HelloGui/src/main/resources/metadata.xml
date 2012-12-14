@@ -5,7 +5,7 @@
 	<implementation name="hello-gui"
 	    classname="fr.imag.adele.apam.text.gui.impl.TextGuiImplementation">
 		<callback onInit="started" onRemove="stopped"/>
-		<dependency field="hello" fail="wait"/>
+		<dependency field="hello" fail="exception" exception="java.lang.Exception"/>
 	</implementation>
 
 

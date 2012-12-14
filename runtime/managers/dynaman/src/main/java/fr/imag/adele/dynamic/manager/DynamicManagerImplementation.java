@@ -124,8 +124,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 	
 	/**
-	 * TODO: Ensure this manager has the minimum priority, so that it is called only in case of
-	 * binding resolution failure.
+	 * Ensure this manager has the minimum priority, so that it is called only in case of binding resolution failure.
 	 * 
 	 */
 	public int getPriority() {
