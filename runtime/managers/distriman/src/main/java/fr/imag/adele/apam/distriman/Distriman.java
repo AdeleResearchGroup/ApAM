@@ -1,32 +1,19 @@
 package fr.imag.adele.apam.distriman;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.felix.ipojo.annotations.Instantiate;
-import org.apache.felix.ipojo.annotations.Invalidate;
-import org.apache.felix.ipojo.annotations.Property;
-import org.apache.felix.ipojo.annotations.Requires;
-import org.apache.felix.ipojo.annotations.Validate;
+import fr.imag.adele.apam.*;
+import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.distriman.disco.MachineDiscovery;
+import org.apache.felix.ipojo.annotations.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.DependencyManager;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.Resolved;
-import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.distriman.disco.MachineDiscovery;
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 @org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman")
 @Instantiate
