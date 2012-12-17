@@ -43,8 +43,8 @@
             <id>analyze</id>
 			<activation>
                 <property>
-                    <name>sonar</name>
-                    <value>true</value>
+                    <name>sonaruser</name>
+                    <value>admin</value>
                 </property>
 
             </activation>
