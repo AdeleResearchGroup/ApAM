@@ -443,11 +443,6 @@ public class ComponentBrokerImpl implements ComponentBroker{
 		return null;
 	}
 
-    @Override
-    public Boolean rmInst(ApformInstance apformInst) {
-        return instances.remove(apformInst);
-    }
-
     ///special case
 
 	/**

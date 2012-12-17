@@ -4,6 +4,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +57,8 @@ public class RemoteMachine  implements ApformInstance{
         logger.info("RemoteMachine " + my_url + " destroyed.");
         System.out.println("RemoteMachine " + my_url + " destroyed.");
 
-        //TODO remove from Apform2Apam !!!?
-        // CST.componentBroker.dis
+        //Remove this Instance from the broker
+        ComponentBrokerImpl.disappearedComponent(this.getDeclaration().getName());
     }
 
     // ===============

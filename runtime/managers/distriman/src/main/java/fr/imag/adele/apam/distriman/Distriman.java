@@ -41,6 +41,9 @@ public class Distriman implements DependencyManager{
 
     private final LocalMachine my_local = LocalMachine.INSTANCE;
 
+    /**
+     * MachineDiscovery allows for machine discovery
+     */
     private final MachineDiscovery discovery;
 
 
@@ -141,6 +144,7 @@ public class Distriman implements DependencyManager{
         try {
             http.registerServlet(LocalMachine.INSTANCE.getPath(),my_local.getServlet(),null,null);
         } catch (Exception e) {
+            discovery.stop();
            throw new RuntimeException(e);
         }
 

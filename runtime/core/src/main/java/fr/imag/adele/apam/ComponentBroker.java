@@ -124,11 +124,6 @@ public interface ComponentBroker {
      */
     public Instance addInst(Composite compo, ApformInstance apformInst);
 
-    /**
-     * Remove <code>apformInst</code> from the ComponentBroker.
-     * @param apformInst The ApformInstance to be removed
-     */
-    public Boolean rmInst(ApformInstance apformInst);
 
     /**
      *  Uninstall the bundle containing the provided component.
