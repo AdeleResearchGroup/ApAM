@@ -212,21 +212,27 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			<exportApp instance="(yyy=tt)" /> 	<!--  cannot be checked --> 
 
 
-			<own specification="S4Compile" property="location" value="living, bedroom, kitchen">
-				<grant implementation="S2Impl" dependency="S4Compile" when="threat" />
-				<grant implementation="S3Impl" dependency="S4Compile" when="night, vacation" />
-				<grant implementation="S3Impl" dependency="S4Compile" when=" {night, empty}" />
-				<grant implementation="S3Impl" dependency="S4Compile" when="{bedroom}" />
+			<own specification="S4" property="location" value="living, bedroom, kitchen">
+				<grant implementation="S2Impl" dependency="S4_1" when="threat" />
+				<grant implementation="S2Simple" dependency="S4" when="threat" />
+				<grant implementation="S3" dependency="S4Compile" when="night, vacation" />
+				<grant implementation="S3XXX" dependency="S4Compile" when=" {night, empty}" />
+				<grant implementation="S2Impl" dependency="S4_2" when="{bedroom}" />
 			</own>
-			<own implementation="S4Impl" property="location" value="living"/>
-			<own implementation="S4Impl" property="b" value="true"/>
-			<own implementation="S4Impl" property="c" value="ok"/>
+			<own implementation="S2Impl" property="location" value="living"/>
+			<own implementation="S2Impl" property="b" value="true"/>
+			<own implementation="S3Impl" property="c" value="ok"/>
 
 			<state implementation="S2SimpleCompile" property="houseState" />
 <!-- 			<state implementation="S2ww" property="house" /> -->  
 <!-- 		<definition name="houseState" -->
 <!-- 			type="{empty, night, vacation, emergency, threat}" value="empty" /> -->
 
+			<promote implementation="S2Impl" dependency="S4" to="compoS4" />
+			<promote implementation="S2Impl" dependency="S4_1" to="compoS4" />  		<!--  wrong component -->
+			<promote implementation="S2Impl" dependency="S3Mult" to="compoS4" />  		<!--  wrong component -->
+			<promote implementation="S2Impl" dependency="S4_1" to="compoxxx" />  		<!--  wrong component -->
+			<promote implementation="S3Impl" dependency="S4Compile" to="wrongDep" /> 	<!--  wrong composite dep -->
 			<promote implementation="S3Impl" dependency="S4Compile" to="compoS4" />
 			<promote implementation="S3XX" dependency="S4Compile" to="compoS4" />  		<!--  wrong component -->
 			<promote implementation="S3Impl" dependency="S4Compile" to="wrongDep" /> 	<!--  wrong composite dep -->

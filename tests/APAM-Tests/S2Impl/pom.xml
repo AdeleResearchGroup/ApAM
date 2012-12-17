@@ -77,6 +77,27 @@
 		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S3Impl</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>TestAttrImpl</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>TestAttrSpec</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S4</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 			<type>bundle</type>

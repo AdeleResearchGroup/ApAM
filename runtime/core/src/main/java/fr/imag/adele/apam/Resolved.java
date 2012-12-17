@@ -8,8 +8,13 @@ public class Resolved {
 	public Set<Instance> instances ;
 	
 	public Resolved (Set<Implementation> implementations, Set<Instance> instances ) {
-		this.implementations = implementations ;
-		this.instances = instances ;
+		if (implementations == null || implementations.isEmpty())
+			this.implementations = null ;
+		else this.implementations = implementations ;
+		
+		if (instances == null || instances.isEmpty())
+			this.instances = null ;
+		else this.instances = instances ;
 	}
 
 }

@@ -482,7 +482,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 *            -a message name (new MessageReference (dataTypeName))
 	 *            - or any future resource ...
 	 * @return the implementations and the instances if resolved, null otherwise
-	 * @return null if not resolved at all.
+	 * @return null if not resolved at all. Never returns an empty set.
 	 */
 	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
 
@@ -503,7 +503,7 @@ public class ApamResolverImpl implements ApamResolver {
 			 * Only consider as deployed those found by OBR.
 			 * Those found by ApamMan and unused will be marked as deployed, only when really used by the resolution. 
 			 */
-			//If the resolution succeeded
+			//We cannot be sure of managers : check if the resolution succeeded.
 			if (res!=null && ((res.implementations != null && !res.implementations.isEmpty()) 
 				|| (res.instances != null && !res.instances.isEmpty()))) {
 				if (deployed && res.implementations != null) {
