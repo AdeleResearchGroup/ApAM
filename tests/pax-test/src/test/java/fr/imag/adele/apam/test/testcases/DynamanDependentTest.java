@@ -358,6 +358,44 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	}
 	
 	@Test
+	public void CompositeDependencyFailExceptionNative_tc052() {
+
+		Implementation group_a = (Implementation) CST.apamResolver.findImplByName(
+				null, "group-a-fail-exception-native");
+	
+		Instance instance_a = (Instance) group_a.createInstance(null,
+				null);
+
+		S3GroupAImpl ga1 = (S3GroupAImpl) instance_a.getServiceObject();
+
+		String messageTemplate = "In dependency if we adopt fail='exception' exception='A' (With A being an exception that already exists in java JRE), the exception A should be throw in case the dependency is not satifiable. But the exception thrown was not type (A)";
+
+		boolean exceptionType = false;
+
+		try {
+
+			Eletronic injected = ga1.getElement();
+			System.out.println("Element:" + injected);
+
+		} catch (Exception e) {
+
+			System.err.println("-------------- Exception raised -----------------");
+			
+			e.printStackTrace();
+			
+			System.err.println("-------------- /Exception raised -----------------");
+			
+			if (e instanceof javax.sound.sampled.UnsupportedAudioFileException) {
+				exceptionType = true;
+			}
+
+		}
+
+		Assert.assertTrue(messageTemplate, exceptionType);
+
+	}	
+	
+	@Test
 	public void CompositeContentMngtOwnSpecification_tc046() {
 
 		CompositeType cta = (CompositeType) CST.apamResolver.findImplByName(
