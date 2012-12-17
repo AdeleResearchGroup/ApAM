@@ -12,14 +12,14 @@ public interface Apam {
      * It starts either because it implements the ApamComponnent interface,
      * of calling its getServiceObject method.
      */
-    public Composite startAppli(CompositeType compositeType);
+    Composite startAppli(CompositeType compositeType);
     
     /**
      * Resolve compositeTypeName and, if successful, creates an instance of that type.
      * It starts either because it implements the ApamComponent interface,
      * of calling its getServiceObject method.
      */
-    public Composite startAppli(String compositeTypeName);
+    Composite startAppli(String compositeTypeName);
 
     /**
      * deploys the bundle found at the provided URL. Looks in that bundle for a composite type
@@ -28,7 +28,7 @@ public interface Apam {
      * It starts either because it implements the ApamComponnent interface,
      * of calling its getServiceObject method.
      */
-    public Composite startAppli(URL compoTypeURL, String compositeTypeName);
+    Composite startAppli(URL compoTypeURL, String compositeTypeName);
 
  
     /**
@@ -42,7 +42,7 @@ public interface Apam {
      * @param attributes optional : the initial properties to associate with this composite type (as an implementation).
      *            @ return : the created composite type
      */
-    public CompositeType createCompositeType(String inCompoType,
+    CompositeType createCompositeType(String inCompoType,
     		String name, String specName, String mainImplSpecName,
             Set<ManagerModel> models, Map<String, String> attributes);
 
@@ -53,38 +53,38 @@ public interface Apam {
      * @param name
      * @return
      */
-    public CompositeType getCompositeType(String name);
+    CompositeType getCompositeType(String name);
 
     /**
      * Return all the composite types known in the system.
      * 
      * @return
      */
-    public Collection<CompositeType> getCompositeTypes();
+    Collection<CompositeType> getCompositeTypes();
 
     /**
      * 
      * @return all the root composite types (embedded in the system root composite type)
      */
-    public Collection<CompositeType> getRootCompositeTypes();
+    Collection<CompositeType> getRootCompositeTypes();
 
     /**
      * 
      * @param name
      * @return the composite of that name, null if not existing.
      */
-    public Composite getComposite(String name);
+    Composite getComposite(String name);
 
     /**
      * 
      * @return return all the composites known by the system.
      */
-    public Collection<Composite> getComposites();
+    Collection<Composite> getComposites();
 
     /**
      * 
      * @return all the root composites. Also called "applications"
      */
-    public Collection<Composite> getRootComposites();
+    Collection<Composite> getRootComposites();
 
 }

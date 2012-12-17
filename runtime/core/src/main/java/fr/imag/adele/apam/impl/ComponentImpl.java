@@ -86,15 +86,15 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
         ComponentImpl group = (ComponentImpl)getGroup () ;
 
         //First eliminate the attributes which are not valid.
-        for (String attr : props.keySet()) {
-            if (Util.validAttr(this.getName(), attr)) {
+        for ( Map.Entry<String,String> entry : props.entrySet()) {
+            if (Util.validAttr(this.getName(), entry.getKey())) {
                 //At initialization, all valid attributes are ok for specs
-                Object val = validDef (attr, props.get(attr), true) ;
+                Object val = validDef (entry.getKey(), entry.getValue(), true) ;
                 if (group == null || val != null)
-                    put (attr, val) ;
+                    put (entry.getKey(), val) ;
             }
         }
-
+ 
         //then add those coming from its group, avoiding overloads.
         if (group != null) {
             for (String attr : group.getAllProperties().keySet()) {
@@ -332,12 +332,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
      */
     @Override
     public boolean setAllProperties(Map<String, String> properties) {
-        for (String attr : properties.keySet()) {
-            String value = properties.get(attr);
-            if (! setProperty(attr, value))
+        for (Map.Entry<String,String> entry : properties.entrySet()) {
+            if (! setProperty(entry.getKey(), entry.getValue()))
                 return false;
         }
-
         return true ;
     }
 

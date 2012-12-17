@@ -69,13 +69,14 @@ public class Util {
 	 * @return
 	 */
 	public static String toStringResources(Set<String> names) {
-		if ((names == null) || (names.size() == 0))
-			return null;
-		String ret = "{";
+		if ((names == null) || (names.size() == 0)) return null;
+		
+		StringBuffer ret = new StringBuffer () ;
+		ret.append("{");
 		for (String name : names) {
-			ret += name + ", ";
+			ret.append(name + ", ");
 		}
-		return ret.substring(0, ret.length() - 2) + "}";
+		return ret.toString().substring(0, ret.length() - 2) + "}";
 	}
 
 	public static String toStringArrayString(String[] names) {
@@ -89,21 +90,24 @@ public class Util {
 
 			for (String f : filterString) {
 				ApamFilter filter = ApamFilter.newInstance(f) ;
-				if (filter != null)
+				if (filter != null) {
 					filters.add(filter);
+				}
 			}
 		return filters;
 	}
 
 	public static List<Filter> toFilterList(List<String> filterString) {
 		List<Filter> filters = new ArrayList<Filter>();
-		if (filterString == null)
+		if (filterString == null) {
 			return filters;
+		}
 		
 		for (String f : filterString) {
 			ApamFilter filter = ApamFilter.newInstance(f) ;
-			if (filter != null)
+			if (filter != null) {
 				filters.add(filter);
+			}
 		}
 	return filters;
 	}
@@ -132,8 +136,9 @@ public class Util {
 	 * @return
 	 */
 	public static String[] split(String str) {
-		if ((str == null) || (str.length() == 0))
+		if ((str == null) || (str.length() == 0)) {
 			return new String[0];
+		}
 
 		str = str.trim();
 		if ((str.charAt(0) != '{') && (str.charAt(0) != '[')) {
@@ -164,35 +169,42 @@ public class Util {
 	 * return true if expression is null, "true" or if the component matches the expression.
 	 */
 	public static boolean checkVisibilityExpression(String expre, Component comp) {
-		if ((expre == null) || expre.equals(CST.V_TRUE))
+		if ((expre == null) || expre.equals(CST.V_TRUE)) {
 			return true;
-		if (expre.equals(CST.V_FALSE))
+		}
+		if (expre.equals(CST.V_FALSE)) {
 			return false;
+		}
 		Filter f = ApamFilter.newInstance(expre);
-		if (f == null)
+		if (f == null) {
 			return false;
+		}
 		return comp.match(f);
 	}
 
 
 	public static Set<Implementation> getVisibleImpls (Instance client, Set<Implementation> impls) {
-		if (impls == null) return null ;
+		if (impls == null) {return null ; }
+		
 		Set<Implementation> ret = new HashSet <Implementation> () ;
 		CompositeType compo = client.getComposite().getCompType() ;
 		for (Implementation impl : impls) {
-			if (checkImplVisible(compo, impl))
+			if (checkImplVisible(compo, impl)) {
 				ret.add(impl) ;
+			}
 		}
 		return ret ;
 	}
 	
 	public static Set<Instance> getVisibleInsts (Instance client, Set<Instance> insts) {
-		if (insts == null) return null ;
+		if (insts == null) {return null ;}
+		
 		Set<Instance> ret = new HashSet <Instance> () ;
 		Composite compo = client.getComposite() ;
 		for (Instance inst : insts) {
-			if (checkInstVisible(compo, inst))
+			if (checkInstVisible(compo, inst)) {
 				ret.add(inst) ;
+			}
 		}
 		return ret ;
 	}
@@ -206,26 +218,30 @@ public class Util {
 	 * @return
 	 */
 	public static boolean checkImplVisible(CompositeType compoFrom, Implementation toImpl) {
-		if (toImpl.getInCompositeType().isEmpty() || toImpl.getInCompositeType().contains(compoFrom))
+		if (toImpl.getInCompositeType().isEmpty() || toImpl.getInCompositeType().contains(compoFrom)) {
 			return true;
+		}
 
 		// First check if toImpl can be imported (borrowed) in compoFrom
 		String imports = ((CompositeDeclaration) compoFrom.getDeclaration()).getVisibility().getImportImplementations(); 
-		if (Util.checkVisibilityExpression(imports, toImpl) == false)
+		if (Util.checkVisibilityExpression(imports, toImpl) == false) {
 			return false;
+		}
 
 		// true if at least one composite type that owns toImpl exports it.
 		for (CompositeType compoTo : toImpl.getInCompositeType()) {
-			if (Util.checkImplVisibleInCompo(compoFrom, toImpl, compoTo))
+			if (Util.checkImplVisibleInCompo(compoFrom, toImpl, compoTo)) {
 				return true;
+			}
 		}
 		return false;
 	}
 
 	public static boolean
 	checkImplVisibleInCompo(CompositeType compoFrom, Implementation toImpl, CompositeType compoTo) {
-		if (compoFrom == compoTo) 
+		if (compoFrom == compoTo) {
 			return true;
+		}
 		String exports = ((CompositeDeclaration) compoTo.getDeclaration()).getVisibility().getExportImplementations();
 		return Util.checkVisibilityExpression(exports, toImpl) ;
 	}
@@ -247,52 +263,60 @@ public class Util {
 		CompositeType fromCompoType = fromCompo.getCompType();
 		CompositeType toCompoType   = toInst.getComposite().getCompType();
 
-		if (fromCompo == toCompo)
+		if (fromCompo == toCompo) {
 			return true;
+		}
 
 		// First check if toInst can be imported by fromCompo
 		String imports = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getImportInstances();
-		if (Util.checkVisibilityExpression(imports, toInst) == false)
+		if (Util.checkVisibilityExpression(imports, toInst) == false) {
 			return false;
+		}
 
 		//exported ?
 		String exports = ((CompositeDeclaration) toCompoType.getDeclaration()).getVisibility().getExportInstances();
-		if (Util.checkVisibilityExpression(exports, toInst))
+		if (Util.checkVisibilityExpression(exports, toInst)) {
 			return true;
+		}
 
 		//exportApp ?
 		if (fromCompo.getAppliComposite() == toCompo.getAppliComposite()) {
 			String appli = ((CompositeDeclaration) toCompoType.getDeclaration()).getVisibility()
 			.getApplicationInstances();
-			if ((appli != null) && Util.checkVisibilityExpression(appli, toInst))
+			if ((appli != null) && Util.checkVisibilityExpression(appli, toInst)) {
 				return true;
+			}
 		}
 		return false;
 	}
 
 
 	public static boolean isInheritedAttribute(String attr) {
-		if (isReservedAttributePrefix(attr))
+		if (isReservedAttributePrefix(attr)) {
 			return false;
+		}
 		for (String pred : CST.notInheritedAttribute) {
-			if (pred.equals(attr))
+			if (pred.equals(attr)) {
 				return false;
+			}
 		}
 		return true;
 	}
 
 	public static boolean isFinalAttribute(String attr) {
 		for (String pred : CST.finalAttributes) {
-			if (pred.equals(attr))
+			if (pred.equals(attr)) {
 				return true;
+			}
 		}
 		return false;
 	}
 
 	public static boolean isReservedAttributePrefix(String attr) {
 		for (String prefix : CST.reservedPrefix) {
-			if (attr.startsWith(prefix))
+			if (attr.startsWith(prefix)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -328,12 +352,14 @@ public class Util {
 	 * @param type
 	 */
 	public static Object checkAttrType(String attr, String value, String type) {
-		if ((type == null) || (value == null))
+		if ((type == null) || (value == null)) {
 			return null;
+		}
 
 		if (type.equals("boolean")) {
-			if (value.equalsIgnoreCase(CST.V_TRUE) || value.equalsIgnoreCase(CST.V_FALSE))
+			if (value.equalsIgnoreCase(CST.V_TRUE) || value.equalsIgnoreCase(CST.V_FALSE)) {
 				return value ;
+			}
 			logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
 					+ "\".  Boolean value expected");
 			return null;
@@ -353,21 +379,22 @@ public class Util {
 			}
 		}
 
-		//        if ((type.charAt(0) == '{') || (type.charAt(0) == '[')) { // enumerated value
 		Set<String> enumVals = Util.splitSet(type);
 
 		//A single value : it must be only "string"
 		if (enumVals.size() == 1) {
-			if (type.equals("string"))
+			if (type.equals("string")) {
 				return value ;
+			}
 			logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr);
 			return null ;
 		}
 
 		//It is an enumeration
 		Set<String> values = Util.splitSet(value);
-		if (enumVals.containsAll(values))
+		if (enumVals.containsAll(values)) {
 			return value;
+		}
 
 		String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
 		+ "\".  Expected subset of: " + type;
@@ -384,13 +411,14 @@ public class Util {
 	}
 
 	public static String toStringSetReference(Set<? extends ResourceReference> setRef) {
-		String ret = "{";
+		StringBuffer ret = new StringBuffer () ;
+		ret.append("{");
 		for (ResourceReference ref : setRef) {
-			ret = ret + ref.getJavaType() + ", ";
+			ret.append(ref.getJavaType() + ", ");
 		}
-		int i = ret.lastIndexOf(',');
-		ret = ret.substring(0, i);
-		return ret + "}";
+		String rets = ret.toString() ;
+		int i = rets.lastIndexOf(',');
+		return rets.substring(0, i) + "}";
 	}
 
 	public static boolean checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr,
@@ -400,33 +428,39 @@ public class Util {
 		if (filters != null) {
 			for (String f : filters) {
 				ApamFilter parsedFilter = ApamFilter.newInstance(f);
-				if (parsedFilter == null || !parsedFilter.validateAttr(validAttr, f, comp)) 
+				if (parsedFilter == null || !parsedFilter.validateAttr(validAttr, f, comp)) {
 					ok = false;
+				}
 			}
 		}
 		if (listFilters != null) {
 			for (String f : listFilters) {
 				ApamFilter parsedFilter = ApamFilter.newInstance(f);
-				if (parsedFilter == null || !parsedFilter.validateAttr(validAttr, f, comp))
+				if (parsedFilter == null || !parsedFilter.validateAttr(validAttr, f, comp)) {
 					ok = false;
+				}
 			}
 		}
 		return ok;
 	}
 
 	public static void printFileToConsole(URL path) throws IOException {
+		DataInputStream in = null ;
+		BufferedReader br = null ;
 		try {
-			DataInputStream in = new DataInputStream(path.openStream());
-			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			in = new DataInputStream(path.openStream());
+			br = new BufferedReader(new InputStreamReader(in));
 			String strLine;
 			// Read File Line By Line
 			while ((strLine = br.readLine()) != null) {
 				// Print the content on the console
 				System.out.println(strLine);
 			}
-			// Close the input stream
-			in.close();
 		} catch (Exception e) {// Catch exception if any
+		} finally {
+			// Close the input stream in all cases
+			if (in != null) in.close();
+			if (br != null) br.close();
 		}
 	}
 
@@ -450,8 +484,9 @@ public class Util {
 
 		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { // same nature
 			if (compoDep.getTarget().equals(clientDep.getTarget())) {
-				if (!multiple || compoDep.isMultiple())
+				if (!multiple || compoDep.isMultiple()) {
 					return true;
+				}
 			}
 		}
 
@@ -464,8 +499,9 @@ public class Util {
 			Specification spec = CST.apamResolver.findSpecByName(compoInst,
 					((SpecificationReference) compoDep.getTarget()).getName());
 			if ((spec != null) && spec.getDeclaration().getProvidedResources().contains(clientDep.getTarget()))
-				if (!multiple || compoDep.isMultiple())
+				if (!multiple || compoDep.isMultiple()) {
 					return true;
+				}
 		} else {
 			//If the composite has a dependency toward an implementation
 			//and the client requires a resource provided by that implementation
@@ -477,13 +513,15 @@ public class Util {
 					if (clientDep.getTarget() instanceof SpecificationReference) {
 						String clientReqSpec = ((SpecificationReference) clientDep.getTarget()).getName();
 						if (impl.getImplDeclaration().getSpecification().getName().equals(clientReqSpec))
-							if (!multiple || compoDep.isMultiple())
+							if (!multiple || compoDep.isMultiple()) {
 								return true;
+							}
 					} else {
 						//The client requires a resource provided by that implementation
 						if (impl.getImplDeclaration().getProvidedResources().contains(clientDep.getTarget()))
-							if (!multiple || compoDep.isMultiple())
+							if (!multiple || compoDep.isMultiple()) {
 								return true;
+							}
 					}
 				}
 			}

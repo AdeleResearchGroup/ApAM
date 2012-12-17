@@ -221,6 +221,9 @@
 <node CREATED="1354296926250" ID="ID_1980876552" MODIFIED="1354296935238" TEXT="eager=&quot;true&quot;">
 <icon BUILTIN="button_cancel"/>
 </node>
+<node CREATED="1355740402996" ID="ID_426046800" MODIFIED="1355740431603" TEXT="fail=&quot;exception&quot;, using a type present in JRE-tc052">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node CREATED="1353077208472" ID="ID_1719755842" MODIFIED="1354296539949" TEXT="own">
 <node CREATED="1353941820697" ID="ID_672392425" MODIFIED="1353941826631" TEXT="grant">

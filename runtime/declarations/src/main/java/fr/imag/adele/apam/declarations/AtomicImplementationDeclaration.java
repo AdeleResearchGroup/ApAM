@@ -23,47 +23,43 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         /**
          * The name of the associated java class
          */
-        public String getClassName();
+        String getClassName();
 
-//        /**
-//         * The type of the specified java message call back method
-//         */
-//        public ResourceReference getCallbackType(String callbackName) throws NoSuchMethodException;
 
         /**
          * The type of the specified java field
          */
-        public ResourceReference getFieldType(String fieldName) throws NoSuchFieldException;     
+        ResourceReference getFieldType(String fieldName) throws NoSuchFieldException;     
         
         /**
          * The cardinality of the specified java field
          */
-        public boolean isCollectionField(String fieldName) throws NoSuchFieldException;
+        boolean isCollectionField(String fieldName) throws NoSuchFieldException;
 
         /**
          * The call back method specified, it return true if the method has a unique argument which is Instance
          */
-        public Set<?> getCallbacks(String callbackName, boolean mandatoryInstanceArgument) throws NoSuchMethodException;
+        Set<?> getCallbacks(String callbackName, boolean mandatoryInstanceArgument) throws NoSuchMethodException;
         
         /**
          * The type of return method specified in java call back method
          */
-        public ResourceReference getCallbackReturnType(String methodName, String type) throws NoSuchMethodException;
+        ResourceReference getCallbackReturnType(String methodName, String type) throws NoSuchMethodException;
         
         /**
          * The type of argument method specified in java call back method
          */
-        public ResourceReference getCallbackArgType(String methodName, String type) throws NoSuchMethodException;
+        ResourceReference getCallbackArgType(String methodName, String type) throws NoSuchMethodException;
 
         /**
          * The cardinality of the specified java return
          */
-        public boolean isCollectionReturn(String methodName, String type) throws NoSuchMethodException;
+        boolean isCollectionReturn(String methodName, String type) throws NoSuchMethodException;
 
         /**
          * The cardinality of the specified java argument
          */
-        public boolean isCollectionArgument(String methodName, String type) throws NoSuchMethodException;
+        boolean isCollectionArgument(String methodName, String type) throws NoSuchMethodException;
 
     }
 
@@ -148,28 +144,28 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 
     @Override
     public String toString() {
-        String ret = super.toString();
+        StringBuffer ret = new StringBuffer();
         if (callbacks.size() != 0) {
-            ret += "\n    callback methods : ";
+            ret = ret.append("\n    callback methods : ");
             for (CallbackTrigger trigger : callbacks.keySet()) {
-                ret += " " + trigger + " : " + callbacks.get(trigger) ;
+            	ret = ret.append( " " + trigger + " : " + callbacks.get(trigger)) ;
             }
         }
         if (dependencyInjections.size() != 0) {
-            ret += "\n    Injected fields/methods : ";
+        	ret = ret.append("\n    Injected fields/methods : ");
             for (DependencyInjection injection : dependencyInjections) {
-                ret += " " + injection.getName();
+            	ret = ret.append(" " + injection.getName());
             }
         }
         if (producerInjections.size() != 0) {
-            ret += "\n    Intercepted message producer methods : ";
+        	ret = ret.append("\n    Intercepted message producer methods : ");
             for (MessageProducerMethodInterception injection : producerInjections) {
-                ret += " " + injection.getMethoddName();
+            	ret = ret.append(" " + injection.getMethoddName());
             }
         }
 
-        ret += "\n   Class Name: " + getClassName();
-        return ret;
+        ret = ret.append("\n   Class Name: " + getClassName());
+        return ret.toString();
     }
 
     public void addCallback(CallbackMethod callback) {

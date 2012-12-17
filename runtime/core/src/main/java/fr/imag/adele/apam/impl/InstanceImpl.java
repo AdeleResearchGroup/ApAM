@@ -114,8 +114,9 @@ public class InstanceImpl extends ComponentImpl implements Instance {
          * allows bootstraping the system
          * 
          */
-        if (rootImplementation == CompositeTypeImpl.getRootCompositeType())
+        if (rootImplementation == CompositeTypeImpl.getRootCompositeType()) {
         	((ImplementationImpl) getImpl()).addInst(this);
+        }
     }
 
     /**
@@ -125,16 +126,17 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
         super(apformInst);
 
-        if (composite == null)
+        if (composite == null) {
             throw new InvalidConfiguration("Null parent while creating instance");
+        }
 
         Implementation implementation = CST.componentBroker.getImpl(apformInst.getDeclaration().getImplementation()
                 .getName());
 
-        if (implementation == null)
+        if (implementation == null) {
             throw new InvalidConfiguration("Null implementation while creating instance");
+        }
 
-        assert composite != null && implementation != null;
 
         /*
          * reference the implementation and the enclosing composite
@@ -187,7 +189,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         * Remove from broker, and from its composites.
         * After that, it is invisible.
         */
-//        ((ComponentBrokerImpl) CST.componentBroker).remove(this);
         ((ImplementationImpl) getImpl()).removeInst(this);
         ((CompositeImpl) getComposite()).removeInst(this);
 
@@ -208,10 +209,8 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         /*
         * Do no remove the outgoing wires, in case a Thread is still here.
         * If so, the dependency will be resolved again !
-        * TODO Should only remove the invWire ! But weird: wired only in a direction ...
+        * Should only remove the invWire ! But weird: wired only in a direction ...
         */
-//      myImpl = null;
-//      myComposite = null;
 
         for (Wire wire : wires) {
             ((WireImpl) wire).remove();
@@ -287,8 +286,9 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     public Set<Instance> getWireDests(String depName) {
         Set<Instance> dests = new HashSet<Instance>();
         for (Wire wire : wires) {
-            if (wire.getDepName().equals(depName))
+            if (wire.getDepName().equals(depName)) {
                 dests.add(wire.getDestination());
+            }
         }
         return dests;
     }
@@ -313,20 +313,23 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     public Set<Wire> getWires(String dependencyName) {
         Set<Wire> dests = new HashSet<Wire>();
         for (Wire wire : wires) {
-            if (wire.getDepName().equals(dependencyName))
+            if (wire.getDepName().equals(dependencyName)) {
                 dests.add(wire);
+            }
         }
         return dests;
     }
 
     @Override
     public Set<Wire> getWires(Specification spec) {
-        if (spec == null)
+        if (spec == null) {
             return null;
+        }
         Set<Wire> w = new HashSet<Wire>();
         for (Wire wire : wires) {
-            if (wire.getDestination().getSpec() == spec)
+            if (wire.getDestination().getSpec() == spec) {
                 w.add(wire);
+            }
         }
         return w;
     }
@@ -334,15 +337,18 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     @Override
     public boolean createWire(Instance to, String depName, boolean hasConstraints, boolean promotion) {
     	
-    	if (!promotion)
+    	if (!promotion) {
     		assert Util.checkInstVisible(getComposite(), to) ;
+    	}
     	
-        if ((to == null) || (depName == null))
+        if ((to == null) || (depName == null)) {
             return false;
+        }
 
         for (Wire wire : wires) { // check if it already exists
-            if ((wire.getDestination() == to) && wire.getDepName().equals(depName))
+            if ((wire.getDestination() == to) && wire.getDepName().equals(depName)) {
                 return true;
+            }
         }
 
         // creation
@@ -367,8 +373,9 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
         // Other relationships to instantiate
         ((ImplementationImpl) getImpl()).addUses(to.getImpl());
-        if ((SpecificationImpl) getSpec() != null)
+        if ((SpecificationImpl) getSpec() != null) {
             ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
+        }
 
         //Notify Dynamic managers that a new wire has been created
         for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
@@ -397,18 +404,17 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
     public void removeInvWire(Wire wire) {
         invWires.remove(wire);
-        if (invWires.isEmpty()) {
+//        if (invWires.isEmpty()) {
             /*
              * This instance is no longer used.
-             * TODO should we set unused and change the owner  ?
+             * We do not set it unused
+             *     setUsed(false);
+             *     setOwner(CompositeImpl.getRootAllComposites());
              * 
-             * setUsed(false);
-             * setOwner(CompositeImpl.getRootAllComposites());
-             * 
-             * Currently, it will stay in the same composite. 
-             * It may be the target of an "OWN" clause, and must not be changed. In case it will be re-used (local).
+             * Because it must stay in the same composite since  
+             * it may be the target of an "OWN" clause, and must not be changed. In case it will be re-used (local).
              */
-        }
+//        }
     }
 
     @Override
@@ -420,42 +426,49 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     public Set<Wire> getInvWires(String depName) {
         Set<Wire> w = new HashSet<Wire>();
         for (Wire wire : invWires) {
-            if ((wire.getDestination() == this) && (wire.getDepName().equals(depName)))
+            if ((wire.getDestination() == this) && (wire.getDepName().equals(depName))) {
                 w.add(wire);
+            }
         }
         return w;
     }
 
     @Override
     public Wire getInvWire(Instance destInst) {
-        if (destInst == null)
+        if (destInst == null) {
             return null;
+        }
         for (Wire wire : invWires) {
-            if (wire.getDestination() == destInst)
+            if (wire.getDestination() == destInst) {
                 return wire;
+            }
         }
         return null;
     }
 
     @Override
     public Wire getInvWire(Instance destInst, String depName) {
-        if (destInst == null)
+        if (destInst == null) {
             return null;
+        }
         for (Wire wire : invWires) {
-            if ((wire.getDestination() == destInst) && (wire.getDepName().equals(depName)))
+            if ((wire.getDestination() == destInst) && (wire.getDepName().equals(depName))) {
                 return wire;
+            }
         }
         return null;
     }
 
     @Override
     public Set<Wire> getInvWires(Instance destInst) {
-        if (destInst == null)
+        if (destInst == null) {
             return null;
+        }
         Set<Wire> w = new HashSet<Wire>();
         for (Wire wire : invWires) {
-            if (wire.getDestination() == destInst)
+            if (wire.getDestination() == destInst) {
                 w.add(wire);
+            }
         }
         return w;
     }
