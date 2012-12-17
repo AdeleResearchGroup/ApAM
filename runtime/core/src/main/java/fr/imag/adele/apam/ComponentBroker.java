@@ -124,6 +124,7 @@ public interface ComponentBroker {
      */
     public Instance addInst(Composite compo, ApformInstance apformInst);
 
+
     /**
      *  Uninstall the bundle containing the provided component.
      *  WARNING: It removes also all the components inside that bundle.

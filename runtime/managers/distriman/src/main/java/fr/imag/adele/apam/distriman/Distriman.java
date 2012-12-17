@@ -54,6 +54,9 @@ public class Distriman implements DependencyManager{
 
     private final LocalMachine my_local = LocalMachine.INSTANCE;
 
+    /**
+     * MachineDiscovery allows for machine discovery
+     */
     private final MachineDiscovery discovery;
 
 
@@ -82,7 +85,7 @@ public class Distriman implements DependencyManager{
 
     @Override
     public int getPriority() {
-        return 4; //TODO is 4 alright ?
+        return 4;  //TODO is it alright
     }
 
     @Override
@@ -91,9 +94,9 @@ public class Distriman implements DependencyManager{
     }
    
 	@Override
-	public Resolved resolveDependency(Instance client,
-			DependencyDeclaration dependency, boolean needsInstances) {
-		// TODO Auto-generated method stub
+    public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dependency, Set<Instance> insts) {
+
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
 		return null;
 	}
 
@@ -155,6 +158,7 @@ public class Distriman implements DependencyManager{
         try {
             http.registerServlet(LocalMachine.INSTANCE.getPath(),my_local.getServlet(),null,null);
         } catch (Exception e) {
+            discovery.stop();
            throw new RuntimeException(e);
         }
 
