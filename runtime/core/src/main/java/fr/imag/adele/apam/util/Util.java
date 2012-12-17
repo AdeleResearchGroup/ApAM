@@ -38,9 +38,9 @@ import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
  *
  * @author SAM team
  */
-public class Util {
+public final class Util {
 	private static Logger logger = LoggerFactory.getLogger(Util.class);
-	static boolean        failed;
+	private static boolean        failed;
 
 	private Util() {
 	};
@@ -70,7 +70,7 @@ public class Util {
 	 */
 	public static String toStringResources(Set<String> names) {
 		if ((names == null) || (names.size() == 0)) return null;
-		
+
 		StringBuffer ret = new StringBuffer () ;
 		ret.append("{");
 		for (String name : names) {
@@ -88,12 +88,12 @@ public class Util {
 		if (filterString == null)
 			return filters;
 
-			for (String f : filterString) {
-				ApamFilter filter = ApamFilter.newInstance(f) ;
-				if (filter != null) {
-					filters.add(filter);
-				}
+		for (String f : filterString) {
+			ApamFilter filter = ApamFilter.newInstance(f) ;
+			if (filter != null) {
+				filters.add(filter);
 			}
+		}
 		return filters;
 	}
 
@@ -102,14 +102,14 @@ public class Util {
 		if (filterString == null) {
 			return filters;
 		}
-		
+
 		for (String f : filterString) {
 			ApamFilter filter = ApamFilter.newInstance(f) ;
 			if (filter != null) {
 				filters.add(filter);
 			}
 		}
-	return filters;
+		return filters;
 	}
 
 	/**
@@ -140,15 +140,15 @@ public class Util {
 			return new String[0];
 		}
 
-		str = str.trim();
+		str.trim();
 		if ((str.charAt(0) != '{') && (str.charAt(0) != '[')) {
 			return stringArrayTrim(str.split(","));
 		}
 
-		str = str.replaceAll("\\ ", "");
-		str = str.replaceAll(";", ",");
-		str = str.replaceAll("\\[,", "[");
-		str = str.replaceAll(",]", "]");
+		str.replaceAll("\\ ", "");
+		str.replaceAll(";", ",");
+		str.replaceAll("\\[,", "[");
+		str.replaceAll(",]", "]");
 
 		String internal;
 		if (((str.charAt(0) == '{') && (str.charAt(str.length() - 1) == '}'))
@@ -185,7 +185,7 @@ public class Util {
 
 	public static Set<Implementation> getVisibleImpls (Instance client, Set<Implementation> impls) {
 		if (impls == null) {return null ; }
-		
+
 		Set<Implementation> ret = new HashSet <Implementation> () ;
 		CompositeType compo = client.getComposite().getCompType() ;
 		for (Implementation impl : impls) {
@@ -195,10 +195,10 @@ public class Util {
 		}
 		return ret ;
 	}
-	
+
 	public static Set<Instance> getVisibleInsts (Instance client, Set<Instance> insts) {
 		if (insts == null) {return null ;}
-		
+
 		Set<Instance> ret = new HashSet <Instance> () ;
 		Composite compo = client.getComposite() ;
 		for (Instance inst : insts) {
@@ -269,7 +269,7 @@ public class Util {
 
 		// First check if toInst can be imported by fromCompo
 		String imports = ((CompositeDeclaration) fromCompoType.getDeclaration()).getVisibility().getImportInstances();
-		if (Util.checkVisibilityExpression(imports, toInst) == false) {
+		if (!Util.checkVisibilityExpression(imports, toInst)) {
 			return false;
 		}
 
@@ -282,7 +282,7 @@ public class Util {
 		//exportApp ?
 		if (fromCompo.getAppliComposite() == toCompo.getAppliComposite()) {
 			String appli = ((CompositeDeclaration) toCompoType.getDeclaration()).getVisibility()
-			.getApplicationInstances();
+					.getApplicationInstances();
 			if ((appli != null) && Util.checkVisibilityExpression(appli, toInst)) {
 				return true;
 			}
@@ -397,7 +397,7 @@ public class Util {
 		}
 
 		String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
-		+ "\".  Expected subset of: " + type;
+				+ "\".  Expected subset of: " + type;
 		logger.error(errorMes);
 		return null;
 	}
@@ -482,7 +482,8 @@ public class Util {
 		//Look for same dependency: the same specification, the same implementation or same resource name
 		//Constraints are not taken into account
 
-		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { // same nature
+		// if same nature (spec, implem, internface ... make a direct comparison.
+		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { 
 			if (compoDep.getTarget().equals(clientDep.getTarget())) {
 				if (!multiple || compoDep.isMultiple()) {
 					return true;
@@ -493,18 +494,20 @@ public class Util {
 		//Look for a compatible dependency.
 		//Stop at the first dependency matching only based on same name (same resource or same component)
 		//No provision for : cardinality, constraints or characteristics (missing, eager)
-		//		for (DependencyDeclaration compoDep : compoDeps) {
+
 		//Look if the client requires one of the resources provided by the specification
 		if (compoDep.getTarget() instanceof SpecificationReference) {
 			Specification spec = CST.apamResolver.findSpecByName(compoInst,
 					((SpecificationReference) compoDep.getTarget()).getName());
-			if ((spec != null) && spec.getDeclaration().getProvidedResources().contains(clientDep.getTarget()))
-				if (!multiple || compoDep.isMultiple()) {
-					return true;
-				}
-		} else {
-			//If the composite has a dependency toward an implementation
-			//and the client requires a resource provided by that implementation
+			if ((spec != null) && spec.getDeclaration().getProvidedResources().contains(clientDep.getTarget())
+					&& (!multiple || compoDep.isMultiple())) {
+				return true;
+			}
+		} 
+
+		//If the composite has a dependency toward an implementation
+		//and the client requires a resource provided by that implementation
+		else {
 			if (compoDep.getTarget() instanceof ImplementationReference) {
 				String implName = ((ImplementationReference<?>) compoDep.getTarget()).getName();
 				Implementation impl = CST.apamResolver.findImplByName(compoInst, implName);
@@ -512,16 +515,16 @@ public class Util {
 					//The client requires the specification implemented by that implementation
 					if (clientDep.getTarget() instanceof SpecificationReference) {
 						String clientReqSpec = ((SpecificationReference) clientDep.getTarget()).getName();
-						if (impl.getImplDeclaration().getSpecification().getName().equals(clientReqSpec))
-							if (!multiple || compoDep.isMultiple()) {
-								return true;
-							}
+						if (impl.getImplDeclaration().getSpecification().getName().equals(clientReqSpec)
+								&& (!multiple || compoDep.isMultiple())) {
+							return true;
+						}
 					} else {
 						//The client requires a resource provided by that implementation
-						if (impl.getImplDeclaration().getProvidedResources().contains(clientDep.getTarget()))
-							if (!multiple || compoDep.isMultiple()) {
-								return true;
-							}
+						if (impl.getImplDeclaration().getProvidedResources().contains(clientDep.getTarget())
+								&& (!multiple || compoDep.isMultiple())) {
+							return true;
+						}
 					}
 				}
 			}
@@ -626,12 +629,14 @@ public class Util {
 
 		//Find the first dependency declaration.
 		Component depComponent = client ;
+		
 		//take the declaration declared at the most concrete level
 		DependencyDeclaration dependency = client.getApformInst().getDeclaration().getDependency(depName);
 		if (dependency == null) {
 			dependency = client.getImpl().getApformImpl().getDeclaration().getDependency(depName);
 			depComponent = client.getImpl() ;
 		}
+		
 		//the dependency can be defined at spec level if implem is a composite
 		if (dependency == null) {
 			dependency = client.getSpec().getApformSpec().getDeclaration().getDependency(depName);
@@ -669,12 +674,13 @@ public class Util {
 				if (Util.checkFilters(genDep.getImplementationConstraints(), null, validAttrs, client.getName())) {
 					dependency.getImplementationConstraints().addAll(genDep.getImplementationConstraints()) ;
 				}
-				// if (Util.checkFilters(genDep.getInstanceConstraints(), null, validAttrs, client.getName())) {
+
 				dependency.getInstanceConstraints().addAll(genDep.getInstanceConstraints()) ;
-				//}
+
 				if (Util.checkFilters(null, genDep.getImplementationPreferences(), validAttrs, client.getName())) {
 					dependency.getImplementationPreferences().addAll(genDep.getImplementationPreferences()) ;
 				}
+
 				if (Util.checkFilters(null, genDep.getInstancePreferences(), validAttrs, client.getName())) {
 					dependency.getInstancePreferences().addAll(genDep.getInstancePreferences()) ;
 				}
@@ -698,32 +704,32 @@ public class Util {
 		//Look for same dependency: the same specification, the same implementation or same resource name
 		//Constraints are not taken into account
 
-		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { // same nature
-			if (clientDep.getTarget().getName().matches(pattern)) {
-				return true;
-			}
+		// same nature: direct comparison
+		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())
+				&& (clientDep.getTarget().getName().matches(pattern))) {
+			return true;
 		}
 
 		//If the client dep is an implementation dependency, check if the specification matches the pattern
-		if (compoDep.getTarget() instanceof SpecificationReference) {
-			if (clientDep.getTarget() instanceof ImplementationReference) {
-				String implName = ((ImplementationReference<?>) clientDep.getTarget()).getName();
-				Implementation impl = CST.apamResolver.findImplByName(compoInst, implName);
-				if (impl != null && impl.getSpec().getName().matches(pattern)) {
-					return true ;
-				}
+		if (compoDep.getTarget() instanceof SpecificationReference
+				&& clientDep.getTarget() instanceof ImplementationReference) {
+			String implName = ((ImplementationReference<?>) clientDep.getTarget()).getName();
+			Implementation impl = CST.apamResolver.findImplByName(compoInst, implName);
+			if (impl != null && impl.getSpec().getName().matches(pattern)) {
+				return true ;
 			}
 		}
-
 		return false;
 	}
 
 	public static String toStringUndefinedResource(Set<UndefinedReference> undefinedReferences) {
-		if ((undefinedReferences == null) || (undefinedReferences.size() == 0))
+		if ((undefinedReferences == null) || (undefinedReferences.size() == 0)) {
 			return null;
-		String ret = "{";
+		}
+		StringBuffer ret = new StringBuffer() ; 
+		ret.append("{");
 		for (UndefinedReference undfinedReference : undefinedReferences) {
-			ret += undfinedReference.getSubject() + ", ";
+			ret.append(undfinedReference.getSubject() + ", ");
 		}
 		return ret.substring(0, ret.length() - 2) + "}";
 	}
