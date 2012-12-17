@@ -359,6 +359,10 @@ public class Apform2Apam {
         Apform2Apam.executor.execute(new SpecificationDeploymentProcessing(client));
     }
 
+    public static void removeInstance(ApformInstance instance){
+        // TODO remove instance ? CST.componentBroker.
+    }
+
 //    /**
 //     * The instance called "instance name" just disappeared from the platform.
 //     * 

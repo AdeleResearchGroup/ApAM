@@ -69,7 +69,7 @@ public class Distriman implements DependencyManager{
 
     @Override
     public int getPriority() {
-        return 4; //TODO is 4 alright ?
+        return 4;  //TODO is it alright
     }
 
     @Override
@@ -78,8 +78,7 @@ public class Distriman implements DependencyManager{
     }
 
     @Override
-    public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dependency, Set<Instance> insts) {
-
+    public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

@@ -53,8 +53,11 @@ public class RemoteMachine  implements ApformInstance{
      * Destroy the RemoteMachine
      */
     protected void destroy() {
-        logger.info("RemoteMachine "+my_url+" destroyed.");
+        logger.info("RemoteMachine " + my_url + " destroyed.");
         System.out.println("RemoteMachine " + my_url + " destroyed.");
+
+        //TODO remove from Apform2Apam !!!?
+        // CST.componentBroker.dis
     }
 
     // ===============

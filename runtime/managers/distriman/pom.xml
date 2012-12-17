@@ -42,14 +42,16 @@
 						<Bundle-Vendor>Adele/LIG/ Grenoble University, France</Bundle-Vendor>
 						<Bundle-Version>${project.version}</Bundle-Version>
                         <Import-Package>
-                            org.json;resolution:=optional;
-                            *</Import-Package>
+							*
+						</Import-Package>
                         <Private-Package>
                             fr.imag.adele.apam.distriman,
                             fr.imag.adele.apam.distriman.disco,
                             javax.jmdns*
                         </Private-Package>
-                        <Export-Package/>
+						<Export-Package>
+							org.json
+						</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>
