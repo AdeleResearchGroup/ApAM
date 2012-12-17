@@ -1,12 +1,12 @@
 package fr.imag.adele.apam.impl;
 
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
+import fr.imag.adele.apam.*;
+import fr.imag.adele.apam.apform.*;
+import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
+import fr.imag.adele.apam.util.ApamInstall;
 import org.apache.felix.ipojo.Pojo;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -14,25 +14,12 @@ import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.ComponentBroker;
-import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apform.Apform2Apam;
-import fr.imag.adele.apam.apform.ApformCompositeType;
-import fr.imag.adele.apam.apform.ApformImplementation;
-import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
-import fr.imag.adele.apam.util.ApamInstall;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ComponentBrokerImpl implements ComponentBroker{
 
@@ -456,7 +443,7 @@ public class ComponentBrokerImpl implements ComponentBroker{
 		return null;
 	}
 
-	///special case
+    ///special case
 
 	/**
 	 * An special apform specification created only for those specifications that do not exist

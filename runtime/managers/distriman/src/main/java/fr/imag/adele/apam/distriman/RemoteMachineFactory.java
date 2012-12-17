@@ -1,21 +1,22 @@
 package fr.imag.adele.apam.distriman;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.apform.Apform2Apam;
+import fr.imag.adele.apam.apform.ApformCompositeType;
+import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
+import fr.imag.adele.apam.impl.ComponentImpl;
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
-import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.apform.ApformCompositeType;
-import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.impl.ComponentImpl;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * ApformCompositeType of and the factory of RemoteMachine.
@@ -46,9 +47,16 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
         //create my unique declaration
         declaration =  new CompositeDeclaration(PROP_MY_NAME,null,null);
         declaration.setInstantiable(false);
+    }
 
+    public void init(){
         //Add the ApformCompositeType to Apam
-        //Apform2Apam.newImplementation(this);
+        Apform2Apam.newImplementation(this);
+    }
+
+    public void destroy(){
+        //Remove this implem from the broker
+        ComponentBrokerImpl.disappearedComponent(getDeclaration().getName());
     }
 
     @Override
