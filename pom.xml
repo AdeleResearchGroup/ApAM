@@ -89,7 +89,7 @@
 
         <!-- Profile used to build icasa component -->
         <profile>
-            <id>icasa-components</id>
+            <id>icasa-simulation</id>
             <modules>
                 <module>simulation</module>
             </modules>

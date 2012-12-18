@@ -1,8 +1,8 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
-	<implementation name="fr.imag.adele.apam.pax.test.impl.S1Impl"
-		classname="fr.imag.adele.apam.pax.test.implS1.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
+	<implementation name="fr.imag.adele.apam.pax.test.impl.producerM1"
+		classname="fr.imag.adele.apam.pax.test.producerM1.M1Producer" specification="fr.imag.adele.apam.pax.test.msg.M1.Provider">
 
 		<callback onInit="start" onRemove="stop" />
 
@@ -11,8 +11,8 @@
 		<definition name="stateNotInternal" field="stateNotInternal"
 			type="string" internal="false" value="default" />
 
-		<dependency field="s2" />
-		<dependency field="s3" />
+		<dependency field="queueM2" />
+		<dependency field="queueM3" />
 		<dependency field="eletronicInstancesInSet" />
 		<dependency field="eletronicInstancesInArray" />
 
