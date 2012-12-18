@@ -48,7 +48,6 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 
 	public UpdateMan(){}
 	public UpdateMan(BundleContext context){
-		//this.context = context;
 	}
 
 

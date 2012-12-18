@@ -256,55 +256,56 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     }
 
     public String printDependencyDeclaration(String indent) {
-        String ret = indent + " dependency id: " + getIdentifier() + ". toward " + getTarget();
+        StringBuffer ret = new StringBuffer ();
+        ret.append (indent + " dependency id: " + getIdentifier() + ". toward " + getTarget()) ;
     
         
         if (!injections.isEmpty()) {
             // ret += "\n         Injected dependencies";
             for (DependencyInjection inj : injections) {
-                ret += "   " + inj;
+            	ret.append ("   " + inj);
             }
         }
 
         if (getCallback(CallbackTrigger.Bind)!=null && !getCallback(CallbackTrigger.Bind).isEmpty()) {
-            ret += "\n         added";
+        	ret.append ("\n         added");
             for (CallbackMethod inj : getCallback(CallbackTrigger.Bind)) {
-                ret += "\n            " + inj.methodName;
+            	ret.append ("\n            " + inj.methodName);
             }
         }
         
         if (getCallback(CallbackTrigger.Unbind)!=null && !getCallback(CallbackTrigger.Unbind).isEmpty()) {
-            ret += "\n         removed";
+        	ret.append ("\n         removed");
             for (CallbackMethod inj : getCallback(CallbackTrigger.Unbind)) {
-                ret += "\n            " + inj.methodName;
+            	ret.append ("\n            " + inj.methodName);
             }
         }
         
         if (!getImplementationConstraints().isEmpty()) {
-            ret += "\n         Implementation Constraints";
+        	ret.append ("\n         Implementation Constraints");
             for (String inj : getImplementationConstraints()) {
-                ret += "\n            " + inj;
+            	ret.append ("\n            " + inj);
             }
         }
         if (!getInstanceConstraints().isEmpty()) {
-            ret += "\n         Instance Constraints";
+        	ret.append ("\n         Instance Constraints");
             for (String inj : getInstanceConstraints()) {
-                ret += "\n            " + inj;
+            	ret.append ("\n            " + inj);
             }
         }
         if (!getImplementationPreferences().isEmpty()) {
-            ret += "\n         Implementation Preferences";
+        	ret.append ("\n         Implementation Preferences");
             for (String inj : getImplementationPreferences()) {
-                ret += "\n            " + inj;
+            	ret.append ("\n            " + inj);
             }
         }
         if (!getInstancePreferences().isEmpty()) {
-            ret += "\n         Instance Preferences";
+        	ret.append ("\n         Instance Preferences");
             for (String inj : getInstancePreferences()) {
-                ret += "\n            " + inj;
+            	ret.append ("\n            " + inj);
             }
         }
-        return ret;
+        return ret.toString();
 
     }
 

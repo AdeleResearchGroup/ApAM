@@ -15,8 +15,6 @@ public class CST {
 	public static final String REMOTABLE = "remotable";
 	// shared indicates if its instances can have more than one incoming wire
 	public static final String SHARED = "shared";
-//	//exclusive == shared=false and singleton=true
-//	public static final String EXCLUSIVE = "exclusive" ; 
 	//a single instance per implementation
 	public static final String SINGLETON = "singleton" ;
 
@@ -34,8 +32,6 @@ public class CST {
 	public static final String COMPONENT_TYPE 		= "component-type";
 	public static final String SPECIFICATION 		= "specification";
 	public static final String IMPLEMENTATION 		= "implementation";
-//	public static final String COMPOSITE_TYPE 		= "composite-type";
-//	public static final String COMPOSITE 			= "composite";
 	public static final String INSTANCE 			= "instance";
 	public static final String DEFINITION_PREFIX 	= "definition-";
 	public static final String PROVIDE_PREFIX 		= "provide-";
@@ -94,13 +90,12 @@ public class CST {
 	public static ApamResolver apamResolver = null;
 
 	// the Apam entry point.
-	
 	public static Apam apam = null;
 
 	public CST(APAMImpl theApam) {
-		CST.componentBroker = new ComponentBrokerImpl();
-		CST.apam = theApam;
-		CST.apamResolver = new ApamResolverImpl(theApam);
+		componentBroker = new ComponentBrokerImpl();
+		apam = theApam;
+		apamResolver = new ApamResolverImpl(theApam);
 	}
 
 }

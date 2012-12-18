@@ -73,7 +73,6 @@ public class ApformSpecificationImpl extends ApformComponentImpl implements Apfo
      */
     @Override
     protected void unbindFromApam(Apam apam) {
-        // Apform2Apam.vanishSpecification(getName());
         ComponentBrokerImpl.disappearedComponent(getName()) ;
 
     }

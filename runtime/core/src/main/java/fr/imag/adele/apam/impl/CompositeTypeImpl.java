@@ -26,7 +26,6 @@ import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 
-//import fr.imag.adele.sam.Implementation;
 
 public class CompositeTypeImpl extends ImplementationImpl implements CompositeType {
 
@@ -294,8 +293,6 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
         }
 
         //TODO Other control, other than provided resources ?
-//        boolean isConformingMainImplem = providesResources;
-//        assert isConformingMainImplem;
     }
     
     
@@ -478,21 +475,6 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
     public Set<CompositeType> getInvEmbedded() {
         return Collections.unmodifiableSet(invEmbedded);
     }
-
-    //    @Override
-    //    public boolean isInternal() {
-    //        String internalImplementations = (String) get(CST.A_INTERNALIMPL);
-    //        if (internalImplementations == null)
-    //            return false;
-    //        return internalImplementations.equals(CST.V_TRUE);
-    //    }
-    //
-    //    public boolean getInternalInst() {
-    //        String internalInstances = (String) get(CST.A_INTERNALINST);
-    //        if (internalInstances == null)
-    //            return false;
-    //        return internalInstances.equals(CST.V_TRUE);
-    //    }
 
     @Override
     public String toString() {
