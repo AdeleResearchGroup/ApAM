@@ -45,9 +45,6 @@ public interface ApamResolver {
 
     public Component findComponentByName(Instance client, String compName);
 
-//	public Implementation findImplByDependency (Instance client, DependencyDeclaration dep) ;
-
-
     /**
      * First looks for the specification defined by its name, and then resolve that specification.
      * Returns the implementation that implement the specification and that satisfies the constraints.

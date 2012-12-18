@@ -12,11 +12,6 @@ public interface Specification extends Component {
      */
     public ApformSpecification getApformSpec();
 
-    /**
-     * remove from ASM but does not try to delete in SAM. It deletes all its
-     * Implementations. No change of state. May be selected again later.
-     */
-    //    public void remove();
 
     /**
      * Return the implementation that implement that specification and has the provided name.

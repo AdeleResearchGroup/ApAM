@@ -39,14 +39,6 @@ public interface CompositeType extends Implementation {
      */
     public void addImport(CompositeType destination);
 
-    //    /**
-    //     * removes an "import" relationship.
-    //     * 
-    //     * @param destination
-    //     * @return
-    //     */
-    //    public boolean removeImport(CompositeType destination);
-
     /**
      * returns all the "import" relationships
      * 

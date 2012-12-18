@@ -58,20 +58,23 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	private  DependencyDeclaration getPromotion(Instance client, DependencyDeclaration dependency) {
 
-		//		DependencyDeclaration promotion = null;
-		if (client.getComposite().getDeclaration() == null)
+		if (client.getComposite().getDeclaration() == null) {
 			return null;
+		}
 
 		// take the dependency first in the instance, and if not found, in the implementation
 		Set<DependencyDeclaration> compoDeps = Util.computeAllDependencies(client.getComposite()) ;
-		if (compoDeps.isEmpty()) return null ;
+		if (compoDeps.isEmpty()) {
+			return null ;
+		}
 
 		//look if a promotion is explicitly declared for that client component
 		// <promotion implementation="A" dependency="clientDep" to="compoDep" />
 		// <promotion specification="SA" dependency="clientDep" to="compoDep" />
 		for (DependencyPromotion promo: client.getComposite().getCompType().getCompoDeclaration().getPromotions()) {
-			if (! promo.getContentDependency().getIdentifier().equals(dependency.getIdentifier()))
+			if (! promo.getContentDependency().getIdentifier().equals(dependency.getIdentifier())) {
 				continue;		// this promotion is not about our dependency  (not "clientDep")
+			}
 
 			String sourceName = promo.getContentDependency().getDeclaringComponent().getName();
 			//sourceName = "SA" or "A"
@@ -82,8 +85,9 @@ public class ApamResolverImpl implements ApamResolver {
 				for (DependencyDeclaration compoDep : compoDeps) {
 					if (compoDep.getIdentifier().equals(toName)) {
 						//We found the composite side. It is an explicit promotion. It should match.
-						if (Util.matchDependency (client, compoDep, dependency))
+						if (Util.matchDependency (client, compoDep, dependency)) {
 							return compoDep ;
+						}
 						logger.error ("Promotion is invalid. Dependency " + promo.getContentDependency().getIdentifier()
 								+ " of component " + sourceName + " does not match the composite dependency " + compoDep) ;
 						return null ;
@@ -93,8 +97,9 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		for (DependencyDeclaration compoDep : compoDeps) {
-			if  (Util.matchDependency(client, compoDep, dependency))
+			if  (Util.matchDependency(client, compoDep, dependency)) {
 				return compoDep ;
+			}
 		}
 		return null ;
 	}
@@ -102,8 +107,9 @@ public class ApamResolverImpl implements ApamResolver {
 	// if the instance is unused, it will become the main instance of a new composite.
 	private Composite getClientComposite(Instance mainInst) {
 
-		if (mainInst.isUsed())
+		if (mainInst.isUsed()) {
 			return mainInst.getComposite();
+		}
 
 		/*
 		 * We are resolving a reference from an unused client instance. We automatically build a new composite
@@ -141,11 +147,12 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	@Override
 	public boolean resolveWire(Instance client, String depName) {
-		logger.info("Resolving dependency " + depName + " from instance " + client.getName() );
 		if ((depName == null) || (client == null)) {
 			logger.error("missing client or dependency name");
 			return false;
 		}
+
+		logger.info("Resolving dependency " + depName + " from instance " + client.getName() );
 
 		//compute the set of constraints that apply to that resolution: inst + impl + spec + composite generique
 		DependencyDeclaration dependency = Util.computeEffectiveDependency (client, depName) ;
@@ -292,8 +299,9 @@ public class ApamResolverImpl implements ApamResolver {
 			/*
 			 * Skip apamman
 			 */
-			if (dependencyManager.getName().equals(CST.APAMMAN) || dependencyManager.getName().equals(CST.UPDATEMAN))
+			if (dependencyManager.getName().equals(CST.APAMMAN) || dependencyManager.getName().equals(CST.UPDATEMAN)) {
 				continue;
+			}
 			dependencyManager.getSelectionPath(client, dependency,selectionPath);
 		}
 
@@ -323,10 +331,11 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.info(" : logically deployed " + impl);
 		} else {// it was unused so far.
 			((ComponentImpl)impl).setFirstDeployed(compoType);
-			if (deployed) 
+			if (deployed) {
 				logger.info(" : deployed " + impl);				
-			else
+			} else {
 				logger.info(" : was here, unused " + impl);
+			}
 		}
 		((CompositeTypeImpl)compoType).deploy(impl);
 	}
@@ -341,8 +350,9 @@ public class ApamResolverImpl implements ApamResolver {
 
 	private <C extends Component> C findByName (Instance client, String componentName, Class<C> kind /*, Composite composite*/) {
 		if (componentName == null) return null;
-		if (client == null)
+		if (client == null) {
 			client = CompositeImpl.getRootInstance();
+		}
 
 		CompositeType compoType = CompositeTypeImpl.getRootCompositeType();
 		DependencyDeclaration dep = new DependencyDeclaration (compoType.getImplDeclaration().getReference(),
@@ -354,8 +364,9 @@ public class ApamResolverImpl implements ApamResolver {
 		logger.info("Looking for component " + componentName + ": ");
 		boolean deployed = false;
 		for (DependencyManager manager : selectionPath) {
-			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
+			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
 				deployed = true;
+			}
 			logger.debug(manager.getName() + "  ");
 			compo = manager.findComponentByName(client, componentName);
 
@@ -410,12 +421,15 @@ public class ApamResolverImpl implements ApamResolver {
 	@Override
 	public Implementation resolveSpecByName(Instance client, String specName,
 			Set<String> constraints, List<String> preferences) {
-		if (constraints == null)
+		if (constraints == null) {
 			constraints = new HashSet<String>();
-		if (preferences == null)
+		}
+		if (preferences == null) {
 			preferences = new ArrayList<String>();
-		if (client == null)
+		}
+		if (client == null) {
 			client = CompositeImpl.getRootInstance () ;
+		}
 		CompositeType compoTypeFrom = client.getComposite().getCompType();
 
 		DependencyDeclaration dep = new DependencyDeclaration (compoTypeFrom.getImplDeclaration().getReference(), specName, false, new SpecificationReference(specName));
@@ -451,8 +465,9 @@ public class ApamResolverImpl implements ApamResolver {
 		boolean deployed = false;
 
 		for (DependencyManager manager : selectionPath) {
-			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
+			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
 				deployed = true;
+			}
 			logger.debug(manager.getName() + "  ");
 			Resolved res = manager.resolveDependency(client, dependency, false);
 			if (res != null && res.implementations != null && !res.implementations.isEmpty()) {
@@ -494,8 +509,9 @@ public class ApamResolverImpl implements ApamResolver {
 		Resolved res = null ;
 		boolean deployed = false;
 		for (DependencyManager manager : selectionPath) {
-			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN))
+			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
 				deployed = true;
+			}
 			logger.debug(manager.getName() + "  ");
 			res = manager.resolveDependency(client, dependency, true);
 			/*
@@ -507,8 +523,9 @@ public class ApamResolverImpl implements ApamResolver {
 			if (res!=null && ((res.implementations != null && !res.implementations.isEmpty()) 
 				|| (res.instances != null && !res.instances.isEmpty()))) {
 				if (deployed && res.implementations != null) {
-					for (Implementation impl : res.implementations)
+					for (Implementation impl : res.implementations) {
 						deployedImpl(client, impl, deployed);
+					}
 				}
 				return res;
 			}
@@ -561,14 +578,17 @@ public class ApamResolverImpl implements ApamResolver {
 	public Instance resolveImpl(Instance client, Implementation impl,
 			Set<String> constraints, List<String> preferences) {
 		Set<Instance> insts = resolveImpls(client, impl,constraints) ;
-		if (insts == null || insts.isEmpty()) return null ;
+		if (insts == null || insts.isEmpty()) {
+			return null ;
+		}
 		return Select.getPrefered(insts, Util.toFilterList(preferences));
 	}
 
 	@Override
 	public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
-		if (client == null)
+		if (client == null) {
 			client = CompositeImpl.getRootInstance();
+		}
 
 		DependencyDeclaration dep = new DependencyDeclaration (client.getComposite().getCompType().getDeclaration().getReference(),
 				impl.getName(), true, new ImplementationReference<ImplementationDeclaration>(impl.getName()));

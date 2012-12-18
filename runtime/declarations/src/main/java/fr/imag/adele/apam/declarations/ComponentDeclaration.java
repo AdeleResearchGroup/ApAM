@@ -336,33 +336,34 @@ public abstract class ComponentDeclaration{
 	 */
 	public String printDeclaration (String indent) {
 		String nl = "\n" + indent ;
-        String ret = indent + " Declaration of " + name;
+        StringBuffer ret = new StringBuffer() ;
+        		ret.append(indent + " Declaration of " + name);
         if (providedResources.size() != 0) {
-            ret += nl + "   Provided resources: ";
+        	ret.append(nl + "   Provided resources: ");
             for (ResourceReference resRef : providedResources) {
-                ret += nl + "      " + resRef;
+            	ret.append(nl + "      " + resRef);
             }
         }
         if (dependencies.size() != 0) {
-            ret += nl + "   Dependencies: \n";
+        	ret.append(nl + "   Dependencies: \n");
             for (DependencyDeclaration resRef : dependencies) {
-                ret += resRef.printDependencyDeclaration(indent + "   ") + "\n";
+            	ret.append(resRef.printDependencyDeclaration(indent + "   ") + "\n");
             }
         }
         if (properties.size() != 0) {
-            ret += nl + "   Properties: ";
+        	ret.append(nl + "   Properties: ");
             for (Object resRef : properties.keySet()) {
-                ret += nl + "      " + (String) resRef + " = " + properties.get(resRef);
+            	ret.append(nl + "      " + (String) resRef + " = " + properties.get(resRef));
             }
         }
         if (definitions.size() != 0) {
-            ret += nl + "   Attribute definitions: ";
+        	ret.append(nl + "   Attribute definitions ") ;
             for (PropertyDefinition resRef : definitions) {
-                ret += nl + "      " + resRef;
+            	ret.append(nl + "      " + resRef);
             }
         }
         
-        return ret;
+        return ret.toString();
 	}
 
 }

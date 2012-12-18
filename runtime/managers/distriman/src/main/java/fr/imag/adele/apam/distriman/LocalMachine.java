@@ -3,6 +3,7 @@ package fr.imag.adele.apam.distriman;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.distriman.disco.MachineDiscovery;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -152,6 +153,11 @@ public enum LocalMachine {
                 //String remoteUrl = json.get(CLIENT_URL);
                 //get the dependency
                 RemoteDependency dependency = RemoteDependency.fromJson(json);
+
+                Resolved toto = apamMan.resolveDependency(null, dependency, true);
+
+
+
 
                 //TODO that's the meat, ask Distriman? to resolve the dependency and create the endpoint ?
 

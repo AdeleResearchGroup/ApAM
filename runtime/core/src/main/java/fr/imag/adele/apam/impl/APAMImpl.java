@@ -62,7 +62,6 @@ public class APAMImpl implements Apam {
 			Util.printFileToConsole(context.getBundle().getResource("logo.txt"));
 		} catch (IOException e) {
 		}
-		//System.out.println("APAM started");
     }
 
     @Override
@@ -231,8 +230,7 @@ public class APAMImpl implements Apam {
     		if (properties != null)
     			declaration.getProperties().putAll(properties);
     		
-    		if (models != null)
-    			this.models.addAll(models);
+    		this.models.addAll(models);
     		
     		numInstances = 0;
     	}
