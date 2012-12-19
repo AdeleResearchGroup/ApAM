@@ -309,7 +309,7 @@ public class OBRManager {
                 if (localMavenOBRRepo) {
                     URL localMavenObrUrl = findLocalMavenRepository();
                     if (localMavenObrUrl==null){
-                        logger.error("localRepository not found in : " + settings.getPath());
+                        logger.error("localRepository not found in : " + settings);
                     }
                     try {
                         declaredRepositories.add(repoAdmin.addRepository(localMavenObrUrl));

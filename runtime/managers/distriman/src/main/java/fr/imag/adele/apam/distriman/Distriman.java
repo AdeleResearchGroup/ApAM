@@ -1,32 +1,19 @@
 package fr.imag.adele.apam.distriman;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.felix.ipojo.annotations.Instantiate;
-import org.apache.felix.ipojo.annotations.Invalidate;
-import org.apache.felix.ipojo.annotations.Property;
-import org.apache.felix.ipojo.annotations.Requires;
-import org.apache.felix.ipojo.annotations.Validate;
+import fr.imag.adele.apam.*;
+import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.distriman.disco.MachineDiscovery;
+import org.apache.felix.ipojo.annotations.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.DependencyManager;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.Resolved;
-import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.distriman.disco.MachineDiscovery;
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 @org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman")
 @Instantiate
@@ -44,11 +31,11 @@ public class Distriman implements DependencyManager{
     @Requires(optional = false)
     private HttpService http;
 
-    private final DependencyManager apamMan;
-
 
     //Default logger
     private static Logger logger = LoggerFactory.getLogger(Distriman.class);
+
+    private final EndpointFactory endpointFactory = new EndpointFactory();
 
     private final RemoteMachineFactory remotes;
 
@@ -67,12 +54,12 @@ public class Distriman implements DependencyManager{
 
         remotes = new RemoteMachineFactory(context);
         discovery = new MachineDiscovery(remotes);
-        apamMan= ApamManagers.getManager(CST.APAMMAN);
     }
 
     public String getName() {
         return CST.DISTRIMAN;
     }
+
 
     //
     // DependencyManager methods
@@ -92,11 +79,10 @@ public class Distriman implements DependencyManager{
     public void newComposite(ManagerModel model, CompositeType composite) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
-   
-	@Override
-    public Set<Implementation> resolveDependency(Instance client, DependencyDeclaration dependency, Set<Instance> insts) {
 
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+	@Override
+	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -149,7 +135,7 @@ public class Distriman implements DependencyManager{
         logInfo("Starting...");
 
         //init the local machine
-        my_local.init("localhost",HTTP_PORT);
+        my_local.init("localhost",HTTP_PORT,this);
 
         //start the discovery
         discovery.start(HOST);
@@ -188,6 +174,25 @@ public class Distriman implements DependencyManager{
     }
 
     //
+    // Endpoints Creation methods
+    //
+
+
+    public EndpointRegistration resolveRemoteDependency(RemoteDependency dependency, String machineUrl){
+        EndpointRegistration registration = null;
+
+        //Get the composite that represent the remote machine asking to resolve the RemoteDependency
+        RemoteMachine remote = remotes.getRemoteMachine(machineUrl);
+
+        //No RemoteMachine corresponding to the given url is available
+        if(remote == null){
+            return null;
+        }
+
+        return endpointFactory.resolveAndExport(dependency,remote);
+    }
+
+    //
     // Convenient static log method
     //
 
@@ -198,5 +203,4 @@ public class Distriman implements DependencyManager{
     protected static void logInfo(String message){
         logger.info("["+CST.DISTRIMAN+"]"+message);
     }
-
 }

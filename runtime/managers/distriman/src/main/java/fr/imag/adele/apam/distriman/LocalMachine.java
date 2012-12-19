@@ -3,7 +3,6 @@ package fr.imag.adele.apam.distriman;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.DependencyManager;
-import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.distriman.disco.MachineDiscovery;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.UUID;
 
 import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
@@ -37,15 +37,19 @@ public enum LocalMachine {
 
     private String host = null;
     private int port = -1;
+    private Distriman distriman;
 
     /**
      * Initialize the machine.
      * @param host The machine hostname.
      * @param port The http port.
+     * @param distriman This machine Distriman.
      */
-    public void init(String host, int port){
+    public void init(String host, int port, Distriman distriman){
+        assert distriman != null;
         assert (host != null);
         assert port > 0;
+
 
         if (this.host != null || this.port != -1){
             return; //todo log
@@ -53,6 +57,7 @@ public enum LocalMachine {
 
         this.host=host;
         this.port=port;
+        this.distriman=distriman;
     }
 
     /**
@@ -109,6 +114,7 @@ public enum LocalMachine {
      */
     private class MyServlet extends HttpServlet{
         private static final String MEDIA_TYPE = "application/json";
+        private static final String CLIENT_URL = "client_url";
         private final DependencyManager apamMan;
 
         private MyServlet() {
@@ -150,22 +156,39 @@ public enum LocalMachine {
             try {
                 JSONObject json = new JSONObject(content.toString());
 
-                //String remoteUrl = json.get(CLIENT_URL);
+                //Get the RemoteMachine url
+                String remoteUrl = json.getString(CLIENT_URL);
+
                 //get the dependency
                 RemoteDependency dependency = RemoteDependency.fromJson(json);
 
-                Resolved toto = apamMan.resolveDependency(null, dependency, true);
+                //that's the meat, ask Distriman? to resolve the dependency and create the endpoint ?
+                EndpointRegistration reg = distriman.resolveRemoteDependency(dependency,remoteUrl);
 
+                PrintWriter writer = resp.getWriter(); //Write the response
+                //Cannot resolved!
+                if(reg == null){
+                    resp.setStatus(204); //Return a NO CONTENT 204
+                } else {
+                    resp.setStatus(200); //OK
+                    resp.setContentType(MEDIA_TYPE);
+                    writer.write(toJson(reg)); //Parse the EndpointRegistration
+                }
 
-
-
-                //TODO that's the meat, ask Distriman? to resolve the dependency and create the endpoint ?
-
+                writer.close();
 
             } catch (JSONException e) {
                 throw new IOException(e);
             }
         }
+    }
+
+    private static String toJson(EndpointRegistration registration) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("endpoint_url",registration.getEndpointUrl());
+        json.put("protocol",registration.getProtocol());
+        json.put("instance_name",registration.getInstance().getName());
+        return json.toString();
     }
 
 }
