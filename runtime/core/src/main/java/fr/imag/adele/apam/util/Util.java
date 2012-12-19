@@ -128,42 +128,78 @@ public final class Util {
 
 	/**
 	 * Provided a string contain a list of values, return an array of string containing the different values.
-	 * A list is of the form "{A, B, .... G}" or "[A, B, .... G]"
+	 * A list is of the form "{A, B, .... G}" or simply "A, B, .... G"
+	 * Ignores spaces around commas, and around braces.
 	 *
-	 * If the string is empty or is not a list, return the empty array.
+	 * If the string is empty or empty list ("{}"), return the empty array.
 	 *
 	 * @param str
-	 * @return
+	 * @return a string array. Never null, but can be length 0
 	 */
 	public static String[] split(String str) {
 		if ((str == null) || (str.length() == 0)) {
 			return new String[0];
 		}
 
-		str.trim();
-		if ((str.charAt(0) != '{') && (str.charAt(0) != '[')) {
-			return stringArrayTrim(str.split(","));
+		str = str.trim();
+		if  (str.length() == 0){
+			return new String[0];
 		}
 
-		str.replaceAll("\\ ", "");
-		str.replaceAll(";", ",");
-		str.replaceAll("\\[,", "[");
-		str.replaceAll(",]", "]");
-
-		String internal;
-		if (((str.charAt(0) == '{') && (str.charAt(str.length() - 1) == '}'))
-				|| ((str.charAt(0) == '[') && (str.charAt(str.length() - 1) == ']'))) {
-
-			internal = (str.substring(1, str.length() - 1)).trim();
-			// Check empty array
-			if (internal.length() == 0) {
+		//It is an explicit set. Remove braces.
+		if (str.charAt(0) == '{')  {
+			if (str.charAt(str.length() - 1) != '}') {
+				logger.error("Invalid string. \"}\" missing: " + str) ;
+			}
+			str = (str.substring(1, str.length() - 1)).trim();
+			//It was an empty set ("{}"
+			if (str.length() == 0) {
 				return new String[0];
 			}
-			return internal.split(",");
-		} else {
-			return new String[] { str };
 		}
+
+		//It is a simple set of values or a singleton
+		return stringArrayTrim(str.split(","));
 	}
+
+	//	/**
+	//	 * Provided a string contain a list of values, return an array of string containing the different values.
+	//	 * A list is of the form "{A, B, .... G}" or "[A, B, .... G]"
+	//	 *
+	//	 * If the string is empty or is not a list, return the empty array.
+	//	 *
+	//	 * @param str
+	//	 * @return
+	//	 */
+	//	public static String[] split(String str) {
+	//		if ((str == null) || (str.length() == 0)) {
+	//			return new String[0];
+	//		}
+	//
+	//		str.trim();
+	//		if ((str.charAt(0) != '{') && (str.charAt(0) != '[')) {
+	//			return stringArrayTrim(str.split(","));
+	//		}
+	//
+	//		str.replaceAll("\\ ", "");
+	//		str.replaceAll(";", ",");
+	//		str.replaceAll("\\[,", "[");
+	//		str.replaceAll(",]", "]");
+	//
+	//		String internal;
+	//		if (((str.charAt(0) == '{') && (str.charAt(str.length() - 1) == '}'))
+	//				|| ((str.charAt(0) == '[') && (str.charAt(str.length() - 1) == ']'))) {
+	//
+	//			internal = (str.substring(1, str.length() - 1)).trim();
+	//			// Check empty array
+	//			if (internal.length() == 0) {
+	//				return new String[0];
+	//			}
+	//			return internal.split(",");
+	//		} else {
+	//			return new String[] { str };
+	//		}
+	//	}
 
 	/*
 	 * return true if expression is null, "true" or if the component matches the expression.
@@ -351,56 +387,86 @@ public final class Util {
 	 * @param value
 	 * @param type
 	 */
-	public static Object checkAttrType(String attr, String value, String type) {
-		if ((type == null) || (value == null)) {
+	public static Object checkAttrType(String attr, String value, String types) {
+		if ((types == null) || (value == null)) {
 			return null;
 		}
 
-		if (type.equals("boolean")) {
-			if (value.equalsIgnoreCase(CST.V_TRUE) || value.equalsIgnoreCase(CST.V_FALSE)) {
-				return value ;
-			}
-			logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
-					+ "\".  Boolean value expected");
-			return null;
-		}
-		if (type.equals("int") || type.equals("integer")) {
-			Set<String> values = Util.splitSet(value);
-			Integer valInt = null ;
-			try {
-				for (String val : values) {
-					valInt = Integer.parseInt(val);
-				}
-				return valInt;
-			} catch (Exception e) {
-				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
-						+ "\".  Integer value(s) expected");
-				return null;
-			}
-		}
-
-		Set<String> enumVals = Util.splitSet(type);
-
-		//A single value : it must be only "string"
-		if (enumVals.size() == 1) {
-			if (type.equals("string")) {
-				return value ;
-			}
-			logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr);
+		boolean isEnum = (types.charAt(0)=='{' );
+		Set<String> enumVals = Util.splitSet(types);
+		if (enumVals == null || enumVals.size()==0) {
+			logger.error("invalid type \"" + types  + "\" for attribute \"" + attr);
 			return null ;
 		}
+		String type = enumVals.iterator().next() ;
 
-		//It is an enumeration
-		Set<String> values = Util.splitSet(value);
+		Set<String> values   = Util.splitSet(value);		
+		if (values.size() > 1 && !isEnum) {
+				logger.error("Values are a set \"" + values  + "\" for attribute \"" + attr
+						+ "\". while type is singleton: \"" + types + "\"");
+				return null ;
+		}
+
+		//Type is a singleton : it must be only "string", "int", "boolean"
+		//but value can still be a set
+		if (enumVals.size() == 1) {
+			if (type.equals("boolean")) {
+				if (value.equalsIgnoreCase(CST.V_TRUE) || value.equalsIgnoreCase(CST.V_FALSE)) {
+					return value ;
+				}
+				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
+						+ "\".  Boolean value expected");
+				return null;
+			}
+			
+			if (type.equals("int") || type.equals("integer")) {
+				Integer valInt = null ;
+				try {
+					for (String val : values) {
+						valInt = Integer.parseInt(val);
+					}
+					return valInt;
+				} catch (Exception e) {
+					logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
+							+ "\".  Integer value(s) expected");
+					return null;
+				}
+			}
+			
+			if (!type.equals("string")) {
+				logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
+						+ "\".  int, integer, boolean or string expected");
+			}
+			//All values are Ok for string.
+			return value ;
+		}
+		
+		//Type is an enumeration with at least 2 values
 		if (enumVals.containsAll(values)) {
 			return value;
 		}
 
 		String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
-				+ "\".  Expected subset of: " + type;
+				+ "\".  Expected subset of: " + types;
 		logger.error(errorMes);
 		return null;
 	}
+
+		//A single value : it must be only "string"
+//		if (enumVals.size() == 1) {
+//			if (type.equals("string")) {
+//				return value ;
+//			}
+//			logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr);
+//			return null ;
+//		}
+
+		//It is a set: either a set of integer, or an enumeration
+//		Set<String> values = Util.splitSet(value);
+//		if (type.equals("string")) {
+//			return value ;
+//		}
+
 
 	public static String[] stringArrayTrim(String[] strings) {
 		String[] ret = new String[strings.length];
@@ -629,14 +695,14 @@ public final class Util {
 
 		//Find the first dependency declaration.
 		Component depComponent = client ;
-		
+
 		//take the declaration declared at the most concrete level
 		DependencyDeclaration dependency = client.getApformInst().getDeclaration().getDependency(depName);
 		if (dependency == null) {
 			dependency = client.getImpl().getApformImpl().getDeclaration().getDependency(depName);
 			depComponent = client.getImpl() ;
 		}
-		
+
 		//the dependency can be defined at spec level if implem is a composite
 		if (dependency == null) {
 			dependency = client.getSpec().getApformSpec().getDeclaration().getDependency(depName);

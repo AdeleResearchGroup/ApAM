@@ -147,7 +147,6 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("=========== passed testCreateCompoBySpec\n\n");
 	}
 
-	@Deprecated
 	public void testInitialAttributes () {
 		System.out.println("=========== start testInitialAttributes");
 		Map<String, String> props = new HashMap<String, String>();
@@ -255,6 +254,24 @@ public class MainApam implements Runnable, ApamComponent {
 
 		System.out.println("=========== start testing setting attributes");
 
+//		<property   name="autoString" value="aValue" type="string"/>
+//		<property   name="autoSet" value="Z-1, Z-2" type="{Z-0, Z-1, Z-2, Z-3}"/>
+
+		//setting auto defined attributes
+		assertEquals (impl.getProperty("autoString"), "aValue") ;
+		assertEquals (inst.getProperty("autoString"), "aValue") ;
+		assertEquals (impl.getProperty("autoSet"), "Z-1, Z-2") ;
+		assertEquals (inst.getProperty("autoSet"), "Z-1, Z-2") ;
+
+		impl.setProperty("autoString", "New-value") ;
+		assertEquals (impl.getProperty("autoString"), "New-value") ;
+		assertEquals (inst.getProperty("autoString"), "New-value") ;
+		impl.setProperty("autoSet", "Z-3, Z-2") ;
+		assertEquals (impl.getProperty("autoSet"), "Z-3, Z-2") ;
+		assertEquals (inst.getProperty("autoSet"), "Z-3, Z-2") ;
+
+
+		
 		//Setting spec attributes. 
 		spec.setProperty("xxx", "value") ;
 		assertTrue (spec.getProperty("xxx") == null) ;
@@ -603,12 +620,12 @@ public class MainApam implements Runnable, ApamComponent {
 
 		System.out.println("Starting new mainApam " );
 
-		testFindImplByName () ;
+//		testFindImplByName () ;
 		//testCompoURL () ;
 //		testCreateCompoRootS1toS2Final () ;
 //		testCreateCompoBySpec () ;
-//		testInitialAttributes () ;
-//		testSettingAttributes () ;
+		testInitialAttributes () ;
+		testSettingAttributes () ;
 //		testImplemWithoutSpec () ;
 	}
 
