@@ -145,7 +145,7 @@ public class ApamCapability {
 	}
 
 	public String getAttrDefinition (String name) {
-		ApamCapability group = (getGroup() == null) ? this : getGroup() ;
+		ApamCapability group = this ; // (getGroup() == null) ? this : getGroup() ;
 		String defAttr ;
 		while (group != null) {
 			defAttr = group.getLocalAttrDefinition(name)  ;

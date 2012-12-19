@@ -120,11 +120,16 @@ public class CheckObr {
 
 		// return the valid attributes
 		for (String attr : properties.keySet()) {
-			Object val = validDefObr (entCap, attr, properties.get(attr)) ;
-			if (val != null) {
-				ret.put(attr, val) ;
-			}
+			String defAttr = getDefAttr (entCap, attr, properties.get(attr)) ;
+			if (defAttr == null) continue ;
+			Object val = Util.checkAttrType(attr, properties.get(attr), defAttr);
+			if (val == null) {
+				CheckObr.failedChecking = true;
+				continue ;
+			} 
+			ret.put(attr, val) ;									
 		}
+
 
 		// add the attribute coming from "above" if not already instantiated and heritable
 		ApamCapability group = entCap.getGroup();
@@ -187,25 +192,24 @@ public class CheckObr {
 	 * @param superGroupProps
 	 * @return
 	 */
-	private static Object validDefObr (ApamCapability ent, String attr, String value) {
+	private static String getDefAttr (ApamCapability ent, String attr, String value) {
 		if (Util.isFinalAttribute(attr))
-			return false;
+			return null;
 		if (!Util.validAttr(ent.getName(), attr))
-			return false;
+			return null;
 
 		if (ent.getGroup() != null && ent.getGroup().getProperties().get(attr) != null) {
-			warning("Cannot redefine attribute \"" + attr + "\"");
-			return false;
+			error("Cannot redefine attribute \"" + attr + "\"");
+			return null;
 		}
 
 		String defAttr = ent.getAttrDefinition(attr);
 
 		if (defAttr == null) {
-			warning("In " + ent.getName() + ", attribute \"" + attr + "\" used but not defined.");
-			return false;
+			error("In " + ent.getName() + ", attribute \"" + attr + "\" used but not defined.");
+			return null;
 		}
-
-		return Util.checkAttrType(attr, value, defAttr);
+		return defAttr ;
 	}
 
 	/**
@@ -368,13 +372,13 @@ public class CheckObr {
 			if (dep.isEager() != null || dep.isHide() != null) {
 				CheckObr.error("Cannot set flags \"eager\" or \"hide\" on a dependency " + dep.getIdentifier());
 			}
-			
+
 			//Checking if the exception is existing
 			String except = dep.getMissingException() ;
-//			for (String cp : (Set<String>)OBRGeneratorMojo.classpathDescriptor.getClasss()) {
-//				System.out.println(cp);
-//			}
-//		
+			//			for (String cp : (Set<String>)OBRGeneratorMojo.classpathDescriptor.getClasss()) {
+			//				System.out.println(cp);
+			//			}
+			//		
 			if (except != null && OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(except) == null) {
 				error ("Exception " + except + " undefined in " + dep) ;
 			}
@@ -503,7 +507,10 @@ public class CheckObr {
 				continue;
 			}
 			for (String attr : start.getProperties().keySet()) {
-				validDefObr(cap, attr, start.getProperties().get(attr));
+				String defAttr = getDefAttr(cap, attr, start.getProperties().get(attr));
+				if (defAttr == null ||  Util.checkAttrType(attr, start.getProperties().get(attr), defAttr)== null) {
+					error ("invalid attribute " + attr + " = " + start.getProperties().get(attr)) ;
+				}
 			}
 			checkDependencies(start.getDependencies());
 
@@ -781,12 +788,12 @@ public class CheckObr {
 				for (String constraint : pol.getInstancePreferences()) {
 					ApamFilter.newInstance(constraint, false);
 				}
-				
+
 				//Checking if the exception is existing
 				String except = pol.getMissingException() ;
-//				for (String cp : (Set<ClasspathDescriptor>)OBRGeneratorMojo.classpathDescriptor.getClasss()) {
-//					System.out.println(cp);
-//				}
+				//				for (String cp : (Set<ClasspathDescriptor>)OBRGeneratorMojo.classpathDescriptor.getClasss()) {
+				//					System.out.println(cp);
+				//				}
 				if (except != null && OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(except) == null) {
 					error ("Exception " + except + " undefined in " + pol) ;
 				}
@@ -805,7 +812,7 @@ public class CheckObr {
 	 */
 	private static void checkPromote(CompositeDeclaration composite) {
 		if (composite.getPromotions() == null) return ;
-		
+
 		for (DependencyPromotion promo : composite.getPromotions()) {
 			ComponentDeclaration internalComp= ApamCapability.getDcl(promo.getContentDependency().getDeclaringComponent());
 			if (internalComp == null) {
