@@ -31,11 +31,11 @@ public class Distriman implements DependencyManager{
     @Requires(optional = false)
     private HttpService http;
 
-    private final DependencyManager apamMan;
-
 
     //Default logger
     private static Logger logger = LoggerFactory.getLogger(Distriman.class);
+
+    private final EndpointFactory endpointFactory = new EndpointFactory();
 
     private final RemoteMachineFactory remotes;
 
@@ -54,12 +54,23 @@ public class Distriman implements DependencyManager{
 
         remotes = new RemoteMachineFactory(context);
         discovery = new MachineDiscovery(remotes);
-        apamMan= ApamManagers.getManager(CST.APAMMAN);
     }
 
     public String getName() {
         return CST.DISTRIMAN;
     }
+
+
+    public EndpointRegistration resolveLocalAndExport(RemoteDependency rdep,String remoteUrl){
+        RemoteMachine machine = remotes.getRemoteMachine(remoteUrl);
+
+        if(remoteUrl == null){
+            return null;
+        }
+
+        return endpointFactory.resolveAndExport(rdep,machine);
+    }
+
 
     //
     // DependencyManager methods
@@ -135,7 +146,7 @@ public class Distriman implements DependencyManager{
         logInfo("Starting...");
 
         //init the local machine
-        my_local.init("localhost",HTTP_PORT);
+        my_local.init("localhost",HTTP_PORT,this);
 
         //start the discovery
         discovery.start(HOST);
@@ -174,6 +185,25 @@ public class Distriman implements DependencyManager{
     }
 
     //
+    // Endpoints Creation methods
+    //
+
+
+    public EndpointRegistration resolveRemoteDependency(RemoteDependency dependency, String machineUrl){
+        EndpointRegistration registration = null;
+
+        //Get the composite that represent the remote machine asking to resolve the RemoteDependency
+        RemoteMachine remote = remotes.getRemoteMachine(machineUrl);
+
+        //No RemoteMachine corresponding to the given url is available
+        if(remote == null){
+            return null;
+        }
+
+        return endpointFactory.resolveAndExport(dependency,remote);
+    }
+
+    //
     // Convenient static log method
     //
 
@@ -184,5 +214,4 @@ public class Distriman implements DependencyManager{
     protected static void logInfo(String message){
         logger.info("["+CST.DISTRIMAN+"]"+message);
     }
-
 }

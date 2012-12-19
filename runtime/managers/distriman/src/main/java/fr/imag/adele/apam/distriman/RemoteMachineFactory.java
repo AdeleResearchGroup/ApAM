@@ -1,6 +1,5 @@
 package fr.imag.adele.apam.distriman;
 
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformCompositeType;
@@ -112,15 +111,12 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
 
     /**
      * @param url The RemoteMachine url
-     * @return The Instance of the composite representing the machine of given <code>url</code>
+     * @return The RemoteMachine representing the machine of given <code>url</code>
      */
-    public Instance getRemoteMachineInstance(String url){
-        RemoteMachine machine;
+    public RemoteMachine getRemoteMachine(String url){
         synchronized (machines){
-            machine = machines.get(url);
+            return machines.get(url);
         }
-
-        return machine.getInst();
     }
 
 
