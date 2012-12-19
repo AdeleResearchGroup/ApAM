@@ -33,6 +33,9 @@
 <node CREATED="1353070377590" ID="ID_382562301" MODIFIED="1354294378716" TEXT="Filtering applied in string values should work properly-tc008">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1355931835542" ID="ID_1074078486" MODIFIED="1355931855588" TEXT="test set of int/string/boolean types">
+<icon BUILTIN="button_cancel"/>
+</node>
 </node>
 <node CREATED="1353066008853" ID="ID_82303023" MODIFIED="1353071077628" TEXT="Constraint">
 <node CREATED="1353070505975" ID="ID_346843196" MODIFIED="1354294409593" TEXT="injected instance should respect constraint declared in XML-tc009">
