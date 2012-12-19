@@ -1,7 +1,7 @@
 package fr.imag.adele.apam.distriman;
 
+
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
@@ -50,7 +50,7 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
 
     public void init(){
         //Add the ApformCompositeType to Apam
-        Apform2Apam.newImplementation(this);
+        //Apform2Apam.newImplementation(this);
     }
 
     public void destroy(){

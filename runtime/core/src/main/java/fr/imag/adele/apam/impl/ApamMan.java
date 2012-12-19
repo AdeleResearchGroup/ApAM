@@ -62,7 +62,6 @@ public class ApamMan implements DependencyManager {
 
 	@Override
 	public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences) {
-		//		Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
 		List<Filter> f = Util.toFilterList(preferences) ;
 		return Select.getPrefered(resolveImpls(client, impl, constraints), f) ;
 	}
@@ -218,7 +217,7 @@ public class ApamMan implements DependencyManager {
 		 * Return a single element in both impls and insts
 		 */
 		if (insts != null && !insts.isEmpty()) {
-			//logger.debug("Candidates : " + insts) ;
+			
 			Instance inst = Select.selectBestInstance (impls, insts, dep) ;
 			insts.clear();
 			insts.add(inst) ;

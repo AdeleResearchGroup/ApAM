@@ -8,8 +8,8 @@ public interface ApamComponent {
      * 
      * @param apamInstance : this instance.
      */
-    public void apamInit(Instance apamInstance);
+    void apamInit(Instance apamInstance);
 
-    public void apamRemove();
+    void apamRemove();
 
 }

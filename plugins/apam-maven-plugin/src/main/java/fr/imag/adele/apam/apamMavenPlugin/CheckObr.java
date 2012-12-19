@@ -371,8 +371,12 @@ public class CheckObr {
 			
 			//Checking if the exception is existing
 			String except = dep.getMissingException() ;
-			if (except!=null && OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(except) == null) {
-				error ("Exception " + except + " undefined in dependency " + dep) ;
+//			for (String cp : (Set<String>)OBRGeneratorMojo.classpathDescriptor.getClasss()) {
+//				System.out.println(cp);
+//			}
+//		
+			if (except != null && OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(except) == null) {
+				error ("Exception " + except + " undefined in " + dep) ;
 			}
 		}
 	}
@@ -473,12 +477,12 @@ public class CheckObr {
 	 */
 	public static void checkCompositeContent(CompositeDeclaration component) {
 
-		checkStart((CompositeDeclaration) component);
-		checkState((CompositeDeclaration) component);
-		checkOwn((CompositeDeclaration) component);
-		checkVisibility((CompositeDeclaration) component);
-		checkContextualDependencies((CompositeDeclaration) component);
-		checkPromote((CompositeDeclaration) component);
+		checkStart(component);
+		checkState(component);
+		checkOwn( component); //and grant
+		checkVisibility( component);
+		checkContextualDependencies(component);
+		checkPromote(component);
 	}
 
 	/**
@@ -756,7 +760,9 @@ public class CheckObr {
 	/**
 	 * Cannot check almost nothing !
 	 * Because of wild cards, components are not known, and their attribute and dependencies cannot be checked.
-	 * Only the syntax of filters can be checked.
+	 * Only 
+	 * 		the syntax of filters can be checked.
+	 * 		the exceptions
 	 * 
 	 * @param component
 	 */
@@ -778,8 +784,11 @@ public class CheckObr {
 				
 				//Checking if the exception is existing
 				String except = pol.getMissingException() ;
+//				for (String cp : (Set<ClasspathDescriptor>)OBRGeneratorMojo.classpathDescriptor.getClasss()) {
+//					System.out.println(cp);
+//				}
 				if (except != null && OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(except) == null) {
-					error ("Exception " + except + " undefined in generic dependency " + pol) ;
+					error ("Exception " + except + " undefined in " + pol) ;
 				}
 
 			}

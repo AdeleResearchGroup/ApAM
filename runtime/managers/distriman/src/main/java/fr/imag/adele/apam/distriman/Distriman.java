@@ -61,17 +61,6 @@ public class Distriman implements DependencyManager{
     }
 
 
-    public EndpointRegistration resolveLocalAndExport(RemoteDependency rdep,String remoteUrl){
-        RemoteMachine machine = remotes.getRemoteMachine(remoteUrl);
-
-        if(remoteUrl == null){
-            return null;
-        }
-
-        return endpointFactory.resolveAndExport(rdep,machine);
-    }
-
-
     //
     // DependencyManager methods
     //
@@ -90,7 +79,7 @@ public class Distriman implements DependencyManager{
     public void newComposite(ManagerModel model, CompositeType composite) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
-   
+
 	@Override
 	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
 		// TODO Auto-generated method stub

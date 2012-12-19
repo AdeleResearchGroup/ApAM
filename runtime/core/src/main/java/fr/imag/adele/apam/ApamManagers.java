@@ -67,13 +67,10 @@ public class ApamManagers {
         }
         
         ManagerModel rootModel = CompositeTypeImpl.getRootCompositeType().getModel(manager.getName());
-//        if (rootModel != null) {
-//        	manager.newComposite(rootModel, CompositeTypeImpl.getRootCompositeType());
-//        }
         // the root model maybe null
         manager.newComposite(rootModel, CompositeTypeImpl.getRootCompositeType());
         
-        ApamManagers.dependencyManagersPrio.put(manager, new Integer(priority));
+        ApamManagers.dependencyManagersPrio.put(manager, Integer.valueOf(priority));
     }
 
     public static DependencyManager getManager(String managerName) {

@@ -163,7 +163,7 @@ public enum LocalMachine {
                 RemoteDependency dependency = RemoteDependency.fromJson(json);
 
                 //that's the meat, ask Distriman? to resolve the dependency and create the endpoint ?
-                EndpointRegistration reg = distriman.resolveLocalAndExport(dependency,remoteUrl);
+                EndpointRegistration reg = distriman.resolveRemoteDependency(dependency,remoteUrl);
 
                 PrintWriter writer = resp.getWriter(); //Write the response
                 //Cannot resolved!
