@@ -262,8 +262,6 @@ public class ContentManager  {
 				}
 			}
 			
-//			if (! hasField || dependency.isMultiple() || dependency.isEager())
-//				dynamicDependencies.add(new DynamicResolutionRequest(CST.apamResolver,instance,dependency));
 			if (! hasField || dependency.isMultiple() || dependency.isEffectiveEager()) {
 				DynamicResolutionRequest dynamicRequest = new DynamicResolutionRequest(CST.apamResolver,instance,dependency);
 				dynamicDependencies.add(dynamicRequest);
@@ -515,6 +513,47 @@ public class ContentManager  {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * The list of potential ownership's conflict between this content manager and the one specified in the parameter
+	 */
+	public Set<OwnedComponentDeclaration> getConflictingDeclarations(ContentManager that) {
+		
+		Set<OwnedComponentDeclaration> conflicts = new HashSet<OwnedComponentDeclaration>();
+		
+		for (OwnedComponentDeclaration thisDeclaration : declaration.getOwnedComponents()) {
+			
+			ComponentReference<?> thisSpecification = thisDeclaration.getProperty().getDeclaringComponent();
+			String thisProperty						= thisDeclaration.getProperty().getIdentifier();
+			Set<String> theseValues					= new HashSet<String>(thisDeclaration.getValues());
+			
+			/*
+			 * Ownership declarations are conflicting if they refer to the same specification, with different
+			 * properties or with the same values for the same property
+			 */
+
+			boolean hasConflict = false;
+			for (OwnedComponentDeclaration	thatDeclaration : that.declaration.getOwnedComponents()) {
+				
+				ComponentReference<?> thatSpecification = thatDeclaration.getProperty().getDeclaringComponent();
+				String thatProperty						= thatDeclaration.getProperty().getIdentifier();
+				Set<String> thoseValues					= new HashSet<String>(thatDeclaration.getValues());
+				
+				if (thisSpecification.equals(thatSpecification))
+					continue;
+				 
+				if( !thisProperty.equals(thatProperty) || theseValues.retainAll(thoseValues)) 
+					hasConflict = true;;
+				
+			}
+			
+			if (hasConflict)
+				conflicts.add(thisDeclaration);
+			
+		}
+		
+		return conflicts;
 	}
 	
 	/**

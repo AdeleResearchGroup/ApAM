@@ -32,6 +32,7 @@ import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
@@ -272,12 +273,26 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 			try {
 
-				ContentManager manager = new ContentManager(this,composite);
-				contentManagers.put(composite,manager);
+				ContentManager newManager = new ContentManager(this,composite);
 				
+				/*
+				 * Validate there is no conflict in ownership declarations with existing composites
+				 */
+				for (ContentManager manager : contentManagers.values()) {
+					Set<OwnedComponentDeclaration> conflicts = newManager.getConflictingDeclarations(manager);
+					if (!conflicts.isEmpty())
+						throw new InvalidConfiguration("Invalid owned declaration, conflicts with "+manager.getComposite().getName()+":"+conflicts);
+				}
+
+				/*
+				 * register manager
+				 */
+				contentManagers.put(composite,newManager);
+
 				/*
 				 * For all the existing instances we consider the impact of the newly created composite
 				 * in ownership
+				 * 
 				 */
 				for (Instance instance : CST.componentBroker.getInsts()) {
 					verifyOwnership(instance);
