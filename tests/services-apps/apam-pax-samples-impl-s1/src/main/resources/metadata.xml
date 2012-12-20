@@ -92,6 +92,13 @@
 		<definition name="property-03" value="default-03" type="string" />
 		<definition name="property-04" value="default-04" type="string" />
 		<definition name="property-05" value="default-05" type="string" />
+		<property name="setInt" type="{int}" value="{12,15,254, 0}"/>
+		<property name="setInteger" type="{integer}" value="{12,15,254, 0}"/>
+		<property name="setString" type="{string}" value="{I,was,early,taught,to,work,as,well,as,play,My,life,has,been,one,long,happy,holiday}"/>
+		<!-- 
+		<property name="setBoolean" type="{boolean}" value="{false,false,false,false,false,false,true,false,false,false,true,true,false}"/>
+		 -->
+		
 	</implementation>
 
 	<implementation name="LgSwitch"
