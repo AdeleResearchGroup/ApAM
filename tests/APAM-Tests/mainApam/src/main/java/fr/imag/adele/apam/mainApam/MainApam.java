@@ -164,11 +164,12 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("Tested instance : " + appliTestAttr_0.getName());
 
 		//since the composite type has no spec, all initial values are valid.
+		//No longer ! all attr must be defined now.
 		assertTrue (appliTestAttr_0 != null) ;
-		assertEquals (appliTestAttr_0.getProperty("testMain"), "valeurTestMain") ;
-		assertEquals (appliTestAttr_0.getProperty("scope"), "5") ;
+		assertNotEquals (appliTestAttr_0.getProperty("testMain"), "valeurTestMain") ;
+		assertNotEquals (appliTestAttr_0.getProperty("scope"), "5") ;
 		assertNotEquals (appliTestAttr_0.getProperty("impl-name"), "5") ;
-		assertEquals (appliTestAttr_0.getProperty("location") , "anywhere") ;
+		assertNotEquals (appliTestAttr_0.getProperty("location") , "anywhere") ;
 		//		assertTrue (appliTestAttr_0.getProperty("testEnumere") == null) ;
 
 		System.out.println("=========== passed testInitialAttributes\n\n");
@@ -270,7 +271,8 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals (impl.getProperty("autoSet"), "Z-3, Z-2") ;
 		assertEquals (inst.getProperty("autoSet"), "Z-3, Z-2") ;
 
-
+		impl.setProperty("S1toS2Final-String1", "falseVal") ;
+		assertNotEquals(impl.getProperty("S1toS2Final-String1"), "falseVal"); 
 		
 		//Setting spec attributes. 
 		spec.setProperty("xxx", "value") ;
@@ -340,9 +342,9 @@ public class MainApam implements Runnable, ApamComponent {
 		assertTrue (!inst.match("(s1i>=10)")) ;
 		assertTrue (inst.match("(s1i<=10)")) ;
 		assertTrue (inst.match("(s1i>=01)")) ;
-		assertTrue (!inst.match("(s1i<=01)")) ;
-		assertTrue (!inst.match("(s1i>=-61)")) ;
-		assertTrue (inst.match("(s1i<=-61)")) ;
+		assertTrue (inst.match("(s1i<=01)")) ;
+		assertTrue (inst.match("(s1i>=-61)")) ;
+		assertTrue (!inst.match("(s1i<=-61)")) ;
 
 		impl.setProperty("S1-Attr", "5"); // error: cannot redefine
 		assertEquals(spec.getProperty("S1-Attr"), "New-value");

@@ -388,7 +388,8 @@ public final class Util {
 	 * @param type
 	 */
 	public static Object checkAttrType(String attr, String value, String types) {
-		if ((types == null) || (value == null)) {
+		if ((types == null) || (value == null) || types.isEmpty() || value.isEmpty() || attr==null || attr.isEmpty()) {
+			logger.error("Invalid property " + attr + " = " + value + " type=" + types) ;
 			return null;
 		}
 

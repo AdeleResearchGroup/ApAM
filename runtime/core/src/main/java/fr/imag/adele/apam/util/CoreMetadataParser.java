@@ -922,7 +922,7 @@ public class CoreMetadataParser implements CoreParser {
 			boolean internal = parseBoolean(component.getName(),definition, CoreMetadataParser.ATT_INTERNAL, false, false);
 
 			component.getPropertyDefinitions().add(
-					new PropertyDefinition(component, name, type, defaultValue, field, callback, internal));
+					new PropertyDefinition(component, name, type, defaultValue, field, callback, internal, false));
 		}
 	}
 
@@ -955,7 +955,7 @@ public class CoreMetadataParser implements CoreParser {
 				String type = parseString(component.getName(),property, ATT_TYPE, false);
 				if (type != null) {
 					component.getPropertyDefinitions().add(
-							new PropertyDefinition(component, name, type, value, null, null, false));
+							new PropertyDefinition(component, name, type, value, null, null, false, true));
 				}
 			//}
 		}

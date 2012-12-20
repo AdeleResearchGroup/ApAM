@@ -60,11 +60,12 @@ public class CheckObr {
 
 	public static void error(String msg) {
 		CheckObr.failedChecking = true;
-		logger.error("ERROR: " + msg);
+		logger.error(msg);
 	}
+	
 
 	public static void warning(String msg) {
-		logger.warn("Warning: " + msg);
+		logger.warn(msg);
 	}
 
 	public static void setFailedParsing(boolean failed) {
@@ -124,7 +125,7 @@ public class CheckObr {
 			if (defAttr == null) continue ;
 			Object val = Util.checkAttrType(attr, properties.get(attr), defAttr);
 			if (val == null) {
-				CheckObr.failedChecking = true;
+				setFailedParsing(true);
 				continue ;
 			} 
 			ret.put(attr, val) ;									
