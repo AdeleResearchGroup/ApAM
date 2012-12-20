@@ -1,7 +1,11 @@
 package fr.imag.adele.apam.test.testcases;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -323,5 +327,106 @@ public class PropertyTest extends ExtensionAbstract {
 		Assert.assertFalse(message,samsungInst.match("(impl-name=SamsunG*)"));
 
 	}
+	
+	@Test
+	public void PropertiesDataTypeListInt_tc053(){
+		
+		final String propertyName="setInt";
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SamsungSwitch");
+		
+		Map<String,Object> allproperties=implementation.getAllProperties();
+		
+		Object RawType=allproperties.get(propertyName);
+		
+		String message="Retrieving a set of (%s) from the properties, but the return do not correspond to a type that represents a set of elements(List,Set nor array).";
+		
+		Assert.assertTrue(String.format(message, "Int"),RawType instanceof String[] || RawType instanceof Collection); 
+		
+		String messageCollection="Retrieving a set of (%s) from the properties, the return correspond to a Collection type but not a Collection containing the type %s.";
+		
+		if(RawType instanceof Collection){
+			Object sample=((Collection)RawType).iterator().next();
+			Class properType=Integer.class;
+			Assert.assertTrue(String.format(messageCollection,propertyName,properType),properType.isInstance(sample));
+		}
+		
+	}
+	
+	@Test
+	public void PropertiesDataTypeListInteger_tc054(){
+		
+		final String propertyName="setInteger"; 
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SamsungSwitch");
+		
+		Map<String,Object> allproperties=implementation.getAllProperties();
+		
+		Object RawType=allproperties.get(propertyName);
+		
+		String message="Retrieving a set of (%s) from the properties, but the return do not correspond to a type that represents a set of elements(List,Set nor array).";
+		
+		Assert.assertTrue(String.format(message, "Integer"),RawType instanceof String[] || RawType instanceof Collection); 
+		
+		String messageCollection="Retrieving a set of (%s) from the properties, the return correspond to a Collection type but not a Collection containing the type %s.";
+		
+		if(RawType instanceof Collection){
+			Object sample=((Collection)RawType).iterator().next();
+			Class properType=Integer.class;
+			Assert.assertTrue(String.format(messageCollection,propertyName,properType),properType.isInstance(sample));
+		}
+		
+	}
+	
+	@Test
+	public void PropertiesDataTypeListString_tc055(){
+		
+		final String propertyName="setString"; 
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SamsungSwitch");
+		
+		Map<String,Object> allproperties=implementation.getAllProperties();
+				
+		Object RawType=allproperties.get(propertyName);
+		
+		String message="Retrieving a set of (%s) from the properties, but the return do not correspond to a type that represents a set of elements(List,Set nor array).";
+		
+		Assert.assertTrue(String.format(message, "String"),RawType instanceof String[] || RawType instanceof Collection); 
+		
+		String messageCollection="Retrieving a set of (%s) from the properties, the return correspond to a Collection type but not a Collection containing the type %s.";
+		
+		if(RawType instanceof Collection){
+			Object sample=((Collection)RawType).iterator().next();
+			Class properType=String.class;
+			Assert.assertTrue(String.format(messageCollection,propertyName,properType),properType.isInstance(sample));
+		}
+		
+	}	
+	
+	@Test
+	public void PropertiesDataTypeListBoolean_tc056(){
+		
+		final String propertyName="setBoolean"; 
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SamsungSwitch");
+		
+		Map<String,Object> allproperties=implementation.getAllProperties();
+		
+		Object RawType=allproperties.get(propertyName);
+		
+		String message="Retrieving a set of (%s) from the properties, but the return do not correspond to a type that represents a set of elements(List,Set nor array).";
+		
+		Assert.assertTrue(String.format(message, "Boolean"),RawType instanceof Boolean[] || RawType instanceof Collection); 
+		
+		String messageCollection="Retrieving a set of (%s) from the properties, the return correspond to a Collection type but not a Collection containing the type %s.";
+		
+		if(RawType instanceof Collection){
+			Object sample=((Collection)RawType).iterator().next();
+			Class properType=Boolean.class;
+			Assert.assertTrue(String.format(messageCollection,propertyName,properType),properType.isInstance(sample));
+		}
+		
+	}
+
 	
 }
