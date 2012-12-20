@@ -84,7 +84,6 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer {
             return;
 
         if (factory instanceof IPojoFactory) {
-           // Apform2Apam.vanishImplementation(factory.getName());
             ComponentBrokerImpl.disappearedComponent(factory.getName()) ;
         }
 

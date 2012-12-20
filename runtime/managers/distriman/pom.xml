@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <artifactId>apam-managers</artifactId>
@@ -8,67 +8,77 @@
         <version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-	<artifactId>DISTRIMAN</artifactId>
-	<packaging>bundle</packaging>
+    <artifactId>DISTRIMAN</artifactId>
+    <packaging>bundle</packaging>
 
-	<name>Apam DistriMan</name>
-	<description>The Apam Distribution Manager</description>
-	<properties>
-		<bundle.symbolicName>Apam::DistriMan</bundle.symbolicName>
-	</properties>
+    <name>Apam DistriMan</name>
+    <description>The Apam Distribution Manager</description>
+    <properties>
+        <bundle.symbolicName>Apam::DistriMan</bundle.symbolicName>
+    </properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-ipojo-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>ipojo-bundle</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-Name>${project.name}</Bundle-Name>
-						<Bundle-Description>Apam distribution manager</Bundle-Description>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Bundle-Vendor>Adele/LIG/ Grenoble University, France</Bundle-Vendor>
-						<Bundle-Version>${project.version}</Bundle-Version>
-                        <Import-Package>*</Import-Package>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-ipojo-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>ipojo-bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>${project.name}</Bundle-Name>
+                        <Bundle-Description>Apam distribution manager</Bundle-Description>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Vendor>Adele/LIG/ Grenoble University, France</Bundle-Vendor>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <Import-Package>
+                            javax.servlet.http,
+                            javax.servlet,
+                            *
+                        </Import-Package>
                         <Private-Package>
                             fr.imag.adele.apam.distriman,
-                            fr.imag.adele.apam.distriman.internal,
                             fr.imag.adele.apam.distriman.disco,
-                            javax.jmdns*
                         </Private-Package>
-                        <Export-Package/>
-					</instructions>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>install</phase>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+                        <Export-Package>
+                            com.google.common.collect,
+                            org.json,
+                            javax.jmdns*
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
 
-	<dependencies>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+    </build>
+
+    <dependencies>
         <dependency>
             <artifactId>apam-core</artifactId>
             <groupId>fr.imag.adele.apam</groupId>
@@ -81,23 +91,8 @@
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.ipojo.api</artifactId>
-            <version>1.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.ipojo</artifactId>
             <version>1.8.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.ipojo.composite</artifactId>
-            <version>1.8.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.chameleon.rose</groupId>
-            <artifactId>rose-core</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -109,17 +104,26 @@
             <artifactId>jmdns</artifactId>
             <version>3.4.1</version>
         </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20090911</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>13.0.1</version>
+        </dependency>
     </dependencies>
-
-    <!--
-    <repositories>
-        <repository>
-            <id>maven-barjo-repository-release</id>
-            <name>RoSe - Release</name>
-            <url>https://repository-barjo.forge.cloudbees.com/release/</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
-    -->
 
 </project>

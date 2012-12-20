@@ -33,6 +33,9 @@
 <node CREATED="1353070377590" ID="ID_382562301" MODIFIED="1354294378716" TEXT="Filtering applied in string values should work properly-tc008">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1355931835542" ID="ID_1074078486" MODIFIED="1355931855588" TEXT="test set of int/string/boolean types">
+<icon BUILTIN="button_cancel"/>
+</node>
 </node>
 <node CREATED="1353066008853" ID="ID_82303023" MODIFIED="1353071077628" TEXT="Constraint">
 <node CREATED="1353070505975" ID="ID_346843196" MODIFIED="1354294409593" TEXT="injected instance should respect constraint declared in XML-tc009">
@@ -220,6 +223,9 @@
 </node>
 <node CREATED="1354296926250" ID="ID_1980876552" MODIFIED="1354296935238" TEXT="eager=&quot;true&quot;">
 <icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1355740402996" ID="ID_426046800" MODIFIED="1355740431603" TEXT="fail=&quot;exception&quot;, using a type present in JRE-tc052">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1353077208472" ID="ID_1719755842" MODIFIED="1354296539949" TEXT="own">

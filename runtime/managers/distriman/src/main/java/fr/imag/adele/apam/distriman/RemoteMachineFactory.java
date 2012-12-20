@@ -1,11 +1,15 @@
 package fr.imag.adele.apam.distriman;
 
+
 import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
+import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Instantiate;
+import org.apache.felix.ipojo.annotations.Provides;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -19,7 +23,11 @@ import java.util.Set;
  *
  * @ThreadSafe
  */
-public class RemoteMachineFactory implements ApformCompositeType {
+
+@Component
+@Instantiate
+@Provides
+public class RemoteMachineFactory implements NodePool,ApformCompositeType {
     private static String PROP_MY_NAME = "DistriManMachine";
 
     private final CompositeDeclaration declaration;
@@ -38,9 +46,16 @@ public class RemoteMachineFactory implements ApformCompositeType {
         //create my unique declaration
         declaration =  new CompositeDeclaration(PROP_MY_NAME,null,null);
         declaration.setInstantiable(false);
+    }
 
+    public void init(){
         //Add the ApformCompositeType to Apam
-        Apform2Apam.newImplementation(this);
+        //Apform2Apam.newImplementation(this);
+    }
+
+    public void destroy(){
+        //Remove this implem from the broker
+        ComponentBrokerImpl.disappearedComponent(getDeclaration().getName());
     }
 
     @Override
@@ -94,6 +109,17 @@ public class RemoteMachineFactory implements ApformCompositeType {
         return machine;
     }
 
+    /**
+     * @param url The RemoteMachine url
+     * @return The RemoteMachine representing the machine of given <code>url</code>
+     */
+    public RemoteMachine getRemoteMachine(String url){
+        synchronized (machines){
+            return machines.get(url);
+        }
+    }
+
+
     @Override
     public ApformSpecification getSpecification() {
         return null;
@@ -108,4 +134,9 @@ public class RemoteMachineFactory implements ApformCompositeType {
     public Bundle getBundle() {
         return my_context.getBundle();
     }
+
+	public Map<String, RemoteMachine> getMachines() {
+		return machines;
+	}
+
 }

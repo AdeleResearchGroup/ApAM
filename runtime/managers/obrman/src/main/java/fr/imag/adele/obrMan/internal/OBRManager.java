@@ -19,7 +19,6 @@ import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
-//import org.apache.felix.bundlerepository.impl.ResourceCapability ;
 import org.osgi.framework.Filter;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
@@ -60,19 +59,6 @@ public class OBRManager {
         updateListOfResources(repoAdmin);
     }
 
-//	//TODO perfom update by polling in another Thread !
-//	private void performRepositoriesUpdate(RepositoryAdmin repoAdmin){
-//	    for (Repository repository : repositories) {
-//            long oldvalue = repository.getLastModified();
-//            Repository newRepository ;
-//            try {
-//                repoAdmin.addRepository(repository.getURI());
-//            } catch (Exception e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-//        }
-//	}
 
     // serious stuff now !
     public String getAttributeInResource(Resource res, String capability, String attr) {
@@ -229,29 +215,29 @@ public class OBRManager {
     private void logFilterConstraintPreferences(String filterStr, Set<Filter> constraints, List<Filter> preferences,
                                                 boolean all) {
 
-        String debugMessage = "";
+        StringBuffer debugMessage = new StringBuffer ();
         if (filterStr != null) {
             if (all) {
-                debugMessage = "OBR: looking for all components matching " + filterStr;
+            	debugMessage.append("OBR: looking for all components matching " + filterStr);
             } else {
-                debugMessage = "OBR: looking for a component matching" + filterStr;
+            	debugMessage.append("OBR: looking for a component matching" + filterStr);
             }
         }
         if ((constraints != null) && !constraints.isEmpty()) {
-            debugMessage += "\n     Constraints : ";
+            debugMessage.append("\n     Constraints : ");
             for (Filter constraint : constraints) {
-                debugMessage += (constraint + ", ");
+            	debugMessage.append(constraint + ", ");
             }
         }
 
         if ((preferences != null) && !preferences.isEmpty()) {
-            debugMessage += "\n    Preferences : ";
+        	debugMessage.append("\n    Preferences : ");
             for (Filter preference : preferences) {
-                debugMessage += (preference + ", ");
+            	debugMessage.append(preference + ", ");
             }
         }
 
-        logger.debug(debugMessage);
+        logger.debug(debugMessage.toString());
     }
 
     /**
@@ -323,7 +309,7 @@ public class OBRManager {
                 if (localMavenOBRRepo) {
                     URL localMavenObrUrl = findLocalMavenRepository();
                     if (localMavenObrUrl==null){
-                        logger.error("localRepository not found in : " + settings.getPath());
+                        logger.error("localRepository not found in : " + settings);
                     }
                     try {
                         declaredRepositories.add(repoAdmin.addRepository(localMavenObrUrl));
@@ -399,7 +385,7 @@ public class OBRManager {
 
             this.selectedComponentName =  getAttributeInCapability (capability, CST.NAME) ;
             if (selectedComponentName == null) {
-                new Exception("name is null in capability " + capability);
+                new Exception("name is null in capability " + capability).printStackTrace();
             }
 
             this.selectedComponentType = getAttributeInCapability (capability, CST.COMPONENT_TYPE) ;
@@ -528,8 +514,7 @@ public class OBRManager {
                     // If the current resource version is equal to the
                     // best, then select the one with the greatest
                     // number of capabilities.
-                    else if ((bestVersion != null) && (bestVersion.compareTo(v) == 0)
-                            && (best.getResource().getCapabilities().length
+                    else if ((best.getResource().getCapabilities().length
                             < current.getResource().getCapabilities().length))
                     {
                         best = current;
@@ -542,12 +527,6 @@ public class OBRManager {
 
         return (best == null) ? null : best;
     }
-
-//    private boolean isStopped(Selected current) {
-//
-//        return false;  //To change body of created methods use File | Settings | File Templates.
-//    }
-
 
     protected URL findLocalMavenRepository() {
 

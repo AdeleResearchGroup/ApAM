@@ -262,13 +262,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 
 		previousOwner.removeSon(this);
 
-//		/*
-//		 * TODO; WARNING Should we update appliComposite recursively in the contained hierarchy?
-//		 * or better not cache this field and recalculate it all the time? or better handle
-//		 * a cache with invalidation? or we don't allow set owner for composite instances?
-//		 */
 		this.father 		= owner;
-//		this.appliComposite = owner.getAppliComposite();
 
 		((CompositeImpl)owner).addSon(this);
 

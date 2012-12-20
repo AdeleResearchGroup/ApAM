@@ -4,9 +4,13 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Each Apam/Distriman machines available over the network, have a RemoteMachine composite.
@@ -26,9 +30,13 @@ public class RemoteMachine  implements ApformInstance{
 
     private final RemoteMachineFactory my_impl;
 
+    private Instance apamInstance = null;
+
     private static Logger logger = LoggerFactory.getLogger(RemoteMachine.class);
 
     private final InstanceDeclaration my_declaration;
+
+    private final Set<EndpointRegistration> my_endregis = new HashSet<EndpointRegistration>();
 
     protected RemoteMachine(String url, RemoteMachineFactory daddy) {
         my_url = url;
@@ -47,12 +55,27 @@ public class RemoteMachine  implements ApformInstance{
         return my_url;
     }
 
+    public void addEndpointRegistration(EndpointRegistration registration){
+        my_endregis.add(registration);
+    }
+
+    public boolean rmEndpointRegistration(EndpointRegistration registration){
+        return my_endregis.remove(registration);
+    }
+
     /**
      * Destroy the RemoteMachine
      */
     protected void destroy() {
-        logger.info("RemoteMachine "+my_url+" destroyed.");
+        logger.info("RemoteMachine " + my_url + " destroyed.");
         System.out.println("RemoteMachine " + my_url + " destroyed.");
+
+        //Remove this Instance from the broker
+        ComponentBrokerImpl.disappearedComponent(this.getDeclaration().getName());
+
+        for(EndpointRegistration endreg: my_endregis){
+            endreg.close();
+        }
     }
 
     // ===============
@@ -96,11 +119,12 @@ public class RemoteMachine  implements ApformInstance{
 
     @Override
     public void setInst(Instance asmInstImpl) {
+        this.apamInstance=asmInstImpl;
 
     }
 
     @Override
     public Instance getInst() {
-        return null;
+        return apamInstance;
     }
 }

@@ -116,11 +116,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			
 			String specificationName	= declaration.getSpecification().getName();
 			Specification specification = CST.componentBroker.getSpec(specificationName);
-			
-//			if (specification == null) {
-//				throw new InvalidConfiguration("Specification not installed " + specificationName + " for implementation " + declaration.getName());
-//			}
-			
+						
 			assert specification != null;
 			mySpec = specification;
 
@@ -194,13 +190,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			ComponentBrokerImpl.disappearedComponent(inst) ;
 		}
 
-		
-
 		//Do not remove inverse links, in case threads are still here.
-//		mySpec = null;
-//		inComposites.clear();
-
-
 	}
 
 	@Override
@@ -236,12 +226,6 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		return ! inComposites.contains(CompositeTypeImpl.getRootCompositeType()) && inComposites.size()==1;
 	}
 
-/*	@Override
-	public boolean isInstantiable() {
-		String instantiable = (String) get(CST.INSTANTIABLE);
-		return (instantiable == null) ? true : instantiable.equals(CST.V_TRUE);
-	}
-  */
 	/**
 	 * From an implementation, create an instance. Creates both the apform and APAM instances.
 	 * Can be called from the API. 

@@ -16,14 +16,7 @@ public class VisibilityDeclaration {
 	private String importImplementations;
 	
 	private String importInstances;
-	
-	/**
-	 * The friend imported content
-	 */
-//	private String friendImplementations;
-	
-// private String friendInstances;
-	
+		
 	/**
 	 * The local content
 	 */
@@ -61,29 +54,6 @@ public class VisibilityDeclaration {
 	public void setImportInstances(String borrowInstances) {
 		this.importInstances = borrowInstances;
 	}
-
-	/**
-	 * An expression that must be satisfied by all exported implementations that
-	 * are available for friend composites 
-	 */
-//	public String getFriendImplementations() {
-//		return friendImplementations;
-//	}
-//	public void setFriendImplementations(String friendImplementations) {
-//		this.friendImplementations = friendImplementations;
-//	}
-//
-//	/**
-//	 * An expression that must be satisfied by all exported instances that
-//	 * are available for friend composites 
-//	 */
-//	public String getFriendInstances() {
-//		return friendInstances;
-//	}
-//
-//	public void setFriendInstances(String friendInstances) {
-//		this.friendInstances = friendInstances;
-//	}
 
 	/**
 	 * An expression that must be satisfied by all implementations that

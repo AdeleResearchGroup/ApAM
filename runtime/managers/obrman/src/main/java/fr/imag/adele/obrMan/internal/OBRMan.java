@@ -77,10 +77,6 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     static List<String> onLoadingResource = new ArrayList<String>();
 
-//    static Map<String,Integer> onLoadingResourceRequests  = new HashMap<String,Integer>();
-//    static List<String> onLoadingComponent = new ArrayList<String>();
-//    static StackLoading stack = new StackLoading();
-
     /**
      * Instal ans instantiate the selected bundle, and return the component.
      * If forced = false (default) does not try to install if the component is allready existing.
@@ -126,25 +122,6 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     }
 
-//    private void componentLoading(String name, Resource resource) {
-//        logger.debug("Loading Components of : " + resource.getSymbolicName() + " for : " + name);
-//        Capability[] caps = resource.getCapabilities();
-//        for (Capability capability : caps) {
-//            if (capability.getName().equals(CST.CAPABILITY_COMPONENT)){
-//                  //  && !stack.isOnloadingComponent((String) capability.getPropertiesAsMap().get(CST.NAME))) {
-//                stack.loadAndLoaded(resource, (String) capability.getPropertiesAsMap().get(CST.NAME), true);//((String) capability.getPropertiesAsMap().get(CST.NAME),true);
-//            }
-//        }
-//    }
-//
-//    private boolean alreadyDeployed(Selected selected) {
-//        for (Resource resource : selected.obrManager.getRunningResources().getResources()) {
-//            if (resource.equals(selected.resource)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     public boolean bundleInactif(String symbolicName) {
         Bundle[] bunldes = m_context.getBundles();
@@ -244,10 +221,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
                     constraints, preferences);
         }
         if (selected != null) {
-            // String implName = obrManager.getAttributeInCapability(selected.capability, "impl-name");
             impl = (Implementation) installInstantiate(selected);
-            // System.out.println("deployed :" + impl);
-            // printRes(selected);
             return impl;
         }
         return null;
@@ -437,10 +411,5 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         return true;
     }
 
-//    @Override
-//    public Implementation findImplByDependency(Instance client,
-//            DependencyDeclaration dependency) {
-//        return findImplByName(client, dependency.getTarget().getName());
-//    }
 
 }

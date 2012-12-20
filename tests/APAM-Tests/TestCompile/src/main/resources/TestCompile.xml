@@ -8,37 +8,36 @@
 	and limitations under the License. -->
 
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
-<!--  xsi:schemaLocation="fr.imag.adele.apam ./Apam.xsd" >     -->
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+	<!-- xsi:schemaLocation="fr.imag.adele.apam ./Apam.xsd" > -->
 
-<!-- Test for syntax only. Should be all good -->
-<!-- specifications -->
+	<!-- Test for syntax only. Should be all good -->
+	<!-- specifications -->
 	<specification name="S2Compile0" singleton="false"
 		instantiable="false" shared="false" />
 	<specification name="S2Compile2" singleton="false"
 		instantiable="false" shared="false" />
-	<specification name="S2Compile3" 
-		instantiable="false" shared="false" />
-	<specification name="S2Compile4" interfaces="{apam.test.compile.S2, AB}" 	
-	messages="apam.test.M1, apam.Test.M2" singleton="false"	/>
-	<specification name="S2Compile5"  
-		instantiable="false" shared="false" />
+	<specification name="S2Compile3" instantiable="false"
+		shared="false" />
+	<specification name="S2Compile4" interfaces="{apam.test.compile.S2, AB}"
+		messages="apam.test.M1, apam.Test.M2" singleton="false" />
+	<specification name="S2Compile5" instantiable="false"
+		shared="false" />
 
 	<specification name="S2Compile" singleton="false"
-		instantiable="false" shared="false" 
-		interfaces="apam.test.compile.S2"
+		instantiable="false" shared="false" interfaces="apam.test.compile.S2"
 		messages="{M1, M2}">
-			
+
 		<property name="test-spec" value="coucou" type="string" />
 		<property name="X" value="55" type="int" />
-		<property name="spec" value="true" type="boolean"/>
+		<property name="spec" value="true" type="boolean" />
 
 		<!-- composite state. Implemented in S2Impl -->
 		<definition name="houseState"
 			type="{empty, night, vacation, emergency, threat}" value="busy" />
 
-		<dependency specification="S4Compile" id="dzepS4"/>
+		<dependency specification="S4Compile" id="dzepS4" />
 		<dependency interface="apam.test.s4.S4" />
 		<dependency interface="example.S4" id="xxx" />
 		<dependency interface="example.S3" id="yyy" />
@@ -48,12 +47,13 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<specification name="S3Compile" shared="false"
 		interfaces="[apam.test.s3.S3_1,apam.test.s3.S3_2]">
 		<property name="test-deux" value="coucous3" type="string" />
-		<property name="bS3" value="yes" type="string"/>
-		<property name="cS3" value="xxx" type="string"/>
+		<property name="bS3" value="yes" type="string" />
+		<property name="cS3" value="xxx" type="string" />
 		<definition name="x" type="string" />
 		<definition name="MyBool" type="boolean" />
 		<definition name="A2" type="int" value="5" />
-		<definition name="testEnum" type="v1, v2, v3, v4, v5" value="v3" />
+		<definition name="testEnum" type="v1, v2, v3, v4, v5"
+			value="v3" />
 	</specification>
 
 	<specification name="S4Compile">
@@ -64,83 +64,80 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	</specification>
 
 
-<!-- S2 Implementations -->
-	<implementation name="S2ImplCompile0"  specification="S2Compile" singleton="false"
-		instantiable="false" shared="false"
-		classname="apam.test.compile.S2Impl"  />		
-	<implementation name="S2ImplCompile2" specification="S2Compile" singleton="true"
-		instantiable="false" shared="false"
-		classname="apam.test.compile.S2Impl" 
-		messages="{M1, M2}" interfaces="{apam.test.compile.S2, A.B}" />		
-	<implementation name="S2ImplCompile3" specification="S2Compile" singleton="false"
-		instantiable="true" shared="false"
-		classname="apam.test.compile.S2Impl" interfaces="{apam.test.compile.S2, A.B}" />		
-	<implementation name="S2ImplCompile4" specification="S2Compile" singleton="false"
-		instantiable="false" shared="true"
-		classname="apam.test.compile.S2Impl" interfaces="apam.test.compile.S2"/>
+	<!-- S2 Implementations -->
+	<implementation name="S2ImplCompile0" specification="S2Compile"
+		singleton="false" instantiable="false" shared="false"
+		classname="apam.test.compile.S2Impl" />
+	<implementation name="S2ImplCompile2" specification="S2Compile"
+		singleton="true" instantiable="false" shared="false"
+		classname="apam.test.compile.S2Impl" messages="{M1, M2}"
+		interfaces="{apam.test.compile.S2, A.B}" />
+	<implementation name="S2ImplCompile3" specification="S2Compile"
+		singleton="false" instantiable="true" shared="false"
+		classname="apam.test.compile.S2Impl" interfaces="{apam.test.compile.S2, A.B}" />
+	<implementation name="S2ImplCompile4" specification="S2Compile"
+		singleton="false" instantiable="false" shared="true"
+		classname="apam.test.compile.S2Impl" interfaces="apam.test.compile.S2" />
 
-	<implementation name="S2ImplCompile6"
-		classname="apam.test.compile.S2Simple" />
+	<implementation name="S2ImplCompile6" classname="apam.test.compile.S2Simple" />
 	<implementation name="S2ImplCompile7" interfaces="[apam.test.compile.S2]"
-		classname="apam.test.compile.S2Simple" 
-		specification="S2Compile" singleton="false" />
+		classname="apam.test.compile.S2Simple" specification="S2Compile"
+		singleton="false" />
 	<implementation name="S2ImplCompile8" interfaces="apam.test.compile.S2"
-		classname="apam.test.compile.S2Simple"
-		specification="S2Compile" singleton="false"
-		instantiable="false" />  
+		classname="apam.test.compile.S2Simple" specification="S2Compile"
+		singleton="false" instantiable="false" />
 	<implementation name="S2ImplCompile9" interfaces="apam.test.compile.S2"
-		classname="apam.test.compile.S2Simple"
-		specification="S2Compile" singleton="false"
-		instantiable="false" shared="false" />  <!--  all possible characteristics  -->
+		classname="apam.test.compile.S2Simple" specification="S2Compile"
+		singleton="false" instantiable="false" shared="false" />  <!-- all possible characteristics -->
 
 
 
-	<implementation name="S2ImplCompile"
-		classname="apam.test.compile.S2Impl" specification="S2Compile"
-		interfaces="{apam.test.compile.S2}" >		
+	<implementation name="S2ImplCompile" classname="apam.test.compile.S2Impl"
+		specification="S2Compile" interfaces="{apam.test.compile.S2}">
 
 		<definition name="location" type="{exit, entrance, garage, bedroom,…}" />
 		<definition name="b" type="boolean" value="true" />
 		<definition name="c" type="string" />
 
-		<dependency specification="S3Compile" id="specS3" fail="wait" exception="fr.imag. ….failedException">			
+		<dependency specification="S3Compile" id="specS3" fail="wait"
+			exception="fr.imag. ….failedException">
 			<interface field="s3s" />
 			<interface field="s3_2" />
 		</dependency>
-		<dependency specification="S3Compile" fail="wait" exception="fr.imag. ….failedException" >		
-			<interface field="s3s2" />			
+		<dependency specification="S3Compile" fail="wait"
+			exception="fr.imag. ….failedException">
+			<interface field="s3s2" />
 		</dependency>
 
-		<dependency field="s4_1" exception="fr.imag. ….failedException"/>
-		<dependency field="s4_2" />		
-		<dependency message="apam.test.compile.M2" field="fM2"/>  		
-		<dependency message="getT2" />		
+		<dependency field="s4_1" exception="fr.imag. ….failedException" />
+		<dependency field="s4_2" />
+		<dependency message="apam.test.compile.M2" field="fM2" />
+		<dependency message="getT2" />
 		<ipojo:requires field="apam" />
 	</implementation>
 
 
 	<implementation name="S2SimpleCompile" interfaces="apam.test.compile.S2"
-		classname="apam.test.compile.S2Simple"
-		specification="S2Compile" singleton="false"
-		instantiable="false" shared="false">  <!--  all possible characteristics  -->
+		classname="apam.test.compile.S2Simple" specification="S2Compile"
+		singleton="false" instantiable="false" shared="false">  <!-- all possible characteristics -->
 
-		<!-- 	The state for composites -->
+		<!-- The state for composites -->
 		<definition name="houseState" field="state" internal="true"
 			type="{empty, night, vacation, emergency, threat}" value="night" />
-			
+
 		<definition name="location" type="exit, entrance, garage, bedroom" />
-		<property name="shared" value="false" />    
+		<property name="shared" value="false" />
 		<dependency message="getM1" />
-		<dependency specification="S3Compile" id="S3Id" multiple="true"> <!--  added="newT" removed="removedT" -->
+		<dependency specification="S3Compile" id="S3Id" multiple="true"> <!-- added="newT" removed="removedT" -->
 			<interface field="fieldS3" />
 			<message pull="getAlsoM1" />
-<!-- 			<interface field="field2S3" /> -->
+			<!-- <interface field="field2S3" /> -->
 			<constraints>
 				<implementation filter="(apam-composite=true)" />
-				<instance filter="(&amp;(testEnum*&gt;v1 ,v2, v3)(x=6))" /> 
-				<instance filter="(&amp;(testEnum=v1)(x=6))" /> 
-				<instance filter="(&amp;(testEnum=wxcv)(x=6))" /> 
-				<instance filter="(&amp;(testEnum*&gt;v1,toto)(x=6))" /> 
+				<instance filter="(&amp;(testEnum*&gt;v1 ,v2, v3)(x=6))" />
+				<instance filter="(&amp;(testEnum=v1)(x=6))" />
+				<instance filter="(&amp;(testEnum=wxcv)(x=6))" />
+				<instance filter="(&amp;(testEnum*&gt;v1,toto)(x=6))" />
 				<instance filter="(&amp;(A2=8)(MyBool=false))" />
 			</constraints>
 			<preferences>
@@ -150,10 +147,10 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		</dependency>
 
 		<dependency implementation="S3Impl" id="S3Id2">
-		<interface field="fieldS3" />
-		<preferences></preferences>
+			<interface field="fieldS3" />
+			<preferences></preferences>
 			<constraints>
-				<instance filter="(S3Impl-Attr=good)" />	
+				<instance filter="(S3Impl-Attr=good)" />
 			</constraints>
 		</dependency>
 
@@ -162,7 +159,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 				<implementation filter="(apam-composite=true)" />
 				<instance filter="(SCccOPE=GLOBAL)" />
 			</constraints>
-			
+
 			<preferences>
 				<implementation filter="(x2=10)" />
 				<instance filter="(bxc=false)" />
@@ -171,29 +168,32 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	</implementation>
 
 
-	<composite name="GoodComposite"  main="S2ImplCompile" /> <!-- minimal good -->
-	<composite name="GoodComposite2" main="S2ImplCompile" singleton="false"
-		instantiable="false" shared="false" /> 
-	<composite name="GoodComposite3" main="S2ImplCompile" singleton="false"
-		instantiable="false" /> 
-	<composite name="GoodComposite4" main="S2ImplCompile" singleton="false"	/> 
-	<composite name="GoodComposite5" main="S2ImplCompile"  	/> 
-	<composite name="GoodComposite6" main="S2ImplCompile" instantiable="false" /> 
+	<composite name="GoodComposite" main="S2ImplCompile" /> <!-- minimal good -->
+	<composite name="GoodComposite2" main="S2ImplCompile"
+		singleton="false" instantiable="false" shared="false" />
+	<composite name="GoodComposite3" main="S2ImplCompile"
+		singleton="false" instantiable="false" />
+	<composite name="GoodComposite4" main="S2ImplCompile"
+		singleton="false" />
+	<composite name="GoodComposite5" main="S2ImplCompile" />
+	<composite name="GoodComposite6" main="S2ImplCompile"
+		instantiable="false" />
 
 
 	<composite name="ContentComposite" specification="S2Compile"
-		main="S2ImplCompile" >
+		main="S2ImplCompile">
 		<dependency specification="S4" id="compoS4" />
 
 		<contentMngt>
 			<start implementation="S3Impl" name="s3Impl-int">
 				<property name="S3Impl-Attr" value="val" />
-				<dependency specification="S4Compile">
+				<dependency specification="S4Compile" fail="exception"
+					exception="fr.imag.adele.apam.test.s2Impl.MyException">
 					<constraints>
-						<implementation filter="(propre=true)" /> 
-						<implementation filter="(xxx=ok)" />  
+						<implementation filter="(propre=true)" />
+						<implementation filter="(xxx=ok)" />
 					</constraints>
-					<preferences> 						
+					<preferences>
 						<implementation filter="(xxx=yy)" />  <!-- Invalid filter -->
 					</preferences>
 				</dependency>
@@ -207,31 +207,39 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			</start>
 
 			<import implementation="(b=true)" instance="false" />
-			<export  implementation="true" instance="true" />
-			<export  implementation="((c)" /> 							<!-- Invalid filter -->
-			<exportApp instance="(yyy=tt)" /> 	<!--  cannot be checked --> 
+			<export implementation="true" instance="true" />
+			<export implementation="((c)" /> 							<!-- Invalid filter -->
+			<exportApp instance="(yyy=tt)" /> 	<!-- cannot be checked -->
 
 
-			<own specification="S4Compile" property="location" value="living, bedroom, kitchen">
-				<grant implementation="S2Impl" dependency="S4Compile" when="threat" />
-				<grant implementation="S3Impl" dependency="S4Compile" when="night, vacation" />
-				<grant implementation="S3Impl" dependency="S4Compile" when=" {night, empty}" />
-				<grant implementation="S3Impl" dependency="S4Compile" when="{bedroom}" />
+			<own specification="S4" property="location" value="living, bedroom, kitchen">
+				<grant implementation="S2Impl" dependency="S4_1" when="threat" />
+				<grant implementation="S2Simple" dependency="S4" when="threat" />
+				<grant implementation="S3" dependency="S4Compile" when="night, vacation" />
+				<grant implementation="S3XXX" dependency="S4Compile" when=" {night, empty}" />
+				<grant implementation="S2Impl" dependency="S4_2" when="{bedroom}" />
 			</own>
-			<own implementation="S4Impl" property="location" value="living"/>
-			<own implementation="S4Impl" property="b" value="true"/>
-			<own implementation="S4Impl" property="c" value="ok"/>
+			<own implementation="S2Impl" property="location" value="living" />
+			<own implementation="S2Impl" property="b" value="true" />
+			<own implementation="S3Impl" property="c" value="ok" />
 
 			<state implementation="S2SimpleCompile" property="houseState" />
-<!-- 			<state implementation="S2ww" property="house" /> -->  
-<!-- 		<definition name="houseState" -->
-<!-- 			type="{empty, night, vacation, emergency, threat}" value="empty" /> -->
+			<!-- <state implementation="S2ww" property="house" /> -->
+			<!-- <definition name="houseState" -->
+			<!-- type="{empty, night, vacation, emergency, threat}" value="empty" 
+				/> -->
 
+			<promote implementation="S2Impl" dependency="S4" to="compoS4" />
+			<promote implementation="S2Impl" dependency="S4_1" to="compoS4" />  		<!-- wrong component -->
+			<promote implementation="S2Impl" dependency="S3Mult" to="compoS4" />  		<!-- wrong component -->
+			<promote implementation="S2Impl" dependency="S4_1" to="compoxxx" />  		<!-- wrong component -->
+			<promote implementation="S3Impl" dependency="S4Compile" to="wrongDep" /> 	<!-- wrong composite dep -->
 			<promote implementation="S3Impl" dependency="S4Compile" to="compoS4" />
-			<promote implementation="S3XX" dependency="S4Compile" to="compoS4" />  		<!--  wrong component -->
-			<promote implementation="S3Impl" dependency="S4Compile" to="wrongDep" /> 	<!--  wrong composite dep -->
+			<promote implementation="S3XX" dependency="S4Compile" to="compoS4" />  		<!-- wrong component -->
+			<promote implementation="S3Impl" dependency="S4Compile" to="wrongDep" /> 	<!-- wrong composite dep -->
 
-			<dependency specification="Spec_A*" eager="true" hide="true" exception="….CompositeDependencyException">
+			<dependency specification="Spec_A*" eager="true" hide="true" fail="exception"
+				exception="CompositeDependencyException">
 				<constraints>
 					<implementation filter="(apam-composite=true)" />
 				</constraints>
@@ -243,13 +251,13 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		</contentMngt>
 	</composite>
 
-<!-- Instances  -->
+	<!-- Instances -->
 	<instance implementation="S2ImplCompile" name="S2ImplCompile-instance">
 		<property name="b" value="false" />
-		<dependency specification="S3Compile" id="S3Id">		
+		<dependency specification="S3Compile" id="S3Id">
 			<constraints>
 				<implementation filter="(apam-composite=true)" />
-				<instance filter="(name=S3Impl-0)" /> 
+				<instance filter="(name=S3Impl-0)" />
 			</constraints>
 			<preferences>
 				<implementation filter="(x=10)" />
@@ -258,14 +266,14 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		</dependency>
 	</instance>
 
-	<instance name="InstS2Impl" implementation="S3Impl" >
-		<property name="shared" value="false" /> <!--  wrong -->
+	<instance name="InstS2Impl" implementation="S3Impl">
+		<property name="shared" value="false" /> <!-- wrong -->
 	</instance>
-	<instance implementation="S2ImplCompile" name="S2CompoCompile2"> 
-			<dependency specification="S3Compile" id="S3Compile"/>		
-	</instance>			
-	<instance implementation="S3Impl" name="S2CompoCompile3" >
-				<dependency specification="S3Compile" />		
-	</instance>			
+	<instance implementation="S2ImplCompile" name="S2CompoCompile2">
+		<dependency specification="S3Compile" id="S3Compile" />
+	</instance>
+	<instance implementation="S3Impl" name="S2CompoCompile3">
+		<dependency specification="S3Compile" />
+	</instance>
 
 </apam>

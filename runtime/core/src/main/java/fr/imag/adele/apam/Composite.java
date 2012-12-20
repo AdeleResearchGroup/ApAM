@@ -37,13 +37,6 @@ public interface Composite extends Instance {
      */
     public void addDepend(Composite destination);
 
-    //    /**
-    //     * removes a "depend" relationship toward destination
-    //     * 
-    //     * @param destination
-    //     * @return
-    //     */
-    //    public boolean removeDepend(Composite destination);
 
     /**
      * 
@@ -106,11 +99,5 @@ public interface Composite extends Instance {
      * @return
      */
     public Set<Instance> getContainInsts();
-
-    //    /**
-    //     * 
-    //     * @return true if the attribute "internalInstances" is set to "true"
-    //     */
-    //    public boolean isInternal();
 
 }
