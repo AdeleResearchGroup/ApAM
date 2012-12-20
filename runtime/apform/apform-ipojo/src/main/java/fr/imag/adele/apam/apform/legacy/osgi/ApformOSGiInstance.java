@@ -1,5 +1,8 @@
 package fr.imag.adele.apam.apform.legacy.osgi;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -9,6 +12,7 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.InterfaceReference;
 
 /**
  * This class represents an OSGi service intereface as an APAM instance
@@ -28,14 +32,14 @@ public class ApformOSGiInstance implements ApformInstance {
     private final ServiceReference		reference;
 
     /**
-     * The registered interface
-     */
-    private final String				registeredInterface;
-    
-    /**
      * The service object
      */
     private final Object				service;
+    
+    /**
+     * The list of provided interfaces
+     */
+    private final Set<InterfaceReference> providedInterfaces;
     
 	/**
 	 * The bundle  that registered the instance
@@ -52,18 +56,19 @@ public class ApformOSGiInstance implements ApformInstance {
      * 
      * @param ipojoInstance
      */
-    public ApformOSGiInstance(ServiceReference reference, String registeredInterface) {
+    public ApformOSGiInstance(ServiceReference reference) {
     	
-    	this.reference				= reference;
-    	this.registeredInterface	= registeredInterface;
+    	this.reference			= reference;
+    	this.bundle				= reference.getBundle();
+        this.service			= bundle.getBundleContext().getService(reference);
     	
-    	this.bundle					= reference.getBundle();
-        this.service				= bundle.getBundleContext().getService(reference);
+		this.providedInterfaces = new HashSet<InterfaceReference>();
+		for (String interfaceName : (String[]) reference.getProperty(Constants.OBJECTCLASS)) {
+			this.providedInterfaces.add(new InterfaceReference(interfaceName));
+		}
+
         
-        ImplementationReference<?> implementation = new ApformOSGiImplementation.Reference(generateImplementationName());
-        
-        this.declaration = new InstanceDeclaration(implementation, generateInstanceName(), null);
-        
+        this.declaration 	= new InstanceDeclaration(generateImplementationName(), generateInstanceName(), null);
         for (String key : reference.getPropertyKeys()) {
             if (!Apform2Apam.isPlatformPrivateProperty(key))
                 this.declaration.getProperties().put(key, reference.getProperty(key).toString());
@@ -74,52 +79,42 @@ public class ApformOSGiInstance implements ApformInstance {
     /**
      * Generate the name of the implementation associated with this instance in Apam
      */
-    private String generateImplementationName() {
-    	return generateImplementationName(reference,registeredInterface);
-    }
-
-    private static String generateImplementationName(ServiceReference reference, String registeredInterface) {
+    private ImplementationReference<?> generateImplementationName() {
     	String bundle = reference.getBundle().getSymbolicName();
     	
     	if (bundle == null)
     		bundle = (String)reference.getBundle().getHeaders().get("Bundle-Name");
     	
-    	return registeredInterface+"[provider="+bundle+"]";
+    	StringBuffer interfaces = new StringBuffer();
+    	boolean first = true;
+    	for (InterfaceReference providedInterface : providedInterfaces) {
+			interfaces.append(first? "" : "+").append(providedInterface.getJavaType());
+			first = false;
+		}
+    	return new ApformOSGiImplementation.Reference(interfaces+"[bundle.provider="+bundle+"]");
     }
 
     /**
      * Generate the name of the instance in APAM
      */
     private String generateInstanceName() {
-    	return generateInstanceName(reference, registeredInterface);
+    	return generateImplementationName().getName()+"-"+reference.getProperty(Constants.SERVICE_ID);
     }
-    
-    private static String generateInstanceName(ServiceReference reference, String registeredInterface) {
-    	return generateImplementationName(reference,registeredInterface)+"-"+reference.getProperty(Constants.SERVICE_ID);
-    }
-
     
     /**
-     * Get the name of all instances that must be created in APAM for this OSGi reference.
-     * 
-     * Currently we create one instance in Apam for each registered interface.
-     * 
-     * TODO find a naming convention to register only a single instance for each service
+     * The underlying OSGi service reference
      */
-    public static String[] getInstanceNames(ServiceReference reference) {
-    	
-    	String[] registeredInterfaces	= (String[]) reference.getProperty(Constants.OBJECTCLASS);
-    	String[] instanceNames			= new String[registeredInterfaces.length];
-    	
-    	for (int i = 0; i < registeredInterfaces.length; i++) {
-			String registeredInterface	= registeredInterfaces[i];
-			instanceNames[i]			= generateInstanceName(reference, registeredInterface);
-		}
-    	
-    	return instanceNames;
+    public ServiceReference getServiceReference() {
+    	return reference;
+    }
+
+    /**
+     * The list of provided interfaces of this instance
+     */
+    public Set<InterfaceReference> getProvidedResources() {
+    	return providedInterfaces;
     }
     
-
     @Override
     public Bundle getBundle() {
     	return bundle;
@@ -130,10 +125,6 @@ public class ApformOSGiInstance implements ApformInstance {
         return declaration;
     }
 
-    public String getRegisteredInterface() {
-		return registeredInterface;
-	}
-    
     @Override
     public Object getServiceObject() {
         return service;
@@ -153,7 +144,7 @@ public class ApformOSGiInstance implements ApformInstance {
     }
     
 
-    private void dispose() {
+    public void dispose() {
     	if (bundle.getBundleContext() != null)
     		bundle.getBundleContext().ungetService(reference);
     }
