@@ -30,7 +30,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>config.base</module>				
+		<module>felix.config.base</module>
 		<module>simple-distribution</module>
 		<module>obrman-distribution</module>
 		<module>dynaman-distribution</module>

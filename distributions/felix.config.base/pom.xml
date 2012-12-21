@@ -23,16 +23,19 @@
          <relativePath>../pom.xml</relativePath>
 	</parent>
   <!-- Project coordinates -->
-  <artifactId>config.base</artifactId>
+  <artifactId>felix.config.base</artifactId>
   <packaging>pom</packaging>
 
   <!-- Project description -->
-  <name>ApAM :: Config Base</name>
+  <name>ApAM :: Felix Config Base</name>
   
   <!-- Project dependencies -->
   <dependencies>
 
-	<!-- deployed packages -->
+      <dependency>
+          <groupId>org.knowhowlab.osgi.shell</groupId>
+          <artifactId>felix-gogo</artifactId>
+      </dependency>
 
   </dependencies>
   

@@ -85,7 +85,7 @@
 								</artifactItem>
                                 <artifactItem>
 									<groupId>fr.imag.adele.apam</groupId>
-									<artifactId>apam-shell</artifactId>
+									<artifactId>apam-universal-shell</artifactId>
                                     <version>${project.version}</version>
 								</artifactItem>
 								<!-- Felix Dependencies -->
