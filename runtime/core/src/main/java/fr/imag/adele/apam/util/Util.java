@@ -383,9 +383,13 @@ public final class Util {
 	 * only string, int, boolean and enumerations attributes are accepted.
 	 * Return the value if it is correct.
 	 * For "int" returns an Integer object, otherwise it is the string "value"
+	 * TODO : does not work for set of integer, treated as string set. Matching may fail.
+	 * Should be reimplemented with real object, like Set<Integer> or any Object. 
+	 * TODO : should check constraints to be sure it will be correctly interpreted by LDAP matching.
 	 *
-	 * @param value
-	 * @param type
+	 * @param value : a singleton, or a set "a, b, c, ...."
+	 * @param type : a singleton "int", "boolean" or "string" or enumeration "v1, v2, v3 ..."
+	 * 				or a set of these : "{int}", "{boolean}" or "{string}" or enumeration "{v1, v2, v3 ...}"
 	 */
 	public static Object checkAttrType(String attr, String value, String types) {
 		if ((types == null) || (value == null) || types.isEmpty() || value.isEmpty() || attr==null || attr.isEmpty()) {
@@ -403,45 +407,54 @@ public final class Util {
 
 		Set<String> values   = Util.splitSet(value);		
 		if (values.size() > 1 && !isEnum) {
-				logger.error("Values are a set \"" + values  + "\" for attribute \"" + attr
-						+ "\". while type is singleton: \"" + types + "\"");
-				return null ;
+			logger.error("Values are a set \"" + values  + "\" for attribute \"" + attr
+					+ "\". while type is singleton: \"" + types + "\"");
+			return null ;
 		}
 
 		//Type is a singleton : it must be only "string", "int", "boolean"
 		//but value can still be a set
 		if (enumVals.size() == 1) {
+
 			if (type.equals("boolean")) {
-				if (value.equalsIgnoreCase(CST.V_TRUE) || value.equalsIgnoreCase(CST.V_FALSE)) {
-					return value ;
+				for (String val : values) {
+					if (!val.equalsIgnoreCase(CST.V_TRUE) && !val.equalsIgnoreCase(CST.V_FALSE)) {
+						logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr + "=" + value
+								+ "\".  Boolean value expected");
+						return null;
+					}
 				}
-				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
-						+ "\".  Boolean value expected");
-				return null;
+				return value ; 
 			}
-			
+
 			if (type.equals("int") || type.equals("integer")) {
 				Integer valInt = null ;
 				try {
 					for (String val : values) {
 						valInt = Integer.parseInt(val);
 					}
-					return valInt;
+					if (values.size() == 1) {
+						// the only case where we return something else than a string !
+						return valInt;
+					}
+					//unfortunately, a set of int is the same as a set of strings
+					return value ;
 				} catch (Exception e) {
 					logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
 							+ "\".  Integer value(s) expected");
 					return null;
 				}
 			}
-			
+
 			if (!type.equals("string")) {
 				logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
 						+ "\".  int, integer, boolean or string expected");
+				return null ;
 			}
 			//All values are Ok for string.
 			return value ;
 		}
-		
+
 		//Type is an enumeration with at least 2 values
 		if (enumVals.containsAll(values)) {
 			return value;
@@ -453,20 +466,6 @@ public final class Util {
 		return null;
 	}
 
-		//A single value : it must be only "string"
-//		if (enumVals.size() == 1) {
-//			if (type.equals("string")) {
-//				return value ;
-//			}
-//			logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr);
-//			return null ;
-//		}
-
-		//It is a set: either a set of integer, or an enumeration
-//		Set<String> values = Util.splitSet(value);
-//		if (type.equals("string")) {
-//			return value ;
-//		}
 
 
 	public static String[] stringArrayTrim(String[] strings) {
