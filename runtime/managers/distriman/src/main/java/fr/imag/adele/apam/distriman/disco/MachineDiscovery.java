@@ -1,23 +1,17 @@
 package fr.imag.adele.apam.distriman.disco;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.UUID;
+import fr.imag.adele.apam.distriman.LocalMachine;
+import fr.imag.adele.apam.distriman.NodePool;
+import fr.imag.adele.apam.distriman.RemoteMachineFactory;
+import org.apache.felix.ipojo.annotations.*;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
-
-import org.apache.felix.ipojo.annotations.Component;
-import org.apache.felix.ipojo.annotations.Instantiate;
-import org.apache.felix.ipojo.annotations.Invalidate;
-import org.apache.felix.ipojo.annotations.Requires;
-import org.apache.felix.ipojo.annotations.Validate;
-
-import fr.imag.adele.apam.distriman.LocalMachine;
-import fr.imag.adele.apam.distriman.NodePool;
-import fr.imag.adele.apam.distriman.RemoteMachineFactory;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.UUID;
 
 /**
  * <p>The MachineDiscovery component allows for the discovery of other
@@ -113,9 +107,9 @@ public class MachineDiscovery implements ServiceListener {
         }
     }
 
-    public void registerLocal(LocalMachine local) throws IOException{
+    public void publishLocalMachine(LocalMachine local) throws IOException{
         //Register a local machine
-        jmDNS.registerService(ServiceInfo.create(local.getType(), local.getName(), local.getPort(), local.getPath()));
+        jmDNS.registerService(ServiceInfo.create(local.getType(), local.getName(), local.getPort(), local.getURL()));
     }
 
 
@@ -137,7 +131,7 @@ public class MachineDiscovery implements ServiceListener {
         }
 
         ServiceInfo info = serviceEvent.getInfo();
-        String url = info.getURL();
+        String url = info.getNiceTextString(); //Get the content
         machineFactory.destroyRemoteMachine(url);
     }
 
@@ -150,7 +144,7 @@ public class MachineDiscovery implements ServiceListener {
         }
 
         ServiceInfo info = jmDNS.getServiceInfo(MDNS_TYPE, serviceEvent.getName());
-        String url = info.getURL();
+        String url = info.getNiceTextString();
 
         machineFactory.newRemoteMachine(url);
     }

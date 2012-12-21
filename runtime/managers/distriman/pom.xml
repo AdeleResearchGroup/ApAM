@@ -44,7 +44,8 @@
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Import-Package>
                             javax.servlet.http,
-                            javax.servlet,
+                            javax.servlet;version="[2.3,3)",
+                            javax.jws;version=0.0.0,
                             *
                         </Import-Package>
                         <Private-Package>
@@ -118,6 +119,11 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.chameleon.commons.cxf</groupId>
+            <artifactId>cxf-bundle-minimal</artifactId>
+            <version>2.5.2-0002-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

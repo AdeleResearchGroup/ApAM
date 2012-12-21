@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +22,9 @@ public class Distriman implements DependencyManager{
 
     //TODO resolved via system/framework/httpservice property
     private static final int HTTP_PORT = 8080;
+
+    //ApamManager priority
+    private static final int PRIORITY = 4;
 
     /**
      * Hostname of the InetAdress to be used for the MachineDiscovery.
@@ -35,7 +39,7 @@ public class Distriman implements DependencyManager{
     //Default logger
     private static Logger logger = LoggerFactory.getLogger(Distriman.class);
 
-    private final EndpointFactory endpointFactory = new EndpointFactory();
+    private final CxfEndpointFactory endpointFactory;
 
     private final RemoteMachineFactory remotes;
 
@@ -54,6 +58,7 @@ public class Distriman implements DependencyManager{
 
         remotes = new RemoteMachineFactory(context);
         discovery = new MachineDiscovery(remotes);
+        endpointFactory= new CxfEndpointFactory();
     }
 
     public String getName() {
@@ -72,7 +77,7 @@ public class Distriman implements DependencyManager{
 
     @Override
     public int getPriority() {
-        return 4;  //TODO is it alright
+        return PRIORITY;
     }
 
     @Override
@@ -80,10 +85,36 @@ public class Distriman implements DependencyManager{
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-	@Override
+
+    /**
+     * That's the meat! Ask synchroneously to each available RemoteMachine to resolved the <code>dependency</code>,
+     * the first to solve it create the proxy.
+     *
+     * @param client the instance asking for the resolution (and where to create implementation, if needed). Cannot be null.
+     * @param dependency a dependency declaration containing the type and name of the dependency target. It can be
+     *            -the specification Name (new SpecificationReference (specName))
+     *            -an implementation name (new ImplementationRefernece (name)
+     *            -an interface name (new InterfaceReference (interfaceName))
+     *            -a message name (new MessageReference (dataTypeName))
+     *            - or any future resource ...
+     * @param needsInstances
+     * @return The Resolved object if a proxy has been created, null otherwise.
+     */
 	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
-		// TODO Auto-generated method stub
-		return null;
+        Resolved resolved = null;
+
+        if (!needsInstances){ //XXX handle only instances
+            return null;
+        }
+
+        Iterator<RemoteMachine> machines = remotes.getRemoteMachines().iterator();
+
+        while (machines.hasNext() && resolved == null){
+            resolved = machines.next().resolveRemote(client,dependency);
+        }
+
+
+		return resolved;
 	}
 
     @Override
@@ -140,6 +171,9 @@ public class Distriman implements DependencyManager{
         //start the discovery
         discovery.start(HOST);
 
+        //start the CxfEndpointFactory
+        endpointFactory.start(http);
+
         //Register this local machine servlet
         try {
             http.registerServlet(LocalMachine.INSTANCE.getPath(),my_local.getServlet(),null,null);
@@ -150,12 +184,16 @@ public class Distriman implements DependencyManager{
 
         //publish this local machine over the network!
         try {
-            discovery.registerLocal(my_local);
+            discovery.publishLocalMachine(my_local);
         } catch (IOException e) {
             discovery.stop();
             http.unregister(my_local.getPath());
             throw new RuntimeException(e);
         }
+
+
+        //Add this manager to Apam
+        ApamManagers.addDependencyManager(this,PRIORITY);
 
         //Add Distriman to Apam
         logInfo("Successfully initialized");
@@ -165,8 +203,14 @@ public class Distriman implements DependencyManager{
     private void stop(){
         logInfo("Stopping...");
 
+        //Goodbye Apam
+        ApamManagers.removeDependencyManager(this);
+
         //stop the discovery
         discovery.stop();
+
+        //stop the CxfEndpointFactory
+        endpointFactory.stop(http);
 
         http.unregister(my_local.getPath());
 
@@ -195,7 +239,6 @@ public class Distriman implements DependencyManager{
     //
     // Convenient static log method
     //
-
     protected static void logInfo(String message,Throwable t){
         logger.info("["+CST.DISTRIMAN+"]"+message,t);
     }

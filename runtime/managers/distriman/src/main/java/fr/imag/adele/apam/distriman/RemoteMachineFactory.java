@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.collect.Sets.newHashSet;
+
 /**
  * ApformCompositeType of and the factory of RemoteMachine.
  * Instance of this class should be a singleton.
@@ -116,6 +118,15 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
     public RemoteMachine getRemoteMachine(String url){
         synchronized (machines){
             return machines.get(url);
+        }
+    }
+
+    /**
+     * @return A set containing all available RemoteMachine
+     */
+    public Set<RemoteMachine> getRemoteMachines(){
+        synchronized (machines){
+            return newHashSet(machines.values());
         }
     }
 
