@@ -42,7 +42,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Vendor>Adele/LIG/ Grenoble University, France</Bundle-Vendor>
                         <Bundle-Version>${project.version}</Bundle-Version>
-					</instructions>
+					
                         <Import-Package>
                             javax.servlet.http,
                             javax.servlet,

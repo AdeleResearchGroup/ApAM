@@ -6,24 +6,20 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Mehdi
- * Date: 05/12/12
- * Time: 17:44
- * To change this template use File | Settings | File Templates.
- */
+import java.io.PrintWriter;
+
+
 public class AsyncFind implements Runnable {
 
     private String componentName;
 
-    private Component component;
+    private PrintWriter out;
 
     private Composite target;
 
     private boolean instantiate;
-    public AsyncFind(Component component, Composite target, String componentName, boolean b) {
-       this.component = component;
+    public AsyncFind(PrintWriter out, Composite target, String componentName, boolean b) {
+        this.out= out;
         this.target = target;
         this.componentName = componentName;
         this.instantiate = b;
@@ -33,10 +29,9 @@ public class AsyncFind implements Runnable {
 
     @Override
     public void run() {
-
-        component= CST.apamResolver.findComponentByName(target, componentName);
+        Component  component= CST.apamResolver.findComponentByName(target, componentName);
         if (component!=null){
-            System.out.println(">> " + component.getName() + " deployed!");
+            out.println(">> " + component.getName() + " deployed!");
             if (instantiate){
                 if (component instanceof Implementation)
                     ((Implementation)component).createInstance(target,null);
@@ -49,8 +44,6 @@ public class AsyncFind implements Runnable {
         }
 
         else
-            System.out.println(">> Deployment failed for " + componentName);
-
-
+            out.println(">> Deployment failed for " + componentName);
     }
 }
