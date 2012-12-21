@@ -335,15 +335,15 @@ public class MainApam implements Runnable, ApamComponent {
 
 		boolean ok  ;
 		impl.setProperty("s1i", "5"); // for match tests
-		assertTrue (inst.match("(s1i>=4)")) ;
+		assertTrue ( inst.match("(s1i>=4)")) ;
 		assertTrue (!inst.match("(s1i<=4)")) ;
 		assertTrue (!inst.match("(s1i>=6)")) ;
-		assertTrue (inst.match("(s1i<=6)")) ;
+		assertTrue ( inst.match("(s1i<=6)")) ;
 		assertTrue (!inst.match("(s1i>=10)")) ;
-		assertTrue (inst.match("(s1i<=10)")) ;
-		assertTrue (inst.match("(s1i>=01)")) ;
-		assertTrue (inst.match("(s1i<=01)")) ;
-		assertTrue (inst.match("(s1i>=-61)")) ;
+		assertTrue ( inst.match("(s1i<=10)")) ;
+		assertTrue ( inst.match("(s1i>=01)")) ;
+		assertTrue (!inst.match("(s1i<=01)")) ;
+		assertTrue ( inst.match("(s1i>=-61)")) ;
 		assertTrue (!inst.match("(s1i<=-61)")) ;
 
 		impl.setProperty("S1-Attr", "5"); // error: cannot redefine
