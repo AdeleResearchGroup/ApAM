@@ -20,12 +20,12 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
-import fr.imag.adele.apam.apform.ApformImplementation;
+import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
 /**
- * This class tracks osgi legacy implementations and instances and register
- * them in APAM
+ * This class tracks services dynamically registered in the OSGi registry for implementation managed by the
+ * OSGI Manager @see OSGiMan
  * 
  * @author vega
  * 
@@ -59,63 +59,39 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
     /**
      * Callback to handle instance binding
      */
-    public synchronized boolean instanceBound(ServiceReference reference) {
+    public synchronized boolean instanceBound(ApformOSGiInstance osgiInstance) {
 
-    	/*
-    	 * Register instances associated with the reference and the implementation if needed
-    	 */
-    	for (String registeredInterface : (String[]) reference.getProperty(Constants.OBJECTCLASS)) {
-           
-    		ApformOSGiInstance apformInstance = new ApformOSGiInstance(reference,registeredInterface);
-            Apform2Apam.newInstance(apformInstance);
-            
-            Implementation implementation = CST.componentBroker.getImpl(apformInstance.getDeclaration().getImplementation().getName());
-            if (implementation == null) {
-            	factoryBound(apformInstance);
-            }
+   		/*
+   		 * Ignore service registration if its corresponding implementation is not managed in APAM (by the OSGi Manager)
+   		 */
+   		Implementation implementation 		= CST.componentBroker.getImpl(osgiInstance.getDeclaration().getImplementation().getName());
+   		if (implementation == null)
+   			return false;
 
-		}
-        
+   		/*
+   		 * Ignore service registrations already lazily reified by the manager
+   		 */
+   		Instance instance = CST.componentBroker.getInst(osgiInstance.getDeclaration().getName());
+   		if (instance != null)
+   			return false;
+   		
+   		/*
+   		 * Add to APAM all other dynamic service regsitrations 
+   		 */
+   		Apform2Apam.newInstance(osgiInstance);
         return true;
     }
 
     /**
      * Callback to handle instance unbinding
      */
-    public synchronized void instanceUnbound(ServiceReference reference) {
+    public synchronized void instanceUnbound(ApformOSGiInstance osgiInstance) {
     	
-        
-        for (String instanceName : ApformOSGiInstance.getInstanceNames(reference)) {
-
-        	Instance instance 					= CST.componentBroker.getInst(instanceName);
-            ApformOSGiInstance apformInstance 	= (ApformOSGiInstance) instance.getApformInst();
-
-            ComponentBrokerImpl.disappearedComponent(apformInstance.getDeclaration().getName()) ;
-
-            Implementation implementation = CST.componentBroker.getImpl(apformInstance.getDeclaration().getImplementation().getName());
-            if (implementation.getInsts().isEmpty()) {
-            	factoryUnbound(apformInstance);
-            }
-
-		}
-        
+    	Instance instance = CST.componentBroker.getInst(osgiInstance.getDeclaration().getName());
+    	if (instance != null)
+            ComponentBrokerImpl.disappearedComponent(instance.getName()) ;
     }
 
-    /**
-     * Callback to handle factory binding
-     */
-    public void factoryBound(ApformOSGiInstance prototype) {
-        ApformImplementation implementation = new ApformOSGiImplementation(prototype);
-        Apform2Apam.newImplementation(implementation);
-    }
-
-    /**
-     * Callback to handle factory unbinding
-     */
-    public void factoryUnbound(ApformOSGiInstance prototype) {
-    	ComponentBrokerImpl.disappearedComponent(prototype.getDeclaration().getImplementation().getName()) ;
-    }
-    
     /**
      * Starting.
      */
@@ -155,8 +131,8 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
         if (service instanceof Pojo || service instanceof Factory)
         	return null;
         
-        
-        if (instanceBound(reference))
+        ApformOSGiInstance osgiInstance	= new ApformOSGiInstance(reference);
+        if (instanceBound(osgiInstance))
             return service;
 
         /*
@@ -169,36 +145,30 @@ public class ApformOSGiTracker implements ServiceTrackerCustomizer {
     @Override
     public void removedService(ServiceReference reference, Object service) {
 
-        instanceUnbound(reference);
-        context.ungetService(reference);
+       ApformOSGiInstance osgiInstance	= new ApformOSGiInstance(reference);
+       instanceUnbound(osgiInstance);
+       osgiInstance.dispose();
     }
 
     @Override
     public void modifiedService(ServiceReference reference, Object service) {
+    	
+    	ApformInstance osgiInstance	= new ApformOSGiInstance(reference);
+    	Instance instance 			= CST.componentBroker.getInst(osgiInstance.getDeclaration().getName());
 
-        for (String instanceName : ApformOSGiInstance.getInstanceNames(reference)) {
+    	if (instance == null)
+    		return;
+    	
 
-        	Instance instance = CST.componentBroker.getInst(instanceName);
-
-            /*
-             * If the service is not reified in APAM, just ignore event
-             */
-            if (instance == null)
-                continue;
-
-            /*
-             * Otherwise propagate property changes to Apam
-             */
-            for (String key : reference.getPropertyKeys()) {
-                if (!Apform2Apam.isPlatformPrivateProperty(key)) {
-                    String value = reference.getProperty(key).toString();
-                    if (value != instance.getProperty(key))
-                    	instance.setProperty(key, value);
-                }
+        for (String key : reference.getPropertyKeys()) {
+            if (!Apform2Apam.isPlatformPrivateProperty(key)) {
+                String value = reference.getProperty(key).toString();
+                if (value != instance.getProperty(key))
+                	instance.setProperty(key, value);
             }
         }
 
-        }
+    }
         
 
 }

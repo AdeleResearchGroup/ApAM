@@ -71,6 +71,7 @@ public class ApamCapability {
 	}
 
 	public static ApamCapability get(ComponentReference<?> reference) {
+		if (reference == null) return null ;
 		ApamCapability cap = capabilities.get(reference.getName()) ;
 		if (cap == null && !missing.contains(reference.getName())) {
 			missing.add(reference.getName()) ;
@@ -145,7 +146,7 @@ public class ApamCapability {
 	}
 
 	public String getAttrDefinition (String name) {
-		ApamCapability group = (getGroup() == null) ? this : getGroup() ;
+		ApamCapability group = this ; // (getGroup() == null) ? this : getGroup() ;
 		String defAttr ;
 		while (group != null) {
 			defAttr = group.getLocalAttrDefinition(name)  ;

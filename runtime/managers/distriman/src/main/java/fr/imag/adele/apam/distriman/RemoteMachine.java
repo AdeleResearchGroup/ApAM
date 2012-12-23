@@ -1,13 +1,21 @@
 package fr.imag.adele.apam.distriman;
 
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.util.Collections.singleton;
 
 /**
  * Each Apam/Distriman machines available over the network, have a RemoteMachine composite.
@@ -33,6 +41,10 @@ public class RemoteMachine  implements ApformInstance{
 
     private final InstanceDeclaration my_declaration;
 
+    private final Set<EndpointRegistration> my_endregis = new HashSet<EndpointRegistration>();
+
+    private final AtomicBoolean running = new AtomicBoolean(true);
+
     protected RemoteMachine(String url, RemoteMachineFactory daddy) {
         my_url = url;
         my_impl = daddy;
@@ -50,15 +62,59 @@ public class RemoteMachine  implements ApformInstance{
         return my_url;
     }
 
+    public void addEndpointRegistration(EndpointRegistration registration){
+        if(running.get())
+            my_endregis.add(registration);
+    }
+
+    public boolean rmEndpointRegistration(EndpointRegistration registration){
+        return running.get() && my_endregis.remove(registration);
+    }
+
     /**
      * Destroy the RemoteMachine
+     * //TODO but a volatile destroyed flag ?
      */
     protected void destroy() {
-        logger.info("RemoteMachine " + my_url + " destroyed.");
-        System.out.println("RemoteMachine " + my_url + " destroyed.");
+        if(running.compareAndSet(true,false)){
 
-        //Remove this Instance from the broker
-        ComponentBrokerImpl.disappearedComponent(this.getDeclaration().getName());
+            logger.info("RemoteMachine " + my_url + " destroyed.");
+            System.out.println("RemoteMachine " + my_url + " destroyed.");
+
+            //Remove this Instance from the broker
+            ComponentBrokerImpl.disappearedComponent(this.getDeclaration().getName());
+
+            for(EndpointRegistration endreg: my_endregis){
+                endreg.close();
+            }
+        }
+    }
+
+    public Resolved resolveRemote(Instance client, DependencyDeclaration dependency) {
+        if(running.get()){
+            try{
+                RemoteDependency remoteDep = new RemoteDependency(dependency);
+
+                String json = remoteDep.toJson().toString();
+                Instance instance = createProxy(json);
+
+                if (instance == null){
+                    return null;
+                }
+
+                return new Resolved(null, singleton(instance));
+
+                //createProxy(json);
+                //TODO call this machine getUrl
+            }catch (Exception e){
+                //TODO handle
+            }
+        }
+        return null; //TODO
+    }
+
+    private Instance createProxy(String jsondep){
+        return null; // null
     }
 
     // ===============
@@ -111,3 +167,6 @@ public class RemoteMachine  implements ApformInstance{
         return apamInstance;
     }
 }
+
+
+

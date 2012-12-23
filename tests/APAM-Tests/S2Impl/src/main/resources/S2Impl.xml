@@ -14,6 +14,25 @@
 		classname="fr.imag.adele.apam.test.s2Impl.S2Simple" specification="S2"
 		interfaces="{fr.imag.adele.apam.test.s2.S2}">
 
+			<property name="S1Implm" value="s1-2" type="string"/>
+			<property name="S1Impl-Enum" value="X-2" type="{X-1, X-2, X-3}"/>
+			<property name="S1Impl-EnumSet" value="Y-1, Y-2" type="{Y-0, Y-1, Y-2, Y-3}"/>
+			<property name="S1Impl-wrong" value="Z-1, Z-2" type="Z-0, Z-1, Z-2, Z-3"/>
+			<property name="intSet" value="12,15,254, 0" type="{int}"/>
+			<property name="intSetwrong1" value="12,15,254, 0" type="int"/>
+			<property name="intSetWrong2" value="12, fg, 254, 0" type="{int}"/>
+			<property name="stringSet" value="a, b, c, d" type="{string}"/>
+			<property name="stringSimple" value="a, b, c, d, e" type="string"/>
+			<property name="S1Impl-wrong3" value="xxx" type="{Z-0, Z-1, Z-2, Z-3}"/>
+			<property name="S1Impl-wrong2" value="N-1" type="N-0, N-1, N-2, N-3"/>
+
+			<property name="boolSet2" value="true, false, false, false" type="{boolean}"/>
+			<property name="boolSetWrong" value="true, 5, false, false" type="{boolean}"/>
+
+
+			<definition name="Dd" type="int" />
+			<property name="c" type="boolean" value="true" />
+			
 		<dependency implementation="S3Impl" id="S3Impl-id" field="fieldS3" />
 		<dependency specification="S4" field="s4" />
 	</implementation>

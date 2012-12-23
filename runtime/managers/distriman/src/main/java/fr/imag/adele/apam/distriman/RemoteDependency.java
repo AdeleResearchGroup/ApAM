@@ -40,6 +40,14 @@ public class RemoteDependency extends DependencyDeclaration {
         super(component, id, isMultiple, resource);
     }
 
+    /**
+     * Wrapper around a DependencyDeclaration.
+     * @param dep
+     */
+    public RemoteDependency(DependencyDeclaration dep) {
+        super(dep.getComponent(), dep.getIdentifier(), dep.isMultiple(), dep.getTarget());
+    }
+
     public JSONObject toJson() throws JSONException{
         JSONObject json = new JSONObject();
         JSONObject json_rr = new JSONObject();

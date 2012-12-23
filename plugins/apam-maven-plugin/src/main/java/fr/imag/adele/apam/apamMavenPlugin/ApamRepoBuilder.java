@@ -24,6 +24,7 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
+import fr.imag.adele.apam.util.Util;
 
 public class ApamRepoBuilder {
 
@@ -144,7 +145,7 @@ public class ApamRepoBuilder {
 		printRequire(obrContent, component);
 
 		
-		generateTypedProperty(obrContent, component, "version", "version", OBRGeneratorMojo.thisBundleVersion) ;
+//		generateTypedProperty(obrContent, component, "version", "version", OBRGeneratorMojo.thisBundleVersion) ;
 		ApamCapability.get(component.getReference()).finalize() ;
 		obrContent.append("   </capability>\n");
 	}
@@ -195,28 +196,34 @@ public class ApamRepoBuilder {
 		List<PropertyDefinition> definitions = component.getPropertyDefinitions();
 		for (PropertyDefinition definition : definitions) {
 			String type = definition.getType();
+			String attrDef = definition.getName() ;
 			String defaultValue = definition.getDefaultValue();
 			
 			if (defaultValue == null)
 				defaultValue = "";
 			
-			if (type != null) {
-				type = type.trim() ;
-				String typeString = null;
-				if (type.equals("string") || type.equals("int") || type.equals("boolean")) {
-					typeString = type;
-				} else {
-					// check for enum types
-					if ((type.charAt(0) == '{') || (type.charAt(0) == '[')) {
-						typeString =  type ;
-					} else
-						CheckObr.error("Invalid type " + type + " in attribute definition " + definition.getName()
-								+ ". Supported: string, int, boolean, enumeration.");
-				}
-				if (typeString != null) {
-					generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + definition.getName(), typeString, defaultValue) ;
-				}
+			ApamCapability group = ApamCapability.get(component.getGroupReference()) ;
+			if (group != null && group.getAttrDefinition(attrDef) != null) {
+				CheckObr.error ("Property " + attrDef + " allready defined in the group.") ;
 			}
+			
+			//We have a default value, check it as if a property.
+			if (type != null && defaultValue != null && !defaultValue.isEmpty()) {
+				if (Util.checkAttrType(attrDef, defaultValue, type) != null) {
+					generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
+				} else {
+					CheckObr.setFailedParsing(true) ;
+				}
+				continue ;
+			}
+			
+			type = type.trim() ;
+			if (type==null || !(type.equals("string") || type.equals("int") ||type.equals("integer") || type.equals("boolean") || type.charAt(0)=='{' )) {
+				CheckObr.error("Invalid type " + type + " in attribute definition " + attrDef
+						+ ". Supported: string, int, boolean, enumeration.");
+				continue ;
+			}
+			generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
 		}
 	}
 

@@ -33,6 +33,18 @@
 <node CREATED="1353070377590" ID="ID_382562301" MODIFIED="1354294378716" TEXT="Filtering applied in string values should work properly-tc008">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1355931835542" ID="ID_1074078486" MODIFIED="1356013732686" TEXT="Retrieving &lt;property type=&apos;int&apos;&gt; should return a proper Collection/array-tc053">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1355931835542" ID="ID_949793962" MODIFIED="1356013735230" TEXT="Retrieving &lt;property type=&apos;integer&apos;&gt; should return a proper Collection/array-tc054">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1355931835542" ID="ID_450621789" MODIFIED="1356013737734" TEXT="Retrieving &lt;property type=&apos;string&apos;&gt; should return a proper Collection/array-tc055">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1355931835542" ID="ID_1598888249" MODIFIED="1356013740398" TEXT="Retrieving &lt;property type=&apos;boolean&apos;&gt; should return a proper Collection/array-tc056">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node CREATED="1353066008853" ID="ID_82303023" MODIFIED="1353071077628" TEXT="Constraint">
 <node CREATED="1353070505975" ID="ID_346843196" MODIFIED="1354294409593" TEXT="injected instance should respect constraint declared in XML-tc009">
