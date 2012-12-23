@@ -15,8 +15,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-iface</artifactId>
+			<groupId>fr.imag.adele.apam.tests.messages</groupId>
+			<artifactId>apam-pax-samples-msg</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -49,9 +49,9 @@
 				<configuration>
 					<instructions>
 						<Export-Package>
-							fr.imag.adele.apam.pax.test.implS1,
-							fr.imag.adele.apam.pax.test.impl.deviceSwitch
-						</Export-Package>
+                            fr.imag.adele.apam.pax.test.msg.m1.producerimpl,
+                            fr.imag.adele.apam.pax.test.impl.deviceSwitch
+                        </Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

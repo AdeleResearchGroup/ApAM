@@ -3,7 +3,6 @@ package fr.imag.adele.apam.test.testcases;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
