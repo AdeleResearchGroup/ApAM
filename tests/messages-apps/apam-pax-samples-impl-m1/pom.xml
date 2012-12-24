@@ -49,8 +49,8 @@
 				<configuration>
 					<instructions>
 						<Export-Package>
-                            fr.imag.adele.apam.pax.test.msg.m1.producerimpl,
-                            fr.imag.adele.apam.pax.test.impl.deviceSwitch
+                            fr.imag.adele.apam.pax.test.msg.m1.producer.impl,
+                            fr.imag.adele.apam.pax.test.msg.devices.impl
                         </Export-Package>
 					</instructions>
 				</configuration>

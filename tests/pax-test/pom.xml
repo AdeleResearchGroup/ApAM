@@ -212,7 +212,7 @@
 			<version>${project.version}</version>
 		</dependency>
 
-
+		<!-- Services Tests -->
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-iface</artifactId>
@@ -242,6 +242,36 @@
 			<scope>test</scope>
 			<version>${project.version}</version>
 		</dependency>
+
+		<!-- Messages Tests -->
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.messages</groupId>
+			<artifactId>apam-pax-samples-msg</artifactId>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.messages</groupId>
+			<artifactId>apam-pax-samples-impl-m1</artifactId>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.messages</groupId>
+			<artifactId>apam-pax-samples-impl-m2</artifactId>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.messages</groupId>
+			<artifactId>apam-pax-samples-impl-m3</artifactId>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
+
 
 		<!-- finishing testing without obrman -->
 

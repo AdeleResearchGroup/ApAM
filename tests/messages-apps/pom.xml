@@ -12,9 +12,9 @@
     <name>Messages components for tests</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>messages-consumers</module>
+<!--		<module>messages-consumers</module>
 		<module>messages-producers</module>
-		<module>messages-specifications</module>
+		<module>messages-specifications</module>-->
         <module>apam-pax-samples-msg</module>
         <module>apam-pax-samples-impl-m1</module>
         <module>apam-pax-samples-impl-m2</module>

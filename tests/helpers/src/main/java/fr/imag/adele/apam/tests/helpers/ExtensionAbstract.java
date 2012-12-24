@@ -59,7 +59,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 		config.add(packOSGi());
 		config.add(packPax());
 		config.add(packApamCore());
-		config.add(packApamObrMan());
+		//config.add(packApamObrMan());
 		config.add(packAppForTestBundles());
 		config.add(packLog());
 		config.add(junitBundles());
@@ -199,38 +199,29 @@ public abstract class ExtensionAbstract extends TestUtils {
 
 	protected CompositeOption packAppForTestBundles() {
 
-		CompositeOption testAppBundle = new DefaultCompositeOption(mavenBundle(
-				"fr.imag.adele.apam.tests", "apam-helpers")
-				.versionAsInProject(), mavenBundle(
-				"fr.imag.adele.apam.tests.messages", "messages-specifications")
-				.versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private",
-						"APP1-MainImpl").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app1.private",
-						"APP1-MainSpec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app1.private",
-						"APP1-S1-Spec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app1.private",
-						"APP1-S2-Spec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app1.private",
-						"APP1-S3-Spec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app1.public",
-						"APP1-Spec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app2.private",
-						"APP2-MainImpl").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app2.private",
-						"APP2-MainSpec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app2.public",
-						"APP2-Spec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.services",
-						"apam-pax-samples-iface").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.services",
-						"apam-pax-samples-impl-s1").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.services",
-						"apam-pax-samples-impl-s2").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.services",
-						"apam-pax-samples-impl-s3").versionAsInProject());
-
+		CompositeOption testAppBundle = new DefaultCompositeOption(
+				mavenBundle("fr.imag.adele.apam.tests", "apam-helpers").versionAsInProject(), 
+				
+				
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private","APP1-MainImpl").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private","APP1-MainSpec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private","APP1-S1-Spec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private","APP1-S2-Spec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private","APP1-S3-Spec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.public","APP1-Spec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.private","APP2-MainImpl").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.private","APP2-MainSpec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.public","APP2-Spec").versionAsInProject(),
+				
+				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-iface").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s1").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s2").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s3").versionAsInProject(),
+				
+				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-msg").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m1").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m2").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m3").versionAsInProject());
 		return testAppBundle;
 
 	}

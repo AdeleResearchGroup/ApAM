@@ -1,25 +1,16 @@
 package fr.imag.adele.apam.test.messages;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.ops4j.pax.exam.CoreOptions.bundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
 
 import java.util.List;
-import java.util.Queue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.OptionUtils;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.util.PathUtils;
 
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 /**

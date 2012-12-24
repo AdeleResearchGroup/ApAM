@@ -1,7 +1,5 @@
 package fr.imag.adele.apam.test.testcases;
 
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-
 import java.util.HashMap;
 import java.util.List;
 

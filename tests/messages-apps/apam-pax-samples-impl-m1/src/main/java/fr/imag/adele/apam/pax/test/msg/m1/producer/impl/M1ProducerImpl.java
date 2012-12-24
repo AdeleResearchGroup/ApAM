@@ -19,7 +19,7 @@ public class M1ProducerImpl
 	String stateInternal;
 	String stateNotInternal;
 
-	Queue<EletronicMsg> simpleDevice110vMsg;
+	Queue<EletronicMsg> simpleDevice110vQueue;
 	
 	Queue<M2> m2Queue;
     Queue<M3> m3Queue;
@@ -39,7 +39,6 @@ public class M1ProducerImpl
     public M1ProducerImpl(BundleContext context){
     	this.context=context;
     }
-
 
     public M1 produceM1(String msg){
         return new M1(msg);
@@ -71,19 +70,19 @@ public class M1ProducerImpl
     	isOnRemoveCallbackCalled=true;
     }
 
-	public EletronicMsg getSimpleDevice110vMsg() {
-		return simpleDevice110vMsg.poll();
+	public Queue<EletronicMsg> getSimpleDevice110vMsg() {
+		return simpleDevice110vQueue;
 	}
 
-	public EletronicMsg getEletronicMsgQueue() {
-		return eletronicMsgQueue.poll();
+	public Queue<EletronicMsg> getEletronicMsgQueue() {
+		return eletronicMsgQueue;
 	}
-	public Message<EletronicMsg> getEletronicMessageQueue() {
-		return eletronicMessageQueue.poll();
+	public Queue<Message<EletronicMsg>> getEletronicMessageQueue() {
+		return eletronicMessageQueue;
 	}
 
-	public EletronicMsg getEletronicMsgConstraintsQueue() {
-		return eletronicMsgConstraintsQueue.poll();
+	public Queue<EletronicMsg> getEletronicMsgConstraintsQueue() {
+		return eletronicMsgConstraintsQueue;
 	}
 
 	public String getStateNotInternal() {
@@ -102,12 +101,12 @@ public class M1ProducerImpl
 		this.stateInternal = stateInternal;
 	}
 
-	public EletronicMsg getDevicePreference110vQueue() {
-		return devicePreference110vQueue.poll();
+	public Queue<EletronicMsg> getDevicePreference110vQueue() {
+		return devicePreference110vQueue;
 	}
 
-	public EletronicMsg getDeviceConstraint110vQueue() {
-		return deviceConstraint110vQueue.poll();
+	public Queue<EletronicMsg> getDeviceConstraint110vQueue() {
+		return deviceConstraint110vQueue;
 	}
 
 	public Boolean getIsOnInitCallbackCalled() {
@@ -134,12 +133,12 @@ public class M1ProducerImpl
 		this.context = context;
 	}
 
-	public M2 getM2Queue() {
-		return m2Queue.poll();
+	public Queue<M2> getM2Queue() {
+		return m2Queue;
 	}
 
-	public M3 getM3Queue() {
-		return m3Queue.poll();
+	public Queue<M3> getM3Queue() {
+		return m3Queue;
 	}
 
 }

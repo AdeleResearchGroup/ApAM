@@ -36,8 +36,6 @@ public class OBRMANTest extends ExtensionAbstract{
 	public List<Option> config() {
 		List<Option> obrmanconfig=super.config();
 		obrmanconfig.add(packApamObrMan());
-
-		
 		return obrmanconfig;
 	}
 	

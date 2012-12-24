@@ -9,8 +9,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 
 	<dependencies>
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-iface</artifactId>
+			<groupId>fr.imag.adele.apam.tests.messages</groupId>
+			<artifactId>apam-pax-samples-msg</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
@@ -23,8 +23,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 				<configuration>
 					<instructions>
 						<Export-Package>
-							fr.imag.adele.apam.pax.test.deviceDead,
-							fr.imag.adele.apam.pax.test.implS2
+							fr.imag.adele.apam.pax.test.msg.device.dead,
+							fr.imag.adele.apam.pax.test.msg.m2.producer.impl
 						</Export-Package>
 					</instructions>
 				</configuration>

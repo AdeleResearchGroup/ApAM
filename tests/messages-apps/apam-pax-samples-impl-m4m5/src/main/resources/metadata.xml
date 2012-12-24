@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<apam  xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
 
-  <implementation name="fr.imag.adele.apam.pax.test.impl.S4S5Impl" 
-	    classname="fr.imag.adele.apam.pax.test.implS45.S4S5Impl"
-		specification="fr.imag.adele.apam.pax.test.iface.S4S5">
+<implementation name="M4M5-ProducerImpl"
+	    classname="fr.imag.adele.apam.pax.test.msg.m4m5.impl.M4M5ProducerImpl"
+		specification="M4M5-Producer"
+        push="produceM4,produceM5">
 		<callback onInit="start" onRemove="stop" />
   </implementation>
   
