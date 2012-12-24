@@ -48,44 +48,9 @@
 
     </implementation>
 
-    <implementation name="HouseMeterMsg-SingletonNotShared-ProducerImpl"
-                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterSwitch"
-                    push="produceHouseMeterMsg"
-                    specification="Edevice-singleton-notshared-Producer">
-    </implementation>
-
-    <implementation name="HouseMeterMsg-SingletonShared-ProducerImpl"
-                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterSwitch"
-                    push="produceHouseMeterMsg"
-                    specification="Edevice-singleton-shared-Producer">
-    </implementation>
-
-    <implementation name="HouseMeterMsg-NotSingletonNotShared-ProducerImpl"
-                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterSwitch"
-                    push="produceHouseMeterMsg"
-                    specification="Edevice-notsingleton-notshared-Producer">
-    </implementation>
-
-    <implementation name="HouseMeterMsg-NotSingletonShared-ProducerImpl"
-                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterSwitch"
-                    push="produceHouseMeterMsg"
-                    specification="Edevice-notsingleton-shared-Producer">
-    </implementation>
-
-    <implementation name="HouseMeterMsg-Instantiable-ProducerImpl"
-                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterSwitch"
-                    push="produceHouseMeterMsg"
-                    specification="Edevice-instantiable-Producer">
-    </implementation>
-
-    <implementation name="HouseMeterMsg-NotInstantiable-ProducerImpl"
-                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterSwitch"
-                    push="produceHouseMeterMsg"
-                    specification="Edevice-notinstantiable-Producer">
-    </implementation>
-
+   
     <implementation name="Samsung-ProducerImpl"
-                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericSwitch"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericProducer"
                     push="produceEletronicMsg"
                     specification="Edevice-Producer">
         <property name="manufacturer" value="samsung" />
@@ -100,7 +65,7 @@
     </implementation>
 
     <implementation name="Lg-ProducerImpl"
-                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericSwitch"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericProducer"
                     push="produceElectronicMsg"
                     specification="Edevice-Producer">
         <property name="manufacturer" value="lg" />
@@ -110,7 +75,7 @@
 
 
     <implementation name="Siemens-ProducerImpl"
-                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericSwitch"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericProducer"
                     push="produceElectronicMsg"
                     specification="Edevice-Producer">
         <property name="manufacturer" value="siemens" />
@@ -119,7 +84,7 @@
     </implementation>
 
     <implementation name="Bosch-ProducerImpl"
-                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericSwitch"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericProducer"
                     push="produceElectronicMsg"
                     specification="Edevice-Producer">
         <property name="manufacturer" value="bosch" />
@@ -128,7 +93,7 @@
     </implementation>
 
     <implementation name="Philips-ProducerImpl"
-                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericSwitch"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericProducer"
                     push="produceElectronicMsg"
                     specification="Edevice-Producer">
         <property name="manufacturer" value="philips" />
@@ -145,5 +110,41 @@
         <dependency field="s2" added="start" removed="stop" />
         -->
     </implementation>
+     <implementation name="HouseMeterMsg-SingletonNotShared-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-singleton-notshared-Producer">
+    </implementation>
+
+    <implementation name="HouseMeterMsg-SingletonShared-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-singleton-shared-Producer">
+    </implementation>
+
+    <implementation name="HouseMeterMsg-NotSingletonNotShared-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-notsingleton-notshared-Producer">
+    </implementation>
+
+    <implementation name="HouseMeterMsg-NotSingletonShared-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-notsingleton-shared-Producer">
+    </implementation>
+
+    <implementation name="HouseMeterMsg-Instantiable-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-instantiable-Producer">
+    </implementation>
+
+    <implementation name="HouseMeterMsg-NotInstantiable-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-notinstantiable-Producer">
+    </implementation>
+    
 
 </apam>

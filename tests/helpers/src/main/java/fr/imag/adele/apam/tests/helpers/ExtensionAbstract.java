@@ -68,6 +68,22 @@ public abstract class ExtensionAbstract extends TestUtils {
 
 		return config;
 	}
+	
+	public List<Option> configWithoutTests() {
+
+		List<Option> config = new ArrayList<Option>();
+
+		config.add(packInitialConfig());
+		config.add(packOSGi());
+		config.add(packPax());
+		config.add(packApamCore());
+		config.add(packLog());
+		config.add(junitBundles());
+		config.add(packDebugConfiguration());
+		config.add(vmOption("-ea"));
+
+		return config;
+	}
 
 	// public List<Option> config() {
 	//

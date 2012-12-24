@@ -216,7 +216,6 @@
 		<module>obrman-apps</module>
         <module>messages-apps</module>
         <module>pax-test</module>
-	    <module>messages-apps</module>
 	</modules>
 
 	<name>Tests for ApAM framework and managers</name>

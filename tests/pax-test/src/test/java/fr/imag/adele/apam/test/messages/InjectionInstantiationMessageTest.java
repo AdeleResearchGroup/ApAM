@@ -2,10 +2,9 @@ package fr.imag.adele.apam.test.messages;
 
 import static org.ops4j.pax.exam.CoreOptions.bundle;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Queue;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,22 +13,17 @@ import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.util.PathUtils;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
-import fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl;
 import fr.imag.adele.apam.pax.test.msg.device.EletronicMsg;
-import fr.imag.adele.apam.pax.test.msg.devices.impl.GenericSwitch;
+import fr.imag.adele.apam.pax.test.msg.devices.impl.GenericProducer;
 import fr.imag.adele.apam.pax.test.msg.m1.producer.impl.M1ProducerImpl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
@@ -117,14 +111,13 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
-		GenericSwitch samsungSwitch = (GenericSwitch) sansungInst.getServiceObject();
+		GenericProducer samsungProducer = (GenericProducer) sansungInst.getServiceObject();
 
 		int finalSize = m1ProdImpl.getEletronicMsgQueue().size();
 
-		EletronicMsg eletronicMsg = samsungSwitch.produceEletronicMsg("New Message");
+		EletronicMsg eletronicMsg = samsungProducer.produceEletronicMsg("New Message");
 		
 		auxListInstances("instances---");
-		
 		
 		finalSize = m1ProdImpl.getEletronicMsgQueue().size();
 		
@@ -140,12 +133,12 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 	}
 
 	
-	//@Test
-	public void PreferenceInjectionAttributeSingleImplementationMultipleInstance_tc024() throws InvalidSyntaxException {
+	@Test
+	public void PreferenceInjectionAttributeSingleImplementationMultipleInstance_mtc024() throws InvalidSyntaxException {
 
 		
 		Implementation lgImpl = CST.apamResolver.findImplByName(null,
-				"LgSwitch");
+				"Lg-ProducerImpl");
 		final Instance lgInst = lgImpl.createInstance(null,
 				new HashMap<String, String>() {
 					{
@@ -154,7 +147,7 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 				});
 
 		Implementation samsungImpl = CST.apamResolver.findImplByName(null,
-				"SamsungSwitch");
+				"Samsung-ProducerImpl");
 		final Instance samsungInst = samsungImpl.createInstance(null,
 				new HashMap<String, String>() {
 					{
@@ -170,7 +163,7 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 				});
 
 		Implementation siemensImpl = CST.apamResolver.findImplByName(null,
-				"SiemensSwitch");
+				"Siemens-ProducerImpl");
 		final Instance siemensInst = siemensImpl.createInstance(null,
 				new HashMap<String, String>() {
 					{
@@ -182,34 +175,43 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 		auxListInstances("\t");
 
 		// Creates S1 instance (class that requires the injection)
-		Implementation s1Impl = CST.apamResolver.findImplByName(null,
-				"fr.imag.adele.apam.pax.test.impl.S1Impl");
+		Implementation m1ProsumerApamImpl = CST.apamResolver.findImplByName(null,"M1-ProsumerImpl");
 
-		Instance s1Inst = s1Impl.createInstance(null, null);
+		Instance m1ProsumerApamInst = m1ProsumerApamImpl.createInstance(null, null);
 
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
 
-		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+		M1ProducerImpl m1Prosumer = (M1ProducerImpl) m1ProsumerApamInst.getServiceObject();
 
-		Eletronic samsungSwitch = (Eletronic) samsungInst.getServiceObject();
-		Eletronic samsungSwitch2 = (Eletronic) samsungInst2.getServiceObject();
-		Eletronic lgSwitch = (Eletronic) lgInst.getServiceObject();
-		Eletronic siemensSwitch = (Eletronic) siemensInst.getServiceObject();
-
+		GenericProducer samsungProducer = (GenericProducer) samsungInst.getServiceObject();
+		GenericProducer samsungProducer2 = (GenericProducer) samsungInst2.getServiceObject();
+		GenericProducer lgProducer = (GenericProducer) lgInst.getServiceObject();
+		GenericProducer siemensProducer = (GenericProducer) siemensInst.getServiceObject();
+		
 		System.out.println("Instances after injection request");
 		auxListInstances("\t");
+		
+		Queue<EletronicMsg> queue = m1Prosumer.getDevicePreference110vQueue();
 
-		Instance injectedInstance = CST.componentBroker.getInstService(s1
-				.getDevicePreference110v());
-		Assert.assertTrue(
+		EletronicMsg msg1= samsungProducer.produceEletronicMsg("message1");
+		EletronicMsg msg2= samsungProducer2.produceEletronicMsg("message2");
+		EletronicMsg msg3= lgProducer.produceEletronicMsg("message3");
+		EletronicMsg msg4= siemensProducer.produceEletronicMsg("message4");
+		
+		
+		int queueSize = queue.size();
+		EletronicMsg received1 = queue.poll();
+		EletronicMsg received2 = queue.poll();
+		
+		Assert.assertEquals(
 				String.format(
-						"The instance injected should be the prefered one (currentVoltage=500), \nsince there exist an instance in which the preference is valid. \nThe instance %s (currentVoltage:%s) was injected \ninstead of %s (currentVoltage:%s)",
-						injectedInstance.getName(), injectedInstance
-								.getAllProperties().get("currentVoltage"),
-						samsungInst.getName(), samsungInst.getAllProperties()
-								.get("currentVoltage")), s1
-						.getDevicePreference110v() == samsungSwitch||s1
-						.getDevicePreference110v() == samsungSwitch2);
+						"The queue injected should receive message from the prefered producer (currentVoltage=500), \nsince there exist an instance in which the preference is valid."), 
+						 queueSize,2);
+		
+		Assert.assertTrue(msg1.equals(received1) || msg1.equals(received2));
+		Assert.assertTrue(msg2.equals(received1) || msg2.equals(received2));
+		Assert.assertTrue(!msg3.equals(received1) && !msg3.equals(received2));
+		Assert.assertTrue(!msg4.equals(received1) && !msg4.equals(received2));
 
 	}
 	
