@@ -576,25 +576,19 @@
 				<artifactId>maven-license-plugin</artifactId>
 				<version>1.9.0</version>
 				<configuration>
-					<basedir>${basedir}</basedir>
 					<header>
 						http://repository-apam.forge.cloudbees.com/release/license/license.txt
 					</header>
 					<quiet>false</quiet>
-					<failIfMissing>true</failIfMissing>
-					<aggregate>false</aggregate>
+					<failIfMissing>false</failIfMissing>
+					<aggregate>true</aggregate>
 					<strictCheck>true</strictCheck>
 					<includes>
 						<include>**/src/**</include>
 					</includes>
 					<excludes>
 						<exclude>**/org/**</exclude>
-						<exclude>**/target/**</exclude>
 						<exclude>**/site/**</exclude>
-						<exclude>**/.clover/**</exclude>
-						<exclude>**/.svn/**</exclude>
-						<exclude>**/.git/**</exclude>
-						<exclude>**/.iml</exclude>
 					</excludes>
 					<useDefaultExcludes>true</useDefaultExcludes>
 					<!-- <mapping> <jwc>XML_STYLE</jwc> <application>XML_STYLE</application> 
@@ -606,13 +600,13 @@
 					<!-- <headerDefinitions> <headerDefinition>header.xml</headerDefinition> 
 						</headerDefinitions> -->
 				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
+<!-- 				<executions> -->
+<!-- 					<execution> -->
+<!-- 						<goals> -->
+<!-- 							<goal>check</goal> -->
+<!-- 						</goals> -->
+<!-- 					</execution> -->
+<!-- 				</executions> -->
 			</plugin>
 
 		</plugins>
