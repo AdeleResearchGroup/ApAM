@@ -24,7 +24,6 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
  * Test Suite
  * 
  */
-@RunWith(JUnit4TestRunner.class)
 public class PushMessages extends ExtensionAbstract {
 //	
 

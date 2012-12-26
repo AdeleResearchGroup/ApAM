@@ -134,14 +134,6 @@
 
 
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests.messages</groupId>
-			<artifactId>messages-specifications</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
-
-
-		<dependency>
 			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
 			<artifactId>APP1-MainImpl</artifactId>
 			<scope>test</scope>

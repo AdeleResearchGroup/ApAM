@@ -31,8 +31,8 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
  * Test Suite
  * 
  */
-@RunWith(JUnit4TestRunner.class)
-public class PullMessageTest extends ExtensionAbstract {
+
+public class PullMessage extends ExtensionAbstract {
 
     
     @Override
