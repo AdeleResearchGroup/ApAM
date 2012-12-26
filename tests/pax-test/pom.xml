@@ -132,8 +132,7 @@
 			<version>${project.version}</version>
 		</dependency>
 
-
-		<dependency>
+        <dependency>
 			<groupId>fr.imag.adele.apam.tests.obrman.app1.private</groupId>
 			<artifactId>APP1-MainImpl</artifactId>
 			<scope>test</scope>
@@ -269,13 +268,13 @@
 
 
 		<!--Apam Helpers for Test -->
-		<dependency>
+		<!--<dependency>
 			<groupId>fr.imag.adele.apam.tests</groupId>
 			<artifactId>apam-helpers</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- Components for tests -->
+		&lt;!&ndash; Components for tests &ndash;&gt;
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-samples-iface</artifactId>
@@ -304,13 +303,13 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- messages components tests -->
+		&lt;!&ndash; messages components tests &ndash;&gt;
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.messages</groupId>
 			<artifactId>messages-specifications</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- Obrman applications tests -->
+		&lt;!&ndash; Obrman applications tests &ndash;&gt;
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.obrman.app1.public</groupId>
 			<artifactId>APP1-Spec</artifactId>
@@ -322,7 +321,7 @@
 			<artifactId>APP2-Spec</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency>-->
 		<!-- Log -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
