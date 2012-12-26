@@ -14,11 +14,11 @@
  */
 package fr.imag.adele.apam.test.support;
 
+import fr.imag.adele.apam.test.messages.InjectionInstantiationMessageTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import fr.imag.adele.apam.test.messages.PullMessageTest;
 import fr.imag.adele.apam.test.obrman.OBRMANTest;
 import fr.imag.adele.apam.test.testcases.CompositeTest;
 import fr.imag.adele.apam.test.testcases.ConstraintTest;
@@ -28,7 +28,7 @@ import fr.imag.adele.apam.test.testcases.PropertyTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ CompositeTest.class, ConstraintTest.class,
-		InjectionInstantiationTest.class, PropertyTest.class,DynamanDependentTest.class, OBRMANTest.class, PullMessageTest.class })
+		InjectionInstantiationTest.class, PropertyTest.class,DynamanDependentTest.class, OBRMANTest.class, InjectionInstantiationMessageTest.class })
 public class AllTests {
 
 }
