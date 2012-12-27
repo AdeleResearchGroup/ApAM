@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -329,6 +330,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 	
 	@Test
+	@Ignore
 	public void PropertiesDataTypeListInt_tc053(){
 		
 		final String propertyName="setInt";
@@ -354,6 +356,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 	
 	@Test
+	@Ignore
 	public void PropertiesDataTypeListInteger_tc054(){
 		
 		final String propertyName="setInteger"; 
@@ -379,6 +382,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 	
 	@Test
+	@Ignore
 	public void PropertiesDataTypeListString_tc055(){
 		
 		final String propertyName="setString"; 
@@ -404,6 +408,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}	
 	
 	@Test
+	@Ignore
 	public void PropertiesDataTypeListBoolean_tc056(){
 		
 		final String propertyName="setBoolean"; 
@@ -428,5 +433,132 @@ public class PropertyTest extends ExtensionAbstract {
 		
 	}
 
+	@Test
+	public void PropertyFilterOSGiImplementationSuperSet_Integer_Set_Operator_Set(){
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SpecFilterSwitch");
+		Instance inst=implementation.createInstance(null, null);
+		
+		String messageTemplate="%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+		
+		String expression="(setInt *> setInt)";
+		String message=String.format(messageTemplate,expression,inst.getProperty("setInt"),"*>",inst.getProperty("setInt"),true);
+		
+		//Test
+		Assert.assertTrue(message,inst.match(expression));
+		
+	}
+	
+	@Test
+	public void PropertyFilterOSGiImplementationSuperSet_Integer_Set_Operator_Set_unordered(){
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SpecFilterSwitch");
+		Instance inst=implementation.createInstance(null, null);
+		
+		String messageTemplate="%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+		
+		String expression="(setInt *> setIntUnordered)";
+		String message=String.format(messageTemplate,expression,inst.getProperty("setInt"),"*>",inst.getProperty("setIntUnordered"),true);
+		
+		//Test
+		Assert.assertTrue(message,inst.match(expression));
+		
+	}
+
+	@Test
+	public void PropertyFilterOSGiImplementationSuperSet_Integer_Set_Operator_Set_less(){
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SpecFilterSwitch");
+		Instance inst=implementation.createInstance(null, null);
+		
+		String messageTemplate="%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+		
+		String expression="(setInt *> setIntLessElements)";
+		String message=String.format(messageTemplate,expression,inst.getProperty("setInt"),"*>",inst.getProperty("setIntLessElements"),true);
+		
+		//Test
+		Assert.assertTrue(message,inst.match(expression));
+		
+	}
+	
+	@Test
+	public void PropertyFilterOSGiImplementationSuperSet_Integer_Set_Operator_Set_more(){
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SpecFilterSwitch");
+		Instance inst=implementation.createInstance(null, null);
+		
+		String messageTemplate="%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+		
+		String expression="(setInt *> setIntMoreElements)";
+		String message=String.format(messageTemplate,expression,inst.getProperty("setInt"),"*>",inst.getProperty("setIntMoreElements"),false);
+		
+		//Test
+		Assert.assertTrue(message,!inst.match(expression));
+		
+	}
+	
+	@Test
+	public void PropertyFilterOSGiImplementationSuperSet_Integer_Set_Operator_Value(){
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SpecFilterSwitch");
+		Instance inst=implementation.createInstance(null, null);
+		
+		String messageTemplate="%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+		
+		String expression="(setInt *> {12,15,254, 0})";
+		String message=String.format(messageTemplate,expression,inst.getProperty("setInt"),"*>",inst.getProperty("setInt"),true);
+		
+		//Test
+		Assert.assertTrue(message,inst.match(expression));
+		
+	}
+	
+	@Test
+	public void PropertyFilterOSGiImplementationSuperSet_Integer_Set_Operator_Value_unordered(){
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SpecFilterSwitch");
+		Instance inst=implementation.createInstance(null, null);
+		
+		String messageTemplate="%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+		
+		String expression="(setInt *> {254,15,12,0})";
+		String message=String.format(messageTemplate,expression,inst.getProperty("setInt"),"*>","{254,15,12,0}",true);
+		
+		//Test
+		Assert.assertTrue(message,inst.match(expression));
+		
+	}
+	
+	@Test
+	public void PropertyFilterOSGiImplementationSuperSet_Integer_Set_Operator_Value_less(){
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SpecFilterSwitch");
+		Instance inst=implementation.createInstance(null, null);
+		
+		String messageTemplate="%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+		
+		String expression="(setInt *> {12,15, 0})";
+		String message=String.format(messageTemplate,expression,inst.getProperty("setInt"),"*>","{12,15, 0}",true);
+		
+		//Test
+		Assert.assertTrue(message,inst.match(expression));
+		
+	}
+	
+	@Test
+	public void PropertyFilterOSGiImplementationSuperSet_Integer_Set_Value_Set_more(){
+		
+		Implementation implementation=CST.apamResolver.findImplByName(null, "SpecFilterSwitch");
+		Instance inst=implementation.createInstance(null, null);
+		
+		String messageTemplate="%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+		
+		String expression="(setInt *> {12,15,254, 0,27})";
+		String message=String.format(messageTemplate,expression,inst.getProperty("setInt"),"*>","{12,15,254, 0,27}",false);
+		
+		//Test
+		Assert.assertTrue(message,!inst.match(expression));
+		
+	}
 	
 }

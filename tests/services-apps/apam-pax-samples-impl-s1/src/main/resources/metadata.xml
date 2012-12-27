@@ -92,14 +92,29 @@
 		<definition name="property-03" value="default-03" type="string" />
 		<definition name="property-04" value="default-04" type="string" />
 		<definition name="property-05" value="default-05" type="string" />
+		
+	</implementation>
+
+	<implementation name="SpecFilterSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
+		specification="eletronic-device">
+		<definition name="OS" type="{Linux, Windows, Android, IOS,AmigaOS}" value="{Linux, Windows, Android, IOS}" />
+		<definition name="OSUnordered" type="{Linux, Windows, Android,IOS,AmigaOS}" value="{IOS, Windows, Linux,Android}" />
+		<definition name="OSLessElements" type="{Linux, Windows, Android,IOS,AmigaOS}" value="{Linux, Windows, IOS}" />
+		<definition name="OSMoreElements" type="{Linux, Windows, Android,IOS,AmigaOS}" value="{Linux, Windows, Android,IOS,AmigaOS}" />
+		
 		<property name="setInt" type="{int}" value="{12,15,254, 0}"/>
+		<property name="setIntUnordered" type="{int}" value="{254,15,12,0}"/>
+		<property name="setIntLessElements" type="{int}" value="{12,15, 0}"/>
+		<property name="setIntMoreElements" type="{int}" value="{12,15,254, 0,27}"/>
+		
 		<property name="setInteger" type="{integer}" value="{12,15,254, 0}"/>
-		<property name="setString" type="{string}" value="{I,was,early,taught,to,work,as,well,as,play,My,life,has,been,one,long,happy,holiday}"/>
+		<property name="setString" type="{string}" value="{I,was,early,taught,to,work,as,well,as,play,My,life,has,been,one,long,happy,holiday}"/>		
+	
 		<!-- 
 		<property name="setBoolean" type="{boolean}" value="{false,false,false,false,false,false,true,false,false,false,true,true,false}"/>
 		 -->
-		
-	</implementation>
+	</implementation>	
 
 	<implementation name="LgSwitch"
 		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
