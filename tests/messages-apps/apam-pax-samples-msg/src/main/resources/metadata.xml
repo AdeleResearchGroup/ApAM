@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+
+-->
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
-	<specification name="eletronic-device-msg-Producer"
+	<specification name="Edevice-Producer"
 		messages="fr.imag.adele.apam.pax.test.msg.device.EletronicMsg">
 		<definition name="manufacturer" type="string" />
 		<definition name="voltage" type="{110, 220}" />
@@ -12,72 +28,79 @@
 	</specification>
 
 	<specification singleton="true" shared="false"
-		name="eletronic-device-msg-msg-singleton-notshared" messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeterMsg">
+		name="Edevice-singleton-notshared-Producer"
+        messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeterMsg">
 	</specification>
 
 	<specification singleton="true" shared="false"
-		name="eletronic-device-msg-private" messages="fr.imag.adele.apam.pax.test.msg.device.EletronicMsg">
+		name="Edevice-private-Producer"
+        messages="fr.imag.adele.apam.pax.test.msg.device.EletronicMsg">
 	</specification>
 
 	<specification singleton="true" shared="true"
-		name="eletronic-device-msg-singleton-shared" messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeter">
+		name="Edevice-singleton-shared-Producer"
+        messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeterMsg">
 	</specification>
 
 	<specification singleton="false" shared="false"
-		name="eletronic-device-msg-notsingleton-notshared" messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeter">
+		name="Edevice-notsingleton-notshared-Producer"
+        messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeterMsg">
 	</specification>
 
 	<specification singleton="false" shared="true"
-		name="eletronic-device-msg-notsingleton-shared" messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeter">
+		name="Edevice-notsingleton-shared-Producer"
+        messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeterMsg">
 	</specification>
 
 	<specification instantiable="false"
-		name="eletronic-device-msg-notinstantiable" messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeter">
+		name="Edevice-notinstantiable-Producer"
+        messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeterMsg">
 	</specification>
 	
 	<specification instantiable="true"
-		name="eletronic-device-msg-instantiable" messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeter">
+		name="Edevice-instantiable-Producer"
+        messages="fr.imag.adele.apam.pax.test.msg.device.HouseMeterMsg">
 	</specification>
 
-	<specification name="sensor" messages="{fr.imag.adele.apam.pax.test.msg.M1}">
+	<specification name="Sensor-Producer" messages="{fr.imag.adele.apam.pax.test.msg.M1}">
 		<definition name="location" type="{living, kitchen, bedroom}" />
-		<dependency specification="eletronic-device-msg-Producer" />
+		<dependency specification="Edevice-Producer" />
 	</specification>
 
-	<specification name="mobile" messages="fr.imag.adele.apam.pax.test.msg.M2">
+	<specification name="Mobile-Producer" messages="fr.imag.adele.apam.pax.test.msg.M2">
 		<definition name="OS" type="{Linux, Windows, Android, IOS}" />
-		<dependency specification="eletronic-device-msg-Producer" />
+		<dependency specification="Edevice-Producer" />
 	</specification>
 
-	<specification name="sunspot">
+	<specification name="Sunspot-Producer">
 		<definition name="OS" type="{Linux, Windows, Android, IOS}" />
-		<dependency specification="sensor" />
-		<dependency specification="mobile" />
+		<dependency specification="Sensor-Producer" />
+		<dependency specification="Mobile-Producer" />
 	</specification>
 
 	<specification messages="fr.imag.adele.apam.pax.test.msg.M1"
-		name="fr.imag.adele.apam.pax.test.msg.M1.Provider">
+		name="M1-Producer">
 	</specification>
 
 	<specification messages="fr.imag.adele.apam.pax.test.msg.M2"
-		name="fr.imag.adele.apam.pax.test.msg.M2.Provider">
+		name="M2-Producer">
 	</specification>
 
 	<specification messages="fr.imag.adele.apam.pax.test.msg.M3"
-		name="fr.imag.adele.apam.pax.test.msg.M3.Provider">
+		name="M3-Producer">
 	</specification>
 
 	<specification messages="fr.imag.adele.apam.pax.test.msg.M4"
-		name="fr.imag.adele.apam.pax.test.msg.M4.Provider">
+		name="M4-Producer">
 	</specification>
 
 	<specification messages="fr.imag.adele.apam.pax.test.msg.M5"
-		name="fr.imag.adele.apam.pax.test.msg.M5.Provider">
+		name="M5-Producer">
 	</specification>
 
 	<specification
 		messages="fr.imag.adele.apam.pax.test.msg.M4,fr.imag.adele.apam.pax.test.msg.M5"
-		name="fr.imag.adele.apam.pax.test.msg.M4M5.Provider">
+		name="M4M5-Producer">
 	</specification>
 
 </apam>

@@ -1,138 +1,166 @@
+<!--
+
+    Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+
+-->
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
-	<implementation name="fr.imag.adele.apam.pax.test.impl.S1Impl"
-		classname="fr.imag.adele.apam.pax.test.implS1.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
+    <implementation name="M1-ProsumerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.m1.producer.impl.M1ProducerImpl"
+                    push="produceM1"
+                    specification="M1-Producer">
 
-		<callback onInit="start" onRemove="stop" />
+        <callback onInit="start" onRemove="stop" />
 
-		<definition name="stateInternal" field="stateInternal"
-			type="string" internal="true" value="default" />
-		<definition name="stateNotInternal" field="stateNotInternal"
-			type="string" internal="false" value="default" />
+        <definition name="stateInternal" field="stateInternal"
+                    type="string" internal="true" value="default" />
+        <definition name="stateNotInternal" field="stateNotInternal"
+                    type="string" internal="false" value="default" />
 
-		<dependency field="s2" />
-		<dependency field="s3" />
-		<dependency field="eletronicInstancesInSet" />
-		<dependency field="eletronicInstancesInArray" />
+        <dependency field="m2Queue" />
+        <dependency field="m3Queue" />
+        <dependency field="eletronicMsgQueue" multiple="true"/>
+        <dependency field="eletronicMessageQueue" />
 
-		<dependency field="eletronicInstancesConstraintsInstance">
-			<constraints>
-				<!-- <instance filter="(&amp;(currentVoltage &gt;= 105)(currentVoltage 
-					&lt;= 115))" /> -->
-				<instance filter="(currentVoltage&lt;=110)" />
-			</constraints>
-		</dependency>
+        <dependency field="eletronicMsgConstraintsQueue">
+            <constraints>
+                <!-- <instance filter="(&amp;(currentVoltage &gt;= 105)(currentVoltage
+                    &lt;= 115))" /> -->
+                <instance filter="(currentVoltage&lt;=110)" />
+            </constraints>
+        </dependency>
 
-		<dependency field="devicePreference110v">
-			<preferences>
-				<instance filter="(currentVoltage=500)" />
-			</preferences>
-		</dependency>
+        <dependency field="devicePreference110vQueue">
+            <preferences>
+                <instance filter="(currentVoltage=500)" />
+            </preferences>
+        </dependency>
 
-		<dependency field="deviceConstraint110v">
-			<constraints>
-				<instance filter="(currentVoltage=500)" />
-			</constraints>
+        <dependency field="deviceConstraint110vQueue">
+            <constraints>
+                <instance filter="(currentVoltage=500)" />
+            </constraints>
 
-			<preferences>
+        </dependency>
 
-			</preferences>
+        <dependency field="simpleDevice110vQueue">
+            <constraints>
+                <implementation filter="(manufacturer=philips)" />
+                <implementation filter="(voltage=110)" />
+            </constraints>
+        </dependency>
 
-		</dependency>
+    </implementation>
 
-		<dependency field="simpleDevice110v">
-			<constraints>
-				<implementation filter="(manufacturer=philips)" />
-				<implementation filter="(voltage=110)" />
-			</constraints>
-		</dependency>
+   
+    <implementation name="Samsung-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericProducer"
+                    push="produceEletronicMsg"
+                    specification="Edevice-Producer">
+        <property name="manufacturer" value="samsung" />
+        <property name="voltage" value="220" />
+        <property name="hasDisplay" value="false" />
+        <property name="made" value="china" />
+        <definition name="property-01" value="default-01" type="string" />
+        <definition name="property-02" value="default-02" type="string" />
+        <definition name="property-03" value="default-03" type="string" />
+        <definition name="property-04" value="default-04" type="string" />
+        <definition name="property-05" value="default-05" type="string" />
+    </implementation>
 
-	</implementation>
-
-	<implementation name="HouseMeterSingletonNotShared"
-		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
-		specification="eletronic-device-singleton-notshared">
-	</implementation>
-
-	<implementation name="HouseMeterSingletonShared"
-		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
-		specification="eletronic-device-singleton-shared">
-	</implementation>
-
-	<implementation name="HouseMeterNotSingletonNotShared"
-		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
-		specification="eletronic-device-notsingleton-notshared">
-	</implementation>
-
-	<implementation name="HouseMeterNotSingletonShared"
-		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
-		specification="eletronic-device-notsingleton-shared">
-	</implementation>
-
-	<implementation name="HouseMeterInstantiable"
-		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
-		specification="eletronic-device-instantiable">
-	</implementation>
-
-	<implementation name="HouseMeterNotInstantiable"
-		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch"
-		specification="eletronic-device-notinstantiable">
-	</implementation>
-
-	<implementation name="SamsungSwitch"
-		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
-		specification="eletronic-device">
-		<property name="manufacturer" value="samsung" />
-		<property name="voltage" value="220" />
-		<property name="hasDisplay" value="false" />
-		<property name="made" value="china" />
-		<definition name="property-01" value="default-01" type="string" />
-		<definition name="property-02" value="default-02" type="string" />
-		<definition name="property-03" value="default-03" type="string" />
-		<definition name="property-04" value="default-04" type="string" />
-		<definition name="property-05" value="default-05" type="string" />
-	</implementation>
-
-	<implementation name="LgSwitch"
-		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
-		specification="eletronic-device">
-		<property name="manufacturer" value="lg" />
-		<property name="voltage" value="220" />
-		<property name="hasDisplay" value="false" />
-	</implementation>
+    <implementation name="Lg-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericProducer"
+                    push="produceElectronicMsg"
+                    specification="Edevice-Producer">
+        <property name="manufacturer" value="lg" />
+        <property name="voltage" value="220" />
+        <property name="hasDisplay" value="false" />
+    </implementation>
 
 
-	<implementation name="SiemensSwitch"
-		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
-		specification="eletronic-device">
-		<property name="manufacturer" value="siemens" />
-		<property name="voltage" value="220" />
-		<property name="hasDisplay" value="false" />
-	</implementation>
+    <implementation name="Siemens-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericProducer"
+                    push="produceElectronicMsg"
+                    specification="Edevice-Producer">
+        <property name="manufacturer" value="siemens" />
+        <property name="voltage" value="220" />
+        <property name="hasDisplay" value="false" />
+    </implementation>
 
-	<implementation name="BoschSwitch"
-		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
-		specification="eletronic-device">
-		<property name="manufacturer" value="bosch" />
-		<property name="voltage" value="110" />
-		<property name="hasDisplay" value="false" />
-	</implementation>
+    <implementation name="Bosch-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericProducer"
+                    push="produceElectronicMsg"
+                    specification="Edevice-Producer">
+        <property name="manufacturer" value="bosch" />
+        <property name="voltage" value="110" />
+        <property name="hasDisplay" value="false" />
+    </implementation>
 
-	<implementation name="philipsSwitch"
-		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.PhilipsSwitch"
-		specification="eletronic-device">
-		<property name="manufacturer" value="philips" />
-		<property name="voltage" value="110" />
-		<property name="hasDisplay" value="false" />
-	</implementation>
+    <implementation name="Philips-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.GenericProducer"
+                    push="produceElectronicMsg"
+                    specification="Edevice-Producer">
+        <property name="manufacturer" value="philips" />
+        <property name="voltage" value="110" />
+        <property name="hasDisplay" value="false" />
+    </implementation>
 
-	<implementation name="S1Impl-added-removed-callback"
-		classname="fr.imag.adele.apam.pax.test.implS1.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
-		<dependency field="s2" added="bind" removed="unbind" />
-		<!-- This is the correct one, but its not implemented 		
-		<dependency field="s2" added="start" removed="stop" /> 
-		-->
-	</implementation>
+    <implementation name="M1-Prosumer-added-removed-callback"
+                    classname="fr.imag.adele.apam.pax.test.msg.m1.producer.impl.M1ProducerImpl"
+                    push="produceM1"
+                    specification="M1-Producer">
+        <dependency field="m2Queue" added="bind" removed="unbind" />
+        <!-- This is the correct one, but its not implemented
+        <dependency field="s2" added="start" removed="stop" />
+        -->
+    </implementation>
+     <implementation name="HouseMeterMsg-SingletonNotShared-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-singleton-notshared-Producer">
+    </implementation>
+
+    <implementation name="HouseMeterMsg-SingletonShared-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-singleton-shared-Producer">
+    </implementation>
+
+    <implementation name="HouseMeterMsg-NotSingletonNotShared-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-notsingleton-notshared-Producer">
+    </implementation>
+
+    <implementation name="HouseMeterMsg-NotSingletonShared-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-notsingleton-shared-Producer">
+    </implementation>
+
+    <implementation name="HouseMeterMsg-Instantiable-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-instantiable-Producer">
+    </implementation>
+
+    <implementation name="HouseMeterMsg-NotInstantiable-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.devices.impl.HouseMeterProducer"
+                    push="produceHouseMeterMsg"
+                    specification="Edevice-notinstantiable-Producer">
+    </implementation>
+    
 
 </apam>

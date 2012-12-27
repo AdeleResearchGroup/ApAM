@@ -9,8 +9,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-iface</artifactId>
+			<groupId>fr.imag.adele.apam.tests.messages</groupId>
+			<artifactId>apam-pax-samples-msg</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
@@ -23,7 +23,7 @@
 				<configuration>
 					<instructions>
 						<Export-Package>
-							fr.imag.adele.apam.pax.test.implS3
+							fr.imag.adele.apam.pax.test.msg.m3.producer.impl
 						</Export-Package>
 					</instructions>
 				</configuration>

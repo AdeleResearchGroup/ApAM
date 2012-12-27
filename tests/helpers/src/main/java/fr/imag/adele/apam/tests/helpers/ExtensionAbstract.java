@@ -1,3 +1,17 @@
+/**
+ * Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 package fr.imag.adele.apam.tests.helpers;
 
 import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
@@ -59,8 +73,24 @@ public abstract class ExtensionAbstract extends TestUtils {
 		config.add(packOSGi());
 		config.add(packPax());
 		config.add(packApamCore());
-		config.add(packApamObrMan());
+		//config.add(packApamObrMan());
 		config.add(packAppForTestBundles());
+		config.add(packLog());
+		config.add(junitBundles());
+		config.add(packDebugConfiguration());
+		config.add(vmOption("-ea"));
+
+		return config;
+	}
+	
+	public List<Option> configWithoutTests() {
+
+		List<Option> config = new ArrayList<Option>();
+
+		config.add(packInitialConfig());
+		config.add(packOSGi());
+		config.add(packPax());
+		config.add(packApamCore());
 		config.add(packLog());
 		config.add(junitBundles());
 		config.add(packDebugConfiguration());
@@ -199,38 +229,29 @@ public abstract class ExtensionAbstract extends TestUtils {
 
 	protected CompositeOption packAppForTestBundles() {
 
-		CompositeOption testAppBundle = new DefaultCompositeOption(mavenBundle(
-				"fr.imag.adele.apam.tests", "apam-helpers")
-				.versionAsInProject(), mavenBundle(
-				"fr.imag.adele.apam.tests.messages", "messages-specifications")
-				.versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private",
-						"APP1-MainImpl").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app1.private",
-						"APP1-MainSpec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app1.private",
-						"APP1-S1-Spec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app1.private",
-						"APP1-S2-Spec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app1.private",
-						"APP1-S3-Spec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app1.public",
-						"APP1-Spec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app2.private",
-						"APP2-MainImpl").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app2.private",
-						"APP2-MainSpec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.obrman.app2.public",
-						"APP2-Spec").versionAsInProject(), mavenBundle(
-						"fr.imag.adele.apam.tests.services",
-						"apam-pax-samples-iface").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.services",
-						"apam-pax-samples-impl-s1").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.services",
-						"apam-pax-samples-impl-s2").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.services",
-						"apam-pax-samples-impl-s3").versionAsInProject());
-
+		CompositeOption testAppBundle = new DefaultCompositeOption(
+				mavenBundle("fr.imag.adele.apam.tests", "apam-helpers").versionAsInProject(), 
+				
+				
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private","APP1-MainImpl").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private","APP1-MainSpec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private","APP1-S1-Spec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private","APP1-S2-Spec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.private","APP1-S3-Spec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app1.public","APP1-Spec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.private","APP2-MainImpl").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.private","APP2-MainSpec").versionAsInProject(), 
+				mavenBundle("fr.imag.adele.apam.tests.obrman.app2.public","APP2-Spec").versionAsInProject(),
+				
+				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-iface").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s1").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s2").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s3").versionAsInProject(),
+				
+				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-msg").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m1").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m2").versionAsInProject(),
+				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m3").versionAsInProject());
 		return testAppBundle;
 
 	}

@@ -1,9 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	
 	<parent>
-		<groupId>fr.imag.adele.apam.tests.app</groupId>
-		<artifactId>services</artifactId>
+		<groupId>fr.imag.adele.apam.tests</groupId>
+		<artifactId>messages-apps</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
 	</parent>
@@ -15,24 +16,21 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>fr.imag.adele.apam.tests.services</groupId>
-			<artifactId>apam-pax-samples-iface</artifactId>
+			<groupId>fr.imag.adele.apam.tests.messages</groupId>
+			<artifactId>apam-pax-samples-msg</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.framework</artifactId>
-			<version>${felix.osgi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.osgi.core</artifactId>
-			<version>${felix.osgi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
-			<version>${felix.osgi.version}</version>
 		</dependency>
 		<dependency>
 			<artifactId>apam-core</artifactId>
@@ -49,9 +47,9 @@
 				<configuration>
 					<instructions>
 						<Export-Package>
-							fr.imag.adele.apam.pax.test.implS1,
-							fr.imag.adele.apam.pax.test.impl.deviceSwitch
-						</Export-Package>
+                            fr.imag.adele.apam.pax.test.msg.m1.producer.impl,
+                            fr.imag.adele.apam.pax.test.msg.devices.impl
+                        </Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -59,7 +57,6 @@
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
 			</plugin>
-
 		</plugins>
 	</build>
 </project>

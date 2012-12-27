@@ -1,218 +1,247 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+
+-->
+
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
-	<implementation name="group-a"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
-		<dependency field="c" />
-	</implementation>
+    <implementation name="group-a-prosumerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupAProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" />
+        <dependency field="c" />
+    </implementation>
 
-	<implementation name="group-a-fail-wait"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" specification="eletronic-device-private"
-			fail="wait" />
-		<dependency field="c" />
-	</implementation>
+    <implementation name="group-a-prosumerImpl-fail-wait"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupAProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" specification="Edevice-private-Producer"
+                    fail="wait" />
+        <dependency field="c" />
+    </implementation>
 
-	<implementation name="group-a-fail-exception"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" specification="eletronic-device-private"
-			fail="exception" exception="fr.imag.adele.apam.pax.test.implS3.FailException" />
-		<dependency field="c" />
-	</implementation>
+    <implementation name="group-a-prosumerImpl-fail-exception"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupAProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" specification="Edevice-private-Producer"
+                    fail="exception" exception="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.FailException" />
+        <dependency field="c" />
+    </implementation>
 
-	<implementation name="group-a-private-component"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" specification="eletronic-device-private" />
-		<dependency field="c" />
-	</implementation>
+    <implementation name="group-a-prosumerImpl-private-component"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupAProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" specification="Edevice-private-Producer" />
+        <dependency field="c" />
+    </implementation>
 
-	<implementation name="group-b"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
-		<dependency field="d" />
-		<dependency field="e" />
-	</implementation>
+    <implementation name="group-b-prosumerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupBProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" />
+        <dependency field="d" />
+        <dependency field="e" />
+    </implementation>
 
-	<implementation name="group-c"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupCImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
-	</implementation>
+    <implementation name="group-c-prosumerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupCProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" />
+    </implementation>
 
-	<implementation name="group-d"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupDImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
-	</implementation>
+    <implementation name="group-d-prosumerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupDProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" />
+    </implementation>
 
-	<implementation name="group-e"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupEImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
-		<dependency field="f" />
-	</implementation>
+    <implementation name="group-e-prosumerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupEProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" />
+        <dependency field="f" />
+    </implementation>
 
-	<implementation name="group-f"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupFImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
-	</implementation>
+    <implementation name="group-f-prosumerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupFProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" />
+    </implementation>
 
-	<composite name="composite-a" main="group-a">
-	</composite>
+    <composite name="M3-composite-a" main="group-a-prosumerImpl">
+    </composite>
 
-	<composite name="composite-a-local-instance" main="group-a">
-		<contentMngt>
-			<export instance="false" />
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-local-instance" main="group-a-prosumerImpl">
+        <contentMngt>
+            <export instance="false" />
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-a-local-implementation" main="group-a">
-		<contentMngt>
-			<export implementation="false" />
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-local-implementation" main="group-a-prosumerImpl">
+        <contentMngt>
+            <export implementation="false" />
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-a-import-nothing-instance" main="group-a">
-		<contentMngt>
-			<import instance="false" />
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-import-nothing-instance" main="group-a-prosumerImpl">
+        <contentMngt>
+            <import instance="false" />
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-a-import-nothing-implementation"
-		main="group-a">
-		<contentMngt>
-			<import implementation="false" />
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-import-nothing-implementation"
+               main="group-a-prosumerImpl">
+        <contentMngt>
+            <import implementation="false" />
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-a-export-application-everything-global-nothing"
-		main="group-a">
-		<contentMngt>
-			<export instance="false" />
-			<exportApp instance="true" />
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-export-application-everything-global-nothing"
+               main="group-a-prosumerImpl">
+        <contentMngt>
+            <export instance="false" />
+            <exportApp instance="true" />
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-a-export-application-nothing-global-everything"
-		main="group-a">
-		<contentMngt>
-			<export instance="true" />
-			<exportApp instance="false" /> <!--  not interpreted -->
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-export-application-nothing-global-everything"
+               main="group-a-prosumerImpl">
+        <contentMngt>
+            <export instance="true" />
+            <exportApp instance="false" /> <!--  not interpreted -->
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-a-export-global-everything" main="group-a">
-		<contentMngt>
-			<export instance="true" />
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-export-global-everything" main="group-a-prosumerImpl">
+        <contentMngt>
+            <export instance="true" />
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-a-fail-exception" main="group-a-private-component">
-		<contentMngt>
-			<dependency specification="eletronic-device-private" fail="exception"
-				exception="fr.imag.adele.apam.pax.test.implS3.FailException" />
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-fail-exception" main="group-a-prosumerImpl-private-component">
+        <contentMngt>
+            <dependency specification="Edevice-private-Producer" fail="exception"
+                        exception="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.FailException" />
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-a-fail-wait" main="group-a-private-component">
-		<contentMngt>
-			<dependency specification="eletronic-device-private" fail="wait" />
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-fail-wait" main="group-a-prosumerImpl-private-component">
+        <contentMngt>
+            <dependency specification="Edevice-private-Producer" fail="wait" />
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-a-hide" main="group-a-private-component">
-		<contentMngt>
-			<dependency specification="eletronic-device-private" hide="true" />
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-hide" main="group-a-prosumerImpl-private-component">
+        <contentMngt>
+            <dependency specification="Edevice-private-Producer" hide="true" />
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-a-own-specification" main="group-a"
-		singleton="true">
-		<contentMngt>
-			<own specification="eletronic-device" property="voltage" value="110" />
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-own-specification" main="group-a-prosumerImpl"
+               singleton="true">
+        <contentMngt>
+            <own specification="Edevice-Producer" property="voltage" value="110" />
+        </contentMngt>
+    </composite>
 
-	<implementation name="group-a-dispute-inject-own"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
-		<dependency field="c" />
-	</implementation>
+    <implementation name="group-a-prosumerImpl-dispute-inject-own"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupAProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" />
+        <dependency field="c" />
+    </implementation>
 
-	<composite name="composite-a-dispute-inject-own" main="group-a"
-		singleton="true">
-		<contentMngt>
-			<own specification="eletronic-device" property="voltage" value="110" />
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-dispute-inject-own" main="group-a-prosumerImpl"
+               singleton="true">
+        <contentMngt>
+            <own specification="Edevice-Producer" property="voltage" value="110" />
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-b" main="group-b">
-		<contentMngt>
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-b" main="group-b-prosumerImpl">
+        <contentMngt>
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-c" main="group-c">
-		<contentMngt>
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-c" main="group-c-prosumerImpl">
+        <contentMngt>
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-d" main="group-d">
-		<contentMngt>
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-d" main="group-d-prosumerImpl">
+        <contentMngt>
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-e" main="group-e">
-		<contentMngt>
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-e" main="group-e-prosumerImpl">
+        <contentMngt>
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-f" main="group-f">
-		<contentMngt>
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-f" main="group-f-prosumerImpl">
+        <contentMngt>
+        </contentMngt>
+    </composite>
 
-	<implementation name="group-b-started-by-trigger"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupBImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
-	</implementation>
+    <implementation name="group-b-prosumerImpl-started-by-trigger"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupBProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" />
+    </implementation>
 
-	<implementation name="group-a-start-trigger"
-		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
-		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" />
-		<dependency field="c" />
-	</implementation>
+    <implementation name="group-a-prosumerImpl-start-trigger"
+                    classname="fr.imag.adele.apam.pax.test.msg.m3.producer.impl.M3GroupAProsumerImpl"
+                    push="produceM3"
+                    specification="M3-Producer">
+        <dependency field="element" />
+        <dependency field="c" />
+    </implementation>
 
-	<composite name="composite-a-start-by-specification" main="group-a"
-		singleton="true">
-		<contentMngt>
-			<start implementation="group-b-started-by-trigger" name="creates-B">
-				<trigger>
-					<specification name="fr.imag.adele.apam.pax.test.iface.S3" />
-				</trigger>
-			</start>
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-start-by-specification" main="group-a-prosumerImpl"
+               singleton="true">
+        <contentMngt>
+            <start implementation="group-b-prosumerImpl-started-by-trigger" name="creates-B">
+                <trigger>
+                    <specification name="M3-Producer" />
+                </trigger>
+            </start>
+        </contentMngt>
+    </composite>
 
-	<composite name="composite-a-start-by-implementation" main="group-a"
-		singleton="true">
-		<contentMngt>
-			<start implementation="group-b-started-by-trigger" name="creates-B">
-				<trigger>
-					<implementation name="group-a-start-trigger" />
-				</trigger>
-			</start>
-		</contentMngt>
-	</composite>
+    <composite name="M3-composite-a-start-by-implementation" main="group-a-prosumerImpl"
+               singleton="true">
+        <contentMngt>
+            <start implementation="group-b-prosumerImpl-started-by-trigger" name="creates-B">
+                <trigger>
+                    <implementation name="group-a-prosumerImpl-start-trigger" />
+                </trigger>
+            </start>
+        </contentMngt>
+    </composite>
 
 </apam>
