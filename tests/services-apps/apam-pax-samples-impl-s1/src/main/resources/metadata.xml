@@ -124,8 +124,10 @@
 		<property name="setIntLessElements" type="{int}" value="{12,15, 0}"/>
 		<property name="setIntMoreElements" type="{int}" value="{12,15,254, 0,27}"/>
 		
-		<property name="setInteger" type="{integer}" value="{12,15,254, 0}"/>
-		<property name="setString" type="{string}" value="{I,was,early,taught,to,work,as,well,as,play,My,life,has,been,one,long,happy,holiday}"/>		
+		<property name="setString" type="{string}" value="{doubt,grows,with,knowledge}"/>		
+		<property name="setStringUnordered" type="{string}" value="{with,doubt,knowledge,grows}"/>	
+		<property name="setStringLessElements" type="{string}" value="{doubt,grows,knowledge}"/>			
+		<property name="setStringMoreElements" type="{string}" value="{doubt,and,uncertainties,grows,with,knowledge}"/>
 	
 		<!-- 
 		<property name="setBoolean" type="{boolean}" value="{false,false,false,false,false,false,true,false,false,false,true,true,false}"/>

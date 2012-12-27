@@ -557,19 +557,62 @@ public class PropertyTest extends ExtensionAbstract {
 		Assert.assertTrue(message, !inst.match(expression));
 
 		expression = "(OS *> {Linux, Windows, Android, IOS})";
-		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "*>", inst.getProperty("OS"),true);
+		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "*>", "{Linux, Windows, Android, IOS}",true);
 		Assert.assertTrue(message, inst.match(expression));
 
 		expression = "(OS *> {IOS, Windows, Linux,Android})";
-		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "*>", "{254,15,12,0}", true);
+		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "*>", "{IOS, Windows, Linux,Android}", true);
 		Assert.assertTrue(message, inst.match(expression));
 
 		expression = "(OS *> {Linux, Windows, IOS})";
-		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "*>", "{12,15, 0}", true);
+		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "*>", "{Linux, Windows, IOS}", true);
 		Assert.assertTrue(message, inst.match(expression));
 
 		expression = "(OS *> {Linux, Windows, Android,IOS,AmigaOS})";
-		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "*>", "{12,15,254, 0,27}", false);
+		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "*>", "{Linux, Windows, Android,IOS,AmigaOS}", false);
+		Assert.assertTrue(message, !inst.match(expression));
+
+	}
+	
+	@Test
+	public void PropertyFilterOSGiImplementationSuperSet_String() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecFilterSwitch");
+		Instance inst = implementation.createInstance(null, null);
+
+		String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A superset('*>') B operator means that A must contain all B elements, although it may contain more.";
+
+		String expression = "(setString *> setString)";
+		String message = String.format(messageTemplate, expression,inst.getProperty("setString"), "*>", inst.getProperty("setString"),true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setString *> setStringUnordered)";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "*>",inst.getProperty("setStringUnordered"), true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setString *> setStringLessElements)";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "*>",inst.getProperty("setStringLessElements"), true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setString *> setStringMoreElements)";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "*>",inst.getProperty("setStringMoreElements"), false);
+		Assert.assertTrue(message, !inst.match(expression));
+
+		expression = "(setString *> {doubt,grows,with,knowledge})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "*>", "{doubt,grows,with,knowledge}",true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setString *> {with,doubt,knowledge,grows})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "*>", "{with,doubt,knowledge,grows}", true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setString *> {doubt,grows,knowledge})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "*>", "{doubt,grows,knowledge}", true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setString *> {doubt,and,uncertainties,grows,with,knowledge})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "*>", "{doubt,and,uncertainties,grows,with,knowledge}", false);
 		Assert.assertTrue(message, !inst.match(expression));
 
 	}
