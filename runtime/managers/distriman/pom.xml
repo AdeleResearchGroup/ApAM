@@ -51,6 +51,7 @@
                         <Private-Package>
                             fr.imag.adele.apam.distriman,
                             fr.imag.adele.apam.distriman.disco,
+                            fr.imag.adele.apam.distriman.web
                         </Private-Package>
                         <Export-Package>
                             com.google.common.collect,

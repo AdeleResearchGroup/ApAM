@@ -35,17 +35,19 @@ import fr.imag.adele.apam.distriman.RemoteMachine;
 @Instantiate
 public class DistrimanWelcomeServlet extends HttpServlet implements DistrimanServlet{
 
+	BundleContext context;
+	
 	public DistrimanWelcomeServlet() {
 	}
 	
 	public DistrimanWelcomeServlet(BundleContext context) {
-
+		this.context=context;
 	}
 
 	@Requires
 	NodePool discovery;
 
-	private String html="<html><head><title>.:Apam - Distriman:.</title> <style type='text/css'>  body {    color: black;    background-color: #d8da3d; } table, tr {	border-style: dotted; }  </style></head><body><center><strong>List of available apam nodes</strong><table>	<tr>		<td width='200px'>			URL		</td width='100px'>		<td>			IP		</td>		<td width='50px'>			Port		</td></tr>%s</table></center></body><html>";
+	private String html="<html><head><title>.:Apam - Distriman:.</title> <style type='text/css'>  body {    color: black;    background-color: #d8da3d; } table, tr {	border-style: dotted; }  </style></head><body><center><strong>Available apam remote nodes</strong><table>	<tr>		<td width='200px'>			URL		</td width='100px'>		<td>			IP		</td>		<td width='50px'>			Port		</td></tr>%s</table></center></body><html>";
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -67,7 +69,7 @@ public class DistrimanWelcomeServlet extends HttpServlet implements DistrimanSer
 			}
 
 			if (discovery.getMachines().size() == 0) {
-				conte="<tr><td colspan='3'>No discovery nodes available</td><tr>";
+				conte="<tr><td colspan='3' align='center'>No remote nodes available</td><tr>";
 			}
 			
 			resp.getWriter().write(String.format(html,conte));

@@ -25,10 +25,11 @@ import org.osgi.service.http.HttpService;
 public class DistrimanWeb {
 
 	private final static String URL="/distriman";
+	private final static String RESOURCE="/static";
 	
 	@Requires(nullable = false, optional = false)
 	DistrimanServlet world;
-
+	
 	@Requires(optional = false)
 	HttpService http;
 
@@ -36,6 +37,8 @@ public class DistrimanWeb {
 	private void init() {
 		try {
 			http.registerServlet(URL, world, null, null);
+			http.registerResources(RESOURCE, "/", null);
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -44,5 +47,6 @@ public class DistrimanWeb {
 	@Invalidate
 	private void stop() {
 		http.unregister(URL);
+		http.unregister(RESOURCE);
 	}
 }
