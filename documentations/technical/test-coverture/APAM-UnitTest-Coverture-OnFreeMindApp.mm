@@ -2,7 +2,7 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1354182410062" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
-<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1353066634176" TEXT="Property">
+<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1356684960413" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -33,16 +33,34 @@
 <node CREATED="1353070377590" ID="ID_382562301" MODIFIED="1354294378716" TEXT="Filtering applied in string values should work properly-tc008">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355931835542" ID="ID_1074078486" MODIFIED="1356013732686" TEXT="Retrieving &lt;property type=&apos;int&apos;&gt; should return a proper Collection/array-tc053">
+<node CREATED="1355931835542" ID="ID_1074078486" MODIFIED="1356684955115" TEXT="Retrieving &lt;property type=&apos;int&apos;&gt; should return a proper Collection/array-tc053">
+<icon BUILTIN="yes"/>
+</node>
+<node CREATED="1355931835542" ID="ID_949793962" MODIFIED="1356684955116" TEXT="Retrieving &lt;property type=&apos;integer&apos;&gt; should return a proper Collection/array-tc054">
+<icon BUILTIN="yes"/>
+</node>
+<node CREATED="1355931835542" ID="ID_450621789" MODIFIED="1356684955117" TEXT="Retrieving &lt;property type=&apos;string&apos;&gt; should return a proper Collection/array-tc055">
+<icon BUILTIN="yes"/>
+</node>
+<node CREATED="1355931835542" ID="ID_1598888249" MODIFIED="1356684955116" TEXT="Retrieving &lt;property type=&apos;boolean&apos;&gt; should return a proper Collection/array-tc056">
+<icon BUILTIN="yes"/>
+</node>
+<node CREATED="1356684961188" ID="ID_1368445057" MODIFIED="1356685224122" TEXT="Testing superset &apos;*&gt;&apos; for integer-tc057">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355931835542" ID="ID_949793962" MODIFIED="1356013735230" TEXT="Retrieving &lt;property type=&apos;integer&apos;&gt; should return a proper Collection/array-tc054">
+<node CREATED="1356684961188" ID="ID_22603681" MODIFIED="1356685227746" TEXT="Testing superset &apos;*&gt;&apos; for enum-tc058">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355931835542" ID="ID_450621789" MODIFIED="1356013737734" TEXT="Retrieving &lt;property type=&apos;string&apos;&gt; should return a proper Collection/array-tc055">
+<node CREATED="1356684961188" ID="ID_1915899376" MODIFIED="1356685227748" TEXT="Testing superset &apos;*&gt;&apos; for string-tc059">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355931835542" ID="ID_1598888249" MODIFIED="1356013740398" TEXT="Retrieving &lt;property type=&apos;boolean&apos;&gt; should return a proper Collection/array-tc056">
+<node CREATED="1356684961188" ID="ID_478925276" MODIFIED="1356685227747" TEXT="Testing subset &apos;&lt;*&apos; for integer-tc060">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1356684961188" ID="ID_1059675724" MODIFIED="1356685227747" TEXT="Testing subset &apos;&lt;*&apos; for enum-tc061">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1356684961188" ID="ID_577787507" MODIFIED="1356685227747" TEXT="Testing subset &apos;&lt;*&apos; for string-tc062">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>

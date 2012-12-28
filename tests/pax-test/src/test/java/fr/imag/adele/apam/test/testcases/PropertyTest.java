@@ -484,12 +484,8 @@ public class PropertyTest extends ExtensionAbstract {
 
 	}
 
-	/****
-	 * Begin integer test
-	 */
-
 	@Test
-	public void PropertyFilterOSGiImplementationSuperSet_Integer() {
+	public void PropertyFilterOSGiImplementationSuperSet_Integer_tc057() {
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
 				"SpecFilterSwitch");
@@ -532,7 +528,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PropertyFilterOSGiImplementationSuperSet_Enum() {
+	public void PropertyFilterOSGiImplementationSuperSet_Enum_tc058() {
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
 				"SpecFilterSwitch");
@@ -575,7 +571,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 	
 	@Test
-	public void PropertyFilterOSGiImplementationSuperSet_String() {
+	public void PropertyFilterOSGiImplementationSuperSet_String_tc059() {
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
 				"SpecFilterSwitch");
@@ -616,9 +612,134 @@ public class PropertyTest extends ExtensionAbstract {
 		Assert.assertTrue(message, !inst.match(expression));
 
 	}
+				
+	@Test
+	public void PropertyFilterOSGiImplementationSubSet_Integer_tc060() {
 
-	/****
-	 * End integer test
-	 */
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecFilterSwitch");
+		Instance inst = implementation.createInstance(null, null);
 
+		String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A subset('<*') B means that all A elements must be in B.";
+
+		String expression = "(setInt <* setInt)";
+		String message = String.format(messageTemplate, expression,inst.getProperty("setInt"), "<*", inst.getProperty("setInt"),true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setInt <* setIntUnordered)";
+		message = String.format(messageTemplate, expression,inst.getProperty("setInt"), "<*",inst.getProperty("setIntUnordered"), true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setInt <* setIntLessElements)";
+		message = String.format(messageTemplate, expression,inst.getProperty("setInt"), "<*",inst.getProperty("setIntLessElements"), false);
+		Assert.assertTrue(message, !inst.match(expression));
+
+		expression = "(setInt <* setIntMoreElements)";
+		message = String.format(messageTemplate, expression,inst.getProperty("setInt"), "<*",inst.getProperty("setIntMoreElements"), true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setInt <* {12,15,254, 0})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setInt"), "<*", inst.getProperty("setInt"),true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setInt <* {254,15,12,0})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setInt"), "<*", "{254,15,12,0}", true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setInt <* {12,15, 0})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setInt"), "<*", "{12,15, 0}", false);
+		Assert.assertTrue(message, !inst.match(expression));
+
+		expression = "(setInt <* {12,15,254, 0,27})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setInt"), "<*", "{12,15,254, 0,27}", true);
+		Assert.assertTrue(message, inst.match(expression));
+
+	}
+	
+	@Test
+	public void PropertyFilterOSGiImplementationSubSet_Enum_tc061() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecFilterSwitch");
+		Instance inst = implementation.createInstance(null, null);
+
+		String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A subset('<*') B means that all A elements must be in B.";
+
+		String expression = "(OS <* OS)";
+		String message = String.format(messageTemplate, expression,inst.getProperty("OS"), "<*", inst.getProperty("OS"),true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(OS <* OSUnordered)";
+		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "<*",inst.getProperty("OSUnordered"), true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(OS <* OSLessElements)";
+		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "<*",inst.getProperty("OSLessElements"), false);
+		Assert.assertTrue(message, !inst.match(expression));
+
+		expression = "(OS <* OSMoreElements)";
+		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "<*",inst.getProperty("OSMoreElements"), true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(OS <* {Linux, Windows, Android, IOS})";
+		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "<*", "{Linux, Windows, Android, IOS}",true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(OS <* {IOS, Windows, Linux,Android})";
+		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "<*", "{IOS, Windows, Linux,Android}", true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(OS <* {Linux, Windows, IOS})";
+		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "<*", "{Linux, Windows, IOS}", false);
+		Assert.assertTrue(message, !inst.match(expression));
+
+		expression = "(OS <* {Linux, Windows, Android,IOS,AmigaOS})";
+		message = String.format(messageTemplate, expression,inst.getProperty("OS"), "<*", "{Linux, Windows, Android,IOS,AmigaOS}", true);
+		Assert.assertTrue(message, inst.match(expression));
+
+	}
+	
+	@Test
+	public void PropertyFilterOSGiImplementationSubSet_String_tc062() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecFilterSwitch");
+		Instance inst = implementation.createInstance(null, null);
+
+		String messageTemplate = "%s [expanded expression: %s %s %s] should be %b. By definition the A subset('<*') B means that all A elements must be in B.";
+
+		String expression = "(setString <* setString)";
+		String message = String.format(messageTemplate, expression,inst.getProperty("setString"), "<*", inst.getProperty("setString"),true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setString <* setStringUnordered)";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "<*",inst.getProperty("setStringUnordered"), true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setString <* setStringLessElements)";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "<*",inst.getProperty("setStringLessElements"), false);
+		Assert.assertTrue(message, !inst.match(expression));
+
+		expression = "(setString <* setStringMoreElements)";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "<*",inst.getProperty("setStringMoreElements"), true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setString <* {doubt,grows,with,knowledge})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "<*", "{doubt,grows,with,knowledge}",true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setString <* {with,doubt,knowledge,grows})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "<*", "{with,doubt,knowledge,grows}", true);
+		Assert.assertTrue(message, inst.match(expression));
+
+		expression = "(setString <* {doubt,grows,knowledge})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "<*", "{doubt,grows,knowledge}", false);
+		Assert.assertTrue(message, !inst.match(expression));
+
+		expression = "(setString <* {doubt,and,uncertainties,grows,with,knowledge})";
+		message = String.format(messageTemplate, expression,inst.getProperty("setString"), "<*", "{doubt,and,uncertainties,grows,with,knowledge}", true);
+		Assert.assertTrue(message, inst.match(expression));
+
+	}
+	
 }
