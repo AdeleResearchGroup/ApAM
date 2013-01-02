@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 	<properties>
 		<url.version>1.4.0</url.version>
-		<exam.version>3.0.0-SNAPSHOT</exam.version>
+		<exam.version>3.0.0.RC1</exam.version>
 	</properties>
 
 	<repositories>
