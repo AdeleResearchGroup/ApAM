@@ -284,7 +284,7 @@ public class CheckObr {
 			}
 		}
 
-		if (!messages.containsAll(specInterfaces)) {
+		if (!interfaces.containsAll(specInterfaces)) {
 			if (!(interfacesUndefined.isEmpty())) {
 				CheckObr.warning("Unable to verify intefaces type at compilation time, this may cause errors at the runtime!"
 						+ "\n make sure that "
