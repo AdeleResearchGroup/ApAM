@@ -15,6 +15,7 @@
 package fr.imag.adele.apam.distriman;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Interface used to provide information about remote apam nodes available
@@ -42,4 +43,8 @@ public interface NodePool {
 	 * @return
 	 */
 	public Map<String, RemoteMachine> getMachines();
+	
+	public Set<RemoteMachine> getRemoteMachines();
+	
+	public RemoteMachine getRemoteMachine(String url);
 }

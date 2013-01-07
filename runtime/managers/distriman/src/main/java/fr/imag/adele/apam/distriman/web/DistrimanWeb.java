@@ -14,33 +14,51 @@
  */
 package fr.imag.adele.apam.distriman.web;
 
+import java.io.IOException;
+
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Invalidate;
+import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.Validate;
 import org.osgi.service.http.HttpService;
 
-@org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman Web")
-@Instantiate
-public class DistrimanWeb {
+import fr.imag.adele.apam.distriman.NodePool;
+import fr.imag.adele.apam.distriman.RemoteMachine;
 
-	private final static String URL="/distriman";
-	private final static String RESOURCE="/static";
-	
-	@Requires(nullable = false, optional = false)
-	DistrimanServlet world;
-	
-	@Requires(optional = false)
+@Component(name = "Apam::Distriman Web")
+@Instantiate
+@Provides
+public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig { 
+
+	private final static String URL = "/distriman";
+	private final static String RESOURCE = "/static";
+
+	@Requires
 	HttpService http;
 
+	@Requires(nullable = false)
+	NodePool discovery;
+
+	private String html = "<html><head><title>.:Apam - Distriman:.</title> <style type='text/css'>  body {    color: black;    background-color: #d8da3d; } table, tr {	border-style: dotted; }  </style></head><body><center><strong>Available apam remote nodes</strong><table>	<tr>		<td width='200px'>			URL		</td width='100px'>		<td>			IP		</td>		<td width='50px'>			Port		</td></tr>%s</table></center></body><html>";
+
 	@Validate
-	private void init() {
+	private void initialize() {
 		try {
-			http.registerServlet(URL, world, null, null);
+			http.registerServlet(URL, this, null, null);
 			http.registerResources(RESOURCE, "/", null);
-			
+
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
+			// throw new RuntimeException(e);
 		}
 	}
 
@@ -48,5 +66,35 @@ public class DistrimanWeb {
 	private void stop() {
 		http.unregister(URL);
 		http.unregister(RESOURCE);
+	}
+
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		resp.setContentType("text/html");
+		if (discovery != null) {
+
+			String conteTemplate = "<tr><tr><td>%s</td><td>%s</td><td>%s</td><tr>";
+
+			String conte = "";
+
+			for (String key : discovery.getMachines().keySet()) {
+				RemoteMachine machine = discovery.getMachines().get(key);
+				conte += String.format(conteTemplate, machine.getUrl(), "NONE",
+						"NONE");
+			}
+
+			if (discovery.getRemoteMachines().size() == 0) {
+				conte += "<tr><td colspan='3' align='center'>No remote nodes available</td><tr>";
+			}
+
+			resp.getWriter().write(String.format(html, conte));
+
+		} else {
+			resp.getWriter().write("empty discovery");
+		}
+
+		resp.flushBuffer();
+
 	}
 }

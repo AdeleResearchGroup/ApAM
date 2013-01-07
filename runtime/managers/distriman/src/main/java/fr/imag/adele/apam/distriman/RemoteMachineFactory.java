@@ -15,23 +15,26 @@
 package fr.imag.adele.apam.distriman;
 
 
-import fr.imag.adele.apam.ManagerModel;
-import fr.imag.adele.apam.apform.ApformCompositeType;
-import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.impl.ComponentBrokerImpl;
-import fr.imag.adele.apam.impl.ComponentImpl;
+import static com.google.common.collect.Sets.newHashSet;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import static com.google.common.collect.Sets.newHashSet;
+import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.apform.Apform2Apam;
+import fr.imag.adele.apam.apform.ApformCompositeType;
+import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
+import fr.imag.adele.apam.impl.ComponentImpl;
 
 /**
  * ApformCompositeType of and the factory of RemoteMachine.
@@ -51,7 +54,7 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
     /**
      * The RemoteMachine created through this factory, indexed by their url.
      */
-    private final Map<String, RemoteMachine> machines = new HashMap<String, RemoteMachine>();
+    private static final Map<String, RemoteMachine> machines = new HashMap<String, RemoteMachine>();
 
 
     private final BundleContext my_context;
@@ -66,7 +69,7 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
 
     public void init(){
         //Add the ApformCompositeType to Apam
-        //Apform2Apam.newImplementation(this);
+        Apform2Apam.newImplementation(this);
     }
 
     public void destroy(){
@@ -94,14 +97,15 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
      * @return The newly created or existing RemoteMachine of given url
      */
     public RemoteMachine newRemoteMachine(String url) {
+    	
         synchronized (machines){
             if (machines.containsKey(url)){
                 //TODO log warning
                 return machines.get(url);
             }
-
+            
             RemoteMachine machine = machines.put(url,new RemoteMachine(url,this));
-
+            
             return machine;
         }
     }

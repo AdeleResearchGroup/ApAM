@@ -35,7 +35,8 @@ import java.util.Set;
 public class Distriman implements DependencyManager{
 
     //TODO resolved via system/framework/httpservice property
-    private static final int HTTP_PORT = 8080;
+    @Deprecated
+	private static final int HTTP_PORT = 8080;
 
     //ApamManager priority
     private static final int PRIORITY = 4;
@@ -178,9 +179,9 @@ public class Distriman implements DependencyManager{
     @Validate
     private void init(){
         logInfo("Starting...");
-
+        
         //init the local machine
-        my_local.init("localhost",HTTP_PORT,this);
+        my_local.init("localhost",Integer.parseInt(context.getProperty("org.osgi.service.http.port")),this);
 
         //start the discovery
         discovery.start(HOST);
@@ -225,8 +226,8 @@ public class Distriman implements DependencyManager{
 
         //stop the CxfEndpointFactory
         endpointFactory.stop(http);
-
-        http.unregister(my_local.getPath());
+        
+        http.unregister(LocalMachine.INSTANCE.getPath());//my_local.getPath()
 
         logInfo("Successfully stopped");
     }
