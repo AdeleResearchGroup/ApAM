@@ -60,6 +60,7 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
     private final BundleContext my_context;
 
     public RemoteMachineFactory(BundleContext context) {
+    	
         my_context = context;
 
         //create my unique declaration

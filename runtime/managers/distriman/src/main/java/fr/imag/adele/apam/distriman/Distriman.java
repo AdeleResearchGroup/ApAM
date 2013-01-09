@@ -32,6 +32,7 @@ import java.util.Set;
 
 @org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman")
 @Instantiate
+@Provides
 public class Distriman implements DependencyManager{
 
     //TODO resolved via system/framework/httpservice property
@@ -56,7 +57,7 @@ public class Distriman implements DependencyManager{
 
     private final CxfEndpointFactory endpointFactory;
 
-    private final RemoteMachineFactory remotes;
+    private RemoteMachineFactory remotes;
 
     private final LocalMachine my_local = LocalMachine.INSTANCE;
 
@@ -88,6 +89,7 @@ public class Distriman implements DependencyManager{
     @Override
     public void getSelectionPath(Instance client, DependencyDeclaration dependency, List<DependencyManager> selPath) {
         //To change body of implemented methods use File | Settings | File Templates.
+    	selPath.add(selPath.size(), this);
     }
 
     @Override
@@ -117,7 +119,7 @@ public class Distriman implements DependencyManager{
      */
 	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
         Resolved resolved = null;
-
+        
         if (!needsInstances){ //XXX handle only instances
             return null;
         }
@@ -126,6 +128,7 @@ public class Distriman implements DependencyManager{
 
         while (machines.hasNext() && resolved == null){
             resolved = machines.next().resolveRemote(client,dependency);
+            if(resolved!=null) break;
         }
 
 

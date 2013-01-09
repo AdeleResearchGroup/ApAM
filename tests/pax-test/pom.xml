@@ -233,6 +233,77 @@
 			<scope>test</scope>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.services</groupId>
+			<artifactId>apam-pax-distriman-iface</artifactId>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.services</groupId>
+			<artifactId>apam-pax-distriman-P1</artifactId>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.services</groupId>
+			<artifactId>apam-pax-distriman-P2</artifactId>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
+
+
+		<!-- Distriman -->
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>DISTRIMAN</artifactId>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
+		
+				<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.ipojo</artifactId>
+			<version>1.8.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.fileinstall</artifactId>
+			<version>3.1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.jmdns</groupId>
+			<artifactId>jmdns</artifactId>
+			<version>3.4.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20090911</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.chameleon.commons.cxf</groupId>
+			<artifactId>cxf-bundle-minimal</artifactId>
+			<version>2.5.2-0002-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>13.0.1</version>
+		</dependency>
 
 		<!-- Messages Tests -->
 		<dependency>

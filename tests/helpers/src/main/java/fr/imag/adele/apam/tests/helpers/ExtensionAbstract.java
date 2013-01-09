@@ -35,6 +35,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
 import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.CompositeOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
@@ -72,7 +73,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 		config.add(packInitialConfig());
 		config.add(packOSGi());
 		config.add(packPax());
-		config.add(packApamCore());
+		config.add(packApamCore());		
 		config.add(packApamObrMan());
 		config.add(packAppForTestBundles());
 		config.add(packLog());
@@ -99,58 +100,15 @@ public abstract class ExtensionAbstract extends TestUtils {
 		return config;
 	}
 
-	// public List<Option> config() {
-	//
-	// List<Option> config = new ArrayList<Option>();
-	// config.add(systemProperty("org.osgi.service.http.port").value("8080"));
-	// config.add(cleanCaches());
-	// config.add(systemProperty("logback.configurationFile").value(
-	// "file:" + PathUtils.getBaseDir() + "/log/logback.xml"));
-	// config.add(systemProperty(
-	// "org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE"));
-	// config.add(mavenBundle().groupId("org.apache.felix")
-	// .artifactId("org.apache.felix.ipojo").versionAsInProject());
-	// config.add(mavenBundle().groupId("org.ow2.chameleon.testing")
-	// .artifactId("osgi-helpers").versionAsInProject());
-	// config.add(mavenBundle().groupId("org.osgi")
-	// .artifactId("org.osgi.compendium").version("4.2.0"));
-	// config.add(mavenBundle().groupId("org.apache.felix")
-	// .artifactId("org.apache.felix.bundlerepository").versionAsInProject());
-	// config.add(mavenBundle().groupId("org.ops4j.pax.url")
-	// .artifactId("pax-url-mvn").versionAsInProject());
-	// config.add(mavenBundle().groupId("fr.imag.adele.apam")
-	// .artifactId("apam-bundle").versionAsInProject());
-	// config.add(mavenBundle().groupId("fr.imag.adele.apam")
-	// .artifactId("obrman").versionAsInProject());
-	// config.add(mavenBundle("org.slf4j", "slf4j-api").versionAsInProject());
-	//
-	// config.add(mavenBundle("ch.qos.logback",
-	// "logback-core").versionAsInProject());
-	// config.add(mavenBundle("ch.qos.logback",
-	// "logback-classic").versionAsInProject());
-	// config.add(junitBundles());
-	// config.add(mavenBundle("fr.imag.adele.apam.tests", "apam-helpers")
-	// .versionAsInProject());
-	//
-	// config.add(vmOption("-ea"));
-	// config.add(when(isDebugModeOn())
-	// .useOptions(
-	// vmOption(String
-	// .format("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=%d",
-	// Constants.CONST_DEBUG_PORT)),
-	// systemTimeout(0)));
-	//
-	// return config;
-	// }
-
 	protected CompositeOption packInitialConfig() {
 
-		CompositeOption initial = new DefaultCompositeOption(systemProperty(
-				"org.osgi.service.http.port").value("8080"), cleanCaches(),
-				systemProperty("logback.configurationFile").value(
-						"file:" + PathUtils.getBaseDir() + "/log/logback.xml"),
-				systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level")
-						.value("NONE"));
+		CompositeOption initial = new DefaultCompositeOption(
+				systemProperty("org.osgi.service.http.port").value("8080"), 
+//				systemProperty("pax.exam.service.timeout").value("30000"),
+				cleanCaches(),
+				systemProperty("logback.configurationFile").value("file:" + PathUtils.getBaseDir() + "/log/logback.xml"),
+				systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE")
+				);
 
 		return initial;
 	}
@@ -181,6 +139,58 @@ public abstract class ExtensionAbstract extends TestUtils {
 
 		return apamObrmanConfig;
 	}
+	
+	protected CompositeOption packApamDistriMan() {
+		CompositeOption apamObrmanConfig = new DefaultCompositeOption(
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/asm-4.1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/com.springsource.javax.mail-1.4.1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/com.springsource.javax.persistence-2.0.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/com.springsource.javax.wsdl-1.6.1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/com.springsource.javax.xml.stream-1.0.1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/com.springsource.org.apache.commons.logging-1.1.1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/com.springsource.org.apache.xml.resolver-1.2.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/com.springsource.org.dom4j-1.6.1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/com.springsource.org.joda.time-1.6.2.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/cxf-bundle-minimal-2.6.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/felix-gogo-1.1.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/guava-13.0-rc1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/javax.ws.rs-api-2.0-m09.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/jsr311-api-1.1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/logback-classic-1.0.7.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/logback-core-1.0.7.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/neethi-3.0.2.jar"),
+//				//CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.bundlerepository-1.6.6.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.configadmin-1.2.8.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.fileinstall-3.2.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.gogo.command-0.12.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.gogo.runtime-0.10.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.gogo.shell-0.10.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.http.jetty-2.2.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.ipojo-1.8.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.ipojo.annotations-1.8.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.ipojo.api-1.6.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.ipojo.arch.gogo-1.0.1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.ipojo.composite-1.8.4.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.ipojo.manipulator-1.8.4.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.felix.log-1.0.1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.servicemix.bundles.lucene-4.0.0_1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.apache.servicemix.bundles.opensaml-2.4.1_1.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.osgi.compendium-4.2.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/org.osgi.compendium-4.3.0.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/slf4j-api-1.6.6.jar"),
+//				//CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/slf4j-simple-1.6.6.jar"),
+//				//CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/wireadmin.jar"),
+//				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution/bundle/xmlschema-core-2.0.jar"),		
+				mavenBundle("javax.jmdns", "jmdns").version("3.4.1"),
+				mavenBundle("org.json", "json").version("20090911"),
+				mavenBundle("javax.servlet", "servlet-api").version("2.5"),
+				mavenBundle("org.ow2.chameleon.commons.cxf", "cxf-bundle-minimal").version("2.5.2-0002-SNAPSHOT"),
+				mavenBundle("com.google.guava", "guava").version("13.0.1"),
+				mavenBundle("fr.imag.adele.apam", "DISTRIMAN").versionAsInProject()
+				);
+		
+		return apamObrmanConfig;
+	}
 
 	protected CompositeOption packPax() {
 		CompositeOption paxConfig = new DefaultCompositeOption(mavenBundle()
@@ -206,11 +216,11 @@ public abstract class ExtensionAbstract extends TestUtils {
 	}
 
 	protected CompositeOption packLog() {
-		CompositeOption logConfig = new DefaultCompositeOption(mavenBundle(
-				"ch.qos.logback", "logback-core").versionAsInProject(),
-				mavenBundle("ch.qos.logback", "logback-classic")
-						.versionAsInProject(), mavenBundle("org.slf4j",
-						"slf4j-api").versionAsInProject());
+		CompositeOption logConfig = new DefaultCompositeOption(
+				mavenBundle("ch.qos.logback", "logback-core").versionAsInProject(),
+				//mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject(), 
+				mavenBundle("org.slf4j","slf4j-api").versionAsInProject()
+				);
 
 		return logConfig;
 	}
@@ -262,24 +272,6 @@ public abstract class ExtensionAbstract extends TestUtils {
 		Option conf[] = config().toArray(new Option[0]);
 
 		return conf;
-	}
-	
-	//@Configuration
-	public Option[] apamConfig2(){
-		List<Option> config = new ArrayList<Option>();
-
-		config.add(packInitialConfig());
-		config.add(packOSGi());
-		config.add(packPax());
-		config.add(packApamCore());
-		config.add(packApamObrMan());
-		config.add(packApamDynaMan());
-		config.add(packLog());
-		config.add(junitBundles());
-		config.add(packDebugConfiguration());
-		config.add(vmOption("-ea"));
-		
-		return config.toArray(new Option[0]);
 	}
 
 	@Before

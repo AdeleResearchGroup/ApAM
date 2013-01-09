@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 	<properties>
 		<url.version>1.4.0</url.version>
-		<exam.version>3.0.0.RC1</exam.version>
+		<exam.version>3.0.0.RC1</exam.version> <!--3.1.0-SNAPSHOT  -->
 	</properties>
 
 	<repositories>
@@ -27,6 +27,27 @@
 			<id>maven-central</id>
 			<url>http://repo.maven.apache.org/maven2/</url>
 		</repository>
+		<repository>
+			<id>nexus legacy</id>
+			<url>http://repository.ow2.org/nexus/content/repositories/ow2-legacy</url>
+		</repository>
+		<repository>
+			<id>nexus 3rd party</id>
+			<url>http://repository.ow2.org/nexus/content/repositories/thirdparty</url>
+		</repository>
+		<repository>
+			<id>nexus public</id>
+			<url>http://repository.ow2.org/nexus/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>nexus releases</id>
+			<url>http://repository.ow2.org/nexus/content/repositories/releases</url>
+		</repository>
+		<repository>
+			<id>nexus utility</id>
+			<url>http://repository.ow2.org/nexus/content/sites/ow2-utilities</url>
+		</repository>
+
 	</repositories>
 
 	<dependencyManagement>

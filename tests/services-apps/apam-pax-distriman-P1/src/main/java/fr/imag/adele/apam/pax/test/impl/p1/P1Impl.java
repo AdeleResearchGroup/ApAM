@@ -7,6 +7,10 @@ public class P1Impl implements P1Spec{
 
 	P2Spec p2;
 	
+	public P2Spec getP2() {
+		return p2;
+	}
+
 	public void start(){
 		System.out.println("Starting P1, the P2 value injected was:"+p2);
 	}
