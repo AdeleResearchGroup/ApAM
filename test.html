@@ -20,7 +20,7 @@
 		<link rel="shortcut icon" href="img/apamicon.png"> 
 	</head>
 
-	<body data-spy="scroll" data-target="#navbar">
+	<body data-spy="scroll" data-target=".bs-docs-sidebar">
 		
 		<!-- Navbar -->
 		<div class="navbar navbar-fixed-top">
@@ -64,9 +64,7 @@
 		
 		<div id="home-page"></div>
 		<div class="container" id="content-page"></div>
-		
-		
-		
+				
 		<!-- Contents 
 		<div class="jumbotron masthead">
 			<div class="container">
@@ -144,16 +142,6 @@
 		<!-- Le javascript -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 		<script src="js/bootstrap.js"></script>
-		<!--<script>
-			$(function(){
-				$('a.page-fetcher').click(function(){
-					$('#home-page').hide();
-					$('#content-page').load($(this).attr('href'));
-					return false;
-				});
-			});
-			$('#home-page').load('home.html');
-		</script>-->
 		<script>
 			$(function(){
 				$('a.page-fetcher').click(function(){
