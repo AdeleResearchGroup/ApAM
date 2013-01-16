@@ -17,6 +17,7 @@ package fr.imag.adele.apam.distriman;
 
 import static com.google.common.collect.Sets.newHashSet;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,7 +25,10 @@ import java.util.Set;
 
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
+import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Provides;
+import org.apache.felix.ipojo.annotations.Unbind;
+import org.apache.felix.ipojo.annotations.Validate;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -68,11 +72,13 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
         declaration.setInstantiable(false);
     }
 
+    @Validate
     public void init(){
         //Add the ApformCompositeType to Apam
         Apform2Apam.newImplementation(this);
     }
 
+    @Invalidate
     public void destroy(){
         //Remove this implem from the broker
         ComponentBrokerImpl.disappearedComponent(getDeclaration().getName());
@@ -85,7 +91,7 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
 
     @Override
     public Set<ManagerModel> getModels() {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
@@ -136,7 +142,16 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
      */
     public RemoteMachine getRemoteMachine(String url){
         synchronized (machines){
-            return machines.get(url);
+        	
+        	RemoteMachine rm=machines.get(url+"/apam/machine");
+        	//TODO Find a better way to do this 
+        	if(rm!=null) return rm;
+        	
+        	if(url.indexOf("127.0.0.1")!=-1){
+        		rm=machines.get(url.replaceAll("127.0.0.1", "localhost")+"/apam/machine");
+        	}
+        	
+            return rm;
         }
     }
 
@@ -157,7 +172,7 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
 
     @Override
     public void setProperty(String attr, String value) {
-        throw new UnsupportedOperationException("Cannot change the property of RemoteMachineFactory.");
+        //TODO
     }
 
     @Override

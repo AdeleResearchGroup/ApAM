@@ -16,10 +16,24 @@ package fr.imag.adele.apam.distriman;
 
 import static java.util.Collections.singleton;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.apache.cxf.frontend.ServerFactoryBean;
+import org.eclipse.jetty.util.ajax.JSON;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,155 +47,252 @@ import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
 /**
- * Each Apam/Distriman machines available over the network, have a RemoteMachine composite.
- *
- *
- *
- * User: barjo
- * Date: 05/12/12
- * Time: 14:32
+ * Each Apam/Distriman machines available over the network, have a RemoteMachine
+ * composite.
+ * 
+ * 
+ * 
+ * User: barjo Date: 05/12/12 Time: 14:32
  */
-public class RemoteMachine  implements ApformInstance{
+public class RemoteMachine implements ApformInstance {
 
-    /**
-     * The RemoteMachine URL.
-     */
-    private final String my_url;
+	/**
+	 * The RemoteMachine URL.
+	 */
+	private final String my_url;
 
-    private final RemoteMachineFactory my_impl;
+	private final RemoteMachineFactory my_impl;
 
-    private Instance apamInstance = null;
+	private Instance apamInstance = null;
 
-    private static Logger logger = LoggerFactory.getLogger(RemoteMachine.class);
+	private static Logger logger = LoggerFactory.getLogger(RemoteMachine.class);
 
-    private final InstanceDeclaration my_declaration;
+	private final InstanceDeclaration my_declaration;
 
-    private final Set<EndpointRegistration> my_endregis = new HashSet<EndpointRegistration>();
+	private final Set<EndpointRegistration> my_endregis = new HashSet<EndpointRegistration>();
 
-    private final AtomicBoolean running = new AtomicBoolean(true);
+	private final AtomicBoolean running = new AtomicBoolean(true);
 
-    protected RemoteMachine(String url, RemoteMachineFactory daddy) {
-        my_url = url;
-        my_impl = daddy;
-        my_declaration = new InstanceDeclaration(daddy.getDeclaration().getReference(),"RemoteMachine_"+url,null);
-        my_declaration.setInstantiable(false);
+	protected RemoteMachine(String url, RemoteMachineFactory daddy) {
+		my_url = url;
+		my_impl = daddy;
+		my_declaration = new InstanceDeclaration(daddy.getDeclaration()
+				.getReference(), "RemoteMachine_" + url, null);
+		my_declaration.setInstantiable(false);
 
-//        Add the Instance to Apam
-        Apform2Apam.newInstance(this);
+		// Add the Instance to Apam
+		Apform2Apam.newInstance(this);
 
-        logger.info("RemoteMachine "+my_url+" created.");
-        System.out.println("RemoteMachine "+my_url+" created.");
-    }
+		logger.info("RemoteMachine " + my_url + " created.");
+		System.out.println("RemoteMachine " + my_url + " created.");
+	}
 
-    public String getUrl() {
-        return my_url;
-    }
+	public String getUrl() {
+		return my_url;
+	}
 
-    public void addEndpointRegistration(EndpointRegistration registration){
-        if(running.get())
-            my_endregis.add(registration);
-    }
+	public void addEndpointRegistration(EndpointRegistration registration) {
+		if (running.get())
+			my_endregis.add(registration);
+	}
 
-    public boolean rmEndpointRegistration(EndpointRegistration registration){
-        return running.get() && my_endregis.remove(registration);
-    }
+	public boolean rmEndpointRegistration(EndpointRegistration registration) {
+		return running.get() && my_endregis.remove(registration);
+	}
 
-    /**
-     * Destroy the RemoteMachine
-     * //TODO but a volatile destroyed flag ?
-     */
-    protected void destroy() {
-        if(running.compareAndSet(true,false)){
+	/**
+	 * Destroy the RemoteMachine //TODO but a volatile destroyed flag ?
+	 */
+	protected void destroy() {
+		if (running.compareAndSet(true, false)) {
 
-            logger.info("RemoteMachine " + my_url + " destroyed.");
-            System.out.println("RemoteMachine " + my_url + " destroyed.");
+			logger.info("RemoteMachine " + my_url + " destroyed.");
+			System.out.println("RemoteMachine " + my_url + " destroyed.");
 
-            //Remove this Instance from the broker
-            ComponentBrokerImpl.disappearedComponent(this.getDeclaration().getName());
+			// Remove this Instance from the broker
+			ComponentBrokerImpl.disappearedComponent(this.getDeclaration()
+					.getName());
 
-            for(EndpointRegistration endreg: my_endregis){
-                endreg.close();
-            }
-        }
-    }
+			for (EndpointRegistration endreg : my_endregis) {
+				endreg.close();
+			}
+		}
+	}
 
-    public Resolved resolveRemote(Instance client, DependencyDeclaration dependency) {
-        if(running.get()){
-            try{
-                RemoteDependency remoteDep = new RemoteDependency(dependency);
+	public Resolved resolveRemote(Instance client,
+			DependencyDeclaration dependency) {
+		if (running.get()) {
+			try {
+				RemoteDependency remoteDep = new RemoteDependency(dependency);
 
-                String json = remoteDep.toJson().toString();
-                Instance instance = createProxy(json);
+				JSONObject jsonObject = remoteDep.toJson();
 
-                if (instance == null){
-                    return null;
-                }
+				jsonObject.put("client_url", this.getUrl());
 
-                return new Resolved(null, singleton(instance));
+				String json = jsonObject.toString();
+				Instance instance = createClientProxy(json);
 
-                //createProxy(json);
-                //TODO call this machine getUrl
-            }catch (Exception e){
-                //TODO handle
-            }
-        }
-        return null; //TODO
-    }
+				System.out
+						.println("######Instance resolved remotely with the name:"
+								+ instance.getServiceObject());
 
-    private Instance createProxy(String jsondep){
-        return null; // null
-    }
+				if (instance == null) {
+					return null;
+				}
 
-    // ===============
-    // ApformInstance
-    // ===============
+				return new Resolved(null, singleton(instance));
 
-    @Override
-    public InstanceDeclaration getDeclaration() {
-        return my_declaration;
-    }
+				// createProxy(json);
+				// TODO call this machine getUrl
+			} catch (Exception e) {
+				// TODO handle
+			}
+		}
+		return null; // TODO
+	}
 
-    @Override
-    public void setProperty(String attr, String value) {
-        throw new UnsupportedOperationException("Cannot change RemoteMachine property during the execution");
-    }
+	private Instance createClientProxy(String jsondep) {
 
-    @Override
-    public Bundle getBundle() {
-        return my_impl.getBundle();
-    }
+		HttpURLConnection connection = null;
+		PrintWriter outWriter = null;
+		BufferedReader serverResponse = null;
+		StringBuffer buff = new StringBuffer();
+		try {
+			// OPEN CONNECTION
+			
+			System.out.println("#### Using address:"+this.getUrl());
+			
+			connection = (HttpURLConnection) new URL(
+					this.getUrl()+"/apam/machine").openConnection();//"http://localhost:8081/apam/machine"
 
-    @Override
-    public Object getServiceObject() {
-        return null;
-    }
+			// SET REQUEST INFO
+			connection.setRequestMethod("POST");
+			connection.setDoOutput(true);
 
-    @Override
-    public boolean setWire(Instance destInst, String depName) {
-        return false;
-    }
+			outWriter = new PrintWriter(connection.getOutputStream());
 
-    @Override
-    public boolean remWire(Instance destInst, String depName) {
-        return false;
-    }
+			buff.append("content=");
+			buff.append(URLEncoder.encode(jsondep, "UTF-8"));
 
-    @Override
-    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-        return false;
-    }
+			System.out.println("***JSON:" + buff.toString());
 
-    @Override
-    public void setInst(Instance asmInstImpl) {
-        this.apamInstance=asmInstImpl;
+			outWriter.write(buff.toString());
+			outWriter.flush();
 
-    }
+			serverResponse = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
 
-    @Override
-    public Instance getInst() {
-        return apamInstance;
-    }
+			String line;
+			StringBuffer sb = new StringBuffer();
+
+			while ((line = serverResponse.readLine()) != null) {
+				sb.append(line);
+				System.out.println("RECEIVED:" + line);
+			}
+
+			if(sb.toString().trim().equals("")) return null;
+			
+			String decoded = URLDecoder.decode(sb.toString(), "UTF-8");
+
+			System.out.println("Decoded value=" + decoded);
+
+			JSONObject jsonResponse = new JSONObject(decoded);
+
+			String endpointUrl = jsonResponse.getString("endpoint_url");
+			String instancename = jsonResponse.getString("instance_name");
+
+			System.out.println("Remote instance created:" + instancename);
+
+			ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
+			factory.setServiceClass(Object.class);
+			System.out.println("******************Endpoint Trying to access url:"+endpointUrl);
+			factory.setAddress(endpointUrl);
+			
+			System.out.println("###Before deliver the object");
+			
+//			Thread.currentThread().setContextClassLoader(ServerFactoryBean.class.getClassLoader());
+//			Object client = (Object) factory.create();
+//			System.out.println("ID of the instance:"+client.hashCode());
+
+			serverResponse.close();
+
+		} catch (MalformedURLException mue) {
+			mue.printStackTrace();
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} finally {
+			if (connection != null)
+				connection.disconnect();
+
+			if (serverResponse != null) {
+				try {
+					serverResponse.close();
+				} catch (Exception ex) {
+				}
+			}
+		}
+		// }
+
+		// ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
+		// factory.setServiceClass(Instance.class);
+		// System.out.println("******************Trying to access url:"+my_url);
+		// factory.setAddress(my_url+"/ws");
+		// Instance client = (Instance) factory.create();
+		//
+		// return client; // null
+		return null;
+	}
+
+	// ===============
+	// ApformInstance
+	// ===============
+
+	@Override
+	public InstanceDeclaration getDeclaration() {
+		return my_declaration;
+	}
+
+	@Override
+	public void setProperty(String attr, String value) {
+		// TODO
+	}
+
+	@Override
+	public Bundle getBundle() {
+		return my_impl.getBundle();
+	}
+
+	@Override
+	public Object getServiceObject() {
+		return null;
+	}
+
+	@Override
+	public boolean setWire(Instance destInst, String depName) {
+		return false;
+	}
+
+	@Override
+	public boolean remWire(Instance destInst, String depName) {
+		return false;
+	}
+
+	@Override
+	public boolean substWire(Instance oldDestInst, Instance newDestInst,
+			String depName) {
+		return false;
+	}
+
+	@Override
+	public void setInst(Instance asmInstImpl) {
+		this.apamInstance = asmInstImpl;
+
+	}
+
+	@Override
+	public Instance getInst() {
+		return apamInstance;
+	}
 }
-
-
-

@@ -14,10 +14,12 @@
  */
 package fr.imag.adele.apam.distriman;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
-import fr.imag.adele.apam.*;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.jws.WebService;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
@@ -25,254 +27,293 @@ import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.osgi.service.http.HttpService;
 
-import javax.jws.WebService;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
+
+import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Resolved;
 
 /**
- * User: barjo
- * Date: 18/12/12
- * Time: 14:15
- *
+ * User: barjo Date: 18/12/12 Time: 14:15
+ * 
  * @ThreadSafe
  */
 public class CxfEndpointFactory {
 
-    public static final String PROTOCOL_NAME = "cxf";
-    public static final String ROOT_NAME = "/ws";
+	public static final String PROTOCOL_NAME = "cxf";
+	public static final String ROOT_NAME = "/ws";
 
+	private Bus cxfbus; // Cxf dispatcher, set in start!
 
-    private  Bus cxfbus; //Cxf dispatcher, set in start!
+	private String myurl;
+	private final DependencyManager apamMan;
 
-    private String myurl;
-    private final DependencyManager apamMan;
+	/**
+	 * Multimap containing the exported Instances and their Endpoint
+	 * registrations
+	 */
+	private final SetMultimap<Instance, EndpointRegistration> endpoints = HashMultimap
+			.create();
 
-
-
-    /**
-     * Multimap containing the exported Instances and their Endpoint registrations
-     */
-    private final SetMultimap<Instance,EndpointRegistration> endpoints = HashMultimap.create();
-
-    /**
+	/**
      *
      */
-    private final Map<String,Server> webservices = new HashMap<String,Server>();
+	private final Map<String, Server> webservices = new HashMap<String, Server>();
 
-    public CxfEndpointFactory() {
-        //Get apamMan
-        apamMan = ApamManagers.getManager(CST.APAMMAN);
-    }
+	public CxfEndpointFactory() {
+		// Get apamMan
+		apamMan = ApamManagers.getManager(CST.APAMMAN);
+	}
 
-    protected void start(HttpService http){
-          // Disable the fast infoset as it's not compatible (yet) with OSGi
-        //XXX from dosgi
-        System.setProperty("org.apache.cxf.nofastinfoset", "true");
+	protected void start(HttpService http) {
+		// Disable the fast infoset as it's not compatible (yet) with OSGi
+		// XXX from dosgi
+		System.setProperty("org.apache.cxf.nofastinfoset", "true");
 
-        //Register the CXF Servlet
+		// Register the CXF Servlet
 
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
-        //switch to the cxg minimal bundle class loader
-        Thread.currentThread().setContextClassLoader(CXFNonSpringServlet.class.getClassLoader());
+		// switch to the cxg minimal bundle class loader
+		Thread.currentThread().setContextClassLoader(
+				CXFNonSpringServlet.class.getClassLoader());
 
-        try {
-            CXFNonSpringServlet servlet = new CXFNonSpringServlet();
+		try {
+			CXFNonSpringServlet servlet = new CXFNonSpringServlet();
 
-            // Register a CXF Servlet dispatcher
-            http.registerServlet(ROOT_NAME, servlet, null, null);
+			// Register a CXF Servlet dispatcher
+			http.registerServlet(ROOT_NAME, servlet, null, null);
 
-            // get the bus
-            cxfbus = servlet.getBus();
+			// get the bus
+			cxfbus = servlet.getBus();
 
-        } catch (Exception e) {
-            //TODO log
-            throw new RuntimeException(e);
-        } finally {
-            Thread.currentThread().setContextClassLoader(loader);
-        }
+		} catch (Exception e) {
+			// TODO log
+			throw new RuntimeException(e);
+		} finally {
+			Thread.currentThread().setContextClassLoader(loader);
+		}
 
-        //compute the PROP_CXF_URL property
-        try {
-            myurl = new URI("http://"+LocalMachine.INSTANCE.getHost()+":"+LocalMachine.INSTANCE.getPort()+ROOT_NAME+"/").toString(); //compute the url
-        } catch (Exception e) {
-          //TODO log "Cannot create the URL of the JAX-WS server, this will lead to incomplete EndpointDescription.",e);
-        }
-    }
+		// compute the PROP_CXF_URL property
+		try {
+			myurl = new URI("http://" + LocalMachine.INSTANCE.getHost() + ":"
+					+ LocalMachine.INSTANCE.getPort() + ROOT_NAME).toString(); // compute
+																				// the
+																				// url
+		} catch (Exception e) {
+			// TODO log
+			// "Cannot create the URL of the JAX-WS server, this will lead to incomplete EndpointDescription.",e);
+		}
+	}
 
-    protected void stop(HttpService http){
-         // Unregister servlet dispatcher
-        http.unregister(ROOT_NAME);
-    }
+	protected void stop(HttpService http) {
+		// Unregister servlet dispatcher
+		http.unregister(ROOT_NAME);
+	}
 
-    /**
-     * Create the Instance ServiceObject endpoint with CXF.
-     * @param instance
-     */
-    private void createEndpoint(Instance instance){
-        Object obj = instance.getServiceObject();
-        ServerFactoryBean srvFactory;
+	/**
+	 * Create the Instance ServiceObject endpoint with CXF.
+	 * 
+	 * @param instance
+	 */
+	private String createEndpoint(Instance instance) {
+		Object obj = instance.getServiceObject();
+		ServerFactoryBean srvFactory;
+		// TODO get the class ?
+		Class<?> clazz = Object.class; // The service object spec
 
-        //TODO get the class ?
-        Class<?> clazz = null; //The service object spec
+		// Use the classloader of the cxf bundle in order to create the ws.
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		// Thread.currentThread().setContextClassLoader(JaxWsServerFactoryBean.class.getClassLoader());
+		Thread.currentThread().setContextClassLoader(
+				ServerFactoryBean.class.getClassLoader());
 
-        //Use the classloader of the cxf bundle in order to create the ws.
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(JaxWsServerFactoryBean.class.getClassLoader());
+		try {
 
-        try{
+			// Check if the interface contains the jax-ws annotation
+			if (clazz != null && clazz.isAnnotationPresent(WebService.class)) {
+				srvFactory = new JaxWsServerFactoryBean();
+			} else {
+				srvFactory = new ServerFactoryBean();
+			}
 
-            //Check if the interface contains the jax-ws annotation
-            if (clazz != null && clazz.isAnnotationPresent(WebService.class)){
-                srvFactory = new JaxWsServerFactoryBean();
-            } else {
-                srvFactory = new ServerFactoryBean();
-            }
+			// If the interface has been specified use it in order to create the
+			// endpoint.
+			if (clazz != null) {
+				srvFactory.setServiceClass(clazz);
+			}
 
-            //If the interface has been specified use it in order to create the endpoint.
-            if (clazz != null){
-                srvFactory.setServiceClass(clazz);
-            }
+			srvFactory.setBus(cxfbus); // Use the OSGi Servlet as the dispatcher
+			srvFactory.setServiceBean(obj);
 
-            srvFactory.setBus(cxfbus); // Use the OSGi Servlet as the dispatcher
-            srvFactory.setServiceBean(instance.getServiceObject());
-            srvFactory.setAddress("/" + instance.getName());
+			System.out.println("####### Server side:" + myurl);
 
-            Server res = srvFactory.create(); //Publish the webservice.
-            webservices.put(instance.getName(), res);
+			// srvFactory.setAddress(myurl);
+			srvFactory.setAddress("/" + instance.getName());
 
-        }   finally {
-            //reset the context classloader to the original one.
-            Thread.currentThread().setContextClassLoader(loader);
-        }
-    }
+			Server res = srvFactory.create(); // Publish the webservice.
+			// Endpoint.publish(myurl, obj);
 
-    private void destroyEndpoint(String name){
-        if (webservices.containsKey(name)) {
-            webservices.remove(name).stop();
-        } else {
-            //TODO log
-        }
-    }
+			webservices.put(instance.getName(), res);
 
-    public EndpointRegistration resolveAndExport(RemoteDependency dependency,RemoteMachine client){
-        Instance neo = null; //The chosen one
-        EndpointRegistration registration = null;
-        //Get local instance matching the RemoteDependency
-        Resolved resolved = apamMan.resolveDependency(client.getInst(),dependency,true);
+			return res.getEndpoint().getEndpointInfo().getAddress();
 
+		} finally {
+			// reset the context classloader to the original one.
+			Thread.currentThread().setContextClassLoader(loader);
+		}
 
-        //No local instance matching the RemoteDependency
-        if(resolved.instances.isEmpty()){
-            return null;
-        }
+	}
 
-        //Check if we already have an endpoint for the instances
-        synchronized (endpoints){
+	private void destroyEndpoint(String name) {
+		if (webservices.containsKey(name)) {
+			webservices.remove(name).stop();
+		} else {
+			// TODO log
+		}
+	}
 
-            Sets.SetView<Instance> alreadyExported = Sets.intersection(resolved.instances, endpoints.keySet());
+	public EndpointRegistration resolveAndExport(RemoteDependency dependency,
+			RemoteMachine client) {
+		Instance neo = null; // The chosen one
+		EndpointRegistration registration = null;
+		// Get local instance matching the RemoteDependency
 
-            //Nope, create a new endpoint
-            if (alreadyExported.isEmpty()){
-                neo=resolved.instances.iterator().next();
+		System.out.println(String.format(
+				"Trying to solve instance %s to server %s",
+				dependency.getIdentifier(), client.getUrl()));
 
-                //create the endpoint.
-                createEndpoint(neo);
+		Resolved resolved = apamMan.resolveDependency(client.getInst(),
+				dependency, true);
 
-                registration=new EndpointRegistrationImpl(neo,client,myurl+"/"+neo.getName(),PROTOCOL_NAME);
+		// No local instance matching the RemoteDependency
+		if (resolved.instances.isEmpty()) {
+			return null;
+		}
 
-            }  else {
-                neo=alreadyExported.iterator().next();
-                registration=new EndpointRegistrationImpl(endpoints.get(neo).iterator().next());
-            }
+		// Check if we already have an endpoint for the instances
+		synchronized (endpoints) {
 
-            //Add the EndpointRegistration to endpoints
-            endpoints.put(neo,registration);
-        }
+			Sets.SetView<Instance> alreadyExported = Sets.intersection(
+					resolved.instances, endpoints.keySet());
 
+			// Nope, create a new endpoint
+			if (alreadyExported.isEmpty()) {
+				System.out.println("#####" + this.getClass().getCanonicalName()
+						+ " creating endpoint");
 
-        return registration;
-    }
+				neo = resolved.instances.iterator().next();
 
-    /**
-     * EndpointRegistration implementation.
-     */
-    private class EndpointRegistrationImpl implements EndpointRegistration{
-        private Instance exported;
-        private RemoteMachine client;
-        private String url;
-        private String protocol;
+				// create the endpoint.
+				String endPointURL=createEndpoint(neo);
 
-        private EndpointRegistrationImpl(Instance instance, RemoteMachine client, String endpointUrl, String protocol) {
-            if(instance == null || client == null || endpointUrl == null ){
-                throw new NullPointerException("Instance, RemoteMachine, endpointUrl cannot be null");
-            }
+				registration = new EndpointRegistrationImpl(neo, client, myurl + "/" + neo.getName() //myurl + "/" + neo.getName()
+						, PROTOCOL_NAME);
 
-            this.exported   = instance;
-            this.client     = client;
-            this.url        = endpointUrl;
-            this.protocol   = protocol;
+			} else {
+				System.out.println("#####" + this.getClass().getCanonicalName()
+						+ " already endpoint already exists");
 
-            client.addEndpointRegistration(this);
-        }
+				neo = alreadyExported.iterator().next();
 
-        /**
-         * Clone
-         * @param registration The EndpointRegistration to be cloned.
-         */
-        private EndpointRegistrationImpl(EndpointRegistration registration){
-            this(registration.getInstance(),registration.getClient(),registration.getEndpointUrl(),registration.getProtocol());
-        }
+				registration = new EndpointRegistrationImpl(endpoints.get(neo)
+						.iterator().next());
+			}
 
-        @Override
-        public Instance getInstance() {
-            return exported;
-        }
+			// Add the EndpointRegistration to endpoints
+			endpoints.put(neo, registration);
+		}
 
-        @Override
-        public RemoteMachine getClient() {
-            return client;
-        }
+		return registration;
+	}
 
-        @Override
-        public String getEndpointUrl() {
-            return url;
-        }
+	/**
+	 * EndpointRegistration implementation.
+	 */
+	private class EndpointRegistrationImpl implements EndpointRegistration {
+		private Instance exported;
+		private RemoteMachine client;
+		private String url;
+		private String protocol;
 
-        @Override
-        public String getProtocol() {
-            return protocol;
-        }
+		private EndpointRegistrationImpl(Instance instance,
+				RemoteMachine client, String endpointUrl, String protocol) {
+			if (instance == null || client == null || endpointUrl == null) {
+				throw new NullPointerException(
+						"Instance, RemoteMachine, endpointUrl cannot be null");
+			}
 
+			this.exported = instance;
+			this.client = client;
+			this.url = endpointUrl;
+			this.protocol = protocol;
 
-        @Override
-        public void close() {
-            //Has already been closed
-            if(exported == null){
-                return;
-            }
+			client.addEndpointRegistration(this);
+		}
 
-            synchronized (endpoints){
+		/**
+		 * Clone
+		 * 
+		 * @param registration
+		 *            The EndpointRegistration to be cloned.
+		 */
+		private EndpointRegistrationImpl(EndpointRegistration registration) {
+			this(registration.getInstance(), registration.getClient(),
+					registration.getEndpointUrl(), registration.getProtocol());
+		}
 
-                //remove this EndpointRegistration to the RemoteMachine that ask for it.
-                client.rmEndpointRegistration(this);
+		@Override
+		public Instance getInstance() {
+			return exported;
+		}
 
-                endpoints.remove(getInstance(),getClient());
+		@Override
+		public RemoteMachine getClient() {
+			return client;
+		}
 
-                //Last registration, destroy the endpoints.
-                if (!endpoints.containsKey(getInstance()))
-                    destroyEndpoint(getInstance().getName());
+		@Override
+		public String getEndpointUrl() {
+			return url;
+		}
 
-                exported    = null;
-                client      = null;
-                url         = null;
-                protocol    = null;
+		@Override
+		public String getProtocol() {
+			return protocol;
+		}
 
-                //todo if last destroy endpoint.
-            }
-        }
+		@Override
+		public void close() {
+			// Has already been closed
+			if (exported == null) {
+				return;
+			}
 
-    }
+			synchronized (endpoints) {
+
+				// remove this EndpointRegistration to the RemoteMachine that
+				// ask for it.
+				client.rmEndpointRegistration(this);
+
+				endpoints.remove(getInstance(), getClient());
+
+				// Last registration, destroy the endpoints.
+				if (!endpoints.containsKey(getInstance()))
+					destroyEndpoint(getInstance().getName());
+
+				exported = null;
+				client = null;
+				url = null;
+				protocol = null;
+
+				// todo if last destroy endpoint.
+			}
+		}
+
+	}
 
 }

@@ -43,6 +43,9 @@ public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig 
 	private final static String RESOURCE = "/static";
 
 	@Requires
+	CXFSample service;
+	
+	@Requires(nullable = false)
 	HttpService http;
 
 	@Requires(nullable = false)
@@ -55,7 +58,14 @@ public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig 
 		try {
 			http.registerServlet(URL, this, null, null);
 			http.registerResources(RESOURCE, "/", null);
-
+			
+			try {
+				//service = new SampleService();
+				service.start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			// throw new RuntimeException(e);
@@ -66,6 +76,7 @@ public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig 
 	private void stop() {
 		http.unregister(URL);
 		http.unregister(RESOURCE);
+		service.stop();
 	}
 
 	@Override
@@ -74,6 +85,12 @@ public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig 
 		resp.setContentType("text/html");
 		if (discovery != null) {
 
+			try {
+				service.connectCall();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 			String conteTemplate = "<tr><tr><td>%s</td><td>%s</td><td>%s</td><tr>";
 
 			String conte = "";

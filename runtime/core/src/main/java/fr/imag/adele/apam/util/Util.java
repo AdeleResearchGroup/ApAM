@@ -249,6 +249,8 @@ public final class Util {
 	public static Set<Instance> getVisibleInsts (Instance client, Set<Instance> insts) {
 		if (insts == null) {return null ;}
 
+		if(client==null) return insts;
+		
 		Set<Instance> ret = new HashSet <Instance> () ;
 		Composite compo = client.getComposite() ;
 		for (Instance inst : insts) {

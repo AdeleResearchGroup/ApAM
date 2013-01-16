@@ -98,7 +98,7 @@ public class MachineDiscovery implements ServiceListener {
 
             //Create and Add the machine
             String url = sinfo.getURL();
-
+            
             machineFactory.newRemoteMachine(url);
         }
 

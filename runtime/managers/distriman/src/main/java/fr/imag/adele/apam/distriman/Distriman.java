@@ -35,10 +35,6 @@ import java.util.Set;
 @Provides
 public class Distriman implements DependencyManager{
 
-    //TODO resolved via system/framework/httpservice property
-    @Deprecated
-	private static final int HTTP_PORT = 8080;
-
     //ApamManager priority
     private static final int PRIORITY = 4;
 
@@ -127,8 +123,13 @@ public class Distriman implements DependencyManager{
         Iterator<RemoteMachine> machines = remotes.getRemoteMachines().iterator();
 
         while (machines.hasNext() && resolved == null){
-            resolved = machines.next().resolveRemote(client,dependency);
-            if(resolved!=null) break;
+        	
+        	RemoteMachine ma=machines.next();
+        	
+        	//if(ma.getUrl().indexOf("8080")!=-1)
+        	
+            resolved = ma.resolveRemote(client,dependency);
+            
         }
 
 
@@ -184,7 +185,7 @@ public class Distriman implements DependencyManager{
         logInfo("Starting...");
         
         //init the local machine
-        my_local.init("localhost",Integer.parseInt(context.getProperty("org.osgi.service.http.port")),this);
+        my_local.init("127.0.0.1",Integer.parseInt(context.getProperty("org.osgi.service.http.port")),this);
 
         //start the discovery
         discovery.start(HOST);
@@ -194,6 +195,9 @@ public class Distriman implements DependencyManager{
 
         //Register this local machine servlet
         try {
+        	
+        	System.out.println("##### Registering:"+LocalMachine.INSTANCE.getPath());
+        	
             http.registerServlet(LocalMachine.INSTANCE.getPath(),my_local.getServlet(),null,null);
         } catch (Exception e) {
             discovery.stop();
@@ -208,7 +212,6 @@ public class Distriman implements DependencyManager{
             http.unregister(my_local.getPath());
             throw new RuntimeException(e);
         }
-
 
         //Add this manager to Apam
         ApamManagers.addDependencyManager(this,PRIORITY);
