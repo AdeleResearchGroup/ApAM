@@ -13,7 +13,6 @@ aside,
 details,
 figcaption,
 figure,
-footer,
 header,
 hgroup,
 nav,
@@ -547,6 +546,8 @@ a:hover {
 }
 p {
   margin: 10px 0 0px;
+  font-size: 16px;
+  line-height: 1.5;
 }
 .lead {
   margin-bottom: 20px;
@@ -1661,13 +1662,14 @@ legend + .control-group {
   padding-left: 180px;
 }
 table {
-  max-width: 100%;
+  max-width: 90%;
   background-color: transparent;
   border-collapse: collapse;
   border-spacing: 0;
+  font-size: 16px;
 }
 .table {
-  width: 100%;
+  width: 90%;
   margin-bottom: 20px;
 }
 .table th,
@@ -2624,7 +2626,7 @@ button.close {
   text-align: center;
   vertical-align: middle;
   cursor: pointer;
-  color: #999999;
+  color: #5A5A5A;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
   background-color: #dfdfdf;
   background-image: -moz-linear-gradient(top, #eeeeee, #c8c8c8);
@@ -2656,7 +2658,7 @@ button.close {
 .btn.active,
 .btn.disabled,
 .btn[disabled] {
-  color: #999999;
+  color: #5A5A5A;
   background-color: #c8c8c8;
   *background-color: #bbbbbb;
 }
@@ -2668,7 +2670,7 @@ button.close {
   *margin-left: 0;
 }
 .btn:hover {
-  color: #999999;
+  color: #5A5A5A;
   text-decoration: none;
   background-position: 0 -15px;
   -webkit-transition: background-position 0.1s linear;
@@ -4974,7 +4976,9 @@ a.badge:hover {
   padding: 9px 15px;
   border-top: 1px solid #e5e5e5;
 }
+
 .carousel {
+  margin-top: 20px;
   position: relative;
   margin-bottom: 20px;
   line-height: 1;
@@ -4983,6 +4987,7 @@ a.badge:hover {
   overflow: hidden;
   width: 100%;
   position: relative;
+  text-align: center;
 }
 .carousel-inner > .item {
   display: none;
@@ -5033,13 +5038,13 @@ a.badge:hover {
   width: 40px;
   height: 40px;
   margin-top: -20px;
-  font-size: 60px;
-  font-weight: 100;
+  font-size: 50px;
+  font-weight: 90;
   line-height: 30px;
-  color: #000000;
+  color: #000;
   text-align: center;
-  background: #080808;
-  border: 3px solid #000000;
+  background: #eeeeee;
+  border: 3px solid #000;
   -webkit-border-radius: 23px;
   -moz-border-radius: 23px;
   border-radius: 23px;
@@ -5051,7 +5056,6 @@ a.badge:hover {
   right: 15px;
 }
 .carousel-control:hover {
-  color: #000000;
   text-decoration: none;
   opacity: 0.9;
   filter: alpha(opacity=90);
@@ -5062,12 +5066,11 @@ a.badge:hover {
   right: 0;
   bottom: 0;
   padding: 15px;
-  background: #999999;
-  background: rgba(0, 0, 0, 0.75);
+  background: #eeeeee;
 }
 .carousel-caption h4,
 .carousel-caption p {
-  color: #ffffff;
+  color: #000000;
   line-height: 20px;
 }
 .carousel-caption h4 {
@@ -5076,21 +5079,28 @@ a.badge:hover {
 .carousel-caption p {
   margin-bottom: 0;
 }
+
 .hero-unit {
-  padding: 60px;
-  margin-bottom: 30px;
-  font-size: 18px;
-  font-weight: 200;
+  padding: 180px;
+  font-size: 16px;
   line-height: 30px;
   color: inherit;
-  background-color: #eeeeee;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
+  position: relative;
+  
+  background: #f7f7f7; /* Old browsers */
+  background: -moz-linear-gradient(45deg,  #f7f7f7 0%, #fff 100%); /* FF3.6+ */
+	
+  background: -webkit-gradient(linear, left bottom, right top, color-stop(0%,#f7f7f7), color-stop(100%,#fff)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(45deg,  #f7f7f7 0%,#fff 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(45deg,  #f7f7f7 0%,#fff 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(45deg,  #f7f7f7 0%,#fff 100%); /* IE10+ */
+  background: linear-gradient(45deg,  #f7f7f7 0%,#fff 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f7f7f7', endColorstr='#fff',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 }
+
 .hero-unit h1 {
   margin-bottom: 0;
-  font-size: 60px;
+  font-size: 30px;
   line-height: 1;
   color: inherit;
   letter-spacing: -1px;
@@ -5098,6 +5108,7 @@ a.badge:hover {
 .hero-unit li {
   line-height: 30px;
 }
+
 .pull-right {
   float: right;
 }
@@ -5116,6 +5127,7 @@ a.badge:hover {
 .affix {
   position: fixed;
 }
+
 body {
   font-weight: 300;
 }

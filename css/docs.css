@@ -12,7 +12,21 @@
 
 body {
   position: relative;
-  padding-top: 40px;
+}
+
+.contents {
+  padding-top: 60px;
+}
+
+.contents p {
+  text-align: justify;
+}
+
+.contents strong {
+  font-size: 18px;
+}
+
+.contents li {
 }
 
 /* Code in headings */
@@ -62,8 +76,8 @@ hr.soften {
 ------------------------- */
 .jumbotron {
   position: relative;
-  padding: 40px 0;
-  text-align: center;
+  padding-top: 100px;
+  padding-bottom: 50px;
   background: #f7f7f7; /* Old browsers */
   background: -moz-linear-gradient(45deg,  #f7f7f7 0%, #fff 100%); /* FF3.6+ */
 	
@@ -80,8 +94,9 @@ hr.soften {
   line-height: 1;
 }
 .jumbotron p {
-	color: #000;
-	font-size: 24px;
+  color: #5A5A5A;
+  font-size: 18px;
+  line-height: 1.5;
 }
 
 /* Link styles (used on .masthead-links as well) */
@@ -183,11 +198,11 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 
 /* Social proof buttons from GitHub & Twitter */
 .bs-docs-social {
-  padding: 15px 0;
+  padding: 15px 0px;
   text-align: center;
   background-color: #f5f5f5;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
+  border-top: 0px solid #ddd;
+  border-bottom: 0px solid #ddd;
 }
 
 /* Quick links on Home */
@@ -227,7 +242,6 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 -------------------------------------------------- */
 
 .marketing {
-  text-align: center;
   color: #5a5a5a;
 }
 .marketing h1 {
@@ -244,6 +258,7 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 .marketing p {
   font-size: 16px;
   line-height: 1.5;
+  text-align: justify;
 }
 .marketing .marketing-byline {
   margin-bottom: 40px;
@@ -262,27 +277,33 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 
 /* Footer
 -------------------------------------------------- */
+/* Sticky footer style */
+html,body {
+height: 100%;
+margin: 0;
+display: compact;
+}
 
-.footer {
-  text-align: center;
-  padding: 30px 0;
-  margin-top: 70px;
-  border-top: 1px solid #e5e5e5;
-  background-color: #f5f5f5;
+/* Wrapper for page content to push down footer */
+#wrap {
+min-height: 100%;
+height: auto !important;
+height: 100%;
+margin: 0 auto -100px;
 }
-.footer p {
-  margin-bottom: 0;
-  color: #777;
+#push {
+height: 100px;
 }
-.footer-links {
-  margin: 10px 0;
+#footer {
+height: 100px;
+text-align: center;
+background-color: #fff;
+color: #777777;
+font-size: 14px;
 }
-.footer-links li {
-  display: inline;
-  padding: 0 2px;
-}
-.footer-links li:first-child {
-  padding-left: 0;
+#footer p {
+color: #777777;
+font-size: 14px;
 }
 
 
@@ -741,10 +762,10 @@ form.bs-docs-example {
 -------------------------------------------------- */
 
 .bs-docs-sidenav {
-  width: 228px;
+  width: 190px;
   margin: 30px 0 0;
   padding: 0;
-  background-color: #fff;
+  background-color: #FAFAFA;
   -webkit-border-radius: 6px;
      -moz-border-radius: 6px;
           border-radius: 6px;
@@ -758,7 +779,7 @@ form.bs-docs-example {
   margin: 0 0 -1px;
   padding: 8px 14px;
   border: 1px solid #e5e5e5;	
-	
+  font-size: 14px;
 }
 
 .bs-docs-sidenav > li:first-child > a {
@@ -798,7 +819,7 @@ form.bs-docs-example {
   opacity: .25;
 }
 .bs-docs-sidenav > li > a:hover {
-  background-color: #f5f5f5;
+  background-color: #CECECE;
 	color: #000000;
 }
 .bs-docs-sidenav a:hover .icon-chevron-right {
@@ -810,7 +831,7 @@ form.bs-docs-example {
   opacity: 1;
 }
 .bs-docs-sidenav.affix {
-  top: 40px;
+  top: auto;
 }
 .bs-docs-sidenav.affix-bottom {
   position: absolute;
@@ -831,10 +852,10 @@ form.bs-docs-example {
     max-width: 970px;
   }
   .bs-docs-sidenav {
-    width: 258px;
+    width: 190px;
   }
   .bs-docs-sidenav > li > a {
-    width: 230px \9; /* Override the previous IE8-9 hack */
+    width: 190px \9; /* Override the previous IE8-9 hack */
   }
 }
 
@@ -858,8 +879,8 @@ form.bs-docs-example {
   /* When affixed, space properly */
   .bs-docs-sidenav {
     top: 0;
-    width: 218px;
-    margin-top: 30px;
+    width: 190px;
+    margin-top: 20px;
     margin-right: 0;
   }
 }
@@ -873,15 +894,22 @@ form.bs-docs-example {
   }
   /* Widen masthead and social buttons to fill body padding */
   .jumbotron {
-    margin-top: -20px; /* Offset bottom margin on .navbar */
+    padding: 40px 20px;
+    margin-top:   -20px; /* Offset bottom margin on .navbar */
+    margin-right: -20px;
+    margin-left:  -20px;
   }
   /* Adjust sidenav width */
   .bs-docs-sidenav {
-    width: 166px;
-    margin-top: 20px;
+    width: 150px;
+    margin-top: 30px;
   }
   .bs-docs-sidenav.affix {
-    top: 0;
+    top: inherit;
+	position: fixed;
+  }
+  .contents {
+	padding-top: 0px;
   }
 }
 
@@ -922,7 +950,7 @@ form.bs-docs-example {
   /* Sidenav */
   .bs-docs-sidenav {
     width: auto;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
   .bs-docs-sidenav.affix {
     position: static;
@@ -940,6 +968,9 @@ form.bs-docs-example {
   .footer p {
     margin-bottom: 9px;
   }
+  .contents {
+	padding-top: 0px;
+  }
 }
 
 /* Landscape phones
@@ -954,7 +985,7 @@ form.bs-docs-example {
   h2 small {
     display: block;
   }
-
+  
   /* Downsize the jumbotrons */
   .jumbotron h1 {
     font-size: 45px;
@@ -1036,5 +1067,8 @@ form.bs-docs-example {
   .footer {
     padding-top: 20px;
     padding-bottom: 20px;
+  }
+  .contents {
+	padding-top: 0px;
   }
 }

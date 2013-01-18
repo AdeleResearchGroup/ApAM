@@ -1,237 +1,168 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Overview | The APAM Project</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="APAM website">
-    <meta name="author" content="Adele Research Group">
-
-    <!-- Le styles -->
-    <link href="css/cosmo4apam.css" rel="stylesheet">
-    <link href="css/bootstrap-responsive.css" rel="stylesheet">
-    <link href="css/docs.css" rel="stylesheet">
+<div class="row contents" data-spy="scroll" data-target=".bs-docs-sidebar">
+	<div class="span3 bs-docs-sidebar">
+		<ul class="nav nav-list bs-docs-sidenav affix">
+			<li><a href="#APAM-machine">APAM Machine</a></li>
+			<li><a href="#APAM-system">APAM System</a></li>
+		</ul>
+	</div>
+	
+	<div class="span9">
+		<div class="page-header">
+			<h1>Overview</h1>
+		</div>
 		
-    <!-- Le fav and touch icons -->
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href=" ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href=" ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href=" ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href=" ico/apple-touch-icon-57-precomposed.png">
-    <link rel="shortcut icon" href="img/apamicon.png"> 
-  </head>
-
-  <body data-spy="scroll" data-target=".bs-docs-sidebar">
-		
-		<!-- Navbar -->
-		<div class="navbar navbar-fixed-top">
-			<div class="navbar-inner">
-					<div class="container">
-							<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-									<span class="icon-bar"></span>
-									<span class="icon-bar"></span>
-									<span class="icon-bar"></span>
-							</a>
-							<a class="brand" href="index.html"><img src="img/apambrand.png"></a>							
-							<div class="nav-collapse collapse">
-								<ul class="nav">
-									<li class="active"><a href="overview.html">Overview</a></li>
-									<li><a href="documentation.html">Documentation </a></li>
-									<li class="dropdown">
-										<a class="dropdown-toggle" data-toggle="dropdown">Download <b class="caret"></b></a>
-										<ul class="dropdown-menu">
-											<li><a href="https://github.com/downloads/AdeleResearchGroup/ApAM/Apam-Runtime.zip">Ready to use</a></li>
-											<li><a href="https://github.com/AdeleResearchGroup/ApAM">Source code</a></li>
-										</ul>
-									</li>
-									<li><a href="publications.html">Publications</a></li>
-									<li><a href="projects.html">Projects</a></li>
-									<li><a href="contact.html">Contact</a></li>
-									<li class="dropdown">
-										<a class="dropdown-toggle" data-toggle="dropdown">Login <b class="caret"></b></a>
-										<div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;">
-											<form method="post" action="" class="bbp-login-form">
-												<input id="username" style="margin-bottom:15px;" type="text" name="username" placeholder="username" value="" size="30" />
-												<input id="password" style="margin-bottom:15px;" type="password" name="password" placeholder="password" value="" size="30" tabindex="102" />
-												<input class="btn btn-primary" style="width:50%; height:32px; font-size:13px;" type="submit" name="" value="Sign in" />																						
-											</form>
-										</div>
-									</li>
-                </ul>
-							</div><!--/.nav-collapse -->
-					</div>
-			</div>
-		</div><!-- /.navbar -->
-		
-		<!-- Contents -->
-		<div class="container">
-			<div class="row">
-				<div class="span3 bs-docs-sidebar">
-					<ul class="nav nav-list bs-docs-sidenav affix-top">
-						<li class="active"><a href="#APAM-machine">APAM Machine</a></li>
-						<li><a href="#APAM-system">APAM System</a></li>
-					</ul>
-				</div>
-				<div class="span9">
-					<br>
-					<div class="page-header">
-						<h1>OVERVIEW</h1>
-					</div>
+		<div>
+			<p> A <strong>service</strong> is dynamic if it can appear and disappear, without notice, during run-time.
+			A <strong>dynamic application</strong> is made, at least partially, of dynamic services.</p> 
 					
-					<div>
-						<p> A <strong>service</strong> is dynamic if it can appear and disappear, without notice, during run-time.
-						A <strong>dynamic application</strong> is made, at least partially, of dynamic services.</p> 
-						
-						<p> <strong>APAM (APplication Abstract Machine)</strong> is an extensible service platform dedicated to support the execution of concurrent dynamic applications.
-						It aims to simplify the design, development and execution of applications that must provide a "constant" service in a moving and unpredictable context, and in the presence of other, potentially competing, applications. </p>
-						
-						<p>The <strong>APAM system</strong> is made of the <strong>APAM machine</strong> (also called APAM core) and a number of <strong>managers</strong> (APAM plugins) that are designed to support collectively the execution of concurrent dynamic applications.
-
-						<!-- APAM Machine -->
-						<section id="APAM-machine">
-							<div class="page-header">
-								<h2>1. APAM Machine</h2>
-							</div>
-							<p> The APAM machine is based on a component-service metamodel, called henceforth <strong>APAM metamodel</strong>, that allows defining, executing and managing component-based and service-based applications. </p>
-							
-							<br>
-							<h3> APAM Metamodel </h3>
-							<p> The central notion of the APAM metamodel is the concept of <strong>component</strong>. Components can be of three types: <strong>specification</strong>, <strong>implementation</strong> and <strong>instance</strong>, which share most of their characteristics.</p>
-
-							<br>
-							<center>
-							<img src="img/ApamMM.png" alt="APAM Metamodel" width="80%" height="80%"><br><br>
-							</center>
-							
-							<br>
-							<h3> Specification </h3>
-							<p>A <strong>specification</strong> is a first class object that defines a set of provided and required resources (in the Java sense). Complete compositions can be designed and developed only in terms of specifications.
-							</p>
-
-							<br>
-							<h3> Implementation </h3>
-							<p>An <strong>implementation</strong> is related by an ''implements'' relationship with one and only one specification. An implementation is an executable entity (in Java) that implements all the resources defined by its associated specification, and that requires at least the resources required by its associated specification. In practice, an implementation must define a class that implements (in the Java sense) the interfaces of its specification.
-							</p>
-
-							<br>
-							<h3> Instance </h3>
-							<p>An <strong>instance</strong> is related by an ''instanceOf'' relationship with one and only one implementation. An instance is a run-time entity, represented in the run-time platform (OSGi) as a set of Java objects, one of which is an instance (in the Java sense) of its associated main class implementation. In the underlying service platform, an instance can be seen as a set of services, one for each of the associated specification ressources; in APAM it is an object.
-							</p>
-
-							<br>
-							<h3> Composite Implementation </h3>
-							<p>A <strong>composite implementation</strong>, also called <strong>composite type</strong>, is a special case of implementation; as such it implements a specification. Contrary to an atomic implementation, a composite type does not define a main class, but a main implementation that implements the same specification. A composite type contains implementations and defines the rules governing their composition and visibility. 
-							</p>
-
-							<br>
-							<h3> Composite Instance </h3>
-							<p>A <strong>composite instance</strong>, also called <strong>composite</strong>, is a special case of instance; indeed it is an instance of a composite type. A composite contains instances (atomic or composite), at least one instance of the main implementation of its composite type.
-							</p>
-
-							<br>
-							<h3> Component Groups </h3>
-							<p>Components are related by a group-members relationship. A specification is a <strong>group</strong> whose <strong>members</strong> are implementations, and an implementation is a <strong>group</strong> whose <strong>members</strong> are instances.
-							A group-members relationship establishes a de facto inheritance between the group and its members. More precisely, all the characteristics of a group (its properties, its provided and required resources) are automatically inherited by all its members, like in a class-instance relationship.
-							</p>
-
-							<br>
-							<h3> Component Life Cycle </h3>
-							<p>During execution, in APAM, a component has a single state: it is either <strong>existing</strong> (and therefore available and active), or <strong>non-existing</strong>.
-							</p>
-							
-							<br>
-							<h3> APAM Description Model </h3>
-							<p>At design and development time, a <strong>component description</strong> contains the (meta-)information needed for the compiler to produce the "right" executable component (bundle), and for the execution platform to enforce its "right" behavior. 
-							</p>
-
-							<br>
-							<h3> APAM State Model </h3>
-							<p>The APAM machine represents the current state of the supported applications (called <strong>ASM</strong> for <strong>APAM State Model</strong>) as a model conforming to the APAM metamodel. The APAM machine provides an API for the navigation and management of the ASM, mechanisms for enforcing the declared component behavior of an application, and mechanisms for extending the core functionality through the addition of specialized managers.    
-							</p>
-							<p>
-							In the ASM, the instances of the component concepts are represented as first class objects with a set of attributes (properties) and relationships. 
-							The APAM machine is causally connected to the underlying platforms, thus, actions performed on an APAM object are transformed into actions performed on the corresponding platform entities, and vice-versa. 
-							</p>
-							<p>
-							The APAM machine automates the creation of "wires" between the components participating in an application. This automatic wire management (creation, destruction, substitution) is performed in a moving context in conformance with the application definition and requirements; leading to the automatic building of dynamic and adaptable architectures. 
-							</p>
-
-							</p>
-						</section>
-						
-						<!-- APAM System -->
-						<section id="APAM-system">
-							<div class="page-header">
-								<h2>2. APAM System</h2>
-							</div>
-							<p>
-							The behavior of the APAM system is the result of the collaboration between the APAM machine and a number of managers. 
-							Roughly, the duty of the APAM machine is to hold the Application State Machine (ASM), to ensure the causality between the ASM and the underlying platform, and to enforce the properties associated with the ASM objects. 
-							But the APAM machine by itself never changes the ASM, it delegates all change decisions to the available managers. 
-							</p>
-
-							<br>
-							<h3> APAM Managers </h3>
-							<p>Three classes of managers are defined: </p>
-
-							<ul>
-								<li><strong>dependency managers</strong> called when a dependency needs to be resolved,</li>
-								<li><strong>property managers</strong> called when a property of a component is modified, and</li>
-								<li><strong>dynamic managers</strong> called when a service appears or disappears.</li>
-							</ul>
-
-							<br>
-							<p>APAM extensibility is based on managers provided by third parties. 
-							Two managers are closely related to the core and are then provided in the distribution: <strong>ApamMan</strong> and <strong>DynaMan</strong>. </p>
-							
-							<p><strong>ApamMan</strong> is the default dependency manager. ApamMan tries to resolve a dependency looking into the components currently running in the platform, taking into account the visibility expressed in the client composites. If an implementation is found but no instance is available, ApamMan creates an instance of the selected implementation.
-							</p>
-							
-							<p>
-							<strong>Dynaman</strong> is the default dynamic manager. Dynaman interprets the strategies defined in the composites and dependencies when a resolution fails, and when a component appears or disappears.
-							</p>
-							
-							<p>With these two managers, all the information, properties and characteristics defined in the component definition are fully enforced. Another implementation of these two managers can significantly change the core semantics and is therefore discouraged.
-							</p>
-							
-							<br>
-							<h3> Extended APAM </h3>
-							<p>The standard distribution comes with the following basic managers:</p>
-							<ul>
-								<li>
-									<strong>OBRMan</strong> is a dependency manager that extends APAM with dynamic deployment. During a resolution, OBRMan is called if ApamMan did not found a convenient service (the right service is not currently running in the platform, or is not visible). OBRMan looks in a number of bundle repositories to find out a service that satisfies the dependency requirements; if found the corresponding bundle is deployed.  See Compilation and OBR repositories bellow for more details on how OBRMan works.
-								</li>
-								<li>
-									<strong>DistriMan</strong> is a dependency manager that extends APAM with distribution. During a resolution, if ApamMan did not found a convenient service (the right service is not currently running in the platform, or is not visible), Distriman can be called (after or before or instead OBRMan). Distriman looks on the network to find out a visible APAM machine on which a convenient service is currently running. If found, a proxy is created from the current machine toward the distant service and the resolution returns the proxy address.
-								</li>
-							</ul>
-							
-							<br>
-							<h3> Specialized and domain specific managers </h3>
-							<p><strong>ConflictMan</strong> is a dynamic manager specialized in the resolution of access conflict between two or more applications that require an access to the same exclusive services. This manager is intended to solve the conflicts toward shared exclusive devices.
-							</p>
-							<p>Third parties are encouraged to develop specialized managers as a solution to their needs.
-							</p>
-						</section>
-
-					</div>
-				</div>
-			</div>
+			<p> <strong>APAM (APplication Abstract Machine)</strong> is an extensible service platform dedicated to support the execution of concurrent dynamic applications.
+			It aims to simplify the design, development and execution of applications that must provide a "constant" service in a moving and unpredictable context, and in the presence of other, potentially competing, applications. </p>
+					
+			<p>The <strong>APAM System</strong> is made of the <strong>APAM Machine</strong> (also called APAM core) and a number of <strong>managers</strong> 
+			(APAM plugins) that are designed to support collectively the execution of concurrent dynamic applications.</p>
+			
+			<!-- APAM Machine -->
+			<section id="APAM-machine">
+				<div class="page-header">
+					<h2 style="color:#cc0000;">APAM Machine</h2>
+				</div>	
 				
-		</div> <!-- /container -->
+				<p> The APAM Machine is based on a component-service metamodel, called the <strong>APAM metamodel</strong>, 
+				that allows defining, executing and managing component-based and service-based applications. </p>
+			
+				<!-- APAM Metamodel -->
+				<hr><h2>Metamodel</h2>
+				<p> The central notion of the APAM metamodel is the concept of <strong>component</strong>. Components can be of three types: 
+				<strong>specification</strong>, <strong>implementation</strong> and <strong>instance</strong>, which share most of their characteristics.</p>
+				<br>
+				
+				<!-- APAM Metamodel image -->
+				<img alt="APAM Metamodel" src="img/apamMM.png">
+				
+				<!-- Specification -->
+				<hr><h3>Specification </h3>
+				<p>A <strong>specification</strong> is a first class object that defines a set of provided and required resources (in the Java sense). Complete compositions can be designed and developed only in terms of specifications.
+				</p>
+	
+				<!-- Implementation -->
+				<hr><h3>Implementation </h3>
+				<p>An <strong>implementation</strong> is related by an ''implements'' relationship with one and only one specification. An implementation is an executable entity (in Java) that implements all the resources defined by its associated specification, and that requires at least the resources required by its associated specification. In practice, an implementation must define a class that implements (in the Java sense) the interfaces of its specification.
+				</p>
+				
+				<!-- Instance -->
+				<hr><h3>Instance </h3>
+				<p>An <strong>instance</strong> is related by an ''instanceOf'' relationship with one and only one implementation. An instance is a run-time entity, represented in the run-time platform (OSGi) as a set of Java objects, one of which is an instance (in the Java sense) of its associated main class implementation. In the underlying service platform, an instance can be seen as a set of services, one for each of the associated specification ressources; in APAM it is an object.
+				</p>
+				
+				<!-- Composite Implementation -->
+				<hr><h3>Composite Implementation </h3>
+				<p>A <strong>composite implementation</strong>, also called <strong>composite type</strong>, is a special case of implementation; 
+				as such it implements a specification. Contrary to an atomic implementation, a composite type does not define a main class, 
+				but a main implementation that implements the same specification. A composite type contains implementations and defines the rules governing their composition and visibility. 
+				</p>
+		
+				<!-- Composite Instance -->
+				<hr><h3>Composite Instance </h3>
+				<p>A <strong>composite instance</strong>, also called <strong>composite</strong>, is a special case of instance; indeed it is an instance of a composite type. 
+				A composite contains instances (atomic or composite), at least one instance of the main implementation of its composite type.
+				</p>
+	
+				<!-- Component Groups  -->
+				<hr><h3>Component Groups </h3>
+				<p>Components are related by a group-members relationship. A specification is a <strong>group</strong> whose <strong>members</strong> are implementations, and an implementation is a <strong>group</strong> whose <strong>members</strong> are instances.
+				A group-members relationship establishes a de facto inheritance between the group and its members. More precisely, all the characteristics of a group (its properties, its provided and required resources) are automatically inherited by all its members, like in a class-instance relationship.
+				</p>
+			
+				<!-- Component Life Cycle -->
+				<hr><h3>Component Life Cycle </h3>
+				<p>During execution, in APAM, a component has a single state: it is either <strong>existing</strong> (and therefore available and active), or <strong>non-existing</strong>.
+				</p>
+		
+				<!-- APAM Description Model -->
+				<hr><h3>Description Model </h3>
+				<p>At design and development time, a <strong>component description</strong> contains the (meta-)information needed for the compiler to produce the "right" executable component (bundle), and for the execution platform to enforce its "right" behavior. 
+				</p>
+		
+				<!-- APAM State Model -->
+				<hr><h3>State Model </h3>
+				<p>The APAM machine represents the current state of the supported applications (called <strong>ASM</strong> for <strong>APAM State Model</strong>) as a model conforming to the APAM metamodel. The APAM machine provides an API for the navigation and management of the ASM, mechanisms for enforcing the declared component behavior of an application, and mechanisms for extending the core functionality through the addition of specialized managers.    
+				</p>
+				<p>
+				In the ASM, the instances of the component concepts are represented as first class objects with a set of attributes (properties) and relationships. 
+				The APAM machine is causally connected to the underlying platforms, thus, actions performed on an APAM object are transformed into actions performed on the corresponding platform entities, and vice-versa. 
+				</p>
+				<p>
+				The APAM machine automates the creation of "wires" between the components participating in an application. This automatic wire management (creation, destruction, substitution) is performed in a moving context in conformance with the application definition and requirements; leading to the automatic building of dynamic and adaptable architectures. 
+				</p>			
+			</section>
+			
+			<!-- APAM System -->
+			<section id="APAM-system">
+				<div class="page-header">
+					<h2 style="color:#cc0000;">APAM System</h2>
+				</div>
+				
+				<p> The behavior of the APAM system is the result of the collaboration between the APAM machine and a number of managers. 
+				Roughly, the duty of the APAM machine is to hold the Application State Machine (ASM), to ensure the causality between the ASM and the underlying platform, and to enforce the properties associated with the ASM objects. 
+				But the APAM machine by itself never changes the ASM, it delegates all change decisions to the available managers. </p>
+				
+				
+				<!-- APAM Managers -->
+				<hr><h3>Managers </h3>
+				<p>Three classes of managers are defined: </p>
+				<ul>
+					<li style="font-size: 16px; text-align: justify; line-height: 1.5;"><strong>dependency managers</strong> called when a dependency needs to be resolved,</li>
+					<li style="font-size: 16px; text-align: justify; line-height: 1.5;"><strong>property managers</strong> called when a property of a component is modified, and</li>
+					<li style="font-size: 16px; text-align: justify; line-height: 1.5;"><strong>dynamic managers</strong> called when a service appears or disappears.</li>
+				</ul>
+				<br>
+				<p>APAM extensibility is based on managers provided by third parties. 
+				Two managers are closely related to the core and are then provided in the distribution: <strong>ApamMan</strong> and <strong>DynaMan</strong>. </p>
+				
+				<p><strong>ApamMan</strong> is the default dependency manager. ApamMan tries to resolve a dependency looking into the components currently running in the platform, taking into account the visibility expressed in the client composites. If an implementation is found but no instance is available, ApamMan creates an instance of the selected implementation.
+				</p>
+				
+				<p>
+				<strong>Dynaman</strong> is the default dynamic manager. Dynaman interprets the strategies defined in the composites and dependencies when a resolution fails, and when a component appears or disappears.
+				</p>
+				
+				<p>With these two managers, all the information, properties and characteristics defined in the component definition are fully enforced. Another implementation of these two managers can significantly change the core semantics and is therefore discouraged.
+				</p>
+		
+				<!-- Standard Managers -->
+				<hr><h3>Standard Managers </h3>
+				<p>The standard distribution comes with the following basic managers:</p>
+				<ul>
+					<li style="font-size: 16px; text-align: justify; line-height: 1.5;">
+						<strong>OBRMan</strong> is a dependency manager that extends APAM with dynamic deployment. During a resolution, OBRMan is called if ApamMan did not found a convenient service (the right service is not currently running in the platform, or is not visible). OBRMan looks in a number of bundle repositories to find out a service that satisfies the dependency requirements; if found the corresponding bundle is deployed.  See Compilation and OBR repositories bellow for more details on how OBRMan works.
+					</li>
+					<li style="font-size: 16px; text-align: justify; line-height: 1.5;">
+						<strong>DistriMan</strong> is a dependency manager that extends APAM with distribution. During a resolution, if ApamMan did not found a convenient service (the right service is not currently running in the platform, or is not visible), Distriman can be called (after or before or instead OBRMan). Distriman looks on the network to find out a visible APAM machine on which a convenient service is currently running. If found, a proxy is created from the current machine toward the distant service and the resolution returns the proxy address.
+					</li>
+				</ul>
+	
+				<!-- Specialized and domain specific managers -->
+				<hr><h3>Specialized Managers </h3>
+				<p><strong>ConflictMan</strong> is a dynamic manager specialized in the resolution of access conflict between two or more applications that require an access to the same exclusive services. This manager is intended to solve the conflicts toward shared exclusive devices.
+				</p>
+				<p>Third parties are encouraged to develop specialized managers as a solution to their needs.
+				</p>
+				
+			</section>
+		
+		</div>
+	</div>
+</div>
 
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="container">
-        <p>&copy; Adele Research Group 2012.<br>
-				APAM is built and tested on <a href="http://www.cloudbees.com/">CloudBees</a></a> and managed through 
-				<a href="https://github.com/">GitHub</a>
-      </div>
-    </footer>
+<!-- Hidding the drop-down menus after click anywhere -->
+<script>
+	$('[data-toggle="dropdown"]').parent().removeClass('open');
+</script>
 
-    <!-- Le javascript -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-    <script src="js/bootstrap.js"></script>
-		<script src="js/application.js"></script>
-  </body>
-</html>
+<!-- TODO: activating navbar items regarding scroll does not work -->
+<script>
+	$('[data-spy="scroll"]').each(function () {
+		var $spy = $(this).scrollspy('refresh')
+    });
+</script>

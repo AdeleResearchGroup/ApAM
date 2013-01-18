@@ -1,14 +1,23 @@
 <!-- Home contents -->
-<div class="jumbotron masthead">
+<div class="jumbotron">
 	<div class="container">
-		<img src="img/apam-logo.png" alt="APAM Logo">
-		<br><br><br>
-		<p>Welcome to the APAM website.</p>
-		<br>
-		
+		<div class="row" >
+			<div class="span5">
+			<!-- Logo APAM -->
+				<img src="img/apam-logo.png" alt="APAM Logo">
+            </div>
+			<div class="span1"></div>
+			<!-- APAM short-presentation -->
+			<div class="span6">
+				<p align="justify"><strong style="font-size: 28px; color: #080808;">APAM</strong> is an extensible framework for designing, developing and executing dynamic and resilient service-based applications.</p>
+				<br><p align="justify">Built on top of OSGi, APAM simplifies the design, development and management of applications: 
+				dynamism, composition, resilience are automatically managed.</p>
+			</div>
+		</div>
 	</div>
 </div>
 
+<!-- Social buttons -->
 <div class="bs-docs-social">
 	<div class="container">
 		<ul class="bs-docs-social-buttons"> 
@@ -22,44 +31,89 @@
 	</div>
 </div>
 	
+<!-- Some APAM main features -->
 <br><br>
 <div class="container">
 	<div class="marketing">
 		<div class="row">
+			<!-- Design -->
 			<div class="span4">
-				<a href="#overview"><img class="marketing-img" src="icons/64x64/zoom_in.png"></a>
-				<h2>Overview</h2>
-				<p>Learn about the APAM motivations and principles.</p>
+				<h2><img src="icons/32x32/edit.png"> Design</h2>
+				<p>APAM components are designed following the APAM component model, 
+				which defines component types (specification, implementation and instance) at different abstraction levels
+				(conception, development, execution).</p>
 			</div>
+			<!-- Development -->
 			<div class="span4">
-				<a href="#documentation"><img class="marketing-img" src="icons/64x64/book.png"></a>
-				<h2>Documentation</h2>
-				<p>Learn how APAM works via our tutorials and examples.</p>
+				<h2><img src="icons/32x32/magic_wand.png"> Development</h2>
+				<p>APAM components are developed as <a href="http://en.wikipedia.org/wiki/Plain_Old_Java_Object">POJOs</a> (Plain Old Java Objects),
+				which implement only the component business logic.
+				Various aspects, like dynamism, resilience or distribution, are automatically managed by the APAM runtime.</p>
 			</div>
+			<!-- Composition -->
 			<div class="span4">
-				<img class="marketing-img" src="icons/64x64/down_arrow.png">
-				<h2>Download</h2>
-				<p>Get the APAM distribution and available tools. </p>
+				<h2><img src="icons/32x32/network.png"> Composition</h2>
+				<p>APAM allows defining composite components.
+				Components can be then herarchically structured like black-boxes, white-boxes or gray-boxes. 
+				Composites allow defining and managing applications in a finer way.</p>
 			</div>
 		</div>
-		<br>
+		<br><br>
 		<div class="row">
+			<!-- Execution -->
 			<div class="span4">
-				<a href="#publications"><img class="marketing-img" src="icons/64x64/pages.png"></a>
-				<h2>Publications</h2>
-				<p>Find out the APAM scientific articles.</p>
+				<h2><img src="icons/32x32/play.png"> Execution</h2>
+				<p>The APAM runtime supports the concurrent execution of multiple applications.
+				It provides dynamic discovering, injection, deployment of required services and devices, 
+				managing then the life cycle of components and applications.</p>
 			</div>
+			<!-- Dynamism -->
 			<div class="span4">
-				<a href="#projects"><img class="marketing-img" src="icons/64x64/folder.png"></a>
-				<h2>Projects</h2>
-				<p>Find out the APAM projects and specifications.</p>
+				<h2><img src="icons/32x32/refresh.png"> Dynamism</h2>
+				<p>APAM provides the dynamic aspect to components and applications: 
+				applications are built dynamically via the on-demand resolution of service dependencies.</p>
 			</div>
+			<!-- Resilience -->
 			<div class="span4">
-				<a href="#contact"><img class="marketing-img" src="icons/64x64/users.png"></a>
-				<h2>Contact</h2>
-				<p>Learn how to get in touch with us.</p>
+				<h2><img src="icons/32x32/checkmark.png"> Resilience</h2>
+				<p>APAM provides the resilience aspect to applications: 
+				applications adapt dynamically to the evolution of their execution context, and continue working.</p>
+			</div>
+		</div>
+		<br><br>
+		<div class="row">
+			<!-- Extensibility -->
+			<div class="span4">
+				<h2><img src="icons/32x32/chart_pie.png"> Extensibility</h2>
+				<p>APAM provides an extension mechanism via managers. A manager define and manage specific aspects of components and applications. 
+				Currently, APAM provides dependency and property managers.</p>
+			</div>
+			<!-- Development -->
+			<div class="span4">
+				<h2><img src="icons/32x32/world.png"> Distribution</h2>
+				<p>Through its extension mechanism, APAM provides a distribution manager that controls the discovery and communication of
+				remote APAM machines and services.
+				</p>
+			</div>
+			<!-- Open source -->
+			<div class="span4">
+				<h2><img src="icons/32x32/cloud.png"> Open source</h2>
+				<p>APAM is licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License</a>, Version 2.0. 
+				It is built and tested on <a href="http://www.cloudbees.com/">CloudBees</a> and managed through <a href="https://github.com/">GitHub</a></p>
 			</div>
 		</div>
 	</div>
 </div>  
 
+
+<!-- Hidding the drop-down menus after click anywhere -->
+<script>
+	$('[data-toggle="dropdown"]').parent().removeClass('open');
+</script>
+
+<!-- TODO: activating navbar items regarding scroll does not work -->
+<script>
+	$('[data-spy="scroll"]').each(function () {
+		var $spy = $(this).scrollspy('refresh')
+    });
+</script>

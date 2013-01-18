@@ -1,51 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>The APAM Project</title>		
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="APAM website">
-    <meta name="author" content="Adele Research Group">
+	<head>
+		<meta charset="utf-8">
+		<title>APAM Project</title>		
+		<meta name="viewport" content="width=device-width">
+		<meta name="description" content="APAM website">
+		<meta name="author" content="Adele Research Group">
 
-    <!-- Le styles -->
-    <link href="css/cosmo4apam.css" rel="stylesheet">
-    <link href="css/bootstrap-responsive.css" rel="stylesheet">
-    <link href="css/docs.css" rel="stylesheet">
+		<!-- Styles -->
+		<link href="css/cosmo4apam.css" rel="stylesheet">
+		<link href="css/bootstrap-responsive.css" rel="stylesheet">
+		<link href="css/docs.css" rel="stylesheet">
 
-    <!-- Le fav and touch icons -->
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href=" ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href=" ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href=" ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href=" ico/apple-touch-icon-57-precomposed.png">
-    <link rel="shortcut icon" href="img/apamicon.png"> 
-  </head>
+		<!-- Fav and Touch icons -->
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href=" ico/apple-touch-icon-144-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href=" ico/apple-touch-icon-114-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href=" ico/apple-touch-icon-72-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" href=" ico/apple-touch-icon-57-precomposed.png">
+		<link rel="shortcut icon" href="img/apamicon.png"> 
+	</head>
 
-  <body data-spy="scroll" data-target=".bs-docs-sidebar">
+	<body>
 		
-		<!-- Navbar -->
-		<div class="navbar navbar-fixed-top">
-			<div class="navbar-inner">
-					<div class="container">
+		
+		<div id="wrap">
+		
+			<div class="navbar-wrapper">
+		
+				<!-- Navbar -->
+				<div class="navbar navbar-fixed-top">
+					<div class="navbar-inner">
+						<div class="container">
 							<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-									<span class="icon-bar"></span>
-									<span class="icon-bar"></span>
-									<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
 							</a>
-							<a class="brand" href="index.html"><img src="img/apambrand.png"></a>							
+							<a class="brand" href="index.html"><img src="img/apambrand.png"></a>
 							<div class="nav-collapse collapse">
 								<ul class="nav">
-									<li><a href="overview.html">Overview</a></li>
-									<li><a href="documentation.html">Documentation </a></li>
+									<li><a href="overview.html" class="page-fetcher">Overview</a></li>
+									<li><a href="documentation.html" class="page-fetcher">Documentation</a></li>
 									<li class="dropdown">
 										<a class="dropdown-toggle" data-toggle="dropdown">Download <b class="caret"></b></a>
 										<ul class="dropdown-menu">
 											<li><a href="https://github.com/downloads/AdeleResearchGroup/ApAM/Apam-Runtime.zip">Ready to use</a></li>
-											<li><a href="https://github.com/AdeleResearchGroup/ApAM">Source code</a></li>
+											<li><a href="https://github.com/AdeleResearchGroup/ApAM" target="_blank">Source code</a></li>
 										</ul>
 									</li>
-									<li><a href="publications.html">Publications</a></li>
-									<li><a href="projects.html">Projects</a></li>
-									<li><a href="contact.html">Contact</a></li>
+									<li><a href="publications.html" class="page-fetcher">Publications</a></li>
+									<li><a href="projects.html" class="page-fetcher">Projects</a></li>
+									<li><a href="contact.html" class="page-fetcher">Contact</a></li>
 									<li class="dropdown">
 										<a class="dropdown-toggle" data-toggle="dropdown">Login <b class="caret"></b></a>
 										<div class="dropdown-menu" style="padding: 15px; padding-bottom: 0px;">
@@ -56,89 +61,48 @@
 											</form>
 										</div>
 									</li>
-                </ul>
+								</ul>
 							</div><!--/.nav-collapse -->
+						</div>
 					</div>
-			</div>
-		</div><!-- /.navbar -->
-		
-		
-		<!-- Contents -->
-		<div class="jumbotron masthead">
-			<div class="container">
-				<img src="img/apam-logo.png" alt="APAM Logo">
-				<br><br><br>
-				<p>Welcome to the APAM website.</p>
-				<br>
+				</div><!-- /.navbar -->
 				
+				<!-- Home and content pages -->
+				<div id="home-page"></div>
+				<div class="container" id="content-page" data-spy="scroll" data-target=".bs-docs-sidebar"></div>
+				<br><br>
+		
 			</div>
+			
+			<!-- Push for sticky footer -->
+			<div id="push"></div>
+			
 		</div>
 		
-		<div class="bs-docs-social">
+		<!-- Footer -->
+		<div id="footer">
 			<div class="container">
-				<ul class="bs-docs-social-buttons"> 
-					<li>
-						<iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=AdeleResearchGroup&repo=ApAM&type=watch" allowtransparency="true" frameborder="0" scrolling="0" width="100px" height="20px"></iframe>
-					</li>
-					<li>
-						<iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=AdeleResearchGroup&repo=ApAM&type=fork" allowtransparency="true" frameborder="0" scrolling="0" width="102px" height="20px"></iframe>
-					</li>
-				</ul>
-			</div>
-		</div>
-		
-		<br><br>
-		<div class="container">
-			<div class="marketing">
-				<div class="row">
-					<div class="span4">
-						<a href="overview.html"><img class="marketing-img" src="icons/64x64/zoom_in.png"></a>
-						<h2>Overview</h2>
-						<p>Learn about the APAM motivations and principles.</p>
-					</div>
-					<div class="span4">
-						<a href="documentation.html"><img class="marketing-img" src="icons/64x64/book.png"></a>
-						<h2>Documentation</h2>
-						<p>Learn how APAM works via our tutorials and examples.</p>
-					</div>
-					<div class="span4">
-						<img class="marketing-img" src="icons/64x64/down_arrow.png">
-						<h2>Download</h2>
-						<p>Get the APAM distribution and available tools. </p>
-					</div>
-				</div>
 				<br>
-				<div class="row">
-					<div class="span4">
-						<a href="publications.html"><img class="marketing-img" src="icons/64x64/pages.png"></a>
-						<h2>Publications</h2>
-						<p>Find out the APAM scientific articles.</p>
-					</div>
-					<div class="span4">
-						<a href="projects.html"><img class="marketing-img" src="icons/64x64/folder.png"></a>
-						<h2>Projects</h2>
-						<p>Find out the APAM projects and specifications.</p>
-					</div>
-					<div class="span4">
-						<a href="contact.html"><img class="marketing-img" src="icons/64x64/users.png"></a>
-						<h2>Contact</h2>
-						<p>Learn how to get in touch with us.</p>
-					</div>
-				</div>
+				<p>&copy; Adele Research Group 2012.<br>
+				APAM is built and tested on <a href="http://www.cloudbees.com/">CloudBees</a> and managed through <a href="https://github.com/">GitHub</a>
+				</p>
+				<br>
 			</div>
 		</div>
 		
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="container">
-        <p>&copy; Adele Research Group 2012.<br>
-				APAM is built and tested on <a href="http://www.cloudbees.com/">CloudBees</a></a> and managed through 
-				<a href="https://github.com/">GitHub</a>
-      </div>
-    </footer>
-
-    <!-- Le javascript -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-		<script src="js/bootstrap.js"></script>
-  </body>
+		<!-- Javascript -->
+		<script src="js/jquery-1.8.2.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script>
+			$(function(){
+				$('a.page-fetcher').click(function(){
+					$('#home-page').hide();
+					$('#content-page').load($(this).attr('href'));
+					return false;
+				});
+			});
+			$('#home-page').load('home.html');
+		</script>
+		
+	</body>
 </html>
