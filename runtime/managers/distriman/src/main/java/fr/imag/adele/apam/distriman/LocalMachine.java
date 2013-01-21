@@ -180,7 +180,7 @@ public enum LocalMachine {
 				RemoteDependency remoteDependency = RemoteDependency.fromJson(requestJson);
 				String remoteUrl = requestJson.getString(CLIENT_URL);
 				String identifier = remoteDependency.getIdentifier();
-				System.out.println("IDENTIFIER RECEIVED:" + identifier);
+				System.out.println("Requesting resolution of the identifier:" + identifier);
 				
 				EndpointRegistration reg = distriman.resolveRemoteDependency(
 						remoteDependency, remoteUrl);
@@ -192,7 +192,8 @@ public enum LocalMachine {
 				writer.write(URLEncoder.encode(responseJson.toString(), "UTF-8")+"\n");
 				writer.flush();
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			} finally {
 				writer.close();
@@ -242,8 +243,7 @@ public enum LocalMachine {
 		json.put("endpoint_url", registration.getEndpointUrl());
 		json.put("protocol", registration.getProtocol());
 		json.put("instance_name", registration.getInstance().getName());
-		
-		System.out.println("Sending following value to the client:"+json.toString());
+		json.put("interface_name", registration.getInterfaceCanonical());
 		
 		return json.toString();
 	}

@@ -386,8 +386,12 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         }
 
         // Other relationships to instantiate
-        ((ImplementationImpl) getImpl()).addUses(to.getImpl());
-        if ((SpecificationImpl) getSpec() != null) {
+        
+        if(to.getImpl()!=null)
+        	((ImplementationImpl) getImpl()).addUses(to.getImpl());
+        
+       //TODO distriman: the destination (to) spec being false verification could be avoided in previous step
+        if ((SpecificationImpl) getSpec() != null && to.getSpec()!=null) {
             ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
         }
 

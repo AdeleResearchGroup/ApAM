@@ -31,6 +31,8 @@ public interface EndpointRegistration {
 
     String getProtocol();
 
+    String getInterfaceCanonical();
+    
     void close();
 }
 

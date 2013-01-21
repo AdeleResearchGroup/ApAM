@@ -70,7 +70,7 @@ public class Distriman implements DependencyManager{
 
         remotes = new RemoteMachineFactory(context);
         discovery = new MachineDiscovery(remotes);
-        endpointFactory= new CxfEndpointFactory();
+        endpointFactory=new CxfEndpointFactory();
     }
 
     public String getName() {
@@ -116,7 +116,7 @@ public class Distriman implements DependencyManager{
 	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
         Resolved resolved = null;
         
-        if (!needsInstances){ //XXX handle only instances
+        if (!needsInstances){ //TODO should really just handle only instances?
             return null;
         }
 
@@ -126,12 +126,12 @@ public class Distriman implements DependencyManager{
         	
         	RemoteMachine ma=machines.next();
         	
-        	//if(ma.getUrl().indexOf("8080")!=-1)
-        	
             resolved = ma.resolveRemote(client,dependency);
             
         }
-
+        
+       if (resolved.instances!=null)
+    	   System.out.println(String.format("Dependency %s resolved, number of available instances:%d",dependency.getIdentifier(),resolved.instances.size()));
 
 		return resolved;
 	}
@@ -243,9 +243,11 @@ public class Distriman implements DependencyManager{
     //
 
 
-    public EndpointRegistration resolveRemoteDependency(RemoteDependency dependency, String machineUrl){
+    public EndpointRegistration resolveRemoteDependency(RemoteDependency dependency, String machineUrl) throws ClassNotFoundException{
         EndpointRegistration registration = null;
 
+        System.out.println("**** Fetching machine:"+machineUrl);
+        
         //Get the composite that represent the remote machine asking to resolve the RemoteDependency
         RemoteMachine remote = remotes.getRemoteMachine(machineUrl);
 

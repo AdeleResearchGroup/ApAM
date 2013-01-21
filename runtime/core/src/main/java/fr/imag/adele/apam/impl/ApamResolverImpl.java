@@ -257,6 +257,18 @@ public class ApamResolverImpl implements ApamResolver {
 		boolean hasConstraints = (!dependency.getImplementationConstraints().isEmpty() || !dependency.getInstanceConstraints().isEmpty()) ;
 
 		for (Instance inst : insts) {
+			
+			//TODO distriman: Check if this its possible to have multiple implementations 
+			
+			if(inst instanceof RemoteInstanceImpl) {
+				
+				client.createWire(inst, depName, hasConstraints, false);
+				
+				ok = true; 
+				
+				continue; 
+			}
+			
 			deployedImpl(refClient, inst.getImpl(), false);
 			// For promotions we must wire the composite and wire the client if the target matches the client constraints
 			if (promotionDependency != null) { // it was a promotion, embedding composite must be linked as the source

@@ -45,7 +45,8 @@
 						<Bundle-ClassPath>
 							.,javax.annotation-1.1.0.v201105051105.jar
 						</Bundle-ClassPath>
-						<!--javax.annotation;resolution:=optional, -->
+						<!--javax.annotation;resolution:=optional, fr.imag.adele.apam.pax.test.iface, -->
+						<DynamicImport-Package>*</DynamicImport-Package>
 						<Import-Package>
 							javax.servlet.http,
 							javax.servlet;version="[2.3,3)",
@@ -131,6 +132,13 @@
 			<artifactId>guava</artifactId>
 			<version>13.0.1</version>
 		</dependency>
+<!--
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.services</groupId>
+			<artifactId>apam-pax-distriman-iface</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+-->
 	</dependencies>
 
 </project>

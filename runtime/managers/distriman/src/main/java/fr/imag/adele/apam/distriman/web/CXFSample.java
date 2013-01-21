@@ -1,6 +1,7 @@
 package fr.imag.adele.apam.distriman.web;
 
 import java.rmi.registry.Registry;
+import java.util.HashMap;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
@@ -56,6 +57,13 @@ public class CXFSample {
 		// JaxWsServerFactoryBean svrFactory = new JaxWsServerFactoryBean();
 		ServerFactoryBean svrFactory = new ServerFactoryBean();
 		svrFactory.setBus(cxfbus);
+		
+//		HashMap props = new HashMap();
+//		props.put("jaxb.additionalContextClasses", new Class[]
+//		{ SampleComplex.class,SampleImpl.class  }
+//		);
+//		svrFactory.setProperties(props);
+		
 		svrFactory.setServiceClass(SampleIface.class);
 		// svrFactory.setAddress("http://localhost:8081/ws/SampleIface");
 		svrFactory.setServiceBean(helloWorldImpl);
@@ -71,10 +79,11 @@ public class CXFSample {
 		factory.setAddress(server.getEndpoint().getEndpointInfo().getAddress());
 		// factory.setAddress("http://localhost:8581/ws/SampleIface");
 		// factory.setAddress("http://localhost:49862/SampleIface");
+		//System.out.println("Classes:"+factory.getProperties().get("jaxb.additionalContextClasses"));
 		SampleIface client = (SampleIface) factory.create();
 
 		System.out.println("Client side:" + client.hello("jander"));
-//		System.out.println("Client side complex:"+ client.getComplex().getValue());
+		//System.out.println("Client side complex:"+ client.getComplex().getValue());
 
 	}
 

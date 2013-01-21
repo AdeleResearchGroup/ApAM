@@ -12,7 +12,7 @@ public class P1Impl implements P1Spec{
 	}
 
 	public void start(){
-		System.out.println("Starting P1, the P2 value injected was:"+p2);
+		System.out.println("Starting P1, the P2 value injected was:"+p2.getName());
 	}
 	
 	public void stop(){

@@ -25,19 +25,20 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.eclipse.jetty.util.ajax.JSON;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.apform.Apform2Apam;
@@ -45,6 +46,8 @@ import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
+import fr.imag.adele.apam.impl.RemoteInstanceImpl;
 
 /**
  * Each Apam/Distriman machines available over the network, have a RemoteMachine
@@ -130,40 +133,42 @@ public class RemoteMachine implements ApformInstance {
 				jsonObject.put("client_url", this.getUrl());
 
 				String json = jsonObject.toString();
-				Instance instance = createClientProxy(json);
+				
+				Instance instance = createClientProxy(json,client);
 
+				// TODO distriman: log the remote resolution information on the client side
 				System.out
 						.println("######Instance resolved remotely with the name:"
-								+ instance.getServiceObject());
+								+ instance);
 
 				if (instance == null) {
 					return null;
 				}
 
-				return new Resolved(null, singleton(instance));
+				Set<Implementation> impl=Collections.emptySet();
+				
+				return new Resolved(impl, singleton(instance));
 
-				// createProxy(json);
 				// TODO call this machine getUrl
 			} catch (Exception e) {
-				// TODO handle
+				e.printStackTrace();
 			}
 		}
 		return null; // TODO
 	}
 
-	private Instance createClientProxy(String jsondep) {
+	private Instance createClientProxy(String jsondep,Instance client) {
 
 		HttpURLConnection connection = null;
 		PrintWriter outWriter = null;
 		BufferedReader serverResponse = null;
 		StringBuffer buff = new StringBuffer();
 		try {
-			// OPEN CONNECTION
 			
 			System.out.println("#### Using address:"+this.getUrl());
 			
 			connection = (HttpURLConnection) new URL(
-					this.getUrl()+"/apam/machine").openConnection();//"http://localhost:8081/apam/machine"
+					this.getUrl()+"/apam/machine").openConnection();
 
 			// SET REQUEST INFO
 			connection.setRequestMethod("POST");
@@ -173,8 +178,6 @@ public class RemoteMachine implements ApformInstance {
 
 			buff.append("content=");
 			buff.append(URLEncoder.encode(jsondep, "UTF-8"));
-
-			System.out.println("***JSON:" + buff.toString());
 
 			outWriter.write(buff.toString());
 			outWriter.flush();
@@ -187,7 +190,6 @@ public class RemoteMachine implements ApformInstance {
 
 			while ((line = serverResponse.readLine()) != null) {
 				sb.append(line);
-				System.out.println("RECEIVED:" + line);
 			}
 
 			if(sb.toString().trim().equals("")) return null;
@@ -200,21 +202,22 @@ public class RemoteMachine implements ApformInstance {
 
 			String endpointUrl = jsonResponse.getString("endpoint_url");
 			String instancename = jsonResponse.getString("instance_name");
-
-			System.out.println("Remote instance created:" + instancename);
-
+			String interfacename = jsonResponse.getString("interface_name");
+			
+			Class ifaceClazz=Class.forName(interfacename);
+			
+			Thread.currentThread().setContextClassLoader(ServerFactoryBean.class.getClassLoader());
 			ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
-			factory.setServiceClass(Object.class);
-			System.out.println("******************Endpoint Trying to access url:"+endpointUrl);
+			factory.setServiceClass(ifaceClazz);
 			factory.setAddress(endpointUrl);
 			
-			System.out.println("###Before deliver the object");
+			Object proxyRaw=factory.create();
 			
-//			Thread.currentThread().setContextClassLoader(ServerFactoryBean.class.getClassLoader());
-//			Object client = (Object) factory.create();
-//			System.out.println("ID of the instance:"+client.hashCode());
-
-			serverResponse.close();
+//			System.out.println(String.format("Client side: [instance ID:%s, endpoint:%s]", instancename,endpointUrl).toString());
+//			P2Spec p2=(P2Spec)factory.create();
+//			System.out.println("Proxy Instantiated:"+p2.getName());
+			
+			return new RemoteInstanceImpl(endpointUrl, this.getInst().getComposite(), this, proxyRaw);
 
 		} catch (MalformedURLException mue) {
 			mue.printStackTrace();
@@ -222,7 +225,12 @@ public class RemoteMachine implements ApformInstance {
 			ioe.printStackTrace();
 		} catch (JSONException e) {
 			e.printStackTrace();
+		} catch (InvalidConfiguration e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		} finally {
+			
 			if (connection != null)
 				connection.disconnect();
 
@@ -242,6 +250,8 @@ public class RemoteMachine implements ApformInstance {
 		// Instance client = (Instance) factory.create();
 		//
 		// return client; // null
+		
+		
 		return null;
 	}
 
@@ -256,7 +266,7 @@ public class RemoteMachine implements ApformInstance {
 
 	@Override
 	public void setProperty(String attr, String value) {
-		// TODO
+		// TODO distriman: implement set property for remote instances
 	}
 
 	@Override

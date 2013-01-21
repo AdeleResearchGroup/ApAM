@@ -108,19 +108,20 @@ public class PendingRequest {
 		if (resolution.implementations == null || resolution.implementations.isEmpty())
 			return false;
 		
+		// TODO distriman: excerpt was removed due to remote instance to not have access to their implementations, was it right to remove it?
 		/*
 		 * If an instance is needed there must be at least one instantiable implementation, 
 		 * otherwise any matching implementation is valid 
 		 */
-		boolean hasInstantiable = false;
-		for (Implementation implementation : resolution.implementations) {
-			if (implementation.isInstantiable()) {
-				hasInstantiable = true;
-				break;
-			}
-		}				
+//		boolean hasInstantiable = false;
+//		for (Implementation implementation : resolution.implementations) {
+//			if (implementation.isInstantiable()) {
+//				hasInstantiable = true;
+//				break;
+//			}
+//		}				
 		
-		return needsInstances ? hasInstantiable : true;
+		return needsInstances; // ? hasInstantiable : true;
 	}
 	
 	/**

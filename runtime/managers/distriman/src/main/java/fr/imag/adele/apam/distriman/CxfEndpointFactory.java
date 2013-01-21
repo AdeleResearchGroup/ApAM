@@ -18,12 +18,9 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.jws.WebService;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
-import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.osgi.service.http.HttpService;
 
@@ -36,6 +33,10 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.impl.ComponentImpl;
 
 /**
  * User: barjo Date: 18/12/12 Time: 14:15
@@ -65,17 +66,15 @@ public class CxfEndpointFactory {
 	private final Map<String, Server> webservices = new HashMap<String, Server>();
 
 	public CxfEndpointFactory() {
-		// Get apamMan
 		apamMan = ApamManagers.getManager(CST.APAMMAN);
 	}
 
 	protected void start(HttpService http) {
-		// Disable the fast infoset as it's not compatible (yet) with OSGi
-		// XXX from dosgi
+		// TODO distriman: Disable the fast infoset as it's not compatible (yet)
+		// with OSGi
 		System.setProperty("org.apache.cxf.nofastinfoset", "true");
 
 		// Register the CXF Servlet
-
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
 		// switch to the cxg minimal bundle class loader
@@ -120,29 +119,22 @@ public class CxfEndpointFactory {
 	 * 
 	 * @param instance
 	 */
-	private String createEndpoint(Instance instance) {
+	private String createEndpoint(Instance instance, Class iface) {
 		Object obj = instance.getServiceObject();
 		ServerFactoryBean srvFactory;
-		// TODO get the class ?
-		Class<?> clazz = Object.class; // The service object spec
+
+		Class<?> clazz = iface;
 
 		// Use the classloader of the cxf bundle in order to create the ws.
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
-		// Thread.currentThread().setContextClassLoader(JaxWsServerFactoryBean.class.getClassLoader());
+
 		Thread.currentThread().setContextClassLoader(
 				ServerFactoryBean.class.getClassLoader());
 
 		try {
 
-			// Check if the interface contains the jax-ws annotation
-			if (clazz != null && clazz.isAnnotationPresent(WebService.class)) {
-				srvFactory = new JaxWsServerFactoryBean();
-			} else {
-				srvFactory = new ServerFactoryBean();
-			}
+			srvFactory = new ServerFactoryBean();
 
-			// If the interface has been specified use it in order to create the
-			// endpoint.
 			if (clazz != null) {
 				srvFactory.setServiceClass(clazz);
 			}
@@ -155,9 +147,13 @@ public class CxfEndpointFactory {
 			// srvFactory.setAddress(myurl);
 			srvFactory.setAddress("/" + instance.getName());
 
-			Server res = srvFactory.create(); // Publish the webservice.
-			// Endpoint.publish(myurl, obj);
+			// HashMap props = new HashMap();
+			// props.put("jaxb.additionalContextClasses", new Class[] {
+			// obj.getClass(),clazz });
+			// srvFactory.setProperties(props);
 
+			Server res = srvFactory.create(); // Publish the webservice.
+			
 			webservices.put(instance.getName(), res);
 
 			return res.getEndpoint().getEndpointInfo().getAddress();
@@ -173,19 +169,15 @@ public class CxfEndpointFactory {
 		if (webservices.containsKey(name)) {
 			webservices.remove(name).stop();
 		} else {
-			// TODO log
+			// TODO distriman: log the destruction of the endpoint
 		}
 	}
 
 	public EndpointRegistration resolveAndExport(RemoteDependency dependency,
-			RemoteMachine client) {
+			RemoteMachine client) throws ClassNotFoundException {
 		Instance neo = null; // The chosen one
 		EndpointRegistration registration = null;
 		// Get local instance matching the RemoteDependency
-
-		System.out.println(String.format(
-				"Trying to solve instance %s to server %s",
-				dependency.getIdentifier(), client.getUrl()));
 
 		Resolved resolved = apamMan.resolveDependency(client.getInst(),
 				dependency, true);
@@ -203,20 +195,17 @@ public class CxfEndpointFactory {
 
 			// Nope, create a new endpoint
 			if (alreadyExported.isEmpty()) {
-				System.out.println("#####" + this.getClass().getCanonicalName()
-						+ " creating endpoint");
 
 				neo = resolved.instances.iterator().next();
-
+				Class ifacecazz = loadInterfaceForProxyExport(neo);
 				// create the endpoint.
-				String endPointURL=createEndpoint(neo);
+				String endPointURL = createEndpoint(neo, ifacecazz);
 
-				registration = new EndpointRegistrationImpl(neo, client, myurl + "/" + neo.getName() //myurl + "/" + neo.getName()
-						, PROTOCOL_NAME);
+				registration = new EndpointRegistrationImpl(neo, client, myurl
+						+ "/" + neo.getName() // myurl + "/" + neo.getName()
+				, PROTOCOL_NAME, ifacecazz.getCanonicalName());//
 
 			} else {
-				System.out.println("#####" + this.getClass().getCanonicalName()
-						+ " already endpoint already exists");
 
 				neo = alreadyExported.iterator().next();
 
@@ -231,6 +220,26 @@ public class CxfEndpointFactory {
 		return registration;
 	}
 
+	private Class loadInterfaceForProxyExport(Instance instance) throws ClassNotFoundException {
+
+		Class clazz = null;
+
+		if (instance instanceof ComponentImpl) {
+			
+			ResourceReference ref = instance.getSpec().getApformSpec()
+					.getDeclaration().getProvidedResources().iterator().next();
+
+			System.out.println("Interface 2 :" + ref.getName());
+
+				clazz = Class.forName(ref.getName());
+				System.out.println("Type loaded:" + clazz.getCanonicalName());
+
+
+		}
+
+		return clazz;
+	}
+
 	/**
 	 * EndpointRegistration implementation.
 	 */
@@ -239,9 +248,19 @@ public class CxfEndpointFactory {
 		private RemoteMachine client;
 		private String url;
 		private String protocol;
+		private String interfaceCanonical;
+
+		public String getInterfaceCanonical() {
+			return interfaceCanonical;
+		}
+
+		public void setInterfaceCanonical(String interfaceCanonical) {
+			this.interfaceCanonical = interfaceCanonical;
+		}
 
 		private EndpointRegistrationImpl(Instance instance,
-				RemoteMachine client, String endpointUrl, String protocol) {
+				RemoteMachine client, String endpointUrl, String protocol,
+				String ifaceCanonical) {
 			if (instance == null || client == null || endpointUrl == null) {
 				throw new NullPointerException(
 						"Instance, RemoteMachine, endpointUrl cannot be null");
@@ -251,8 +270,11 @@ public class CxfEndpointFactory {
 			this.client = client;
 			this.url = endpointUrl;
 			this.protocol = protocol;
-
+			this.interfaceCanonical = ifaceCanonical;
 			client.addEndpointRegistration(this);
+			System.out
+					.println("***** Creating registration point with the name:"
+							+ ifaceCanonical);
 		}
 
 		/**
@@ -263,7 +285,8 @@ public class CxfEndpointFactory {
 		 */
 		private EndpointRegistrationImpl(EndpointRegistration registration) {
 			this(registration.getInstance(), registration.getClient(),
-					registration.getEndpointUrl(), registration.getProtocol());
+					registration.getEndpointUrl(), registration.getProtocol(),
+					registration.getInterfaceCanonical());
 		}
 
 		@Override

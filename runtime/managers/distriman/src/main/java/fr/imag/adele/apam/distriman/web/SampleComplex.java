@@ -8,7 +8,7 @@ public class SampleComplex implements SampleComplexIface{
 	public SampleComplex(String value) {
 		this.value=value;
 	}
-
+	
 	@Override
 	public String getValue() {
 		// TODO Auto-generated method stub

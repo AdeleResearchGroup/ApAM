@@ -1,9 +1,7 @@
 package fr.imag.adele.apam.distriman.web;
 
 
-public class SampleImpl implements SampleIface{
-
-	SampleComplexIface complex=new SampleComplex("super complex");
+public class SampleImpl implements SampleIface {
 	
 	@Override
 	public String hello(String s) {
@@ -13,7 +11,8 @@ public class SampleImpl implements SampleIface{
 		return "Hello " + s;
 	}
 	
+	@Override
 	public SampleComplexIface getComplex() {
-		return complex;
+		return new SampleComplex("super complex");
 	}
 }

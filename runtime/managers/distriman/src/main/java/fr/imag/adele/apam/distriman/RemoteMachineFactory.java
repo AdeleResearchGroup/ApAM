@@ -172,7 +172,7 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
 
     @Override
     public void setProperty(String attr, String value) {
-        //TODO
+        //TODO distriman: implement set property for distriman representation in apam?
     }
 
     @Override

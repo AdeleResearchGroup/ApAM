@@ -4,4 +4,9 @@ import fr.imag.adele.apam.pax.test.iface.P2Spec;
 
 public class P2Impl implements P2Spec{
 
+	@Override
+	public String getName(){
+		return "P2 REMOTE Instance";
+	}
+	
 }
