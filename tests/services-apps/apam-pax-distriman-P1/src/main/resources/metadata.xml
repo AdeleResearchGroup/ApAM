@@ -23,7 +23,7 @@
 		specification="P1-spec">
 		<property name="description" value="samsung" />
 		<dependency field="p2"/>
-		<callback onInit="start" onRemove="stop"/>
+		<callback onInit="instantiate" onRemove="desinstantiate"/>
 </implementation>
 	
 

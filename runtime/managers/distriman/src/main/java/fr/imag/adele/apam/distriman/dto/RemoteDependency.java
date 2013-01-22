@@ -45,11 +45,6 @@ public class RemoteDependency extends DependencyDeclaration {
 
     private static final String JSON_COMP_CONSTRAINT = "comp_cons";
     private static final String JSON_COMP_PREF = "comp_pref";
-    private static final String CLIENT_URL = "client_url";
-
-
-
-
 
     public RemoteDependency(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource) {
         super(component, id, isMultiple, resource);

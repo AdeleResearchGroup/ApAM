@@ -20,9 +20,12 @@ import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.distriman.Distriman;
 import fr.imag.adele.apam.distriman.discovery.MachineDiscovery;
 import fr.imag.adele.apam.distriman.dto.RemoteDependency;
+import fr.imag.adele.apam.impl.ApamResolverImpl;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -50,7 +53,8 @@ public enum LocalMachine {
 	private final String type = MachineDiscovery.MDNS_TYPE;
 	private final HttpServlet servlet = new MyServlet();
 	private final String path = "/apam/machine";
-
+	static Logger logger = LoggerFactory.getLogger(LocalMachine.class);
+	
 	private String host = null;
 	private int port = -1;
 	private Distriman distriman;
@@ -183,17 +187,22 @@ public enum LocalMachine {
 				RemoteDependency remoteDependency = RemoteDependency.fromJson(requestJson);
 				String remoteUrl = requestJson.getString(CLIENT_URL);
 				String identifier = remoteDependency.getIdentifier();
-				System.out.println("Requesting resolution of the identifier:" + identifier);
+				
+				logger.info("requesting resolution of the identifier {} in the address {}",identifier,remoteUrl);
 				
 				EndpointRegistration reg = distriman.resolveRemoteDependency(
 						remoteDependency, remoteUrl);
 
-				System.out.println("Preparing the response.."+toJson(reg));
+				String jsonString=toJson(reg);
 				
-				JSONObject responseJson = new JSONObject(toJson(reg));
+				logger.info("payload of the response {}",jsonString);
+				
+				JSONObject responseJson = new JSONObject(jsonString);
 				
 				writer.write(URLEncoder.encode(responseJson.toString(), "UTF-8")+"\n");
+				
 				writer.flush();
+				
 			} catch (JSONException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {

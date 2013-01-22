@@ -112,9 +112,10 @@ public class CxfEndpointFactory {
 		// compute the PROP_CXF_URL property
 		try {
 			myurl = new URI("http://" + LocalMachine.INSTANCE.getHost() + ":"
-					+ LocalMachine.INSTANCE.getPort() + ROOT_NAME).toString(); // compute
-																				// the
-																				// url
+					+ LocalMachine.INSTANCE.getPort() + ROOT_NAME).toString(); 
+			
+			logger.info("instantiating endpoint factory for the url {}",myurl);
+			
 		} catch (Exception e) {
 			// TODO log
 			// "Cannot create the URL of the JAX-WS server, this will lead to incomplete EndpointDescription.",e);
@@ -135,8 +136,6 @@ public class CxfEndpointFactory {
 		Object obj = instance.getServiceObject();
 		ServerFactoryBean srvFactory;
 
-		Class<?> clazz = iface;
-
 		// Use the classloader of the cxf bundle in order to create the ws.
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
@@ -147,16 +146,13 @@ public class CxfEndpointFactory {
 
 			srvFactory = new ServerFactoryBean();
 
-			if (clazz != null) {
-				srvFactory.setServiceClass(clazz);
+			if (iface != null) {
+				srvFactory.setServiceClass(iface);
 			}
 
 			srvFactory.setBus(cxfbus); // Use the OSGi Servlet as the dispatcher
 			srvFactory.setServiceBean(obj);
 
-			System.out.println("####### Server side:" + myurl);
-
-			// srvFactory.setAddress(myurl);
 			srvFactory.setAddress("/" + instance.getName());
 
 			// HashMap props = new HashMap();
@@ -223,15 +219,14 @@ public class CxfEndpointFactory {
 				// create the endpoint.
 				String endPointURL = createEndpoint(neo, ifacecazz);
 
-				registration = new EndpointRegistrationImpl(this,neo, client, myurl
-						+ "/" + neo.getName() // myurl + "/" + neo.getName()
+				logger.info("cxf endpoint created in the address {}",myurl+endPointURL);
+				
+				registration = new EndpointRegistrationImpl(this,neo, client, myurl+endPointURL //myurl + "/" + neo.getName() 
 				, PROTOCOL_NAME, ifacecazz.getCanonicalName());//
 
 			} else {
 				
 				neo = alreadyExported.iterator().next();
-
-				Class ifacecazz = loadInterfaceForProxyExport(neo);
 				
 				logger.info("dependency {} was exported before, using instance {}",dependency.getIdentifier(),neo);
 				

@@ -14,9 +14,12 @@
  */
 package fr.imag.adele.apam.distriman.discovery;
 
+import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.distriman.provider.LocalMachine;
 
 import org.apache.felix.ipojo.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
@@ -40,6 +43,9 @@ import java.util.UUID;
 @Component(name = "Apam::Distriman::Discovery")
 @Instantiate
 public class MachineDiscovery implements ServiceListener {
+	
+	private static Logger logger = LoggerFactory.getLogger(MachineDiscovery.class);
+	
     /**
      * The mdns type to be used.
      */
@@ -97,6 +103,8 @@ public class MachineDiscovery implements ServiceListener {
 
             //Create and Add the machine
             String url = sinfo.getURL();
+            
+            logger.info("mDNS detected the url {}",url);
             
             machineFactory.newRemoteMachine(url);
         }
