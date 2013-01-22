@@ -256,8 +256,7 @@
 		</dependency>
 
 
-		<!-- Distriman -->
-		<dependency>
+		<!-- Distriman 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>DISTRIMAN</artifactId>
 			<scope>test</scope>
@@ -304,6 +303,7 @@
 			<artifactId>guava</artifactId>
 			<version>13.0.1</version>
 		</dependency>
+-->
 
 		<!-- Messages Tests -->
 		<dependency>
