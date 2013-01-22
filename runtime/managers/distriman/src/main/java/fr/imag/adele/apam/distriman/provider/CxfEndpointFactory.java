@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.distriman;
+package fr.imag.adele.apam.distriman.provider;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -23,6 +23,8 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.frontend.ServerFactoryBean;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.osgi.service.http.HttpService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -36,6 +38,10 @@ import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.distriman.Distriman;
+import fr.imag.adele.apam.distriman.client.RemoteMachine;
+import fr.imag.adele.apam.distriman.dto.RemoteDependency;
+import fr.imag.adele.apam.distriman.provider.impl.EndpointRegistrationImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
 /**
@@ -45,6 +51,8 @@ import fr.imag.adele.apam.impl.ComponentImpl;
  */
 public class CxfEndpointFactory {
 
+	private static Logger logger = LoggerFactory.getLogger(CxfEndpointFactory.class);
+	
 	public static final String PROTOCOL_NAME = "cxf";
 	public static final String ROOT_NAME = "/ws";
 
@@ -60,6 +68,10 @@ public class CxfEndpointFactory {
 	private final SetMultimap<Instance, EndpointRegistration> endpoints = HashMultimap
 			.create();
 
+	public SetMultimap<Instance, EndpointRegistration> getEndpoints() {
+		return endpoints;
+	}
+
 	/**
      *
      */
@@ -69,7 +81,7 @@ public class CxfEndpointFactory {
 		apamMan = ApamManagers.getManager(CST.APAMMAN);
 	}
 
-	protected void start(HttpService http) {
+	public void start(HttpService http) {
 		// TODO distriman: Disable the fast infoset as it's not compatible (yet)
 		// with OSGi
 		System.setProperty("org.apache.cxf.nofastinfoset", "true");
@@ -109,7 +121,7 @@ public class CxfEndpointFactory {
 		}
 	}
 
-	protected void stop(HttpService http) {
+	public void stop(HttpService http) {
 		// Unregister servlet dispatcher
 		http.unregister(ROOT_NAME);
 	}
@@ -165,7 +177,7 @@ public class CxfEndpointFactory {
 
 	}
 
-	private void destroyEndpoint(String name) {
+	public void destroyEndpoint(String name) {
 		if (webservices.containsKey(name)) {
 			webservices.remove(name).stop();
 		} else {
@@ -179,14 +191,21 @@ public class CxfEndpointFactory {
 		EndpointRegistration registration = null;
 		// Get local instance matching the RemoteDependency
 
+		logger.info("requesting apam instance {} to resolve the dependency {}",apamMan,dependency.getIdentifier());
+		
 		Resolved resolved = apamMan.resolveDependency(client.getInst(),
 				dependency, true);
 
 		// No local instance matching the RemoteDependency
 		if (resolved.instances.isEmpty()) {
+			
+			logger.info("impossile to solve dependency, the number of instances was zero");
+			
 			return null;
 		}
 
+		logger.info("solve dependency, {} instance(s) where found",resolved.instances.size());
+		
 		// Check if we already have an endpoint for the instances
 		synchronized (endpoints) {
 
@@ -195,21 +214,28 @@ public class CxfEndpointFactory {
 
 			// Nope, create a new endpoint
 			if (alreadyExported.isEmpty()) {
-
+				
 				neo = resolved.instances.iterator().next();
+				
+				logger.info("dependency {} was NOT exported before, preparing endpoint for instance {}",dependency.getIdentifier(),neo);
+				
 				Class ifacecazz = loadInterfaceForProxyExport(neo);
 				// create the endpoint.
 				String endPointURL = createEndpoint(neo, ifacecazz);
 
-				registration = new EndpointRegistrationImpl(neo, client, myurl
+				registration = new EndpointRegistrationImpl(this,neo, client, myurl
 						+ "/" + neo.getName() // myurl + "/" + neo.getName()
 				, PROTOCOL_NAME, ifacecazz.getCanonicalName());//
 
 			} else {
-
+				
 				neo = alreadyExported.iterator().next();
 
-				registration = new EndpointRegistrationImpl(endpoints.get(neo)
+				Class ifacecazz = loadInterfaceForProxyExport(neo);
+				
+				logger.info("dependency {} was exported before, using instance {}",dependency.getIdentifier(),neo);
+				
+				registration = new EndpointRegistrationImpl(this,endpoints.get(neo)
 						.iterator().next());
 			}
 
@@ -240,103 +266,6 @@ public class CxfEndpointFactory {
 		return clazz;
 	}
 
-	/**
-	 * EndpointRegistration implementation.
-	 */
-	private class EndpointRegistrationImpl implements EndpointRegistration {
-		private Instance exported;
-		private RemoteMachine client;
-		private String url;
-		private String protocol;
-		private String interfaceCanonical;
-
-		public String getInterfaceCanonical() {
-			return interfaceCanonical;
-		}
-
-		public void setInterfaceCanonical(String interfaceCanonical) {
-			this.interfaceCanonical = interfaceCanonical;
-		}
-
-		private EndpointRegistrationImpl(Instance instance,
-				RemoteMachine client, String endpointUrl, String protocol,
-				String ifaceCanonical) {
-			if (instance == null || client == null || endpointUrl == null) {
-				throw new NullPointerException(
-						"Instance, RemoteMachine, endpointUrl cannot be null");
-			}
-
-			this.exported = instance;
-			this.client = client;
-			this.url = endpointUrl;
-			this.protocol = protocol;
-			this.interfaceCanonical = ifaceCanonical;
-			client.addEndpointRegistration(this);
-			System.out
-					.println("***** Creating registration point with the name:"
-							+ ifaceCanonical);
-		}
-
-		/**
-		 * Clone
-		 * 
-		 * @param registration
-		 *            The EndpointRegistration to be cloned.
-		 */
-		private EndpointRegistrationImpl(EndpointRegistration registration) {
-			this(registration.getInstance(), registration.getClient(),
-					registration.getEndpointUrl(), registration.getProtocol(),
-					registration.getInterfaceCanonical());
-		}
-
-		@Override
-		public Instance getInstance() {
-			return exported;
-		}
-
-		@Override
-		public RemoteMachine getClient() {
-			return client;
-		}
-
-		@Override
-		public String getEndpointUrl() {
-			return url;
-		}
-
-		@Override
-		public String getProtocol() {
-			return protocol;
-		}
-
-		@Override
-		public void close() {
-			// Has already been closed
-			if (exported == null) {
-				return;
-			}
-
-			synchronized (endpoints) {
-
-				// remove this EndpointRegistration to the RemoteMachine that
-				// ask for it.
-				client.rmEndpointRegistration(this);
-
-				endpoints.remove(getInstance(), getClient());
-
-				// Last registration, destroy the endpoints.
-				if (!endpoints.containsKey(getInstance()))
-					destroyEndpoint(getInstance().getName());
-
-				exported = null;
-				client = null;
-				url = null;
-				protocol = null;
-
-				// todo if last destroy endpoint.
-			}
-		}
-
-	}
+	
 
 }

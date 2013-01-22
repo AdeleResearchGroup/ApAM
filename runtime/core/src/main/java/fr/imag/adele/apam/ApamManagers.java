@@ -64,6 +64,9 @@ public class ApamManagers {
      *            apamman.
      */
     public static void addDependencyManager(DependencyManager manager, int priority) {
+    	
+    	logger.info("Asking apam to add the manager {} with priority {}",manager,priority);
+    	
         if ((priority < 0) && !(manager.getName().equals(CST.APAMMAN) || manager.getName().equals(CST.UPDATEMAN))) {
             logger.error("invalid priority: " + priority + "> 0 assumed");
             priority = 0;
@@ -72,12 +75,17 @@ public class ApamManagers {
         for (int i = 0; i < dependencyManagers.size(); i++) {
             if (priority <= dependencyManagers.get(i).getPriority()) {
                 dependencyManagers.add(i, manager);
+                logger.info("Manager {} added",manager);
                 inserted = true;
                 break;
             }
         }
         if (!inserted) { // at the end
-            dependencyManagers.add(manager);
+            if(!dependencyManagers.add(manager)){
+            	logger.info("For some reason the manager {} was not added",manager);
+            }else {
+            	logger.info("Manager {} was added successfully",manager);
+            }
         }
         
         ManagerModel rootModel = CompositeTypeImpl.getRootCompositeType().getModel(manager.getName());

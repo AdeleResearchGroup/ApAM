@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.distriman.web;
+package fr.imag.adele.apam.distriman.web.samples;
 
 import java.rmi.AccessException;
 import java.rmi.NotBoundException;

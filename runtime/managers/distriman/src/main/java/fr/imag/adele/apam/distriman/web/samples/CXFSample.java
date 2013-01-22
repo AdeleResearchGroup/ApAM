@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.distriman.web;
+package fr.imag.adele.apam.distriman.web.samples;
 
 import java.rmi.registry.Registry;
 import java.util.HashMap;

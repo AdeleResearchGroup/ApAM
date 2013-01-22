@@ -55,7 +55,11 @@
 						</Import-Package>
 						<Private-Package>
 							fr.imag.adele.apam.distriman,
-							fr.imag.adele.apam.distriman.disco,
+							fr.imag.adele.apam.distriman.discovery,
+							fr.imag.adele.apam.distriman.dto,
+							fr.imag.adele.apam.distriman.provider,
+							fr.imag.adele.apam.distriman.provider.impl,
+							fr.imag.adele.apam.distriman.client,
 							fr.imag.adele.apam.distriman.web
 						</Private-Package>
 						<Export-Package>

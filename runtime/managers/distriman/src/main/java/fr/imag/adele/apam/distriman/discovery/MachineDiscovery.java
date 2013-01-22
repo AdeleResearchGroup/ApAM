@@ -12,11 +12,10 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.distriman.disco;
+package fr.imag.adele.apam.distriman.discovery;
 
-import fr.imag.adele.apam.distriman.LocalMachine;
-import fr.imag.adele.apam.distriman.NodePool;
-import fr.imag.adele.apam.distriman.RemoteMachineFactory;
+import fr.imag.adele.apam.distriman.provider.LocalMachine;
+
 import org.apache.felix.ipojo.annotations.*;
 
 import javax.jmdns.JmDNS;
@@ -61,7 +60,7 @@ public class MachineDiscovery implements ServiceListener {
 
 
     @Requires
-    private NodePool machineFactory;
+    private ApamMachineDiscovery machineFactory;
 
     /**
      * @param machineFactory the RemoteMachineFactory that instantiate new RemoteMachine.

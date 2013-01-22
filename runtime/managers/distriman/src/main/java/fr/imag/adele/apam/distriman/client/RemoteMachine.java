@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.distriman;
+package fr.imag.adele.apam.distriman.client;
 
 import static java.util.Collections.singleton;
 
@@ -45,6 +45,9 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.distriman.discovery.RemoteMachineFactory;
+import fr.imag.adele.apam.distriman.dto.RemoteDependency;
+import fr.imag.adele.apam.distriman.provider.EndpointRegistration;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.RemoteInstanceImpl;
@@ -76,7 +79,7 @@ public class RemoteMachine implements ApformInstance {
 
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
-	protected RemoteMachine(String url, RemoteMachineFactory daddy) {
+	public RemoteMachine(String url, RemoteMachineFactory daddy) {
 		my_url = url;
 		my_impl = daddy;
 		my_declaration = new InstanceDeclaration(daddy.getDeclaration()
@@ -106,7 +109,7 @@ public class RemoteMachine implements ApformInstance {
 	/**
 	 * Destroy the RemoteMachine //TODO but a volatile destroyed flag ?
 	 */
-	protected void destroy() {
+	public void destroy() {
 		if (running.compareAndSet(true, false)) {
 
 			logger.info("RemoteMachine " + my_url + " destroyed.");
@@ -137,13 +140,14 @@ public class RemoteMachine implements ApformInstance {
 				Instance instance = createClientProxy(json,client);
 
 				// TODO distriman: log the remote resolution information on the client side
-				System.out
-						.println("######Instance resolved remotely with the name:"
-								+ instance);
-
 				if (instance == null) {
+					
+					logger.info("dependency {} was NOT found in {}",dependency.getIdentifier(),this.getUrl());
+					
 					return null;
 				}
+				
+				logger.info("dependency {} was found remotely",dependency.getIdentifier());
 
 				Set<Implementation> impl=Collections.emptySet();
 				

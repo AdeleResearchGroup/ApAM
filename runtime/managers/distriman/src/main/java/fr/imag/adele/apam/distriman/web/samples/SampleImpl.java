@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.distriman.web;
+package fr.imag.adele.apam.distriman.web.samples;
 
 
 public class SampleImpl implements SampleIface {

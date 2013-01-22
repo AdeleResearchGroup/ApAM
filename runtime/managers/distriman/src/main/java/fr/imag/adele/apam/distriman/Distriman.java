@@ -14,21 +14,42 @@
  */
 package fr.imag.adele.apam.distriman;
 
-import fr.imag.adele.apam.*;
-import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.distriman.disco.MachineDiscovery;
-import org.apache.felix.ipojo.annotations.*;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.felix.ipojo.annotations.Instantiate;
+import org.apache.felix.ipojo.annotations.Invalidate;
+import org.apache.felix.ipojo.annotations.Property;
+import org.apache.felix.ipojo.annotations.Provides;
+import org.apache.felix.ipojo.annotations.Requires;
+import org.apache.felix.ipojo.annotations.Validate;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.Resolved;
+import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.distriman.client.RemoteMachine;
+import fr.imag.adele.apam.distriman.discovery.MachineDiscovery;
+import fr.imag.adele.apam.distriman.discovery.RemoteMachineFactory;
+import fr.imag.adele.apam.distriman.dto.RemoteDependency;
+import fr.imag.adele.apam.distriman.provider.CxfEndpointFactory;
+import fr.imag.adele.apam.distriman.provider.EndpointRegistration;
+import fr.imag.adele.apam.distriman.provider.LocalMachine;
 
 @org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman")
 @Instantiate
@@ -36,7 +57,7 @@ import java.util.Set;
 public class Distriman implements DependencyManager{
 
     //ApamManager priority
-    private static final int PRIORITY = 4;
+    private static final int PRIORITY = 40;
 
     /**
      * Hostname of the InetAdress to be used for the MachineDiscovery.
@@ -77,14 +98,11 @@ public class Distriman implements DependencyManager{
         return CST.DISTRIMAN;
     }
 
-
-    //
-    // DependencyManager methods
-    //
-
     @Override
     public void getSelectionPath(Instance client, DependencyDeclaration dependency, List<DependencyManager> selPath) {
         //To change body of implemented methods use File | Settings | File Templates.
+    	System.out.println(String.format("DISTRIMAN: Adding itself to the selection path, currently with the size %d",selPath.size()));
+    	
     	selPath.add(selPath.size(), this);
     }
 
@@ -116,7 +134,7 @@ public class Distriman implements DependencyManager{
 	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
         Resolved resolved = null;
         
-        if (!needsInstances){ //TODO should really just handle only instances?
+        if (!needsInstances){ //TODO distriman: should really just handle only instances?
             return null;
         }
 
@@ -130,7 +148,7 @@ public class Distriman implements DependencyManager{
             
         }
         
-       if (resolved.instances!=null)
+       if (resolved!=null && resolved.instances!=null)
     	   System.out.println(String.format("Dependency %s resolved, number of available instances:%d",dependency.getIdentifier(),resolved.instances.size()));
 
 		return resolved;
@@ -215,7 +233,7 @@ public class Distriman implements DependencyManager{
 
         //Add this manager to Apam
         ApamManagers.addDependencyManager(this,PRIORITY);
-
+        
         //Add Distriman to Apam
         logInfo("Successfully initialized");
     }
@@ -246,11 +264,21 @@ public class Distriman implements DependencyManager{
     public EndpointRegistration resolveRemoteDependency(RemoteDependency dependency, String machineUrl) throws ClassNotFoundException{
         EndpointRegistration registration = null;
 
-        System.out.println("**** Fetching machine:"+machineUrl);
+        logger.info("client requested resolution of dependency identifier {} in the address {}",dependency.getIdentifier(),machineUrl);
+
+        logger.info("distriman available machines");
+        
+        for(Map.Entry<String, RemoteMachine> entry:remotes.getMachines().entrySet()){
+        	
+        	logger.info("distriman machine {}",entry.getKey());	
+        	
+        }
         
         //Get the composite that represent the remote machine asking to resolve the RemoteDependency
         RemoteMachine remote = remotes.getRemoteMachine(machineUrl);
 
+        logger.info("remote machine recovered {}",remote);
+        
         //No RemoteMachine corresponding to the given url is available
         if(remote == null){
             return null;

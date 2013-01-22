@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.distriman;
+package fr.imag.adele.apam.distriman.dto;
 
 import fr.imag.adele.apam.declarations.*;
 import org.json.JSONArray;

@@ -407,7 +407,10 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     public void removeWire(Wire wire) {
         if (getApformInst().remWire(wire.getDestination(), wire.getDepName())) {
             wires.remove(wire);
-            ((ImplementationImpl) getImpl()).removeUses(wire.getDestination().getImpl());
+            //TODO distriman: check if we have the destination implementation, is this the right way to do it?
+            
+            if(wire.getDestination().getImpl()!=null)
+            	((ImplementationImpl) getImpl()).removeUses(wire.getDestination().getImpl());
             
             //Notify Dynamic managers that a  wire has been deleted. A new resolution can be possible now.
             for (DynamicManager manager : ApamManagers.getDynamicManagers()) {

@@ -12,9 +12,10 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.distriman;
+package fr.imag.adele.apam.distriman.provider;
 
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.distriman.client.RemoteMachine;
 
 /**
  * User: barjo
@@ -34,5 +35,6 @@ public interface EndpointRegistration {
     String getInterfaceCanonical();
     
     void close();
+   
 }
 

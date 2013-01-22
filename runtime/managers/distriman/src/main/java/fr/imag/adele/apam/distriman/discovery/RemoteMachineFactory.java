@@ -12,14 +12,13 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.distriman;
+package fr.imag.adele.apam.distriman.discovery;
 
 
 import static com.google.common.collect.Sets.newHashSet;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,7 +26,6 @@ import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Provides;
-import org.apache.felix.ipojo.annotations.Unbind;
 import org.apache.felix.ipojo.annotations.Validate;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -37,6 +35,7 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
+import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
@@ -50,7 +49,7 @@ import fr.imag.adele.apam.impl.ComponentImpl;
 @Component
 @Instantiate
 @Provides
-public class RemoteMachineFactory implements NodePool,ApformCompositeType {
+public class RemoteMachineFactory implements ApamMachineDiscovery,ApformCompositeType {
     private static String PROP_MY_NAME = "DistriManMachine";
 
     private final CompositeDeclaration declaration;
@@ -144,7 +143,7 @@ public class RemoteMachineFactory implements NodePool,ApformCompositeType {
         synchronized (machines){
         	
         	RemoteMachine rm=machines.get(url+"/apam/machine");
-        	//TODO Find a better way to do this 
+        	//TODO distriman: find a better way to avoid this reference to localhost/127.0.0.1 
         	if(rm!=null) return rm;
         	
         	if(url.indexOf("127.0.0.1")!=-1){

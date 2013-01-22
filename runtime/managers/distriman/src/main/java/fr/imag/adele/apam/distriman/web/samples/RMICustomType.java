@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.distriman.web;
+package fr.imag.adele.apam.distriman.web.samples;
 
 import java.io.Serializable;
 

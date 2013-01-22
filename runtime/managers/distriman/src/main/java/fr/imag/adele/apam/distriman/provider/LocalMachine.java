@@ -12,12 +12,15 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.distriman;
+package fr.imag.adele.apam.distriman.provider;
 
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.DependencyManager;
-import fr.imag.adele.apam.distriman.disco.MachineDiscovery;
+import fr.imag.adele.apam.distriman.Distriman;
+import fr.imag.adele.apam.distriman.discovery.MachineDiscovery;
+import fr.imag.adele.apam.distriman.dto.RemoteDependency;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 

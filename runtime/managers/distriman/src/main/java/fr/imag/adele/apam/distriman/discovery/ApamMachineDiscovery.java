@@ -12,17 +12,18 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.distriman;
+package fr.imag.adele.apam.distriman.discovery;
 
 import java.util.Map;
-import java.util.Set;
+
+import fr.imag.adele.apam.distriman.client.RemoteMachine;
 
 /**
  * Interface used to provide information about remote apam nodes available
  * @author jander
  *
  */
-public interface NodePool {
+public interface ApamMachineDiscovery {
 
 	/**
 	 * Include new URL as an available remote apam node
@@ -37,14 +38,11 @@ public interface NodePool {
 	 * @return
 	 */
 	public RemoteMachine destroyRemoteMachine(String url);
-	
+
 	/**
 	 * Return list of remote apam node available, not including the machine that calls the method
 	 * @return
 	 */
 	public Map<String, RemoteMachine> getMachines();
 	
-	public Set<RemoteMachine> getRemoteMachines();
-	
-	public RemoteMachine getRemoteMachine(String url);
 }
