@@ -139,8 +139,8 @@ public class CxfEndpointFactory {
 		// Use the classloader of the cxf bundle in order to create the ws.
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
-		Thread.currentThread().setContextClassLoader(
-				ServerFactoryBean.class.getClassLoader());
+//		Thread.currentThread().setContextClassLoader(
+//				ServerFactoryBean.class.getClassLoader());
 
 		try {
 
@@ -149,17 +149,24 @@ public class CxfEndpointFactory {
 			if (iface != null) {
 				srvFactory.setServiceClass(iface);
 			}
-
+			
 			srvFactory.setBus(cxfbus); // Use the OSGi Servlet as the dispatcher
 			srvFactory.setServiceBean(obj);
 
+			srvFactory.getBus().setProperty("lazy-init", Boolean.FALSE);
+			
 			srvFactory.setAddress("/" + instance.getName());
 
-			// HashMap props = new HashMap();
-			// props.put("jaxb.additionalContextClasses", new Class[] {
-			// obj.getClass(),clazz });
-			// srvFactory.setProperties(props);
-
+//			HashMap props = new HashMap();
+//			try {
+//				props.put("jaxb.additionalContextClasses", new Class[] {
+//				Class.forName("fr.imag.adele.apam.pax.test.iface.P2SpecKeeper") });
+//				srvFactory.setProperties(props);
+//			} catch (ClassNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+			
 			Server res = srvFactory.create(); // Publish the webservice.
 			
 			webservices.put(instance.getName(), res);
@@ -168,7 +175,7 @@ public class CxfEndpointFactory {
 
 		} finally {
 			// reset the context classloader to the original one.
-			Thread.currentThread().setContextClassLoader(loader);
+//			Thread.currentThread().setContextClassLoader(loader);
 		}
 
 	}
@@ -250,11 +257,7 @@ public class CxfEndpointFactory {
 			ResourceReference ref = instance.getSpec().getApformSpec()
 					.getDeclaration().getProvidedResources().iterator().next();
 
-			System.out.println("Interface 2 :" + ref.getName());
-
 				clazz = Class.forName(ref.getName());
-				System.out.println("Type loaded:" + clazz.getCanonicalName());
-
 
 		}
 

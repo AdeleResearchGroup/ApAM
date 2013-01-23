@@ -26,6 +26,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -210,10 +211,21 @@ public class RemoteMachine implements ApformInstance {
 			
 			Class ifaceClazz=Class.forName(interfacename);
 			
-			Thread.currentThread().setContextClassLoader(ServerFactoryBean.class.getClassLoader());
+//			Thread.currentThread().setContextClassLoader(ServerFactoryBean.class.getClassLoader());
+			
 			ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
 			factory.setServiceClass(ifaceClazz);
 			factory.setAddress(endpointUrl);
+			
+//			HashMap props = new HashMap();
+//			try {
+//				props.put("jaxb.additionalContextClasses", new Class[] {
+//				Class.forName("fr.imag.adele.apam.pax.test.iface.P2SpecKeeper") });
+//				factory.setProperties(props);
+//			} catch (ClassNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			
 			Object proxyRaw=factory.create();
 			
