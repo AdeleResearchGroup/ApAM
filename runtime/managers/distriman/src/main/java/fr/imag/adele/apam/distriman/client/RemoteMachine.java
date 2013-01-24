@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
@@ -46,6 +47,7 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.distriman.discovery.RemoteMachineFactory;
 import fr.imag.adele.apam.distriman.dto.RemoteDependency;
 import fr.imag.adele.apam.distriman.provider.EndpointRegistration;
@@ -137,21 +139,24 @@ public class RemoteMachine implements ApformInstance {
 				jsonObject.put("client_url", this.getUrl());
 
 				String json = jsonObject.toString();
-				
-				Instance instance = createClientProxy(json,client);
 
-				// TODO distriman: log the remote resolution information on the client side
+				Instance instance = createClientProxy(json, client, dependency);
+
+				// TODO distriman: log the remote resolution information on the
+				// client side
 				if (instance == null) {
-					
-					logger.info("dependency {} was NOT found in {}",dependency.getIdentifier(),this.getUrl());
-					
+
+					logger.info("dependency {} was NOT found in {}",
+							dependency.getIdentifier(), this.getUrl());
+
 					return null;
 				}
-				
-				logger.info("dependency {} was found remotely",dependency.getIdentifier());
 
-				Set<Implementation> impl=Collections.emptySet();
-				
+				logger.info("dependency {} was found remotely",
+						dependency.getIdentifier());
+
+				Set<Implementation> impl = Collections.emptySet();
+
 				return new Resolved(impl, singleton(instance));
 
 				// TODO call this machine getUrl
@@ -162,18 +167,19 @@ public class RemoteMachine implements ApformInstance {
 		return null; // TODO
 	}
 
-	private Instance createClientProxy(String jsondep,Instance client) {
+	private Instance createClientProxy(String jsondep, Instance client,
+			DependencyDeclaration dependency) {
 
 		HttpURLConnection connection = null;
 		PrintWriter outWriter = null;
 		BufferedReader serverResponse = null;
 		StringBuffer buff = new StringBuffer();
 		try {
-			
-			System.out.println("#### Using address:"+this.getUrl());
-			
-			connection = (HttpURLConnection) new URL(
-					this.getUrl()+"/apam/machine").openConnection();
+
+			logger.info("Using address {}", getUrl());
+
+			connection = (HttpURLConnection) new URL(this.getUrl()
+					+ "/apam/machine").openConnection();
 
 			// SET REQUEST INFO
 			connection.setRequestMethod("POST");
@@ -197,43 +203,78 @@ public class RemoteMachine implements ApformInstance {
 				sb.append(line);
 			}
 
-			if(sb.toString().trim().equals("")) return null;
-			
+			if (sb.toString().trim().equals(""))
+				return null;
+
 			String decoded = URLDecoder.decode(sb.toString(), "UTF-8");
 
 			System.out.println("Decoded value=" + decoded);
 
 			JSONObject jsonResponse = new JSONObject(decoded);
 
-			String endpointUrl = jsonResponse.getString("endpoint_url");
-			String instancename = jsonResponse.getString("instance_name");
-			String interfacename = jsonResponse.getString("interface_name");
-			
-			Class ifaceClazz=Class.forName(interfacename);
-			
-//			Thread.currentThread().setContextClassLoader(ServerFactoryBean.class.getClassLoader());
-			
-			ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
-			factory.setServiceClass(ifaceClazz);
-			factory.setAddress(endpointUrl);
-			
-//			HashMap props = new HashMap();
-//			try {
-//				props.put("jaxb.additionalContextClasses", new Class[] {
-//				Class.forName("fr.imag.adele.apam.pax.test.iface.P2SpecKeeper") });
-//				factory.setProperties(props);
-//			} catch (ClassNotFoundException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			
-			Object proxyRaw=factory.create();
-			
-//			System.out.println(String.format("Client side: [instance ID:%s, endpoint:%s]", instancename,endpointUrl).toString());
-//			P2Spec p2=(P2Spec)factory.create();
-//			System.out.println("Proxy Instantiated:"+p2.getName());
-			
-			return new RemoteInstanceImpl(endpointUrl, this.getInst().getComposite(), this, proxyRaw);
+			String endpointUrlAndInterfaces = jsonResponse
+					.getString("endpoint_url");
+
+			StringTokenizer urlsAndInterfaces = new StringTokenizer(
+					endpointUrlAndInterfaces, ",");
+
+			while (urlsAndInterfaces.hasMoreElements()) {
+				StringTokenizer buck = new StringTokenizer(
+						urlsAndInterfaces.nextToken(), "!");
+				String endpointUrl = buck.nextToken();
+				String interfacename = buck.nextToken();
+
+				// String endpointUrl = jsonResponse.getString("endpoint_url");
+				// String instancename =
+				// jsonResponse.getString("instance_name");
+				// String interfacename =
+				// jsonResponse.getString("interface_name");
+
+				Object proxyRaw = null;
+
+				if (dependency.getTarget() instanceof InterfaceReference) {
+					InterfaceReference ir = (InterfaceReference) dependency
+							.getTarget();
+					
+					logger.info("Type to be loaded {}", ir.getJavaType());
+
+					if (interfacename.equals(ir.getJavaType())) {
+
+						Class ifaceClazz = Class.forName(interfacename);
+
+						// Thread.currentThread().setContextClassLoader(ServerFactoryBean.class.getClassLoader());
+
+						logger.info("connecting the interface {} to the endpoint {}",interfacename,endpointUrl);
+						
+						ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
+						factory.setServiceClass(ifaceClazz);
+						factory.setAddress(endpointUrl);
+
+						// HashMap props = new HashMap();
+						// try {
+						// props.put("jaxb.additionalContextClasses", new
+						// Class[] {
+						// Class.forName("fr.imag.adele.apam.pax.test.iface.P2SpecKeeper")
+						// });
+						// factory.setProperties(props);
+						// } catch (ClassNotFoundException e) {
+						// // TODO Auto-generated catch block
+						// e.printStackTrace();
+						// }
+
+						proxyRaw = factory.create();
+
+						// System.out.println(String.format("Client side: [instance ID:%s, endpoint:%s]",
+						// instancename,endpointUrl).toString());
+						// P2Spec p2=(P2Spec)factory.create();
+						// System.out.println("Proxy Instantiated:"+p2.getName());
+					}
+				}
+
+				return new RemoteInstanceImpl(endpointUrl, this.getInst()
+						.getComposite(), this, proxyRaw);
+
+			}
 
 		} catch (MalformedURLException mue) {
 			mue.printStackTrace();
@@ -246,7 +287,7 @@ public class RemoteMachine implements ApformInstance {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} finally {
-			
+
 			if (connection != null)
 				connection.disconnect();
 
@@ -266,8 +307,7 @@ public class RemoteMachine implements ApformInstance {
 		// Instance client = (Instance) factory.create();
 		//
 		// return client; // null
-		
-		
+
 		return null;
 	}
 

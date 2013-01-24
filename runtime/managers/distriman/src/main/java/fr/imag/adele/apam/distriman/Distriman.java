@@ -262,7 +262,6 @@ public class Distriman implements DependencyManager{
 
 
     public EndpointRegistration resolveRemoteDependency(RemoteDependency dependency, String machineUrl) throws ClassNotFoundException{
-        EndpointRegistration registration = null;
 
         logger.info("client requested resolution of dependency identifier {} in the address {}",dependency.getIdentifier(),machineUrl);
 

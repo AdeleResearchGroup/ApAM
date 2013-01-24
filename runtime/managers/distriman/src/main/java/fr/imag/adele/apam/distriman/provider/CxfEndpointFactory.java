@@ -15,7 +15,9 @@
 package fr.imag.adele.apam.distriman.provider;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.cxf.Bus;
@@ -35,10 +37,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
-import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.distriman.Distriman;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.distriman.dto.RemoteDependency;
 import fr.imag.adele.apam.distriman.provider.impl.EndpointRegistrationImpl;
@@ -51,8 +50,9 @@ import fr.imag.adele.apam.impl.ComponentImpl;
  */
 public class CxfEndpointFactory {
 
-	private static Logger logger = LoggerFactory.getLogger(CxfEndpointFactory.class);
-	
+	private static Logger logger = LoggerFactory
+			.getLogger(CxfEndpointFactory.class);
+
 	public static final String PROTOCOL_NAME = "cxf";
 	public static final String ROOT_NAME = "/ws";
 
@@ -112,10 +112,10 @@ public class CxfEndpointFactory {
 		// compute the PROP_CXF_URL property
 		try {
 			myurl = new URI("http://" + LocalMachine.INSTANCE.getHost() + ":"
-					+ LocalMachine.INSTANCE.getPort() + ROOT_NAME).toString(); 
-			
-			logger.info("instantiating endpoint factory for the url {}",myurl);
-			
+					+ LocalMachine.INSTANCE.getPort() + ROOT_NAME).toString();
+
+			logger.info("instantiating endpoint factory for the url {}", myurl);
+
 		} catch (Exception e) {
 			// TODO log
 			// "Cannot create the URL of the JAX-WS server, this will lead to incomplete EndpointDescription.",e);
@@ -131,52 +131,65 @@ public class CxfEndpointFactory {
 	 * Create the Instance ServiceObject endpoint with CXF.
 	 * 
 	 * @param instance
+	 * @throws ClassNotFoundException
 	 */
-	private String createEndpoint(Instance instance, Class iface) {
+	private Map<Class, String> createEndpoint(Instance instance)
+			throws ClassNotFoundException {
 		Object obj = instance.getServiceObject();
 		ServerFactoryBean srvFactory;
 
-		// Use the classloader of the cxf bundle in order to create the ws.
-		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		Map<Class, String> result = new HashMap<Class, String>();
 
-//		Thread.currentThread().setContextClassLoader(
-//				ServerFactoryBean.class.getClassLoader());
+		Collection<Class> classes = loadInterfaceForProxyExport(instance);
 
-		try {
+		for (Class iface : classes) {
 
-			srvFactory = new ServerFactoryBean();
+			// ClassLoader loader =
+			// Thread.currentThread().getContextClassLoader();
+			// Thread.currentThread().setContextClassLoader(
+			// ServerFactoryBean.class.getClassLoader());
 
-			if (iface != null) {
+			try {
+
+				srvFactory = new ServerFactoryBean();
+
 				srvFactory.setServiceClass(iface);
+
+				srvFactory.setBus(cxfbus); // Use the OSGi Servlet as the
+											// dispatcher
+				srvFactory.setServiceBean(obj);
+
+				srvFactory.setAddress("/" + instance.getName() + "/"
+						+ iface.getCanonicalName().replaceAll("\\.", "/"));
+
+				// HashMap props = new HashMap();
+				// try {
+				// props.put("jaxb.additionalContextClasses", new Class[] {
+				// Class.forName("fr.imag.adele.apam.pax.test.iface.P2SpecKeeper")
+				// });
+				// srvFactory.setProperties(props);
+				// } catch (ClassNotFoundException e) {
+				// // TODO Auto-generated catch block
+				// e.printStackTrace();
+				// }
+
+				Server res = srvFactory.create();
+
+				webservices.put(instance.getName(), res);
+
+				result.put(iface, res.getEndpoint().getEndpointInfo()
+						.getAddress());
+
+			} finally {
+				// reset the context classloader to the original one.
+				// Thread.currentThread().setContextClassLoader(loader);
 			}
-			
-			srvFactory.setBus(cxfbus); // Use the OSGi Servlet as the dispatcher
-			srvFactory.setServiceBean(obj);
 
-			srvFactory.getBus().setProperty("lazy-init", Boolean.FALSE);
-			
-			srvFactory.setAddress("/" + instance.getName());
+			break;
 
-//			HashMap props = new HashMap();
-//			try {
-//				props.put("jaxb.additionalContextClasses", new Class[] {
-//				Class.forName("fr.imag.adele.apam.pax.test.iface.P2SpecKeeper") });
-//				srvFactory.setProperties(props);
-//			} catch (ClassNotFoundException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			
-			Server res = srvFactory.create(); // Publish the webservice.
-			
-			webservices.put(instance.getName(), res);
-
-			return res.getEndpoint().getEndpointInfo().getAddress();
-
-		} finally {
-			// reset the context classloader to the original one.
-//			Thread.currentThread().setContextClassLoader(loader);
 		}
+
+		return result;
 
 	}
 
@@ -194,21 +207,23 @@ public class CxfEndpointFactory {
 		EndpointRegistration registration = null;
 		// Get local instance matching the RemoteDependency
 
-		logger.info("requesting apam instance {} to resolve the dependency {}",apamMan,dependency.getIdentifier());
-		
+		logger.info("requesting apam instance {} to resolve the dependency {}",
+				apamMan, dependency.getIdentifier());
+
 		Resolved resolved = apamMan.resolveDependency(client.getInst(),
 				dependency, true);
 
 		// No local instance matching the RemoteDependency
 		if (resolved.instances.isEmpty()) {
-			
+
 			logger.info("impossile to solve dependency, the number of instances was zero");
-			
+
 			return null;
 		}
 
-		logger.info("solve dependency, {} instance(s) where found",resolved.instances.size());
-		
+		logger.info("solve dependency, {} instance(s) where found",
+				resolved.instances.size());
+
 		// Check if we already have an endpoint for the instances
 		synchronized (endpoints) {
 
@@ -217,28 +232,39 @@ public class CxfEndpointFactory {
 
 			// Nope, create a new endpoint
 			if (alreadyExported.isEmpty()) {
-				
-				neo = resolved.instances.iterator().next();
-				
-				logger.info("dependency {} was NOT exported before, preparing endpoint for instance {}",dependency.getIdentifier(),neo);
-				
-				Class ifacecazz = loadInterfaceForProxyExport(neo);
-				// create the endpoint.
-				String endPointURL = createEndpoint(neo, ifacecazz);
 
-				logger.info("cxf endpoint created in the address {}",myurl+endPointURL);
+				neo = resolved.instances.iterator().next();
+
+				logger.info(
+						"dependency {} was NOT exported before, preparing endpoint for instance {}",
+						dependency.getIdentifier(), neo);
+
+				Map<Class, String> endpoints = createEndpoint(neo);
+
+				String fullURL = "";
 				
-				registration = new EndpointRegistrationImpl(this,neo, client, myurl+endPointURL //myurl + "/" + neo.getName() 
-				, PROTOCOL_NAME, ifacecazz.getCanonicalName());//
+				for (Map.Entry<Class, String> endpoint : endpoints.entrySet()) {
+
+					logger.info("cxf endpoint created in the address {}",
+							fullURL);
+					
+					fullURL+= myurl + endpoint.getValue()+"!"+endpoint.getKey().getCanonicalName()+",";
+
+				}
+				
+				registration = new EndpointRegistrationImpl(this, neo,
+						client, fullURL, PROTOCOL_NAME,fullURL);//
 
 			} else {
-				
+
 				neo = alreadyExported.iterator().next();
-				
-				logger.info("dependency {} was exported before, using instance {}",dependency.getIdentifier(),neo);
-				
-				registration = new EndpointRegistrationImpl(this,endpoints.get(neo)
-						.iterator().next());
+
+				logger.info(
+						"dependency {} was exported before, using instance {}",
+						dependency.getIdentifier(), neo);
+
+				registration = new EndpointRegistrationImpl(this, endpoints
+						.get(neo).iterator().next());
 			}
 
 			// Add the EndpointRegistration to endpoints
@@ -248,22 +274,21 @@ public class CxfEndpointFactory {
 		return registration;
 	}
 
-	private Class loadInterfaceForProxyExport(Instance instance) throws ClassNotFoundException {
+	private Collection<Class> loadInterfaceForProxyExport(Instance instance)
+			throws ClassNotFoundException {
 
-		Class clazz = null;
+		Collection<Class> classes = new HashSet<Class>();
 
 		if (instance instanceof ComponentImpl) {
-			
-			ResourceReference ref = instance.getSpec().getApformSpec()
-					.getDeclaration().getProvidedResources().iterator().next();
 
-				clazz = Class.forName(ref.getName());
+			for (ResourceReference ref : instance.getSpec().getApformSpec()
+					.getDeclaration().getProvidedResources()) {
+				classes.add(Class.forName(ref.getName()));
+			}
 
 		}
 
-		return clazz;
+		return classes;
 	}
-
-	
 
 }

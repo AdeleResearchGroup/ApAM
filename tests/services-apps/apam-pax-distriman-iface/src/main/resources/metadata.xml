@@ -24,7 +24,7 @@
 </specification>
 
 <specification name="P2-spec"
-		interfaces="fr.imag.adele.apam.pax.test.iface.P2Spec">
+		interfaces="fr.imag.adele.apam.pax.test.iface.P2Spec,fr.imag.adele.apam.pax.test.iface.P2Spec2"> <!-- fr.imag.adele.apam.pax.test.iface.P2Spec2 -->
 		<definition name="description" type="string" />
 </specification>
 

@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.imag.adele.apam.pax.test.iface.P2Spec;
+import fr.imag.adele.apam.pax.test.iface.P2Spec2;
 import fr.imag.adele.apam.pax.test.iface.P2SpecKeeper;
 
-public class P2Impl implements P2Spec{
+public class P2Impl implements P2Spec2, P2Spec{
 
 	@Override
 	public String getName(){
@@ -24,5 +25,12 @@ public class P2Impl implements P2Spec{
 		// TODO Auto-generated method stub
 		return new P2SpecKeeper("keeper value ok");
 	}
-	
+
+	@Override
+	public String getSpec2Name() {
+		// TODO Auto-generated method stub
+		return "qsdqdsq";
+	}
+
+
 }
