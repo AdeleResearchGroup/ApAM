@@ -517,6 +517,7 @@ public class ApamFilter implements Filter {
     }
 
     private boolean match0(Map properties) {
+    	
         switch (op) {
             case AND: {
                 ApamFilter[] filters = (ApamFilter[]) value;
@@ -555,7 +556,7 @@ public class ApamFilter implements Filter {
             case SUPERSET: {
                 Object prop = (properties == null) ? null : properties
                         .get(attr);
-
+                
                 return compare(op, prop, value);
             }
 
@@ -623,7 +624,8 @@ public class ApamFilter implements Filter {
             if (v.indexOf(',') < 0) {
                 s = Collections.singleton(v);
             } else {
-                StringTokenizer st = new StringTokenizer(value.toString(), ",");
+                //Knowing this is a collection, they have '{' and '}' as prolog and epilog. Thus they should be removed in order to tokenize it 
+            	StringTokenizer st = new StringTokenizer(value.toString().replaceAll("[\\{\\}]", ""), ",");
                 s = new HashSet();
                 while (st.hasMoreTokens()) {
                     s.add(st.nextToken().trim());
@@ -637,9 +639,12 @@ public class ApamFilter implements Filter {
 
     @SuppressWarnings("unchecked") 
     private boolean compare(int operation, Object value1, Object value2) {
+    	
         if ((op == ApamFilter.SUPERSET) || (op == ApamFilter.SUBSET)) {
-            Collection s1 = getSet(value1);
+        	
+        	Collection s1 = getSet(value1);
             Collection s2 = converted instanceof Collection ? (Collection) converted : getSet(value2);
+            
             if (op == ApamFilter.SUPERSET) {
                 return s1.containsAll(s2);
             } else {
@@ -1473,7 +1478,7 @@ public class ApamFilter implements Filter {
 
         private String parse_value() throws InvalidSyntaxException {
             StringBuffer sb = new StringBuffer(filterChars.length - pos);
-
+            
             parseloop: while (true) {
                 char c = filterChars[pos];
 
