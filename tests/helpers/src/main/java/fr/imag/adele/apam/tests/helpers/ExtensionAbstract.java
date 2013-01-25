@@ -22,6 +22,7 @@ import static org.ops4j.pax.exam.CoreOptions.systemTimeout;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 import static org.ops4j.pax.exam.CoreOptions.when;
 
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
@@ -35,7 +36,6 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
 import org.ops4j.pax.exam.Configuration;
-import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.CompositeOption;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
@@ -102,11 +102,16 @@ public abstract class ExtensionAbstract extends TestUtils {
 
 	protected CompositeOption packInitialConfig() {
 
+		String logpath="file:" + PathUtils.getBaseDir() + "/log/logback.xml";
+		File log=new File(logpath);
+		
+		boolean includeLog=log.exists()&&log.isFile();
+		
 		CompositeOption initial = new DefaultCompositeOption(
 				systemProperty("org.osgi.service.http.port").value("8080"), 
 //				systemProperty("pax.exam.service.timeout").value("30000"),
 				cleanCaches(),
-				systemProperty("logback.configurationFile").value("file:" + PathUtils.getBaseDir() + "/log/logback.xml"),
+				when(includeLog).useOptions(systemProperty("logback.configurationFile").value(logpath)),
 				systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("NONE")
 				);
 
