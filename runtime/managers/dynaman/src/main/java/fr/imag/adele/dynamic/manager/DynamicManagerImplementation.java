@@ -251,9 +251,9 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			 * There are cases where the client will not be available, check with herman the invalid cases and the fix for that 
 			 */
 			Class<?> exceptionClass		= client.getImpl().getApformImpl().getBundle().loadClass(exceptionName);
+			Exception exception			= Exception.class.cast(exceptionClass.newInstance());
 			
-			RuntimeException exception	= RuntimeException.class.cast(exceptionClass.newInstance());
-			throw exception;
+			DynamicManagerImplementation.<RuntimeException>doThrow(exception);
 		
 		} catch (ClassNotFoundException e) {
 			throw new ResolutionException();
@@ -263,6 +263,11 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			throw new ResolutionException();
 		}
 		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static <E extends Exception> void doThrow(Exception e) throws E {
+		throw (E) e;
 	}
 	
 	
