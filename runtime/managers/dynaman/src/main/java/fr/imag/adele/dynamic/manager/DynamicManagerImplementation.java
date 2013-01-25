@@ -229,7 +229,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	/**
 	 * Throws the exception associated with a missing dependency
 	 */
-	private void throwMissingException(DependencyDeclaration dependency) {
+	private void throwMissingException(DependencyDeclaration dependency,Instance client) {
 		try {
 			
 			/*
@@ -246,7 +246,12 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			 * 
 			 */
 			String exceptionName		= dependency.getMissingException();
-			Class<?> exceptionClass		= context.getBundle().loadClass(exceptionName);
+			
+			/**
+			 * There are cases where the client will not be available, check with herman the invalid cases and the fix for that 
+			 */
+			Class<?> exceptionClass		= client.getImpl().getApformImpl().getBundle().loadClass(exceptionName);
+			
 			RuntimeException exception	= RuntimeException.class.cast(exceptionClass.newInstance());
 			throw exception;
 		
@@ -442,7 +447,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			}
 			
 			case EXCEPTION : {
-				throwMissingException(dependency);
+				throwMissingException(dependency,client);
 			}
 			
 			case WAIT : {

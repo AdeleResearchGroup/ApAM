@@ -14,7 +14,7 @@
  */
 package fr.imag.adele.apam.pax.test.implS3;
 
-public class FailException extends Exception {
+public class FailException extends RuntimeException {
 
 	/**
 	 * 
