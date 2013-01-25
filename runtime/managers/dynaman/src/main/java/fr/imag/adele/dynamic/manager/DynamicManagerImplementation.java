@@ -256,7 +256,6 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			DynamicManagerImplementation.<RuntimeException>doThrow(exception);
 		
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 			throw new ResolutionException();
 		} catch (InstantiationException e) {
 			throw new ResolutionException();

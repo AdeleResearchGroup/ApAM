@@ -397,7 +397,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 			
 			System.err.println("-------------- /Exception raised -----------------");
 			
-			if (e instanceof javax.sound.sampled.UnsupportedAudioFileException) {
+			if (e instanceof javax.xml.parsers.ParserConfigurationException) {
 				exceptionType = true;
 			}
 

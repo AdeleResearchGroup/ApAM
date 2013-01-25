@@ -45,7 +45,7 @@
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
 		<dependency field="element" specification="eletronic-device-private"
-			fail="exception" exception="javax.sound.sampled.UnsupportedAudioFileException" />
+			fail="exception" exception="javax.xml.parsers.ParserConfigurationException" />
 		<dependency field="c" />
 	</implementation>
 
