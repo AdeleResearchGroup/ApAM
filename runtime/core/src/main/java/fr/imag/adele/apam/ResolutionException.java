@@ -26,6 +26,11 @@ public class ResolutionException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	public ResolutionException() {
+
+	}
+	
+	public ResolutionException(Throwable cause) {
+		super(cause);
 	}
 	
 	public ResolutionException(String message) {

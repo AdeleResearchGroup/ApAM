@@ -256,11 +256,11 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			DynamicManagerImplementation.<RuntimeException>doThrow(exception);
 		
 		} catch (ClassNotFoundException e) {
-			throw new ResolutionException();
+			throw new ResolutionException(e);
 		} catch (InstantiationException e) {
-			throw new ResolutionException();
+			throw new ResolutionException(e);
 		} catch (IllegalAccessException e) {
-			throw new ResolutionException();
+			throw new ResolutionException(e);
 		}
 		
 	}
