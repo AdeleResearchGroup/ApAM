@@ -17,6 +17,8 @@ package fr.imag.adele.apam.test.testcases;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -397,7 +399,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 			
 			System.err.println("-------------- /Exception raised -----------------");
 			
-			if (e instanceof javax.xml.parsers.ParserConfigurationException) {
+			if (e instanceof ParserConfigurationException) {
 				exceptionType = true;
 			}
 
