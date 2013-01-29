@@ -33,8 +33,7 @@ import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 
-public class HistMan implements DependencyManager, PropertyManager,
-		DynamicManager {
+public class HistMan implements PropertyManager, DynamicManager {
 
 	// Link compositeType with it instance of obrManager
 	private final Map<String, String> histDbURLs;
@@ -46,11 +45,25 @@ public class HistMan implements DependencyManager, PropertyManager,
 
 	private static final String DB_URL_KEY = "DBUrl";
 	private static final String DB_URL_VALUE_DEFAULT = "localhost";
+	private static final String DB_DROP_START = "dropCollectionsOnStart";
 
+	/*
+	 * The collection containing the attributes created, changed and removed.
+	 */
+	private static final String ChangedAttributes = "Attr" ;
+	
+	/*
+	 * The collection containing the entities (spec, implems, instances) created, and deleted
+	 */
+	private static final String Entities = "ME" ;
+	
+	/*
+	 * The collection containing the links (wires) created, and deleted
+	 */
+	private static final String Links = "Links" ;
+	
 	private DB db = null;
 
-	// private
-	// private DBCollection ChangedLink = db.getCollection("ChangedLinks");
 
 	/**
 	 * HISTMAN activated, register with APAM
@@ -61,14 +74,12 @@ public class HistMan implements DependencyManager, PropertyManager,
 	}
 
 	public void start() {
-		ApamManagers.addDependencyManager(this, getPriority());
 		ApamManagers.addPropertyManager(this);
 		ApamManagers.addDynamicManager(this);
 		logger.info("[HISTMAN] started");
 	}
 
 	public void stop() {
-		ApamManagers.removeDependencyManager(this);
 		ApamManagers.removePropertyManager(this);
 		ApamManagers.removeDynamicManager(this);
 		histDbURLs.clear();
@@ -79,17 +90,20 @@ public class HistMan implements DependencyManager, PropertyManager,
 	public void newComposite(ManagerModel model, CompositeType compositeType) {
 		String histURL = null;
 		String histDBName = null;
-		if (model == null) { // if no model for the compositeType, set the root
-								// composite model
+		String dropCollections = null ;
+		LinkedProperties histModel = new LinkedProperties();
+
+		/*
+		 *if no model for the compositeType, set the default values
+		 */
+		if (model == null) { 
 			histURL = DB_URL_VALUE_DEFAULT;
 			histDBName = DB_NAME_VALUE_DEFAULT;
 			// stop () ;
 		} else {
 			try {// try to load the compositeType model
-				LinkedProperties histModel = new LinkedProperties();
 				logger.info("Loading properties from {}", model.getURL());
 				histModel.load(model.getURL().openStream());
-				Enumeration<?> keys = histModel.keys();
 				histURL = histModel.getProperty(DB_URL_KEY);
 				histDBName = histModel.getProperty(DB_NAME_KEY,
 						DB_NAME_VALUE_DEFAULT);
@@ -108,6 +122,17 @@ public class HistMan implements DependencyManager, PropertyManager,
 			logger.info("trying to connect with database {} in host {}",
 					histDBName, histURL);
 			db = mongoClient.getDB(histDBName);
+			
+			/*
+			 * if attribute dropComection is true, drop all collections
+			 */
+			dropCollections = histModel.getProperty(DB_DROP_START) ;
+			if ("true".equals(dropCollections)) {
+				db.getCollection(Entities).drop ();
+				db.getCollection(ChangedAttributes).drop ();
+				db.getCollection(Links).drop () ;
+			}
+
 		} catch (UnknownHostException e) {
 			logger.error("no Mongo Database at URL {} name {}", model.getURL(),
 					histDBName);
@@ -116,123 +141,23 @@ public class HistMan implements DependencyManager, PropertyManager,
 
 	}
 
-	// private String searchDBUrl(CompositeType compoType) {
-	// String dbURL = null;
-	//
-	// // in the case of root composite, compoType = null
-	// if (compoType != null) {
-	// dbURL = histDbURLs.get(compoType.getName());
-	// }
-	//
-	// // Use the root composite if the model is not specified
-	// if (dbURL == null) {
-	// dbURL = histDbURLs.get(CST.ROOT_COMPOSITE_TYPE);
-	// if (dbURL == null) { // If the root manager was never been initialized
-	// // lookFor root.HISTMAN.cfg and create a db for the root composite in a
-	// customized location
-	// String rootModelurl = m_context.getProperty(ROOT_MODEL_URL);
-	// try {// try to load root model from the customized location
-	// if (rootModelurl != null) {
-	// LinkedProperties histModel = new LinkedProperties();
-	// URL urlModel = (new File(rootModelurl)).toURI().toURL();
-	// histModel.load(urlModel.openStream());
-	// Enumeration<?> keys = histModel.keys();
-	// while (keys.hasMoreElements()) {
-	//
-	// String key = (String) keys.nextElement();
-	// if (DB_URL.equals(key)) {
-	// dbURL = histModel.getProperty(key) ;
-	// }
-	// }
-	// }
-	//
-	// } catch (Exception e) {// failed to load customized location,
-	//
-	// logger.error("Invalid Root URL Model. Cannot be read stream " +
-	// rootModelurl, e.getCause());
-	// //unregister
-	// }
-	// }
-	// }
-	// if (dbURL == null) {
-	// //remove history manager
-	// stop () ;
-	// }
-	// return dbURL;
-	// }
 
 	@Override
 	public String getName() {
 		return CST.HISTMAN;
 	}
 
-	// at the end
-	@Override
-	public void getSelectionPath(Instance client, DependencyDeclaration dep,
-			List<DependencyManager> involved) {
-		involved.add(involved.size(), this);
-	}
-
-	@Override
-	public Instance resolveImpl(Instance client, Implementation impl,
-			Set<String> constraints, List<String> preferences) {
-		return null;
-	}
-
-	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl,
-			Set<String> constraints) {
-		return null;
-	}
 
 	@Override
 	public int getPriority() {
 		return 3;
 	}
 
-	@Override
-	public Resolved resolveDependency(Instance client,
-			DependencyDeclaration dep, boolean needsInstances) {
-		return null;
-	}
-
-	@Override
-	public Component findComponentByName(Instance client, String componentName) {
-		return null;
-	}
-
-	@Override
-	public Specification findSpecByName(Instance client, String specName) {
-		return null;
-	}
-
-	@Override
-	public Implementation findImplByName(Instance client, String implName) {
-		return null;
-	}
-
-	@Override
-	public Instance findInstByName(Instance client, String instName) {
-		return null;
-	}
-
-	@Override
-	public void notifySelection(Instance client, ResolvableReference resName,
-			String depName, Implementation impl, Instance inst,
-			Set<Instance> insts) {
-
-	}
-
-	@Override
-	public ComponentBundle findBundle(CompositeType compoType,
-			String bundleSymbolicName, String componentName) {
-		return null;
-	}
 
 	@Override
 	public void addedComponent(Component comp) {
 		logger.info("Adding component");
-		DBCollection ME = db.getCollection("ModelingElement");
+		DBCollection ME = db.getCollection(Entities);
 
 		BasicDBObject created = new BasicDBObject("name", comp.getName())
 				.append("time", System.currentTimeMillis()).append("op",
@@ -247,7 +172,7 @@ public class HistMan implements DependencyManager, PropertyManager,
 	@Override
 	public void removedComponent(Component comp) {
 		logger.info("removing component");
-		DBCollection ME = db.getCollection("ModelingElement");
+		DBCollection ME = db.getCollection(Entities);
 
 		BasicDBObject created = new BasicDBObject("name", comp.getName())
 				.append("time", System.currentTimeMillis()).append("op",
@@ -258,7 +183,7 @@ public class HistMan implements DependencyManager, PropertyManager,
 
 	@Override
 	public void removedWire(Wire wire) {
-		DBCollection ChangedLink = db.getCollection("ChangedLinks");
+		DBCollection ChangedLink = db.getCollection(Links);
 
 		BasicDBObject newLink = new BasicDBObject("name", wire.getSource()
 				.getName()).append("time", System.currentTimeMillis())
@@ -271,7 +196,7 @@ public class HistMan implements DependencyManager, PropertyManager,
 
 	@Override
 	public void addedWire(Wire wire) {
-		DBCollection ChangedLink = db.getCollection("ChangedLinks");
+		DBCollection ChangedLink = db.getCollection(Links);
 
 		BasicDBObject newLink = new BasicDBObject("name", wire.getSource()
 				.getName()).append("time", System.currentTimeMillis())
@@ -285,7 +210,7 @@ public class HistMan implements DependencyManager, PropertyManager,
 	@Override
 	public void attributeChanged(Component comp, String attr, String newValue,
 			String oldValue) {
-		DBCollection ChangedAttr = db.getCollection("ChangedAttributes");
+		DBCollection ChangedAttr = db.getCollection(ChangedAttributes);
 
 		BasicDBObject newVal = new BasicDBObject("name", comp.getName())
 				.append("time", System.currentTimeMillis())
@@ -296,12 +221,11 @@ public class HistMan implements DependencyManager, PropertyManager,
 			newVal.append(e.getKey(), e.getValue().toString());
 		}
 		ChangedAttr.insert(newVal);
-
 	}
 
 	@Override
 	public void attributeRemoved(Component comp, String attr, String oldValue) {
-		DBCollection ChangedAttr = db.getCollection("ChangedAttributes");
+		DBCollection ChangedAttr = db.getCollection(ChangedAttributes);
 
 		BasicDBObject newVal = new BasicDBObject("name", comp.getName())
 				.append("time", System.currentTimeMillis())
@@ -311,14 +235,12 @@ public class HistMan implements DependencyManager, PropertyManager,
 		for (Map.Entry<String, Object> e : comp.getAllProperties().entrySet()) {
 			newVal.append(e.getKey(), e.getValue().toString());
 		}
-
 		ChangedAttr.insert(newVal);
-
 	}
 
 	@Override
 	public void attributeAdded(Component comp, String attr, String newValue) {
-		DBCollection ChangedAttr = db.getCollection("ChangedAttributes");
+		DBCollection ChangedAttr = db.getCollection(ChangedAttributes);
 
 		BasicDBObject newVal = new BasicDBObject("name", comp.getName())
 				.append("time", System.currentTimeMillis())
@@ -328,7 +250,6 @@ public class HistMan implements DependencyManager, PropertyManager,
 			newVal.append(e.getKey(), e.getValue().toString());
 		}
 		ChangedAttr.insert(newVal);
-
 	}
 
 }

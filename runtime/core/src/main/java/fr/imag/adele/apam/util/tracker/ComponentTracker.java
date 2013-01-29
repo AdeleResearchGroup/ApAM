@@ -185,5 +185,19 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
 			
 		}
 
+		@Override
+		public String getName() {
+			return "ComponentListener";
+		}
+
+		@Override
+		public int getPriority() {
+			return 0;
+		}
+
+		@Override
+		public void newComposite(ManagerModel model, CompositeType composite) {
+		}
+
     }
 }

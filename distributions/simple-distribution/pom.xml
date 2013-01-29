@@ -88,6 +88,12 @@
 									<artifactId>apam-universal-shell</artifactId>
                                     <version>${project.version}</version>
 								</artifactItem>
+								<artifactItem>
+									<groupId>fr.imag.adele.apam</groupId>
+									<artifactId>histman</artifactId>
+									<version>${apam.current.version}</version>
+								</artifactItem>
+								
 								<!-- Felix Dependencies -->
 								<artifactItem>
 									<groupId>org.apache.felix</groupId>
@@ -107,7 +113,6 @@
                                     <groupId>org.apache.felix</groupId>
                                     <artifactId>org.apache.felix.ipojo.annotations</artifactId>
                                 </artifactItem>
-
 								<artifactItem>
 									<groupId>org.osgi</groupId>
 									<artifactId>org.osgi.compendium</artifactId>

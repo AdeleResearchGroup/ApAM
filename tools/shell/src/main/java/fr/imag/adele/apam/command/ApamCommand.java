@@ -52,6 +52,7 @@ import fr.imag.adele.apam.Wire;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.Apform2Apam.Request;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.impl.CompositeImpl;
 
 
 @Instantiate
@@ -290,13 +291,18 @@ public class ApamCommand {
      */
     public void l(PrintWriter out,String... args) {
         if (args.length<=0){
-            argumentMessageError(out, "the command should be followed by a component name ( you can also specify the composite) , \n " +
-                    " example : \n " +
-                    "   l acomponentName  \n" +
-                    "   l aComponentName aComposite");
+            argumentMessageError(out, "the command should be followed by a component name \n " );
             return;
         }
-        launch (out,args) ;
+        String componentName = args[0];
+//        String compositeTarget = args[1];
+
+        Composite target = CompositeImpl.getRootAllComposites() ;
+//        		checkComposite(out,compositeTarget,componentName);
+        if (target!=null){
+            Thread t  = new Thread(new AsyncFind(out,target,componentName,true) );
+            t.start();
+        }
     }
 
 

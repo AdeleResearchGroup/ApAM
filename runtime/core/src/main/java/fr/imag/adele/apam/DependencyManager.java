@@ -22,21 +22,36 @@ import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 
 /**
- * Interface that each manager MUST implement. Used by APAM to resolve the dependencies and manage the application.
+ * Interface that each dependency manager MUST implement. 
+ * Used by APAM to resolve the dependencies and manage the application.
  * 
  * @author Jacky
  * 
  */
 
-public interface DependencyManager {
+public interface DependencyManager extends Manager{
 
-	/**
-	 * 
-	 * @return the name of that manager.
-	 */
-	public String getName();
+//	/**
+//	 * 
+//	 * @return the name of that manager.
+//	 */
+//	public String getName();
+//
+//
+	//
+//	// returns the relative priority of that manager, for the resolution algorithm
+//	public int getPriority();
+//
+//	/**
+//	 * A new composite, holding a model managed by this manager, has been created. The manager is supposed to read and
+//	 * interpret that model.
+//	 * 
+//	 * @param model the model.
+//	 * @param composite the new composite (or appli)
+//	 */
+//	public void newComposite(ManagerModel model, CompositeType composite);
 
-
+	
 	/**
 	 * Provided that a dependency resolution is required by client,
 	 * each manager is asked if it want to be involved. If this manager is not involved, it does nothing. If involved,
@@ -48,18 +63,6 @@ public interface DependencyManager {
 	 * @param selPath the managers currently involved in this resolution.
 	 */
 	public void getSelectionPath(Instance client, DependencyDeclaration dependency,  List<DependencyManager> selPath);
-
-	// returns the relative priority of that manager, for the resolution algorithm
-	public int getPriority();
-
-	/**
-	 * A new composite, holding a model managed by this manager, has been created. The manager is supposed to read and
-	 * interpret that model.
-	 * 
-	 * @param model the model.
-	 * @param composite the new composite (or appli)
-	 */
-	public void newComposite(ManagerModel model, CompositeType composite);
 
 
 	/**

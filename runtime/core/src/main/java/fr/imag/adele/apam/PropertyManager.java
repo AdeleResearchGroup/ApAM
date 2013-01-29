@@ -19,7 +19,7 @@ package fr.imag.adele.apam;
  * @author Jacky
  *
  */
-public interface PropertyManager {
+public interface PropertyManager extends Manager {
 	/**
 	 * The attribute "attr" has been modified.
 	 * @param component. The component (Spec, Implem, Instance) holding that attribute.
