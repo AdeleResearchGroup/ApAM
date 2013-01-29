@@ -17,6 +17,7 @@ package fr.imag.adele.apam.test.testcases;
 //import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.provision;
 import static org.ops4j.pax.tinybundles.core.TinyBundles.bundle;
+import static org.ops4j.pax.exam.CoreOptions.systemPackage;
 
 import java.util.HashMap;
 import java.util.List;
@@ -545,7 +546,8 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	public List<Option> config() {
 
 		List<Option> config=super.config();
-		config.add(provision(bundle().set(org.osgi.framework.Constants.IMPORT_PACKAGE, "javax.xml.parsers.*" ).build()));
+		config.add(systemPackage("javax.xml.parsers"));
+		//config.add(provision(bundle().set(org.osgi.framework.Constants.IMPORT_PACKAGE, "javax.xml.parsers" ).build()));
 		return config;
 	}
 
