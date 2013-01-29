@@ -13,16 +13,14 @@
 
 
 
-	<component name="OBRMAN" classname="fr.imag.adele.obrMan.internal.OBRMan"
+	<component name="HISTMAN" classname="fr.imag.adele.histMan.HistMan"
 		immediate="true">
-		<provides specifications="fr.imag.adele.obrMan.OBRManCommand"/>
-	    <requires field="apam" proxy="false"/>
-		<requires field="repoAdmin" proxy="false"/>
-		<callback transition="validate" method="start" />
+		<provides specifications="fr.imag.adele.apam.DynamicManager"/>
+	<callback transition="validate" method="start" />
 		<callback transition="invalidate" method="stop" />
 	</component>
 
 	
-	<instance name="OBRMAN-Instance" component="OBRMAN"></instance>
+	<instance name="HISTMAN-Instance" component="HISTMAN"></instance>
 
 </ipojo>
