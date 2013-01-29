@@ -328,13 +328,14 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals(inst.getProperty("s1i"), "5");
 		impl.setProperty("s1i", "5, 7, 55,985"); // Ok
 		assertNotEquals(impl.getProperty("s1i"), "5, 7, 55,985");
+		
 		//		assertEquals(inst.getProperty("s1i"), "5, 7, 55,985");
 
 		//		impl.setProperty("s1i", "5, zz, 55,985"); // wrong
 		//		assertNotEquals(impl.getProperty("s1i"), "5, zz, 55,985");
 
 		boolean ok  ;
-		impl.setProperty("s1i", "5"); // for match tests
+		
 		assertTrue ( inst.match("(s1i>=4)")) ;
 		assertTrue (!inst.match("(s1i<=4)")) ;
 		assertTrue (!inst.match("(s1i>=6)")) ;
@@ -367,6 +368,19 @@ public class MainApam implements Runnable, ApamComponent {
 		//Instances can set spec attributes, if not defined by the implem
 		inst.setProperty("OS", "Linux") ; // ok
 		assertEquals(inst.getProperty("OS"), "Linux");
+		
+		
+		impl.setProperty("setInt", "7, 55"); // for match tests
+		
+		System.out.println("\n");
+		System.out.println("setInt value is : " + inst.getProperty("setInt"));
+		
+		assertTrue ( inst.match("(setInt <* 5, 7, 55,985)")) ;
+		assertTrue ( inst.match("(setInt *> 5, 7, 55,985)")) ;
+		assertTrue ( inst.match("(setInt <* 05, 7, 55,985)")) ;
+		assertTrue ( inst.match("(setInt <* 5, 07, 55,985)")) ;
+		assertTrue ( inst.match("(setInt <= 05, 7, 55,985)")) ;
+		
 		inst.setProperty("OS", "Android, Linux, IOS") ; // ok
 		assertEquals(inst.getProperty("OS"), "Android, Linux, IOS");
 		assertTrue(impl.getProperty("OS") == null);

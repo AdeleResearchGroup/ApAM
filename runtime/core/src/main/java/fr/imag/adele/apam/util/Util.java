@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -428,16 +429,18 @@ public final class Util {
 			}
 
 			if (type.equals("int") || type.equals("integer")) {
-				Integer valInt = null ;
 				try {
-					for (String val : values) {
-						valInt = Integer.parseInt(val);
-					}
 					if (values.size() == 1) {
 						// the only case where we return something else than a string !
-						return valInt;
+						return Integer.parseInt(values.iterator().next());
 					}
-					//unfortunately, a set of int is the same as a set of strings
+					Set<Integer> intArray = new HashSet<Integer> () ;
+					for (String val : values) {
+						intArray.add (Integer.parseInt(val));
+					}
+					System.err.println("tableau de Integer : " + intArray.toString() + " en string : " + value);
+					//unfortunately, match does not recognizes a set of integer.
+					//return intArray ;
 					return value ;
 				} catch (Exception e) {
 					logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
@@ -489,7 +492,6 @@ public final class Util {
 
 	public static boolean checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr,
 			String comp) {
-
 		boolean ok = true;
 		if (filters != null) {
 			for (String f : filters) {

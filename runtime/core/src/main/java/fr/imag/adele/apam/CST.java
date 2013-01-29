@@ -84,6 +84,7 @@ public class CST {
 	public static final String DISTRIMAN = "DISTRIMAN";
 	public static final String OBRMAN    = "OBRMAN";
 	public static final String UPDATEMAN = "UPDATEMAN";
+	public static final String HISTMAN   = "HISTMAN";
 
 	// The entry point in the ASM : its broker
 	public static ComponentBroker componentBroker = null;

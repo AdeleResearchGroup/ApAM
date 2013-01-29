@@ -11,5 +11,10 @@ public interface ApamComponent {
     void apamInit(Instance apamInstance);
 
     void apamRemove();
+    
+    void wiredFor (String resource) ;
+    
+    void unWiredFor (String resource) ;
+    
 
 }

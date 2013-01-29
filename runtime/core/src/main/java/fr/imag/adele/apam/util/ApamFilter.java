@@ -1229,7 +1229,7 @@ public class ApamFilter implements Filter {
             try {
                 filter = parse_filter();
             } catch (ArrayIndexOutOfBoundsException e) {
-                throw new InvalidSyntaxException("Filter ended abruptly",
+                throw new InvalidSyntaxException("Filter ended abruptly. Filter : " +  filterstring,
                         filterstring);
             }
 
