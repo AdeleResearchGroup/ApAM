@@ -229,17 +229,6 @@ public class HistMan implements DependencyManager, PropertyManager,
 		return null;
 	}
 
-	// if (bundleSymbolicName == null || componentName == null)
-	// return null;
-	//
-	// // Find the composite OBRManager
-	// OBRManager obrManager = searchOBRManager(compoType);
-	// if (obrManager == null)
-	// return null;
-	//
-	// return obrManager.lookForBundle(bundleSymbolicName, componentName);
-	// }
-
 	@Override
 	public void addedComponent(Component comp) {
 		logger.info("Adding component");
