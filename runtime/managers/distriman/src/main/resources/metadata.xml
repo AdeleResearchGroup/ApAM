@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ipojo>
+<!---
+	<component name="rose.hello.cmp" classname="fr.imag.adele.apam.distriman.web.SampleImpl">
+		<provides>
+			<property type="String" name="apam.exportprotocol" value="json-rpc"/>
+                        <property type="String" name="endpoint.id" value="myHello"/>
+		</provides>
+	</component>
+	<instance component="rose.hello.cmp" />
+	 -->
+</ipojo>

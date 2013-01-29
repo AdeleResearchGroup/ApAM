@@ -1,0 +1,101 @@
+<!--
+
+    Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+
+-->
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+
+    <implementation name="M2-Outter-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.m2.producer.impl.M2OutterProducerImpl"
+                    push="produceM2"
+                    specification="M2-Producer">
+    </implementation>
+
+    <implementation name="M2-Middle-ProsumerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.m2.producer.impl.M2MiddleProsumerImpl"
+                    push="produceM2"
+                    specification="M2-Producer">
+        <dependency field="outter">
+            <constraints>
+                <implementation
+                        filter="(name=M2-Outter-ProducerImpl)" />
+            </constraints>
+        </dependency>
+    </implementation>
+
+    <implementation name="M2-Inner-ProsumerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.m2.producer.impl.M2InnerProsumerImpl"
+                    push="produceM2"
+                    specification="M2-Producer">
+        <dependency field="middle">
+            <constraints>
+                <implementation
+                        filter="(name=M2-Middle-ProsumerImpl)" />
+            </constraints>
+        </dependency>
+    </implementation>
+
+    <implementation name="deadMansSwitch-ProducerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.device.dead.DeadsManSwitch"
+                    push="produceEletronicMsg"
+                    specification="Edevice-Producer">
+        <property name="manufacturer" value="philips" />
+        <property name="voltage" value="110" />
+        <property name="hasDisplay" value="false" />
+    </implementation>
+
+    <composite name="M2-composite-eager"
+               main="M2-ProsumerImpl">
+        <contentMngt>
+            <dependency message=".*EletronicMsg" eager="true">
+            </dependency>
+        </contentMngt>
+    </composite>
+
+    <composite name="M2-composite-eager-forceEager"
+               main="M2-ProsumerImpl-forceEager">
+        <contentMngt>
+            <dependency specification="Edevice-Producer" eager="true">
+            </dependency>
+        </contentMngt>
+    </composite>
+
+    <implementation name="M2-ProsumerImpl"
+                    classname="fr.imag.adele.apam.pax.test.msg.m2.producer.impl.M2ProsumerImpl"
+                    push="produceM2"
+                    specification="M2-Producer">
+        <dependency field="deadMansSwitch" />
+    </implementation>
+
+    <implementation name="M2-ProsumerImpl-forceEager"
+                    classname="fr.imag.adele.apam.pax.test.msg.m2.producer.impl.M2ProsumerImpl"
+                    push="produceM2"
+                    specification="M2-Producer">
+        <dependency field="deadMansSwitch" specification="Edevice-Producer" />
+    </implementation>
+
+    <composite name="M2-composite-1"
+               main="M2-ProsumerImpl"
+               shared="true">
+        <contentMngt>
+            <import instance="false" implementation="false" />
+        </contentMngt>
+    </composite>
+
+    <composite name="M2-composite-2"
+               main="M2-ProsumerImpl">
+    </composite>
+
+</apam>

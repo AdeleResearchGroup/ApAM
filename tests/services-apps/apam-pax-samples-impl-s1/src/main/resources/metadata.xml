@@ -1,3 +1,19 @@
+<!--
+
+    Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+
+-->
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
@@ -92,14 +108,31 @@
 		<definition name="property-03" value="default-03" type="string" />
 		<definition name="property-04" value="default-04" type="string" />
 		<definition name="property-05" value="default-05" type="string" />
+		
+	</implementation>
+
+	<implementation name="SpecFilterSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"
+		specification="eletronic-device">
+		<definition name="OS" type="{Linux, Windows, Android, IOS,AmigaOS}" value="{Linux, Windows, Android, IOS}" />
+		<definition name="OSUnordered" type="{Linux, Windows, Android,IOS,AmigaOS}" value="{IOS, Windows, Linux,Android}" />
+		<definition name="OSLessElements" type="{Linux, Windows, Android,IOS,AmigaOS}" value="{Linux, Windows, IOS}" />
+		<definition name="OSMoreElements" type="{Linux, Windows, Android,IOS,AmigaOS}" value="{Linux, Windows, Android,IOS,AmigaOS}" />
+		
 		<property name="setInt" type="{int}" value="{12,15,254, 0}"/>
-		<property name="setInteger" type="{integer}" value="{12,15,254, 0}"/>
-		<property name="setString" type="{string}" value="{I,was,early,taught,to,work,as,well,as,play,My,life,has,been,one,long,happy,holiday}"/>
+		<property name="setIntUnordered" type="{int}" value="{254,15,12,0}"/>
+		<property name="setIntLessElements" type="{int}" value="{12,15, 0}"/>
+		<property name="setIntMoreElements" type="{int}" value="{12,15,254, 0,27}"/>
+		
+		<property name="setString" type="{string}" value="{doubt,grows,with,knowledge}"/>		
+		<property name="setStringUnordered" type="{string}" value="{with,doubt,knowledge,grows}"/>	
+		<property name="setStringLessElements" type="{string}" value="{doubt,grows,knowledge}"/>			
+		<property name="setStringMoreElements" type="{string}" value="{doubt,and,uncertainties,grows,with,knowledge}"/>
+	
 		<!-- 
 		<property name="setBoolean" type="{boolean}" value="{false,false,false,false,false,false,true,false,false,false,true,true,false}"/>
 		 -->
-		
-	</implementation>
+	</implementation>	
 
 	<implementation name="LgSwitch"
 		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch"

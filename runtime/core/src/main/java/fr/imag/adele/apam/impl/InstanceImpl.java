@@ -1,3 +1,17 @@
+/**
+ * Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 package fr.imag.adele.apam.impl;
 
 
@@ -372,8 +386,12 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         }
 
         // Other relationships to instantiate
-        ((ImplementationImpl) getImpl()).addUses(to.getImpl());
-        if ((SpecificationImpl) getSpec() != null) {
+        
+        if(to.getImpl()!=null)
+        	((ImplementationImpl) getImpl()).addUses(to.getImpl());
+        
+       //TODO distriman: the destination (to) spec being false verification could be avoided in previous step
+        if ((SpecificationImpl) getSpec() != null && to.getSpec()!=null) {
             ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
         }
 
@@ -389,7 +407,10 @@ public class InstanceImpl extends ComponentImpl implements Instance {
     public void removeWire(Wire wire) {
         if (getApformInst().remWire(wire.getDestination(), wire.getDepName())) {
             wires.remove(wire);
-            ((ImplementationImpl) getImpl()).removeUses(wire.getDestination().getImpl());
+            //TODO distriman: check if we have the destination implementation, is this the right way to do it?
+            
+            if(wire.getDestination().getImpl()!=null)
+            	((ImplementationImpl) getImpl()).removeUses(wire.getDestination().getImpl());
             
             //Notify Dynamic managers that a  wire has been deleted. A new resolution can be possible now.
             for (DynamicManager manager : ApamManagers.getDynamicManagers()) {

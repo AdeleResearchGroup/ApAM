@@ -1,3 +1,17 @@
+/**
+ * Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 package fr.imag.adele.dynamic.manager;
 
 import java.util.ArrayList;
@@ -215,7 +229,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	/**
 	 * Throws the exception associated with a missing dependency
 	 */
-	private void throwMissingException(DependencyDeclaration dependency) {
+	private void throwMissingException(DependencyDeclaration dependency,Instance client) {
 		try {
 			
 			/*
@@ -232,18 +246,28 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			 * 
 			 */
 			String exceptionName		= dependency.getMissingException();
-			Class<?> exceptionClass		= context.getBundle().loadClass(exceptionName);
-			RuntimeException exception	= RuntimeException.class.cast(exceptionClass.newInstance());
-			throw exception;
+			
+			/**
+			 * There are cases where the client will not be available, check with herman the invalid cases and the fix for that 
+			 */
+			Class<?> exceptionClass		= client.getImpl().getApformImpl().getBundle().loadClass(exceptionName);
+			Exception exception			= Exception.class.cast(exceptionClass.newInstance());
+			
+			DynamicManagerImplementation.<RuntimeException>doThrow(exception);
 		
 		} catch (ClassNotFoundException e) {
-			throw new ResolutionException();
+			throw new ResolutionException(e);
 		} catch (InstantiationException e) {
-			throw new ResolutionException();
+			throw new ResolutionException(e);
 		} catch (IllegalAccessException e) {
-			throw new ResolutionException();
+			throw new ResolutionException(e);
 		}
 		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static <E extends Exception> void doThrow(Exception e) throws E {
+		throw (E) e;
 	}
 	
 	
@@ -428,7 +452,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			}
 			
 			case EXCEPTION : {
-				throwMissingException(dependency);
+				throwMissingException(dependency,client);
 			}
 			
 			case WAIT : {

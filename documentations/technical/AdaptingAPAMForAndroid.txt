@@ -1,0 +1,12 @@
+This document describe few adaptation that must be done to apam dependencies so they becomes compatible with dalvik vm implemention
+
+#Fixes to be applied to apam bundle (those should be integrated to the building process)
+-Download and compiler knopflerfish revision 3538 (at least)
+-Download bundle logback-classic-1.0.7.jar from eclipse repository (to fix missing of pattern.color pack)
+-Remove wireadmin service jar from inside of wireadmin bundle (jar inside bundle is not valid), add a manifest to it and install it as a along with wireadmin.jar bundle
+-Remove 'Bundle-RequiredExecutionEnvironment: J2SE-1.3' from manifest of slf4j-api-1.6.6.jar, logback-core-1.0.7.jar, logback-classic-1.0.7.jar (this execution environment is not valid for android)
+-add fr.imag.adele.bundle.wireadmin.impl export package in wireadmin bundle
+
+#Apam Universal shell bundle
+-Download and dex the proper adapter from http://code.google.com/p/osgilab/wiki/UniversalShell
+-Remove the 'Bundle-RequiredExecutionEnvironment: J2SE-1.5' declaration from its bundle

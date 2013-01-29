@@ -1,3 +1,17 @@
+/**
+ * Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 package fr.imag.adele.obrMan.internal;
 
 /**
@@ -15,6 +29,7 @@ package fr.imag.adele.obrMan.internal;
  * limitations under the License.
  */
 
+import java.io.PrintWriter;
 import java.util.Set;
 
 import org.apache.felix.ipojo.annotations.Component;
@@ -35,17 +50,19 @@ import fr.imag.adele.obrMan.OBRManCommand;
 @Provides(specifications = OBRManShell.class)
 public class OBRManShell {
 
-    /**
-     * Defines the command scope (obrman).
-     */
-    @ServiceProperty(name = "osgi.command.scope", value = "obrman")
-    String        m_scope;
+    @ServiceProperty(name="org.knowhowlab.osgi.shell.group.id",value ="obrman" )
+    String universalShell_groupID;
 
-    /**
-     * Defines the functions (commands).
-     */
-    @ServiceProperty(name = "osgi.command.function", value = "{}")
-    String[]      m_function = new String[] { "cr", "ur" };
+    @ServiceProperty(name="org.knowhowlab.osgi.shell.group.name",value ="OBR Manager Commands" )
+    String universalShell_groupName;
+
+    @ServiceProperty(name="org.knowhowlab.osgi.shell.commands", value="{}")
+    String[] universalShell_groupCommands = new String[] {
+            "cr#cr - list repositories of a composite ",
+            "ur#ur - update resources from repositories"
+    };
+
+
 
     // ipojo injected
     @Requires
@@ -53,29 +70,29 @@ public class OBRManShell {
 
     /**
      * compositeRepositories
+     * list repositories of a compositeType
      */
-//    @Descriptor("list repositories of a compositeType")
-//    @Descriptor("the name of the compositeType ") 
-    public void cr(String compositeTypeName) {
+
+    public void cr(PrintWriter out, String... args) {
+        String compositeTypeName = args[0];
         String result = "";
         Set<String> repositories = obrmanCommand.getCompositeRepositories(compositeTypeName);
         result += (compositeTypeName + " (" + repositories.size() + ") : \n");
         for (String repository : repositories) {
             result += ("    >> " + repository + "\n");
         }
-        System.out.println(result);
+        out.println(result);
     }
     
-    public void ur(String compositeTypeName) {
-        
+    public void ur(PrintWriter out, String... args) {
+       String compositeTypeName = args[0];
        boolean state = obrmanCommand.updateRepos(compositeTypeName);
        if (state){
-           System.out.println("Update " + compositeTypeName + " repositories performed");
+           out.println("Update " + compositeTypeName + " repositories performed");
        }else {
-           System.out.println("Update " + compositeTypeName + " repositories failed");
+           out.println("Update " + compositeTypeName + " repositories failed");
        }
-       
-    
+
     }
     
 }

@@ -1,3 +1,17 @@
+/**
+ * Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 package fr.imag.adele.apam.command;
 
 /**
@@ -16,23 +30,16 @@ package fr.imag.adele.apam.command;
  */
 
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.ServiceProperty;
-import org.apache.felix.service.command.Descriptor;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
@@ -46,434 +53,508 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.Apform2Apam.Request;
 import fr.imag.adele.apam.declarations.ResourceReference;
 
-/**
- *
- *
- * @author Jacky
- */
+
 @Instantiate
-@Component(public_factory = false, immediate = true, name = "apam.shell")
+@Component(public_factory = false, immediate = true, name = "apam.universal.shell")
 @Provides(specifications = ApamCommand.class)
 public class ApamCommand {
 
-    /**
-     * Defines the command scope (apam).
-     */
-    @ServiceProperty(name = "osgi.command.scope", value = "apam")
-    String m_scope;
 
-    /**
-     * Defines the functions (commands).
-     */
-    @ServiceProperty(name = "osgi.command.function", value = "{}")
-    String[] m_function = new String[] { "put",  "specs", "implems", "insts", "spec", "implem", "inst", "dump", "compoTypes",
-            "compoType", "compos", "compo", "wire", "launch", "pending", "up", "l" , "sv" };
+
+    @ServiceProperty(name="org.knowhowlab.osgi.shell.group.id",value ="apam" )
+    String universalShell_groupID;
+
+    @ServiceProperty(name="org.knowhowlab.osgi.shell.group.name",value ="ApAM Commands" )
+    String universalShell_groupName;
+
+    @ServiceProperty(name="org.knowhowlab.osgi.shell.commands", value="{}")
+    String[] universalShell_groupCommands = new String[] {
+            "put#put - resolve apam components",
+            "specs#specs - list specifications",
+            "implems#implems - list implementations",
+            "insts#insts - list instances",
+            "spec#spec - inspect a specification",
+            "implem#implem - inspect an implementation",
+            "inst#inst - inspect an instance",
+            "dump#dump - display the full Apam state model",
+            "compoTypes#compoTypes - display all the Apam composites types",
+            "compoType#compoType - inspect an Apam composite type",
+            "compos#compos - display all the Apam composites instances",
+            "compo#compo - inspect an Apam composite instance",
+            "apps#apps - display all the Apam applications",
+            "app#app - inspect an Apam application",
+            "wire#wire - display all the dependencies",
+            "launch#launch - create and start a new instance of the target implementation",
+            "pending#pending - display the pending platform installations",
+            "up#up - updates the target component (Warning: updates the whole Bundle)",
+            "l#l - create and start a new instance of the target implementation" ,
+            "sv#sv - change properties of an instance"};
 
     // Apam injected
     @Requires
     Apam apam;
 
 
+
     /**
-     *
+     * Updates the target component. Warning: updates the whole Bundle.
      */
-    @Descriptor("Updates the target component")
-    public void up(@Descriptor("target component to update. Warning: updates the whole Bundle.") String componentName) {
-        CST.apamResolver.updateComponent (componentName) ;
+    public void up(PrintWriter out, String... args) {
+        if (args.length<=0){
+            argumentMessageError(out, "a component name should be specified, example : up acomponent");
+            return;
+        }
+        for (String arg : args) {
+            //TODO make update synchronized and show message if the update was performed or not
+            //TODO should return null if the update is not performed , or the object in case of success
+            CST.apamResolver.updateComponent (arg) ;
+        }
+
     }
 
 
-    @Descriptor("Change properties of an instance")
-    public void sv(@Descriptor("instance name") String instanceName,@Descriptor("an URL file.properties or a list of value=property, ex : \"lang=french vendor=adele\" ")String fileOrList){
+
+    /**
+     * Change properties of an instance
+     * take as arguments :
+     * an instance name
+     * an URL file.properties or a list of value=property, ex : "lang=french vendor=adele" "
+     *
+     */
+    public void sv(PrintWriter out, String... args){
+        if (args.length<=1){
+            argumentMessageError(out, "the command should be followed by an instance name and the properties or an url to file.properties, \n " +
+                    " example : \n " +
+                    "   sv aninstance vendor=adele version=1.0 \n" +
+                    "   sv aninstance file://path/to/file.properties");
+            return;
+        }
 
         URL  url;
+        String instanceName = args[0];
+        String urlArg = args[1];
+        String[] propsArgs = Arrays.copyOfRange(args,1,args.length);
+
         Properties properties = new Properties();
-        String[] props = new String[0];
+
         try{
-            url = new URL(fileOrList);
+            url = new URL(args[1]);
             properties.load(url.openStream());
         }catch (MalformedURLException e){
-            props =  fileOrList.split(" ");
-            try {
-                properties.load( new StringReader(fileOrList));
-            } catch (IOException e1) {
-                e1.printStackTrace();
+            for (String arg : propsArgs){
+                String[] property = arg.split("=");
+                properties.put(property[0],property[1]);
             }
+
         } catch (IOException e) {
+            out.println("Error while reading the file : " + urlArg);
             e.printStackTrace();
         }
-        if (properties.isEmpty() && props==null) return;
+        if (properties.isEmpty()) return;
 
         Instance inst = CST.componentBroker.getInst(instanceName);
 
         if (inst!=null){
             //TODO verify values of properties with some types (string, int, double, string[])
             //TODO for now only string are used
-            Map<String, String> config = transformToMap(properties,props);
-            inst.setAllProperties( config);
+
+            inst.setAllProperties((Map)properties);
         }else{
-            System.out.println("The instance " + instanceName + " not exist !");
+            out.println("The instance " + instanceName + " not exist !");
         }
 
 
     }
-
-    private Map<String,String> transformToMap(Properties properties, String[] props) {
-        Map<String,String> map = new HashMap<String, String>();
-        if (!properties.isEmpty()){
-            for (Object o : properties.keySet()) {
-                String key = (String) o;
-                map.put(key, (String) properties.get(o));
-            }
-        }
-        if (props!=null){
-            for (String prop : props) {
-                String[]propVa = prop.split("=");
-                if (propVa.length>1){
-                    map.put(propVa[0],propVa[1]);
-                }
-            }
-        }
-        return map;
-    }
-
 
 
     /**
-     * Resolver Commands.
+     * Resolve apam components on the target composite
+     * arguments =
+     * the name of the component to resolve
+     * the name of the composite target or root
      */
 
-
-    @Descriptor("Resolve apam components on the root composite")
-    public void put(@Descriptor("the name of the component to resolve ") String componentName){
-        put(componentName,"root");
-    }
-
-
-    @Descriptor("Resolve apam components on the target composite")
-    public void put(@Descriptor("the name of the component to resolve ") String componentName,
-                    @Descriptor("the name of the composite target or root ") String compositeTarget) {
-        Composite target = null;
-        String compositeName = null;
-        if ("root".equals(compositeTarget)){
-            compositeName = "root";
-//            System.out.println("Resolving "+ componentName + " on the " + compositeName +" composite");
-        } else {
-            target = apam.getComposite(compositeTarget);
-            if (target== null){
-                System.out.println("Invalid composite name "+ compositeTarget);
-                return;
-            }
-            compositeName = target.getName();
+    public void put(PrintWriter out, String... args) {
+        if (args.length<=0){
+            argumentMessageError(out, "the command should be followed by a component name ( you can also specify the composite) , \n " +
+                    " example : \n " +
+                    "   put acomponentName  \n" +
+                    "   put aComponentName aComposite");
+            return;
         }
-
-        System.out.println("< Searching " + componentName +" in " + compositeName+  " repositories> " );
-        fr.imag.adele.apam.Component component=null;
-        Thread t  = new Thread(new AsyncFind(component,target,componentName, false) );
-        t.start();
-    }
-
-    /**
-     * Specifications.
-     */
-
-    @Descriptor("Display all the Apam specifications")
-    public void specs() {
-        Set<Specification> specifications = new TreeSet<Specification>(CST.componentBroker.getSpecs());
-        for (Specification specification : specifications) {
-            System.out.println("ASMSpec : " + specification);
+        String componentName = args[0];
+        String compositeTarget = args[1];
+        Composite target = checkComposite(out, compositeTarget, componentName);
+        if (target!=null){
+            out.println("< Searching " + componentName +" in " + compositeTarget+  " repositories> " );
+            Thread t  = new Thread(new AsyncFind(out,target,componentName, false) );
+            t.start();
         }
     }
 
     /**
-     * Implementations.
+     * Display all the ApAM specifications
      */
-    @Descriptor("Display of all the implementations of the local machine")
-    public void implems() {
-        Set<Implementation> implementations = new TreeSet<Implementation>(CST.componentBroker.getImpls());
-        for (Implementation implementation : implementations) {
-            System.out.println("ASMImpl : " + implementation);
-        }
-    }
 
-    /**
-     * Instances.
-     */
-    @Descriptor("Display of all the instances of the local machine")
-    public void insts() {
-        Set<Instance> instances = new TreeSet<Instance>(CST.componentBroker.getInsts());
-        for (Instance instance : instances) {
-            System.out.println("ASMInst : " + instance);
-        }
-    }
-
-    /**
-     * ASMSpec.
-     *
-     * @param specificationName
-     *            the specification name
-     */
-    @Descriptor("Display informations about the target specification")
-    public void spec(@Descriptor("target specification") String specificationName) {
+    public void specs(PrintWriter out, String... args) {
         Set<Specification> specifications = CST.componentBroker.getSpecs();
-        for (Specification specification : specifications) {
-            if ((specification.getName() != null) && (specification.getName().equalsIgnoreCase(specificationName))) {
-                printSpecification("", specification);
-                // testImplementations("   ", specification.getImpls());
-                break;
-            }
+        for (Specification specification : specifications) out.println("spec " + specification);
+    }
+
+    /**
+     * Display of all the implementations in ApAM
+     */
+    public void implems(PrintWriter out, String... args) {
+        Set<Implementation> implementations = CST.componentBroker.getImpls();
+        for (Implementation implementation : implementations) {
+            out.println("implem " + implementation);
         }
     }
 
     /**
-     * ASMImpl.
-     *
-     * @param implementationName
-     *            the implementation name
+     * Display of all the instances in ApAM
      */
-    @Descriptor("Display informations about the target implementation")
-    public void implem(@Descriptor("target implementation") String implementationName) {
+    public void insts(PrintWriter out, String... args) {
+        Set<Instance> instances = CST.componentBroker.getInsts();
+        for (Instance instance : instances) {
+            out.println("inst " + instance);
+        }
+    }
+
+    /**
+     * inspect a specification.
+     * arguments :
+     *  - the specification name
+     */
+    public void spec(PrintWriter out, String... args) {
+        if (args.length<=0){
+            argumentMessageError(out, "the command should be followed by a specification name\n " +
+                    " example : \n " +
+                    "   spec specificationName");
+            return;
+        }
+        String specificationName  = args[0];
+        Specification specification = CST.componentBroker.getSpec(specificationName);
+        if (specification == null) {
+            out.println("No such specification : " + specificationName);
+            return;
+        }
+        printSpecification(out,"", specification);
+    }
+
+    /**
+     * inspect an implementation
+     * arguments:
+     * - the implementation name
+     */
+    public void implem(PrintWriter out, String... args) {
+        if (args.length<=0){
+            argumentMessageError(out, "the command should be followed by an implementation name\n " +
+                    " example : \n " +
+                    "   implem implementationName");
+            return;
+        }
+        String implementationName = args[0];
         Implementation implementation = CST.componentBroker.getImpl(implementationName);
         if (implementation == null) {
-            System.out.println("No such implementation : " + implementationName);
+            out.println("No such implementation : " + implementationName);
             return;
         }
-        printImplementation("", implementation);
-        // testInstances("   ", implementation.getInsts());
-    }
-
-
-    @Descriptor("Start a new instance of the target implementation in root composite")
-    public void l(@Descriptor("target implementation") String componentName) {
-        launch (componentName, "root") ;
-    }
-
-
-    @Descriptor("Start a new instance of the target implementation")
-    public void launch(@Descriptor("target implementation") String componentName,
-                       @Descriptor("the name of the composite target or root ") String compositeTarget) {
-
-        Composite target = null;
-//        CompositeType targetType = null;
-
-        if ("root".equals(compositeTarget)){
-            System.out.println("Resolving "+ componentName + " on the root composite");
-        } else {
-            target = apam.getComposite(compositeTarget);
-            if (target== null){
-                System.out.println("Invalid composite instance "+ compositeTarget);
-                return;
-            }
-           // targetType = target.getCompType() ;
-        }
-        fr.imag.adele.apam.Component compo = null;
-        Thread t  = new Thread(new AsyncFind(compo,target,componentName,true) );
-         t.start();
+        printImplementation(out,"", implementation);
     }
 
     /**
-     * ASMInst.
-     *
-     * @param instanceName
-     *            the instance name
+     * inspect an instance.
+     * arguments :
+     * - the instance name
      */
-    @Descriptor("Display informations about the target instance")
-    public void inst(@Descriptor("target implementation") String instanceName) {
-        try {
-            Instance instance = CST.componentBroker.getInst(instanceName);
-            if (instance == null) {
-                System.out.println("No such instance : " + instanceName);
-            } else
-                printInstance("", instance);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
-    @Descriptor("Display all the Apam applications")
-    public void applis() {
-        Collection<Composite> applis = apam.getComposites();
-        for (Composite appli : applis) {
-            System.out.println("Application : " + appli.getName());
-        }
-    }
-
-    @Descriptor("Display informations about the target application")
-    public void appli(@Descriptor("target application") String appliName) {
-        Composite appli = apam.getComposite(appliName);
-        if (appli == null) {
-            System.out.println("No such root composite : " + appliName);
+    public void inst(PrintWriter out, String... args) {
+        if (args.length<=0){
+            argumentMessageError(out, "the command should be followed by an implementation name\n " +
+                    " example : \n " +
+                    "   implem implementationName");
             return;
         }
-        System.out.println("Application " + appli);
-        for (Composite compo : appli.getSons()) {
-            System.out.println("Son Composites : " + compo.getName());
+        String instanceName = args[0];
+        Instance instance = CST.componentBroker.getInst(instanceName);
+        if (instance == null) {
+            out.println("No such instance : " + instanceName);
+            return;
         }
-        for (Composite compo : appli.getDepend()) {
-            System.out.println("Depends on composites : " + compo.getName());
+        printInstance(out,"", instance);
+    }
+
+    /**
+     *  Start a new instance of the target implementation in a composite
+     */
+    public void l(PrintWriter out,String... args) {
+        if (args.length<=0){
+            argumentMessageError(out, "the command should be followed by a component name ( you can also specify the composite) , \n " +
+                    " example : \n " +
+                    "   l acomponentName  \n" +
+                    "   l aComponentName aComposite");
+            return;
+        }
+        launch (out,args) ;
+    }
+
+
+    /**
+     *  Start a new instance of the target implementation in a composite
+     *  arguments :
+     *  - an implementation name
+     * - (optional) a composite name
+     */
+
+    public void launch(PrintWriter out, String... args) {
+        if (args.length<=0){
+            argumentMessageError(out, "the command should be followed by a component name ( you can also specify the composite) , \n " +
+                    " example : \n " +
+                    "   launch acomponentName  \n" +
+                    "   launch aComponentName aComposite");
+            return;
+        }
+        String componentName = args[0];
+        String compositeTarget = args[1];
+
+        Composite target = checkComposite(out,compositeTarget,componentName);
+        if (target!=null){
+            Thread t  = new Thread(new AsyncFind(out,target,componentName,true) );
+            t.start();
         }
     }
 
-    @Descriptor("Display the full Apam state model")
-    public void dump() {
-        dumpApam();
+
+    /**
+     *  Display all the Apam applications
+     */
+    public void apps(PrintWriter out, String... args) {
+        Collection<Composite> apps = apam.getComposites();
+        for (Composite app : apps) {
+            out.println("app " + app.getName());
+        }
     }
 
-    @Descriptor("Display the pending platform installations")
-    public void pending() {
-        System.out.println("Platform pernding requests");
+    /**
+     *Display information about the target application"
+     */
+    public void app(PrintWriter out, String... args ) {
+        if (args.length<=0){
+            argumentMessageError(out, "the command should be followed by a application name  , \n " +
+                    " example : \n " +
+                    "   app applicationName");
+            return;
+        }
+        String appName =  args[0];
+        Composite app = apam.getComposite(appName);
+        if (app == null) {
+            out.println("No such root composite : " + appName);
+            return;
+        }
+        out.println("Application " + app);
+        for (Composite compo : app.getSons()) {
+            out.println("Son Composites : " + compo.getName());
+        }
+        for (Composite compo : app.getDepend()) {
+            out.println("Depends on composites : " + compo.getName());
+        }
+    }
+
+    /**
+     *Display the full Apam state model"
+     */
+    public void dump(PrintWriter out, String... args) {
+        dumpApam(out);
+    }
+
+    /** Display the pending platform installations*/
+    public void pending(PrintWriter out, String... args) {
+        out.println("Platform pernding requests");
         for (Request pendingRequest : Apform2Apam.getPending()) {
-            System.out.println(pendingRequest.getDescription()+" is waiting for component "+pendingRequest.getRequiredComponent());
+            out.println(pendingRequest.getDescription()+" is waiting for component "+pendingRequest.getRequiredComponent());
         }
 
     }
 
-
-    // @Descriptor("Display the state model of the target application")
-    // public void state(@Descriptor("target application") String appliName) {
-    // dumpCompoType(appliName);
-    // }
-
-    @Descriptor("Display all the Apam composites types")
-    public void compoTypes() {
-        Collection<CompositeType> applis = apam.getCompositeTypes();
-        for (CompositeType appli : applis) {
-            System.out.println("    " + appli);
+    /**Display all the Apam composites types*/
+    public void compoTypes(PrintWriter out, String... args) {
+        Collection<CompositeType> compositeTypes = apam.getCompositeTypes();
+        for (CompositeType compositeType : compositeTypes) {
+            out.println("    " + compositeType);
         }
     }
 
-    @Descriptor("Display an Apam composite type")
-    public void compoType(@Descriptor("target composite type") String name) {
-        CompositeType compo = apam.getCompositeType(name);
-        if (name == null) {
-            System.out.println("No such composite : " + name);
+    /** Display an Apam composite type */
+    public void compoType(PrintWriter out, String... args ) {
+
+        if (args.length<=0){
+            argumentMessageError(out, "the command should be followed by a compositeType name  , \n " +
+                    " example : \n " +
+                    "   compoType compositeTypeName");
             return;
         }
-        printCompositeType(compo, "");
-        System.out.println("");
+        String compoTypeName = args[0];
+        CompositeType compo = apam.getCompositeType(compoTypeName);
+        if (compoTypeName == null) {
+            out.println("No such compositeType : " + compoTypeName);
+            return;
+        }
+        printCompositeType(out,compo, "");
+        out.println("");
     }
 
-    @Descriptor("Display all the Root Apam composites")
-    public void compos() {
+    /**Display all the Root Apam composites*/
+    public void compos(PrintWriter out, String... args) {
         Collection<Composite> comps = apam.getRootComposites();
         for (Composite compo : comps) {
-            System.out.println("    " + compo);
+            out.println("    " + compo);
         }
     }
 
-    @Descriptor("Display an Apam composites")
-    public void compo(@Descriptor("target composite") String compoName) {
-        Composite compo = apam.getComposite(compoName);
-        if (compo == null) {
-            System.out.println("No such composite : " + compoName);
+    /** Display an Apam composites */
+    public void compo(PrintWriter out, String... args ) {
+        if (args.length<=0){
+            argumentMessageError(out, "the command should be followed by a composite name  , \n " +
+                    " example : \n " +
+                    "   compo compositeName");
             return;
         }
-        printComposite(compo, "");
-        System.out.println("");
+        String compoName = args[0];
+        Composite compo = apam.getComposite(compoName);
+        if (compo == null) {
+            out.println("No such composite : " + compoName);
+            return;
+        }
+        printComposite(out,compo, "");
+        out.println("");
     }
 
-    private void printCompositeType(CompositeType compo, String indent) {
-        System.out.println(indent + "Composite Type " + compo.getName() + ". Main implementation : "
+    private void argumentMessageError(PrintWriter out, String message){
+        out.println("Error : Invalid number of arguments \n ---> "+ message );
+    }
+
+
+    private Composite checkComposite(PrintWriter out, String compositeTarget, String componentName){
+        if (compositeTarget==null){// if the composite target is null, use the root composite
+            compositeTarget = "root";
+        }
+
+        Composite target = apam.getComposite(compositeTarget);
+        if (target== null){
+            out.println("Invalid composite target name : "+ compositeTarget);
+            return null;
+        }
+        return target;
+    }
+
+    private void printCompositeType(PrintWriter out, CompositeType compo, String indent) {
+        out.println(indent + "Composite Type " + compo.getName() + ". Main implementation : "
                 + compo.getMainImpl() + ". Models : " + compo.getModels());
 
         indent += "   " ;
-        System.out.print(indent + "Provides resources : ");
+        out.print(indent + "Provides resources : ");
         for (ResourceReference ref : compo.getCompoDeclaration().getProvidedResources()) {
-            System.out.print(ref + " ");
+            out.print(ref + " ");
         }
-        System.out.println("");
+        out.println("");
 
-        System.out.print(indent + "Embedded in composite types : ");
+        out.print(indent + "Embedded in composite types : ");
         for (CompositeType comType : compo.getInvEmbedded()) {
-            System.out.print(comType.getName() + " ");
+            out.print(comType.getName() + " ");
         }
-        System.out.println("");
+        out.println("");
 
-        System.out.print(indent + "Contains composite types : ");
+        out.print(indent + "Contains composite types : ");
         for (CompositeType comType : compo.getEmbedded()) {
-            System.out.print(comType.getName() + " ");
+            out.print(comType.getName() + " ");
         }
-        System.out.println("");
-        System.out.print(indent + "Imports composite types : ");
+        out.println("");
+        out.print(indent + "Imports composite types : ");
         for (CompositeType comDep : compo.getImport()) {
-            System.out.print(comDep.getName() + " ");
+            out.print(comDep.getName() + " ");
         }
-        System.out.println("");
+        out.println("");
 
-        System.out.print(indent + "Uses composite types : ");
+        out.print(indent + "Uses composite types : ");
         for (Implementation comDep : compo.getUses()) {
-            System.out.print(comDep.getName() + " ");
+            out.print(comDep.getName() + " ");
         }
-        System.out.println("");
+        out.println("");
 
-        System.out.print(indent + "Contains Implementations: ");
+        out.print(indent + "Contains Implementations: ");
         for (Implementation impl : compo.getImpls()) {
-            System.out.print(impl + " ");
+            out.print(impl + " ");
         }
-        System.out.println("");
+        out.println("");
 
-        System.out.print(indent + "Composite Instances : ");
+        out.print(indent + "Composite Instances : ");
         for (Instance inst : compo.getInsts()) {
-            System.out.print(inst + " ");
+            out.print(inst + " ");
         }
-        System.out.println("");
+        out.println("");
 
-        System.out.println(compo.getApformImpl().getDeclaration().printDeclaration(indent));
+        out.println(compo.getApformImpl().getDeclaration().printDeclaration(indent));
 
         for (Instance compInst : compo.getInsts()) {
-            printComposite((Composite) compInst, indent + "   ");
+            printComposite(out,(Composite) compInst, indent + "   ");
         }
 
         for (CompositeType comType : compo.getEmbedded()) {
-            System.out.println("\n");
-            printCompositeType(comType, indent );
+            out.println("\n");
+            printCompositeType(out,comType, indent );
         }
     }
 
-    private void printComposite(Composite compo, String indent) {
-        System.out.println(indent + "Composite " + compo.getName() + " Composite Type : "
+    private void printComposite(PrintWriter out, Composite compo, String indent) {
+        out.println(indent + "Composite " + compo.getName() + " Composite Type : "
                 + compo.getCompType().getName() + " Father : " + compo.getFather());
-        System.out.println(indent + "   In application : " + compo.getAppliComposite());
-        System.out.print  (indent + "   Son composites : ");
+        out.println(indent + "   In application : " + compo.getAppliComposite());
+        out.print  (indent + "   Son composites : ");
         for (Composite comDep : compo.getSons()) {
-            System.out.print(comDep.getName() + " ");
+            out.print(comDep.getName() + " ");
         }
-        System.out.println("");
+        out.println("");
 
-        System.out.print(indent + "   Depends on composites : ");
+        out.print(indent + "   Depends on composites : ");
         for (Composite comDep : compo.getDepend()) {
-            System.out.print(comDep.getName() + " ");
+            out.print(comDep.getName() + " ");
         }
-        System.out.println("");
+        out.println("");
 
         if (!compo.getContainInsts().isEmpty()) {
-            System.out.print(indent + "   Contains instances : ");
+            out.print(indent + "   Contains instances : ");
             for (Instance inst : compo.getContainInsts()) {
-                System.out.print(inst + " ");
+                out.print(inst + " ");
             }
-            System.out.println("");
+            out.println("");
         }
 
         indent += "  " ;
-        System.out.println(indent + " State " + compo);
-        dumpState(compo.getMainInst(), indent, " ");
-        //System.out.println("");
+        out.println(indent + " State " + compo);
+        dumpState(out,compo.getMainInst(), indent, " ");
+        //out.println("");
 
-        System.out.println(compo.getApformInst().getDeclaration().printDeclaration(indent));
+        out.println(compo.getApformInst().getDeclaration().printDeclaration(indent));
 
         if (!compo.getSons().isEmpty()) {
-            System.out.println("\n");
+            out.println("\n");
             for (Composite comp : compo.getSons()) {
-                printComposite(comp, indent + "   ");
+                printComposite(out,comp, indent + "   ");
             }
         }
     }
 
-    @Descriptor("Display all the dependencies")
-    public void wire(@Descriptor("target instance") String instName) {
+    /**
+     * Display all the dependencies of an instance
+     */
+
+    public void wire(PrintWriter out, String... args) {
+        String instName = args[0];
         Instance inst = CST.componentBroker.getInst(instName);
-        if (inst != null)
-            dumpState(inst, "  ", null);
+        if (inst != null){
+            dumpState(out,inst, "  ", null);
+        }
     }
 
     /**
@@ -484,210 +565,175 @@ public class ApamCommand {
      * @param specification
      *            the specification
      */
-    private void printSpecification(String indent, Specification specification) {
-        System.out.println(indent + "----- [ ASMSpec : " + specification.getName() + " ] -----");
+    private void printSpecification(PrintWriter out, String indent, Specification specification) {
+        out.println(indent + "----- [ ASMSpec : " + specification.getName() + " ] -----");
         indent += "   " ;
-        System.out.println(indent + "Interfaces:");
+        out.println(indent + "Interfaces:");
         for (ResourceReference res : specification.getDeclaration().getProvidedResources()) {
-            System.out.println(indent + "      " + res);
+            out.println(indent + "      " + res);
         }
 
-        System.out.println(specification.getDeclaration().getDependencies());
+        out.println(specification.getDeclaration().getDependencies());
 
-        System.out.println(indent + "Effective Required specs:");
+        out.println(indent + "Effective Required specs:");
         for (Specification spec : specification.getRequires()) {
-            System.out.println(indent + "      " + spec);
+            out.println(indent + "      " + spec);
         }
 
-        System.out.println(indent + "Required by:");
+        out.println(indent + "Required by:");
 
         for (Specification spec : specification.getInvRequires()) {
-            System.out.println(indent + "      " + spec);
+            out.println(indent + "      " + spec);
         }
 
-        System.out.println(indent + "Implementations:");
+        out.println(indent + "Implementations:");
         for (Implementation impl : specification.getImpls()) {
-            System.out.println(indent + "      " + impl);
+            out.println(indent + "      " + impl);
         }
-        printProperties(indent, specification.getAllProperties());
-        System.out.println(specification.getApformSpec().getDeclaration().printDeclaration(indent));
+        printProperties(out,indent, specification.getAllProperties());
+        out.println(specification.getApformSpec().getDeclaration().printDeclaration(indent));
 
     }
 
-//	/**
-//	 * Test instances.
-//	 * 
-//	 * @param indent
-//	 *            the indent
-//	 * @param instances
-//	 *            the instances
-//	 * @throws ConnectionException
-//	 *             the connection exception
-//	 */
-//	private void testInstances(String indent, Set<Instance> instances) {
-//		if (instances == null)
-//			return;
-//		for (Instance instance : instances) {
-//			printInstance(indent, instance);
-//			System.out.print("ASMImpl " + instance.getImpl());
-//			System.out.println("ASMSpec " + instance.getSpec());
-//		}
-//
-//	}
 
     /**
      * Prints the instance.
+     * @param out
+     *          the printWriter
      *
      * @param indent
      *            the indent
      * @param instance
      *            the instance
      */
-    private void printInstance(String indent, Instance instance) {
+    private void printInstance(PrintWriter out,String indent, Instance instance) {
         if (instance == null)
             return;
-        System.out.println(indent + "----- [ ASMInst : " + instance.getName() + " ] -----");
+        out.println(indent + "----- [ ASMInst : " + instance.getName() + " ] -----");
         Implementation implementation = instance.getImpl();
         indent += "   " ;
-        System.out.println(indent + "Dependencies:");
+        out.println(indent + "Dependencies:");
         for (Wire wire : instance.getWires()) {
-            System.out.println(indent + "   " + wire.getDepName() + ": " + wire.getDestination());
+            out.println(indent + "   " + wire.getDepName() + ": " + wire.getDestination());
         }
 
-        System.out.println(indent + "Called by:");
+        out.println(indent + "Called by:");
         for (Wire wire : instance.getInvWires())
-            System.out.println(indent + "   (" + wire.getDepName() + ") " + wire.getSource());
+            out.println(indent + "   (" + wire.getDepName() + ") " + wire.getSource());
 
         if (implementation == null) {
-            System.out.println(indent + "warning :  no factory for this instance");
+            out.println(indent + "warning :  no factory for this instance");
         } else {
-            System.out.println(indent + "specification  : " + instance.getSpec());
-            System.out.println(indent + "implementation : " + instance.getImpl());
-            System.out.println(indent + "in composite   : " + instance.getComposite());
-            System.out.println(indent + "in application : " + instance.getAppliComposite());
-            printProperties(indent, instance.getAllProperties());
+            out.println(indent + "specification  : " + instance.getSpec());
+            out.println(indent + "implementation : " + instance.getImpl());
+            out.println(indent + "in composite   : " + instance.getComposite());
+            out.println(indent + "in application : " + instance.getAppliComposite());
+            printProperties(out,indent, instance.getAllProperties());
         }
-        System.out.println(instance.getApformInst().getDeclaration().printDeclaration(indent));
+        out.println(instance.getApformInst().getDeclaration().printDeclaration(indent));
     }
 
-    //	/**
-    //	 * Test implemtations.
-    //	 *
-    //	 * @param indent
-    //	 *            the indent
-    //	 * @param impls
-    //	 *            the impls
-    //	 * @throws ConnectionException
-    //	 *             the connection exception
-    //	 */
-    //	private void testImplementations(String indent, Set<Implementation> impls) {
-    //		for (Implementation impl : impls) {
-    //			printImplementation(indent, impl);
-    //			testInstances(indent + "   ", impl.getInsts());
-    //		}
-    //	}
+
 
     /**
      * Prints the implementation.
+     * @param out
+     *          the printWriter
      *
      * @param indent
      *            the indent
      * @param impl
      *            the impl
      */
-    private void printImplementation(String indent, Implementation impl) {
-        System.out.println(indent + "----- [ ASMImpl : " + impl + " ] -----");
+    private void printImplementation(PrintWriter out,String indent, Implementation impl) {
+        out.println(indent + "----- [ ASMImpl : " + impl + " ] -----");
 
         indent += "  " ;
-        System.out.println(indent + "specification : " + impl.getSpec());
+        out.println(indent + "specification : " + impl.getSpec());
 
-        System.out.println(indent + "In composite types:");
+        out.println(indent + "In composite types:");
         for (CompositeType compo : impl.getInCompositeType()) {
-            System.out.println(indent + "      " + compo.getName());
+            out.println(indent + "      " + compo.getName());
         }
 
-        System.out.println(indent + "Uses:");
+        out.println(indent + "Uses:");
         for (Implementation implem : impl.getUses()) {
-            System.out.println(indent + "      " + implem);
+            out.println(indent + "      " + implem);
         }
 
-        System.out.println(indent + "Used by:");
+        out.println(indent + "Used by:");
         for (Implementation implem : impl.getInvUses()) {
-            System.out.println(indent + "      " + implem);
+            out.println(indent + "      " + implem);
         }
 
-        System.out.println(indent + "Instances:");
+        out.println(indent + "Instances:");
         for (Instance inst : impl.getInsts()) {
-            System.out.println(indent + "      " + inst);
+            out.println(indent + "      " + inst);
         }
-        printProperties(indent , impl.getAllProperties());
+        printProperties(out,indent , impl.getAllProperties());
 
-        System.out.println(impl.getApformImpl().getDeclaration().printDeclaration(indent));
+        out.println(impl.getApformImpl().getDeclaration().printDeclaration(indent));
     }
 
     /**
      * Prints the properties.
+     * @param out
+     *          the printWriter
      *
      * @param indent
      *            the indent
      * @param properties
      *            the properties
      */
-    private void printProperties(String indent, Map<String, Object> properties) {
-        System.out.println(indent + "Properties : ");
+    private void printProperties(PrintWriter out, String indent, Map<String, Object> properties) {
+        out.println(indent + "Properties : ");
         for (String key : properties.keySet()) {
-            System.out.println(indent + "   " + key + " = " + properties.get(key));
+            out.println(indent + "   " + key + " = " + properties.get(key));
         }
     }
 
-    private void dumpCompoType(String name) {
+    private void dumpCompoType(PrintWriter out, String name) {
         CompositeType compType = apam.getCompositeType(name);
         if (compType == null) {
-            System.out.println("No such application :" + name);
+            out.println("No such application :" + name);
             return;
         }
-        printCompositeType(compType, "");
+        printCompositeType(out,compType, "");
     }
 
-    //	private void dumpCompo(Composite comp) {
-    //		printComposite(comp, "");
-    //		System.out.println("State: ");
-    //		dumpState(comp.getMainInst(), "  ", "");
-    //		System.out.println("\n");
-    //	}
 
-    private void dumpApam() {
+    private void dumpApam(PrintWriter out) {
         for (CompositeType compo : apam.getRootCompositeTypes()) {
-            dumpCompoType(compo.getName());
-            System.out.println("\n");
+            dumpCompoType(out,compo.getName());
+            out.println("\n");
         }
     }
 
-    private void dumpState(Instance inst, String indent, String dep) {
+    private void dumpState(PrintWriter out, Instance inst, String indent, String dep) {
         if (inst == null)
             return;
         Set<Instance> insts = new HashSet<Instance>();
         insts.add(inst);
-        System.out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " " + inst.getSpec());
+        out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " " + inst.getSpec());
         indent = indent + "  ";
         for (Wire wire : inst.getWires()) {
-            System.out.println(indent + wire.getDepName() + ": " + wire.getDestination() + " "
+            out.println(indent + wire.getDepName() + ": " + wire.getDestination() + " "
                     + wire.getDestination().getImpl() + " " + wire.getDestination().getSpec());
-            dumpState0(wire.getDestination(), indent, wire.getDepName(), insts);
+            dumpState0(out,wire.getDestination(), indent, wire.getDepName(), insts);
         }
     }
 
-    private void dumpState0(Instance inst, String indent, String dep, Set<Instance> insts) {
+    private void dumpState0(PrintWriter out, Instance inst, String indent, String dep, Set<Instance> insts) {
         if (insts.contains(inst)) {
-            System.out.println(indent + "*" + dep + ": " + inst.getName());
+            out.println(indent + "*" + dep + ": " + inst.getName());
             return;
         }
         insts.add(inst);
         indent = indent + "  ";
         for (Wire wire : inst.getWires()) {
-            System.out.println(indent + wire.getDepName() + ": " + wire.getDestination() + " "
+            out.println(indent + wire.getDepName() + ": " + wire.getDestination() + " "
                     + wire.getDestination().getImpl() + " " + wire.getDestination().getSpec());
-            dumpState0(wire.getDestination(), indent, wire.getDepName(), insts);
+            dumpState0(out,wire.getDestination(), indent, wire.getDepName(), insts);
         }
     }
 

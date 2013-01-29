@@ -1,3 +1,17 @@
+/**
+ * Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 package fr.imag.adele.apam.util;
 
 /*
@@ -503,6 +517,7 @@ public class ApamFilter implements Filter {
     }
 
     private boolean match0(Map properties) {
+    	
         switch (op) {
             case AND: {
                 ApamFilter[] filters = (ApamFilter[]) value;
@@ -541,7 +556,7 @@ public class ApamFilter implements Filter {
             case SUPERSET: {
                 Object prop = (properties == null) ? null : properties
                         .get(attr);
-
+                
                 return compare(op, prop, value);
             }
 
@@ -609,7 +624,8 @@ public class ApamFilter implements Filter {
             if (v.indexOf(',') < 0) {
                 s = Collections.singleton(v);
             } else {
-                StringTokenizer st = new StringTokenizer(value.toString(), ",");
+                //Knowing this is a collection, they have '{' and '}' as prolog and epilog. Thus they should be removed in order to tokenize it 
+            	StringTokenizer st = new StringTokenizer(value.toString().replaceAll("[\\{\\}]", ""), ",");
                 s = new HashSet();
                 while (st.hasMoreTokens()) {
                     s.add(st.nextToken().trim());
@@ -623,9 +639,12 @@ public class ApamFilter implements Filter {
 
     @SuppressWarnings("unchecked") 
     private boolean compare(int operation, Object value1, Object value2) {
+    	
         if ((op == ApamFilter.SUPERSET) || (op == ApamFilter.SUBSET)) {
-            Collection s1 = getSet(value1);
+        	
+        	Collection s1 = getSet(value1);
             Collection s2 = converted instanceof Collection ? (Collection) converted : getSet(value2);
+            
             if (op == ApamFilter.SUPERSET) {
                 return s1.containsAll(s2);
             } else {
@@ -1459,7 +1478,7 @@ public class ApamFilter implements Filter {
 
         private String parse_value() throws InvalidSyntaxException {
             StringBuffer sb = new StringBuffer(filterChars.length - pos);
-
+            
             parseloop: while (true) {
                 char c = filterChars[pos];
 

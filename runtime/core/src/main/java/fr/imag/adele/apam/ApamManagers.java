@@ -1,3 +1,17 @@
+/**
+ * Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 package fr.imag.adele.apam;
 
 import fr.imag.adele.apam.impl.CompositeTypeImpl;
@@ -50,6 +64,9 @@ public class ApamManagers {
      *            apamman.
      */
     public static void addDependencyManager(DependencyManager manager, int priority) {
+    	
+    	logger.info("Asking apam to add the manager {} with priority {}",manager,priority);
+    	
         if ((priority < 0) && !(manager.getName().equals(CST.APAMMAN) || manager.getName().equals(CST.UPDATEMAN))) {
             logger.error("invalid priority: " + priority + "> 0 assumed");
             priority = 0;
@@ -58,12 +75,17 @@ public class ApamManagers {
         for (int i = 0; i < dependencyManagers.size(); i++) {
             if (priority <= dependencyManagers.get(i).getPriority()) {
                 dependencyManagers.add(i, manager);
+                logger.info("Manager {} added",manager);
                 inserted = true;
                 break;
             }
         }
         if (!inserted) { // at the end
-            dependencyManagers.add(manager);
+            if(!dependencyManagers.add(manager)){
+            	logger.info("For some reason the manager {} was not added",manager);
+            }else {
+            	logger.info("Manager {} was added successfully",manager);
+            }
         }
         
         ManagerModel rootModel = CompositeTypeImpl.getRootCompositeType().getModel(manager.getName());

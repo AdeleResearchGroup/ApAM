@@ -8,13 +8,13 @@
 		<version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>apam-shell</artifactId>
+	<artifactId>apam-universal-shell</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>ApAM Gogo Shell</name>
-	<description>The Apam Gogo Shell</description>
+	<name>ApAM Universal Shell</name>
+	<description>The Apam Universal Shell</description>
 	<properties>
-		<bundle.symbolicName>ApAM_Shell</bundle.symbolicName>
+		<bundle.symbolicName>ApAM_UniversalShell</bundle.symbolicName>
 	</properties>
 
 	<build>
@@ -49,12 +49,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.gogo.runtime</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo.annotations</artifactId>
 		</dependency>
-	</dependencies>
+
+
+    </dependencies>
 </project>
 

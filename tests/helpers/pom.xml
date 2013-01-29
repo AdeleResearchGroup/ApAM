@@ -66,7 +66,6 @@
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
             <artifactId>dynaman</artifactId>
-            <version>${project.version}</version>
         </dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -80,11 +79,7 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>apam-bundle</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.ipojo</artifactId>
-			
-		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>

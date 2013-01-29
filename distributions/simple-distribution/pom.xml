@@ -28,7 +28,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>config.base</artifactId>
+			<artifactId>apam.felix.config.base</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
 		</dependency>
@@ -85,7 +85,7 @@
 								</artifactItem>
                                 <artifactItem>
 									<groupId>fr.imag.adele.apam</groupId>
-									<artifactId>apam-shell</artifactId>
+									<artifactId>apam-universal-shell</artifactId>
                                     <version>${project.version}</version>
 								</artifactItem>
 								<!-- Felix Dependencies -->
@@ -114,7 +114,11 @@
 									<version>4.2.0</version>
 								</artifactItem>
 								<!--GOGO -->
-								<artifactItem>
+                                <artifactItem>
+                                    <groupId>org.knowhowlab.osgi.shell</groupId>
+                                    <artifactId>felix-gogo</artifactId>
+                                </artifactItem>
+                                <artifactItem>
 									<groupId>org.apache.felix</groupId>
 									<artifactId>org.apache.felix.gogo.command</artifactId>
 									<version>0.12.0</version>
@@ -156,19 +160,10 @@
                                     <artifactId>logback-classic</artifactId>
                                     <version>1.0.7</version>
                                 </artifactItem>
-							<!--	<artifactItem>
-									<groupId>org.apache.log4j</groupId>
-									<artifactId>com.springsource.org.apache.log4j</artifactId>
-									<version>1.2.16</version>
-								</artifactItem>-->
 								<artifactItem>
 									<groupId>org.slf4j</groupId>
 									<artifactId>slf4j-api</artifactId>
 								</artifactItem>
-								<!--<artifactItem>
-									<groupId>org.slf4j</groupId>
-									<artifactId>slf4j-log4j12</artifactId>
-								</artifactItem>-->
 							</artifactItems>
 							<outputDirectory>${basedir}/bundle</outputDirectory>
 							<overWriteSnapshots>true</overWriteSnapshots>
@@ -184,7 +179,7 @@
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<excludeArtifactIds>config.base</excludeArtifactIds>
+							<excludeArtifactIds>apam.felix.config.base</excludeArtifactIds>
 							<outputDirectory>${basedir}/bundle</outputDirectory>
 							<overWriteSnapshots>true</overWriteSnapshots>
 							<excludeTransitive>true</excludeTransitive>
@@ -200,8 +195,7 @@
 						</goals>
 						<configuration>
 							<includeGroupIds>fr.imag.adele.apam</includeGroupIds>
-							<includeArtifactIds>config.base</includeArtifactIds>
-							<includeVersion>${project.version}</includeVersion>
+							<includeArtifactIds>apam.felix.config.base</includeArtifactIds>
 							<outputDirectory>
 								${project.build.directory}/distrib-temp/
 							</outputDirectory>

@@ -3,7 +3,7 @@
     <parent>
         <artifactId>apam-rooms</artifactId>
         <groupId>fr.imag.adele.apam</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>room-impl</artifactId>
@@ -17,7 +17,7 @@
             <plugin>
                 <groupId>fr.imag.adele.apam</groupId>
                 <artifactId>apam-maven-plugin</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>${project.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -32,22 +32,22 @@
         <dependency>
             <groupId>fr.liglab.adele.icasa</groupId>
             <artifactId>device.api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${icasa.version}</version>
         </dependency>
         <dependency>
             <groupId>fr.liglab.adele.icasa</groupId>
             <artifactId>environment.api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${icasa.version}</version>
         </dependency>
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
             <artifactId>room-spec</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
             <artifactId>apam-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
