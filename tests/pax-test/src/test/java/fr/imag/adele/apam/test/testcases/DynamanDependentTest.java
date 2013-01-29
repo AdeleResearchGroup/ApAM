@@ -545,7 +545,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	public List<Option> config() {
 
 		List<Option> config=super.config();
-		config.add(provision(bundle().set(org.osgi.framework.Constants.IMPORT_PACKAGE, "javax.xml.parsers.ParserConfigurationException" ).build()));
+		config.add(provision(bundle().set(org.osgi.framework.Constants.IMPORT_PACKAGE, "javax.xml.parsers.*" ).build()));
 		return config;
 	}
 
