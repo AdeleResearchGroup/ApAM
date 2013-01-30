@@ -2,11 +2,8 @@ package fr.imag.adele.histMan;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -16,22 +13,17 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoClientOptions.Builder;
 
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.DynamicManager;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.PropertyManager;
-import fr.imag.adele.apam.Resolved;
-import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.Wire;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
-import fr.imag.adele.apam.declarations.ResolvableReference;
 
 public class HistMan implements PropertyManager, DynamicManager {
 
@@ -45,25 +37,28 @@ public class HistMan implements PropertyManager, DynamicManager {
 
 	private static final String DB_URL_KEY = "DBUrl";
 	private static final String DB_URL_VALUE_DEFAULT = "localhost";
+
+	private static final String DB_CONNECT_TIMEOUT_KEY = "DBTimeout";
+	private static final String DB_CONNECT_TIMEOUT_VALUE_DEFAULT = "3000";
 	private static final String DB_DROP_START = "dropCollectionsOnStart";
 
 	/*
 	 * The collection containing the attributes created, changed and removed.
 	 */
-	private static final String ChangedAttributes = "Attr" ;
-	
+	private static final String ChangedAttributes = "Attr";
+
 	/*
-	 * The collection containing the entities (spec, implems, instances) created, and deleted
+	 * The collection containing the entities (spec, implems, instances)
+	 * created, and deleted
 	 */
-	private static final String Entities = "ME" ;
-	
+	private static final String Entities = "ME";
+
 	/*
 	 * The collection containing the links (wires) created, and deleted
 	 */
-	private static final String Links = "Links" ;
-	
-	private DB db = null;
+	private static final String Links = "Links";
 
+	private DB db = null;
 
 	/**
 	 * HISTMAN activated, register with APAM
@@ -76,29 +71,32 @@ public class HistMan implements PropertyManager, DynamicManager {
 	public void start() {
 		ApamManagers.addPropertyManager(this);
 		ApamManagers.addDynamicManager(this);
-//		logger.info("[HISTMAN] started");
+		// logger.info("[HISTMAN] started");
 	}
 
 	public void stop() {
 		ApamManagers.removePropertyManager(this);
 		ApamManagers.removeDynamicManager(this);
 		histDbURLs.clear();
-//		logger.info("[HISTMAN] stopped");
+		// logger.info("[HISTMAN] stopped");
 	}
 
 	@Override
 	public void newComposite(ManagerModel model, CompositeType compositeType) {
 		String histURL = null;
 		String histDBName = null;
-		String dropCollections = null ;
+		Integer histDBTimeout = null;
+		String dropCollections = null;
 		LinkedProperties histModel = new LinkedProperties();
 
 		/*
-		 *if no model for the compositeType, set the default values
+		 * if no model for the compositeType, set the default values
 		 */
-		if (model == null) { 
+		if (model == null) {
 			histURL = DB_URL_VALUE_DEFAULT;
 			histDBName = DB_NAME_VALUE_DEFAULT;
+			histDBTimeout = Integer.parseInt(DB_CONNECT_TIMEOUT_VALUE_DEFAULT);
+
 			// stop () ;
 		} else {
 			try {// try to load the compositeType model
@@ -107,6 +105,15 @@ public class HistMan implements PropertyManager, DynamicManager {
 				histURL = histModel.getProperty(DB_URL_KEY);
 				histDBName = histModel.getProperty(DB_NAME_KEY,
 						DB_NAME_VALUE_DEFAULT);
+				
+				//Case a non number has been assigned to the timeout property in the properties file
+				try {
+					histDBTimeout = Integer.parseInt(histModel.getProperty(DB_CONNECT_TIMEOUT_KEY,
+							DB_CONNECT_TIMEOUT_VALUE_DEFAULT));	
+				}catch (NumberFormatException e){
+					histDBTimeout = Integer.parseInt(DB_CONNECT_TIMEOUT_VALUE_DEFAULT);
+				}
+				
 			} catch (IOException e) {// if impossible to load the model for the
 										// compositeType, set the root composite
 				// model
@@ -118,20 +125,29 @@ public class HistMan implements PropertyManager, DynamicManager {
 		histDbURLs.put(compositeType.getName(), histURL);
 		MongoClient mongoClient;
 		try {
-			mongoClient = new MongoClient();
+
+			Builder options = new MongoClientOptions.Builder();
+
+			options.connectTimeout(10);
+
+			mongoClient = new MongoClient(histURL, options.build());
+
 			logger.info("trying to connect with database {} in host {}",
 					histDBName, histURL);
 
 			db = mongoClient.getDB(histDBName);
+
+			logger.info("connected to the database {} in host {}",
+					histDBName, histURL);
 			
 			/*
 			 * if attribute dropComection is true, drop all collections
 			 */
-			dropCollections = histModel.getProperty(DB_DROP_START, "true") ;
+			dropCollections = histModel.getProperty(DB_DROP_START, "true");
 			if ("true".equals(dropCollections)) {
-				db.getCollection(Entities).drop ();
-				db.getCollection(ChangedAttributes).drop ();
-				db.getCollection(Links).drop () ;
+				db.getCollection(Entities).drop();
+				db.getCollection(ChangedAttributes).drop();
+				db.getCollection(Links).drop();
 			}
 
 		} catch (UnknownHostException e) {
@@ -142,18 +158,15 @@ public class HistMan implements PropertyManager, DynamicManager {
 
 	}
 
-
 	@Override
 	public String getName() {
 		return CST.HISTMAN;
 	}
 
-
 	@Override
 	public int getPriority() {
 		return 10;
 	}
-
 
 	@Override
 	public void addedComponent(Component comp) {
