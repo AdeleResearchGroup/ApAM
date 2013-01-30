@@ -65,7 +65,7 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
     		}
     		
     		if (definition.getCallback() != null) {
-      			MethodMetadata method	= getPojoMetadata().getMethod(definition.getName(), new String[] {String.class.getName()});
+      			MethodMetadata method	= getPojoMetadata().getMethod(definition.getCallback(), new String[] {String.class.getName()});
     			if (method == null)
     				throw new ConfigurationException("Invalid property definition "+definition.getName()+": the specified method does not exist");
     		}
