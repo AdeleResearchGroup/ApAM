@@ -2,7 +2,7 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1354182410062" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
-<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1356684960413" TEXT="Property">
+<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1359554645242" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -61,6 +61,12 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1356684961188" ID="ID_577787507" MODIFIED="1356685227747" TEXT="Testing subset &apos;&lt;*&apos; for string-tc062">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1359554646534" ID="ID_372134782" MODIFIED="1359555145952" TEXT="Property change notification (&quot;method&quot; attribute) is called properly-tc063">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1359555151681" ID="ID_1998306046" MODIFIED="1359555177966" TEXT="Property change notification (&quot;method&quot; attribute) should be called only once per setProperty called-tc064">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>

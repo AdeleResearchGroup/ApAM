@@ -277,7 +277,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		Object val = validDef (attr, value, forced) ;
 		if (val == null)
 			return false ;
-
+		
 		//does the change, notifies, changes the platform and propagate to members
 		this.propagate (attr, val) ;
 		return true ;
@@ -294,7 +294,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	private void propagateInit (String attr, Object value) {
 		//Notify the execution platform
 		getApformComponent().setProperty (attr, value.toString());
-
 		//Propagate to members recursively
 		for (Component member : getMembers()) {
 			((ComponentImpl)member).propagate (attr, value) ;
@@ -313,9 +312,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		//Change value and notify managers
 		setInternalProperty(attr,value);
 
-		//Notify the execution platform
-		getApformComponent().setProperty (attr,value.toString());
-
 		//Propagate to members recursively
 		for (Component member : getMembers()) {
 			((ComponentImpl)member).propagate (attr, value) ;
@@ -332,6 +328,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	public void setInternalProperty(String attr, Object value) {
 		Object oldValue = get(attr);
 		put(attr, value);
+		
+		//Notify the execution platform
+		if(get(attr)==value)
+			getApformComponent().setProperty (attr,value.toString());
+		
 		/*
 		 * notify property managers
 		 */

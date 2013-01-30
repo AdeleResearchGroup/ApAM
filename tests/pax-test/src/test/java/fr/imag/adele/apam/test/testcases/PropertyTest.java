@@ -28,6 +28,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
@@ -647,5 +648,50 @@ public class PropertyTest extends ExtensionAbstract {
 
 
 	}
+	
+	@Test
+	public void PropertyChangeNoticationCallback_tc063() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"PropertyChangeNotification");
+		Instance inst = implementation.createInstance(null, null);
+
+		final String PROPERTY_NAME="state";
+		final String VALUE_NEW="new value";
+		final String message_fail_set="Property being declared but after using instance.setAttribute the value inside the component did not correspont to the configured value";
+		final String message_fail_callback="The callback for property change notifications(using 'method' attribute) was not called";
+		
+		inst.setProperty(PROPERTY_NAME, VALUE_NEW);
+
+		PropertyChangeNotificationSwitch switchdevice=(PropertyChangeNotificationSwitch)inst.getServiceObject();
+
+		Assert.assertTrue(message_fail_set,switchdevice.getState().equals(VALUE_NEW));
+		
+		Assert.assertTrue(message_fail_callback,switchdevice.getStateChangedCounter()>0);
+		
+	}
+	
+	@Test
+	public void PropertyChangeNoticationCallbackCalledOnce_tc064() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"PropertyChangeNotification");
+		Instance inst = implementation.createInstance(null, null);
+
+		final String PROPERTY_NAME="state";
+		final String VALUE_NEW="new value";
+		final String message_fail_set="Property being declared but after using instance.setAttribute the value inside the component did not correspont to the configured value";
+		final String message_fail_callback="The callback for property change notifications(using 'method' attribute) was called %s times, and should have been called only once";
+		
+		inst.setProperty(PROPERTY_NAME, VALUE_NEW);
+
+		PropertyChangeNotificationSwitch switchdevice=(PropertyChangeNotificationSwitch)inst.getServiceObject();
+
+		Assert.assertTrue(message_fail_set,switchdevice.getState().equals(VALUE_NEW));
+		
+		Assert.assertTrue(String.format(message_fail_callback,switchdevice.getStateChangedCounter()),switchdevice.getStateChangedCounter()==1);
+		
+	}
+	
 	
 }
