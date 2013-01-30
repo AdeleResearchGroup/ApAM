@@ -80,13 +80,13 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     public void start() {
         ApamManagers.addDependencyManager(this, 3);
-        logger.info("[OBRMAN] started");
+//        logger.info("[OBRMAN] started");
     }
 
     public void stop() {
         ApamManagers.removeDependencyManager(this);
         obrManagers.clear();
-        logger.info("[OBRMAN] stopped");
+//        logger.info("[OBRMAN] stopped");
     }
 
     static List<String> onLoadingResource = new ArrayList<String>();

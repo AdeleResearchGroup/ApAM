@@ -76,14 +76,14 @@ public class HistMan implements PropertyManager, DynamicManager {
 	public void start() {
 		ApamManagers.addPropertyManager(this);
 		ApamManagers.addDynamicManager(this);
-		logger.info("[HISTMAN] started");
+//		logger.info("[HISTMAN] started");
 	}
 
 	public void stop() {
 		ApamManagers.removePropertyManager(this);
 		ApamManagers.removeDynamicManager(this);
 		histDbURLs.clear();
-		logger.info("[HISTMAN] stopped");
+//		logger.info("[HISTMAN] stopped");
 	}
 
 	@Override
@@ -121,12 +121,13 @@ public class HistMan implements PropertyManager, DynamicManager {
 			mongoClient = new MongoClient();
 			logger.info("trying to connect with database {} in host {}",
 					histDBName, histURL);
+
 			db = mongoClient.getDB(histDBName);
 			
 			/*
 			 * if attribute dropComection is true, drop all collections
 			 */
-			dropCollections = histModel.getProperty(DB_DROP_START) ;
+			dropCollections = histModel.getProperty(DB_DROP_START, "true") ;
 			if ("true".equals(dropCollections)) {
 				db.getCollection(Entities).drop ();
 				db.getCollection(ChangedAttributes).drop ();
@@ -150,7 +151,7 @@ public class HistMan implements PropertyManager, DynamicManager {
 
 	@Override
 	public int getPriority() {
-		return 3;
+		return 10;
 	}
 
 

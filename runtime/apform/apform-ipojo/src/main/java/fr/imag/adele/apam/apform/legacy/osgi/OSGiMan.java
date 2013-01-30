@@ -90,13 +90,11 @@ public class OSGiMan implements DependencyManager {
 	@Validate
 	private @SuppressWarnings("unused") synchronized void start()  {
 		ApamManagers.addDependencyManager(this,getPriority());
-		logger.info("[OSGiMAN] started");
 	}
 	
 	@Invalidate
 	private  @SuppressWarnings("unused") synchronized void stop() {
 		ApamManagers.removeDependencyManager(this);
-		logger.info("[OSGiMAN] stopped");
 	}
 	
     

@@ -174,20 +174,14 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
         }
 
 		@Override
-		public void removedWire(Wire wire) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void removedWire(Wire wire) {}
 
 		@Override
-		public void addedWire(Wire wire) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void addedWire(Wire wire) {	}
 
 		@Override
 		public String getName() {
-			return "ComponentListener";
+			return null ;
 		}
 
 		@Override
