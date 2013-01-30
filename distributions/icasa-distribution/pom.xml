@@ -11,9 +11,9 @@
     <!-- Project parent -->
     <parent>
         <groupId>fr.imag.adele.apam</groupId>
-        <artifactId>apam-obrman-distribution</artifactId>
+        <artifactId>apam-basic-distribution</artifactId>
         <version>0.0.2-SNAPSHOT</version>
-        <relativePath>../obrman-distribution/pom.xml</relativePath>
+        <relativePath>../basic-distribution/pom.xml</relativePath>
     </parent>
 
     <!-- Project coordinates -->
@@ -90,6 +90,16 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.ipojo.api</artifactId>
             <version>1.6.0</version>
+        </dependency>
+	<dependency>
+		<groupId>org.apache.felix</groupId>
+		<artifactId>org.apache.felix.configadmin</artifactId>
+		<version>1.6.0</version>
+	</dependency>
+        <dependency>
+            <groupId>org.ow2.chameleon.handies</groupId>
+            <artifactId>ipojo-log-handler</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.chameleon.handies</groupId>

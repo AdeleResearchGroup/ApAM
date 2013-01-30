@@ -31,10 +31,9 @@
 
 	<modules>
 		<module>felix.config.base</module>
-		<module>simple-distribution</module>
-		<module>obrman-distribution</module>
-		<module>dynaman-distribution</module>
-		<module>obrman-dynaman-distribution</module>
+		<module>basic-distribution</module>
+		<module>histman-distribution</module>
+		<module>distriman-distribution</module>
  		<module>icasa-distribution</module>
 	</modules>
   <build>
