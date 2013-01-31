@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.cxf.frontend.ServerFactoryBean;
+import org.eclipse.jetty.util.log.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.framework.Bundle;
@@ -176,7 +177,8 @@ public class RemoteMachine implements ApformInstance {
 		StringBuffer buff = new StringBuffer();
 		try {
 
-			logger.info("Using address {}", getUrl());
+			logger.info("requesting resolution to address {}", this.getUrl()
+					+ "/apam/machine");
 
 			connection = (HttpURLConnection) new URL(this.getUrl()
 					+ "/apam/machine").openConnection();
@@ -218,12 +220,17 @@ public class RemoteMachine implements ApformInstance {
 			StringTokenizer urlsAndInterfaces = new StringTokenizer(
 					endpointUrlAndInterfaces, ",");
 
-			while (urlsAndInterfaces.hasMoreElements()) {
+			logger.info("total of interfaces returned by the server {}",urlsAndInterfaces.countTokens());
+			
+			while (urlsAndInterfaces.hasMoreTokens()) {
+				String urlsAndInterfacesSingle=urlsAndInterfaces.nextToken();
 				StringTokenizer buck = new StringTokenizer(
-						urlsAndInterfaces.nextToken(), "!");
+						urlsAndInterfacesSingle, "!");
 				String endpointUrl = buck.nextToken();
 				String interfacename = buck.nextToken();
 
+				logger.info("iterating over {} and {}",interfacename,endpointUrl);
+				
 				// String endpointUrl = jsonResponse.getString("endpoint_url");
 				// String instancename =
 				// jsonResponse.getString("instance_name");
@@ -238,6 +245,8 @@ public class RemoteMachine implements ApformInstance {
 					
 					logger.info("Type to be loaded {}", ir.getJavaType());
 
+					logger.info("comparing interface {} with {}",interfacename,ir.getJavaType());
+					
 					if (interfacename.equals(ir.getJavaType())) {
 
 						Class ifaceClazz = Class.forName(interfacename);
@@ -268,7 +277,11 @@ public class RemoteMachine implements ApformInstance {
 						// instancename,endpointUrl).toString());
 						// P2Spec p2=(P2Spec)factory.create();
 						// System.out.println("Proxy Instantiated:"+p2.getName());
+					}else {
+						logger.info("{} and {} are not equal",interfacename,ir.getJavaType());	
 					}
+				}else {
+					logger.info("its not a InterfaceReference");
 				}
 
 				return new RemoteInstanceImpl(endpointUrl, this.getInst()

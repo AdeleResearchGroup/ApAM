@@ -185,8 +185,6 @@ public class CxfEndpointFactory {
 				// Thread.currentThread().setContextClassLoader(loader);
 			}
 
-			break;
-
 		}
 
 		return result;
@@ -279,12 +277,19 @@ public class CxfEndpointFactory {
 
 		Collection<Class> classes = new HashSet<Class>();
 
+		logger.info("gigging interfaces used in the apam instance {}",instance.getName());
+		
 		if (instance instanceof ComponentImpl) {
 
+			logger.info("getting reference for the interfaces of the instance..");
+			
 			for (ResourceReference ref : instance.getSpec().getApformSpec()
 					.getDeclaration().getProvidedResources()) {
+				logger.info("adding {} as interfaces for this instance",ref.getName());
 				classes.add(Class.forName(ref.getName()));
 			}
+			
+			logger.info("done.");
 
 		}
 
