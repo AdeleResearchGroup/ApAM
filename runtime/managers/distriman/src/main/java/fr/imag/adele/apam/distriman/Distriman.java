@@ -15,6 +15,7 @@
 package fr.imag.adele.apam.distriman;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,8 @@ import org.apache.felix.ipojo.annotations.Property;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.Validate;
+import org.eclipse.jetty.util.log.Log;
+import org.json.JSONException;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
@@ -54,246 +57,256 @@ import fr.imag.adele.apam.distriman.provider.LocalMachine;
 @org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman")
 @Instantiate
 @Provides
-public class Distriman implements DependencyManager{
+public class Distriman implements DependencyManager {
 
-    //ApamManager priority
-    private static final int PRIORITY = 40;
+	private static Logger logger = LoggerFactory.getLogger(Distriman.class);
 
-    /**
-     * Hostname of the InetAdress to be used for the MachineDiscovery.
-     */
-    @Property(name = "inet.host",value = "localhost",mandatory = true)
-    private String HOST;
+	private static final int APAM_PRIORITY = 40;
 
-    @Requires(optional = false)
-    private HttpService http;
+	@Property(name = "inet.host", value = "127.0.0.1", mandatory = true)
+	private String HOST;
 
+	@Requires(optional = false)
+	private HttpService httpserver;
 
-    //Default logger
-    private static Logger logger = LoggerFactory.getLogger(Distriman.class);
+	private CxfEndpointFactory endpointFactory;
 
-    private final CxfEndpointFactory endpointFactory;
+	private RemoteMachineFactory remotes;
 
-    private RemoteMachineFactory remotes;
+	private final LocalMachine localhostMachine = LocalMachine.INSTANCE;
 
-    private final LocalMachine my_local = LocalMachine.INSTANCE;
+	/**
+	 * MachineDiscovery allows for machine discovery
+	 */
+	private final MachineDiscovery discovery;
 
-    /**
-     * MachineDiscovery allows for machine discovery
-     */
-    private final MachineDiscovery discovery;
+	private final BundleContext context;
 
+	public Distriman(BundleContext context) {
+		this.context = context;
+		remotes = new RemoteMachineFactory(context);
+		discovery = new MachineDiscovery(remotes);
+	}
 
-    private final BundleContext context;
+	public String getName() {
+		return CST.DISTRIMAN;
+	}
 
-    public Distriman(BundleContext context) {
-        this.context = context;
+	@Override
+	public void getSelectionPath(Instance client,
+			DependencyDeclaration dependency, List<DependencyManager> selPath) {
+		selPath.add(selPath.size(), this);
+	}
 
-        remotes = new RemoteMachineFactory(context);
-        discovery = new MachineDiscovery(remotes);
-        endpointFactory=new CxfEndpointFactory();
-    }
+	@Override
+	public int getPriority() {
+		return APAM_PRIORITY;
+	}
 
-    public String getName() {
-        return CST.DISTRIMAN;
-    }
+	@Override
+	public void newComposite(ManagerModel model, CompositeType composite) {
+		// To change body of implemented methods use File | Settings | File
+		// Templates.
+	}
 
-    @Override
-    public void getSelectionPath(Instance client, DependencyDeclaration dependency, List<DependencyManager> selPath) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    	System.out.println(String.format("DISTRIMAN: Adding itself to the selection path, currently with the size %d",selPath.size()));
-    	
-    	selPath.add(selPath.size(), this);
-    }
+	/**
+	 * That's the meat! Ask synchroneously to each available RemoteMachine to
+	 * resolved the <code>dependency</code>, the first to solve it create the
+	 * proxy.
+	 * 
+	 * @param client
+	 *            the instance asking for the resolution (and where to create
+	 *            implementation, if needed). Cannot be null.
+	 * @param dependency
+	 *            a dependency declaration containing the type and name of the
+	 *            dependency target. It can be -the specification Name (new
+	 *            SpecificationReference (specName)) -an implementation name
+	 *            (new ImplementationRefernece (name) -an interface name (new
+	 *            InterfaceReference (interfaceName)) -a message name (new
+	 *            MessageReference (dataTypeName)) - or any future resource ...
+	 * @param needsInstances
+	 * @return The Resolved object if a proxy has been created, null otherwise.
+	 */
+	public Resolved resolveDependency(Instance client,
+			DependencyDeclaration dependency, boolean needsInstances) {
+		Resolved resolved = null;
 
-    @Override
-    public int getPriority() {
-        return PRIORITY;
-    }
+		if (!needsInstances) { // TODO distriman: should really just handle only
+								// instances?
+			return null;
+		}
 
-    @Override
-    public void newComposite(ManagerModel model, CompositeType composite) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+		for (Map.Entry<String, RemoteMachine> element : remotes.getMachines()
+				.entrySet()) {
 
+			RemoteMachine machine = element.getValue();
+			String urlForResolution = element.getKey();
 
-    /**
-     * That's the meat! Ask synchroneously to each available RemoteMachine to resolved the <code>dependency</code>,
-     * the first to solve it create the proxy.
-     *
-     * @param client the instance asking for the resolution (and where to create implementation, if needed). Cannot be null.
-     * @param dependency a dependency declaration containing the type and name of the dependency target. It can be
-     *            -the specification Name (new SpecificationReference (specName))
-     *            -an implementation name (new ImplementationRefernece (name)
-     *            -an interface name (new InterfaceReference (interfaceName))
-     *            -a message name (new MessageReference (dataTypeName))
-     *            - or any future resource ...
-     * @param needsInstances
-     * @return The Resolved object if a proxy has been created, null otherwise.
-     */
-	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
-        Resolved resolved = null;
-        
-        if (!needsInstances){ //TODO distriman: should really just handle only instances?
-            return null;
-        }
+			try {
+				
+				logger.info("trying to resolve in machine key {} and url {}", urlForResolution,machine.getUrl());
+				
+				resolved = machine.resolveRemote(client, dependency);
 
-        Iterator<RemoteMachine> machines = remotes.getRemoteMachines().iterator();
-
-        while (machines.hasNext() && resolved == null){
-        	
-        	RemoteMachine ma=machines.next();
-        	
-            resolved = ma.resolveRemote(client,dependency);
-            
-        }
-        
-       if (resolved!=null && resolved.instances!=null)
-    	   System.out.println(String.format("Dependency %s resolved, number of available instances:%d",dependency.getIdentifier(),resolved.instances.size()));
+			} catch (JSONException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				remotes.destroyRemoteMachine(urlForResolution);
+			}
+		}
 
 		return resolved;
 	}
 
-    @Override
-    public Instance findInstByName(Instance client, String instName) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+	@Validate
+	private void init() {
+		logger.info("Starting...");
 
-    @Override
-    public Implementation findImplByName(Instance client, String implName) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+		DependencyManager manager = ApamManagers.getManager(CST.APAMMAN);
 
-    @Override
-    public Specification findSpecByName(Instance client, String specName) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+		if (manager == null) {
+			throw new RuntimeException(
+					String.format(
+							"Distriman could not be initialized, it was not possible to get the instance of ",
+							CST.APAMMAN));
+		}
 
-    @Override
-    public Component findComponentByName(Instance client, String compName) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+		endpointFactory = new CxfEndpointFactory(manager);
 
-    @Override
-    public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+		// init the local machine
+		localhostMachine.init("127.0.0.1", Integer.parseInt(context
+				.getProperty("org.osgi.service.http.port")), this);
 
-    @Override
-    public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+		// start the discovery
+		discovery.start(HOST);
 
-    @Override
-    public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+		// start the CxfEndpointFactory
+		endpointFactory.start(httpserver, localhostMachine);
 
-    @Override
-    public ComponentBundle findBundle(CompositeType context, String bundleSymbolicName, String componentName) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+		// Register this local machine servlet
+		try {
+			httpserver.registerServlet(LocalMachine.INSTANCE.getPath(),
+					localhostMachine.getServlet(), null, null);
+		} catch (Exception e) {
+			discovery.stop();
+			// TODO distriman:avoid throw here and stoping the instance creation
+			throw new RuntimeException(e);
+		}
 
-    //
-    // Lifecycle call back
-    //
+		// publish this local machine over the network!
+		try {
+			discovery.publishLocalMachine(localhostMachine);
+		} catch (IOException e) {
+			discovery.stop();
+			httpserver.unregister(localhostMachine.getPath());
+			// TODO distriman:avoid throw here and stoping the instance creation
+			throw new RuntimeException(e);
+		}
 
-    @Validate
-    private void init(){
-        logInfo("Starting...");
-        
-        //init the local machine
-        my_local.init("127.0.0.1",Integer.parseInt(context.getProperty("org.osgi.service.http.port")),this);
+		// Add this manager to Apam
+		ApamManagers.addDependencyManager(this, APAM_PRIORITY);
 
-        //start the discovery
-        discovery.start(HOST);
+		logger.info("Successfully initialized");
+	}
 
-        //start the CxfEndpointFactory
-        endpointFactory.start(http);
+	@Invalidate
+	private void stop() {
+		logger.info("Stopping...");
 
-        //Register this local machine servlet
-        try {
-        	
-        	System.out.println("##### Registering:"+LocalMachine.INSTANCE.getPath());
-        	
-            http.registerServlet(LocalMachine.INSTANCE.getPath(),my_local.getServlet(),null,null);
-        } catch (Exception e) {
-            discovery.stop();
-           throw new RuntimeException(e);
-        }
+		ApamManagers.removeDependencyManager(this);
 
-        //publish this local machine over the network!
-        try {
-            discovery.publishLocalMachine(my_local);
-        } catch (IOException e) {
-            discovery.stop();
-            http.unregister(my_local.getPath());
-            throw new RuntimeException(e);
-        }
+		discovery.stop();
 
-        //Add this manager to Apam
-        ApamManagers.addDependencyManager(this,PRIORITY);
-        
-        //Add Distriman to Apam
-        logInfo("Successfully initialized");
-    }
+		endpointFactory.stop(httpserver);
 
-    @Invalidate
-    private void stop(){
-        logInfo("Stopping...");
+		remotes.destroyRemoteMachines();
+		
+		httpserver.unregister(LocalMachine.INSTANCE.getPath());
 
-        //Goodbye Apam
-        ApamManagers.removeDependencyManager(this);
+		logger.info("Successfully stopped");
+	}
 
-        //stop the discovery
-        discovery.stop();
+	public EndpointRegistration resolveRemoteDependency(
+			RemoteDependency dependency, String machineUrl)
+			throws ClassNotFoundException {
 
-        //stop the CxfEndpointFactory
-        endpointFactory.stop(http);
-        
-        http.unregister(LocalMachine.INSTANCE.getPath());//my_local.getPath()
+		logger.info(
+				"client requested resolution of dependency identifier {} in the address {}",
+				dependency.getIdentifier(), machineUrl);
 
-        logInfo("Successfully stopped");
-    }
+		logger.info("distriman available machines");
 
-    //
-    // Endpoints Creation methods
-    //
+		for (Map.Entry<String, RemoteMachine> entry : remotes.getMachines()
+				.entrySet()) {
 
+			logger.info("distriman machine {}", entry.getKey());
 
-    public EndpointRegistration resolveRemoteDependency(RemoteDependency dependency, String machineUrl) throws ClassNotFoundException{
+		}
 
-        logger.info("client requested resolution of dependency identifier {} in the address {}",dependency.getIdentifier(),machineUrl);
+		// Get the composite that represent the remote machine asking to resolve
+		// the RemoteDependency
+		RemoteMachine remote = remotes.getMachines().get(machineUrl);
 
-        logger.info("distriman available machines");
-        
-        for(Map.Entry<String, RemoteMachine> entry:remotes.getMachines().entrySet()){
-        	
-        	logger.info("distriman machine {}",entry.getKey());	
-        	
-        }
-        
-        //Get the composite that represent the remote machine asking to resolve the RemoteDependency
-        RemoteMachine remote = remotes.getRemoteMachine(machineUrl);
+		logger.info("remote machine recovered {}", remote);
 
-        logger.info("remote machine recovered {}",remote);
-        
-        //No RemoteMachine corresponding to the given url is available
-        if(remote == null){
-            return null;
-        }
+		// No RemoteMachine corresponding to the given url is available
+		if (remote == null) {
+			return null;
+		}
 
-        return endpointFactory.resolveAndExport(dependency,remote);
-    }
+		return endpointFactory.resolveAndExport(dependency, remote);
+	}
 
-    //
-    // Convenient static log method
-    //
-    protected static void logInfo(String message,Throwable t){
-        logger.info("["+CST.DISTRIMAN+"]"+message,t);
-    }
+	@Override
+	public Instance findInstByName(Instance client, String instName) {
+		return null; // To change body of implemented methods use File |
+						// Settings | File Templates.
+	}
 
-    protected static void logInfo(String message){
-        logger.info("["+CST.DISTRIMAN+"]"+message);
-    }
+	@Override
+	public Implementation findImplByName(Instance client, String implName) {
+		return null; // To change body of implemented methods use File |
+						// Settings | File Templates.
+	}
+
+	@Override
+	public Specification findSpecByName(Instance client, String specName) {
+		return null; // To change body of implemented methods use File |
+						// Settings | File Templates.
+	}
+
+	@Override
+	public Component findComponentByName(Instance client, String compName) {
+		return null; // To change body of implemented methods use File |
+						// Settings | File Templates.
+	}
+
+	@Override
+	public Instance resolveImpl(Instance client, Implementation impl,
+			Set<String> constraints, List<String> preferences) {
+		return null; // To change body of implemented methods use File |
+						// Settings | File Templates.
+	}
+
+	@Override
+	public Set<Instance> resolveImpls(Instance client, Implementation impl,
+			Set<String> constraints) {
+		return null; // To change body of implemented methods use File |
+						// Settings | File Templates.
+	}
+
+	@Override
+	public void notifySelection(Instance client, ResolvableReference resName,
+			String depName, Implementation impl, Instance inst,
+			Set<Instance> insts) {
+		// To change body of implemented methods use File | Settings | File
+		// Templates.
+	}
+
+	@Override
+	public ComponentBundle findBundle(CompositeType context,
+			String bundleSymbolicName, String componentName) {
+		return null; // To change body of implemented methods use File |
+						// Settings | File Templates.
+	}
 }

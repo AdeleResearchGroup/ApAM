@@ -27,8 +27,11 @@ import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Validate;
+import org.eclipse.jetty.util.log.Log;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.Apform2Apam;
@@ -36,6 +39,7 @@ import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
+import fr.imag.adele.apam.distriman.provider.LocalMachine;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
@@ -54,9 +58,8 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
 
     private final CompositeDeclaration declaration;
 
-    /**
-     * The RemoteMachine created through this factory, indexed by their url.
-     */
+    static Logger logger = LoggerFactory.getLogger(RemoteMachineFactory.class);
+    
     private static final Map<String, RemoteMachine> machines = new HashMap<String, RemoteMachine>();
 
 
@@ -106,7 +109,7 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
     	
         synchronized (machines){
             if (machines.containsKey(url)){
-                //TODO log warning
+                logger.error("machine {} is already in the pool of machines",url);
                 return machines.get(url);
             }
             
@@ -124,15 +127,30 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
     public RemoteMachine destroyRemoteMachine(String url){
         RemoteMachine machine;
 
+        for(Map.Entry<String, RemoteMachine> element:machines.entrySet()){
+        	logger.info("pool of machine contains key {}",element.getKey());
+        }
+        
         synchronized (machines){
             machine = machines.remove(url);
         }
 
         if(machine != null){
+        	logger.info("destroying machine {}",url);
             machine.destroy();
+        }else {
+        	logger.info("machine {} was not found in pool of machines",url);
         }
 
         return machine;
+    }
+    
+    public void destroyRemoteMachines(){
+
+        for(Map.Entry<String, RemoteMachine> element:machines.entrySet()){
+        	destroyRemoteMachine(element.getKey());
+        }
+    
     }
 
     /**

@@ -14,31 +14,27 @@
  */
 package fr.imag.adele.apam.distriman.provider;
 
-import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.DependencyManager;
-import fr.imag.adele.apam.distriman.Distriman;
-import fr.imag.adele.apam.distriman.discovery.MachineDiscovery;
-import fr.imag.adele.apam.distriman.dto.RemoteDependency;
-import fr.imag.adele.apam.impl.ApamResolverImpl;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.util.UUID;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URLEncoder;
-import java.util.UUID;
-
-import static javax.servlet.http.HttpServletResponse.SC_NO_CONTENT;
-import static javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE;
+import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.distriman.Distriman;
+import fr.imag.adele.apam.distriman.discovery.MachineDiscovery;
+import fr.imag.adele.apam.distriman.dto.RemoteDependency;
 
 /**
  * Singleton that represents the local Apam, it contains a servlet allowing for
@@ -70,12 +66,10 @@ public enum LocalMachine {
 	 *            This machine Distriman.
 	 */
 	public void init(String host, int port, Distriman distriman) {
-		assert distriman != null;
-		assert (host != null);
-		assert port > 0;
 
 		if (this.host != null || this.port != -1) {
-			return; // todo log
+			logger.info("trying to change host name or port address from {}:{} to {}:{}",new Object[]{this.host,this.port,host,port});
+			return; 
 		}
 
 		this.host = host;
@@ -137,8 +131,6 @@ public enum LocalMachine {
 	 * dependency thanks to this machine.
 	 */
 	private class MyServlet extends HttpServlet {
-		private static final String MEDIA_TYPE = "text/html";
-		// private static final String MEDIA_TYPE = "application/json";
 		private static final String CLIENT_URL = "client_url";
 		private final DependencyManager apamMan;
 
@@ -150,33 +142,12 @@ public enum LocalMachine {
 		@Override
 		protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 				throws ServletException, IOException {
-			resp.setStatus(204);
+			resp.sendError(204);
 		}
 
 		@Override
 		protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 				throws ServletException, IOException {
-
-			// Content type not supported
-			// if ( !req.getContentType().equalsIgnoreCase(MEDIA_TYPE)){
-			// resp.sendError(SC_UNSUPPORTED_MEDIA_TYPE);
-			// return;
-			// }
-
-			// Get the content
-			// StringBuilder content = new StringBuilder();
-			// BufferedReader reader = req.getReader();
-			// String tmp;
-			// while ( (tmp = reader.readLine()) != null){
-			// content.append(tmp);
-			// }
-			// reader.close();
-
-			// no content
-			// if (content.length() == 0){
-			// resp.sendError(SC_NO_CONTENT);
-			// return;
-			// }
 
 			PrintWriter writer=resp.getWriter();
 			
@@ -209,42 +180,7 @@ public enum LocalMachine {
 			} finally {
 				writer.close();
 			}
-			
-			// PrintWriter writer = resp.getWriter(); //Write the response
-			// writer.write("got it!");
 
-			// Handle content as json.
-			// try {
-			// JSONObject json = new JSONObject(content.toString());
-			//
-			// //Get the RemoteMachine url
-			// String remoteUrl = json.getString(CLIENT_URL);
-			//
-			// System.out.println("Received servlet call to resolve a dependency");
-			//
-			// //get the dependency
-			// RemoteDependency dependency = RemoteDependency.fromJson(json);
-			//
-			// //that's the meat, ask Distriman? to resolve the dependency and
-			// create the endpoint ?
-			// EndpointRegistration reg =
-			// distriman.resolveRemoteDependency(dependency,remoteUrl);
-			//
-			// PrintWriter writer = resp.getWriter(); //Write the response
-			// //Cannot resolved!
-			// if(reg == null){
-			// resp.setStatus(204); //Return a NO CONTENT 204
-			// } else {
-			// resp.setStatus(200); //OK
-			// resp.setContentType(MEDIA_TYPE);
-			// writer.write(toJson(reg)); //Parse the EndpointRegistration
-			// }
-			//
-			// writer.close();
-			//
-			// } catch (JSONException e) {
-			// throw new IOException(e);
-			// }
 		}
 	}
 

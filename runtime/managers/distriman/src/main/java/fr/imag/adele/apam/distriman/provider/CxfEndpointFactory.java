@@ -32,8 +32,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
-import fr.imag.adele.apam.ApamManagers;
-import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
@@ -77,13 +75,12 @@ public class CxfEndpointFactory {
      */
 	private final Map<String, Server> webservices = new HashMap<String, Server>();
 
-	public CxfEndpointFactory() {
-		apamMan = ApamManagers.getManager(CST.APAMMAN);
+	public CxfEndpointFactory(DependencyManager manager) {
+		apamMan = manager;
 	}
 
-	public void start(HttpService http) {
+	public void start(HttpService http, LocalMachine machine) {
 		// TODO distriman: Disable the fast infoset as it's not compatible (yet)
-		// with OSGi
 		System.setProperty("org.apache.cxf.nofastinfoset", "true");
 
 		// Register the CXF Servlet
@@ -111,13 +108,13 @@ public class CxfEndpointFactory {
 
 		// compute the PROP_CXF_URL property
 		try {
-			myurl = new URI("http://" + LocalMachine.INSTANCE.getHost() + ":"
-					+ LocalMachine.INSTANCE.getPort() + ROOT_NAME).toString();
+			myurl = new URI("http://" + machine.getHost() + ":"
+					+ machine.getPort() + ROOT_NAME).toString();
 
 			logger.info("instantiating endpoint factory for the url {}", myurl);
 
 		} catch (Exception e) {
-			// TODO log
+			// TODO distriman
 			// "Cannot create the URL of the JAX-WS server, this will lead to incomplete EndpointDescription.",e);
 		}
 	}
@@ -174,8 +171,19 @@ public class CxfEndpointFactory {
 				// }
 
 				Server res = srvFactory.create();
-
-				webservices.put(instance.getName(), res);
+				
+				while(!res.isStarted())
+					try {
+						logger.info("Server {} not started, waiting..",srvFactory.getAddress());
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				
+				logger.info("Server {} started!",srvFactory.getAddress());
+				
+				webservices.put(srvFactory.getAddress(), res);
 
 				result.put(iface, res.getEndpoint().getEndpointInfo()
 						.getAddress());
@@ -191,12 +199,18 @@ public class CxfEndpointFactory {
 
 	}
 
-	public void destroyEndpoint(String name) {
-		if (webservices.containsKey(name)) {
-			webservices.remove(name).stop();
-		} else {
-			// TODO distriman: log the destruction of the endpoint
+	public void destroyEndpoints() {
+		
+		logger.info("destroying endpoints..");
+		
+		for(Map.Entry<String, Server> element:webservices.entrySet()){
+			String wsUrl=element.getKey();
+			Server entrypoint=element.getValue();
+			entrypoint.stop();
+			logger.info("endpoint {} destroyed.",wsUrl);
+			webservices.remove(element.getKey());
 		}
+		
 	}
 
 	public EndpointRegistration resolveAndExport(RemoteDependency dependency,
@@ -251,7 +265,7 @@ public class CxfEndpointFactory {
 				}
 				
 				registration = new EndpointRegistrationImpl(this, neo,
-						client, fullURL, PROTOCOL_NAME,fullURL);//
+						client, fullURL, PROTOCOL_NAME,fullURL);
 
 			} else {
 

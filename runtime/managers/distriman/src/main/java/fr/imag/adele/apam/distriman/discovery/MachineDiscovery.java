@@ -102,7 +102,7 @@ public class MachineDiscovery implements ServiceListener {
             }
 
             //Create and Add the machine
-            String url = sinfo.getURL();
+            String url = sinfo.getNiceTextString();
             
             logger.info("mDNS detected the url {}",url);
             
@@ -130,6 +130,7 @@ public class MachineDiscovery implements ServiceListener {
 
     public void publishLocalMachine(LocalMachine local) throws IOException{
         //Register a local machine
+    	logger.info("publishing machine {} on the mdns bus",local.getURL());
         jmDNS.registerService(ServiceInfo.create(local.getType(), local.getName(), local.getPort(), local.getURL()));
     }
 
@@ -141,18 +142,23 @@ public class MachineDiscovery implements ServiceListener {
     @Override
     public void serviceAdded(ServiceEvent serviceEvent) {
         //Ignore, only handle resolved
+    	logger.info("service added {}",serviceEvent.getInfo().getNiceTextString());
     }
 
     /**
      * @param serviceEvent The mdns event triggered by a remote machine that is no longer available.
      */
     public void serviceRemoved(ServiceEvent serviceEvent) {
+    	
+    	logger.info("service removed {}",serviceEvent.getInfo().getNiceTextString());
+    	
         if(serviceEvent.getName().equalsIgnoreCase(name)){
             return; //ignore my message
         }
 
         ServiceInfo info = serviceEvent.getInfo();
-        String url = info.getNiceTextString(); //Get the content
+        String url = info.getNiceTextString();
+        
         machineFactory.destroyRemoteMachine(url);
     }
 
@@ -160,6 +166,9 @@ public class MachineDiscovery implements ServiceListener {
      * @param serviceEvent The mdns event triggered by a remote machine that is now available.
      */
     public void serviceResolved(ServiceEvent serviceEvent) {
+    	
+    	logger.info("service resolved {}",serviceEvent.getInfo().getNiceTextString());
+    	
         if(serviceEvent.getName().equalsIgnoreCase(name)){
             return; // ignore this machine message
         }

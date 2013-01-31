@@ -80,29 +80,24 @@ public class EndpointRegistrationImpl implements EndpointRegistration {
 
 	@Override
 	public void close() {
-		// Has already been closed
+
+		logger.info("destroying endpoints");
+		
 		if (exported == null) {
 			return;
 		}
 
 		synchronized (endPointfactory.getEndpoints()) {
-
-			// remove this EndpointRegistration to the RemoteMachine that
-			// ask for it.
+			
 			client.rmEndpointRegistration(this);
 
 			endPointfactory.getEndpoints().remove(getInstance(), getClient());
-
-			// Last registration, destroy the endpoints.
-			if (!endPointfactory.getEndpoints().containsKey(getInstance()))
-				endPointfactory.destroyEndpoint(getInstance().getName());
-
+			endPointfactory.destroyEndpoints();
+			
 			exported = null;
 			client = null;
 			url = null;
 			protocol = null;
-
-			// todo if last destroy endpoint.
 		}
 	}
 

@@ -20,21 +20,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
-import org.apache.cxf.frontend.ServerFactoryBean;
-import org.eclipse.jetty.util.log.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.framework.Bundle;
@@ -102,74 +100,68 @@ public class RemoteMachine implements ApformInstance {
 	}
 
 	public void addEndpointRegistration(EndpointRegistration registration) {
-		if (running.get())
-			my_endregis.add(registration);
+		my_endregis.add(registration);
 	}
 
 	public boolean rmEndpointRegistration(EndpointRegistration registration) {
-		return running.get() && my_endregis.remove(registration);
+		return my_endregis.remove(registration);
 	}
 
 	/**
 	 * Destroy the RemoteMachine //TODO but a volatile destroyed flag ?
 	 */
 	public void destroy() {
-		if (running.compareAndSet(true, false)) {
 
-			logger.info("RemoteMachine " + my_url + " destroyed.");
-			System.out.println("RemoteMachine " + my_url + " destroyed.");
+		logger.info("destroying remoteMachine {}", my_url);
 
-			// Remove this Instance from the broker
-			ComponentBrokerImpl.disappearedComponent(this.getDeclaration()
-					.getName());
-
-			for (EndpointRegistration endreg : my_endregis) {
-				endreg.close();
-			}
+		for (EndpointRegistration endreg : my_endregis) {
+			endreg.close();
 		}
+
+		// Remove this Instance from the broker
+		ComponentBrokerImpl.disappearedComponent(this.getDeclaration()
+				.getName());
+
 	}
 
 	public Resolved resolveRemote(Instance client,
-			DependencyDeclaration dependency) {
+			DependencyDeclaration dependency) throws JSONException,
+			IOException {
 		if (running.get()) {
-			try {
-				RemoteDependency remoteDep = new RemoteDependency(dependency);
+			RemoteDependency remoteDep = new RemoteDependency(dependency);
 
-				JSONObject jsonObject = remoteDep.toJson();
+			JSONObject jsonObject = remoteDep.toJson();
 
-				jsonObject.put("client_url", this.getUrl());
+			jsonObject.put("client_url", this.getUrl());
 
-				String json = jsonObject.toString();
+			String json = jsonObject.toString();
 
-				Instance instance = createClientProxy(json, client, dependency);
+			Instance instance = createClientProxy(json, client, dependency);
 
-				// TODO distriman: log the remote resolution information on the
-				// client side
-				if (instance == null) {
+			// TODO distriman: log the remote resolution information on the
+			// client side
+			if (instance == null) {
 
-					logger.info("dependency {} was NOT found in {}",
-							dependency.getIdentifier(), this.getUrl());
+				logger.info("dependency {} was NOT found in {}",
+						dependency.getIdentifier(), this.getUrl());
 
-					return null;
-				}
-
-				logger.info("dependency {} was found remotely",
-						dependency.getIdentifier());
-
-				Set<Implementation> impl = Collections.emptySet();
-
-				return new Resolved(impl, singleton(instance));
-
-				// TODO call this machine getUrl
-			} catch (Exception e) {
-				e.printStackTrace();
+				return null;
 			}
+
+			logger.info("dependency {} was found remotely",
+					dependency.getIdentifier());
+
+			Set<Implementation> impl = Collections.emptySet();
+
+			return new Resolved(impl, singleton(instance));
+
 		}
-		return null; // TODO
+
+		return null;
 	}
 
 	private Instance createClientProxy(String jsondep, Instance client,
-			DependencyDeclaration dependency) {
+			DependencyDeclaration dependency) throws IOException {
 
 		HttpURLConnection connection = null;
 		PrintWriter outWriter = null;
@@ -177,11 +169,10 @@ public class RemoteMachine implements ApformInstance {
 		StringBuffer buff = new StringBuffer();
 		try {
 
-			logger.info("requesting resolution to address {}", this.getUrl()
-					+ "/apam/machine");
+			logger.info("requesting resolution to address {}", this.getUrl());
 
-			connection = (HttpURLConnection) new URL(this.getUrl()
-					+ "/apam/machine").openConnection();
+			connection = (HttpURLConnection) new URL(this.getUrl())
+					.openConnection();
 
 			// SET REQUEST INFO
 			connection.setRequestMethod("POST");
@@ -220,17 +211,19 @@ public class RemoteMachine implements ApformInstance {
 			StringTokenizer urlsAndInterfaces = new StringTokenizer(
 					endpointUrlAndInterfaces, ",");
 
-			logger.info("total of interfaces returned by the server {}",urlsAndInterfaces.countTokens());
-			
+			logger.info("total of interfaces returned by the server {}",
+					urlsAndInterfaces.countTokens());
+
 			while (urlsAndInterfaces.hasMoreTokens()) {
-				String urlsAndInterfacesSingle=urlsAndInterfaces.nextToken();
+				String urlsAndInterfacesSingle = urlsAndInterfaces.nextToken();
 				StringTokenizer buck = new StringTokenizer(
 						urlsAndInterfacesSingle, "!");
 				String endpointUrl = buck.nextToken();
 				String interfacename = buck.nextToken();
 
-				logger.info("iterating over {} and {}",interfacename,endpointUrl);
-				
+				logger.info("iterating over {} and {}", interfacename,
+						endpointUrl);
+
 				// String endpointUrl = jsonResponse.getString("endpoint_url");
 				// String instancename =
 				// jsonResponse.getString("instance_name");
@@ -242,19 +235,22 @@ public class RemoteMachine implements ApformInstance {
 				if (dependency.getTarget() instanceof InterfaceReference) {
 					InterfaceReference ir = (InterfaceReference) dependency
 							.getTarget();
-					
+
 					logger.info("Type to be loaded {}", ir.getJavaType());
 
-					logger.info("comparing interface {} with {}",interfacename,ir.getJavaType());
-					
+					logger.info("comparing interface {} with {}",
+							interfacename, ir.getJavaType());
+
 					if (interfacename.equals(ir.getJavaType())) {
 
 						Class ifaceClazz = Class.forName(interfacename);
 
 						// Thread.currentThread().setContextClassLoader(ServerFactoryBean.class.getClassLoader());
 
-						logger.info("connecting the interface {} to the endpoint {}",interfacename,endpointUrl);
-						
+						logger.info(
+								"connecting the interface {} to the endpoint {}",
+								interfacename, endpointUrl);
+
 						ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
 						factory.setServiceClass(ifaceClazz);
 						factory.setAddress(endpointUrl);
@@ -277,10 +273,11 @@ public class RemoteMachine implements ApformInstance {
 						// instancename,endpointUrl).toString());
 						// P2Spec p2=(P2Spec)factory.create();
 						// System.out.println("Proxy Instantiated:"+p2.getName());
-					}else {
-						logger.info("{} and {} are not equal",interfacename,ir.getJavaType());	
+					} else {
+						logger.info("{} and {} are not equal", interfacename,
+								ir.getJavaType());
 					}
-				}else {
+				} else {
 					logger.info("its not a InterfaceReference");
 				}
 
@@ -291,8 +288,6 @@ public class RemoteMachine implements ApformInstance {
 
 		} catch (MalformedURLException mue) {
 			mue.printStackTrace();
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
 		} catch (JSONException e) {
 			e.printStackTrace();
 		} catch (InvalidConfiguration e) {
@@ -311,15 +306,6 @@ public class RemoteMachine implements ApformInstance {
 				}
 			}
 		}
-		// }
-
-		// ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
-		// factory.setServiceClass(Instance.class);
-		// System.out.println("******************Trying to access url:"+my_url);
-		// factory.setAddress(my_url+"/ws");
-		// Instance client = (Instance) factory.create();
-		//
-		// return client; // null
 
 		return null;
 	}
