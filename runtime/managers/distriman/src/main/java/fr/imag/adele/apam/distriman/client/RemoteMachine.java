@@ -68,6 +68,8 @@ public class RemoteMachine implements ApformInstance {
 	 * The RemoteMachine URL.
 	 */
 	private final String my_url;
+	
+	private final String id;
 
 	private final RemoteMachineFactory my_impl;
 
@@ -81,9 +83,10 @@ public class RemoteMachine implements ApformInstance {
 
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
-	public RemoteMachine(String url, RemoteMachineFactory daddy) {
+	public RemoteMachine(String url, String id,RemoteMachineFactory daddy) {
 		my_url = url;
 		my_impl = daddy;
+		this.id=id;
 		my_declaration = new InstanceDeclaration(daddy.getDeclaration()
 				.getReference(), "RemoteMachine_" + url, null);
 		my_declaration.setInstantiable(false);
@@ -138,8 +141,6 @@ public class RemoteMachine implements ApformInstance {
 
 			Instance instance = createClientProxy(json, client, dependency);
 
-			// TODO distriman: log the remote resolution information on the
-			// client side
 			if (instance == null) {
 
 				logger.info("dependency {} was NOT found in {}",
@@ -359,5 +360,9 @@ public class RemoteMachine implements ApformInstance {
 	@Override
 	public Instance getInst() {
 		return apamInstance;
+	}
+	
+	public String getId() {
+		return id;
 	}
 }

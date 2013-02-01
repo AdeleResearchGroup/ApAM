@@ -105,7 +105,7 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
      * @param url The RemoteMachine unique URL
      * @return The newly created or existing RemoteMachine of given url
      */
-    public RemoteMachine newRemoteMachine(String url) {
+    public RemoteMachine newRemoteMachine(String url,String id) {
     	
         synchronized (machines){
             if (machines.containsKey(url)){
@@ -113,7 +113,7 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
                 return machines.get(url);
             }
             
-            RemoteMachine machine = machines.put(url,new RemoteMachine(url,this));
+            RemoteMachine machine = machines.put(url,new RemoteMachine(url,id,this));
             
             return machine;
         }
@@ -124,10 +124,15 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
      * @param url the RemoteMachine URL
      * @return the destroyed RemoteMachine or null if not present.
      */
-    public RemoteMachine destroyRemoteMachine(String url){
+    public RemoteMachine destroyRemoteMachine(String url,String id){
         RemoteMachine machine;
 
         for(Map.Entry<String, RemoteMachine> element:machines.entrySet()){
+        	if(element.getValue().getId().equals(id)){
+        		logger.info("destroying machine with the id {}",id);
+        		machines.remove(element.getValue().getUrl());
+        		element.getValue().destroy();
+        	}
         	logger.info("pool of machine contains key {}",element.getKey());
         }
         
@@ -139,7 +144,7 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
         	logger.info("destroying machine {}",url);
             machine.destroy();
         }else {
-        	logger.info("machine {} was not found in pool of machines",url);
+        	logger.info("machine {} was not found in pool of machines by the url",url);
         }
 
         return machine;
@@ -148,7 +153,7 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
     public void destroyRemoteMachines(){
 
         for(Map.Entry<String, RemoteMachine> element:machines.entrySet()){
-        	destroyRemoteMachine(element.getKey());
+        	destroyRemoteMachine(element.getKey(),element.getValue().getId());
         }
     
     }

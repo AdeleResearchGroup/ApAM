@@ -30,14 +30,14 @@ public interface ApamMachineDiscovery {
 	 * @param url
 	 * @return
 	 */
-	public RemoteMachine newRemoteMachine(String url);
+	public RemoteMachine newRemoteMachine(String url, String id);
 	
 	/**
 	 * Remove URL from the list of remote apam node
 	 * @param url
 	 * @return
 	 */
-	public RemoteMachine destroyRemoteMachine(String url);
+	public RemoteMachine destroyRemoteMachine(String url,String id);
 
 	/**
 	 * Return list of remote apam node available, not including the machine that calls the method

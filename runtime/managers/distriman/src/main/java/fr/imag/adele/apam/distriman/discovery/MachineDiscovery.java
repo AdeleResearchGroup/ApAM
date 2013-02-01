@@ -104,9 +104,9 @@ public class MachineDiscovery implements ServiceListener {
             //Create and Add the machine
             String url = sinfo.getNiceTextString();
             
-            logger.info("mDNS detected the url {}",url);
+            logger.info("mDNS detected the url {} subtype {}",url,sinfo.getTypeWithSubtype());
             
-            machineFactory.newRemoteMachine(url);
+            machineFactory.newRemoteMachine(url,sinfo.getTypeWithSubtype());
         }
 
         //Add this as a listener in order to track change
@@ -150,7 +150,9 @@ public class MachineDiscovery implements ServiceListener {
      */
     public void serviceRemoved(ServiceEvent serviceEvent) {
     	
-    	logger.info("service removed {}",serviceEvent.getInfo().getNiceTextString());
+    	String id=String.format("%s.%s",serviceEvent.getName(),serviceEvent.getType());
+    	
+    	logger.info("service removing {} with id {}",serviceEvent.getInfo().getNiceTextString(),id);
     	
         if(serviceEvent.getName().equalsIgnoreCase(name)){
             return; //ignore my message
@@ -159,7 +161,7 @@ public class MachineDiscovery implements ServiceListener {
         ServiceInfo info = serviceEvent.getInfo();
         String url = info.getNiceTextString();
         
-        machineFactory.destroyRemoteMachine(url);
+        machineFactory.destroyRemoteMachine(url,id);
     }
 
     /**
@@ -167,7 +169,9 @@ public class MachineDiscovery implements ServiceListener {
      */
     public void serviceResolved(ServiceEvent serviceEvent) {
     	
-    	logger.info("service resolved {}",serviceEvent.getInfo().getNiceTextString());
+    	String id=String.format("%s.%s",serviceEvent.getName(),serviceEvent.getType());
+    	
+    	logger.info("service resolved {} subtype {}",serviceEvent.getInfo().getNiceTextString(),id);
     	
         if(serviceEvent.getName().equalsIgnoreCase(name)){
             return; // ignore this machine message
@@ -176,6 +180,6 @@ public class MachineDiscovery implements ServiceListener {
         ServiceInfo info = jmDNS.getServiceInfo(MDNS_TYPE, serviceEvent.getName());
         String url = info.getNiceTextString();
 
-        machineFactory.newRemoteMachine(url);
+        machineFactory.newRemoteMachine(url,id);
     }
 }

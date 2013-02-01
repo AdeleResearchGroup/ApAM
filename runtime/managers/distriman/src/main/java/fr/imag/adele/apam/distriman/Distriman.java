@@ -151,7 +151,7 @@ public class Distriman implements DependencyManager {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
-				remotes.destroyRemoteMachine(urlForResolution);
+				remotes.destroyRemoteMachine(urlForResolution,element.getValue().getId());
 			}
 		}
 
