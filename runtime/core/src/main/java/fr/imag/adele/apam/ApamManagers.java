@@ -14,12 +14,19 @@
  */
 package fr.imag.adele.apam;
 
-import fr.imag.adele.apam.impl.CompositeTypeImpl;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
+import fr.imag.adele.apam.impl.CompositeTypeImpl;
 
 public class ApamManagers {
 
@@ -32,7 +39,7 @@ public class ApamManagers {
 
 		@Override
 		public int compare(Manager manager1, Manager manager2) {
-			return manager1.hashCode() - manager2.hashCode();
+			return manager1.getName().compareTo(manager2.getName());
 		}
 	});
 
@@ -51,7 +58,7 @@ public class ApamManagers {
 
 		@Override
 		public int compare(DynamicManager manager1, DynamicManager manager2) {
-			return manager1.hashCode() - manager2.hashCode();
+			return manager1.getName().compareTo(manager2.getName());
 		}
 	});
 
@@ -62,7 +69,7 @@ public class ApamManagers {
 
 		@Override
 		public int compare(PropertyManager manager1, PropertyManager manager2) {
-			return manager1.hashCode() - manager2.hashCode();
+			return  manager1.getName().compareTo(manager2.getName());
 		}
 	});
 
@@ -89,13 +96,14 @@ public class ApamManagers {
 			logger.error("ERROR : Missing parameter manager in  unregister Manager");
 			return;
 		}
-		if (!managers.contains(manager)) {
-			return ;
-		}
-		managers.remove(manager) ;
-		if (manager.getName() != null) {
+		
+		boolean managerRemoved=managers.remove(manager) ;
+		if (managerRemoved && manager.getName() != null) {
 			logger.info("[" + manager.getName() + " unregistered]") ;
+		}else{
+			logger.error("[" + manager.getName() + " could NOT be unregistered]") ;
 		}
+			
 	}
 
 	/**
@@ -181,8 +189,12 @@ public class ApamManagers {
 	 */
 	public static void removeDependencyManager(DependencyManager manager) {
 		unregister(manager) ;
-		ApamManagers.dependencyManagersPrio.remove(manager);
-		ApamManagers.dependencyManagers.remove(manager);
+		boolean removedManagerPrio=ApamManagers.dependencyManagersPrio.remove(manager)!=null?true:false;
+		boolean removedManager=ApamManagers.dependencyManagers.remove(manager);
+		
+		if(!removedManagerPrio) logger.error("impossible to remove manager {} from prior list",manager.getName());
+		if(!removedManager) logger.error("impossible to remove manager {} from main list",manager.getName());
+		
 	}
 
 	/**
@@ -207,8 +219,12 @@ public class ApamManagers {
 
 	public static void removeDynamicManager(DynamicManager manager) {
 		unregister(manager);
-		if  (manager != null) 
-			ApamManagers.dynamicManagers.remove(manager);
+		if  (manager != null){ 
+			boolean managerRemoved=ApamManagers.dynamicManagers.remove(manager);
+			if(!managerRemoved){
+				logger.error("impossible to remove dynamic manager {}",manager.getName());
+			}
+		}
 	}
 
 	/**
@@ -229,8 +245,12 @@ public class ApamManagers {
 	 */
 	public static void removePropertyManager(PropertyManager manager) {
 		unregister(manager);
-		if (manager != null) 
-			ApamManagers.propertyManagers.remove(manager);
+		if (manager != null) {
+			boolean managerRemoved=ApamManagers.propertyManagers.remove(manager);
+			if(!managerRemoved){
+				logger.error("impossible to remove property manager {}",manager.getName());
+			}
+		}
 	}
 
 	/*
