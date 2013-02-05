@@ -435,7 +435,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 
 	@Test
 	@Ignore
-	public void CompositeContentMngtDependencyHide_tc047() {
+	public void CompositeContentMngtDependencyHide_tc065() {
 
 		CompositeType ctaroot = (CompositeType) CST.apamResolver
 				.findImplByName(null, "composite-a-hide");
