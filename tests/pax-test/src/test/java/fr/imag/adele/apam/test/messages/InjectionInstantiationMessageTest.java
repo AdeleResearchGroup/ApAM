@@ -118,7 +118,7 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 
 		Instance s1Inst = m1ProsumerImpl.createInstance(null, null);
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME_LONG);
 
 		M1ProducerImpl m1ProdImpl = (M1ProducerImpl) s1Inst.getServiceObject();
 
@@ -132,7 +132,7 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 		Instance sansungInst = (Instance) sansungImpl
 				.createInstance(null, null);
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(Constants.CONST_WAIT_TIME_LONG);
 
 		GenericProducer samsungProducer = (GenericProducer) sansungInst
 				.getServiceObject();
