@@ -147,6 +147,8 @@ public class Distriman implements DependencyManager {
 				logger.info("trying to resolve in machine key {} and url {}", urlForResolution,machine.getUrl());
 				
 				resolved = machine.resolveRemote(client, dependency);
+				
+				if(resolved!=null&&resolved.instances!=null&&resolved.instances.size()>0) break;
 
 			} catch (JSONException e) {
 				e.printStackTrace();

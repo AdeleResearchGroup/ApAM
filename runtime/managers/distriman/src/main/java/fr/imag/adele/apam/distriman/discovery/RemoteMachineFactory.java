@@ -88,7 +88,7 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
 
     @Override
     public CompositeDeclaration getDeclaration() {
-        return new CompositeDeclaration(PROP_MY_NAME,null,null);
+        return declaration;
     }
 
     @Override

@@ -15,6 +15,7 @@
 package fr.imag.adele.apam.impl;
 
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -258,9 +259,9 @@ public class ApamResolverImpl implements ApamResolver {
 
 		for (Instance inst : insts) {
 			
-			//TODO distriman: Check if this its possible to have multiple implementations 
-			
-			if(inst instanceof RemoteInstanceImpl) {
+			//TODO distriman: Check if this its possible to have multiple implementations
+			//TODO distriman: proxy verification is not a reliable constraint to detect remote instances
+			if(inst.getServiceObject()!=null&&Proxy.isProxyClass(inst.getServiceObject().getClass())) {//inst instanceof RemoteInstanceImpl probabaly a remote instance
 				
 				client.createWire(inst, depName, hasConstraints, false);
 				

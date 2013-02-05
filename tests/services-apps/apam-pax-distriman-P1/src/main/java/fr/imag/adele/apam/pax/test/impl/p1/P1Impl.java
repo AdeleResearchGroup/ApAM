@@ -1,11 +1,11 @@
 package fr.imag.adele.apam.pax.test.impl.p1;
 
 import fr.imag.adele.apam.pax.test.iface.P1Spec;
-import fr.imag.adele.apam.pax.test.iface.P2Spec2;
+import fr.imag.adele.apam.pax.test.iface.P2Spec;
 
 public class P1Impl extends Thread implements P1Spec {
 
-	P2Spec2 p2;
+	P2Spec p2;
 
 	boolean running = false;
 
@@ -51,7 +51,10 @@ public class P1Impl extends Thread implements P1Spec {
 //				System.out.print("---->keeper:EMPTY");
 //			}
 
-			System.out.print("---->P2Spec:"+p2.getSpec2Name());
+			if(p2!=null)
+				System.out.println("---->P2Spec:"+p2.getName());
+			else
+				System.out.println("---->P2Spec: not injected");
 			
 			try {
 				Thread.sleep(2000);

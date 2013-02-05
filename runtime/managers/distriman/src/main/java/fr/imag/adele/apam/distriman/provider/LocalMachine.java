@@ -162,7 +162,7 @@ public enum LocalMachine {
 				
 				EndpointRegistration reg = distriman.resolveRemoteDependency(
 						remoteDependency, remoteUrl);
-
+				
 				String jsonString=toJson(reg);
 				
 				logger.info("payload of the response {}",jsonString);

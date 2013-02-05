@@ -106,7 +106,9 @@ public class MachineDiscovery implements ServiceListener {
             
             logger.info("mDNS detected the url {} subtype {}",url,sinfo.getTypeWithSubtype());
             
-            machineFactory.newRemoteMachine(url,sinfo.getTypeWithSubtype());
+            String id=String.format("%s.%s",sinfo.getName(),sinfo.getType());
+            
+            machineFactory.newRemoteMachine(url,id);
         }
 
         //Add this as a listener in order to track change

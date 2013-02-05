@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,6 +27,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,20 +40,27 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
+import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationDeclaration;
+import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
+import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.distriman.discovery.RemoteMachineFactory;
 import fr.imag.adele.apam.distriman.dto.RemoteDependency;
 import fr.imag.adele.apam.distriman.provider.EndpointRegistration;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
-import fr.imag.adele.apam.impl.RemoteInstanceImpl;
 
 /**
  * Each Apam/Distriman machines available over the network, have a RemoteMachine
@@ -80,6 +88,8 @@ public class RemoteMachine implements ApformInstance {
 	private final InstanceDeclaration my_declaration;
 
 	private final Set<EndpointRegistration> my_endregis = new HashSet<EndpointRegistration>();
+	
+	private final Set<String> remoteInstances=new HashSet<String>();
 
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
@@ -120,7 +130,12 @@ public class RemoteMachine implements ApformInstance {
 		for (EndpointRegistration endreg : my_endregis) {
 			endreg.close();
 		}
-
+		
+		for (String componentName: remoteInstances) {
+			((ComponentBrokerImpl)CST.componentBroker).disappearedComponent(componentName);
+			remoteInstances.remove(componentName);
+		}
+		
 		// Remove this Instance from the broker
 		ComponentBrokerImpl.disappearedComponent(this.getDeclaration()
 				.getName());
@@ -149,8 +164,8 @@ public class RemoteMachine implements ApformInstance {
 				return null;
 			}
 
-			logger.info("dependency {} was found remotely",
-					dependency.getIdentifier());
+			logger.info("dependency {} was found remotely in {}",
+					dependency.getIdentifier(),this.getUrl());
 
 			Set<Implementation> impl = Collections.emptySet();
 
@@ -246,8 +261,6 @@ public class RemoteMachine implements ApformInstance {
 
 						Class ifaceClazz = Class.forName(interfacename);
 
-						// Thread.currentThread().setContextClassLoader(ServerFactoryBean.class.getClassLoader());
-
 						logger.info(
 								"connecting the interface {} to the endpoint {}",
 								interfacename, endpointUrl);
@@ -255,25 +268,8 @@ public class RemoteMachine implements ApformInstance {
 						ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
 						factory.setServiceClass(ifaceClazz);
 						factory.setAddress(endpointUrl);
-
-						// HashMap props = new HashMap();
-						// try {
-						// props.put("jaxb.additionalContextClasses", new
-						// Class[] {
-						// Class.forName("fr.imag.adele.apam.pax.test.iface.P2SpecKeeper")
-						// });
-						// factory.setProperties(props);
-						// } catch (ClassNotFoundException e) {
-						// // TODO Auto-generated catch block
-						// e.printStackTrace();
-						// }
-
 						proxyRaw = factory.create();
 
-						// System.out.println(String.format("Client side: [instance ID:%s, endpoint:%s]",
-						// instancename,endpointUrl).toString());
-						// P2Spec p2=(P2Spec)factory.create();
-						// System.out.println("Proxy Instantiated:"+p2.getName());
 					} else {
 						logger.info("{} and {} are not equal", interfacename,
 								ir.getJavaType());
@@ -281,17 +277,25 @@ public class RemoteMachine implements ApformInstance {
 				} else {
 					logger.info("its not a InterfaceReference");
 				}
-
-				return new RemoteInstanceImpl(endpointUrl, this.getInst()
-						.getComposite(), this, proxyRaw);
+				
+				RemoteInstanceImpl inst=new RemoteInstanceImpl(dependency.getIdentifier(),endpointUrl, this.getInst()
+						.getComposite(), proxyRaw);
+				
+				String implName = inst.getImplementation();
+				Implementation implem = CST.componentBroker.getImpl(implName);
+				if (implem == null) {
+					implem = CST.componentBroker.addImpl(null, new RemoteImplem(implName));
+				}
+				
+				remoteInstances.add(inst.getFullName());
+				
+				return CST.componentBroker.addInst(null,inst);
 
 			}
 
 		} catch (MalformedURLException mue) {
 			mue.printStackTrace();
 		} catch (JSONException e) {
-			e.printStackTrace();
-		} catch (InvalidConfiguration e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -310,6 +314,76 @@ public class RemoteMachine implements ApformInstance {
 
 		return null;
 	}
+
+	private static class RemoteImplem implements ApformImplementation {
+		
+		private final ImplementationDeclaration declaration;
+		
+		public RemoteImplem(String name) {
+			
+			String  specName = null;
+			
+			SpecificationReference specReference = null;
+			
+			Specification spec = CST.componentBroker.getSpec(specName);
+			if (spec != null) {
+				specReference = spec.getApformSpec().getDeclaration().getReference();
+			}
+			
+			declaration = new RemoteImplementationDeclaration(name, specReference);
+			// TODO distriman: load remote interfaces
+			//declaration.getProvidedResources().add(new InterfaceReference(name));
+			declaration.setInstantiable(false);
+		}
+
+		@Override
+		public void setProperty(String attr, String value) {
+		}
+
+		@Override
+		public Bundle getBundle() {
+			return null;
+		}
+
+		@Override
+		public ImplementationDeclaration getDeclaration() {
+			return declaration;
+		}
+
+		@Override
+		public ApformInstance createInstance(
+				Map<String, String> initialproperties)
+				throws InvalidConfiguration {
+		       throw new UnsupportedOperationException("RemoteImplem is not instantiable");
+		}
+
+		@Override
+		public ApformSpecification getSpecification() {
+			return null;
+		}
+		
+	}
+
+	private static class RemoteImplementationDeclaration extends ImplementationDeclaration {
+
+		protected RemoteImplementationDeclaration(String name, SpecificationReference specification) {
+			super(name, specification);
+		}
+
+		@Override
+		protected ImplementationReference<?> generateReference() {
+			return new RemoteImplementationReference(getName());
+		}
+	}
+	
+	public static class RemoteImplementationReference extends ImplementationReference<RemoteImplementationDeclaration> {
+
+		public RemoteImplementationReference(String name) {
+			super(name);
+		}
+
+	}
+
 
 	// ===============
 	// ApformInstance

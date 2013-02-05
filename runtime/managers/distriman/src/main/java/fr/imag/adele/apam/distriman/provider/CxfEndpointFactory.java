@@ -226,7 +226,7 @@ public class CxfEndpointFactory {
 				dependency, true);
 
 		// No local instance matching the RemoteDependency
-		if (resolved.instances.isEmpty()) {
+		if (resolved==null||resolved.instances==null||resolved.instances.isEmpty()) {
 
 			logger.info("impossile to solve dependency, the number of instances was zero");
 

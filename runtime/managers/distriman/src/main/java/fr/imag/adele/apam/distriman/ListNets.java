@@ -14,16 +14,16 @@ import static java.lang.System.out;
 	    }
 
 	    static void displayInterfaceInformation(NetworkInterface netint) throws IOException {
-	        out.printf("Display name: %s\n", netint.getDisplayName());
-	        out.printf("Name: %s\n", netint.getName());
+	      //  out.printf("Display name: %s\n", netint.getDisplayName());
+	      //  out.printf("Name: %s\n", netint.getName());
 	        
 	        Enumeration<InetAddress> inetAddresses = netint.getInetAddresses();
 	        for (InetAddress inetAddress : Collections.list(inetAddresses)) {
 	        	
-	        	if(inetAddress.isLoopbackAddress()|!inetAddress.isReachable(3000)) continue;
+	        	if(inetAddress.isLoopbackAddress()|!inetAddress.isReachable(3000)|inetAddress.isLinkLocalAddress()) continue;
 	        	
 	            //out.printf("InetAddress: %s\n", inetAddress);
-	            out.printf("Hostaddress: %s\n\n", inetAddress.getHostAddress());
+	            out.printf("Hostaddress: %s\n", inetAddress.getHostAddress());
 	            
 	            
 	        }
