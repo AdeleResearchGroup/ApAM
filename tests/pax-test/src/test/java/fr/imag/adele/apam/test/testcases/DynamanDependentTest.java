@@ -26,6 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -433,6 +434,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	}
 
 	@Test
+	@Ignore
 	public void CompositeContentMngtDependencyHide_tc047() {
 
 		CompositeType ctaroot = (CompositeType) CST.apamResolver
