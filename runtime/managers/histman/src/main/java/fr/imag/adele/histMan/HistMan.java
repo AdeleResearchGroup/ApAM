@@ -111,7 +111,6 @@ public class HistMan implements PropertyManager, DynamicManager {
 										// compositeType, set the root composite
 				logger.error("Invalid OBRMAN Model. Cannot be read stream "
 						+ model.getURL(), e.getCause());
-
 				throw e;
 			}
 		}
