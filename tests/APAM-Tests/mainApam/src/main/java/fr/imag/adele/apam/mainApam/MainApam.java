@@ -390,7 +390,7 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("setInt value is : " + inst.getProperty("setInt"));
 		
 		assertTrue ( inst.match("(setInt <* 5, 7, 55,985)")) ;
-		assertTrue ( inst.match("(setInt *> 5, 7, 55,985)")) ;
+		assertTrue (!inst.match("(setInt *> 5, 7, 55,985)")) ;
 		assertTrue ( inst.match("(setInt <* 05, 7, 55,985)")) ;
 		assertTrue ( inst.match("(setInt <* 5, 07, 55,985)")) ;
 		assertTrue ( inst.match("(setInt <= 05, 7, 55,985)")) ;

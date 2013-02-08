@@ -41,4 +41,16 @@ public class TestAttrImpl implements TestAttr, ApamComponent {
 	public void apamRemove() {
 	}
 
+	@Override
+	public void wiredFor(String resource) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void unWiredFor(String resource) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

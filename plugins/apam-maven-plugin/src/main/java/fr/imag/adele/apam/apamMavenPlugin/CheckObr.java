@@ -223,10 +223,8 @@ public class CheckObr {
 		}
 		
 		//no default value. Only check if the type is valid
-		type = type.trim() ;
-		if (type==null || !(type.equals("string") || type.equals("int") ||type.equals("integer") || type.equals("boolean") || type.charAt(0)=='{' )) {
-			CheckObr.error("Invalid type " + type + " in attribute definition " + name
-					+ ". Supported: string, int, boolean, enumeration.");
+		if (!Util.validAttrType (type)) {
+			CheckObr.setFailedParsing(true) ; 
 			return false ;
 		}
 		
