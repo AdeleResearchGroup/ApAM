@@ -101,14 +101,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 		//First eliminate the attributes which are not valid.
 		for ( Map.Entry<String,String> entry : props.entrySet()) {
-			if (Util.validAttr(this.getName(), entry.getKey())) {
+			PropertyDefinition def = validDef (entry.getKey(), true) ;
+			if (def != null) {
 				//At initialization, all valid attributes are ok for specs
-				Object val = validDef (entry.getKey(), entry.getValue(), true) ;
+				Object val = Util.checkAttrType(entry.getKey(), entry.getValue(), def.getType());
 				if (val != null) {
 					put (entry.getKey(), val) ;
 				}
-				//                if (group == null || val != null)
-				//                    put (entry.getKey(), val) ;
 			}
 		}
 
@@ -238,8 +237,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		Object val = get(attr) ;
 		return (val == null) ? null : val.toString();
 	}
-	
-	
+
+
 	/**
 	 * Get the value of a property, the property can be valued in this component or in its
 	 * defining group
@@ -251,29 +250,201 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public Object getPropertyObject (String attribute) {
-		PropertyDefinition def = getAttrDefinition(attribute) ; 
-		if (def == null) return null ;
-		
-		if (def.getType().equals ("int")) {
-			
+		String type = getAttrDefinition(attribute).getType() ; 
+		if (type == null) return null ;
+		Object val = get(attribute) ;
+		if (val == null) return null ;
+
+		boolean isSet = false ;
+		if (type.charAt(0)=='{' ) {
+			isSet = true ;
+			type = type.substring(1, type.length()-1) ;	
 		}
-		
-		return null;
+
+		if (!isSet) {
+			if (type.equals ("int")) {
+				return val ;
+			}
+			if (type.equals("boolean")) {
+				return (val.equals("true") || val.equals("TRUE")) ;
+			}
+			//string and enumeration are strings
+			return val ;
+		}
+
+		//it is a set. Internaly it is a string. Returns an array of int of an array of strings
+		String[] enumVals = Util.split(type);
+		int l = enumVals.length ;
+
+		// If a set of integer, build the array
+		if (l==1 && type.equals ("int")) {
+			int[] intReturn = new int[l] ;
+			for (int i = 0 ; i < l; i++) {
+				intReturn[i] = Integer.parseInt(enumVals[i]) ;
+			}
+			return intReturn ;
+		}
+		if (l==1 && type.equals("boolean")) {
+			logger.error("Set of integers are not allowed" ) ;
+			return null ;
+		}
+
+		//value is a set of String
+		return enumVals;
+	}
+	
+	/**
+	 * Warning: to be used only by Apform for setting internal attributes.
+	 * Only Inhibits the message "Attribute " + attr +  " is an internal field attribute and cannot be set.");
+	 * @param attr
+	 * @param value
+	 * @param forced
+	 * @return
+	 */
+	public boolean setPropertyInt(String attribute, Object value, boolean forced) {
+		if ( ! setPropertyObjectInternal (attribute, value, forced)) {
+			return false ;
+		}
+		//does the change, notifies, changes the platform and propagate to members
+		this.propagate (attribute, value) ;
+		return true ;
 	}
 
+	@Override
+	public boolean setPropertyObject (String attribute, Object value) {
+		return setPropertyObjectInternal (attribute, value, false) ;
+	}
+	
 	/**
 	 * Set the value of a property, the property can be valued in this component or in its
 	 * defining group
-	 * Value must be an int, String, boolean for attributes declared int, String, boolean
+	 * Value must be an int, String, boolean or string for attributes declared int, String, boolean
 	 * 					String for an enumeration.
 	 * 
 	 * For sets, the value must be an array of the corresponding types. i.e; int[], String[] and so on.
 	 * 
 	 * If the attribute does not exist, of it the value does not correspond to the attribute type, "false" is returned.
 	 */
-	@Override
-	public boolean setPropertyObject (String attribute, Object value) {
-		return true ;
+	private boolean setPropertyObjectInternal (String attribute, Object value, boolean forced) {
+		PropertyDefinition def = validDef (attribute, forced) ;
+		if (def == null) return false ;
+
+		String type = def.getType() ; 
+		if (type == null) return false ;
+
+		boolean isSet = false ;
+		if (type.charAt(0)=='{' ) {
+			isSet = true ;
+			type = type.substring(1, type.length()-1) ;	
+		}
+
+		if (!isSet) {
+			// int are stored as int
+			if (type.equals ("int")) {
+				int val ;
+				//convert from string to int
+				if (value instanceof String)  {
+					try {
+						val = Integer.parseInt((String)value) ;
+					}catch (Exception e) {
+						logger.error("Invalid integer value " + value + " for attribute " + attribute) ;
+						return false ;
+					}
+				}
+				if ( !(value instanceof Integer)) {
+					logger.error("Invalid integer value " + value + " for attribute " + attribute) ;
+					return false ;
+				}
+				val = ((Integer)value).intValue()  	;	
+				put (attribute, val) ;
+				return true ;
+			}
+
+			//Boolean are stored as strings
+			if (type.equals("boolean")) {
+				if (value instanceof String)  {
+					put (attribute, ((String) value).equalsIgnoreCase("true")) ;
+				}
+				if ( !(value instanceof Boolean)) {
+					logger.error("Invalid value: not a Boolean " + value + " for attribute " + attribute) ;
+					return false ;
+				}
+				put (attribute, ((Boolean)value).toString());
+				return true ;
+			}
+
+
+			if (! (value instanceof String)) {
+				logger.error("Invalid value: not a String " + value + " for attribute " + attribute) ;
+				return false ;
+			}
+			put (attribute, value) ;
+			return true ;
+		}
+
+
+		//it is a set. Value must be an array of the right type. Internaly it is a string. 
+		Set<String> enumVals = Util.splitSet(type);
+		int l = enumVals.size() ;
+		String aType = enumVals.iterator().next() ;
+
+		if (l==1 && aType.equals ("int")) {
+			//Value MUST be an array of int
+			if (value instanceof  int[]) {
+				StringBuffer sVal = new StringBuffer () ;
+				int lv = ((int[])value).length;
+				for (int i=0; i < lv ; i++) {
+					sVal.append (Integer.toString(((int[])value)[i]) ); 
+					if (i < lv -1) {
+						sVal.append(", ") ;
+					}
+				}
+				put (attribute, sVal.toString()) ;
+				return true ;
+			}
+			logger.error("Attribute value " + value + " not an int array for attribute " + attribute) ;
+			return false ;
+		}
+
+		if (l==1 && aType.equals("boolean")) {
+			logger.error("Set of integers are not alowed" ) ;
+			return false ;
+		}
+
+
+		//It should be a String array.
+		if (!(value instanceof  String[])) {
+			logger.error("Invalid value: not an array of String " + value + " for attribute " + attribute) ;
+			return false ;
+		}
+
+		//Tranform the string array into a string.
+		StringBuffer sVal = new StringBuffer () ;
+		int lv = ((String[])value).length;
+		for (int i=0; i < lv ; i++) {
+			sVal.append (((String[])value)[i]) ; 
+			if (i < lv -1) {
+				sVal.append(", ") ;
+			}
+		}
+		String setString = sVal.toString() ;
+		
+		// A set of string, allway valid
+		if (l==1 && aType.equals("string")) {
+			put (attribute,setString) ;
+			return true ;
+		}
+
+		//It is a set of enumeration. Check if values are valid.
+		if (! (enumVals.containsAll(Util.splitSet(setString)))) {
+			String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attribute
+					+ "\".  Expected subset of: " + type;
+			logger.error(errorMes);
+			return false;
+		}
+
+		put (attribute, setString) ;
+		return true ;		
 	}
 
 
@@ -293,33 +464,24 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public boolean setProperty(String attr, String value) {
-		return setPropertyInt(attr, value, false);
-	}
-
-	/**
-	 * Warning: to be used only by Apform for setting internal attributes.
-	 * Only Inhibits the message "Attribute " + attr +  " is an internal field attribute and cannot be set.");
-	 * @param attr
-	 * @param value
-	 * @param forced
-	 * @return
-	 */
-	public boolean setPropertyInt(String attr, String value, boolean forced) {
-
 		/*
 		 * Validate that the property is defined and the value is valid
 		 */
-		if (!Util.validAttr(this.getName(), attr))
-			return false;
 
-		Object val = validDef (attr, value, forced) ;
+		PropertyDefinition def = validDef (attr, false) ;
+		if (def == null) return false ;
+		//At initialization, all valid attributes are ok for specs
+		Object val = Util.checkAttrType(attr, value, def.getType());
 		if (val == null)
 			return false ;
-		
+
 		//does the change, notifies, changes the platform and propagate to members
 		this.propagate (attr, val) ;
 		return true ;
+//
+//		return setPropertyInt(attr, value, false);
 	}
+
 
 	/**
 	 * During initialisation, set the new (attrbute, value) in the object,
@@ -366,11 +528,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	public void setInternalProperty(String attr, Object value) {
 		Object oldValue = get(attr);
 		put(attr, value);
-		
+
 		//Notify the execution platform
 		if(get(attr)==value)
 			getApformComponent().setProperty (attr,value.toString());
-		
+
 		/*
 		 * notify property managers
 		 */
@@ -461,7 +623,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @return
 	 */
 	private PropertyDefinition getAttrDefinition (String attr) {
-		
+
 		//Check if it is a local definition: <property name="..." type="..." value=".." />
 		PropertyDefinition definition = getDeclaration().getPropertyDefinition(attr);
 		if (definition != null) {
@@ -500,9 +662,14 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param value
 	 * @return
 	 */
-	private Object validDef (String attr, String value, boolean forced) {
+	private PropertyDefinition validDef (String attr, boolean forced) {
 		if (Util.isFinalAttribute(attr)) {
 			logger.error("Cannot redefine final attribute \"" + attr + "\"");
+			return null;
+		}
+
+		if (Util.isReservedAttributePrefix(attr)) {
+			logger.error("ERROR: in " + this + ", attribute\"" + attr + "\" is reserved");
 			return null;
 		}
 
@@ -517,7 +684,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		PropertyDefinition definition = this.getAttrDefinition (attr) ;
 
 		if (definition == null) {
-			logger.error("Attribute \"" + attr + "=" + value + "\" is undefined.");
+			logger.error("Attribute \"" + attr +  "\" is undefined.");
 			return null;
 		}
 
@@ -527,7 +694,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return null;
 		}
 
-		return Util.checkAttrType(attr, value, definition.getType());
+		return definition ;
+		//return Util.checkAttrType(attr, value, definition.getType());
 	}
 
 
@@ -572,64 +740,64 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	/**
 	 * Whether the component is instantiable
 	 */
-	 @Override
-	 public boolean isInstantiable() {
+	@Override
+	public boolean isInstantiable() {
 		if (declaration.isDefinedInstantiable() || getGroup() == null)
 			return declaration.isInstantiable() ;
 		return getGroup().isInstantiable() ;
-	 }
+	}
 
-	 /**
-	  * Whether the component is singleton
-	  */
-	 @Override
-	 public boolean isSingleton(){
-		 if (declaration.isDefinedSingleton() || getGroup() == null)
-			 return declaration.isSingleton() ;
-		 return getGroup().isSingleton() ;
-	 }
+	/**
+	 * Whether the component is singleton
+	 */
+	@Override
+	public boolean isSingleton(){
+		if (declaration.isDefinedSingleton() || getGroup() == null)
+			return declaration.isSingleton() ;
+		return getGroup().isSingleton() ;
+	}
 
-	 /**
-	  * Whether the component is shared
-	  */
-	 @Override
-	 public boolean isShared() {
-		 if (declaration.isDefinedShared() || getGroup() == null)
-			 return declaration.isShared() ;
-		 return getGroup().isShared() ;
-	 }
+	/**
+	 * Whether the component is shared
+	 */
+	@Override
+	public boolean isShared() {
+		if (declaration.isDefinedShared() || getGroup() == null)
+			return declaration.isShared() ;
+		return getGroup().isShared() ;
+	}
 
-	 @Override
-	 public CompositeType getFirstDeployed () {
-		 return firstDeployed == null ? CompositeTypeImpl.getRootCompositeType() : firstDeployed ;
-	 }
+	@Override
+	public CompositeType getFirstDeployed () {
+		return firstDeployed == null ? CompositeTypeImpl.getRootCompositeType() : firstDeployed ;
+	}
 
-	 public void setFirstDeployed (CompositeType father) {
-		 firstDeployed = father ;
-	 }
+	public void setFirstDeployed (CompositeType father) {
+		firstDeployed = father ;
+	}
 
-	 @Override
-	 public Map<String, String> getValidAttributes () {
-		 Map<String, String> ret = new HashMap <String, String> () ;
-		 for (PropertyDefinition def: declaration.getPropertyDefinitions()) {
-			 ret.put(def.getName(), def.getType());
-		 }
-		 if (getGroup() != null) {
-			 ret.putAll (getGroup().getValidAttributes()) ;
-		 }
-		 return ret ;
-	 }
+	@Override
+	public Map<String, String> getValidAttributes () {
+		Map<String, String> ret = new HashMap <String, String> () ;
+		for (PropertyDefinition def: declaration.getPropertyDefinitions()) {
+			ret.put(def.getName(), def.getType());
+		}
+		if (getGroup() != null) {
+			ret.putAll (getGroup().getValidAttributes()) ;
+		}
+		return ret ;
+	}
 
-	 @Override
-	 public Set<ResourceReference> getAllProvidedResources () {
-		 Set<ResourceReference> allResources  = new HashSet<ResourceReference> () ;
-		 Component current = this ;
-		 while (current != null) {
-			 if (current.getDeclaration().getProvidedResources() != null)
-				 allResources.addAll (current.getDeclaration().getProvidedResources()) ;
-			 current = current.getGroup() ;
-		 }
-		 return allResources ;
-	 }
+	@Override
+	public Set<ResourceReference> getAllProvidedResources () {
+		Set<ResourceReference> allResources  = new HashSet<ResourceReference> () ;
+		Component current = this ;
+		while (current != null) {
+			if (current.getDeclaration().getProvidedResources() != null)
+				allResources.addAll (current.getDeclaration().getProvidedResources()) ;
+			current = current.getGroup() ;
+		}
+		return allResources ;
+	}
 
 }
