@@ -14,7 +14,6 @@
  */
 package fr.imag.adele.apam.fibonacci;
 
-import fr.imag.adele.apam.test.s1.Fib;
 
 
 public class Fibonacci implements Fib {
