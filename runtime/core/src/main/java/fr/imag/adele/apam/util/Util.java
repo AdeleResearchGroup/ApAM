@@ -397,6 +397,52 @@ public final class Util {
 	}
 
 	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static String isSetAttrType (String type) {
+		type = type.trim() ;
+		if ((type == null) || (type.isEmpty()) || type.charAt(0) !='{') {
+			return null;
+		}
+			return type.substring(1, type.length()-1) ;	
+	}
+	
+	/**
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public static boolean validAttrType (String type) {
+		type = type.trim() ;
+		if ((type == null) || (type.isEmpty())) {
+			logger.error("Invalid empty property type ") ;
+			return false;
+		}
+
+		boolean isSet = false ;
+		if (type.charAt(0)=='{' ) {
+			isSet = true ;
+			type = type.substring(1, type.length()-1) ;	
+		}
+		Set<String> enumVals = Util.splitSet(type);
+		if (enumVals == null || enumVals.size()==0) {
+			logger.error("Invalid empty property type ") ;
+			return false;
+		}
+		
+		if (enumVals.size()> 1) return true ;
+		type = enumVals.iterator().next() ;
+
+		if (type==null || !(type.equals("string") || type.equals("int") ||type.equals("integer") || type.equals("boolean") || type.charAt(0)=='{' )) {
+			logger.error("Invalid type " + type + ". Supported: string, int, boolean, enumeration; and sets");
+			return false ;
+		}
+		return true ;
+	}
+	
+	/**
 	 * only string, int, boolean and enumerations attributes are accepted.
 	 * Return the value if it is correct.
 	 * For "int" returns an Integer object, otherwise it is the string "value"
@@ -414,7 +460,12 @@ public final class Util {
 			return null;
 		}
 
-		boolean isEnum = (types.charAt(0)=='{' );
+		boolean isSet = false ;
+		if (types.charAt(0)=='{' ) {
+			isSet = true ;
+			types = types.substring(1, types.length()-1) ;	
+		}
+//		boolean isEnum = (types.charAt(0)=='{' );
 		Set<String> enumVals = Util.splitSet(types);
 		if (enumVals == null || enumVals.size()==0) {
 			logger.error("invalid type \"" + types  + "\" for attribute \"" + attr);
@@ -423,13 +474,13 @@ public final class Util {
 		String type = enumVals.iterator().next() ;
 
 		Set<String> values   = Util.splitSet(value);		
-		if (values.size() > 1 && !isEnum) {
+		if (values.size() > 1 && !isSet) {
 			logger.error("Values are a set \"" + values  + "\" for attribute \"" + attr
 					+ "\". while type is singleton: \"" + types + "\"");
 			return null ;
 		}
 
-		//Type is a singleton : it must be only "string", "int", "boolean"
+		//Type is a singleton : it must be only "string", "int", "boolean" 
 		//but value can still be a set
 		if (enumVals.size() == 1) {
 

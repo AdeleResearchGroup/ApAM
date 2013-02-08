@@ -212,8 +212,6 @@ public class ApamRepoBuilder {
 			String type = definition.getType();
 			String attrDef = definition.getName() ;
 			String defaultValue = definition.getDefaultValue();
-			if (defaultValue == null)
-			defaultValue = "";
 
 			if ( CheckObr.checkProperty(component, attrDef, type, defaultValue)) {
 				generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
@@ -315,6 +313,10 @@ public class ApamRepoBuilder {
 	}
 
 	private void generateTypedProperty (StringBuffer obrContent, ComponentDeclaration component, String attr, String type, String value) {
+		if (value == null) {	
+			value = "";
+			}
+
 		if  (ApamCapability.get(component.getReference()).putAttr (attr, value)) {
 			obrContent.append("      <p n='" + attr + "' t='" + type + "' v='" + value + "' />\n");
 			return ;
