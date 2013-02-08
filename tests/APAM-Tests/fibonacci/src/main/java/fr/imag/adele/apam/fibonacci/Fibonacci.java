@@ -14,6 +14,8 @@
  */
 package fr.imag.adele.apam.fibonacci;
 
+import fr.imag.adele.apam.test.s1.Fib;
+
 
 public class Fibonacci implements Fib {
 
@@ -24,10 +26,11 @@ public class Fibonacci implements Fib {
 	int fibMoins1 = -1 ;
 	int fibMoins2 = -2 ;
 
-	Fibonacci moins1 = null ;
-	Fibonacci moins2 = null ;
+	Fib moins1 = null ;
+	Fib moins2 = null ;
 
 	public int compute (int n) {
+		if (n==1) return 1 ;
 		return moins1.compute(n-1) + moins2.compute(n-2) ; 
 	}
 

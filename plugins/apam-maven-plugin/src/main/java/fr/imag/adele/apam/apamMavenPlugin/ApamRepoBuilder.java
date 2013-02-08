@@ -212,34 +212,45 @@ public class ApamRepoBuilder {
 			String type = definition.getType();
 			String attrDef = definition.getName() ;
 			String defaultValue = definition.getDefaultValue();
-			
 			if (defaultValue == null)
-				defaultValue = "";
-			
-			ApamCapability group = ApamCapability.get(component.getGroupReference()) ;
-			if (group != null && group.getAttrDefinition(attrDef) != null) {
-				CheckObr.error ("Property " + attrDef + " allready defined in the group.") ;
+			defaultValue = "";
+
+			if ( CheckObr.checkProperty(component, attrDef, type, defaultValue)) {
+				generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
 			}
-			
-			//We have a default value, check it as if a property.
-			if (type != null && defaultValue != null && !defaultValue.isEmpty()) {
-				if (Util.checkAttrType(attrDef, defaultValue, type) != null) {
-					generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
-				} else {
-					CheckObr.setFailedParsing(true) ;
-				}
-				continue ;
-			}
-			
-			type = type.trim() ;
-			if (type==null || !(type.equals("string") || type.equals("int") ||type.equals("integer") || type.equals("boolean") || type.charAt(0)=='{' )) {
-				CheckObr.error("Invalid type " + type + " in attribute definition " + attrDef
-						+ ". Supported: string, int, boolean, enumeration.");
-				continue ;
-			}
-			generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
 		}
 	}
+//			String type = definition.getType();
+//			String attrDef = definition.getName() ;
+//			String defaultValue = definition.getDefaultValue();
+//			
+//			if (defaultValue == null)
+//				defaultValue = "";
+//			
+//			ApamCapability group = ApamCapability.get(component.getGroupReference()) ;
+//			if (group != null && group.getAttrDefinition(attrDef) != null) {
+//				CheckObr.error ("Property " + attrDef + " allready defined in the group.") ;
+//			}
+//			
+//			//We have a default value, check it as if a property.
+//			if (type != null && defaultValue != null && !defaultValue.isEmpty()) {
+//				if (Util.checkAttrType(attrDef, defaultValue, type) != null) {
+//					generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
+//				} else {
+//					CheckObr.setFailedParsing(true) ;
+//				}
+//				continue ;
+//			}
+//			
+//			type = type.trim() ;
+//			if (type==null || !(type.equals("string") || type.equals("int") ||type.equals("integer") || type.equals("boolean") || type.charAt(0)=='{' )) {
+//				CheckObr.error("Invalid type " + type + " in attribute definition " + attrDef
+//						+ ". Supported: string, int, boolean, enumeration.");
+//				continue ;
+//			}
+//			generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
+//		}
+//	}
 
 	/**
 	 * provided a set of resources references (interface or messages) fr.mag....A , B, C references produces a string "[;fr.imag....A;B;C;]"

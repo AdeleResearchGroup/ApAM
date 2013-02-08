@@ -2,10 +2,11 @@ package fr.imag.adele.apam.fibonacci;
 
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.test.s1.Fib;
 
 public class FibMain implements Runnable, ApamComponent{
 
-	Fibonacci fib = null ;
+	Fib fib ;
 	
 	int nb = 15 ;
 	
@@ -17,25 +18,20 @@ public class FibMain implements Runnable, ApamComponent{
 	}
 
 
-
 	public void apamInit(Instance apamInstance) {
+		System.out.println("Starting new fibonacci " + nb );
 		new Thread(this, "APAM perf test").start();
 	}
 
 	public void apamRemove() {
-
 	}
 
 	@Override
 	public void wiredFor(String resource) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void unWiredFor(String resource) {
-		// TODO Auto-generated method stub
-		
 	}
 
 

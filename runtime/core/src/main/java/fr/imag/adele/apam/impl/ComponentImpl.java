@@ -238,6 +238,44 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		Object val = get(attr) ;
 		return (val == null) ? null : val.toString();
 	}
+	
+	
+	/**
+	 * Get the value of a property, the property can be valued in this component or in its
+	 * defining group
+	 * Return will be an object of type int, String, boolean for attributes declared int, String, boolean
+	 * 					String for an enumeration.
+	 * 
+	 * For sets, the return will be an array of the corresponding types. i.e; int[], String[] and so on.
+	 * Returns null if attribute is not defined or not set.
+	 */
+	@Override
+	public Object getPropertyObject (String attribute) {
+		PropertyDefinition def = getAttrDefinition(attribute) ; 
+		if (def == null) return null ;
+		
+		if (def.getType().equals ("int")) {
+			
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Set the value of a property, the property can be valued in this component or in its
+	 * defining group
+	 * Value must be an int, String, boolean for attributes declared int, String, boolean
+	 * 					String for an enumeration.
+	 * 
+	 * For sets, the value must be an array of the corresponding types. i.e; int[], String[] and so on.
+	 * 
+	 * If the attribute does not exist, of it the value does not correspond to the attribute type, "false" is returned.
+	 */
+	@Override
+	public boolean setPropertyObject (String attribute, Object value) {
+		return true ;
+	}
+
 
 	/**
 	 * Get the value of all the properties in the component.

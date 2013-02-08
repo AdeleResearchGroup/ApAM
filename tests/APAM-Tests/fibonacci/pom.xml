@@ -13,7 +13,7 @@
 	<artifactId>Fibonacci</artifactId>
 	<packaging>bundle</packaging>
 	<name>Fibonacci</name>
-	<description>test de p�rf</description>
+	<description>test de perf</description>
 
 	<build>
 		<plugins>
@@ -51,6 +51,13 @@
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>apam-core</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S1</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>

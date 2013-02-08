@@ -150,9 +150,12 @@
 			<!-- <interface field="field2S3" /> -->
 			<constraints>
 				<implementation filter="(apam-composite=true)" />
-				<instance filter="(&amp;(testEnum*&gt;v1 ,v2, v3)(x=6))" />
+				<instance filter="(&amp;(testEnum*>v1 ,v2, v3)(x=6))" />
 				<instance filter="(&amp;(testEnum=v1)(x=6))" />
 				<instance filter="(&amp;(testEnum=wxcv)(x=6))" />
+				<instance filter="(&amp;(testEnum*&gt;v1,toto)(x=6))" />
+				<instance filter="(&amp;(testEnum*>v1,toto)(x=6))" />
+
 				<instance filter="(&amp;(testEnum*&gt;v1,toto)(x=6))" />
 				<instance filter="(&amp;(A2=8)(MyBool=false))" />
 			</constraints>
@@ -235,9 +238,9 @@
 				<grant implementation="S3XXX" dependency="S4Compile" when=" {night, empty}" />
 				<grant implementation="S2Impl" dependency="S4_2" when="{bedroom}" />
 			</own>
-			<own implementation="S2Impl" property="location" value="living" />
-			<own implementation="S2Impl" property="b" value="true" />
-			<own implementation="S3Impl" property="c" value="ok" />
+			<own specification="S2" property="location" value="living" />
+			<own specification="S2l" property="b" value="true" />
+			<own specification="S3" property="c" value="ok" />
 
 			<state implementation="S2SimpleCompile" property="houseState" />
 			<!-- <state implementation="S2ww" property="house" /> -->

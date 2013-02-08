@@ -203,6 +203,35 @@ public class CheckObr {
 		return ret;
 	}
 
+	public static boolean checkProperty (ComponentDeclaration component, String name, String type, String defaultValue) {
+		if (defaultValue == null)
+			defaultValue = "";
+		
+		ApamCapability group = ApamCapability.get(component.getGroupReference()) ;
+		if (group != null && group.getAttrDefinition(name) != null) {
+			CheckObr.error ("Property " + name + " allready defined in the group.") ;
+		}
+		
+		//We have a default value, check it as if a property.
+		if (type != null && defaultValue != null && !defaultValue.isEmpty()) {
+			if (Util.checkAttrType(name, defaultValue, type) != null) {
+				return true ;
+			} else {
+				CheckObr.setFailedParsing(true) ;
+				return false ;
+			}
+		}
+		
+		//no default value. Only check if the type is valid
+		type = type.trim() ;
+		if (type==null || !(type.equals("string") || type.equals("int") ||type.equals("integer") || type.equals("boolean") || type.charAt(0)=='{' )) {
+			CheckObr.error("Invalid type " + type + " in attribute definition " + name
+					+ ". Supported: string, int, boolean, enumeration.");
+			return false ;
+		}
+		
+		return true ;
+	}
 	/**
 	 * Checks if the attribute / values pair is valid for the component ent. If
 	 * a final attribute, it is ignored but returns false. (cannot be set).
@@ -301,27 +330,25 @@ public class CheckObr {
 		return true;
 	}
 
-	private static Set<ResourceReference> getAllProvidedResources(
-			ImplementationDeclaration composite) {
+	private static Set<ResourceReference> getAllProvidedResources(ImplementationDeclaration composite) {
 		ComponentDeclaration spec = null;
-		Set<ResourceReference> specResources;
+		Set<ResourceReference> specResources = null;
+		Set<ResourceReference>returnResources;
 		if (composite.getSpecification() != null)
 			spec = ApamCapability.getDcl(composite.getSpecification());
-		if (spec == null)
-			specResources = Collections.EMPTY_SET;
-		else
+		if (spec != null)
 			specResources = spec.getProvidedResources();
 
-		Set<ResourceReference> compoResources = composite
-				.getProvidedResources();
-		if (specResources == null) {
-			if (compoResources == null)
-				return Collections.EMPTY_SET;
-			specResources = new HashSet<ResourceReference>();
+		Set<ResourceReference> compoResources = composite.getProvidedResources();
+		if (specResources != null) {
+			returnResources = new HashSet<ResourceReference>(specResources);
 		}
-		if (compoResources != null)
-			specResources.addAll(compoResources);
-		return specResources;
+		else returnResources = new HashSet<ResourceReference>() ;
+
+		if (compoResources != null) {
+			returnResources.addAll(compoResources);
+		}
+		return returnResources;
 	}
 
 	/**
@@ -430,7 +457,7 @@ public class CheckObr {
 			//
 			if (except != null
 					&& OBRGeneratorMojo.classpathDescriptor
-							.getElementsHavingClass(except) == null) {
+					.getElementsHavingClass(except) == null) {
 				error("Exception " + except + " undefined in " + dep);
 			}
 		}
@@ -776,10 +803,10 @@ public class CheckObr {
 		// Get state definition
 		Set<String> stateDefinition = checkState(component);
 		if (stateDefinition == null || stateDefinition.isEmpty()) { // No valid
-																	// state
-																	// declaration.
-																	// No valid
-																	// grants.
+			// state
+			// declaration.
+			// No valid
+			// grants.
 			return;
 		}
 
@@ -794,7 +821,7 @@ public class CheckObr {
 			if (grantComponent == null) {
 				error("Unknown component "
 						+ grant.getDependency().getDeclaringComponent()
-								.getName() + " in grant expression : " + grant);
+						.getName() + " in grant expression : " + grant);
 				continue;
 			}
 
@@ -838,12 +865,12 @@ public class CheckObr {
 
 					// Check if the dependency leads to the OWNed component
 					if (depend.getTarget().getClass().equals(owned.getClass()) /*
-																				 * same
-																				 * type
-																				 * spec
-																				 * or
-																				 * implem
-																				 */
+					 * same
+					 * type
+					 * spec
+					 * or
+					 * implem
+					 */
 							&& (depend.getTarget().getName().equals(owned
 									.getName()))) {
 						break;
@@ -881,7 +908,7 @@ public class CheckObr {
 						+ grant
 						+ " is undefined for component "
 						+ grant.getDependency().getDeclaringComponent()
-								.getName());
+						.getName());
 			}
 		}
 	}
@@ -920,7 +947,7 @@ public class CheckObr {
 				// }
 				if (except != null
 						&& OBRGeneratorMojo.classpathDescriptor
-								.getElementsHavingClass(except) == null) {
+						.getElementsHavingClass(except) == null) {
 					error("Exception " + except + " undefined in " + pol);
 				}
 
@@ -946,7 +973,7 @@ public class CheckObr {
 			if (internalComp == null) {
 				error("Invalid promotion: unknown component "
 						+ promo.getContentDependency().getDeclaringComponent()
-								.getName());
+						.getName());
 			}
 			DependencyDeclaration internalDep = null;
 			if (internalComp.getDependencies() != null)

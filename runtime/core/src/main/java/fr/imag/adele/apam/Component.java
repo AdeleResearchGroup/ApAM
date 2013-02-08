@@ -25,108 +25,130 @@ import fr.imag.adele.apam.declarations.ResourceReference;
 
 public interface Component {
 
-    /**
-     * The name of the component
-     */
-    public String getName();
+	/**
+	 * The name of the component
+	 */
+	public String getName();
 
-    /**
-     * The underlying entity in the execution platform
-     */
-    public ApformComponent getApformComponent();
+	/**
+	 * The underlying entity in the execution platform
+	 */
+	public ApformComponent getApformComponent();
 
-    /**
-     * The component declaration
-     */
-    public ComponentDeclaration getDeclaration () ;
+	/**
+	 * The component declaration
+	 */
+	public ComponentDeclaration getDeclaration () ;
 
-    /**
-     * Give the composite type that physically deployed that component.
-     * Warning : null when unused. 
-     */
-    public CompositeType getFirstDeployed() ;
+	/**
+	 * Give the composite type that physically deployed that component.
+	 * Warning : null when unused. 
+	 */
+	public CompositeType getFirstDeployed() ;
 
-    /**
-     * Whether the component is instantiable
-     */
-    public boolean isInstantiable() ;
+	/**
+	 * Whether the component is instantiable
+	 */
+	public boolean isInstantiable() ;
 
-    /**
-     * Whether the component is singleton
-     */
-    public boolean isSingleton() ;
+	/**
+	 * Whether the component is singleton
+	 */
+	public boolean isSingleton() ;
 
-    /**
-     * Whether the component is shared
-     */
-    public boolean isShared() ;
+	/**
+	 * Whether the component is shared
+	 */
+	public boolean isShared() ;
 
 
-    /**
-     * Match.
-     *
-     * @param goal the goal
-     * @return true is the instance matches the goal
-     */
-    public boolean match(String goal);
+	/**
+	 * Match.
+	 *
+	 * @param goal the goal
+	 * @return true is the instance matches the goal
+	 */
+	public boolean match(String goal);
 
-    /**
-     * Match.
-     *
-     * @param goal the goal
-     * @return true is the instance matches the goal
-     */
-    public boolean match(Filter goal);
+	/**
+	 * Match.
+	 *
+	 * @param goal the goal
+	 * @return true is the instance matches the goal
+	 */
+	public boolean match(Filter goal);
 
-    /**
-     * return true if the instance matches ALL the constraints in the set.
-     *
-     * @param goals
-     * @return
-     */
-    public boolean match(Set<Filter> goals);
+	/**
+	 * return true if the instance matches ALL the constraints in the set.
+	 *
+	 * @param goals
+	 * @return
+	 */
+	public boolean match(Set<Filter> goals);
 
-    /**
-     * Get the value of a property, the property can be valued in this component or in its
-     * defining group
-     */
-    public String getProperty(String attribute);
+	/**
+	 * Get the value of a property, the property can be valued in this component or in its
+	 * defining group
+	 */
+	public String getProperty(String attribute);
 
-    /**
-     * Set the value of the property for this component
-     */
-    public boolean setProperty(String attr, String value);
+	/**
+	 * Get the value of a property, the property can be valued in this component or in its
+	 * defining group
+	 * Return will be an object of type int, String, boolean for attributes declared int, String, boolean
+	 * 					String for an enumeration.
+	 * 
+	 * For sets, the return will be an array of the corresponding types. i.e; int[], String[] and so on.
+	 */
+	public Object getPropertyObject (String attribute);
 
-    /**
-     * Get the value of all the properties of the component, including those in the enclosing
-     * groups
-     */
-    public Map<String, Object> getAllProperties();
+	/**
+	 * Set the value of a property, the property can be valued in this component or in its
+	 * defining group
+	 * Value must be an int, String, boolean for attributes declared int, String, boolean
+	 * 					String for an enumeration.
+	 * 
+	 * For sets, the value must be an array of the corresponding types. i.e; int[], String[] and so on.
+	 * 
+	 * If the attribute does not exist, of it the value does not correspond to the attribute type, "false" is returned.
+	 */
+	public boolean setPropertyObject (String attribute, Object value);
 
-    /**
-     * Change the value of the specified properties of the component
-     */
-    public boolean setAllProperties(Map<String, String> properties);
+	/**
+	 * Set the value of the property for this component
+	 */
+	public boolean setProperty(String attr, String value);
 
-    /**
-     * Removes the specified property of the component
-     */
-    public boolean removeProperty(String attr);
+	/**
+	 * Get the value of all the properties of the component, including those in the enclosing
+	 * groups
+	 */
+	public Map<String, Object> getAllProperties();
 
-    /**
-     * return all the members of this component. Null if leaf (instance).
-     * @return
-     */
-    public Set<? extends Component> getMembers ();
+	/**
+	 * Change the value of the specified properties of the component
+	 */
+	public boolean setAllProperties(Map<String, String> properties);
 
-    /**
-     * return the representant of this group member. Null if root (Specification)
-     */
-    public Component getGroup ();
+	/**
+	 * Removes the specified property of the component
+	 */
+	public boolean removeProperty(String attr);
 
-    public Map<String, String> getValidAttributes () ;
-    
-    public Set<ResourceReference> getAllProvidedResources () ;
+	/**
+	 * return all the members of this component. Null if leaf (instance).
+	 * @return
+	 */
+	public Set<? extends Component> getMembers ();
+
+	/**
+	 * return the representant of this group member. Null if root (Specification)
+	 */
+	public Component getGroup ();
+
+	public Map<String, String> getValidAttributes () ;
+
+	public Set<ResourceReference> getAllProvidedResources () ;
 
 
 }

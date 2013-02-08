@@ -17,7 +17,7 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
  xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
-	<implementation name="Fibonacci"  classname="fr.imag.adele.apam.fibonacci.Fibonacci" interfaces="fr.imag.adele.apam.fibonacci.Fib">
+	<implementation name="Fibonacci"  classname="fr.imag.adele.apam.fibonacci.Fibonacci" interfaces="fr.imag.adele.apam.test.s1.Fib">
 		<dependency field="moins1" />
 		<dependency field="moins2" />
 		<definition name="fibo" field="fibo" value="-1" type="int"/>
@@ -25,7 +25,7 @@
 		<definition name="fibMoins2" field="fibMoins2" value="-1" type="int"/>		
 	</implementation>
 
-	<implementation name="Fib"  classname="fr.imag.adele.apam.fibonacci.FibMain" >
+	<implementation name="F"  classname="fr.imag.adele.apam.fibonacci.FibMain" >
 			<dependency field="fib" />
 	</implementation>
 

@@ -58,4 +58,16 @@ public class S2Simple implements S2, ApamComponent {
         // TODO Auto-generated method stub
 
     }
+
+	@Override
+	public void wiredFor(String resource) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void unWiredFor(String resource) {
+		// TODO Auto-generated method stub
+		
+	}
 }
