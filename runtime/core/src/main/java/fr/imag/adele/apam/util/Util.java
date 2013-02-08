@@ -465,7 +465,7 @@ public final class Util {
 			isSet = true ;
 			types = types.substring(1, types.length()-1) ;	
 		}
-//		boolean isEnum = (types.charAt(0)=='{' );
+
 		Set<String> enumVals = Util.splitSet(types);
 		if (enumVals == null || enumVals.size()==0) {
 			logger.error("invalid type \"" + types  + "\" for attribute \"" + attr);
