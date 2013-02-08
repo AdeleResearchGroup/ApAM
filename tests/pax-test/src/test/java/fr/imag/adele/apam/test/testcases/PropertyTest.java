@@ -693,5 +693,214 @@ public class PropertyTest extends ExtensionAbstract {
 		
 	}
 	
+	@Test
+	public void PropertySetTypeBracesNoCommaInTheEnd_tc065() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecEnumVersusSetTestSwitch");
+		Instance inst = implementation.createInstance(null, null);
+		
+		String propertyName="fooSetValuedSimple";
+		String propertyValue=inst.getProperty(propertyName);
+		String expression="(fooSetValuedSimple *> {Android, Windows})";
+		boolean result=inst.match(expression);
+		boolean expected=true;
+		
+		String message=String.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",expression,result,expected,propertyName,propertyValue);
+		
+		if(expected)
+			Assert.assertTrue(message,result);
+		else
+			Assert.assertFalse(message,result);
+	}	
+	
+	@Test
+	public void PropertySetTypeBracesCommaInTheEnd_tc066() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecEnumVersusSetTestSwitch");
+		Instance inst = implementation.createInstance(null, null);
+		
+		String propertyName="fooSetValuedSimple";
+		String propertyValue=inst.getProperty(propertyName);
+		String expression="(fooSetValuedSimple *> {Android, Windows,})";
+		boolean result=inst.match(expression);
+		boolean expected=true;
+		
+		String message=String.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",expression,result,expected,propertyName,propertyValue);
+		
+		if(expected)
+			Assert.assertTrue(message,result);
+		else
+			Assert.assertFalse(message,result);
+	}
+	
+	@Test
+	public void PropertySetTypeBorderElements_tc067() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecEnumVersusSetTestSwitch");
+		Instance inst = implementation.createInstance(null, null);
+		
+		String propertyName="fooSetValuedSimple";
+		String propertyValue=inst.getProperty(propertyName);
+		String expression="(fooSetValuedSimple *> {Linux, IOS})";
+		boolean result=inst.match(expression);
+		boolean expected=true;
+		
+		String message=String.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",expression,result,expected,propertyName,propertyValue);
+		
+		if(expected)
+			Assert.assertTrue(message,result);
+		else
+			Assert.assertFalse(message,result);
+	}	
+	
+	@Test
+	public void PropertySetTypeMiddleElements_tc068() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecEnumVersusSetTestSwitch");
+		Instance inst = implementation.createInstance(null, null);
+		
+		String propertyName="fooSetValuedSimple";
+		String propertyValue=inst.getProperty(propertyName);
+		String expression="(fooSetValuedSimple *> {Android, Windows})";
+		boolean result=inst.match(expression);
+		boolean expected=true;
+		
+		String message=String.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",expression,result,expected,propertyName,propertyValue);
+		
+		if(expected)
+			Assert.assertTrue(message,result);
+		else
+			Assert.assertFalse(message,result);
+	}	
+	
+	@Test
+	public void PropertySetTypeOneMiddleOneBorderElement_tc069() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecEnumVersusSetTestSwitch");
+		Instance inst = implementation.createInstance(null, null);
+		
+		String propertyName="fooSetValuedSimple";
+		String propertyValue=inst.getProperty(propertyName);
+		String expression="(fooSetValuedSimple *> {Android, IOS})";
+		boolean result=inst.match(expression);
+		boolean expected=true;
+		
+		String message=String.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",expression,result,expected,propertyName,propertyValue);
+		
+		if(expected)
+			Assert.assertTrue(message,result);
+		else
+			Assert.assertFalse(message,result);
+	}	
+	
+	@Test
+	public void PropertySetTypeNoBracesComma_tc070() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecEnumVersusSetTestSwitch");
+		Instance inst = implementation.createInstance(null, null);
+		
+		String propertyName="fooSetValuedSimple";
+		String propertyValue=inst.getProperty(propertyName);
+		String expression="(fooSetValuedSimple *> Android, Windows,)";
+		boolean result=inst.match(expression);
+		boolean expected=true;
+		
+		String message=String.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",expression,result,expected,propertyName,propertyValue);
+		
+		if(expected)
+			Assert.assertTrue(message,result);
+		else
+			Assert.assertFalse(message,result);
+	}
+	
+	@Test
+	public void PropertySetTypeNoBracesNoComma_tc071() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecEnumVersusSetTestSwitch");
+		Instance inst = implementation.createInstance(null, null);
+		
+		String propertyName="fooSetValuedSimple";
+		String propertyValue=inst.getProperty(propertyName);
+		String expression="(fooSetValuedSimple *> Android, Windows)";
+		boolean result=inst.match(expression);
+		boolean expected=true;
+		
+		String message=String.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",expression,result,expected,propertyName,propertyValue);
+		
+		if(expected)
+			Assert.assertTrue(message,result);
+		else
+			Assert.assertFalse(message,result);
+	}
+	
+	@Test
+	public void PropertyEnumTypeSimpleValueNoTrick_tc072() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecEnumVersusSetTestSwitch");
+		Instance inst = implementation.createInstance(null, null);
+		
+		String propertyName="barEnumValuedSimple";
+		String propertyValue=inst.getProperty(propertyName);
+		String expression="(barEnumValuedSimple=Linux)";
+		boolean result=inst.match(expression);
+		boolean expected=true;
+		
+		String message=String.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",expression,result,expected,propertyName,propertyValue);
+		
+		if(expected)
+			Assert.assertTrue(message,result);
+		else
+			Assert.assertFalse(message,result);
+	}
+	
+	@Test
+	public void PropertyEnumTypeSimpleValueSpaceAfter_tc073() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecEnumVersusSetTestSwitch");
+		Instance inst = implementation.createInstance(null, null);
+		
+		String propertyName="barEnumValuedSimple";
+		String propertyValue=inst.getProperty(propertyName);
+		String expression="(barEnumValuedSimple=Linux )";
+		boolean result=inst.match(expression);
+		boolean expected=true;
+		
+		String message=String.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",expression,result,expected,propertyName,propertyValue);
+		
+		if(expected)
+			Assert.assertTrue(message,result);
+		else
+			Assert.assertFalse(message,result);
+	}
+	
+	@Test
+	public void PropertyEnumTypeSimpleValueSpaceBefore_tc074() {
+
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"SpecEnumVersusSetTestSwitch");
+		Instance inst = implementation.createInstance(null, null);
+		
+		String propertyName="barEnumValuedSimple";
+		String propertyValue=inst.getProperty(propertyName);
+		String expression="(barEnumValuedSimple= Linux)";
+		boolean result=inst.match(expression);
+		boolean expected=true;
+		
+		String message=String.format("The result of the expression %s was %s, but was expected %s, because the property %s had the value %s",expression,result,expected,propertyName,propertyValue);
+		
+		if(expected)
+			Assert.assertTrue(message,result);
+		else
+			Assert.assertFalse(message,result);
+	}	
 	
 }
