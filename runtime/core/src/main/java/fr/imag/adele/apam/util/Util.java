@@ -375,7 +375,7 @@ public final class Util {
 	}
 
 	/**
-	 * Check if attribute "attr=value" is valid when set on object "inst".
+	 * Check if attribute "attr" is valid when set on object "inst".
 	 * inst can be an instance, an implementation or a specification.
 	 * Check if the value is consistent with the type.
 	 * All predefined attributes are Ok (scope ...)
@@ -465,7 +465,7 @@ public final class Util {
 			isSet = true ;
 			types = types.substring(1, types.length()-1) ;	
 		}
-//		boolean isEnum = (types.charAt(0)=='{' );
+
 		Set<String> enumVals = Util.splitSet(types);
 		if (enumVals == null || enumVals.size()==0) {
 			logger.error("invalid type \"" + types  + "\" for attribute \"" + attr);

@@ -264,18 +264,6 @@ public class ApamRepoBuilder {
 		}
 		//remove last ","
 		return val.substring(0, val.length() -1) ;
-//		int l = refs.size();
-//		int i = 1;
-//
-//		String val = "[;" ;
-//		for (ResolvableReference mess : refs) {
-//			if (i < l)
-//				val += mess.getName() + ";" ;
-//			else
-//				val += mess.getName() + ";]" ;
-//			i++;
-//		}
-//		return val ;
 	}
 
 	private void printRequire(StringBuffer obrContent, ComponentDeclaration component) {

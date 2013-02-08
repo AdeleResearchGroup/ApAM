@@ -2,7 +2,6 @@ package fr.imag.adele.apam.fibonacci;
 
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.test.s1.Fib;
 
 public class FibMain implements Runnable, ApamComponent{
 
