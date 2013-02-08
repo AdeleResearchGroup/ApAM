@@ -375,7 +375,7 @@ public final class Util {
 	}
 
 	/**
-	 * Check if attribute "attr=value" is valid when set on object "inst".
+	 * Check if attribute "attr" is valid when set on object "inst".
 	 * inst can be an instance, an implementation or a specification.
 	 * Check if the value is consistent with the type.
 	 * All predefined attributes are Ok (scope ...)
