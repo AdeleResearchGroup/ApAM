@@ -14,9 +14,12 @@
  */
 package fr.imag.adele.apam.fibonacci;
 
+import fr.imag.adele.apam.ApamComponent;
+import fr.imag.adele.apam.Instance;
 
 
-public class Fibonacci implements Fib {
+
+public class Fibonacci implements Fib, ApamComponent {
 
 	/*
 	 * Variable attribute
@@ -25,11 +28,11 @@ public class Fibonacci implements Fib {
 	int fibMoins1 = -1 ;
 	int fibMoins2 = -2 ;
 
-	Fib moins1 = null ;
-	Fib moins2 = null ;
+	Fib moins1  ;
+	Fib moins2  ;
 
 	public int compute (int n) {
-		if (n==1) return 1 ;
+		if ( n < 2 ) return 1 ;
 		return moins1.compute(n-1) + moins2.compute(n-2) ; 
 	}
 
@@ -39,6 +42,29 @@ public class Fibonacci implements Fib {
 
 		fibo = moins1.compute(n-1) + moins2.compute(n-2) ;
 		return fibo ;
+	}
+
+	@Override
+	public void apamInit(Instance apamInstance) {
+		FibMain.nbInst ++;
+	}
+
+	@Override
+	public void apamRemove() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void wiredFor(String resource) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void unWiredFor(String resource) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

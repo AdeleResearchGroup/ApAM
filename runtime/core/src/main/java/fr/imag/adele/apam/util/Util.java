@@ -598,6 +598,19 @@ public final class Util {
 			if (br != null) br.close();
 		}
 	}
+	
+	
+	public static Set<Instance> getSharableInsts(Instance client, Set<Instance> validInsts) {
+		if (validInsts == null) return null ;
+		Set<Instance> ret = new HashSet<Instance> () ;
+		
+		for (Instance inst : validInsts) {
+			if (inst.isSharable()) {
+				ret.add(inst) ;
+			}
+		}
+		return ret ;
+	}
 
 	///About dependencies
 	/**
