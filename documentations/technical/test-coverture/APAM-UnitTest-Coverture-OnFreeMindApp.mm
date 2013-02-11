@@ -2,7 +2,7 @@
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
 <node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1354182410062" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
-<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1359554645242" TEXT="Property">
+<node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1360338389070" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
 <icon BUILTIN="button_ok"/>
 </node>
@@ -42,8 +42,8 @@
 <node CREATED="1355931835542" ID="ID_450621789" MODIFIED="1356684955117" TEXT="Retrieving &lt;property type=&apos;string&apos;&gt; should return a proper Collection/array-tc055">
 <icon BUILTIN="yes"/>
 </node>
-<node CREATED="1355931835542" ID="ID_1598888249" MODIFIED="1356684955116" TEXT="Retrieving &lt;property type=&apos;boolean&apos;&gt; should return a proper Collection/array-tc056">
-<icon BUILTIN="yes"/>
+<node CREATED="1355931835542" ID="ID_1598888249" MODIFIED="1360339406812" TEXT="Retrieving &lt;property type=&apos;boolean&apos;&gt; should return a proper Collection/array-tc056">
+<icon BUILTIN="button_cancel"/>
 </node>
 <node CREATED="1356684961188" ID="ID_1368445057" MODIFIED="1356685224122" TEXT="Testing superset &apos;*&gt;&apos; for integer-tc057">
 <icon BUILTIN="button_ok"/>
@@ -67,6 +67,36 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1359555151681" ID="ID_1998306046" MODIFIED="1359555177966" TEXT="Property change notification (&quot;method&quot; attribute) should be called only once per setProperty called-tc064">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1360338389951" ID="ID_1623151872" MODIFIED="1360338564501" TEXT="PropertySetTypeBracesNoCommaInTheEnd-tc65">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1360338440209" ID="ID_1322873364" MODIFIED="1360338564505" TEXT="PropertySetTypeBracesCommaInTheEnd-tc66">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1360338452400" ID="ID_206803306" MODIFIED="1360338564505" TEXT="PropertySetTypeBorderElements-tc67">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1360338461504" ID="ID_1779740709" MODIFIED="1360338564504" TEXT="PropertySetTypeMiddleElements-tc68">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1360338473041" ID="ID_1945827962" MODIFIED="1360338564504" TEXT="PropertySetTypeOneMiddleOneBorderElement-tc69">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1360338480640" ID="ID_551700211" MODIFIED="1360338564503" TEXT="PropertySetTypeNoBracesComma-tc70">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1360338488864" ID="ID_1145166061" MODIFIED="1360338564503" TEXT="PropertySetTypeNoBracesNoComma-tc71">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1360338496768" ID="ID_1725393579" MODIFIED="1360338564502" TEXT="PropertyEnumTypeSimpleValueNoTrick-tc72">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1360338502799" ID="ID_1190440980" MODIFIED="1360338564502" TEXT="PropertyEnumTypeSimpleValueSpaceAfter-tc73">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1360338509073" ID="ID_1192619082" MODIFIED="1360338564502" TEXT="PropertyEnumTypeSimpleValueSpaceBefore-tc74">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
