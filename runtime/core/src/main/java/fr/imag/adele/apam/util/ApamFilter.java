@@ -1425,7 +1425,7 @@ public class ApamFilter implements Filter {
 
                     if (string instanceof String) {
                         return new ApamFilter(ApamFilter.EQUAL, attr,
-                                string);
+                                ((String) string).trim());
                     }
                     return new ApamFilter(ApamFilter.SUBSTRING, attr,
                             string);
