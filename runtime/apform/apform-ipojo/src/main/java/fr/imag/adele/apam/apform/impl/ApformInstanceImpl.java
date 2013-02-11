@@ -301,7 +301,7 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
          * This instance is not actually yet managed by APAM
          */
         if (apamInstance == null) {
-            System.err.println("unresolve failure for client " + getInstanceName() + " : ASM instance unkown");
+          //  System.err.println("unresolve failure for client " + getInstanceName() + " : ASM instance unkown");
             return false;
         }
 
