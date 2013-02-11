@@ -5,19 +5,34 @@ import fr.imag.adele.apam.Instance;
 
 public class FibMain implements Runnable, ApamComponent{
 
+	public static int nbInst = 0 ;
 	Fib fib ;
-	
-	int nb = 15 ;
-	
+
+	int nb = 12 ;
+
 	public void run() {
 
 		System.out.println("Starting new fibonacci " + nb );
+		long deb = System.currentTimeMillis() ;
 		int fibResult = fib.compute (nb) ;
-		System.out.println("Resultat pour Fibonacci " + nb + " : " + fibResult);
+		long fin = System.currentTimeMillis() ;
+		long duree = fin - deb ;
+		System.out.println("initialization de " + nbInst + " instances. Duree: " + duree + " milis");
+//		System.out.println("initialization: " + duree + " milis");
+
+		for (int i = 0 ; i < 20; i++) {
+			deb = System.nanoTime() ;
+			fibResult = fib.compute (nb) ;
+			fin = System.nanoTime() ;
+			duree = fin - deb ;
+			System.out.println("execution de " + nbInst + " appels. Duree: " + duree/1000 + " micros");
+		}
+
+	//	System.out.println("Resultat pour Fibonacci " + nb + " : " + fibResult);
 	}
 
 
-	public void apamInit(Instance apamInstance) {
+	public void apamInit(Instance apamInstance /*, String[] params */) {
 		System.out.println("Starting new fibonacci " + nb );
 		new Thread(this, "APAM perf test").start();
 	}

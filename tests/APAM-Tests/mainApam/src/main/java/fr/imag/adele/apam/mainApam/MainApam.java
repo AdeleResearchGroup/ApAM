@@ -199,7 +199,7 @@ public class MainApam implements Runnable, ApamComponent {
 			<definition name="s1b" type="boolean" value="true" />
 			<definition name="s1c" type="string" />
 			<definition name="s1i" type="int" />
-			<definition name="location" type="{living, kitchen, bedroom}" value="bedroom" />
+			<definition name="location" type="living, kitchen, bedroom" value="bedroom" />
 			<definition name="testEnumere" type="{v1, v2, v3, v4}" />
 			<definition name="OS" type="{Linux, Windows, Android, IOS}" />
 

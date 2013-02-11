@@ -211,27 +211,28 @@ public class ApamMan implements DependencyManager {
 			//Compute all the instances visible and satisfying the constraints  ;
 			for (Implementation impl : impls) {
 				validInsts = (Set<Instance>)Select.getConstraintsComponents(impl.getMembers(), constraints) ;
-				if (validInsts != null && !validInsts.isEmpty()) {
+				if (validInsts != null && !validInsts.isEmpty()) 
 					validInsts = Util.getVisibleInsts(client, validInsts) ;
-					if (validInsts != null && !validInsts.isEmpty())
-						insts.addAll(validInsts) ;
-				}
+				if (validInsts != null && !validInsts.isEmpty())
+					validInsts = Util.getSharableInsts(client, validInsts) ;
+				if (validInsts != null && !validInsts.isEmpty())
+					insts.addAll(validInsts) ;
 			}
 		}
-		
+
 		// returns only those implems that are visible
 		impls = Util.getVisibleImpls(client, impls) ;
 		if (impls.isEmpty() && (insts == null || insts.isEmpty()))
-				return null ;
+			return null ;
 		if (dep.isMultiple()) 
 			return new Resolved (impls, insts) ;
-		
+
 		/*
 		 * If dependency is not multiple, select the best instance and implem.
 		 * Return a single element in both impls and insts
 		 */
 		if (insts != null && !insts.isEmpty()) {
-			
+
 			Instance inst = Select.selectBestInstance (impls, insts, dep) ;
 			insts.clear();
 			insts.add(inst) ;
