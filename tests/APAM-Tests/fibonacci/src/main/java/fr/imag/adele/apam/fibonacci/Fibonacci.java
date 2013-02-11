@@ -40,7 +40,9 @@ public class Fibonacci implements Fib, ApamComponent {
 
 		if (fibo != -1) return fibo ;			
 
-		fibo = moins1.compute(n-1) + moins2.compute(n-2) ;
+		if ( n < 2 ) return 1 ;
+		
+		fibo = moins1.computeSmart(n-1) + moins2.computeSmart(n-2) ;
 		return fibo ;
 	}
 
