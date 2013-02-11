@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.Filter;
-import org.osgi.service.metatype.AttributeDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,8 +125,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		 */
 		if (group != null) {
 			for (PropertyDefinition definition : group.getDeclaration().getPropertyDefinitions()) {
-				if ( definition.getDefaultValue() != null && get(definition.getName()) == null)
-					put (definition.getName(),definition.getDefaultValue()) ;
+				if ( definition.getDefaultValue() != null && get(definition.getName()) == null) {
+					Object val = Util.checkAttrType(definition.getName(), definition.getDefaultValue(), definition.getType());
+					if (val != null)
+						put (definition.getName(),val) ;
+				}
+					
 			}
 		}
 

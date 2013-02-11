@@ -156,7 +156,7 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
     	AtomicImplementationDeclaration primitive	= (AtomicImplementationDeclaration) declaration;
     	for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
     		
-    		if (definition.getField() != null && definition.getField().equals(fieldName) && !value.equals(getInstanceManager().getApamInstance().getProperty(definition.getName()))) {
+    		if (definition.getField() != null && definition.getField().equals(fieldName) && !value.equals(getInstanceManager().getApamInstance().getPropertyObject(definition.getName()))) {
     			((InstanceImpl)getInstanceManager().getApamInstance()).setPropertyInt(definition.getName(),value, true);
     		}
     		
