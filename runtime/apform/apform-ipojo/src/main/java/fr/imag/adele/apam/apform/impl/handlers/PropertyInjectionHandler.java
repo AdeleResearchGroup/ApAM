@@ -111,7 +111,6 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
 	public Object onGet(Object pojo, String fieldName, Object value) {
 		
 		if (getInstanceManager().getApamInstance() == null) {
-            System.err.println("property access failure for  " + getInstanceManager().getInstanceName() + " : ASM instance unkown");
             return value;
 		}
 		
@@ -140,7 +139,6 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
 	public void onSet(Object pojo, String fieldName, Object value) {
 		
 		if (getInstanceManager().getApamInstance() == null) {
-            System.err.println("property access failure for  " + getInstanceManager().getInstanceName() + " : ASM instance unkown");
             return;
 		}
 		
