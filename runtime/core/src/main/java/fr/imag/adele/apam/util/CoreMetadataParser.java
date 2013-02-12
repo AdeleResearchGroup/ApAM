@@ -30,6 +30,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.felix.ipojo.handlers.dependency.DependencyDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
@@ -606,7 +607,12 @@ public class CoreMetadataParser implements CoreParser {
 			/*
 			 * Add to component declaration
 			 */
-			component.getDependencies().add(parseDependency(dependency, component));
+			DependencyDeclaration dependencyDeclaration = parseDependency(dependency, component);
+			if (! component.getDependencies().add(dependencyDeclaration)) {
+				errorHandler.error(Severity.ERROR,
+						"Duplicate dependency identifier "+ dependencyDeclaration);
+			}
+				
 		}
 
 	}
@@ -631,7 +637,12 @@ public class CoreMetadataParser implements CoreParser {
 			/*
 			 * Add to component declaration
 			 */
-			component.getContextualDependencies().add(parseDependency(dependency, component));
+			DependencyDeclaration dependencyDeclaration = parseDependency(dependency, component);
+			if (! component.getContextualDependencies().add(dependencyDeclaration)) {
+				errorHandler.error(Severity.ERROR,
+						"Duplicate dependency identifier "+ dependencyDeclaration);
+			}
+			
 		}
 
 	}
@@ -659,6 +670,14 @@ public class CoreMetadataParser implements CoreParser {
 		 * and in the case of atomic components they may optionally have a number of nested injection declarations
 		 */
 		if (target != null && target instanceof ComponentReference<?>) {
+
+			/*
+			 * for atomic components, a field injection may be specified directly as an attribute of the dependency.
+			 * In this case, the field name is used as identifier of the dependency, if not given explicitly 
+			 */
+			if (component instanceof AtomicImplementationDeclaration && id == null) {
+				id = parseString(component.getName(), element, CoreMetadataParser.ATT_FIELD, false);
+			}
 
 			dependency = new DependencyDeclaration(component.getReference(), id, isMultiple, target);
 

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
@@ -152,6 +153,13 @@ public class ApamCapability {
 
 	public Set<MessageReference> getProvideMessages () {
 		return dcl.getProvidedResources(MessageReference.class) ;
+	}
+	
+	public String getImplementationClass() {
+		if (dcl instanceof AtomicImplementationDeclaration)
+			return ((AtomicImplementationDeclaration) dcl).getClassName();
+		else
+			return null;
 	}
 
 	//Return the definition at the current component level 

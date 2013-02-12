@@ -14,7 +14,6 @@
  */
 package fr.imag.adele.apam.apamMavenPlugin;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -475,22 +474,36 @@ public class CheckObr {
 	 *            : the component currently analyzed
 	 */
 	private static void checkFieldTypeDep(DependencyDeclaration dep) {
-		// if (!(component instanceof AtomicImplementationDeclaration)) return ;
 
 		// All field must have same multiplicity, and must refer to interfaces
-		// and messages provided by the
-		// specification.
+		// and messages provided by the specification.
+		
+		// In the case of implementation dependencies, we allow the field to be
+		// of the main class of the implementation
 
-		Set<ResourceReference> specResources = new HashSet<ResourceReference>();
+		Set<ResourceReference> allowedTypes = new HashSet<ResourceReference>();
 
-		if (dep.getTarget() instanceof ComponentReference<?>) {
-			ApamCapability cap = ApamCapability.get((ComponentReference) dep
-					.getTarget());
-			if (cap == null)
-				return;
-			specResources = cap.getProvideResources();
-		} else {
-			specResources.add(dep.getTarget().as(ResourceReference.class));
+		ComponentReference<?> targetComponent =  dep.getTarget().as(ComponentReference.class);
+		
+		// If not explicit component target, it must be an interface reference
+		if (targetComponent == null) {
+			allowedTypes.add(dep.getTarget().as(ResourceReference.class));
+		}
+		else {
+			ApamCapability cap 	= ApamCapability.get(targetComponent);
+			if (cap == null) {
+				CheckObr.error("Dependency "
+						+ dep.getIdentifier()
+						+ " : the target of the reference doesn' exists "
+						+ targetComponent);
+			}
+			
+			allowedTypes.addAll(cap.getProvideResources());
+			
+			// check target's implementation class
+			String implementationClass = cap.getImplementationClass();
+			if (implementationClass != null)
+				allowedTypes.add(new ImplementatioClassReference(implementationClass));
 		}
 
 		for (DependencyInjection innerDep : dep.getInjections()) {
@@ -498,17 +511,38 @@ public class CheckObr {
 			String type = innerDep.getResource().getJavaType();
 
 			if (!(innerDep.getResource() instanceof UndefinedReference)
-					&& !(specResources.contains(innerDep.getResource()))) {
+					&& !(allowedTypes.contains(innerDep.getResource()))) {
 				CheckObr.error("Field "
 						+ innerDep.getName()
 						+ " is of type "
 						+ type
 						+ " which is not implemented by specification or implementation "
-						+ dep.getIdentifier());
+						+ dep.getTarget().getName());
 			}
 		}
 	}
 
+	/**
+	 * This class represents the main class of an implementation.
+	 * 
+	 * TODO Right now this class is only used to verify the type of a field in an implementation dependnecy.
+	 * We could think of generalizing the concept of "interface dependency" to "class dependency" and allow APAM to
+	 * resolve a field of a given class to an instance of some implementation that implements this class. In that
+	 * case we can move this class to the core of APAM.
+	 */
+	private static class ImplementatioClassReference extends ResourceReference {
+
+		protected ImplementatioClassReference(String type) {
+			super(type);
+		}
+		
+		@Override
+	    public String toString() {
+	        return "class " + getIdentifier();
+	    }
+		
+	}
+	
 	/**
 	 * Provided an atomic dependency, returns if it is multiple or not. Checks
 	 * if the same field is declared twice.
@@ -640,7 +674,7 @@ public class CheckObr {
 
 	/**
 	 * Check the state characteristic. <own specification="Door"
-	 * property=”location” value=”{entrance, exit}”>
+	 * property="location" value="{entrance, exit}">
 	 * 
 	 * @param component
 	 */
