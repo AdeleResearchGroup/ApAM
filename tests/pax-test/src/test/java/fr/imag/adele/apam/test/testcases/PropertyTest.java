@@ -373,12 +373,12 @@ public class PropertyTest extends ExtensionAbstract {
 		Implementation implementation = CST.apamResolver.findImplByName(null,
 				"SpecFilterSwitch");
 
-		Object RawType = implementation.getPropertyObject(propertyName); //allproperties.get(propertyName);
+		Object RawType = implementation.getPropertyObject(propertyName);
 
 		String message = "Retrieving a set of (%s) from the properties, but the return do not correspond to a type that represents a set of elements(List,Set nor array).";
 
 		Assert.assertTrue(String.format(message, "Int"),
-				RawType instanceof String[] || RawType instanceof Collection);
+				RawType instanceof Integer[] || RawType instanceof Collection);
 
 		String messageCollection = "Retrieving a set of (%s) from the properties, the return correspond to a Collection type but not a Collection containing the type %s.";
 
@@ -405,7 +405,7 @@ public class PropertyTest extends ExtensionAbstract {
 		String message = "Retrieving a set of (%s) from the properties, but the return do not correspond to a type that represents a set of elements(List,Set nor array).";
 
 		Assert.assertTrue(String.format(message, "Integer"),
-				RawType instanceof String[] || RawType instanceof Collection);
+				RawType instanceof Integer[] || RawType instanceof Collection);
 
 		String messageCollection = "Retrieving a set of (%s) from the properties, the return correspond to a Collection type but not a Collection containing the type %s.";
 
