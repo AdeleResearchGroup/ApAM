@@ -188,7 +188,7 @@ public class ApamCommand {
         Composite target = checkComposite(out, compositeTarget, componentName);
         if (target!=null){
             out.println("< Searching " + componentName +" in " + compositeTarget+  " repositories> " );
-            Thread t  = new Thread(new AsyncFind(out,target,componentName, false) );
+            Thread t  = new Thread(new AsyncFind(out,target,componentName, false, args) );
             t.start();
         }
     }
@@ -300,7 +300,7 @@ public class ApamCommand {
         Composite target = CompositeImpl.getRootAllComposites() ;
 //        		checkComposite(out,compositeTarget,componentName);
         if (target!=null){
-            Thread t  = new Thread(new AsyncFind(out,target,componentName,true) );
+            Thread t  = new Thread(new AsyncFind(out,target,componentName,true, args) );
             t.start();
         }
     }
@@ -326,7 +326,7 @@ public class ApamCommand {
 
         Composite target = checkComposite(out,compositeTarget,componentName);
         if (target!=null){
-            Thread t  = new Thread(new AsyncFind(out,target,componentName,true) );
+            Thread t  = new Thread(new AsyncFind(out,target,componentName,true, args) );
             t.start();
         }
     }

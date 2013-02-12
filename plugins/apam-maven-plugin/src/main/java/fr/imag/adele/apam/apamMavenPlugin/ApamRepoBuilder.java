@@ -50,7 +50,7 @@ public class ApamRepoBuilder {
 	private Set<SpecificationReference> bundleRequiresSpecifications = new HashSet <SpecificationReference> ();
 
 	private static List <ComponentDeclaration> components   ;
-//	private static List <ComponentDeclaration> dependencies ;
+	//	private static List <ComponentDeclaration> dependencies ;
 
 	/**
 	 * Flag describing if we need or not use local XSD files (i.e. use the {@link SchemaResolver} or not). If
@@ -59,20 +59,20 @@ public class ApamRepoBuilder {
 
 	public ApamRepoBuilder(List<ComponentDeclaration> components, List<ComponentDeclaration> dependencies) {
 		this.components = components ;
-//		this.dependencies = dependencies ;
+		//		this.dependencies = dependencies ;
 		ApamCapability.init(components, dependencies) ;
 	}
 
 	public StringBuffer writeOBRFile() {
-		
+
 		//if a component is defined twice, or  error is name space, remove the second definition
 		checkDoubleDefinition () ;
-		
+
 		StringBuffer obrContent = new StringBuffer("<obr> \n");
-		
-		 // print maven groupId, artifactId and version as resource capability
-        printOBRMavenElement(obrContent, "");
-		
+
+		// print maven groupId, artifactId and version as resource capability
+		printOBRMavenElement(obrContent, "");
+
 		for (ComponentDeclaration comp : components) {
 			if (comp instanceof SpecificationDeclaration)
 				printOBRElement(obrContent, comp, "");
@@ -95,16 +95,16 @@ public class ApamRepoBuilder {
 		obrContent.append("</obr> \n");
 		return obrContent;
 	}
-	
-	   private void printOBRMavenElement(StringBuffer obrContent, String indent) {
-		      obrContent.append("   <capability name='" + CST.MAVEN + "'>\n");
-		      obrContent.append("      <p n='" + CST.GROUP_ID + "' v='" + OBRGeneratorMojo.currentProjectGroupId + "' />\n");
-		      obrContent.append("      <p n='" + CST.ARTIFACT_ID + "' v='" + OBRGeneratorMojo.currentProjectArtifactId + "' />\n");
-		      obrContent.append("      <p n='" + CST.VERSION + "' v='" + OBRGeneratorMojo.currentProjectVersion + "' />\n");
-		      obrContent.append("   </capability>\n");
-		    }
 
-	
+	private void printOBRMavenElement(StringBuffer obrContent, String indent) {
+		obrContent.append("   <capability name='" + CST.MAVEN + "'>\n");
+		obrContent.append("      <p n='" + CST.GROUP_ID + "' v='" + OBRGeneratorMojo.currentProjectGroupId + "' />\n");
+		obrContent.append("      <p n='" + CST.ARTIFACT_ID + "' v='" + OBRGeneratorMojo.currentProjectArtifactId + "' />\n");
+		obrContent.append("      <p n='" + CST.VERSION + "' v='" + OBRGeneratorMojo.currentProjectVersion + "' />\n");
+		obrContent.append("   </capability>\n");
+	}
+
+
 	private void printOBRElement(StringBuffer obrContent, ComponentDeclaration component, String indent) {
 		System.out.print("Checking ");
 		if (component instanceof ImplementationDeclaration)
@@ -140,7 +140,7 @@ public class ApamRepoBuilder {
 			//check the information for composite : grant, start, own, visibility etc.
 			CheckObr.checkCompositeContent ((CompositeDeclaration) component) ;
 		}
-		
+
 		if (component instanceof SpecificationDeclaration) {
 			generateProperty (obrContent, component, CST.COMPONENT_TYPE, CST.SPECIFICATION) ;
 			generateProperty (obrContent, component, CST.SPECNAME, component.getName());
@@ -148,7 +148,7 @@ public class ApamRepoBuilder {
 
 		//checks shared, singleton, instantiable, exclusive,  
 		CheckObr.checkComponentHeader (component) ;
-		
+
 		// provide clause
 		printProvided(obrContent, component);
 
@@ -158,8 +158,8 @@ public class ApamRepoBuilder {
 		// Require, fields and constraints
 		printRequire(obrContent, component);
 
-		
-//		generateTypedProperty(obrContent, component, "version", "version", OBRGeneratorMojo.thisBundleVersion) ;
+
+		//		generateTypedProperty(obrContent, component, "version", "version", OBRGeneratorMojo.thisBundleVersion) ;
 		ApamCapability.get(component.getReference()).finalize() ;
 		obrContent.append("   </capability>\n");
 	}
@@ -169,22 +169,28 @@ public class ApamRepoBuilder {
 		if (component instanceof InstanceDeclaration) return ;
 		Set<UndefinedReference> undefinedMessages = new HashSet<UndefinedReference>();
 		Set<UndefinedReference> undefinedInterfaces = new HashSet<UndefinedReference>();
-        Set<UndefinedReference> undefinedReferences = component.getProvidedResources(UndefinedReference.class);
-        for (UndefinedReference undefinedReference : undefinedReferences) {
-            if (undefinedReference.getKind().isAssignableFrom(MessageReference.class)){
-                undefinedMessages.add(undefinedReference);
-            }else if(undefinedReference.getKind().isAssignableFrom(InterfaceReference.class)){
-                undefinedInterfaces.add(undefinedReference);
-            }
-        }
-        
+		Set<UndefinedReference> undefinedReferences = component.getProvidedResources(UndefinedReference.class);
+
+		for (UndefinedReference undefinedReference : undefinedReferences) {
+			if (undefinedReference.getKind().isAssignableFrom(MessageReference.class)){
+				undefinedMessages.add(undefinedReference);
+			}else if(undefinedReference.getKind().isAssignableFrom(InterfaceReference.class)){
+				undefinedInterfaces.add(undefinedReference);
+			}
+		}
+
 		Set<InterfaceReference> interfaces = component.getProvidedResources(InterfaceReference.class);
+		for (InterfaceReference ref : interfaces) {
+			CheckObr.checkInterfaceExist(ref.getName()) ;
+		}
 		String val = setReference2String (interfaces) ;	
 		if (val != null)
 			generateProperty(obrContent, component, CST.PROVIDE_INTERFACES, setReference2String(interfaces)) ;
 
 		Set<MessageReference> messages = component.getProvidedResources(MessageReference.class);
-		
+		for (MessageReference ref : messages) {
+			CheckObr.checkInterfaceExist(ref.getName()) ;
+		}
 		val = setReference2String (messages) ;	
 		if (val != null)
 			generateProperty(obrContent, component, CST.PROVIDE_MESSAGES, val);
@@ -218,37 +224,37 @@ public class ApamRepoBuilder {
 			}
 		}
 	}
-//			String type = definition.getType();
-//			String attrDef = definition.getName() ;
-//			String defaultValue = definition.getDefaultValue();
-//			
-//			if (defaultValue == null)
-//				defaultValue = "";
-//			
-//			ApamCapability group = ApamCapability.get(component.getGroupReference()) ;
-//			if (group != null && group.getAttrDefinition(attrDef) != null) {
-//				CheckObr.error ("Property " + attrDef + " allready defined in the group.") ;
-//			}
-//			
-//			//We have a default value, check it as if a property.
-//			if (type != null && defaultValue != null && !defaultValue.isEmpty()) {
-//				if (Util.checkAttrType(attrDef, defaultValue, type) != null) {
-//					generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
-//				} else {
-//					CheckObr.setFailedParsing(true) ;
-//				}
-//				continue ;
-//			}
-//			
-//			type = type.trim() ;
-//			if (type==null || !(type.equals("string") || type.equals("int") ||type.equals("integer") || type.equals("boolean") || type.charAt(0)=='{' )) {
-//				CheckObr.error("Invalid type " + type + " in attribute definition " + attrDef
-//						+ ". Supported: string, int, boolean, enumeration.");
-//				continue ;
-//			}
-//			generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
-//		}
-//	}
+	//			String type = definition.getType();
+	//			String attrDef = definition.getName() ;
+	//			String defaultValue = definition.getDefaultValue();
+	//			
+	//			if (defaultValue == null)
+	//				defaultValue = "";
+	//			
+	//			ApamCapability group = ApamCapability.get(component.getGroupReference()) ;
+	//			if (group != null && group.getAttrDefinition(attrDef) != null) {
+	//				CheckObr.error ("Property " + attrDef + " allready defined in the group.") ;
+	//			}
+	//			
+	//			//We have a default value, check it as if a property.
+	//			if (type != null && defaultValue != null && !defaultValue.isEmpty()) {
+	//				if (Util.checkAttrType(attrDef, defaultValue, type) != null) {
+	//					generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
+	//				} else {
+	//					CheckObr.setFailedParsing(true) ;
+	//				}
+	//				continue ;
+	//			}
+	//			
+	//			type = type.trim() ;
+	//			if (type==null || !(type.equals("string") || type.equals("int") ||type.equals("integer") || type.equals("boolean") || type.charAt(0)=='{' )) {
+	//				CheckObr.error("Invalid type " + type + " in attribute definition " + attrDef
+	//						+ ". Supported: string, int, boolean, enumeration.");
+	//				continue ;
+	//			}
+	//			generateTypedProperty (obrContent, component, CST.DEFINITION_PREFIX + attrDef, type, defaultValue) ;
+	//		}
+	//	}
 
 	/**
 	 * provided a set of resources references (interface or messages) fr.mag....A , B, C references produces a string "[;fr.imag....A;B;C;]"
@@ -276,9 +282,9 @@ public class ApamRepoBuilder {
 				}
 			}
 		}
-		
+
 		// all components : checks dependencies and constraints
-		CheckObr.checkDependencies(component.getDependencies());
+		CheckObr.checkDependencies(component);
 	}
 
 
@@ -303,7 +309,7 @@ public class ApamRepoBuilder {
 	private void generateTypedProperty (StringBuffer obrContent, ComponentDeclaration component, String attr, String type, String value) {
 		if (value == null) {	
 			value = "";
-			}
+		}
 
 		if  (ApamCapability.get(component.getReference()).putAttr (attr, value)) {
 			obrContent.append("      <p n='" + attr + "' t='" + type + "' v='" + value + "' />\n");
@@ -354,7 +360,7 @@ public class ApamRepoBuilder {
 			}
 			else defined.add(comp.getName()) ;
 		}
-		
+
 		/*
 		 * Verify if the components we are building were not in already processed
 		 * in another project in the same built
@@ -365,26 +371,26 @@ public class ApamRepoBuilder {
 		for (ComponentDeclaration comp : new ArrayList<ComponentDeclaration>(components)) {
 
 			ApamCapability existingDefinition = ApamCapability.get(comp.getReference());
-			
+
 			/*
 			 * never built is OK to process
 			 */
 			if (existingDefinition == null)
 				continue;
-			
+
 			/*
 			 * already built in the repository is OK to process
 			 */
 			if (!existingDefinition.isFinalized())
 				continue;
-			
+
 			/*
 			 * Already processed in this build execution
 			 */
 			CheckObr.error("Component " + comp.getName() + " is already defined in another project in this build") ;
 			components.remove(comp) ;
 		}
-		
-		
+
+
 	}
 }

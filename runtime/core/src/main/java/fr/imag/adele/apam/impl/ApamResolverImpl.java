@@ -211,9 +211,9 @@ public class ApamResolverImpl implements ApamResolver {
 				impls = null ;
 				insts = null ;
 			} else {
-			//one of them can be null or empty.
-			impls = res.implementations ;
-			insts = res.instances ;
+				//one of them can be null or empty.
+				impls = res.implementations ;
+				insts = res.instances ;
 			}
 		}
 		if ((impls == null || impls.isEmpty()) && (insts==null || insts.isEmpty())) {
@@ -258,18 +258,18 @@ public class ApamResolverImpl implements ApamResolver {
 		boolean hasConstraints = (!dependency.getImplementationConstraints().isEmpty() || !dependency.getInstanceConstraints().isEmpty()) ;
 
 		for (Instance inst : insts) {
-			
+
 			//TODO distriman: Check if this its possible to have multiple implementations
 			//TODO distriman: proxy verification is not a reliable constraint to detect remote instances
 			if(inst.getServiceObject()!=null&&Proxy.isProxyClass(inst.getServiceObject().getClass())) {//inst instanceof RemoteInstanceImpl probabaly a remote instance
-				
+
 				client.createWire(inst, depName, hasConstraints, false);
-				
+
 				ok = true; 
-				
+
 				continue; 
 			}
-			
+
 			deployedImpl(refClient, inst.getImpl(), false);
 			// For promotions we must wire the composite and wire the client if the target matches the client constraints
 			if (promotionDependency != null) { // it was a promotion, embedding composite must be linked as the source
@@ -302,8 +302,8 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		// notify the managers
-		ApamResolverImpl.notifySelection(client, dependency.getTarget(), depName,
-				insts.iterator().next().getImpl(), null, insts);
+//		ApamResolverImpl.notifySelection(client, dependency.getTarget(), depName,
+//				insts.iterator().next().getImpl(), null, insts);
 		return ok;
 	}
 
@@ -548,7 +548,7 @@ public class ApamResolverImpl implements ApamResolver {
 			 */
 			//We cannot be sure of managers : check if the resolution succeeded.
 			if (res!=null && ((res.implementations != null && !res.implementations.isEmpty()) 
-				|| (res.instances != null && !res.instances.isEmpty()))) {
+					|| (res.instances != null && !res.instances.isEmpty()))) {
 				if (deployed && res.implementations != null) {
 					for (Implementation impl : res.implementations) {
 						deployedImpl(client, impl, deployed);

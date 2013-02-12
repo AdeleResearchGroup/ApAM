@@ -19,8 +19,11 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.util.Util;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class AsyncFind implements Runnable {
@@ -32,11 +35,15 @@ public class AsyncFind implements Runnable {
     private Composite target;
 
     private boolean instantiate;
-    public AsyncFind(PrintWriter out, Composite target, String componentName, boolean b) {
+    private String[] params ;
+    private Map<String, String> props ;
+    
+    public AsyncFind(PrintWriter out, Composite target, String componentName, boolean b, String[] params) {
         this.out= out;
         this.target = target;
         this.componentName = componentName;
         this.instantiate = b;
+        this.params = params ;
     }
 
 
@@ -44,15 +51,20 @@ public class AsyncFind implements Runnable {
     @Override
     public void run() {
         Component  component= CST.apamResolver.findComponentByName(target, componentName);
+        if (params != null) {
+        	props = new HashMap <String, String> () ;
+        	props.put ("param", Util.toStringArrayString(params)) ; 
+        } else props = null ;
+        
         if (component!=null){
             out.println(">> " + component.getName() + " deployed!");
             if (instantiate){
                 if (component instanceof Implementation)
-                    ((Implementation)component).createInstance(target,null);
+                    ((Implementation)component).createInstance(target, props);
                 if (component instanceof Specification) {
                     Implementation impl = CST.apamResolver.resolveSpecByName(target, componentName, null, null) ;
                     if (impl != null)
-                        impl.createInstance(null, null);
+                        impl.createInstance(null, props);
                 }
             }
         }

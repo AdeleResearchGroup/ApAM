@@ -262,7 +262,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
     	 * Create and register the object in the APAM state model
     	 */
 		try {			
-			Instance instance = instantiate(composite);
+			Instance instance = instantiate(composite, initialProperties);
 			((InstanceImpl)instance).register(initialProperties);
 			return instance;		
 		} catch (InvalidConfiguration configurationError) {
@@ -280,7 +280,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 * 
 	 * This method is not intended to be used as external API.
 	 */
-	protected Instance instantiate(Composite composite) throws InvalidConfiguration {
+	protected Instance instantiate(Composite composite, Map<String, String> initialProperties) throws InvalidConfiguration {
 		
 		if (! this.isInstantiable()) {
 			throw new InvalidConfiguration("Implementation " + this + " is not instantiable");
@@ -290,7 +290,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 			throw new InvalidConfiguration("Implementation " + this + " is a singleton and an instance exists");		
 		}
         //TODO Ce n'est pas normal de passer null a l'instanciation!!!!!
-		return reify(composite,getApformImpl().createInstance(null));
+		return reify(composite,getApformImpl().createInstance(initialProperties));
 	}
 
 	/**

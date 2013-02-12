@@ -20,7 +20,7 @@
 
 	<implementation name="S1Impl"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1">
-		<dependency specification="S2" field="s2Spec" />
+		<dependency id="S2" field="s2Spec" />
 		<dependency interface="fr.imag.adele.apam.test.s2.S2"
 			field="s2Interf" />
 		<dependency specification="S3" id="S3Multiple"  multiple="true">
@@ -34,11 +34,19 @@
 		<dependency implementation="S2Impl" field="lastS2" />
 	</implementation>
 
+	<apam-instance implementation="S1Impl" name="S1Impl-instance" >
+			<dependency id="S2" >
+				<constraints>
+					<implementation filter="(impl-name=S2Impl)"/>
+				</constraints>
+			</dependency>
+	</apam-instance>
+
 	<apam-instance implementation="S1toS2Final" name="S1toS2Final-instance" >
 	</apam-instance>
 
 	<composite name="S1CompoFinal" main="S1toS2Final"
-		interfaces="{fr.imag.adele.apam.test.s1.S1}">
+		interfaces="fr.imag.adele.apam.test.s1.S1">
 	</composite>
 
 	<implementation name="S1toS2Final"

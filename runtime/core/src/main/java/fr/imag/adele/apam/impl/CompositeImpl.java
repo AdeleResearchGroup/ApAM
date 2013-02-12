@@ -177,7 +177,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		else {
 			//Abstract composites do not have main instance
 			if ((ImplementationImpl) getMainImpl() != null)
-				mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this);
+				mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this, initialProperties);
 		}
 
 		// If not an abstract composite

@@ -19,8 +19,9 @@
 
 	<implementation name="Fibonacci"  classname="fr.imag.adele.apam.fibonacci.Fibonacci" 
 		interfaces="fr.imag.adele.apam.fibonacci.Fib" shared="false">
-		<dependency field="moins1" />
-		<dependency field="moins2" />
+		<dependency field="moins1"  implementation="Fibonacci"/>
+		<dependency field="moins2"  implementation="Fibonacci"/>
+		<property name="param" value="void" type="{string}" />
  		<definition name="fibo" field="fibo" value="-1" type="int"/> 
  		<definition name="fibMoins1" field="fibMoins1" value="-1" type="int"/>
  		<definition name="fibMoins2" field="fibMoins2" value="-1" type="int"/>

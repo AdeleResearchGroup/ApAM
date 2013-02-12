@@ -251,7 +251,7 @@ public final class Util {
 		if (insts == null) {return null ;}
 
 		if(client==null) return insts;
-		
+
 		Set<Instance> ret = new HashSet <Instance> () ;
 		Composite compo = client.getComposite() ;
 		for (Instance inst : insts) {
@@ -406,9 +406,9 @@ public final class Util {
 		if ((type == null) || (type.isEmpty()) || type.charAt(0) !='{') {
 			return null;
 		}
-			return type.substring(1, type.length()-1) ;	
+		return type.substring(1, type.length()-1) ;	
 	}
-	
+
 	/**
 	 * 
 	 * @param type
@@ -431,7 +431,7 @@ public final class Util {
 			logger.error("Invalid empty property type ") ;
 			return false;
 		}
-		
+
 		if (enumVals.size()> 1) return true ;
 		type = enumVals.iterator().next() ;
 
@@ -441,7 +441,7 @@ public final class Util {
 		}
 		return true ;
 	}
-	
+
 	/**
 	 * only string, int, boolean and enumerations attributes are accepted.
 	 * Return the value if it is correct.
@@ -598,12 +598,12 @@ public final class Util {
 			if (br != null) br.close();
 		}
 	}
-	
-	
+
+
 	public static Set<Instance> getSharableInsts(Instance client, Set<Instance> validInsts) {
 		if (validInsts == null) return null ;
 		Set<Instance> ret = new HashSet<Instance> () ;
-		
+
 		for (Instance inst : validInsts) {
 			if (inst.isSharable()) {
 				ret.add(inst) ;
@@ -746,7 +746,7 @@ public final class Util {
 	 * @param generic: the dep comes from the composite type. It can override the exception, and has hidden and eager.
 	 * @return
 	 */
-	private static void overrideDepFlags (DependencyDeclaration dependency, DependencyDeclaration dep, boolean generic) {
+	public static void overrideDepFlags (DependencyDeclaration dependency, DependencyDeclaration dep, boolean generic) {
 		//If set, cannot be changed by the group definition.
 		//NOTE: This strategy is because it cannot be compiled, and we do not want to make an error during resolution
 		if (dependency.getMissingPolicy() == null || (generic && dep.getMissingPolicy() != null)) {
@@ -764,9 +764,7 @@ public final class Util {
 	}
 
 	/**
-	 * The dependencies "depName" that apply on a client are those of the instance, plus those of the implem,
-	 * plus those of the spec, and finally those in the composite.
-	 * We aggregate the constraints as found at all level, including the generic one found in the composite type.
+	 * We aggregate the constraints with the generic one found in the composite type.
 	 * We compute also the dependency flags.
 	 *
 	 * @param client
@@ -777,40 +775,22 @@ public final class Util {
 
 		//Find the first dependency declaration.
 		Component depComponent = client ;
-
-		//take the declaration declared at the most concrete level
-		DependencyDeclaration dependency = client.getApformInst().getDeclaration().getDependency(depName);
+		DependencyDeclaration dependency = null ;
+		
+		while (depComponent != null && dependency == null) {
+			dependency = depComponent.getDeclaration().getDependency(depName);
+			depComponent = depComponent.getGroup();
+		}
+		
+		//Should never happen
 		if (dependency == null) {
-			dependency = client.getImpl().getApformImpl().getDeclaration().getDependency(depName);
-			depComponent = client.getImpl() ;
+			logger.error("Invalid dependency " + depName + " for instance " + client + ".  Not declared ") ;
+			return null ;
 		}
-
-		//the dependency can be defined at spec level if implem is a composite
-		if (dependency == null) {
-			dependency = client.getSpec().getApformSpec().getDeclaration().getDependency(depName);
-			depComponent =client.getSpec();
-		}
-
-		if (dependency == null) return null ;
-
-		//Now compute the inheritance instance, Implem, Spec.
-		dependency = dependency.clone();
-		Component group = depComponent.getGroup() ;
-
-		while (group != null) {
-			for (DependencyDeclaration dep : group.getDeclaration().getDependencies()) {
-				if (dep.getIdentifier().equals(dependency.getIdentifier())) {
-					overrideDepFlags (dependency, dep, false);
-					dependency.getImplementationConstraints().addAll(dep.getImplementationConstraints()) ;
-					dependency.getInstanceConstraints().addAll(dep.getInstanceConstraints()) ;
-					dependency.getImplementationPreferences().addAll(dep.getImplementationPreferences()) ;
-					dependency.getInstancePreferences().addAll(dep.getInstancePreferences()) ;
-					break ;
-				}
-			}
-			group = group.getGroup() ;
-		}
-
+		
+		//Do not change the declared dependency
+		dependency = dependency.clone() ;
+		
 		//Add the composite generic constraints
 		CompositeType compoType = client.getComposite().getCompType() ;
 		Map<String, String> validAttrs = client.getValidAttributes() ;
@@ -836,6 +816,7 @@ public final class Util {
 		}
 		return dependency ;
 	}
+
 
 	/**
 	 * Provided a composite (compoInst), checks if the provided generic dependency constraint declaration

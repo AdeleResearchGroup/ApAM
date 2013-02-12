@@ -35,13 +35,8 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 
 public class ApamCapability {
 
-//	private static Logger logger = LoggerFactory.getLogger(ApamCapability.class);
-
 	private static Map<String, ApamCapability> capabilities = new HashMap<String, ApamCapability>();
-	//	private static List <ComponentDeclaration> components   = new ArrayList<ComponentDeclaration>();
-	//	private static List <ComponentDeclaration> dependencies = new ArrayList<ComponentDeclaration>();
 	private static Set<String> missing = new HashSet<String>();
-
 	
 	//	Capability cap = null ;
 	public ComponentDeclaration dcl = null ;
@@ -50,16 +45,7 @@ public class ApamCapability {
 	private Map <String, String> properties ;
 	private Map <String,String>  propertiesTypes 	=  new HashMap <String, String> ();
 	private Map <String,String>  propertiesDefaults =  new HashMap <String, String> ();
-
 	private Map <String, String> finalProperties = new HashMap <String, String> () ;
-
-
-	//If true, no obr repository found. Cannot look for the other componentss
-	//	private static boolean noRepository = true ;
-	//
-	//	private static DataModelHelper dataModelHelper; 
-	//	private static String repos = "";
-	//	private static List<Resource> resources = new ArrayList<Resource> ();
 
 	public ApamCapability (ComponentDeclaration dcl) {
 		this.dcl = dcl ;
@@ -95,6 +81,7 @@ public class ApamCapability {
 	}
 
 	public static ComponentDeclaration getDcl(ComponentReference<?> reference) {
+		if (reference == null) return null ;
 		if (capabilities.get(reference.getName()) != null)
 			return capabilities.get(reference.getName()).dcl;
 		return null ;

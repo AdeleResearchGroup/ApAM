@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
@@ -206,12 +208,12 @@ public class CheckObr {
 	public static boolean checkProperty (ComponentDeclaration component, String name, String type, String defaultValue) {
 		if (defaultValue == null)
 			defaultValue = "";
-		
+
 		ApamCapability group = ApamCapability.get(component.getGroupReference()) ;
 		if (group != null && group.getAttrDefinition(name) != null) {
 			CheckObr.error ("Property " + name + " allready defined in the group.") ;
 		}
-		
+
 		//We have a default value, check it as if a property.
 		if (type != null && defaultValue != null && !defaultValue.isEmpty()) {
 			if (Util.checkAttrType(name, defaultValue, type) != null) {
@@ -221,13 +223,13 @@ public class CheckObr {
 				return false ;
 			}
 		}
-		
+
 		//no default value. Only check if the type is valid
 		if (!Util.validAttrType (type)) {
 			CheckObr.setFailedParsing(true) ; 
 			return false ;
 		}
-		
+
 		return true ;
 	}
 	/**
@@ -418,29 +420,53 @@ public class CheckObr {
 					+ " instead of " + compositeInterfaces);
 	}
 
+
+	/**
+	 * Checks if a class or interface exists among the bundles read by Maven to compile.
+	 * Note we cannot know 
+	 * @param interf
+	 * @return
+	 */
+	public static boolean checkInterfaceExist (String interf) {
+		//Checking if the interface is existing
+		if (interf != null && OBRGeneratorMojo.classpathDescriptor
+				.getElementsHavingClass(interf) == null) {
+			CheckObr.error("Provided Interface " + interf + " does not exist in your Maven dependencies") ;
+			return false ;
+		}
+		return true ;
+	}
+
 	/**
 	 * For all kinds of components checks the dependencies : fields (for
 	 * implems), and constraints.
 	 * 
 	 * @param component
 	 */
-	public static void checkDependencies(Set<DependencyDeclaration> deps) {
-		// Set<DependencyDeclaration> deps = component.getDependencies();
-		if (deps == null)
+	public static void checkDependencies(ComponentDeclaration component) {
+		Set<DependencyDeclaration> deps = component.getDependencies() ;	
+		if (deps == null || deps.isEmpty())
 			return;
+
 		CheckObr.allFields.clear();
 		Set<String> depIds = new HashSet<String>();
+
 		for (DependencyDeclaration dep : deps) {
+
+			//Checking for double dependency Id
 			if (depIds.contains(dep.getIdentifier())) {
 				CheckObr.error("Dependency " + dep.getIdentifier()
 						+ " allready defined.");
 			} else
 				depIds.add(dep.getIdentifier());
+
 			// validating dependency constraints and preferences..
 			CheckObr.checkConstraint(dep);
+
 			// Checking fields and complex dependencies
 			CheckObr.checkFieldTypeDep(dep);
 
+			//eager and hide cannot be defined here
 			if (dep.isEager() != null || dep.isHide() != null) {
 				CheckObr.error("Cannot set flags \"eager\" or \"hide\" on a dependency "
 						+ dep.getIdentifier());
@@ -448,21 +474,103 @@ public class CheckObr {
 
 			// Checking if the exception is existing
 			String except = dep.getMissingException();
-			// for (String cp :
-			// (Set<String>)OBRGeneratorMojo.classpathDescriptor.getClasss()) {
-			// System.out.println(cp);
-			// }
-			//
 			if (except != null
 					&& OBRGeneratorMojo.classpathDescriptor
 					.getElementsHavingClass(except) == null) {
 				error("Exception " + except + " undefined in " + dep);
 			}
+
+			//Checking if the interface is existing
+			if (dep.getTarget() instanceof ResourceReference) {
+				checkInterfaceExist(dep.getTarget().getName());
+			}		
+
+			//replace the definition by the effective dependency (adding group definition)
+			computeGroupDependency (component, dep);
 		}
 	}
 
-	// public static void checkRequire(Set<DependencyDeclaration> deps) {
-	// Set<DependencyDeclaration> deps = component.getDependencies();
+
+/**
+ * Provided a dependency declaration, compute the effective dependency, adding group constraint and flags.
+ * Compute which is the good target, and check the targets are compatible. 
+ * If needed changes the target to set the more general one.
+ * @param depComponent
+ * @param dependency
+ * @return
+ */
+	public static DependencyDeclaration computeGroupDependency (ComponentDeclaration depComponent, DependencyDeclaration dependency) {
+		String depName = dependency.getIdentifier() ;
+
+		//look for that dependency declaration above
+		ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
+		DependencyDeclaration groupDep = null ;
+		while (group != null && (groupDep == null)) {
+			groupDep = group.getDependency(depName) ;
+			group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
+		}
+
+		if (groupDep == null) {
+			//It is not defined above. Return it as is.
+			return dependency ;
+		}
+
+		//it is declared above. Merge and check.
+		//First merge flags, and then constraints.
+		Util.overrideDepFlags (dependency, groupDep, false);
+		dependency.getImplementationConstraints().addAll(groupDep.getImplementationConstraints()) ;
+		dependency.getInstanceConstraints().addAll(groupDep.getInstanceConstraints()) ;
+		dependency.getImplementationPreferences().addAll(groupDep.getImplementationPreferences()) ;
+		dependency.getInstancePreferences().addAll(groupDep.getInstancePreferences()) ;		
+
+		//Check if the targets are compatible. Keep the most general one;
+		if (dependency.getTarget() == null) {
+			//set the target
+			dependency.setTarget(groupDep.getTarget()) ;
+			return dependency ;
+		} 
+		if (dependency.getTarget() instanceof ResourceReference) {
+			//It is an interface or message. So either the same interface, or an interface of the group component
+			if (groupDep.getTarget() instanceof ResourceReference) {
+				//must be the same one
+				if (groupDep.getTarget().equals(dependency.getTarget())) 
+					return dependency ;
+				CheckObr.error ("Invalid target for dependency " + dependency + " expected " + groupDep.getTarget()) ;
+				return null ;
+			}
+			//group is against a component. Check if that component implements the resource.
+			ComponentDeclaration groupTarget = ApamCapability.getDcl(((ComponentReference<?>)groupDep.getTarget())) ;
+			if (groupTarget.getProvidedResources().contains((ResourceReference)dependency.getTarget())) {
+				//Keep the component as target
+				dependency.setTarget(groupDep.getTarget()) ;
+				return dependency ;
+			}
+			CheckObr.error ("Invalid target for dependency " + dependency + " In component " + groupDep + " dependency " 
+					+ depName + " is definned against " + groupDep.getTarget() + " which does not implement " + dependency.getTarget()) ;
+			return null ;
+		}
+
+		//target is a component reference, group should be too
+		if (!(groupDep.getTarget() instanceof ComponentReference<?>)) {
+			CheckObr.error ("Invalid target for dependency " + dependency + " In component " + groupDep + " dependency " 
+					+ depName + " is definned against " + groupDep.getTarget() ) ;
+			return null ;
+		}
+		//Should be the same or "above". The group target is supposed to be above the current dependency target.
+			
+		ComponentDeclaration targetCompo = ApamCapability.getDcl(((ComponentReference<?>)dependency.getTarget())) ;
+		while (targetCompo != null) {
+			if (targetCompo.getReference().equals(groupDep.getTarget())) {
+				dependency.setTarget(groupDep.getTarget()) ;
+				return dependency ;							
+			}
+			targetCompo = ApamCapability.getDcl(targetCompo.getGroupReference()) ;
+		}
+		CheckObr.error ("Invalid target for dependency " + dependency + " In component " + groupDep + " dependency " 
+				+ depName + " is definned against " + groupDep.getTarget() ) ;
+		return null ;		
+	}
+
 
 	/**
 	 * Provided a dependency "dep" (simple or complex) checks if the field type
@@ -475,16 +583,13 @@ public class CheckObr {
 	 *            : the component currently analyzed
 	 */
 	private static void checkFieldTypeDep(DependencyDeclaration dep) {
-		// if (!(component instanceof AtomicImplementationDeclaration)) return ;
-
 		// All field must have same multiplicity, and must refer to interfaces
 		// and messages provided by the
 		// specification.
-
 		Set<ResourceReference> specResources = new HashSet<ResourceReference>();
 
 		if (dep.getTarget() instanceof ComponentReference<?>) {
-			ApamCapability cap = ApamCapability.get((ComponentReference) dep
+			ApamCapability cap = ApamCapability.get((ComponentReference<?>) dep
 					.getTarget());
 			if (cap == null)
 				return;
@@ -494,9 +599,7 @@ public class CheckObr {
 		}
 
 		for (DependencyInjection innerDep : dep.getInjections()) {
-
 			String type = innerDep.getResource().getJavaType();
-
 			if (!(innerDep.getResource() instanceof UndefinedReference)
 					&& !(specResources.contains(innerDep.getResource()))) {
 				CheckObr.error("Field "
@@ -587,7 +690,7 @@ public class CheckObr {
 	 */
 	private static void checkStart(CompositeDeclaration component) {
 		for (InstanceDeclaration start : component.getInstanceDeclarations()) {
-			ImplementationReference implRef = start.getImplementation();
+			ImplementationReference<?> implRef = start.getImplementation();
 			if (implRef == null) {
 				error("Implementation name cannot be null");
 				continue;
@@ -606,7 +709,8 @@ public class CheckObr {
 							+ start.getProperties().get(attr));
 				}
 			}
-			checkDependencies(start.getDependencies());
+			
+			checkDependencies(start);
 
 			checkTrigger(start);
 		}
@@ -616,7 +720,7 @@ public class CheckObr {
 		Set<ConstrainedReference> trig = start.getTriggers();
 		for (ConstrainedReference ref : trig) {
 			ResolvableReference target = ref.getTarget();
-			ComponentReference compoRef = target.as(ComponentReference.class);
+			ComponentReference<?> compoRef = target.as(ComponentReference.class);
 			if (compoRef == null) {
 				error("Start trigger not related to a valid component");
 				continue;
@@ -650,7 +754,7 @@ public class CheckObr {
 			return null;
 		}
 
-		ComponentReference compo = ref.getDeclaringComponent();
+		ComponentReference<?> compo = ref.getDeclaringComponent();
 		if (!(compo instanceof ImplementationReference)) {
 			error("A state must be associated with an implementation.");
 			return null;
@@ -686,7 +790,7 @@ public class CheckObr {
 			return true;
 
 		try {
-			ApamFilter f = ApamFilter.newInstance(expr, false);
+			ApamFilter.newInstance(expr, false);
 		} catch (Exception e) {
 			error("Bad filter in visibility expression " + expr);
 			return false;
@@ -699,12 +803,6 @@ public class CheckObr {
 		if (!visibilityExpression(visiDcl.getApplicationInstances()))
 			error("bad expression in ExportApp visibility: "
 					+ visiDcl.getApplicationInstances());
-		// if (!visibilityExpression(visiDcl.getFriendImplementations()))
-		// error("bad expression in Friend implementation visibility: " +
-		// visiDcl.getFriendImplementations());
-		// if (!visibilityExpression(visiDcl.getFriendInstances()))
-		// error("bad expression in Friend instance visibility: " +
-		// visiDcl.getFriendInstances());
 		if (!visibilityExpression(visiDcl.getExportImplementations()))
 			error("bad expression in Export implementation visibility: "
 					+ visiDcl.getExportImplementations());
@@ -801,10 +899,8 @@ public class CheckObr {
 		// Get state definition
 		Set<String> stateDefinition = checkState(component);
 		if (stateDefinition == null || stateDefinition.isEmpty()) { // No valid
-			// state
-			// declaration.
-			// No valid
-			// grants.
+			// state declaration.
+			// No valid grants.
 			return;
 		}
 
@@ -862,13 +958,8 @@ public class CheckObr {
 					found = true;
 
 					// Check if the dependency leads to the OWNed component
-					if (depend.getTarget().getClass().equals(owned.getClass()) /*
-					 * same
-					 * type
-					 * spec
-					 * or
-					 * implem
-					 */
+					if (depend.getTarget().getClass().equals(owned.getClass()) 
+							/* same type spec or implem	 */
 							&& (depend.getTarget().getName().equals(owned
 									.getName()))) {
 						break;
