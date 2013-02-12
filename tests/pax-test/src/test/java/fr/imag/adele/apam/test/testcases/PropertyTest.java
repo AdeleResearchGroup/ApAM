@@ -371,7 +371,7 @@ public class PropertyTest extends ExtensionAbstract {
 		final String propertyName = "setInt";
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
-				"SamsungSwitch");
+				"SpecFilterSwitch");
 
 		Object RawType = implementation.getPropertyObject(propertyName); //allproperties.get(propertyName);
 
@@ -398,7 +398,7 @@ public class PropertyTest extends ExtensionAbstract {
 		final String propertyName = "setInteger";
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
-				"SamsungSwitch");
+				"SpecFilterSwitch");
 
 		Object RawType = implementation.getPropertyObject(propertyName);
 
@@ -425,7 +425,7 @@ public class PropertyTest extends ExtensionAbstract {
 		final String propertyName = "setString";
 
 		Implementation implementation = CST.apamResolver.findImplByName(null,
-				"SamsungSwitch");
+				"SpecFilterSwitch");
 
 		Object RawType = implementation.getPropertyObject(propertyName);
 
