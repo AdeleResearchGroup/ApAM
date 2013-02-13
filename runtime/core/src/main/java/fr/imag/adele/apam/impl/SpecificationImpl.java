@@ -57,7 +57,7 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 		/*
 		 * Terminates the initalisation, and computes properties
 		 */
-		initializeProperties(initialProperties) ;
+		finishInitialize(initialProperties) ;
 
 		/*
 		 * Add to broker

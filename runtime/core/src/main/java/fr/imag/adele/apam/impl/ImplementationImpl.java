@@ -169,7 +169,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		/*
 		 * Terminates the initialization, and computes properties
 		 */
-		initializeProperties(initialProperties);
+		finishInitialize(initialProperties);
 
 		/*
 		 * Add to broker

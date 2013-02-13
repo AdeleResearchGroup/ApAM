@@ -26,9 +26,9 @@ public interface ApamComponent {
 
     void apamRemove();
     
-    void wiredFor (String resource) ;
-    
-    void unWiredFor (String resource) ;
+//    void wiredFor (String resource) ;
+//    
+//    void unWiredFor (String resource) ;
     
 
 }

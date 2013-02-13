@@ -35,8 +35,9 @@ public class Select {
 	 */
 	@SuppressWarnings("unchecked") 
 	public static Instance selectBestInstance (Set<Implementation> impls, Set<Instance> insts, DependencyDeclaration dependency) {
-		assert (!insts.isEmpty()) ;
-
+		//assert (!insts.isEmpty()) ;
+		if (insts == null || insts.isEmpty()) 
+			return null ;
 		/*
 		 * No choice, take that instance; and return its implem, even if not visible.
 		 */
@@ -145,10 +146,10 @@ public class Select {
      */
 	public static  <T extends Component> T getPrefered (Set<T> candidates, List<Filter> preferences ) {
         if (candidates == null || candidates.isEmpty()) return null ;
+		if (candidates.size() == 1) return candidates.iterator().next() ;
 		if (preferences == null || preferences.isEmpty()) {
 			return getDefaultComponent(candidates) ;
         }
-		if (candidates.size() == 1) return candidates.iterator().next() ;
 
         Set<T> valids = new HashSet<T> ();
         for (Filter f : preferences) {
@@ -180,18 +181,18 @@ public class Select {
      * @param candidates
      * @return
      */
-    public static <T extends Component> T getDefaultComponent (Set<T> candidates) {
+    private static <T extends Component> T getDefaultComponent (Set<T> candidates) {
 		if (candidates == null || candidates.isEmpty()) return null ;
+    	if (!(candidates.iterator().next() instanceof Implementation)) 
+    		return candidates.iterator().next() ;
+    	
         for (T impl : candidates) {
-            if (! (impl instanceof Implementation)) return impl ;
+            if (impl.isInstantiable())
+                return impl;
             for (Component inst : impl.getMembers()) {
                 if (((Instance)inst).isSharable())
                     return impl;
             }
-        }
-        for (T impl : candidates) {
-            if (impl.isInstantiable())
-                return impl;
         }
         return candidates.iterator().next();
     }

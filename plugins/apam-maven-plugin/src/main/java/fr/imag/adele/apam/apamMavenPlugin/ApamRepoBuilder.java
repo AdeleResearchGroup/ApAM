@@ -159,7 +159,7 @@ public class ApamRepoBuilder {
 		printRequire(obrContent, component);
 
 
-		//		generateTypedProperty(obrContent, component, "version", "version", OBRGeneratorMojo.thisBundleVersion) ;
+		generateTypedProperty(obrContent, component, "version", "version", OBRGeneratorMojo.thisBundleVersion) ;
 		ApamCapability.get(component.getReference()).finalize() ;
 		obrContent.append("   </capability>\n");
 	}

@@ -16,7 +16,7 @@ package fr.imag.adele.apam.test.s2Impl;
 
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.test.s2.S2;
+import apam.test.dependency.S2;
 import fr.imag.adele.apam.test.s3.S3_1;
 import fr.imag.adele.apam.test.s4.S4;
 
@@ -57,4 +57,5 @@ public class S2Simple implements S2, ApamComponent {
         // TODO Auto-generated method stub
 
     }
-}
+
+	}

@@ -37,7 +37,7 @@ public class FibMain implements Runnable, ApamComponent{
 		if (param != null) {
 			try {
 				String[] params = Util.split(param) ;
-				int n = Integer.parseInt(params[1]);
+				int n = Integer.parseInt(params[0]);
 				nb = n ;
 			}
 			catch (Exception e) {
@@ -51,11 +51,9 @@ public class FibMain implements Runnable, ApamComponent{
 	public void apamRemove() {
 	}
 
-	@Override
 	public void wiredFor(String resource) {
 	}
 
-	@Override
 	public void unWiredFor(String resource) {
 	}
 

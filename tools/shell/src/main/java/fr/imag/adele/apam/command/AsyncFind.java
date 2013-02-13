@@ -51,9 +51,14 @@ public class AsyncFind implements Runnable {
     @Override
     public void run() {
         Component  component= CST.apamResolver.findComponentByName(target, componentName);
-        if (params != null) {
+        if (params != null && params.length > 1) {
         	props = new HashMap <String, String> () ;
-        	props.put ("param", Util.toStringArrayString(params)) ; 
+        	String value = "";
+        	//Skip first values, which is the component name
+        	for (int i = 1 ; i < params.length ;i++) {
+        		value +=  params[i] + ", " ;
+        	}
+        	props.put ("param", value) ; 
         } else props = null ;
         
         if (component!=null){

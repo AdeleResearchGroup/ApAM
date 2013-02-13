@@ -27,9 +27,9 @@
 		<definition name="b" type="boolean" value="true" />
 		<definition name="c" type="string" />
 		<definition name="Dd" type="int" />
-		<dependency interface="example.S4" id="xxx" />
-		<dependency interface="example.S3" id="yyy" />
-		<dependency message="example.DataType2" id="yy" />
+<!-- 		<dependency interface="example.S4" id="xxx" /> -->
+<!-- 		<dependency interface="example.S3" id="yyy" /> -->
+<!-- 		<dependency message="example.DataType2" id="yy" /> -->
 	</specification>
 
 </apam>

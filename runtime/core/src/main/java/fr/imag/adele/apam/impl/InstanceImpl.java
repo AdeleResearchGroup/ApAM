@@ -173,7 +173,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         /*
          * Terminates the initialization, and computes properties
          */
-        initializeProperties(initialproperties);
+        finishInitialize(initialproperties);
 
         /*
          * Add to broker

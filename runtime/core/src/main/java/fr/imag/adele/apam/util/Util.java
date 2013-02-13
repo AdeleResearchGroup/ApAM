@@ -495,19 +495,19 @@ public final class Util {
 				return value ; 
 			}
 
-			if (type.equals("int") || type.equals("integer")) {
+			if (type.equals("int")) {
 				try {
 					if (values.size() == 1) {
 						// the only case where we return something else than a string !
 						return Integer.parseInt(values.iterator().next());
 					}
-					Set<Integer> intArray = new HashSet<Integer> () ;
+					//Set<Integer> intArray = new HashSet<Integer> () ;
 					for (String val : values) {
-						intArray.add (Integer.parseInt(val));
+						Integer.parseInt(val);
 					}
-					System.err.println("tableau de Integer : " + intArray.toString() + " en string : " + value);
+					//System.err.println("tableau de Integer : " + intArray.toString() + " en string : " + value);
 					//unfortunately, match does not recognizes a set of integer.
-					//return intArray ;
+					//return the list as a string  ;
 					return value ;
 				} catch (Exception e) {
 					logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
@@ -772,43 +772,50 @@ public final class Util {
 	 * @return
 	 */
 	public static DependencyDeclaration computeEffectiveDependency (Instance client, String depName) {
-
 		//Find the first dependency declaration.
-		Component depComponent = client ;
-		DependencyDeclaration dependency = null ;
-		
-		while (depComponent != null && dependency == null) {
-			dependency = depComponent.getDeclaration().getDependency(depName);
-			depComponent = depComponent.getGroup();
-		}
+		DependencyDeclaration dependency = client.getDeclaration().getDependency(depName) ;
+		if (dependency == null) {
+			//Only defined in the implementation
+			dependency = client.getGroup().getDeclaration().getDependency(depName) ;
+		} 
+//		else {
+//			//the dependency is defined both at instance and implementation level
+//			DependencyDeclaration groupDep = client.getGroup().getDeclaration().getDependency(depName) ;
+//			Util.overrideDepFlags (dependency, groupDep, false);
+//			dependency.getImplementationConstraints().addAll(groupDep.getImplementationConstraints()) ;
+//			dependency.getInstanceConstraints().addAll(groupDep.getInstanceConstraints()) ;
+//			dependency.getImplementationPreferences().addAll(groupDep.getImplementationPreferences()) ;
+//			dependency.getInstancePreferences().addAll(groupDep.getInstancePreferences()) ;		
+//
+//			//set the target
+//			dependency.setTarget(groupDep.getTarget()) ;
+//		}		
 		
 		//Should never happen
-		if (dependency == null) {
+		if (dependency == null || dependency.getTarget() == null) {
 			logger.error("Invalid dependency " + depName + " for instance " + client + ".  Not declared ") ;
 			return null ;
 		}
 		
-		//Do not change the declared dependency
-		dependency = dependency.clone() ;
+		List<DependencyDeclaration> ctxtDcl = client.getComposite().getCompType().getCompoDeclaration().getContextualDependencies() ;
+		if (ctxtDcl == null || ctxtDcl.isEmpty())
+			return dependency ;
 		
 		//Add the composite generic constraints
-		CompositeType compoType = client.getComposite().getCompType() ;
+		//But do not change the declared dependency
+		dependency = dependency.clone() ;	
 		Map<String, String> validAttrs = client.getValidAttributes() ;
-		for ( DependencyDeclaration  genDep  : compoType.getCompoDeclaration().getContextualDependencies()) {
-
+		for ( DependencyDeclaration  genDep  : ctxtDcl) {
 			if (matchGenericDependency(client, genDep, dependency)) {
 				overrideDepFlags (dependency, genDep, true) ;
 
 				if (Util.checkFilters(genDep.getImplementationConstraints(), null, validAttrs, client.getName())) {
 					dependency.getImplementationConstraints().addAll(genDep.getImplementationConstraints()) ;
 				}
-
 				dependency.getInstanceConstraints().addAll(genDep.getInstanceConstraints()) ;
-
 				if (Util.checkFilters(null, genDep.getImplementationPreferences(), validAttrs, client.getName())) {
 					dependency.getImplementationPreferences().addAll(genDep.getImplementationPreferences()) ;
 				}
-
 				if (Util.checkFilters(null, genDep.getInstancePreferences(), validAttrs, client.getName())) {
 					dependency.getInstancePreferences().addAll(genDep.getInstancePreferences()) ;
 				}

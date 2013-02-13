@@ -55,11 +55,9 @@ public class Fibonacci implements Fib, ApamComponent {
 	public void apamRemove() {
 	}
 
-	@Override
 	public void wiredFor(String resource) {
 	}
 
-	@Override
 	public void unWiredFor(String resource) {
 	}
 

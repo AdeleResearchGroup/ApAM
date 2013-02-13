@@ -25,6 +25,7 @@
     </encoder>
   </appender>
   
+  
   <!--  log to file test.log  -->
   <appender name="TEST_LOG" class="ch.qos.logback.core.FileAppender">
     <file>test.log</file>

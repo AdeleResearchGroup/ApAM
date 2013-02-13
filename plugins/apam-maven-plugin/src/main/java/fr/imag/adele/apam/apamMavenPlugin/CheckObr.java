@@ -428,8 +428,9 @@ public class CheckObr {
 	 */
 	public static boolean checkInterfaceExist (String interf) {
 		//Checking if the interface is existing
-		if (interf != null && OBRGeneratorMojo.classpathDescriptor
-				.getElementsHavingClass(interf) == null) {
+		//Can be "<Unavalable>" for generic collections, since it is not possible to get the type at compile time
+		if (interf == null || interf.equals("<Unavailable>")) return true ;
+		if (OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(interf) == null) {
 			CheckObr.error("Provided Interface " + interf + " does not exist in your Maven dependencies") ;
 			return false ;
 		}
@@ -462,6 +463,9 @@ public class CheckObr {
 			// validating dependency constraints and preferences..
 			CheckObr.checkConstraint(dep);
 
+			//replace the definition by the effective dependency (adding group definition)
+			computeGroupDependency (component, dep);
+
 			// Checking fields and complex dependencies
 			CheckObr.checkFieldTypeDep(dep);
 
@@ -484,8 +488,6 @@ public class CheckObr {
 				checkInterfaceExist(dep.getTarget().getName());
 			}		
 
-			//replace the definition by the effective dependency (adding group definition)
-			computeGroupDependency (component, dep);
 		}
 	}
 
@@ -506,7 +508,7 @@ public class CheckObr {
 		DependencyDeclaration groupDep = null ;
 		while (group != null && (groupDep == null)) {
 			groupDep = group.getDependency(depName) ;
-			group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
+			group = ApamCapability.getDcl(group.getGroupReference()) ;
 		}
 
 		if (groupDep == null) {
@@ -582,22 +584,6 @@ public class CheckObr {
 	 *            : the component currently analyzed
 	 */
 	private static void checkFieldTypeDep(DependencyDeclaration dep) {
-//<<<<<<< HEAD
-//		// All field must have same multiplicity, and must refer to interfaces
-//		// and messages provided by the
-//		// specification.
-//		Set<ResourceReference> specResources = new HashSet<ResourceReference>();
-//
-//		if (dep.getTarget() instanceof ComponentReference<?>) {
-//			ApamCapability cap = ApamCapability.get((ComponentReference<?>) dep
-//					.getTarget());
-//			if (cap == null)
-//				return;
-//			specResources = cap.getProvideResources();
-//		} else {
-//			specResources.add(dep.getTarget().as(ResourceReference.class));
-//=======
-
 		// All field must have same multiplicity, and must refer to interfaces
 		// and messages provided by the specification.
 		
@@ -606,6 +592,9 @@ public class CheckObr {
 
 		Set<ResourceReference> allowedTypes = new HashSet<ResourceReference>();
 
+		// possible if only the dep ID is provided. Target will be computed later
+		if (dep.getTarget() == null) return ;
+		
 		ComponentReference<?> targetComponent =  dep.getTarget().as(ComponentReference.class);
 		
 		// If not explicit component target, it must be an interface reference
@@ -627,7 +616,6 @@ public class CheckObr {
 			String implementationClass = cap.getImplementationClass();
 			if (implementationClass != null)
 				allowedTypes.add(new ImplementatioClassReference(implementationClass));
-//>>>>>>> 793f5db9729549a679bd58ba44529aa1326ced5a
 		}
 
 		for (DependencyInjection innerDep : dep.getInjections()) {

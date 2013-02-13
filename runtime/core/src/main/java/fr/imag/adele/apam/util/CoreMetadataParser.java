@@ -773,8 +773,8 @@ public class CoreMetadataParser implements CoreParser {
 		 * If no target was specified signal the error
 		 */
 		if (target == null && !(component instanceof AtomicImplementationDeclaration)) {
-			errorHandler.error(Severity.ERROR, "dependency target must be specified " + element);
-			target = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
+			//errorHandler.error(Severity.ERROR, "dependency target must be specified " + element);
+			//target = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
 			dependency = new DependencyDeclaration(component.getReference(), id, isMultiple, target);
 		}
 

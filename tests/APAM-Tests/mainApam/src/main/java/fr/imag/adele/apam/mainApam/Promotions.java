@@ -61,13 +61,11 @@ public class Promotions implements Runnable, ApamComponent {
 
     }
 
-	@Override
 	public void wiredFor(String resource) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
 	public void unWiredFor(String resource) {
 		// TODO Auto-generated method stub
 		

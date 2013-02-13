@@ -219,7 +219,7 @@
 
 
 	<!-- Les implems de DepS2 -->
-	<implementation name="Impl1" messages="p1"
+	<implementation name="Impl1" 
 		classname="apam.test.dependency.S2Simple" specification="DepS2">
 		<definition name="fieldAttr" field="theFieldAttr" internal="true"
 			type="string" value="bidon" />

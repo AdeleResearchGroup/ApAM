@@ -35,6 +35,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
@@ -84,11 +85,59 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	}
 
+
+/**
+ * To be called when the object is fully loaded and chained.
+ * Terminate the generic initialization : computing the dependencies, and the properties
+ * @param initialProperties
+ */
+	public void finishInitialize (Map<String, String> initialProperties) {
+		computeGroupDependency () ;
+		initializeProperties (initialProperties) ;
+	}
+	
+	/**
+	 * Provided a dependency declaration, compute the effective dependency, adding group constraint and flags.
+	 * Compute which is the good target, and check the targets are compatible. 
+	 * If needed changes the target to set the more general one.
+	 * It is supposed to be correct !! No failure expected
+	 * @param depComponent
+	 * @param dependency
+	 * @return
+	 */
+	private void computeGroupDependency () {
+		for (DependencyDeclaration dependency : this.getDeclaration().getDependencies() ) {
+			Component group = getGroup() ;
+			//look for that dependency declaration above
+			DependencyDeclaration groupDep = null ;
+			while (group != null && (groupDep == null)) {
+				groupDep = group.getDeclaration().getDependency(dependency.getIdentifier()) ;
+				group = getGroup() ;
+			}
+
+			if (groupDep == null) {
+				//It is not defined above. Do not change it.
+				continue ;
+			}
+
+			//it is declared above. Merge and check.
+			//First merge flags, and then constraints.
+			Util.overrideDepFlags (dependency, groupDep, false);
+			dependency.getImplementationConstraints().addAll(groupDep.getImplementationConstraints()) ;
+			dependency.getInstanceConstraints().addAll(groupDep.getInstanceConstraints()) ;
+			dependency.getImplementationPreferences().addAll(groupDep.getImplementationPreferences()) ;
+			dependency.getInstancePreferences().addAll(groupDep.getInstancePreferences()) ;		
+
+			//set the target
+			dependency.setTarget(groupDep.getTarget()) ;
+		}
+	}
+
 	/**
 	 * to be called once the Apam entity is fully initialized.
 	 * Computes all its attributes, including inheritance.
 	 */
-	public void initializeProperties (Map<String, String> initialProperties) {
+	private void initializeProperties (Map<String, String> initialProperties) {
 		/*
 		 * get the initial attributes from declaration and overriden initial
 		 * properties
@@ -130,7 +179,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 					if (val != null)
 						put (definition.getName(),val) ;
 				}
-					
+
 			}
 		}
 
@@ -259,7 +308,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			logger.error("No definition for attribute " + attribute) ; 
 			return null ;
 		}
-		
+
 		String type = def.getType() ; 
 		if (type == null) return null ;
 		Object val = get(attribute) ;
@@ -302,7 +351,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		//value is a set of String
 		return enumVals;
 	}
-	
+
 	/**
 	 * Warning: to be used only by Apform for setting internal attributes.
 	 * Only Inhibits the message "Attribute " + attr +  " is an internal field attribute and cannot be set.");
@@ -324,7 +373,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	public boolean setPropertyObject (String attribute, Object value) {
 		return setPropertyObjectInternal (attribute, value, false) ;
 	}
-	
+
 	/**
 	 * Set the value of a property, the property can be valued in this component or in its
 	 * defining group
@@ -438,7 +487,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			}
 		}
 		String setString = sVal.toString() ;
-		
+
 		// A set of string, allway valid
 		if (l==1 && aType.equals("string")) {
 			put (attribute,setString) ;
@@ -488,8 +537,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		//does the change, notifies, changes the platform and propagate to members
 		this.propagate (attr, val) ;
 		return true ;
-//
-//		return setPropertyInt(attr, value, false);
+		//
+		//		return setPropertyInt(attr, value, false);
 	}
 
 
