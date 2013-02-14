@@ -51,11 +51,18 @@
 					</div> 
 					<div class="span2"></div>
 				</div> 
-				
+
 				<br><br><br>
+								<script>
+
+// create a new image with the src pointing to the user's gravatar
+var gravatar = $('<img>').attr({src: 'http://www.gravatar.com/avatar/' + md5('elmehdi.damou@imag.fr')});
+// append this new image to some div, or whatever
+$('#mehdi').append(gravatar);
+</script>
 				<div class="row-fluid">
-					<div class="span4" align="middle">
-						<img src="img/damou.jpeg" alt="Elmehdi DAMOU" width="40%" height="40%">
+					<div id="mehdi" class="span4" align="middle">
+						
 					</div>
 					<div class="span6" align="middle">
 						<address>
