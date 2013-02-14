@@ -26,6 +26,7 @@ import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.apache.felix.ipojo.parser.MethodMetadata;
 import org.apache.felix.ipojo.util.Callback;
 
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
 import fr.imag.adele.apam.apform.impl.ApformImplementationImpl;
 import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
@@ -108,31 +109,35 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
     }
 	
 	@Override
-	public Object onGet(Object pojo, String fieldName, Object value) {
+	public Object onGet(Object pojo, String fieldName, Object currentValue) {
 		
 		if (getInstanceManager().getApamInstance() == null) {
-            return value;
+            return currentValue;
 		}
 		
     	if (!(getFactory() instanceof ApformImplementationImpl))
-    		return value;
+    		return currentValue;
 
     	ApformImplementationImpl implementation	= (ApformImplementationImpl) getFactory();
     	ImplementationDeclaration declaration		= implementation.getDeclaration();
     	
     	if (! (declaration instanceof AtomicImplementationDeclaration))
-    		return value;
+    		return currentValue;
     	
     	AtomicImplementationDeclaration primitive	= (AtomicImplementationDeclaration) declaration;
     	for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
     		
     		if (definition.getField() != null && definition.getField().equals(fieldName)) {
-    			return getInstanceManager().getApamInstance().getPropertyObject(definition.getName());
+    			
+    			Object value = getInstanceManager().getApamInstance().getPropertyObject(definition.getName());
+    			
+    			if (value != null)
+    				return value;
     		}
     		
     	}
     	
-    	return value;
+    	return currentValue;
 	}
 	
 	@Override
@@ -154,9 +159,25 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
     	AtomicImplementationDeclaration primitive	= (AtomicImplementationDeclaration) declaration;
     	for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
     		
-    		if (definition.getField() != null && definition.getField().equals(fieldName) && !value.equals(getInstanceManager().getApamInstance().getPropertyObject(definition.getName()))) {
-    			((InstanceImpl)getInstanceManager().getApamInstance()).setPropertyInt(definition.getName(),value, true);
-    		}
+    		if (definition.getField() != null && definition.getField().equals(fieldName)) {
+    			
+    			String property		= definition.getName();
+    			Instance instance 	= getInstanceManager().getApamInstance();
+    			Object currentValue = instance.getPropertyObject(property);
+    			
+    			if (value == null && currentValue == null)
+    				continue;
+
+    			if (value != null && currentValue != null && currentValue.equals(value))
+    				continue;
+
+    			if (value == null)
+    				instance.removeProperty(property);
+    			
+    			if (value != null)
+    				((InstanceImpl)instance).setPropertyInt(property, value, true);
+     			
+    		} 
     		
     	}
     	
