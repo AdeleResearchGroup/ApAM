@@ -69,12 +69,7 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>obrman</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
+
 
 		<!-- for testing without obrman -->
 
@@ -82,17 +77,7 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>apam-bundle</artifactId>
 			<scope>test</scope>
-			<version>${project.version}</version>
 		</dependency>
-
-
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>apam-core</artifactId>
-			<scope>test</scope>
-			<version>${project.version}</version>
-		</dependency>
-
 
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
