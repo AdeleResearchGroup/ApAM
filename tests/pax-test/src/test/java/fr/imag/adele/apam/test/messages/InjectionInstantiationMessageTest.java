@@ -23,7 +23,6 @@ import java.util.Queue;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.util.PathUtils;
@@ -45,18 +44,15 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(JUnit4TestRunner.class)
 public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 
-	@Configuration
-	public Option[] apamConfig() {
-		List<Option> optionHerited = config();
-
-		optionHerited.add(0, bundle("file://" + PathUtils.getBaseDir()
+	@Override
+	public List<Option> config() {
+		// TODO Auto-generated method stub
+		
+		List<Option> defaults=super.config();
+		defaults.add(bundle("file://" + PathUtils.getBaseDir()
 				+ "/bundle/wireadmin.jar"));
-		// optionHerited.add(0,bundle("file:/" + PathUtils.getBaseDir()
-		// +"/bundle/org.eclipse.equinox.util-1.0.400.jar"));
-		// optionHerited.add(0,bundle("file:/" + PathUtils.getBaseDir()
-		// +"/bundle/org.eclipse.equinox.wireadmin-1.0.400.jar"));
-
-		return optionHerited.toArray(new Option[0]);
+		
+		return defaults;
 	}
 
 	/**
@@ -112,18 +108,16 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 
 	@Test
 	public void InjectionUpdateLinkForSetType_mtc013() {
-
+		
 		Implementation m1ProsumerImpl = CST.apamResolver.findImplByName(null,
 				"M1-ProsumerImpl");
 
 		Instance s1Inst = m1ProsumerImpl.createInstance(null, null);
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME_LONG);
-
 		M1ProducerImpl m1ProdImpl = (M1ProducerImpl) s1Inst.getServiceObject();
-
-		int initialMsgSize = m1ProdImpl.getEletronicMsgQueue().size();
-
+		
+		int initialMsgSize2 = m1ProdImpl.getEletronicMsgQueue().size();
+		
 		auxDisconectWires(s1Inst);
 
 		Implementation sansungImpl = CST.apamResolver.findImplByName(null,
@@ -131,20 +125,24 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 
 		Instance sansungInst = (Instance) sansungImpl
 				.createInstance(null, null);
-
-		apam.waitForIt(Constants.CONST_WAIT_TIME_LONG);
-
+		
+		//apam.waitForIt(3000);
+		
 		GenericProducer samsungProducer = (GenericProducer) sansungInst
 				.getServiceObject();
-
-		int finalSize = m1ProdImpl.getEletronicMsgQueue().size();
-
+		
+		int initialMsgSize = m1ProdImpl.getEletronicMsgQueue().size();
+		
 		EletronicMsg eletronicMsg = samsungProducer
 				.produceEletronicMsg("New Message");
 
+		//int initialMsgSize3 = m1ProdImpl.getEletronicMsgQueue().size();
+		
 		auxListInstances("instances---");
-
-		finalSize = m1ProdImpl.getEletronicMsgQueue().size();
+		
+		auxDisconectWires(s1Inst);
+		
+		int finalSize = m1ProdImpl.getEletronicMsgQueue().size();
 
 		// Make sure that one message was added
 		String messageTemplate = "We use as dependency for multiple message producer to receive all messages available of the type %s, after create a new instance the queue should receive the new message";
@@ -152,7 +150,7 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 		String message = String.format(messageTemplate,
 				EletronicMsg.class.getCanonicalName());
 
-		Assert.assertEquals(message, (finalSize - initialMsgSize), 1);
+		Assert.assertEquals(message,1,(finalSize - initialMsgSize));
 
 		Assert.assertEquals(eletronicMsg, m1ProdImpl.getEletronicMsgQueue()
 				.poll());
@@ -162,7 +160,7 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 	@Test
 	public void PreferenceInjectionAttributeSingleImplementationMultipleInstance_mtc024()
 			throws InvalidSyntaxException {
-
+		
 		Implementation lgImpl = CST.apamResolver.findImplByName(null,
 				"Lg-ProducerImpl");
 		final Instance lgInst = lgImpl.createInstance(null,
@@ -207,7 +205,7 @@ public class InjectionInstantiationMessageTest extends ExtensionAbstract {
 		Instance m1ProsumerApamInst = m1ProsumerApamImpl.createInstance(null,
 				null);
 
-		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		apam.waitForIt(5000);
 
 		M1ProducerImpl m1Prosumer = (M1ProducerImpl) m1ProsumerApamInst
 				.getServiceObject();
