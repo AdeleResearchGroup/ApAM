@@ -112,7 +112,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			DependencyDeclaration groupDep = null ;
 			while (group != null && (groupDep == null)) {
 				groupDep = group.getDeclaration().getDependency(dependency.getIdentifier()) ;
-				group = getGroup() ;
+				group = group.getGroup() ;
 			}
 
 			if (groupDep == null) {
