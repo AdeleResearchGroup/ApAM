@@ -136,11 +136,6 @@
 		<property name="setIntLessElements" type="{int}" value="{12,15, 0}" />
 		<property name="setIntMoreElements" type="{int}" value="{12,15,254, 0,27}" />
 
-		<property name="setInteger" type="{integer}" value="{12,15,254, 0}" />
-		<property name="setIntegerUnordered" type="{integer}" value="{254,15,12,0}" />
-		<property name="setIntegerLessElements" type="{integer}" value="{12,15, 0}" />
-		<property name="setIntegerMoreElements" type="{integer}" value="{12,15,254, 0,27}" />
-
 		<property name="setString" type="{string}"
 			value="{doubt,grows,with,knowledge}" />
 		<property name="setStringUnordered" type="{string}"

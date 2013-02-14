@@ -393,33 +393,6 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void PropertiesDataTypeListInteger_tc054() {
-
-		final String propertyName = "setInteger";
-
-		Implementation implementation = CST.apamResolver.findImplByName(null,
-				"SpecFilterSwitch");
-
-		Object RawType = implementation.getPropertyObject(propertyName);
-
-		String message = "Retrieving a set of (%s) from the properties, but the return do not correspond to a type that represents a set of elements(List,Set nor array).";
-
-		Assert.assertTrue(String.format(message, "Integer"),
-				RawType instanceof Integer[] || RawType instanceof Collection);
-
-		String messageCollection = "Retrieving a set of (%s) from the properties, the return correspond to a Collection type but not a Collection containing the type %s.";
-
-		if (RawType instanceof Collection) {
-			Object sample = ((Collection) RawType).iterator().next();
-			Class properType = Integer.class;
-			Assert.assertTrue(
-					String.format(messageCollection, propertyName, properType),
-					properType.isInstance(sample));
-		}
-
-	}
-
-	@Test
 	public void PropertiesDataTypeListString_tc055() {
 
 		final String propertyName = "setString";

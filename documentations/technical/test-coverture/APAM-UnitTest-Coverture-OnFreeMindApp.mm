@@ -33,14 +33,14 @@
 <node CREATED="1353070377590" ID="ID_382562301" MODIFIED="1354294378716" TEXT="Filtering applied in string values should work properly-tc008">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355931835542" ID="ID_1074078486" MODIFIED="1356684955115" TEXT="Retrieving &lt;property type=&apos;int&apos;&gt; should return a proper Collection/array-tc053">
-<icon BUILTIN="yes"/>
+<node CREATED="1355931835542" ID="ID_1074078486" MODIFIED="1360834822108" TEXT="Retrieving &lt;property type=&apos;int&apos;&gt; should return a proper Collection/array-tc053">
+<icon BUILTIN="button_cancel"/>
 </node>
-<node CREATED="1355931835542" ID="ID_949793962" MODIFIED="1356684955116" TEXT="Retrieving &lt;property type=&apos;integer&apos;&gt; should return a proper Collection/array-tc054">
-<icon BUILTIN="yes"/>
+<node CREATED="1355931835542" ID="ID_949793962" MODIFIED="1360834809332" TEXT="Retrieving &lt;property type=&apos;integer&apos;&gt; should return a proper Collection/array-tc054">
+<icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355931835542" ID="ID_450621789" MODIFIED="1356684955117" TEXT="Retrieving &lt;property type=&apos;string&apos;&gt; should return a proper Collection/array-tc055">
-<icon BUILTIN="yes"/>
+<node CREATED="1355931835542" ID="ID_450621789" MODIFIED="1360834809332" TEXT="Retrieving &lt;property type=&apos;string&apos;&gt; should return a proper Collection/array-tc055">
+<icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1355931835542" ID="ID_1598888249" MODIFIED="1360339406812" TEXT="Retrieving &lt;property type=&apos;boolean&apos;&gt; should return a proper Collection/array-tc056">
 <icon BUILTIN="button_cancel"/>
