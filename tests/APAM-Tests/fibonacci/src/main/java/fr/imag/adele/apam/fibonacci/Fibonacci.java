@@ -25,8 +25,7 @@ public class Fibonacci implements Fib, ApamComponent {
 	 * Variable attribute
 	 */
 	int fibo = -1 ;
-	int fibMoins1 = -1 ;
-	int fibMoins2 = -2 ;
+	int fibn = -1 ;
 
 	Fib moins1  ;
 	Fib moins2  ;
@@ -38,11 +37,11 @@ public class Fibonacci implements Fib, ApamComponent {
 
 	public int computeSmart (int n) {
 
-		if (fibo != -1) return fibo ;			
-
-		if ( n < 2 ) return 1 ;
-		
-		fibo = moins1.computeSmart(n-1) + moins2.computeSmart(n-2) ;
+		if (fibn == n) return fibo ;			
+		fibn=n ;
+		if ( n > 1 ) {
+			fibo = moins1.computeSmart(n-1) + moins2.computeSmart(n-2) ;
+		} else fibo = 1 ;
 		return fibo ;
 	}
 
