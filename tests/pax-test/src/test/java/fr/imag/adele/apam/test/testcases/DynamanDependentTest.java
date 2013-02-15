@@ -184,7 +184,8 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		List<Instance> pool = auxLookForInstanceOf("fr.imag.adele.apam.pax.test.impl.deviceSwitch.PhilipsSwitch",
 				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
 				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
-				"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch");
+				"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch",
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch");
 		
 		auxListInstances("instances existing after the test-");
 
