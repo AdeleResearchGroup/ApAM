@@ -12,15 +12,19 @@ public class FibMain implements Runnable, ApamComponent{
 	int nb = 12 ;
 
 	public void run() {
-
+		long deb ;
+		int fibResult ;
+		long fin ;
+		long duree ;
+		
 		System.out.println("Starting  fibonacci " + nb );
-		long deb = System.currentTimeMillis() ;
-//		int fibResult = fib.compute (nb) ;
-		int fibResult = fib.computeSmart (nb) ;
-		long fin = System.currentTimeMillis() ;
-		long duree = fin - deb ;
-		System.out.println("initialization de " + nbInst + " instances. Duree: " + duree + " milis.  Result=" + fibResult);
-//		System.out.println("initialization: " + duree + " milis");
+//		long deb = System.currentTimeMillis() ;
+////		int fibResult = fib.compute (nb) ;
+//		int fibResult = fib.computeSmart (nb) ;
+//		long fin = System.currentTimeMillis() ;
+//		long duree = fin - deb ;
+//		System.out.println("initialization de " + nbInst + " instances. Duree: " + duree + " milis.  Result=" + fibResult);
+////		System.out.println("initialization: " + duree + " milis");
 
 		for (int i = 0 ; i < 20; i++) {
 			deb = System.nanoTime() ;
