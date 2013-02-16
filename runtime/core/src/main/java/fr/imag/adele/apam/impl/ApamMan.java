@@ -38,7 +38,7 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.util.Select;
+import fr.imag.adele.apam.util.UtilComp;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements DependencyManager {
@@ -78,7 +78,7 @@ public class ApamMan implements DependencyManager {
 	@Override
 	public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences) {
 		List<Filter> f = Util.toFilterList(preferences) ;
-		return Select.getPrefered(resolveImpls(client, impl, constraints), f) ;
+		return UtilComp.getPrefered(resolveImpls(client, impl, constraints), f) ;
 	}
 
 	@Override
@@ -163,7 +163,6 @@ public class ApamMan implements DependencyManager {
 	 * 
 	 */
 	@Override
-	@SuppressWarnings("unchecked") 
 	public Resolved resolveDependency(Instance client, DependencyDeclaration dep, boolean needsInstances) {
 		Set<Implementation> impls = null ;
 		String name = dep.getTarget().getName() ;
@@ -205,7 +204,7 @@ public class ApamMan implements DependencyManager {
 
 		//only keep those satisfying the constgraints
 		if (dep.getImplementationConstraints() != null) {
-			impls = Select.getConstraintsComponents(impls, Util.toFilter(dep.getImplementationConstraints()));
+			impls = UtilComp.getConstraintsComponents(impls, Util.toFilter(dep.getImplementationConstraints()));
 			if (impls == null || impls.isEmpty()) 
 				return null ;
 		}
@@ -245,7 +244,7 @@ public class ApamMan implements DependencyManager {
 		 * Return a single element in both impls and insts
 		 */
 		if (insts != null && !insts.isEmpty()) {
-			Instance inst = Select.selectBestInstance (impls, insts, dep) ;
+			Instance inst = UtilComp.selectBestInstance (impls, insts, dep) ;
 			insts.clear();
 			insts.add(inst) ;
 			return new Resolved (Collections.singleton(inst.getImpl()), insts) ;
@@ -254,7 +253,7 @@ public class ApamMan implements DependencyManager {
 			return new Resolved (Collections.singleton(impls.iterator().next()), null) ;
 
 		List<Filter> implPreferences = Util.toFilterList(dep.getImplementationPreferences()) ;
-		return new Resolved (Collections.singleton(Select.getPrefered(impls, implPreferences)), null) ;
+		return new Resolved (Collections.singleton(UtilComp.getPrefered(impls, implPreferences)), null) ;
 	}
 
 

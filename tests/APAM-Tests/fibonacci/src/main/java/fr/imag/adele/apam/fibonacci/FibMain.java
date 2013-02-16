@@ -28,7 +28,7 @@ public class FibMain implements Runnable, ApamComponent{
 
 		for (int i = 0 ; i < 20; i++) {
 			deb = System.nanoTime() ;
-			fibResult = fib.computeSmart (nb) ;
+			fibResult = fib.compute (nb) ;
 			fin = System.nanoTime() ;
 			duree = fin - deb ;
 			System.out.println("execution de " + nbInst + " appels. Duree: " + duree + " nano");

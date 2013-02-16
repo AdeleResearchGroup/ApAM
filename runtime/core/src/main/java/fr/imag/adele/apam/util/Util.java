@@ -38,13 +38,10 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
 
@@ -262,6 +259,42 @@ public final class Util {
 		return ret ;
 	}
 
+
+	/**
+	 * Transforms an array of string in a string list in the Ldap format 
+	 * @param value
+	 * @return
+	 */
+	public static String stringArray2String (String[] value) {
+		StringBuffer sVal = new StringBuffer () ;
+		int lv = ((String[])value).length;
+		for (int i=0; i < lv ; i++) {
+			sVal.append (((String[])value)[i]) ; 
+			if (i < lv -1) {
+				sVal.append(", ") ;
+			}
+		}
+		return sVal.toString() ;
+	}
+
+	/**
+	 * Transforms an array of int in a string list in the Ldap format 
+	 * @param value
+	 * @return
+	 */
+	public static String intArray2String (int[] value) {
+		StringBuffer sVal = new StringBuffer () ;
+		int lv = ((int[])value).length;
+		for (int i=0; i < lv ; i++) {
+			sVal.append (Integer.toString(((int[])value)[i]) ); 
+			if (i < lv -1) {
+				sVal.append(", ") ;
+			}
+		}
+		return sVal.toString() ;
+	}
+
+
 	/**
 	 * Implementation toImpl is exported if it matches the export clause in at least one of it composite types.
 	 * compoFrom can see toImpl if toImpl is visible or if it is in the same composite type. 
@@ -421,11 +454,10 @@ public final class Util {
 			return false;
 		}
 
-		boolean isSet = false ;
 		if (type.charAt(0)=='{' ) {
-			isSet = true ;
 			type = type.substring(1, type.length()-1) ;	
 		}
+
 		Set<String> enumVals = Util.splitSet(type);
 		if (enumVals == null || enumVals.size()==0) {
 			logger.error("Invalid empty property type ") ;
@@ -435,12 +467,134 @@ public final class Util {
 		if (enumVals.size()> 1) return true ;
 		type = enumVals.iterator().next() ;
 
-		if (type==null || !(type.equals("string") || type.equals("int") ||type.equals("integer") || type.equals("boolean") || type.charAt(0)=='{' )) {
+		if (type==null || !(type.equals("string") || type.equals("int") || type.equals("boolean") || type.charAt(0)=='{' )) {
 			logger.error("Invalid type " + type + ". Supported: string, int, boolean, enumeration; and sets");
 			return false ;
 		}
 		return true ;
 	}
+
+
+	/**
+	 * Check if the attribute value is valid; if so return the value to put into the object property Map.
+	 * 			In the Map, values are only String or int.
+	 * Type can be a singleton "int", "boolean" or "string" or enumeration "v1, v2, v3 ..."
+	 * 				or a set of these : "{int}", or "{string}" or enumeration "{v1, v2, v3 ...}"
+
+	 * Parameter "value" can be String, int, boolean, int[] or String [].
+	 * 		If the value is String, it is checked and transformed into the Map type.
+	 * 		If it is an Object, it is checked and transformed into the Map type.
+	 * 
+	 * If the attribute in not declared or the value invalid,return null.
+	 * If valid, return the Map value (String or int).
+	 */
+	public static Object  checkAttrType (String attribute, Object value, String type) {
+		if ((type == null) || (value == null) || type.isEmpty() ||  attribute==null || attribute.isEmpty()) {
+			logger.error("Invalid property " + attribute + " = " + value + " type=" + type) ;
+			return null;
+		}
+
+		if (value instanceof String) 
+			return checkAttrTypeString (attribute, (String)value, type) ;
+
+		boolean isSet = false ;
+		if (type.charAt(0)=='{' ) {
+			isSet = true ;
+			type = type.substring(1, type.length()-1) ;	
+		}
+
+//		boolean isString = false ;
+//		String sValue = null ;
+//		String [] valueSet = null;
+//		if (value instanceof String) {
+//			isString = true ;
+//			sValue = (String)value ;
+//			if (isSet) {
+//				valueSet = Util.split(sValue) ;
+//			}
+//		}
+
+		/*
+		 * integers. They are stored as int if singleton, as String for sets
+		 */
+		if (type.equals ("int")) {
+			if (isSet) {
+				//Value MUST be an array of int
+				if (value instanceof  int[]) {
+					return (Util.intArray2String((int[])value)) ;
+				}
+				logger.error("Attribute value " + value + " not an int array for attribute " + attribute) ;
+				return false ;
+			}
+
+			//singleton
+			if ((value instanceof Integer)) {
+				return ((Integer)value).intValue()  	;	
+			}
+			logger.error("Invalid integer value " + value + " for attribute " + attribute) ;
+			return null ;
+		}
+		//end int
+
+
+		/*
+		 * Booleans
+		 */
+		if (type.equals("boolean")) {
+			if (isSet) {
+				logger.error("Set of booleans are not alowed" ) ;
+				return null ;
+			}
+			if (value instanceof Boolean) {
+				return ((Boolean)value).toString();
+			}
+			logger.error("Invalid value: not a Boolean " + value + " for attribute " + attribute) ;
+			return null ;
+		}
+
+
+		/*
+		 * array of String or array of enumerated
+		 * Array of string in all cases
+		 */
+		if (!isSet) {
+			logger.error("Invalid value: not a single String " + value + " for attribute " + attribute) ;			
+			return null ;
+		}
+		if ( !(value instanceof  String[])) {
+			logger.error("Invalid value: not an array of String " + value + " for attribute " + attribute) ;
+			return null ;
+		}
+
+
+		/*
+		 * String
+		 */
+		if (type.equals("string")) {
+				return (Util.stringArray2String((String[])value)) ;
+		}
+
+		/*
+		 * It is an enumeration.
+		 * 
+		 * a set of enumeration
+		 * Compute all values in type.
+		 * Check if all values are in type.
+		 */
+		String[] enumType = Util.split(type) ;
+		if (isSet) {
+			if (Arrays.asList(enumType).containsAll(Arrays.asList(value))) 
+				return (Util.stringArray2String((String[])value)) ;
+			else {
+				logger.error("Invalid value " + value + " for attribut " + attribute + ". Expected subset of " + type) ;
+				return false ;
+			}
+		}
+
+		logger.error("Invalid value " + value + " for attribut " + attribute + ". Expected subset of " + type) ;
+		return null ;
+	}
+
 
 	/**
 	 * only string, int, boolean and enumerations attributes are accepted.
@@ -454,11 +608,11 @@ public final class Util {
 	 * @param type : a singleton "int", "boolean" or "string" or enumeration "v1, v2, v3 ..."
 	 * 				or a set of these : "{int}", "{boolean}" or "{string}" or enumeration "{v1, v2, v3 ...}"
 	 */
-	public static Object checkAttrType(String attr, String value, String types) {
-		if ((types == null) || (value == null) || types.isEmpty() || value.isEmpty() || attr==null || attr.isEmpty()) {
-			logger.error("Invalid property " + attr + " = " + value + " type=" + types) ;
-			return null;
-		}
+	public static Object checkAttrTypeString (String attr, String value, String types) {
+		//			if ((types == null) || (value == null) || types.isEmpty() || value.isEmpty() || attr==null || attr.isEmpty()) {
+		//				logger.error("Invalid property " + attr + " = " + value + " type=" + types) ;
+		//				return null;
+		//			}
 
 		boolean isSet = false ;
 		if (types.charAt(0)=='{' ) {
@@ -610,252 +764,6 @@ public final class Util {
 			}
 		}
 		return ret ;
-	}
-
-	///About dependencies
-	/**
-	 * Provided a client instance, checks if its dependency "clientDep", matches another dependency: "compoDep".
-	 *
-	 * matches only based on same name (same resource or same component).
-	 * If client cardinality is multiple, compo cardinallity must be multiple too.
-	 * No provision for the client constraints or characteristics (missing, eager)
-	 *
-	 * @param compoInst the composite instance containing the client
-	 * @param compoDep the dependency that matches or not
-	 * @param clientDep the client dependency we are trying to resolve
-	 * @return
-	 */
-	public static boolean matchDependency(Instance compoInst, DependencyDeclaration compoDep, DependencyDeclaration clientDep) {
-		boolean multiple = clientDep.isMultiple();
-		//Look for same dependency: the same specification, the same implementation or same resource name
-		//Constraints are not taken into account
-
-		// if same nature (spec, implem, internface ... make a direct comparison.
-		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { 
-			if (compoDep.getTarget().equals(clientDep.getTarget())) {
-				if (!multiple || compoDep.isMultiple()) {
-					return true;
-				}
-			}
-		}
-
-		//Look for a compatible dependency.
-		//Stop at the first dependency matching only based on same name (same resource or same component)
-		//No provision for : cardinality, constraints or characteristics (missing, eager)
-
-		//Look if the client requires one of the resources provided by the specification
-		if (compoDep.getTarget() instanceof SpecificationReference) {
-			Specification spec = CST.apamResolver.findSpecByName(compoInst,
-					((SpecificationReference) compoDep.getTarget()).getName());
-			if ((spec != null) && spec.getDeclaration().getProvidedResources().contains(clientDep.getTarget())
-					&& (!multiple || compoDep.isMultiple())) {
-				return true;
-			}
-		} 
-
-		//If the composite has a dependency toward an implementation
-		//and the client requires a resource provided by that implementation
-		else {
-			if (compoDep.getTarget() instanceof ImplementationReference) {
-				String implName = ((ImplementationReference<?>) compoDep.getTarget()).getName();
-				Implementation impl = CST.apamResolver.findImplByName(compoInst, implName);
-				if (impl != null) {
-					//The client requires the specification implemented by that implementation
-					if (clientDep.getTarget() instanceof SpecificationReference) {
-						String clientReqSpec = ((SpecificationReference) clientDep.getTarget()).getName();
-						if (impl.getImplDeclaration().getSpecification().getName().equals(clientReqSpec)
-								&& (!multiple || compoDep.isMultiple())) {
-							return true;
-						}
-					} else {
-						//The client requires a resource provided by that implementation
-						if (impl.getImplDeclaration().getProvidedResources().contains(clientDep.getTarget())
-								&& (!multiple || compoDep.isMultiple())) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-
-	/**
-	 * Provided an instance, computes all the dependency declaration that applies to that instance.
-	 * If can be defined on the instance, the implementation, the specification, or on both.
-	 * For each dependency, we clone it, and we aggregate the constraints as found at all level,
-	 * including the generic ones found in the composite type.
-	 * The dependencies returned are clones of the original ones.
-	 *
-	 */
-	public static Set<DependencyDeclaration> computeAllEffectiveDependency (Instance client) {
-		if (client == null) return null ;
-		Set<DependencyDeclaration> allDeps = new HashSet <DependencyDeclaration> ();
-		for (DependencyDeclaration dep : computeAllDependencies (client)) {
-			allDeps.add(computeEffectiveDependency(client, dep.getIdentifier())) ;
-		}
-		return allDeps ;
-	}
-
-	/**
-	 * Provided an instance, computes all the dependency declaration that applies to that instance/
-	 * If can be defined on the instance, the implementation, the specification, or on both.
-	 * In case the same dependency is defined multiple time, it is the most concrete one that must be taken into account.
-	 * There is no attempt to compute all the constraints that apply on a given dependency;
-	 * We are only interested in the target.
-	 * @param client
-	 * @return
-	 */
-	public static Set<DependencyDeclaration> computeAllDependencies (Instance client) {
-		Set<DependencyDeclaration> allDeps = new HashSet<DependencyDeclaration> () ;
-		allDeps.addAll(client.getDeclaration().getDependencies());
-
-		boolean found ;
-		for (DependencyDeclaration dep : client.getImpl().getDeclaration().getDependencies()) {
-			found= false ;
-			for (DependencyDeclaration allDep : allDeps) {
-				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
-					found= true;
-					break ;
-				}
-			}
-			if (!found) allDeps.add(dep) ;
-		}
-		for (DependencyDeclaration dep : client.getSpec().getDeclaration().getDependencies()) {
-			found= false ;
-			for (DependencyDeclaration allDep : allDeps) {
-				if (allDep.getIdentifier().equals(dep.getIdentifier())) {
-					found= true;
-					break ;
-				}
-			}
-			if (!found) allDeps.add(dep) ;
-		}
-		return allDeps ;
-	}
-
-	/**
-	 * A dependency may have properties fail= null, wait, exception; exception = null, exception
-	 * A contextual dependency can also have hide: null, true, false and eager: null, true, false
-	 * The most local definition overrides the others.
-	 * Exception null can be overriden by an exception; only generic exception overrides another non null one.
-	 *
-	 * @param dependency : the low level one that will be changed if needed
-	 * @param dep: the group dependency
-	 * @param generic: the dep comes from the composite type. It can override the exception, and has hidden and eager.
-	 * @return
-	 */
-	public static void overrideDepFlags (DependencyDeclaration dependency, DependencyDeclaration dep, boolean generic) {
-		//If set, cannot be changed by the group definition.
-		//NOTE: This strategy is because it cannot be compiled, and we do not want to make an error during resolution
-		if (dependency.getMissingPolicy() == null || (generic && dep.getMissingPolicy() != null)) {
-			dependency.setMissingPolicy(dep.getMissingPolicy()) ;
-		}
-
-		if (dependency.getMissingException() == null || (generic && dep.getMissingException() != null)) {
-			dependency.setMissingException(dep.getMissingException()) ;
-		}
-
-		if (generic) {
-			dependency.setHide(dep.isHide()) ;
-			dependency.setEager(dep.isEager()) ;
-		}
-	}
-
-	/**
-	 * We aggregate the constraints with the generic one found in the composite type.
-	 * We compute also the dependency flags.
-	 *
-	 * @param client
-	 * @param dependency
-	 * @return
-	 */
-	public static DependencyDeclaration computeEffectiveDependency (Instance client, String depName) {
-		//Find the first dependency declaration.
-		DependencyDeclaration dependency = client.getDeclaration().getDependency(depName) ;
-		if (dependency == null) {
-			//Only defined in the implementation
-			dependency = client.getGroup().getDeclaration().getDependency(depName) ;
-		} 
-//		else {
-//			//the dependency is defined both at instance and implementation level
-//			DependencyDeclaration groupDep = client.getGroup().getDeclaration().getDependency(depName) ;
-//			Util.overrideDepFlags (dependency, groupDep, false);
-//			dependency.getImplementationConstraints().addAll(groupDep.getImplementationConstraints()) ;
-//			dependency.getInstanceConstraints().addAll(groupDep.getInstanceConstraints()) ;
-//			dependency.getImplementationPreferences().addAll(groupDep.getImplementationPreferences()) ;
-//			dependency.getInstancePreferences().addAll(groupDep.getInstancePreferences()) ;		
-//
-//			//set the target
-//			dependency.setTarget(groupDep.getTarget()) ;
-//		}		
-		
-		//Should never happen
-		if (dependency == null || dependency.getTarget() == null) {
-			logger.error("Invalid dependency " + depName + " for instance " + client + ".  Not declared ") ;
-			return null ;
-		}
-		
-		List<DependencyDeclaration> ctxtDcl = client.getComposite().getCompType().getCompoDeclaration().getContextualDependencies() ;
-		if (ctxtDcl == null || ctxtDcl.isEmpty())
-			return dependency ;
-		
-		//Add the composite generic constraints
-		//But do not change the declared dependency
-		dependency = dependency.clone() ;	
-		Map<String, String> validAttrs = client.getValidAttributes() ;
-		for ( DependencyDeclaration  genDep  : ctxtDcl) {
-			if (matchGenericDependency(client, genDep, dependency)) {
-				overrideDepFlags (dependency, genDep, true) ;
-
-				if (Util.checkFilters(genDep.getImplementationConstraints(), null, validAttrs, client.getName())) {
-					dependency.getImplementationConstraints().addAll(genDep.getImplementationConstraints()) ;
-				}
-				dependency.getInstanceConstraints().addAll(genDep.getInstanceConstraints()) ;
-				if (Util.checkFilters(null, genDep.getImplementationPreferences(), validAttrs, client.getName())) {
-					dependency.getImplementationPreferences().addAll(genDep.getImplementationPreferences()) ;
-				}
-				if (Util.checkFilters(null, genDep.getInstancePreferences(), validAttrs, client.getName())) {
-					dependency.getInstancePreferences().addAll(genDep.getInstancePreferences()) ;
-				}
-			}
-		}
-		return dependency ;
-	}
-
-
-	/**
-	 * Provided a composite (compoInst), checks if the provided generic dependency constraint declaration
-	 * matches the compoClient dependency declaration.
-	 *
-	 * @param compoInst the composite instance containing the client
-	 * @param genericDeps the dependencies of the composite: a regExpression
-	 * @param clientDep the client dependency we are trying to resolve.
-	 * @return
-	 */
-	public static boolean matchGenericDependency(Instance compoInst, DependencyDeclaration compoDep, DependencyDeclaration clientDep) {
-
-		String pattern = compoDep.getTarget().getName() ;
-		//Look for same dependency: the same specification, the same implementation or same resource name
-		//Constraints are not taken into account
-
-		// same nature: direct comparison
-		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())
-				&& (clientDep.getTarget().getName().matches(pattern))) {
-			return true;
-		}
-
-		//If the client dep is an implementation dependency, check if the specification matches the pattern
-		if (compoDep.getTarget() instanceof SpecificationReference
-				&& clientDep.getTarget() instanceof ImplementationReference) {
-			String implName = ((ImplementationReference<?>) clientDep.getTarget()).getName();
-			Implementation impl = CST.apamResolver.findImplByName(compoInst, implName);
-			if (impl != null && impl.getSpec().getName().matches(pattern)) {
-				return true ;
-			}
-		}
-		return false;
 	}
 
 	public static String toStringUndefinedResource(Set<UndefinedReference> undefinedReferences) {

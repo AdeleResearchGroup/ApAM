@@ -24,8 +24,16 @@ public class Fibonacci implements Fib, ApamComponent {
 	/*
 	 * Variable attribute
 	 */
-	int fibo = -1 ;
-	int fibn = -1 ;
+	
+//	<definition name="Ifibo" field="ifibo" type="int"/>
+//	<definition name="Sfibo" field="sfibo" type="boolean"/>
+//	<definition name="Afibo" field="fibo" type="{int}"/>
+//	<definition name="Afibn" field="fibn" type="{string}" />
+
+	int ifibo ;
+	boolean sfibo ;
+	int[] fibo ;
+	String [] fibn ;
 
 	Fib moins1  ;
 	Fib moins2  ;
@@ -36,18 +44,28 @@ public class Fibonacci implements Fib, ApamComponent {
 	}
 
 	public int computeSmart (int n) {
-
-		if (fibn == n) return fibo ;			
-		fibn=n ;
-		if ( n > 1 ) {
-			fibo = moins1.computeSmart(n-1) + moins2.computeSmart(n-2) ;
-		} else fibo = 1 ;
-		return fibo ;
+return 0 ;
+//		if (fibn == n) return fibo ;			
+//		fibn=n ;
+//		if ( n > 1 ) {
+//			fibo = moins1.computeSmart(n-1) + moins2.computeSmart(n-2) ;
+//		} else fibo = 1 ;
+//		return fibo ;
 	}
 
 	@Override
 	public void apamInit(Instance apamInstance) {
 		FibMain.nbInst ++;
+		ifibo = 5 ;
+		sfibo = true ;
+		fibo = new int[8] ;
+		for (int i = 0 ; i < fibo.length ; i++) {
+			fibo[i] = i ;
+		}
+		fibn = new String [3] ;
+		fibn[0]= "val1" ;
+		fibn[1]= "val2" ;
+		fibn[2]= "val3" ;
 	}
 
 	@Override

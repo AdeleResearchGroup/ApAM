@@ -45,6 +45,7 @@ import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.CompositeImpl;
 import fr.imag.adele.apam.impl.InstanceImpl;
 import fr.imag.adele.apam.util.Util;
+import fr.imag.adele.apam.util.UtilComp;
 
 
 /**
@@ -266,7 +267,7 @@ public class ContentManager  {
 		
 		assert instance.getComposite().equals(getComposite());
 		
-		for (DependencyDeclaration dependency : Util.computeAllEffectiveDependency(instance)) {
+		for (DependencyDeclaration dependency : UtilComp.computeAllEffectiveDependency(instance)) {
 
 			boolean hasField =  false;
 			for (DependencyInjection injection : dependency.getInjections()) {

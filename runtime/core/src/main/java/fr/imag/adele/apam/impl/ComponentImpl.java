@@ -40,6 +40,7 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
+import fr.imag.adele.apam.util.UtilComp;
 
 public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> implements Component, Comparable<Component> {
 
@@ -86,16 +87,16 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 
-/**
- * To be called when the object is fully loaded and chained.
- * Terminate the generic initialization : computing the dependencies, and the properties
- * @param initialProperties
- */
+	/**
+	 * To be called when the object is fully loaded and chained.
+	 * Terminate the generic initialization : computing the dependencies, and the properties
+	 * @param initialProperties
+	 */
 	public void finishInitialize (Map<String, String> initialProperties) {
 		computeGroupDependency () ;
 		initializeProperties (initialProperties) ;
 	}
-	
+
 	/**
 	 * Provided a dependency declaration, compute the effective dependency, adding group constraint and flags.
 	 * Compute which is the good target, and check the targets are compatible. 
@@ -122,7 +123,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 			//it is declared above. Merge and check.
 			//First merge flags, and then constraints.
-			Util.overrideDepFlags (dependency, groupDep, false);
+			UtilComp.overrideDepFlags (dependency, groupDep, false);
 			dependency.getImplementationConstraints().addAll(groupDep.getImplementationConstraints()) ;
 			dependency.getInstanceConstraints().addAll(groupDep.getInstanceConstraints()) ;
 			dependency.getImplementationPreferences().addAll(groupDep.getImplementationPreferences()) ;
@@ -325,25 +326,31 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 				return val ;
 			}
 			if (type.equals("boolean")) {
-				return (val.equals("true") || val.equals("TRUE")) ;
+				return (((String)val).equalsIgnoreCase("true")) ;
 			}
 			//string and enumeration are strings
 			return val ;
 		}
 
 		//it is a set. Internaly it is a string. Returns an array of int of an array of strings
-		String[] enumVals = Util.split(type);
+		String[] enumVals = Util.split((String)val);
 		int l = enumVals.length ;
 
 		// If a set of integer, build the array
-		if (l==1 && type.equals ("int")) {
+		if (type.equals ("int")) {
 			int[] intReturn = new int[l] ;
-			for (int i = 0 ; i < l; i++) {
-				intReturn[i] = Integer.parseInt(enumVals[i]) ;
+			try {
+				for (int i = 0 ; i < l; i++) {
+					intReturn[i] = Integer.parseInt(enumVals[i]) ;
+				}
+			} catch (Exception e) {
+				//should never happen
+				logger.error("Invalid int array value: "  + (String)val + " for attribute " + attribute) ;
 			}
 			return intReturn ;
 		}
-		if (l==1 && type.equals("boolean")) {
+		if (type.equals("boolean")) {
+			//should never happen
 			logger.error("Set of integers are not allowed" ) ;
 			return null ;
 		}
@@ -351,161 +358,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		//value is a set of String
 		return enumVals;
 	}
-
-	/**
-	 * Warning: to be used only by Apform for setting internal attributes.
-	 * Only Inhibits the message "Attribute " + attr +  " is an internal field attribute and cannot be set.");
-	 * @param attr
-	 * @param value
-	 * @param forced
-	 * @return
-	 */
-	public boolean setPropertyInt(String attribute, Object value, boolean forced) {
-		if ( ! setPropertyObjectInternal (attribute, value, forced)) {
-			return false ;
-		}
-		//does the change, notifies, changes the platform and propagate to members
-		this.propagate (attribute, value) ;
-		return true ;
-	}
-
-	@Override
-	public boolean setPropertyObject (String attribute, Object value) {
-		return setPropertyObjectInternal (attribute, value, false) ;
-	}
-
-	/**
-	 * Set the value of a property, the property can be valued in this component or in its
-	 * defining group
-	 * Value must be an int, String, boolean or string for attributes declared int, String, boolean
-	 * 					String for an enumeration.
-	 * 
-	 * For sets, the value must be an array of the corresponding types. i.e; int[], String[] and so on.
-	 * 
-	 * If the attribute does not exist, of it the value does not correspond to the attribute type, "false" is returned.
-	 */
-	private boolean setPropertyObjectInternal (String attribute, Object value, boolean forced) {
-		PropertyDefinition def = validDef (attribute, forced) ;
-		if (def == null) return false ;
-
-		String type = def.getType() ; 
-		if (type == null) return false ;
-
-		boolean isSet = false ;
-		if (type.charAt(0)=='{' ) {
-			isSet = true ;
-			type = type.substring(1, type.length()-1) ;	
-		}
-
-		if (!isSet) {
-			// int are stored as int
-			if (type.equals ("int")) {
-				int val ;
-				//convert from string to int
-				if (value instanceof String)  {
-					try {
-						val = Integer.parseInt((String)value) ;
-					}catch (Exception e) {
-						logger.error("Invalid integer value " + value + " for attribute " + attribute) ;
-						return false ;
-					}
-				}
-				if ( !(value instanceof Integer)) {
-					logger.error("Invalid integer value " + value + " for attribute " + attribute) ;
-					return false ;
-				}
-				val = ((Integer)value).intValue()  	;	
-				put (attribute, val) ;
-				return true ;
-			}
-
-			//Boolean are stored as strings
-			if (type.equals("boolean")) {
-				if (value instanceof String)  {
-					put (attribute, ((String) value).equalsIgnoreCase("true")) ;
-				}
-				if ( !(value instanceof Boolean)) {
-					logger.error("Invalid value: not a Boolean " + value + " for attribute " + attribute) ;
-					return false ;
-				}
-				put (attribute, ((Boolean)value).toString());
-				return true ;
-			}
-
-
-			if (! (value instanceof String)) {
-				logger.error("Invalid value: not a String " + value + " for attribute " + attribute) ;
-				return false ;
-			}
-			put (attribute, value) ;
-			return true ;
-		}
-
-
-		//it is a set. Value must be an array of the right type. Internaly it is a string. 
-		Set<String> enumVals = Util.splitSet(type);
-		int l = enumVals.size() ;
-		String aType = enumVals.iterator().next() ;
-
-		if (l==1 && aType.equals ("int")) {
-			//Value MUST be an array of int
-			if (value instanceof  int[]) {
-				StringBuffer sVal = new StringBuffer () ;
-				int lv = ((int[])value).length;
-				for (int i=0; i < lv ; i++) {
-					sVal.append (Integer.toString(((int[])value)[i]) ); 
-					if (i < lv -1) {
-						sVal.append(", ") ;
-					}
-				}
-				put (attribute, sVal.toString()) ;
-				return true ;
-			}
-			logger.error("Attribute value " + value + " not an int array for attribute " + attribute) ;
-			return false ;
-		}
-
-		if (l==1 && aType.equals("boolean")) {
-			logger.error("Set of integers are not alowed" ) ;
-			return false ;
-		}
-
-
-		//It should be a String array.
-		if (!(value instanceof  String[])) {
-			logger.error("Invalid value: not an array of String " + value + " for attribute " + attribute) ;
-			return false ;
-		}
-
-		//Tranform the string array into a string.
-		StringBuffer sVal = new StringBuffer () ;
-		int lv = ((String[])value).length;
-		for (int i=0; i < lv ; i++) {
-			sVal.append (((String[])value)[i]) ; 
-			if (i < lv -1) {
-				sVal.append(", ") ;
-			}
-		}
-		String setString = sVal.toString() ;
-
-		// A set of string, allway valid
-		if (l==1 && aType.equals("string")) {
-			put (attribute,setString) ;
-			return true ;
-		}
-
-		//It is a set of enumeration. Check if values are valid.
-		if (! (enumVals.containsAll(Util.splitSet(setString)))) {
-			String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attribute
-					+ "\".  Expected subset of: " + type;
-			logger.error(errorMes);
-			return false;
-		}
-
-		put (attribute, setString) ;
-		return true ;		
-	}
-
 
 	/**
 	 * Get the value of all the properties in the component.
@@ -518,16 +370,19 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 	/**
-	 * Set the value of the property in the Apam state model. Changing an attribute notifies
-	 * the property manager, the underlying execution platform (apform), and propagates to members
+	 * Warning: to be used only by Apform for setting internal attributes.
+	 * Only Inhibits the message "Attribute " + attr +  " is an internal field attribute and cannot be set.");
+	 * @param attr
+	 * @param value
+	 * @param forced
+	 * @return
 	 */
-	@Override
-	public boolean setProperty(String attr, String value) {
+	public boolean setPropertyInt(String attr, Object value, boolean forced) {
 		/*
 		 * Validate that the property is defined and the value is valid
+		 * Forced means that we can set field attribute
 		 */
-
-		PropertyDefinition def = validDef (attr, false) ;
+		PropertyDefinition def = validDef (attr, forced) ;
 		if (def == null) return false ;
 		//At initialization, all valid attributes are ok for specs
 		Object val = Util.checkAttrType(attr, value, def.getType());
@@ -537,9 +392,51 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		//does the change, notifies, changes the platform and propagate to members
 		this.propagate (attr, val) ;
 		return true ;
+	}
+	
+		//		if ( ! setProperty (attribute, value, forced)) {
+//			return false ;
+//		}
+//		//does the change, notifies, changes the platform and propagate to members
+//		this.propagate (attribute, value) ;
+//		return true ;
+//	}
+
+//	@Override
+//	public boolean setPropertyObject (String attribute, Object value) {
+//		return setPropertyObjectInternal (attribute, value, false) ;
+//	}
+//
+
+
+
+	/**
+	 * Set the value of the property in the Apam state model. Changing an attribute notifies
+	 * the property manager, the underlying execution platform (apform), and propagates to members
+	 */
+	@Override
+	public boolean setProperty(String attr, Object value) {
+		return setPropertyInt (attr, value, false) ;
+	}
+
+	
+	//		/*
+//		 * Validate that the property is defined and the value is valid
+//		 */
+//
+//		PropertyDefinition def = validDef (attr, false) ;
+//		if (def == null) return false ;
+//		//At initialization, all valid attributes are ok for specs
+//		Object val = Util.checkAttrType(attr, value, def.getType());
+//		if (val == null)
+//			return false ;
+//
+//		//does the change, notifies, changes the platform and propagate to members
+//		this.propagate (attr, val) ;
+//		return true ;
 		//
 		//		return setPropertyInt(attr, value, false);
-	}
+//	}
 
 
 	/**
@@ -568,24 +465,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 
 	private void propagate (String attr, Object value) {
-		//Change value and notify managers
-		setInternalProperty(attr,value);
-
-		//Propagate to members recursively
-		for (Component member : getMembers()) {
-			((ComponentImpl)member).propagate (attr, value) ;
-		}
-	}
-
-	/**
-	 * Sets the value of a property changed in the state and notifies property managers,
-	 * but doesn't call back the execution platform.
-	 *
-	 * TODO,IMPORTANT This method should be private, but it is actually directly invoked by
-	 * apform to avoid notification loops. We need to refactor the different APIs of Apam.
-	 */
-	public void setInternalProperty(String attr, Object value) {
+		if (value == null) return ;
 		Object oldValue = get(attr);
+		if (oldValue!= null && oldValue.equals(value.toString()))
+			return ;
+		
+		//Change value
 		put(attr, value);
 
 		//Notify the execution platform
@@ -599,7 +484,36 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			ApamManagers.notifyAttributeAdded(this, attr, value.toString()) ;
 		else
 			ApamManagers.notifyAttributeChanged(this, attr, value.toString(), oldValue.toString());
+
+		//Propagate to members recursively
+		for (Component member : getMembers()) {
+			((ComponentImpl)member).propagate (attr, value) ;
+		}
 	}
+
+//	/**
+//	 * Sets the value of a property changed in the state and notifies property managers,
+//	 * but doesn't call back the execution platform.
+//	 *
+//	 * TODO,IMPORTANT This method should be private, but it is actually directly invoked by
+//	 * apform to avoid notification loops. We need to refactor the different APIs of Apam.
+//	 */
+//	private void setInternalProperty(String attr, Object value) {
+//		Object oldValue = get(attr);
+//		put(attr, value);
+//
+//		//Notify the execution platform
+//		if(get(attr)==value)
+//			getApformComponent().setProperty (attr,value.toString());
+//
+//		/*
+//		 * notify property managers
+//		 */
+//		if (oldValue == null)
+//			ApamManagers.notifyAttributeAdded(this, attr, value.toString()) ;
+//		else
+//			ApamManagers.notifyAttributeChanged(this, attr, value.toString(), oldValue.toString());
+//	}
 
 	/**
 	 * Sets all the values of the specified properties
@@ -610,6 +524,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	@Override
 	public boolean setAllProperties(Map<String, String> properties) {
 		for (Map.Entry<String,String> entry : properties.entrySet()) {
+			
 			if (! setProperty(entry.getKey(), entry.getValue()))
 				return false;
 		}

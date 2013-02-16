@@ -47,9 +47,8 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
-import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.util.Select;
+import fr.imag.adele.apam.util.UtilComp;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamResolverImpl implements ApamResolver {
@@ -78,7 +77,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		// take the dependency first in the instance, and if not found, in the implementation
-		Set<DependencyDeclaration> compoDeps = Util.computeAllDependencies(client.getComposite()) ;
+		Set<DependencyDeclaration> compoDeps = UtilComp.computeAllDependencies(client.getComposite()) ;
 		if (compoDeps.isEmpty()) {
 			return null ;
 		}
@@ -100,7 +99,7 @@ public class ApamResolverImpl implements ApamResolver {
 				for (DependencyDeclaration compoDep : compoDeps) {
 					if (compoDep.getIdentifier().equals(toName)) {
 						//We found the composite side. It is an explicit promotion. It should match.
-						if (Util.matchDependency (client, compoDep, dependency)) {
+						if (UtilComp.matchDependency (client, compoDep, dependency)) {
 							return compoDep ;
 						}
 						logger.error ("Promotion is invalid. Dependency " + promo.getContentDependency().getIdentifier()
@@ -112,7 +111,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		for (DependencyDeclaration compoDep : compoDeps) {
-			if  (Util.matchDependency(client, compoDep, dependency)) {
+			if  (UtilComp.matchDependency(client, compoDep, dependency)) {
 				return compoDep ;
 			}
 		}
@@ -170,7 +169,7 @@ public class ApamResolverImpl implements ApamResolver {
 		logger.info("Resolving dependency " + depName + " from instance " + client.getName() );
 
 		//compute the set of constraints that apply to that resolution: inst + impl + spec + composite generique
-		DependencyDeclaration dependency = Util.computeEffectiveDependency (client, depName) ;
+		DependencyDeclaration dependency = UtilComp.computeEffectiveDependency (client, depName) ;
 
 		if (dependency == null) {
 			logger.error("dependency declaration invalid or not found " + depName);
@@ -232,7 +231,7 @@ public class ApamResolverImpl implements ApamResolver {
 			if (impls.size()== 1) {
 				impl=impls.iterator().next() ;
 			} else {
-				impl = Select.getPrefered(impls, Util.toFilterList(dependency.getImplementationPreferences())) ;
+				impl = UtilComp.getPrefered(impls, Util.toFilterList(dependency.getImplementationPreferences())) ;
 				impls.clear () ;
 				impls.add(impl) ;
 			}  
@@ -571,12 +570,12 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param inst
 	 * @param insts
 	 */
-	private static void notifySelection(Instance client, ResolvableReference resName, String depName,
-			Implementation impl, Instance inst, Set<Instance> insts) {
-		for (DependencyManager dependencyManager : ApamManagers.getDependencyManagers()) {
-			dependencyManager.notifySelection(client, resName, depName, impl, inst, insts);
-		}
-	}
+//	private static void notifySelection(Instance client, ResolvableReference resName, String depName,
+//			Implementation impl, Instance inst, Set<Instance> insts) {
+//		for (DependencyManager dependencyManager : ApamManagers.getDependencyManagers()) {
+//			dependencyManager.notifySelection(client, resName, depName, impl, inst, insts);
+//		}
+//	}
 
 	@Override
 	public Implementation resolveSpecByInterface(Instance client,
@@ -608,7 +607,7 @@ public class ApamResolverImpl implements ApamResolver {
 		if (insts == null || insts.isEmpty()) {
 			return null ;
 		}
-		return Select.getPrefered(insts, Util.toFilterList(preferences));
+		return UtilComp.getPrefered(insts, Util.toFilterList(preferences));
 	}
 
 	@Override

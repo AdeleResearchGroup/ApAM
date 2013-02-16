@@ -112,12 +112,12 @@ public interface Component {
 	 * 
 	 * If the attribute does not exist, of it the value does not correspond to the attribute type, "false" is returned.
 	 */
-	public boolean setPropertyObject (String attribute, Object value);
-
-	/**
-	 * Set the value of the property for this component
-	 */
-	public boolean setProperty(String attr, String value);
+//	public boolean setPropertyObject (String attribute, Object value);
+//
+//	/**
+//	 * Set the value of the property for this component
+//	 */
+	public boolean setProperty(String attr, Object value);
 
 	/**
 	 * Get the value of all the properties of the component, including those in the enclosing
