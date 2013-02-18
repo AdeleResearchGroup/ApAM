@@ -494,25 +494,15 @@ public final class Util {
 			return null;
 		}
 
-		if (value instanceof String) 
-			return checkAttrTypeString (attribute, (String)value, type) ;
-
 		boolean isSet = false ;
 		if (type.charAt(0)=='{' ) {
 			isSet = true ;
 			type = type.substring(1, type.length()-1) ;	
+			type = type.trim() ;
 		}
 
-//		boolean isString = false ;
-//		String sValue = null ;
-//		String [] valueSet = null;
-//		if (value instanceof String) {
-//			isString = true ;
-//			sValue = (String)value ;
-//			if (isSet) {
-//				valueSet = Util.split(sValue) ;
-//			}
-//		}
+		if (value instanceof String) 
+			return checkAttrTypeString (attribute, (String)value, type, isSet) ;
 
 		/*
 		 * integers. They are stored as int if singleton, as String for sets
@@ -568,10 +558,10 @@ public final class Util {
 
 
 		/*
-		 * String
+		 * String array
 		 */
 		if (type.equals("string")) {
-				return (Util.stringArray2String((String[])value)) ;
+			return (Util.stringArray2String((String[])value)) ;
 		}
 
 		/*
@@ -582,17 +572,12 @@ public final class Util {
 		 * Check if all values are in type.
 		 */
 		String[] enumType = Util.split(type) ;
-		if (isSet) {
-			if (Arrays.asList(enumType).containsAll(Arrays.asList(value))) 
-				return (Util.stringArray2String((String[])value)) ;
-			else {
-				logger.error("Invalid value " + value + " for attribut " + attribute + ". Expected subset of " + type) ;
-				return false ;
-			}
+		if (Arrays.asList(enumType).containsAll(Arrays.asList(value))) 
+			return (Util.stringArray2String((String[])value)) ;
+		else {
+			logger.error("Invalid value " + value + " for attribut " + attribute + ". Expected subset of " + type) ;
+			return false ;
 		}
-
-		logger.error("Invalid value " + value + " for attribut " + attribute + ". Expected subset of " + type) ;
-		return null ;
 	}
 
 
@@ -600,25 +585,13 @@ public final class Util {
 	 * only string, int, boolean and enumerations attributes are accepted.
 	 * Return the value if it is correct.
 	 * For "int" returns an Integer object, otherwise it is the string "value"
-	 * TODO : does not work for set of integer, treated as string set. Matching may fail.
-	 * Should be reimplemented with real object, like Set<Integer> or any Object. 
-	 * TODO : should check constraints to be sure it will be correctly interpreted by LDAP matching.
+	 * does not work for set of integer, treated as string set. Matching may fail.
 	 *
 	 * @param value : a singleton, or a set "a, b, c, ...."
 	 * @param type : a singleton "int", "boolean" or "string" or enumeration "v1, v2, v3 ..."
 	 * 				or a set of these : "{int}", "{boolean}" or "{string}" or enumeration "{v1, v2, v3 ...}"
 	 */
-	public static Object checkAttrTypeString (String attr, String value, String types) {
-		//			if ((types == null) || (value == null) || types.isEmpty() || value.isEmpty() || attr==null || attr.isEmpty()) {
-		//				logger.error("Invalid property " + attr + " = " + value + " type=" + types) ;
-		//				return null;
-		//			}
-
-		boolean isSet = false ;
-		if (types.charAt(0)=='{' ) {
-			isSet = true ;
-			types = types.substring(1, types.length()-1) ;	
-		}
+	private static Object checkAttrTypeString (String attr, String value, String types, boolean isSet) {
 
 		Set<String> enumVals = Util.splitSet(types);
 		if (enumVals == null || enumVals.size()==0) {

@@ -22,10 +22,11 @@
 		<dependency field="moins1"  />
 		<dependency field="moins2"  />
 		
-		<definition name="Ifibo" field="ifibo" type="int"/>
+		<definition name="Ifibo" field="fibnb" type="int"/>
 		<definition name="Sfibo" field="sfibo" type="boolean"/>
-		<definition name="Afibo" field="fibo" type="{int}"/>
+		<definition name="Afibo" field="fibil" type="{int}"/>
 		<definition name="Afibn" field="fibn" type="{string}" />
+
 
 <!-- 		<dependency field="moins1"  implementation="Fibonacci"/> -->
 <!-- 		<dependency field="moins2"  implementation="Fibonacci"/> -->
