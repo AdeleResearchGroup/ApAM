@@ -14,6 +14,9 @@
  */
 package fr.imag.adele.apam.fibonacci;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.Instance;
 
@@ -33,8 +36,8 @@ public class Fibonacci implements Fib, ApamComponent {
 
 	int fibnb ;
 	boolean sfibo ;
-	int[] fibil ;
-	String [] fibn ;
+	Set<Integer> fibil = new HashSet<Integer> ();
+	Set<String>   fibn = new HashSet<String> ();
 
 	
 	Fib moins1  ;
@@ -43,9 +46,9 @@ public class Fibonacci implements Fib, ApamComponent {
 	public int compute (int n) {
 		if ( n < 2 ) return 1 ;
 		System.out.println("n=" + n);
-		fibil[2] = n ;
+		fibil.add (Integer.valueOf(n)) ;
 		System.out.println(fibil);
-		fibn [1]= Integer.toString (n); ;
+		fibn.add(Integer.toString (n));
 		System.out.println(fibil);
 		
 		return moins1.compute(n-1) + moins2.compute(n-2) ; 
@@ -66,14 +69,12 @@ public class Fibonacci implements Fib, ApamComponent {
 		FibMain.nbInst ++;
 		fibnb = 5 ;
 		sfibo = true ;
-		fibil = new int[8] ;
-		for (int i = 0 ; i < fibil.length ; i++) {
-			fibil[i] = i ;
-		}
-		fibn = new String [3] ;
-		fibn[0]= "val1" ;
-		fibn[1]= "val2" ;
-		fibn[2]= "val3" ;
+		fibil.add(5) ;
+		fibil.add(6) ;
+
+		fibn.add("val1") ;
+		fibn.add("val2") ;
+		fibn.add("val3") ;
 	}
 
 	@Override

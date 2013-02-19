@@ -384,7 +384,7 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals(inst.getProperty("OS"), "Linux");
 		
 		
-		impl.setProperty("setInt", "7, 55"); // for match tests
+		impl.setProperty("setInt", "7, 055"); // for match tests
 		
 		System.out.println("\n");
 		System.out.println("setInt value is : " + inst.getProperty("setInt"));

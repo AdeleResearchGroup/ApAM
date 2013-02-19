@@ -18,7 +18,6 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +39,6 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
@@ -278,6 +276,40 @@ public final class Util {
 	}
 
 	/**
+	 * Transforms an array of string in a string list in the Ldap format 
+	 * @param value
+	 * @return
+	 */
+	public static String stringSet2String (Set<String> values) {
+		StringBuffer sVal = new StringBuffer () ;
+		int lv = values.size();
+		int i = 0 ;
+		for (String val : values) {
+			sVal.append (val) ; 
+			if (i < lv -1) {
+				sVal.append(", ") ;
+			}
+			i++ ;
+		}
+		return sVal.toString() ;
+	}
+
+	/**
+	 * Transforms an atytribute value into a string.
+	 * If a set of String, put it into the LDAP form "a, b, c, d"
+	 * If Integer, transform in String
+	 * @param value
+	 * @return
+	 */
+	@SuppressWarnings ("unchecked")
+	public static String toStringAttrValue (Object value) {
+		if (value == null)            return null ;
+		if (value instanceof Integer) return value.toString() ;
+		if (value instanceof String)  return (String)value ;
+		return Util.stringSet2String((Set<String>)value);
+		
+	}
+	/**
 	 * Transforms an array of int in a string list in the Ldap format 
 	 * @param value
 	 * @return
@@ -481,13 +513,14 @@ public final class Util {
 	 * Type can be a singleton "int", "boolean" or "string" or enumeration "v1, v2, v3 ..."
 	 * 				or a set of these : "{int}", or "{string}" or enumeration "{v1, v2, v3 ...}"
 
-	 * Parameter "value" can be String, int, boolean, int[] or String [].
+	 * Parameter "value" can be String, int, boolean, Set<Integer> or Set<String>.
 	 * 		If the value is String, it is checked and transformed into the Map type.
-	 * 		If it is an Object, it is checked and transformed into the Map type.
+	 * 		If it is an Object, it is checked and transformed into the Set.
 	 * 
 	 * If the attribute in not declared or the value invalid,return null.
 	 * If valid, return the Map value (String or int).
 	 */
+	@SuppressWarnings("unchecked")
 	public static Object  checkAttrType (String attribute, Object value, String type) {
 		if ((type == null) || (value == null) || type.isEmpty() ||  attribute==null || attribute.isEmpty()) {
 			logger.error("Invalid property " + attribute + " = " + value + " type=" + type) ;
@@ -507,13 +540,20 @@ public final class Util {
 		/*
 		 * integers. They are stored as int if singleton, as String for sets
 		 */
+
 		if (type.equals ("int")) {
 			if (isSet) {
-				//Value MUST be an array of int
-				if (value instanceof  int[]) {
-					return (Util.intArray2String((int[])value)) ;
+				//Value MUST be a Set of Integer
+				if (value instanceof  Set<?>) {
+					for (Object i : (Set<?>)value) {
+						if (! (i instanceof Integer)) {
+							logger.error("In attribute value " + value + ", " + i.toString () + " is not a an Integer, for attribute " + attribute) ;
+							return false ;
+						}
+					}
+					return value ;
 				}
-				logger.error("Attribute value " + value + " not an int array for attribute " + attribute) ;
+				logger.error("Attribute value " + value + " not an a Set<Integer> for attribute " + attribute) ;
 				return false ;
 			}
 
@@ -551,9 +591,16 @@ public final class Util {
 			logger.error("Invalid value: not a single String " + value + " for attribute " + attribute) ;			
 			return null ;
 		}
-		if ( !(value instanceof  String[])) {
-			logger.error("Invalid value: not an array of String " + value + " for attribute " + attribute) ;
+		if (! (value instanceof Set)) {
+			logger.error("Invalid value: not a Set of String " + value + " for attribute " + attribute) ;
 			return null ;
+		}
+
+		for (Object i : (Set<?>)value) {
+			if (! (i instanceof String)) {
+				logger.error("In attribute value " + value + ", " + i.toString () + " is not a String, for attribute " + attribute) ;
+				return false ;
+			}
 		}
 
 
@@ -561,7 +608,7 @@ public final class Util {
 		 * String array
 		 */
 		if (type.equals("string")) {
-			return (Util.stringArray2String((String[])value)) ;
+			return value ;
 		}
 
 		/*
@@ -571,10 +618,10 @@ public final class Util {
 		 * Compute all values in type.
 		 * Check if all values are in type.
 		 */
-		String[] enumType = Util.split(type) ;
-		if (Arrays.asList(enumType).containsAll(Arrays.asList(value))) 
-			return (Util.stringArray2String((String[])value)) ;
-		else {
+		Set<String> enumType = Util.splitSet(type) ;
+		if (enumType.containsAll((Set<String>)value)) {
+			return value ;
+		} else {
 			logger.error("Invalid value " + value + " for attribut " + attribute + ". Expected subset of " + type) ;
 			return false ;
 		}
@@ -629,13 +676,16 @@ public final class Util {
 						return Integer.parseInt(values.iterator().next());
 					}
 					//Set<Integer> intArray = new HashSet<Integer> () ;
+					int i ;
+					Set <String> valSetInt = new HashSet<String> () ;
 					for (String val : values) {
-						Integer.parseInt(val);
+						i = Integer.parseInt(val);
+						valSetInt.add(Integer.toString(i)) ;
 					}
 					//System.err.println("tableau de Integer : " + intArray.toString() + " en string : " + value);
 					//unfortunately, match does not recognizes a set of integer.
 					//return the list as a string  ;
-					return value ;
+					return valSetInt ;
 				} catch (Exception e) {
 					logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
 							+ "\".  Integer value(s) expected");

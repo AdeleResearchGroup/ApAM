@@ -108,15 +108,10 @@ public interface Component {
 	 * Value must be an int, String, boolean for attributes declared int, String, boolean
 	 * 					String for an enumeration.
 	 * 
-	 * For sets, the value must be an array of the corresponding types. i.e; int[], String[] and so on.
+	 * For sets, the value must be an array of the corresponding types. i.e; Set<Integer>, Set<String> and so on.
 	 * 
 	 * If the attribute does not exist, of it the value does not correspond to the attribute type, "false" is returned.
 	 */
-//	public boolean setPropertyObject (String attribute, Object value);
-//
-//	/**
-//	 * Set the value of the property for this component
-//	 */
 	public boolean setProperty(String attr, Object value);
 
 	/**
@@ -124,6 +119,13 @@ public interface Component {
 	 * groups
 	 */
 	public Map<String, Object> getAllProperties();
+	
+	/**
+	 * Get the value of all the properties of the component, including those in the enclosing
+	 * groups
+	 */
+	public Map<String, String> getAllPropertiesString() ;
+
 
 	/**
 	 * Change the value of the specified properties of the component
