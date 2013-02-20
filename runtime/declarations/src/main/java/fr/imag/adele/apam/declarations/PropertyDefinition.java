@@ -69,6 +69,8 @@ public class PropertyDefinition {
      */
     private final String type;
 
+    private final String baseType;
+
     private final boolean isSet;
     
     /**
@@ -106,7 +108,8 @@ public class PropertyDefinition {
         this.reference		= new Reference(component.getReference(),name);
         
         String baseType		= isSetAttrType(type);
-        this.type			= baseType != null ? baseType : type;
+        this.type			= type;
+        this.baseType		= baseType != null ? baseType : type;
         this.isSet			= baseType != null ;
         this.defaultValue	= defaultValue;
         this.field 			= field;
@@ -149,6 +152,10 @@ public class PropertyDefinition {
      */
     public String getType() {
         return type;
+    }
+    
+    public String getBaseType() {
+    	return baseType;
     }
 
     public boolean isSet() {
