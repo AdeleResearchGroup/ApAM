@@ -461,18 +461,6 @@ public final class Util {
 		return true;
 	}
 
-	/**
-	 * 
-	 * @param type
-	 * @return
-	 */
-	public static String isSetAttrType (String type) {
-		type = type.trim() ;
-		if ((type == null) || (type.isEmpty()) || type.charAt(0) !='{') {
-			return null;
-		}
-		return type.substring(1, type.length()-1) ;	
-	}
 
 	/**
 	 * 

@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.fibonacci;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,7 +37,7 @@ public class Fibonacci implements Fib, ApamComponent {
 
 	int fibnb ;
 	boolean sfibo ;
-	Set<Integer> fibil = new HashSet<Integer> ();
+	Set<Integer> fibil = new HashSet<Integer> (Arrays.asList(5,6,8));
 	Set<String>   fibn = new HashSet<String> ();
 
 	

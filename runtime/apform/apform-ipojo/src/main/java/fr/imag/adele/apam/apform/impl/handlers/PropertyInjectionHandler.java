@@ -14,7 +14,9 @@
  */
 package fr.imag.adele.apam.apform.impl.handlers;
 
+import java.util.Collections;
 import java.util.Dictionary;
+import java.util.Set;
 
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.FieldInterceptor;
@@ -127,11 +129,16 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
     	AtomicImplementationDeclaration primitive	= (AtomicImplementationDeclaration) declaration;
     	for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
     		
-    		if (definition.getField() != null && definition.getField().equals(fieldName)) {
+    		if (definition.getField() != null && definition.getField().equals(fieldName) ) {
+    			
+    			if (definition.isInternal())
+    				// TODO wrap set 
+    				return currentValue;
     			
     			Object value = getInstanceManager().getApamInstance().getPropertyObject(definition.getName());
-    			
-    			if (value != null)
+    			if (definition.isSet())
+    				return Collections.unmodifiableSet((Set<?>)value);
+    			else
     				return value;
     		}
     		
@@ -164,18 +171,34 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
     			String property		= definition.getName();
     			Instance instance 	= getInstanceManager().getApamInstance();
     			Object currentValue = instance.getPropertyObject(property);
-    			
+
+ 
     			if (value == null && currentValue == null)
     				continue;
 
     			if (value != null && currentValue != null && currentValue.equals(value))
     				continue;
 
-    			if (value == null)
-    				instance.removeProperty(property);
-    			
-    			if (value != null)
-    				((InstanceImpl)instance).setPropertyInt(property, value, true);
+       			if (definition.isInternal()) {
+        			if (value == null)
+        				instance.removeProperty(property);
+        			
+           			if (definition.isSet() && value != null)
+        				value = Collections.unmodifiableSet((Set<?>)value);
+
+        			if (value != null)
+        				((InstanceImpl)instance).setPropertyInt(property, value, true);
+       				
+       			} else {
+       				
+       				System.err.println("Modifying non internal field property "+definition.getName());
+       				/*
+       				 * TODO throw exception?
+       				 */
+    				return;
+       				
+       			}
+
      			
     		} 
     		

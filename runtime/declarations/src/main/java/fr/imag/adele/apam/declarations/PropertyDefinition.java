@@ -69,6 +69,8 @@ public class PropertyDefinition {
      */
     private final String type;
 
+    private final boolean isSet;
+    
     /**
      * The default value for the property
      */
@@ -102,13 +104,24 @@ public class PropertyDefinition {
         this.component		= component;
         this.name 			= name;
         this.reference		= new Reference(component.getReference(),name);
-        this.type			= type;
+        
+        String baseType		= isSetAttrType(type);
+        this.type			= baseType != null ? baseType : type;
+        this.isSet			= baseType != null ;
         this.defaultValue	= defaultValue;
         this.field 			= field;
         this.callback		= callback;
         this.internal 		= internal ;
         this.local 			= local ;
     }
+
+	private static String isSetAttrType (String type) {
+		type = type.trim() ;
+		if ((type == null) || (type.isEmpty()) || type.charAt(0) !='{') {
+			return null;
+		}
+		return type.substring(1, type.length()-1).trim() ;	
+	}
 
     /**
      * The defining component
@@ -138,6 +151,10 @@ public class PropertyDefinition {
         return type;
     }
 
+    public boolean isSet() {
+    	return isSet;
+    }
+    
 	/**
 	 * get the internal property
 	 */
