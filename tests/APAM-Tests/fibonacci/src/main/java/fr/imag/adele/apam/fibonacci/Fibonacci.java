@@ -40,17 +40,26 @@ public class Fibonacci implements Fib, ApamComponent {
 	Set<Integer> fibil = new HashSet<Integer> (Arrays.asList(5,6,8));
 	Set<String>   fibn = new HashSet<String> ();
 
+	String fString ;
+	Integer fInt ;
+	Set<Integer> setInt = new HashSet<Integer> (Arrays.asList(5,6,8));
+	Set<String> setS =  new HashSet<String> () ;
 	
 	Fib moins1  ;
 	Fib moins2  ;
+	
+	Instance apamInstance ;
 
 	public int compute (int n) {
 		if ( n < 2 ) return 1 ;
 		System.out.println("n=" + n);
 		fibil.add (Integer.valueOf(n)) ;
-		System.out.println(fibil);
+		System.out.println("fibil Java: " + fibil.toString());
+		System.out.println("Afibil attr: " + apamInstance.getProperty("Afibl").toString());
+		
 		fibn.add(Integer.toString (n));
-		System.out.println(fibil);
+		System.out.println("fibi Java: " + fibn);
+		System.out.println("Afibin Attr: " + apamInstance.getProperty("Afibn").toString());
 		
 		return moins1.compute(n-1) + moins2.compute(n-2) ; 
 	}
@@ -67,6 +76,7 @@ public class Fibonacci implements Fib, ApamComponent {
 
 	@Override
 	public void apamInit(Instance apamInstance) {
+		this.apamInstance = apamInstance ;
 		FibMain.nbInst ++;
 		fibnb = 5 ;
 		sfibo = true ;
