@@ -26,13 +26,13 @@ public class FibMain implements Runnable, ApamComponent{
 //		System.out.println("initialization de " + nbInst + " instances. Duree: " + duree + " milis.  Result=" + fibResult);
 ////		System.out.println("initialization: " + duree + " milis");
 
-		for (int i = 0 ; i < 20; i++) {
+//		for (int i = 0 ; i < 20; i++) {
 			deb = System.nanoTime() ;
 			fibResult = fib.compute (nb) ;
 			fin = System.nanoTime() ;
 			duree = fin - deb ;
 			System.out.println("execution de " + nbInst + " appels. Duree: " + duree + " nano");
-		}
+//		}
 	//	System.out.println("Resultat pour Fibonacci " + nb + " : " + fibResult);
 	}
 
