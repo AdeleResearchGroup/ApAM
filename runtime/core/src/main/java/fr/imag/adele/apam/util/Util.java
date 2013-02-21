@@ -307,7 +307,7 @@ public final class Util {
 		if (value instanceof Integer) return value.toString() ;
 		if (value instanceof String)  return (String)value ;
 		return Util.stringSet2String((Set<String>)value);
-		
+
 	}
 	/**
 	 * Transforms an array of int in a string list in the Ldap format 
@@ -532,17 +532,19 @@ public final class Util {
 		if (type.equals ("int")) {
 			if (isSet) {
 				//Value MUST be a Set of Integer
-				if (value instanceof  Set<?>) {
-					for (Object i : (Set<?>)value) {
-						if (! (i instanceof Integer)) {
-							logger.error("In attribute value " + value + ", " + i.toString () + " is not a an Integer, for attribute " + attribute) ;
-							return false ;
-						}
-					}
-					return value ;
+				if ( !(value instanceof  Set<?>)) {
+					logger.error("Attribute value " + value + " not an a Set<Integer> for attribute " + attribute) ;
+					return false ;
 				}
-				logger.error("Attribute value " + value + " not an a Set<Integer> for attribute " + attribute) ;
-				return false ;
+				Set <String> valSetInt = new HashSet<String> () ;
+				for (Object i : (Set<?>)value) {
+					if (! (i instanceof Integer)) {
+						logger.error("In attribute value " + value + ", " + i.toString () + " is not a an Integer, for attribute " + attribute) ;
+						return false ;
+					}
+					valSetInt.add(Integer.toString((Integer)i)) ;
+				}
+				return valSetInt ;
 			}
 
 			//singleton
