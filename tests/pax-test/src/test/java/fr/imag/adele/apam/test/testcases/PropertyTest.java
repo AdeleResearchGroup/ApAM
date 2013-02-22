@@ -153,9 +153,9 @@ public class PropertyTest extends ExtensionAbstract {
 		}
 	}
 
-	@Test
-	public void PropertyDefinitionInternalAndNotInternalAreAPIVisible_tc004() {
 
+	@Test
+	public void PropertyDefinitionInternalTrueTypeStringProperty_tc004(){
 		Implementation s1Impl = CST.apamResolver.findImplByName(null,
 				"fr.imag.adele.apam.pax.test.impl.S1Impl");
 
@@ -163,54 +163,61 @@ public class PropertyTest extends ExtensionAbstract {
 
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
-		s1Inst.setProperty("stateInternal", "default");
-		s1Inst.setProperty("stateNotInternal", "default");
-
-		for (String key : s1Inst.getAllProperties().keySet()) {
-			System.out.println(key + "="
-					+ s1Inst.getAllProperties().get(key.toString()));
-		}
-
-		Assert.assertTrue("Internal property not visible through API", s1Inst
-				.getAllProperties().get("stateInternal") != null);
-		Assert.assertTrue("Non-Internal property not visible through API",
-				s1Inst.getAllProperties().get("stateNotInternal") != null);
-
-		Assert.assertTrue(
-				"Internal property not visible through API with the right value",
-				s1Inst.getAllProperties().get("stateInternal")
-						.equals("default"));
-		Assert.assertTrue(
-				"Non-Internal property not visible through API with the right value",
-				s1Inst.getAllProperties().get("stateNotInternal")
-						.equals("default"));
-
-		s1Inst.setProperty("stateInternal", "changed");
-		s1Inst.setProperty("stateNotInternal", "changed");
-
-		Assert.assertTrue(
-				"Internal property shall not be changeble through API",
-				s1Inst.getAllProperties().get("stateInternal")
-						.equals("default"));
-		Assert.assertTrue(
-				"Non-Internal property shall be changeble through API",
-				s1Inst.getAllProperties().get("stateNotInternal")
-						.equals("changed"));
-
-		s1.setStateInternal("changed2");
-		s1.setStateNotInternal("changed2");
-
-		Assert.assertTrue(
-				"Internal property shall be changeble through the application",
-				s1Inst.getAllProperties().get("stateInternal")
-						.equals("changed2"));
-		Assert.assertTrue(
-				"Non-Internal property shall be changeble through the application",
-				s1Inst.getAllProperties().get("stateNotInternal")
-						.equals("changed2"));
+		String messageTemplace="for a property type internal='true', %s";
+		
+		Assert.assertTrue(String.format(messageTemplace, "initial value declared in the xml should be ignored"),s1.getStateInternal()==null);
+		
+		s1Inst.setProperty("stateInternal", "changedByApamAPI");
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by ApamInstance.setProperty, although the value remains un altered java instance property value"), !(s1.getStateInternal()==null?"":s1.getStateInternal()).equals("changedByApamAPI"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getProperty"), !s1Inst.getProperty("stateInternal").equals("changedByApamAPI"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by ApamInstance.setProperty,  although the value remains un altered when checking ApamInstance.getAllProperties"), !s1Inst.getAllProperties().get("stateInternal").equals("changedByApamAPI"));
+		
+		s1.setStateInternal("changedByJavaInstance");
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking the java instance property value"), (s1.getStateInternal()==null?"":s1.getStateInternal()).equals("changedByJavaInstance"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("stateInternal").equals("changedByJavaInstance"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateInternal").equals("changedByJavaInstance"));
 
 	}
+	
+	@Test
+	public void PropertyDefinitionInternalFalseTypeStringProperty_tc004() {
 
+		Implementation s1Impl = CST.apamResolver.findImplByName(null,
+				"fr.imag.adele.apam.pax.test.impl.S1Impl");
+		
+		Instance s1Inst = s1Impl.createInstance(null, null);
+
+		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
+
+		String messageTemplace="for a property type internal='false', the %s";
+		
+		Assert.assertTrue(String.format(messageTemplace, "initial value declared in the xml should NOT be ignored"),s1.getStateNotInternal().equals("default"));
+		
+		s1Inst.setProperty("stateNotInternal", "changedByApamAPI");
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, which is not true when checking the java instance property value"), (s1.getStateNotInternal()==null?"":s1.getStateNotInternal()).equals("changedByApamAPI"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getProperty"), s1Inst.getProperty("stateNotInternal").equals("changedByApamAPI"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, which is not true when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateNotInternal").equals("changedByApamAPI"));
+		
+		s1.setStateNotInternal("changedByJavaInstance");
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking the java instance "), (s1.getStateNotInternal()==null?"":s1.getStateNotInternal()).equals("changedByJavaInstance"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("stateNotInternal").equals("changedByJavaInstance"));
+		
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateNotInternal").equals("changedByJavaInstance"));
+
+
+	}
+	
 	@Test
 	public void PropertyDefinitionIsVisibleWithValPropertySetXML_tc005() {
 
