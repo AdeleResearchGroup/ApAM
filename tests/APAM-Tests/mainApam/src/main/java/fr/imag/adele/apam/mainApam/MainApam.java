@@ -19,7 +19,9 @@ package fr.imag.adele.apam.mainApam;
 import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import apam.test.attr.TestAttr;
 
@@ -392,13 +394,38 @@ public class MainApam implements Runnable, ApamComponent {
 		assertTrue ( inst.match("(setInt <* 5, 7, 55,985)")) ;
 		assertTrue (!inst.match("(setInt *> 5, 7, 55,985)")) ;
 		assertTrue ( inst.match("(setInt <* 05, 7, 55,985)")) ;
-		assertTrue ( inst.match("(setInt <* 5, 07, 55,985)")) ;
-		assertTrue ( inst.match("(setInt <= 05, 7, 55,985)")) ;
+//		assertTrue ( inst.match("(setInt <= 05, 7, 55,985)")) ;
+
+		Set<Integer> setInt = new HashSet<Integer> () ;
+		setInt.add(5) ;
+		setInt.add(985) ;
+		impl.setProperty("setInt", setInt); // for match tests
+		
+		System.out.println("\n");
+		System.out.println("setInt value is : " + inst.getProperty("setInt"));
+		
+		assertTrue ( inst.match("(setInt <* 5, 7, 55,985)")) ;
+		assertTrue (!inst.match("(setInt *> 5, 7, 55,985)")) ;
+//		assertTrue ( inst.match("(setInt <* 05, 7, 55,985)")) ;
+//		assertTrue ( inst.match("(setInt <= 05, 7, 55,985)")) ;
+
 		
 		inst.setProperty("OS", "Android, Linux, IOS") ; // ok
+		System.out.println("OS=" + inst.getProperty("OS"));
 		assertEquals(inst.getProperty("OS"), "Android, Linux, IOS");
 		assertTrue(impl.getProperty("OS") == null);
 
+		Set<String> OS = new HashSet<String> () ;
+		OS.add("Android") ;
+		OS.add("Linux") ;
+		OS.add("IOS") ;
+		inst.setProperty("OS", OS) ; // ok
+		System.out.println("OS=" + inst.getProperty("OS"));
+		assertNotEquals(inst.getProperty("OS"), "Android, Linux, IOS");
+		assertTrue(impl.getProperty("OS") == null);
+
+		
+		
 		System.out.println("\n");
 		System.out.println("OS value is : " + inst.getProperty("OS"));
 		System.out.println("toto does not exist. Its value is null");

@@ -497,11 +497,11 @@ public final class Util {
 
 	/**
 	 * Check if the attribute value is valid; if so return the value to put into the object property Map.
-	 * 			In the Map, values are only String or int.
+	 * 			In the Map, values are String, Integer or Set<String> for all sets.
 	 * Type can be a singleton "int", "boolean" or "string" or enumeration "v1, v2, v3 ..."
 	 * 				or a set of these : "{int}", or "{string}" or enumeration "{v1, v2, v3 ...}"
 
-	 * Parameter "value" can be String, int, boolean, Set<Integer> or Set<String>.
+	 * Parameter "value" can be String, Integer, Boolean, Set<Integer> or Set<String>.
 	 * 		If the value is String, it is checked and transformed into the Map type.
 	 * 		If it is an Object, it is checked and transformed into the Set.
 	 * 
@@ -526,9 +526,8 @@ public final class Util {
 			return checkAttrTypeString (attribute, (String)value, type, isSet) ;
 
 		/*
-		 * integers. They are stored as int if singleton, as String for sets
+		 * integers. They are stored as Integer if singleton, as Set<String> for sets<String> or Set<Integer>
 		 */
-
 		if (type.equals ("int")) {
 			if (isSet) {
 				//Value MUST be a Set of Integer
@@ -537,24 +536,32 @@ public final class Util {
 					return false ;
 				}
 				Set <String> valSetInt = new HashSet<String> () ;
-				for (Object i : (Set<?>)value) {
-					if (! (i instanceof Integer)) {
-						logger.error("In attribute value " + value + ", " + i.toString () + " is not a an Integer, for attribute " + attribute) ;
-						return false ;
+				try {
+					for (Object i : (Set<?>)value) {
+						if (i instanceof Integer) {
+							valSetInt.add(Integer.toString((Integer)i)) ;
+						}
+						else {
+							if (i instanceof Integer) {
+								//to be sure it is an integer
+								Integer.valueOf((String)i) ;
+								valSetInt.add((String)i) ;
+							}
+						}
 					}
-					valSetInt.add(Integer.toString((Integer)i)) ;
+				} catch (Exception e) {
+					logger.error("In attribute value " + value +  " is not an Integer Set, for attribute " + attribute) ;
+					return false ;
 				}
 				return valSetInt ;
 			}
-
-			//singleton
-			if ((value instanceof Integer)) {
-				return ((Integer)value).intValue()  	;	
-			}
-			logger.error("Invalid integer value " + value + " for attribute " + attribute) ;
-			return null ;
+			//A singleton
+			if (value instanceof Integer)
+				return value ;
+			logger.error("Invalid integer value " + value +  " for attribute " + attribute) ;
+			return false ;
 		}
-		//end int
+		//			return ((Integer)value).intValue()  	;	
 
 
 		/*
@@ -644,63 +651,74 @@ public final class Util {
 			return null ;
 		}
 
-		//Type is a singleton : it must be only "string", "int", "boolean" 
-		//but value can still be a set
-		if (enumVals.size() == 1) {
 
-			if (type.equals("boolean")) {
-				for (String val : values) {
-					if (!val.equalsIgnoreCase(CST.V_TRUE) && !val.equalsIgnoreCase(CST.V_FALSE)) {
-						logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr + "=" + value
-								+ "\".  Boolean value expected");
-						return null;
-					}
-				}
-				return value ; 
+		/*
+		 * Type is an enumeration with at least 2 values
+		 */
+		if (enumVals.size() > 1) {
+			if (enumVals.containsAll(values)) {
+				return value;
 			}
+			logger.error( "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
+					+ "\".  Expected subset of: " + types);
+			return null;
+		}
 
-			if (type.equals("int")) {
-				try {
-					if (values.size() == 1) {
-						// the only case where we return something else than a string !
-						return Integer.parseInt(values.iterator().next());
-					}
-					//Set<Integer> intArray = new HashSet<Integer> () ;
-					int i ;
-					Set <String> valSetInt = new HashSet<String> () ;
-					for (String val : values) {
-						i = Integer.parseInt(val);
-						valSetInt.add(Integer.toString(i)) ;
-					}
-					//System.err.println("tableau de Integer : " + intArray.toString() + " en string : " + value);
-					//unfortunately, match does not recognizes a set of integer.
-					//return the list as a string  ;
-					return valSetInt ;
-				} catch (Exception e) {
-					logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
-							+ "\".  Integer value(s) expected");
+		/*
+		 * Type is a singleton : it must be only "string", "int", "boolean" 
+		 * 		but value can still be a set
+		 */
+		if (type.equals("boolean")) {
+			for (String val : values) {
+				if (!val.equalsIgnoreCase(CST.V_TRUE) && !val.equalsIgnoreCase(CST.V_FALSE)) {
+					logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr + "=" + value
+							+ "\".  Boolean value expected");
 					return null;
 				}
 			}
+			return value ; 
+		}
 
-			if (!type.equals("string")) {
-				logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
-						+ "\".  int, integer, boolean or string expected");
-				return null ;
+		if (type.equals("int")) {
+			try {
+				if (!isSet) {
+					// the only case where we return something else than a string !
+					return Integer.valueOf(value);
+				}
+				//unfortunately, match does not recognizes a set of integer.
+				//return the list as a string  ;
+				int i ;
+				Set <String> valSetInt = new HashSet<String> () ;
+				for (String val : values) {
+					i = Integer.parseInt(val);
+					valSetInt.add(Integer.toString(i)) ;
+				}
+				return valSetInt ;
+			} catch (Exception e) {
+				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
+						+ "\".  Integer value(s) expected");
+				return null;
 			}
-			//All values are Ok for string.
-			return value ;
 		}
 
-		//Type is an enumeration with at least 2 values
-		if (enumVals.containsAll(values)) {
-			return value;
+		if (!type.equals("string")) {
+			logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
+					+ "\".  int, integer, boolean or string expected");
+			return null ;
 		}
+		//All values are Ok for string.
+		return value ;
+		//		}
 
-		String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
-				+ "\".  Expected subset of: " + types;
-		logger.error(errorMes);
-		return null;
+		//		//Type is an enumeration with at least 2 values
+		//		if (enumVals.containsAll(values)) {
+		//			return value;
+		//		}
+		//
+		//		String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
+		//				+ "\".  Expected subset of: " + types;
+		//		logger.error(errorMes);
+		//		return null;
 	}
 
 
