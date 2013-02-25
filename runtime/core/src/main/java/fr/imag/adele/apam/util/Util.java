@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -542,7 +543,8 @@ public final class Util {
 							valSetInt.add(Integer.toString((Integer)i)) ;
 						}
 						else {
-							if (i instanceof Integer) {
+							if (i instanceof String
+									) {
 								//to be sure it is an integer
 								Integer.valueOf((String)i) ;
 								valSetInt.add((String)i) ;
@@ -553,7 +555,7 @@ public final class Util {
 					logger.error("In attribute value " + value +  " is not an Integer Set, for attribute " + attribute) ;
 					return false ;
 				}
-				return valSetInt ;
+				return Collections.unmodifiableSet(valSetInt) ;
 			}
 			//A singleton
 			if (value instanceof Integer)
@@ -561,8 +563,6 @@ public final class Util {
 			logger.error("Invalid integer value " + value +  " for attribute " + attribute) ;
 			return false ;
 		}
-		//			return ((Integer)value).intValue()  	;	
-
 
 		/*
 		 * Booleans
@@ -581,8 +581,7 @@ public final class Util {
 
 
 		/*
-		 * array of String or array of enumerated
-		 * Array of string in all cases
+		 * array of String or array of enumerated. Array of string in all cases
 		 */
 		if (!isSet) {
 			logger.error("Invalid value: not a single String " + value + " for attribute " + attribute) ;			
@@ -600,24 +599,21 @@ public final class Util {
 			}
 		}
 
-
 		/*
 		 * String array
 		 */
 		if (type.equals("string")) {
-			return value ;
+			return Collections.unmodifiableSet((Set<String>)value) ;
 		}
 
 		/*
-		 * It is an enumeration.
-		 * 
-		 * a set of enumeration
+		 * It is a set of enumeration
 		 * Compute all values in type.
 		 * Check if all values are in type.
 		 */
 		Set<String> enumType = Util.splitSet(type) ;
 		if (enumType.containsAll((Set<String>)value)) {
-			return value ;
+			return Collections.unmodifiableSet((Set<String>)value) ;
 		} else {
 			logger.error("Invalid value " + value + " for attribut " + attribute + ". Expected subset of " + type) ;
 			return false ;
@@ -644,7 +640,7 @@ public final class Util {
 		}
 		String type = enumVals.iterator().next() ;
 
-		Set<String> values   = Util.splitSet(value);		
+		Set<String> values   = Collections.unmodifiableSet(Util.splitSet(value));		
 		if (values.size() > 1 && !isSet) {
 			logger.error("Values are a set \"" + values  + "\" for attribute \"" + attr
 					+ "\". while type is singleton: \"" + types + "\"");
@@ -653,7 +649,7 @@ public final class Util {
 
 
 		/*
-		 * Type is an enumeration with at least 2 values
+		 * Type is an enumeration with at least 2 values {a, b, c, ....}
 		 */
 		if (enumVals.size() > 1) {
 			if (enumVals.containsAll(values)) {
@@ -679,6 +675,9 @@ public final class Util {
 			return value ; 
 		}
 
+		/*
+		 * int or {int}
+		 */
 		if (type.equals("int")) {
 			try {
 				if (!isSet) {
@@ -701,24 +700,17 @@ public final class Util {
 			}
 		}
 
-		if (!type.equals("string")) {
-			logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
-					+ "\".  int, integer, boolean or string expected");
-			return null ;
+		/*
+		 * String or {String}
+		 */
+		if (type.equals("string")) {
+			//All values are Ok for string.
+			return value ;
 		}
-		//All values are Ok for string.
-		return value ;
-		//		}
 
-		//		//Type is an enumeration with at least 2 values
-		//		if (enumVals.containsAll(values)) {
-		//			return value;
-		//		}
-		//
-		//		String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
-		//				+ "\".  Expected subset of: " + types;
-		//		logger.error(errorMes);
-		//		return null;
+		logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
+				+ "\".  int, integer, boolean or string expected");
+		return null ;
 	}
 
 
