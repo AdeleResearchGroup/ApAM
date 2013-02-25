@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ipojo 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd" 
+    xmlns="org.apache.felix.ipojo">
+      
+  <component classname="fr.imag.adele.apam.pax.test.performance.FibonacciRecursive"
+    name="activity">
+    <provides />
+    <requires field="moins1" optional="true"/>
+    <requires field="moins2" optional="true"/>
+  </component>
+  
+  <instance component="activity"  />
+  
+  <!-- 
+  <instance component="activity" />
+  <instance component="activity" />
+  <instance component="activity"  />
+  <instance component="activity" />
+  <instance component="activity" />
+  <instance component="activity"  />
+  <instance component="activity" />
+  <instance component="activity" />
+  <instance component="activity"  />
+  <instance component="activity" />
+  <instance component="activity" />
+  <instance component="activity"  />
+  <instance component="activity" />
+  <instance component="activity" />
+  <instance component="activity"  />
+  <instance component="activity" />
+  <instance component="activity" />  
+   -->
+   
+  <component classname="fr.imag.adele.apam.pax.test.performance.Main"
+    name="main">
+     <requires field="fib"/>
+     <callback transition="validate" method="start" />
+    <provides />
+  </component>
+  <instance component="main" />
+  
+</ipojo>
+<!-- 
+
+ -->

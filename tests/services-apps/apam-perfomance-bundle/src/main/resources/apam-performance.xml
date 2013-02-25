@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
+
+	<implementation name="main-perf"
+		classname="fr.imag.adele.apam.pax.test.performance.Main">
+		<dependency field="fib" />
+		<callback onInit="start" onRemove="stop" />
+	</implementation>
+
+	<implementation classname="fr.imag.adele.apam.pax.test.performance.FibonacciRecursive"
+		name="activity" shared="true">
+		<dependency field="moins1" />
+		<dependency field="moins2" />
+	</implementation>
+
+	<apam-instance implementation="main-perf" name="main-perf-instance" />
+
+<!-- 
+	<apam-instance implementation="main-perf" name="main-perf-01" />
+	<apam-instance implementation="main-perf" name="main-perf-02" />
+	<apam-instance implementation="main-perf" name="main-perf-03" />
+	<apam-instance implementation="main-perf" name="main-perf-04" />
+	<apam-instance implementation="main-perf" name="main-perf-05" />
+	<apam-instance implementation="main-perf" name="main-perf-06" />
+	<apam-instance implementation="main-perf" name="main-perf-07" />
+	<apam-instance implementation="main-perf" name="main-perf-08" />
+	<apam-instance implementation="main-perf" name="main-perf-09" />
+	<apam-instance implementation="main-perf" name="main-perf-10" />
+	<apam-instance implementation="main-perf" name="main-perf-11" />
+	<apam-instance implementation="main-perf" name="main-perf-12" />
+	<apam-instance implementation="main-perf" name="main-perf-13" />
+	<apam-instance implementation="main-perf" name="main-perf-14" />
+	<apam-instance implementation="main-perf" name="main-perf-15" />
+	<apam-instance implementation="main-perf" name="main-perf-16" />
+	<apam-instance implementation="main-perf" name="main-perf-17" />
+	<apam-instance implementation="main-perf" name="main-perf-18" />
+ -->
+
+</apam>
+ 
