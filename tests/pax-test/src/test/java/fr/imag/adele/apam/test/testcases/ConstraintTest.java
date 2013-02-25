@@ -51,45 +51,46 @@ public class ConstraintTest extends ExtensionAbstract{
 
 		philipsSwitch.setProperty("currentVoltage", "110");
 		
+		String manufacturer=philipsSwitch.getProperty("manufacturer");
 		String currentVoltage=philipsSwitch.getProperty("currentVoltage");
 		String voltage=philipsSwitch.getProperty("voltage");
 		
-		String messageTemplate="The filter %s should result in a %s statement since currentVoltage:%s and voltage:%s";
+		String messageTemplate="The filter %s should result in a %s statement since manufacturer:%s, currentVoltage:%s and voltage:%s";
 		
 		String expression="(manufacturer=philips)";
 		Boolean result=true;
 		
-		Assert.assertTrue(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		Assert.assertTrue(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
 		
 		expression="(voltage=110)";
 		result=true;
 		
-		Assert.assertTrue(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		Assert.assertTrue(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
 		
 		expression="(currentVoltage <= 110)";
 		result=true;
 		
-		Assert.assertTrue(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		Assert.assertTrue(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
 		
 		expression="(currentVoltage >= 111)";
 		result=false;
 		
-		Assert.assertFalse(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		Assert.assertFalse(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
 		
 		expression="(futfut)";
 		result=false;
 		
-		Assert.assertFalse(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		Assert.assertFalse(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
 		
 		expression="(&(false)(manufacturer=philips))";
 		result=false;
 		
-		Assert.assertFalse(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		Assert.assertFalse(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
 		
 		expression="(&(true)(manufacturer=philips))";
 		result=true;
 		
-		Assert.assertTrue(String.format(messageTemplate, expression,result,currentVoltage,voltage),philipsSwitch.match(expression));
+		Assert.assertTrue(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
 
 	}
 	
