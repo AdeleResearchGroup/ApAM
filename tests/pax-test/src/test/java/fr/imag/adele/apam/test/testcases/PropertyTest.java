@@ -209,11 +209,11 @@ public class PropertyTest extends ExtensionAbstract {
 		
 		s1.setStateNotInternal("changedByJavaInstance");
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking the java instance value"), (s1.getStateNotInternal()==null?"":s1.getStateNotInternal()).equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance value"), (s1.getStateNotInternal()==null?"":s1.getStateNotInternal()).equals("changedByJavaInstance"));
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("stateNotInternal").equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("stateNotInternal").equals("changedByJavaInstance"));
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateNotInternal").equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateNotInternal").equals("changedByJavaInstance"));
 
 
 	}
@@ -373,6 +373,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 
 	@Test
+	@Ignore
 	public void PropertiesDataTypeListInt_tc053() {
 
 		final String propertyName = "setInt";

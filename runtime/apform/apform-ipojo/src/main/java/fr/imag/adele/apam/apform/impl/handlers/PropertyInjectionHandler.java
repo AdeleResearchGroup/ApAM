@@ -35,84 +35,98 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.impl.InstanceImpl;
 
-public class PropertyInjectionHandler extends ApformHandler implements FieldInterceptor {
+public class PropertyInjectionHandler extends ApformHandler implements
+		FieldInterceptor {
 
 	/**
 	 * The registered name of this iPojo handler
 	 */
 	public static final String NAME = "properties";
 
-	
 	@Override
-	public void initializeComponentFactory(ComponentTypeDescription typeDesc, Element metadata) throws ConfigurationException {
-		
-    	if (!(getFactory() instanceof ApformImplementationImpl))
-    		return;
+	public void initializeComponentFactory(ComponentTypeDescription typeDesc,
+			Element metadata) throws ConfigurationException {
 
-    	ApformImplementationImpl implementation	= (ApformImplementationImpl) getFactory();
-    	ImplementationDeclaration declaration		= implementation.getDeclaration();
-    	
-    	if (! (declaration instanceof AtomicImplementationDeclaration))
-    		return;
-    	
-    	AtomicImplementationDeclaration primitive	= (AtomicImplementationDeclaration) declaration;
-    	for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
-    		
-    		if (definition.getField() != null) {
-       			FieldMetadata field	= getPojoMetadata().getField(definition.getField());
-    			if (field == null)
-    				throw new ConfigurationException("Invalid property definition "+definition.getName()+": the specified field does not exist");
-    			
-    		}
-    		
-    		if (definition.getCallback() != null) {
-      			MethodMetadata method	= getPojoMetadata().getMethod(definition.getCallback());
-    			if (method == null)
-    				throw new ConfigurationException("Invalid property definition "+definition.getName()+": the specified method does not exist");
-    		}
-    	}	
-    }
+		if (!(getFactory() instanceof ApformImplementationImpl))
+			return;
+
+		ApformImplementationImpl implementation = (ApformImplementationImpl) getFactory();
+		ImplementationDeclaration declaration = implementation.getDeclaration();
+
+		if (!(declaration instanceof AtomicImplementationDeclaration))
+			return;
+
+		AtomicImplementationDeclaration primitive = (AtomicImplementationDeclaration) declaration;
+		for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
+
+			if (definition.getField() != null) {
+				FieldMetadata field = getPojoMetadata().getField(
+						definition.getField());
+				if (field == null)
+					throw new ConfigurationException(
+							"Invalid property definition "
+									+ definition.getName()
+									+ ": the specified field does not exist");
+
+			}
+
+			if (definition.getCallback() != null) {
+				MethodMetadata method = getPojoMetadata().getMethod(
+						definition.getCallback());
+				if (method == null)
+					throw new ConfigurationException(
+							"Invalid property definition "
+									+ definition.getName()
+									+ ": the specified method does not exist");
+			}
+		}
+	}
 
 	@Override
-	public void configure(Element metadata, @SuppressWarnings("rawtypes") Dictionary configuration)	throws ConfigurationException {
-        /*
-         * Add interceptors to delegate property injection
-         * 
-         * NOTE All validations were already performed when validating the
-         * factory @see initializeComponentFactory, including initializing
-         * unspecified properties with appropriate default values. Here we just
-         * assume metadata is correct.
-         */
+	public void configure(Element metadata,
+			@SuppressWarnings("rawtypes") Dictionary configuration)
+			throws ConfigurationException {
+		/*
+		 * Add interceptors to delegate property injection
+		 * 
+		 * NOTE All validations were already performed when validating the
+		 * factory @see initializeComponentFactory, including initializing
+		 * unspecified properties with appropriate default values. Here we just
+		 * assume metadata is correct.
+		 */
 
-    	if (!(getFactory() instanceof ApformImplementationImpl))
-    		return;
+		if (!(getFactory() instanceof ApformImplementationImpl))
+			return;
 
-    	ApformImplementationImpl implementation	= (ApformImplementationImpl) getFactory();
-    	ImplementationDeclaration declaration		= implementation.getDeclaration();
-    	
-    	if (! (declaration instanceof AtomicImplementationDeclaration))
-    		return;
-    	
-    	AtomicImplementationDeclaration primitive	= (AtomicImplementationDeclaration) declaration;
-    	for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
-    		
-    		if (definition.getField() != null) {
-       			FieldMetadata field	= getPojoMetadata().getField(definition.getField());
-    	   		getInstanceManager().register(field, this);
-    		}
-    		
-    		if (definition.getCallback() != null) {
-      			MethodMetadata method	= getPojoMetadata().getMethod(definition.getCallback());
-    			getInstanceManager().addCallback(definition.getName(),new Callback(method,getInstanceManager()));
-    		}
-    	}
-    }
-	
+		ApformImplementationImpl implementation = (ApformImplementationImpl) getFactory();
+		ImplementationDeclaration declaration = implementation.getDeclaration();
+
+		if (!(declaration instanceof AtomicImplementationDeclaration))
+			return;
+
+		AtomicImplementationDeclaration primitive = (AtomicImplementationDeclaration) declaration;
+		for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
+
+			if (definition.getField() != null) {
+				FieldMetadata field = getPojoMetadata().getField(
+						definition.getField());
+				getInstanceManager().register(field, this);
+			}
+
+			if (definition.getCallback() != null) {
+				MethodMetadata method = getPojoMetadata().getMethod(
+						definition.getCallback());
+				getInstanceManager().addCallback(definition.getName(),
+						new Callback(method, getInstanceManager()));
+			}
+		}
+	}
+
 	@Override
 	public Object onGet(Object pojo, String fieldName, Object currentValue) {
-		
+
 		if (getInstanceManager().getApamInstance() == null) {
-            return currentValue;
+			return currentValue;
 		}
 		
     	if (!(getFactory() instanceof ApformImplementationImpl))
@@ -145,14 +159,14 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
     	
     	return currentValue;
 	}
-	
+
 	@Override
 	public void onSet(Object pojo, String fieldName, Object value) {
-		
+
 		if (getInstanceManager().getApamInstance() == null) {
-            return;
+			return;
 		}
-		
+
     	if (!(getFactory() instanceof ApformImplementationImpl))
     		return;
 
@@ -201,69 +215,73 @@ public class PropertyInjectionHandler extends ApformHandler implements FieldInte
     	return;
 		
 	}
-	
-    /**
-     * The description of this handler instance
-     * 
-     */
-    private static class Description extends HandlerDescription {
 
-        private final PropertyInjectionHandler propertyHandler;
+	/**
+	 * The description of this handler instance
+	 * 
+	 */
+	private static class Description extends HandlerDescription {
 
-        public Description(PropertyInjectionHandler propertyHandler) {
-            super(propertyHandler);
-            this.propertyHandler = propertyHandler;
-        }
+		private final PropertyInjectionHandler propertyHandler;
 
-        @Override
-        public Element getHandlerInfo() {
-            Element root = super.getHandlerInfo();
+		public Description(PropertyInjectionHandler propertyHandler) {
+			super(propertyHandler);
+			this.propertyHandler = propertyHandler;
+		}
 
-            if (propertyHandler.getInstanceManager() instanceof ApformInstanceImpl) {
-                ApformInstanceImpl instance = (ApformInstanceImpl) propertyHandler.getInstanceManager();
-                for (PropertyDefinition definition : instance.getFactory().getDeclaration().getPropertyDefinitions()) {
-                	
-                	/*
-                	 * Ignore non injected properties
-                	 */
-                	if (definition.getField() == null && definition.getCallback() == null)
-                		continue;
-                	
-                	String name		= definition.getName();
-                	String field 	= definition.getField();
-                	String method	= definition.getCallback();
-                	String value	= instance.getApamInstance() != null ? instance.getApamInstance().getProperty(name) :  null;
-                	
-                	Element property = new Element("property", ApformComponentImpl.APAM_NAMESPACE);
-                	property.addAttribute(new Attribute("name", ApformComponentImpl.APAM_NAMESPACE, name));
-                	property.addAttribute(new Attribute("field", ApformComponentImpl.APAM_NAMESPACE, field != null ? field : ""));
-                	property.addAttribute(new Attribute("method", ApformComponentImpl.APAM_NAMESPACE, method != null ? method : ""));
-                	property.addAttribute(new Attribute("value", ApformComponentImpl.APAM_NAMESPACE, value != null ? value : ""));
+		@Override
+		public Element getHandlerInfo() {
+			Element root = super.getHandlerInfo();
 
-                	root.addElement(property);
-                }
-            }
-            return root;
-        }
+			if (propertyHandler.getInstanceManager() instanceof ApformInstanceImpl) {
+				ApformInstanceImpl instance = (ApformInstanceImpl) propertyHandler
+						.getInstanceManager();
+				for (PropertyDefinition definition : instance.getFactory()
+						.getDeclaration().getPropertyDefinitions()) {
 
-    }
+					/*
+					 * Ignore non injected properties
+					 */
+					if (definition.getField() == null
+							&& definition.getCallback() == null)
+						continue;
 
-    @Override
-    public HandlerDescription getDescription() {
-        return new Description(this);
-    }
+					String name = definition.getName();
+					String field = definition.getField();
+					String method = definition.getCallback();
+					String value = instance.getApamInstance() != null ? instance
+							.getApamInstance().getProperty(name) : null;
 
-    @Override
-    public void start() {
-    }
+					Element property = new Element("property", ApformComponentImpl.APAM_NAMESPACE);
+					
+					property.addAttribute(new Attribute("name",	ApformComponentImpl.APAM_NAMESPACE,  name));
+					property.addAttribute(new Attribute("field", ApformComponentImpl.APAM_NAMESPACE, field != null ? field : ""));
+					property.addAttribute(new Attribute("method",ApformComponentImpl.APAM_NAMESPACE, method != null ? method : ""));
+					property.addAttribute(new Attribute("value", ApformComponentImpl.APAM_NAMESPACE, value != null ? value : ""));
 
-    @Override
-    public void stop() {
-    }
+					root.addElement(property);
+				}
+			}
+			return root;
+		}
 
-    @Override
-    public String toString() {
-        return "APAM property manager for "
-                + getInstanceManager().getInstanceName();
-    }
+	}
+
+	@Override
+	public HandlerDescription getDescription() {
+		return new Description(this);
+	}
+
+	@Override
+	public void start() {
+	}
+
+	@Override
+	public void stop() {
+	}
+
+	@Override
+	public String toString() {
+		return "APAM property manager for "	+ getInstanceManager().getInstanceName();
+	}
 }
