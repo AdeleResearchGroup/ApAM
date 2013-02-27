@@ -302,7 +302,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * Returns null if attribute is not defined or not set.
 	 */
 	@Override
-	public Object getPropertyObject (String attribute) {
+	public Object getPropertyObject(String attribute) {
 		PropertyDefinition def = getAttrDefinition(attribute) ; 
 		if (def == null) {
 			logger.error("No definition for attribute " + attribute) ; 
@@ -311,6 +311,18 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 		String type = def.getType() ; 
 		if (type == null) return null ;
+		
+		boolean isSet = type.charAt(0)=='{' && type.charAt(type.length()-1)=='}' ? true:false ;
+		
+		if (isSet) {
+			
+			type = type.substring(1, type.length()-1) ;	
+			
+			if(type.equals("string")){
+				return Util.split(get(attribute).toString());
+			}
+			
+		}
 		
 		return get(attribute) ;
 	}
