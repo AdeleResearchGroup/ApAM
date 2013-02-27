@@ -35,6 +35,6 @@ public class UndefinedReference extends ResourceReference {
     }
        
     public String toString() {
-        return "resource UNKNOWN";
+        return "resource UNKNOWN "+subject;
     }
 }

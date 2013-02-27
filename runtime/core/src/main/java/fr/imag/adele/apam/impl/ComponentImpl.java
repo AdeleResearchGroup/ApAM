@@ -175,7 +175,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		 */
 		if (group != null) {
 			for (PropertyDefinition definition : group.getDeclaration().getPropertyDefinitions()) {
-				if ( definition.getDefaultValue() != null && get(definition.getName()) == null) {
+				if ( definition.getDefaultValue() != null && get(definition.getName()) == null && ! definition.isInternal()) {
 					Object val = Util.checkAttrType(definition.getName(), definition.getDefaultValue(), definition.getType());
 					if (val != null)
 						put (definition.getName(),val) ;
