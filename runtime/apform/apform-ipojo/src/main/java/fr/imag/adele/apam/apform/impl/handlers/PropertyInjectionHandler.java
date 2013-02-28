@@ -14,7 +14,13 @@
  */
 package fr.imag.adele.apam.apform.impl.handlers;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Dictionary;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.FieldInterceptor;
@@ -35,8 +41,7 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.impl.InstanceImpl;
 
-public class PropertyInjectionHandler extends ApformHandler implements
-		FieldInterceptor {
+public class PropertyInjectionHandler extends ApformHandler implements	FieldInterceptor {
 
 	/**
 	 * The registered name of this iPojo handler
@@ -44,8 +49,7 @@ public class PropertyInjectionHandler extends ApformHandler implements
 	public static final String NAME = "properties";
 
 	@Override
-	public void initializeComponentFactory(ComponentTypeDescription typeDesc,
-			Element metadata) throws ConfigurationException {
+	public void initializeComponentFactory(ComponentTypeDescription typeDesc, Element metadata) throws ConfigurationException {
 
 		if (!(getFactory() instanceof ApformImplementationImpl))
 			return;
@@ -63,10 +67,7 @@ public class PropertyInjectionHandler extends ApformHandler implements
 				FieldMetadata field = getPojoMetadata().getField(
 						definition.getField());
 				if (field == null)
-					throw new ConfigurationException(
-							"Invalid property definition "
-									+ definition.getName()
-									+ ": the specified field does not exist");
+					throw new ConfigurationException("Invalid property definition "	+ definition.getName()+ ": the specified field does not exist");
 
 			}
 
@@ -74,18 +75,13 @@ public class PropertyInjectionHandler extends ApformHandler implements
 				MethodMetadata method = getPojoMetadata().getMethod(
 						definition.getCallback());
 				if (method == null)
-					throw new ConfigurationException(
-							"Invalid property definition "
-									+ definition.getName()
-									+ ": the specified method does not exist");
+					throw new ConfigurationException("Invalid property definition "	+ definition.getName() + ": the specified method does not exist");
 			}
 		}
 	}
 
 	@Override
-	public void configure(Element metadata,
-			@SuppressWarnings("rawtypes") Dictionary configuration)
-			throws ConfigurationException {
+	public void configure(Element metadata,	@SuppressWarnings("rawtypes") Dictionary configuration)	throws ConfigurationException {
 		/*
 		 * Add interceptors to delegate property injection
 		 * 
@@ -108,16 +104,13 @@ public class PropertyInjectionHandler extends ApformHandler implements
 		for (PropertyDefinition definition : primitive.getPropertyDefinitions()) {
 
 			if (definition.getField() != null) {
-				FieldMetadata field = getPojoMetadata().getField(
-						definition.getField());
-				getInstanceManager().register(field, this);
+				FieldMetadata field = getPojoMetadata().getField(definition.getField());
+				getInstanceManager().register(field,this);
 			}
 
 			if (definition.getCallback() != null) {
-				MethodMetadata method = getPojoMetadata().getMethod(
-						definition.getCallback());
-				getInstanceManager().addCallback(definition.getName(),
-						new Callback(method, getInstanceManager()));
+				MethodMetadata method = getPojoMetadata().getMethod(definition.getCallback());
+				getInstanceManager().addCallback(definition.getName(),new Callback(method, getInstanceManager()));
 			}
 		}
 	}
@@ -148,10 +141,113 @@ public class PropertyInjectionHandler extends ApformHandler implements
  
     			/*
     			 * For primitive property fields, always return the APAM value that is already of the
-    			 * correct type
+    			 * correct type and is always synchronized
     			 */
     			if (! definition.isSet())
     				return instance.getPropertyObject(property);
+    			
+    			/*
+    			 * For multi-valued property fields calculate the collection to inject
+    			 */
+    			if (definition.isSet() ) {
+
+    				@SuppressWarnings("unchecked")
+					Set<String> apamValue 		= (Set<String>) instance.getPropertyObject(property);
+    				Set<?> fieldValue 			= (Set<?>)currentValue;
+    				
+    				Set<String> newValue 		= null;
+    				
+        			/*
+        			 * For internal multi-valued property fields, the injected value is directly stored
+        			 * in the handler, so we don't need to get the APAM value.
+        			 * 
+        			 * However, we need to propagate all modifications of the collection to APAM, so we
+        			 * need to inject a collection bound to the APAM instance.
+        			 */
+        			if (definition.isInternal() && fieldValue != null) {
+        				
+        				/*
+        				 * Small optimization to perform wrapping only once
+        				 */
+        				if (fieldValue instanceof BoundSet<?>) {
+        					BoundSet<?> injectedValue = (BoundSet<?>)fieldValue;
+        					if (injectedValue.getBoundInstance().equals(instance) && injectedValue.getBoundProperty().equals(definition))
+        						return currentValue;
+        				}
+        				
+        				/*
+        				 * Make a copy of the value of the field
+        				 */
+        				newValue = new HashSet<String>();
+        				for (Object element : fieldValue) {
+        					newValue.add(element.toString());
+						}
+        			}
+        			
+        			/*
+        			 * For non-internal multi-valued property fields the value is stored in APAM.
+        			 * 
+        			 */
+        			if (! definition.isInternal() && apamValue != null) {
+        				newValue = apamValue;
+        			}
+        				
+
+        			BoundSet<?> injectedValue = null;
+        			
+    				if (definition.getBaseType().equals("int") && newValue != null) {
+    					
+    					injectedValue = new BoundSet<Integer>(newValue,instance,definition) {
+    					
+							protected final Integer cast(String element) {
+								return Integer.valueOf(element);
+							}
+
+							protected final String uncast(Integer value) {
+								return value.toString();
+							}
+    					
+    					};
+    				}
+
+    				if (definition.getBaseType().equals("boolean") && newValue != null) {
+    					
+    					injectedValue = new BoundSet<Boolean>(newValue,instance,definition) {
+    					
+							protected final Boolean cast(String element) {
+								return Boolean.valueOf(element);
+							}
+
+							protected final String uncast(Boolean value) {
+								return value.toString();
+							}
+    					
+    					};
+       				}
+    				
+
+    				if (definition.getBaseType().equals("string") && newValue != null) {
+    					
+    					injectedValue = new BoundSet<String>(newValue,instance,definition) {
+    					
+							protected final String cast(String element) {
+								return element;
+							}
+
+							protected final String uncast(String value) {
+								return value;
+							}
+    					
+    					};
+       				}
+     				
+    				if (injectedValue == currentValue)
+        				continue;
+
+        			return injectedValue;
+
+    			}
+     			
     			
     		}
     		
@@ -161,7 +257,7 @@ public class PropertyInjectionHandler extends ApformHandler implements
 	}
 
 	@Override
-	public void onSet(Object pojo, String fieldName, Object value) {
+	public void onSet(Object pojo, String fieldName, Object newValue) {
 
 		if (getInstanceManager().getApamInstance() == null) {
 			return;
@@ -183,31 +279,51 @@ public class PropertyInjectionHandler extends ApformHandler implements
     			
     			String property		= definition.getName();
     			Instance instance 	= getInstanceManager().getApamInstance();
-    			
+
     			/*
-    			 * For primitive property fields, always update the APAM value to keep synchronization
+    			 * For non-internal multi-valued property fields, modification is not allowed
     			 */
-    			if (! definition.isSet()) {
-        			Object currentValue = instance.getPropertyObject(property);
+    			if (definition.isSet() && ! definition.isInternal()) {
+    				
+    				/*
+    				 * WARNING special case. This only happens when the field is initialized in the code and is accessed for
+    				 * the first time. iPojo sees the initial value in the code and because it is different from the value in
+    				 * APAM it triggers a onSet callback. For non-internal properties we simply ignore the initial value
+    				 */
+    				if (newValue != null && newValue instanceof BoundSet<?>) {
+    					BoundSet<?> injectedValue = (BoundSet<?>)newValue;
+    					if (injectedValue.getBoundInstance().equals(instance) && injectedValue.getBoundProperty().equals(definition))
+    						return;
+    				}
 
-        			/*
-        			 * avoid spurious notification in case of first get after initialization
-        			 */
-        			if (value != null && currentValue != null && currentValue.equals(value))
-        				continue;
-
-        			if (value == null && currentValue == null)
-        				continue;
-
-        			if (value == null)
-        				instance.removeProperty(property);
-        			
-        			if (value != null)
-        				((InstanceImpl)instance).setPropertyInt(property, value, true);
-        			
+    				throw new UnsupportedOperationException("Field "+definition.getField()+" is associated to a non-internal property ("+ definition.getName() + ") and can only be modified using the APAM API");
     			}
 
-     			
+    			/*
+    			 * For primitive and internal multi-valued property fields, always update the APAM value
+    			 * to keep synchronization
+    			 */
+    			if (definition.isInternal() || !definition.isSet()) {
+
+        			if (newValue != null && newValue instanceof BoundSet<?>)
+        				newValue = ((BoundSet<?>) newValue).unwrap();
+
+        			Object currentValue = instance.getPropertyObject(property);
+
+        			if (newValue != null && currentValue != null && currentValue.equals(newValue))
+        				continue;
+
+        			if (newValue == null && currentValue == null)
+        				continue;
+
+        			if (newValue == null)
+        				instance.removeProperty(property);
+        			
+        			if (newValue != null)
+        				((InstanceImpl)instance).setPropertyInt(property, newValue, true);
+        			
+    			}
+    			
     		} 
     		
     	}
@@ -234,23 +350,19 @@ public class PropertyInjectionHandler extends ApformHandler implements
 			Element root = super.getHandlerInfo();
 
 			if (propertyHandler.getInstanceManager() instanceof ApformInstanceImpl) {
-				ApformInstanceImpl instance = (ApformInstanceImpl) propertyHandler
-						.getInstanceManager();
-				for (PropertyDefinition definition : instance.getFactory()
-						.getDeclaration().getPropertyDefinitions()) {
+				ApformInstanceImpl instance = (ApformInstanceImpl) propertyHandler.getInstanceManager();
+				for (PropertyDefinition definition : instance.getFactory().getDeclaration().getPropertyDefinitions()) {
 
 					/*
 					 * Ignore non injected properties
 					 */
-					if (definition.getField() == null
-							&& definition.getCallback() == null)
+					if (definition.getField() == null && definition.getCallback() == null)
 						continue;
 
 					String name = definition.getName();
 					String field = definition.getField();
 					String method = definition.getCallback();
-					String value = instance.getApamInstance() != null ? instance
-							.getApamInstance().getProperty(name) : null;
+					String value = instance.getApamInstance() != null ? instance.getApamInstance().getProperty(name) : null;
 
 					Element property = new Element("property", ApformComponentImpl.APAM_NAMESPACE);
 					
@@ -284,4 +396,252 @@ public class PropertyInjectionHandler extends ApformHandler implements
 	public String toString() {
 		return "APAM property manager for "	+ getInstanceManager().getInstanceName();
 	}
+	
+	
+	/**
+	 * This class handles a typed set that is dynamically bound to a property of an APAM instance.
+	 * Changes to the set are automatically propagated to the property
+	 */
+	private static abstract class BoundSet<E> implements Set<E> {
+		
+		private final Instance 				instance;
+		private final PropertyDefinition	property;
+		private final Set<String>			backing;
+		
+		public BoundSet(Set<String> backing, Instance instance, PropertyDefinition property) {
+			
+			this.backing 	= backing;
+			this.instance	= instance;
+			this.property	= property;
+		}
+
+		private Set<String> unwrap() {
+			return backing;
+		}
+
+		/**
+		 * The instance bound to this set
+		 */
+		public Instance getBoundInstance() {
+			return instance;
+		}
+		
+		/**
+		 * The property bound to this set
+		 */
+		public PropertyDefinition getBoundProperty() {
+			return property;
+		}
+		
+		/**
+		 * Updates the associated property when the backing collection is changed
+		 */
+		private final void propagate() {
+			((InstanceImpl)instance).setPropertyInt(property.getName(),this.unwrap(),true);
+		}
+		
+		/**
+		 * Verifies that non-internal properties can only be modified through the APAM API
+		 */
+		private final void checkModifiable() throws UnsupportedOperationException {
+			if (! property.isInternal())
+				throw new UnsupportedOperationException("Field "+ property.getField()+
+						" is associated to non-internal property "+property.getName()+
+						" of component "+property.getComponent().getName()+
+						" and its value can not be modified");
+		}
+		
+		/**
+		 * Converts the string element of the backing collection to the type of the view
+		 */
+		protected abstract E cast(String element);
+		
+		/**
+		 * Converts a value of the type of the view to a string that can be stored in the
+		 * backing collection
+		 */
+		protected abstract String uncast(E value);
+
+		/*
+		 * The Object contract
+		 */
+		public boolean equals(Object o) {
+			return o == this || backing.equals(o);
+		}
+		
+		public int hashCode() {
+			return backing.hashCode();
+		}
+		
+		public String toString() {
+			return backing.toString();
+		}
+
+		/*
+		 * The Collection contract
+		 * 
+		 */
+		public int size() {
+			return backing.size();
+		}
+
+		public boolean isEmpty() {
+			return backing.isEmpty();
+		}
+
+		@SuppressWarnings("unchecked")
+		public boolean contains(Object o) {
+			/*
+			 * WARNING This implementation restricts the parameter to be a value of the type of
+			 * the view. This is more restrictive that the contract of this method, but is needed
+			 * in order to ensure the automatic conversion. 
+			 */
+			return backing.contains(uncast((E)o));
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public boolean containsAll(Collection<?> collection) {
+			/*
+			 * WARNING This implementation restricts the parameter to be a value of the type of
+			 * the view. This is more restrictive that the contract of this method, but is needed
+			 * in order to ensure the automatic conversion. 
+			 */
+			List<String> elements = new ArrayList<String>();
+			for(Object element : collection) {
+				elements.add(uncast((E)element));
+			}
+			
+			return backing.containsAll(elements);
+		}
+
+		@Override
+		public Iterator<E> iterator() {
+		    return new Iterator<E>() {
+				private final Iterator<String> backing = BoundSet.this.backing.iterator();
+				
+				public boolean hasNext() {
+					return backing.hasNext();
+				}
+				public E next() {
+					return BoundSet.this.cast(backing.next());
+				}
+				
+				public void remove() {
+					BoundSet.this.checkModifiable();
+					backing.remove();
+					BoundSet.this.propagate();
+				}
+			};
+		}
+
+		@Override
+		public Object[] toArray() {
+			List<E> elements = new ArrayList<E>();
+			for(String element : backing) {
+				elements.add(cast(element));
+			}
+			
+			return elements.toArray();
+		}
+		
+		public <T extends Object> T[] toArray(T[] a) {
+			List<E> elements = new ArrayList<E>();
+			for(String element : backing) {
+				elements.add(cast(element));
+			}
+			
+			return elements.toArray(a);
+		}
+
+		@Override
+		public boolean add(E e) {
+			checkModifiable();
+			boolean added = backing.add(uncast(e));
+			if (added)
+				propagate();
+			
+			return added;
+		}
+
+		@Override
+		public boolean addAll(Collection<? extends E> collection) {
+			List<String> elements = new ArrayList<String>();
+			for(E element : collection) {
+				elements.add(uncast(element));
+			}
+			
+			checkModifiable();
+			boolean added = backing.addAll(elements);
+			if (added)
+				propagate();
+			
+			return added;
+		}
+		
+		@Override
+		@SuppressWarnings("unchecked")
+		public boolean remove(Object o) {
+			/*
+			 * WARNING This implementation restricts the parameter to be a value of the type of
+			 * the view. This is more restrictive that the contract of this method, but is needed
+			 * in order to ensure the automatic conversion. 
+			 */
+			checkModifiable();
+			boolean removed = backing.remove(uncast((E)o));
+			if (removed)
+				propagate();
+			
+			return removed;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public boolean removeAll(Collection<?> collection) {
+			/*
+			 * WARNING This implementation restricts the parameter to be a value of the type of
+			 * the view. This is more restrictive that the contract of this method, but is needed
+			 * in order to ensure the automatic conversion. 
+			 */
+			List<String> elements = new ArrayList<String>();
+			for(Object element : collection) {
+				elements.add(uncast((E)element));
+			}
+			
+			checkModifiable();
+			boolean removed = backing.removeAll(elements);
+			if (removed)
+				propagate();
+			return removed;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public boolean retainAll(Collection<?> collection) {
+			/*
+			 * WARNING This implementation restricts the parameter to be a value of the type of
+			 * the view. This is more restrictive that the contract of this method, but is needed
+			 * in order to ensure the automatic conversion. 
+			 */
+			List<String> elements = new ArrayList<String>();
+			for(Object element : collection) {
+				elements.add(uncast((E)element));
+			}
+			
+			checkModifiable();
+			boolean removed = backing.retainAll(elements);
+			if (removed)
+				propagate();
+			
+			return removed;
+		}
+		
+		@Override
+		public void clear() {
+			checkModifiable();
+			backing.clear();
+			propagate();
+		}
+	}
+
 }
