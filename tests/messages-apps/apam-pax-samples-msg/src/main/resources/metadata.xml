@@ -18,7 +18,16 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
-	<specification name="Edevice-Producer"
+	<specification name="MessageProducerSpec01"
+		messages="fr.imag.adele.apam.pax.test.msg.device.EletronicMsg">
+	</specification>
+	
+	<specification name="MessageConsumerSpec01">
+	</specification>	
+
+<!-- left for compatibility with other tests -->
+
+<specification name="Edevice-Producer"
 		messages="fr.imag.adele.apam.pax.test.msg.device.EletronicMsg">
 		<definition name="manufacturer" type="string" />
 		<definition name="voltage" type="{110, 220}" />

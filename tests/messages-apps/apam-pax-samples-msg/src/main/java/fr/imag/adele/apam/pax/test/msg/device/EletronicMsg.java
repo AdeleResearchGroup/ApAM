@@ -47,5 +47,12 @@ public class EletronicMsg {
             return false;
         return true;
     }
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return this.m;
+	}
+    
     
 }
