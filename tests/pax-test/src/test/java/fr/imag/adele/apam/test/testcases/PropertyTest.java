@@ -486,7 +486,7 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void PropertiesInjectionEnumIntoSetDataType_tc080() {
+	public void PropertiesInjectionEnumIntoSetDataType_tc081() {
 		
 		Implementation implementation = CST.apamResolver.findImplByName(null,
 				"PropertyInjectionSwitch");
