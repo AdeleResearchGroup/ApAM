@@ -375,7 +375,6 @@ public class PropertyTest extends ExtensionAbstract {
 	}
 
 	@Test
-	@Ignore
 	public void PropertiesDataTypeListInt_tc053() {
 
 		final String propertyName = "setInt";
@@ -394,7 +393,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 		if (RawType instanceof Collection) {
 			Object sample = ((Collection) RawType).iterator().next();
-			Class properType = Integer.class;
+			Class properType = String.class;
 			Assert.assertTrue(
 					String.format(messageCollection, propertyName, properType),
 					properType.isInstance(sample));
