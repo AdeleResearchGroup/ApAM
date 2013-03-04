@@ -209,8 +209,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
     					
     					};
     				}
-
-    				if (definition.getBaseType().equals("boolean") && newValue != null) {
+    				else if (definition.getBaseType().equals("boolean") && newValue != null) {
     					
     					injectedValue = new BoundSet<Boolean>(newValue,instance,definition) {
     					
@@ -224,9 +223,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
     					
     					};
        				}
-    				
-
-    				if (definition.getBaseType().equals("string") && newValue != null) {
+    				else if (newValue != null) {
     					
     					injectedValue = new BoundSet<String>(newValue,instance,definition) {
     					

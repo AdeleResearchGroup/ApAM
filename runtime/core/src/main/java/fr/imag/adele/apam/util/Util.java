@@ -658,7 +658,7 @@ public final class Util {
 		 */
 		if (enumVals.size() > 1) {
 			if (enumVals.containsAll(values)) {
-				return value;
+				return values;
 			}
 			logger.error( "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
 					+ "\".  Expected subset of: " + types);

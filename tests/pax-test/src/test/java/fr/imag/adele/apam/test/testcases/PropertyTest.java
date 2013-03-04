@@ -496,7 +496,8 @@ public class PropertyTest extends ExtensionAbstract {
 		PropertyInjectionTypeSwitch switchRef = (PropertyInjectionTypeSwitch) instance.getServiceObject();
 		
 		final String messageTemplate="%s (value declared into <apam> ... <definition type='{%s}'/> ...</apam>)";
-		Set<String> original=new HashSet<String>(){{add("Linux");add("Windows");add("Android");add("IOS");add("AmigaOS");}};
+		
+		Set<String> original=new HashSet<String>(){{add("Linux");add("Windows");add("Android");add("IOS");}};
 		
 		Set<String> injected=switchRef.getOS();
 		
