@@ -99,6 +99,15 @@
 <node CREATED="1360338509073" ID="ID_1192619082" MODIFIED="1360338564502" TEXT="PropertyEnumTypeSimpleValueSpaceBefore-tc74">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1362404102012" ID="ID_322089237" MODIFIED="1362404217151" TEXT="Test injection into java instance property of the type set of integer-tc079">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1362404196810" ID="ID_890278939" MODIFIED="1362404217153" TEXT="Test injection into java instance property of the type set of string-tc080">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1362404208969" ID="ID_1939802318" MODIFIED="1362404217152" TEXT="Test injection into java instance property of the type set of string-tc081">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 <node CREATED="1353066008853" ID="ID_82303023" MODIFIED="1353071077628" TEXT="Constraint">
 <node CREATED="1353070505975" ID="ID_346843196" MODIFIED="1354294409593" TEXT="injected instance should respect constraint declared in XML-tc009">
