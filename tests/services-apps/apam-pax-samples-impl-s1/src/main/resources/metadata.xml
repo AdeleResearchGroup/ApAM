@@ -152,7 +152,7 @@
 		<definition name="OS" field="OS" type="{Linux, Windows, Android, IOS,AmigaOS}"
 			value="{Linux, Windows, Android, IOS}" internal="false"/>
 		<definition name="setInt" field="setInt" type="{int}" internal="false" value="{12,15,254, 100}" />
-		<definition name="setString" field="setString" type="{string}" internal="false" value="doubt,grows,with,knowledge" />			
+		<definition name="setString" field="setString" type="{string}" internal="false" value="{doubt,grows,with,knowledge}" />			
 	</implementation>
 
 	<implementation name="PropertyChangeNotification"
