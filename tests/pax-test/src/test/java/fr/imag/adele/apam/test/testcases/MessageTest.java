@@ -49,7 +49,7 @@ public class MessageTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void MessageSingleProducerSingleConsumerSendReceive() {
+	public void MessageSingleProducerSingleConsumerSendReceive_tc075() {
 
 		Implementation producerImpl = CST.apamResolver.findImplByName(null,
 				"MessageProducerImpl01");
@@ -87,7 +87,7 @@ public class MessageTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void MessageSingleProducerSingleConsumerReceiveAllInStackOrder() {
+	public void MessageSingleProducerSingleConsumerReceiveAllInStackOrder_tc076() {
 
 		Implementation producerImpl = CST.apamResolver.findImplByName(null,
 				"MessageProducerImpl01");
@@ -131,7 +131,7 @@ public class MessageTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void MessageMultipleProducersSingleConsumerSendReceive() {
+	public void MessageMultipleProducersSingleConsumerSendReceive_tc077() {
 
 		Implementation producer01Impl = CST.apamResolver.findImplByName(null,
 				"MessageProducerImpl01");
@@ -182,7 +182,7 @@ public class MessageTest extends ExtensionAbstract {
 	}
 
 	@Test
-	public void MessageMultipleProducersSingleConsumerEnsureOnlyQueueTypeIsAccepted() {
+	public void MessageMultipleProducersSingleConsumerEnsureOnlyQueueTypeIsAccepted_tc078() {
 
 		Implementation producer01Impl = CST.apamResolver.findImplByName(null,
 				"MessageProducerImpl01");
