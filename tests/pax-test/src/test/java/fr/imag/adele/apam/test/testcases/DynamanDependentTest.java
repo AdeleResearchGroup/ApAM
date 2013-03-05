@@ -15,8 +15,6 @@
 package fr.imag.adele.apam.test.testcases;
 
 //import static org.ops4j.pax.exam.CoreOptions.bundle;
-import static org.ops4j.pax.exam.CoreOptions.provision;
-import static org.ops4j.pax.tinybundles.core.TinyBundles.bundle;
 import static org.ops4j.pax.exam.CoreOptions.systemPackage;
 
 import java.util.HashMap;

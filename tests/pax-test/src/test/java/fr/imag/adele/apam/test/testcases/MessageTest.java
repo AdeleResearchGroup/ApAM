@@ -16,7 +16,6 @@ package fr.imag.adele.apam.test.testcases;
 
 import static org.ops4j.pax.exam.CoreOptions.bundle;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Assert;
@@ -42,9 +41,9 @@ public class MessageTest extends ExtensionAbstract {
 		// TODO Auto-generated method stub
 
 		List<Option> defaults = super.config();
-		defaults.add(0, bundle("file://" + PathUtils.getBaseDir()
+		defaults.add(0,packApamDynaMan());
+		defaults.add(bundle("file://" + PathUtils.getBaseDir()
 				+ "/bundle/wireadmin.jar"));
-
 		return defaults;
 	}
 
@@ -82,6 +81,44 @@ public class MessageTest extends ExtensionAbstract {
 
 		Assert.assertTrue(
 				String.format("After producer sends 1 message, the consumer received the right number of messages but not the expected message (not the same message sent)"),
+				message.equals(new EletronicMsg("message 1")));
+
+	}
+	
+	@Test
+	public void MessageSingleProducerSingleConsumerStartingConsumerBeforeProducerSendReceive_tc082() {
+
+		Implementation producerImpl = CST.apamResolver.findImplByName(null,
+				"MessageProducerImpl01");
+
+		Implementation consumerImpl = CST.apamResolver.findImplByName(null,
+				"MessageConsumeImpl01");
+
+		Instance consumer = consumerImpl.createInstance(null, null);
+		
+		M1ConsumerImpl01 m1ConsumerImpl = (M1ConsumerImpl01) consumer
+				.getServiceObject();
+
+		// TODO message: forcewire in message test
+		m1ConsumerImpl.getQueue();
+		
+		Instance producer = producerImpl.createInstance(null, null);
+		
+		M1ProducerImpl m1ProdImpl = (M1ProducerImpl) producer
+				.getServiceObject();
+
+		m1ProdImpl.pushMessage("message 1");
+
+		Assert.assertTrue(
+				String.format(
+						"In this use case where the consumer was started before the producer, after producer sends 1 message, the consumer received %d messages instead of 1 ",
+						m1ConsumerImpl.getQueue().size()), m1ConsumerImpl
+						.getQueue().size() == 1);
+
+		EletronicMsg message = m1ConsumerImpl.getQueue().poll();
+
+		Assert.assertTrue(
+				String.format("In this use case where the consumer was started before the producer, after producer sends 1 message, the consumer received the right number of messages but not the expected message (not the same message sent)"),
 				message.equals(new EletronicMsg("message 1")));
 
 	}
