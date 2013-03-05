@@ -336,6 +336,9 @@
 <node CREATED="1362397668600" ID="ID_1633801697" MODIFIED="1362399617055" TEXT="test that only java.util.Queue is filled-tc078">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1362472569291" ID="ID_138993791" MODIFIED="1362472608611" TEXT="testing start consumer before the producer and check that the consumer still receives message-tc082">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 </map>
