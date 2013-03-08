@@ -12,4 +12,17 @@ public class FibonacciIterative implements Fibonacci {
 		return prev1;
 
 	}
+
+	@Override
+	public int getCalls() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void callsInit(int val) {
+		
+		
+	}
+	
 }

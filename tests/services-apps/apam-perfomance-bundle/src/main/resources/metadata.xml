@@ -35,7 +35,7 @@
    
   <component classname="fr.imag.adele.apam.pax.test.performance.Main"
     name="main">
-     <requires field="fib"/>
+     <requires field="fibonacci"/>
      <callback transition="validate" method="start" />
     <provides />
   </component>

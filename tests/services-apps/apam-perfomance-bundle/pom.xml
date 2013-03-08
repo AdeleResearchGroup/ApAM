@@ -1,54 +1,61 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<packaging>bundle</packaging>
+	<!-- <packaging>bundle</packaging> -->
 	<groupId>fr.imag.adele.apam.tests.performance</groupId>
 	<artifactId>apam-perfomance-bundle</artifactId>
 	<name>apam-perfomance-bundle</name>
 
+	<repositories>
+		<repository>
+			<id>apache.snapshots</id>
+			<name>Apache Snapshot Repository</name>
+			<url>http://repository.apache.org/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>apache.snapshots</id>
+			<name>Apache Snapshot Repository</name>
+			<url>http://repository.apache.org/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</pluginRepository>
+	</pluginRepositories>
+
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.0.1</version>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
-					</instructions>
-				</configuration>
-			</plugin>
-			<!-- <plugin> <groupId>org.apache.felix</groupId> <artifactId>maven-bundle-plugin</artifactId> 
-				</plugin> <plugin> <groupId>fr.imag.adele.apam</groupId> <artifactId>apam-maven-plugin</artifactId> 
-				</plugin> --> <!-- <plugin> <groupId>org.apache.felix</groupId> <artifactId>maven-ipojo-plugin</artifactId> 
+		<plugins> <!-- <plugin> <groupId>org.apache.felix</groupId> <artifactId>maven-bundle-plugin</artifactId> 
+				<version>2.0.1</version> <extensions>true</extensions> <configuration> <instructions> 
+				<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName> </instructions> 
+				</configuration> </plugin> -->
+
+			<!-- APAM <plugin> <groupId>fr.imag.adele.apam</groupId> <artifactId>apam-maven-plugin</artifactId> 
+				<version>${project.version}</version> <executions> <execution> <goals> <goal>apam-bundle</goal> 
+				</goals> <configuration> <metadata>src/main/resources/apam-performance.xml</metadata> 
+				</configuration> </execution> </executions> </plugin> <plugin> <groupId>fr.imag.adele.apam</groupId> 
+				<artifactId>apam-maven-plugin</artifactId> </plugin> -->
+
+			<!-- IPojo <plugin> <groupId>org.apache.felix</groupId> <artifactId>maven-bundle-plugin</artifactId> 
+				</plugin> <plugin> <groupId>org.apache.felix</groupId> <artifactId>maven-ipojo-plugin</artifactId> 
 				<version>1.8.0</version> <executions> <execution> <goals> <goal>ipojo-bundle</goal> 
-				</goals> </execution> </executions> </plugin> <plugin> <groupId>fr.imag.adele.apam</groupId> 
-				<artifactId>apam-maven-plugin</artifactId> <version>${project.version}</version> 
-				<executions> <execution> <goals> <goal>apam-bundle</goal> </goals> <configuration> 
-				<metadata>src/main/resources/apam-performance.xml</metadata> </configuration> 
-				</execution> </executions> </plugin> -->
+				</goals> </execution> </executions> </plugin> -->
+			<!-- OSGI <plugin> <groupId>org.apache.felix</groupId> <artifactId>maven-bundle-plugin</artifactId> 
+				<version>2.0.1</version> <extensions>true</extensions> <configuration> <instructions> 
+				<Export-Package /> <Import-Package> org.osgi* </Import-Package> <Bundle-Activator> 
+				fr.imag.adele.apam.pax.test.performance.osgi.Activator </Bundle-Activator> 
+				<Bundle-SymbolicName> ${project.groupId}.${project.artifactId};singleton:=true 
+				</Bundle-SymbolicName> </instructions> </configuration> </plugin> -->
+			<!-- Tuscany -->
 			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.0.1</version>
-				<extensions>true</extensions>
-				<!-- maven-bundle-plugin configuration [4] -->
-				<configuration>
-					<instructions>
-						<Export-Package />
-						<Import-Package>
-							org.osgi*
-						</Import-Package>
-						<Bundle-Activator>
-							fr.imag.adele.apam.pax.test.performance.osgi.Activator
-						</Bundle-Activator>
-						<Bundle-SymbolicName>
-							${project.groupId}.${project.artifactId};singleton:=true
-						</Bundle-SymbolicName>
-					</instructions>
-				</configuration>
+				<groupId>org.apache.tuscany.sca</groupId>
+				<artifactId>tuscany-maven-plugin</artifactId>
+				<version>2.0</version>
 			</plugin>
+
 		</plugins>
 	</build>
 
@@ -62,7 +69,70 @@
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
 			<version>4.1.0</version>
+		</dependency> <!-- 
+		<dependency>
+			<groupId>org.apache.tuscany.sca</groupId>
+			<artifactId>tuscany-sca-api</artifactId>
+			<version>2.0-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.tuscany.sca</groupId>
+			<artifactId>tuscany-base-runtime</artifactId>
+			<version>2.0-SNAPSHOT</version>
+		</dependency>  -
+<dependency>
+  <groupId>org.apache.tuscany.sca</groupId>
+  <artifactId>tuscany-distribution-all</artifactId>
+  <version>2.0-SNAPSHOT</version>
+  <type>pom</type>
+</dependency> final 2.0
+<dependency>
+  <groupId>org.apache.tuscany.sca</groupId>
+  <artifactId>tuscany-sca</artifactId>
+  <version>1.6.1-SNAPSHOT</version>
+  <type>pom</type>
+</dependency>
+<dependency>
+  <groupId>org.apache.tuscany.sca</groupId>
+  <artifactId>tuscany-host-embedded</artifactId>
+  <version>1.6-SNAPSHOT</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.tuscany.sca</groupId>
+  <artifactId>tuscany-sca-api</artifactId>
+  <version>1.6.1-SNAPSHOT</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.tuscany.sca</groupId>
+  <artifactId>tuscany-core-spi</artifactId>
+  <version>1.6-SNAPSHOT</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.tuscany.sca</groupId>
+  <artifactId>tuscany-interface-java</artifactId>
+  <version>1.6-SNAPSHOT</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.tuscany.sca</groupId>
+  <artifactId>tuscany-core</artifactId>
+  <version>1.6-SNAPSHOT</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.tuscany.sca</groupId>
+  <artifactId>tuscany-implementation-java</artifactId>
+  <version>1.6-SNAPSHOT</version>
+</dependency>
+
+-->
+
+ <dependency>
+         <groupId>org.apache.tuscany.sca</groupId>
+         <artifactId>tuscany-sca-api</artifactId>
+         <version>2.0</version>
+         <scope>provided</scope>
+      </dependency>
+      
 	</dependencies>
 
 	<parent>
