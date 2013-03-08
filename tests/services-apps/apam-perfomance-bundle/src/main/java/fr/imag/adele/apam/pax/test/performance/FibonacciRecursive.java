@@ -4,9 +4,6 @@ import org.oasisopen.sca.annotation.AllowsPassByReference;
 import org.oasisopen.sca.annotation.Reference;
 import org.oasisopen.sca.annotation.Scope;
 
-
-
-//@Remotable
 @AllowsPassByReference
 @Scope("COMPOSITE")
 public class FibonacciRecursive implements Fibonacci {
@@ -14,10 +11,10 @@ public class FibonacciRecursive implements Fibonacci {
 	public static int calls = 0;
 
 	@Reference(required=false)
-	FibonacciRecursive moins1;
+	Fibonacci moins1;
 
 	@Reference(required=false)
-	FibonacciRecursive moins2;
+	Fibonacci moins2;
 
 	public FibonacciRecursive(){
 		System.out.println("############## Building ###########");
@@ -61,19 +58,19 @@ public class FibonacciRecursive implements Fibonacci {
 
 	}
 
-	public FibonacciRecursive getMoins1() {
+	public Fibonacci getMoins1() {
 		return moins1;
 	}
 
-	public void setMoins1(FibonacciRecursive moins1) {
+	public void setMoins1(Fibonacci moins1) {
 		this.moins1 = moins1;
 	}
 
-	public FibonacciRecursive getMoins2() {
+	public Fibonacci getMoins2() {
 		return moins2;
 	}
 
-	public void setMoins2(FibonacciRecursive moins2) {
+	public void setMoins2(Fibonacci moins2) {
 		this.moins2 = moins2;
 	}
 

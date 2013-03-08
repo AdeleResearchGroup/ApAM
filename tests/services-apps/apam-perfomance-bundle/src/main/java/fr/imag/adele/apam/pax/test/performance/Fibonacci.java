@@ -1,7 +1,9 @@
 package fr.imag.adele.apam.pax.test.performance;
 
+import org.oasisopen.sca.annotation.Remotable;
 
 
+@Remotable
 public interface Fibonacci {
 
 	public int compute (int n) ;

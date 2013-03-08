@@ -32,7 +32,7 @@ public class Main {
 	 */
 
 	@Reference
-	FibonacciRecursive fibonacci;
+	Fibonacci fibonacci;
 
 	@Init
 	public void start() {
@@ -62,7 +62,7 @@ public class Main {
 			
 			
 			fibonacci.callsInit(0);
-			for (int i = 0; i <= 8; i++) {
+			for (int i = 0; i <= 30; i++) {
 
 				//System.out.println("*********************"+fibonacci);
 				
@@ -117,11 +117,11 @@ public class Main {
 
 	}
 
-	public FibonacciRecursive getFibonacci() {
+	public Fibonacci getFibonacci() {
 		return fibonacci;
 	}
 
-	public void setFibonacci(FibonacciRecursive fibonacci) {
+	public void setFibonacci(Fibonacci fibonacci) {
 		this.fibonacci = fibonacci;
 	}
 

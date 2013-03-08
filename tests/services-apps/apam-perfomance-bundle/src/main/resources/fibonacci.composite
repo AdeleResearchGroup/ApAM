@@ -5,23 +5,20 @@
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     		xsi:schemaLocation="http://docs.oasis-open.org/ns/opencsa/sca/200912 http://docs.oasis-open.org/opencsa/sca-assembly/sca-1.1-cd06.xsd"
 			name="fibonacci.composite">
-
- <!-- http://docs.oasis-open.org/ns/opencsa/sca/200912
-	<service name="Fibonacci" promote="FibonacciComponent">
+<!--
+    <service name="Fibonacci" promote="FibonacciComponent">
 		 <interface.java interface="fr.imag.adele.apam.pax.test.performance.Fibonacci" /> 
-	</service>
+	</service> 
 -->
 
 	<component name="FibonacciComponent" autowire="false">
         <implementation.java class="fr.imag.adele.apam.pax.test.performance.FibonacciRecursive"/>
-
-        <reference name="moins1"   />
-		<reference name="moins2"  />
-
+        <service name="Fibonacci">
+		 <interface.java interface="fr.imag.adele.apam.pax.test.performance.Fibonacci" /> 
+		</service> 
+        <reference name="moins1" />
+		<reference name="moins2" />
     </component>
-
-
-	
 
     <component name="Main" autowire="false" >
       <implementation.java class="fr.imag.adele.apam.pax.test.performance.Main"/>
