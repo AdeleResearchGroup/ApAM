@@ -1,12 +1,7 @@
 package fr.imag.adele.apam.pax.test.performance;
 
-import org.oasisopen.sca.annotation.AllowsPassByReference;
-import org.oasisopen.sca.annotation.Reference;
-import org.oasisopen.sca.annotation.Scope;
 
-
-//@AllowsPassByReference
-//@Scope("COMPOSITE")
+//@Scope("STATELESS")
 public class FibonacciRecursive implements Fibonacci {
 
 	public static int calls = 0;
@@ -18,7 +13,7 @@ public class FibonacciRecursive implements Fibonacci {
 	Fibonacci moins2;
 
 	public FibonacciRecursive(){
-		System.out.println("############## Building ###########");	
+		System.out.println("############## Building ########### ");	
 	}
 	
 	/*BundleContext context;
@@ -44,6 +39,9 @@ public class FibonacciRecursive implements Fibonacci {
 
 		//moins1=Main.dom.getServiceReference(FibonacciRecursive.class, "FibonacciComponent").getService();
 		//moins2=Main.dom.getServiceReference(FibonacciRecursive.class, "FibonacciComponent").getService();
+		
+		//String message=String.format("Instances are %d ----  %s/%s/%s", n,this,moins1,moins2);
+		//System.out.println(message);
 		
 		calls++;
 

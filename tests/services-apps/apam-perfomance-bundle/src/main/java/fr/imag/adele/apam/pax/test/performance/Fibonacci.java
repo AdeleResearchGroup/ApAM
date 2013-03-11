@@ -2,7 +2,6 @@ package fr.imag.adele.apam.pax.test.performance;
 
 
 
-
 //@Remotable
 public interface Fibonacci {
 

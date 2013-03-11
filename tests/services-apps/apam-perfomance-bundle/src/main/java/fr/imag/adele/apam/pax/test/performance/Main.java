@@ -9,9 +9,8 @@ import fr.imag.adele.apam.pax.test.performance.util.Checkpoint;
 import fr.imag.adele.apam.pax.test.performance.util.Measure;
 import fr.imag.adele.apam.pax.test.performance.util.MeasureHolder;
 
-//@Scope("COMPOSITE")
+//@Scope("STATELESS")
 //@EagerInit
-//@AllowsPassByReference
 public class Main {
 	BundleContext context;
 	static AtomicBoolean busy = new AtomicBoolean(false);
@@ -43,11 +42,12 @@ public class Main {
 			// "FibonacciComponent");
 			// }
 			
-			final int SIZE=20;
+			final int SIZE=30;
 			
 			//fibonacci.compute(SIZE);
 			
 			fibonacci.callsInit(0);
+			
 			for (int i = 0; i <= SIZE; i++) {
 				
 				Checkpoint p1 = new Checkpoint();
@@ -61,14 +61,6 @@ public class Main {
 				System.err.println(String.format("%d\t%d\t%s\t%s\t%d", i,
 						value, holder.usedMemory(), holder.asMili(),
 						fibonacci.getCalls()));
-
-				System.out.println(String.format(
-						"thread %s took %s used memory %s", this.toString(),
-						holder.asMili(), holder.usedMemory()));
-
-				System.out.println(String.format(
-						"Instance %s called, and the value was: %d",
-						fibonacci.toString(), value));
 
 			}
 

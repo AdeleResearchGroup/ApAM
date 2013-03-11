@@ -13,9 +13,12 @@
 
 	<component name="FibonacciComponent" autowire="false">
         <implementation.java class="fr.imag.adele.apam.pax.test.performance.FibonacciRecursive"/>
+        
         <service name="Fibonacci">
 		 <interface.java interface="fr.imag.adele.apam.pax.test.performance.Fibonacci" /> 
-		</service> 
+		</service>
+		
+		 
         <reference name="moins1" />
 		<reference name="moins2" />
     </component>
@@ -27,8 +30,8 @@
     
     </component>
 
-	<wire source="Main/fibonacci" target="FibonacciComponent" />
-	<wire source="FibonacciComponent/moins1" target="FibonacciComponent" />
-	<wire source="FibonacciComponent/moins2" target="FibonacciComponent" />
+	<wire source="Main/fibonacci" target="FibonacciComponent/Fibonacci" />
+	<wire source="FibonacciComponent/moins1" target="FibonacciComponent/Fibonacci" />
+	<wire source="FibonacciComponent/moins2" target="FibonacciComponent/Fibonacci" />
 
 </composite>
