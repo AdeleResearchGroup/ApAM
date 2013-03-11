@@ -3,38 +3,27 @@ package fr.imag.adele.apam.pax.test.performance;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.oasisopen.sca.annotation.AllowsPassByReference;
-import org.oasisopen.sca.annotation.EagerInit;
-import org.oasisopen.sca.annotation.Init;
-import org.oasisopen.sca.annotation.Reference;
-import org.oasisopen.sca.annotation.Scope;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.pax.test.performance.util.Checkpoint;
 import fr.imag.adele.apam.pax.test.performance.util.Measure;
 import fr.imag.adele.apam.pax.test.performance.util.MeasureHolder;
 
-@Scope("COMPOSITE")
-@EagerInit
-@AllowsPassByReference
+//@Scope("COMPOSITE")
+//@EagerInit
+//@AllowsPassByReference
 public class Main {
 	BundleContext context;
 	static AtomicBoolean busy = new AtomicBoolean(false);
-	//public static SCADomain dom;
-	/*
-	 * 
-	 * public Main() {
-	 * 
-	 * }
-	 */
-	/*
-	 * public Main(BundleContext context) { this.context = context; }
-	 */
+ 
+	public Main() {}
+	
+	public Main(BundleContext context) { this.context = context; }
 
-	@Reference
+//	@Reference
 	Fibonacci fibonacci;
 
-	@Init
+//	@Init
 	public void start() {
 
 		if (busy.compareAndSet(false, true)) {
@@ -53,18 +42,13 @@ public class Main {
 			// fibonacci = dom.getService(FibonacciRecursive.class,
 			// "FibonacciComponent");
 			// }
-
-			//if(fibonacci==null) fibonacci = new FibonacciRecursive();
-			//dom=SCADomain.newInstance("fibonacci.composite");
-			//fibonacci=dom.getServiceReference(FibonacciRecursive.class, "FibonacciComponent").getService();
-			//fibonacci.compute(9);
-
 			
+			final int SIZE=20;
+			
+			//fibonacci.compute(SIZE);
 			
 			fibonacci.callsInit(0);
-			for (int i = 0; i <= 30; i++) {
-
-				//System.out.println("*********************"+fibonacci);
+			for (int i = 0; i <= SIZE; i++) {
 				
 				Checkpoint p1 = new Checkpoint();
 
@@ -101,22 +85,22 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
+		Main m = new Main();
+		FibonacciRecursive recursive = new FibonacciRecursive();
+		recursive.moins1 = recursive;
+		recursive.moins2 = recursive;
 
-//		Main m = new Main();
-
-//		FibonacciRecursive recursive = new FibonacciRecursive();
-//		recursive.moins1 = recursive;
-//		recursive.moins2 = recursive;
-//
-//		m.fibonacci = recursive;
-//		m.start();
+		m.fibonacci = recursive;
+		m.start();
 
 	}
 
 	public void stop() {
-
+		//DO SOMETHING!
 	}
 
+	//Scaffolds are here for a matter of compatilbilty (i.e tuscany need them)
+	
 	public Fibonacci getFibonacci() {
 		return fibonacci;
 	}

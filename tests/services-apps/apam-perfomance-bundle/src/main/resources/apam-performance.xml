@@ -4,12 +4,12 @@
 
 	<implementation name="main-perf"
 		classname="fr.imag.adele.apam.pax.test.performance.Main">
-		<dependency field="fib" />
+		<dependency field="fibonacci" />
 		<callback onInit="start" onRemove="stop" />
 	</implementation>
 
 	<implementation classname="fr.imag.adele.apam.pax.test.performance.FibonacciRecursive"
-		name="activity" shared="true">
+		name="activity" shared="false">
 		<dependency field="moins1" />
 		<dependency field="moins2" />
 	</implementation>
