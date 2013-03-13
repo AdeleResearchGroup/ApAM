@@ -306,6 +306,7 @@ public final class Util {
 	public static String toStringAttrValue (Object value) {
 		if (value == null)            return null ;
 		if (value instanceof Integer) return value.toString() ;
+		if (value instanceof Boolean) return value.toString() ;
 		if (value instanceof String)  return (String)value ;
 		return Util.stringSet2String((Set<String>)value);
 
@@ -543,8 +544,12 @@ public final class Util {
 							valSetInt.add(Integer.toString((Integer)i)) ;
 						}
 						else {
+<<<<<<< HEAD
 							if (i instanceof String
 									) {
+=======
+							if (i instanceof String) {
+>>>>>>> 7ea852276c9d9f9c2771a6bb43d4b1f93ea61c66
 								//to be sure it is an integer
 								Integer.valueOf((String)i) ;
 								valSetInt.add((String)i) ;
@@ -573,7 +578,7 @@ public final class Util {
 				return null ;
 			}
 			if (value instanceof Boolean) {
-				return ((Boolean)value).toString();
+				return value;
 			}
 			logger.error("Invalid value: not a Boolean " + value + " for attribute " + attribute) ;
 			return null ;
@@ -653,7 +658,7 @@ public final class Util {
 		 */
 		if (enumVals.size() > 1) {
 			if (enumVals.containsAll(values)) {
-				return value;
+				return values;
 			}
 			logger.error( "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
 					+ "\".  Expected subset of: " + types);
@@ -665,14 +670,23 @@ public final class Util {
 		 * 		but value can still be a set
 		 */
 		if (type.equals("boolean")) {
-			for (String val : values) {
-				if (!val.equalsIgnoreCase(CST.V_TRUE) && !val.equalsIgnoreCase(CST.V_FALSE)) {
-					logger.error("Invalid attribute value \"" + val + "\" for attribute \"" + attr + "=" + value
-							+ "\".  Boolean value expected");
-					return null;
+			
+			try {
+				if (!isSet) {
+					return Boolean.valueOf(value);
 				}
+				//unfortunately, match does not recognizes a set of booleans.
+				//return the list as a string  ;
+				Set <String> normalizedValues = new HashSet<String> () ;
+				for (String val : values) {
+					normalizedValues.add(Boolean.toString(Boolean.parseBoolean(val))) ;
+				}
+				return normalizedValues ;
+			} catch (Exception e) {
+				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
+						+ "\".  Boolean value(s) expected");
+				return null;
 			}
-			return value ; 
 		}
 
 		/*
@@ -681,18 +695,15 @@ public final class Util {
 		if (type.equals("int")) {
 			try {
 				if (!isSet) {
-					// the only case where we return something else than a string !
 					return Integer.valueOf(value);
 				}
 				//unfortunately, match does not recognizes a set of integer.
 				//return the list as a string  ;
-				int i ;
-				Set <String> valSetInt = new HashSet<String> () ;
+				Set <String> normalizedValues = new HashSet<String> () ;
 				for (String val : values) {
-					i = Integer.parseInt(val);
-					valSetInt.add(Integer.toString(i)) ;
+					normalizedValues.add(Integer.toString(Integer.parseInt(val))) ;
 				}
-				return valSetInt ;
+				return normalizedValues ;
 			} catch (Exception e) {
 				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
 						+ "\".  Integer value(s) expected");
@@ -700,6 +711,7 @@ public final class Util {
 			}
 		}
 
+<<<<<<< HEAD
 		/*
 		 * String or {String}
 		 */
@@ -711,6 +723,26 @@ public final class Util {
 		logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
 				+ "\".  int, integer, boolean or string expected");
 		return null ;
+=======
+		if (!type.equals("string")) {
+			logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
+					+ "\".  int, boolean or string expected");
+			return null ;
+		}
+		//All values are Ok for string.
+		return isSet? values : value ;
+		//		}
+
+		//		//Type is an enumeration with at least 2 values
+		//		if (enumVals.containsAll(values)) {
+		//			return value;
+		//		}
+		//
+		//		String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
+		//				+ "\".  Expected subset of: " + types;
+		//		logger.error(errorMes);
+		//		return null;
+>>>>>>> 7ea852276c9d9f9c2771a6bb43d4b1f93ea61c66
 	}
 
 

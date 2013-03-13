@@ -650,21 +650,3 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	}	
 	
 }
-// Apam apam = (Apam) help.getServiceObject(Apam.class.getName(), null);
-// CST.componentBroker.getInstService(s3bis) ;
-// Instance s3Inst=s3Impl.createInstance(null, null);
-// Implementation s3Impl =
-// CST.apamResolver.findImplByName(null,"apam.test.dependency.S3Impl");
-
-// resolution interface
-// resolution message
-// resolution Spec
-// resolution Implem
-// resolution instance
-//CST.apamResolver.
-//CST.componentBroker.
-// fail
-// exception
-// override exception
-// override hidden
-// wait

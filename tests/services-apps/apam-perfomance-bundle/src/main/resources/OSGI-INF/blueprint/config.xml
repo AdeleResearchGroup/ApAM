@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+
+
+    <service ref="Fibonacci" interface="fr.imag.adele.apam.pax.test.performance.Fibonacci"/>
+
+	<bean id="Fibonacci" class="fr.imag.adele.apam.pax.test.performance.FibonacciRecursive">
+		<property name="moins1" ref="FibonacciRef" />
+		<property name="moins2" ref="FibonacciRef"/>
+	</bean>
+
+	<bean class="fr.imag.adele.apam.pax.test.performance.Main" init-method="start" destroy-method="stop">
+		<property name="fibonacci" ref="FibonacciRef"/>
+	</bean>
+
+	<reference id="FibonacciRef" interface="fr.imag.adele.apam.pax.test.performance.Fibonacci" availability="optional"/>
+
+<!--
+
+   <bean id="accountOne" class="org.apache.aries.samples.Account">
+       <argument value="1"/>
+       <property name="description" value="#1 account"/>
+   </bean>
+
+   <bean id="accountTwo" class="org.apache.aries.samples.StaticAccountFactory" 
+         factory-method="createAccount">   
+       <argument value="2"/>
+       <property name="description" value="#2 account"/>     
+   </bean>
+
+   <bean id="accountFactory" class="org.apache.aries.samples.AccountFactory">  
+       <argument value="account factory"/>      
+   </bean>
+
+   <bean id="accountThree"
+         factory-ref="accountFactory" 
+         factory-method="createAccount">   
+       <argument value="3"/>
+       <property name="description" value="#3 account"/>      
+   </bean>
+
+   <bean id="prototypeAccount" class="org.apache.aries.samples.Account"
+         scope="prototype">
+       <argument value="4"/>
+   </bean>
+
+   <bean id="singletonAccount" class="org.apache.aries.samples.Account"
+         scope="singleton">
+       <argument value="5"/>
+   </bean>
+
+   <bean id="accountFour" class="org.apache.aries.samples.Account" 
+         init-method="init" destroy-method="destroy">
+       <argument value="6"/>
+       <property name="description" value="#6 account"/> 
+   </bean>
+
+
+   <bean id="myAccount" class="org.apache.aries.samples.MyAccount">
+       <argument value="7"/>
+       <property name="description" value="MyAccount"/> 
+   </bean>
+
+   <service id="serviceOne" ref="myAccount" interface="java.io.Serializable"/>
+
+   <service id="serviceTwo" ref="myAccount">
+      <interfaces>
+          <value>java.io.Serializable</value>
+      </interfaces>
+   </service>
+
+   <service id="serviceThree" ref="myAccount" auto-export="all-classes"/>
+
+   <service id="serviceFour" ref="myAccount" auto-export="all-classes">
+      <service-properties>
+          <entry key="mode" value="shared"/>
+          <entry key="active">
+              <value type="java.lang.Boolean">true</value>
+          </entry>
+      </service-properties>
+   </service>
+
+   <service id="serviceFive" ref="myAccount" auto-export="all-classes" ranking="3"/>
+
+   <service id="serviceSix" ref="myAccount" auto-export="all-classes">
+      <registration-listener 
+              registration-method="register" unregistration-method="unregister">
+          <bean class="org.apache.aries.samples.RegistrationListener"/>         
+      </registration-listener>
+   </service>
+
+   <reference-list id="serviceReferenceListTwo" interface="java.io.Serializable" 
+                   availability="optional">
+      <reference-listener 
+              bind-method="bind" unbind-method="unbind">
+          <bean class="org.apache.aries.samples.ReferenceListener"/>        
+      </reference-listener>
+   </reference-list>
+
+
+   <bean id="accountManagerOne" class="org.apache.aries.samples.AccountManager">
+      <property name="managerBundle" ref="blueprintBundle"/>
+   </bean>
+
+
+   <bean id="accountManagerTwo" class="org.apache.aries.samples.AccountManager">
+       <property name="managedAccount">
+           <ref component-id="accountOne"/>
+       </property>
+   </bean>
+
+   <bean id="accountManagerThree" class="org.apache.aries.samples.AccountManager">
+       <property name="managedAccount">
+           <bean class="org.apache.aries.samples.Account">
+               <argument value="10"/>
+               <property name="description" value="Inlined Account"/> 
+           </bean>
+       </property>
+   </bean>
+
+   <bean id="accountManagerFour" class="org.apache.aries.samples.AccountManager">             
+       <property name="accountNumbers">
+           <list>
+               <value>123</value>
+               <value>456</value>
+               <value>789</value>
+           </list>
+       </property>
+   </bean>
+-->
+</blueprint>
+

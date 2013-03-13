@@ -144,8 +144,15 @@
 			value="{doubt,grows,knowledge}" />
 		<property name="setStringMoreElements" type="{string}"
 			value="{doubt,and,uncertainties,grows,with,knowledge}" />
+	</implementation>
 
-		<!-- <property name="setBoolean" type="{boolean}" value="{false,false,false,false,false,false,true,false,false,false,true,true,false}"/> -->
+	<implementation name="PropertyInjectionSwitch"
+		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch"
+		specification="eletronic-device">
+		<definition name="OS" field="OS" type="{Linux, Windows, Android, IOS,AmigaOS}"
+			value="{Linux, Windows, Android, IOS}" internal="false"/>
+		<definition name="setInt" field="setInt" type="{int}" internal="false" value="{12,15,254, 100}" />
+		<definition name="setString" field="setString" type="{string}" internal="false" value="{doubt,grows,with,knowledge}" />			
 	</implementation>
 
 	<implementation name="PropertyChangeNotification"

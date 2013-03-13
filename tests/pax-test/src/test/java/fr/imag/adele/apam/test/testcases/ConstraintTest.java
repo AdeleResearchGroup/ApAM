@@ -82,12 +82,12 @@ public class ConstraintTest extends ExtensionAbstract{
 		
 		Assert.assertFalse(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
 		
-		expression="(&(false)(manufacturer=philips))";
+		expression="(&(manufacturer!=philips)(manufacturer=philips))";
 		result=false;
 		
 		Assert.assertFalse(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));
 		
-		expression="(&(true)(manufacturer=philips))";
+		expression="(&(manufacturer=philips)(manufacturer=philips))";
 		result=true;
 		
 		Assert.assertTrue(String.format(messageTemplate, expression,result,manufacturer,currentVoltage,voltage),philipsSwitch.match(expression));

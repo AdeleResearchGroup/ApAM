@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:osgi="http://www.springframework.org/schema/osgi"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+  <!-- regular spring configuration file defining the beans for this xmlns="http://www.springframework.org/schema/beans"  
+       bundle. The configuration of OSGi definitions is kept in a separate 
+       configuration file so that this file can easily be used
+       for integration testing outside of an OSGi environment 
+
+	<osgi:service ref="Fibonacci" interface="fr.imag.adele.apam.pax.test.performance.Fibonacci"/>
+
+	<bean id="Fibonacci" class="fr.imag.adele.apam.pax.test.performance.FibonacciRecursive">
+		<property name="moins1" ref="FibonacciRef" />
+		<property name="moins2" ref="FibonacciRef"/>
+	</bean>
+
+	<bean class="fr.imag.adele.apam.pax.test.performance.Main" init-method="start" destroy-method="stop">
+		<property name="fibonacci" ref="FibonacciRef"/>
+	</bean>
+
+	<osgi:reference id="FibonacciRef" interface="fr.imag.adele.apam.pax.test.performance.Fibonacci" availability="optional"/>
+-->
+
+</beans>

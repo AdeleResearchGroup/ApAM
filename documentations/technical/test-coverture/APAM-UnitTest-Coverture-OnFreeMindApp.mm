@@ -1,6 +1,6 @@
 <map version="0.9.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
-<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1354182410062" TEXT="APAM-Unit test coverture">
+<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1362397269595" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
 <node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1360338389070" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
@@ -97,6 +97,15 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1360338509073" ID="ID_1192619082" MODIFIED="1360338564502" TEXT="PropertyEnumTypeSimpleValueSpaceBefore-tc74">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1362404102012" ID="ID_322089237" MODIFIED="1362404217151" TEXT="Test injection into java instance property of the type set of integer-tc079">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1362404196810" ID="ID_890278939" MODIFIED="1362404217153" TEXT="Test injection into java instance property of the type set of string-tc080">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1362404208969" ID="ID_1939802318" MODIFIED="1362404217152" TEXT="Test injection into java instance property of the type set of string-tc081">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
@@ -312,6 +321,23 @@
 <node CREATED="1354635868184" ID="ID_123141354" MODIFIED="1354635996473" TEXT="dispute one instance between a composite and an own in another, when the instance is already inside one composite-tc048">
 <icon BUILTIN="button_ok"/>
 </node>
+</node>
+</node>
+<node CREATED="1362397272344" ID="ID_129094317" MODIFIED="1362397282640" POSITION="left" TEXT="Message">
+<node CREATED="1362397516633" ID="ID_525187520" MODIFIED="1362399617054" TEXT="single producer single consumer and single message-tc075">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1362397563641" ID="ID_953274202" MODIFIED="1362399617055" TEXT="single producer single consumer, and receive multiple message in order-tc076">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1362397618487" ID="ID_959863460" MODIFIED="1362399617055" TEXT="multiple producers single consumer multiple messages-tc077">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1362397668600" ID="ID_1633801697" MODIFIED="1362399617055" TEXT="test that only java.util.Queue is filled-tc078">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1362472569291" ID="ID_138993791" MODIFIED="1362472608611" TEXT="testing start consumer before the producer and check that the consumer still receives message-tc082">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 </node>

@@ -194,12 +194,20 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
             return isMultiple;
 
         // If there is at least one field declared collection the dependency is considered multiple
+        
+        boolean hasInterfaces 				= false;
+        boolean hasOneCollectionInterface 	= false;
+        
         for (DependencyInjection injection : getInjections()) {
-            if (injection.isCollection())
-                return true;
+        	
+        	boolean isInterface = injection.getResource().as(InterfaceReference.class) != null;
+        	hasInterfaces 		= isInterface || hasInterfaces;
+        	
+            if (isInterface && injection.isCollection())
+            	hasOneCollectionInterface = true;
         }
 
-        return false;
+        return hasInterfaces ? hasOneCollectionInterface : isMultiple;
     }
 
     /**

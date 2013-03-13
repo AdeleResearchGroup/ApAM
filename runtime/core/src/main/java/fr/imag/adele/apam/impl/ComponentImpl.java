@@ -175,7 +175,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		 */
 		if (group != null) {
 			for (PropertyDefinition definition : group.getDeclaration().getPropertyDefinitions()) {
-				if ( definition.getDefaultValue() != null && get(definition.getName()) == null) {
+				if ( definition.getDefaultValue() != null && get(definition.getName()) == null && ! definition.isInternal()) {
 					Object val = Util.checkAttrType(definition.getName(), definition.getDefaultValue(), definition.getType());
 					if (val != null)
 						put (definition.getName(),val) ;
@@ -302,7 +302,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * Returns null if attribute is not defined or not set.
 	 */
 	@Override
-	public Object getPropertyObject (String attribute) {
+	public Object getPropertyObject(String attribute) {
 		PropertyDefinition def = getAttrDefinition(attribute) ; 
 		if (def == null) {
 			logger.error("No definition for attribute " + attribute) ; 
@@ -311,6 +311,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 		String type = def.getType() ; 
 		if (type == null) return null ;
+		
 		
 		return get(attribute) ;
 	}

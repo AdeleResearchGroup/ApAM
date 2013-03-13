@@ -14,9 +14,12 @@
  */
 package fr.imag.adele.apam.test.testcases;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -29,6 +32,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch;
+import fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch;
 import fr.imag.adele.apam.pax.test.implS1.S1Impl;
 import fr.imag.adele.apam.tests.helpers.Constants;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
@@ -169,19 +173,19 @@ public class PropertyTest extends ExtensionAbstract {
 		
 		s1Inst.setProperty("stateInternal", "changedByApamAPI");
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by ApamInstance.setProperty, although the value remains un altered java instance property value"), !(s1.getStateInternal()==null?"":s1.getStateInternal()).equals("changedByApamAPI"));
+		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by ApamInstance.setProperty, although the value remains un altered java instance property value"), s1.getStateInternal()==null);
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getProperty"), !s1Inst.getProperty("stateInternal").equals("changedByApamAPI"));
+		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("stateInternal")== null);
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by ApamInstance.setProperty,  although the value remains un altered when checking ApamInstance.getAllProperties"), !s1Inst.getAllProperties().get("stateInternal").equals("changedByApamAPI"));
+		Assert.assertTrue(String.format(messageTemplace, "value should NOT be changeable by ApamInstance.setProperty,  although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateInternal")== null);
 		
 		s1.setStateInternal("changedByJavaInstance");
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking the java instance property value"), (s1.getStateInternal()==null?"":s1.getStateInternal()).equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance property value"), s1.getStateInternal().equals("changedByJavaInstance"));
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("stateInternal").equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("stateInternal").equals("changedByJavaInstance"));
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateInternal").equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateInternal").equals("changedByJavaInstance"));
 
 	}
 	
@@ -209,11 +213,11 @@ public class PropertyTest extends ExtensionAbstract {
 		
 		s1.setStateNotInternal("changedByJavaInstance");
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking the java instance value"), (s1.getStateNotInternal()==null?"":s1.getStateNotInternal()).equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking the java instance value"), (s1.getStateNotInternal()==null?"":s1.getStateNotInternal()).equals("changedByJavaInstance"));
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("stateNotInternal").equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getProperty"), s1Inst.getProperty("stateNotInternal").equals("changedByJavaInstance"));
 		
-		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by ApamInstance.setProperty, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateNotInternal").equals("changedByJavaInstance"));
+		Assert.assertTrue(String.format(messageTemplace, "value should be changeable by java instance, although the value remains un altered when checking ApamInstance.getAllProperties"), s1Inst.getAllProperties().get("stateNotInternal").equals("changedByJavaInstance"));
 
 
 	}
@@ -228,14 +232,12 @@ public class PropertyTest extends ExtensionAbstract {
 
 		S1Impl s1 = (S1Impl) s1Inst.getServiceObject();
 
-		Assert.assertTrue("Internal property not visible through API", s1Inst
-				.getAllProperties().get("stateInternal") != null);
+		Assert.assertTrue("Internal property value should be null, since the xml should be ignore.",
+				s1Inst.getAllProperties().get("stateInternal") == null);
+		
 		Assert.assertTrue("Non-Internal property not visible through API",
 				s1Inst.getAllProperties().get("stateNotInternal") != null);
 
-		Assert.assertTrue("Internal property value not visible through API",
-				s1Inst.getAllProperties().get("stateInternal")
-						.equals("default"));
 		Assert.assertTrue(
 				"Non-Internal property value not visible through API",
 				s1Inst.getAllProperties().get("stateNotInternal")
@@ -391,7 +393,7 @@ public class PropertyTest extends ExtensionAbstract {
 
 		if (RawType instanceof Collection) {
 			Object sample = ((Collection) RawType).iterator().next();
-			Class properType = Integer.class;
+			Class properType = String.class;
 			Assert.assertTrue(
 					String.format(messageCollection, propertyName, properType),
 					properType.isInstance(sample));
@@ -425,7 +427,91 @@ public class PropertyTest extends ExtensionAbstract {
 		}
 
 	}
+	
+	@Test
+	public void PropertiesInjectionIntegerIntoSetDataType_tc079() {
+		
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"PropertyInjectionSwitch");
+		
+		Instance instance=implementation.createInstance(null, null);
+		
+		PropertyInjectionTypeSwitch switchRef = (PropertyInjectionTypeSwitch) instance.getServiceObject();
+		
+		final String messageTemplate="%s (value declared into <apam> ... <definition type='{%s}'/> ...</apam>)"; 
+		
+		Set<Integer> original=new HashSet<Integer>(){{add(12);add(15);add(254);add(100);}};
+		
+		Set<Integer> injected=switchRef.getSetInt();
+		
+		//check we dont inject null
+		Assert.assertTrue(String.format(messageTemplate,"The value injected into the java.util.Set field was null, instead of set declared in the property","int"),injected!=null);
+		
+		//check that all the values injected were present in the original set
+		for(Integer val:injected){
+			Assert.assertTrue(String.format(messageTemplate, "The value injected in the field do not exist in the original set of values","int"),original.contains(val));
+		}
+		
+		//ensure that both, the injected and declared, do have the same size.
+		Assert.assertTrue(String.format(messageTemplate, String.format("The size of the set declarared is %d and exactly %d were injected, those values should be equals",original.size(),injected.size()),"int"),original.size()==injected.size());
+	}
+	
+	@Test
+	public void PropertiesInjectionStringIntoSetDataType_tc080() {
+		
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"PropertyInjectionSwitch");
+		
+		Instance instance=implementation.createInstance(null, null);
+		
+		PropertyInjectionTypeSwitch switchRef = (PropertyInjectionTypeSwitch) instance.getServiceObject();
+		
+		final String messageTemplate="%s (value declared into <apam> ... <definition type='{%s}'/> ...</apam>)"; 
+		
+		Set<String> original=new HashSet<String>(){{add("doubt");add("grows");add("with");add("knowledge");}};
+		
+		Set<String> injected=switchRef.getSetString();
+		
+		//check we dont inject null
+		Assert.assertTrue(String.format(messageTemplate,"The value injected into the java.util.Set field was null, instead of set declared in the property","string"),injected!=null);
+		
+		//check that all the values injected were present in the original set
+		for(String value:injected){
+			Assert.assertTrue(String.format(messageTemplate, "The value injected in the field do not exist in the original set of values","string"),original.contains(value));
+		}
+		
+		//ensure that both, the injected and declared, do have the same size.
+		Assert.assertTrue(String.format(messageTemplate, String.format("The size of the set declarared is %d and exactly %d were injected, those values should be equals",original.size(),injected.size()),"string"),original.size()==injected.size());
+	}
 
+	@Test
+	public void PropertiesInjectionEnumIntoSetDataType_tc081() {
+		
+		Implementation implementation = CST.apamResolver.findImplByName(null,
+				"PropertyInjectionSwitch");
+		
+		Instance instance=implementation.createInstance(null, null);
+		
+		PropertyInjectionTypeSwitch switchRef = (PropertyInjectionTypeSwitch) instance.getServiceObject();
+		
+		final String messageTemplate="%s (value declared into <apam> ... <definition type='{%s}'/> ...</apam>)";
+		
+		Set<String> original=new HashSet<String>(){{add("Linux");add("Windows");add("Android");add("IOS");}};
+		
+		Set<String> injected=switchRef.getOS();
+		
+		//check we dont inject null
+		Assert.assertTrue(String.format(messageTemplate,"The value injected into the java.util.Set field was null, instead of set declared in the property","string"),injected!=null);
+		
+		//check that all the values injected were present in the original set
+		for(String value:injected){
+			Assert.assertTrue(String.format(messageTemplate, "The value injected in the field do not exist in the original set of values","string"),original.contains(value));
+		}
+		
+		//ensure that both, the injected and declared, do have the same size.
+		Assert.assertTrue(String.format(messageTemplate, String.format("The size of the set declarared is %d and exactly %d were injected, those values should be equals",original.size(),injected.size()),"string"),original.size()==injected.size());
+	}
+	
 	@Test
 	public void PropertyFilterOSGiImplementationSuperSet_Integer_tc057() {
 
@@ -842,6 +928,6 @@ public class PropertyTest extends ExtensionAbstract {
 			Assert.assertTrue(message,result);
 		else
 			Assert.assertFalse(message,result);
-	}	
+	}
 	
 }

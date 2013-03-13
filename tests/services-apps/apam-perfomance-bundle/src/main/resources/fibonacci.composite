@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<composite xmlns="http://docs.oasis-open.org/ns/opencsa/sca/200912"
+			xmlns:tuscany="http://tuscany.apache.org/xmlns/sca/1.1"
+			targetNamespace="http://sample"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    		xsi:schemaLocation="http://docs.oasis-open.org/ns/opencsa/sca/200912 http://docs.oasis-open.org/opencsa/sca-assembly/sca-1.1-cd06.xsd"
+			name="fibonacci.composite">
+<!--
+    <service name="Fibonacci" promote="FibonacciComponent">
+		 <interface.java interface="fr.imag.adele.apam.pax.test.performance.Fibonacci" /> 
+	</service> 
+-->
+
+	<component name="FibonacciComponent" autowire="false">
+        <implementation.java class="fr.imag.adele.apam.pax.test.performance.FibonacciRecursive"/>
+        
+        <service name="Fibonacci">
+		 <interface.java interface="fr.imag.adele.apam.pax.test.performance.Fibonacci" /> 
+		</service>
+		
+		 
+        <reference name="moins1" />
+		<reference name="moins2" />
+    </component>
+
+    <component name="Main" autowire="false" >
+      <implementation.java class="fr.imag.adele.apam.pax.test.performance.Main"/>
+    
+     <reference name="fibonacci" />
+    
+    </component>
+
+	<wire source="Main/fibonacci" target="FibonacciComponent/Fibonacci" />
+	<wire source="FibonacciComponent/moins1" target="FibonacciComponent/Fibonacci" />
+	<wire source="FibonacciComponent/moins2" target="FibonacciComponent/Fibonacci" />
+
+</composite>
