@@ -544,12 +544,7 @@ public final class Util {
 							valSetInt.add(Integer.toString((Integer)i)) ;
 						}
 						else {
-<<<<<<< HEAD
-							if (i instanceof String
-									) {
-=======
 							if (i instanceof String) {
->>>>>>> 7ea852276c9d9f9c2771a6bb43d4b1f93ea61c66
 								//to be sure it is an integer
 								Integer.valueOf((String)i) ;
 								valSetInt.add((String)i) ;
@@ -711,19 +706,6 @@ public final class Util {
 			}
 		}
 
-<<<<<<< HEAD
-		/*
-		 * String or {String}
-		 */
-		if (type.equals("string")) {
-			//All values are Ok for string.
-			return value ;
-		}
-
-		logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
-				+ "\".  int, integer, boolean or string expected");
-		return null ;
-=======
 		if (!type.equals("string")) {
 			logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
 					+ "\".  int, boolean or string expected");
@@ -742,7 +724,7 @@ public final class Util {
 		//				+ "\".  Expected subset of: " + types;
 		//		logger.error(errorMes);
 		//		return null;
->>>>>>> 7ea852276c9d9f9c2771a6bb43d4b1f93ea61c66
+
 	}
 
 

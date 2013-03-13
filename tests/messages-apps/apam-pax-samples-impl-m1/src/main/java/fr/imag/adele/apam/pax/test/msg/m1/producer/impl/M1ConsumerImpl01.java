@@ -37,7 +37,5 @@ public class M1ConsumerImpl01{
 	public void setSet(Set<EletronicMsg> set) {
 		this.set = set;
 	}
-
-
 	
 }

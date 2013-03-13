@@ -141,7 +141,24 @@ public abstract class DependencyInjection {
 
     }
     
+    /**
+     * An injected message field declaration
+     */
+    public static class MessageField extends Field {
 
+		public MessageField(AtomicImplementationDeclaration implementation,	String fieldName) {
+			super(implementation, fieldName);
+		}
+
+        @Override
+        public boolean isValidInstrumentation() {
+        	ResourceReference target = getResource();
+        	boolean isMessage = (target instanceof MessageReference) || (target instanceof UndefinedReference && ((UndefinedReference)target).getKind().equals(MessageReference.class));
+        	return super.isValidInstrumentation() && isMessage;
+        }
+
+    }
+    
     /**
      * Callback with a return
      * 

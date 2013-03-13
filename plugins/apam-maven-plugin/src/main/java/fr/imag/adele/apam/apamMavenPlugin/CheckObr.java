@@ -51,6 +51,7 @@ import fr.imag.adele.apam.declarations.VisibilityDeclaration;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.UtilComp;
+import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
 
 public class CheckObr {
 
@@ -620,6 +621,11 @@ public class CheckObr {
 		}
 
 		for (DependencyInjection innerDep : dep.getInjections()) {
+			
+			if (!innerDep.isValidInstrumentation())
+				CheckObr.error(dep.getComponent().getName() + " : invalid type for field " + innerDep.getName());
+
+			
 			String type = innerDep.getResource().getJavaType();
 			if (!(innerDep.getResource() instanceof UndefinedReference)
 					&& !(allowedTypes.contains(innerDep.getResource()))) {
