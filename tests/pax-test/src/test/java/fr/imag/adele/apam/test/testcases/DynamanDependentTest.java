@@ -380,6 +380,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	@Test
 	public void CompositeDependencyFailExceptionNative_tc052() {
 
+		System.err.println("Symbolicname:"+ context.getBundle(0).getSymbolicName() );
 		System.err.println("Framework:"+ context.getProperty( org.osgi.framework.Constants.FRAMEWORK_VENDOR ) );
 		System.err.println("Java Version:"+System.getProperty("java.specification.version"));
 		System.err.println("System packages:"+context.getBundle(0).getBundleContext().getProperty(org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES)); 
