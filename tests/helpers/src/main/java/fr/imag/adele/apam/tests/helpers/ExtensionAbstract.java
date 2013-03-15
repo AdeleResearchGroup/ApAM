@@ -69,7 +69,6 @@ public abstract class ExtensionAbstract extends TestUtils {
 	public List<Option> config() {
 
 		List<Option> config = new ArrayList<Option>();
-
 		config.add(packInitialConfig());
 		config.add(packOSGi());
 		config.add(packPax());
@@ -264,9 +263,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s3").versionAsInProject(),
 				
 				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-msg").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m1").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m2").versionAsInProject(),
-				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m3").versionAsInProject());
+				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m1").versionAsInProject());
 		return testAppBundle;
 
 	}
