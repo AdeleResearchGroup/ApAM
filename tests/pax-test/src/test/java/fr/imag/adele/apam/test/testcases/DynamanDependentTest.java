@@ -183,7 +183,8 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
 				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
 				"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch",
-				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch");
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch",
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch");
 		
 		auxListInstances("instances existing after the test-");
 
@@ -380,10 +381,11 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	@Test
 	public void CompositeDependencyFailExceptionNative_tc052() {
 
-		System.err.println("Symbolicname:"+ context.getBundle(0).getSymbolicName() );
-		System.err.println("Framework:"+ context.getProperty( org.osgi.framework.Constants.FRAMEWORK_VENDOR ) );
-		System.err.println("Java Version:"+System.getProperty("java.specification.version"));
-		System.err.println("System packages:"+context.getBundle(0).getBundleContext().getProperty(org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES)); 
+		System.err.println("Pax.exam.framework property:"+ System.getProperty("pax.exam.framework") );
+		System.err.println("bundle 0 symbolic-name:"+ context.getBundle(0).getSymbolicName() );
+		System.err.println(org.osgi.framework.Constants.FRAMEWORK_VENDOR+" pax property:"+ context.getProperty( org.osgi.framework.Constants.FRAMEWORK_VENDOR ) );
+		System.err.println("java Version:"+System.getProperty("java.specification.version"));
+		System.err.println("system packages:"+context.getBundle(0).getBundleContext().getProperty(org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES)); 
 		
 		Implementation group_a = (Implementation) CST.apamResolver.findImplByName(
 				null, "group-a-fail-exception-native");
