@@ -384,6 +384,9 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	
 	@Test
 	public void CompositeDependencyFailExceptionNative_tc052() {
+
+		System.err.println("Java Version:"+System.getProperty("java.specification.version"));
+		System.err.println("System packages:"+context.getBundle(0).getBundleContext().getProperty(org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES)); 
 		
 		Implementation group_a = (Implementation) CST.apamResolver.findImplByName(
 				null, "group-a-fail-exception-native");
@@ -396,9 +399,6 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		String messageTemplate = "In dependency if we adopt fail='exception' exception='A' (With A being an exception that already exists in java JRE), the exception A should be throw in case the dependency is not satifiable. But the exception thrown was not type (A)";
 
 		boolean exceptionType = false;
-
-		System.err.println("Java Version:"+System.getProperty("java.specification.version"));
-		System.err.println("System packages:"+context.getBundle(0).getBundleContext().getProperty(org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES)); 
 		
 		try {
 
