@@ -20,7 +20,6 @@ import static org.ops4j.pax.exam.CoreOptions.systemPackage;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.inject.Inject;
 import javax.xml.parsers.ParserConfigurationException;
 
 import junit.framework.Assert;
@@ -31,7 +30,6 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
@@ -47,9 +45,6 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
 public class DynamanDependentTest extends ExtensionAbstract {
-
-	@Inject
-    private BundleContext context;
 	
 	@Override
 	@Configuration
@@ -385,6 +380,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	@Test
 	public void CompositeDependencyFailExceptionNative_tc052() {
 
+		System.err.println("Framework:"+ context.getProperty( org.osgi.framework.Constants.FRAMEWORK_VENDOR ) );
 		System.err.println("Java Version:"+System.getProperty("java.specification.version"));
 		System.err.println("System packages:"+context.getBundle(0).getBundleContext().getProperty(org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES)); 
 		
