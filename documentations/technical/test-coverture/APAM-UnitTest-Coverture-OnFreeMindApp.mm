@@ -1,6 +1,6 @@
 <map version="0.9.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
-<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1362397269595" TEXT="APAM-Unit test coverture">
+<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1363611242373" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
 <node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1360338389070" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
@@ -84,19 +84,19 @@
 <node CREATED="1360338473041" ID="ID_1945827962" MODIFIED="1360338564504" TEXT="PropertySetTypeOneMiddleOneBorderElement-tc69">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1360338480640" ID="ID_551700211" MODIFIED="1360338564503" TEXT="PropertySetTypeNoBracesComma-tc70">
+<node CREATED="1360338480640" ID="ID_551700211" MODIFIED="1363611133896" TEXT="PropertySetTypeNoBracesComma-tc070">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1360338488864" ID="ID_1145166061" MODIFIED="1360338564503" TEXT="PropertySetTypeNoBracesNoComma-tc71">
+<node CREATED="1360338488864" ID="ID_1145166061" MODIFIED="1363611137193" TEXT="PropertySetTypeNoBracesNoComma-tc071">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1360338496768" ID="ID_1725393579" MODIFIED="1360338564502" TEXT="PropertyEnumTypeSimpleValueNoTrick-tc72">
+<node CREATED="1360338496768" ID="ID_1725393579" MODIFIED="1363611140915" TEXT="PropertyEnumTypeSimpleValueNoTrick-tc072">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1360338502799" ID="ID_1190440980" MODIFIED="1360338564502" TEXT="PropertyEnumTypeSimpleValueSpaceAfter-tc73">
+<node CREATED="1360338502799" ID="ID_1190440980" MODIFIED="1363611144065" TEXT="PropertyEnumTypeSimpleValueSpaceAfter-tc073">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1360338509073" ID="ID_1192619082" MODIFIED="1360338564502" TEXT="PropertyEnumTypeSimpleValueSpaceBefore-tc74">
+<node CREATED="1360338509073" ID="ID_1192619082" MODIFIED="1363611146922" TEXT="PropertyEnumTypeSimpleValueSpaceBefore-tc074">
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1362404102012" ID="ID_322089237" MODIFIED="1362404217151" TEXT="Test injection into java instance property of the type set of integer-tc079">
@@ -339,6 +339,10 @@
 <node CREATED="1362472569291" ID="ID_138993791" MODIFIED="1362472608611" TEXT="testing start consumer before the producer and check that the consumer still receives message-tc082">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1363617716993" ID="ID_1405486038" MODIFIED="1363625252847" TEXT="Single producer and 1 consumer, sent method is called by different threads and check if all messages were received by the consumer-tc083">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1363625239572" ID="ID_377460580" MODIFIED="1363625259439" TEXT="Multiple producer and 1 consumer, sent method is called by different threads and check if all messages were received by the consumer-tc084"/>
 </node>
 </node>
 </map>

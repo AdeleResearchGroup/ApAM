@@ -16,6 +16,8 @@ package fr.imag.adele.apam.test.testcases;
 
 import static org.ops4j.pax.exam.CoreOptions.bundle;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -44,9 +46,45 @@ public class MessageTest extends ExtensionAbstract {
 		defaults.add(0,packApamDynaMan());
 		defaults.add(bundle("file://" + PathUtils.getBaseDir()
 				+ "/bundle/wireadmin.jar"));
+		
+//		defaults.add(mavenBundle("fr.imag.adele.apam", "apam-maven-plugin").version("0.0.2-SNAPSHOT"));
+		
 		return defaults;
 	}
 
+//	@Test
+//	public void testFieldType() throws ParseException {
+//		
+//		String ipojoMetadata = "fr.imag.adele.apam:implementation { " +
+//					" $name=\"MessageConsumeImpl01\" " +
+//					" $classname=\"fr.imag.adele.apam.pax.test.msg.m1.producer.impl.M1ConsumerImpl01\" " +
+//					" $specification=\"MessageConsumerSpec01\" " +
+//					"" +
+//					"fr.imag.adele.apam:dependency { $pull=\"list\" $multiple=\"true\" }" +
+//					"" +
+//					"manipulation { " +
+//					" field { $name=\"list\" $type=\"java.util.List\" }" +
+//					" }" +
+//					"}";
+//		
+//		Element root = ManifestMetadataParser.parseHeaderMetadata(ipojoMetadata);
+//		
+//		CoreParser parser = new CoreMetadataParser(root);
+//		List<ComponentDeclaration> components = parser.getDeclarations(new ErrorHandler() {
+//
+//			@Override
+//			public void error(Severity severity, String message) {
+//				System.err.println(message);
+//				Assert.assertTrue(false);
+//			}
+//		});
+//
+//		List <ComponentDeclaration> dependencies = new ArrayList <ComponentDeclaration> ();
+//        ApamRepoBuilder arb = new ApamRepoBuilder(components, dependencies);
+//		StringBuffer obrContent = arb.writeOBRFile();
+//
+//	}
+		
 	@Test
 	public void MessageSingleProducerSingleConsumerSendReceive_tc075() {
 
@@ -273,4 +311,162 @@ public class MessageTest extends ExtensionAbstract {
 
 	}
 
+	@Test
+	public void MessageSingleProducersSingleConsumerAssyncSend_tc083() throws InterruptedException {
+
+		Implementation producer01Impl = CST.apamResolver.findImplByName(null,
+				"MessageProducerImpl01");
+
+		Implementation consumerImpl = CST.apamResolver.findImplByName(null,
+				"MessageConsumeImpl01");
+
+		Instance producerApam1 = producer01Impl.createInstance(null, null);
+
+		Instance consumerApam = consumerImpl.createInstance(null, null);
+	
+		M1ConsumerImpl01 consumer = (M1ConsumerImpl01) consumerApam
+				.getServiceObject();
+
+		M1ProducerImpl producer1 = (M1ProducerImpl) producerApam1
+				.getServiceObject();
+		
+		// TODO message: force wire in message test
+		consumer.getQueue();
+	
+		List<EletronicMsg> messages1=new ArrayList<EletronicMsg>();
+		List<EletronicMsg> messages2=new ArrayList<EletronicMsg>();;
+		
+		for(int i=1;i<=20;i++){
+			messages1.add(new EletronicMsg(Integer.toString(i)));
+		}
+
+		for(int i=21;i<=50;i++){
+			messages2.add(new EletronicMsg(Integer.toString(i)));
+		}
+		
+	
+		List<EletronicMsg> allMessages=new ArrayList<EletronicMsg>();
+		allMessages.addAll(messages1);
+		allMessages.addAll(messages2);
+	
+		AsynchronousSender sender=new AsynchronousSender(producer1,messages1,messages2);
+		
+		sender.execute();
+		sender.join();
+		
+		final String message = "Given one producer and one consumer, the method that produces the message is called by different threads expecting that all messages are received, but some messages got lost therefore not seem by the consumer";
+		
+		Assert.assertTrue(message,consumer.getQueue().containsAll(allMessages));
+		
+	}
+	
+	@Test
+	public void MessageMultipleProducersSingleConsumerAssyncSend_tc084() throws InterruptedException {
+
+		Implementation producer01Impl = CST.apamResolver.findImplByName(null,
+				"MessageProducerImpl01");
+		
+		Implementation producer02Impl = CST.apamResolver.findImplByName(null,
+				"MessageProducerImpl02");
+
+		Implementation consumerImpl = CST.apamResolver.findImplByName(null,
+				"MessageConsumeImpl01");
+
+		Instance producerApam1 = producer01Impl.createInstance(null, null);
+		Instance producerApam2 = producer02Impl.createInstance(null, null);
+
+		Instance consumerApam = consumerImpl.createInstance(null, null);
+	
+		M1ConsumerImpl01 consumer = (M1ConsumerImpl01) consumerApam
+				.getServiceObject();
+
+		M1ProducerImpl producer1 = (M1ProducerImpl) producerApam1
+				.getServiceObject();
+		M1ProducerImpl producer2 = (M1ProducerImpl) producerApam2
+				.getServiceObject();
+		
+		// TODO message: force wire in message test
+		consumer.getQueue();
+	
+		List<EletronicMsg> messages1=new ArrayList<EletronicMsg>();
+		List<EletronicMsg> messages2=new ArrayList<EletronicMsg>();;
+		
+		for(int i=1;i<=20;i++){
+			messages1.add(new EletronicMsg(Integer.toString(i)));
+		}
+
+		for(int i=21;i<=50;i++){
+			messages2.add(new EletronicMsg(Integer.toString(i)));
+		}
+		
+	
+		List<EletronicMsg> allMessages=new ArrayList<EletronicMsg>();
+		allMessages.addAll(messages1);
+		allMessages.addAll(messages2);
+	
+		
+		AsynchronousSender sender1=new AsynchronousSender(producer1,messages1);
+		AsynchronousSender sender2=new AsynchronousSender(producer2,messages2);
+				
+		sender1.execute();
+		sender2.execute();
+		
+		sender1.join();
+		sender2.join();
+		
+		final String message = "Given multiple producers and one consumer, the method that produces the message, from the different producers, are called by different threads. It is expected that all messages are received, but some messages got lost therefore not seem by the consumer";
+		
+		Assert.assertTrue(message,consumer.getQueue().containsAll(allMessages));
+		
+	}
+	
+	
+}
+
+class AsynchronousSender {
+	M1ProducerImpl producer;
+	List<List<EletronicMsg>> list=new ArrayList<List<EletronicMsg>>();
+	List<Envelope> sent=new ArrayList<Envelope>();
+	public AsynchronousSender(final M1ProducerImpl producer,List<EletronicMsg> ... messages ){
+		this.list=Arrays.asList(messages);
+		this.producer=producer;
+	}
+	
+	public void execute(){
+		
+		for(List<EletronicMsg> local:list){
+			Envelope e=new Envelope(producer, local);
+			sent.add(e);
+			e.start();
+		}
+		
+	}
+
+	public void join() {
+		// force wait until threads to be finished
+		for (Envelope env : sent) {
+			try {
+				env.join();
+			} catch (InterruptedException e) {}
+		}
+	}
+	
+}
+
+class Envelope extends Thread {
+	M1ProducerImpl producer;
+	List<EletronicMsg> list=new ArrayList<EletronicMsg>();
+	public Envelope(final M1ProducerImpl producer,List<EletronicMsg> messages ){
+		this.list=messages;
+		this.producer=producer;
+	}
+	
+	@Override
+	public void run(){
+		
+		for(EletronicMsg msg:list){
+				producer.pushMessage(msg.toString());	
+		}
+		
+	}
 }
