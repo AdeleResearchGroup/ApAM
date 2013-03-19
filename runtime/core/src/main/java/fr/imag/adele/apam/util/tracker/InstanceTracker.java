@@ -15,7 +15,9 @@
 package fr.imag.adele.apam.util.tracker;
 
 import fr.imag.adele.apam.Instance;
-import org.osgi.framework.Filter;
+import fr.imag.adele.apam.util.ApamFilter;
+
+//import org.osgi.framework.Filter;
 
 /**
  * The {@code InstanceTracker} is a {@code ComponentTracker} specialized in order to track {@code Instance}.
@@ -26,11 +28,11 @@ import org.osgi.framework.Filter;
  */
 public class InstanceTracker extends ComponentTracker<Instance> {
 
-    public InstanceTracker(final Filter filter) {
+    public InstanceTracker(final ApamFilter filter) {
         super(Instance.class, filter);
     }
 
-    public InstanceTracker(final Filter filter, final ComponentTrackerCustomizer<Instance> customizer) {
+    public InstanceTracker(final ApamFilter filter, final ComponentTrackerCustomizer<Instance> customizer) {
         super(Instance.class, filter, customizer);
     }
 }

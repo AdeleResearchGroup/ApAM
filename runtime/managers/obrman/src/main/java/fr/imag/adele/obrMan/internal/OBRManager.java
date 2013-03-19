@@ -33,7 +33,7 @@ import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
-import org.osgi.framework.Filter;
+//import org.osgi.framework.Filter;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +108,7 @@ public class OBRManager {
         return null ;
     }
 
-    public Set<Selected> lookForAll(String capability, String filterStr, Set<Filter> constraints) {
+    public Set<Selected> lookForAll(String capability, String filterStr, Set<ApamFilter> constraints) {
         if (filterStr == null)
             new Exception("no filter in lookfor all").printStackTrace();
 
@@ -149,7 +149,7 @@ public class OBRManager {
         return allRes;
     }
 
-    public Selected lookForPref(String capability, List<Filter> preferences, Set<Selected> candidates) {
+    public Selected lookForPref(String capability, List<ApamFilter> preferences, Set<Selected> candidates) {
         Selected winner = lookForPrefInt(capability, preferences, candidates) ;
         if (winner == null)
             return null;
@@ -169,7 +169,7 @@ public class OBRManager {
      * At the end, if n > 1 return one arbitrarily.
      *
      */
-    public Selected lookForPrefInt(String capability, List<Filter> preferences, Set<Selected> candidates) {
+    public Selected lookForPrefInt(String capability, List<ApamFilter> preferences, Set<Selected> candidates) {
         if (candidates == null || candidates.isEmpty()) return null ;
         // Trace preference filter
         logFilterConstraintPreferences(null, null, preferences, false);
@@ -179,7 +179,7 @@ public class OBRManager {
 
         Set<Selected> valids = new HashSet<Selected> ();
         ApamFilter filter;
-        for (Filter f : preferences) {
+        for (ApamFilter f : preferences) {
             filter = ApamFilter.newInstance(f.toString());
             for (Selected compo : candidates) {
                 if (filter.matchCase(compo.capability.getPropertiesAsMap()))
@@ -202,14 +202,14 @@ public class OBRManager {
      * @param preferences: the preferences. can be null
      * @return the pair capability,
      */
-    public Selected lookFor(String capability, String filterStr, Set<Filter> constraints, List<Filter> preferences) {
+    public Selected lookFor(String capability, String filterStr, Set<ApamFilter> constraints, List<ApamFilter> preferences) {
         if ((preferences != null) && !preferences.isEmpty()) {
             return lookForPref(capability, preferences, lookForAll(capability, filterStr, constraints));
         }
         return lookFor(capability, filterStr, constraints);
     }
 
-    private Selected lookFor(String capability, String filterStr, Set<Filter> constraints) {
+    private Selected lookFor(String capability, String filterStr, Set<ApamFilter> constraints) {
         if (filterStr == null) {
             logger.debug("No filter for lookFor");
             return null;
@@ -226,7 +226,7 @@ public class OBRManager {
         return getBestCandidate(allSelected) ;
     }
 
-    private void logFilterConstraintPreferences(String filterStr, Set<Filter> constraints, List<Filter> preferences,
+    private void logFilterConstraintPreferences(String filterStr, Set<ApamFilter> constraints, List<ApamFilter> preferences,
                                                 boolean all) {
 
         StringBuffer debugMessage = new StringBuffer ();
@@ -239,14 +239,14 @@ public class OBRManager {
         }
         if ((constraints != null) && !constraints.isEmpty()) {
             debugMessage.append("\n     Constraints : ");
-            for (Filter constraint : constraints) {
+            for (ApamFilter constraint : constraints) {
             	debugMessage.append(constraint + ", ");
             }
         }
 
         if ((preferences != null) && !preferences.isEmpty()) {
         	debugMessage.append("\n    Preferences : ");
-            for (Filter preference : preferences) {
+            for (ApamFilter preference : preferences) {
             	debugMessage.append(preference + ", ");
             }
         }
@@ -261,13 +261,13 @@ public class OBRManager {
      * @param constraints
      * @return
      */
-    private boolean matchConstraints(Capability aCap, Set<Filter> constraints) {
+    private boolean matchConstraints(Capability aCap, Set<ApamFilter> constraints) {
         if ((constraints == null) || constraints.isEmpty() || (aCap == null))
             return true;
 
         ApamFilter filter;
         Map<?, ?> map = aCap.getPropertiesAsMap();
-        for (Filter constraint : constraints) {
+        for (ApamFilter constraint : constraints) {
             filter = ApamFilter.newInstance(constraint.toString());
             if (!filter.matchCase(map)) {
                 return false;
@@ -387,7 +387,7 @@ public class OBRManager {
         Capability capability;
         public OBRManager obrManager ;
         private final String   selectedComponentName;
-        private final String   selectedComponentType;
+//        private final String   selectedComponentType;
 
         public Selected(Resource res, Capability cap, OBRManager managerPrivate) {
             this.obrManager = managerPrivate;
@@ -402,7 +402,7 @@ public class OBRManager {
                 new Exception("name is null in capability " + capability).printStackTrace();
             }
 
-            this.selectedComponentType = getAttributeInCapability (capability, CST.COMPONENT_TYPE) ;
+//            this.selectedComponentType = getAttributeInCapability (capability, CST.COMPONENT_TYPE) ;
         }
 
         //@Override
@@ -440,23 +440,23 @@ public class OBRManager {
             return components ;
         }
 
-        //TODO Generalize not used for now
-        private Set<String> getComponentsByType(String componentName,String type) {
+//        //TODO Generalize not used for now
+//        private Set<String> getComponentsByType(String componentName,String type) {
+//
+//            Set<String> components = new HashSet<String> () ;
+//            if (type== null) return components;
+//            for (Capability aCap : resource.getCapabilities()) {
+//                if (aCap.getName().equals(CST.CAPABILITY_COMPONENT)  && aCap.getPropertiesAsMap().get(CST.COMPONENT_TYPE).equals(type) ) {
+//                    if ( aCap.getPropertiesAsMap().get(CST.IMPLNAME).equals(componentName))
+//                        components.add(getAttributeInCapability(aCap, CST.NAME)) ;
+//                }
+//            }
+//            return components ;
+//        }
 
-            Set<String> components = new HashSet<String> () ;
-            if (type== null) return components;
-            for (Capability aCap : resource.getCapabilities()) {
-                if (aCap.getName().equals(CST.CAPABILITY_COMPONENT)  && aCap.getPropertiesAsMap().get(CST.COMPONENT_TYPE).equals(type) ) {
-                    if ( aCap.getPropertiesAsMap().get(CST.IMPLNAME).equals(componentName))
-                        components.add(getAttributeInCapability(aCap, CST.NAME)) ;
-                }
-            }
-            return components ;
-        }
-
-        private Set<String> getImplementationsOfSelectedCap(){
-            return getComponentsByType(getComponentName(),CST.IMPLEMENTATION);
-        }
+//        private Set<String> getImplementationsOfSelectedCap(){
+//            return getComponentsByType(getComponentName(),CST.IMPLEMENTATION);
+//        }
 
         public Set<String> getInstancesOfSelectedImpl(){
             Set<String> components = new HashSet<String> () ;
@@ -501,7 +501,7 @@ public class OBRManager {
                 }
             }
             //        m_resolutionFlags = flags; int parameter of the resolve method:
-            else if ((Resolver.START & Resolver.DO_NOT_PREFER_LOCAL) != 0 || !bestLocal || isCurrentLocal)
+            else if (/* (Resolver.START & Resolver.DO_NOT_PREFER_LOCAL) != 0 || */ !bestLocal || isCurrentLocal)
             {
                 Object v = current.getCapability().getPropertiesAsMap().get(Resource.VERSION);
 

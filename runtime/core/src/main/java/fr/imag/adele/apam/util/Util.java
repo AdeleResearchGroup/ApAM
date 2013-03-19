@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.metadata.Element;
-import org.osgi.framework.Filter;
+//import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,8 +94,8 @@ public final class Util {
 		return toStringResources(new HashSet<String>(Arrays.asList(names)));
 	}
 
-	public static Set<Filter> toFilter(Set<String> filterString) {
-		Set<Filter> filters = new HashSet<Filter>();
+	public static Set<ApamFilter> toFilter(Set<String> filterString) {
+		Set<ApamFilter> filters = new HashSet<ApamFilter>();
 		if (filterString == null)
 			return filters;
 
@@ -108,8 +108,8 @@ public final class Util {
 		return filters;
 	}
 
-	public static List<Filter> toFilterList(List<String> filterString) {
-		List<Filter> filters = new ArrayList<Filter>();
+	public static List<ApamFilter> toFilterList(List<String> filterString) {
+		List<ApamFilter> filters = new ArrayList<ApamFilter>();
 		if (filterString == null) {
 			return filters;
 		}
@@ -222,7 +222,7 @@ public final class Util {
 		if (expre.equals(CST.V_FALSE)) {
 			return false;
 		}
-		Filter f = ApamFilter.newInstance(expre);
+		ApamFilter f = ApamFilter.newInstance(expre);
 		if (f == null) {
 			return false;
 		}
@@ -544,12 +544,7 @@ public final class Util {
 							valSetInt.add(Integer.toString((Integer)i)) ;
 						}
 						else {
-<<<<<<< HEAD
-							if (i instanceof String
-									) {
-=======
 							if (i instanceof String) {
->>>>>>> 7ea852276c9d9f9c2771a6bb43d4b1f93ea61c66
 								//to be sure it is an integer
 								Integer.valueOf((String)i) ;
 								valSetInt.add((String)i) ;
@@ -711,38 +706,17 @@ public final class Util {
 			}
 		}
 
-<<<<<<< HEAD
 		/*
 		 * String or {String}
 		 */
 		if (type.equals("string")) {
 			//All values are Ok for string.
-			return value ;
+			return isSet? values : value ; 
 		}
 
 		logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
 				+ "\".  int, integer, boolean or string expected");
 		return null ;
-=======
-		if (!type.equals("string")) {
-			logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
-					+ "\".  int, boolean or string expected");
-			return null ;
-		}
-		//All values are Ok for string.
-		return isSet? values : value ;
-		//		}
-
-		//		//Type is an enumeration with at least 2 values
-		//		if (enumVals.containsAll(values)) {
-		//			return value;
-		//		}
-		//
-		//		String errorMes = "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
-		//				+ "\".  Expected subset of: " + types;
-		//		logger.error(errorMes);
-		//		return null;
->>>>>>> 7ea852276c9d9f9c2771a6bb43d4b1f93ea61c66
 	}
 
 

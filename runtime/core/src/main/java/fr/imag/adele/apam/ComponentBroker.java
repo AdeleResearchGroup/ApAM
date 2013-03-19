@@ -18,13 +18,14 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.Filter;
+//import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.util.ApamFilter;
 
 public interface ComponentBroker {
  
@@ -60,9 +61,9 @@ public interface ComponentBroker {
      * @return the specifications
      */
     //public Set<Component>      getComponents(Filter goal) ;
-    public Set<Specification>  getSpecs(Filter goal) ;
-    public Set<Implementation> getImpls(Filter goal) ;
-    public Set<Instance>       getInsts(Filter goal) ;
+    public Set<Specification>  getSpecs(ApamFilter goal) ;
+    public Set<Implementation> getImpls(ApamFilter goal) ;
+    public Set<Instance>       getInsts(ApamFilter goal) ;
     
     /**
      * If the component is not present, wait for the apparition of the component.

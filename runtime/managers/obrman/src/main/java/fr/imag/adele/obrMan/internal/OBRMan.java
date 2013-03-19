@@ -61,7 +61,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     // iPOJO injected
     private RepositoryAdmin               repoAdmin;
 
-    private Apam                          apam;
+//    private Apam                          apam;
 
     private final Logger                  logger = LoggerFactory.getLogger(OBRMan.class);
 
@@ -199,7 +199,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     // interface manager
     private Implementation resolveSpec(CompositeType compoType, ResolvableReference resource,
-            Set<Filter> constraints, List<Filter> preferences) {
+            Set<ApamFilter> constraints, List<ApamFilter> preferences) {
 
         // Find the composite OBRManager
         OBRManager obrManager = searchOBRManager(compoType);
@@ -208,8 +208,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
         // temporary ??
         if (preferences == null)
-            preferences = new ArrayList<Filter>();
-        Filter f = ApamFilter.newInstance("(apam-composite=true)");
+            preferences = new ArrayList<ApamFilter>();
+        ApamFilter f = ApamFilter.newInstance("(apam-composite=true)");
         preferences.add(f);
         // end
 
@@ -302,8 +302,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     private Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
-        Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints());
-        List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences());
+        Set<ApamFilter> constraints = Util.toFilter(dep.getImplementationConstraints());
+        List<ApamFilter> preferences = Util.toFilterList(dep.getImplementationPreferences());
 
         return resolveSpec(client.getComposite().getCompType(), dep.getTarget(), constraints, preferences);
     }

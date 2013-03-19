@@ -30,7 +30,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.felix.ipojo.handlers.dependency.DependencyDescription;
+//import org.apache.felix.ipojo.handlers.dependency.DependencyDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;

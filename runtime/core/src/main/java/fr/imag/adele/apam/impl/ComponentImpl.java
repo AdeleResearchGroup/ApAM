@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.osgi.framework.Filter;
+//import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -312,56 +312,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		String type = def.getType() ; 
 		if (type == null) return null ;
 		
-		
 		return get(attribute) ;
 	}
-
-	//		Object val = get(attribute) ;
-//		if (val == null) return null ;
-//
-//		boolean isSet = false ;
-//		if (type.charAt(0)=='{' ) {
-//			isSet = true ;
-//			type = type.substring(1, type.length()-1) ;	
-//		}
-//
-//		if (!isSet) {
-//			if (type.equals ("int")) {
-//				return val ;
-//			}
-//			if (type.equals("boolean")) {
-//				return (((String)val).equalsIgnoreCase("true")) ;
-//			}
-//			//string and enumeration are strings
-//			return val ;
-//		}
-//
-//		//it is a set. Internaly it is a string. Returns an array of int of an array of strings
-//		String[] enumVals = Util.split((String)val);
-//		int l = enumVals.length ;
-//
-//		// If a set of integer, build the array
-//		if (type.equals ("int")) {
-//			int[] intReturn = new int[l] ;
-//			try {
-//				for (int i = 0 ; i < l; i++) {
-//					intReturn[i] = Integer.parseInt(enumVals[i]) ;
-//				}
-//			} catch (Exception e) {
-//				//should never happen
-//				logger.error("Invalid int array value: "  + (String)val + " for attribute " + attribute) ;
-//			}
-//			return intReturn ;
-//		}
-//		if (type.equals("boolean")) {
-//			//should never happen
-//			logger.error("Set of integers are not allowed" ) ;
-//			return null ;
-//		}
-//
-//		//value is a set of String
-//		return enumVals;
-//	}
 
 	
 	/**
@@ -638,24 +590,45 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	public boolean match(String goal) {
 		if (goal == null) return true ;
 		ApamFilter f = ApamFilter.newInstance(goal) ;
-		if (f == null) return false ;
-		return match(f);
-	}
-
-	@Override
-	public boolean match(Filter goal) {
 		return goal == null || match(Collections.singleton(goal));
+//		if (f == null) return false ;
+//		return match(f);
 	}
 
+//	@Override
+//	public boolean match(ApamFilter goal) {
+//		return goal == null || match(Collections.singleton(goal));
+//	}
+
+//	@Override
+//	public boolean match(Set<ApamFilter> goals) {
+//		if ((goals == null) || goals.isEmpty())
+//			return true;
+//
+//		Map<String,Object> props = getAllProperties() ;
+//		try {
+//			for (ApamFilter f : goals) {
+//				if (!((ApamFilter) f).matchCase(props)) {
+//					return false ;
+//				}
+//			}
+//			return true;
+//		} catch (Exception e) {
+//			return false ;
+//		}
+//	}
+//
+
 	@Override
-	public boolean match(Set<Filter> goals) {
+	public boolean match(Set<String> goals) {
 		if ((goals == null) || goals.isEmpty())
 			return true;
 
 		Map<String,Object> props = getAllProperties() ;
 		try {
-			for (Filter f : goals) {
-				if (!((ApamFilter) f).matchCase(props)) {
+			for (String f : goals) {
+				ApamFilter af = ApamFilter.newInstance(f) ;
+				if (!(af.matchCase(props))) {
 					return false ;
 				}
 			}
@@ -666,6 +639,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 
+	
 
 	/**
 	 * Whether the component is instantiable

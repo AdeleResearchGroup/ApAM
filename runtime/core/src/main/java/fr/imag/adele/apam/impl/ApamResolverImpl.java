@@ -526,7 +526,6 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @return null if not resolved at all. Never returns an empty set.
 	 */
 	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
-
 		logger.info("Looking for all implems with" + dependency);
 		if (client == null)
 			client = CompositeImpl.getRootInstance();

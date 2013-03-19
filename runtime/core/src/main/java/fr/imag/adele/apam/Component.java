@@ -17,11 +17,12 @@ package fr.imag.adele.apam;
 import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.Filter;
+//import org.osgi.framework.Filter;
 
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.util.ApamFilter;
 
 public interface Component {
 
@@ -76,7 +77,7 @@ public interface Component {
 	 * @param goal the goal
 	 * @return true is the instance matches the goal
 	 */
-	public boolean match(Filter goal);
+//	public boolean match(ApamFilter goal);
 
 	/**
 	 * return true if the instance matches ALL the constraints in the set.
@@ -84,7 +85,8 @@ public interface Component {
 	 * @param goals
 	 * @return
 	 */
-	public boolean match(Set<Filter> goals);
+//	public boolean match(Set<ApamFilter> goals);
+	public boolean match(Set<String> goals);
 
 	/**
 	 * Get the value of a property, the property can be valued in this component or in its

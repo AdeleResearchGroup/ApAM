@@ -20,11 +20,12 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
+import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.ApamInstall;
 import org.apache.felix.ipojo.Pojo;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.Filter;
+//import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -248,7 +249,7 @@ public class ComponentBrokerImpl implements ComponentBroker{
 	}
 
 	@Override
-	public Set<Specification> getSpecs(Filter goal)  {
+	public Set<Specification> getSpecs(ApamFilter goal)  {
 		if (goal == null) {
 			return getSpecs();
 		}
@@ -298,7 +299,7 @@ public class ComponentBrokerImpl implements ComponentBroker{
 	}
 
 	@Override
-	public Set<Implementation> getImpls(Filter goal)  {
+	public Set<Implementation> getImpls(ApamFilter goal)  {
 		if (goal == null) {
 			return getImpls();
 		}
@@ -332,7 +333,7 @@ public class ComponentBrokerImpl implements ComponentBroker{
 	}
 
 	@Override
-	public Set<Instance> getInsts(Filter goal) {
+	public Set<Instance> getInsts(ApamFilter goal) {
 		if (goal == null) {
 			return getInsts();
 		}
