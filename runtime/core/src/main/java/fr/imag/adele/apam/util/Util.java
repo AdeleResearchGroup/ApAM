@@ -222,11 +222,11 @@ public final class Util {
 		if (expre.equals(CST.V_FALSE)) {
 			return false;
 		}
-		ApamFilter f = ApamFilter.newInstance(expre);
-		if (f == null) {
-			return false;
-		}
-		return comp.match(f);
+		//ApamFilter f = ApamFilter.newInstance(expre);
+//		if (f == null) {
+//			return false;
+//		}
+		return comp.match(expre);
 	}
 
 
@@ -543,7 +543,11 @@ public final class Util {
 						if (i instanceof Integer) {
 							valSetInt.add(Integer.toString((Integer)i)) ;
 						}
+//<<<<<<< HEAD
+//						else {
+//=======
 						else {
+//>>>>>>> 0c767dab4e9270b541889d0e527ddf67965f0748
 							if (i instanceof String) {
 								//to be sure it is an integer
 								Integer.valueOf((String)i) ;

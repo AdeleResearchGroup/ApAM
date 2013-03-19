@@ -17,9 +17,9 @@
 		<module>messages-specifications</module>-->
         <module>apam-pax-samples-msg</module>
         <module>apam-pax-samples-impl-m1</module>
-        <module>apam-pax-samples-impl-m2</module>
+ <!--       <module>apam-pax-samples-impl-m2</module>
         <module>apam-pax-samples-impl-m3</module>
         <module>apam-pax-samples-impl-m4m5</module>
-	</modules>
+-->	</modules>
 	
 </project>

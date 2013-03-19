@@ -45,7 +45,7 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
 public class DynamanDependentTest extends ExtensionAbstract {
-
+	
 	@Override
 	@Configuration
 	public Option[] apamConfig() {
@@ -183,7 +183,8 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
 				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
 				"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch",
-				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch");
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch",
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch");
 		
 		auxListInstances("instances existing after the test-");
 
@@ -323,7 +324,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		ThreadWrapper wrapper = new ThreadWrapper(ga1);
 		wrapper.setDaemon(true);
 		wrapper.start();
-
+		
 		apam.waitForIt(3000);
 
 		String message = "In case of dependency been marked as fail='wait', the thread should be blocked until the dependency is satisfied. During this test the thread did not block.";
@@ -380,6 +381,12 @@ public class DynamanDependentTest extends ExtensionAbstract {
 	@Test
 	public void CompositeDependencyFailExceptionNative_tc052() {
 
+		System.err.println("Pax.exam.framework property:"+ System.getProperty("pax.exam.framework") );
+		System.err.println("bundle 0 symbolic-name:"+ context.getBundle(0).getSymbolicName() );
+		System.err.println(org.osgi.framework.Constants.FRAMEWORK_VENDOR+" pax property:"+ context.getProperty( org.osgi.framework.Constants.FRAMEWORK_VENDOR ) );
+		System.err.println("java Version:"+System.getProperty("java.specification.version"));
+		System.err.println("system packages:"+context.getBundle(0).getBundleContext().getProperty(org.osgi.framework.Constants.FRAMEWORK_SYSTEMPACKAGES)); 
+		
 		Implementation group_a = (Implementation) CST.apamResolver.findImplByName(
 				null, "group-a-fail-exception-native");
 	
@@ -391,7 +398,7 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		String messageTemplate = "In dependency if we adopt fail='exception' exception='A' (With A being an exception that already exists in java JRE), the exception A should be throw in case the dependency is not satifiable. But the exception thrown was not type (A)";
 
 		boolean exceptionType = false;
-
+		
 		try {
 
 			Eletronic injected = ga1.getElement();

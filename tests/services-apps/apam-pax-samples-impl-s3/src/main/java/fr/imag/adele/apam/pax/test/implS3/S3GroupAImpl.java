@@ -14,6 +14,8 @@
  */
 package fr.imag.adele.apam.pax.test.implS3;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import fr.imag.adele.apam.pax.test.iface.S3;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 
@@ -21,6 +23,8 @@ import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
 public class S3GroupAImpl implements S3
 {
 
+	ParserConfigurationException e;
+	
 	Eletronic element;
 	
 	S3 c;
