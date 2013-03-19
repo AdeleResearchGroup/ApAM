@@ -59,13 +59,21 @@ public class S1Impl implements S1
         return this.getClass().getName();
     }
     
-    public void bindWithoutInstance(){
+    public void start(){
     	System.out.println("Starting:"+this.getClass().getName());
     	isOnInitCallbackCalled=true;
     }
     
-    public void unbindWithoutInstance(){
+    public void stop(){
     	System.out.println("Stopping:"+this.getClass().getName());
+    	isOnRemoveCallbackCalled=true;
+    }
+    
+    public void bindWithoutInstance(){
+    	isOnInitCallbackCalled=true;
+    }
+    
+    public void unbindWithoutInstance(){
     	isOnRemoveCallbackCalled=true;
     }
     
