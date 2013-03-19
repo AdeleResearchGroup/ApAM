@@ -28,6 +28,7 @@ public class S1Impl implements S1
 {
 	Boolean isOnInitCallbackCalled=false;
 	Boolean isOnRemoveCallbackCalled=false;
+	Boolean isBindUnbindReceivedInstanceParameter=false;
 	
 	String stateInternal;
 	String stateNotInternal;
@@ -58,23 +59,29 @@ public class S1Impl implements S1
         return this.getClass().getName();
     }
     
-    public void start(){
+    public void bindWithoutInstance(){
     	System.out.println("Starting:"+this.getClass().getName());
     	isOnInitCallbackCalled=true;
     }
     
-    public void stop(){
+    public void unbindWithoutInstance(){
     	System.out.println("Stopping:"+this.getClass().getName());
     	isOnRemoveCallbackCalled=true;
     }
     
-    public void bind(Instance instance){
+    public void bindWithInstance(Instance instance){
     	System.out.println("Starting:"+this.getClass().getName());
+    	
+    	if(instance!=null) isBindUnbindReceivedInstanceParameter=true;
+    	
     	isOnInitCallbackCalled=true;
     }
     
-    public void unbind(Instance instance){
+    public void unbindWithInstance(Instance instance){
     	System.out.println("Stopping:"+this.getClass().getName());
+    	
+    	if(instance!=null) isBindUnbindReceivedInstanceParameter=true;
+    	
     	isOnRemoveCallbackCalled=true;
     }
 
@@ -181,6 +188,15 @@ public class S1Impl implements S1
 
 	public void setS3(S3 s3) {
 		this.s3 = s3;
+	}
+
+	public Boolean getIsBindUnbindReceivedInstanceParameter() {
+		return isBindUnbindReceivedInstanceParameter;
+	}
+
+	public void setIsBindUnbindReceivedInstanceParameter(
+			Boolean isBindUnbindReceivedInstanceParameter) {
+		this.isBindUnbindReceivedInstanceParameter = isBindUnbindReceivedInstanceParameter;
 	}
 
 }

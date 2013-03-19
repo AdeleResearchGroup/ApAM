@@ -1,6 +1,6 @@
 <map version="0.9.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
-<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1363611242373" TEXT="APAM-Unit test coverture">
+<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1363699317435" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
 <node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1360338389070" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
@@ -170,10 +170,16 @@
 <node CREATED="1353075141416" ID="ID_384580446" MODIFIED="1354295158437" TEXT="remove callback, should be called when the components is uninstalled-tc022">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353422621394" ID="ID_1384277878" MODIFIED="1354295249502" TEXT="in dependency tag, the method spec. in added should be called when the dependency is satified-tc023">
+<node CREATED="1353422621394" ID="ID_1384277878" MODIFIED="1363702561002" TEXT="in dependency tag, the method spec. (with Instance parameter) in added should be called when the dependency is satified-tc023">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353422670626" ID="ID_1652284443" MODIFIED="1354295261222" TEXT="in dependency tag, the method spec. in &quot;removed&quot; attribute should be called when the dependency wire is removed-tc023">
+<node CREATED="1353422670626" ID="ID_1652284443" MODIFIED="1363702566458" TEXT="in dependency tag, the method spec. (with Instance parameter) in &quot;removed&quot; attribute should be called when the dependency wire is removed-tc023">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1363699330015" ID="ID_308109238" MODIFIED="1363702539595" TEXT="in dependency tag, the method spec. (without parameter) in added should be called when the dependency is satified-tc085">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1363702462031" ID="ID_772256253" MODIFIED="1363702552010" TEXT="in dependency tag, the method spec. (without parameter) in &quot;removed&quot; attribute should be called when the dependency wire is removed-tc085">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>

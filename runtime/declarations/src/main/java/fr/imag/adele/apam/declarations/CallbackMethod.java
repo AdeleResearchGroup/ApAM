@@ -74,7 +74,7 @@ public class CallbackMethod {
             switch (trigger) {
                 case Bind:                   
                 case Unbind:
-                     implementation.getInstrumentation().getCallbacks(methodName,true);
+                     implementation.getInstrumentation().getCallbacks(methodName,false);
                     return true;
                 case onInit:
                 case onRemove:
