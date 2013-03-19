@@ -19,6 +19,7 @@ import java.util.Properties;
 
 import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.IPojoFactory;
+import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.osgi.framework.Bundle;
 
 import fr.imag.adele.apam.apform.ApformImplementation;
@@ -27,6 +28,7 @@ import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
+import fr.imag.adele.apam.declarations.PropertyDefinition;
 
 /**
  * This class allow integrating legacy iPojo components in the APAM runtime
@@ -77,9 +79,25 @@ public class ApformIPojoImplementation implements ApformImplementation {
 	public ApformIPojoImplementation(IPojoFactory factory) {
 		this.factory 		= factory;
 		this.declaration	= new Declaration(factory.getName());
+		
+		/*
+		 * Add the list of provided interfaces
+		 */
 		for (String providedIntereface : factory.getComponentDescription().getprovidedServiceSpecification()) {
 			declaration.getProvidedResources().add(new InterfaceReference(providedIntereface));
 		}
+		
+		/*
+		 * Add the list of factory properties
+		 */
+		for(PropertyDescription  property : factory.getComponentDescription().getProperties()) {
+			if (property.isImmutable()) {
+				declaration.getPropertyDefinitions().add(
+						new PropertyDefinition(declaration, property.getName(), "string", property.getValue(), null, null, true, true));
+				declaration.getProperties().put(property.getName(), property.getValue());
+			}
+		}
+	
 	}
 	
 	@Override
@@ -119,8 +137,7 @@ public class ApformIPojoImplementation implements ApformImplementation {
 
 	@Override
 	public void setProperty(String attr, String value) {
-		// TODO see if can reconfigure factory publication
-		
+		// TODO see if we can reconfigure factory publication
 	}
 
 }

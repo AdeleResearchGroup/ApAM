@@ -97,8 +97,19 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
         protected Description(ApformComponentImpl factory) {
             super(factory);
 
+            /*
+             * add all provided interfaces of the component to the description
+             */
             for (InterfaceReference providedInterface : getFactory().getDeclaration().getProvidedResources(InterfaceReference.class)) {
                 addProvidedServiceSpecification(providedInterface.getJavaType());
+            }
+
+            /*
+             * add all local properties of the component to the description
+             */
+            for (PropertyDefinition definition  : getFactory().getDeclaration().getPropertyDefinitions()) {
+            	if (definition.isLocal())
+            		addProperty(definition.getName(), definition.getDefaultValue(), true);
             }
 
         }
