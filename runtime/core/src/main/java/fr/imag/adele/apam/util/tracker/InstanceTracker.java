@@ -15,7 +15,7 @@
 package fr.imag.adele.apam.util.tracker;
 
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.util.ApamFilter;
+//import fr.imag.adele.apam.util.String;
 
 //import org.osgi.framework.Filter;
 
@@ -28,11 +28,11 @@ import fr.imag.adele.apam.util.ApamFilter;
  */
 public class InstanceTracker extends ComponentTracker<Instance> {
 
-    public InstanceTracker(final ApamFilter filter) {
+    public InstanceTracker(final String filter) {
         super(Instance.class, filter);
     }
 
-    public InstanceTracker(final ApamFilter filter, final ComponentTrackerCustomizer<Instance> customizer) {
+    public InstanceTracker(final String filter, final ComponentTrackerCustomizer<Instance> customizer) {
         super(Instance.class, filter, customizer);
     }
 }

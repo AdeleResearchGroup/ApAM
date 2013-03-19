@@ -589,35 +589,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	@Override
 	public boolean match(String goal) {
 		if (goal == null) return true ;
-		ApamFilter f = ApamFilter.newInstance(goal) ;
 		return goal == null || match(Collections.singleton(goal));
-//		if (f == null) return false ;
-//		return match(f);
 	}
 
-//	@Override
-//	public boolean match(ApamFilter goal) {
-//		return goal == null || match(Collections.singleton(goal));
-//	}
-
-//	@Override
-//	public boolean match(Set<ApamFilter> goals) {
-//		if ((goals == null) || goals.isEmpty())
-//			return true;
-//
-//		Map<String,Object> props = getAllProperties() ;
-//		try {
-//			for (ApamFilter f : goals) {
-//				if (!((ApamFilter) f).matchCase(props)) {
-//					return false ;
-//				}
-//			}
-//			return true;
-//		} catch (Exception e) {
-//			return false ;
-//		}
-//	}
-//
 
 	@Override
 	public boolean match(Set<String> goals) {
@@ -637,9 +611,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return false ;
 		}
 	}
-
-
-	
 
 	/**
 	 * Whether the component is instantiable

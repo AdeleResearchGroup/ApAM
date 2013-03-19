@@ -41,10 +41,9 @@ public class S5Impl implements S5, ApamComponent {
         boolean res;
         //        ApamFilter f = ApamFilter.newInstance("()");
         res = apamInstance.match("(s5-spec=coucous5)");
-        res = apamInstance.match(ApamFilter.newInstance("(s5-spec=\"coucou5\")")); // false
-        res = apamInstance.match(ApamFilter.newInstance("(&(s5b=false)(s5-spec=coucous5))"));
-        res = apamInstance.match(ApamFilter.newInstance("(s5b=true)"));
-        res = apamInstance.match(ApamFilter.newInstance("(s5c=vals5c)"));
+        res = apamInstance.match("(&(s5b=false)(s5-spec=coucous5))");
+        res = apamInstance.match("(s5b=true)");
+        res = apamInstance.match("(s5c=vals5c)");
 
         //        apamInstance.getComposite().getCompType().put(CST.A_LOCALINSTANCE, CST.V_TRUE);
         //        apamInstance.getComposite().getCompType().put(CST.A_LOCALIMPLEM, CST.V_TRUE);

@@ -219,6 +219,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 		getLog().info(" obr.xml File generation - SUCCESS ");
 	}
 
+	@SuppressWarnings("unchecked")
 	private List<ComponentDeclaration> getComponentFromJar (File jar) {
 		try {
 			JarFile jarFile = new JarFile(jar);

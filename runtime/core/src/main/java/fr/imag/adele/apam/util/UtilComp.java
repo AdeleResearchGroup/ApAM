@@ -54,9 +54,9 @@ public class UtilComp {
 			return insts.iterator().next();
 		}
 		
-		List<ApamFilter> implPreference = Util.toFilterList(dependency.getImplementationPreferences()) ;
-		List<ApamFilter> instPreference = Util.toFilterList(dependency.getInstancePreferences()) ;
-		Set<ApamFilter> instConstraints = Util.toFilter    (dependency.getInstanceConstraints()) ;
+		List<String> implPreference = dependency.getImplementationPreferences() ;
+		List<String> instPreference = dependency.getInstancePreferences() ;
+		Set<String> instConstraints = dependency.getInstanceConstraints() ;
 		
 		/*
 		 * If no implem or no implem preference, select the best instance, and return its implem, visible or not.
@@ -85,7 +85,7 @@ public class UtilComp {
      * @param constraints
      * @return
      */
-    public static <T extends Component> Set<T> getConstraintsComponents(Set<T> candidates, Set<ApamFilter> constraints) {
+    public static <T extends Component> Set<T> getConstraintsComponents(Set<T> candidates, Set<String> constraints) {
 		if (constraints == null || constraints.isEmpty()) return candidates;
         if (candidates == null) return null ;
 
@@ -105,7 +105,7 @@ public class UtilComp {
      * @param constraints
      * @return
      */
-    public static  <T extends Component> T getSelectedComponent(Set<T> candidates, Set<ApamFilter> constraints) {
+    public static  <T extends Component> T getSelectedComponent(Set<T> candidates, Set<String> constraints) {
         Set<T> ret = getConstraintsComponents(candidates, constraints) ;
 		return getDefaultComponent(ret) ;
     }
@@ -120,8 +120,8 @@ public class UtilComp {
 	 * @param constraints
 	 * @return
 	 */
-	public static <T extends Component> Set<T> getConstraintsPreferedComponent(Set<T> candidates, List<ApamFilter> preferences, 
-			Set<ApamFilter> constraints) {
+	public static <T extends Component> Set<T> getConstraintsPreferedComponent(Set<T> candidates, List<String> preferences, 
+			Set<String> constraints) {
 		if (candidates == null || candidates.isEmpty()) return null ;
 
 		//Select only those implem with instances matching the constraints		
@@ -153,7 +153,7 @@ public class UtilComp {
 	 * @param preferences
 	 * @return
      */
-	public static  <T extends Component> T getPrefered (Set<T> candidates, List<ApamFilter> preferences ) {
+	public static  <T extends Component> T getPrefered (Set<T> candidates, List<String> preferences ) {
         if (candidates == null || candidates.isEmpty()) return null ;
 		if (candidates.size() == 1) return candidates.iterator().next() ;
 		if (preferences == null || preferences.isEmpty()) {
@@ -161,7 +161,7 @@ public class UtilComp {
         }
 
         Set<T> valids = new HashSet<T> ();
-        for (ApamFilter f : preferences) {
+        for (String f : preferences) {
             for (T compo : candidates) {
                 if (compo.match(f))
                     valids.add (compo) ;

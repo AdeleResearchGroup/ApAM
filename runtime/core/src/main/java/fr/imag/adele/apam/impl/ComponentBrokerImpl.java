@@ -20,7 +20,7 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
-import fr.imag.adele.apam.util.ApamFilter;
+//import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.ApamInstall;
 import org.apache.felix.ipojo.Pojo;
 import org.osgi.framework.Bundle;
@@ -249,7 +249,7 @@ public class ComponentBrokerImpl implements ComponentBroker{
 	}
 
 	@Override
-	public Set<Specification> getSpecs(ApamFilter goal)  {
+	public Set<Specification> getSpecs(String goal)  {
 		if (goal == null) {
 			return getSpecs();
 		}
@@ -299,7 +299,7 @@ public class ComponentBrokerImpl implements ComponentBroker{
 	}
 
 	@Override
-	public Set<Implementation> getImpls(ApamFilter goal)  {
+	public Set<Implementation> getImpls(String goal)  {
 		if (goal == null) {
 			return getImpls();
 		}
@@ -333,7 +333,7 @@ public class ComponentBrokerImpl implements ComponentBroker{
 	}
 
 	@Override
-	public Set<Instance> getInsts(ApamFilter goal) {
+	public Set<Instance> getInsts(String goal) {
 		if (goal == null) {
 			return getInsts();
 		}

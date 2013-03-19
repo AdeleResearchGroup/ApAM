@@ -49,7 +49,6 @@ import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.util.UtilComp;
-import fr.imag.adele.apam.util.Util;
 
 public class ApamResolverImpl implements ApamResolver {
 	private APAMImpl apam;
@@ -231,7 +230,7 @@ public class ApamResolverImpl implements ApamResolver {
 			if (impls.size()== 1) {
 				impl=impls.iterator().next() ;
 			} else {
-				impl = UtilComp.getPrefered(impls, Util.toFilterList(dependency.getImplementationPreferences())) ;
+				impl = UtilComp.getPrefered(impls, dependency.getImplementationPreferences()) ;
 				impls.clear () ;
 				impls.add(impl) ;
 			}  
@@ -284,8 +283,8 @@ public class ApamResolverImpl implements ApamResolver {
 						+ client.getComposite() + " -" + promotionDependency.getIdentifier() + "-> " + inst);
 
 				// wire the client only if the composite target matches the client constraints
-				if (inst.getImpl().match(Util.toFilter(dependency.getImplementationConstraints()))
-						&& inst.match(Util.toFilter(dependency.getInstanceConstraints()))) {
+				if (inst.getImpl().match(dependency.getImplementationConstraints())
+						&& inst.match(dependency.getInstanceConstraints())) {
 					client.createWire(inst, depName, hasConstraints, true);
 					ok = true ;
 				}
@@ -606,7 +605,7 @@ public class ApamResolverImpl implements ApamResolver {
 		if (insts == null || insts.isEmpty()) {
 			return null ;
 		}
-		return UtilComp.getPrefered(insts, Util.toFilterList(preferences));
+		return UtilComp.getPrefered(insts, preferences);
 	}
 
 	@Override

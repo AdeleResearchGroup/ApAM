@@ -329,10 +329,10 @@ public class ContentManager  {
 					if (trigger.getTarget() instanceof ImplementationReference<?> && !candidate.getImpl().getName().equals(target))
 						continue;
 
-					if (!candidate.match(Util.toFilter(trigger.getInstanceConstraints())))
+					if (!candidate.match(trigger.getInstanceConstraints()))
 						continue;
 
-					if (!candidate.getImpl().match(	Util.toFilter(trigger.getImplementationConstraints())))
+					if (!candidate.getImpl().match(	trigger.getImplementationConstraints()))
 						continue;
 
 					/*

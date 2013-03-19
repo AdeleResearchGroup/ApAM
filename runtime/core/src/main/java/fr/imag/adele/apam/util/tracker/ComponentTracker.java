@@ -15,7 +15,7 @@
 package fr.imag.adele.apam.util.tracker;
 
 import fr.imag.adele.apam.*;
-import fr.imag.adele.apam.util.ApamFilter;
+//import fr.imag.adele.apam.util.ApamFilter;
 
 //import org.osgi.framework.Filter;
 
@@ -39,7 +39,7 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
      * The filter used by this {@code ComponentTracker} which specifies the search criteria for the
      * {@code Component} to track.
      */
-    private final ApamFilter filter;
+    private final String filter;
 
     private final Set<T> components;
 
@@ -49,11 +49,11 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
 
     private final ComponentListener listener;
 
-    protected ComponentTracker(final Class<T> type, final ApamFilter filter) {
+    protected ComponentTracker(final Class<T> type, final String filter) {
         this(type,filter,null);
     }
 
-    protected ComponentTracker(final Class<T> type, final ApamFilter filter,final ComponentTrackerCustomizer<T> customizer) {
+    protected ComponentTracker(final Class<T> type, final String filter,final ComponentTrackerCustomizer<T> customizer) {
         this.broker = CST.componentBroker;
         this.filter = filter;
         this.customizer= (customizer == null ? this : customizer);

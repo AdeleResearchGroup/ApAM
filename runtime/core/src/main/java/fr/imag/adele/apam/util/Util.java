@@ -19,7 +19,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.metadata.Element;
-//import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,34 +92,34 @@ public final class Util {
 		return toStringResources(new HashSet<String>(Arrays.asList(names)));
 	}
 
-	public static Set<ApamFilter> toFilter(Set<String> filterString) {
-		Set<ApamFilter> filters = new HashSet<ApamFilter>();
-		if (filterString == null)
-			return filters;
-
-		for (String f : filterString) {
-			ApamFilter filter = ApamFilter.newInstance(f) ;
-			if (filter != null) {
-				filters.add(filter);
-			}
-		}
-		return filters;
-	}
-
-	public static List<ApamFilter> toFilterList(List<String> filterString) {
-		List<ApamFilter> filters = new ArrayList<ApamFilter>();
-		if (filterString == null) {
-			return filters;
-		}
-
-		for (String f : filterString) {
-			ApamFilter filter = ApamFilter.newInstance(f) ;
-			if (filter != null) {
-				filters.add(filter);
-			}
-		}
-		return filters;
-	}
+//	public static Set<ApamFilter> toFilter(Set<String> filterString) {
+//		Set<ApamFilter> filters = new HashSet<ApamFilter>();
+//		if (filterString == null)
+//			return filters;
+//
+//		for (String f : filterString) {
+//			ApamFilter filter = ApamFilter.newInstance(f) ;
+//			if (filter != null) {
+//				filters.add(filter);
+//			}
+//		}
+//		return filters;
+//	}
+//
+//	public static List<ApamFilter> toFilterList(List<String> filterString) {
+//		List<ApamFilter> filters = new ArrayList<ApamFilter>();
+//		if (filterString == null) {
+//			return filters;
+//		}
+//
+//		for (String f : filterString) {
+//			ApamFilter filter = ApamFilter.newInstance(f) ;
+//			if (filter != null) {
+//				filters.add(filter);
+//			}
+//		}
+//		return filters;
+//	}
 
 	/**
 	 * Warning: returns an unmodifiable List !
@@ -744,6 +742,17 @@ public final class Util {
 		return rets.substring(0, i) + "}";
 	}
 
+
+	public static boolean checkFilter(String filter) {
+		try {
+			ApamFilter parsedFilter = ApamFilter.newInstance(filter);
+			return parsedFilter != null ;
+		}
+		catch (Exception e) {
+			return false ;
+		}
+	}
+	
 	public static boolean checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr,
 			String comp) {
 		boolean ok = true;

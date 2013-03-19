@@ -68,6 +68,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 	private final static Logger	logger = LoggerFactory.getLogger(DynamicManagerImplementation.class);
 
+	@SuppressWarnings("unused")
 	private final BundleContext context;
 	
 	public DynamicManagerImplementation(BundleContext context) {
@@ -92,7 +93,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	 * 
 	 */
 	@Validate
-	private @SuppressWarnings("unused") synchronized void start()  {
+	private  synchronized void start()  {
 		
 		/*
 		 * Create the default content manager to be associated with the root composite
@@ -123,7 +124,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	 * 
 	 */
 	@Invalidate
-	private  @SuppressWarnings("unused") synchronized void stop() {
+	private synchronized void stop() {
 		ApamManagers.removeDependencyManager(this);
 		ApamManagers.removeDynamicManager(this);
 		ApamManagers.removePropertyManager(this);

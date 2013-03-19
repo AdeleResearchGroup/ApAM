@@ -121,10 +121,6 @@ public class ApamFilter /* implements Filter */ {
     ApamFilter(int operation, String attr, Object value) {
         op = operation;
         this.attr = attr ;
-//        if (attr != null) {
-//            this.attr = attr.toLowerCase();
-//        } else
-//            this.attr = null;
         this.value = value;
         Object conv = null;
         try {
@@ -143,54 +139,6 @@ public class ApamFilter /* implements Filter */ {
         converted = conv;
     }
 
-    /**
-     * Filter using a service's properties.
-     * <p>
-     * This <code>Filter</code> is executed using the keys and values of the referenced service's properties. The keys
-     * are case insensitively matched with this <code>Filter</code>.
-     *
-     * @param reference The reference to the service whose properties are
-     *            used in the match.
-     * @return <code>true</code> if the service's properties match this <code>Filter</code>; <code>false</code>
-     *         otherwise.
-     */
-//    @Override
-//    public boolean match(ServiceReference reference) {
-//        return match0(new ServiceReferenceDictionary(reference));
-//    }
-
-    /**
-     * Filter using a <code>Dictionary</code>. This <code>Filter</code> is
-     * executed using the specified <code>Dictionary</code>'s keys and
-     * values. The keys are case insensitively matched with this <code>Filter</code>.
-     *
-     * @param dictionary The <code>Dictionary</code> whose keys are used in
-     *            the match.
-     * @return <code>true</code> if the <code>Dictionary</code>'s keys and
-     *         values match this filter; <code>false</code> otherwise.
-     * @throws IllegalArgumentException If <code>dictionary</code> contains
-     *             case variants of the same key name.
-     */
-//    @Override
-//    public boolean match(Dictionary dictionary) {
-//        return match0(new CaseInsensitiveDictionary(dictionary));
-//    }
-
-    /**
-     * Filter with case sensitivity using a <code>Dictionary</code>. This <code>Filter</code> is executed using the
-     * specified <code>Dictionary</code>'s keys and values. The keys are case
-     * sensitively matched with this <code>Filter</code>.
-     *
-     * @param dictionary The <code>Dictionary</code> whose keys are used in
-     *            the match.
-     * @return <code>true</code> if the <code>Dictionary</code>'s keys and
-     *         values match this filter; <code>false</code> otherwise.
-     * @since 1.3
-     */
-//    @Override
-//    public boolean matchCase(Dictionary dictionary) {
-//        return match0(dictionary);
-//    }
 
     /**
      * Filter using a <code>Map</code>. This <code>Filter</code> is
@@ -412,109 +360,6 @@ public class ApamFilter /* implements Filter */ {
         }
         return true ;
     }
-
-    /**
-     * Tries to see if the attribute "attrName" is imposed by the constraint, in which case it returns its value.
-     *
-     * @param attrName
-     * @return
-     */
-//    public String lookForAttr(String attrName) {
-//        switch (op) {
-//            case AND:
-//            case OR: {
-//                ApamFilter[] filters = (ApamFilter[]) value;
-//                String ret = null;
-//                for (ApamFilter filter : filters) {
-//                    ret = filter.lookForAttr(attr);
-//                    if (ret != null)
-//                        return ret;
-//                }
-//                return null;
-//            }
-//
-//            case NOT: {
-//                // ApamFilter filter = (ApamFilter) value;
-//                break; // filter.lookForAttr(attr);
-//            }
-//
-//            case SUBSTRING:
-//            case EQUAL:
-//            case GREATER:
-//            case LESS:
-//            case APPROX:
-//            case SUBSET:
-//            case SUPERSET:
-//            case PRESENT: {
-//                if (attr.equals(attrName))
-//                    return (String) value;
-//            }
-//        }
-//        return null;
-//    }
-//
-
-    /**
-     * Internal match routine. Dictionary parameter must support
-     * case-insensitive get.
-     *
-     * @param properties A dictionary whose keys are used in the match.
-     * @return If the Dictionary's keys match the filter, return <code>true</code>. Otherwise, return <code>false</code>
-     *         .
-     */
-//    private boolean match0(Dictionary properties) {
-//        switch (op) {
-//            case AND: {
-//                ApamFilter[] filters = (ApamFilter[]) value;
-//                for (int i = 0, size = filters.length; i < size; i++) {
-//                    if (!filters[i].match0(properties)) {
-//                        return false;
-//                    }
-//                }
-//
-//                return true;
-//            }
-//
-//            case OR: {
-//                ApamFilter[] filters = (ApamFilter[]) value;
-//                for (ApamFilter filter : filters) {
-//                    if (filter.match0(properties)) {
-//                        return true;
-//                    }
-//                }
-//
-//                return false;
-//            }
-//
-//            case NOT: {
-//                ApamFilter filter = (ApamFilter) value;
-//
-//                return !filter.match0(properties);
-//            }
-//
-//            case SUBSTRING:
-//            case EQUAL:
-//            case GREATER:
-//            case LESS:
-//            case APPROX:
-//            case SUBSET:
-//            case SUPERSET: {
-//                Object prop = (properties == null) ? null : properties
-//                        .get(attr);
-//
-//                return compare(op, prop, value);
-//            }
-//
-//            case PRESENT: {
-//                Object prop = (properties == null) ? null : properties
-//                        .get(attr);
-//
-//                return prop != null;
-//            }
-//        }
-//
-//        return false;
-//    }
 
     private boolean match0(Map properties) {
     	
@@ -1589,88 +1434,6 @@ public class ApamFilter /* implements Filter */ {
         }
     }
 
-    /**
-     * This Dictionary is used for case-insensitive key lookup during filter
-     * evaluation. This Dictionary implementation only supports the get
-     * operation using a String key as no other operations are used by the
-     * Filter implementation.
-     */
-//    @SuppressWarnings("unchecked") 
-//    private static class CaseInsensitiveDictionary extends Dictionary {
-//        private final Dictionary dictionary;
-//        private final String[]   keys;
-//
-//        /**
-//         * Create a case insensitive dictionary from the specified dictionary.
-//         *
-//         * @param dictionary
-//         * @throws IllegalArgumentException If <code>dictionary</code> contains
-//         *             case variants of the same key name.
-//         */
-//        CaseInsensitiveDictionary(Dictionary dictionary) {
-//            if (dictionary == null) {
-//                this.dictionary = null;
-//                keys = new String[0];
-//                return;
-//            }
-//            this.dictionary = dictionary;
-//            List keyList = new ArrayList(dictionary.size());
-//            for (Enumeration e = dictionary.keys(); e.hasMoreElements();) {
-//                Object k = e.nextElement();
-//                if (k instanceof String) {
-//                    String key = (String) k;
-//                    for (Iterator i = keyList.iterator(); i.hasNext();) {
-//                        if (key.equalsIgnoreCase((String) i.next())) {
-//                            throw new IllegalArgumentException();
-//                        }
-//                    }
-//                    keyList.add(key);
-//                }
-//            }
-//            keys = (String[]) keyList.toArray(new String[keyList.size()]);
-//        }
-//
-//        @Override
-//        public Object get(Object o) {
-//            String k = (String) o;
-//            for (String key : keys) {
-//                if (key.equalsIgnoreCase(k)) {
-//                    return dictionary.get(key);
-//                }
-//            }
-//            return null;
-//        }
-//
-//        @Override
-//        public boolean isEmpty() {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        @Override
-//        public Enumeration keys() {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        @Override
-//        public Enumeration elements() {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        @Override
-//        public Object put(Object key, Object value) {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        @Override
-//        public Object remove(Object key) {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        @Override
-//        public int size() {
-//            throw new UnsupportedOperationException();
-//        }
-//    }
 
     private static class SetAccessibleAction implements PrivilegedAction {
         private final AccessibleObject accessible;
@@ -1686,56 +1449,5 @@ public class ApamFilter /* implements Filter */ {
         }
     }
 
-    /**
-     * This Dictionary is used for key lookup from a ServiceReference during
-     * filter evaluation. This Dictionary implementation only supports the get
-     * operation using a String key as no other operations are used by the
-     * Filter implementation.
-     */
-//    private static class ServiceReferenceDictionary extends Dictionary {
-//        private final ServiceReference reference;
-//
-//        ServiceReferenceDictionary(ServiceReference reference) {
-//            this.reference = reference;
-//        }
-//
-//        @Override
-//        public Object get(Object key) {
-//            if (reference == null) {
-//                return null;
-//            }
-//            return reference.getProperty((String) key);
-//        }
-//
-//        @Override
-//        public boolean isEmpty() {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        @Override
-//        public Enumeration keys() {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        @Override
-//        public Enumeration elements() {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        @Override
-//        public Object put(Object key, Object value) {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        @Override
-//        public Object remove(Object key) {
-//            throw new UnsupportedOperationException();
-//        }
-//
-//        @Override
-//        public int size() {
-//            throw new UnsupportedOperationException();
-//        }
-//    }
 
 }
