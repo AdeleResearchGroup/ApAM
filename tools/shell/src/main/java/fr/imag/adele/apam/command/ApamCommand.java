@@ -376,9 +376,17 @@ public class ApamCommand {
 
     /** Display the pending platform installations*/
     public void pending(PrintWriter out, String... args) {
-        out.println("Platform pernding requests");
+        out.println("APAM platform pernding requests : ");
         for (Request pendingRequest : Apform2Apam.getPending()) {
-            out.println(pendingRequest.getDescription()+" is waiting for component "+pendingRequest.getRequiredComponent());
+            out.println("\t"+pendingRequest.getDescription()+" is waiting for component "+pendingRequest.getRequiredComponent());
+            List<StackTraceElement> stack = pendingRequest.getStack();
+            
+            if (stack == null)
+            	continue;
+            
+            for (StackTraceElement frame : stack) {
+				out.println("\t\t "+frame);
+			}
         }
 
     }
