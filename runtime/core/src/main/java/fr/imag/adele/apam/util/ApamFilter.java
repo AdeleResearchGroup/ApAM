@@ -177,6 +177,27 @@ public class ApamFilter implements Filter {
     }
 
     /**
+     * Filter using a <code>Map</code>. This <code>Filter</code> is
+     * executed using the specified <code>Map</code>'s keys and
+     * values. The keys are case insensitively matched with this <code>Filter</code>.
+     *
+     * TODO to avoid code cloning this implementation wraps the map inside several layers
+     * of adapters, this can be very inefficient. To review in the new version of ApamFileter
+	 *
+     * @param dictionary The <code>Map</code> whose keys are used in
+     *            the match.
+     * @return <code>true</code> if the <code>Dictionary</code>'s keys and
+     *         values match this filter; <code>false</code> otherwise.
+     * @throws IllegalArgumentException If <code>dictionary</code> contains
+     *             case variants of the same key name.
+     *             
+     */
+   @SuppressWarnings("unchecked")
+   public boolean match(Map dictionary) {
+        return match0(new CaseInsensitiveDictionary(new DictionaryMap(dictionary)));
+    }
+
+    /**
      * Filter with case sensitivity using a <code>Dictionary</code>. This <code>Filter</code> is executed using the
      * specified <code>Dictionary</code>'s keys and values. The keys are case
      * sensitively matched with this <code>Filter</code>.
@@ -193,9 +214,9 @@ public class ApamFilter implements Filter {
     }
 
     /**
-     * Filter using a <code>Map</code>. This <code>Filter</code> is
-     * executed using the specified <code>Map</code>'s keys and
-     * values. The keys are case insensitively matched with this <code>Filter</code>.
+     * Filter with case sensitivity using a <code>Map</code>. This <code>Filter</code> is executed using the
+     * specified <code>Map</code>'s keys and values. The keys are case 
+     * sensitively matched with this <code>Filter</code>.
      *
      * @param map The <code>Map</code> whose keys are used in
      *            the match.
@@ -1589,6 +1610,57 @@ public class ApamFilter implements Filter {
         }
     }
 
+    /**
+     * This Dictionary is used for matching against Maps during filter
+     * evaluation. This Dictionary implementation only supports the get
+     * operation using a String key as no other operations are used by the
+     * Filter implementation.
+     */
+   private static class DictionaryMap extends Dictionary {
+
+	   private final Map<String,?> delegate;
+	   
+	   public DictionaryMap(Map<String,?> delegate) {
+		   this.delegate = delegate;
+	   }
+
+		@Override
+		public Object get(Object key) {
+			return delegate.get(key);
+		}
+
+		@Override
+		public int size() {
+            return delegate.size();
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return delegate.isEmpty();
+		}
+
+		@Override
+		public Enumeration keys() {
+            return Collections.enumeration(delegate.keySet());
+		}
+
+		@Override
+		public Enumeration elements() {
+            return Collections.enumeration(delegate.values());
+		}
+
+		@Override
+		public Object put(Object key, Object value) {
+            throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public Object remove(Object key) {
+            throw new UnsupportedOperationException();
+		}
+    	
+    }
+    
     /**
      * This Dictionary is used for case-insensitive key lookup during filter
      * evaluation. This Dictionary implementation only supports the get

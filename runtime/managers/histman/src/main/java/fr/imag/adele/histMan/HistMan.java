@@ -201,7 +201,7 @@ public class HistMan implements PropertyManager, DynamicManager {
 
 			for (Map.Entry<String, Object> e : comp.getAllProperties()
 					.entrySet()) {
-				created.append(e.getKey(), e.getValue().toString());
+				created.append(e.getKey().replace('.','_'), e.getValue().toString());
 			}
 
 			ME.insert(created);
