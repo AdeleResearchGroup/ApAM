@@ -159,7 +159,6 @@ public class ApamFilter /* implements Filter */ {
         return match0(map);
     }
 
-
     /**
      * Filter with case sensitivity using a <code>Map</code>. This <code>Filter</code> is executed using the
      * specified <code>Map</code>'s keys and values. The keys are case 
