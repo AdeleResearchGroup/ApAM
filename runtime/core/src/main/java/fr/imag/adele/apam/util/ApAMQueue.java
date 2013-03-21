@@ -59,7 +59,8 @@ public class ApAMQueue<T> implements Queue<T>{
         return arrayBlockingQueue.toArray();
     }
 
-    @Override
+    @SuppressWarnings("hiding")
+	@Override
     public <T> T[] toArray(T[] a) {
         return arrayBlockingQueue.toArray(a);
     }

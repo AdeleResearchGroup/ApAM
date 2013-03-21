@@ -144,7 +144,7 @@ public class DependencyInjectionHandler extends ApformHandler {
                 try {
                     Set<MethodMetadata> methodMetadatas = (Set<MethodMetadata>) primitive.getInstrumentation()
                             .getCallbacks(
-                                    callbackMethod.getMethodName(), true);
+                                    callbackMethod.getMethodName(), false);
                     for (MethodMetadata methodMetadata : methodMetadatas) {
                         callbacks.add(new Callback(methodMetadata, getInstanceManager()));
                     }

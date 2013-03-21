@@ -15,8 +15,9 @@
 package fr.imag.adele.apam.util.tracker;
 
 import fr.imag.adele.apam.*;
+//import fr.imag.adele.apam.util.ApamFilter;
 
-import org.osgi.framework.Filter;
+//import org.osgi.framework.Filter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,7 +39,7 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
      * The filter used by this {@code ComponentTracker} which specifies the search criteria for the
      * {@code Component} to track.
      */
-    private final Filter filter;
+    private final String filter;
 
     private final Set<T> components;
 
@@ -48,11 +49,11 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
 
     private final ComponentListener listener;
 
-    protected ComponentTracker(final Class<T> type, final Filter filter) {
+    protected ComponentTracker(final Class<T> type, final String filter) {
         this(type,filter,null);
     }
 
-    protected ComponentTracker(final Class<T> type, final Filter filter,final ComponentTrackerCustomizer<T> customizer) {
+    protected ComponentTracker(final Class<T> type, final String filter,final ComponentTrackerCustomizer<T> customizer) {
         this.broker = CST.componentBroker;
         this.filter = filter;
         this.customizer= (customizer == null ? this : customizer);
@@ -65,7 +66,8 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
     /**
      * Start to track the Component.
      */
-    public void open(){
+    @SuppressWarnings("unchecked")
+	public void open(){
 
         ApamManagers.addDynamicManager(listener);
         Set<T> presents = new HashSet<T>();
@@ -143,7 +145,8 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
     private class ComponentListener implements DynamicManager{
 
 
-        public void addedComponent(Component newComponent) {
+        @SuppressWarnings("unchecked")
+		public void addedComponent(Component newComponent) {
 
 
             if (!newComponent.match(filter)){ //nothing to do
@@ -161,7 +164,8 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
 
         }
 
-        public void removedComponent(Component lostComponent) {
+        @SuppressWarnings("unchecked")
+		public void removedComponent(Component lostComponent) {
             if (!type.isInstance(lostComponent)){
                 return;
             }

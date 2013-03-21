@@ -30,7 +30,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.felix.ipojo.handlers.dependency.DependencyDescription;
+//import org.apache.felix.ipojo.handlers.dependency.DependencyDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
@@ -878,13 +878,11 @@ public class CoreMetadataParser implements CoreParser {
 		} else if (push != null) { // the dependency is a method, push message dependency
 			injection = new DependencyInjection.CallbackWithArgument(atomic, push, type);
 		} else if (pull != null) {// the dependency is a method, pull message dependency
-			injection = new DependencyInjection.Field(atomic, pull);
+			injection = new DependencyInjection.MessageField(atomic, pull);
 		}
 
 		if (!injection.isValidInstrumentation())
-			errorHandler.error(Severity.ERROR, atomic.getName() + " : the specified \"" + CoreMetadataParser.ATT_FIELD + "\" or \""
-					+ CoreMetadataParser.ATT_PUSH + "\" or \"" + CoreMetadataParser.ATT_PULL + "\" is invalid "
-					+ element.getName());
+			errorHandler.error(Severity.ERROR, atomic.getName() + " : invalid class type for the field " + injection.getName());
 
 		return injection;
 	}
@@ -987,8 +985,11 @@ public class CoreMetadataParser implements CoreParser {
 			//if (component instanceof SpecificationDeclaration) {
 				String type = parseString(component.getName(),property, ATT_TYPE, false);
 				if (type != null) {
+					String field = parseString(component.getName(),property, CoreMetadataParser.ATT_FIELD, false);
+					String callback = parseString(component.getName(),property, CoreMetadataParser.ATT_METHOD, false);
+					boolean internal = parseBoolean(component.getName(),property, CoreMetadataParser.ATT_INTERNAL, false, false);
 					component.getPropertyDefinitions().add(
-							new PropertyDefinition(component, name, type, value, null, null, false, true));
+							new PropertyDefinition(component, name, type, value, field, callback, internal, true));
 				}
 			//}
 		}
@@ -1737,11 +1738,11 @@ public class CoreMetadataParser implements CoreParser {
 
 			for (Class<?> supportedMessage : ApamIpojoInstrumentation.supportedMessages) {
 				if (supportedMessage.getCanonicalName().equals(fieldType)) {
-					return CoreParser.UNDEFINED;
+					return fieldType;
 				}
 			}
 
-			return null;
+			return CoreParser.UNDEFINED;
 		}
 
 		/**
@@ -1768,60 +1769,63 @@ public class CoreMetadataParser implements CoreParser {
 				}
 			}
 
+			
 			/*
 			 * Try to use reflection information
 			 */
 			 if (fieldReflectionMetadata != null) {
-
+				 
+				 String messageType = ApamIpojoInstrumentation.getMessageType(fieldReflectionMetadata);
+				 if (messageType != null)
+					 return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : new UndefinedReference(fieldName, MessageReference.class);
+					 
+	
+				 
 				 /*
 				  * First verify if it is a collection
 				  */
 				 String collectionType = ApamIpojoInstrumentation.getCollectionType(fieldReflectionMetadata);
 				 if (collectionType != null)
-					 return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(collectionType)
-				 : new UndefinedReference(fieldName, InterfaceReference.class);
+					 return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(collectionType) : new UndefinedReference(fieldName, InterfaceReference.class);
 
 					 /*
 					  * Then verify if it is a message
 					  */
-					 String messageType = ApamIpojoInstrumentation.getMessageType(fieldReflectionMetadata);
-					 if (messageType != null)
-						 return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType)
-					 : new UndefinedReference(fieldName, MessageReference.class);
-						 ;
-
-						 /*
-						  * Otherwise it's a normal field we just return its type name
-						  */
-						 return new InterfaceReference(fieldReflectionMetadata.getType().getCanonicalName());
-			 }
-
-			 /*
-			  * Try to use iPojo metadata
-			  */
-			 if (fieldIPojoMetadata != null) {
-
-				 /*
-				  * First verify if it is a collection
-				  */
-				 String collectionType = ApamIpojoInstrumentation.getCollectionType(fieldIPojoMetadata);
-				 if (collectionType != null)
-					 return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(collectionType)
-				 : new UndefinedReference(fieldName, InterfaceReference.class);
-
+					
+					 
 					 /*
-					  * Then verify if it is a message
+					  * Otherwise it's a normal field we just return its type name
 					  */
-					 String messageType = ApamIpojoInstrumentation.getMessageType(fieldIPojoMetadata);
-					 if (messageType != null)
-						 return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType)
-					 : new UndefinedReference(fieldName, MessageReference.class);
-
-						 /*
-						  * Otherwise it's a normal field we just return its type name
-						  */
-						 return new InterfaceReference(fieldIPojoMetadata.getFieldType());
+					 return new InterfaceReference(fieldReflectionMetadata.getType().getCanonicalName());
+					 
 			 }
+
+			/** Try to use iPojo metadata **/
+			if (fieldIPojoMetadata != null) {
+				/*
+				 * First verify if it is a collection
+				 */
+				String collectionType = ApamIpojoInstrumentation
+						.getCollectionType(fieldIPojoMetadata);
+				if (collectionType != null)
+					return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(
+							collectionType) : new UndefinedReference(fieldName,
+							InterfaceReference.class);
+				/*
+				 * Then verify if it is a message
+				 */
+				String messageType = ApamIpojoInstrumentation
+						.getMessageType(fieldIPojoMetadata);
+				if (messageType != null)
+					return messageType != CoreParser.UNDEFINED ? new MessageReference(
+							messageType) : new UndefinedReference(fieldName,
+							MessageReference.class);
+
+				/*
+				 * Otherwise it's a normal field we just return its type name
+				 */
+				return new InterfaceReference(fieldIPojoMetadata.getFieldType());
+			}
 
 			 throw new NoSuchFieldException("unavailable field " + fieldName);
 

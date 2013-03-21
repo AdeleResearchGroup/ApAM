@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
+//import org.osgi.framework.ApamFilter;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
@@ -38,6 +38,7 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
+//import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.UtilComp;
 import fr.imag.adele.apam.util.Util;
 
@@ -77,17 +78,17 @@ public class ApamMan implements DependencyManager {
 
 	@Override
 	public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences) {
-		List<Filter> f = Util.toFilterList(preferences) ;
-		return UtilComp.getPrefered(resolveImpls(client, impl, constraints), f) ;
+		//List<ApamFilter> f = Util.toFilterList(preferences) ;
+		return UtilComp.getPrefered(resolveImpls(client, impl, constraints), preferences) ;
 	}
 
 	@Override
 	public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
 
-		Set<Filter> f = Util.toFilter(constraints) ;	
+		//Set<ApamFilter> f = Util.toFilter(constraints) ;	
 		Set<Instance> insts = new HashSet<Instance>();
 		for (Instance inst : impl.getInsts()) {
-			if (inst.isSharable() && inst.match(f) && Util.checkInstVisible(client.getComposite(), inst))
+			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(client.getComposite(), inst))
 				insts.add(inst);
 		}
 		return insts;
@@ -202,9 +203,9 @@ public class ApamMan implements DependencyManager {
 		 * Select only those that satisfy the constraints (visible or not)
 		 */
 
-		//only keep those satisfying the constgraints
+		//only keep those satisfying the constraints
 		if (dep.getImplementationConstraints() != null) {
-			impls = UtilComp.getConstraintsComponents(impls, Util.toFilter(dep.getImplementationConstraints()));
+			impls = UtilComp.getConstraintsComponents(impls, dep.getImplementationConstraints());
 			if (impls == null || impls.isEmpty()) 
 				return null ;
 		}
@@ -217,7 +218,7 @@ public class ApamMan implements DependencyManager {
 			Set<Instance> oneInsts = null ;
 			Composite compo = client.getComposite() ;
 			insts = new HashSet<Instance> () ;
-			Set<Filter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
+			//Set<ApamFilter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
 			//Compute all the instances visible and satisfying the constraints  ;
 			for (Implementation impl : impls) {
 				oneInsts = impl.getInsts() ;
@@ -225,7 +226,7 @@ public class ApamMan implements DependencyManager {
 				for (Instance inst : oneInsts) {
 					if (inst.isSharable() 
 							&& Util.checkInstVisible(compo, inst)
-							&& inst.match(constraints)) {
+							&& inst.match(dep.getInstanceConstraints())) {
 						insts.add(inst) ;
 					}
 				}
@@ -252,8 +253,8 @@ public class ApamMan implements DependencyManager {
 		if (dep.getImplementationPreferences() == null) 
 			return new Resolved (Collections.singleton(impls.iterator().next()), null) ;
 
-		List<Filter> implPreferences = Util.toFilterList(dep.getImplementationPreferences()) ;
-		return new Resolved (Collections.singleton(UtilComp.getPrefered(impls, implPreferences)), null) ;
+		//List<ApamFilter> implPreferences = Util.toFilterList(dep.getImplementationPreferences()) ;
+		return new Resolved (Collections.singleton(UtilComp.getPrefered(impls, dep.getImplementationPreferences())), null) ;
 	}
 
 

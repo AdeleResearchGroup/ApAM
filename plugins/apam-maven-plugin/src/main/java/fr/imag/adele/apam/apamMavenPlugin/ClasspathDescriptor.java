@@ -31,6 +31,7 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 
+@SuppressWarnings("unchecked")
 public class ClasspathDescriptor {
 	private static final Pattern[] DEFAULT_IGNORED_RESOURCES = {
 			Pattern.compile("(META-INF/)?ASL2\\.0(\\.TXT)?"),
@@ -49,6 +50,7 @@ public class ClasspathDescriptor {
 			Pattern.compile("META-INF/SPRING\\.HANDLERS"),
 			Pattern.compile("META-INF/SPRING\\.SCHEMAS"),
 			Pattern.compile("META-INF/SPRING\\.TOOLING") };
+	@SuppressWarnings("rawtypes")
 	private static final Set IGNORED_LOCAL_DIRECTORIES = new HashSet();
 
 	static {
@@ -58,7 +60,9 @@ public class ClasspathDescriptor {
 		IGNORED_LOCAL_DIRECTORIES.add(".BZR");
 	}
 
+	@SuppressWarnings("rawtypes")
 	private Map classesWithElements = new TreeMap();
+	@SuppressWarnings("rawtypes")
 	private Map resourcesWithElements = new TreeMap();
 	private boolean useDefaultResourceIgnoreList = true;
 
@@ -103,14 +107,17 @@ public class ClasspathDescriptor {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Set getClasss() {
 		return Collections.unmodifiableSet(classesWithElements.keySet());
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Set getResources() {
 		return Collections.unmodifiableSet(resourcesWithElements.keySet());
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Set getElementsHavingClass(String className) {
 
 		if (className == null)
@@ -121,6 +128,7 @@ public class ClasspathDescriptor {
 		if (elements == null) {
 
 			try {
+				@SuppressWarnings("unused")
 				Class sd = Class.forName(className);
 				elements = new HashSet();
 			} catch (ClassNotFoundException e) {}
@@ -130,6 +138,7 @@ public class ClasspathDescriptor {
 		return elements == null ? null : Collections.unmodifiableSet(elements);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public Set getElementsHavingResource(String resource) {
 		if (resource == null)
 			return null;
@@ -223,6 +232,7 @@ public class ClasspathDescriptor {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private void addClass(String className, File element) {
 		if (className.indexOf('$') < 0) {
 			Set elements = (Set) classesWithElements.get(className);
@@ -235,6 +245,7 @@ public class ClasspathDescriptor {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	private void addResource(String path, File element) {
 		if (!ignore(path)) {
 			Set elements = (Set) resourcesWithElements.get(path);

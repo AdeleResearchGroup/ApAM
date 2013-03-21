@@ -25,15 +25,14 @@
 			</plugin>
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>ApamMavenPlugin</artifactId>
-				<version>0.0.2-SNAPSHOT</version>
+				<artifactId>apam-maven-plugin</artifactId>
 				<executions>
 					<execution>
 						<goals>
-							<goal>ipojo-bundle</goal>
+							<goal>apam-bundle</goal>
 						</goals>
 						<configuration>
-							<metadata>src/main/resources/TestPromotion.xml</metadata>
+							<metadata>src/main/resources/TestCompile.xml</metadata>
 						</configuration>
 					</execution>
 				</executions>
@@ -41,13 +40,13 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<dependency>
-			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>APAM</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
-			<type>bundle</type>
-			<scope>compile</scope>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
+<!-- 			<artifactId>APAM</artifactId> -->
+<!-- 			<version>0.0.2-SNAPSHOT</version> -->
+<!-- 			<type>bundle</type> -->
+<!-- 			<scope>compile</scope> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S2</artifactId>

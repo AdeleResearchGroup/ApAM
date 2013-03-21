@@ -52,15 +52,15 @@ public class Fibonacci implements Fib, ApamComponent {
 
 	public int compute (int n) {
 		if ( n < 2 ) return 1 ;
-		System.out.println("n=" + n);
-		fibil.add (Integer.valueOf(n)) ;
-		System.out.println("fibil Java: " + fibil.toString());
-		System.out.println("Afibil attr: " + apamInstance.getProperty("Afibl").toString());
-		
-		fibn.add(Integer.toString (n));
-		System.out.println("fibi Java: " + fibn);
-		System.out.println("Afibin Attr: " + apamInstance.getProperty("Afibn").toString());
-		
+//		System.out.println("n=" + n);
+//		fibil.add (Integer.valueOf(n)) ;
+//		System.out.println("fibil Java: " + fibil.toString());
+//		System.out.println("Afibil attr: " + apamInstance.getProperty("Afibl").toString());
+//		
+//		fibn.add(Integer.toString (n));
+//		System.out.println("fibi Java: " + fibn);
+//		System.out.println("Afibin Attr: " + apamInstance.getProperty("Afibn").toString());
+//		
 		return moins1.compute(n-1) + moins2.compute(n-2) ; 
 	}
 

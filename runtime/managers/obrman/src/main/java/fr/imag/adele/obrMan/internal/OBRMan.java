@@ -28,11 +28,9 @@ import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
@@ -48,8 +46,6 @@ import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.obrMan.OBRManCommand;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
@@ -61,7 +57,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     // iPOJO injected
     private RepositoryAdmin               repoAdmin;
 
-    private Apam                          apam;
+//    private Apam                          apam;
 
     private final Logger                  logger = LoggerFactory.getLogger(OBRMan.class);
 
@@ -199,7 +195,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
     // interface manager
     private Implementation resolveSpec(CompositeType compoType, ResolvableReference resource,
-            Set<Filter> constraints, List<Filter> preferences) {
+            Set<String> constraints, List<String> preferences) {
 
         // Find the composite OBRManager
         OBRManager obrManager = searchOBRManager(compoType);
@@ -208,14 +204,15 @@ public class OBRMan implements DependencyManager, OBRManCommand {
 
         // temporary ??
         if (preferences == null)
-            preferences = new ArrayList<Filter>();
-        Filter f = ApamFilter.newInstance("(apam-composite=true)");
-        preferences.add(f);
+            preferences = new ArrayList<String>();
+        preferences.add("(apam-composite=true)");
         // end
-
-        f = ApamFilter.newInstance("(" + CST.COMPONENT_TYPE + "=" + CST.IMPLEMENTATION + ")");
-        if (f != null)
-            constraints.add(f);
+        if (constraints == null) {
+        	constraints = new HashSet <String> () ;
+        }
+//        f = ApamFilter.newInstance("(" + CST.COMPONENT_TYPE + "=" + CST.IMPLEMENTATION + ")");
+//        if (f != null)
+        constraints.add("(" + CST.COMPONENT_TYPE + "=" + CST.IMPLEMENTATION + ")");
 
         fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
         Implementation impl = null;
@@ -302,10 +299,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     private Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
-        Set<Filter> constraints = Util.toFilter(dep.getImplementationConstraints());
-        List<Filter> preferences = Util.toFilterList(dep.getImplementationPreferences());
-
-        return resolveSpec(client.getComposite().getCompType(), dep.getTarget(), constraints, preferences);
+        return resolveSpec(client.getComposite().getCompType(), dep.getTarget(), 
+        		dep.getImplementationConstraints(), dep.getImplementationPreferences());
     }
 
     private <C extends Component> C findByName(CompositeType compoType, String componentName,

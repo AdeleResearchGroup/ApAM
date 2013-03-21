@@ -33,13 +33,11 @@ import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 
 
-
 public class ApamCapability {
 
 	private static Map<String, ApamCapability> capabilities = new HashMap<String, ApamCapability>();
 	private static Set<String> missing = new HashSet<String>();
 	
-	//	Capability cap = null ;
 	public ComponentDeclaration dcl = null ;
 	private boolean isFinalized		= false;
 
@@ -126,14 +124,10 @@ public class ApamCapability {
 	}
 
 	public Set<InterfaceReference> getProvideInterfaces () {
-		//		if (dcl != null) {
 		return dcl.getProvidedResources(InterfaceReference.class) ;
-		//		}
-		//		return asSet(getProperty(CST.PROVIDE_INTERFACES), InterfaceReference.class);
 	}
 
 	public Set<ResourceReference> getProvideResources () {
-		//		if (dcl != null) {
 		return dcl.getProvidedResources() ;
 	}
 
@@ -188,7 +182,6 @@ public class ApamCapability {
 
 
 	public ApamCapability getGroup () {
-		//		if (dcl != null) {
 		if (dcl instanceof SpecificationDeclaration) return null ;
 		if (dcl instanceof ImplementationDeclaration) {
 			if (((ImplementationDeclaration)dcl).getSpecification() == null)
@@ -238,130 +231,4 @@ public class ApamCapability {
 
 	
 }
-
-
-
-
-//		ApamCapability.components = components ;
-//		ApamCapability.dependencies = dependencies ;
-//First, compute the list of available resources
-//		try {
-//			repos= "" ;
-//			for (URL repo : OBRRepos){
-//				//File theRepo = new File();
-//				if (repo.getFile().isEmpty()) {
-//					break ;
-//				}
-//				repos += repo.toString()+ "  " ;
-//				noRepository = false ;
-//				dataModelHelper =  new DataModelHelperImpl();
-//				Repository repoModel = dataModelHelper.repository(repo.toURI().toURL());
-//				resources.addAll(Arrays.asList(repoModel.getResources()));
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		//public static void init(String defaultOBRRepo) {
-//		System.out.println("start CheckOBR. Used OBR repositories: " + repos);
-//    }
-
-//public ApamCapability (String name, Capability cap) {
-//	this.cap = cap ;
-//	capabilities.put(name, this) ;
-//	properties = cap.getPropertiesAsMap();
-//
-//	for (Property property : cap.getProperties()) {
-//		if (property.getName().startsWith(CST.DEFINITION_PREFIX)) {
-//			String key = property.getName().substring(11);
-//			propertiesTypes.put(key, property.getType());
-//			if (!property.getValue().equals(""))
-//				propertiesDefaults.put(key,property.getValue());
-//		}
-//	}
-//}
-//
-//
-//public String getName () {
-//	if (dcl != null)
-//		return dcl.getName() ;
-//	return cap.getName();
-//}
-//
-//public static ApamCapability get(ComponentReference<?> reference) {
-//	String name = reference.getName();
-//	if (capabilities.containsKey(name))
-//		return capabilities.get(name);
-//
-//	//Look for in the components in this bundle
-//	for (ComponentDeclaration component : components) {
-//		if (component.getName().equals(name))
-//			return new ApamCapability(name, component) ;
-//	}
-//
-//	//look in OBR
-//	if (noRepository) return null ;
-//	for (Resource res : resources) {
-//		for (Capability cap : res.getCapabilities()) {
-//			if (cap.getName().equals(CST.CAPABILITY_COMPONENT)
-//					&& (getAttributeInCap(cap, "name").equals(name))) {
-//				//look if this component is in the list of maven dependencies; if so, it must be the same version
-//				if (OBRGeneratorMojo.versionRange.get(name) != null) {
-//					if (!OBRGeneratorMojo.bundleDependencies.contains(res.getId())) {
-//						System.out.println("Bad version for " + name 
-//								+ " expected : " + OBRGeneratorMojo.versionRange.get(name) 
-//								+ " found " + res.getId());
-//						continue ;
-//					}
-//				}
-//				System.out.println("     Component " + name + " found in bundle " + res.getId());
-//				//CheckObr.readCapabilities.put(name, cap);
-//				//return cap;
-//				return new ApamCapability(name, cap) ;
-//			}
-//		}
-//	}
-//
-//	//logger.error("     Component " + name + " not found in repositories " + repos);
-//	CheckObr.error("     Component " + name + " not found in repositories " + repos);
-//	return null;
-//}
-//
-//@SuppressWarnings("unchecked")
-//private  <R extends ResourceReference> Set<R> asSet(String set, Class<R> kind) {
-//	Set<ResourceReference> references = new HashSet<ResourceReference>();
-//	for (String  id : Util.split(set)) {
-//		if (InterfaceReference.class.isAssignableFrom(kind))
-//			references.add(new InterfaceReference(id));
-//		if (MessageReference.class.isAssignableFrom(kind))
-//			references.add(new MessageReference(id));
-//	}
-//	return (Set<R>) references;
-//}
-//
-//private static String getAttributeInCap(Capability cap, String name) {
-//	if (cap == null)
-//		return null;
-//	Map<String, Object> props = cap.getPropertiesAsMap();
-//	String prop =  (String) props.get(name);
-//	if (prop == null)
-//		return null;
-//	return prop;
-//}
-//
-//		if (getProperty(CST.COMPONENT_TYPE).equals(CST.INSTANCE)) {
-//			if (getProperty(CST.IMPLNAME) == null) return null ;
-//			ImplementationReference implRef = new ImplementationReference(getProperty(CST.IMPLNAME)) ;
-//			return (get(implRef)) ;
-//		}
-//		if (getProperty(CST.COMPONENT_TYPE).equals(CST.IMPLEMENTATION)) {
-//			if (getProperty(CST.SPECNAME) == null) return null ;
-//			SpecificationReference specRef = new SpecificationReference(getProperty(CST.SPECNAME)) ;
-//			return (get(specRef)) ;
-//		}
-//		if (getProperty(CST.COMPONENT_TYPE).equals(CST.SPECIFICATION)) {
-//			return null ;
-//		}
-//		return null ;
-//	}
-//
 

@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.Instance;
+//import fr.imag.adele.apam.Component;
+//import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
@@ -48,16 +48,17 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
-import fr.imag.adele.apam.util.ApamFilter;
+//import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.UtilComp;
+//import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
 
 public class CheckObr {
 
 	private static Logger logger = LoggerFactory.getLogger(CheckObr.class);
 
 	private static final Set<String> allFields = new HashSet<String>();
-	private static final Set<String> allOwns = new HashSet<String>();
+//	private static final Set<String> allOwns = new HashSet<String>();
 	private static final Set<String> allGrants = new HashSet<String>();
 
 	private static boolean failedChecking = false;
@@ -620,6 +621,11 @@ public class CheckObr {
 		}
 
 		for (DependencyInjection innerDep : dep.getInjections()) {
+			
+			if (!innerDep.isValidInstrumentation())
+				CheckObr.error(dep.getComponent().getName() + " : invalid type for field " + innerDep.getName());
+
+			
 			String type = innerDep.getResource().getJavaType();
 			if (!(innerDep.getResource() instanceof UndefinedReference)
 					&& !(allowedTypes.contains(innerDep.getResource()))) {
@@ -831,13 +837,7 @@ public class CheckObr {
 		if (expr.equals(CST.V_FALSE) || expr.equals(CST.V_TRUE))
 			return true;
 
-		try {
-			ApamFilter.newInstance(expr, false);
-		} catch (Exception e) {
-			error("Bad filter in visibility expression " + expr);
-			return false;
-		}
-		return true;
+		return Util.checkFilter(expr);
 	}
 
 	private static void checkVisibility(CompositeDeclaration component) {
@@ -991,7 +991,7 @@ public class CheckObr {
 			// resource
 			ComponentDeclaration granted = grantComponent.dcl;
 			String id = grant.getDependency().getIdentifier();
-			ComponentReference owned = own.getComponent();
+			ComponentReference<?> owned = own.getComponent();
 			boolean found = false;
 			// OWN is a specification or an implem
 			// granted dep can be anything
@@ -1011,7 +1011,7 @@ public class CheckObr {
 					// owned one
 					if (depend.getTarget() instanceof ImplementationReference) {
 						ApamCapability depSpec = ApamCapability
-								.get((ImplementationReference) depend
+								.get((ImplementationReference<?>) depend
 										.getTarget());
 						if (depSpec != null
 								&& depSpec.getGroup().equals(owned.getName())) {
@@ -1053,20 +1053,19 @@ public class CheckObr {
 	 */
 	private static void checkContextualDependencies(
 			CompositeDeclaration component) {
-		try {
-			for (DependencyDeclaration pol : component
-					.getContextualDependencies()) {
+			for (DependencyDeclaration pol : component.getContextualDependencies()) {
+				
 				for (String constraint : pol.getImplementationConstraints()) {
-					ApamFilter.newInstance(constraint, false);
+					Util.checkFilter(constraint);
 				}
 				for (String constraint : pol.getImplementationPreferences()) {
-					ApamFilter.newInstance(constraint, false);
+					Util.checkFilter(constraint);
 				}
 				for (String constraint : pol.getInstanceConstraints()) {
-					ApamFilter.newInstance(constraint, false);
+					Util.checkFilter(constraint);
 				}
 				for (String constraint : pol.getInstancePreferences()) {
-					ApamFilter.newInstance(constraint, false);
+					Util.checkFilter(constraint);
 				}
 
 				// Checking if the exception is existing
@@ -1083,9 +1082,6 @@ public class CheckObr {
 				}
 
 			}
-		} catch (InvalidSyntaxException e) {
-			error(e.getMessage());
-		}
 	}
 
 	/**
@@ -1188,10 +1184,10 @@ public class CheckObr {
 			// and the client requires a resource provided by that
 			// implementation
 			if (compoDep.getTarget() instanceof ImplementationReference) {
-				String implName = ((ImplementationReference<?>) compoDep
-						.getTarget()).getName();
+//				String implName = ((ImplementationReference<?>) compoDep
+//						.getTarget()).getName();
 				ImplementationDeclaration impl = (ImplementationDeclaration) ApamCapability
-						.getDcl(((ImplementationReference) compoDep.getTarget()));
+						.getDcl(((ImplementationReference<?>) compoDep.getTarget()));
 				if (impl != null) {
 					// The client requires the specification implemented by that
 					// implementation
