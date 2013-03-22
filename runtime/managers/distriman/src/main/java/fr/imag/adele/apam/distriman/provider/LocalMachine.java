@@ -142,7 +142,8 @@ public enum LocalMachine {
 		@Override
 		protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 				throws ServletException, IOException {
-			resp.sendError(204);
+			//resp.sendError(204);
+			doPost(req, resp);
 		}
 
 		@Override
@@ -152,7 +153,7 @@ public enum LocalMachine {
 			PrintWriter writer=resp.getWriter();
 			
 			try {
-
+				
 				JSONObject requestJson = new JSONObject(req.getParameter("content"));
 				RemoteDependency remoteDependency = RemoteDependency.fromJson(requestJson);
 				String remoteUrl = requestJson.getString(CLIENT_URL);
@@ -160,7 +161,7 @@ public enum LocalMachine {
 				
 				logger.info("requesting resolution of the identifier {} in the address {}",identifier,remoteUrl);
 				
-				EndpointRegistration reg = distriman.resolveRemoteDependency(
+				EndpointRegistration reg = distriman.resolveDependencyLocalMachine(
 						remoteDependency, remoteUrl);
 				
 				String jsonString=toJson(reg);

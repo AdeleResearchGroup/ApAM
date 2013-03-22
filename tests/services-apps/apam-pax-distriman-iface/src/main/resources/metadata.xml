@@ -19,15 +19,18 @@
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
 <specification name="P1-spec"
-		interfaces="fr.imag.adele.apam.pax.test.iface.P1Spec">
+		interfaces="fr.imag.adele.apam.pax.distriman.test.iface.P1Spec">
 		<definition name="description" type="string" />
 </specification>
 
-<specification name="P2-spec"
-		interfaces="fr.imag.adele.apam.pax.test.iface.P2Spec,fr.imag.adele.apam.pax.test.iface.P2Spec2"> <!-- fr.imag.adele.apam.pax.test.iface.P2Spec2 -->
+<specification name="P2-spec-singleinterface"
+		interfaces="fr.imag.adele.apam.pax.distriman.test.iface.P2Spec"> 
 		<definition name="description" type="string" />
 </specification>
 
-
+<specification name="P2-spec-multipleinterface"
+		interfaces="fr.imag.adele.apam.pax.distriman.test.iface.P2Spec,fr.imag.adele.apam.pax.distriman.test.iface.P2Spec2"> 
+		<definition name="description" type="string" />
+</specification>
 	
 </apam>

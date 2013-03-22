@@ -18,12 +18,19 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
-<implementation name="P2"
-		classname="fr.imag.adele.apam.pax.test.impl.p2.P2Impl"
-		specification="P2-spec">
+<implementation name="P2-singleinterface"
+		classname="fr.imag.adele.apam.pax.distriman.test.impl.p2.P2ImplSingleInterface"
+		specification="P2-spec-singleinterface">
 		<property name="description" value="samsung" />
 </implementation>
 
-<apam-instance implementation="P2" name="P2-instance"/> 
+<implementation name="P2-multipleinterface"
+		classname="fr.imag.adele.apam.pax.distriman.test.impl.p2.P2ImplMultipleInterface"
+		specification="P2-spec-multipleinterface">
+		<property name="description" value="samsung" />
+</implementation>
+
+<apam-instance implementation="P2-singleinterface" name="P2-singleinterfaceStatic"/> 
+<apam-instance implementation="P2-multipleinterface" name="P2-multipleinterfaceStatic"/> 
 
 </apam>

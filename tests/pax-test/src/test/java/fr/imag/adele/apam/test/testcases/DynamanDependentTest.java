@@ -27,7 +27,6 @@ import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 
@@ -47,12 +46,11 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 public class DynamanDependentTest extends ExtensionAbstract {
 	
 	@Override
-	@Configuration
-	public Option[] apamConfig() {
-		
-		List<Option> defaultOptions = super.config();
-		defaultOptions.add(0,packApamDynaMan());
-		return defaultOptions.toArray(new Option[0]);
+	public List<Option> config() {
+		List<Option> addon = super.config();
+		addon.add(systemPackage("javax.xml.parsers"));
+		addon.add(0,packApamDynaMan());
+		return addon;
 	}
 
 	@Test
@@ -550,16 +548,5 @@ public class DynamanDependentTest extends ExtensionAbstract {
 		Assert.assertTrue(message,sharedDependency.getComposite() == compositeB);
 
 	}
-
-	@Override
-	public List<Option> config() {
-
-		List<Option> config=super.config();
-		config.add(systemPackage("javax.xml.parsers"));
-		//config.add(provision(bundle().set(org.osgi.framework.Constants.IMPORT_PACKAGE, "javax.xml.parsers" ).build()));
-		return config;
-	}
-
-
 	
 }

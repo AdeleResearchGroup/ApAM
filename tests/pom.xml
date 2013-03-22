@@ -51,6 +51,10 @@
 			<url>http://repository.ow2.org/nexus/content/repositories/releases</url>
 		</repository>
 		<repository>
+			<id>nexus snapshots</id>
+			<url>http://repository.ow2.org/nexus/content/repositories/snapshots</url>
+		</repository>
+		<repository>
 			<id>nexus utility</id>
 			<url>http://repository.ow2.org/nexus/content/sites/ow2-utilities</url>
 		</repository>
@@ -59,6 +63,14 @@
 
 	<dependencyManagement>
 		<dependencies>
+
+
+			<!-- To validate compilation offline -->
+			<dependency>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>apam-maven-plugin</artifactId>
+				<version>0.0.2-SNAPSHOT</version>
+			</dependency>
 
 			<!-- Junit Dependencies -->
 			<dependency>
@@ -209,6 +221,13 @@
 							<version>2.12.4</version>
 						</dependency>
 					</dependencies>
+  					<configuration>
+                    <forkMode>once</forkMode>
+                    <classpathDependencyScopeExclude>provided</classpathDependencyScopeExclude>
+                    <systemProperties>
+                        <pax.exam.framework>felix</pax.exam.framework>
+                    </systemProperties>
+                </configuration>					
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
 				<plugin>

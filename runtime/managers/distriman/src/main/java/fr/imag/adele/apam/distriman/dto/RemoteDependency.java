@@ -78,12 +78,12 @@ public class RemoteDependency extends DependencyDeclaration {
         }
 
         //Set the ResolvableReference
-        json.put(JSON_RESOLVABLE_REF,json_rr);
+        //json.put(JSON_RESOLVABLE_REF,json_rr);
 
-        json.put(JSON_INSTANCE_CONSTRAINT, new JSONArray(getInstanceConstraints()));
-        json.put(JSON_INSTANCE_PREF, new JSONArray(getInstancePreferences()));
-        json.put(JSON_COMP_CONSTRAINT, new JSONArray(getImplementationConstraints()));
-        json.put(JSON_COMP_PREF, new JSONArray(getImplementationPreferences()));
+        //json.put(JSON_INSTANCE_CONSTRAINT, new JSONArray(getInstanceConstraints()));
+        //json.put(JSON_INSTANCE_PREF, new JSONArray(getInstancePreferences()));
+        //json.put(JSON_COMP_CONSTRAINT, new JSONArray(getImplementationConstraints()));
+        //json.put(JSON_COMP_PREF, new JSONArray(getImplementationPreferences()));
 
         return json;
     }
@@ -132,18 +132,18 @@ public class RemoteDependency extends DependencyDeclaration {
 
         //Get constraints and prefs
 
-        JSONArray instconst = json.getJSONArray(JSON_INSTANCE_CONSTRAINT);
-        JSONArray instpref = json.getJSONArray(JSON_INSTANCE_PREF);
-        JSONArray compconst = json.getJSONArray(JSON_COMP_CONSTRAINT);
-        JSONArray comppref = json.getJSONArray(JSON_COMP_PREF);
+//        JSONArray instconst = json.getJSONArray(JSON_INSTANCE_CONSTRAINT);
+//        JSONArray instpref = json.getJSONArray(JSON_INSTANCE_PREF);
+//        JSONArray compconst = json.getJSONArray(JSON_COMP_CONSTRAINT);
+//        JSONArray comppref = json.getJSONArray(JSON_COMP_PREF);
 
 
         RemoteDependency rdep = new  RemoteDependency(compref,id,multiple,rr);
 
-        rdep.getInstanceConstraints().addAll(fromArray(instconst));
-        rdep.getInstancePreferences().addAll(fromArray(instpref));
-        rdep.getImplementationConstraints().addAll(fromArray(compconst));
-        rdep.getImplementationPreferences().addAll(fromArray(comppref));
+        //rdep.getInstanceConstraints().addAll(fromArray(instconst));
+        //rdep.getInstancePreferences().addAll(fromArray(instpref));
+        //rdep.getImplementationConstraints().addAll(fromArray(compconst));
+        //rdep.getImplementationPreferences().addAll(fromArray(comppref));
 
        return rdep;
     }

@@ -65,8 +65,6 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     public CompositeDeclaration(String name, SpecificationReference specification, ComponentReference<?> mainComponent) {
         super(name, specification);
 
-        assert mainComponent != null;
-
         this.mainComponent 			= mainComponent;
         
         this.visibility				= new VisibilityDeclaration();

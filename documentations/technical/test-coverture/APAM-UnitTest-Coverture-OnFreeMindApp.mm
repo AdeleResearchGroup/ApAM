@@ -1,6 +1,6 @@
 <map version="0.9.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
-<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1363699317435" TEXT="APAM-Unit test coverture">
+<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1363870939268" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
 <node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1360338389070" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
@@ -349,6 +349,24 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1363625239572" ID="ID_377460580" MODIFIED="1363625259439" TEXT="Multiple producer and 1 consumer, sent method is called by different threads and check if all messages were received by the consumer-tc084"/>
+</node>
+<node CREATED="1363857826607" ID="ID_1640179078" MODIFIED="1363857829987" POSITION="right" TEXT="Distriman">
+<node CREATED="1363857837529" ID="ID_1570620168" MODIFIED="1363857853886" TEXT="provider">
+<node CREATED="1363857859111" ID="ID_270493680" MODIFIED="1363871107262" TEXT="endpoint created successfully for single interface-tc086">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1363857880951" ID="ID_1679469096" MODIFIED="1363871111942" TEXT="endpoint created successfully for double interface">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
+<node CREATED="1363857854951" ID="ID_1091851122" MODIFIED="1363857856239" TEXT="client">
+<node CREATED="1363857985943" ID="ID_700358792" MODIFIED="1363871111942" TEXT="connect to endpoint with single interface">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1363858002423" ID="ID_768692601" MODIFIED="1363871111941" TEXT="connect to endpount with double interface">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
 </node>
 </node>
 </map>

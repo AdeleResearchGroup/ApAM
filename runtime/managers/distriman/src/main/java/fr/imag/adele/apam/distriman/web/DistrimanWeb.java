@@ -97,7 +97,7 @@ public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig 
 
 			for (String key : discovery.getMachines().keySet()) {
 				RemoteMachine machine = discovery.getMachines().get(key);
-				conte += String.format(conteTemplate, machine.getUrl(), "NONE",
+				conte += String.format(conteTemplate, machine.getURL(), "NONE",
 						"NONE");
 			}
 

@@ -108,7 +108,7 @@ public class RemoteMachine implements ApformInstance {
 		System.out.println("RemoteMachine " + my_url + " created.");
 	}
 
-	public String getUrl() {
+	public String getURL() {
 		return my_url;
 	}
 
@@ -150,7 +150,7 @@ public class RemoteMachine implements ApformInstance {
 
 			JSONObject jsonObject = remoteDep.toJson();
 
-			jsonObject.put("client_url", this.getUrl());
+			jsonObject.put("client_url", this.getURL());
 
 			String json = jsonObject.toString();
 
@@ -159,13 +159,13 @@ public class RemoteMachine implements ApformInstance {
 			if (instance == null) {
 
 				logger.info("dependency {} was NOT found in {}",
-						dependency.getIdentifier(), this.getUrl());
+						dependency.getIdentifier(), this.getURL());
 
 				return null;
 			}
 
 			logger.info("dependency {} was found remotely in {}",
-					dependency.getIdentifier(),this.getUrl());
+					dependency.getIdentifier(),this.getURL());
 
 			Set<Implementation> impl = Collections.emptySet();
 
@@ -178,16 +178,16 @@ public class RemoteMachine implements ApformInstance {
 
 	private Instance createClientProxy(String jsondep, Instance client,
 			DependencyDeclaration dependency) throws IOException {
-
+		
 		HttpURLConnection connection = null;
 		PrintWriter outWriter = null;
 		BufferedReader serverResponse = null;
 		StringBuffer buff = new StringBuffer();
 		try {
 
-			logger.info("requesting resolution to address {}", this.getUrl());
+			logger.info("requesting resolution to address {}", this.getURL());
 
-			connection = (HttpURLConnection) new URL(this.getUrl())
+			connection = (HttpURLConnection) new URL(this.getURL())
 					.openConnection();
 
 			// SET REQUEST INFO
@@ -196,6 +196,8 @@ public class RemoteMachine implements ApformInstance {
 
 			outWriter = new PrintWriter(connection.getOutputStream());
 
+			logger.info("request performed by the client {}",jsondep);
+			
 			buff.append("content=");
 			buff.append(URLEncoder.encode(jsondep, "UTF-8"));
 

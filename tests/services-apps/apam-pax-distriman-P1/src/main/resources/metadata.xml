@@ -19,7 +19,7 @@
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
 <implementation name="P1"
-		classname="fr.imag.adele.apam.pax.test.impl.p1.P1Impl"
+		classname="fr.imag.adele.apam.pax.distriman.test.impl.p1.P1Impl"
 		specification="P1-spec">
 		<property name="description" value="samsung" />
 		<dependency field="p2"/>
