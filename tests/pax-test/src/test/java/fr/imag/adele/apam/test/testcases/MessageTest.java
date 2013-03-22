@@ -16,6 +16,7 @@ package fr.imag.adele.apam.test.testcases;
 
 import static org.ops4j.pax.exam.CoreOptions.bundle;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,8 +45,14 @@ public class MessageTest extends ExtensionAbstract {
 
 		List<Option> defaults = super.config();
 		defaults.add(0,packApamDynaMan());
-		defaults.add(bundle("file://" + PathUtils.getBaseDir()
-				+ "/bundle/wireadmin.jar"));
+		
+		try {
+			defaults.add(bundle((new File(PathUtils.getBaseDir(),"bundle/wireadmin.jar")).toURI().toURL().toExternalForm()));
+			
+		} catch (Exception error) {
+			Assert.assertTrue("Error deploying WireAdmin", false);
+		}
+		
 		
 //		defaults.add(mavenBundle("fr.imag.adele.apam", "apam-maven-plugin").version("0.0.2-SNAPSHOT"));
 		
