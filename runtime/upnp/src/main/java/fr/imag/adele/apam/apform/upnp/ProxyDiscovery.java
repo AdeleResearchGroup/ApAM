@@ -43,28 +43,54 @@ import fr.imag.adele.apam.Implementation;
 @Instantiate
 public class ProxyDiscovery  {		
 
- 
+	/**
+	 * The bundle context of the discovery
+	 */
 	private final BundleContext context;
 
 	public ProxyDiscovery(BundleContext context) {
 		this.context = context;
 	}
 	
+    /**
+     * The event executor. We use a pool of a threads to notify APAM of underlying platform events,
+     * without blocking the platform thread.
+     */
+    static private final Executor executor      = Executors.newCachedThreadPool();
 	
 	/**
 	 * Reference to the APAM resolver
 	 */
 	@SuppressWarnings("unused")
 	@Requires(id="APAM", optional=false)
-	private Apam 			apam;
+	private Apam 				apam;
+	private ApamResolver 		resolver;
 
-	private ApamResolver 	resolver;
-
+	/**
+	 * The list of events registered before binding Apam
+	 */
+	private List<UPnPDevice> 	pending = new ArrayList<UPnPDevice>();
+	
 	@Bind(id="APAM")
 	@SuppressWarnings("unused")
-	private void boundApam() {
+	private synchronized void  apamBound() {
 		resolver = CST.apamResolver;
 		System.err.println("[UPnP Apam Discovery] Bound to APAM resolver "+resolver);
+		
+		/*
+		 * Schedule pending device discovery  requests
+		 */
+		for (UPnPDevice device : pending) {
+			System.err.println("[UPnP Apam Discovery] ... scheduling pending request for "+device.getDescriptions(null).get(UPnPDevice.ID));
+			executor.execute(new DeviceDiscoveryRequest(device));
+		}
+	}
+	
+	@Unbind(id="APAM")
+	@SuppressWarnings("unused")
+	private synchronized void apamUnbound() {
+		resolver = null;
+		System.err.println("[UPnP Apam Discovery] Unbound to APAM resolver "+resolver);
 	}
 	
 	/**
@@ -73,12 +99,67 @@ public class ProxyDiscovery  {
 	 */
 	private Map<UPnPDevice,List<ComponentInstance>> deviceMap = new HashMap<UPnPDevice, List<ComponentInstance>>() ;
 
-    /**
-     * The event executor. We use a pool of a threads to handle notification to APAM of underlying platform
-     * events, without blocking the platform thread.
-     */
-    static private final Executor executor      = Executors.newCachedThreadPool();
 
+	/**
+	 * Method invoked with a new device hosting the UPnP services is discovered.
+	 * 
+	 * WARNING IMPORTANT Notice that this is an iPojo callback, and we should not block inside,
+	 * so we process the request asynchronously.
+	 */
+	@Bind(id=UPnPDevice.ID,aggregate=true,optional=true)
+	@SuppressWarnings("unused")
+	private void boundDevice(UPnPDevice device) {
+		
+		/*
+		 * If APAM is not available schedule the request later
+		 */
+		synchronized (this) {
+			if (resolver == null)
+				pending.add(device);
+		}
+		
+		/*
+		 * first we update synchronously the device table, so we can respect the order of events
+		 * (bound/unbound) for each device
+		 */
+		synchronized (deviceMap) {
+			deviceMap.put(device,new ArrayList<ComponentInstance>());
+		}
+		
+		executor.execute(new DeviceDiscoveryRequest(device));
+	}
+	
+	/**
+	 * Method invoked when a device is no longer available. We dispose all created deviceMap.
+	 * 
+	 * WARNING IMPORTANT Notice that this is an iPojo callback, and we should not block inside,
+	 * so we process the request asynchronously.
+	 */
+	@Unbind(id=UPnPDevice.ID)
+	@SuppressWarnings("unused")
+	private void unboundDevice(UPnPDevice device) {
+		
+		/*
+		 * If APAM is not available, just remove any pending request
+		 */
+		synchronized (this) {
+			if (resolver == null)
+				pending.remove(device);
+		}
+		
+		/*
+		 * first we update synchronously the device table, so we can respect the order of events
+		 * (bound/unbound) for each device
+		 */
+		List<ComponentInstance> serviceProxies = null;
+		synchronized (deviceMap) {
+			serviceProxies = deviceMap.remove(device);
+		}
+
+		executor.execute(new DeviceLostRequest(device,serviceProxies));
+	}
+	
+    
     /**
      * The handler of the discovery request, It look for a proxy for each service and create the
      * appropriate instance.
@@ -87,14 +168,14 @@ public class ProxyDiscovery  {
 	 * property values that are not handled by {@link Implementation#createInstance Implementation.createInstance}
 	 *
      */
-    private class DeviceDiscoveryHandler implements Runnable {
+    private class DeviceDiscoveryRequest implements Runnable {
 
     	/**
     	 * The discovered device
     	 */
     	private final UPnPDevice device;
     	
-    	public DeviceDiscoveryHandler(UPnPDevice device) {
+    	public DeviceDiscoveryRequest(UPnPDevice device) {
 			this.device = device;
 		}
     	
@@ -121,6 +202,16 @@ public class ProxyDiscovery  {
 					if (! deviceMap.containsKey(device))
 						return;
 				}
+				
+				/*
+				 * IMPORTANT Because we are processing this event asynchronously, we need to verify that APAM is
+				 * still available, and abort the processing as soon as possible.
+				 */
+				synchronized (this) {
+					if (resolver == null)
+						return;
+				}
+
 
 				/*
 				 * Look for an implementation 
@@ -197,7 +288,7 @@ public class ProxyDiscovery  {
      * The handler of the unbound request, It dispose all the created proxies associated to the device.
 	 * 
      */
-    private class DeviceLostHandler implements Runnable {
+    private class DeviceLostRequest implements Runnable {
 
     	/**
     	 * The unbound device
@@ -209,7 +300,7 @@ public class ProxyDiscovery  {
     	 */
     	private final List<ComponentInstance> proxies;
     	
-    	public DeviceLostHandler(UPnPDevice device, List<ComponentInstance> proxies) {
+    	public DeviceLostRequest(UPnPDevice device, List<ComponentInstance> proxies) {
     		this.device		= device;
 			this.proxies	= proxies;
 		}
@@ -232,50 +323,5 @@ public class ProxyDiscovery  {
     	
     }
 		
-	/**
-	 * Method invoked with a new device hosting the UPnP services is discovered.
-	 * 
-	 * WARNING IMPORTANT Notice that this is an iPojo callback, and we should not block inside,
-	 * so we process the request asynchronously.
-	 */
-	@Bind(id=UPnPDevice.ID,aggregate=true,optional=true)
-	@SuppressWarnings("unused")
-	private void boundDevice(UPnPDevice device) {
-		
-		/*
-		 * first we update synchronously the device table, so we can respect the order of events
-		 * (bound/unbound) for each device
-		 */
-		synchronized (deviceMap) {
-			deviceMap.put(device,new ArrayList<ComponentInstance>());
-		}
-		
-		executor.execute(new DeviceDiscoveryHandler(device));
-	}
-	
-	/**
-	 * Method invoked when a device is no longer available. We dispose all created deviceMap.
-	 * 
-	 * WARNING IMPORTANT Notice that this is an iPojo callback, and we should not block inside,
-	 * so we process the request asynchronously.
-	 */
-	@Unbind(id=UPnPDevice.ID)
-	@SuppressWarnings("unused")
-	private void unboundDevice(UPnPDevice device) {
-		
-		
-		/*
-		 * first we update synchronously the device table, so we can respect the order of events
-		 * (bound/unbound) for each device
-		 */
-		List<ComponentInstance> serviceProxies = null;
-		synchronized (deviceMap) {
-			serviceProxies = deviceMap.remove(device);
-		}
-
-		executor.execute(new DeviceLostHandler(device,serviceProxies));
-	}
-	
-	
 	
 }
