@@ -14,6 +14,8 @@
  */
 package fr.imag.adele.apam.distriman.provider;
 
+import java.util.Map;
+
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 
@@ -28,11 +30,9 @@ public interface EndpointRegistration {
 
     RemoteMachine getClient();
 
-    String getEndpointUrl();
-
+    Map<String,String> getEndpoint();
+    
     String getProtocol();
-
-    String getInterfaceCanonical();
     
     void close();
    

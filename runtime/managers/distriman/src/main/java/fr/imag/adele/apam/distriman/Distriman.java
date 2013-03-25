@@ -21,11 +21,9 @@ import java.util.Set;
 
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Invalidate;
-import org.apache.felix.ipojo.annotations.Property;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.Validate;
-import org.json.JSONException;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
@@ -153,8 +151,6 @@ public class Distriman implements DependencyManager {
 						&& resolved.instances.size() > 0)
 					break;
 
-			} catch (JSONException e) {
-				e.printStackTrace();
 			} catch (IOException e) {
 				remotes.destroyRemoteMachine(urlForResolution, element
 						.getValue().getId());

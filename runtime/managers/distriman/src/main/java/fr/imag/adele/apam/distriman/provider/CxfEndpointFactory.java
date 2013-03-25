@@ -254,18 +254,19 @@ public class CxfEndpointFactory {
 				Map<Class, String> endpoints = createEndpoint(neo);
 
 				String fullURL = "";
+
+				registration = new EndpointRegistrationImpl(this, neo,
+						client, PROTOCOL_NAME);
 				
 				for (Map.Entry<Class, String> endpoint : endpoints.entrySet()) {
 
 					logger.info("cxf endpoint created in the address {}",
 							fullURL);
+				
+					registration.getEndpoint().put(endpoint.getKey().getCanonicalName(), myurl + endpoint.getValue());
 					
-					fullURL+= myurl + endpoint.getValue()+"!"+endpoint.getKey().getCanonicalName()+",";
-
 				}
 				
-				registration = new EndpointRegistrationImpl(this, neo,
-						client, fullURL, PROTOCOL_NAME,fullURL);
 
 			} else {
 

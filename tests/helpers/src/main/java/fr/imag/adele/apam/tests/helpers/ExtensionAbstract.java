@@ -240,8 +240,12 @@ public abstract class ExtensionAbstract extends TestUtils {
 				//CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/slf4j-api-1.6.6.jar"),
 				//CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/wireadmin.jar"),
 				//CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/xmlschema-core-2.0.jar")
-				mavenBundle("org.apache.ws.xmlschema", "xmlschema-core").version("2.0")
+				mavenBundle("org.apache.ws.xmlschema", "xmlschema-core").version("2.0"),
+				mavenBundle("org.codehaus.jackson", "jackson-core-asl").version("1.9.12"),
+				mavenBundle("org.codehaus.jackson", "jackson-mapper-asl").version("1.9.12"),
 				
+				mavenBundle("org.codehaus.jettison", "jettison").version("1.3.3")
+
 				//Static
 //				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/com.springsource.org.apache.xml.resolver-1.2.0.jar"),
 //				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/org.apache.felix.log-1.0.1.jar"),

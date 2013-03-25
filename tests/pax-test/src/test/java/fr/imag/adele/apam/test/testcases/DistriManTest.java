@@ -19,12 +19,16 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -57,17 +61,30 @@ public class DistriManTest extends ExtensionAbstract {
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
 		
-		final String jsonPayload = " {\"id\":\"p2\",\"rref\":{\"name\":\"fr.imag.adele.apam.pax.distriman.test.iface.P2Spec\",\"type\":\"itf\"},\"component_name\":\"P1\",\"is_multiple\":false,\"client_url\":\"http://127.0.0.1:8081/apam/machine\"}";
 		String url="http://127.0.0.1:8080/apam/machine";
+		
+		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2", "fr.imag.adele.apam.pax.distriman.test.iface.P2Spec", "P1", false, url);
 		
 		Map<String, String> parameters=new HashMap<String, String>(){{put("content", jsonPayload);}};
 		
-		apam.waitForIt(30000);
-		
 		String buffer=DistrimanUtil.curl(parameters, url);
 		
-		Assert.assertTrue(buffer.length()!=0);
+		String response=URLDecoder.decode(buffer.toString(),"UTF-8");
 		
+		System.err.println(response);
+		
+		ObjectMapper om=new ObjectMapper();
+		
+		JsonNode node=om.readValue(response, JsonNode.class);
+		
+		Map<String,String> endpoints=om.convertValue(node.get("endpoint_entry"), new TypeReference<Map<String, String>>() {});
+		
+		System.out.println("Class\tURL");
+		for(Map.Entry<String, String> entry:endpoints.entrySet()){
+			System.out.println(String.format("%s\t%s", entry.getKey(),entry.getValue()));
+		}
+		
+		Assert.assertTrue("distriman(provider host) did not create an endpoint after requested",endpoints.size()==1);
 		
 	}
 

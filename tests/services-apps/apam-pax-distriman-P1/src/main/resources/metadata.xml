@@ -25,8 +25,9 @@
 		<dependency field="p2"/>
 		<callback onInit="instantiate" onRemove="desinstantiate"/>
 </implementation>
-	
+
 
 <apam-instance implementation="P1" name="P1-instance"/> 
 
+ 
 </apam>
