@@ -352,18 +352,26 @@
 </node>
 <node CREATED="1363857826607" ID="ID_1640179078" MODIFIED="1363857829987" POSITION="right" TEXT="Distriman">
 <node CREATED="1363857837529" ID="ID_1570620168" MODIFIED="1363857853886" TEXT="provider">
-<node CREATED="1363857859111" ID="ID_270493680" MODIFIED="1363871107262" TEXT="endpoint created successfully for single interface-tc086">
+<node CREATED="1364310717890" ID="ID_38617618" MODIFIED="1364310720953" TEXT="specification">
+<node CREATED="1364310721738" ID="ID_585579850" MODIFIED="1364310790656" TEXT="single interface-tc088">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1363857880951" ID="ID_1679469096" MODIFIED="1363871111942" TEXT="endpoint created successfully for double interface">
+<node CREATED="1364310726554" ID="ID_1460454191" MODIFIED="1364310790655" TEXT="muiltiple interface-tc087">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1364310734666" ID="ID_701186650" MODIFIED="1364310736264" TEXT="interface">
+<node CREATED="1364310737018" ID="ID_1927880532" MODIFIED="1364310795118" TEXT="single interface-tc086">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+<node CREATED="1363857854951" ID="ID_1091851122" MODIFIED="1363857856239" TEXT="client"/>
+<node CREATED="1364310867642" ID="ID_482930953" MODIFIED="1364310871011" TEXT="discovery">
+<node CREATED="1364310872186" ID="ID_144151846" MODIFIED="1364310893951" TEXT="when provider comes first">
 <icon BUILTIN="button_cancel"/>
 </node>
-</node>
-<node CREATED="1363857854951" ID="ID_1091851122" MODIFIED="1363857856239" TEXT="client">
-<node CREATED="1363857985943" ID="ID_700358792" MODIFIED="1363871111942" TEXT="connect to endpoint with single interface">
-<icon BUILTIN="button_cancel"/>
-</node>
-<node CREATED="1363858002423" ID="ID_768692601" MODIFIED="1363871111941" TEXT="connect to endpount with double interface">
+<node CREATED="1364310880490" ID="ID_1578155757" MODIFIED="1364310893950" TEXT="when client comes first">
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>

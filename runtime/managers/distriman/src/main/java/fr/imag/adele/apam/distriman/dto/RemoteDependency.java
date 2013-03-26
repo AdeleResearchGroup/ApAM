@@ -24,6 +24,7 @@ import fr.imag.adele.apam.declarations.InstanceReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.SpecificationReference;
 
 /**
  * The RemoteDependency is a DependencyDeclaration that aims to be resolved by a RemoteMachine.
@@ -48,13 +49,13 @@ public class RemoteDependency extends DependencyDeclaration {
 
     private static final String JSON_COMP_CONSTRAINT = "comp_cons";
     private static final String JSON_COMP_PREF = "comp_pref";
-    private static final String JSON_CLIENT_URL = "client_url";
+    public static final String JSON_CLIENT_URL = "client_url";
     
-    private String client_url;
+    private String clientURL;
 
     public RemoteDependency(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource,String client) {
         super(component, id, isMultiple, resource);
-        this.client_url=client;
+        this.clientURL=client;
     }
 
     /**
@@ -63,7 +64,7 @@ public class RemoteDependency extends DependencyDeclaration {
      */
     public RemoteDependency(DependencyDeclaration dep,String client) {
         super(dep.getComponent(), dep.getIdentifier(), dep.isMultiple(), dep.getTarget());
-        this.client_url=client;
+        this.clientURL=client;
     }
 
     public ObjectNode toJson() {
@@ -82,7 +83,7 @@ public class RemoteDependency extends DependencyDeclaration {
         json.put(JSON_ID,getIdentifier());
         json.put(JSON_IS_MULTIPLE,isMultiple());
         json.put(JSON_COMP_REF_NAME,getComponent().getName());
-        json.put(JSON_CLIENT_URL,client_url);
+        json.put(JSON_CLIENT_URL,clientURL);
         
         ObjectNode json_rr=om.createObjectNode();
         
@@ -135,7 +136,7 @@ public class RemoteDependency extends DependencyDeclaration {
         //Get the ResolvableReference name
         String rr_name = rr_json.get(JSON_RESOLVABLE_REF_NAME).asText();
 
-        String client_url=json.get(JSON_CLIENT_URL).asText();
+        String clientURL=json.get(JSON_CLIENT_URL).asText();
 
         ResolvableReference  rr = null;
         // Create the ResolvableReference according to its type.
@@ -149,6 +150,10 @@ public class RemoteDependency extends DependencyDeclaration {
             case message:
                 rr = new MessageReference(rr_name);
             break;
+            case specification:
+                rr = new SpecificationReference(rr_name);
+                
+            break;
         }
 
         //Get constraints and prefs
@@ -159,7 +164,7 @@ public class RemoteDependency extends DependencyDeclaration {
 //        JSONArray comppref = json.getJSONArray(JSON_COMP_PREF);
 
 
-        RemoteDependency rdep = new  RemoteDependency(compref,id,multiple,rr,client_url);
+        RemoteDependency rdep = new  RemoteDependency(compref,id,multiple,rr,clientURL);
 
         //rdep.getInstanceConstraints().addAll(fromArray(instconst));
         //rdep.getInstancePreferences().addAll(fromArray(instpref));
@@ -169,22 +174,20 @@ public class RemoteDependency extends DependencyDeclaration {
        return rdep;
     }
 
-
-//    private static Collection<String> fromArray(JSONArray array) throws JSONException{
-//        Collection<String> collec = new ArrayList<String>(array.length());
-//        for(int i =0;i<array.length();i++){
-//            collec.add(array.getString(i));
-//        }
-//        return collec;
-//    }
-
     /**
      * ResolvableReference type.
      */
     private enum RRTYPE {
         instance,
         message,
-        itf//interface
+        itf,
+        specification//interface
         //TODO support Spec et implem ?
     }
+
+	public String getClientURL() {
+		return clientURL;
+	}
+    
+    
 }

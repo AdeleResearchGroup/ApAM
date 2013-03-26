@@ -136,7 +136,7 @@ public enum LocalMachine {
 	 * dependency thanks to this machine.
 	 */
 	private class MyServlet extends HttpServlet {
-		private static final String CLIENT_URL = "client_url";
+	
 		private final DependencyManager apamMan;
 
 		private MyServlet() {
@@ -165,16 +165,13 @@ public enum LocalMachine {
 				
 				JsonNode requestJson=om.readValue(content, JsonNode.class);
 				
-				
-				
 				RemoteDependency remoteDependency = RemoteDependency.fromJson(requestJson);
-				String remoteUrl = requestJson.get(CLIENT_URL).asText();
 				String identifier = remoteDependency.getIdentifier();
 				
-				logger.info("requesting resolution of the identifier {} in the address {}",identifier,remoteUrl);
+				logger.info("requesting resolution of the identifier {} in the address {}",identifier,remoteDependency.getClientURL());
 				
 				EndpointRegistration reg = distriman.resolveDependencyLocalMachine(
-						remoteDependency, remoteUrl);
+						remoteDependency, remoteDependency.getClientURL());
 				
 				String jsonString=toJson(reg);
 				
