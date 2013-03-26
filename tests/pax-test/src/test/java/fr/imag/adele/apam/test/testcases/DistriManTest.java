@@ -26,6 +26,7 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
+import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -37,6 +38,7 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.pax.distriman.test.iface.P2Spec;
 import fr.imag.adele.apam.test.support.distriman.DistrimanUtil;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
@@ -85,6 +87,18 @@ public class DistriManTest extends ExtensionAbstract {
 		}
 		
 		Assert.assertTrue("distriman(provider host) did not create an endpoint after requested",endpoints.size()==1);
+		
+		try{
+		
+			ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
+			factory.setServiceClass(P2Spec.class);
+			factory.setAddress(endpoints.get("fr.imag.adele.apam.pax.distriman.test.iface.P2Spec"));
+			P2Spec proxy = (P2Spec)factory.create();
+			System.err.println(proxy.getName());
+			
+		}catch(Exception e){
+			Assert.fail(String.format("distriman(provider host) created an endpoint but was not possible to connect to it, failed with the message %s", e.getMessage()));
+		}
 		
 	}
 

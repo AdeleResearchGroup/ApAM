@@ -93,9 +93,9 @@ public class RemoteDependency extends DependencyDeclaration {
         if (getTarget() instanceof InterfaceReference){
             json_rr.put(JSON_RESOLVABLE_REF_TYPE,RRTYPE.itf.toString());
         } else if (getTarget() instanceof MessageReference){
-            json_rr.put(JSON_RESOLVABLE_REF_TYPE,RRTYPE.itf.toString());
+            json_rr.put(JSON_RESOLVABLE_REF_TYPE,RRTYPE.message.toString());
         } else if (getTarget() instanceof InstanceReference){
-            json_rr.put(JSON_RESOLVABLE_REF_TYPE,RRTYPE.itf.toString());
+            json_rr.put(JSON_RESOLVABLE_REF_TYPE,RRTYPE.instance.toString());
         }
 
         //Set the ResolvableReference
