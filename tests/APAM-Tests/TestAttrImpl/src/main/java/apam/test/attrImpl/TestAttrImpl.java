@@ -14,12 +14,17 @@
  */
 package apam.test.attrImpl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import apam.test.attr.TestAttr;
 import fr.imag.adele.apam.ApamComponent;
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.test.s2.S2;
 
 public class TestAttrImpl implements TestAttr, ApamComponent {
-//    S2 s2;
+    S2 s2;
     String theFieldAttr ;
 
 	@Override
@@ -34,6 +39,8 @@ public class TestAttrImpl implements TestAttr, ApamComponent {
 		
 		System.out.println("TestAttrImpl is started. xml fieldAttr value: " + apamInstance.getProperty("fieldAttr"));
 		theFieldAttr = "initial set by program" ;
+		if (s2 == null)
+			System.out.println(" s2 resolution failed");
 		System.out.println(" initialized fieldAttr value: " + apamInstance.getProperty("fieldAttr"));
 	}
 
@@ -41,5 +48,33 @@ public class TestAttrImpl implements TestAttr, ApamComponent {
 	public void apamRemove() {
 	}
 
+	public String funcAttr (Instance i) {
+		return "retour de funcAttri" ;
+	}
+
+	public String ffuncAttr (Implementation i) {
+		return "False retour de funcAttri" ;
+	}
+	public Set<String> funcAttrSet (Instance i) {
+		Set<String> ret = new HashSet<String> () ;
+		ret.add("retopur 1") ;
+		ret.add("retopur 2") ;
+		ret.add("retopur 3") ;
+		return ret ;
+	}
+
+	public String fonctionTest (Instance inst) {
+		System.out.println("Dans fonctionTest: Parametre instance: " + inst);
+		return "de retour de la fonction" ;
+	}
+	
+	public Set<String> fonctionTestSet (Instance inst) {
+		System.out.println("Dans fonctionTestSet: Parametre instance: " + inst);
+		Set<String> ret = new HashSet<String>() ;
+		ret.add ("val1") ;
+		ret.add ("val2") ;
+		ret.add ("val3") ;
+		return ret ;
+	}
 
 }

@@ -24,6 +24,9 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 	<implementation name="TestAttr"
 		classname="apam.test.attrImpl.TestAttrImpl" specification="STestAttr">
+
+		<dependency specification="S2" field="s2" />
+
 <!-- 		<property name="S1toS2Final-Attr" value="couscous" /> -->
 		<property name="spec-name" value="yyy"  />
 <!-- 		<property name="definition-xx" value="ttt" /> -->
@@ -37,6 +40,49 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		<definition name="enumeration" type="{f1, f2, f3, f4}" />
 		<property   name="autoString" value="aValue" type="string"/>
 		<property   name="autoSet" value="Z-1, Z-2" type="{Z-0, Z-1, Z-2, Z-3}"/>
+
+		<definition name="metaStr" type="string" value="$$S1toS2Final-String1"/>
+		<definition name="metaS1i" type="int" value="$$s1i"/>
+<!-- 		<definition name="fmetaStr" type="boolean" value="$$S1toS2Final-String1"/> -->
+<!-- 		<definition name="fmetaS1i" type="string" value="$$s1i"/> -->
+<!-- 		<definition name="fmetaS1ifalse" type="int" value="$$s1ifalsee"/> -->
+		<definition name="metaBool" type="boolean" value="$$S1toS2Final-Bool"/>
+<!-- 		<definition name="metaBool2" type="bool" value="$$S1toS2Final-Bool"/> -->
+		<definition name="metaEnumLoc" type="living, kitchen, bedroom" value="$aaaa+$location+bbbb" />
+<!-- 		<definition name="metaEnumLoc2" type="living, kitchen, bedroom" value="$aaaa$location+bbbb" /> -->
+		<definition name="metaEnumLoc3" type="living, kitchen, bedroom" value="$aaaa+.$location+bbbb" />
+		<definition name="metaEnumSet" type="{f1, f2, f3, f4}" />
+
+		<property name="dmetaStr" type="string" value="$$S1toS2Final-String1"/>
+		<property name="dmetaS1i" type="int" value="$$s1i"/>
+		<property name="dmetaBool" type="{boolean}" value="$$S1toS2Final-Bool"/>
+		<property name="dmetaEnumLoc" type="living, kitchen, bedroom" value="$$location" />
+		<property name="dmetaEnumSet" type="{f1, f2, f3, f4}" value="$$enumeration"/>
+
+<!-- 		<property name="fd2metaStr" type="string" value="$prefixx+$c+sufixx"/> -->
+<!-- 		<property name="fd2metaS1i" type="{int}" value="$S2Impl$intSet"/> -->
+		<property name="d2metaBool" type="boolean" value="$prefixx+S2Impl$b"/>
+<!-- 		<property name="fd2metaBool" type="boolean" value="$prefixx+S2Impl$bmissing"/> -->
+		<property name="d2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$S2Impl.S4_2$locationSingle" />
+		<property name="d5metaEnumLoc" type="{exit, entrance, garage, bedroom}" value="$S2Impl.S4_2$locationSingle" />
+<!-- 		<property name="fd2metaEnumLoc" type="exit, x, garage, bedroom" value="$S2Impl.S4_2$locationSingle" /> -->
+<!-- 		<property name="fd2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$S2Impl.S4_2$location" /> -->
+<!-- 		<property name="fd2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$S2Impl.S4_2$locationf" /> -->
+<!-- 		<property name="fd3metaEnumLoc" type="exit, b, garage, bedroom" value="$prefixx+S2Impl.S4_2$location+sufixx" /> -->
+		<property name="d4metaEnumLoc" type="{exit, entrance, garage, bedroom}" value="$S2Impl.S4_2$location" />
+
+		<property name="d6metaEnumLoc" type="{string}" value="$.s2$setstring" />
+		<property name="d6metaEnumLoc6" type="{string}" value="$xxx+.s2$setstring+YYY" />
+		<property name="d6metaEnumLoc2" type="{string}" value="$aaaa+this.s2$setstring+bbbb" />
+		<property name="d6metaEnumLoc4" type="{string}" value="$this.s2$setstring" />
+<!-- 		<property name="d2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$.s2.s4_2$locationSingle" /> -->
+<!-- 		<property name="d5metaEnumLoc" type="{exit, entrance, garage, bedroom}" value="$S2Impl.S4_2$locationSingle" /> -->
+
+	<definition name="funcTest" type="string" value="@fonctionTest" />
+	<definition name="funcTestSet" type="{string}" value="@fonctionTestSet" />
+	<definition name="falseSub" type="string" value="\$noSubTest" />
+	<definition name="falseFunc" type="string" value="\@fonctionTest" />
+
 	</implementation>
 
 <implementation name="MotorolaZ43" specification="CapteurTemp" 

@@ -30,6 +30,7 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
@@ -92,34 +93,34 @@ public final class Util {
 		return toStringResources(new HashSet<String>(Arrays.asList(names)));
 	}
 
-//	public static Set<ApamFilter> toFilter(Set<String> filterString) {
-//		Set<ApamFilter> filters = new HashSet<ApamFilter>();
-//		if (filterString == null)
-//			return filters;
-//
-//		for (String f : filterString) {
-//			ApamFilter filter = ApamFilter.newInstance(f) ;
-//			if (filter != null) {
-//				filters.add(filter);
-//			}
-//		}
-//		return filters;
-//	}
-//
-//	public static List<ApamFilter> toFilterList(List<String> filterString) {
-//		List<ApamFilter> filters = new ArrayList<ApamFilter>();
-//		if (filterString == null) {
-//			return filters;
-//		}
-//
-//		for (String f : filterString) {
-//			ApamFilter filter = ApamFilter.newInstance(f) ;
-//			if (filter != null) {
-//				filters.add(filter);
-//			}
-//		}
-//		return filters;
-//	}
+	//	public static Set<ApamFilter> toFilter(Set<String> filterString) {
+	//		Set<ApamFilter> filters = new HashSet<ApamFilter>();
+	//		if (filterString == null)
+	//			return filters;
+	//
+	//		for (String f : filterString) {
+	//			ApamFilter filter = ApamFilter.newInstance(f) ;
+	//			if (filter != null) {
+	//				filters.add(filter);
+	//			}
+	//		}
+	//		return filters;
+	//	}
+	//
+	//	public static List<ApamFilter> toFilterList(List<String> filterString) {
+	//		List<ApamFilter> filters = new ArrayList<ApamFilter>();
+	//		if (filterString == null) {
+	//			return filters;
+	//		}
+	//
+	//		for (String f : filterString) {
+	//			ApamFilter filter = ApamFilter.newInstance(f) ;
+	//			if (filter != null) {
+	//				filters.add(filter);
+	//			}
+	//		}
+	//		return filters;
+	//	}
 
 	/**
 	 * Warning: returns an unmodifiable List !
@@ -221,9 +222,9 @@ public final class Util {
 			return false;
 		}
 		//ApamFilter f = ApamFilter.newInstance(expre);
-//		if (f == null) {
-//			return false;
-//		}
+		//		if (f == null) {
+		//			return false;
+		//		}
 		return comp.match(expre);
 	}
 
@@ -495,41 +496,83 @@ public final class Util {
 	}
 
 
+	public static AttrType splitType (String type) {
+		return new AttrType (type ) ;
+	}
+
+	public static boolean checkSubType (AttrType sourceType, AttrType targetType, String attr, String targetAttr) {
+		if (sourceType==null || targetType==null) 
+			return false ;
+
+		if (sourceType.type!=targetType.type) {
+			logger.error("Attribute " + attr +  " of type " + sourceType.typeString + " : invalid substitution with attribute " 
+					+  targetAttr + " of type : " + targetType.typeString ) ;
+			return false ;
+		}
+
+		if (sourceType.type==AttrType.ENUM && !sourceType.enumValues.equals(targetType.enumValues)) {
+			logger.error("Attribute " + attr +  " of type " + sourceType.typeString + " : Not the same enumeration set as attribute " 
+					+  targetAttr + " of type : " + targetType.typeString ) ;
+			return false ;
+		}
+
+		return (sourceType.isSet || !targetType.isSet) ;
+	}
+
+
 	/**
 	 * Check if the attribute value is valid; if so return the value to put into the object property Map.
 	 * 			In the Map, values are String, Integer or Set<String> for all sets.
 	 * Type can be a singleton "int", "boolean" or "string" or enumeration "v1, v2, v3 ..."
 	 * 				or a set of these : "{int}", or "{string}" or enumeration "{v1, v2, v3 ...}"
-
+	 *
 	 * Parameter "value" can be String, Integer, Boolean, Set<Integer> or Set<String>.
 	 * 		If the value is String, it is checked and transformed into the Map type.
 	 * 		If it is an Object, it is checked and transformed into the Set.
 	 * 
+	 * Type ca be a substitution, in which case type is prefixed bt "$" : $int, $boolean, .. ${int} ...
+	 * 		Value for a substitution must be a string with at least a "$"
+	 *
 	 * If the attribute in not declared or the value invalid,return null.
 	 * If valid, return the Map value (String or int).
 	 */
 	@SuppressWarnings("unchecked")
-	public static Object  checkAttrType (String attribute, Object value, String type) {
-		if ((type == null) || (value == null) || type.isEmpty() ||  attribute==null || attribute.isEmpty()) {
-			logger.error("Invalid property " + attribute + " = " + value + " type=" + type) ;
+	public static Object  checkAttrType (String attribute, Object value, String typeString) {
+		if ((typeString == null) || (value == null) || typeString.isEmpty() ||  attribute==null || attribute.isEmpty()) {
+			logger.error("Invalid property " + attribute + " = " + value + " type=" + typeString) ;
 			return null;
 		}
 
-		boolean isSet = false ;
-		if (type.charAt(0)=='{' ) {
-			isSet = true ;
-			type = type.substring(1, type.length()-1) ;	
-			type = type.trim() ;
-		}
+		AttrType aType = splitType (typeString) ;
+		if (aType == null) //invalid type
+			return null ;
 
-		if (value instanceof String) 
-			return checkAttrTypeString (attribute, (String)value, type, isSet) ;
+		if (value instanceof String) {
+			// Check if a substitution
+			if (((String)value).charAt(0)=='$') {
+				//it is a substitution : value must be a string with at least a "$"
+				if ((((String)value).indexOf('$') != -1)) {
+					return value ;
+				}
+				else {
+					logger.error("Invalid value \"" + value + "\" for substituted attribute " + attribute) ;
+					return null ;
+				}
+			}
+			//It is a function substitution. Return as is.
+			if (((String)value).charAt(0)=='@') {
+				return value ;
+			}
+
+			//It is not a substitution, with a string as value
+			return checkAttrTypeString (attribute, (String)value, aType) ;
+		}
 
 		/*
 		 * integers. They are stored as Integer if singleton, as Set<String> for sets<String> or Set<Integer>
 		 */
-		if (type.equals ("int")) {
-			if (isSet) {
+		if (aType.type == AttrType.INTEGER) { //aType.singletonType.equals ("integer")) {
+			if (aType.isSet) {
 				//Value MUST be a Set of Integer
 				if ( !(value instanceof  Set<?>)) {
 					logger.error("Attribute value " + value + " not an a Set<Integer> for attribute " + attribute) ;
@@ -541,11 +584,7 @@ public final class Util {
 						if (i instanceof Integer) {
 							valSetInt.add(Integer.toString((Integer)i)) ;
 						}
-//<<<<<<< HEAD
-//						else {
-//=======
 						else {
-//>>>>>>> 0c767dab4e9270b541889d0e527ddf67965f0748
 							if (i instanceof String) {
 								//to be sure it is an integer
 								Integer.valueOf((String)i) ;
@@ -569,8 +608,8 @@ public final class Util {
 		/*
 		 * Booleans
 		 */
-		if (type.equals("boolean")) {
-			if (isSet) {
+		if (aType.type == AttrType.BOOLEAN) {
+			if (aType.isSet) {
 				logger.error("Set of booleans are not alowed" ) ;
 				return null ;
 			}
@@ -585,7 +624,7 @@ public final class Util {
 		/*
 		 * array of String or array of enumerated. Array of string in all cases
 		 */
-		if (!isSet) {
+		if (!aType.isSet) {
 			logger.error("Invalid value: not a single String " + value + " for attribute " + attribute) ;			
 			return null ;
 		}
@@ -604,7 +643,7 @@ public final class Util {
 		/*
 		 * String array
 		 */
-		if (type.equals("string")) {
+		if (aType.type == AttrType.STRING) {
 			return Collections.unmodifiableSet((Set<String>)value) ;
 		}
 
@@ -613,11 +652,11 @@ public final class Util {
 		 * Compute all values in type.
 		 * Check if all values are in type.
 		 */
-		Set<String> enumType = Util.splitSet(type) ;
-		if (enumType.containsAll((Set<String>)value)) {
+		//	Set<String> enumType = Util.splitSet(type) ;
+		if (aType.enumValues.containsAll((Set<String>)value)) {
 			return Collections.unmodifiableSet((Set<String>)value) ;
 		} else {
-			logger.error("Invalid value " + value + " for attribut " + attribute + ". Expected subset of " + type) ;
+			logger.error("Invalid value " + value + " for attribut " + attribute + ". Expected subset of " + aType.typeString) ;
 			return false ;
 		}
 	}
@@ -633,65 +672,50 @@ public final class Util {
 	 * @param type : a singleton "int", "boolean" or "string" or enumeration "v1, v2, v3 ..."
 	 * 				or a set of these : "{int}", "{boolean}" or "{string}" or enumeration "{v1, v2, v3 ...}"
 	 */
-	private static Object checkAttrTypeString (String attr, String value, String types, boolean isSet) {
-
-		Set<String> enumVals = Util.splitSet(types);
-		if (enumVals == null || enumVals.size()==0) {
-			logger.error("invalid type \"" + types  + "\" for attribute \"" + attr);
-			return null ;
-		}
-		String type = enumVals.iterator().next() ;
+	private static Object checkAttrTypeString (String attr, String value, AttrType at) {
 
 		Set<String> values   = Collections.unmodifiableSet(Util.splitSet(value));		
-		if (values.size() > 1 && !isSet) {
+		if (values.size() > 1 && !at.isSet) {
 			logger.error("Values are a set \"" + values  + "\" for attribute \"" + attr
-					+ "\". while type is singleton: \"" + types + "\"");
+					+ "\". while type is singleton: \"" + at.typeString + "\"");
 			return null ;
 		}
 
 
-		/*
-		 * Type is an enumeration with at least 2 values {a, b, c, ....}
-		 */
-		if (enumVals.size() > 1) {
-			if (enumVals.containsAll(values)) {
-				return values;
+		switch (at.type) {
+		case AttrType.ENUM :  
+			if (at.isSet) {
+				if (at.enumValues.containsAll(values)) {
+					return values;
+				}
+				logger.error( "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
+						+ "\".  Expected subset of: " + Util.stringSet2String(at.enumValues));
+				return null;
 			}
-			logger.error( "Invalid attribute value(s) \"" + value + "\" for attribute \"" + attr
-					+ "\".  Expected subset of: " + types);
+			if (at.enumValues.contains(value)) {
+				return value ;
+			}
+			logger.error( "Invalid attribute value \"" + value + "\" for attribute \"" + attr
+					+ "\".  Expected a member of: " + Util.stringSet2String(at.enumValues));
 			return null;
-		}
 
-		/*
-		 * Type is a singleton : it must be only "string", "int", "boolean" 
-		 * 		but value can still be a set
-		 */
-		if (type.equals("boolean")) {
-			
+		case AttrType.BOOLEAN : 
+			//		if (type.equals("boolean")) {			
 			try {
-				if (!isSet) {
+				if (!at.isSet) {
 					return Boolean.valueOf(value);
 				}
-				//unfortunately, match does not recognizes a set of booleans.
-				//return the list as a string  ;
-				Set <String> normalizedValues = new HashSet<String> () ;
-				for (String val : values) {
-					normalizedValues.add(Boolean.toString(Boolean.parseBoolean(val))) ;
-				}
-				return normalizedValues ;
+				logger.error("Boolean set are not allowed. Attribute \"" + attr);
+				return null;
 			} catch (Exception e) {
 				logger.error("Invalid attribute value \"" + value + "\" for attribute \"" + attr
 						+ "\".  Boolean value(s) expected");
 				return null;
 			}
-		}
-
-		/*
-		 * int or {int}
-		 */
-		if (type.equals("int")) {
+		case AttrType.INTEGER : 
+			//		if (type.equals("integer")) {
 			try {
-				if (!isSet) {
+				if (!at.isSet) {
 					return Integer.valueOf(value);
 				}
 				//unfortunately, match does not recognizes a set of integer.
@@ -706,18 +730,12 @@ public final class Util {
 						+ "\".  Integer value(s) expected");
 				return null;
 			}
-		}
-
-		/*
-		 * String or {String}
-		 */
-		if (type.equals("string")) {
+		case AttrType.STRING : 
+			//		if (type.equals("string")) {
 			//All values are Ok for string.
-			return isSet? values : value ; 
+			return at.isSet? values : value ; 
 		}
 
-		logger.error("Invalid attribute type \"" + type + "\" for attribute \"" + attr
-				+ "\".  int, integer, boolean or string expected");
 		return null ;
 	}
 
@@ -752,7 +770,7 @@ public final class Util {
 			return false ;
 		}
 	}
-	
+
 	public static boolean checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr,
 			String comp) {
 		boolean ok = true;

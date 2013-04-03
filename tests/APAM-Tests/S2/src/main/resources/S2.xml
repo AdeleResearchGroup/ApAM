@@ -25,6 +25,7 @@
 		<property name="scope" value="global" type="string"/>
 		<property name="test-spec" value="coucou" type="string" />
 		<definition name="b" type="boolean" value="true" />
+		<definition name="setstring" type="{string}" value="st1, st2, st3" />
 		<definition name="c" type="string" />
 		<definition name="Dd" type="int" />
 <!-- 		<dependency interface="example.S4" id="xxx" /> -->

@@ -44,6 +44,7 @@ import org.apache.felix.ipojo.annotations.ServiceProperty;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -53,6 +54,7 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.Apform2Apam.Request;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.impl.CompositeImpl;
+import fr.imag.adele.apam.util.Substitute;
 
 
 @Instantiate
@@ -596,7 +598,7 @@ public class ApamCommand {
         for (Implementation impl : specification.getImpls()) {
             out.println(indent + "      " + impl);
         }
-        printProperties(out,indent, specification.getAllProperties());
+        printProperties(out,indent, (ComponentImpl)specification);
         out.println(specification.getApformSpec().getDeclaration().printDeclaration(indent));
 
     }
@@ -634,7 +636,7 @@ public class ApamCommand {
             out.println(indent + "implementation : " + instance.getImpl());
             out.println(indent + "in composite   : " + instance.getComposite());
             out.println(indent + "in application : " + instance.getAppliComposite());
-            printProperties(out,indent, instance.getAllProperties());
+            printProperties(out,indent, (ComponentImpl)instance);
         }
         out.println(instance.getApformInst().getDeclaration().printDeclaration(indent));
     }
@@ -676,7 +678,7 @@ public class ApamCommand {
         for (Instance inst : impl.getInsts()) {
             out.println(indent + "      " + inst);
         }
-        printProperties(out,indent , impl.getAllProperties());
+        printProperties(out,indent , (ComponentImpl)impl);
 
         out.println(impl.getApformImpl().getDeclaration().printDeclaration(indent));
     }
@@ -691,10 +693,16 @@ public class ApamCommand {
      * @param properties
      *            the properties
      */
-    private void printProperties(PrintWriter out, String indent, Map<String, Object> properties) {
+    private void printProperties(PrintWriter out, String indent, ComponentImpl comp) {
+    	Map<String, Object> properties = comp.getAllProperties();
         out.println(indent + "Properties : ");
         for (String key : properties.keySet()) {
-            out.println(indent + "   " + key + " = " + properties.get(key));
+            out.print(indent + "   " + key + " = " + comp.getProperty(key));
+        	Object value = properties.get(key) ;
+        	if ((value instanceof String) && (((String)value).charAt(0)=='$' || ((String)value).charAt(0)=='@' || ((String)value).charAt(0)=='\\')) {
+                out.print( " (" + value + ")" ) ;
+        	}
+            out.println();
         }
     }
 

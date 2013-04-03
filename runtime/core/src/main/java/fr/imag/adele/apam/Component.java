@@ -119,6 +119,15 @@ public interface Component {
 
 
 	/**
+	 * Return the type of the attribute, as it is in xml : "${string}" for substitution, set String.
+	 * Note use Util.splitType to get the details :  isSet, isSub, type, singletonType and NoSub
+	 * @param attr
+	 * @return
+	 */
+	public AttrType getAttrType (String attr) ;
+	
+	
+	/**
 	 * Change the value of the specified properties of the component
 	 */
 	public boolean setAllProperties(Map<String, String> properties);

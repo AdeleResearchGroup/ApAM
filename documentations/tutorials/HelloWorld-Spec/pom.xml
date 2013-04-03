@@ -8,7 +8,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-	<groupId>fr.imag.adele.apam.tutorials</groupId>
+	<groupId>fr.imag.adele.apam.tutorials.hello</groupId>
 	<artifactId>HelloWorld-Specification</artifactId>
 
 	<packaging>bundle</packaging>
@@ -34,12 +34,11 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-
 			</plugin>
+
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
-				<version>${project.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -47,8 +46,32 @@
 						</goals>
 					</execution>
 				</executions>
+<!-- 				<configuration> -->
+<!-- 					<metadata>src/main/resources/S1Impl.xml</metadata> -->
+<!-- 				</configuration> -->
 			</plugin>
 		</plugins>
+		
+		
+		
+<!-- 			<plugin> -->
+<!-- 				<groupId>org.apache.felix</groupId> -->
+<!-- 				<artifactId>maven-bundle-plugin</artifactId> -->
+
+<!-- 			</plugin> -->
+<!-- 			<plugin> -->
+<!-- 				<groupId>fr.imag.adele.apam</groupId> -->
+<!-- 				<artifactId>apam-maven-plugin</artifactId> -->
+<!-- 				<version>${project.version}</version> -->
+<!-- 				<executions> -->
+<!-- 					<execution> -->
+<!-- 						<goals> -->
+<!-- 							<goal>apam-bundle</goal> -->
+<!-- 						</goals> -->
+<!-- 					</execution> -->
+<!-- 				</executions> -->
+<!-- 			</plugin> -->
+<!-- 		</plugins> -->
 	</build>
 
 </project>

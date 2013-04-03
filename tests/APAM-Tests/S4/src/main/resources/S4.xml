@@ -21,6 +21,7 @@
 		<property name="test-spec" value="coucou" type="string" />
 		<definition name="b" type="boolean" value="true" />
 		<definition name="c" type="string" />
+		<definition name="locationSingle" type="exit, entrance, garage, bedroom" />
 		<definition name="location" type="{exit, entrance, garage, bedroom}" />
 		<dependency specification="S5" />
 	</specification>

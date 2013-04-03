@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
@@ -39,6 +40,7 @@ import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.UtilComp;
 
@@ -75,15 +77,23 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 
 	}
+	
+	@Override
+	public AttrType getAttrType (String attr) {
+		PropertyDefinition attrDef = getAttrDefinition(attr) ;
+		if (attrDef == null) {
+			return null ;
+		}
+		return  Util.splitType(attrDef.getType()) ;
+	}
 
+	
 	public ComponentImpl(ApformComponent apform) throws InvalidConfiguration {
-
 		if (apform == null)
 			throw new InvalidConfiguration("Null apform instance while creating component");
 
 		this.apform 		= apform;
 		this.declaration	= apform.getDeclaration();
-
 	}
 
 
@@ -288,7 +298,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public String getProperty(String attr) {
-		return Util.toStringAttrValue (get(attr)) ;
+		return Util.toStringAttrValue (getPropertyObject(attr)) ;
 	}
 
 
@@ -302,17 +312,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * Returns null if attribute is not defined or not set.
 	 */
 	@Override
-	public Object getPropertyObject(String attribute) {
-		PropertyDefinition def = getAttrDefinition(attribute) ; 
-		if (def == null) {
-			logger.error("No definition for attribute " + attribute) ; 
-			return null ;
-		}
-
-		String type = def.getType() ; 
-		if (type == null) return null ;
-		
-		return get(attribute) ;
+	public Object getPropertyObject(String attribute) {		
+		return Substitute.substitute(attribute, get(attribute), this) ;
 	}
 
 	
@@ -504,7 +505,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param attr
 	 * @return
 	 */
-	private PropertyDefinition getAttrDefinition (String attr) {
+	public PropertyDefinition getAttrDefinition (String attr) {
 
 		//Check if it is a local definition: <property name="..." type="..." value=".." />
 		PropertyDefinition definition = getDeclaration().getPropertyDefinition(attr);
@@ -544,7 +545,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param value
 	 * @return
 	 */
-	private PropertyDefinition validDef (String attr, boolean forced) {
+	public PropertyDefinition validDef (String attr, boolean forced) {
 		if (Util.isFinalAttribute(attr)) {
 			logger.error("Cannot redefine final attribute \"" + attr + "\"");
 			return null;

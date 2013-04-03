@@ -334,19 +334,19 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         return dests;
     }
 
-    @Override
-    public Set<Wire> getWires(Specification spec) {
-        if (spec == null) {
-            return null;
-        }
-        Set<Wire> w = new HashSet<Wire>();
-        for (Wire wire : wires) {
-            if (wire.getDestination().getSpec() == spec) {
-                w.add(wire);
-            }
-        }
-        return w;
-    }
+//    @Override
+//    public Set<Wire> getWires(Specification spec) {
+//        if (spec == null) {
+//            return null;
+//        }
+//        Set<Wire> w = new HashSet<Wire>();
+//        for (Wire wire : wires) {
+//            if (wire.getDestination().getSpec() == spec) {
+//                w.add(wire);
+//            }
+//        }
+//        return w;
+//    }
 
     @Override
     public boolean createWire(Instance to, String depName, boolean hasConstraints, boolean promotion) {
@@ -368,7 +368,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
         // creation
         Wire wire ;
         if (getApformInst().setWire(to, depName)) {
-            wire = new WireImpl(this, to, depName, hasConstraints);
+            wire = new WireImpl(this, to, depName, hasConstraints, true);
             wires.add(wire);
             ((InstanceImpl) to).invWires.add(wire);
         } else {

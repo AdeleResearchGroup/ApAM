@@ -23,10 +23,10 @@
 	<name>Apam Tutorials</name>
 
 
-	<modules>
-        <module>HelloWorld-Spec</module>
-        <module>HelloWorld</module>
-        <module>HelloGui</module>
-        <module>NewHelloWorld</module>
-	</modules>
+<!-- 	<modules> -->
+<!--         <module>HelloWorld-Spec</module> -->
+<!--         <module>HelloWorld</module> -->
+<!--         <module>HelloGui</module> -->
+<!--         <module>NewHelloWorld</module> -->
+<!-- 	</modules> -->
 </project>

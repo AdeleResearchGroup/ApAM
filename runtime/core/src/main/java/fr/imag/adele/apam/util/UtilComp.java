@@ -248,7 +248,7 @@ public class UtilComp {
 	/**
 	 * Provided an instance, computes all the dependency declaration that applies to that instance.
 	 * If can be defined on the instance, the implementation, the specification, or on both.
-	 * For each dependency, we clone it, and we aggregate the constraints as found at all level,
+	 * For each dependency, we clone it, and we aggregate the constraints found at all level,
 	 * including the generic ones found in the composite type.
 	 * The dependencies returned are clones of the original ones.
 	 *
@@ -257,7 +257,10 @@ public class UtilComp {
 		if (client == null) return null ;
 		Set<DependencyDeclaration> allDeps = new HashSet <DependencyDeclaration> ();
 		for (DependencyDeclaration dep : computeAllDependencies (client)) {
-			allDeps.add(computeEffectiveDependency(client, dep.getIdentifier())) ;
+			DependencyDeclaration effDep = computeEffectiveDependency(client, dep.getIdentifier()) ;
+			if (effDep != null) { //Can be null if it is an invalid dependency (not declared for example)
+				allDeps.add(effDep) ;
+			}
 		}
 		return allDeps ;
 	}

@@ -19,13 +19,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
-//import fr.imag.adele.apam.Component;
-//import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
@@ -48,19 +46,17 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
-//import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Substitute;
+import fr.imag.adele.apam.util.Substitute.SplitSub;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.UtilComp;
-//import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
 
 public class CheckObr {
 
 	private static Logger logger = LoggerFactory.getLogger(CheckObr.class);
 
 	private static final Set<String> allFields = new HashSet<String>();
-//	private static final Set<String> allOwns = new HashSet<String>();
 	private static final Set<String> allGrants = new HashSet<String>();
-
 	private static boolean failedChecking = false;
 
 	/**
@@ -146,13 +142,15 @@ public class CheckObr {
 			String defAttr = getDefAttr(entCap, attr, properties.get(attr));
 			if (defAttr == null)
 				continue;
-			Object val = Util
-					.checkAttrType(attr, properties.get(attr), defAttr);
+			Object val = Util.checkAttrType(attr, properties.get(attr), defAttr);
 			if (val == null) {
 				setFailedParsing(true);
 				continue;
 			}
+			//checkSubstitute (ComponentDeclaration component, String attr, String type, String defaultValue) 
+			//			if (checkSubstitute(component, attr, defAttr, properties.get(attr))) {
 			ret.put(attr, val);
+			//			}
 		}
 
 		// add the attribute coming from "above" if not already instantiated and
@@ -187,11 +185,6 @@ public class CheckObr {
 		 * Add the component characteristics as final attributes, only if
 		 * explicitly defined. Needed to compile members.
 		 */
-		// ret.put(CST.INSTANTIABLE,
-		// Boolean.toString(component.isInstantiable())) ;
-		// ret.put(CST.SINGLETON, Boolean.toString(component.isSingleton())) ;
-		// ret.put(CST.SHARED, Boolean.toString(component.isShared())) ;
-
 		if (component.isDefinedInstantiable()) {
 			ret.put(CST.INSTANTIABLE,
 					Boolean.toString(component.isInstantiable()));
@@ -218,7 +211,7 @@ public class CheckObr {
 		//We have a default value, check it as if a property.
 		if (type != null && defaultValue != null && !defaultValue.isEmpty()) {
 			if (Util.checkAttrType(name, defaultValue, type) != null) {
-				return true ;
+				return checkSubstitute (component, name, type, defaultValue) ;
 			} else {
 				CheckObr.setFailedParsing(true) ;
 				return false ;
@@ -233,11 +226,94 @@ public class CheckObr {
 
 		return true ;
 	}
+
+	private static boolean checkFunctionSubst (ComponentDeclaration component, String attr, String type, String defaultValue) {
+		
+		String func = defaultValue.substring(1) ;
+		/*
+		 * Add a function that checks if the public method "public <type> func (Instance inst)" is realy defined in the 
+		 * class, and if its returned type is compatible with the "type"
+		 */
+		//TODO to test, I supposed it is Ok !
+		// TODO if (       .contains(func) ....
+		return true ;
+	}
+
+	private static boolean checkSubstitute (ComponentDeclaration component, String attr, String type, String defaultValue) {
+		//If it is a function substitution
+		if (defaultValue.charAt(0) == '@')
+			return checkFunctionSubst(component, attr, type, defaultValue) ;
+		
+		//If it is not a substitution, do nothing
+		if (defaultValue.charAt(0) != '$')
+			return true ;
+		
+		/*
+		 * String substitution
+		 */
+		SplitSub sub = Substitute.split(defaultValue);
+		if (sub == null) {
+			error("Invalid substitute value " + defaultValue + " for attribute " + attr) ;
+			return false ;
+		}
+		
+		AttrType st = new AttrType (type) ;
+
+		ApamCapability source = ApamCapability.get(component.getName()) ;
+		if (!sub.sourceName.equals("this")) {
+			//Look for the source component
+			source = ApamCapability.get(sub.sourceName) ;
+			if (source == null) {
+				error("Component " + sub.sourceName + " not found in substitution : " + defaultValue + " of attribute " + attr) ;
+				return false ;
+			}
+		}  
+
+
+		/*
+		 * if we have a dependency, get the dependency target
+		 */
+		if (sub.depId != null) {			
+			DependencyDeclaration depDcl = source.dcl.getDependency(sub.depId) ;
+			if (depDcl == null) {
+				error("Dependency " + sub.depId + " undefined for component " + source.getName()) ;
+				return false ;
+			}
+
+			ComponentReference<?> targetComponent = depDcl.getTarget().as(ComponentReference.class) ;
+			if (targetComponent == null) { //it is an interface or message target. Cannot check.
+				warning(depDcl.getTarget().getName() + " is an interface or message. Substitution \"" + defaultValue + "\" cannot be checked for attribute " + attr ) ;
+				return true ;
+			}
+
+			source = ApamCapability.get(targetComponent.getName()) ;
+			if (source == null) {
+				error("Component " + targetComponent.getName() + " not found in substitution : " + defaultValue + " of attribute " + attr) ;
+				return false ;
+			}
+		}
+		
+
+		/*
+		 * check if the attribute is defined and if types are compatibles.			
+		 * 
+		 */
+		String pd =  source.getAttrDefinition(sub.attr)  ;
+		if (pd == null) {
+			error("Substitute attribute " + attr + "=" +defaultValue + ".  Undefined attribute " + sub.attr + " for component " + source.getName()) ;
+			return false ;
+		}
+		if (Util.checkSubType (st, new AttrType (pd), attr, sub.attr))
+			return true ;
+		setFailedParsing(true)  ;
+		return false ;
+
+	}
 	/**
 	 * Checks if the attribute / values pair is valid for the component ent. If
 	 * a final attribute, it is ignored but returns false. (cannot be set).
 	 * 
-	 * For "int" returns an Integer object, otherwise it is the string "value"
+	 * For "integer" returns an Integer object, otherwise it is the string "value"
 	 * 
 	 * @param entName
 	 * @param attr
@@ -494,14 +570,14 @@ public class CheckObr {
 	}
 
 
-/**
- * Provided a dependency declaration, compute the effective dependency, adding group constraint and flags.
- * Compute which is the good target, and check the targets are compatible. 
- * If needed changes the target to set the more general one.
- * @param depComponent
- * @param dependency
- * @return
- */
+	/**
+	 * Provided a dependency declaration, compute the effective dependency, adding group constraint and flags.
+	 * Compute which is the good target, and check the targets are compatible. 
+	 * If needed changes the target to set the more general one.
+	 * @param depComponent
+	 * @param dependency
+	 * @return
+	 */
 	public static DependencyDeclaration computeGroupDependency (ComponentDeclaration depComponent, DependencyDeclaration dependency) {
 		String depName = dependency.getIdentifier() ;
 
@@ -560,7 +636,7 @@ public class CheckObr {
 			return null ;
 		}
 		//Should be the same or "above". The group target is supposed to be above the current dependency target.
-			
+
 		ComponentDeclaration targetCompo = ApamCapability.getDcl(((ComponentReference<?>)dependency.getTarget())) ;
 		while (targetCompo != null) {
 			if (targetCompo.getReference().equals(groupDep.getTarget())) {
@@ -588,7 +664,7 @@ public class CheckObr {
 	private static void checkFieldTypeDep(DependencyDeclaration dep) {
 		// All field must have same multiplicity, and must refer to interfaces
 		// and messages provided by the specification.
-		
+
 		// In the case of implementation dependencies, we allow the field to be
 		// of the main class of the implementation
 
@@ -596,9 +672,9 @@ public class CheckObr {
 
 		// possible if only the dep ID is provided. Target will be computed later
 		if (dep.getTarget() == null) return ;
-		
+
 		ComponentReference<?> targetComponent =  dep.getTarget().as(ComponentReference.class);
-		
+
 		// If not explicit component target, it must be an interface reference
 		if (targetComponent == null) {
 			allowedTypes.add(dep.getTarget().as(ResourceReference.class));
@@ -611,9 +687,9 @@ public class CheckObr {
 						+ " : the target of the reference doesn' exists "
 						+ targetComponent);
 			}
-			
+
 			allowedTypes.addAll(cap.getProvideResources());
-			
+
 			// check target's implementation class
 			String implementationClass = cap.getImplementationClass();
 			if (implementationClass != null)
@@ -621,11 +697,11 @@ public class CheckObr {
 		}
 
 		for (DependencyInjection innerDep : dep.getInjections()) {
-			
+
 			if (!innerDep.isValidInstrumentation())
 				CheckObr.error(dep.getComponent().getName() + " : invalid type for field " + innerDep.getName());
 
-			
+
 			String type = innerDep.getResource().getJavaType();
 			if (!(innerDep.getResource() instanceof UndefinedReference)
 					&& !(allowedTypes.contains(innerDep.getResource()))) {
@@ -652,14 +728,14 @@ public class CheckObr {
 		protected ImplementatioClassReference(String type) {
 			super(type);
 		}
-		
+
 		@Override
-	    public String toString() {
-	        return "class " + getIdentifier();
-	    }
-		
+		public String toString() {
+			return "class " + getIdentifier();
+		}
+
 	}
-	
+
 	/**
 	 * Provided an atomic dependency, returns if it is multiple or not. Checks
 	 * if the same field is declared twice.
@@ -757,7 +833,7 @@ public class CheckObr {
 							+ start.getProperties().get(attr));
 				}
 			}
-			
+
 			checkDependencies(start);
 
 			checkTrigger(start);
@@ -1053,35 +1129,35 @@ public class CheckObr {
 	 */
 	private static void checkContextualDependencies(
 			CompositeDeclaration component) {
-			for (DependencyDeclaration pol : component.getContextualDependencies()) {
-				
-				for (String constraint : pol.getImplementationConstraints()) {
-					Util.checkFilter(constraint);
-				}
-				for (String constraint : pol.getImplementationPreferences()) {
-					Util.checkFilter(constraint);
-				}
-				for (String constraint : pol.getInstanceConstraints()) {
-					Util.checkFilter(constraint);
-				}
-				for (String constraint : pol.getInstancePreferences()) {
-					Util.checkFilter(constraint);
-				}
+		for (DependencyDeclaration pol : component.getContextualDependencies()) {
 
-				// Checking if the exception is existing
-				String except = pol.getMissingException();
-				// for (String cp :
-				// (Set<ClasspathDescriptor>)OBRGeneratorMojo.classpathDescriptor.getClasss())
-				// {
-				// System.out.println(cp);
-				// }
-				if (except != null
-						&& OBRGeneratorMojo.classpathDescriptor
-						.getElementsHavingClass(except) == null) {
-					error("Exception " + except + " undefined in " + pol);
-				}
-
+			for (String constraint : pol.getImplementationConstraints()) {
+				Util.checkFilter(constraint);
 			}
+			for (String constraint : pol.getImplementationPreferences()) {
+				Util.checkFilter(constraint);
+			}
+			for (String constraint : pol.getInstanceConstraints()) {
+				Util.checkFilter(constraint);
+			}
+			for (String constraint : pol.getInstancePreferences()) {
+				Util.checkFilter(constraint);
+			}
+
+			// Checking if the exception is existing
+			String except = pol.getMissingException();
+			// for (String cp :
+			// (Set<ClasspathDescriptor>)OBRGeneratorMojo.classpathDescriptor.getClasss())
+			// {
+			// System.out.println(cp);
+			// }
+			if (except != null
+					&& OBRGeneratorMojo.classpathDescriptor
+					.getElementsHavingClass(except) == null) {
+				error("Exception " + except + " undefined in " + pol);
+			}
+
+		}
 	}
 
 	/**
@@ -1184,8 +1260,8 @@ public class CheckObr {
 			// and the client requires a resource provided by that
 			// implementation
 			if (compoDep.getTarget() instanceof ImplementationReference) {
-//				String implName = ((ImplementationReference<?>) compoDep
-//						.getTarget()).getName();
+				//				String implName = ((ImplementationReference<?>) compoDep
+				//						.getTarget()).getName();
 				ImplementationDeclaration impl = (ImplementationDeclaration) ApamCapability
 						.getDcl(((ImplementationReference<?>) compoDep.getTarget()));
 				if (impl != null) {

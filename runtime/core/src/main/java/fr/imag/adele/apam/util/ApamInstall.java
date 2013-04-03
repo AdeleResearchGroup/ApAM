@@ -53,7 +53,7 @@ public class ApamInstall {
 		Specification spec  = (Specification)installFromURL (url, compoName) ;
 		if (spec == null) return null ;
 		if (! (spec instanceof Specification)) {
-			logger.error("component " + compoName + " is found but is not an Specification.") ;
+			logger.error("component " + compoName + " is found but is not a Specification.") ;
 		}     
 		return spec;
 

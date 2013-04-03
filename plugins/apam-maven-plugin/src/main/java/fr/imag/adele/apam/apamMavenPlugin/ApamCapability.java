@@ -69,6 +69,17 @@ public class ApamCapability {
 		}
 	}
 
+	public static ApamCapability get(String name) {
+		if (name == null) return null ;
+		ApamCapability cap = capabilities.get(name) ;
+		if (cap == null && !missing.contains(name)) {
+			missing.add(name) ;
+			CheckObr.error("Component " + name + " is not in your Maven dependencies.") ;
+		}
+		return cap;
+	}
+
+	
 	public static ApamCapability get(ComponentReference<?> reference) {
 		if (reference == null) return null ;
 		ApamCapability cap = capabilities.get(reference.getName()) ;
@@ -77,6 +88,13 @@ public class ApamCapability {
 			CheckObr.error("Component " + reference.getName() + " is not in your Maven dependencies.") ;
 		}
 		return cap;
+	}
+
+	public static ComponentDeclaration getDcl(String name) {
+		if (name == null) return null ;
+		if (capabilities.get(name) != null)
+			return capabilities.get(name).dcl;
+		return null ;
 	}
 
 	public static ComponentDeclaration getDcl(ComponentReference<?> reference) {

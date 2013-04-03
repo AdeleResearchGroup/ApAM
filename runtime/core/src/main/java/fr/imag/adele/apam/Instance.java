@@ -96,13 +96,13 @@ public interface Instance extends Component {
      */
     public Set<Wire> getWires();
 
-    /**
-     * return all the dependency for which the destination implements the provided specification
-     * 
-     * @param spec
-     */
-    public Set<Wire> getWires(Specification spec);
-
+//    /**
+//     * return all the dependency for which the destination implements the provided specification
+//     * 
+//     * @param spec
+//     */
+//    public Set<Wire> getWires(Specification spec);
+//
     /**
      * Returns all the wires leading to the current instance.
      * 
