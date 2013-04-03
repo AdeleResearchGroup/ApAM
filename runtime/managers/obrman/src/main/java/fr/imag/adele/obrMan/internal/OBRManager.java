@@ -269,7 +269,7 @@ public class OBRManager {
         Map<?, ?> map = aCap.getPropertiesAsMap();
         for (String constraint : constraints) {
             filter = ApamFilter.newInstance(constraint);
-            if (!filter.matchCase(map)) {
+            if (!filter.match(map)) {
                 return false;
             }
         }

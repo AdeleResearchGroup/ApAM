@@ -139,11 +139,28 @@ public class ApamFilter /* implements Filter */ {
         converted = conv;
     }
 
-
     /**
      * Filter using a <code>Map</code>. This <code>Filter</code> is
      * executed using the specified <code>Map</code>'s keys and
      * values. The keys are case insensitively matched with this <code>Filter</code>.
+     *
+     * @param dictionary The <code>Map</code> whose keys are used in
+     *            the match.
+     * @return <code>true</code> if the <code>Dictionary</code>'s keys and
+     *         values match this filter; <code>false</code> otherwise.
+     * @throws IllegalArgumentException If <code>dictionary</code> contains
+     *             case variants of the same key name.
+     *             
+     */
+    @SuppressWarnings("unchecked")
+	public boolean match(Map map) {
+        return match0(new CaseInsensitiveMap<Object>(map));
+    }
+
+    /**
+     * Filter with case sensitivity using a <code>Map</code>. This <code>Filter</code> is executed using the
+     * specified <code>Map</code>'s keys and values. The keys are case 
+     * sensitively matched with this <code>Filter</code>.
      *
      * @param map The <code>Map</code> whose keys are used in
      *            the match.
@@ -1434,7 +1451,6 @@ public class ApamFilter /* implements Filter */ {
         }
     }
 
-
     private static class SetAccessibleAction implements PrivilegedAction {
         private final AccessibleObject accessible;
 
@@ -1449,5 +1465,86 @@ public class ApamFilter /* implements Filter */ {
         }
     }
 
+    /**
+     * This Map is used for case-insensitive key lookup during filter
+     * evaluation. This Map implementation only supports the get
+     * operation using a String key as no other operations are used by the
+     * Filter implementation.
+     */
+    private static class CaseInsensitiveMap<E> implements Map<String,E> {
+        
+    	private final Map<String, ? extends E> 	delegate;
+
+        /**
+         * Create a case insensitive dictionary from the specified dictionary.
+         *
+         * @param dictionary
+         * @throws IllegalArgumentException If <code>dictionary</code> contains
+         *             case variants of the same key name.
+         */
+        CaseInsensitiveMap(Map<String, ? extends E> delegate) {
+
+        	this.delegate 	= delegate;
+
+        	/*
+        	 * verify duplicate case-insensitive keys 
+        	 */
+        }
+
+        @Override
+        public E get(Object key) {
+			for (String delegateKey : delegate.keySet()) {
+				if (delegateKey.equalsIgnoreCase((String) key))
+					return delegate.get(delegateKey);
+			}
+			
+			return null;
+       }
+		
+		public int size() {
+			throw new UnsupportedOperationException();
+		}
+
+		public boolean isEmpty() {
+			throw new UnsupportedOperationException();
+		}
+
+		public boolean containsKey(Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		public boolean containsValue(Object value) {
+			throw new UnsupportedOperationException();
+		}
+
+		public E put(String key, E value) {
+			throw new UnsupportedOperationException();
+		}
+
+		public E remove(Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		public void putAll(Map<? extends String, ? extends E> m) {
+			throw new UnsupportedOperationException();
+		}
+
+		public void clear() {
+			throw new UnsupportedOperationException();
+		}
+
+		public Set<String> keySet() {
+			throw new UnsupportedOperationException();
+		}
+
+		public Collection<E> values() {
+			throw new UnsupportedOperationException();
+		}
+
+		public Set<java.util.Map.Entry<String, E>> entrySet() {
+			throw new UnsupportedOperationException();
+		}
+ 
+   }
 
 }

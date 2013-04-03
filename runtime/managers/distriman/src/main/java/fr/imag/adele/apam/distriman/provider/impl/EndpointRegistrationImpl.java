@@ -1,5 +1,8 @@
 package fr.imag.adele.apam.distriman.provider.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +22,16 @@ public class EndpointRegistrationImpl implements EndpointRegistration {
 	private String protocol;
 	private String interfaceCanonical;
 	private transient final CxfEndpointFactory endPointfactory;
+	private final Map<String,String> endpoint=new HashMap<String, String>();
+	
+	public Map<String, String> getEndpoint() {
+		return endpoint;
+	}
+
+//	public void setEndpoint(Map<String, String> endPoint) {
+//		this.endpoint = endPoint;
+//	}
+
 	private static Logger     logger           = LoggerFactory.getLogger(InstanceImpl.class);
 
 	public String getInterfaceCanonical() {
@@ -30,20 +43,16 @@ public class EndpointRegistrationImpl implements EndpointRegistration {
 	}
 
 	public EndpointRegistrationImpl(CxfEndpointFactory factory,Instance instance,
-			RemoteMachine client, String endpointUrl, String protocol,
-			String ifaceCanonical) {
-		if (instance == null || client == null || endpointUrl == null) {
+			RemoteMachine client, String protocol) {
+		if (instance == null || client == null ) {
 			throw new NullPointerException(
 					"Instance, RemoteMachine, endpointUrl cannot be null");
 		}
 		this.endPointfactory=factory;
 		this.exported = instance;
 		this.client = client;
-		this.url = endpointUrl;
 		this.protocol = protocol;
-		this.interfaceCanonical = ifaceCanonical;
 		client.addEndpointRegistration(this);
-		logger.info("creating EndpointRegistration {}",endpointUrl);
 	}
 
 	/**
@@ -53,9 +62,7 @@ public class EndpointRegistrationImpl implements EndpointRegistration {
 	 *            The EndpointRegistration to be cloned.
 	 */
 	public EndpointRegistrationImpl(CxfEndpointFactory factory,EndpointRegistration registration) {
-		this(factory,registration.getInstance(), registration.getClient(),
-				registration.getEndpointUrl(), registration.getProtocol(),
-				registration.getInterfaceCanonical());
+		this(factory,registration.getInstance(), registration.getClient(),registration.getProtocol());
 	}
 
 	@Override
@@ -68,10 +75,10 @@ public class EndpointRegistrationImpl implements EndpointRegistration {
 		return client;
 	}
 
-	@Override
-	public String getEndpointUrl() {
-		return url;
-	}
+//	@Override
+//	public String getEndpointUrl() {
+//		return url;
+//	}
 
 	@Override
 	public String getProtocol() {

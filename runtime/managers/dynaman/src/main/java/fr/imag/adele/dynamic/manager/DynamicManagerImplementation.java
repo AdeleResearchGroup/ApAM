@@ -441,7 +441,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		 * the unrelated thread that triggered the recalculation
 		 * 
 		 */
-		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry())
+		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry()|| dependency.getMissingPolicy() == null )
 			return null;
 		
 		/*

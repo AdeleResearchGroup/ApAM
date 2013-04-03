@@ -121,16 +121,22 @@ public class DependencyInjectionHandler extends ApformHandler {
         /*
          * Load Bind Unbind callback into the ApformInstanceImpl
          */
+        Map<String, Set<Callback>> callbackBind 	= new HashMap<String, Set<Callback>>();
+        Map<String, Set<Callback>> callbackUnbind 	= new HashMap<String, Set<Callback>>();
+
         for (DependencyDeclaration dependencyDeclaration : primitive.getDependencies()) {
-            loadBindUnbindCallback(primitive, dependencyDeclaration, CallbackTrigger.Bind);
-            loadBindUnbindCallback(primitive, dependencyDeclaration, CallbackTrigger.Unbind);
+        	callbackBind.put(dependencyDeclaration.getIdentifier(),loadBindCallback(primitive, dependencyDeclaration, CallbackTrigger.Bind));
+        	callbackUnbind.put(dependencyDeclaration.getIdentifier(),loadBindCallback(primitive, dependencyDeclaration, CallbackTrigger.Unbind));
         }
+        
+        getInstanceManager().addCallbackDependency(CallbackTrigger.Bind, callbackBind);
+        getInstanceManager().addCallbackDependency(CallbackTrigger.Unbind, callbackUnbind);
     }
 
-    private void loadBindUnbindCallback(AtomicImplementationDeclaration primitive,
+    private Set<Callback> loadBindCallback(AtomicImplementationDeclaration primitive,
             DependencyDeclaration dependencyDeclaration,
             CallbackTrigger trigger) {
-        Map<String, Set<Callback>> callbackDependecy = new HashMap<String, Set<Callback>>();
+        
         Set<CallbackMethod> callbackMethods = dependencyDeclaration.getCallback(trigger);
         Set<Callback> callbacks = new HashSet<Callback>();
         if (callbackMethods != null) {
@@ -138,7 +144,7 @@ public class DependencyInjectionHandler extends ApformHandler {
                 try {
                     Set<MethodMetadata> methodMetadatas = (Set<MethodMetadata>) primitive.getInstrumentation()
                             .getCallbacks(
-                                    callbackMethod.getMethodName(), true);
+                                    callbackMethod.getMethodName(), false);
                     for (MethodMetadata methodMetadata : methodMetadatas) {
                         callbacks.add(new Callback(methodMetadata, getInstanceManager()));
                     }
@@ -147,8 +153,8 @@ public class DependencyInjectionHandler extends ApformHandler {
                 }
             }
         }
-        callbackDependecy.put(dependencyDeclaration.getIdentifier(), callbacks);
-        getInstanceManager().addCallbackDependency(trigger, callbackDependecy);
+        return callbacks;
+       
     }
 
     /**

@@ -14,13 +14,17 @@
  */
 package fr.imag.adele.apam.distriman.dto;
 
-import fr.imag.adele.apam.declarations.*;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import fr.imag.adele.apam.declarations.ComponentReference;
+import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.InstanceReference;
+import fr.imag.adele.apam.declarations.InterfaceReference;
+import fr.imag.adele.apam.declarations.MessageReference;
+import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.SpecificationReference;
 
 /**
  * The RemoteDependency is a DependencyDeclaration that aims to be resolved by a RemoteMachine.
@@ -45,45 +49,63 @@ public class RemoteDependency extends DependencyDeclaration {
 
     private static final String JSON_COMP_CONSTRAINT = "comp_cons";
     private static final String JSON_COMP_PREF = "comp_pref";
+    public static final String JSON_CLIENT_URL = "client_url";
+    
+    private String clientURL;
 
-    public RemoteDependency(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource) {
+    public RemoteDependency(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource,String client) {
         super(component, id, isMultiple, resource);
+        this.clientURL=client;
     }
 
     /**
      * Wrapper around a DependencyDeclaration.
      * @param dep
      */
-    public RemoteDependency(DependencyDeclaration dep) {
+    public RemoteDependency(DependencyDeclaration dep,String client) {
         super(dep.getComponent(), dep.getIdentifier(), dep.isMultiple(), dep.getTarget());
+        this.clientURL=client;
     }
 
-    public JSONObject toJson() throws JSONException{
-        JSONObject json = new JSONObject();
-        JSONObject json_rr = new JSONObject();
+    public ObjectNode toJson() {
+    	
+    	ObjectMapper om=new ObjectMapper();
+    	
+    	ObjectNode json = om.createObjectNode();
+    	
+    	//root.
+    	
+      //  JSONObject json = new JSONObject();
+        //JSONObject json_rr = new JSONObject();
 
+      
+        
         json.put(JSON_ID,getIdentifier());
         json.put(JSON_IS_MULTIPLE,isMultiple());
         json.put(JSON_COMP_REF_NAME,getComponent().getName());
+        json.put(JSON_CLIENT_URL,clientURL);
+        
+        ObjectNode json_rr=om.createObjectNode();
+        
         json_rr.put(JSON_RESOLVABLE_REF_NAME,getTarget().getName());
 
 
         //Set RRTYPE
         if (getTarget() instanceof InterfaceReference){
-            json_rr.put(JSON_RESOLVABLE_REF_TYPE,RRTYPE.itf);
+            json_rr.put(JSON_RESOLVABLE_REF_TYPE,RRTYPE.itf.toString());
         } else if (getTarget() instanceof MessageReference){
-            json_rr.put(JSON_RESOLVABLE_REF_TYPE,RRTYPE.message);
+            json_rr.put(JSON_RESOLVABLE_REF_TYPE,RRTYPE.message.toString());
         } else if (getTarget() instanceof InstanceReference){
-            json_rr.put(JSON_RESOLVABLE_REF_TYPE,RRTYPE.instance);
+            json_rr.put(JSON_RESOLVABLE_REF_TYPE,RRTYPE.instance.toString());
         }
 
         //Set the ResolvableReference
         json.put(JSON_RESOLVABLE_REF,json_rr);
 
-        json.put(JSON_INSTANCE_CONSTRAINT, new JSONArray(getInstanceConstraints()));
-        json.put(JSON_INSTANCE_PREF, new JSONArray(getInstancePreferences()));
-        json.put(JSON_COMP_CONSTRAINT, new JSONArray(getImplementationConstraints()));
-        json.put(JSON_COMP_PREF, new JSONArray(getImplementationPreferences()));
+        //json.put(JSON_INSTANCE_CONSTRAINT, new JSONArray(getInstanceConstraints()));
+        //json.put(JSON_INSTANCE_PREF, new JSONArray(getInstancePreferences()));
+        //json.put(JSON_COMP_CONSTRAINT, new JSONArray(getImplementationConstraints()));
+        //json.put(JSON_COMP_PREF, new JSONArray(getImplementationPreferences()));
 
         return json;
     }
@@ -94,27 +116,27 @@ public class RemoteDependency extends DependencyDeclaration {
      * Create a RemoteDependency from a JSONObject.
      * @param json The JSONObject version of the RemoteDependency.
      * @return RemoteDependency corresponding to <code>json</code>
-     * @throws JSONException
      * @throws IllegalArgumentException
      */
-    public static RemoteDependency fromJson(JSONObject json) throws JSONException,IllegalArgumentException{
-        JSONObject rr_json = json.getJSONObject(JSON_RESOLVABLE_REF);
+    public static RemoteDependency fromJson(JsonNode json) throws IllegalArgumentException{
+    	JsonNode rr_json = json.get(JSON_RESOLVABLE_REF);
 
         //Get the RemoteDependency id
-        String id = json.getString(JSON_ID);
+        String id = json.get(JSON_ID).asText();
 
         //Get the RemoteDependency is multiple boolean
-        Boolean multiple = json.getBoolean(JSON_IS_MULTIPLE);
+        Boolean multiple = json.get(JSON_IS_MULTIPLE).getBooleanValue();
 
         //Create the ComponentReference from its  name
-        ComponentReference<?> compref = new ComponentReference(json.getString(JSON_COMP_REF_NAME));
+        ComponentReference<?> compref = new ComponentReference(json.get(JSON_COMP_REF_NAME).asText());
 
-        //Get the ResolvableReference type
-        RRTYPE rr_type = RRTYPE.valueOf(rr_json.getString(JSON_RESOLVABLE_REF_TYPE));
+        //Get the ResolvableReference type       
+        RRTYPE rr_type = RRTYPE.valueOf(rr_json.get(JSON_RESOLVABLE_REF_TYPE).asText());
 
         //Get the ResolvableReference name
-        String rr_name = rr_json.getString(JSON_RESOLVABLE_REF_NAME);
+        String rr_name = rr_json.get(JSON_RESOLVABLE_REF_NAME).asText();
 
+        String clientURL=json.get(JSON_CLIENT_URL).asText();
 
         ResolvableReference  rr = null;
         // Create the ResolvableReference according to its type.
@@ -128,33 +150,28 @@ public class RemoteDependency extends DependencyDeclaration {
             case message:
                 rr = new MessageReference(rr_name);
             break;
+            case specification:
+                rr = new SpecificationReference(rr_name);
+                
+            break;
         }
 
         //Get constraints and prefs
 
-        JSONArray instconst = json.getJSONArray(JSON_INSTANCE_CONSTRAINT);
-        JSONArray instpref = json.getJSONArray(JSON_INSTANCE_PREF);
-        JSONArray compconst = json.getJSONArray(JSON_COMP_CONSTRAINT);
-        JSONArray comppref = json.getJSONArray(JSON_COMP_PREF);
+//        JSONArray instconst = json.getJSONArray(JSON_INSTANCE_CONSTRAINT);
+//        JSONArray instpref = json.getJSONArray(JSON_INSTANCE_PREF);
+//        JSONArray compconst = json.getJSONArray(JSON_COMP_CONSTRAINT);
+//        JSONArray comppref = json.getJSONArray(JSON_COMP_PREF);
 
 
-        RemoteDependency rdep = new  RemoteDependency(compref,id,multiple,rr);
+        RemoteDependency rdep = new  RemoteDependency(compref,id,multiple,rr,clientURL);
 
-        rdep.getInstanceConstraints().addAll(fromArray(instconst));
-        rdep.getInstancePreferences().addAll(fromArray(instpref));
-        rdep.getImplementationConstraints().addAll(fromArray(compconst));
-        rdep.getImplementationPreferences().addAll(fromArray(comppref));
+        //rdep.getInstanceConstraints().addAll(fromArray(instconst));
+        //rdep.getInstancePreferences().addAll(fromArray(instpref));
+        //rdep.getImplementationConstraints().addAll(fromArray(compconst));
+        //rdep.getImplementationPreferences().addAll(fromArray(comppref));
 
        return rdep;
-    }
-
-
-    private static Collection<String> fromArray(JSONArray array) throws JSONException{
-        Collection<String> collec = new ArrayList<String>(array.length());
-        for(int i =0;i<array.length();i++){
-            collec.add(array.getString(i));
-        }
-        return collec;
     }
 
     /**
@@ -163,7 +180,14 @@ public class RemoteDependency extends DependencyDeclaration {
     private enum RRTYPE {
         instance,
         message,
-        itf//interface
+        itf,
+        specification//interface
         //TODO support Spec et implem ?
     }
+
+	public String getClientURL() {
+		return clientURL;
+	}
+    
+    
 }

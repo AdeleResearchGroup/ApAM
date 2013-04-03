@@ -114,6 +114,7 @@
 				<module>tools</module>
 				<module>documentations/tutorials</module>
 				<module>distributions</module>
+				<module>tests</module>
 			</modules>
 		</profile>
 

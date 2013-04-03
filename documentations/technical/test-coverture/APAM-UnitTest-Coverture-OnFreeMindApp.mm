@@ -1,6 +1,6 @@
 <map version="0.9.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
-<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1363611242373" TEXT="APAM-Unit test coverture">
+<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1363870939268" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
 <node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1360338389070" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
@@ -170,10 +170,16 @@
 <node CREATED="1353075141416" ID="ID_384580446" MODIFIED="1354295158437" TEXT="remove callback, should be called when the components is uninstalled-tc022">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353422621394" ID="ID_1384277878" MODIFIED="1354295249502" TEXT="in dependency tag, the method spec. in added should be called when the dependency is satified-tc023">
+<node CREATED="1353422621394" ID="ID_1384277878" MODIFIED="1363702561002" TEXT="in dependency tag, the method spec. (with Instance parameter) in added should be called when the dependency is satified-tc023">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1353422670626" ID="ID_1652284443" MODIFIED="1354295261222" TEXT="in dependency tag, the method spec. in &quot;removed&quot; attribute should be called when the dependency wire is removed-tc023">
+<node CREATED="1353422670626" ID="ID_1652284443" MODIFIED="1363702566458" TEXT="in dependency tag, the method spec. (with Instance parameter) in &quot;removed&quot; attribute should be called when the dependency wire is removed-tc023">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1363699330015" ID="ID_308109238" MODIFIED="1363702539595" TEXT="in dependency tag, the method spec. (without parameter) in added should be called when the dependency is satified-tc085">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1363702462031" ID="ID_772256253" MODIFIED="1363702552010" TEXT="in dependency tag, the method spec. (without parameter) in &quot;removed&quot; attribute should be called when the dependency wire is removed-tc085">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
@@ -343,6 +349,32 @@
 <icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1363625239572" ID="ID_377460580" MODIFIED="1363625259439" TEXT="Multiple producer and 1 consumer, sent method is called by different threads and check if all messages were received by the consumer-tc084"/>
+</node>
+<node CREATED="1363857826607" ID="ID_1640179078" MODIFIED="1363857829987" POSITION="right" TEXT="Distriman">
+<node CREATED="1363857837529" ID="ID_1570620168" MODIFIED="1363857853886" TEXT="provider">
+<node CREATED="1364310717890" ID="ID_38617618" MODIFIED="1364310720953" TEXT="specification">
+<node CREATED="1364310721738" ID="ID_585579850" MODIFIED="1364310790656" TEXT="single interface-tc088">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1364310726554" ID="ID_1460454191" MODIFIED="1364310790655" TEXT="muiltiple interface-tc087">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1364310734666" ID="ID_701186650" MODIFIED="1364310736264" TEXT="interface">
+<node CREATED="1364310737018" ID="ID_1927880532" MODIFIED="1364310795118" TEXT="single interface-tc086">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+</node>
+<node CREATED="1363857854951" ID="ID_1091851122" MODIFIED="1363857856239" TEXT="client"/>
+<node CREATED="1364310867642" ID="ID_482930953" MODIFIED="1364310871011" TEXT="discovery">
+<node CREATED="1364310872186" ID="ID_144151846" MODIFIED="1364310893951" TEXT="when provider comes first">
+<icon BUILTIN="button_cancel"/>
+</node>
+<node CREATED="1364310880490" ID="ID_1578155757" MODIFIED="1364310893950" TEXT="when client comes first">
+<icon BUILTIN="button_cancel"/>
+</node>
+</node>
 </node>
 </node>
 </map>

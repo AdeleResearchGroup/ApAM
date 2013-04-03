@@ -1,13 +1,13 @@
-package fr.imag.adele.apam.pax.test.impl.p2;
+package fr.imag.adele.apam.pax.distriman.test.impl.p2;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.imag.adele.apam.pax.test.iface.P2Spec;
-import fr.imag.adele.apam.pax.test.iface.P2Spec2;
-import fr.imag.adele.apam.pax.test.iface.P2SpecKeeper;
+import fr.imag.adele.apam.pax.distriman.test.iface.P2Spec;
+import fr.imag.adele.apam.pax.distriman.test.iface.P2Spec2;
+import fr.imag.adele.apam.pax.distriman.test.iface.P2SpecKeeper;
 
-public class P2Impl implements P2Spec2, P2Spec{
+public class P2ImplMultipleInterface implements  P2Spec,P2Spec2{ 
 
 	@Override
 	public String getName(){
@@ -31,6 +31,5 @@ public class P2Impl implements P2Spec2, P2Spec{
 		// TODO Auto-generated method stub
 		return "qsdqdsq";
 	}
-
 
 }

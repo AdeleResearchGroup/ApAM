@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.pax.test.iface;
+package fr.imag.adele.apam.pax.distriman.test.iface;
 
 
 public interface P2Spec2 {

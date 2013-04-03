@@ -27,21 +27,20 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.type.TypeReference;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
@@ -108,7 +107,7 @@ public class RemoteMachine implements ApformInstance {
 		System.out.println("RemoteMachine " + my_url + " created.");
 	}
 
-	public String getUrl() {
+	public String getURL() {
 		return my_url;
 	}
 
@@ -143,14 +142,12 @@ public class RemoteMachine implements ApformInstance {
 	}
 
 	public Resolved resolveRemote(Instance client,
-			DependencyDeclaration dependency) throws JSONException,
-			IOException {
+			DependencyDeclaration dependency) throws IOException {
 		if (running.get()) {
-			RemoteDependency remoteDep = new RemoteDependency(dependency);
+			
+			RemoteDependency remoteDep = new RemoteDependency(dependency,this.getURL());
 
-			JSONObject jsonObject = remoteDep.toJson();
-
-			jsonObject.put("client_url", this.getUrl());
+			ObjectNode jsonObject = remoteDep.toJson();
 
 			String json = jsonObject.toString();
 
@@ -159,13 +156,13 @@ public class RemoteMachine implements ApformInstance {
 			if (instance == null) {
 
 				logger.info("dependency {} was NOT found in {}",
-						dependency.getIdentifier(), this.getUrl());
+						dependency.getIdentifier(), this.getURL());
 
 				return null;
 			}
 
 			logger.info("dependency {} was found remotely in {}",
-					dependency.getIdentifier(),this.getUrl());
+					dependency.getIdentifier(),this.getURL());
 
 			Set<Implementation> impl = Collections.emptySet();
 
@@ -178,16 +175,16 @@ public class RemoteMachine implements ApformInstance {
 
 	private Instance createClientProxy(String jsondep, Instance client,
 			DependencyDeclaration dependency) throws IOException {
-
+		
 		HttpURLConnection connection = null;
 		PrintWriter outWriter = null;
 		BufferedReader serverResponse = null;
 		StringBuffer buff = new StringBuffer();
 		try {
 
-			logger.info("requesting resolution to address {}", this.getUrl());
+			logger.info("requesting resolution to address {}", this.getURL());
 
-			connection = (HttpURLConnection) new URL(this.getUrl())
+			connection = (HttpURLConnection) new URL(this.getURL())
 					.openConnection();
 
 			// SET REQUEST INFO
@@ -196,6 +193,8 @@ public class RemoteMachine implements ApformInstance {
 
 			outWriter = new PrintWriter(connection.getOutputStream());
 
+			logger.info("request performed by the client {}",jsondep);
+			
 			buff.append("content=");
 			buff.append(URLEncoder.encode(jsondep, "UTF-8"));
 
@@ -219,33 +218,19 @@ public class RemoteMachine implements ApformInstance {
 
 			System.out.println("Decoded value=" + decoded);
 
-			JSONObject jsonResponse = new JSONObject(decoded);
-
-			String endpointUrlAndInterfaces = jsonResponse
-					.getString("endpoint_url");
-
-			StringTokenizer urlsAndInterfaces = new StringTokenizer(
-					endpointUrlAndInterfaces, ",");
-
-			logger.info("total of interfaces returned by the server {}",
-					urlsAndInterfaces.countTokens());
-
-			while (urlsAndInterfaces.hasMoreTokens()) {
-				String urlsAndInterfacesSingle = urlsAndInterfaces.nextToken();
-				StringTokenizer buck = new StringTokenizer(
-						urlsAndInterfacesSingle, "!");
-				String endpointUrl = buck.nextToken();
-				String interfacename = buck.nextToken();
+			ObjectMapper om=new ObjectMapper();
+			
+			JsonNode node=om.readValue(decoded, JsonNode.class);
+			
+			Map<String,String> endpoints=om.convertValue(node.get("endpoint_entry"), new TypeReference<Map<String, String>>() {});
+			
+			for(Map.Entry<String, String> entry:endpoints.entrySet()){
+				String interfacename = entry.getKey();
+				String endpointUrl = entry.getValue();
 
 				logger.info("iterating over {} and {}", interfacename,
 						endpointUrl);
-
-				// String endpointUrl = jsonResponse.getString("endpoint_url");
-				// String instancename =
-				// jsonResponse.getString("instance_name");
-				// String interfacename =
-				// jsonResponse.getString("interface_name");
-
+				
 				Object proxyRaw = null;
 
 				if (dependency.getTarget() instanceof InterfaceReference) {
@@ -295,8 +280,6 @@ public class RemoteMachine implements ApformInstance {
 
 		} catch (MalformedURLException mue) {
 			mue.printStackTrace();
-		} catch (JSONException e) {
-			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} finally {

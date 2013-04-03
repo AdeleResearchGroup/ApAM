@@ -195,11 +195,16 @@
 		<property name="hasDisplay" value="false" />
 	</implementation>
 
-	<implementation name="S1Impl-added-removed-callback"
+	<implementation name="S1Impl-added-removed-callback-signature-instance"
 		classname="fr.imag.adele.apam.pax.test.implS1.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
-		<dependency field="s2" added="bind" removed="unbind" />
+		<dependency field="s2" added="bindWithInstance" removed="unbindWithInstance" />
 		<!-- This is the correct one, but its not implemented <dependency field="s2" 
 			added="start" removed="stop" /> -->
+	</implementation>
+	
+	<implementation name="S1Impl-added-removed-callback-signature-empty"
+		classname="fr.imag.adele.apam.pax.test.implS1.S1Impl" specification="fr.imag.adele.apam.pax.test.iface.S1">
+		<dependency field="s2" added="bindWithoutInstance" removed="unbindWithoutInstance" />
 	</implementation>
 
 </apam>

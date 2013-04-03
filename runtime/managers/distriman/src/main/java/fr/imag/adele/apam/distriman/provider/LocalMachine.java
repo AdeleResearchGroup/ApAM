@@ -16,7 +16,9 @@ package fr.imag.adele.apam.distriman.provider;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -24,8 +26,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,7 +136,7 @@ public enum LocalMachine {
 	 * dependency thanks to this machine.
 	 */
 	private class MyServlet extends HttpServlet {
-		private static final String CLIENT_URL = "client_url";
+	
 		private final DependencyManager apamMan;
 
 		private MyServlet() {
@@ -142,7 +147,8 @@ public enum LocalMachine {
 		@Override
 		protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 				throws ServletException, IOException {
-			resp.sendError(204);
+			//resp.sendError(204);
+			doPost(req, resp);
 		}
 
 		@Override
@@ -152,29 +158,29 @@ public enum LocalMachine {
 			PrintWriter writer=resp.getWriter();
 			
 			try {
-
-				JSONObject requestJson = new JSONObject(req.getParameter("content"));
+								
+				String content=URLDecoder.decode(req.getParameter("content"), "UTF-8");
+				
+				ObjectMapper om=new ObjectMapper();
+				
+				JsonNode requestJson=om.readValue(content, JsonNode.class);
+				
 				RemoteDependency remoteDependency = RemoteDependency.fromJson(requestJson);
-				String remoteUrl = requestJson.getString(CLIENT_URL);
 				String identifier = remoteDependency.getIdentifier();
 				
-				logger.info("requesting resolution of the identifier {} in the address {}",identifier,remoteUrl);
+				logger.info("requesting resolution of the identifier {} in the address {}",identifier,remoteDependency.getClientURL());
 				
-				EndpointRegistration reg = distriman.resolveRemoteDependency(
-						remoteDependency, remoteUrl);
+				EndpointRegistration reg = distriman.resolveDependencyLocalMachine(
+						remoteDependency, remoteDependency.getClientURL());
 				
 				String jsonString=toJson(reg);
 				
 				logger.info("payload of the response {}",jsonString);
 				
-				JSONObject responseJson = new JSONObject(jsonString);
-				
-				writer.write(URLEncoder.encode(responseJson.toString(), "UTF-8")+"\n");
+				writer.write(URLEncoder.encode(jsonString.toString(), "UTF-8")+"\n");
 				
 				writer.flush();
 				
-			} catch (JSONException e) {
-				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			} finally {
@@ -184,15 +190,23 @@ public enum LocalMachine {
 		}
 	}
 
-	private String toJson(EndpointRegistration registration)
-			throws JSONException {
-		JSONObject json = new JSONObject();
-		json.put("endpoint_url", registration.getEndpointUrl());
-		json.put("protocol", registration.getProtocol());
-		json.put("instance_name", registration.getInstance().getName());
-		json.put("interface_name", registration.getInterfaceCanonical());
+	private String toJson(EndpointRegistration registration) throws JsonGenerationException, JsonMappingException, IOException {
 		
-		return json.toString();
+		ObjectMapper om=new ObjectMapper();
+		
+		ObjectNode node=om.createObjectNode();
+		
+		ObjectNode nodeendpoint=om.createObjectNode();
+		
+		for (Map.Entry<String, String> entry: registration.getEndpoint().entrySet()) {
+			nodeendpoint.put(entry.getKey(), entry.getValue());
+		}
+		
+		node.put("endpoint_entry", nodeendpoint);
+		node.put("protocol", registration.getProtocol());
+		node.put("instance_name", registration.getInstance().getName());
+		
+		return node.toString();
 	}
 
 }

@@ -627,9 +627,38 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 	@Test
 	public void AddedRemovedCallbackInDependencyDeclaration_tc023(){
 		
-		String message="Into an <implementation>, when declaring a dependency, we may specify methods to be called as soon as the dependency is wired or unwired, those are 'added' and 'removed' attributes respectively. %s";
+		String message="Into an <implementation>, when declaring a dependency, we may specify methods (with an Instance type parameter) to be called as soon as the dependency is wired or unwired, those are 'added' and 'removed' attributes respectively. %s";
 		
-		Implementation impl=CST.apamResolver.findImplByName(null,"S1Impl-added-removed-callback");
+		Implementation impl=CST.apamResolver.findImplByName(null,"S1Impl-added-removed-callback-signature-instance");
+		apam.waitForIt(Constants.CONST_WAIT_TIME);
+		
+		Instance instance=impl.createInstance(null, new HashMap<String, String>());
+		
+		S1Impl s1=(S1Impl)instance.getServiceObject();
+		
+		Assert.assertTrue(String.format(message, "Although 'added' method should not be called before the resolution of the dependency"),s1.getIsOnInitCallbackCalled()==false);
+		Assert.assertTrue(String.format(message, "Although 'remove' method should not be called before the resolution of the dependency"),s1.getIsOnRemoveCallbackCalled()==false);
+		
+		s1.getS2();
+		
+		Assert.assertTrue(String.format(message, "Although 'added' method was not called during the wiring process(dependency resolution)"),s1.getIsOnInitCallbackCalled()==true);
+		
+		Assert.assertTrue(String.format(message, "the 'added' the callback method was called although the instance was not received as parameter"),s1.getIsBindUnbindReceivedInstanceParameter()==true);
+		
+		auxDisconectWires(instance);
+		
+		Assert.assertTrue(String.format(message, "Although 'remove' method was not called during the unwiring process"),s1.getIsOnRemoveCallbackCalled()==true);
+		
+		Assert.assertTrue(String.format(message, "the 'remove' the callback method was called although the instance was not received as parameter"),s1.getIsBindUnbindReceivedInstanceParameter()==true);
+
+	}	
+	
+	@Test
+	public void AddedRemovedCallbackInDependencyDeclarationEmptySignature_tc085(){
+		
+		String message="Into an <implementation>, when declaring a dependency, we may specify methods (without parameters) to be called as soon as the dependency is wired or unwired, those are 'added' and 'removed' attributes respectively. %s";
+		
+		Implementation impl=CST.apamResolver.findImplByName(null,"S1Impl-added-removed-callback-signature-empty");
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
 		
 		Instance instance=impl.createInstance(null, new HashMap<String, String>());

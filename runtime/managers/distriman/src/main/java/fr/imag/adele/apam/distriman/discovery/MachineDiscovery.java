@@ -14,20 +14,25 @@
  */
 package fr.imag.adele.apam.distriman.discovery;
 
-import fr.imag.adele.apam.distriman.client.RemoteMachine;
-import fr.imag.adele.apam.distriman.provider.LocalMachine;
-
-import org.apache.felix.ipojo.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.UUID;
 
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.UUID;
+
+import org.apache.felix.ipojo.annotations.Component;
+import org.apache.felix.ipojo.annotations.Instantiate;
+import org.apache.felix.ipojo.annotations.Invalidate;
+import org.apache.felix.ipojo.annotations.Property;
+import org.apache.felix.ipojo.annotations.Requires;
+import org.apache.felix.ipojo.annotations.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import fr.imag.adele.apam.distriman.provider.LocalMachine;
 
 /**
  * <p>The MachineDiscovery component allows for the discovery of other
@@ -45,6 +50,9 @@ import java.util.UUID;
 public class MachineDiscovery implements ServiceListener {
 	
 	private static Logger logger = LoggerFactory.getLogger(MachineDiscovery.class);
+	
+	@Property(name = "inet.host", value = "127.0.0.1", mandatory = true)
+	private String HOST;
 	
     /**
      * The mdns type to be used.
@@ -81,10 +89,10 @@ public class MachineDiscovery implements ServiceListener {
      * @param host the hostname of the InetAddress to be used.
      */
     @Validate
-    public void start(String host) {
+    public void start() {
         try {
             //Create the jmdns server
-            InetAddress address = InetAddress.getByName(host);
+            InetAddress address = InetAddress.getByName(HOST);
             jmDNS = JmDNS.create(address);
         } catch (IOException e){
             //TODO log an error

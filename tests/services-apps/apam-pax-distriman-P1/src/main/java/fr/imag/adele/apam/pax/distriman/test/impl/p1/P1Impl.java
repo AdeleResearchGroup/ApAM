@@ -1,7 +1,7 @@
-package fr.imag.adele.apam.pax.test.impl.p1;
+package fr.imag.adele.apam.pax.distriman.test.impl.p1;
 
-import fr.imag.adele.apam.pax.test.iface.P1Spec;
-import fr.imag.adele.apam.pax.test.iface.P2Spec;
+import fr.imag.adele.apam.pax.distriman.test.iface.P1Spec;
+import fr.imag.adele.apam.pax.distriman.test.iface.P2Spec;
 
 public class P1Impl extends Thread implements P1Spec {
 

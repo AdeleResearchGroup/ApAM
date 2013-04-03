@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -66,11 +67,12 @@ public class Apform2Apam {
      * 
      * @author vega
      */
-    public static class Request {
+    public static abstract class Request {
 
-    	private final String 	description;
-    	private boolean			isProcessing;
-    	private String 			requiredComponent;
+    	private final String 			description;
+    	private boolean					isProcessing;
+    	private String 					requiredComponent;
+    	private List<StackTraceElement>	stack;
     	
     	Request(String description) {
     		this.description	= description;
@@ -110,16 +112,19 @@ public class Apform2Apam {
     	/**
     	 * Mark this request as pending for a component
     	 */
-    	private void pending(String requiredComponent) {
-    		this.requiredComponent = requiredComponent;
+    	protected void pending(String requiredComponent) {
+    		this.requiredComponent	= requiredComponent;
+    		this.stack				= getCurrentStack();			
     		pending.add(this);
     	}
 
     	/**
     	 * Mark this request as resumed after the requested component is found
     	 */
-    	private void resumed() {
-    		this.requiredComponent = null;
+    	protected void resumed() {
+    		this.requiredComponent 	= null;
+    		this.stack				= null;
+    		
     		pending.remove(this);
     	}
     	
@@ -128,6 +133,13 @@ public class Apform2Apam {
     	 */
     	public boolean isPending() {
     		return pending.contains(this);
+    	}
+    	
+    	/**
+    	 * The stack of pending requests
+    	 */
+    	public List<StackTraceElement> getStack() {
+    		return stack;
     	}
     	
     	/**
@@ -153,11 +165,34 @@ public class Apform2Apam {
     public static Request getCurrent() {
     	Request currentRequest = current.get();
     	if (currentRequest == null) {
-    		currentRequest = new Request("Thread "+Thread.currentThread().getName());
+    		currentRequest = new WaitRequest();
     		currentRequest.started();
     	}
     	return currentRequest;
     }
+    
+    /**
+     * The stack of the request executing in the context of the
+     * current thread.
+     * 
+     */
+    public static List<StackTraceElement> getCurrentStack() {
+    	
+    	List<StackTraceElement> 	stack 	= new ArrayList<StackTraceElement>(Arrays.asList(new Throwable().getStackTrace()));
+    	
+    	/*
+    	 * Remove ourselves from the top of the stack, to increase the readability of the stack trace
+    	 */
+    	Iterator<StackTraceElement> frames	= stack.iterator();
+    	while (frames.hasNext()) {
+    		if (frames.next().getClassName().startsWith(Apform2Apam.class.getName()))
+    			frames.remove();
+    		
+    		break;
+    	}
+    	return stack;
+    }
+
 
     /**
      * Wait for a future component to be deployed
@@ -188,7 +223,30 @@ public class Apform2Apam {
             return;
         }
     }
-    
+  
+    /**
+     * A request to wait for a component outside the context of an apform event. These are temporary requests
+     * that are finished as soon as they are satified.
+     * 
+     * @author vega
+     * 
+     */
+    private static class WaitRequest extends Request {
+
+		public WaitRequest() {
+			super("Thread "+Thread.currentThread().getName());
+		}
+	
+		/**
+		 * Automatically finish the request when resument
+		 */
+		@Override
+		protected void resumed() {
+			super.resumed();
+			finished();
+		}
+    }
+
     /**
      * A request from apform to add a component to APAM, this is executed asynchronously and may block waiting
      * for another components.
@@ -214,6 +272,11 @@ public class Apform2Apam {
         	return component;
         }
         
+        /**
+         * The  method that reifies the apform component in APAM
+         */
+        protected abstract Component reify();
+
         @Override
         public void run() {
             try {
@@ -230,11 +293,6 @@ public class Apform2Apam {
 
         }
 
-        
-        /**
-         * The processing method
-         */
-        protected abstract Component reify();
         
         /**
          * Notify any threads waiting for the deployment of a component
