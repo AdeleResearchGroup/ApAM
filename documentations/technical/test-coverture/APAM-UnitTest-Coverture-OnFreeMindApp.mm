@@ -36,8 +36,8 @@
 <node CREATED="1355931835542" ID="ID_1074078486" MODIFIED="1360834925892" TEXT="Retrieving &lt;property type=&apos;int&apos;&gt; should return a proper Collection/array-tc053">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355931835542" ID="ID_949793962" MODIFIED="1360834921299" TEXT="Retrieving &lt;property type=&apos;integer&apos;&gt; should return a proper Collection/array-tc054">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1355931835542" ID="ID_949793962" MODIFIED="1365063251411" TEXT="Retrieving &lt;property type=&apos;integer&apos;&gt; should return a proper Collection/array-tc054">
+<icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1355931835542" ID="ID_450621789" MODIFIED="1360834809332" TEXT="Retrieving &lt;property type=&apos;string&apos;&gt; should return a proper Collection/array-tc055">
 <icon BUILTIN="button_ok"/>
@@ -213,8 +213,8 @@
 <node CREATED="1353332025894" ID="ID_1509607474" MODIFIED="1354295637086" TEXT="enclosed dependency instantiation should instantiate automatically indirect dependency-tc031">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355230826914" ID="ID_1608610292" MODIFIED="1355230840111" TEXT="create a composite without mainimpl">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1355230826914" ID="ID_1608610292" MODIFIED="1365062464253" TEXT="create a composite without mainimpl-compilationtest">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1353491520963" ID="ID_1528052278" MODIFIED="1353491524764" TEXT="visibility">
