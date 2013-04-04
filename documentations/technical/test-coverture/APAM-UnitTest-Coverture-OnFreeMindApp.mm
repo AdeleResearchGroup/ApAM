@@ -108,6 +108,11 @@
 <node CREATED="1362404208969" ID="ID_1939802318" MODIFIED="1362404217152" TEXT="Test injection into java instance property of the type set of string-tc081">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1365073979090" ID="ID_1807883279" MODIFIED="1365073984699" TEXT="metasubstitution">
+<node CREATED="1365073985762" ID="ID_526657618" MODIFIED="1365077832428" TEXT="test string operation(prefix,sufix,retrieve)-tc089">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
 </node>
 <node CREATED="1353066008853" ID="ID_82303023" MODIFIED="1353071077628" TEXT="Constraint">
 <node CREATED="1353070505975" ID="ID_346843196" MODIFIED="1354294409593" TEXT="injected instance should respect constraint declared in XML-tc009">

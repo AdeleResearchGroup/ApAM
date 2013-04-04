@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import org.osgi.framework.Bundle;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
@@ -100,9 +103,13 @@ public abstract class TestUtils {
 	protected void auxListProperties(String prefix, Component component) {
 		System.out.println(String.format(
 				"%s------------ Properties -------------", prefix));
-		for (String key : component.getAllProperties().keySet()) {
-			System.out.println(key + "="
-					+ component.getAllProperties().get(key.toString()));
+		for (Map.Entry<String, Object> entry: component.getAllProperties().entrySet()) {
+			System.out.print(entry.getKey() + "="
+					+ entry.getValue());
+			if(!entry.getValue().equals(component.getProperty(entry.getKey()))){
+				System.out.print("("+component.getProperty(entry.getKey())+")");
+			}
+			System.out.println("");
 		}
 		System.out.println(String.format(
 				"%s------------ /Properties -------------", prefix));
