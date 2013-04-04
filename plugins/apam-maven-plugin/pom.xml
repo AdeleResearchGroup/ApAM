@@ -81,11 +81,7 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.ipojo.manipulator</artifactId>
-<<<<<<< HEAD
-             <version>${ipojo.plugin.version}</version>
-=======
 	    <version>${ipojo.plugin.version}</version>
->>>>>>> 7c734b946f72f4c60d7682c6e9c16cfca8cc02ff
         </dependency>
     </dependencies>
 	<build>
