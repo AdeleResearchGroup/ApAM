@@ -46,15 +46,62 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		Implementation impl = CST.apamResolver.findImplByName(null,
 				"MetasubstitutionStringTest");
 		
-		Instance samsungInst = impl.createInstance(null, null);
+		Instance instance = impl.createInstance(null, null);
 		
-		auxListProperties("\t", samsungInst);
+		auxListProperties("\t", instance);
 		
-		Assert.assertTrue("geting property didnt work as expected",samsungInst.getProperty("meta_string_retrieve").equals("goethe"));
-		Assert.assertTrue("prefixing didnt work as expected",samsungInst.getProperty("meta_string_prefix").equals("pregoethe"));
-		Assert.assertTrue("postfixing didnt work as expected",samsungInst.getProperty("meta_string_suffix").equals("goethepost"));
-		Assert.assertTrue("applying prefix and sufix at same time didnt work as expected",samsungInst.getProperty("meta_string_prefix_suffix").equals("pregoethepost"));
+		Assert.assertTrue("geting property didnt work as expected",instance.getProperty("meta_string_retrieve").equals("goethe"));
+		Assert.assertTrue("prefixing didnt work as expected",instance.getProperty("meta_string_prefix").equals("pregoethe"));
+		Assert.assertTrue("postfixing didnt work as expected",instance.getProperty("meta_string_suffix").equals("goethepost"));
+		Assert.assertTrue("applying prefix and sufix at same time didnt work as expected",instance.getProperty("meta_string_prefix_suffix").equals("pregoethepost"));
 		
 	}
+	
+	@Test
+	public void SubstitutionGetPropertyOutsideDefinitionInSpecPropertyInImpl_tc090() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		auxListProperties("\t", subjectA);
+		
+		System.err.println(subjectA.getProperty("property-case-01"));
+		
+		Assert.assertTrue("Given two composites A B, was not possible to reach the right value for a property of A through B by substituion (e.g. in B declare a property with the value '$AImpl.$property') ",subjectA.getProperty("property-case-01").equals("value-impl"));
+		
+	}
+	
+	@Test
+	public void SubstitutionGetPropertyOutsideDefinictionInSpecPropertyNowhere_tc091() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		auxListProperties("\t", subjectA);
+		
+		System.err.println(subjectA.getProperty("property-case-03"));
+		
+		Assert.assertTrue("Given two composites A B, was not possible to reach the right value for a property of A through B by substituion (e.g. in B declare a property with the value '$AImpl.$property'): when there is only a definition in the Spec and no property in the Impl",subjectA.getProperty("property-case-03").equals("value-spec"));
+		
+	}
+
+	@Test
+	public void SubstitutionGetPropertyOutsideDefinitionNowherePropertyInImpl_tc092() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		auxListProperties("\t", subjectA);
+		
+		System.err.println(subjectA.getProperty("property-case-08"));
+		
+		Assert.assertTrue("Given two composites A B, was not possible to reach the right value for a property of A through B by substituion (e.g. in B declare a property with the value '$AImpl.$property'): when there is only a definition in the Impl",subjectA.getProperty("property-case-08")!=null&&subjectA.getProperty("property-case-08").equals("value-impl"));
+		
+	}
+	
+	
 	
 }

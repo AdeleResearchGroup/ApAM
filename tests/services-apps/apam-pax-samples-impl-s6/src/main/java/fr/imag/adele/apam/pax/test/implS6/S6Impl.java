@@ -20,8 +20,8 @@ public class S6Impl implements S6
 {
 
 	S6 s6;
-	
-    public String whoami()
+
+	public String whoami()
     {
         return this.getClass().getName();
     }
@@ -34,4 +34,8 @@ public class S6Impl implements S6
     	System.out.println("Stopping:"+this.getClass().getName());
     }
 
+    public S6 getS6() {
+		return s6;
+	}
+    
 }

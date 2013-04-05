@@ -108,8 +108,17 @@
 <node CREATED="1362404208969" ID="ID_1939802318" MODIFIED="1362404217152" TEXT="Test injection into java instance property of the type set of string-tc081">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1365073979090" ID="ID_1807883279" MODIFIED="1365073984699" TEXT="metasubstitution">
+<node CREATED="1365073979090" ID="ID_1807883279" MODIFIED="1365161520989" TEXT="metasubstitution">
 <node CREATED="1365073985762" ID="ID_526657618" MODIFIED="1365077832428" TEXT="test string operation(prefix,sufix,retrieve)-tc089">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1365161520996" ID="ID_858128895" MODIFIED="1365161586477" TEXT="definition in spec property in impl-tc090">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1365161547489" ID="ID_165053730" MODIFIED="1365161586478" TEXT="definition in spec no property in impl-tc091">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1365161565201" ID="ID_1981761730" MODIFIED="1365161586478" TEXT="no definition in spec, property in impl-tc092">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>

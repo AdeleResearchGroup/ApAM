@@ -25,18 +25,60 @@
 		
 	</implementation>
 
-	<implementation name="subject-a"
+	<!-- CASE 01 -->
+
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="spec-case-01">
+		<definition name="property-subject-b" type="string" value="value-spec"/>
+	</specification>
+
+	<implementation name="impl-case-01"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
-		specification="fr.imag.adele.apam.pax.test.iface.S6">
-		
-		<dependency specification="fr.imag.adele.apam.pax.test.iface.S6" field="s6" />
+		specification="spec-case-01">
+		<property name="property-subject-b" value="value-impl"/>
+	</implementation>
+
+	<!-- /CASE 01 -->
+
+	<!-- CASE 03 -->
+
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="spec-case-03">
+		<definition name="property-subject-b" type="string" value="value-spec"/>
+	</specification>
+
+	<implementation name="impl-case-03"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="spec-case-03">
 		
 	</implementation>
 
-	<implementation name="subject-b"
+	<!-- /CASE 03 -->
+
+	<!-- CASE 08 -->
+
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="spec-case-08">
+		
+	</specification>
+
+	<implementation name="impl-case-08"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="spec-case-08">
+		<definition name="property-subject-b" type="string" value="value-impl"/>
+	</implementation>
+
+	<!-- /CASE 08 -->
+
+	<implementation name="subject-a"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6">
-		
+		<dependency implementation="impl-case-01" field="s6" />
+		<definition name="property-case-01" type="string" value="$impl-case-01.$property-subject-b"/>
+		<definition name="property-case-03" type="string" value="$impl-case-03.$property-subject-b"/>
+		<definition name="property-case-08" type="string" value="$impl-case-08.$property-subject-b"/>
 	</implementation>
+
+
 
 </apam>
