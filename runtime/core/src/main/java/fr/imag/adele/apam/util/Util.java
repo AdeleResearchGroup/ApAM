@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.metadata.Element;
@@ -500,24 +499,6 @@ public final class Util {
 		return new AttrType (type ) ;
 	}
 
-	public static boolean checkSubType (AttrType sourceType, AttrType targetType, String attr, String targetAttr) {
-		if (sourceType==null || targetType==null) 
-			return false ;
-
-		if (sourceType.type!=targetType.type) {
-			logger.error("Attribute " + attr +  " of type " + sourceType.typeString + " : invalid substitution with attribute " 
-					+  targetAttr + " of type : " + targetType.typeString ) ;
-			return false ;
-		}
-
-		if (sourceType.type==AttrType.ENUM && !sourceType.enumValues.equals(targetType.enumValues)) {
-			logger.error("Attribute " + attr +  " of type " + sourceType.typeString + " : Not the same enumeration set as attribute " 
-					+  targetAttr + " of type : " + targetType.typeString ) ;
-			return false ;
-		}
-
-		return (sourceType.isSet || !targetType.isSet) ;
-	}
 
 
 	/**
@@ -761,37 +742,7 @@ public final class Util {
 	}
 
 
-	public static boolean checkFilter(String filter) {
-		try {
-			ApamFilter parsedFilter = ApamFilter.newInstance(filter);
-			return parsedFilter != null ;
-		}
-		catch (Exception e) {
-			return false ;
-		}
-	}
 
-	public static boolean checkFilters(Set<String> filters, List<String> listFilters, Map<String, String> validAttr,
-			String comp) {
-		boolean ok = true;
-		if (filters != null) {
-			for (String f : filters) {
-				ApamFilter parsedFilter = ApamFilter.newInstance(f);
-				if (parsedFilter == null || !parsedFilter.validateAttr(validAttr, f, comp)) {
-					ok = false;
-				}
-			}
-		}
-		if (listFilters != null) {
-			for (String f : listFilters) {
-				ApamFilter parsedFilter = ApamFilter.newInstance(f);
-				if (parsedFilter == null || !parsedFilter.validateAttr(validAttr, f, comp)) {
-					ok = false;
-				}
-			}
-		}
-		return ok;
-	}
 
 	public static void printFileToConsole(URL path) throws IOException {
 		DataInputStream in = null ;

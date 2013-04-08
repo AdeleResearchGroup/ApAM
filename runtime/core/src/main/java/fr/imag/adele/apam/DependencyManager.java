@@ -38,7 +38,7 @@ public interface DependencyManager extends Manager{
 //	public String getName();
 //
 //
-	//
+//
 //	// returns the relative priority of that manager, for the resolution algorithm
 //	public int getPriority();
 //
@@ -85,7 +85,7 @@ public interface DependencyManager extends Manager{
 	 * @return the implementations if resolved, null otherwise
 	 * @return in insts, the valid instances, null if none.
 	 */
-	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances);
+	public Resolved resolveDependency(Instance client, Dependency dependency, boolean needsInstances);
 
 	/**
 	 * The instance client asks for a component given its name and type.
@@ -114,7 +114,7 @@ public interface DependencyManager extends Manager{
      *            maximum
 	 * @return an instance if resolved, null otherwise
 	 */
-	public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences);
+	public Instance resolveImpl(Instance client, Implementation impl, Dependency dependency);
 
 	/**
 	 * The manager is asked to find the all "right" instances for the required implementation.
@@ -127,7 +127,7 @@ public interface DependencyManager extends Manager{
      *            maximum
 	 * @return all the instances if resolved, null otherwise
 	 */
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints);
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, Dependency dependency);
 
 	/**
 	 * Once the resolution terminated, either successful or not, the managers are notified of the current

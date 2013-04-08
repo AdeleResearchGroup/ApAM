@@ -16,6 +16,7 @@ package fr.imag.adele.apam.apamMavenPlugin;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,6 +49,7 @@ import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
 import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Substitute.SplitSub;
+import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.UtilComp;
 
@@ -87,10 +89,9 @@ public class CheckObr {
 	 * Only for specification dependencies. Checks if the attributes mentioned
 	 * in the constraints can be set on an implementation of that specification.
 	 * 
-	 * @param dep
-	 *            a dependency
+	 * @param dep a dependency
 	 */
-	private static void checkConstraint(DependencyDeclaration dep) {
+	private static void checkConstraint(ComponentDeclaration component, DependencyDeclaration dep) {
 		if ((dep == null) || !(dep.getTarget() instanceof ComponentReference))
 			return;
 
@@ -110,12 +111,10 @@ public class CheckObr {
 			error("Preferences cannot be defined for a dependency with multiple cardinality: "
 					+ dep.getIdentifier());
 		}
-		Util.checkFilters(dep.getImplementationConstraints(), dep
-				.getImplementationPreferences(), validAttrs, dep.getTarget()
-				.getName());
-		Util.checkFilters(dep.getInstanceConstraints(), dep
-				.getInstancePreferences(), validAttrs, dep.getTarget()
-				.getName());
+		checkFilters(component, dep.getImplementationConstraints(), dep.getImplementationPreferences(), 
+				validAttrs, dep.getTarget().getName());
+		checkFilters(component, dep.getInstanceConstraints(), dep.getInstancePreferences(), 
+				validAttrs, dep.getTarget().getName());
 	}
 
 	/**
@@ -229,7 +228,7 @@ public class CheckObr {
 
 	private static boolean checkFunctionSubst (ComponentDeclaration component, String attr, String type, String defaultValue) {
 		
-		String func = defaultValue.substring(1) ;
+//		String func = defaultValue.substring(1) ;
 		/*
 		 * Add a function that checks if the public method "public <type> func (Instance inst)" is realy defined in the 
 		 * class, and if its returned type is compatible with the "type"
@@ -239,6 +238,77 @@ public class CheckObr {
 		return true ;
 	}
 
+	/**
+	 * Checks the syntax of the filter.
+	 * Warning : does not check the values : their type and the substitutions.
+	 * @param filter
+	 * @return
+	 */
+	private static boolean checkSyntaxFilter(String filter) {
+		try {
+			ApamFilter parsedFilter = ApamFilter.newInstance(filter);
+			return parsedFilter != null ;
+		}
+		catch (Exception e) {
+			return false ;
+		}
+	}
+
+	private static boolean isSubstitute (ComponentDeclaration component, String attr) {
+		PropertyDefinition def = component.getPropertyDefinition(attr) ;
+		return  (def != null && (def.getDefaultValue().charAt(0)=='$' || def.getDefaultValue().charAt(0)=='@')) ;
+	}
+	
+    private static boolean checkFilter(ApamFilter filt, ComponentDeclaration component, Map<String, String> validAttr, String f, String spec) {
+        switch (filt.op) {
+            case ApamFilter.AND:
+            case ApamFilter.OR: {
+                ApamFilter[] filters = (ApamFilter[]) filt.value;
+                boolean ok = true ;
+                for (ApamFilter filter : filters) {
+                    if (!checkFilter(filter, component, validAttr, f, spec)) ok = false ;
+                }
+                return ok;
+            }
+
+            case ApamFilter.NOT: {
+                ApamFilter filter = (ApamFilter) filt.value;
+                return checkFilter(filter, component, validAttr, f, spec);
+            }
+
+            case ApamFilter.SUBSTRING:
+            case ApamFilter.EQUAL:
+            case ApamFilter.GREATER:
+            case ApamFilter.LESS:
+            case ApamFilter.APPROX:
+            case ApamFilter.SUBSET:
+            case ApamFilter.SUPERSET:
+            case ApamFilter.PRESENT: {
+                if (!Util.isFinalAttribute(filt.attr) && !validAttr.containsKey(filt.attr)) {
+                    logger.error("Members of component " + spec + " cannot have property " + filt.attr
+                            + ". Invalid constraint " + f);
+                    return false ;
+                }
+                if (validAttr.containsKey(filt.attr)) {
+                	if (isSubstitute (component, filt.attr)) {
+                		error("Filter attribute  " +  filt.attr + " is a substitution: .  Invalid constraint " + f);
+                		return false ;
+                	}
+//        			if (Util.checkAttrType(name, defaultValue, type) != null) {
+//        				return checkSubstitute (component, name, type, defaultValue) ;
+        			if (Util.checkAttrType(filt.attr, (String)filt.value, validAttr.get(filt.attr)) == null) {
+            			return false ;
+        			}
+        			return CheckObr.checkSubstitute (component, filt.attr, validAttr.get(filt.attr), (String)filt.value) ;
+//                    return Util.checkAttrType(attr, (String)value, validAttr.get(attr)) != null;
+                }
+            }
+            return true ;
+        }
+        return true ;
+    }
+
+	
 	private static boolean checkSubstitute (ComponentDeclaration component, String attr, String type, String defaultValue) {
 		//If it is a function substitution
 		if (defaultValue.charAt(0) == '@')
@@ -303,7 +373,7 @@ public class CheckObr {
 			error("Substitute attribute " + attr + "=" +defaultValue + ".  Undefined attribute " + sub.attr + " for component " + source.getName()) ;
 			return false ;
 		}
-		if (Util.checkSubType (st, new AttrType (pd), attr, sub.attr))
+		if (Substitute.checkSubType (st, new AttrType (pd), attr, sub))
 			return true ;
 		setFailedParsing(true)  ;
 		return false ;
@@ -539,7 +609,7 @@ public class CheckObr {
 				depIds.add(dep.getIdentifier());
 
 			// validating dependency constraints and preferences..
-			CheckObr.checkConstraint(dep);
+			CheckObr.checkConstraint(component, dep);
 
 			//replace the definition by the effective dependency (adding group definition)
 			computeGroupDependency (component, dep);
@@ -839,6 +909,29 @@ public class CheckObr {
 			checkTrigger(start);
 		}
 	}
+	
+	private static boolean checkFilters(ComponentDeclaration component, Set<String> filters, List<String> listFilters, Map<String, String> validAttr,
+			String comp) {
+		boolean ok = true;
+		if (filters != null) {
+			for (String f : filters) {
+				ApamFilter parsedFilter = ApamFilter.newInstance(f);
+				if (parsedFilter == null || !checkFilter(parsedFilter, component, validAttr, f, comp)) {
+					ok = false;
+				}
+			}
+		}
+		if (listFilters != null) {
+			for (String f : listFilters) {
+				ApamFilter parsedFilter = ApamFilter.newInstance(f);
+				if (parsedFilter == null || !checkFilter(parsedFilter, component, validAttr, f, comp)) {
+					ok = false;
+				}
+			}
+		}
+		return ok;
+	}
+
 
 	private static void checkTrigger(InstanceDeclaration start) {
 		Set<ConstrainedReference> trig = start.getTriggers();
@@ -857,10 +950,10 @@ public class CheckObr {
 
 			Map<String, String> validAttrs = cap.getValidAttrNames();
 
-			Util.checkFilters(ref.getImplementationConstraints(), ref
+			checkFilters(start, ref.getImplementationConstraints(), ref
 					.getImplementationPreferences(), validAttrs, ref
 					.getTarget().getName());
-			Util.checkFilters(ref.getInstanceConstraints(), ref
+			checkFilters(start, ref.getInstanceConstraints(), ref
 					.getInstancePreferences(), validAttrs, ref.getTarget()
 					.getName());
 		}
@@ -913,7 +1006,7 @@ public class CheckObr {
 		if (expr.equals(CST.V_FALSE) || expr.equals(CST.V_TRUE))
 			return true;
 
-		return Util.checkFilter(expr);
+		return checkSyntaxFilter(expr);
 	}
 
 	private static void checkVisibility(CompositeDeclaration component) {
@@ -1132,16 +1225,16 @@ public class CheckObr {
 		for (DependencyDeclaration pol : component.getContextualDependencies()) {
 
 			for (String constraint : pol.getImplementationConstraints()) {
-				Util.checkFilter(constraint);
+				checkSyntaxFilter(constraint);
 			}
 			for (String constraint : pol.getImplementationPreferences()) {
-				Util.checkFilter(constraint);
+				checkSyntaxFilter(constraint);
 			}
 			for (String constraint : pol.getInstanceConstraints()) {
-				Util.checkFilter(constraint);
+				checkSyntaxFilter(constraint);
 			}
 			for (String constraint : pol.getInstancePreferences()) {
-				Util.checkFilter(constraint);
+				checkSyntaxFilter(constraint);
 			}
 
 			// Checking if the exception is existing
@@ -1222,7 +1315,7 @@ public class CheckObr {
 		}
 	}
 
-	// Copy paste of the Util class
+	// Copy paste of the Util class ! too bad, this one uses ApamCapability
 	private static boolean checkDependencyMatch(
 			DependencyDeclaration clientDep, DependencyDeclaration compoDep) {
 		boolean multiple = clientDep.isMultiple();

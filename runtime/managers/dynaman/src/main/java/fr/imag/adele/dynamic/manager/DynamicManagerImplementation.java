@@ -35,6 +35,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
@@ -434,7 +435,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 
 	@Override
-	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
+	public Resolved resolveDependency(Instance client, Dependency dependency, boolean needsInstances) {
 			
 		/*
 		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
@@ -468,12 +469,12 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 
 	@Override
-	public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences) {
+	public Instance resolveImpl(Instance client, Implementation impl, Dependency dep) {
 		return null;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, Dependency dep) {
 		return null;
 	}
 

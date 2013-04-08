@@ -16,7 +16,6 @@ package fr.imag.adele.apam.util;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 //import org.osgi.framework.Filter;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
@@ -33,7 +33,7 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 
 public class UtilComp {
-	
+
 	private static Logger logger = LoggerFactory.getLogger(UtilComp.class);
 
 	/**
@@ -43,7 +43,7 @@ public class UtilComp {
 	 * @param dependency
 	 */
 	@SuppressWarnings("unchecked") 
-	public static Instance selectBestInstance (Set<Implementation> impls, Set<Instance> insts, DependencyDeclaration dependency) {
+	public static Instance selectBestInstance (Set<Implementation> impls, Set<Instance> insts, Dependency dep) {
 		//assert (!insts.isEmpty()) ;
 		if (insts == null || insts.isEmpty()) 
 			return null ;
@@ -53,62 +53,66 @@ public class UtilComp {
 		if (insts.size() == 1) {
 			return insts.iterator().next();
 		}
-		
-		List<String> implPreference = dependency.getImplementationPreferences() ;
-		List<String> instPreference = dependency.getInstancePreferences() ;
-		Set<String> instConstraints = dependency.getInstanceConstraints() ;
-		
+
+		//		List<String> implPreference = dependency.getImplementationPreferences() ;
+		//		List<String> instPreference = dependency.getInstancePreferences() ;
+		//		Set<String> instConstraints = dependency.getInstanceConstraints() ;
+
 		/*
 		 * If no implem or no implem preference, select the best instance, and return its implem, visible or not.
 		 */
-		if (implPreference == null || implPreference.isEmpty() 
+		//		if (implPreference == null || implPreference.isEmpty() 
+		//				|| impls==null || impls.isEmpty()) {
+		//			return getPrefered(insts, instPreference) ;
+		//		}
+		if (dep.getImplementationPreferences().isEmpty() 
 				|| impls==null || impls.isEmpty()) {
-			return getPrefered(insts, instPreference) ;
+			return getPrefered(insts, dep) ;
 		}
 		/*
 		 * Try to see if the best implem has existing instances. If not, only consider the instances.
 		 */
-		Implementation impl = getPrefered(impls, implPreference) ;
-		Set<Instance> selectedInsts = (Set<Instance>)getConstraintsPreferedComponent(impl.getMembers(), instPreference, instConstraints) ;
+		Implementation impl = getPrefered(impls, dep) ;
+		Set<Instance> selectedInsts = (Set<Instance>)getConstraintsPreferedComponent(impl.getMembers(), dep) ;
 		//if existing, take an instance of this implem.
 		if (selectedInsts!= null &&  !selectedInsts.isEmpty()) 
-			return getPrefered(selectedInsts, instPreference) ;
+			return getPrefered(selectedInsts, dep) ;
 		else 
-			return getPrefered(insts, instPreference) ;
+			return getPrefered(insts, dep) ;
 	}
 
-	
-    /**
-     * Return the sub-set of candidates that satisfy all the constraints
-     * @param <T>
-     * @param candidates
-     * @param constraints
-     * @return
-     */
-    public static <T extends Component> Set<T> getConstraintsComponents(Set<T> candidates, Set<String> constraints) {
-		if (constraints == null || constraints.isEmpty()) return candidates;
-        if (candidates == null) return null ;
 
-        Set<T> ret = new HashSet <T> () ;
-        for (T c : candidates) {
-            if (c.match(constraints)) {
-                ret.add (c) ;
-            }
-        }
-        return ret;
-    }
+	/**
+	 * Return the sub-set of candidates that satisfy all the constraints
+	 * @param <T>
+	 * @param candidates
+	 * @param constraints
+	 * @return
+	 */
+	public static <T extends Component> Set<T> getConstraintsComponents(Set<T> candidates, Dependency dep) {
+		if (dep == null) return candidates;
+		if (candidates == null) return null ;
 
-    /**
-     * Return a candidate, selected (by default) among those satisfying the constraints
-     * @param <T>
-     * @param candidates
-     * @param constraints
-     * @return
-     */
-    public static  <T extends Component> T getSelectedComponent(Set<T> candidates, Set<String> constraints) {
-        Set<T> ret = getConstraintsComponents(candidates, constraints) ;
+		Set<T> ret = new HashSet <T> () ;
+		for (T c : candidates) {
+			if (c.matchDependencyConstraints(dep)) {
+				ret.add (c) ;
+			}
+		}
+		return ret;
+	}
+
+	/**
+	 * Return a candidate, selected (by default) among those satisfying the constraints
+	 * @param <T>
+	 * @param candidates
+	 * @param constraints
+	 * @return
+	 */
+	public static  <T extends Component> T getSelectedComponent(Set<T> candidates, Dependency dep) {
+		Set<T> ret = getConstraintsComponents(candidates, dep) ;
 		return getDefaultComponent(ret) ;
-    }
+	}
 
 	/**
 	 * Return the set (if no preferences), of component matching the constraints, and then selected following the preferences.
@@ -120,55 +124,66 @@ public class UtilComp {
 	 * @param constraints
 	 * @return
 	 */
-	public static <T extends Component> Set<T> getConstraintsPreferedComponent(Set<T> candidates, List<String> preferences, 
-			Set<String> constraints) {
+	public static <T extends Component> Set<T> getConstraintsPreferedComponent(Set<T> candidates, Dependency dep) {
 		if (candidates == null || candidates.isEmpty()) return null ;
 
 		//Select only those implem with instances matching the constraints		
-		Set<T> valids = getConstraintsComponents(candidates, constraints);
+		Set<T> valids = getConstraintsComponents(candidates, dep);
 
 		//Valids contains all the valid components
 		//If no preference return them all.
-		if ((preferences == null || preferences.isEmpty())) 
+		if ((dep.getImplementationPreferences().isEmpty() && dep.getInstancePreferences().isEmpty())) 
 			return valids ;
 
 		//If preferences return the one and only one prefered
-		T valid = getPrefered (valids, preferences) ;
+		T valid = getPrefered (valids, dep) ;
 		Set<T> ret = new HashSet<T> () ; 
 		ret.add(valid) ;
 		return ret ;
 	}
 
-    /**
+	/**
 	 * Return the candidates that best matches the preferences
-     * Take the preferences in orden: m candidates
-     * find  the n candidates that match the constraint.
-     * 		if n= 0 ignore the constraint
-     *      if n=1 return it.
-     * iterate with the n candidates.
+	 * Take the preferences in orden: m candidates
+	 * find  the n candidates that match the constraint.
+	 * 		if n= 0 ignore the constraint
+	 *      if n=1 return it.
+	 * iterate with the n candidates.
 	 * At the end, if n > 1 returns the default one.
-     *
+	 *
 	 * @param <T>
 	 * @param candidates
 	 * @param preferences
 	 * @return
-     */
-	public static  <T extends Component> T getPrefered (Set<T> candidates, List<String> preferences ) {
-        if (candidates == null || candidates.isEmpty()) return null ;
+	 */
+	public static  <T extends Component> T getPrefered (Set<T> candidates, Dependency dep) {
+		if (candidates == null || candidates.isEmpty()) return null ;
 		if (candidates.size() == 1) return candidates.iterator().next() ;
-		if (preferences == null || preferences.isEmpty()) {
+		if (dep == null) {
 			return getDefaultComponent(candidates) ;
-        }
+		}
 
-        Set<T> valids = new HashSet<T> ();
-        for (String f : preferences) {
-            for (T compo : candidates) {
-                if (compo.match(f))
-                    valids.add (compo) ;
-            }
+		//TODO check how to do it clean ! if (T ???? Implementation)
+		if (candidates.iterator().next() instanceof Implementation) {
+			return getPreferedFilter (candidates, dep.getImplementationPreferenceFilters()) ;			
+		}
+		return getPreferedFilter (candidates, dep.getInstancePreferenceFilters()) ;			
+	}	
+
+
+	private static  <T extends Component> T getPreferedFilter (Set<T> candidates, List<ApamFilter> preferences) {
+		if (preferences.isEmpty()) 
+			return  getDefaultComponent(candidates) ;
+
+		Set<T> valids = new HashSet<T> ();
+		for (ApamFilter f : preferences) {
+			for (T compo : candidates) {
+				if (compo.match(f))
+					valids.add (compo) ;
+			}
 
 			//If a single one satisfies, it is the prefered one.
-            if (valids.size()==1) return valids.iterator().next();
+			if (valids.size()==1) return valids.iterator().next();
 
 			//If nobody satisfies the contraints check next constraint with same set of candidates
 			if (valids.isEmpty()) break ;
@@ -177,34 +192,34 @@ public class UtilComp {
 			candidates = valids ;
 			valids=new HashSet<T> () ;
 		}
-		
-		//More than one candidate are still here: return the default one.
-        return getDefaultComponent(candidates) ;
-    }	
 
-    /**
-     * Return the "best" component among the candidates. 
-     * Best depends on the component nature. 
-     * For implems, it is those that have sharable instance or that is instantiable.
-     * @param <T>
-     * @param candidates
-     * @return
-     */
-    private static <T extends Component> T getDefaultComponent (Set<T> candidates) {
+		//More than one candidate are still here: return the default one.
+		return getDefaultComponent(candidates) ;
+	}	
+
+	/**
+	 * Return the "best" component among the candidates. 
+	 * Best depends on the component nature. 
+	 * For implems, it is those that have sharable instance or that is instantiable.
+	 * @param <T>
+	 * @param candidates
+	 * @return
+	 */
+	private static <T extends Component> T getDefaultComponent (Set<T> candidates) {
 		if (candidates == null || candidates.isEmpty()) return null ;
-    	if (!(candidates.iterator().next() instanceof Implementation)) 
-    		return candidates.iterator().next() ;
-    	
-        for (T impl : candidates) {
-            if (impl.isInstantiable())
-                return impl;
-            for (Component inst : impl.getMembers()) {
-                if (((Instance)inst).isSharable())
-                    return impl;
-            }
-        }
-        return candidates.iterator().next();
-    }
+		if (!(candidates.iterator().next() instanceof Implementation)) 
+			return candidates.iterator().next() ;
+
+		for (T impl : candidates) {
+			if (impl.isInstantiable())
+				return impl;
+			for (Component inst : impl.getMembers()) {
+				if (((Instance)inst).isSharable())
+					return impl;
+			}
+		}
+		return candidates.iterator().next();
+	}
 
 
 	/**
@@ -219,7 +234,7 @@ public class UtilComp {
 	public static Set<DependencyDeclaration> computeAllDependencies (Instance client) {
 		Set<DependencyDeclaration> allDeps = new HashSet<DependencyDeclaration> () ;
 		allDeps.addAll(client.getDeclaration().getDependencies());
-	
+
 		boolean found ;
 		for (DependencyDeclaration dep : client.getImpl().getDeclaration().getDependencies()) {
 			found= false ;
@@ -281,42 +296,45 @@ public class UtilComp {
 			//Only defined in the implementation
 			dependency = client.getGroup().getDeclaration().getDependency(depName) ;
 		} 
-	
+
 		//Should never happen
 		if (dependency == null || dependency.getTarget() == null) {
 			logger.error("Invalid dependency " + depName + " for instance " + client + ".  Not declared ") ;
 			return null ;
 		}
-	
+
 		List<DependencyDeclaration> ctxtDcl = client.getComposite().getCompType().getCompoDeclaration().getContextualDependencies() ;
 		if (ctxtDcl == null || ctxtDcl.isEmpty())
 			return dependency ;
-	
+
 		//Add the composite generic constraints
 		//But do not change the declared dependency
 		dependency = dependency.clone() ;	
-		Map<String, String> validAttrs = client.getValidAttributes() ;
+		//Map<String, String> validAttrs = client.getValidAttributes() ;
 		for ( DependencyDeclaration  genDep  : ctxtDcl) {
 			if (matchGenericDependency(client, genDep, dependency)) {
 				overrideDepFlags (dependency, genDep, true) ;
-	
-				if (Util.checkFilters(genDep.getImplementationConstraints(), null, validAttrs, client.getName())) {
-					dependency.getImplementationConstraints().addAll(genDep.getImplementationConstraints()) ;
-				}
+
+				//It is assumed that the filters have been checked at compile time (checkObr)
+				//if (Util.checkFilters(genDep.getImplementationConstraints(), null, validAttrs, client.getName())) 
+				dependency.getImplementationConstraints().addAll(genDep.getImplementationConstraints()) ;
+
 				dependency.getInstanceConstraints().addAll(genDep.getInstanceConstraints()) ;
-				if (Util.checkFilters(null, genDep.getImplementationPreferences(), validAttrs, client.getName())) {
-					dependency.getImplementationPreferences().addAll(genDep.getImplementationPreferences()) ;
-				}
-				if (Util.checkFilters(null, genDep.getInstancePreferences(), validAttrs, client.getName())) {
-					dependency.getInstancePreferences().addAll(genDep.getInstancePreferences()) ;
-				}
+				//if (Util.checkFilters(null, genDep.getImplementationPreferences(), validAttrs, client.getName())) 
+				dependency.getImplementationPreferences().addAll(genDep.getImplementationPreferences()) ;
+
+				//if (Util.checkFilters(null, genDep.getInstancePreferences(), validAttrs, client.getName())) 
+				dependency.getInstancePreferences().addAll(genDep.getInstancePreferences()) ;
 			}
 		}
 		return dependency ;
 	}
 
 
-	///About dependencies
+	/*
+	 * About dependencies
+	 */
+
 	/**
 	 * Provided a client instance, checks if its dependency "clientDep", matches another dependency: "compoDep".
 	 *
@@ -333,7 +351,7 @@ public class UtilComp {
 		boolean multiple = clientDep.isMultiple();
 		//Look for same dependency: the same specification, the same implementation or same resource name
 		//Constraints are not taken into account
-	
+
 		// if same nature (spec, implem, internface ... make a direct comparison.
 		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { 
 			if (compoDep.getTarget().equals(clientDep.getTarget())) {
@@ -342,11 +360,11 @@ public class UtilComp {
 				}
 			}
 		}
-	
+
 		//Look for a compatible dependency.
 		//Stop at the first dependency matching only based on same name (same resource or same component)
 		//No provision for : cardinality, constraints or characteristics (missing, eager)
-	
+
 		//Look if the client requires one of the resources provided by the specification
 		if (compoDep.getTarget() instanceof SpecificationReference) {
 			Specification spec = CST.apamResolver.findSpecByName(compoInst,
@@ -356,7 +374,7 @@ public class UtilComp {
 				return true;
 			}
 		} 
-	
+
 		//If the composite has a dependency toward an implementation
 		//and the client requires a resource provided by that implementation
 		else {
@@ -395,17 +413,17 @@ public class UtilComp {
 	 * @return
 	 */
 	public static boolean matchGenericDependency(Instance compoInst, DependencyDeclaration compoDep, DependencyDeclaration clientDep) {
-	
+
 		String pattern = compoDep.getTarget().getName() ;
 		//Look for same dependency: the same specification, the same implementation or same resource name
 		//Constraints are not taken into account
-	
+
 		// same nature: direct comparison
 		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())
 				&& (clientDep.getTarget().getName().matches(pattern))) {
 			return true;
 		}
-	
+
 		//If the client dep is an implementation dependency, check if the specification matches the pattern
 		if (compoDep.getTarget() instanceof SpecificationReference
 				&& clientDep.getTarget() instanceof ImplementationReference) {
@@ -436,11 +454,11 @@ public class UtilComp {
 		if (dependency.getMissingPolicy() == null || (generic && dep.getMissingPolicy() != null)) {
 			dependency.setMissingPolicy(dep.getMissingPolicy()) ;
 		}
-	
+
 		if (dependency.getMissingException() == null || (generic && dep.getMissingException() != null)) {
 			dependency.setMissingException(dep.getMissingException()) ;
 		}
-	
+
 		if (generic) {
 			dependency.setHide(dep.isHide()) ;
 			dependency.setEager(dep.isEager()) ;

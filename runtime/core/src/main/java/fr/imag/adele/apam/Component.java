@@ -20,6 +20,7 @@ import java.util.Set;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.util.ApamFilter;
 
 public interface Component {
 
@@ -67,8 +68,15 @@ public interface Component {
 	 * @return true is the instance matches the goal
 	 */
 	public boolean match(String goal);
+	public boolean match(ApamFilter goal);
 
 
+	/**
+	 * return true if the component satisfies the constraints expressed in the reference : in general a dependency.
+	 * @param dep
+	 * @return
+	 */
+	public boolean matchDependencyConstraints (Dependency dep) ;
 	/**
 	 * return true if the instance matches ALL the constraints in the set.
 	 *

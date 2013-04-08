@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
@@ -114,15 +115,15 @@ public class ApamCapability {
 	 * @param value
 	 */
 	public boolean putAttr (String attr, String value) {
-		if (finalProperties.get(attr) != null) {
-			CheckObr.warning("Attribute " + attr + " already set on " + dcl.getName() 
-					+ " (old value=" + finalProperties.get(attr) + " new value=" + value + ")") ;
+		if ((finalProperties.get(attr) != null) || (finalProperties.get(CST.DEFINITION_PREFIX + attr) != null)) {
+			CheckObr.error("Attribute " + attr + " already set on " + dcl.getName() ) ;
+				//	+ " (old value=" + finalProperties.get(attr) + " new value=" + value + ")") ;
 			return false ;
 		}
 		finalProperties.put(attr, value) ;
 		return true ;
 	}
-
+	
 	public void finalize () {
 		isFinalized = true;
 		properties = finalProperties ;

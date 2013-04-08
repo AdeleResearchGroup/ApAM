@@ -35,6 +35,7 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -46,6 +47,7 @@ import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.obrMan.OBRManCommand;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
@@ -160,12 +162,12 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences) {
+    public Instance resolveImpl(Instance client, Implementation impl, Dependency dep) {
         return null;
     }
 
     @Override
-    public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
+    public Set<Instance> resolveImpls(Instance client, Implementation impl, Dependency dep) {
         return null;
     }
 
@@ -194,8 +196,12 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     // interface manager
-    private Implementation resolveSpec(CompositeType compoType, ResolvableReference resource,
-            Set<String> constraints, List<String> preferences) {
+    private Implementation resolveSpec(CompositeType compoType, Dependency dep) {
+
+//            Set<String> constraints, List<String> preferences) {
+    	ResolvableReference resource = dep.getTarget() ;
+		Set<ApamFilter> constraints = dep.getImplementationConstraintFilters() ;
+		List<ApamFilter> preferences = dep.getInstancePreferenceFilters() ;
 
         // Find the composite OBRManager
         OBRManager obrManager = searchOBRManager(compoType);
@@ -203,16 +209,16 @@ public class OBRMan implements DependencyManager, OBRManCommand {
             return null;
 
         // temporary ??
-        if (preferences == null)
-            preferences = new ArrayList<String>();
-        preferences.add("(apam-composite=true)");
-        // end
-        if (constraints == null) {
-        	constraints = new HashSet <String> () ;
-        }
-//        f = ApamFilter.newInstance("(" + CST.COMPONENT_TYPE + "=" + CST.IMPLEMENTATION + ")");
-//        if (f != null)
-        constraints.add("(" + CST.COMPONENT_TYPE + "=" + CST.IMPLEMENTATION + ")");
+//        if (preferences == null)
+//            preferences = new ArrayList<String>();
+//        preferences.add("(apam-composite=true)");
+//        // end
+//        if (constraints == null) {
+//        	constraints = new HashSet <String> () ;
+//        }
+        ApamFilter f = ApamFilter.newInstance("(" + CST.COMPONENT_TYPE + "=" + CST.IMPLEMENTATION + ")");
+        if (f != null)
+         dep.getImplementationConstraintFilters().add(f);
 
         fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
         Implementation impl = null;
@@ -284,7 +290,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Resolved resolveDependency(Instance client, DependencyDeclaration dep, boolean needsInstances) {
+    public Resolved resolveDependency(Instance client, Dependency dep, boolean needsInstances) {
     	Implementation impl = resolveSpec(client, dep);
     	if (impl == null)
     		return null;
@@ -298,13 +304,11 @@ public class OBRMan implements DependencyManager, OBRManCommand {
         return new Resolved (implementations, instances);
     }
 
-    private Implementation resolveSpec(Instance client, DependencyDeclaration dep) {
-        return resolveSpec(client.getComposite().getCompType(), dep.getTarget(), 
-        		dep.getImplementationConstraints(), dep.getImplementationPreferences());
+    private Implementation resolveSpec(Instance client, Dependency dep) {
+        return resolveSpec(client.getComposite().getCompType(), dep);
     }
 
-    private <C extends Component> C findByName(CompositeType compoType, String componentName,
-            Class<C> kind) {
+    private <C extends Component> C findByName(CompositeType compoType, String componentName, Class<C> kind) {
         if (componentName == null)
             return null;
 

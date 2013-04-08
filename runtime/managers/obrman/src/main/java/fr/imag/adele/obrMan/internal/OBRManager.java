@@ -108,7 +108,7 @@ public class OBRManager {
         return null ;
     }
 
-    public Set<Selected> lookForAll(String capability, String filterStr, Set<String> constraints) {
+    public Set<Selected> lookForAll(String capability, String filterStr, Set<ApamFilter> constraints) {
         if (filterStr == null)
             new Exception("no filter in lookfor all").printStackTrace();
 
@@ -149,7 +149,7 @@ public class OBRManager {
         return allRes;
     }
 
-    public Selected lookForPref(String capability, List<String> preferences, Set<Selected> candidates) {
+    public Selected lookForPref(String capability, List<ApamFilter> preferences, Set<Selected> candidates) {
         Selected winner = lookForPrefInt(capability, preferences, candidates) ;
         if (winner == null)
             return null;
@@ -169,7 +169,7 @@ public class OBRManager {
      * At the end, if n > 1 return one arbitrarily.
      *
      */
-    public Selected lookForPrefInt(String capability, List<String> preferences, Set<Selected> candidates) {
+    public Selected lookForPrefInt(String capability, List<ApamFilter> preferences, Set<Selected> candidates) {
         if (candidates == null || candidates.isEmpty()) return null ;
         // Trace preference filter
         logFilterConstraintPreferences(null, null, preferences, false);
@@ -179,10 +179,10 @@ public class OBRManager {
 
         Set<Selected> valids = new HashSet<Selected> ();
         ApamFilter filter;
-        for (String f : preferences) {
-            filter = ApamFilter.newInstance(f);
+        for (ApamFilter f : preferences) {
+            //filter = ApamFilter.newInstance(f);
             for (Selected compo : candidates) {
-                if (filter.matchCase(compo.capability.getPropertiesAsMap()))
+                if (f.matchCase(compo.capability.getPropertiesAsMap()))
                     valids.add (compo) ;
             }
             if (valids.size()==1) return (Selected)valids.toArray()[0] ;
@@ -202,14 +202,14 @@ public class OBRManager {
      * @param preferences: the preferences. can be null
      * @return the pair capability,
      */
-    public Selected lookFor(String capability, String filterStr, Set<String> constraints, List<String> preferences) {
+    public Selected lookFor(String capability, String filterStr, Set<ApamFilter> constraints, List<ApamFilter> preferences) {
         if ((preferences != null) && !preferences.isEmpty()) {
             return lookForPref(capability, preferences, lookForAll(capability, filterStr, constraints));
         }
         return lookFor(capability, filterStr, constraints);
     }
 
-    private Selected lookFor(String capability, String filterStr, Set<String> constraints) {
+    private Selected lookFor(String capability, String filterStr, Set<ApamFilter> constraints) {
         if (filterStr == null) {
             logger.debug("No filter for lookFor");
             return null;
@@ -226,7 +226,7 @@ public class OBRManager {
         return getBestCandidate(allSelected) ;
     }
 
-    private void logFilterConstraintPreferences(String filterStr, Set<String> constraints, List<String> preferences,
+    private void logFilterConstraintPreferences(String filterStr, Set<ApamFilter> constraints, List<ApamFilter> preferences,
                                                 boolean all) {
 
         StringBuffer debugMessage = new StringBuffer ();
@@ -239,14 +239,14 @@ public class OBRManager {
         }
         if ((constraints != null) && !constraints.isEmpty()) {
             debugMessage.append("\n     Constraints : ");
-            for (String constraint : constraints) {
+            for (ApamFilter constraint : constraints) {
             	debugMessage.append(constraint + ", ");
             }
         }
 
         if ((preferences != null) && !preferences.isEmpty()) {
         	debugMessage.append("\n    Preferences : ");
-            for (String preference : preferences) {
+            for (ApamFilter preference : preferences) {
             	debugMessage.append(preference + ", ");
             }
         }
@@ -261,15 +261,15 @@ public class OBRManager {
      * @param constraints
      * @return
      */
-    private boolean matchConstraints(Capability aCap, Set<String> constraints) {
+    private boolean matchConstraints(Capability aCap, Set<ApamFilter> constraints) {
         if ((constraints == null) || constraints.isEmpty() || (aCap == null))
             return true;
 
-        ApamFilter filter;
+        //ApamFilter filter;
         Map<?, ?> map = aCap.getPropertiesAsMap();
-        for (String constraint : constraints) {
-            filter = ApamFilter.newInstance(constraint);
-            if (!filter.match(map)) {
+        for (ApamFilter constraint : constraints) {
+            //filter = ApamFilter.newInstance(constraint);
+            if (!constraint.match(map)) {
                 return false;
             }
         }

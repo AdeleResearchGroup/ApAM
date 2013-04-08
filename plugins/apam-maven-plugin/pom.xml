@@ -16,6 +16,11 @@
     for the management of ApAM components.</description>
 
 	<dependencies>
+ 		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>apam-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
         <dependency>
             <groupId>commons-lang</groupId>
@@ -81,11 +86,7 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.ipojo.manipulator</artifactId>
-<<<<<<< HEAD
-             <version>${ipojo.plugin.version}</version>
-=======
-	    <version>${ipojo.plugin.version}</version>
->>>>>>> 7c734b946f72f4c60d7682c6e9c16cfca8cc02ff
+	    	<version>${ipojo.plugin.version}</version>
         </dependency>
     </dependencies>
 	<build>

@@ -27,6 +27,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -77,18 +78,18 @@ public class ApamMan implements DependencyManager {
 	}
 
 	@Override
-	public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences) {
+	public Instance resolveImpl(Instance client, Implementation impl, Dependency dep) {
 		//List<ApamFilter> f = Util.toFilterList(preferences) ;
-		return UtilComp.getPrefered(resolveImpls(client, impl, constraints), preferences) ;
+		return UtilComp.getPrefered(resolveImpls(client, impl, dep), dep) ;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, Dependency dep) {
 
 		//Set<ApamFilter> f = Util.toFilter(constraints) ;	
 		Set<Instance> insts = new HashSet<Instance>();
 		for (Instance inst : impl.getInsts()) {
-			if (inst.isSharable() && inst.match(constraints) && Util.checkInstVisible(client.getComposite(), inst))
+			if (inst.isSharable() && inst.matchDependencyConstraints(dep) && Util.checkInstVisible(client.getComposite(), inst))
 				insts.add(inst);
 		}
 		return insts;
@@ -164,7 +165,7 @@ public class ApamMan implements DependencyManager {
 	 * 
 	 */
 	@Override
-	public Resolved resolveDependency(Instance client, DependencyDeclaration dep, boolean needsInstances) {
+	public Resolved resolveDependency(Instance client, Dependency dep, boolean needsInstances) {
 		Set<Implementation> impls = null ;
 		String name = dep.getTarget().getName() ;
 
@@ -205,7 +206,7 @@ public class ApamMan implements DependencyManager {
 
 		//only keep those satisfying the constraints
 		if (dep.getImplementationConstraints() != null) {
-			impls = UtilComp.getConstraintsComponents(impls, dep.getImplementationConstraints());
+			impls = UtilComp.getConstraintsComponents(impls, dep);
 			if (impls == null || impls.isEmpty()) 
 				return null ;
 		}
@@ -226,7 +227,8 @@ public class ApamMan implements DependencyManager {
 				for (Instance inst : oneInsts) {
 					if (inst.isSharable() 
 							&& Util.checkInstVisible(compo, inst)
-							&& inst.match(dep.getInstanceConstraints())) {
+							//							&& inst.match(dep.getInstanceConstraints())) {
+							&& inst.matchDependencyConstraints(dep)) {
 						insts.add(inst) ;
 					}
 				}
@@ -254,7 +256,7 @@ public class ApamMan implements DependencyManager {
 			return new Resolved (Collections.singleton(impls.iterator().next()), null) ;
 
 		//List<ApamFilter> implPreferences = Util.toFilterList(dep.getImplementationPreferences()) ;
-		return new Resolved (Collections.singleton(UtilComp.getPrefered(impls, dep.getImplementationPreferences())), null) ;
+		return new Resolved (Collections.singleton(UtilComp.getPrefered(impls, dep)), null) ;
 	}
 
 

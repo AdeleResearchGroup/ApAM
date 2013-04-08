@@ -31,6 +31,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
@@ -82,6 +83,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	public AttrType getAttrType (String attr) {
 		PropertyDefinition attrDef = getAttrDefinition(attr) ;
 		if (attrDef == null) {
+			if (Util.isFinalAttribute(attr))
+				return Util.splitType("string") ;
 			return null ;
 		}
 		return  Util.splitType(attrDef.getType()) ;
@@ -581,8 +584,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		//return Util.checkAttrType(attr, value, definition.getType());
 	}
 
+	public boolean isSubstitute (String attr) {
+		PropertyDefinition def = getDeclaration().getPropertyDefinition(attr) ;
+		return  (def != null && (def.getDefaultValue().charAt(0)=='$' || def.getDefaultValue().charAt(0)=='@')) ;
+	}
 
-
+	
 	/*
 	 * Filter evaluation on the properties of this component
 	 */
@@ -593,17 +600,51 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return goal == null || match(Collections.singleton(goal));
 	}
 
+	@Override
+	public boolean match(ApamFilter goal) {
+		if (goal == null) return true ;
+		return goal.match(this);
+	}
 
+	@Override
+	public boolean matchDependencyConstraints (Dependency dep) {
+		if (this instanceof Implementation) {
+			Set<ApamFilter>  filters =  dep.getImplementationConstraintFilters() ;
+			if (filters == null) {
+				return match (dep.getImplementationConstraints()) ;
+			}
+			for (ApamFilter af :filters) {
+				if (!(af.matchCase(this))) {
+					return false ;
+				}
+			}
+			return true;
+		}
+		if (this instanceof Instance) {
+			Set<ApamFilter>  filters =  dep.getInstanceConstraintFilters() ;
+			if (filters == null) {
+				return match (dep.getInstanceConstraints()) ;
+			}
+			for (ApamFilter af :filters) {
+				if (!(af.matchCase(this))) {
+					return false ;
+				}
+			}
+		}
+		return true;
+	}
+
+	
 	@Override
 	public boolean match(Set<String> goals) {
 		if ((goals == null) || goals.isEmpty())
 			return true;
 
-		Map<String,Object> props = getAllProperties() ;
+		//Map<String,Object> props = getAllProperties() ;
 		try {
 			for (String f : goals) {
 				ApamFilter af = ApamFilter.newInstance(f) ;
-				if (!(af.matchCase(props))) {
+				if (!(af.matchCase(this))) {
 					return false ;
 				}
 			}

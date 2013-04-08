@@ -1,6 +1,8 @@
 package fr.imag.adele.apam.util;
 
+import java.util.List;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,6 +35,19 @@ public class Substitute {
 		public String prefix ;
 		public String suffix ;
 
+		public String toString() {
+			StringBuffer ret = new StringBuffer ("");
+			if (prefix != null) 
+				ret.append(prefix + "+") ;
+			if (sourceName != null) 
+				ret.append(sourceName) ;
+			if (depId != null)
+				ret.append ("." + depId) ;
+			ret.append("$" + attr) ;
+			if (suffix != null) 
+				ret.append("+" + suffix) ;
+			return ret.toString() ;
+		}
 		/**
 		 * 	Stores the differents elements, and separate the prefix and suffix from source and attr
 		 * 
@@ -43,7 +58,7 @@ public class Substitute {
 		 * @param depId can be null
 		 */
 		public SplitSub (String attrSub, String sourceName, String depId) {
-			//separate the prefix and suffix from souirce and attr
+			//separate the prefix and suffix from source and attr
 
 			int s = attrSub.indexOf('+') ;
 			if (s == 0) { // invalid : attrsub = "+azer"
@@ -103,6 +118,56 @@ public class Substitute {
 		return new SplitSub(attr, prefix.substring(0, j), prefix.substring(j+1)) ;
 	}
 
+	public static boolean isSubstitution (Object value) {
+		return ((value instanceof String) && (((String)value).charAt(0)=='$' || ((String)value).charAt(0)=='@')) ;
+	}
+
+	/**
+	 * 
+	 * @param sourceType
+	 * @param targetType
+	 * @param attr
+	 * @param sub
+	 * @return
+	 */
+	public static boolean checkSubType (AttrType sourceType, AttrType targetType, String attr, SplitSub sub) {
+
+		/*
+		 * We are in a filter, source is the target, ans the real source is ignore.
+		 *Validity has been checked at compile time  
+		 */		
+		if (sourceType == null)
+			return true ;
+		if (targetType==null) 
+			return false ;
+
+
+		if (sub.prefix!= null || sub.suffix != null) { //The result is a string, not an enumeration
+			if (sourceType.type==AttrType.STRING) {
+				return true ;
+			}
+			logger.error("Attribute " + attr +  " of type " + sourceType.typeString + " : invalid substitution with string \"" + sub + "\". Attribute " 
+					+  sub.attr + " of type : " + targetType.typeString ) ;
+			return false ;
+		}
+
+
+		if (sourceType.type!=targetType.type) {
+			logger.error("Attribute " + attr +  " of type " + sourceType.typeString + " : invalid substitution with \"" + sub + "\". Attribute " 
+					+  sub.attr + " of type : " + targetType.typeString ) ;
+			return false ;
+		}
+
+		if (sourceType.type==AttrType.ENUM && !sourceType.enumValues.equals(targetType.enumValues)) {
+			logger.error("Attribute " + attr +  " of type " + sourceType.typeString + " : Not the same enumeration set as attribute " 
+					+  sub.attr + " of type : " + targetType.typeString ) ;
+			return false ;
+		}
+
+		return (sourceType.isSet || !targetType.isSet) ;
+	}
+
+
 	private static String concatSub (SplitSub sub, String val) {
 		String ret = val ;
 		if (sub.prefix != null) {
@@ -121,10 +186,13 @@ public class Substitute {
 	 * @param sourceTypeAttr
 //	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private static Object checkReturnSub (Component source, SplitSub sub, String sourceAttr, AttrType sourceTypeAttr) {
+
 		AttrType t = source.getAttrType (sub.attr) ;
 		if (t == null) return null ;
-		if (!Util.checkSubType (sourceTypeAttr, t, sourceAttr, sub.attr)) {
+
+		if (!checkSubType (sourceTypeAttr, t, sourceAttr, sub)) {
 			return null ;
 		}
 
@@ -172,6 +240,7 @@ public class Substitute {
 		return null ;
 	}
 
+
 	/**
 	 * Provided that component sources has an attribute "attr=value", with value a meta-substitution, 
 	 * returns the value after the substitution.
@@ -193,15 +262,14 @@ public class Substitute {
 		/*
 		 * No substitution cases
 		 */
-		if (source == null) return null ;
-		if (valueObject == null) return null ;
-		if (!(valueObject instanceof String)) return valueObject ;
+		if (source == null || (valueObject == null) || (!(valueObject instanceof String))) 
+			return valueObject ;
 
 		String value = (String)valueObject ;
 		if (value.startsWith("\\$") || value.startsWith("\\@")) 
 			return value.substring (1) ;
 
-		if (value.charAt(0) != '$' && value.charAt(0) != '@' ) 
+		if (value.isEmpty() || (value.charAt(0) != '$' && value.charAt(0) != '@' )) 
 			return valueObject ;
 
 		/*
@@ -212,7 +280,13 @@ public class Substitute {
 			return functionSubstitute(attr, value, source) ;
 
 		//a meta substitution
-		AttrType st = source.getAttrType(attr) ;
+
+		AttrType st = null ;
+		// If attr is null, it is because it is a substitution in a filter. Source is currently the target ! Do no check the attr
+		if (attr != null) {
+			st = source.getAttrType(attr) ;
+		}
+
 		SplitSub sub = split (value) ;
 		if (sub == null) return value ;
 
@@ -296,4 +370,51 @@ public class Substitute {
 		return retSetString ;
 	}
 
+	/**
+	 * Transforms a list of constraint in string, into a list of filters, and substitute the values if needed
+	 * @param filterString
+	 * @param component
+	 * @return
+	 */
+	public static List<ApamFilter> toFiltersSubst (List<String> filterString, Component component) {
+		if (component == null)
+			return null ;
+
+		List<ApamFilter> ret = new ArrayList<ApamFilter> () ;
+		if (filterString == null || filterString.isEmpty())
+			return ret ;
+		for (String sf : filterString) {
+			try {
+				ret.add(ApamFilter.newInstanceApam(sf, false, component)) ;
+			}
+			catch (Exception e) {
+				logger.error("Invalif filter " + sf + " for component " + component.getName()) ;
+			}
+		}
+		return ret ;
+	}
+
+
+	/**
+	 * Transforms a list of constraints in string, into a list of filters, and substitute the values if needed
+	 * @param filterString
+	 * @param component
+	 * @return
+	 */
+	public static Set<ApamFilter> toFiltersSubst (Set<String> filterString, Component component) {
+		if (component == null)
+			return null ;
+
+		Set<ApamFilter> ret = new HashSet<ApamFilter> () ;
+		for (String sf : filterString) {
+			try {
+				ret.add(ApamFilter.newInstanceApam(sf, false, component)) ;
+			}
+			catch (Exception e) {
+				logger.error("Invalif filter " + sf + " for component " + component.getName()) ;
+			}
+		}
+		return ret ;
+	}
 }
+

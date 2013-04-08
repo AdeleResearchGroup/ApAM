@@ -33,6 +33,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -168,9 +169,9 @@ public class ApamResolverImpl implements ApamResolver {
 		logger.info("Resolving dependency " + depName + " from instance " + client.getName() );
 
 		//compute the set of constraints that apply to that resolution: inst + impl + spec + composite generique
-		DependencyDeclaration dependency = UtilComp.computeEffectiveDependency (client, depName) ;
+		DependencyDeclaration dependencyDef = UtilComp.computeEffectiveDependency (client, depName) ;
 
-		if (dependency == null) {
+		if (dependencyDef == null) {
 			logger.error("dependency declaration invalid or not found " + depName);
 			return false;
 		}
@@ -186,7 +187,7 @@ public class ApamResolverImpl implements ApamResolver {
 		 */
 		Composite compo = getClientComposite(client);
 		Instance refClient = client;
-		DependencyDeclaration promotionDependency = getPromotion(client, dependency);
+		DependencyDeclaration promotionDependency = getPromotion(client, dependencyDef);
 		// if it is a promotion, visibility and scope is the one of the embedding composite.
 		if (promotionDependency != null) {
 			refClient = compo ;
@@ -204,7 +205,7 @@ public class ApamResolverImpl implements ApamResolver {
 		 */
 		if (insts == null) { //it is not a promotion that provides the valid instances
 			// Look for the valid implementation(s) and instances.
-			Resolved res = this.resolveDependency(refClient, dependency, true);
+			Resolved res = this.resolveDependency(refClient, dependencyDef, true);
 			if (res == null) {
 				impls = null ;
 				insts = null ;
@@ -215,7 +216,7 @@ public class ApamResolverImpl implements ApamResolver {
 			}
 		}
 		if ((impls == null || impls.isEmpty()) && (insts==null || insts.isEmpty())) {
-			logger.error("Failed to resolve " + dependency.getTarget()
+			logger.error("Failed to resolve " + dependencyDef.getTarget()
 					+ " from " + client + "(" + depName + ")");
 			return false;
 		}
@@ -226,11 +227,13 @@ public class ApamResolverImpl implements ApamResolver {
 		 * WARNING: impls can be null and insts not ; and vice-versa
 		 * If No existing instance, take the best implem and create one instance. Only return that implementation.
 		 */
+		Dependency dependency = new Dependency (dependencyDef, client) ;
+
 		if (insts==null || insts.isEmpty()) {
 			if (impls.size()== 1) {
 				impl=impls.iterator().next() ;
 			} else {
-				impl = UtilComp.getPrefered(impls, dependency.getImplementationPreferences()) ;
+				impl = UtilComp.getPrefered(impls, dependency) ;
 				impls.clear () ;
 				impls.add(impl) ;
 			}  
@@ -253,7 +256,7 @@ public class ApamResolverImpl implements ApamResolver {
 		boolean ok = false ;
 
 		//If the dependency has constraints, the wire has to be re-evaluated when a provider property changes.
-		boolean hasConstraints = (!dependency.getImplementationConstraints().isEmpty() || !dependency.getInstanceConstraints().isEmpty()) ;
+		boolean hasConstraints = (!dependencyDef.getImplementationConstraints().isEmpty() || !dependencyDef.getInstanceConstraints().isEmpty()) ;
 
 		for (Instance inst : insts) {
 
@@ -283,8 +286,10 @@ public class ApamResolverImpl implements ApamResolver {
 						+ client.getComposite() + " -" + promotionDependency.getIdentifier() + "-> " + inst);
 
 				// wire the client only if the composite target matches the client constraints
-				if (inst.getImpl().match(dependency.getImplementationConstraints())
-						&& inst.match(dependency.getInstanceConstraints())) {
+//				if (inst.getImpl().match(dependency.getImplementationConstraints())
+//						&& inst.match(dependency.getInstanceConstraints())) {
+					if (inst.getImpl().matchDependencyConstraints(dependency) 
+							&& inst.matchDependencyConstraints(dependency)) {
 					client.createWire(inst, depName, hasConstraints, true);
 					ok = true ;
 				}
@@ -322,14 +327,17 @@ public class ApamResolverImpl implements ApamResolver {
 		List<DependencyManager> selectionPath = new ArrayList<DependencyManager>();
 		for (DependencyManager dependencyManager : ApamManagers.getDependencyManagers()) {
 			/*
-			 * Skip apamman
+			 * Skip apamman and UpdateMan
 			 */
 			if (dependencyManager.getName().equals(CST.APAMMAN) || dependencyManager.getName().equals(CST.UPDATEMAN)) {
 				continue;
 			}
-			dependencyManager.getSelectionPath(client, dependency,selectionPath);
+			dependencyManager.getSelectionPath(client, dependency, selectionPath);
 		}
-
+		
+//		//Transform the dependency constraints into filters after interpreting the substitutions.
+//		Dependency dep = new Dependency (dependency, client) ;
+		
 		// To select first in Apam
 		selectionPath.add(0, apam.getApamMan());
 		selectionPath.add(0, apam.getUpdateMan());
@@ -380,10 +388,12 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		CompositeType compoType = CompositeTypeImpl.getRootCompositeType();
-		DependencyDeclaration dep = new DependencyDeclaration (compoType.getImplDeclaration().getReference(),
+		DependencyDeclaration dependency = new DependencyDeclaration (compoType.getImplDeclaration().getReference(),
 				componentName, false, new ComponentReference<ComponentDeclaration>(componentName)) ; 
 
-		List<DependencyManager> selectionPath = computeSelectionPath(client, dep);
+		List<DependencyManager> selectionPath = computeSelectionPath(client, dependency);
+		//Transform the dependency constraints into filters after interpreting the substitutions.
+//		Dependency dep = new Dependency (dependency, client) ;
 
 		Component compo = null;
 		logger.info("Looking for component " + componentName + ": ");
@@ -486,6 +496,10 @@ public class ApamResolverImpl implements ApamResolver {
 			client = CompositeImpl.getRootInstance();
 
 		List<DependencyManager> selectionPath = computeSelectionPath(client, dependency);        
+		//Transform the dependency constraints into filters after interpreting the substitutions.
+		Dependency dep = new Dependency (dependency, client) ;
+
+		
 		Implementation impl = null;
 		boolean deployed = false;
 
@@ -494,7 +508,7 @@ public class ApamResolverImpl implements ApamResolver {
 				deployed = true;
 			}
 			logger.debug(manager.getName() + "  ");
-			Resolved res = manager.resolveDependency(client, dependency, false);
+			Resolved res = manager.resolveDependency(client, dep, false);
 			if (res != null && res.implementations != null && !res.implementations.isEmpty()) {
 				impl=res.implementations.iterator().next() ;
 				deployedImpl(client, impl, deployed);
@@ -525,11 +539,15 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @return null if not resolved at all. Never returns an empty set.
 	 */
 	public Resolved resolveDependency(Instance client, DependencyDeclaration dependency, boolean needsInstances) {
-		logger.info("Looking for all implems with" + dependency);
 		if (client == null)
 			client = CompositeImpl.getRootInstance();
+		
 		List<DependencyManager> selectionPath = computeSelectionPath(client, dependency);
+		//Transform the dependency constraints into filters after interpreting the substitutions.
+		Dependency dep = new Dependency (dependency, client) ;
+		logger.info("Looking for all implems with" + dep);
 
+		
 		Resolved res = null ;
 		boolean deployed = false;
 		for (DependencyManager manager : selectionPath) {
@@ -537,7 +555,7 @@ public class ApamResolverImpl implements ApamResolver {
 				deployed = true;
 			}
 			logger.debug(manager.getName() + "  ");
-			res = manager.resolveDependency(client, dependency, true);
+			res = manager.resolveDependency(client, dep, true);
 			/*
 			 * Not all found implementations will be used for this resolution (in particular if simple dependency).
 			 * Only consider as deployed those found by OBR.
@@ -598,40 +616,7 @@ public class ApamResolverImpl implements ApamResolver {
 		return resolveSpecByResource(client, dep);
 	}
 
-	@Override
-	public Instance resolveImpl(Instance client, Implementation impl,
-			Set<String> constraints, List<String> preferences) {
-		Set<Instance> insts = resolveImpls(client, impl,constraints) ;
-		if (insts == null || insts.isEmpty()) {
-			return null ;
-		}
-		return UtilComp.getPrefered(insts, preferences);
-	}
 
-	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
-		if (client == null) {
-			client = CompositeImpl.getRootInstance();
-		}
-
-		DependencyDeclaration dep = new DependencyDeclaration (client.getComposite().getCompType().getDeclaration().getReference(),
-				impl.getName(), true, new ImplementationReference<ImplementationDeclaration>(impl.getName()));
-		dep.getImplementationConstraints().addAll(constraints) ;
-
-		List<DependencyManager> selectionPath = computeSelectionPath(client, dep);
-
-		Set<Instance> insts = null;
-		logger.info("Looking for instances of " + impl + ": ");
-		for (DependencyManager manager : selectionPath) {
-			logger.debug(manager.getName() + "  ");
-			insts = manager.resolveImpls(client, impl, constraints);
-			if ((insts != null) && !insts.isEmpty()) {
-				logger.debug("selected " + insts);
-				return insts;
-			}
-		}
-		return Collections.emptySet();
-	}
 
 	@Override
 	public void updateComponent(String componentName) {
@@ -641,6 +626,56 @@ public class ApamResolverImpl implements ApamResolver {
 			return ;
 		}
 		UpdateMan.updateComponent(impl) ;
+	}
+
+	@Override
+	public Instance resolveImpl(Instance client, Implementation impl,
+			Set<String> constraints, List<String> preferences) {
+		
+		DependencyDeclaration dep = new DependencyDeclaration (client.getComposite().getCompType().getDeclaration().getReference(),
+				impl.getName(), true, new ImplementationReference<ImplementationDeclaration>(impl.getName()));
+		dep.getImplementationConstraints().addAll(constraints) ;
+		dep.getImplementationPreferences().addAll(preferences) ;
+		
+		Set<Instance> insts = resolveImpls(client, impl, dep) ;
+		if (insts == null || insts.isEmpty()) {
+			return null ;
+		}
+		return UtilComp.getPrefered(insts, new Dependency (dep, client));
+	}
+
+	@Override
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints) {
+		if (client == null) {
+			client = CompositeImpl.getRootInstance();
+		}
+
+		
+		DependencyDeclaration dep = new DependencyDeclaration (client.getComposite().getCompType().getDeclaration().getReference(),
+				impl.getName(), true, new ImplementationReference<ImplementationDeclaration>(impl.getName()));
+		dep.getImplementationConstraints().addAll(constraints) ;
+		
+		return resolveImpls (client, impl, dep) ;
+
+	}
+
+	private Set<Instance> resolveImpls(Instance client, Implementation impl, DependencyDeclaration dependency) {
+
+		List<DependencyManager> selectionPath = computeSelectionPath(client, dependency);
+		//Transform the dependency constraints into filters after interpreting the substitutions.
+		Dependency dep = new Dependency (dependency, client) ;
+
+		Set<Instance> insts = null;
+		logger.info("Looking for instances of " + impl + ": ");
+		for (DependencyManager manager : selectionPath) {
+			logger.debug(manager.getName() + "  ");
+			insts = manager.resolveImpls(client, impl, dep);
+			if ((insts != null) && !insts.isEmpty()) {
+				logger.debug("selected " + insts);
+				return insts;
+			}
+		}
+		return Collections.emptySet();
 	}
 
 
