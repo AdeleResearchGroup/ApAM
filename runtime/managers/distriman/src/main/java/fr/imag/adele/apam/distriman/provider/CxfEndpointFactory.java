@@ -38,6 +38,7 @@ import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.distriman.dto.RemoteDependency;
+import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
 import fr.imag.adele.apam.distriman.provider.impl.EndpointRegistrationImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
@@ -213,7 +214,7 @@ public class CxfEndpointFactory {
 		
 	}
 
-	public EndpointRegistration resolveAndExport(RemoteDependency dependency,
+	public EndpointRegistration resolveAndExport(RemoteDependencyDeclaration dependency,
 			RemoteMachine client) throws ClassNotFoundException {
 		Instance neo = null; // The chosen one
 		EndpointRegistration registration = null;
@@ -222,8 +223,9 @@ public class CxfEndpointFactory {
 		logger.info("requesting apam instance {} to resolve the dependency {}",
 				apamMan, dependency.getIdentifier());
 
-		Resolved resolved = apamMan.resolveDependency(client.getInst(),
-				dependency, true);
+		RemoteDependency remote=new RemoteDependency(dependency, null);
+		
+		Resolved resolved = apamMan.resolveDependency( client.getInst(),remote, true);
 
 		// No local instance matching the RemoteDependency
 		if (resolved==null||resolved.instances==null||resolved.instances.isEmpty()) {

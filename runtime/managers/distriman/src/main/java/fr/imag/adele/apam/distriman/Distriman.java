@@ -45,7 +45,7 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.distriman.discovery.MachineDiscovery;
 import fr.imag.adele.apam.distriman.discovery.RemoteMachineFactory;
-import fr.imag.adele.apam.distriman.dto.RemoteDependency;
+import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
 import fr.imag.adele.apam.distriman.provider.CxfEndpointFactory;
 import fr.imag.adele.apam.distriman.provider.EndpointRegistration;
 import fr.imag.adele.apam.distriman.provider.LocalMachine;
@@ -237,7 +237,7 @@ public class Distriman implements DependencyManager {
 	}
 
 	public EndpointRegistration resolveDependencyLocalMachine(
-			RemoteDependency dependency, String clientURL)
+			RemoteDependencyDeclaration dependency, String clientURL)
 			throws ClassNotFoundException {
 
 		logger.info(

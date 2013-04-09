@@ -67,12 +67,14 @@ public abstract class ExtensionAbstract extends TestUtils {
 
 	protected ComponentBroker broker;
 
+	protected static Option[] configuration=null;
+	
 	public List<Option> config() {
 
 		List<Option> config = new ArrayList<Option>();
 		config.add(packInitialConfig());
 		config.add(packOSGi());
-		config.add(packPax());
+		//config.add(packPax());
 		config.add(packApamCore());		
 		config.add(packApamObrMan());
 		config.add(packAppForTestBundles());
@@ -207,8 +209,8 @@ public abstract class ExtensionAbstract extends TestUtils {
 				//OPTIONAL-CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/logback-core-1.0.7.jar"),
 				//OK-CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/neethi-3.0.2.jar"),
 				mavenBundle("org.apache.neethi", "neethi").version("3.0.2"),
-				//OK-CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/org.apache.felix.bundlerepository-1.6.6.jar"),
-				mavenBundle("org.apache.felix", "org.apache.felix.bundlerepository").version("1.6.6"),
+				//OPTIONAL-CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/org.apache.felix.bundlerepository-1.6.6.jar"),
+				//mavenBundle("org.apache.felix", "org.apache.felix.bundlerepository").version("1.6.6"),
 				//OK-CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/org.apache.felix.configadmin-1.2.8.jar"),
 				mavenBundle("org.apache.felix", "org.apache.felix.configadmin").version("1.2.8"),
 				//OK-CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/org.apache.felix.fileinstall-3.2.0.jar"),
@@ -244,8 +246,10 @@ public abstract class ExtensionAbstract extends TestUtils {
 				mavenBundle("org.codehaus.jackson", "jackson-core-asl").version("1.9.12"),
 				mavenBundle("org.codehaus.jackson", "jackson-mapper-asl").version("1.9.12"),
 				
-				mavenBundle("org.codehaus.jettison", "jettison").version("1.3.3")
+				mavenBundle("org.codehaus.jettison", "jettison").version("1.3.3"),
 
+				mavenBundle("org.apache.felix", "org.apache.felix.main").version("1.8.0")
+				
 				//Static
 //				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/com.springsource.org.apache.xml.resolver-1.2.0.jar"),
 //				CoreOptions.bundle("file:///home/jnascimento/project/apam/src/distributions/simple-distribution-test-1/bundle/org.apache.felix.log-1.0.1.jar"),
@@ -311,7 +315,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 						.artifactId("org.osgi.compendium").version("4.2.0"),
 				mavenBundle().groupId("org.apache.felix")
 						.artifactId("org.apache.felix.bundlerepository")
-						.versionAsInProject());
+						.version("1.6.6"));
 
 		return osgiConfig;
 
@@ -380,6 +384,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s1").versionAsInProject(),
 				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s2").versionAsInProject(),
 				mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s3").versionAsInProject(),
+				//mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s6").versionAsInProject(),
 				
 				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-msg").versionAsInProject(),
 				mavenBundle("fr.imag.adele.apam.tests.messages","apam-pax-samples-impl-m1").versionAsInProject());
@@ -392,6 +397,8 @@ public abstract class ExtensionAbstract extends TestUtils {
 
 		Option conf[] = config().toArray(new Option[0]);
 
+		configuration=conf;
+		
 		return conf;
 	}
 
@@ -408,7 +415,7 @@ public abstract class ExtensionAbstract extends TestUtils {
 		apam.dispose();
 	}
 
-	private static boolean isDebugModeOn() {
+	private boolean isDebugModeOn() {
 		RuntimeMXBean RuntimemxBean = ManagementFactory.getRuntimeMXBean();
 		List<String> arguments = RuntimemxBean.getInputArguments();
 
