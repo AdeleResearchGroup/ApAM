@@ -221,6 +221,13 @@
 
 		<dependency>
 			<groupId>fr.imag.adele.apam.tests.services</groupId>
+			<artifactId>apam-pax-samples-impl-s6</artifactId>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.imag.adele.apam.tests.services</groupId>
 			<artifactId>apam-pax-distriman-iface</artifactId>
 			<scope>test</scope>
 			<version>${project.version}</version>
@@ -343,6 +350,14 @@
 			<version>2.10.1</version>
 			<scope>compile</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.main</artifactId>
+			<version>1.8.0</version>
+		</dependency>
+
+
 
 <dependency>
 	<groupId>org.codehaus.jackson</groupId>

@@ -116,9 +116,9 @@ public class ApamFilter /* implements Filter */ {
 		return null;
 	}
 
-	public static ApamFilter newInstanceApam(String filterString, boolean ignoreCase, Component component) {
+	public static ApamFilter newInstanceApam(String filterString, Component component) {
 		try {
-			return new Parser(filterString, ignoreCase, component).parse();    		
+			return new Parser(filterString, false, component).parse();    		
 		} catch (Exception e) {
 			logger.error("invalid filter syntax " + filterString) ;
 			return null ;

@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.declarations.CallbackMethod;
+//import fr.imag.adele.apam.declarations.CallbackMethod;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
-import fr.imag.adele.apam.declarations.DependencyInjection;
-import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
+//import fr.imag.adele.apam.declarations.DependencyInjection;
+//import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
+//import fr.imag.adele.apam.impl.ComponentImpl;
 
 public class Dependency extends DependencyDeclaration {
 
@@ -36,7 +37,7 @@ public class Dependency extends DependencyDeclaration {
 		
 //        this.callbacks.putAll(dep.callbacks);
 //        this.injections.addAll(dep.injections);
-        
+		
         this.getImplementationConstraints().addAll(dep.getImplementationConstraints());
         this.getInstanceConstraints().addAll(dep.getInstanceConstraints());
         this.getImplementationPreferences().addAll(dep.getImplementationPreferences());
@@ -48,28 +49,28 @@ public class Dependency extends DependencyDeclaration {
 		implementationConstraintFilters = new HashSet<ApamFilter> () ;
 		ApamFilter f ;
 		for (String c : dep.getImplementationConstraints()) {
-			f = ApamFilter.newInstanceApam(c, false, component) ;
+			f = ApamFilter.newInstanceApam(c, component) ;
 			if (f != null) 
 				implementationConstraintFilters.add(f);
 		}
 		
 		instanceConstraintFilters = new HashSet<ApamFilter> () ;
 		for (String c : dep.getInstanceConstraints()) {
-			f = ApamFilter.newInstanceApam(c, false, component) ;
+			f = ApamFilter.newInstanceApam(c, component) ;
 			if (f != null) 
 				instanceConstraintFilters.add(f);
 		}
 		
 		implementationPreferenceFilters = new ArrayList<ApamFilter> () ;
 		for (String c : dep.getImplementationPreferences()) {
-			f = ApamFilter.newInstanceApam(c, false, component) ;
+			f = ApamFilter.newInstanceApam(c, component) ;
 			if (f != null) 
 				implementationPreferenceFilters.add(f);
 		}
 		
 		instancePreferenceFilters = new ArrayList<ApamFilter> () ;
 		for (String c : dep.getInstancePreferences()) {
-			f = ApamFilter.newInstanceApam(c, false, component) ;
+			f = ApamFilter.newInstanceApam(c, component) ;
 			if (f != null) 
 				instancePreferenceFilters.add(f);
 		}

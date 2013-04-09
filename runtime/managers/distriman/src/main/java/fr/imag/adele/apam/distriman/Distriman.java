@@ -33,6 +33,7 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -125,8 +126,9 @@ public class Distriman implements DependencyManager {
 	 * @param needsInstances
 	 * @return The Resolved object if a proxy has been created, null otherwise.
 	 */
+	@Override
 	public Resolved resolveDependency(Instance client,
-			DependencyDeclaration dependency, boolean needsInstances) {
+			Dependency dependency, boolean needsInstances) {
 		Resolved resolved = null;
 
 		if (!needsInstances) { // TODO distriman: should really just handle only
@@ -291,15 +293,15 @@ public class Distriman implements DependencyManager {
 	}
 
 	@Override
-	public Instance resolveImpl(Instance client, Implementation impl,
-			Set<String> constraints, List<String> preferences) {
+	public Instance resolveImpl(Instance client, Implementation impl,  Dependency dep) {
+//			Set<String> constraints, List<String> preferences) {
 		return null; // To change body of implemented methods use File |
 						// Settings | File Templates.
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl,
-			Set<String> constraints) {
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, Dependency dep) {
+//			Set<String> constraints) {
 		return null; // To change body of implemented methods use File |
 						// Settings | File Templates.
 	}

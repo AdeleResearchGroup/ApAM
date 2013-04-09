@@ -90,6 +90,10 @@
 	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S5"
 		name="fr.imag.adele.apam.pax.test.iface.S5">
 	</specification>
+	
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="fr.imag.adele.apam.pax.test.iface.S6">
+	</specification>
 
 	<specification
 		interfaces="fr.imag.adele.apam.pax.test.iface.S4,fr.imag.adele.apam.pax.test.iface.S5"

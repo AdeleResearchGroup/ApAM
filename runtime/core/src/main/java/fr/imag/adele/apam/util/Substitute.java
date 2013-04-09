@@ -385,7 +385,7 @@ public class Substitute {
 			return ret ;
 		for (String sf : filterString) {
 			try {
-				ret.add(ApamFilter.newInstanceApam(sf, false, component)) ;
+				ret.add(ApamFilter.newInstanceApam(sf, component)) ;
 			}
 			catch (Exception e) {
 				logger.error("Invalif filter " + sf + " for component " + component.getName()) ;
@@ -408,7 +408,7 @@ public class Substitute {
 		Set<ApamFilter> ret = new HashSet<ApamFilter> () ;
 		for (String sf : filterString) {
 			try {
-				ret.add(ApamFilter.newInstanceApam(sf, false, component)) ;
+				ret.add(ApamFilter.newInstanceApam(sf, component)) ;
 			}
 			catch (Exception e) {
 				logger.error("Invalif filter " + sf + " for component " + component.getName()) ;

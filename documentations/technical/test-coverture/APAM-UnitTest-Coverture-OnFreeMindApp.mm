@@ -36,8 +36,8 @@
 <node CREATED="1355931835542" ID="ID_1074078486" MODIFIED="1360834925892" TEXT="Retrieving &lt;property type=&apos;int&apos;&gt; should return a proper Collection/array-tc053">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355931835542" ID="ID_949793962" MODIFIED="1360834921299" TEXT="Retrieving &lt;property type=&apos;integer&apos;&gt; should return a proper Collection/array-tc054">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1355931835542" ID="ID_949793962" MODIFIED="1365063251411" TEXT="Retrieving &lt;property type=&apos;integer&apos;&gt; should return a proper Collection/array-tc054">
+<icon BUILTIN="button_ok"/>
 </node>
 <node CREATED="1355931835542" ID="ID_450621789" MODIFIED="1360834809332" TEXT="Retrieving &lt;property type=&apos;string&apos;&gt; should return a proper Collection/array-tc055">
 <icon BUILTIN="button_ok"/>
@@ -107,6 +107,20 @@
 </node>
 <node CREATED="1362404208969" ID="ID_1939802318" MODIFIED="1362404217152" TEXT="Test injection into java instance property of the type set of string-tc081">
 <icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1365073979090" ID="ID_1807883279" MODIFIED="1365161520989" TEXT="metasubstitution">
+<node CREATED="1365073985762" ID="ID_526657618" MODIFIED="1365077832428" TEXT="test string operation(prefix,sufix,retrieve)-tc089">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1365161520996" ID="ID_858128895" MODIFIED="1365161586477" TEXT="definition in spec property in impl-tc090">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1365161547489" ID="ID_165053730" MODIFIED="1365161586478" TEXT="definition in spec no property in impl-tc091">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1365161565201" ID="ID_1981761730" MODIFIED="1365161586478" TEXT="no definition in spec, property in impl-tc092">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 <node CREATED="1353066008853" ID="ID_82303023" MODIFIED="1353071077628" TEXT="Constraint">
@@ -213,8 +227,8 @@
 <node CREATED="1353332025894" ID="ID_1509607474" MODIFIED="1354295637086" TEXT="enclosed dependency instantiation should instantiate automatically indirect dependency-tc031">
 <icon BUILTIN="button_ok"/>
 </node>
-<node CREATED="1355230826914" ID="ID_1608610292" MODIFIED="1355230840111" TEXT="create a composite without mainimpl">
-<icon BUILTIN="button_cancel"/>
+<node CREATED="1355230826914" ID="ID_1608610292" MODIFIED="1365062464253" TEXT="create a composite without mainimpl-compilationtest">
+<icon BUILTIN="button_ok"/>
 </node>
 </node>
 <node CREATED="1353491520963" ID="ID_1528052278" MODIFIED="1353491524764" TEXT="visibility">

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team Licensed 
+	under the Apache License, Version 2.0 (the "License"); you may not use this 
+	file except in compliance with the License. You may obtain a copy of the 
+	License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by 
+	applicable law or agreed to in writing, software distributed under the License 
+	is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY 
+	KIND, either express or implied. See the License for the specific language 
+	governing permissions and limitations under the License. -->
+<apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo">
+
+
+	<implementation name="MetasubstitutionStringTest"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="fr.imag.adele.apam.pax.test.iface.S6">
+		<definition name="surname" type="string" value="goethe"/>
+		<definition name="name" type="string" value="johann"/>
+		
+		<definition name="meta_string_retrieve" type="string" value="$.$surname"/>
+		<definition name="meta_string_prefix" type="string" value="$pre+.$surname"/>
+		<definition name="meta_string_suffix" type="string" value="$.$surname+post"/>
+		<definition name="meta_string_prefix_suffix" type="string" value="$pre+.$surname+post"/>
+		
+		<definition name="meta_string_retrieve_merging" type="string" value="$.$name"/>
+		
+	</implementation>
+
+	<!-- CASE 01 -->
+
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="spec-case-01">
+		<definition name="property-subject-b" type="string" value="value-spec"/>
+	</specification>
+
+	<implementation name="impl-case-01"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="spec-case-01">
+		<property name="property-subject-b" value="value-impl"/>
+	</implementation>
+
+	<!-- /CASE 01 -->
+
+	<!-- CASE 03 -->
+
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="spec-case-03">
+		<definition name="property-subject-b" type="string" value="value-spec"/>
+	</specification>
+
+	<implementation name="impl-case-03"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="spec-case-03">
+		
+	</implementation>
+
+	<!-- /CASE 03 -->
+
+	<!-- CASE 08 -->
+
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="spec-case-08">
+		
+	</specification>
+
+	<implementation name="impl-case-08"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="spec-case-08">
+		<definition name="property-subject-b" type="string" value="value-impl"/>
+	</implementation>
+
+	<!-- /CASE 08 -->
+
+	<implementation name="subject-a"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="fr.imag.adele.apam.pax.test.iface.S6">
+		<dependency implementation="impl-case-01" field="s6" />
+		<definition name="property-case-01" type="string" value="$impl-case-01.$property-subject-b"/>
+		<definition name="property-case-03" type="string" value="$impl-case-03.$property-subject-b"/>
+		<definition name="property-case-08" type="string" value="$impl-case-08.$property-subject-b"/>
+	</implementation>
+
+
+
+</apam>
