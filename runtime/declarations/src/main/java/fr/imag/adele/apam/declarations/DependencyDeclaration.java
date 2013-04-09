@@ -59,7 +59,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     /**
      * The map of list of call back methods associated to the same trigger
      */
-    private final Map<CallbackTrigger, Set<CallbackMethod>> callbacks;
+    protected final Map<CallbackTrigger, Set<CallbackMethod>> callbacks;
 
     /**
      * The reference to this declaration
@@ -74,7 +74,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     /**
      * The list of fields that will be injected with this dependency in a primitive component
      */
-    private final List<DependencyInjection>           injections;
+    protected final List<DependencyInjection>           injections;
 
     /**
      * The policy to handle unresolved dependencies

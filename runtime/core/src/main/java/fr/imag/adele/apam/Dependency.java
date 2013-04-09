@@ -33,11 +33,17 @@ public class Dependency extends DependencyDeclaration {
 
 	public Dependency (DependencyDeclaration dep, Component component) {
 		super (dep.getComponent(), dep.getIdentifier(), dep.isMultiple(), dep.getTarget()) ;
+		
+//        this.callbacks.putAll(dep.callbacks);
+//        this.injections.addAll(dep.injections);
+        
+        this.getImplementationConstraints().addAll(dep.getImplementationConstraints());
+        this.getInstanceConstraints().addAll(dep.getInstanceConstraints());
+        this.getImplementationPreferences().addAll(dep.getImplementationPreferences());
+        this.getInstancePreferences().addAll(dep.getInstancePreferences());
 
-//		this.getImplementationConstraints().addAll(dep.getImplementationConstraints()) ;
-//		this.getInstanceConstraints().addAll(dep.getInstanceConstraints()) ;
-//		this.getImplementationPreferences().addAll(dep.getImplementationPreferences()) ;
-//		this.getInstancePreferences().addAll(dep.getInstancePreferences()) ;
+        this.setMissingException(dep.getMissingException());
+        this.setMissingPolicy(dep.getMissingPolicy());
 		
 		implementationConstraintFilters = new HashSet<ApamFilter> () ;
 		ApamFilter f ;
