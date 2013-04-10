@@ -1,5 +1,18 @@
+/**
+ * Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 package fr.imag.adele.apam.distriman.dto;
-
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -24,7 +37,7 @@ import fr.imag.adele.apam.declarations.SpecificationReference;
  * Date: 14/12/12
  * Time: 14:42
  */
-public class RemoteDependency extends Dependency {
+public class RemoteDependencyDeclaration extends DependencyDeclaration {
     private static final String JSON_COMP_REF_NAME = "component_name";
     private static final String JSON_RESOLVABLE_REF = "rref";
     private static final String JSON_RESOLVABLE_REF_TYPE = "type";
@@ -41,7 +54,7 @@ public class RemoteDependency extends Dependency {
     
     private String clientURL;
 
-    public RemoteDependency(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource,String client) {
+    public RemoteDependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource,String client) {
         super(component, id, isMultiple, resource);
         this.clientURL=client;
     }
@@ -50,7 +63,7 @@ public class RemoteDependency extends Dependency {
      * Wrapper around a DependencyDeclaration.
      * @param dep
      */
-    public RemoteDependency(DependencyDeclaration dep,String client) {
+    public RemoteDependencyDeclaration(DependencyDeclaration dep,String client) {
         super(dep.getComponent(), dep.getIdentifier(), dep.isMultiple(), dep.getTarget());
         this.clientURL=client;
     }
@@ -106,7 +119,7 @@ public class RemoteDependency extends Dependency {
      * @return RemoteDependency corresponding to <code>json</code>
      * @throws IllegalArgumentException
      */
-    public static RemoteDependency fromJson(JsonNode json) throws IllegalArgumentException{
+    public static RemoteDependencyDeclaration fromJson(JsonNode json) throws IllegalArgumentException{
     	JsonNode rr_json = json.get(JSON_RESOLVABLE_REF);
 
         //Get the RemoteDependency id
@@ -152,7 +165,7 @@ public class RemoteDependency extends Dependency {
 //        JSONArray comppref = json.getJSONArray(JSON_COMP_PREF);
 
 
-        RemoteDependency rdep = new  RemoteDependency(compref,id,multiple,rr,clientURL);
+        RemoteDependencyDeclaration rdep = new  RemoteDependencyDeclaration(compref,id,multiple,rr,clientURL);
 
         //rdep.getInstanceConstraints().addAll(fromArray(instconst));
         //rdep.getInstancePreferences().addAll(fromArray(instpref));
@@ -161,17 +174,21 @@ public class RemoteDependency extends Dependency {
 
        return rdep;
     }
+
+    /**
+     * ResolvableReference type.
+     */
+    private enum RRTYPE {
+        instance,
+        message,
+        itf,
+        specification//interface
+        //TODO support Spec et implem ?
+    }
+
+	public String getClientURL() {
+		return clientURL;
+	}
+    
+    
 }
-//=======
-//import fr.imag.adele.apam.Component;
-//import fr.imag.adele.apam.Dependency;
-//import fr.imag.adele.apam.declarations.DependencyDeclaration;
-//>>>>>>> 68f19b37fdebe10d5c56184783a3e0b65cedd464
-//
-//public class RemoteDependency extends Dependency {
-//
-//	public RemoteDependency(DependencyDeclaration dd,Component comp){
-//		super(dd,comp);
-//	}
-//	
-//}

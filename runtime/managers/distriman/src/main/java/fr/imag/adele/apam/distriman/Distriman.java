@@ -45,7 +45,7 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.distriman.discovery.MachineDiscovery;
 import fr.imag.adele.apam.distriman.discovery.RemoteMachineFactory;
-import fr.imag.adele.apam.distriman.dto.RemoteDependency;
+import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
 import fr.imag.adele.apam.distriman.provider.CxfEndpointFactory;
 import fr.imag.adele.apam.distriman.provider.EndpointRegistration;
 import fr.imag.adele.apam.distriman.provider.LocalMachine;
@@ -172,7 +172,7 @@ public class Distriman implements DependencyManager {
 			if (manager == null) {
 				throw new RuntimeException(
 						String.format(
-								"Distriman could not be initialized, it was not possible to get the instance of ",
+								"Distriman could not be initialized, it was not possible to get the instance of %s",
 								CST.APAMMAN));
 			}
 
@@ -237,7 +237,7 @@ public class Distriman implements DependencyManager {
 	}
 
 	public EndpointRegistration resolveDependencyLocalMachine(
-			RemoteDependency dependency, String clientURL)
+			RemoteDependencyDeclaration dependency, String clientURL)
 			throws ClassNotFoundException {
 
 		logger.info(

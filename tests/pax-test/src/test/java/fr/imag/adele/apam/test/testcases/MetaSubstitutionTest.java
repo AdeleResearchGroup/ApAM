@@ -28,6 +28,7 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.pax.test.implS6.S6Impl;
 import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 
 @RunWith(JUnit4TestRunner.class)
@@ -66,8 +67,6 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		
 		auxListProperties("\t", subjectA);
 		
-		System.err.println(subjectA.getProperty("property-case-01"));
-		
 		Assert.assertTrue("Given two composites A B, was not possible to reach the right value for a property of A through B by substituion (e.g. in B declare a property with the value '$AImpl.$property') ",subjectA.getProperty("property-case-01").equals("value-impl"));
 		
 	}
@@ -80,8 +79,6 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		Instance subjectA = subjectAimpl.createInstance(null, null);
 		
 		auxListProperties("\t", subjectA);
-		
-		System.err.println(subjectA.getProperty("property-case-03"));
 		
 		Assert.assertTrue("Given two composites A B, was not possible to reach the right value for a property of A through B by substituion (e.g. in B declare a property with the value '$AImpl.$property'): when there is only a definition in the Spec and no property in the Impl",subjectA.getProperty("property-case-03").equals("value-spec"));
 		
@@ -99,6 +96,55 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		System.err.println(subjectA.getProperty("property-case-08"));
 		
 		Assert.assertTrue("Given two composites A B, was not possible to reach the right value for a property of A through B by substituion (e.g. in B declare a property with the value '$AImpl.$property'): when there is only a definition in the Impl",subjectA.getProperty("property-case-08")!=null&&subjectA.getProperty("property-case-08").equals("value-impl"));
+		
+	}
+	
+	@Test
+	public void SubstitutionGetPropertyEscaped_tc095() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		auxListProperties("\t", subjectA);
+		
+		String templace="after fetching a property value (pointing to metasubstitution) with '$' escaped (with backslash), the content should not be processed by metasubtitution. Value was %s instead of %s";
+		String message=String.format(templace,subjectA.getProperty("property-case-09"),"$impl-case-09.$property-subject-b");
+		
+		Assert.assertTrue(message,subjectA.getProperty("property-case-09").equals("$impl-case-09.$property-subject-b"));
+		
+	}
+	
+	@Test
+	public void FunctionCall_tc093() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		S6Impl s6=(S6Impl)subjectA.getServiceObject();
+		
+		auxListProperties("\t", subjectA);
+		
+		String template="after fetching a property value (pointing to a function) the returned value do not correspond to the returned function. Value '%s' was returned instead of '%s'";
+		String message=String.format(template,subjectA.getProperty("function-case-01"),s6.functionCall(null));
+		
+		Assert.assertTrue(message,subjectA.getProperty("function-case-01").equals(s6.functionCall(null)));
+	}
+	
+	@Test
+	public void FunctionCallEscaped_tc094() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		auxListProperties("\t", subjectA);
+		
+		String template="after fetching a property value (pointing to a function which the '@' was escaped with backslash) the returned value do not correspond to the returned function. Value '%s' was returned instead of '%s'";
+		String message=String.format(template,subjectA.getProperty("function-case-01"),"@functionCall");
+		
+		Assert.assertTrue(message,subjectA.getProperty("function-case-02").equals("@functionCall"));
 		
 	}
 	

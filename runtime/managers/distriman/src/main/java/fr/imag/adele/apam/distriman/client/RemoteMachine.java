@@ -56,7 +56,7 @@ import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.distriman.discovery.RemoteMachineFactory;
-import fr.imag.adele.apam.distriman.dto.RemoteDependency;
+import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
 import fr.imag.adele.apam.distriman.provider.EndpointRegistration;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
@@ -145,7 +145,7 @@ public class RemoteMachine implements ApformInstance {
 			DependencyDeclaration dependency) throws IOException {
 		if (running.get()) {
 			
-			RemoteDependency remoteDep = new RemoteDependency(dependency,this.getURL());
+			RemoteDependencyDeclaration remoteDep = new RemoteDependencyDeclaration(dependency,this.getURL());
 
 			ObjectNode jsonObject = remoteDep.toJson();
 

@@ -39,7 +39,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.distriman.Distriman;
 import fr.imag.adele.apam.distriman.discovery.MachineDiscovery;
-import fr.imag.adele.apam.distriman.dto.RemoteDependency;
+import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
 
 /**
  * Singleton that represents the local Apam, it contains a servlet allowing for
@@ -165,7 +165,7 @@ public enum LocalMachine {
 				
 				JsonNode requestJson=om.readValue(content, JsonNode.class);
 				
-				RemoteDependency remoteDependency = RemoteDependency.fromJson(requestJson);
+				RemoteDependencyDeclaration remoteDependency = RemoteDependencyDeclaration.fromJson(requestJson);
 				String identifier = remoteDependency.getIdentifier();
 				
 				logger.info("requesting resolution of the identifier {} in the address {}",identifier,remoteDependency.getClientURL());

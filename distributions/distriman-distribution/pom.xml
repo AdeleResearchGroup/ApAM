@@ -13,7 +13,7 @@
 		<groupId>fr.imag.adele.apam</groupId>
 		<artifactId>apam-histman-distribution</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
-		<relativePath>../histman-distribution</relativePath>
+		<relativePath>../basic-distribution</relativePath>
 	</parent>
 
 	<!-- Project coordinates -->
@@ -45,6 +45,17 @@
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20090911</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.9.12</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.12</version>
 		</dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
