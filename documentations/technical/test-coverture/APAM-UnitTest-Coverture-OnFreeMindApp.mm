@@ -121,6 +121,15 @@
 <node CREATED="1365161565201" ID="ID_1981761730" MODIFIED="1365161586478" TEXT="no definition in spec, property in impl-tc092">
 <icon BUILTIN="button_ok"/>
 </node>
+<node CREATED="1365593740126" ID="ID_952131145" MODIFIED="1365593776819" TEXT="function replacement no escaped-tc093">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1365593759047" ID="ID_1069564501" MODIFIED="1365593773674" TEXT="function replacement escaped-tc094">
+<icon BUILTIN="button_ok"/>
+</node>
+<node CREATED="1365595005815" ID="ID_1423059910" MODIFIED="1365595037123" TEXT="escaping character of metasubstitution for property &apos;$&apos;-tc095">
+<icon BUILTIN="button_ok"/>
+</node>
 </node>
 </node>
 <node CREATED="1353066008853" ID="ID_82303023" MODIFIED="1353071077628" TEXT="Constraint">
