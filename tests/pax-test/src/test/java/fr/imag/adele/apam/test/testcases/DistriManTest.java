@@ -65,7 +65,7 @@ public class DistriManTest extends ExtensionAbstract {
 		config.add(junitBundles());
 		config.add(packDebugConfiguration());
 		config.add(vmOption("-ea"));
-		config.add(mavenBundle().groupId("org.ops4j.pax.url").artifactId("pax-url-aether").versionAsInProject());		
+		//config.add(mavenBundle().groupId("org.ops4j.pax.url").artifactId("pax-url-aether").versionAsInProject());		
 		config.add(packApamDistriMan());
 		config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
 				.artifactId("apam-pax-distriman-iface").versionAsInProject());
@@ -148,7 +148,7 @@ public class DistriManTest extends ExtensionAbstract {
 			throws MalformedURLException, IOException {
 
 		Implementation p2Impl = CST.apamResolver.findImplByName(null,
-				"P2-singleinterface");
+				"P2-multipleinterface");
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
 
