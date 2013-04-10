@@ -226,6 +226,8 @@ public class ApamResolverImpl implements ApamResolver {
 		 * satisfying the constraints.
 		 * WARNING: impls can be null and insts not ; and vice-versa
 		 * If No existing instance, take the best implem and create one instance. Only return that implementation.
+		 * 
+		 * We have the complete dependency declaration; build the dependency.
 		 */
 		Dependency dependency = new Dependency (dependencyDef, client) ;
 

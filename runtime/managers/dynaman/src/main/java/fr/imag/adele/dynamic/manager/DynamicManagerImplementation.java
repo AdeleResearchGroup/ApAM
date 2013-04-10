@@ -231,7 +231,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	/**
 	 * Throws the exception associated with a missing dependency
 	 */
-	private void throwMissingException(DependencyDeclaration dependency,Instance client) {
+	private void throwMissingException(Dependency dependency,Instance client) {
 		try {
 			
 			/*

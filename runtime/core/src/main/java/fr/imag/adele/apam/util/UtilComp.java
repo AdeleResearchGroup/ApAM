@@ -291,26 +291,51 @@ public class UtilComp {
 	 */
 	public static DependencyDeclaration computeEffectiveDependency (Instance client, String depName) {
 		//Find the first dependency declaration.
-		DependencyDeclaration dependency = client.getDeclaration().getDependency(depName) ;
-		if (dependency == null) {
-			//Only defined in the implementation
-			dependency = client.getGroup().getDeclaration().getDependency(depName) ;
-		} 
-
-		//Should never happen
-		if (dependency == null || dependency.getTarget() == null) {
+//		DependencyDeclaration dependency = client.getDeclaration().getDependency(depName) ;
+//		if (dependency == null) {
+//			//Only defined in the implementation
+//			dependency = client.getGroup().getDeclaration().getDependency(depName) ;
+//		} 
+//
+//		//Should never happen. It is the case where the dependency is declared at spec level but not in the implem.
+//		if (dependency == null || dependency.getTarget() == null) {
+//			logger.error("Invalid dependency " + depName + " for instance " + client + ".  Not declared ") ;
+//			return null ;
+//		}
+		DependencyDeclaration dependencyImpl = client.getGroup().getDeclaration().getDependency(depName) ;
+		//Should never happen. It is the case where the dependency is declared at spec level but not in the implem.
+		if (dependencyImpl == null || dependencyImpl.getTarget() == null) {
 			logger.error("Invalid dependency " + depName + " for instance " + client + ".  Not declared ") ;
 			return null ;
 		}
+
+		/*
+		 * Add the other constraints, But do not change the declared dependency
+		 */
+		DependencyDeclaration dependency = dependencyImpl.clone() ;	
+		//Add instance and spec constraints if any
+		DependencyDeclaration dep = client.getDeclaration().getDependency(depName) ;
+		if (dep != null) {
+			dependency.getImplementationConstraints().addAll(dep.getImplementationConstraints());
+			dependency.getInstanceConstraints().addAll(dep.getInstanceConstraints());
+			dependency.getImplementationPreferences().addAll(dep.getImplementationPreferences());
+			dependency.getInstancePreferences().addAll(dep.getInstancePreferences());			
+		}
+
+		dep = client.getSpec().getDeclaration().getDependency(depName) ;
+		if (dep != null) {
+			dependency.getImplementationConstraints().addAll(dep.getImplementationConstraints());
+			dependency.getInstanceConstraints().addAll(dep.getInstanceConstraints());
+			dependency.getImplementationPreferences().addAll(dep.getImplementationPreferences());
+			dependency.getInstancePreferences().addAll(dep.getInstancePreferences());			
+		}
+
 
 		List<DependencyDeclaration> ctxtDcl = client.getComposite().getCompType().getCompoDeclaration().getContextualDependencies() ;
 		if (ctxtDcl == null || ctxtDcl.isEmpty())
 			return dependency ;
 
-		//Add the composite generic constraints
-		//But do not change the declared dependency
-		dependency = dependency.clone() ;	
-		//Map<String, String> validAttrs = client.getValidAttributes() ;
+		//Add contextual constraints, if any
 		for ( DependencyDeclaration  genDep  : ctxtDcl) {
 			if (matchGenericDependency(client, genDep, dependency)) {
 				overrideDepFlags (dependency, genDep, true) ;

@@ -609,11 +609,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	@Override
 	public boolean matchDependencyConstraints (Dependency dep) {
 		if (this instanceof Implementation) {
-			Set<ApamFilter>  filters =  dep.getImplementationConstraintFilters() ;
-			if (filters == null) {
-				return match (dep.getImplementationConstraints()) ;
-			}
-			for (ApamFilter af :filters) {
+//			Set<ApamFilter>  filters =  dep.getImplementationConstraintFilters() ;
+//			if (filters == null) {
+//				return match (dep.getImplementationConstraintFilters()) ;
+//			}
+			for (ApamFilter af : dep.getImplementationConstraintFilters()) {
 				if (!(af.matchCase(this))) {
 					return false ;
 				}
@@ -621,11 +621,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return true;
 		}
 		if (this instanceof Instance) {
-			Set<ApamFilter>  filters =  dep.getInstanceConstraintFilters() ;
-			if (filters == null) {
-				return match (dep.getInstanceConstraints()) ;
-			}
-			for (ApamFilter af :filters) {
+//			Set<ApamFilter>  filters =  dep.getInstanceConstraintFilters() ;
+//			if (filters == null) {
+//				return match (dep.getInstanceConstraints()) ;
+//			}
+			for (ApamFilter af : dep.getInstanceConstraintFilters()) {
 				if (!(af.matchCase(this))) {
 					return false ;
 				}
@@ -634,7 +634,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return true;
 	}
 
-	
+	/*
+	 * TODO should be removed. Almost always a bug; substitution, if any, are not applied on the constraints
+	 * should use matchDependencyConstraints instead.
+	 */
 	@Override
 	public boolean match(Set<String> goals) {
 		if ((goals == null) || goals.isEmpty())

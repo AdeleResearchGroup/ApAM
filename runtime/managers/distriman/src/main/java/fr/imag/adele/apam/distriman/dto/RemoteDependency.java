@@ -18,6 +18,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.InstanceReference;
@@ -36,7 +37,7 @@ import fr.imag.adele.apam.declarations.SpecificationReference;
  * Date: 14/12/12
  * Time: 14:42
  */
-public class RemoteDependency extends DependencyDeclaration {
+public class RemoteDependency extends Dependency {
     private static final String JSON_COMP_REF_NAME = "component_name";
     private static final String JSON_RESOLVABLE_REF = "rref";
     private static final String JSON_RESOLVABLE_REF_TYPE = "type";

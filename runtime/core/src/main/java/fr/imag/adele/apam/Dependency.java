@@ -6,11 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import fr.imag.adele.apam.util.ApamFilter;
-//import fr.imag.adele.apam.declarations.CallbackMethod;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
-//import fr.imag.adele.apam.declarations.DependencyInjection;
-//import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
-//import fr.imag.adele.apam.impl.ComponentImpl;
 
 public class Dependency extends DependencyDeclaration {
 
@@ -36,8 +32,11 @@ public class Dependency extends DependencyDeclaration {
 		super (dep.getComponent(), dep.getIdentifier(), dep.isMultiple(), dep.getTarget()) ;
 		
 //        this.callbacks.putAll(dep.callbacks);
-//        this.injections.addAll(dep.injections);
-		
+        this.injections.addAll(dep.getInjections());
+		/*
+		 * Unfortunately, we must keep the string constraints because Dynaman, in case of wait, will 
+		 * replay the resolution giving the Dependency in place of the DependencyDeclaration.
+		 */
         this.getImplementationConstraints().addAll(dep.getImplementationConstraints());
         this.getInstanceConstraints().addAll(dep.getInstanceConstraints());
         this.getImplementationPreferences().addAll(dep.getImplementationPreferences());

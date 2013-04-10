@@ -96,6 +96,7 @@ public class DynamicResolutionRequest {
 		
 		/*
 		 * verify the candidate instance is a valid target of the dependency
+		 * TODO (jacky) No checking of constraints satisfaction ??
 		 * 
 		 */
 		Implementation implementation	= instance.getImpl();
@@ -139,10 +140,10 @@ public class DynamicResolutionRequest {
     	 * 
     	 * IMPORTANT Notice that resolution is performed in the context of the thread that triggered the
     	 * recalculation event. If resolution fails, the resolver must simply ignore the failure, otherwise
-    	 * this will block or kill an unrelated thread. This is insured by the dynamic manager. 
+    	 * this will block or kill an unrelated thread. This is ensured by the dynamic manager. 
     	 * 
     	 * We need to evaluate if it is safer to resolve dynamic dependencies in a background thread, but this
-    	 * mat introduce some race conditions
+    	 * may introduce some race conditions
     	 */
 		try {
 			beginResolve();

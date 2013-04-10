@@ -83,6 +83,7 @@ public interface Component {
 	 * @param goals
 	 * @return
 	 */
+	//TODO : to be removed
 	public boolean match(Set<String> goals);
 
 	/**

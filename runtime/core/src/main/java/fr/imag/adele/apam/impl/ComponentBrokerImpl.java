@@ -20,6 +20,7 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
+import fr.imag.adele.apam.util.ApamFilter;
 //import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.ApamInstall;
 import org.apache.felix.ipojo.Pojo;
@@ -255,8 +256,9 @@ public class ComponentBrokerImpl implements ComponentBroker{
 		}
 
 		Set<Specification> ret = new HashSet<Specification>();
+		ApamFilter f = ApamFilter.newInstance(goal) ;
 		for (Specification spec : specifications) {
-			if (spec.match(goal)) {
+			if (spec.match(f)) {
 				ret.add(spec);
 			}
 		}
@@ -305,8 +307,9 @@ public class ComponentBrokerImpl implements ComponentBroker{
 		}
 
 		Set<Implementation> ret = new HashSet<Implementation>();
+		ApamFilter f = ApamFilter.newInstance(goal) ;
 		for (Implementation impl : implementations) {
-			if (impl.match(goal)) {
+			if (impl.match(f)) {
 				ret.add(impl);
 			}
 		}
@@ -338,8 +341,9 @@ public class ComponentBrokerImpl implements ComponentBroker{
 			return getInsts();
 		}
 		Set<Instance> ret = new HashSet<Instance>();
+		ApamFilter f = ApamFilter.newInstance(goal) ;
 		for (Instance inst : instances) {
-			if (inst.match(goal)) {
+			if (inst.match(f)) {
 				ret.add(inst);
 			}
 		}

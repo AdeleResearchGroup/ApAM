@@ -171,44 +171,6 @@ public final class Util {
 		return stringArrayTrim(str.split(","));
 	}
 
-	//	/**
-	//	 * Provided a string contain a list of values, return an array of string containing the different values.
-	//	 * A list is of the form "{A, B, .... G}" or "[A, B, .... G]"
-	//	 *
-	//	 * If the string is empty or is not a list, return the empty array.
-	//	 *
-	//	 * @param str
-	//	 * @return
-	//	 */
-	//	public static String[] split(String str) {
-	//		if ((str == null) || (str.length() == 0)) {
-	//			return new String[0];
-	//		}
-	//
-	//		str.trim();
-	//		if ((str.charAt(0) != '{') && (str.charAt(0) != '[')) {
-	//			return stringArrayTrim(str.split(","));
-	//		}
-	//
-	//		str.replaceAll("\\ ", "");
-	//		str.replaceAll(";", ",");
-	//		str.replaceAll("\\[,", "[");
-	//		str.replaceAll(",]", "]");
-	//
-	//		String internal;
-	//		if (((str.charAt(0) == '{') && (str.charAt(str.length() - 1) == '}'))
-	//				|| ((str.charAt(0) == '[') && (str.charAt(str.length() - 1) == ']'))) {
-	//
-	//			internal = (str.substring(1, str.length() - 1)).trim();
-	//			// Check empty array
-	//			if (internal.length() == 0) {
-	//				return new String[0];
-	//			}
-	//			return internal.split(",");
-	//		} else {
-	//			return new String[] { str };
-	//		}
-	//	}
 
 	/*
 	 * return true if expression is null, "true" or if the component matches the expression.
@@ -220,11 +182,11 @@ public final class Util {
 		if (expre.equals(CST.V_FALSE)) {
 			return false;
 		}
-		//ApamFilter f = ApamFilter.newInstance(expre);
-		//		if (f == null) {
-		//			return false;
-		//		}
-		return comp.match(expre);
+		ApamFilter f = ApamFilter.newInstanceApam(expre, comp);
+				if (f == null) {
+					return false;
+				}
+		return comp.match(f);
 	}
 
 

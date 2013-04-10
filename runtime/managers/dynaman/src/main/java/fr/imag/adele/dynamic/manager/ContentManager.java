@@ -287,8 +287,6 @@ public class ContentManager  {
 				if (dependency.isEffectiveEager())
 					dynamicRequest.resolve();
 			}			
-			
-			
 		}
 	}
 
@@ -328,7 +326,8 @@ public class ContentManager  {
 
 					if (trigger.getTarget() instanceof ImplementationReference<?> && !candidate.getImpl().getName().equals(target))
 						continue;
-
+					
+//TODO This is a BUG. should use matchDependencyConstraints instead.
 					if (!candidate.match(trigger.getInstanceConstraints()))
 						continue;
 
