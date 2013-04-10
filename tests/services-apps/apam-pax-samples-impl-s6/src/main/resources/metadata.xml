@@ -77,6 +77,11 @@
 		<definition name="property-case-01" type="string" value="$impl-case-01.$property-subject-b"/>
 		<definition name="property-case-03" type="string" value="$impl-case-03.$property-subject-b"/>
 		<definition name="property-case-08" type="string" value="$impl-case-08.$property-subject-b"/>
+		<definition name="property-case-09" type="string" value="\$impl-case-09.$property-subject-b"/>
+		
+		<definition name="function-case-01" type="string" value="@functionCall"/>
+		<definition name="function-case-02" type="string" value="\@functionCall"/>
+		
 	</implementation>
 
 

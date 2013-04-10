@@ -102,6 +102,47 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		
 	}
 	
+	@Test
+	public void SubstitutionGetPropertyEscaped_tc095() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		auxListProperties("\t", subjectA);
+		
+		System.err.println(subjectA.getProperty("property-case-09"));
+		
+		Assert.assertTrue(subjectA.getProperty("property-case-09").equals("$impl-case-09.$property-subject-b"));
+		
+	}
+	
+	@Test
+	public void FunctionCall_tc093() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		auxListProperties("\t", subjectA);
+		
+		Assert.assertTrue(subjectA.getProperty("function-case-01").equals("function called"));
+		
+	}
+	
+	@Test
+	public void FunctionCallEscaped_tc094() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		auxListProperties("\t", subjectA);
+		
+		Assert.assertTrue(subjectA.getProperty("function-case-02").equals("@functionCall"));
+		
+	}
+	
 	
 	
 }

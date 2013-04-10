@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.pax.test.implS6;
 
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.pax.test.iface.S6;
 
 public class S6Impl implements S6
@@ -37,5 +38,9 @@ public class S6Impl implements S6
     public S6 getS6() {
 		return s6;
 	}
+    
+    public String functionCall(Instance instance){
+    	return "function called";
+    }
     
 }
