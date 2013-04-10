@@ -172,7 +172,7 @@ public class Distriman implements DependencyManager {
 			if (manager == null) {
 				throw new RuntimeException(
 						String.format(
-								"Distriman could not be initialized, it was not possible to get the instance of ",
+								"Distriman could not be initialized, it was not possible to get the instance of %s",
 								CST.APAMMAN));
 			}
 

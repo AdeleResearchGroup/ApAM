@@ -14,7 +14,9 @@
  */
 package fr.imag.adele.apam.test.testcases;
 
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.vmOption;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,17 +50,30 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(JUnit4TestRunner.class)
 public class DistriManTest extends ExtensionAbstract {
 
+	//CoreOptions.systemProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
+	//CoreOptions.frameworkProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
 	@Override
 	public List<Option> config() {
-		List<Option> addon = super.config();
-		addon.add(mavenBundle().groupId("org.ops4j.pax.url").artifactId("pax-url-aether").versionAsInProject());
-		// addon.add(CoreOptions.systemProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn"));
-		// addon.add(CoreOptions.frameworkProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn"));
-		addon.add(packApamDistriMan());
-		addon.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
+		List<Option> config = new ArrayList<Option>();//super.config();
+		
+		config.add(packInitialConfig());
+		config.add(packOSGi());
+		config.add(packPax());
+		config.add(packApamCore());		
+		config.add(packApamObrMan());
+		config.add(packLog());
+		config.add(junitBundles());
+		config.add(packDebugConfiguration());
+		config.add(vmOption("-ea"));
+		config.add(mavenBundle().groupId("org.ops4j.pax.url").artifactId("pax-url-aether").versionAsInProject());		
+		config.add(packApamDistriMan());
+		config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
 				.artifactId("apam-pax-distriman-iface").versionAsInProject());
-
-		return addon;
+		config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
+				.artifactId("apam-pax-distriman-P2").versionAsInProject());
+		
+		return config;
+		
 	}
 
 	private static Method getConfigurationMethod(Class<?> klass) {
