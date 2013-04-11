@@ -162,6 +162,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 					Artifact dependency = (Artifact) artifact;
 
 					VersionRange range = dependency.getVersionRange();
+					if(dependency.getGroupId().contains("google")) continue;
 					OBRGeneratorMojo.versionRange.put(dependency.getArtifactId(), range);
 					dependencies.addAll(getComponentFromJar(((Artifact) artifact).getFile()));
                     classpathDescriptor.add(dependency.getFile());
@@ -224,6 +225,9 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 		try {
 			JarFile jarFile = new JarFile(jar);
 			Manifest manifest = jarFile.getManifest();
+			
+			if(manifest==null) return null;
+			
 			// manifest.getAttributes("").
 			Attributes iPOJOmetadata = manifest.getMainAttributes();
 			String ipojoMetadata = iPOJOmetadata.getValue("iPOJO-Components");
