@@ -162,9 +162,13 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 					Artifact dependency = (Artifact) artifact;
 
 					VersionRange range = dependency.getVersionRange();
-					if(dependency.getGroupId().contains("google")) continue;
+					//if(dependency.getGroupId().contains("google")) continue;
 					OBRGeneratorMojo.versionRange.put(dependency.getArtifactId(), range);
-					dependencies.addAll(getComponentFromJar(((Artifact) artifact).getFile()));
+					
+					List<ComponentDeclaration> subcomponents=getComponentFromJar(((Artifact) artifact).getFile());
+					
+					if(subcomponents!=null) dependencies.addAll(subcomponents);
+					
                     classpathDescriptor.add(dependency.getFile());
 				}
 			}
