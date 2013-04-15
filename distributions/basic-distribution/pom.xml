@@ -30,7 +30,7 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>apam.felix.config.base</artifactId>
 			<version>${project.version}</version>
-			<type>zip</type>
+			<type>pom</type>
 		</dependency>
 	</dependencies>
 

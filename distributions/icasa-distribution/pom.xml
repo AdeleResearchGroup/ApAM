@@ -41,6 +41,7 @@
             <groupId>fr.imag.adele.apam</groupId>
             <artifactId>dynaman</artifactId>
             <version>0.0.2-SNAPSHOT</version>
+	    <type>pom</type>
         </dependency>
         <dependency>
             <groupId>de.akquinet.gomobile</groupId>

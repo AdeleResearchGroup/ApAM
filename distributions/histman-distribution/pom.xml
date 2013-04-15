@@ -36,6 +36,7 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>histman</artifactId>
 			<version>${apam.current.version}</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.mongodb</groupId>

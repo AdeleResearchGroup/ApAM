@@ -36,6 +36,7 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>DISTRIMAN</artifactId>
 			<version>${apam.current.version}</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.felix</groupId>
