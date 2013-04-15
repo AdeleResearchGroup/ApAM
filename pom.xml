@@ -572,6 +572,12 @@
               <includes>
                 <include>fr.imag.adele.apam:*</include>
               </includes>
+		<excludes>	
+                <exclude>fr.imag.adele.apam:apam.felix.config.base</exclude>
+		<exclude>fr.imag.adele.apam:apam-histman-distribution</exclude>
+		<exclude>fr.imag.adele.apam:apam-distriman-distribution</exclude>
+		<exclude>fr.imag.adele.apam:apam-icasa-distribution</exclude>
+              </excludes>
             </configuration>
           </execution>
         </executions>
