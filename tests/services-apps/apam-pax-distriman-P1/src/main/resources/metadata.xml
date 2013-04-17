@@ -23,9 +23,11 @@
 		specification="P1-spec">
 		<property name="description" value="samsung" />
 		<dependency field="p2">
+		<!-- 
 			<constraints>
 				<instance filter="(rule=two)"/>
 			</constraints>
+ 		-->			
 		</dependency>
 		<callback onInit="instantiate" onRemove="desinstantiate"/>
 </implementation>
