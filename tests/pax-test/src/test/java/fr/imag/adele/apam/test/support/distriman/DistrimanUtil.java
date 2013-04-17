@@ -9,11 +9,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
 
-import org.apache.cxf.binding.BindingConfiguration;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
@@ -21,31 +22,68 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
-import fr.imag.adele.apam.pax.distriman.test.iface.P2Spec;
-
 public class DistrimanUtil {
 
-	public static String httpRequestDependency(String id, String type, String clazz,
-			String variable, boolean isMultiple, String clientUrl) {
+	public static String httpRequestDependency(String id, String type,
+			String clazz, String variable, boolean isMultiple,
+			String clientUrl, List<String> constraintsinstance,
+			List<String> constraintsimplementation) {
 
 		StringBuffer payload = new StringBuffer();
 
-		//final String jsonPayload = " {\"id\":\"p2\",\"rref\":{\"name\":\"fr.imag.adele.apam.pax.distriman.test.iface.P2Spec\",\"type\":\"itf\"},\"component_name\":\"P1\",\"is_multiple\":false,\"client_url\":\"http://127.0.0.1:8081/apam/machine\"}";
-		
+		// final String jsonPayload =
+		// " {\"id\":\"p2\",\"rref\":{\"name\":\"fr.imag.adele.apam.pax.distriman.test.iface.P2Spec\",\"type\":\"itf\"},\"component_name\":\"P1\",\"is_multiple\":false,\"client_url\":\"http://127.0.0.1:8081/apam/machine\"}";
+
 		payload.append("{");
 		payload.append(String.format("\"id\":\"%s\",", id));
 		payload.append(String.format(
-				"\"rref\": {\"name\":\"%s\",\"type\":\"%s\"},", clazz,type));
+				"\"rref\": {\"name\":\"%s\",\"type\":\"%s\"},", clazz, type));
 		payload.append(String.format("\"component_name\":\"%s\",", variable));
 		payload.append(String.format("\"is_multiple\":\"%s\",", isMultiple));
-		payload.append(String.format("\"client_url\":\"%s\"", clientUrl));
+		payload.append(String.format("\"client_url\":\"%s\",", clientUrl));
+
+		String constraintInstance = "";
+
+		for (String val : constraintsinstance) {
+			constraintInstance += "\"" + val + "\",";
+
+		}
+
+		if (constraintInstance.length() > 0)
+			constraintInstance = constraintInstance.substring(0,
+					constraintInstance.length() - 1);
+
+		payload.append(String.format("\"instance_constraint\":[%s],",
+				constraintInstance));
+
+		String constraintImplementation = "";
+
+		for (String val : constraintsimplementation) {
+			constraintImplementation += "\"" + val + "\",";
+		}
+
+		if (constraintImplementation.length() > 0)
+			constraintImplementation = constraintImplementation.substring(0,
+					constraintImplementation.length() - 1);
+
+		payload.append(String.format("\"implementation_constraint\":[%s]",
+				constraintImplementation));
 		payload.append("}");
 
 		return payload.toString();
+	}
+
+	public static String httpRequestDependency(String id, String type,
+			String clazz, String variable, boolean isMultiple, String clientUrl) {
+
+		return httpRequestDependency(id, type, clazz, variable, isMultiple,
+				clientUrl, new ArrayList<String>(), new ArrayList<String>());
 
 	}
 
 	public static void waitForUrl(long maxwait, String url) {
+
+		System.err.println("Checking IN WAIT for URL");
 
 		boolean connectionStablished = false;
 		long start = System.currentTimeMillis();
@@ -55,11 +93,15 @@ public class DistrimanUtil {
 
 			try {
 				current = System.currentTimeMillis();
-				
-				if((current-start)>maxwait) break;
-				
+
+				if ((current - start) > maxwait)
+					break;
+
 				HttpURLConnection connection = (HttpURLConnection) new URL(url)
 						.openConnection();
+
+				BufferedReader serverResponse = new BufferedReader(
+						new InputStreamReader(connection.getInputStream()));
 
 				connectionStablished = true;
 
@@ -77,6 +119,9 @@ public class DistrimanUtil {
 			}
 
 		}
+
+		System.err.println("Checking OUT in WAIT for URL");
+
 	}
 
 	public static String curl(Map<String, String> parameters, String url)
@@ -113,10 +158,10 @@ public class DistrimanUtil {
 			sb.append(line);
 		}
 
-		return URLDecoder.decode(sb.toString(),"UTF-8");
+		return URLDecoder.decode(sb.toString(), "UTF-8");
 
 	}
-	
+
 	public static void endpointConnect(Map<String, String> endpoints) {
 
 		for (Map.Entry<String, String> entry : endpoints.entrySet()) {
@@ -126,7 +171,7 @@ public class DistrimanUtil {
 				ClientProxyFactoryBean factory = new ClientProxyFactoryBean();
 				factory.setServiceClass(Class.forName(entry.getKey()));
 				factory.setAddress(entry.getValue());
-				
+
 				Object proxy = (Object) factory.create();
 				System.err.println(proxy.toString());
 
@@ -139,20 +184,46 @@ public class DistrimanUtil {
 		}
 
 	}
-	
-	public static Map<String,String> endpointGet(String jsonstring) throws JsonParseException, JsonMappingException, IOException{
-		
-		ObjectMapper om=new ObjectMapper();
-		
-		JsonNode node=om.readValue(jsonstring, JsonNode.class);
-		
-		Map<String,String> endpoints=om.convertValue(node.get("endpoint_entry"), new TypeReference<Map<String, String>>() {});
-		
+
+	public static Map<String, String> endpointGet(String jsonstring)
+			throws JsonParseException, JsonMappingException, IOException {
+
+		ObjectMapper om = new ObjectMapper();
+
+		JsonNode node = om.readValue(jsonstring, JsonNode.class);
+
+		Map<String, String> endpoints = om.convertValue(
+				node.get("endpoint_entry"),
+				new TypeReference<Map<String, String>>() {
+				});
+
 		System.err.println("Class\tURL");
-		for(Map.Entry<String, String> entry:endpoints.entrySet()){
-			System.err.println(String.format("%s\t%s", entry.getKey(),entry.getValue()));
+		for (Map.Entry<String, String> entry : endpoints.entrySet()) {
+			System.err.println(String.format("%s\t%s", entry.getKey(),
+					entry.getValue()));
 		}
-		
+
+		return endpoints;
+	}
+
+	public static Map<String, String> propertyGet(String jsonstring)
+			throws JsonParseException, JsonMappingException, IOException {
+
+		ObjectMapper om = new ObjectMapper();
+
+		JsonNode node = om.readValue(jsonstring, JsonNode.class);
+
+		Map<String, String> endpoints = om.convertValue(
+				node.get("properties"),
+				new TypeReference<Map<String, String>>() {
+				});
+
+		System.err.println("Class\tURL");
+		for (Map.Entry<String, String> entry : endpoints.entrySet()) {
+			System.err.println(String.format("%s\t%s", entry.getKey(),
+					entry.getValue()));
+		}
+
 		return endpoints;
 	}
 

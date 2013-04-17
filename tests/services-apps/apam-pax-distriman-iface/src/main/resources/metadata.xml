@@ -33,4 +33,9 @@
 		<definition name="description" type="string" />
 </specification>
 	
+<specification name="P2-spec-constraint"
+		interfaces="fr.imag.adele.apam.pax.distriman.test.iface.P2Spec"> 
+		<definition name="rule" type="string" />
+</specification>
+	
 </apam>

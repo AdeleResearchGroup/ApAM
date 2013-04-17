@@ -18,6 +18,7 @@ import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -30,6 +31,7 @@ import java.util.Properties;
 
 import junit.framework.Assert;
 
+import org.apache.bcel.generic.NEWARRAY;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.apache.felix.framework.Felix;
 import org.junit.Test;
@@ -50,30 +52,31 @@ import fr.imag.adele.apam.tests.helpers.ExtensionAbstract;
 @RunWith(JUnit4TestRunner.class)
 public class DistriManTest extends ExtensionAbstract {
 
-	//CoreOptions.systemProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
-	//CoreOptions.frameworkProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
+	// CoreOptions.systemProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
+	// CoreOptions.frameworkProperty("org.osgi.framework.system.packages.extra").value("org.ops4j.pax.url.mvn");
 	@Override
 	public List<Option> config() {
-		List<Option> config = new ArrayList<Option>();//super.config();
-		
+		List<Option> config = new ArrayList<Option>();// super.config();
+
 		config.add(packInitialConfig());
 		config.add(packOSGi());
 		config.add(packPax());
-		config.add(packApamCore());		
+		config.add(packApamCore());
 		config.add(packApamObrMan());
 		config.add(packLog());
 		config.add(junitBundles());
 		config.add(packDebugConfiguration());
 		config.add(vmOption("-ea"));
-		//config.add(mavenBundle().groupId("org.ops4j.pax.url").artifactId("pax-url-aether").versionAsInProject());		
+		// config.add(0,packApamDynaMan());
+		// config.add(mavenBundle().groupId("org.ops4j.pax.url").artifactId("pax-url-aether").versionAsInProject());
 		config.add(packApamDistriMan());
 		config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
 				.artifactId("apam-pax-distriman-iface").versionAsInProject());
 		config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
 				.artifactId("apam-pax-distriman-P2").versionAsInProject());
-		
+
 		return config;
-		
+
 	}
 
 	private static Method getConfigurationMethod(Class<?> klass) {
@@ -92,16 +95,17 @@ public class DistriManTest extends ExtensionAbstract {
 	public void ProviderDependencyInterface_tc086()
 			throws MalformedURLException, IOException {
 
-		Implementation p2Impl = CST.apamResolver.findImplByName(null,
-				"P2-singleinterface");
+		Implementation p2Impl = (Implementation) CST.apamResolver
+				.findImplByName(null, "P2-singleinterface");
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
 
-		String url = "http://127.0.0.1:8080/apam/machine";
+		String clienturl = "http://127.0.0.1:8085/apam/machine";
+		String serverurl = "http://127.0.0.1:8080/apam/machine";
 
 		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
 				"itf", "fr.imag.adele.apam.pax.distriman.test.iface.P2Spec",
-				"P2-singleinterface", false, url);
+				"P2-singleinterface", false, clienturl);
 
 		Map<String, String> parameters = new HashMap<String, String>() {
 			{
@@ -109,9 +113,11 @@ public class DistriManTest extends ExtensionAbstract {
 			}
 		};
 
-		String response = DistrimanUtil.curl(parameters, url);
+		// DistrimanUtil.waitForUrl(50000,serverurl);
 
-		System.err.println(response);
+		String response = DistrimanUtil.curl(parameters, serverurl);
+
+		System.err.println("<" + response + ">");
 
 		Map<String, String> endpoints = DistrimanUtil.endpointGet(response);
 
@@ -152,10 +158,12 @@ public class DistriManTest extends ExtensionAbstract {
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
 
-		String url = "http://127.0.0.1:8080/apam/machine";
+		String clienturl = "http://127.0.0.1:8085/apam/machine";
+		String serverurl = "http://127.0.0.1:8080/apam/machine";
 
 		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
-				"specification", "P2-spec-multipleinterface", "P2", false, url);
+				"specification", "P2-spec-multipleinterface", "P2", false,
+				clienturl);
 
 		Map<String, String> parameters = new HashMap<String, String>() {
 			{
@@ -163,7 +171,7 @@ public class DistriManTest extends ExtensionAbstract {
 			}
 		};
 
-		String response = DistrimanUtil.curl(parameters, url);
+		String response = DistrimanUtil.curl(parameters, serverurl);
 
 		System.err.println(response);
 
@@ -193,10 +201,11 @@ public class DistriManTest extends ExtensionAbstract {
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
 
-		String url = "http://127.0.0.1:8080/apam/machine";
+		String clienturl = "http://127.0.0.1:8085/apam/machine";
+		String serverurl = "http://127.0.0.1:8080/apam/machine";
 
 		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
-				"specification", "P2-spec-singleinterface", "P2", false, url);
+				"specification", "P2-spec-singleinterface", "P2", false, clienturl);
 
 		Map<String, String> parameters = new HashMap<String, String>() {
 			{
@@ -204,7 +213,7 @@ public class DistriManTest extends ExtensionAbstract {
 			}
 		};
 
-		String response = DistrimanUtil.curl(parameters, url);
+		String response = DistrimanUtil.curl(parameters, serverurl);
 
 		System.err.println(response);
 
@@ -225,60 +234,136 @@ public class DistriManTest extends ExtensionAbstract {
 
 	}
 
-//	@Before
-//	public void adapt() throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-//
-//		Method m = getConfigurationMethod(DistriManTest.class);
-//		Object configClassInstance = DistriManTest.class.newInstance();
-//		Option[] options = (Option[]) m.invoke(configClassInstance);
-//
-//		configuration =options;
-//	}
-	
-//	@Test
+	@Test
+	public void ProviderDependencyConstraintRespected_tc096()
+			throws MalformedURLException, IOException {
+
+		boolean validInstanceAvailable=false;
+		
+		final String constraint="(rule=one)";
+		
+		String clienturl = "http://127.0.0.1:8085/apam/machine";
+		String serverurl = "http://127.0.0.1:8080/apam/machine";
+		
+		final String jsonPayload = DistrimanUtil.httpRequestDependency(
+				"p2", "specification", "P2-spec-constraint", "P2", false,
+				clienturl, new ArrayList<String>() {
+					{
+						add(constraint);
+					}
+				}, new ArrayList<String>());
+		
+		Map<String, String> parameters = new HashMap<String, String>() {
+			{
+				put("content", jsonPayload);
+			}
+		};
+		
+		try {
+
+			Implementation p1Impl = CST.apamResolver.findImplByName(null,
+					"P2-constraint2");
+
+			Instance p1Inst = p1Impl.createInstance(null, null);
+
+
+			DistrimanUtil.curl(parameters, serverurl);
+			
+			//An exception should be raised since there is no instance that can meet the constraints
+
+		} catch (EOFException e) {
+			validInstanceAvailable=false;
+		}
+
+		
+		Assert.assertTrue("A remote instance that do not respect the constraint was injected",!validInstanceAvailable);
+		
+		try {
+
+			Implementation p1Impl = CST.apamResolver.findImplByName(null,
+					"P2-constraint");
+
+			Instance p1Inst = p1Impl.createInstance(null, null);
+
+			String response = DistrimanUtil.curl(parameters, serverurl);
+
+			Map<String, String> properties = DistrimanUtil
+					.propertyGet(response);
+			
+			Map<String, String> endpoints = DistrimanUtil
+					.endpointGet(response);
+			
+			DistrimanUtil.endpointConnect(endpoints);
+			
+			Assert.assertTrue(
+					String.format(
+							"remote object do not respect the instance constraints specified <%s> instead the value for rule was %s.",
+							constraint, properties.get("rule")),
+					properties.get("rule").equals("one"));
+			
+		} catch (EOFException e) {
+			e.printStackTrace();
+			Assert.fail("inespected exception while injecting the remote field, with the message:"+e.getMessage());
+		}
+		
+	}
+
+	// @Before
+	// public void adapt() throws InstantiationException,
+	// IllegalAccessException, IllegalArgumentException,
+	// InvocationTargetException {
+	//
+	// Method m = getConfigurationMethod(DistriManTest.class);
+	// Object configClassInstance = DistriManTest.class.newInstance();
+	// Option[] options = (Option[]) m.invoke(configClassInstance);
+	//
+	// configuration =options;
+	// }
+
+	// @Test
 	public void second() throws Exception {
 
-//		for (Bundle b : context.getBundles()) {
-//			System.err.println("* " + b.getBundleId() + ":"
-//					+ b.getSymbolicName());
-//		}		
-//		for (Option value : configuration) {
-//			if (value instanceof MavenArtifactProvisionOption) {
-//				MavenArtifactProvisionOption m = (MavenArtifactProvisionOption) value;
-//				Parser mvnparser = new Parser(m.getURL().replaceAll("mvn:", ""));
-//				String path = String.format(
-//						"file:///home/jnascimento/.m2/repository/%s",
-//						mvnparser.getArtifactPath());
-//				System.err.println(path);
-//			} else {
-//				System.err.println("its not:" + value);
-//			}
-//
-//		}
+		// for (Bundle b : context.getBundles()) {
+		// System.err.println("* " + b.getBundleId() + ":"
+		// + b.getSymbolicName());
+		// }
+		// for (Option value : configuration) {
+		// if (value instanceof MavenArtifactProvisionOption) {
+		// MavenArtifactProvisionOption m = (MavenArtifactProvisionOption)
+		// value;
+		// Parser mvnparser = new Parser(m.getURL().replaceAll("mvn:", ""));
+		// String path = String.format(
+		// "file:///home/jnascimento/.m2/repository/%s",
+		// mvnparser.getArtifactPath());
+		// System.err.println(path);
+		// } else {
+		// System.err.println("its not:" + value);
+		// }
+		//
+		// }
 
 		Framework m_felix = null;
 		Properties configProps = new Properties();
-		
-		
+
 		try {
 			// Create an instance and start the framework.
 			m_felix = new Felix(configProps);
-			
+
 			m_felix.start();
-			
-			
-			
-			List<Bundle> li=new ArrayList<Bundle>();
-			
-			
-			File file=new File("/home/jnascimento/project/apam/src/distributions/basic-distribution/bundle/");
-			
-			for(File bun:file.listFiles()){
-				if(!file.isDirectory()) continue;
-				li.add(m_felix.getBundleContext().installBundle("file://"+bun.getAbsolutePath()));
+
+			List<Bundle> li = new ArrayList<Bundle>();
+
+			File file = new File(
+					"/home/jnascimento/project/apam/src/distributions/basic-distribution/bundle/");
+
+			for (File bun : file.listFiles()) {
+				if (!file.isDirectory())
+					continue;
+				li.add(m_felix.getBundleContext().installBundle(
+						"file://" + bun.getAbsolutePath()));
 			}
-			
-			for(Bundle b:li){
+
+			for (Bundle b : li) {
 				b.start();
 			}
 
@@ -286,9 +371,9 @@ public class DistriManTest extends ExtensionAbstract {
 				System.err.println("* " + b.getBundleId() + ":"
 						+ b.getSymbolicName());
 			}
-			
-			System.out.println("Total of bundles:"+li.size());
-			
+
+			System.out.println("Total of bundles:" + li.size());
+
 			// Wait for framework to stop to exit the VM.
 			System.err.println("----" + m_felix.getState());
 			m_felix.waitForStop(0);
@@ -298,7 +383,7 @@ public class DistriManTest extends ExtensionAbstract {
 			ex.printStackTrace();
 			System.exit(-1);
 		}
-		
+
 		// Parser mvnparser=new Parser(mavenBundle("org.apache.felix",
 		// "org.apache.felix.main").version("1.8.0").getURL().replaceAll("mvn:",
 		// ""));

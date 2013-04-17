@@ -223,7 +223,7 @@ public class ApamMan implements DependencyManager {
 			//Compute all the instances visible and satisfying the constraints  ;
 			for (Implementation impl : impls) {
 				oneInsts = impl.getInsts() ;
-				if (oneInsts == null) continue ;
+				if (oneInsts == null || oneInsts.size()==0) continue ;
 				for (Instance inst : oneInsts) {
 					if (inst.isSharable() 
 							&& Util.checkInstVisible(compo, inst)

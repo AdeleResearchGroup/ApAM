@@ -192,11 +192,11 @@ public enum LocalMachine {
 
 	private String toJson(EndpointRegistration registration) throws JsonGenerationException, JsonMappingException, IOException {
 		
-		ObjectMapper om=new ObjectMapper();
+		ObjectMapper root=new ObjectMapper();
 		
-		ObjectNode node=om.createObjectNode();
+		ObjectNode node=root.createObjectNode();
 		
-		ObjectNode nodeendpoint=om.createObjectNode();
+		ObjectNode nodeendpoint=root.createObjectNode();
 		
 		for (Map.Entry<String, String> entry: registration.getEndpoint().entrySet()) {
 			nodeendpoint.put(entry.getKey(), entry.getValue());
@@ -205,6 +205,16 @@ public enum LocalMachine {
 		node.put("endpoint_entry", nodeendpoint);
 		node.put("protocol", registration.getProtocol());
 		node.put("instance_name", registration.getInstance().getName());
+		
+		ObjectNode constraints=root.createObjectNode();
+
+		//@distriman: add contraints
+		
+		for (Map.Entry<String, String> entry: registration.getInstance().getAllPropertiesString().entrySet()) {
+			constraints.put(entry.getKey(), entry.getValue());
+		}
+		
+		node.put("properties", constraints);
 		
 		return node.toString();
 	}
