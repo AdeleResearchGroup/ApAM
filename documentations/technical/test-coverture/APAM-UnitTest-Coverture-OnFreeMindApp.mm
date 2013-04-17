@@ -1,6 +1,6 @@
 <map version="0.9.0">
 <!-- To view this file, download free mind mapping software FreeMind from http://freemind.sourceforge.net -->
-<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1363870939268" TEXT="APAM-Unit test coverture">
+<node CREATED="1353065971613" ID="ID_856281372" MODIFIED="1366197651787" TEXT="APAM-Unit test coverture">
 <node CREATED="1353065995318" ID="ID_866107605" MODIFIED="1353066274405" POSITION="right" TEXT="Core">
 <node CREATED="1353066005446" ID="ID_776905123" MODIFIED="1360338389070" TEXT="Property">
 <node CREATED="1353066218822" ID="ID_476104344" MODIFIED="1354294351351" TEXT="Inherited properties should not be updateable-tc001">
@@ -385,6 +385,11 @@
 </node>
 <node CREATED="1364310734666" ID="ID_701186650" MODIFIED="1364310736264" TEXT="interface">
 <node CREATED="1364310737018" ID="ID_1927880532" MODIFIED="1364310795118" TEXT="single interface-tc086">
+<icon BUILTIN="button_ok"/>
+</node>
+</node>
+<node CREATED="1366192817607" ID="ID_349897100" MODIFIED="1366192822374" TEXT="constraints">
+<node CREATED="1366192823743" ID="ID_1511218850" MODIFIED="1366197692469" TEXT="check if instance constraint is respected-tc096">
 <icon BUILTIN="button_ok"/>
 </node>
 </node>
