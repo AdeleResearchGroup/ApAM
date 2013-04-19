@@ -29,6 +29,7 @@ import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
@@ -74,6 +75,9 @@ public class Distriman implements DependencyManager {
 
 	private BundleContext context;
 
+	@Requires(proxy=false)
+	Apam apam;
+	
 	public Distriman(BundleContext context) {
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
@@ -163,17 +167,18 @@ public class Distriman implements DependencyManager {
 		try {
 			logger.info("Starting...");
 
-			DependencyManager manager = ApamManagers.getManager(CST.APAMMAN);
-
-//			while((manager = ApamManagers.getManager(CST.APAMMAN))==null){
-//				
-//				logger.info("Waiting APAMMAN to appear...");
-//				
-//				try {
-//					Thread.sleep(2000);
-//				} catch (InterruptedException e) {}
-//				
-//			}
+			
+			DependencyManager manager; //= ApamManagers.getManager(CST.APAMMAN);
+			
+			while(CST.componentBroker==null || (manager = ApamManagers.getManager(CST.APAMMAN))==null){
+				
+				logger.info("Waiting APAMMAN to appear...");
+				
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {}
+				
+			}
 
 			providerLocal=new LocalMachine(Integer.parseInt(context
 					.getProperty("org.osgi.service.http.port")),this);

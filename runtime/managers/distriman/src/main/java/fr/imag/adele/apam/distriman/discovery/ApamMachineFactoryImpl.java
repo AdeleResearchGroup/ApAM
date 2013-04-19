@@ -26,12 +26,14 @@ import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Provides;
+import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.Validate;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformCompositeType;
@@ -60,9 +62,11 @@ public class ApamMachineFactoryImpl implements ApamMachineFactory,ApformComposit
     
     private static final Map<String, RemoteMachine> machines = new HashMap<String, RemoteMachine>();
 
-
     private final BundleContext my_context;
 
+    @Requires(proxy=false)
+    Apam apam;
+    
     public ApamMachineFactoryImpl(BundleContext context) {
     	
         my_context = context;
