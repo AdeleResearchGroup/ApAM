@@ -77,14 +77,7 @@ public class Distriman implements DependencyManager {
 	public Distriman(BundleContext context) {
 
 		System.setProperty("java.net.preferIPv6Addresses", "false");
-		
-//		try {
-			this.context = context;
-//			remotes = new RemoteMachineFactory(context);
-//			discovery = new MachineDiscovery(remotes);
-//		} catch (RuntimeException e) {
-//			e.printStackTrace();
-//		}
+		this.context = context;
 
 	}
 
@@ -190,34 +183,25 @@ public class Distriman implements DependencyManager {
 			endpointFactory.start(httpserver);
 
 			// Register this local machine servlet
-			try {
-				httpserver.registerServlet(DistrimanConstant.PROVIDER_URL,
+
+			httpserver.registerServlet(DistrimanConstant.PROVIDER_URL,
 						providerLocal.getServlet(), null, null);
-			} catch (Exception e) {
-				e.printStackTrace();
-				//discovery.stop();
-				throw new RuntimeException(e);
-			}
 
 			// publish this local machine over the network!
-			try {
-				discovery.publishLocalMachine(providerLocal);
-			} catch (IOException e) {
-				e.printStackTrace();
-				//discovery.stop();
-				httpserver.unregister(DistrimanConstant.PROVIDER_URL);
-				// TODO distriman:avoid throw here and stoping the instance
-				// creation
-				throw new RuntimeException(e);
-			}
+			discovery.publishLocalMachine(providerLocal);
 
 			// Add this manager to Apam
 			ApamManagers.addDependencyManager(this, APAM_PRIORITY);
 
 			logger.info("Successfully initialized");
-		} catch (RuntimeException e) {
+			
+		} catch (Exception e) {
+			
 			e.printStackTrace();
-		}
+			
+			stop();
+			
+		} 
 	}
 
 	@Invalidate
@@ -226,13 +210,13 @@ public class Distriman implements DependencyManager {
 
 		ApamManagers.removeDependencyManager(this);
 
-		//discovery.stop();
+		discovery.stop();
 
 		endpointFactory.stop(httpserver);
 
 		remotes.destroyRemoteMachines();
 
-		//httpserver.unregister(LocalMachine.INSTANCE.getPath());
+		httpserver.unregister(DistrimanConstant.PROVIDER_URL);
 
 		logger.info("Successfully stopped");
 	}

@@ -76,18 +76,6 @@ public class DistriManTest extends ExtensionAbstract {
 
 	}
 
-	private static Method getConfigurationMethod(Class<?> klass) {
-		Method[] methods = klass.getMethods();
-		for (Method m : methods) {
-			Configuration conf = m.getAnnotation(Configuration.class);
-			if (conf != null) {
-				return m;
-			}
-		}
-		throw new IllegalArgumentException(klass.getName()
-				+ " has no @Configuration method");
-	}
-
 	@Test
 	public void ProviderDependencyInterface_tc086()
 			throws MalformedURLException, IOException {
@@ -109,8 +97,6 @@ public class DistriManTest extends ExtensionAbstract {
 				put("content", jsonPayload);
 			}
 		};
-
-		//DistrimanUtil.waitForUrl(50000,serverurl);
 
 		String response = DistrimanUtil.curl(parameters, serverurl);
 

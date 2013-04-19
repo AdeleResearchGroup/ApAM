@@ -21,5 +21,7 @@ public interface ApamDiscovery extends ServiceListener{
     public void serviceRemoved(ServiceEvent serviceEvent);
 
     public void serviceResolved(ServiceEvent serviceEvent);
+    
+    public void stop();
 	
 }
