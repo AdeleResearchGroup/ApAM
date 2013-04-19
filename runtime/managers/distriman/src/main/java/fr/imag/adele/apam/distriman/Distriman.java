@@ -43,14 +43,14 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
-import fr.imag.adele.apam.distriman.discovery.MachineDiscovery;
-import fr.imag.adele.apam.distriman.discovery.RemoteMachineFactory;
+import fr.imag.adele.apam.distriman.discovery.ApamDiscovery;
+import fr.imag.adele.apam.distriman.discovery.ApamMachineFactory;
 import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
 import fr.imag.adele.apam.distriman.provider.CxfEndpointFactory;
 import fr.imag.adele.apam.distriman.provider.EndpointRegistration;
 import fr.imag.adele.apam.distriman.provider.LocalMachine;
 
-@org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman")
+@org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman::core")
 @Instantiate
 @Provides
 public class Distriman implements DependencyManager {
@@ -62,28 +62,29 @@ public class Distriman implements DependencyManager {
 	@Requires(optional = false)
 	private HttpService httpserver;
 
+	@Requires(optional = false)
+	private ApamMachineFactory remotes;
+	
+	@Requires(optional = false)
+	private ApamDiscovery discovery;
+	
 	private CxfEndpointFactory endpointFactory;
-
-	private RemoteMachineFactory remotes;
-
-	private final LocalMachine providerLocal = LocalMachine.INSTANCE;
-
-	/**
-	 * MachineDiscovery allows for machine discovery
-	 */
-	private MachineDiscovery discovery;
+	
+	private LocalMachine providerLocal;
 
 	private BundleContext context;
 
 	public Distriman(BundleContext context) {
 
-		try {
+		System.setProperty("java.net.preferIPv6Addresses", "false");
+		
+//		try {
 			this.context = context;
-			remotes = new RemoteMachineFactory(context);
-			discovery = new MachineDiscovery(remotes);
-		} catch (RuntimeException e) {
-			e.printStackTrace();
-		}
+//			remotes = new RemoteMachineFactory(context);
+//			discovery = new MachineDiscovery(remotes);
+//		} catch (RuntimeException e) {
+//			e.printStackTrace();
+//		}
 
 	}
 
@@ -142,10 +143,12 @@ public class Distriman implements DependencyManager {
 			RemoteMachine machine = element.getValue();
 			String urlForResolution = element.getKey();
 
+			if(machine.isLocalhost()) continue;
+			
 			try {
 
 				logger.info("trying to resolve in machine key {} and url {}",
-						urlForResolution, machine.getURL());
+						urlForResolution, urlForResolution);
 
 				resolved = machine.resolveRemote(client, dependency);
 
@@ -169,6 +172,15 @@ public class Distriman implements DependencyManager {
 
 			DependencyManager manager = ApamManagers.getManager(CST.APAMMAN);
 
+//			while((manager = ApamManagers.getManager(CST.APAMMAN))==null){
+//				
+//				logger.info("Waiting APAMMAN to appear...");
+//				try {
+//					Thread.sleep(2000);
+//				} catch (InterruptedException e) {}
+//				
+//			}
+			
 			if (manager == null) {
 				throw new RuntimeException(
 						String.format(
@@ -176,26 +188,23 @@ public class Distriman implements DependencyManager {
 								CST.APAMMAN));
 			}
 
-			endpointFactory = new CxfEndpointFactory(manager);
-
+			providerLocal=new LocalMachine(Integer.parseInt(context
+					.getProperty("org.osgi.service.http.port")),this);
+			
 			// init the local machine
-			providerLocal.init("127.0.0.1", Integer.parseInt(context
-					.getProperty("org.osgi.service.http.port")), this);
+			//providerLocal.init(providerLocal.getHost(), ), this);
 
-			// start the discovery
-			discovery.start();
-
-			// start the CxfEndpointFactory
-			endpointFactory.start(httpserver, providerLocal);
+			endpointFactory = new CxfEndpointFactory(manager);
+			
+			endpointFactory.start(httpserver);
 
 			// Register this local machine servlet
 			try {
-				httpserver.registerServlet(LocalMachine.INSTANCE.getPath(),
+				httpserver.registerServlet(DistrimanConstant.PROVIDER_URL,
 						providerLocal.getServlet(), null, null);
 			} catch (Exception e) {
-				discovery.stop();
-				// TODO distriman:avoid throw here and stoping the instance
-				// creation
+				e.printStackTrace();
+				//discovery.stop();
 				throw new RuntimeException(e);
 			}
 
@@ -203,8 +212,9 @@ public class Distriman implements DependencyManager {
 			try {
 				discovery.publishLocalMachine(providerLocal);
 			} catch (IOException e) {
-				discovery.stop();
-				httpserver.unregister(providerLocal.getPath());
+				e.printStackTrace();
+				//discovery.stop();
+				httpserver.unregister(DistrimanConstant.PROVIDER_URL);
 				// TODO distriman:avoid throw here and stoping the instance
 				// creation
 				throw new RuntimeException(e);
@@ -225,45 +235,45 @@ public class Distriman implements DependencyManager {
 
 		ApamManagers.removeDependencyManager(this);
 
-		discovery.stop();
+		//discovery.stop();
 
 		endpointFactory.stop(httpserver);
 
 		remotes.destroyRemoteMachines();
 
-		httpserver.unregister(LocalMachine.INSTANCE.getPath());
+		//httpserver.unregister(LocalMachine.INSTANCE.getPath());
 
 		logger.info("Successfully stopped");
 	}
 
 	public EndpointRegistration resolveDependencyLocalMachine(
-			RemoteDependencyDeclaration dependency, String clientURL)
+			RemoteDependencyDeclaration dependency, String providerURL)
 			throws ClassNotFoundException {
 
 		logger.info(
-				String.format("client (%s) requested resolution of dependency identifier %s in the provider(%s)",clientURL,
-				dependency.getIdentifier(),providerLocal.getURL()).toString());
+				String.format("provider (%s) requested resolution of dependency identifier %s in the provider",providerURL,
+				dependency.getIdentifier()).toString());
 
 		logger.info("distriman available machines");
 
 		for (Map.Entry<String, RemoteMachine> entry : remotes.getMachines()
 				.entrySet()) {
 
-			logger.info("distriman machine {}", entry.getKey());
+			logger.info("distriman machine {} local {}", entry.getKey(),entry.getValue().isLocalhost());
 
 		}
 
 		// Get the composite that represent the remote machine asking to resolve
 		// the RemoteDependency
 		
-		RemoteMachine remote = remotes.getMachines().get(providerLocal.getURL());
-
-		logger.info("remote machine recovered key:{} ", remote.getURL());
+		RemoteMachine remote = remotes.getMachines().get(providerURL);
 
 		// No RemoteMachine corresponding to the given url is available
 		if (remote == null) {
 			return null;
 		}
+		
+		logger.info("remote machine recovered key:{} ", remote.getURLServlet());
 
 		return endpointFactory.resolveAndExport(dependency, remote);
 	}

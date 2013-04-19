@@ -23,14 +23,16 @@ import fr.imag.adele.apam.distriman.client.RemoteMachine;
  * @author jander
  *
  */
-public interface ApamMachineDiscovery {
+public interface ApamMachineFactory {
 
 	/**
 	 * Include new URL as an available remote apam node
 	 * @param url
 	 * @return
 	 */
-	public RemoteMachine newRemoteMachine(String url, String id);
+	public RemoteMachine newRemoteMachine(String url, String id, boolean localhost);
+	
+	public RemoteMachine getLocalMachine();
 	
 	/**
 	 * Remove URL from the list of remote apam node
@@ -44,5 +46,7 @@ public interface ApamMachineDiscovery {
 	 * @return
 	 */
 	public Map<String, RemoteMachine> getMachines();
+	
+	public void destroyRemoteMachines();
 	
 }

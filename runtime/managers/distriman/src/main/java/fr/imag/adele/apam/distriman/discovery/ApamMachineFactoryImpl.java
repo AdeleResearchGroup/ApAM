@@ -27,7 +27,6 @@ import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Validate;
-import org.eclipse.jetty.util.log.Log;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -39,7 +38,6 @@ import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
-import fr.imag.adele.apam.distriman.provider.LocalMachine;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
@@ -50,22 +48,22 @@ import fr.imag.adele.apam.impl.ComponentImpl;
  * @ThreadSafe
  */
 
-@Component
+@Component(name = "Apam::Distriman::MachineFactory")
 @Instantiate
 @Provides
-public class RemoteMachineFactory implements ApamMachineDiscovery,ApformCompositeType {
+public class ApamMachineFactoryImpl implements ApamMachineFactory,ApformCompositeType {
     private static String PROP_MY_NAME = "DistriManMachine";
 
     private final CompositeDeclaration declaration;
 
-    static Logger logger = LoggerFactory.getLogger(RemoteMachineFactory.class);
+    static Logger logger = LoggerFactory.getLogger(ApamMachineFactoryImpl.class);
     
     private static final Map<String, RemoteMachine> machines = new HashMap<String, RemoteMachine>();
 
 
     private final BundleContext my_context;
 
-    public RemoteMachineFactory(BundleContext context) {
+    public ApamMachineFactoryImpl(BundleContext context) {
     	
         my_context = context;
 
@@ -105,7 +103,7 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
      * @param url The RemoteMachine unique URL
      * @return The newly created or existing RemoteMachine of given url
      */
-    public RemoteMachine newRemoteMachine(String url,String id) {
+    public RemoteMachine newRemoteMachine(String url,String id,boolean isLocalhost) {
     	
         synchronized (machines){
             if (machines.containsKey(url)){
@@ -113,7 +111,7 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
                 return machines.get(url);
             }
             
-            RemoteMachine machine = machines.put(url,new RemoteMachine(url,id,this));
+            RemoteMachine machine = machines.put(url,new RemoteMachine(url,id,this,isLocalhost));
             
             return machine;
         }
@@ -130,7 +128,7 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
         for(Map.Entry<String, RemoteMachine> element:machines.entrySet()){
         	if(element.getValue().getId().equals(id)){
         		logger.info("destroying machine with the id {}",id);
-        		machines.remove(element.getValue().getURL());
+        		machines.remove(element.getValue().getURLServlet());
         		element.getValue().destroy();
         	}
         	logger.info("pool of machine contains key {}",element.getKey());
@@ -169,9 +167,9 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
         	//TODO distriman: find a better way to avoid this reference to localhost/127.0.0.1 
         	if(rm!=null) return rm;
         	
-        	if(url.indexOf("127.0.0.1")!=-1){
-        		rm=machines.get(url.replaceAll("127.0.0.1", "localhost")+"/apam/machine");
-        	}
+//        	if(url.indexOf("127.0.0.1")!=-1){
+//        		rm=machines.get(url.replaceAll("127.0.0.1", "localhost")+"/apam/machine");
+//        	}
         	
             return rm;
         }
@@ -204,6 +202,17 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
 
 	public Map<String, RemoteMachine> getMachines() {
 		return machines;
+	}
+
+	@Override
+	public RemoteMachine getLocalMachine() {
+		// TODO Auto-generated method stub
+		
+		for(RemoteMachine machine:getRemoteMachines()){
+			if(machine.isLocalhost()) return machine;
+		}
+		
+		return null;
 	}
 
 }

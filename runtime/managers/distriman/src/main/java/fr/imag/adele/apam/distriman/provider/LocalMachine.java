@@ -38,28 +38,28 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.distriman.Distriman;
-import fr.imag.adele.apam.distriman.discovery.MachineDiscovery;
+import fr.imag.adele.apam.distriman.DistrimanConstant;
+import fr.imag.adele.apam.distriman.discovery.ApamDiscovery;
 import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
 
 /**
  * Singleton that represents the local Apam, it contains a servlet allowing for
  * the remote machines to resolves their dependency through it.
  * 
- * User: barjo Date: 13/12/12 Time: 10:26
+ * User: barjo / jander Date: 13/12/12 Time: 10:26
  */
-public enum LocalMachine {
-	INSTANCE;
+public class LocalMachine {
 
 	private final String name = UUID.randomUUID().toString();
-	private final String type = MachineDiscovery.MDNS_TYPE;
+	private final String type = ApamDiscovery.MDNS_TYPE;
 	private final HttpServlet servlet = new MyServlet();
-	private final String path = "/apam/machine";
+	
 	static Logger logger = LoggerFactory.getLogger(LocalMachine.class);
 	
 	private String host = null;
 	private int port = -1;
 	private Distriman distriman;
-
+	
 	/**
 	 * Initialize the machine.
 	 * 
@@ -70,23 +70,16 @@ public enum LocalMachine {
 	 * @param distriman
 	 *            This machine Distriman.
 	 */
-	public void init(String host, int port, Distriman distriman) {
+	public LocalMachine(int port, Distriman distriman) {
 
 		if (this.host != null || this.port != -1) {
 			logger.info("trying to change host name or port address from {}:{} to {}:{}",new Object[]{this.host,this.port,host,port});
 			return; 
 		}
 
-		this.host = host;
+		//this.host = host;
 		this.port = port;
 		this.distriman = distriman;
-	}
-
-	/**
-	 * @return The machine url path.
-	 */
-	public String getPath() {
-		return path;
 	}
 
 	/**
@@ -120,9 +113,9 @@ public enum LocalMachine {
 	/**
 	 * @return The machine full url
 	 */
-	public String getURL() {
-		return "http://" + host + ":" + String.valueOf(port) + path;
-	}
+//	public String getURL() {
+//		return "http://" + host + ":" + String.valueOf(port) + DistrimanConstant.PROVIDER_URL;
+//	}
 
 	/**
 	 * @return The machine servlet.
@@ -168,10 +161,15 @@ public enum LocalMachine {
 				RemoteDependencyDeclaration remoteDependency = RemoteDependencyDeclaration.fromJson(requestJson);
 				String identifier = remoteDependency.getIdentifier();
 				
-				logger.info("requesting resolution of the identifier {} in the address {}",identifier,remoteDependency.getClientURL());
+				//String providerUrl=requestJson.get("provider_url").asText();
+				
+				//logger.info("provider:{}",providerUrl);
+				logger.info("provider:{}",remoteDependency.getProviderURL());
+				
+				logger.info("requesting resolution of the identifier {} in the address {}",identifier,remoteDependency.getProviderURL());
 				
 				EndpointRegistration reg = distriman.resolveDependencyLocalMachine(
-						remoteDependency, remoteDependency.getClientURL());
+						remoteDependency, remoteDependency.getProviderURL());
 				
 				String jsonString=toJson(reg);
 				
@@ -181,7 +179,7 @@ public enum LocalMachine {
 				
 				writer.flush();
 				
-			} catch (ClassNotFoundException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
 				writer.close();

@@ -55,7 +55,8 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.distriman.discovery.RemoteMachineFactory;
+import fr.imag.adele.apam.distriman.DistrimanConstant;
+import fr.imag.adele.apam.distriman.discovery.ApamMachineFactoryImpl;
 import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
 import fr.imag.adele.apam.distriman.provider.EndpointRegistration;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
@@ -74,11 +75,16 @@ public class RemoteMachine implements ApformInstance {
 	/**
 	 * The RemoteMachine URL.
 	 */
-	private final String my_url;
+	private final String RootURL;
+	public String getRootURL() {
+		return RootURL;
+	}
+
+	private final String ServletURL;
 	
 	private final String id;
 
-	private final RemoteMachineFactory my_impl;
+	private final ApamMachineFactoryImpl my_impl;
 
 	private Instance apamInstance = null;
 
@@ -91,24 +97,33 @@ public class RemoteMachine implements ApformInstance {
 	private final Set<String> remoteInstances=new HashSet<String>();
 
 	private final AtomicBoolean running = new AtomicBoolean(true);
+	
+	private boolean isLocalhost=false;
 
-	public RemoteMachine(String url, String id,RemoteMachineFactory daddy) {
-		my_url = url;
+	public boolean isLocalhost() {
+		return isLocalhost;
+	}
+
+	public RemoteMachine(String servleturl, String id,ApamMachineFactoryImpl daddy,boolean isLocalhost) {
+		RootURL = servleturl;
+		ServletURL = servleturl;
 		my_impl = daddy;
 		this.id=id;
 		my_declaration = new InstanceDeclaration(daddy.getDeclaration()
-				.getReference(), "RemoteMachine_" + url, null);
+				.getReference(), "RemoteMachine_" + ServletURL, null);
 		my_declaration.setInstantiable(false);
 
 		// Add the Instance to Apam
 		Apform2Apam.newInstance(this);
 
-		logger.info("RemoteMachine " + my_url + " created.");
-		System.out.println("RemoteMachine " + my_url + " created.");
+		this.isLocalhost=isLocalhost;
+		
+		logger.info("RemoteMachine " + ServletURL + " created.");
+		System.out.println("RemoteMachine " + ServletURL + " created.");
 	}
 
-	public String getURL() {
-		return my_url;
+	public String getURLServlet() {
+		return ServletURL;
 	}
 
 	public void addEndpointRegistration(EndpointRegistration registration) {
@@ -124,7 +139,7 @@ public class RemoteMachine implements ApformInstance {
 	 */
 	public void destroy() {
 
-		logger.info("destroying remoteMachine {}", my_url);
+		logger.info("destroying remoteMachine {}", ServletURL);
 
 		for (EndpointRegistration endreg : my_endregis) {
 			endreg.close();
@@ -145,10 +160,12 @@ public class RemoteMachine implements ApformInstance {
 			DependencyDeclaration dependency) throws IOException {
 		if (running.get()) {
 			
-			RemoteDependencyDeclaration remoteDep = new RemoteDependencyDeclaration(dependency,this.getURL());
+			RemoteDependencyDeclaration remoteDep = new RemoteDependencyDeclaration(dependency,this.getURLServlet());
 
 			ObjectNode jsonObject = remoteDep.toJson();
 
+			//jsonObject.put("provider_url", this.getURL());
+			
 			String json = jsonObject.toString();
 
 			Instance instance = createClientProxy(json, client, dependency);
@@ -156,13 +173,13 @@ public class RemoteMachine implements ApformInstance {
 			if (instance == null) {
 
 				logger.info("dependency {} was NOT found in {}",
-						dependency.getIdentifier(), this.getURL());
+						dependency.getIdentifier(), this.getURLServlet());
 
 				return null;
 			}
 
 			logger.info("dependency {} was found remotely in {}",
-					dependency.getIdentifier(),this.getURL());
+					dependency.getIdentifier(),this.getURLServlet());
 
 			Set<Implementation> impl = Collections.emptySet();
 
@@ -182,9 +199,9 @@ public class RemoteMachine implements ApformInstance {
 		StringBuffer buff = new StringBuffer();
 		try {
 
-			logger.info("requesting resolution to address {}", this.getURL());
+			logger.info("requesting resolution to address {}", this.getURLServlet());
 
-			connection = (HttpURLConnection) new URL(this.getURL())
+			connection = (HttpURLConnection) new URL(this.getURLServlet())
 					.openConnection();
 
 			// SET REQUEST INFO

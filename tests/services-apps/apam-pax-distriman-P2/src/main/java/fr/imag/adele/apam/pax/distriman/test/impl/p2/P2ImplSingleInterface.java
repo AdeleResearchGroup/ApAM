@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.imag.adele.apam.pax.distriman.test.iface.P2Spec;
-import fr.imag.adele.apam.pax.distriman.test.iface.P2Spec2;
 import fr.imag.adele.apam.pax.distriman.test.iface.P2SpecKeeper;
 
 public class P2ImplSingleInterface implements  P2Spec{

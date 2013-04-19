@@ -19,7 +19,6 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.vmOption;
 
 import java.io.EOFException;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -27,20 +26,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import junit.framework.Assert;
 
-import org.apache.bcel.generic.NEWARRAY;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
-import org.apache.felix.framework.Felix;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.launch.Framework;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
@@ -62,6 +56,7 @@ public class DistriManTest extends ExtensionAbstract {
 		config.add(packOSGi());
 		config.add(packPax());
 		config.add(packApamCore());
+		config.add(packApamShell());
 		config.add(packApamObrMan());
 		config.add(packLog());
 		config.add(junitBundles());
@@ -105,7 +100,7 @@ public class DistriManTest extends ExtensionAbstract {
 
 		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
 				"itf", "fr.imag.adele.apam.pax.distriman.test.iface.P2Spec",
-				"P2-singleinterface", false, clienturl);
+				"P2-singleinterface", false, serverurl);
 
 		Map<String, String> parameters = new HashMap<String, String>() {
 			{
@@ -306,91 +301,6 @@ public class DistriManTest extends ExtensionAbstract {
 			Assert.fail("inespected exception while injecting the remote field, with the message:"+e.getMessage());
 		}
 		
-	}
-
-	// @Before
-	// public void adapt() throws InstantiationException,
-	// IllegalAccessException, IllegalArgumentException,
-	// InvocationTargetException {
-	//
-	// Method m = getConfigurationMethod(DistriManTest.class);
-	// Object configClassInstance = DistriManTest.class.newInstance();
-	// Option[] options = (Option[]) m.invoke(configClassInstance);
-	//
-	// configuration =options;
-	// }
-
-	// @Test
-	public void second() throws Exception {
-
-		// for (Bundle b : context.getBundles()) {
-		// System.err.println("* " + b.getBundleId() + ":"
-		// + b.getSymbolicName());
-		// }
-		// for (Option value : configuration) {
-		// if (value instanceof MavenArtifactProvisionOption) {
-		// MavenArtifactProvisionOption m = (MavenArtifactProvisionOption)
-		// value;
-		// Parser mvnparser = new Parser(m.getURL().replaceAll("mvn:", ""));
-		// String path = String.format(
-		// "file:///home/jnascimento/.m2/repository/%s",
-		// mvnparser.getArtifactPath());
-		// System.err.println(path);
-		// } else {
-		// System.err.println("its not:" + value);
-		// }
-		//
-		// }
-
-		Framework m_felix = null;
-		Properties configProps = new Properties();
-
-		try {
-			// Create an instance and start the framework.
-			m_felix = new Felix(configProps);
-
-			m_felix.start();
-
-			List<Bundle> li = new ArrayList<Bundle>();
-
-			File file = new File(
-					"/home/jnascimento/project/apam/src/distributions/basic-distribution/bundle/");
-
-			for (File bun : file.listFiles()) {
-				if (!file.isDirectory())
-					continue;
-				li.add(m_felix.getBundleContext().installBundle(
-						"file://" + bun.getAbsolutePath()));
-			}
-
-			for (Bundle b : li) {
-				b.start();
-			}
-
-			for (Bundle b : m_felix.getBundleContext().getBundles()) {
-				System.err.println("* " + b.getBundleId() + ":"
-						+ b.getSymbolicName());
-			}
-
-			System.out.println("Total of bundles:" + li.size());
-
-			// Wait for framework to stop to exit the VM.
-			System.err.println("----" + m_felix.getState());
-			m_felix.waitForStop(0);
-			System.exit(0);
-		} catch (Exception ex) {
-			System.err.println("Could not create framework: " + ex);
-			ex.printStackTrace();
-			System.exit(-1);
-		}
-
-		// Parser mvnparser=new Parser(mavenBundle("org.apache.felix",
-		// "org.apache.felix.main").version("1.8.0").getURL().replaceAll("mvn:",
-		// ""));
-		// System.err.println(mvnparser.getArtifactPath());
-		// Main.main(new
-		// String[]{"/home/jnascimento/project/apam/src/distributions/basic-distribution/tmp"});
-
 	}
 
 }

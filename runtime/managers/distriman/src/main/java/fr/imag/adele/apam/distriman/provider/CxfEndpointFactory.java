@@ -14,7 +14,6 @@
  */
 package fr.imag.adele.apam.distriman.provider;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,6 +35,7 @@ import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.distriman.DistrimanConstant;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.distriman.dto.RemoteDependency;
 import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
@@ -57,7 +57,6 @@ public class CxfEndpointFactory {
 
 	private Bus cxfbus; // Cxf dispatcher, set in start!
 
-	private String myurl;
 	private final DependencyManager apamMan;
 
 	/**
@@ -80,7 +79,7 @@ public class CxfEndpointFactory {
 		apamMan = manager;
 	}
 
-	public void start(HttpService http, LocalMachine machine) {
+	public void start(HttpService http) {
 		// TODO distriman: Disable the fast infoset as it's not compatible (yet)
 		System.setProperty("org.apache.cxf.nofastinfoset", "true");
 
@@ -108,16 +107,7 @@ public class CxfEndpointFactory {
 		}
 
 		// compute the PROP_CXF_URL property
-		try {
-			myurl = new URI("http://" + machine.getHost() + ":"
-					+ machine.getPort() + ROOT_NAME).toString();
-
-			logger.info("instantiating endpoint factory for the url {}", myurl);
-
-		} catch (Exception e) {
-			// TODO distriman
-			// "Cannot create the URL of the JAX-WS server, this will lead to incomplete EndpointDescription.",e);
-		}
+		
 	}
 
 	public void stop(HttpService http) {
@@ -182,7 +172,7 @@ public class CxfEndpointFactory {
 						e.printStackTrace();
 					}
 				
-				logger.info("Server {} started!",srvFactory.getAddress());
+				logger.info("Server {} started!",res.getEndpoint().getEndpointInfo().getAddress());
 				
 				webservices.put(srvFactory.getAddress(), res);
 
@@ -255,17 +245,12 @@ public class CxfEndpointFactory {
 
 				Map<Class, String> endpoints = createEndpoint(neo);
 
-				String fullURL = "";
-
 				registration = new EndpointRegistrationImpl(this, neo,
 						client, PROTOCOL_NAME);
 				
 				for (Map.Entry<Class, String> endpoint : endpoints.entrySet()) {
-
-					logger.info("cxf endpoint created in the address {}",
-							fullURL);
 				
-					registration.getEndpoint().put(endpoint.getKey().getCanonicalName(), myurl + endpoint.getValue());
+					registration.getEndpoint().put(endpoint.getKey().getCanonicalName(), client.getRootURL() +"/../.."+DistrimanConstant.PROVIDER_CXF_DOMAIN + endpoint.getValue());
 					
 				}
 				

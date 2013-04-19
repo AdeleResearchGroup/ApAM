@@ -55,20 +55,21 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
 
     private static final String JSON_COMP_CONSTRAINT = "comp_cons";
     private static final String JSON_COMP_PREF = "comp_pref";
-    public static final String JSON_CLIENT_URL = "client_url";
+    public static final String JSON_PROVIDER_URL = "provider_url";
     
+    private String providerURL;
     private String clientURL;
-
-    public RemoteDependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource,String client) {
+    
+    public RemoteDependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource,String provider) {
         super(component, id, isMultiple, resource);
-        this.clientURL=client;
+        this.providerURL=provider;
     }
 
     /**
      * Wrapper around a DependencyDeclaration.
      * @param dep
      */
-    public RemoteDependencyDeclaration(DependencyDeclaration dep,String client) {
+    public RemoteDependencyDeclaration(DependencyDeclaration dep,String provider) {
     	
         super(dep.getComponent(), dep.getIdentifier(), dep.isMultiple(), dep.getTarget());
       
@@ -81,7 +82,7 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
 //        this.getImplementationConstraints().setMissingPolicy(dep.getMissingPolicy());
 
         
-        this.clientURL=client;
+        this.providerURL=provider;
     }
 
     public ObjectNode toJson() {
@@ -93,7 +94,7 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
         root.put(JSON_ID,getIdentifier());
         root.put(JSON_IS_MULTIPLE,isMultiple());
         root.put(JSON_COMP_REF_NAME,getComponent().getName());
-        root.put(JSON_CLIENT_URL,clientURL);
+        root.put(JSON_PROVIDER_URL,providerURL);
         
         ObjectNode json_rr=om.createObjectNode();
         
@@ -160,7 +161,7 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
         //Get the ResolvableReference name
         String rr_name = rr_json.get(JSON_RESOLVABLE_REF_NAME).asText();
 
-        String clientURL=json.get(JSON_CLIENT_URL).asText();
+        String providerURL=json.get(JSON_PROVIDER_URL).asText();
 
         ResolvableReference  rr = null;
         // Create the ResolvableReference according to its type.
@@ -187,7 +188,7 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
 //        JSONArray compconst = json.getJSONArray(JSON_COMP_CONSTRAINT);
 //        JSONArray comppref = json.getJSONArray(JSON_COMP_PREF);
 
-        RemoteDependencyDeclaration rdep = new  RemoteDependencyDeclaration(compref,id,multiple,rr,clientURL);
+        RemoteDependencyDeclaration rdep = new  RemoteDependencyDeclaration(compref,id,multiple,rr,providerURL);
 
         ObjectMapper om=new ObjectMapper();
         
@@ -213,8 +214,8 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
         specification
     }
 
-	public String getClientURL() {
-		return clientURL;
+	public String getProviderURL() {
+		return providerURL;
 	}
     
     

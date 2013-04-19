@@ -5,8 +5,6 @@ import org.osgi.framework.Bundle;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 
 public class RemoteInstanceImpl implements ApformInstance {

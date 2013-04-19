@@ -32,9 +32,9 @@ import org.apache.felix.ipojo.annotations.Validate;
 import org.osgi.service.http.HttpService;
 
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
-import fr.imag.adele.apam.distriman.discovery.ApamMachineDiscovery;
+import fr.imag.adele.apam.distriman.discovery.ApamMachineFactory;
 
-@Component(name = "Apam::Distriman Web")
+@Component(name = "Apam::Distriman::Provider servlet")
 @Instantiate
 @Provides
 public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig { 
@@ -49,7 +49,7 @@ public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig 
 	HttpService http;
 
 	@Requires(nullable = false)
-	ApamMachineDiscovery discovery;
+	ApamMachineFactory discovery;
 
 	private String html = "<html><head><title>.:Apam - Distriman:.</title> <style type='text/css'>  body {    color: black;    background-color: #d8da3d; } table, tr {	border-style: dotted; }  </style></head><body><center><strong>Available apam remote nodes</strong><table>	<tr>		<td width='200px'>			URL		</td width='100px'>		<td>			IP		</td>		<td width='50px'>			Port		</td></tr>%s</table></center></body><html>";
 
@@ -97,7 +97,7 @@ public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig 
 
 			for (String key : discovery.getMachines().keySet()) {
 				RemoteMachine machine = discovery.getMachines().get(key);
-				conte += String.format(conteTemplate, machine.getURL(), "NONE",
+				conte += String.format(conteTemplate, machine.getURLServlet(), "NONE",
 						"NONE");
 			}
 

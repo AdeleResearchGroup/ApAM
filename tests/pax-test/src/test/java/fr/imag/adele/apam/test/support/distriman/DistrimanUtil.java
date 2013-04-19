@@ -40,7 +40,7 @@ public class DistrimanUtil {
 				"\"rref\": {\"name\":\"%s\",\"type\":\"%s\"},", clazz, type));
 		payload.append(String.format("\"component_name\":\"%s\",", variable));
 		payload.append(String.format("\"is_multiple\":\"%s\",", isMultiple));
-		payload.append(String.format("\"client_url\":\"%s\",", clientUrl));
+		payload.append(String.format("\"provider_url\":\"%s\",", clientUrl));
 
 		String constraintInstance = "";
 
