@@ -172,15 +172,15 @@ public class Distriman implements DependencyManager {
 
 			DependencyManager manager = ApamManagers.getManager(CST.APAMMAN);
 
-			while((manager = ApamManagers.getManager(CST.APAMMAN))==null){
-				
-				logger.info("Waiting APAMMAN to appear...");
-				
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {}
-				
-			}
+//			while((manager = ApamManagers.getManager(CST.APAMMAN))==null){
+//				
+//				logger.info("Waiting APAMMAN to appear...");
+//				
+//				try {
+//					Thread.sleep(2000);
+//				} catch (InterruptedException e) {}
+//				
+//			}
 
 			providerLocal=new LocalMachine(Integer.parseInt(context
 					.getProperty("org.osgi.service.http.port")),this);

@@ -26,23 +26,18 @@
 
 	<!-- Project dependencies -->
 	<dependencies>
- 		<dependency>
-	            <groupId>fr.imag.adele.apam</groupId>
-        	    <artifactId>apam-basic-distribution</artifactId>
-	            <version>0.0.2-SNAPSHOT</version>
-	            <type>pom</type>
-	        </dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>DISTRIMAN</artifactId>
 			<version>${apam.current.version}</version>
-			<type>pom</type>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.fileinstall</artifactId>
 			<version>3.1.6</version>
 		</dependency>
+-->
 		<dependency>
 			<groupId>javax.jmdns</groupId>
 			<artifactId>jmdns</artifactId>
