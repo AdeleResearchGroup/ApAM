@@ -38,7 +38,6 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.distriman.Distriman;
-import fr.imag.adele.apam.distriman.DistrimanConstant;
 import fr.imag.adele.apam.distriman.discovery.ApamDiscovery;
 import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
 

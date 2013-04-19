@@ -128,7 +128,7 @@ public class ApamMachineFactoryImpl implements ApamMachineFactory,ApformComposit
         for(Map.Entry<String, RemoteMachine> element:machines.entrySet()){
         	if(element.getValue().getId().equals(id)){
         		logger.info("destroying machine with the id {}",id);
-        		machines.remove(element.getValue().getURLServlet());
+        		machines.remove(element.getValue().getURLRoot());
         		element.getValue().destroy();
         	}
         	logger.info("pool of machine contains key {}",element.getKey());

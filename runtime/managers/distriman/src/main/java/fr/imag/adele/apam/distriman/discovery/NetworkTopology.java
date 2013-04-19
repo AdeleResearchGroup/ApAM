@@ -1,7 +1,5 @@
 package fr.imag.adele.apam.distriman.discovery;
 
-import static java.lang.System.out;
-
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -20,21 +18,17 @@ public class NetworkTopology implements NetworkTopologyDiscovery {
 		List<InetAddress> addresses=new ArrayList<InetAddress>();
 		
 		try {
-			out.printf("<ifaces>\n");
 			for (NetworkInterface ni :  Collections.list(NetworkInterface.getNetworkInterfaces())) {
 
 				for (InetAddress inetAddress : Collections.list(ni.getInetAddresses())) {
 					if(!this.useInetAddress(ni, inetAddress)) continue;
-					out.printf("Hostaddress: %s\n", inetAddress.getHostAddress());
 					addresses.add(inetAddress);
 				}
 			}
-			out.printf("</ifaces>\n");
 			
 			return addresses.toArray(new InetAddress[0]);
 			
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -47,7 +41,7 @@ public class NetworkTopology implements NetworkTopologyDiscovery {
 			InetAddress interfaceAddress) {
 		
 		if (interfaceAddress instanceof Inet6Address 
-				|| !interfaceAddress.isLoopbackAddress()
+			//	|| !interfaceAddress.isLoopbackAddress()
 				) return false; 
 		
 		return true;

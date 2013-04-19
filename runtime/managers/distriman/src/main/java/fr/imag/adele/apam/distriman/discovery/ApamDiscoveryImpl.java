@@ -123,8 +123,6 @@ public class ApamDiscoveryImpl implements ApamDiscovery,
 
 				jmDNSMachines.put(current, address.getHostAddress());
 
-				System.out.println("adding:" + address.getHostAddress());
-
 				for (ServiceInfo sinfo : current.list(MDNS_TYPE)) {
 					if (sinfo.getName().equalsIgnoreCase(name)) {
 						continue; // ignore my services..
@@ -188,8 +186,8 @@ public class ApamDiscoveryImpl implements ApamDiscovery,
 			JmDNS jmDNS = entry.getKey();
 			String urlaux = entry.getValue();
 
-			String url = String.format("http://%s:%d%s", urlaux,
-					local.getPort(),DistrimanConstant.PROVIDER_URL);
+			String url = String.format("http://%s:%d", urlaux,
+					local.getPort());
 
 			// Register a local machine
 			logger.info("publishing machine {} on the mdns bus", url);

@@ -172,28 +172,19 @@ public class Distriman implements DependencyManager {
 
 			DependencyManager manager = ApamManagers.getManager(CST.APAMMAN);
 
-//			while((manager = ApamManagers.getManager(CST.APAMMAN))==null){
-//				
-//				logger.info("Waiting APAMMAN to appear...");
-//				try {
-//					Thread.sleep(2000);
-//				} catch (InterruptedException e) {}
-//				
-//			}
-			
-			if (manager == null) {
-				throw new RuntimeException(
-						String.format(
-								"Distriman could not be initialized, it was not possible to get the instance of %s",
-								CST.APAMMAN));
+			while((manager = ApamManagers.getManager(CST.APAMMAN))==null){
+				
+				logger.info("Waiting APAMMAN to appear...");
+				
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {}
+				
 			}
 
 			providerLocal=new LocalMachine(Integer.parseInt(context
 					.getProperty("org.osgi.service.http.port")),this);
 			
-			// init the local machine
-			//providerLocal.init(providerLocal.getHost(), ), this);
-
 			endpointFactory = new CxfEndpointFactory(manager);
 			
 			endpointFactory.start(httpserver);

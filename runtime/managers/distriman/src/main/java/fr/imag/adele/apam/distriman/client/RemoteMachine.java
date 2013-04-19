@@ -76,9 +76,6 @@ public class RemoteMachine implements ApformInstance {
 	 * The RemoteMachine URL.
 	 */
 	private final String RootURL;
-	public String getRootURL() {
-		return RootURL;
-	}
 
 	private final String ServletURL;
 	
@@ -100,32 +97,34 @@ public class RemoteMachine implements ApformInstance {
 	
 	private boolean isLocalhost=false;
 
-	public boolean isLocalhost() {
-		return isLocalhost;
-	}
 
-	public RemoteMachine(String servleturl, String id,ApamMachineFactoryImpl daddy,boolean isLocalhost) {
-		RootURL = servleturl;
-		ServletURL = servleturl;
+
+	public RemoteMachine(String rootURL, String id,ApamMachineFactoryImpl daddy,boolean isLocalhost) {
+		RootURL = rootURL;
+		ServletURL = rootURL+DistrimanConstant.PROVIDER_URL;
+		this.isLocalhost=isLocalhost;
 		my_impl = daddy;
 		this.id=id;
 		my_declaration = new InstanceDeclaration(daddy.getDeclaration()
-				.getReference(), "RemoteMachine_" + ServletURL, null);
+				.getReference(), "RemoteMachine_" + RootURL, null);
 		my_declaration.setInstantiable(false);
 
-		// Add the Instance to Apam
 		Apform2Apam.newInstance(this);
-
-		this.isLocalhost=isLocalhost;
 		
-		logger.info("RemoteMachine " + ServletURL + " created.");
-		System.out.println("RemoteMachine " + ServletURL + " created.");
 	}
 
+	public String getURLRoot() {
+		return RootURL;
+	}
+	
 	public String getURLServlet() {
 		return ServletURL;
 	}
 
+	public boolean isLocalhost() {
+		return isLocalhost;
+	}
+	
 	public void addEndpointRegistration(EndpointRegistration registration) {
 		my_endregis.add(registration);
 	}
@@ -160,7 +159,7 @@ public class RemoteMachine implements ApformInstance {
 			DependencyDeclaration dependency) throws IOException {
 		if (running.get()) {
 			
-			RemoteDependencyDeclaration remoteDep = new RemoteDependencyDeclaration(dependency,this.getURLServlet());
+			RemoteDependencyDeclaration remoteDep = new RemoteDependencyDeclaration(dependency,this.getURLRoot());
 
 			ObjectNode jsonObject = remoteDep.toJson();
 

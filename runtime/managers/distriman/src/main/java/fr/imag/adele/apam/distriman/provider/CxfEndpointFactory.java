@@ -70,9 +70,6 @@ public class CxfEndpointFactory {
 		return endpoints;
 	}
 
-	/**
-     *
-     */
 	private final Map<String, Server> webservices = new HashMap<String, Server>();
 
 	public CxfEndpointFactory(DependencyManager manager) {
@@ -243,18 +240,19 @@ public class CxfEndpointFactory {
 						"dependency {} was NOT exported before, preparing endpoint for instance {}",
 						dependency.getIdentifier(), neo);
 
-				Map<Class, String> endpoints = createEndpoint(neo);
+				Map<Class, String> localEndpoints = createEndpoint(neo);
 
 				registration = new EndpointRegistrationImpl(this, neo,
 						client, PROTOCOL_NAME);
 				
-				for (Map.Entry<Class, String> endpoint : endpoints.entrySet()) {
+				for (Map.Entry<Class, String> endpoint : localEndpoints.entrySet()) {
 				
-					registration.getEndpoint().put(endpoint.getKey().getCanonicalName(), client.getRootURL() +"/../.."+DistrimanConstant.PROVIDER_CXF_DOMAIN + endpoint.getValue());
+					registration.getEndpoint().put(endpoint.getKey().getCanonicalName(), client.getURLRoot() + DistrimanConstant.PROVIDER_CXF_DOMAIN + endpoint.getValue());
 					
 				}
 				
-
+				endpoints.put(neo, registration);
+				
 			} else {
 
 				neo = alreadyExported.iterator().next();
@@ -263,12 +261,9 @@ public class CxfEndpointFactory {
 						"dependency {} was exported before, using instance {}",
 						dependency.getIdentifier(), neo);
 
-				registration = new EndpointRegistrationImpl(this, endpoints
-						.get(neo).iterator().next());
+				registration = endpoints.get(neo).iterator().next();
 			}
 
-			// Add the EndpointRegistration to endpoints
-			endpoints.put(neo, registration);
 		}
 
 		return registration;

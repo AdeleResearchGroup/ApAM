@@ -62,7 +62,7 @@ public class DistriManTest extends ExtensionAbstract {
 		config.add(junitBundles());
 		config.add(packDebugConfiguration());
 		config.add(vmOption("-ea"));
-		config.add(packApamDynaMan());
+		//config.add(packApamDynaMan());
 		// config.add(mavenBundle().groupId("org.ops4j.pax.url").artifactId("pax-url-aether").versionAsInProject());
 		config.add(packApamDistriMan());
 		config.add(mavenBundle().groupId("fr.imag.adele.apam.tests.services")
@@ -95,12 +95,12 @@ public class DistriManTest extends ExtensionAbstract {
 
 		Instance p2Inst = p2Impl.createInstance(null, null);
 
-		String clienturl = "http://127.0.0.1:8085/apam/machine";
+		String clienturl = "http://127.0.0.1:8080";
 		String serverurl = "http://127.0.0.1:8080/apam/machine";
 
 		final String jsonPayload = DistrimanUtil.httpRequestDependency("p2",
 				"itf", "fr.imag.adele.apam.pax.distriman.test.iface.P2Spec",
-				"P2-singleinterface", false, serverurl);
+				"P2-singleinterface", false, clienturl);
 
 		Map<String, String> parameters = new HashMap<String, String>() {
 			{
