@@ -58,7 +58,6 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
     public static final String JSON_PROVIDER_URL = "provider_url";
     
     private String providerURL;
-    private String clientURL;
     
     public RemoteDependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource,String provider) {
         super(component, id, isMultiple, resource);
@@ -112,7 +111,6 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
 
         //Set the ResolvableReference
         root.put(JSON_RESOLVABLE_REF,json_rr);
-        ObjectMapper mapper = new ObjectMapper(); 
         
         ArrayNode instanceconstraints = om.createArrayNode();
         ArrayNode implementationconstraints = om.createArrayNode();
@@ -217,6 +215,5 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
 	public String getProviderURL() {
 		return providerURL;
 	}
-    
     
 }

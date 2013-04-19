@@ -10,11 +10,16 @@ import java.util.List;
 
 import javax.jmdns.NetworkTopologyDiscovery;
 
+/**
+ * Factory that determines the euristics to choose/filter the network cards to be considered
+ * @author jnascimento
+ *
+ */
 public class NetworkTopology implements NetworkTopologyDiscovery {
 
 	@Override
 	public InetAddress[] getInetAddresses() {
-		// TODO Auto-generated method stub
+		
 		List<InetAddress> addresses=new ArrayList<InetAddress>();
 		
 		try {
@@ -41,7 +46,7 @@ public class NetworkTopology implements NetworkTopologyDiscovery {
 			InetAddress interfaceAddress) {
 		
 		if (interfaceAddress instanceof Inet6Address 
-			//	|| !interfaceAddress.isLoopbackAddress()
+			//TODO in the future hide localhost	|| !interfaceAddress.isLoopbackAddress()
 				) return false; 
 		
 		return true;
@@ -49,13 +54,11 @@ public class NetworkTopology implements NetworkTopologyDiscovery {
 
 	@Override
 	public void lockInetAddress(InetAddress arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void unlockInetAddress(InetAddress arg0) {
-		// TODO Auto-generated method stub
 		
 	}
 

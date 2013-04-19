@@ -55,9 +55,9 @@ public class CxfEndpointFactory {
 	public static final String PROTOCOL_NAME = "cxf";
 	public static final String ROOT_NAME = "/ws";
 
-	private Bus cxfbus; // Cxf dispatcher, set in start!
-
 	private final DependencyManager apamMan;
+	
+	private Bus cxfbus; 
 
 	/**
 	 * Multimap containing the exported Instances and their Endpoint

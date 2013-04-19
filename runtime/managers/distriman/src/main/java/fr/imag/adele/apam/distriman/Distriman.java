@@ -51,6 +51,11 @@ import fr.imag.adele.apam.distriman.provider.CxfEndpointFactory;
 import fr.imag.adele.apam.distriman.provider.EndpointRegistration;
 import fr.imag.adele.apam.distriman.provider.LocalMachine;
 
+/**
+ * Core of distriman dependency manager
+ * @author jnascimento
+ *
+ */
 @org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman::core")
 @Instantiate
 @Provides
@@ -58,8 +63,9 @@ public class Distriman implements DependencyManager {
 
 	private static Logger logger = LoggerFactory.getLogger(Distriman.class);
 
-	private static final int APAM_PRIORITY = 40;
-
+	@Requires(proxy=false)
+	Apam apam;
+	
 	@Requires(optional = false)
 	private HttpService httpserver;
 
@@ -74,9 +80,6 @@ public class Distriman implements DependencyManager {
 	private LocalMachine providerLocal;
 
 	private BundleContext context;
-
-	@Requires(proxy=false)
-	Apam apam;
 	
 	public Distriman(BundleContext context) {
 
@@ -97,7 +100,7 @@ public class Distriman implements DependencyManager {
 
 	@Override
 	public int getPriority() {
-		return APAM_PRIORITY;
+		return DistrimanConstant.APAM_PRIORITY;
 	}
 
 	@Override
@@ -196,7 +199,7 @@ public class Distriman implements DependencyManager {
 			discovery.publishLocalMachine(providerLocal);
 
 			// Add this manager to Apam
-			ApamManagers.addDependencyManager(this, APAM_PRIORITY);
+			ApamManagers.addDependencyManager(this, DistrimanConstant.APAM_PRIORITY);
 
 			logger.info("Successfully initialized");
 			

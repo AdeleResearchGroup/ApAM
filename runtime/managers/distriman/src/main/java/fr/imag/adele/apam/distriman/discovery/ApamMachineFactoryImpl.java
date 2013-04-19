@@ -126,36 +126,47 @@ public class ApamMachineFactoryImpl implements ApamMachineFactory,ApformComposit
      * @param url the RemoteMachine URL
      * @return the destroyed RemoteMachine or null if not present.
      */
-    public RemoteMachine destroyRemoteMachine(String url,String id){
-        RemoteMachine machine;
+	public RemoteMachine destroyRemoteMachine(String url, String id) {
+		RemoteMachine machine;
 
-        for(Map.Entry<String, RemoteMachine> element:machines.entrySet()){
-        	if(element.getValue().getId().equals(id)){
-        		logger.info("destroying machine with the id {}",id);
-        		machines.remove(element.getValue().getURLRoot());
-        		element.getValue().destroy();
-        	}
-        	logger.info("pool of machine contains key {}",element.getKey());
-        }
-        
-        synchronized (machines){
-            machine = machines.remove(url);
-        }
+		synchronized (machines) {
+			machine = machines.remove(url);
+		}
 
-        if(machine != null){
-        	logger.info("destroying machine {}",url);
-            machine.destroy();
-        }else {
-        	logger.info("machine {} was not found in pool of machines by the url",url);
-        }
+		if (machine != null) {
+			logger.info("destroying machine {}", url);
+			machine.destroy();
+		} else {
 
-        return machine;
-    }
+			logger.info("machine not found by url {} looking for by id {}",
+					url, id);
+
+			for (Map.Entry<String, RemoteMachine> element : machines.entrySet()) {
+				if (element.getValue().getId().equals(id)) {
+					logger.info(
+							"machine found, destroying machine with the id {}",
+							id);
+					machine=machines.remove(element.getValue().getURLRoot());
+					element.getValue().destroy();
+					break;
+				}
+			}
+
+			if(machine==null){
+				logger.info(
+						"machine {} was not found in pool of machines, probably left in inconsistent state",
+						url);
+			}
+			
+		}
+
+		return machine;
+	}
     
     public void destroyRemoteMachines(){
 
-        for(Map.Entry<String, RemoteMachine> element:machines.entrySet()){
-        	destroyRemoteMachine(element.getKey(),element.getValue().getId());
+        for(RemoteMachine element:getRemoteMachines()){
+        	destroyRemoteMachine(element.getURLRoot(),element.getId());
         }
     
     }
@@ -167,15 +178,10 @@ public class ApamMachineFactoryImpl implements ApamMachineFactory,ApformComposit
     public RemoteMachine getRemoteMachine(String url){
         synchronized (machines){
         	
-        	RemoteMachine rm=machines.get(url+"/apam/machine");
-        	//TODO distriman: find a better way to avoid this reference to localhost/127.0.0.1 
-        	if(rm!=null) return rm;
-        	
-//        	if(url.indexOf("127.0.0.1")!=-1){
-//        		rm=machines.get(url.replaceAll("127.0.0.1", "localhost")+"/apam/machine");
-//        	}
+        	RemoteMachine rm=machines.get(url);
         	
             return rm;
+            
         }
     }
 

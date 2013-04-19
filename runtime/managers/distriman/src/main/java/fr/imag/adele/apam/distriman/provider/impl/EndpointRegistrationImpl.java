@@ -18,7 +18,6 @@ import fr.imag.adele.apam.impl.InstanceImpl;
 public class EndpointRegistrationImpl implements EndpointRegistration {
 	private Instance exported;
 	private RemoteMachine client;
-	private String url;
 	private String protocol;
 	private String interfaceCanonical;
 	private transient final CxfEndpointFactory endPointfactory;
@@ -27,10 +26,6 @@ public class EndpointRegistrationImpl implements EndpointRegistration {
 	public Map<String, String> getEndpoint() {
 		return endpoint;
 	}
-
-//	public void setEndpoint(Map<String, String> endPoint) {
-//		this.endpoint = endPoint;
-//	}
 
 	private static Logger     logger           = LoggerFactory.getLogger(InstanceImpl.class);
 
@@ -75,11 +70,6 @@ public class EndpointRegistrationImpl implements EndpointRegistration {
 		return client;
 	}
 
-//	@Override
-//	public String getEndpointUrl() {
-//		return url;
-//	}
-
 	@Override
 	public String getProtocol() {
 		return protocol;
@@ -103,7 +93,6 @@ public class EndpointRegistrationImpl implements EndpointRegistration {
 			
 			exported = null;
 			client = null;
-			url = null;
 			protocol = null;
 		}
 	}

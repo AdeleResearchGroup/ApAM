@@ -41,9 +41,6 @@ public class DistrimanWeb extends HttpServlet implements Servlet, ServletConfig 
 
 	private final static String URL = "/distriman";
 	private final static String RESOURCE = "/static";
-
-//	@Requires
-//	CXFSample service;
 	
 	@Requires(nullable = false)
 	HttpService http;

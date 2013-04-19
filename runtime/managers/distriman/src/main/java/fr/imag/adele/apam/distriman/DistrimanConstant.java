@@ -6,4 +6,6 @@ public class DistrimanConstant {
 	
 	public static final String PROVIDER_CXF_DOMAIN = "/ws";
 	
+	public static final int APAM_PRIORITY = 40;
+	
 }

@@ -35,7 +35,6 @@ import org.apache.felix.ipojo.annotations.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.imag.adele.apam.distriman.DistrimanConstant;
 import fr.imag.adele.apam.distriman.provider.LocalMachine;
 
 /**
@@ -47,7 +46,7 @@ import fr.imag.adele.apam.distriman.provider.LocalMachine;
  * A RemoteMachine instance is created for each machine discovered.
  * 
  * 
- * User: barjo Date: 04/12/12 Time: 14:48
+ * User: barjo / jander Date: 04/12/12 Time: 14:48
  */
 @Component(name = "Apam::Distriman::Discovery")
 @Instantiate
@@ -78,25 +77,11 @@ public class ApamDiscoveryImpl implements ApamDiscovery,
 	@Requires
 	private ApamMachineFactory machineFactory;
 
-	/**
-	 * @param machineFactory
-	 *            the RemoteMachineFactory that instantiate new RemoteMachine.
-	 */
-	// public MachineDiscovery(RemoteMachineFactory machineFactory) {
-	// this.machineFactory = machineFactory; //singleton
-	// }
-
 	public ApamDiscoveryImpl() {
 		super();
 		NetworkTopologyDiscovery.Factory.setClassDelegate(this);
 	}
 
-	/**
-	 * Start the MachineDiscovery instance. Initialize <code>jmDNS</code>.
-	 * 
-	 * @param host
-	 *            the hostname of the InetAddress to be used.
-	 */
 	@Validate
 	public void start() {
 
@@ -157,8 +142,7 @@ public class ApamDiscoveryImpl implements ApamDiscovery,
 
 	@Invalidate
 	public void stop() {
-		// unregister this machine.
-
+		
 		for (Map.Entry<JmDNS, String> entry : jmDNSMachines.entrySet()) {
 
 			JmDNS jmDNS = entry.getKey();
@@ -171,7 +155,7 @@ public class ApamDiscoveryImpl implements ApamDiscovery,
 			try {
 				jmDNS.close();
 			} catch (IOException e) {
-				// TODO log WARNING
+
 			}
 
 		}
@@ -198,10 +182,6 @@ public class ApamDiscoveryImpl implements ApamDiscovery,
 		}
 
 	}
-
-	// ========================
-	// JmDns Service Listeners
-	// ========================
 
 	@Override
 	public void serviceAdded(ServiceEvent serviceEvent) {
@@ -247,20 +227,14 @@ public class ApamDiscoveryImpl implements ApamDiscovery,
 					return true;
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//consider as not local in case of problem (conservative approach
 			}
 
 		}
 		
 		return false;
 	}
-
-	/**
-	 * @param serviceEvent
-	 *            The mdns event triggered by a remote machine that is now
-	 *            available.
-	 */
+	
 	public void serviceResolved(ServiceEvent serviceEvent) {
 
 		String id = String.format("%s.%s", serviceEvent.getName(),
@@ -282,6 +256,10 @@ public class ApamDiscoveryImpl implements ApamDiscovery,
 		machineFactory.newRemoteMachine(url, id, isLocalhost);
 	}
 
+	
+	/**
+	 * Factory that determines the euristics to choose/filter the network cards to be considered 
+	 */
 	@Override
 	public NetworkTopologyDiscovery newNetworkTopologyDiscovery() {
 		return new NetworkTopology();

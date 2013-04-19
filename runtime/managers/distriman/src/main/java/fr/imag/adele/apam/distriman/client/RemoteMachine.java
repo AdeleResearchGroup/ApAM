@@ -66,9 +66,7 @@ import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
  * Each Apam/Distriman machines available over the network, have a RemoteMachine
  * composite.
  * 
- * 
- * 
- * User: barjo Date: 05/12/12 Time: 14:32
+ * User: barjo / jander Date: 05/12/12 Time: 14:32
  */
 public class RemoteMachine implements ApformInstance {
 
@@ -162,8 +160,6 @@ public class RemoteMachine implements ApformInstance {
 			RemoteDependencyDeclaration remoteDep = new RemoteDependencyDeclaration(dependency,this.getURLRoot());
 
 			ObjectNode jsonObject = remoteDep.toJson();
-
-			//jsonObject.put("provider_url", this.getURL());
 			
 			String json = jsonObject.toString();
 

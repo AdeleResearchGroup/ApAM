@@ -7,6 +7,11 @@ import javax.jmdns.ServiceListener;
 
 import fr.imag.adele.apam.distriman.provider.LocalMachine;
 
+/**
+ * 
+ * @author barjo / jnascimento
+ *
+ */
 public interface ApamDiscovery extends ServiceListener{
 
     /**
