@@ -11,9 +11,9 @@
 	<!-- Project parent -->
 	<parent>
 		<groupId>fr.imag.adele.apam</groupId>
-		<artifactId>apam-histman-distribution</artifactId>
+		<artifactId>apam-basic-distribution</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
-		<relativePath>../basic-distribution</relativePath>
+       		<relativePath>../basic-distribution/pom.xml</relativePath>
 	</parent>
 
 	<!-- Project coordinates -->
@@ -31,11 +31,13 @@
 			<artifactId>DISTRIMAN</artifactId>
 			<version>${apam.current.version}</version>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.fileinstall</artifactId>
 			<version>3.1.6</version>
 		</dependency>
+-->
 		<dependency>
 			<groupId>javax.jmdns</groupId>
 			<artifactId>jmdns</artifactId>
@@ -72,6 +74,12 @@
 			<artifactId>cxf-bundle-minimal</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.knowhowlab.osgi.shell</groupId>
+			<artifactId>felix-gogo</artifactId>
+			<version>1.1.0</version>
+		</dependency>
+
 
 <dependency>
 <groupId>javax.mail</groupId>

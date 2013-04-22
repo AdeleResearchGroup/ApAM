@@ -26,15 +26,15 @@ import fr.imag.adele.apam.distriman.client.RemoteMachine;
  */
 public interface EndpointRegistration {
 
-    Instance getInstance();
+    public Instance getInstance();
 
-    RemoteMachine getClient();
+    public RemoteMachine getClient();
 
-    Map<String,String> getEndpoint();
+    public Map<String,String> getEndpoint();
     
-    String getProtocol();
+    public String getProtocol();
     
-    void close();
+    public void close();
    
 }
 

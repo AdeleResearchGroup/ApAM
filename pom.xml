@@ -555,6 +555,34 @@
 					<artifactId>sonar-maven-plugin</artifactId>
 					<version>${sonar.plugin.version}</version>
 				</plugin>
+<!--
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.7</version>
+        <executions>
+          <execution>
+            <id>purge-local-dependencies</id>
+            <phase>clean</phase>
+            <goals>
+              <goal>purge-local-repository</goal>
+            </goals>
+            <configuration>
+
+              <includes>
+                <include>fr.imag.adele.apam:*:bundle:*</include>
+              </includes>
+
+		<excludes>
+			<exclude>fr.imag.adele.apam:apam.felix.config.base:zip:0.0.2-SNAPSHOT</exclude>
+			<exclude>fr.imag.adele.apam:apam-core:jar:0.0.2-SNAPSHOT</exclude>
+			<exclude>fr.imag.adele.apam:apam-declarations:jar:0.0.2-SNAPSHOT</exclude>
+		</excludes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+-->
 			</plugins>
 		</pluginManagement>
 

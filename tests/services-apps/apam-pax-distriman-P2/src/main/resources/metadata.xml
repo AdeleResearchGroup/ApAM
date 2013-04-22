@@ -30,11 +30,30 @@
 		<property name="description" value="samsung" />
 </implementation>
 
+<implementation name="P2-constraint"
+		classname="fr.imag.adele.apam.pax.distriman.test.impl.p2.P2ImplMultipleInterface"
+		specification="P2-spec-constraint">
+		<property name="rule" value="one" />
+</implementation>
+
+<implementation name="P2-constraint2"
+		classname="fr.imag.adele.apam.pax.distriman.test.impl.p2.P2ImplMultipleInterface"
+		specification="P2-spec-constraint">
+		<property name="rule" value="two" />
+</implementation>
+
 <!--   
 <apam-instance implementation="P2-singleinterface" name="P2-singleinterfaceStatic"/>
- 
 
 <apam-instance implementation="P2-multipleinterface" name="P2-multipleinterfaceStatic"/> 
--->
+--> 
+
+<!-- 
+<apam-instance implementation="P2-constraint" name="P2-constraint-test1"/>
+<apam-instance implementation="P2-constraint" name="P2-constraint-test2"/>
+<apam-instance implementation="P2-constraint" name="P2-constraint-test3"/>
+<apam-instance implementation="P2-constraint" name="P2-constraint-test4"/>
+<apam-instance implementation="P2-constraint2" name="P2-constraint-test5"/>
+ -->
 
 </apam>

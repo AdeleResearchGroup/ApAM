@@ -26,20 +26,20 @@ import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Provides;
+import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.Validate;
-import org.eclipse.jetty.util.log.Log;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
-import fr.imag.adele.apam.distriman.provider.LocalMachine;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
@@ -50,22 +50,24 @@ import fr.imag.adele.apam.impl.ComponentImpl;
  * @ThreadSafe
  */
 
-@Component
+@Component(name = "Apam::Distriman::MachineFactory")
 @Instantiate
 @Provides
-public class RemoteMachineFactory implements ApamMachineDiscovery,ApformCompositeType {
+public class ApamMachineFactoryImpl implements ApamMachineFactory,ApformCompositeType {
     private static String PROP_MY_NAME = "DistriManMachine";
 
     private final CompositeDeclaration declaration;
 
-    static Logger logger = LoggerFactory.getLogger(RemoteMachineFactory.class);
+    static Logger logger = LoggerFactory.getLogger(ApamMachineFactoryImpl.class);
     
     private static final Map<String, RemoteMachine> machines = new HashMap<String, RemoteMachine>();
 
-
     private final BundleContext my_context;
 
-    public RemoteMachineFactory(BundleContext context) {
+    @Requires(proxy=false)
+    Apam apam;
+    
+    public ApamMachineFactoryImpl(BundleContext context) {
     	
         my_context = context;
 
@@ -105,7 +107,7 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
      * @param url The RemoteMachine unique URL
      * @return The newly created or existing RemoteMachine of given url
      */
-    public RemoteMachine newRemoteMachine(String url,String id) {
+    public RemoteMachine newRemoteMachine(String url,String id,boolean isLocalhost) {
     	
         synchronized (machines){
             if (machines.containsKey(url)){
@@ -113,7 +115,7 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
                 return machines.get(url);
             }
             
-            RemoteMachine machine = machines.put(url,new RemoteMachine(url,id,this));
+            RemoteMachine machine = machines.put(url,new RemoteMachine(url,id,this,isLocalhost));
             
             return machine;
         }
@@ -124,36 +126,47 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
      * @param url the RemoteMachine URL
      * @return the destroyed RemoteMachine or null if not present.
      */
-    public RemoteMachine destroyRemoteMachine(String url,String id){
-        RemoteMachine machine;
+	public RemoteMachine destroyRemoteMachine(String url, String id) {
+		RemoteMachine machine;
 
-        for(Map.Entry<String, RemoteMachine> element:machines.entrySet()){
-        	if(element.getValue().getId().equals(id)){
-        		logger.info("destroying machine with the id {}",id);
-        		machines.remove(element.getValue().getURL());
-        		element.getValue().destroy();
-        	}
-        	logger.info("pool of machine contains key {}",element.getKey());
-        }
-        
-        synchronized (machines){
-            machine = machines.remove(url);
-        }
+		synchronized (machines) {
+			machine = machines.remove(url);
+		}
 
-        if(machine != null){
-        	logger.info("destroying machine {}",url);
-            machine.destroy();
-        }else {
-        	logger.info("machine {} was not found in pool of machines by the url",url);
-        }
+		if (machine != null) {
+			logger.info("destroying machine {}", url);
+			machine.destroy();
+		} else {
 
-        return machine;
-    }
+			logger.info("machine not found by url {} looking for by id {}",
+					url, id);
+
+			for (Map.Entry<String, RemoteMachine> element : machines.entrySet()) {
+				if (element.getValue().getId().equals(id)) {
+					logger.info(
+							"machine found, destroying machine with the id {}",
+							id);
+					machine=machines.remove(element.getValue().getURLRoot());
+					element.getValue().destroy();
+					break;
+				}
+			}
+
+			if(machine==null){
+				logger.info(
+						"machine {} was not found in pool of machines, probably left in inconsistent state",
+						url);
+			}
+			
+		}
+
+		return machine;
+	}
     
     public void destroyRemoteMachines(){
 
-        for(Map.Entry<String, RemoteMachine> element:machines.entrySet()){
-        	destroyRemoteMachine(element.getKey(),element.getValue().getId());
+        for(RemoteMachine element:getRemoteMachines()){
+        	destroyRemoteMachine(element.getURLRoot(),element.getId());
         }
     
     }
@@ -165,15 +178,10 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
     public RemoteMachine getRemoteMachine(String url){
         synchronized (machines){
         	
-        	RemoteMachine rm=machines.get(url+"/apam/machine");
-        	//TODO distriman: find a better way to avoid this reference to localhost/127.0.0.1 
-        	if(rm!=null) return rm;
-        	
-        	if(url.indexOf("127.0.0.1")!=-1){
-        		rm=machines.get(url.replaceAll("127.0.0.1", "localhost")+"/apam/machine");
-        	}
+        	RemoteMachine rm=machines.get(url);
         	
             return rm;
+            
         }
     }
 
@@ -204,6 +212,17 @@ public class RemoteMachineFactory implements ApamMachineDiscovery,ApformComposit
 
 	public Map<String, RemoteMachine> getMachines() {
 		return machines;
+	}
+
+	@Override
+	public RemoteMachine getLocalMachine() {
+		// TODO Auto-generated method stub
+		
+		for(RemoteMachine machine:getRemoteMachines()){
+			if(machine.isLocalhost()) return machine;
+		}
+		
+		return null;
 	}
 
 }

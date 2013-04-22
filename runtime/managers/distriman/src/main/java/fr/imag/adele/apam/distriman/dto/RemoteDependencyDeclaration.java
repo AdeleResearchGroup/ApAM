@@ -14,11 +14,15 @@
  */
 package fr.imag.adele.apam.distriman.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.type.TypeReference;
 
-import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.InstanceReference;
@@ -45,46 +49,51 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
     private static final String JSON_ID = "id";
     private static final String JSON_IS_MULTIPLE = "is_multiple";
 
-    private static final String JSON_INSTANCE_CONSTRAINT = "instance_cons";
-    private static final String JSON_INSTANCE_PREF = "instance_pref";
+    private static final String JSON_INSTANCE_CONSTRAINT = "instance_constraint";
+    private static final String JSON_IMPLEMENTATION_CONSTRAINT = "implementation_constraint";
+    private static final String JSON_INSTANCE_PREF = "instance_preference";
 
     private static final String JSON_COMP_CONSTRAINT = "comp_cons";
     private static final String JSON_COMP_PREF = "comp_pref";
-    public static final String JSON_CLIENT_URL = "client_url";
+    public static final String JSON_PROVIDER_URL = "provider_url";
     
-    private String clientURL;
-
-    public RemoteDependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource,String client) {
+    private String providerURL;
+    
+    public RemoteDependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple, ResolvableReference resource,String provider) {
         super(component, id, isMultiple, resource);
-        this.clientURL=client;
+        this.providerURL=provider;
     }
 
     /**
      * Wrapper around a DependencyDeclaration.
      * @param dep
      */
-    public RemoteDependencyDeclaration(DependencyDeclaration dep,String client) {
+    public RemoteDependencyDeclaration(DependencyDeclaration dep,String provider) {
+    	
         super(dep.getComponent(), dep.getIdentifier(), dep.isMultiple(), dep.getTarget());
-        this.clientURL=client;
+      
+        this.getImplementationConstraints().addAll(dep.getImplementationConstraints());
+        this.getInstanceConstraints().addAll(dep.getInstanceConstraints());
+        this.getImplementationPreferences().addAll(dep.getImplementationPreferences());
+        this.getInstancePreferences().addAll(dep.getInstancePreferences());
+
+//        this.getImplementationConstraints().setMissingException(dep.getMissingException());
+//        this.getImplementationConstraints().setMissingPolicy(dep.getMissingPolicy());
+
+        
+        this.providerURL=provider;
     }
 
     public ObjectNode toJson() {
     	
     	ObjectMapper om=new ObjectMapper();
     	
-    	ObjectNode json = om.createObjectNode();
-    	
-    	//root.
-    	
-      //  JSONObject json = new JSONObject();
-        //JSONObject json_rr = new JSONObject();
-
-      
+    	ObjectNode root = om.createObjectNode();
         
-        json.put(JSON_ID,getIdentifier());
-        json.put(JSON_IS_MULTIPLE,isMultiple());
-        json.put(JSON_COMP_REF_NAME,getComponent().getName());
-        json.put(JSON_CLIENT_URL,clientURL);
+        root.put(JSON_ID,getIdentifier());
+        root.put(JSON_IS_MULTIPLE,isMultiple());
+        root.put(JSON_COMP_REF_NAME,getComponent().getName());
+        root.put(JSON_PROVIDER_URL,providerURL);
         
         ObjectNode json_rr=om.createObjectNode();
         
@@ -101,14 +110,27 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
         }
 
         //Set the ResolvableReference
-        json.put(JSON_RESOLVABLE_REF,json_rr);
+        root.put(JSON_RESOLVABLE_REF,json_rr);
+        
+        ArrayNode instanceconstraints = om.createArrayNode();
+        ArrayNode implementationconstraints = om.createArrayNode();
 
+        for(String filter:this.getInstanceConstraints()){
+        	instanceconstraints.add(filter);
+        }
+        
+        for(String filter:this.getImplementationConstraints()){
+        	implementationconstraints.add(filter);
+        }
+        
+        root.put(JSON_INSTANCE_CONSTRAINT, instanceconstraints);
+        root.put(JSON_IMPLEMENTATION_CONSTRAINT, implementationconstraints);
         //json.put(JSON_INSTANCE_CONSTRAINT, new JSONArray(getInstanceConstraints()));
         //json.put(JSON_INSTANCE_PREF, new JSONArray(getInstancePreferences()));
         //json.put(JSON_COMP_CONSTRAINT, new JSONArray(getImplementationConstraints()));
         //json.put(JSON_COMP_PREF, new JSONArray(getImplementationPreferences()));
 
-        return json;
+        return root;
     }
 
 
@@ -137,7 +159,7 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
         //Get the ResolvableReference name
         String rr_name = rr_json.get(JSON_RESOLVABLE_REF_NAME).asText();
 
-        String clientURL=json.get(JSON_CLIENT_URL).asText();
+        String providerURL=json.get(JSON_PROVIDER_URL).asText();
 
         ResolvableReference  rr = null;
         // Create the ResolvableReference according to its type.
@@ -145,7 +167,7 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
             case instance:
                 rr=new InstanceReference(rr_name);
             break;
-            case itf: //interface
+            case itf: 
                 rr=new InterfaceReference(rr_name);
             break;
             case message:
@@ -164,9 +186,14 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
 //        JSONArray compconst = json.getJSONArray(JSON_COMP_CONSTRAINT);
 //        JSONArray comppref = json.getJSONArray(JSON_COMP_PREF);
 
+        RemoteDependencyDeclaration rdep = new  RemoteDependencyDeclaration(compref,id,multiple,rr,providerURL);
 
-        RemoteDependencyDeclaration rdep = new  RemoteDependencyDeclaration(compref,id,multiple,rr,clientURL);
-
+        ObjectMapper om=new ObjectMapper();
+        
+        List<String> instanceconstraints=om.convertValue(json.get(JSON_INSTANCE_CONSTRAINT), new TypeReference<ArrayList<String>>() {});
+        
+        rdep.getInstanceConstraints().addAll(instanceconstraints);
+        
         //rdep.getInstanceConstraints().addAll(fromArray(instconst));
         //rdep.getInstancePreferences().addAll(fromArray(instpref));
         //rdep.getImplementationConstraints().addAll(fromArray(compconst));
@@ -182,13 +209,11 @@ public class RemoteDependencyDeclaration extends DependencyDeclaration {
         instance,
         message,
         itf,
-        specification//interface
-        //TODO support Spec et implem ?
+        specification
     }
 
-	public String getClientURL() {
-		return clientURL;
+	public String getProviderURL() {
+		return providerURL;
 	}
-    
     
 }

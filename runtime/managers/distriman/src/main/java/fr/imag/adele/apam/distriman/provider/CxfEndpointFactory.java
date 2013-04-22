@@ -14,7 +14,6 @@
  */
 package fr.imag.adele.apam.distriman.provider;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,6 +35,7 @@ import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.distriman.DistrimanConstant;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.distriman.dto.RemoteDependency;
 import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
@@ -55,10 +55,9 @@ public class CxfEndpointFactory {
 	public static final String PROTOCOL_NAME = "cxf";
 	public static final String ROOT_NAME = "/ws";
 
-	private Bus cxfbus; // Cxf dispatcher, set in start!
-
-	private String myurl;
 	private final DependencyManager apamMan;
+	
+	private Bus cxfbus; 
 
 	/**
 	 * Multimap containing the exported Instances and their Endpoint
@@ -71,16 +70,13 @@ public class CxfEndpointFactory {
 		return endpoints;
 	}
 
-	/**
-     *
-     */
 	private final Map<String, Server> webservices = new HashMap<String, Server>();
 
 	public CxfEndpointFactory(DependencyManager manager) {
 		apamMan = manager;
 	}
 
-	public void start(HttpService http, LocalMachine machine) {
+	public void start(HttpService http) {
 		// TODO distriman: Disable the fast infoset as it's not compatible (yet)
 		System.setProperty("org.apache.cxf.nofastinfoset", "true");
 
@@ -108,16 +104,7 @@ public class CxfEndpointFactory {
 		}
 
 		// compute the PROP_CXF_URL property
-		try {
-			myurl = new URI("http://" + machine.getHost() + ":"
-					+ machine.getPort() + ROOT_NAME).toString();
-
-			logger.info("instantiating endpoint factory for the url {}", myurl);
-
-		} catch (Exception e) {
-			// TODO distriman
-			// "Cannot create the URL of the JAX-WS server, this will lead to incomplete EndpointDescription.",e);
-		}
+		
 	}
 
 	public void stop(HttpService http) {
@@ -182,7 +169,7 @@ public class CxfEndpointFactory {
 						e.printStackTrace();
 					}
 				
-				logger.info("Server {} started!",srvFactory.getAddress());
+				logger.info("Server {} started!",res.getEndpoint().getEndpointInfo().getAddress());
 				
 				webservices.put(srvFactory.getAddress(), res);
 
@@ -253,23 +240,19 @@ public class CxfEndpointFactory {
 						"dependency {} was NOT exported before, preparing endpoint for instance {}",
 						dependency.getIdentifier(), neo);
 
-				Map<Class, String> endpoints = createEndpoint(neo);
-
-				String fullURL = "";
+				Map<Class, String> localEndpoints = createEndpoint(neo);
 
 				registration = new EndpointRegistrationImpl(this, neo,
 						client, PROTOCOL_NAME);
 				
-				for (Map.Entry<Class, String> endpoint : endpoints.entrySet()) {
-
-					logger.info("cxf endpoint created in the address {}",
-							fullURL);
+				for (Map.Entry<Class, String> endpoint : localEndpoints.entrySet()) {
 				
-					registration.getEndpoint().put(endpoint.getKey().getCanonicalName(), myurl + endpoint.getValue());
+					registration.getEndpoint().put(endpoint.getKey().getCanonicalName(), client.getURLRoot() + DistrimanConstant.PROVIDER_CXF_DOMAIN + endpoint.getValue());
 					
 				}
 				
-
+				endpoints.put(neo, registration);
+				
 			} else {
 
 				neo = alreadyExported.iterator().next();
@@ -278,12 +261,9 @@ public class CxfEndpointFactory {
 						"dependency {} was exported before, using instance {}",
 						dependency.getIdentifier(), neo);
 
-				registration = new EndpointRegistrationImpl(this, endpoints
-						.get(neo).iterator().next());
+				registration = endpoints.get(neo).iterator().next();
 			}
 
-			// Add the EndpointRegistration to endpoints
-			endpoints.put(neo, registration);
 		}
 
 		return registration;

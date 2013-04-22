@@ -5,6 +5,7 @@ import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 
 
+
 public class RemoteDependency extends Dependency {
 
 	public RemoteDependency(DependencyDeclaration dd,Component comp){

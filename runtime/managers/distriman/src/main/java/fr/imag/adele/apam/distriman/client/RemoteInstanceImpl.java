@@ -5,19 +5,31 @@ import org.osgi.framework.Bundle;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 
+/**
+ * Represents an apam machine
+ * @author jnascimento
+ *
+ */
 public class RemoteInstanceImpl implements ApformInstance {
 
-	String url;
-	String id;
-	Object serviceObject;
+	private String url;
+	private String id;
+	private Object serviceObject;
+	
 	private Instance apamInstance = null;
 	
 	private final InstanceDeclaration declaration;
 	
+	public RemoteInstanceImpl(String dependencyId,String url,Composite composite, Object serviceObject) {
+		this.id=dependencyId;
+		this.url=url;
+		this.serviceObject=serviceObject;
+		
+		declaration=new InstanceDeclaration(new RemoteMachine.RemoteImplementationReference(getFullName()),getFullName(),null) ;
+	}
+
 	public String getFullName(){
 		return String.format("%s_%s",this.id,this.url);
 	}
@@ -32,14 +44,6 @@ public class RemoteInstanceImpl implements ApformInstance {
 
 	public void setUrl(String url) {
 		this.url = url;
-	}
-	
-	public RemoteInstanceImpl(String dependencyId,String url,Composite composite, Object serviceObject) {
-		this.id=dependencyId;
-		this.url=url;
-		this.serviceObject=serviceObject;
-		
-		declaration=new InstanceDeclaration(new RemoteMachine.RemoteImplementationReference(getFullName()),getFullName(),null) ;
 	}
 	
 	@Override
@@ -79,7 +83,5 @@ public class RemoteInstanceImpl implements ApformInstance {
 	public Instance getInst() {
 		return this.apamInstance;
 	}
-	
-	
 	
 }
