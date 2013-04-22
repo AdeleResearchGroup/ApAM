@@ -25,6 +25,7 @@ import fr.imag.adele.apam.test.s2.S2;
 
 public class TestAttrImpl implements TestAttr, ApamComponent {
     S2 s2;
+    S2 s2seul;
     String theFieldAttr ;
 
 	@Override
@@ -41,6 +42,8 @@ public class TestAttrImpl implements TestAttr, ApamComponent {
 		theFieldAttr = "initial set by program" ;
 		if (s2 == null)
 			System.out.println(" s2 resolution failed");
+		if (s2seul == null)
+			System.out.println(" s2seul resolution failed");
 		System.out.println(" initialized fieldAttr value: " + apamInstance.getProperty("fieldAttr"));
 	}
 

@@ -47,6 +47,7 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
+import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Substitute.SplitSub;
 import fr.imag.adele.apam.util.ApamFilter;
@@ -141,7 +142,7 @@ public class CheckObr {
 			String defAttr = getDefAttr(entCap, attr, properties.get(attr));
 			if (defAttr == null)
 				continue;
-			Object val = Util.checkAttrType(attr, properties.get(attr), defAttr);
+			Object val = Attribute.checkAttrType(attr, properties.get(attr), defAttr);
 			if (val == null) {
 				setFailedParsing(true);
 				continue;
@@ -157,7 +158,7 @@ public class CheckObr {
 		ApamCapability group = entCap.getGroup();
 		if (group != null && group.getProperties() != null) {
 			for (String prop : group.getProperties().keySet()) {
-				if (ret.get(prop) == null && Util.isInheritedAttribute(prop)) {
+				if (ret.get(prop) == null && Attribute.isInheritedAttribute(prop)) {
 					ret.put(prop, group.getProperties().get(prop));
 				}
 			}
@@ -169,7 +170,7 @@ public class CheckObr {
 		 */
 		if (group != null) {
 			for (String prop : group.getValidAttrNames().keySet()) {
-				if (!Util.isInheritedAttribute(prop))
+				if (!Attribute.isInheritedAttribute(prop))
 					continue;
 				if (ret.get(prop) != null)
 					continue;
@@ -209,7 +210,7 @@ public class CheckObr {
 
 		//We have a default value, check it as if a property.
 		if (type != null && defaultValue != null && !defaultValue.isEmpty()) {
-			if (Util.checkAttrType(name, defaultValue, type) != null) {
+			if (Attribute.checkAttrType(name, defaultValue, type) != null) {
 				return checkSubstitute (component, name, type, defaultValue) ;
 			} else {
 				CheckObr.setFailedParsing(true) ;
@@ -218,7 +219,7 @@ public class CheckObr {
 		}
 
 		//no default value. Only check if the type is valid
-		if (!Util.validAttrType (type)) {
+		if (!Attribute.validAttrType (type)) {
 			CheckObr.setFailedParsing(true) ; 
 			return false ;
 		}
@@ -284,7 +285,7 @@ public class CheckObr {
             case ApamFilter.SUBSET:
             case ApamFilter.SUPERSET:
             case ApamFilter.PRESENT: {
-                if (!Util.isFinalAttribute(filt.attr) && !validAttr.containsKey(filt.attr)) {
+                if (!Attribute.isFinalAttribute(filt.attr) && !validAttr.containsKey(filt.attr)) {
                     logger.error("Members of component " + spec + " cannot have property " + filt.attr
                             + ". Invalid constraint " + f);
                     return false ;
@@ -294,13 +295,13 @@ public class CheckObr {
                 		error("Filter attribute  " +  filt.attr + " is a substitution: .  Invalid constraint " + f);
                 		return false ;
                 	}
-//        			if (Util.checkAttrType(name, defaultValue, type) != null) {
+//        			if (Attribute.checkAttrType(name, defaultValue, type) != null) {
 //        				return checkSubstitute (component, name, type, defaultValue) ;
-        			if (Util.checkAttrType(filt.attr, (String)filt.value, validAttr.get(filt.attr)) == null) {
+        			if (Attribute.checkAttrType(filt.attr, (String)filt.value, validAttr.get(filt.attr)) == null) {
             			return false ;
         			}
         			return CheckObr.checkSubstitute (component, filt.attr, validAttr.get(filt.attr), (String)filt.value) ;
-//                    return Util.checkAttrType(attr, (String)value, validAttr.get(attr)) != null;
+//                    return Attribute.checkAttrType(attr, (String)value, validAttr.get(attr)) != null;
                 }
             }
             return true ;
@@ -394,9 +395,9 @@ public class CheckObr {
 	 */
 	private static String getDefAttr(ApamCapability ent, String attr,
 			String value) {
-		if (Util.isFinalAttribute(attr))
+		if (Attribute.isFinalAttribute(attr))
 			return null;
-		if (!Util.validAttr(ent.getName(), attr))
+		if (!Attribute.validAttr(ent.getName(), attr))
 			return null;
 
 		if (ent.getGroup() != null
@@ -897,7 +898,7 @@ public class CheckObr {
 				String defAttr = getDefAttr(cap, attr, start.getProperties()
 						.get(attr));
 				if (defAttr == null
-						|| Util.checkAttrType(attr,
+						|| Attribute.checkAttrType(attr,
 								start.getProperties().get(attr), defAttr) == null) {
 					error("invalid attribute " + attr + " = "
 							+ start.getProperties().get(attr));

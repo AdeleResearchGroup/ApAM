@@ -46,6 +46,7 @@ import fr.imag.adele.apam.impl.CompositeImpl;
 import fr.imag.adele.apam.impl.InstanceImpl;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.UtilComp;
+import fr.imag.adele.apam.util.Visible;
 
 
 /**
@@ -608,7 +609,7 @@ public class ContentManager  {
 			 * 
 			 */
 			for (Wire incoming : instance.getInvWires()) {
-				if (! Util.checkInstVisible(incoming.getSource().getComposite(),instance))
+				if (! Visible.checkInstVisible(incoming.getSource().getComposite(),instance))
 					incoming.remove();
 			}
 			
@@ -664,7 +665,8 @@ public class ContentManager  {
 		 * verify if the new implementation satisfies any pending resolutions in
 		 * this composite
 		 */
-		if (Util.checkImplVisible(getComposite().getCompType(),implementation))
+//		if (Visible.checkImplVisible(getComposite().getCompType(),implementation))
+		if (Visible.isVisible(getComposite(), implementation))
 			resolveRequestsWaitingFor(implementation);
 	}
 	
@@ -677,7 +679,7 @@ public class ContentManager  {
 		/*
 		 * verify if the new instance satisfies any pending resolutions in this composite
 		 */
-		if (instance.isSharable() && Util.checkInstVisible(getComposite(),instance)) {
+		if (instance.isSharable() && Visible.checkInstVisible(getComposite(),instance)) {
 			resolveRequestsWaitingFor(instance);
 			resolveDynamicRequests(instance);
 		}
@@ -729,7 +731,7 @@ public class ContentManager  {
 		 * verify if the modified instance satisfies any pending resolutions and dynamic
 		 * dependencies in this composite
 		 */
-		if (instance.isSharable() && Util.checkInstVisible(getComposite(),instance)) {
+		if (instance.isSharable() && Visible.checkInstVisible(getComposite(),instance)) {
 			resolveRequestsWaitingFor(instance);
 	        resolveDynamicRequests(instance);
 		}
@@ -792,7 +794,7 @@ public class ContentManager  {
 	 */
 	public synchronized void wireRemoved(Wire wire) {
 		Instance instance = wire.getDestination();
-		if (instance.isSharable() && Util.checkInstVisible(getComposite(),instance))
+		if (instance.isSharable() && Visible.checkInstVisible(getComposite(),instance))
 			resolveRequestsWaitingFor(instance);
 	}
 	

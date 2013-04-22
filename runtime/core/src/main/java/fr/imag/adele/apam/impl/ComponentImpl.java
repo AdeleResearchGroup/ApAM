@@ -41,6 +41,7 @@ import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.UtilComp;
@@ -83,11 +84,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	public AttrType getAttrType (String attr) {
 		PropertyDefinition attrDef = getAttrDefinition(attr) ;
 		if (attrDef == null) {
-			if (Util.isFinalAttribute(attr))
-				return Util.splitType("string") ;
+			if (Attribute.isFinalAttribute(attr))
+				return Attribute.splitType("string") ;
 			return null ;
 		}
-		return  Util.splitType(attrDef.getType()) ;
+		return  Attribute.splitType(attrDef.getType()) ;
 	}
 
 	
@@ -167,7 +168,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			PropertyDefinition def = validDef (entry.getKey(), true) ;
 			if (def != null) {
 				//At initialization, all valid attributes are ok for specs
-				Object val = Util.checkAttrType(entry.getKey(), entry.getValue(), def.getType());
+				Object val = Attribute.checkAttrType(entry.getKey(), entry.getValue(), def.getType());
 				if (val != null) {
 					put (entry.getKey(), val) ;
 				}
@@ -189,7 +190,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (group != null) {
 			for (PropertyDefinition definition : group.getDeclaration().getPropertyDefinitions()) {
 				if ( definition.getDefaultValue() != null && get(definition.getName()) == null && ! definition.isInternal()) {
-					Object val = Util.checkAttrType(definition.getName(), definition.getDefaultValue(), definition.getType());
+					Object val = Attribute.checkAttrType(definition.getName(), definition.getDefaultValue(), definition.getType());
 					if (val != null)
 						put (definition.getName(),val) ;
 				}
@@ -354,7 +355,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		PropertyDefinition def = validDef (attr, forced) ;
 		if (def == null) return false ;
 		//At initialization, all valid attributes are ok for specs
-		Object val = Util.checkAttrType(attr, value, def.getType());
+		Object val = Attribute.checkAttrType(attr, value, def.getType());
 		if (val == null)
 			return false ;
 
@@ -458,12 +459,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return false;
 		}
 
-		if (Util.isFinalAttribute(attr)) {
+		if (Attribute.isFinalAttribute(attr)) {
 			logger.error("ERROR: \"" + attr + "\" is a final attribute");
 			return false;
 		}
 
-		if (Util.isReservedAttributePrefix(attr)) {
+		if (Attribute.isReservedAttributePrefix(attr)) {
 			logger.error("ERROR: \"" + attr + "\" is a reserved attribute");
 			return false;
 		}
@@ -549,12 +550,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @return
 	 */
 	public PropertyDefinition validDef (String attr, boolean forced) {
-		if (Util.isFinalAttribute(attr)) {
+		if (Attribute.isFinalAttribute(attr)) {
 			logger.error("Cannot redefine final attribute \"" + attr + "\"");
 			return null;
 		}
 
-		if (Util.isReservedAttributePrefix(attr)) {
+		if (Attribute.isReservedAttributePrefix(attr)) {
 			logger.error("ERROR: in " + this + ", attribute\"" + attr + "\" is reserved");
 			return null;
 		}
@@ -581,7 +582,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 
 		return definition ;
-		//return Util.checkAttrType(attr, value, definition.getType());
+		//return Attribute.checkAttrType(attr, value, definition.getType());
 	}
 
 	public boolean isSubstitute (String attr) {

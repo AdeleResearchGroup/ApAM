@@ -21,11 +21,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.BundleContext;
-//import org.osgi.framework.ApamFilter;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.DependencyManager;
@@ -39,9 +37,9 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
-//import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.UtilComp;
 import fr.imag.adele.apam.util.Util;
+import fr.imag.adele.apam.util.UtilComp;
+import fr.imag.adele.apam.util.Visible;
 
 public class ApamMan implements DependencyManager {
 
@@ -89,7 +87,7 @@ public class ApamMan implements DependencyManager {
 		//Set<ApamFilter> f = Util.toFilter(constraints) ;	
 		Set<Instance> insts = new HashSet<Instance>();
 		for (Instance inst : impl.getInsts()) {
-			if (inst.isSharable() && inst.matchDependencyConstraints(dep) && Util.checkInstVisible(client.getComposite(), inst))
+			if (inst.isSharable() && inst.matchDependencyConstraints(dep) && Visible.isVisible(client, inst))
 				insts.add(inst);
 		}
 		return insts;
@@ -109,7 +107,7 @@ public class ApamMan implements DependencyManager {
 		if (instName == null) return null;
 		Instance inst = CST.componentBroker.getInst(instName);
 		if (inst == null) return null;
-		if (Util.checkInstVisible(client.getComposite(), inst)) {
+		if (Visible.isVisible(client, inst)) {
 			return inst;
 		}
 		return null;
@@ -120,12 +118,16 @@ public class ApamMan implements DependencyManager {
 		if (implName == null)
 			return null;
 		Implementation impl = CST.componentBroker.getImpl(implName);
-		if (impl == null)
-			return null;
-		if (Util.checkImplVisible(client.getComposite().getCompType(), impl)) {
-			return impl;
+		if (Visible.isVisible (client, impl)) {
+			return impl ;
 		}
-		return null;
+		return null ;
+//		if (impl == null)
+//			return null;
+//		if (Util.checkImplVisible(client.getComposite().getCompType(), impl)) {
+//			return impl;
+//		}
+//		return null;
 	}
 
 	@Override
@@ -139,29 +141,33 @@ public class ApamMan implements DependencyManager {
 	public Component findComponentByName(Instance client, String componentName) {
 		Component ret = CST.componentBroker.getComponent (componentName) ;
 		if (ret == null) return null ;
-		if (ret instanceof Specification) return ret ;
-		if (ret instanceof Implementation) {
-			if (Util.checkImplVisible(client.getComposite().getCompType(), (Implementation)ret)) 
-				return ret ;
-			return null ;
-		}
-		//It is an instance
-		if (Util.checkInstVisible(client.getComposite(), (Instance)ret)) 
+		if (Visible.isVisible(client, ret)) {
 			return ret ;
+		}
 		return null ;
+//		if (ret instanceof Specification) return ret ;
+//		if (ret instanceof Implementation) {
+//			if (Util.checkImplVisible(client.getComposite().getCompType(), (Implementation)ret)) 
+//				return ret ;
+//			return null ;
+//		}
+//		//It is an instance
+//		if (Util.checkInstVisible(client.getComposite(), (Instance)ret)) 
+//			return ret ;
+//		return null ;
 	}
 
 	/**
-	 * dep can be a specification, an implementation or a resource: interface or message.
+	 * dep target can be a specification, an implementation or a resource: interface or message.
 	 * We have to find out all the implementations and all the instances that can be a target for that dependency 
 	 * and satisfy visibility and the constraints,
 	 * 
 	 * First compute all the implementations, visible or not that is a good target; 
 	 * then add in insts all the instances of these implementations that satisfy the constraints and are visible.
 	 * 
-	 * If parameter insts is null, do not take care of the instances.
+	 * If parameter needsInstances is null, do not take care of the instances.
 	 * 
-	 * Then remove the implementations that are not visible  .
+	 * Then remove the implementations that are not visible.
 	 * 
 	 */
 	@Override
@@ -217,7 +223,7 @@ public class ApamMan implements DependencyManager {
 		Set<Instance> insts = null ;
 		if (needsInstances) {
 			Set<Instance> oneInsts = null ;
-			Composite compo = client.getComposite() ;
+			//Composite compo = client.getComposite() ;
 			insts = new HashSet<Instance> () ;
 			//Set<ApamFilter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
 			//Compute all the instances visible and satisfying the constraints  ;
@@ -226,7 +232,7 @@ public class ApamMan implements DependencyManager {
 				if (oneInsts == null) continue ;
 				for (Instance inst : oneInsts) {
 					if (inst.isSharable() 
-							&& Util.checkInstVisible(compo, inst)
+							&& Visible.isVisible(client,  inst)  //Util.checkInstVisible(compo, inst)
 							//							&& inst.match(dep.getInstanceConstraints())) {
 							&& inst.matchDependencyConstraints(dep)) {
 						insts.add(inst) ;
@@ -236,7 +242,7 @@ public class ApamMan implements DependencyManager {
 		}
 
 		// returns only those implems that are visible
-		impls = Util.getVisibleImpls(client, impls) ;
+		impls = Visible.getVisibleImpls(client, impls) ;
 		if (impls.isEmpty() && (insts == null || insts.isEmpty()))
 			return null ;
 		if (dep.isMultiple()) 

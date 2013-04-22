@@ -25,7 +25,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	<implementation name="TestAttr"
 		classname="apam.test.attrImpl.TestAttrImpl" specification="STestAttr">
 
-		<dependency specification="S2" field="s2" >
+		<dependency specification="S2" field="s2" />
+		<dependency specification="S2" field="s2seul" >
 			<constraints>
 				<implementation filter="(setint=$$locSetInt)"/>
 				<implementation filter="(c=$$S1toS2Final-String1)"/>

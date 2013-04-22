@@ -32,11 +32,10 @@ public interface ApamResolver {
      * An APAM client instance requires to be wired with one or all the instance that satisfy the dependency.
      * WARNING : in case of interface or message dependency , since more than one specification can implement the same
      * interface, any specification implementing at least the provided interface (technical name of the interface) will
-     * be
-     * considered satisfactory.
+     * be considered satisfactory.
      * If found, the instance(s) are bound is returned.
      * 
-     * @param client the instance that requires the specification
+     * @param client the instance that requires the resolution
      * @param depName the dependency name. Field for atomic; spec name for complex dep, type for composite.
      * @return
      */
@@ -71,8 +70,7 @@ public interface ApamResolver {
      *            number of preferences, taken in the order, and stopping at the first failure.
      * @return
      */
-    public Implementation resolveSpecByName(Instance client, String specName,
-            Set<String> constraints, List<String> preferences);
+    public Implementation resolveSpecByName(Instance client, String specName, Set<String> constraints, List<String> preferences);
 
     /**
      * First looks for the specification defined by its interface, and then resolve that specification.
@@ -85,8 +83,7 @@ public interface ApamResolver {
      *            selected.
      * @param constraints. The constraints to satisfy. They must be all satisfied.
      * @param preferences. If more than one implementation satisfies the constraints, returns the one that satisfies the
-     *            maximum
-     *            number of preferences, taken in the order, and stopping at the first failure.
+     *            maximum number of preferences, taken in the order, and stopping at the first failure.
      * @return
      */
     public Implementation resolveSpecByInterface(Instance client,  String interfaceName, Set<String> constraints, List<String> preferences);

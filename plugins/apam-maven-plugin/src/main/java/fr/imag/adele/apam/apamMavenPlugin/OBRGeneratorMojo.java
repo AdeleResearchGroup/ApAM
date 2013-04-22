@@ -40,8 +40,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.util.CoreMetadataParser;
+import fr.imag.adele.apam.util.CoreParser;
 import fr.imag.adele.apam.util.Util;
 //import org.apache.felix.ipojo.plugin.MavenReporter;
+import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
+import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
 
 /**
  * Packages an OSGi jar "iPOJO bundle" as an "APAM bundle".
@@ -252,7 +256,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 		}
 		return null ;
 	}
-
-
+	
+	
 
 }
