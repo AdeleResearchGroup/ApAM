@@ -18,7 +18,7 @@
 <apam xmlns="fr.imag.adele.apam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd">
 
-	<specification name="spec-calme"
+	<specification name="app-calme-api"
 		interfaces="fr.imag.adele.apam.app.calme.api.CalendarManager"
 		>
 	</specification>

@@ -1,0 +1,64 @@
+<behavior startdate="27/10/2011-00:00:00" factor="1440">
+	 
+	 
+	<create-zone id="kitchen"  leftX="410" topY="370" width="245" height="210" />	 
+	
+	<add-zone-variable zoneId="kitchen" variable="Temperature" />
+	<add-zone-variable zoneId="kitchen" variable="Illuminance" />
+	<modify-zone-variable zoneId="kitchen" variable="Temperature" value="296.15"/>
+	<modify-zone-variable zoneId="kitchen" variable="Illuminance" value="0"/>
+	
+	<create-device id="Pres-A1255D-D" type="iCASA.PresenceSensor" />
+	<create-device id="Ther-A3654Q-S" type="iCASA.Thermometer" />
+	<create-device id="Phot-A4894S-S" type="iCASA.Photometer" />
+	<create-device id="BiLi-A7496W-S" type="iCASA.BinaryLight" />	
+	<move-device-zone deviceId="Pres-A1255D-D" zoneId="kitchen" />
+	<move-device-zone deviceId="Ther-A3654Q-S" zoneId="kitchen" />
+	<move-device-zone deviceId="Phot-A4894S-S" zoneId="kitchen" />
+	<move-device-zone deviceId="BiLi-A7496W-S" zoneId="kitchen" />
+
+	<create-zone id="livingroom" leftX="410" topY="28" width="245" height="350" />
+	
+	<add-zone-variable zoneId="livingroom" variable="Temperature" />
+	<add-zone-variable zoneId="livingroom" variable="Illuminance" />
+	<add-zone-variable zoneId="livingroom" variable="Volume" />
+	<modify-zone-variable zoneId="livingroom" variable="Temperature" value="295.15"/>
+	<modify-zone-variable zoneId="livingroom" variable="Illuminance" value="5"/>
+	<modify-zone-variable zoneId="livingroom" variable="Volume" value="10"/>
+	
+	<create-device id="Ther-A6448S-F" type="iCASA.Thermometer" />
+	<create-device id="Dimi-X3258Q-P" type="iCASA.DimmerLight" />	
+	<create-device id="Audi-N3258C-L" type="iCASA.AudioSource" />
+	<create-device id="Ther-V3258B-G" type="iCASA.Thermometer" />
+	<create-device id="Heat-F2145T-M" type="iCASA.Heater" />		
+	<move-device-zone deviceId="Ther-A6448S-F" zoneId="livingroom" />
+	<move-device-zone deviceId="Dimi-X3258Q-P" zoneId="livingroom" />	
+	<move-device-zone deviceId="Audi-N3258C-L" zoneId="livingroom" />
+	<move-device-zone deviceId="Ther-V3258B-G" zoneId="livingroom" />
+	<move-device-zone deviceId="Heat-F2145T-M" zoneId="livingroom" />
+	
+	<create-zone id="bedroom"  leftX="55" topY="370" width="259" height="210" />		
+	
+	<add-zone-variable zoneId="bedroom" variable="Temperature" />
+	<modify-zone-variable zoneId="bedroom" variable="Temperature" value="294.15"/>
+		
+	<create-device id="Ther-V9687T-X" type="iCASA.Thermometer" />	
+	<create-device id="Dimi-C9781S-V" type="iCASA.DimmerLight" />	
+	<move-device-zone deviceId="Ther-V9687T-X" zoneId="bedroom" />	
+	<move-device-zone deviceId="Dimi-C9781S-V" zoneId="bedroom" />
+
+	<create-zone id="bathroom"  leftX="55" topY="20" width="260" height="350" />	
+	<add-zone-variable zoneId="bathroom" variable="Temperature" />
+	<add-zone-variable zoneId="bathroom" variable="Illuminance" />
+	<add-zone-variable zoneId="bathroom" variable="Volume" />
+	<modify-zone-variable zoneId="bathroom" variable="Temperature" value="295.15"/>
+	<modify-zone-variable zoneId="bathroom" variable="Illuminance" value="5"/>
+	<modify-zone-variable zoneId="bathroom" variable="Volume" value="10"/>
+		
+	<create-device id="Ther-C1012S-V" type="iCASA.Thermometer" />	
+	<create-device id="Bili-C1012S-Q" type="iCASA.BinaryLight" />		
+	<move-device-zone deviceId="Ther-C1012S-V" zoneId="bathroom" />	
+	<move-device-zone deviceId="Bili-C1012S-Q" zoneId="bathroom" />	
+
+	
+</behavior>
