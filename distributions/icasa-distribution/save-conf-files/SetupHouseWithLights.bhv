@@ -1,0 +1,54 @@
+<behavior startdate="27/10/2011-00:00:00" factor="1440">
+	 
+	 
+	<create-zone id="kitchen"  leftX="410" topY="370" width="245" height="210" />	 
+	
+	<add-zone-variable zoneId="kitchen" variable="Illuminance" />
+	<modify-zone-variable zoneId="kitchen" variable="Illuminance" value="0"/>
+	
+	<create-device id="Pres-A1255D-D" type="iCASA.PresenceSensor" />
+	<create-device id="BiLi-A7496W-S" type="iCASA.BinaryLight" />
+	<create-device id="Toogle-A1286X-Y" type="iCASA.ToggleSwitch" />
+	<move-device-zone deviceId="Toogle-A1286X-Y" zoneId="kitchen" />	
+	<move-device-zone deviceId="Pres-A1255D-D" zoneId="kitchen" />
+	<move-device-zone deviceId="BiLi-A7496W-S" zoneId="kitchen" />
+
+	<create-zone id="livingroom" leftX="410" topY="28" width="245" height="350" />
+	
+	<add-zone-variable zoneId="livingroom" variable="Illuminance" />
+	<modify-zone-variable zoneId="livingroom" variable="Illuminance" value="5"/>
+	
+	<create-device id="Pres-B1255D-D" type="iCASA.PresenceSensor" />
+	<create-device id="BiLi-B7496W-S" type="iCASA.BinaryLight" />
+	<create-device id="Toogle-B1286X-Y" type="iCASA.ToggleSwitch" />
+	<move-device-zone deviceId="Toogle-B1286X-Y" zoneId="livingroom" />		
+	<move-device-zone deviceId="Pres-B1255D-D" zoneId="livingroom" />
+	<move-device-zone deviceId="BiLi-B7496W-S" zoneId="livingroom" />
+	
+	<create-zone id="bedroom"  leftX="55" topY="370" width="259" height="210" />		
+	
+	<add-zone-variable zoneId="bedroom" variable="Illuminance" />
+	<modify-zone-variable zoneId="bedroom" variable="Illuminance" value="5"/>
+	
+	<create-device id="Pres-C1255D-D" type="iCASA.PresenceSensor" />
+	<create-device id="BiLi-C7496W-S" type="iCASA.BinaryLight" />
+	<create-device id="Toogle-C1286X-Y" type="iCASA.ToggleSwitch" />
+	<move-device-zone deviceId="Toogle-C1286X-Y" zoneId="bedroom" />		
+	<move-device-zone deviceId="Pres-C1255D-D" zoneId="bedroom" />
+	<move-device-zone deviceId="BiLi-C7496W-S" zoneId="bedroom" />
+	
+	<create-zone id="bathroom"  leftX="55" topY="20" width="260" height="350" />	
+	
+	<add-zone-variable zoneId="bathroom" variable="Illuminance" />
+	<modify-zone-variable zoneId="bathroom" variable="Illuminance" value="5"/>
+	
+	<create-device id="Pres-D1255D-D" type="iCASA.PresenceSensor" />
+	<create-device id="BiLi-D7496W-S" type="iCASA.BinaryLight" />
+	<create-device id="Toogle-D1286X-Y" type="iCASA.ToggleSwitch" />
+	<move-device-zone deviceId="Toogle-D1286X-Y" zoneId="bathroom" />		
+	<move-device-zone deviceId="Pres-D1255D-D" zoneId="bathroom" />
+	<move-device-zone deviceId="BiLi-D7496W-S" zoneId="bathroom" />
+	
+	<create-person id="Paul" type="Grandfather" />
+	<create-person id="Marie" type="Girl" />
+</behavior>

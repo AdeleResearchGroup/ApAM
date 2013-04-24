@@ -39,6 +39,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		List<Option> neu=super.config();
 		neu.add(mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-iface").versionAsInProject());
 		neu.add(mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s6").versionAsInProject());
+		neu.add(packApamShell());
 		return neu;
 	}
 	

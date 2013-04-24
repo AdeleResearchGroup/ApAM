@@ -114,7 +114,25 @@
 				<module>distributions</module>
 			</modules>
 		</profile>
-		
+		<profile>
+			<id>complete</id>
+			<properties>
+				<!--<remoteOBR>true</remoteOBR> -->
+				<!--use it only if your server is well configured in settings : <server> 
+					<id>cloudbees-private-snapshot-repository</id> <username>repouser</username> 
+					<password>repopwd</password> </server> -->
+				<remote.obr.url>dav:https://repository-apam.forge.cloudbees.com/snapshot/repository/</remote.obr.url>
+			</properties>
+			<modules>
+				<module>runtime</module>
+				<module>plugins</module>
+				<module>tools</module>
+				<module>distributions</module>
+				<module>tests</module>
+			</modules>
+		</profile>		
+
+
 		<!-- Profile used to build ApAM -->
 		<profile>
 			<id>snapshot</id>
