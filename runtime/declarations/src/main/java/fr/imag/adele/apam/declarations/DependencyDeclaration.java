@@ -64,23 +64,27 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     /**
      * The reference to this declaration
      */
-    private final Reference                           reference;
+    private final Reference                         reference;
 
+    /**
+     * The source component for this declaration in the case of contextual dependencies
+     */
+    private final ComponentReference<?> 			source;
     /**
      * Whether this dependency is declared explicitly as multiple
      */
-    private final boolean                             isMultiple;
+    private final boolean							isMultiple;
 
     /**
      * The list of fields that will be injected with this dependency in a primitive component
      */
-    protected final List<DependencyInjection>           injections;
+    protected final List<DependencyInjection>		injections;
 
     /**
      * The policy to handle unresolved dependencies
      */
 
-    private MissingPolicy                             missingPolicy;
+    private MissingPolicy  							missingPolicy;
 
     /**
      * The exception to throw for the exception missing policy
@@ -100,13 +104,28 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     private Boolean                                   mustHide;
 
     /**
+     * The level of abstraction where this dependency can be instantiated
+     */
+    private ComponentKind							sourceType;
+    
+    /**
+     * The level of abstraction of the target of the dependency
+     */
+    private ComponentKind							targetType;
+    
+    /**
      * 
      * @param component the name of the component who had the reference
      * @param id the id of the dependency
      * @param isMultiple define if this dependency is multiple
      * @param resource the resource which we should look for
      */
-    public DependencyDeclaration(ComponentReference<?> component, String id, boolean isMultiple,
+    
+    public DependencyDeclaration(ComponentReference<?> component,  String id, boolean isMultiple, ResolvableReference resource) {
+    	this(component,null,id,isMultiple,resource);
+    }
+
+    public DependencyDeclaration(ComponentReference<?> component, ComponentReference<?> source, String id, boolean isMultiple,
             ResolvableReference resource) {
 
         super(resource);
@@ -116,6 +135,8 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
         id 						= (id == null) ? getTarget().as(fr.imag.adele.apam.declarations.Reference.class).getIdentifier() : id;
         this.reference			= new Reference(component,id);
 
+        this.source				= source;
+        
         this.isMultiple 		= isMultiple;
         this.isEager 			= null;
         this.mustHide 			= null;
@@ -123,6 +144,9 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
         this.missingException 	= null;
         this.callbacks 			= new HashMap<CallbackTrigger, Set<CallbackMethod>>();
         this.injections			= new ArrayList<DependencyInjection>();
+        
+        this.sourceType			= ComponentKind.INSTANCE;
+        this.targetType			= ComponentKind.INSTANCE;
     }
     
     @Override
@@ -142,9 +166,12 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     @Override
     public DependencyDeclaration clone() {
 
-        DependencyDeclaration clone = new DependencyDeclaration(this.reference.getDeclaringComponent(), this.reference
+        DependencyDeclaration clone = new DependencyDeclaration(this.reference.getDeclaringComponent(), this.source, this.reference
                 .getIdentifier(), this.isMultiple(), this.getTarget());
 
+        clone.setSourceType(this.sourceType);
+        clone.setTargetType(this.targetType);
+        
         clone.callbacks.putAll(this.callbacks);
         clone.injections.addAll(this.injections);
         
@@ -165,6 +192,14 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     public ComponentReference<?> getComponent() {
         return reference.getDeclaringComponent();
     }
+    
+    /**
+     * The source component for contextual dependencies
+     */
+    public ComponentReference<?> getSource() {
+        return this.source;
+    }
+
 
     /**
      * Get the id of the dependency in the declaring component declaration
@@ -180,6 +215,22 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
         return reference;
     }
 
+    public ComponentKind getSourceType() {
+		return sourceType;
+	}
+    
+    public void setSourceType(ComponentKind sourceType) {
+		this.sourceType = sourceType;
+	}
+    
+    public ComponentKind getTargetType() {
+		return targetType;
+	}
+    
+    public void setTargetType(ComponentKind targetType) {
+		this.targetType = targetType;
+	}
+    
     /**
      * The multiplicity of a dependency.
      * 
