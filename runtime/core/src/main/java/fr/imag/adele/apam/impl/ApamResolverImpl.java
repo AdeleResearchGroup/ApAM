@@ -216,6 +216,12 @@ public class ApamResolverImpl implements ApamResolver {
 			}
 		}
 		if ((impls == null || impls.isEmpty()) && (insts==null || insts.isEmpty())) {
+			/*
+			 * if (Dynaman.failedDependency (refClient, dependencyDef) {
+			 *         resolveDependency (client, dep) ;
+			 *  } else { failed depednecy .... }
+			 *  
+			 */
 			logger.error("Failed to resolve " + dependencyDef.getTarget()
 					+ " from " + client + "(" + depName + ")");
 			return false;

@@ -604,14 +604,6 @@ public class ContentManager  {
 			((InstanceImpl)instance).setOwner(getComposite());
 			owned.get(ownedDeclaration).add(instance);
 			
-			/*
-			 * Force recalculation of dependencies that may have been invalidated by the ownership change
-			 * 
-			 */
-			for (Wire incoming : instance.getInvWires()) {
-				if (! Visible.checkInstVisible(incoming.getSource().getComposite(),instance))
-					incoming.remove();
-			}
 			
 			/*
 			 * preempt previous users of the instance and give access to granted waiting requests
@@ -665,8 +657,8 @@ public class ContentManager  {
 		 * verify if the new implementation satisfies any pending resolutions in
 		 * this composite
 		 */
-//		if (Visible.checkImplVisible(getComposite().getCompType(),implementation))
-		if (Visible.isVisible(getComposite(), implementation))
+		if (Visible.checkImplVisible(getComposite().getCompType(),implementation))
+//		if (Visible.isVisible(getComposite(), implementation))
 			resolveRequestsWaitingFor(implementation);
 	}
 	

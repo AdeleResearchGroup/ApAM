@@ -247,9 +247,33 @@ public class InstanceImpl extends ComponentImpl implements Instance {
      */
     public void setOwner(Composite owner) {
 
-        ((CompositeImpl) getComposite()).removeInst(this);
+    	CompositeImpl oldOwner = (CompositeImpl) getComposite();
+    	if (owner == oldOwner)
+    		return;
+    	
+        oldOwner.removeInst(this);
         this.myComposite = owner;
         ((CompositeImpl) owner).addContainInst(this);
+
+		/*
+		 * Force recalculation of dependencies that may have been invalidated by the ownership change
+		 * 
+		 */
+		for (Wire incoming : this.getInvWires()) {
+			if (! Visible.isVisible(incoming.getSource(),this))
+				incoming.remove();
+		}
+
+		/* Remove outgoing wires (definitions or visibilities may have changed)
+		 * 
+		for (Wire outgoing : this.getWires()) {
+			outgoing.remove();
+		}
+		
+		*/
+		
+		TODO recalculer les declarations de relships contextuelles????
+
     }
 
     @Override
