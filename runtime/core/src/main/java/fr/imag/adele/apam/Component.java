@@ -67,7 +67,7 @@ public interface Component {
 	 * @param goal the goal
 	 * @return true is the instance matches the goal
 	 */
-	public boolean match(String goal);
+//	public boolean match(String goal);
 	public boolean match(ApamFilter goal);
 
 
@@ -84,7 +84,7 @@ public interface Component {
 	 * @return
 	 */
 	//TODO : to be removed
-	public boolean match(Set<String> goals);
+//	public boolean match(Set<String> goals);
 
 	/**
 	 * Get the value of a property, the property can be valued in this component or in its

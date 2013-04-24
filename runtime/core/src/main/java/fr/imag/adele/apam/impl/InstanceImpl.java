@@ -213,8 +213,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
             ((WireImpl) wire).remove();
         }
 
-
-
         /*
         * Unbind from the underlying execution platform instance
         */

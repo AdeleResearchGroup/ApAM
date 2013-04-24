@@ -42,6 +42,7 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
+import fr.imag.adele.apam.util.DependencyUtil;
 import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.UtilComp;
@@ -113,9 +114,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	/**
 	 * Provided a dependency declaration, compute the effective dependency, adding group constraint and flags.
-	 * Compute which is the good target, and check the targets are compatible. 
+	 * Compute which is the good target, and checks the targets are compatible. 
 	 * If needed changes the target to set the more general one.
 	 * It is supposed to be correct !! No failure expected
+	 * 
+	 * Does not add those dependencies defined "above" nor the contextual ones.
+	 * 
 	 * @param depComponent
 	 * @param dependency
 	 * @return
@@ -137,7 +141,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 			//it is declared above. Merge and check.
 			//First merge flags, and then constraints.
-			UtilComp.overrideDepFlags (dependency, groupDep, false);
+			DependencyUtil.overrideDepFlags (dependency, groupDep, false);
 			dependency.getImplementationConstraints().addAll(groupDep.getImplementationConstraints()) ;
 			dependency.getInstanceConstraints().addAll(groupDep.getInstanceConstraints()) ;
 			dependency.getImplementationPreferences().addAll(groupDep.getImplementationPreferences()) ;
@@ -595,11 +599,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * Filter evaluation on the properties of this component
 	 */
 
-	@Override
-	public boolean match(String goal) {
-		if (goal == null) return true ;
-		return goal == null || match(Collections.singleton(goal));
-	}
+//	@Override
+//	public boolean match(String goal) {
+//		if (goal == null) return true ;
+//		return goal == null || match(Collections.singleton(goal));
+//	}
 
 	@Override
 	public boolean match(ApamFilter goal) {
@@ -609,54 +613,56 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	@Override
 	public boolean matchDependencyConstraints (Dependency dep) {
-		if (this instanceof Implementation) {
-//			Set<ApamFilter>  filters =  dep.getImplementationConstraintFilters() ;
-//			if (filters == null) {
-//				return match (dep.getImplementationConstraintFilters()) ;
-//			}
-			for (ApamFilter af : dep.getImplementationConstraintFilters()) {
-				if (!(af.matchCase(this))) {
-					return false ;
-				}
-			}
-			return true;
-		}
-		if (this instanceof Instance) {
-//			Set<ApamFilter>  filters =  dep.getInstanceConstraintFilters() ;
-//			if (filters == null) {
-//				return match (dep.getInstanceConstraints()) ;
-//			}
-			for (ApamFilter af : dep.getInstanceConstraintFilters()) {
-				if (!(af.matchCase(this))) {
-					return false ;
-				}
-			}
-		}
-		return true;
+		return dep.matchDep (this) ;
 	}
+//		if (this instanceof Implementation) {
+////			Set<ApamFilter>  filters =  dep.getImplementationConstraintFilters() ;
+////			if (filters == null) {
+////				return match (dep.getImplementationConstraintFilters()) ;
+////			}
+//			for (ApamFilter af : dep.getImplementationConstraintFilters()) {
+//				if (!(af.matchCase(this))) {
+//					return false ;
+//				}
+//			}
+//			return true;
+//		}
+//		if (this instanceof Instance) {
+////			Set<ApamFilter>  filters =  dep.getInstanceConstraintFilters() ;
+////			if (filters == null) {
+////				return match (dep.getInstanceConstraints()) ;
+////			}
+//			for (ApamFilter af : dep.getInstanceConstraintFilters()) {
+//				if (!(af.matchCase(this))) {
+//					return false ;
+//				}
+//			}
+//		}
+//		return true;
+//	}
 
 	/*
 	 * TODO should be removed. Almost always a bug; substitution, if any, are not applied on the constraints
 	 * should use matchDependencyConstraints instead.
 	 */
-	@Override
-	public boolean match(Set<String> goals) {
-		if ((goals == null) || goals.isEmpty())
-			return true;
-
-		//Map<String,Object> props = getAllProperties() ;
-		try {
-			for (String f : goals) {
-				ApamFilter af = ApamFilter.newInstance(f) ;
-				if (!(af.matchCase(this))) {
-					return false ;
-				}
-			}
-			return true;
-		} catch (Exception e) {
-			return false ;
-		}
-	}
+//	@Override
+//	public boolean match(Set<String> goals) {
+//		if ((goals == null) || goals.isEmpty())
+//			return true;
+//
+//		//Map<String,Object> props = getAllProperties() ;
+//		try {
+//			for (String f : goals) {
+//				ApamFilter af = ApamFilter.newInstance(f) ;
+//				if (!(af.matchCase(this))) {
+//					return false ;
+//				}
+//			}
+//			return true;
+//		} catch (Exception e) {
+//			return false ;
+//		}
+//	}
 
 	/**
 	 * Whether the component is instantiable

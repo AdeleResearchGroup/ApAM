@@ -125,7 +125,14 @@ public class ApamFilter /* implements Filter */ {
 		}
 	}
 
-
+	public static boolean isSubstituteFilter (String filterString, Component component) {
+		//Inefficient, but simple. Done once.
+		ApamFilter f = newInstanceApam(filterString, component) ;
+		ApamFilter f2 = newInstance(filterString);
+		if (f==null || f2==null) return false ;
+		return f.equals(f2) ;
+	}
+	
 	public static ApamFilter newInstance(String filterString, boolean ignoreCase)
 			throws InvalidSyntaxException {
 		return new Parser(filterString, ignoreCase, null).parse();
