@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet type="text/xsl" href="xs3p.xsl"?>
+
+<xs:schema xmlns:ipojo="org.apache.felix.ipojo" attributeFormDefault="unqualified"
+           elementFormDefault="qualified" targetNamespace="fr.imag.adele.apam"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="fr.imag.adele.apam">
+    <xs:import schemaLocation="http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd"
+               namespace="org.apache.felix.ipojo"/>
+    <xs:annotation>
+        <xs:documentation>
+            ApAM Core XML-Schema.
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="apam">
+        <xs:annotation>
+            <xs:documentation>ApAM top level element.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="specification"/>
+                <xs:element ref="implementation"/>
+                <xs:element ref="composite"/>
+                <xs:element ref="instance"/>
+                <xs:element ref="apam-instance" />
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="specification">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>The specification declarations.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="definition" type="DefinitionType"/>
+
+                <xs:element name="property" type="PropertyType">
+                    <xs:annotation>
+                        <xs:documentation>A property of the specification, this property will be set as final for implementation and
+                            instance
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+
+                <xs:element name="dependency" type="DependencyType"/>
+            </xs:choice>
+            <xs:attributeGroup ref="basicComponentAttributes"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- 	<xs:element name="property" type="PropertyType" /> -->
+    <!-- 	<xs:element name="property" type="PropertyValueType" /> -->
+
+    <xs:element name="implementation">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>The implementation declarations.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+
+               <xs:element name="property" type="PropertyDefType">
+                    <xs:annotation>
+                        <xs:documentation> A property of the implementation, this property will be set as final for instances
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+
+                <xs:element name="definition" type="InjectedDefinitionType"/>
+
+                <xs:element name="dependency" type="InjectedDependencyType">
+                    <xs:annotation>
+                        <xs:documentation> A property definition, it must be valued by the instance.
+                            if the internal is true, the value of
+                            the
+                            property can be set only by the field
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element ref="callback"/>
+                <xs:element ref="ipojo:requires"/>
+
+                <xs:element ref="ipojo:provides"/>
+
+            </xs:choice>
+            <xs:attributeGroup ref="basicComponentAttributes"/>
+            <xs:attribute name="classname" type="xs:string" use="required"/>
+            <xs:attribute name="push" type="xs:string" use="optional"/>
+            <xs:attribute name="specification" type="xs:string" use="optional"/>
+
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="callback">
+        <xs:complexType>
+            <xs:attribute name="onInit" type="xs:string" use="optional"/>
+            <xs:attribute name="onRemove" type="xs:string" use="optional"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="StartType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="property" type="PropertyValueType"/>
+            <xs:element name="dependency" type="DependencyType"/>
+            <xs:element name="trigger" type="TriggerType" minOccurs="0" maxOccurs="1"/>
+        </xs:choice>
+        <xs:attribute name="implementation" type="xs:string" use="required"/>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:element name="apam-instance">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>The instance declarations.</xs:documentation>
+            </xs:annotation>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="property" type="PropertyDefType"/>
+                <xs:element name="dependency" type="DependencyType"/>
+            </xs:choice>
+            <xs:attribute name="implementation" type="xs:string" use="required"/>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="instance">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>The instance declarations.</xs:documentation>
+            </xs:annotation>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="property" type="PropertyDefType"/>
+                <xs:element name="dependency" type="DependencyType"/>
+            </xs:choice>
+            <xs:attribute name="implementation" type="xs:string" use="required"/>
+            <xs:attribute name="name" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:element name="composite">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>The composite type declarations.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="property" type="PropertyDefType"/>
+                <xs:element name="definition" type="DefinitionType"/>
+                <xs:element name="dependency" type="DependencyType"/>
+                <xs:element name="contentMngt" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:choice minOccurs="0" maxOccurs="unbounded" >
+                            <xs:element name="import" type="VisibilityType" minOccurs="0"
+                                        maxOccurs="1"/>
+                            <xs:element name="export" type="VisibilityType" minOccurs="0"
+                                        maxOccurs="1"/>
+
+                            <xs:element name="exportApp" type="VisibilityTypeApp" minOccurs="0"
+                                        maxOccurs="1"/>
+
+                            <xs:element name="state" minOccurs="0" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:attribute name="implementation" type="xs:string"
+                                                  use="optional"/>
+                                    <xs:attribute name="property" type="xs:string" use="optional"/>
+                                </xs:complexType>
+                            </xs:element>
+
+                            <xs:element name="start" type="StartType" minOccurs="0"
+                                        maxOccurs="unbounded"/>
+
+                            <xs:element name="own" type="OwnType" minOccurs="0"
+                                        maxOccurs="unbounded"/>
+
+                            <xs:element name="promote" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="specification" type="xs:string"
+                                                  use="optional"/>
+                                    <xs:attribute name="implementation" type="xs:string"
+                                                  use="optional"/>
+                                    <xs:attribute name="dependency" type="xs:string" use="optional"/>
+                                    <xs:attribute name="to" type="xs:string" use="optional"/>
+                                </xs:complexType>
+                            </xs:element>
+
+                            <xs:element name="dependency" type="ContextDependencyType"/>
+
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+            </xs:choice>
+            <xs:attribute name="main" type="xs:string" use="optional"/>
+            <xs:attribute name="specification" type="xs:string" use="optional"/>
+            <xs:attributeGroup ref="basicComponentAttributes"/>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:complexType name="OwnType">
+        <xs:choice>
+            <xs:element name="grant" type="GrantType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+        <xs:attribute name="specification" type="xs:string" use="optional"/>
+        <xs:attribute name="property" type="xs:string" use="optional"/>
+        <xs:attribute name="value" type="xs:string" use="optional"/>
+        
+    </xs:complexType>
+
+
+    <xs:complexType name="GrantType">
+		<xs:attribute name="specification" type="xs:string" use="optional"/>
+        <xs:attribute name="implementation" type="xs:string" use="optional"/>
+        <xs:attribute name="dependency" type="xs:string" use="optional"/>
+        <xs:attribute name="when" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+
+    <xs:complexType name="ConstraintsType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="implementation" type="FilterAttribute"/>
+            <xs:element name="instance" type="FilterAttribute"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="VisibilityTypeApp">
+        <xs:attribute name="instance" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="VisibilityType">
+        <xs:attribute name="implementation" type="xs:string" use="optional"/>
+        <xs:attribute name="instance" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="FilterAttribute">
+        <xs:attribute name="filter" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="PreferencesType">
+        <xs:complexContent>
+            <xs:extension base="ConstraintsType"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+
+    <xs:complexType name="DependencyType">
+        <xs:annotation>
+            <xs:documentation> A dependency declaration</xs:documentation>
+        </xs:annotation>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="constraints" type="ConstraintsType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="preferences" type="PreferencesType" minOccurs="0" maxOccurs="1"/>
+        </xs:choice>
+        <xs:attributeGroup ref="basicDependencyAttributes"/>
+
+
+    </xs:complexType>
+
+    <xs:complexType name="InjectedDependencyType">
+
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="constraints" type="ConstraintsType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="preferences" type="PreferencesType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="interface" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="field" type="xs:string" use="optional"/>
+                    <xs:attribute name="method" type="xs:string" use="optional"/>
+                    <xs:attribute name="type" type="xs:string" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="message" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="push" type="xs:string" use="optional"/>
+                    <xs:attribute name="pull" type="xs:string" use="optional"/>
+                    <xs:attribute name="type" type="xs:string" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:choice>
+        <xs:attribute name="field" type="xs:string" use="optional"/>
+        <xs:attribute name="push" type="xs:string" use="optional"/>
+        <xs:attribute name="pull" type="xs:string" use="optional"/>
+        <xs:attribute name="type" type="xs:string" use="optional"/>
+        <xs:attribute name="added" type="xs:string" use="optional"/>
+        <xs:attribute name="removed" type="xs:string" use="optional"/>
+        <xs:attributeGroup ref="basicDependencyAttributes"/>
+    </xs:complexType>
+
+    <xs:complexType name="ContextDependencyType">
+
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="constraints" type="ConstraintsType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="preferences" type="PreferencesType" minOccurs="0" maxOccurs="1"/>
+        </xs:choice>
+        <xs:attribute name="hide" type="xs:string" use="optional"/>
+        <xs:attribute name="eager" type="xs:string" use="optional"/>
+        <xs:attributeGroup ref="basicDependencyAttributes"/>
+    </xs:complexType>
+
+    <xs:complexType name="ResourceDependencyType">
+        <xs:attribute name="field" type="xs:string" use="optional"/>
+        <xs:attribute name="method" type="xs:string" use="optional"/>
+        <xs:attribute name="type" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="TriggerType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="specification" type="TriggerConstraintType" minOccurs="0"
+                        maxOccurs="unbounded"/>
+            <xs:element name="implementation" type="TriggerConstraintType" minOccurs="0"
+                        maxOccurs="unbounded"/>
+        </xs:choice>
+    </xs:complexType>
+
+
+    <xs:complexType name="TriggerConstraintType">
+        <xs:choice>
+            <xs:element name="constraints" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:choice>
+                        <xs:element name="constraint" type="FilterAttribute"/>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+        </xs:choice>
+        <xs:attribute name="name" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+
+    <xs:complexType name="PropertyValueType">
+
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation> Name of the property. </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="value" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation> Default value of the property. </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+	
+	<xs:complexType name="PropertyDefType">
+		<xs:complexContent>
+            <xs:extension base="PropertyValueType">
+                <xs:attribute name="type" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation> Type of the property. </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="PropertyType">
+        <xs:complexContent>
+            <xs:extension base="PropertyValueType">
+                <xs:attribute name="type" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation> Type of the property. </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="DefinitionType">
+        <xs:annotation>
+            <xs:documentation> Defines a component property. </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation> Name of the property. </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="value" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation> Default value of the property. </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation> Type of the property. </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="InjectedDefinitionType">
+        <xs:complexContent>
+            <xs:extension base="DefinitionType">
+                <xs:attribute name="internal" type="xs:boolean" use="optional"/>
+                <xs:attribute name="field" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation> Field of the property </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="method" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation> Setter method of the property. This method is
+                            called to inject property
+                            value.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:attributeGroup name="basicComponentAttributes">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="singleton" type="xs:boolean" use="optional"/>
+        <xs:attribute name="instantiable" type="xs:boolean" use="optional"/>
+        <xs:attribute name="shared" type="xs:boolean" use="optional"/>
+        <xs:attribute name="interfaces" type="xs:string" use="optional"/>
+        <xs:attribute name="messages" type="xs:string" use="optional"/>
+    </xs:attributeGroup>
+
+    <xs:attributeGroup name="basicDependencyAttributes">
+        <xs:attribute name="specification" type="xs:string" use="optional"/>
+        <xs:attribute name="interface" type="xs:string" use="optional"/>
+        <xs:attribute name="message" type="xs:string" use="optional"/>
+        <xs:attribute name="multiple" type="xs:boolean" use="optional"/>
+        <xs:attribute name="implementation" type="xs:string" use="optional"/>
+        <xs:attribute name="id" type="xs:string" use="optional"/>
+        <xs:attribute name="fail" type="xs:string" use="optional"/>
+        <xs:attribute name="exception" type="xs:string" use="optional"/>
+    </xs:attributeGroup>
+
+</xs:schema>
