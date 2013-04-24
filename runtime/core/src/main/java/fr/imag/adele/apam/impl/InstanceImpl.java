@@ -270,7 +270,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		
 		*/
 		
-		TODO recalculer les declarations de relships contextuelles????
+		//TODO recalculer les declarations de relships contextuelles????
 
     }
 
