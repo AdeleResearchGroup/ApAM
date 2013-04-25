@@ -53,6 +53,10 @@ public abstract class ComponentDeclaration{
     private final Set<DependencyDeclaration> 	dependencies;
 
     /**
+     * The predefined links of this service
+     */
+    private final Set<LinkDeclaration>	predefinedLinks;
+    /**
      * The properties describing this service provider
      */
     private final Map<String,String> 			properties;
@@ -102,6 +106,7 @@ public abstract class ComponentDeclaration{
         properties			= new HashMap<String,String>();
         providedResources	= new HashSet<ResourceReference>();
         dependencies		= new HashSet<DependencyDeclaration>();
+        predefinedLinks		= new HashSet<LinkDeclaration>();
         definitions 		= new ArrayList<PropertyDefinition>();
     }
 
@@ -301,7 +306,14 @@ public abstract class ComponentDeclaration{
     public Set<DependencyDeclaration> getDependencies() {
         return dependencies;
     }
-
+    
+    /**
+     * Get the declared predefined links
+     */
+    public Set<LinkDeclaration> getPredefinedLinks() {
+		return predefinedLinks;
+	}
+    
     /**
      * Get a dependency declaration by name
      */
