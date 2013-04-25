@@ -15,6 +15,7 @@
 package fr.imag.adele.dynamic.manager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -555,10 +556,10 @@ public class ContentManager  {
 				String thatProperty						= thatDeclaration.getProperty().getIdentifier();
 				Set<String> thoseValues					= new HashSet<String>(thatDeclaration.getValues());
 				
-				if (thisSpecification.equals(thatSpecification))
+				if (!thisSpecification.equals(thatSpecification))
 					continue;
 				 
-				if( !thisProperty.equals(thatProperty) || theseValues.retainAll(thoseValues)) 
+				if( !thisProperty.equals(thatProperty) || ! Collections.disjoint(theseValues,thoseValues)) 
 					hasConflict = true;;
 				
 			}

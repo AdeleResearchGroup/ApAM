@@ -1076,6 +1076,14 @@ public class CheckObr {
 						+ own.getComponent().getName());
 				continue;
 			}
+			
+			ComponentReference<?> foundReference = ApamCapability.getDcl(own.getComponent()).getReference();
+			if (! own.getComponent().getClass().isAssignableFrom(foundReference.getClass()) ) {
+				error("Component in own expression is of the wrong type, expecting "
+						+ own.getComponent() +" found "+foundReference);
+				continue;
+				
+			}
 
 			// computes the attributes that can be associated with this spec or
 			// implementations members
