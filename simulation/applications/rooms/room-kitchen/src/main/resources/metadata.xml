@@ -12,7 +12,7 @@
       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
       See the License for the specific language governing permissions and
       limitations under the License.
-
+		http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
 -->
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -21,18 +21,16 @@
     <!-- *********** ************ -->
     <!--   Kitchen App Composite  -->
     <!-- *********** ************ -->
-    <composite name="kitchen" specification="room-spec"
-               main="room" singleton="true">
+    <composite name="kitchen" singleton="true">
         <contentMngt>
             <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
-            <local instance="true"/>
-            <own implementation="light" property="location" value="kitchen"/>
-            <own implementation="presence" property="location" value="kitchen"/>
-
+            <export instance="false"/>
+            <own specification="light-spec" property="location" value="kitchen"/>
+            <own specification="presence-spec" property="location" value="kitchen"/>
         </contentMngt>
 
     </composite>
 
-
+    <apam-instance implementation="kitchen"  name="ikitchen" />
 
 </apam>

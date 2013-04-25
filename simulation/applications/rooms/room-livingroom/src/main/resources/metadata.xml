@@ -24,10 +24,9 @@
                main="room" singleton="true">
         <contentMngt>
             <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
-            <local instance="true"/>
-            <own implementation="light" property="location" value="livingroom"/>
-            <own implementation="presence" property="location" value="livingroom"/>
-
+            <export instance="false"/>
+            <own specification="light-spec" property="location" value="livingroom"/>
+            <own specification="presence-spec" property="location" value="livingroom"/>
         </contentMngt>
 
     </composite>

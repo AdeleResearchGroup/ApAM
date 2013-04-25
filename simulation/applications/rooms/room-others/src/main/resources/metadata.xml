@@ -25,9 +25,9 @@
                main="room" singleton="true">
         <contentMngt>
             <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
-            <local instance="true"/>
-            <own implementation="light" property="location" value="hall"/>
-            <own implementation="presence" property="location" value="hall"/>
+            <export instance="false"/>
+            <own specification="light-spec" property="location" value="hall"/>
+            <own specification="presence-spec" property="location" value="hall"/>
 
         </contentMngt>
 
@@ -40,9 +40,9 @@
                main="room" singleton="true">
         <contentMngt>
             <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
-            <local instance="true"/>
-            <own implementation="light" property="location" value="bedroom"/>
-            <own implementation="presence" property="location" value="bedroom"/>
+            <export instance="false"/>
+            <own specification="light-spec" property="location" value="bedroom"/>
+            <own specification="presence-spec" property="location" value="bedroom"/>
 
         </contentMngt>
 
@@ -55,9 +55,9 @@
                main="room" singleton="true">
         <contentMngt>
             <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
-            <local instance="true"/>
-            <own implementation="light" property="location" value="bathroom"/>
-            <own implementation="presence" property="location" value="bathroom"/>
+            <export instance="false"/>
+            <own specification="light-spec" property="location" value="bathroom"/>
+            <own specification="presence-spec" property="location" value="bathroom"/>
 
         </contentMngt>
 

@@ -29,4 +29,16 @@
 		</plugins>
 	</build>
   <packaging>bundle</packaging>
+  
+  	<dependencies>
+		<dependency>
+			<groupId>fr.liglab.adele.icasa</groupId>
+			<artifactId>context.api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>fr.liglab.adele.icasa</groupId>
+			<artifactId>simulator.api</artifactId>
+		</dependency>
+	</dependencies>
+  
 </project>

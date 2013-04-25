@@ -14,10 +14,20 @@
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>apam-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>fr.liglab.adele.icasa</groupId>
-			<artifactId>environment.api</artifactId>
-		</dependency>
+		
+        <dependency>
+            <groupId>fr.liglab.adele.icasa</groupId>
+            <artifactId>context.api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fr.liglab.adele.icasa</groupId>
+            <artifactId>simulator.api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>room-spec</artifactId>
+		<version>0.0.2-SNAPSHOT</version>
+        </dependency>  
 	</dependencies>
 	<build>
 		<plugins>
