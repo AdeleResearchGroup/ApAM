@@ -122,7 +122,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
      */
     
     public DependencyDeclaration(ComponentReference<?> component,  String id, boolean isMultiple, ResolvableReference resource) {
-    	this(component,null,id,isMultiple,resource);
+    	this(component,component,id,isMultiple,resource);
     }
 
     public DependencyDeclaration(ComponentReference<?> component, ComponentReference<?> source, String id, boolean isMultiple,

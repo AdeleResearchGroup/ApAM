@@ -53,9 +53,19 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	private final List<InstanceDeclaration> instances;
 	
 	/**
-	 * The list of contextual resolution policies of this composite 
+	 * The list of contextual dependency overrides of this composite 
 	 */
 	private final List<DependencyDeclaration> contextualDependencies;
+	
+	/**
+	 * The list of contextual dependency overrides of this composite 
+	 */
+	private final List<DependencyDeclaration> contextualOverrides;
+	
+	/**
+	 * The list of contextual link declarations in this composite
+	 */
+	private final List<LinkDeclaration>contextualLinks;
 	
 	/**
 	 * The list of dependencies promotions of this composite
@@ -71,6 +81,8 @@ public class CompositeDeclaration extends ImplementationDeclaration {
         this.ownedComponents		= new HashSet<OwnedComponentDeclaration>();
         this.instances				= new ArrayList<InstanceDeclaration>();
         this.contextualDependencies	= new ArrayList<DependencyDeclaration>();
+        this.contextualOverrides	= new ArrayList<DependencyDeclaration>();
+        this.contextualLinks		= new ArrayList<LinkDeclaration>();
         this.promotions				= new ArrayList<DependencyPromotion>();
         
     }
@@ -159,6 +171,19 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 		return contextualDependencies;
 	}
     
+    /**
+     * The list of contextual dependencies
+     */
+    public List<DependencyDeclaration> getOverridenDependencies() {
+		return contextualOverrides;
+	}
+    
+    /**
+     * The list of contextual link declarations
+     */
+    public List<LinkDeclaration> getContextualLinks() {
+		return contextualLinks;
+	}
 
     @Override
     public String toString() {
