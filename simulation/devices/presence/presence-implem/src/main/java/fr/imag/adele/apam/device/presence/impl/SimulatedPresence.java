@@ -70,49 +70,6 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
 		return false;
     }
 
-//    @Override
-//    public synchronized void bindSimulatedEnvironment(SimulatedEnvironment environment) {
-//        m_env = environment;
-//        m_env.addListener(this);
-//        location= m_env.getEnvironmentId();
-//        System.out.println("Bound to simulated environment " + environment.getEnvironmentId());
-//        detectUsers()       ;
-//    }
-//
-//    @Override
-//    public synchronized String getEnvironmentId() {
-//        return m_env != null ? m_env.getEnvironmentId() : null;
-//    }
-//
-//    @Override
-//    public synchronized void unbindSimulatedEnvironment(SimulatedEnvironment environment) {
-//        m_env.removeListener(this);
-//        m_env = null;
-//        location="outside";
-//        System.out.println("Unbound from simulated environment " + environment.getEnvironmentId());
-//        detectUsers()       ;
-//    }
-
-//    @Override
-//    public void environmentPropertyChanged(final String propertyName, final Double oldValue, final Double newValue) {
-//
-//        if (!(fault.equalsIgnoreCase("yes")) && SimulatedDevice.STATE_ACTIVATED.equals(state)) {
-//            if (SimulatedEnvironment.PRESENCE.equals(propertyName)) {
-//                final boolean oldPresence = m_currentPresence;
-//                detectUsers()       ;
-//                if (oldPresence != m_currentPresence) {
-//                    System.out.println("Sensed presence : " + m_currentPresence);
-//                    notifyListeners();
-//                }
-//            }
-//        }
-//    }
-
-
-//    public String getLocation() {
-//        return getEnvironmentId();
-//    }
-
     /**
      * sets the state
      */
@@ -134,18 +91,7 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
 	}
     
     private void detectUsers(){
-//        if (SimulatedDevice.STATE_ACTIVATED.equals(state)){
-//            if (m_env == null){
-//                m_currentPresence = false;
-//                return;
-//            }
-//            double presence = m_env.getProperty(SimulatedEnvironment.PRESENCE).doubleValue() ;
-//            if (presence >= m_threshold) {
-//                m_currentPresence = true;
-//            } else {
-//                m_currentPresence = false;
-//            }
-//        }
+
     }
     /**
      * @return the state
@@ -171,50 +117,42 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
 
 	@Override
 	public void zoneVariableAdded(Zone zone, String variableName) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void zoneVariableRemoved(Zone zone, String variableName) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void zoneVariableModified(Zone zone, String variableName,
 			Object oldValue) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void zoneAdded(Zone zone) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void zoneRemoved(Zone zone) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void zoneMoved(Zone zone, Position oldPosition) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void zoneResized(Zone zone) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void zoneParentModified(Zone zone, Zone oldParentZone) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -235,12 +173,10 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
 
 	@Override
 	public void personDeviceAttached(Person person, LocatedDevice device) {
-		// Nothing to do
 	}
 
 	@Override
 	public void personDeviceDetached(Person person, LocatedDevice device) {
-		// Nothing to do
 	}
 
 	/**
@@ -284,6 +220,16 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
 	
 	protected void stop() {
 		manager.removeListener(this);
+	}
+
+	@Override
+	public void deviceAttached(Zone arg0, LocatedDevice arg1) {
+		
+	}
+
+	@Override
+	public void deviceDetached(Zone arg0, LocatedDevice arg1) {
+		
 	}
 	
 }

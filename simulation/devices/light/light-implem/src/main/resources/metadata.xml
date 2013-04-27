@@ -12,7 +12,7 @@
       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
       See the License for the specific language governing permissions and
       limitations under the License.
-
+apam light: iCASA.BinaryLight
 -->
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -22,7 +22,7 @@
 		classname="fr.imag.adele.apam.device.light.impl.SimulatedBinaryLight" specification="light-spec">
 			<ipojo:requires field="manager" />
 			<definition name="fault" value="no" type="string" />
-			<definition name="state" value="deactivated" type="string" internal="true" />
+			<definition name="state" value="activated" type="string" internal="true" />
 			<definition name="location" type="{outside,hall,livingroom,bedroom,bathroom,kitchen}" field="location" internal="true" />
 		<ipojo:provides
 
@@ -33,7 +33,7 @@
             <ipojo:property name="light.powerStatus" value="false" field="m_powerStatus" />
             <ipojo:property name="light.maxIlluminance" value="100.0d" field="m_maxIlluminance" />
             <ipojo:property name="fault" value="no" field="fault" />
-			<ipojo:property name="state" value="deactivated"
+			<ipojo:property name="state" value="activated"
 				field="state" />
 		</ipojo:provides>
 	</implementation>

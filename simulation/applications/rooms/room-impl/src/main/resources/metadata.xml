@@ -22,7 +22,7 @@
                     classname="fr.imag.adele.apam.application.room.impl.RoomImpl"
                     specification="room-spec">
         <callback onInit="start" onRemove="stop"/>
-        <dependency field="lights" added="bindLight" removed="unBindLight">
+        <dependency field="light" added="bindLight" removed="unBindLight">
             <constraints>
                 <implementation filter="(name=light)"/>
             </constraints>

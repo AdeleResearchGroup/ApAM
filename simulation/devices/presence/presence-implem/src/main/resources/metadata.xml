@@ -26,7 +26,7 @@
 			<definition name="location" type="{outside,hall,livingroom,bedroom,bathroom,kitchen}" field="location" internal="true" />
 		
 			<definition name="fault" value="no" type="string" />
-			<definition name="state" value="deactivated" type="string" />
+			<definition name="state" value="activated" type="string" />
 
 		<ipojo:provides
 			specifications="{fr.liglab.adele.icasa.simulator.SimulatedDevice,fr.liglab.adele.icasa.device.GenericDevice,fr.liglab.adele.icasa.device.presence.PresenceSensor}">

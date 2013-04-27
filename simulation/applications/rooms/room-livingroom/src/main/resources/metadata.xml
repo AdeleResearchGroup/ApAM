@@ -31,9 +31,6 @@
 
     </composite>
 
-    <!-- *********** ************ -->
-    <!--        Instance         -->
-    <!-- *********** ************ -->
     <apam-instance implementation="livingroom"  name="ilivingroom" />
 
 </apam>

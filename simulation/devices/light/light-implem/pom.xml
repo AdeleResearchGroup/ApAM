@@ -27,6 +27,14 @@
             <artifactId>room-spec</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
         </dependency>  
+	<dependency>
+	    <groupId>fr.liglab.adele.icasa</groupId>
+	    <artifactId>device.light</artifactId>
+	</dependency>
+  
+  <!-- Project coordinates -->
+  
+
     </dependencies>
     <build>
         <plugins>

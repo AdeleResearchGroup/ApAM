@@ -18,10 +18,7 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
-    <!-- *********** ************ -->
-    <!--   Kitchen App Composite  -->
-    <!-- *********** ************ -->
-    <composite name="kitchen" singleton="true">
+    <composite name="kitchen" singleton="true" specification="room-spec" main="room">
         <contentMngt>
             <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
             <export instance="false"/>
@@ -30,6 +27,7 @@
         </contentMngt>
 
     </composite>
+
 
     <apam-instance implementation="kitchen"  name="ikitchen" />
 

@@ -18,9 +18,7 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
-    <!-- *********** ************ -->
-    <!--   Hall App Composite  -->
-    <!-- *********** ************ -->
+
     <composite name="hall" specification="room-spec"
                main="room" singleton="true">
         <contentMngt>
@@ -33,9 +31,6 @@
 
     </composite>
 
-    <!-- *********** ************ -->
-    <!--   BedRoom App Composite  -->
-    <!-- *********** ************ -->
     <composite name="bedroom" specification="room-spec"
                main="room" singleton="true">
         <contentMngt>
@@ -48,9 +43,6 @@
 
     </composite>
 
-    <!-- *********** ************ -->
-    <!--   Bathroom App Composite  -->
-    <!-- *********** ************ -->
     <composite name="bathroom" specification="room-spec"
                main="room" singleton="true">
         <contentMngt>
@@ -63,12 +55,10 @@
 
     </composite>
 
-    <!-- *********** ************ -->
-    <!--        Instance         -->
-    <!-- *********** ************ -->
-
     <apam-instance implementation="bathroom"   name="ibathroom" />
     <apam-instance implementation="bedroom"  name="ibedroom" />
     <apam-instance implementation="hall"  name="ihall" />
-
+    
+ 	
+<!---->
 </apam>

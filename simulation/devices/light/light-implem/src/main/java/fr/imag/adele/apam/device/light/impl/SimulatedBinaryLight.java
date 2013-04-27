@@ -22,6 +22,7 @@ import java.util.List;
 
 import fr.liglab.adele.icasa.device.light.BinaryLight;
 import fr.liglab.adele.icasa.device.util.AbstractDevice;
+import fr.liglab.adele.icasa.location.LocatedDevice;
 import fr.liglab.adele.icasa.location.Position;
 import fr.liglab.adele.icasa.location.Zone;
 import fr.liglab.adele.icasa.location.ZoneListener;
@@ -42,8 +43,6 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
     private String state;
     
     private SimulationManager manager;
-
-//    private volatile SimulatedEnvironment m_env;
     
     private double m_maxIlluminance;
 
@@ -54,8 +53,8 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
     public SimulatedBinaryLight(){
 		super();
         super.setPropertyValue(SimulatedDevice.LOCATION_PROPERTY_NAME, SimulatedDevice.LOCATION_UNKNOWN);
-//		super.setPropertyValue(BinaryLight.BINARY_LIGHT_POWER_STATUS, false);
-//		super.setPropertyValue(BinaryLight.BINARY_LIGHT_MAX_POWER_LEVEL, 100.0d);
+        super.setPropertyValue(BinaryLight.BINARY_LIGHT_POWER_STATUS, false);
+		super.setPropertyValue(BinaryLight.BINARY_LIGHT_MAX_POWER_LEVEL, 100.0d);
     }
 
     public String getSerialNumber() {
@@ -72,37 +71,12 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
     	
     	System.out.println("Configuring lights to "+status);
     	
-    	setPropertyValue("binaryLight.powerStatus", (Boolean) status);
+    	setPropertyValue(BinaryLight.BINARY_LIGHT_POWER_STATUS, status);
     	
         m_powerStatus=status;
         
         return m_powerStatus;
     }
-
-//    @Override
-//    public synchronized String getEnvironmentId() {
-//        return m_env != null ? m_env.getEnvironmentId() : null;
-//    }
-//
-//    @Override
-//    public synchronized void bindSimulatedEnvironment(
-//            SimulatedEnvironment environment) {
-//        m_env = environment;
-//        System.out.println("Bound to simulated environment "
-//                + environment.getEnvironmentId());
-//        location= m_env.getEnvironmentId();
-//        notifyEnvironment(illuminance());
-//    }
-//
-//    @Override
-//    public synchronized void unbindSimulatedEnvironment(
-//            SimulatedEnvironment environment) {
-//        notifyEnvironment(-illuminance());
-//        m_env = null;
-//        location= "outside";
-//        System.out.println("Unbound from simulated environment "
-//                + environment.getEnvironmentId());
-//    }
 
     /**
      * Notify the bound simulated environment that the illuminance emitted by
@@ -237,6 +211,18 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
 			
 		}
 
+	}
+
+	@Override
+	public void deviceAttached(Zone arg0, LocatedDevice arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deviceDetached(Zone arg0, LocatedDevice arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

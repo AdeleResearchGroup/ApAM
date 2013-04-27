@@ -10,7 +10,7 @@
 	</parent>
 	<properties>
 		<!-- icasa version -->
-		<icasa.version>1.0.0</icasa.version>
+		<icasa.version>1.0.1-SNAPSHOT</icasa.version>
 	</properties>
 
 	<artifactId>scenario-icasa</artifactId>
@@ -31,6 +31,11 @@
 			<dependency>
 				<groupId>fr.liglab.adele.icasa</groupId>
 				<artifactId>simulator.api</artifactId>
+				<version>${icasa.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.liglab.adele.icasa</groupId>
+				<artifactId>device.light</artifactId>
 				<version>${icasa.version}</version>
 			</dependency>
 			<dependency>

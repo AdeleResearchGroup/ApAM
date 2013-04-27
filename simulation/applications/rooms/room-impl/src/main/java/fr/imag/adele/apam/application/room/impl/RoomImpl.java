@@ -14,8 +14,6 @@
  */
 package fr.imag.adele.apam.application.room.impl;
 
-import java.util.List;
-
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.application.room.Room;
 import fr.liglab.adele.icasa.device.DeviceListener;
@@ -25,13 +23,10 @@ import fr.liglab.adele.icasa.device.presence.PresenceSensor;
 
 public class RoomImpl implements Room, DeviceListener {
 
-	private List<BinaryLight> lights;// =new ArrayList<BinaryLight>();
+	//private List<BinaryLight> lights;
+	private BinaryLight light;
 
 	private PresenceSensor presenceSensor;
-
-	//private SimulationManager manager;
-
-	// private MyPresenceListener presenceListener = new MyPresenceListener();
 
 	private boolean presence = false;
 
@@ -40,7 +35,7 @@ public class RoomImpl implements Room, DeviceListener {
 		System.out.println("Start OK!");
 		if (presenceSensor != null) {
 			System.out.println("Presence OK!");
-			// presenceSensor.addListener(presenceListener);
+			presenceSensor.addListener(this);
 			presence = presenceSensor.getSensedPresence();
 			setLightsStates(presence);
 		}
@@ -78,26 +73,34 @@ public class RoomImpl implements Room, DeviceListener {
 
 	public void unBindLight(Instance instance) {
 		System.out.println("Light:Instance unbind " + instance.getName());
+		setLightsStates(false);
+		this.light=null;
 	}
 
 	public void setLightsStates(boolean state) {
-		if (lights != null) {
+		
+		if (light != null) {
 			System.out.println("lights going to " + state);
-			for (BinaryLight light : lights) {
-				light.setPowerStatus(presence);
-			}
+			light.setPowerStatus(presence);
+
 		}
+		
+		
+//		if (lights != null) {
+//			System.out.println("lights going to " + state);
+//			for (BinaryLight light : lights) {
+//				light.setPowerStatus(presence);
+//			}
+//		}
 	}
 
 	@Override
 	public void deviceAdded(GenericDevice device) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void deviceRemoved(GenericDevice device) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -121,14 +124,10 @@ public class RoomImpl implements Room, DeviceListener {
 
 	@Override
 	public void devicePropertyAdded(GenericDevice device, String propertyName) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void devicePropertyRemoved(GenericDevice device, String propertyName) {
-		// TODO Auto-generated method stub
-
 	}
 
 }
