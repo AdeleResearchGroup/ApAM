@@ -34,4 +34,66 @@
         </dependency>
     </implementation>
 
+    <composite name="hall" specification="room-spec"
+               main="room" singleton="true">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+            <export instance="false"/>
+            <own specification="light-spec" property="location" value="hall"/>
+            <own specification="presence-spec" property="location" value="hall"/>
+
+        </contentMngt>
+
+    </composite>
+
+    <composite name="bedroom" specification="room-spec"
+               main="room" singleton="true">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+            <export instance="false"/>
+            <own specification="light-spec" property="location" value="bedroom"/>
+            <own specification="presence-spec" property="location" value="bedroom"/>
+
+        </contentMngt>
+
+    </composite>
+
+    <composite name="bathroom" specification="room-spec"
+               main="room" singleton="true">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+            <export instance="false"/>
+            <own specification="light-spec" property="location" value="bathroom"/>
+            <own specification="presence-spec" property="location" value="bathroom"/>
+
+        </contentMngt>
+
+    </composite>
+
+    <composite name="livingroom" specification="room-spec"
+               main="room" singleton="true">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+            <export instance="false"/>
+            <own specification="light-spec" property="location" value="livingroom"/>
+            <own specification="presence-spec" property="location" value="livingroom"/>
+        </contentMngt>
+
+    </composite>
+
+    <composite name="kitchen" singleton="true" specification="room-spec" main="room">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+            <export instance="false"/>
+            <own specification="light-spec" property="location" value="kitchen"/>
+            <own specification="presence-spec" property="location" value="kitchen"/>
+        </contentMngt>
+    </composite>
+
+    <apam-instance implementation="bathroom"   name="ibathroom" />
+    <apam-instance implementation="bedroom"  name="ibedroom" />
+    <apam-instance implementation="hall"  name="ihall" />
+    <apam-instance implementation="livingroom"  name="ilivingroom" />
+    <apam-instance implementation="kitchen"  name="ikitchen" />
+
 </apam>

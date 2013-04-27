@@ -1,13 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>apam-rooms</artifactId>
+        <artifactId>apam-icasa-rooms</artifactId>
         <groupId>fr.imag.adele.apam</groupId>
         <version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>room-impl</artifactId>
+    <artifactId>apam-icasa-rooms-impl</artifactId>
     <packaging>bundle</packaging>
+    <name>ApAM iCasa rooms impl</name>
     <build>
         <plugins>
             <plugin>
@@ -28,20 +29,15 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies> <!-- 
-        <dependency>
-            <groupId>fr.liglab.adele.icasa</groupId>
-            <artifactId>device.api</artifactId>
-            <version>${icasa.version}</version>
-        </dependency>  -->
+    <dependencies> 
     	<dependency>
-			<groupId>fr.liglab.adele.icasa</groupId>
-			<artifactId>context.api</artifactId>
-			<version>${icasa.version}</version>
-		</dependency>
+		<groupId>fr.liglab.adele.icasa</groupId>
+		<artifactId>context.api</artifactId>
+		<version>${icasa.version}</version>
+	</dependency>
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
-            <artifactId>room-spec</artifactId>
+            <artifactId>apam-icasa-rooms-spec</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

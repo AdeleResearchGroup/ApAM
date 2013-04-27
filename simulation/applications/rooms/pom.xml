@@ -6,13 +6,11 @@
     <version>0.0.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <artifactId>apam-rooms</artifactId>
+  <artifactId>apam-icasa-rooms</artifactId>
+  <name>ApAM iCasa rooms</name>
   <packaging>pom</packaging>
   <modules>
-  	<module>room-spec</module>
-  	<module>room-impl</module>
-  	<module>room-kitchen</module>
-    <module>room-livingroom</module>
-    <module>room-others</module>
+    <module>room-spec</module>
+    <module>room-impl</module>
   </modules>
 </project>

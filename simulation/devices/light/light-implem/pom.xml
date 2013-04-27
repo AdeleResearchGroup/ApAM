@@ -2,13 +2,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>apam-light</artifactId>
+        <artifactId>apam-icasa-light</artifactId>
         <groupId>fr.imag.adele.apam</groupId>
         <version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>light-implem</artifactId>
     <packaging>bundle</packaging>
+    <name>ApAM iCasa light impl</name>
     <dependencies>
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
@@ -24,16 +25,13 @@
         </dependency>        
         <dependency>
             <groupId>fr.imag.adele.apam</groupId>
-            <artifactId>room-spec</artifactId>
+            <artifactId>apam-icasa-rooms-spec</artifactId>
 		<version>0.0.2-SNAPSHOT</version>
         </dependency>  
 	<dependency>
 	    <groupId>fr.liglab.adele.icasa</groupId>
 	    <artifactId>device.light</artifactId>
 	</dependency>
-  
-  <!-- Project coordinates -->
-  
 
     </dependencies>
     <build>

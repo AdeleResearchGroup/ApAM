@@ -128,6 +128,7 @@
 				<module>plugins</module>
 				<module>tools</module>
 				<module>distributions</module>
+				<module>simulation</module>
 				<module>tests</module>
 			</modules>
 		</profile>		
