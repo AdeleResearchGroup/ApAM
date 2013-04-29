@@ -96,4 +96,6 @@
     <apam-instance implementation="livingroom"  name="ilivingroom" />
     <apam-instance implementation="kitchen"  name="ikitchen" />
 
+
+
 </apam>

@@ -199,9 +199,6 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
 				}
 			}
 			
-			System.out.println("personFound:"+getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE));
-			System.out.println("previousDetection:"+previousDetection);
-			
 		}
 	}
 

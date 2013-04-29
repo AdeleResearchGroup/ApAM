@@ -28,12 +28,11 @@
 			<definition name="fault" value="no" type="string" />
 			<definition name="state" value="activated" type="string" />
 
-		<ipojo:provides
-			specifications="{fr.liglab.adele.icasa.simulator.SimulatedDevice,fr.liglab.adele.icasa.device.GenericDevice,fr.liglab.adele.icasa.device.presence.PresenceSensor}">
+		<ipojo:provides specifications="{fr.liglab.adele.icasa.simulator.SimulatedDevice, fr.liglab.adele.icasa.device.GenericDevice, fr.liglab.adele.icasa.device.presence.PresenceSensor}">
 			<ipojo:property name="service.description" type="string" />
 			<ipojo:property name="device.serialNumber" field="m_serialNumber"
 				type="string" />
-            <ipojo:property name="presencesensor.sensedpresence" value="false" field="m_currentPresence" />
+           		<ipojo:property name="presenceSensor.sensedPresence" value="false" field="m_currentPresence" />
 			<ipojo:property name="fault" value="no" field="fault" />
 			<ipojo:property name="state" value="activated"
 				field="state" />

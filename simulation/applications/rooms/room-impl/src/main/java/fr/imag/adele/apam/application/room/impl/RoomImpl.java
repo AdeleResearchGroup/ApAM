@@ -23,12 +23,9 @@ import fr.liglab.adele.icasa.device.presence.PresenceSensor;
 
 public class RoomImpl implements Room, DeviceListener {
 
-	//private List<BinaryLight> lights;
 	private BinaryLight light;
 
 	private PresenceSensor presenceSensor;
-
-	private boolean presence = false;
 
 	public void start() {
 
@@ -36,78 +33,76 @@ public class RoomImpl implements Room, DeviceListener {
 		if (presenceSensor != null) {
 			System.out.println("Presence OK!");
 			presenceSensor.addListener(this);
-			presence = presenceSensor.getSensedPresence();
-			setLightsStates(presence);
 		}
 	}
 
 	public void stop() {
 		System.out.println("Stop OK!");
-		// if (presenceSensor!=null){
-		// presenceSensor.removeListener(presenceListener);
-		// }
+		 if (presenceSensor!=null){
+			 presenceSensor.removeListener(this);
+		 }
 	}
 
 	public void bindPresence(Instance instance) {
 
 		System.out.println("New instance bind " + instance.getName());
-		// presenceSensor.removeListener(presenceListener);
+
 		presenceSensor.addListener(this);
-		presence = presenceSensor.getSensedPresence();
-		setLightsStates(presence);
+		
+		setLightsStates(presenceSensor.getSensedPresence());
+		
 	}
 
 	public void unBindPresence(Instance instance) {
 		System.out.println("Instance unbind " + instance.getName());
-		
 		PresenceSensor presence=(PresenceSensor)instance.getServiceObject();
-		
+		presence.setPropertyValue(PresenceSensor.PRESENCE_SENSOR_SENSED_PRESENCE, false);
 		presence.removeListener(this);
 		
 	}
 
 	public void bindLight(Instance instance) {
 		System.out.println("Light:New instance bind " + instance.getName());
-		setLightsStates(presence);
+		setLightsStates((BinaryLight)instance.getServiceObject(),presenceSensor.getSensedPresence());
 	}
 
 	public void unBindLight(Instance instance) {
 		System.out.println("Light:Instance unbind " + instance.getName());
-		setLightsStates(false);
-		this.light=null;
+		setLightsStates((BinaryLight)instance.getServiceObject(),false);
+		
 	}
 
+	public void setLightsStates(BinaryLight luz, boolean state) {
+		
+		if (luz != null && presenceSensor!=null) {
+			System.out.println("lights going to " + state);
+			luz.setPowerStatus(presenceSensor.getSensedPresence());
+			luz.setPropertyValue(BinaryLight.BINARY_LIGHT_POWER_STATUS, presenceSensor.getSensedPresence());
+		}else if (luz != null){
+			luz.setPowerStatus(false);
+		}else {
+			System.out.println("----- no light or presence sensor found");
+		}
+			
+	}
+	
 	public void setLightsStates(boolean state) {
 		
-		if (light != null) {
-			System.out.println("lights going to " + state);
-			light.setPowerStatus(presence);
+		setLightsStates(light,state);
 
-		}
-		
-		
-//		if (lights != null) {
-//			System.out.println("lights going to " + state);
-//			for (BinaryLight light : lights) {
-//				light.setPowerStatus(presence);
-//			}
-//		}
 	}
 
 	@Override
 	public void deviceAdded(GenericDevice device) {
-
 	}
 
 	@Override
 	public void deviceRemoved(GenericDevice device) {
-
 	}
 
 	@Override
 	public void devicePropertyModified(GenericDevice device,
 			String propertyName, Object oldValue) {
-		// TODO Auto-generated method stub
 		System.out.println("Device property from device:"+device);
 		System.out.println("Device property name modified:"+propertyName);
 		System.out.println("Device property old value modified:"+oldValue);
@@ -115,8 +110,8 @@ public class RoomImpl implements Room, DeviceListener {
 		if(presenceSensor != null 
 				&& device.equals(presenceSensor) 
 				&& propertyName.equals(PresenceSensor.PRESENCE_SENSOR_SENSED_PRESENCE)){
-			presence = presenceSensor.getSensedPresence();
-			setLightsStates(presence);
+			
+			setLightsStates(presenceSensor.getSensedPresence());
 			System.out.println("Presence sense " + propertyName);
 			
 		}
