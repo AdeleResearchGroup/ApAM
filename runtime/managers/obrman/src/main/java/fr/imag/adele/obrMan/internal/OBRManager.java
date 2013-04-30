@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.bundlerepository.Capability;
@@ -33,7 +32,6 @@ import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Resolver;
 import org.apache.felix.bundlerepository.Resource;
-//import org.osgi.framework.Filter;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.DependencyManager.ComponentBundle;
-import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.util.ApamFilter;
 
 public class OBRManager {
@@ -110,6 +107,7 @@ public class OBRManager {
 		return null ;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Set<Selected> lookForAll(String capability, String filterStr, Dependency dep) { //Set<ApamFilter> constraints) {
 		if (filterStr == null)
 			new Exception("no filter in lookfor all").printStackTrace();
@@ -192,7 +190,7 @@ public class OBRManager {
 			return (Selected)candidates.toArray()[0] ;
 
 		Set<Selected> valids = new HashSet<Selected> ();
-		ApamFilter filter;
+
 		for (ApamFilter f : preferences) {
 			//filter = ApamFilter.newInstance(f);
 			for (Selected compo : candidates) {

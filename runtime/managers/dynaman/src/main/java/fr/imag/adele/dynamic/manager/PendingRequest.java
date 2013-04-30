@@ -16,10 +16,10 @@ package fr.imag.adele.dynamic.manager;
 
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
@@ -35,17 +35,13 @@ public class PendingRequest {
 	/**
 	 * The source of the dependency
 	 */
-	protected final Instance source;
+	protected final Component source;
 	
 	/**
 	 * The dependency to resolve
 	 */
-	protected final DependencyDeclaration dependency;
+	protected final Dependency dependency;
 
-	/**
-	 * Whether instances must be resolved
-	 */
-	protected final boolean needsInstances;
 	
 	/**
 	 * The resolver
@@ -60,22 +56,21 @@ public class PendingRequest {
 	/**
 	 * Builds a new pending request reification
 	 */
-	protected PendingRequest(ApamResolverImpl resolver, Instance source, DependencyDeclaration dependency, boolean needsInstances) {
+	protected PendingRequest(ApamResolverImpl resolver, Component source, Dependency dependency) {
 		this.resolver		= resolver;
 		this.source			= source;
 		this.dependency		= dependency;
-		this.needsInstances	= needsInstances;
 		this.resolution		= null;
 	}
 	
-	public Instance getSource() {
+	public Component getSource() {
 		return source;
 	}
 	
 	/**
 	 * The dependency that needs resolution
 	 */
-	public DependencyDeclaration getDependency() {
+	public Dependency getDependency() {
 		return dependency;
 	}
 	
@@ -83,6 +78,7 @@ public class PendingRequest {
 	 * The context in which the resolution is requested
 	 */
 	public Composite getContext() {
+		// ??? 
 		return source.getComposite();
 	}
 	
@@ -97,15 +93,15 @@ public class PendingRequest {
 		/*
 		 * if a matching instance was required and found, it is resolved
 		 */
-		if (needsInstances) {
-			if (resolution.instances != null && !resolution.instances.isEmpty())
-				return true;
-		}
+//		if (needsInstances) {
+//			if (resolution.instances != null && !resolution.instances.isEmpty())
+//				return true;
+//		}
 		
 		/*
 		 * If there is no matching implementations, it can not be resolved
 		 */
-		if (resolution.implementations == null || resolution.implementations.isEmpty())
+		if (resolution.isEmpty())
 			return false;
 		
 		// TODO distriman: excerpt was removed due to remote instance to not have access to their implementations, was it right to remove it?
@@ -121,7 +117,8 @@ public class PendingRequest {
 //			}
 //		}				
 		
-		return needsInstances; // ? hasInstantiable : true;
+//		return needsInstances; // ? hasInstantiable : true;
+		return true ;
 	}
 	
 	/**
@@ -170,7 +167,7 @@ public class PendingRequest {
 		synchronized (this) {
 			try {
 				beginResolve();
-				resolution = resolver.resolveDependency(source, dependency, needsInstances);
+				resolution = resolver.resolveWire(source, dependency);
 				this.notifyAll();
 			} finally {
 				endResolve();

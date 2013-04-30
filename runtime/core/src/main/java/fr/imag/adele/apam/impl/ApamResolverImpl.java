@@ -181,6 +181,7 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @return
 	 */
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Resolved resolveWire(Component source, String depName) {
 		if ((depName == null) || (source == null)) {
@@ -198,6 +199,7 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Resolved resolveWire(Component source, Dependency dep) {
 		if (source == null || dep == null){
@@ -241,7 +243,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 
-		//in case promotion allready provided resolved.
+		//in case promotion already provided resolved.
 		//Resolve the dependency now
 		if (resolved == null) {
 			//call the managers ...
@@ -258,8 +260,8 @@ public class ApamResolverImpl implements ApamResolver {
 			source.createLink(resolved.singletonResolved, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);
 			return resolved ;
 		}
-		for (Component target : resolved.setResolved) {
-			source.createLink(target, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);			
+		for (Object target : resolved.setResolved) {
+			source.createLink((Component)target, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);			
 		}
 		return resolved ;
 	}
@@ -388,12 +390,13 @@ public class ApamResolverImpl implements ApamResolver {
 		if (preferences != null)
 			dep.getImplementationPreferences().addAll(preferences) ;
 
-		Resolved resolve = resolveWire (client, dep) ;
+		Resolved<?> resolve = resolveWire (client, dep) ;
 		if (resolve == null) 
 			return null ;
 		return (Instance)resolve.setResolved ;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Set<Instance> resolveImpls(Component client, Implementation impl, Set<String> constraints) {
 		if (client == null) {
@@ -404,16 +407,18 @@ public class ApamResolverImpl implements ApamResolver {
 		if (constraints != null)
 			dep.getImplementationConstraints().addAll(constraints) ;
 
-		Resolved resolve = resolveWire (client, dep) ;
+		Resolved<?> resolve = resolveWire (client, dep) ;
 		if (resolve == null) 
 			return null ;
 		
 		//return (set<Instance>resolve.setResolved est invalide
-		Set<Instance> ret = new HashSet<Instance> () ;
-		for (Component c : resolve.setResolved) {
-			ret.add((Instance)c) ;
-		}
-		return ret ;
+		return (Set<Instance>)resolve.setResolved ;
+		
+//		Set<Instance> ret = new HashSet<Instance> () ;
+//		for (Object c : resolve.setResolved) {
+//			ret.add((Instance)c) ;
+//		}
+//		return ret ;
 	}
 
 	/**
@@ -431,7 +436,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		Dependency dependency = new DependencyImpl (client, componentName, false, new ComponentReference<ComponentDeclaration>(componentName), client.getKind(), targetKind) ;
-		Resolved res = resolveWire (client, dependency) ;
+		Resolved<?> res = resolveWire (client, dependency) ;
 		if (res == null) return null ;
 		return res.singletonResolved ;
 	}
@@ -537,11 +542,11 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @return the implementations and the instances if resolved, null otherwise
 	 * @return null if not resolved at all. Never returns an empty set.
 	 */
-	private Resolved resolveDependency(Component source, Dependency dependency) {
+	private Resolved<?> resolveDependency(Component source, Dependency dependency) {
 		List<DependencyManager> selectionPath = computeSelectionPath(source, dependency);
 		//Transform the dependency constraints into filters after interpreting the substitutions.
 
-		Resolved res = null ;
+		Resolved<?> res = null ;
 		boolean deployed = false;
 		for (DependencyManager manager : selectionPath) {
 			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
@@ -564,12 +569,16 @@ public class ApamResolverImpl implements ApamResolver {
 				deployedImpl(source, deployedImpl, deployed);
 				
 				//The target was Implem. Only put the implem in the right place (singleton or set)
-				if (dependency.getTargetType() == ComponentKind.IMPLEMENTATION && dependency.isMultiple()) {
-//					Set<Implementation> setImpl = new HashSet <Implementation> () ;
-//					setImpl.add(deployedImpl) ;
-					res.setResolved = new HashSet <Component> () ;
-					res.setResolved.add(deployedImpl) ;
-					res.singletonResolved = null ;
+				if (dependency.getTargetType() == ComponentKind.IMPLEMENTATION) {
+					if (dependency.isMultiple()) {
+//						res.setResolved = new HashSet <Implementation> () ;
+//						res.setResolved.add(deployedImpl) ;
+//						res.singletonResolved = null ;
+						Set <Implementation> implems = new HashSet <Implementation> () ;
+						implems.add(deployedImpl) ;
+						return new Resolved<Implementation> (implems, null) ;
+					}
+					return res ;
 				}
 
 				if (dependency.getTargetType() == ComponentKind.INSTANCE 
@@ -584,11 +593,11 @@ public class ApamResolverImpl implements ApamResolver {
 					}
 					logger.info("Instantiated " + inst) ;							
 					if (dependency.isMultiple()) {
-//						Set<Instance> setImpl = new HashSet <Instance> () ;
-//						setImpl.add(inst) ;
-//						res.setResolved = setImpl ;
-						res.setResolved = new HashSet <Component> () ;
-						res.setResolved.add(inst) ;
+//						res.setResolved = new HashSet <Instance> () ;
+//						res.setResolved.add(inst) ;						
+						Set <Instance> insts = new HashSet <Instance> () ;
+						insts.add(inst) ;
+						return new Resolved<Instance> (insts, null) ;
 					}
 					else res.singletonResolved = inst ;								
 				}
@@ -604,7 +613,7 @@ public class ApamResolverImpl implements ApamResolver {
 					logger.info("manager " + manager + " returned an empty result. Should be null." ) ;
 					continue ;
 				}
-				if (res.setResolved.iterator().next().getKind() != dependency.getTargetType()) {
+				if (((Component)res.setResolved.iterator().next()).getKind() != dependency.getTargetType()) {
 					logger.error("Manager " + manager + " returned objects of the bad type for dependency " + dependency) ;
 					continue ;
 				}

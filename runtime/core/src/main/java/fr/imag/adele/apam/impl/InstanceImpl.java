@@ -362,6 +362,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		return wires ;
 	}
 
+
 	/**
 	 * returns the wires from that instance
 	 * 

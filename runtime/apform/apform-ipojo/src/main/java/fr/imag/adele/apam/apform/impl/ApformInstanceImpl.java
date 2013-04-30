@@ -286,7 +286,7 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
         }
 
         DependencyDeclaration dependency = injection.getDependencyInjection().getDependency();
-        return CST.apamResolver.resolveWire(apamInstance, dependency.getIdentifier());
+        return CST.apamResolver.resolveWire(apamInstance, dependency.getIdentifier()) != null;
 
     }
 

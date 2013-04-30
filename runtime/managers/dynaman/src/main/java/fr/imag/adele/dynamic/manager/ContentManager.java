@@ -43,6 +43,7 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.CompositeImpl;
+import fr.imag.adele.apam.impl.DependencyUtil;
 import fr.imag.adele.apam.impl.InstanceImpl;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.UtilComp;
@@ -268,7 +269,7 @@ public class ContentManager  {
 		
 		assert instance.getComposite().equals(getComposite());
 		
-		for (DependencyDeclaration dependency : UtilComp.computeAllEffectiveDependency(instance)) {
+		for (DependencyDeclaration dependency : DependencyUtil.computeAllEffectiveDependency(instance)) {
 
 			boolean hasField =  false;
 			for (DependencyInjection injection : dependency.getInjections()) {
@@ -332,6 +333,7 @@ public class ContentManager  {
 					if (!candidate.match(trigger.getInstanceConstraints()))
 						continue;
 
+					//TODO This is a BUG. should use matchDependencyConstraints instead.
 					if (!candidate.getImpl().match(	trigger.getImplementationConstraints()))
 						continue;
 
@@ -459,9 +461,9 @@ public class ContentManager  {
 		 */
 		for (Link incoming : ownedInstance.getInvWires()) {
 			
-			ComponentReference<?> sourceImplementation	= incoming.getSource().getImpl().getDeclaration().getReference();
-			ComponentReference<?> sourceSpecification	= incoming.getSource().getSpec().getDeclaration().getReference();
-			String sourceDependency						= incoming.getDepName();
+			ComponentReference<?> sourceImplementation	= ((Instance)incoming.getSource()).getImpl().getDeclaration().getReference();
+			ComponentReference<?> sourceSpecification	= ((Instance)incoming.getSource()).getSpec().getDeclaration().getReference();
+			String sourceDependency						= incoming.getName();
 			
 			ComponentReference<?> grantSource			= grant.getDependency().getDeclaringComponent();
 			String grantDependency						= grant.getDependency().getIdentifier();
@@ -657,6 +659,7 @@ public class ContentManager  {
 		 * verify if the new implementation satisfies any pending resolutions in
 		 * this composite
 		 */
+		xx should use Visible.isVisible(source, instance)
 		if (Visible.checkImplVisible(getComposite().getCompType(),implementation))
 //		if (Visible.isVisible(getComposite(), implementation))
 			resolveRequestsWaitingFor(implementation);
@@ -671,6 +674,7 @@ public class ContentManager  {
 		/*
 		 * verify if the new instance satisfies any pending resolutions in this composite
 		 */
+		xx should use Visible.isVisible(source, instance)
 		if (instance.isSharable() && Visible.checkInstVisible(getComposite(),instance)) {
 			resolveRequestsWaitingFor(instance);
 			resolveDynamicRequests(instance);
@@ -785,7 +789,8 @@ public class ContentManager  {
 	 * 
 	 */
 	public synchronized void wireRemoved(Link wire) {
-		Instance instance = wire.getDestination();
+		//TODO Be sure it is a wire, not a link.
+		Instance instance = (Instance)wire.getDestination();
 		if (instance.isSharable() && Visible.checkInstVisible(getComposite(),instance))
 			resolveRequestsWaitingFor(instance);
 	}

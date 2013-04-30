@@ -45,6 +45,7 @@ import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
+import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
@@ -105,12 +106,12 @@ public class OSGiMan implements DependencyManager {
 	}
 
 	@Override
-	public void getSelectionPath(Instance client, DependencyDeclaration dependency, List<DependencyManager> selPath) {
+	public void getSelectionPath(Component client, Dependency dependency, List<DependencyManager> selPath) {
         selPath.add(selPath.size(), this);
 	}
 
 	@Override
-	public Resolved resolveDependency(Instance client, Dependency dependency, boolean needsInstances) {
+	public Resolved resolveDependency(Component client, Dependency dependency) {
 		
 		InterfaceReference target = dependency.getTarget().as(InterfaceReference.class);
 		if (target == null)
@@ -156,47 +157,54 @@ public class OSGiMan implements DependencyManager {
 				implementations.add((Implementation)implementation);
 				
 			}
-			
-			resolution = new Resolved(implementations,instances);
+			if (dependency.getTargetType() == ComponentKind.IMPLEMENTATION) {
+				if (dependency.isMultiple())
+					return new Resolved<Implementation> (implementations, null) ;
+				return new Resolved<Implementation> (null, implementations.iterator().next()) ;
+			}
+			if (dependency.getTargetType() == ComponentKind.INSTANCE) {
+				if (dependency.isMultiple())
+					return new Resolved<Instance> (instances, null) ;
+				return new Resolved<Instance> (null, instances.iterator().next()) ;
+			}
 
-		} catch (InvalidSyntaxException ignored) {
-		};
+		} catch (InvalidSyntaxException ignored) { }
 
 		return resolution;
 	}
 
 	@Override
-	public Instance resolveImpl(Instance client, Implementation impl, Dependency dep) {
+	public Instance resolveImpl(Component client, Implementation impl, Dependency dep) {
 		return null;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl,	Dependency dep) {
+	public Set<Instance> resolveImpls(Component client, Implementation impl,	Dependency dep) {
 		return null;
 	}
 
 	@Override
-	public Implementation findImplByName(Instance client, String implName) {
+	public Implementation findImplByName(Component client, String implName) {
 		return null;
 	}
 
 	@Override
-	public Instance findInstByName(Instance client, String instName) {
+	public Instance findInstByName(Component client, String instName) {
 		return null;
 	}
 
 	@Override
-	public Specification findSpecByName(Instance client, String specName) {
+	public Specification findSpecByName(Component client, String specName) {
 		return null;
 	}
 
-	@Override
-	public Component findComponentByName(Instance client, String compName) {
-		return null;
-	}
+//	@Override
+//	public Component findComponentByName(Component client, String compName) {
+//		return null;
+//	}
 
 	@Override
-	public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {
+	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {
 	}
 
 	@Override

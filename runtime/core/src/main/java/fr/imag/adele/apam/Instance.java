@@ -47,6 +47,7 @@ public interface Instance extends Component {
 	 * 
 	 */
 	public Set<Link> getWires();
+	
 
 	public boolean hasWires() ;
 

@@ -231,7 +231,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	/**
 	 * Throws the exception associated with a missing dependency
 	 */
-	private void throwMissingException(Dependency dependency,Instance client) {
+	private void throwMissingException(Dependency dependency, Component client) {
 		try {
 			
 			/*
@@ -252,6 +252,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			/**
 			 * There are cases where the client will not be available, check with herman the invalid cases and the fix for that 
 			 */
+			//TODO sure client it is an instance ?
 			Class<?> exceptionClass		= client.getImpl().getApformImpl().getBundle().loadClass(exceptionName);
 			Exception exception			= Exception.class.cast(exceptionClass.newInstance());
 			
@@ -435,7 +436,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 
 	@Override
-	public Resolved resolveDependency(Instance client, Dependency dependency, boolean needsInstances) {
+	public Resolved resolveDependency(Component client, Dependency dependency) {
 			
 		/*
 		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
@@ -458,7 +459,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			}
 			
 			case WAIT : {
-				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver, client, dependency, needsInstances);
+				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver, client, dependency);
 				block(request);
 				return request.getResolution();
 			}
@@ -469,22 +470,22 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 
 	@Override
-	public Instance resolveImpl(Instance client, Implementation impl, Dependency dep) {
+	public Instance resolveImpl(Component client, Implementation impl, Dependency dep) {
 		return null;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, Dependency dep) {
+	public Set<Instance> resolveImpls(Component client, Implementation impl, Dependency dep) {
 		return null;
 	}
 
 	@Override
-	public void getSelectionPath(Instance client, DependencyDeclaration dependency, List<DependencyManager> selPath) {
+	public void getSelectionPath(Component client, Dependency dependency, List<DependencyManager> selPath) {
         selPath.add(selPath.size(), this);
 	}
 
 	@Override
-	public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {
+	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {
 	}
 
 	/*
@@ -502,22 +503,22 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 	
 	@Override
-	public Instance findInstByName(Instance client, String instName) {
+	public Instance findInstByName(Component client, String instName) {
 		return (Instance) findComponentByName(client, instName);
 	}
 
 	@Override
-	public Implementation findImplByName(Instance client, String implName) {
+	public Implementation findImplByName(Component client, String implName) {
 		return (Implementation) findComponentByName(client, implName);
 	}
 
 	@Override
-	public Specification findSpecByName(Instance client, String specName) {
+	public Specification findSpecByName(Component client, String specName) {
 		return (Specification) findComponentByName(client, specName);
 	}
 
-	@Override
-	public Component findComponentByName(Instance client, String compName) {
+	//@Override
+	public Component findComponentByName(Component client, String compName) {
 		return null;
 	}
 

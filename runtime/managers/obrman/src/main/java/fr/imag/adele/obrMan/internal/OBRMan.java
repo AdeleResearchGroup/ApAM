@@ -42,12 +42,10 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.obrMan.OBRManCommand;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
@@ -290,12 +288,12 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Resolved resolveDependency(Component client, Dependency dep) {
+    public Resolved<Implementation> resolveDependency(Component client, Dependency dep) {
     	Implementation impl = resolveSpec(client, dep);
     	if (impl == null)
     		return null;
     	
-        return new Resolved (null, impl);
+        return new Resolved<Implementation> (null, impl);
     }
 
     private <C extends Component> C findByName(Component source, String componentName, Class<C> kind) {

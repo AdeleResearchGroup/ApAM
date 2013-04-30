@@ -85,13 +85,15 @@ public class DynamicResolutionRequest {
 		/*
 		 * If this is dependency is already resolved, ignore any triggering event
 		 */
-		if (! dependency.isMultiple() && ! source.getWireDests(dependency.getIdentifier()).isEmpty())
+	//TODO Sure it need to be a wire ?
+		if (! dependency.isMultiple() && ! source.getLinks(dependency.getIdentifier()).isEmpty())
 			return false;
 
 		/*
 		 * If the candidate is already a result, ignore it
 		 */
-		if (source.getWireDests(dependency.getIdentifier()).contains(instance))
+	//TODO Sure it need to be a wire ?
+		if (source.getLinkDests(dependency.getIdentifier()).contains(instance))
 			return false;
 		
 		/*

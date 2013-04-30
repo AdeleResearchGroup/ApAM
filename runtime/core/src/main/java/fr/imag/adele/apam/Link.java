@@ -14,18 +14,18 @@
  */
 package fr.imag.adele.apam;
 
-import java.util.Set;
+public interface Link {
 
-public class Resolved <T extends Component> {
-	public Component singletonResolved ; 
-	public Set<T> setResolved ;
-	
-	public Resolved (Set<T> setResolved, Component singletonResolved) {
-		this.singletonResolved = singletonResolved ;
-		this.setResolved = setResolved ;
-	}
-	
-	public boolean isEmpty () {
-		return singletonResolved == null && (setResolved == null || setResolved.isEmpty()) ;
-	}
+    public Component getSource();
+
+    public Component getDestination();
+
+    public String getName();
+    
+    public boolean hasConstraints() ;
+    
+    public void remove();
+    
+    public boolean isWire () ;
+
 }

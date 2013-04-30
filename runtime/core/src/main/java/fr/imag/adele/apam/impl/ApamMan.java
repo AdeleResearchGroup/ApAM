@@ -15,7 +15,6 @@
 package fr.imag.adele.apam.impl;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +32,6 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.ComponentKind;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -131,15 +129,15 @@ public class ApamMan implements DependencyManager {
 		return CST.componentBroker.getSpec(specName);
 	}
 
-//	@Override
-//	public Component findComponentByName(Component client, String componentName) {
-//		Component ret = CST.componentBroker.getComponent (componentName) ;
-//		if (ret == null) return null ;
-//		if (Visible.isVisible(client, ret)) {
-//			return ret ;
-//		}
-//		return null ;
-//	}
+	//	@Override
+	//	public Component findComponentByName(Component client, String componentName) {
+	//		Component ret = CST.componentBroker.getComponent (componentName) ;
+	//		if (ret == null) return null ;
+	//		if (Visible.isVisible(client, ret)) {
+	//			return ret ;
+	//		}
+	//		return null ;
+	//	}
 
 	/**
 	 * dep target can be a specification, an implementation or a resource: interface or message.
@@ -155,13 +153,13 @@ public class ApamMan implements DependencyManager {
 	 * 
 	 */
 	@Override
-	public Resolved resolveDependency(Component client, Dependency dep) {
+	public Resolved<?> resolveDependency(Component client, Dependency dep) {
 		String name = dep.getTarget().getName() ;
 
 		if (dep.getTargetType() == ComponentKind.SPECIFICATION) {
-			return DependencyUtil.getResolved( CST.componentBroker.getSpecs(), dep);
+			return DependencyUtil.getResolved(CST.componentBroker.getSpecs(), dep);
 		}
-		
+
 		Set<Implementation> impls = null ;
 
 		if (dep.getTarget() instanceof SpecificationReference) {
@@ -181,89 +179,66 @@ public class ApamMan implements DependencyManager {
 						impls.add(impl) ;
 					}
 				}
-			} else 
+			} else {
 				if (dep.getTarget() instanceof ImplementationReference) {
 					Implementation impl = CST.componentBroker.getImpl(name);
 					if (impl != null) {
 						impls.add(impl) ;
 					} 
 				}
+			}
 		}
 
 		//Not found
 		if (impls == null || impls.isEmpty()) 
 			return null ;
-		
+
 		if (dep.getTargetType() == ComponentKind.IMPLEMENTATION) {
-			if (dep.isMultiple())
-				return new Resolved (impls, null) ;
-			return new Resolved, null, DependencyUtil.getPrefered(impls, dep)) ;
-		}
-		/*
-		 * We have in impls all the implementations satisfying the dependency target (type and name only).
-		 * Select only those that satisfy the constraints (visible or not)
-		 */
-
-		
-		//only keep those satisfying the constraints
-		if (dep.hasConstraints()) {
-			impls = DependencyUtil.getResolved(impls, dep);
-			if (impls == null || impls.isEmpty()) 
-				return null ;
-		}
-
-		/*
-		 * Take all the instances of these implementations satisfying the dependency constraints.
-		 */		
-		Set<Instance> insts = null ;
-			Set<Instance> oneInsts = null ;
-			//Composite compo = client.getComposite() ;
-			insts = new HashSet<Instance> () ;
-			//Set<ApamFilter> constraints = Util.toFilter(dep.getInstanceConstraints()) ;
-			//Compute all the instances visible and satisfying the constraints  ;
-			for (Implementation impl : impls) {
-				oneInsts = impl.getInsts() ;
-				if (oneInsts == null || oneInsts.size()==0) continue ;
-				for (Instance inst : oneInsts) {
-					if (inst.isSharable() 
-							&& Visible.isVisible(client,  inst)  //Util.checkInstVisible(compo, inst)
-							//							&& inst.match(dep.getInstanceConstraints())) {
-							&& inst.matchDependencyConstraints(dep)) {
-						insts.add(inst) ;
-					}
-				}
+			if (dep.hasConstraints()) {
+				impls = DependencyUtil.getConstraintsComponents(impls, dep);
+				if (impls == null || impls.isEmpty()) 
+					return null ;
 			}
 
-		// returns only those implems that are visible
-		impls = Visible.getVisibleImpls(client, impls) ;
-		if (impls.isEmpty() && (insts == null || insts.isEmpty()))
-			return null ;
-		if (dep.isMultiple()) 
-			return new Resolved (impls, insts) ;
-
+			if (dep.isMultiple())
+				return new Resolved<Implementation> (impls, null) ;
+			return new Resolved<Implementation> (null, DependencyUtil.getPrefered(impls, dep)) ;
+		}
+		
 		/*
-		 * If dependency is not multiple, select the best instance and implem.
-		 * Return a single element in both impls and insts
-		 */
-		if (insts != null && !insts.isEmpty()) {
-			Instance inst = DependencyUtil.selectBestInstance (impls, insts, dep) ;
-			insts.clear();
-			insts.add(inst) ;
-			return new Resolved (Collections.singleton(inst.getImpl()), insts) ;
-		} 
-		if (dep.getImplementationPreferences() == null) 
-			return new Resolved (Collections.singleton(impls.iterator().next()), null) ;
+		 * We have in impls all the implementations satisfying the dependency target (type and name only).
+		 * We are looking for instances
+		 * Take all the instances of these implementations satisfying the dependency constraints.
+		 */		
+		Set<Instance> insts = new HashSet<Instance> () ; ;
+		//Compute all the instances visible and satisfying the constraints  ;
+		for (Implementation impl : impls) {
+			for (Instance inst : impl.getInsts()) {
+				if (inst.isSharable() 
+						&& Visible.isVisible(client,  inst) 
+						&& inst.matchDependencyConstraints(dep)) {
+					insts.add(inst) ;
+				}
+			}
+		}
 
-		//List<ApamFilter> implPreferences = Util.toFilterList(dep.getImplementationPreferences()) ;
-		return new Resolved (Collections.singleton(DependencyUtil.getPrefered(impls, dep)), null) ;
+		if (insts == null  ||insts.isEmpty()) 
+			return null ;
+	
+		/*
+		 * If dependency is singleton, select the best instance.
+		 */
+		if (dep.isMultiple()) 
+			return new Resolved<Instance> (insts, null) ;
+		return new Resolved<Instance> (null, DependencyUtil.getPrefered(insts, dep)) ;
 	}
 
 
-//	@Override
-//	public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
-//			Set<Instance> insts) {
-//		// do not care
-//	}
+		@Override
+		public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
+				Set<Instance> insts) {
+			// do not care
+		}
 
 	@Override
 	public ComponentBundle findBundle(CompositeType context, String bundleSymbolicName, String componentName) {
