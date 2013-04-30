@@ -29,7 +29,7 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
@@ -457,7 +457,7 @@ public class ContentManager  {
 		/*
 		 * revoke all non granted wires
 		 */
-		for (Wire incoming : ownedInstance.getInvWires()) {
+		for (Link incoming : ownedInstance.getInvWires()) {
 			
 			ComponentReference<?> sourceImplementation	= incoming.getSource().getImpl().getDeclaration().getReference();
 			ComponentReference<?> sourceSpecification	= incoming.getSource().getSpec().getDeclaration().getReference();
@@ -706,7 +706,7 @@ public class ContentManager  {
 			 * the property change
 			 * 
 			 */
-			for (Wire incoming : instance.getInvWires()) {
+			for (Link incoming : instance.getInvWires()) {
 				if (incoming.hasConstraints())
 					incoming.remove();
 			}
@@ -784,7 +784,7 @@ public class ContentManager  {
 	 * potentially be used by a pending requests.
 	 * 
 	 */
-	public synchronized void wireRemoved(Wire wire) {
+	public synchronized void wireRemoved(Link wire) {
 		Instance instance = wire.getDestination();
 		if (instance.isSharable() && Visible.checkInstVisible(getComposite(),instance))
 			resolveRequestsWaitingFor(instance);

@@ -30,7 +30,7 @@ import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.pax.test.iface.device.Eletronic;
@@ -151,7 +151,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		int initialSize = s1.getEletronicInstancesInArray().length;
 
-		for (Wire wire : s1Inst.getWires()) {
+		for (Link wire : s1Inst.getWires()) {
 
 			s1Inst.removeWire(wire);
 

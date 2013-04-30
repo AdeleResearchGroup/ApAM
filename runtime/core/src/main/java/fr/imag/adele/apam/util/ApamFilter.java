@@ -398,7 +398,7 @@ public class ApamFilter /* implements Filter */ {
 	//        return true ;
 	//    }
 
-	private boolean match0(Map properties) {
+	public boolean match0(Map properties) {
 
 		switch (op) {
 		case AND: {

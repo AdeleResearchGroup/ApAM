@@ -14,6 +14,7 @@
  */
 package fr.imag.adele.apam.impl;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-//import org.osgi.framework.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,20 +32,21 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Dependency;
+import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
-import fr.imag.adele.apam.util.DependencyUtil;
 import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.apam.util.UtilComp;
+import fr.imag.adele.apam.util.Visible;
+//import org.osgi.framework.Filter;
 
 public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> implements Component, Comparable<Component> {
 
@@ -59,6 +60,14 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	//Contains the composite type that was the first to physically deploy that component.
 	private CompositeType firstDeployed ;
+
+	//Set of Dependencies
+	private Map<String, Dependency> dependencies = new HashMap<String, Dependency> () ;
+
+    protected final Set<Link>   links            = Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
+    protected final Set<Link>   invlinks         = Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
+
+
 
 	/**
 	 * An exception that can be thrown in the case of problems while creating a component
@@ -80,7 +89,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 
 	}
-	
+
 	@Override
 	public AttrType getAttrType (String attr) {
 		PropertyDefinition attrDef = getAttrDefinition(attr) ;
@@ -92,7 +101,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return  Attribute.splitType(attrDef.getType()) ;
 	}
 
-	
+
 	public ComponentImpl(ApformComponent apform) throws InvalidConfiguration {
 		if (apform == null)
 			throw new InvalidConfiguration("Null apform instance while creating component");
@@ -108,50 +117,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param initialProperties
 	 */
 	public void finishInitialize (Map<String, String> initialProperties) {
-		computeGroupDependency () ;
+		dependencies = DependencyUtil.initializeDependencies (this) ;
 		initializeProperties (initialProperties) ;
 	}
 
-	/**
-	 * Provided a dependency declaration, compute the effective dependency, adding group constraint and flags.
-	 * Compute which is the good target, and checks the targets are compatible. 
-	 * If needed changes the target to set the more general one.
-	 * It is supposed to be correct !! No failure expected
-	 * 
-	 * Does not add those dependencies defined "above" nor the contextual ones.
-	 * 
-	 * @param depComponent
-	 * @param dependency
-	 * @return
-	 */
-	private void computeGroupDependency () {
-		for (DependencyDeclaration dependency : this.getDeclaration().getDependencies() ) {
-			Component group = getGroup() ;
-			//look for that dependency declaration above
-			DependencyDeclaration groupDep = null ;
-			while (group != null && (groupDep == null)) {
-				groupDep = group.getDeclaration().getDependency(dependency.getIdentifier()) ;
-				group = group.getGroup() ;
-			}
-
-			if (groupDep == null) {
-				//It is not defined above. Do not change it.
-				continue ;
-			}
-
-			//it is declared above. Merge and check.
-			//First merge flags, and then constraints.
-			DependencyUtil.overrideDepFlags (dependency, groupDep, false);
-			dependency.getImplementationConstraints().addAll(groupDep.getImplementationConstraints()) ;
-			dependency.getInstanceConstraints().addAll(groupDep.getInstanceConstraints()) ;
-			dependency.getImplementationPreferences().addAll(groupDep.getImplementationPreferences()) ;
-			dependency.getInstancePreferences().addAll(groupDep.getInstancePreferences()) ;		
-
-			//set the target
-			dependency.setTarget(groupDep.getTarget()) ;
-		}
-	}
-
+	
 	/**
 	 * to be called once the Apam entity is fully initialized.
 	 * Computes all its attributes, including inheritance.
@@ -283,6 +253,217 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return declaration.getName() ;
 	}
 
+	
+	//=================================== Links =========
+    /**
+     * returns the connections towards the service instances actually used. return only APAM links. for SAM links the
+     * sam instance
+     */
+    @Override
+    public Set<Component> getLinkDests(String depName) {
+        Set<Component> dests = new HashSet<Component>();
+        for (Link link : links) {
+            if (link.getName().equals(depName)) {
+                dests.add(link.getDestination());
+            }
+        }
+        return dests;
+    }
+
+    @Override
+    public Component getLinkDest(String depName) {
+        for (Link link : links) {
+            if (link.getName().equals(depName)) {
+                 return link.getDestination();
+            }
+        }
+        return null;
+    }
+
+    /**
+     */
+    @Override
+    public Set<Component> getLinkDests() {
+        Set<Component> dests = new HashSet<Component>();
+        for (Link link : links) {
+            dests.add(link.getDestination());
+        }
+        return dests;
+    }
+
+    @Override
+    public Set<Link> getLinks() {
+        return Collections.unmodifiableSet(links);
+    }
+
+    @Override
+    public Set<Link> getLinks(String dependencyName) {
+        Set<Link> dests = new HashSet<Link>();
+        for (Link link : links) {
+            if (link.getName().equals(dependencyName)) {
+                dests.add(link);
+            }
+        }
+        return dests;
+    }
+
+
+    @Override
+    public boolean createLink(Component to, Dependency dep, boolean hasConstraints, boolean promotion) {
+    	
+        if ((to == null) || (dep == null)) {
+        	throw new IllegalArgumentException ("CreateLink: Source or target are null ") ;
+        }
+        if (!promotion && !Visible.isVisible(this, to)) {
+            throw new IllegalArgumentException ("CreateLink: Source  " + this + " does not see its target " + to) ;
+    	} 
+        if (this.getKind() != dep.getSourceType()) {
+        	throw new IllegalArgumentException ("CreateLink: Source kind " + getKind() + " is not compatible with dependency sourceType " + dep.getSourceType()) ;
+        }
+        if (to.getKind() != dep.getTargetType()) {
+        	throw new IllegalArgumentException ("CreateLink: Target kind " + to.getKind() + " is not compatible with dependency targetType "+ dep.getTargetType() ) ;
+        }
+
+        String depName = dep.getIdentifier() ;
+        
+        for (Link link : links) { // check if it already exists
+            if ((link.getDestination() == to) && link.getName().equals(depName)) {
+            	//It exists, do nothing.
+                return true;
+            }
+        }
+
+        // creation
+        Link link ;
+        if (getApformComponent().setLink(to, depName)) {
+            link = new LinkImpl(this, to, depName, hasConstraints, promotion);
+            links.add(link);
+            ((ComponentImpl) to).invlinks.add(link);
+        } else {
+            logger.error("CreateLink: INTERNAL ERROR: link from " + this + " to " + to
+                    + " could not be created in the real instance.");
+            return false;
+        }
+
+        /*
+         *  if "to" is an instance in the unused pull, move it to the from composite.
+         *  
+         */
+        if (to instanceof Instance && !((Instance)to).isUsed()) {
+            ((InstanceImpl)to).setOwner(((Instance)this).getComposite());
+        }
+
+//        // Other relationships to instantiate
+//        
+//        if(to.getImpl()!=null)
+//        	((ImplementationImpl) getImpl()).addUses(to.getImpl());
+        
+       //TODO distriman: the destination (to) spec being false verification could be avoided in previous step
+//        if ((SpecificationImpl) getSpec() != null && to.getSpec()!=null) {
+//            ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
+//        }
+
+        //Notify Dynamic managers that a new link has been created
+        for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
+            manager.addedLink(link);
+        }
+
+        return true;
+    }
+
+    //    @Override
+    public void removeLink(Link link) {
+        if (getApformComponent().remLink(link.getDestination(), link.getName())) {
+            links.remove(link);
+            //TODO distriman: check if we have the destination implementation, is this the right way to do it?
+            
+//            if(link.getDestination().getImpl()!=null)
+//            	((ImplementationImpl) getImpl()).removeUses(link.getDestination().getImpl());
+            
+            //Notify Dynamic managers that a  link has been deleted. A new resolution can be possible now.
+            for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
+                manager.removedLink(link);
+            }
+
+        } else {
+            logger.error("INTERNAL ERROR: link from " + this + " to " + link.getDestination()
+                    + " could not be removed in the real instance.");
+        }
+    }
+
+    public void removeInvLink(Link link) {
+        invlinks.remove(link);
+//        if (invLinks.isEmpty()) {
+            /*
+             * This instance is no longer used.
+             * We do not set it unused
+             *     setUsed(false);
+             *     setOwner(CompositeImpl.getRootAllComposites());
+             * 
+             * Because it must stay in the same composite since  
+             * it may be the target of an "OWN" clause, and must not be changed. In case it will be re-used (local).
+             */
+//        }
+    }
+
+    @Override
+    public Set<Link> getInvLinks() {
+        return Collections.unmodifiableSet(invlinks);
+    }
+
+    @Override
+    public Set<Link> getInvLinks(String depName) {
+        Set<Link> w = new HashSet<Link>();
+        for (Link link : invlinks) {
+            if ((link.getDestination() == this) && (link.getName().equals(depName))) {
+                w.add(link);
+            }
+        }
+        return w;
+    }
+
+    @Override
+    public Link getInvLink(Component destInst) {
+        if (destInst == null) {
+            return null;
+        }
+        for (Link link : invlinks) {
+            if (link.getDestination() == destInst) {
+                return link;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Link getInvLink(Component destInst, String depName) {
+        if (destInst == null) {
+            return null;
+        }
+        for (Link link : invlinks) {
+            if ((link.getDestination() == destInst) && (link.getName().equals(depName))) {
+                return link;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Set<Link> getInvLinks(Component destInst) {
+        if (destInst == null) {
+            return null;
+        }
+        Set<Link> w = new HashSet<Link>();
+        for (Link link : invlinks) {
+            if (link.getDestination() == destInst) {
+                w.add(link);
+            }
+        }
+        return w;
+    }
+
+
+    //==============================================
 	@Override
 	public String toString() {
 		return getName();
@@ -309,6 +490,19 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return Util.toStringAttrValue (getPropertyObject(attr)) ;
 	}
 
+	@Override
+	public Dependency getDependency(String id) {
+		return DependencyUtil.getDependency (this, id) ;
+	}
+
+	protected Dependency getLocalDependency (String id) {
+		return dependencies.get(id) ;
+	}
+
+	@Override
+	public Collection<Dependency> getLocalDependencies () {
+		return Collections.unmodifiableCollection(dependencies.values()) ;
+	}
 
 	/**
 	 * Get the value of a property, the property can be valued in this component or in its
@@ -324,7 +518,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return Substitute.substitute(attribute, get(attribute), this) ;
 	}
 
-	
 	/**
 	 * Get the value of all the properties in the component.
 	 *
@@ -367,7 +560,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		this.propagate (attr, val) ;
 		return true ;
 	}
-	
+
 
 	/**
 	 * Set the value of the property in the Apam state model. Changing an attribute notifies
@@ -409,7 +602,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		Object oldValue = get(attr);
 		if (oldValue!= null && oldValue.equals(value.toString()))
 			return ;
-		
+
 		//Change value
 		put(attr, value);
 
@@ -441,7 +634,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	@Override
 	public boolean setAllProperties(Map<String, String> properties) {
 		for (Map.Entry<String,String> entry : properties.entrySet()) {
-			
+
 			if (! setProperty(entry.getKey(), entry.getValue()))
 				return false;
 		}
@@ -594,16 +787,16 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return  (def != null && (def.getDefaultValue().charAt(0)=='$' || def.getDefaultValue().charAt(0)=='@')) ;
 	}
 
-	
+
 	/*
 	 * Filter evaluation on the properties of this component
 	 */
 
-//	@Override
-//	public boolean match(String goal) {
-//		if (goal == null) return true ;
-//		return goal == null || match(Collections.singleton(goal));
-//	}
+	//	@Override
+	//	public boolean match(String goal) {
+	//		if (goal == null) return true ;
+	//		return goal == null || match(Collections.singleton(goal));
+	//	}
 
 	@Override
 	public boolean match(ApamFilter goal) {
@@ -615,54 +808,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	public boolean matchDependencyConstraints (Dependency dep) {
 		return dep.matchDep (this) ;
 	}
-//		if (this instanceof Implementation) {
-////			Set<ApamFilter>  filters =  dep.getImplementationConstraintFilters() ;
-////			if (filters == null) {
-////				return match (dep.getImplementationConstraintFilters()) ;
-////			}
-//			for (ApamFilter af : dep.getImplementationConstraintFilters()) {
-//				if (!(af.matchCase(this))) {
-//					return false ;
-//				}
-//			}
-//			return true;
-//		}
-//		if (this instanceof Instance) {
-////			Set<ApamFilter>  filters =  dep.getInstanceConstraintFilters() ;
-////			if (filters == null) {
-////				return match (dep.getInstanceConstraints()) ;
-////			}
-//			for (ApamFilter af : dep.getInstanceConstraintFilters()) {
-//				if (!(af.matchCase(this))) {
-//					return false ;
-//				}
-//			}
-//		}
-//		return true;
-//	}
-
-	/*
-	 * TODO should be removed. Almost always a bug; substitution, if any, are not applied on the constraints
-	 * should use matchDependencyConstraints instead.
-	 */
-//	@Override
-//	public boolean match(Set<String> goals) {
-//		if ((goals == null) || goals.isEmpty())
-//			return true;
-//
-//		//Map<String,Object> props = getAllProperties() ;
-//		try {
-//			for (String f : goals) {
-//				ApamFilter af = ApamFilter.newInstance(f) ;
-//				if (!(af.matchCase(this))) {
-//					return false ;
-//				}
-//			}
-//			return true;
-//		} catch (Exception e) {
-//			return false ;
-//		}
-//	}
 
 	/**
 	 * Whether the component is instantiable
@@ -726,5 +871,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 		return allResources ;
 	}
+
 
 }

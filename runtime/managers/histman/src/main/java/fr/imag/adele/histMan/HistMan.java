@@ -23,7 +23,7 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.PropertyManager;
-import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.impl.CompositeTypeImpl;
 
 public class HistMan implements PropertyManager, DynamicManager {
@@ -237,7 +237,7 @@ public class HistMan implements PropertyManager, DynamicManager {
 	}
 
 	@Override
-	public void removedWire(Wire wire) {
+	public void removedLink(Link wire) {
 
 		try {
 			
@@ -249,7 +249,7 @@ public class HistMan implements PropertyManager, DynamicManager {
 			BasicDBObject newLink = new BasicDBObject("name", wire.getSource()
 					.getName()).append("time", System.currentTimeMillis())
 					.append("linkType", "Wire")
-					.append("linkId", wire.getDepName())
+					.append("linkId", wire.getName())
 					.append("removed", wire.getDestination().getName());
 
 			ChangedLink.insert(newLink);
@@ -262,7 +262,7 @@ public class HistMan implements PropertyManager, DynamicManager {
 	}
 
 	@Override
-	public void addedWire(Wire wire) {
+	public void addedLink(Link wire) {
 
 		try {
 			
@@ -274,7 +274,7 @@ public class HistMan implements PropertyManager, DynamicManager {
 			BasicDBObject newLink = new BasicDBObject("name", wire.getSource()
 					.getName()).append("time", System.currentTimeMillis())
 					.append("linkType", "Wire")
-					.append("linkId", wire.getDepName())
+					.append("linkId", wire.getName())
 					.append("added", wire.getDestination().getName());
 
 			ChangedLink.insert(newLink);

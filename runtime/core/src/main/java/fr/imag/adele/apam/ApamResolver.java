@@ -39,7 +39,8 @@ public interface ApamResolver {
      * @param depName the dependency name. Field for atomic; spec name for complex dep, type for composite.
      * @return
      */
-    public boolean resolveWire(Instance client, String depName);
+    public Resolved resolveWire(Component source, String depName);
+    public Resolved resolveWire(Component source, Dependency dep);
 
 
     /**
@@ -50,13 +51,13 @@ public interface ApamResolver {
      * @param implName
      * @return
      */
-    public Instance       findInstByName(Instance client, String instName);
+    public Instance       findInstByName(Component client, String instName);
 
-    public Implementation findImplByName(Instance client, String implName);
+    public Implementation findImplByName(Component client, String implName);
 
-    public Specification  findSpecByName(Instance client, String specName);
+    public Specification  findSpecByName(Component client, String specName);
 
-    public Component findComponentByName(Instance client, String compName);
+    public Component      findComponentByName(Component client, String compName);
 
     /**
      * First looks for the specification defined by its name, and then resolve that specification.
@@ -86,8 +87,8 @@ public interface ApamResolver {
      *            maximum number of preferences, taken in the order, and stopping at the first failure.
      * @return
      */
-    public Implementation resolveSpecByInterface(Instance client,  String interfaceName, Set<String> constraints, List<String> preferences);
-    public Implementation resolveSpecByMessage  (Instance client,  String messageName,   Set<String> constraints, List<String> preferences);
+    public Implementation resolveSpecByInterface(Component client,  String interfaceName, Set<String> constraints, List<String> preferences);
+    public Implementation resolveSpecByMessage  (Component client,  String messageName,   Set<String> constraints, List<String> preferences);
 
     /**
      * Look for an instance of "impl" that satisfies the constraints. That instance must be either
@@ -102,7 +103,7 @@ public interface ApamResolver {
      *            maximum
      * @return
      */
-    public Instance resolveImpl(Instance client, Implementation impl, Set<String> constraints, List<String> preferences);
+    public Instance resolveImpl(Component client, Implementation impl, Set<String> constraints, List<String> preferences);
 
     /**
      * Look for all the existing instance of "impl" that satisfy the constraints.
@@ -115,7 +116,7 @@ public interface ApamResolver {
      * @param constraints. The constraints to satisfy. They must be all satisfied.
      * @return
      */
-    public Set<Instance> resolveImpls(Instance client, Implementation impl, Set<String> constraints);
+    public Set<Instance> resolveImpls(Component client, Implementation impl, Set<String> constraints);
     
     
 

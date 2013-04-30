@@ -14,82 +14,123 @@
  */
 package fr.imag.adele.apam;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
 
 public interface Component {
 
-	/**
-	 * The name of the component
-	 */
+	//The name of the component
 	public String getName();
 
-	/**
-	 * The underlying entity in the execution platform
-	 */
+	//The component declaration
+	public ComponentDeclaration getDeclaration () ;
+	
+	//return all the members of this component. Null if leaf (instance).
+	public Set<? extends Component> getMembers ();
+
+	//return the representant of this group member. Null if root (Specification)
+	public Component getGroup ();
+
+	//Return it kind: Specification, implementation or instance
+	public ComponentKind getKind() ;
+
+	//Returns the provided resources, including those inherited.
+	public Set<ResourceReference> getAllProvidedResources () ;
+
+	//The underlying entity in the execution platform
 	public ApformComponent getApformComponent();
 
-	/**
-	 * The component declaration
-	 */
-	public ComponentDeclaration getDeclaration () ;
-
-	/**
-	 * Give the composite type that physically deployed that component.
-	 * Warning : null when unused. 
-	 */
+	//Give the composite type that physically deployed that component. Warning : null when unused. 
 	public CompositeType getFirstDeployed() ;
 
-	/**
-	 * Whether the component is instantiable
-	 */
+	//Whether the component is instantiable
 	public boolean isInstantiable() ;
 
-	/**
-	 * Whether the component is singleton
-	 */
+	//Whether the component is singleton
 	public boolean isSingleton() ;
 
-	/**
-	 * Whether the component is shared
-	 */
+	//Whether the component is shared
 	public boolean isShared() ;
+	
+
+	 // ====================== Links ==========================
+
+    //returns all the instances this one is Linkd to.
+    public Set<Component> getLinkDests();
+
+    //returns the Link toward that destination
+    public Link getInvLink(Component destInst);
+
+    //returns the Link for the "depName" link toward that destination Component
+    public Link getInvLink(Component destInst, String depName);
+
+    //Returns all the Links toward that destination.
+    public Set<Link> getInvLinks(Component destInst);
+
+    //returns all the destinations of that dependency (if multiple cardinality)
+    public Set<Component> getLinkDests(String depName);
+
+    //returns  the destinations of that dependency (if simple cardinality)
+    public Component getLinkDest(String depName) ;
+
+    //returns all the Links related to that dependency (if multiple cardinality)
+    public Set<Link> getLinks(String depName);
+
+    //Returns all the Links, for the provided dependency, leading to the current Component.
+    public Set<Link> getInvLinks(String depName);
+
+    //returns all the Link from the current Component
+    public Set<Link> getLinks();
+
+    //Returns all the Links leading to the current Component.
+     public Set<Link> getInvLinks();
+
+     //remove that Link.
+     public void removeLink(Link link);
+
+     /**
+     * A new Link has to be instantiated between the current Component and the "to" Component, for the relation depName.
+     * 
+     * @param to target link
+     * @param depName : relation name
+     * @param hasConstraints: true if the Relation definition has contraints
+     * @param promotion true if it is a promotion
+     * @return  true if the link has been created
+     */
+     public boolean createLink(Component to, Dependency dep, boolean hasConstraints, boolean promotion);
+//     public boolean createLink(Component to, Dependency dep, boolean promotion);
+
+    
+    //================== Dependencies =================
 
 
-	/**
-	 * Match.
-	 *
-	 * @param goal the goal
-	 * @return true is the instance matches the goal
-	 */
-//	public boolean match(String goal);
+	//True if the component matches the filter
 	public boolean match(ApamFilter goal);
 
 
-	/**
-	 * return true if the component satisfies the constraints expressed in the reference : in general a dependency.
-	 * @param dep
-	 * @return
-	 */
+	//True if the component matches the constrains contained in the filter
 	public boolean matchDependencyConstraints (Dependency dep) ;
-	/**
-	 * return true if the instance matches ALL the constraints in the set.
-	 *
-	 * @param goals
-	 * @return
-	 */
-	//TODO : to be removed
-//	public boolean match(Set<String> goals);
 
-	/**
-	 * Get the value of a property, the property can be valued in this component or in its
-	 * defining group
-	 */
+	//Get the dependency that can be applied to this component with this id, including those coming from composite if any.
+	//null if not defined
+	public Dependency getDependency(String id) ;
+
+	//Get all the dependencies defined at that component level. 
+	//Empty if none.
+	//Return an unmodifiable collection of dependencies
+	public Collection<Dependency> getLocalDependencies() ;
+	
+	
+	//==================== Properties =============
+
+	//Get the value of a property, the property can be valued in this component or in its defining group
 	public String getProperty(String attribute);
 
 	/**
@@ -116,13 +157,15 @@ public interface Component {
 
 	/**
 	 * Get the value of all the properties of the component, including those in the enclosing
-	 * groups
+	 * groups. 
+	 * WARNING : substitutions are not performed.
 	 */
 	public Map<String, Object> getAllProperties();
 	
 	/**
 	 * Get the value of all the properties of the component, including those in the enclosing
 	 * groups
+	 * The values are transformed into string, but without substitution
 	 */
 	public Map<String, String> getAllPropertiesString() ;
 
@@ -137,7 +180,7 @@ public interface Component {
 	
 	
 	/**
-	 * Change the value of the specified properties of the component
+	 * Change the values of the specified properties of the component
 	 */
 	public boolean setAllProperties(Map<String, String> properties);
 
@@ -145,21 +188,12 @@ public interface Component {
 	 * Removes the specified property of the component
 	 */
 	public boolean removeProperty(String attr);
-
+	
 	/**
-	 * return all the members of this component. Null if leaf (instance).
+	 * 
 	 * @return
 	 */
-	public Set<? extends Component> getMembers ();
-
-	/**
-	 * return the representant of this group member. Null if root (Specification)
-	 */
-	public Component getGroup ();
-
 	public Map<String, String> getValidAttributes () ;
-
-	public Set<ResourceReference> getAllProvidedResources () ;
 
 
 }

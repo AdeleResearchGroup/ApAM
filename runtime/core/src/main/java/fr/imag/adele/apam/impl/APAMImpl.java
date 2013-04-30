@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.DependencyManager;
@@ -280,6 +281,16 @@ public class APAMImpl implements Apam {
 			return models;
 		}
 
+		@Override
+		public boolean setLink(Component destInst, String depName) {
+			throw new UnsupportedOperationException("method not available in application composite instance");
+		}
+
+		@Override
+		public boolean remLink(Component destInst, String depName) {
+			throw new UnsupportedOperationException("method not available in application composite instance");
+		}
+
     }
  
     /**
@@ -318,9 +329,18 @@ public class APAMImpl implements Apam {
 		public void setProperty(String attr, String value) {
 		}
 
-
 		@Override
 		public Object getServiceObject() {
+			throw new UnsupportedOperationException("method not available in application composite instance");
+		}
+
+		@Override
+		public boolean setLink(Component destInst, String depName) {
+			throw new UnsupportedOperationException("method not available in application composite instance");
+		}
+
+		@Override
+		public boolean remLink(Component destInst, String depName) {
 			throw new UnsupportedOperationException("method not available in application composite instance");
 		}
 
@@ -331,11 +351,6 @@ public class APAMImpl implements Apam {
 
 		@Override
 		public boolean remWire(Instance destInst, String depName) {
-			throw new UnsupportedOperationException("method not available in application composite instance");
-		}
-
-		@Override
-		public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
 			throw new UnsupportedOperationException("method not available in application composite instance");
 		}
 

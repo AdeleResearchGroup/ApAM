@@ -23,20 +23,22 @@ public class Visible {
 	 * @param from
 	 * @param to
 	 */
-	public static boolean isVisible (Specification source, Component target) {
-		return true;
-	}
-	public static boolean isVisible (Component source, Specification target) {
-		return true ;
+	public static boolean isVisible (Component source, Component target) {
+		if (source instanceof Specification || target instanceof Specification)
+			return true;
+		
+		if (source instanceof Implementation) {
+			if (target instanceof Implementation) 
+				return isVisible( (Implementation)source, (Implementation)target) ;
+			return isVisible( (Implementation)source, (Instance)target) ;
+		}
+		
+		//Source is instance
+		if (target instanceof Implementation) 
+			return checkImplVisible (((Instance)source).getComposite().getCompType(), (Implementation)target) ;
+		return checkInstVisible(((Instance)source).getComposite(), (Instance)target);
 	}
 
-	public static boolean isVisible (Instance source, Component target) {
-		if (target instanceof Specification)
-			return true ;
-		if (target instanceof Implementation)
-			return checkImplVisible (source.getComposite().getCompType(), (Implementation)target) ;
-		return checkInstVisible(source.getComposite(), (Instance)target);
-	}
 
 	/**
 	 * Return true if implementation source can create a link towards implementation target
@@ -131,11 +133,11 @@ public class Visible {
 	 * @param impls
 	 * @return
 	 */
-	public static Set<Implementation> getVisibleImpls (Instance client, Set<Implementation> impls) {
+	public static Set<Implementation> getVisibleImpls (Component client, Set<Implementation> impls) {
 		if (impls == null) {return null ; }
 
 		Set<Implementation> ret = new HashSet <Implementation> () ;
-//		CompositeType compo = client.getComposite().getCompType() ;
+		//		CompositeType compo = client.getComposite().getCompType() ;
 		for (Implementation impl : impls) {
 			if (isVisible(client, impl)) {
 				ret.add(impl) ;
@@ -144,26 +146,26 @@ public class Visible {
 		return ret ;
 	}
 
-//	/**
-//	 * Return the subset of insts that is visible from client.
-//	 * @param client
-//	 * @param insts
-//	 * @return
-//	 */
-//	public static Set<Instance> getVisibleInsts (Instance client, Set<Instance> insts) {
-//		if (insts == null) {return null ;}
-//
-//		if(client==null) return insts;
-//
-//		Set<Instance> ret = new HashSet <Instance> () ;
-//		Composite compo = client.getComposite() ;
-//		for (Instance inst : insts) {
-//			if (checkInstVisible(compo, inst)) {
-//				ret.add(inst) ;
-//			}
-//		}
-//		return ret ;
-//	}
+	//	/**
+	//	 * Return the subset of insts that is visible from client.
+	//	 * @param client
+	//	 * @param insts
+	//	 * @return
+	//	 */
+	//	public static Set<Instance> getVisibleInsts (Instance client, Set<Instance> insts) {
+	//		if (insts == null) {return null ;}
+	//
+	//		if(client==null) return insts;
+	//
+	//		Set<Instance> ret = new HashSet <Instance> () ;
+	//		Composite compo = client.getComposite() ;
+	//		for (Instance inst : insts) {
+	//			if (checkInstVisible(compo, inst)) {
+	//				ret.add(inst) ;
+	//			}
+	//		}
+	//		return ret ;
+	//	}
 
 	/**
 	 * Implementation toImpl is exported if it matches the export clause in at least one of it composite types.

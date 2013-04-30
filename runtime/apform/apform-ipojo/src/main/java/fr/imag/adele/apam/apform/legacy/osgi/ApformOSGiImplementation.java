@@ -21,6 +21,7 @@ import java.util.Set;
 import org.osgi.framework.Bundle;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
@@ -135,5 +136,18 @@ public class ApformOSGiImplementation implements ApformImplementation {
 	@Override
 	public void setProperty(String attr, String value) {
 	}
+	
+	@Override
+	public boolean setLink(Component destInst, String depName) {
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
+
+	@Override
+	public boolean remLink(Component destInst, String depName) {
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
+
 
 }

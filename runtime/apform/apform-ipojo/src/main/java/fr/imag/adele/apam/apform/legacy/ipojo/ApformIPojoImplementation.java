@@ -22,6 +22,7 @@ import org.apache.felix.ipojo.IPojoFactory;
 import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.osgi.framework.Bundle;
 
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
@@ -139,5 +140,18 @@ public class ApformIPojoImplementation implements ApformImplementation {
 	public void setProperty(String attr, String value) {
 		// TODO see if we can reconfigure factory publication
 	}
+	
+	@Override
+	public boolean setLink(Component destInst, String depName) {
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
+
+	@Override
+	public boolean remLink(Component destInst, String depName) {
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
+
 
 }

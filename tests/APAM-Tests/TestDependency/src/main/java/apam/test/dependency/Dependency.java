@@ -25,7 +25,7 @@ import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.message.MessageProducer;
 import fr.imag.adele.apam.test.s3.S3_1;
 import fr.imag.adele.apam.test.s3.S3_2;
@@ -152,7 +152,7 @@ public class Dependency implements S2, ApamComponent, Runnable {
 
 	public void p4(){
 		System.out.println("Checking Dynamic Wire deletion to multiple dependency" ) ;
-		Wire w = (Wire)myInst.getWires().toArray()[0] ;
+		Link w = (Link)myInst.getWires().toArray()[0] ;
 		rmInst = w.getDestination() ;
 		myInst.removeWire(w) ;
 	}

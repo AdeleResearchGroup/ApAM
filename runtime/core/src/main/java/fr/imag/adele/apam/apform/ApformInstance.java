@@ -58,7 +58,7 @@ public interface ApformInstance  extends ApformComponent {
      * @param newDestInst The new destination.
      * @return false if it could not be performed: legacy.
      */
-    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName);
+//    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName);
 
     public void setInst(Instance asmInstImpl);
     

@@ -40,8 +40,9 @@ import org.osgi.framework.BundleContext;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager;
@@ -312,7 +313,7 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
         }
 
         DependencyDeclaration dependency = injection.getDependencyInjection().getDependency();
-        for (Wire outgoing : apamInstance.getWires(dependency.getIdentifier())) {
+        for (Link outgoing : apamInstance.getLinks(dependency.getIdentifier())) {
             outgoing.remove();
         }
 
@@ -437,35 +438,35 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
         return true;
     }
 
-    /**
-     * Apform: substitute dependency
-     */
-    @Override
-    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-        // System.err.println("Native instance subs wire " + depName + " :" + getInstanceName() + "from ->" +
-        // oldDestInst
-        // + " to ->" + newDestInst);
-
-        /*
-         * Validate all the injections can be performed
-         */
-
-        for (DependencyInjectionManager injectedField : injectedFields) {
-            if (!injectedField.isValid())
-                return false;
-        }
-
-        /*
-         * perform injection update
-         */
-        for (DependencyInjectionManager injectedField : injectedFields) {
-            if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
-                injectedField.substituteTarget(oldDestInst, newDestInst);
-            }
-        }
-
-        return true;
-    }
+//    /**
+//     * Apform: substitute dependency
+//     */
+//    @Override
+//    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
+//        // System.err.println("Native instance subs wire " + depName + " :" + getInstanceName() + "from ->" +
+//        // oldDestInst
+//        // + " to ->" + newDestInst);
+//
+//        /*
+//         * Validate all the injections can be performed
+//         */
+//
+//        for (DependencyInjectionManager injectedField : injectedFields) {
+//            if (!injectedField.isValid())
+//                return false;
+//        }
+//
+//        /*
+//         * perform injection update
+//         */
+//        for (DependencyInjectionManager injectedField : injectedFields) {
+//            if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
+//                injectedField.substituteTarget(oldDestInst, newDestInst);
+//            }
+//        }
+//
+//        return true;
+//    }
 
     @Override
     public void setProperty(String attr, String value) {
@@ -532,4 +533,17 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
     public void addCallbackDependency(CallbackTrigger trigger, Map<String, Set<Callback>> callbackDependecy) {
         dependencyCallback.put(trigger, callbackDependecy);
     }
+
+	@Override
+	public boolean setLink(Component destInst, String depName) {
+		
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
+
+	@Override
+	public boolean remLink(Component destInst, String depName) {
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
 }

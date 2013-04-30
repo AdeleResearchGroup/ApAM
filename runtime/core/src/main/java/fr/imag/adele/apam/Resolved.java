@@ -16,21 +16,16 @@ package fr.imag.adele.apam;
 
 import java.util.Set;
 
-public class Resolved {
-
-	public Set<Implementation> implementations ;
-	public Set<Instance> instances ;
+public class Resolved  {
+	public Component singletonResolved ; 
+	public Set<Component> setResolved ;
 	
-	public Resolved (Set<Implementation> implementations, Set<Instance> instances ) {
-//		if (implementations == null || implementations.isEmpty())
-//			this.implementations = null ;
-//		else
-			this.implementations = implementations ;
-		
-//		if (instances == null || instances.isEmpty())
-//			this.instances = null ;
-//		else 
-			this.instances = instances ;
+	public Resolved (Set<Component> setResolved, Component singletonResolved) {
+		this.singletonResolved = singletonResolved ;
+		this.setResolved = setResolved ;
 	}
-
+	
+	public boolean isEmpty () {
+		return singletonResolved == null && (setResolved == null || setResolved.isEmpty()) ;
+	}
 }

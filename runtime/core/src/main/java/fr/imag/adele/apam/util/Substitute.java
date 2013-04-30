@@ -1,9 +1,9 @@
 package fr.imag.adele.apam.util;
 
-import java.util.List;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.impl.InstanceImpl;
 
 
@@ -292,11 +292,7 @@ public class Substitute {
 
 		if (!sub.sourceName.equals("this")) {
 			//Look for the source component
-			// TODO we should be able to find an implem or spec without an instance, but from an implem !
-			//TODO  sub.sourceName is most often an implem or a spec, cannot find its depId !!!
-			if (source instanceof Instance) 
-				source = CST.apamResolver.findComponentByName((Instance)source, sub.sourceName) ;
-			else source = CST.apamResolver.findComponentByName(null, sub.sourceName) ;
+			source = CST.apamResolver.findComponentByName(source, sub.sourceName) ;
 			if (source == null) {
 				logger.error("Component " + sub.sourceName + " not found in substitution : " + value + " of attribute " + attr) ;
 				return false ;
@@ -308,19 +304,19 @@ public class Substitute {
 		}
 
 		//look for the dependency depId of the source component
-		//Source must be an instance; get its wire.
-		if (!!! (source instanceof Instance)) {
-			logger.error("Invalid dependency " + sub.depId + " for component " + source + ". Not an instance.") ;
-			return null ;
-		}
+		//No longer ! Source must be an instance; get its wire.
+		//		if (!!! (source instanceof Instance)) {
+		//			logger.error("Invalid dependency " + sub.depId + " for component " + source + ". Not an instance.") ;
+		//			return null ;
+		//		}
 
-		DependencyDeclaration depDcl =  UtilComp.computeEffectiveDependency((Instance)source, sub.depId) ;
+		Dependency depDcl =  source.getDependency (sub.depId) ;
 		if (depDcl == null) {
 			logger.error("Dependency " + sub.depId + " undefined for component " + source.getName()) ;
 			return null ;
 		}
 
-		Set<Instance> dest = ((Instance)source).getWireDests(sub.depId) ;
+		Set<Component> dest = source.getLinkDests(sub.depId) ;
 		if (dest == null) {
 			logger.error("Dependency id " + sub.depId + " not resolved for component " + source) ;
 			return null ;
@@ -343,7 +339,7 @@ public class Substitute {
 
 		if (st.type== AttrType.INTEGER) {
 			Set<Integer> retSetInt = new HashSet <Integer> () ;
-			for (Instance d : dest) {
+			for (Component d : dest) {
 				Object oneVal =  checkReturnSub (d, sub, attr, st) ;
 				if (oneVal != null) {
 					if (oneVal instanceof Set) {
@@ -357,7 +353,7 @@ public class Substitute {
 		}
 
 		Set<String> retSetString = new HashSet <String> () ;
-		for (Instance d : dest) {
+		for (Component d : dest) {
 			Object oneVal =  checkReturnSub (d, sub, attr, st) ;
 			if (oneVal != null) {
 				if (oneVal instanceof Set) {

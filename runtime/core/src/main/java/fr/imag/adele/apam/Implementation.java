@@ -61,19 +61,19 @@ public interface Implementation extends Component {
      */
     public ImplementationDeclaration getImplDeclaration();
 
-    /**
-     * Returns the implementation currently used by this implementation.
-     * 
-     * @return the implementation that this ASMImpl requires.
-     */
-    public Set<Implementation> getUses();
-
-    /**
-     * Returns the implementation currently using this implementation.
-     * 
-     * @return the implementation that use this ASMImpl .
-     */
-    public Set<Implementation> getInvUses();
+//    /**
+//     * Returns the implementation currently used by this implementation.
+//     * 
+//     * @return the implementation that this ASMImpl requires.
+//     */
+//    public Set<Implementation> getUses();
+//
+//    /**
+//     * Returns the implementation currently using this implementation.
+//     * 
+//     * @return the implementation that use this ASMImpl .
+//     */
+//    public Set<Implementation> getInvUses();
 
     /**
      * Returns the instance (ASMInsts)of that implementation having that name.

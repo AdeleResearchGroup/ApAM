@@ -98,4 +98,12 @@ public interface CompositeType extends Implementation {
      */
     public Set<CompositeType> getInvEmbedded();
 
+    /**
+     * return the contextual dependency of that Identifier.
+     * Needs that the dependency source is an ancestor of parameter source
+     * @param id
+     * @return
+     */
+	public Dependency getCtxtDependency (Component source, String id) ;
+
 }

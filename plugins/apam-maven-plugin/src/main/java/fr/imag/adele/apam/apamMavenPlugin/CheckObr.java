@@ -47,12 +47,12 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
+import fr.imag.adele.apam.impl.DependencyUtil;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Substitute.SplitSub;
 import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.apam.util.UtilComp;
 
 public class CheckObr {
 
@@ -667,7 +667,7 @@ public class CheckObr {
 
 		//it is declared above. Merge and check.
 		//First merge flags, and then constraints.
-		UtilComp.overrideDepFlags (dependency, groupDep, false);
+		DependencyUtil.overrideDepFlags (dependency, groupDep, false);
 		dependency.getImplementationConstraints().addAll(groupDep.getImplementationConstraints()) ;
 		dependency.getInstanceConstraints().addAll(groupDep.getInstanceConstraints()) ;
 		dependency.getImplementationPreferences().addAll(groupDep.getImplementationPreferences()) ;

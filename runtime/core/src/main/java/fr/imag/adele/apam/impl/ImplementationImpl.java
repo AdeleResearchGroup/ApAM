@@ -35,6 +35,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
@@ -56,9 +57,9 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	// the instances
 	private Set<Instance>      			instances		= Collections.newSetFromMap(new ConcurrentHashMap<Instance, Boolean>());
 
-	// all relationship use and their reverse
-	private Set<Implementation> 		uses			= Collections.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
-	private Set<Implementation> 		invUses			= Collections.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
+//	// all relationship use and their reverse
+//	private Set<Implementation> 		uses			= Collections.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
+//	private Set<Implementation> 		invUses			= Collections.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
 
 	/**
@@ -101,6 +102,16 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 
 		@Override
 		public void setProperty(String attr,String value) {
+			throw new UnsupportedOperationException("method not available in root type");
+		}
+
+		@Override
+		public boolean setLink(Component destInst, String depName) {
+			throw new UnsupportedOperationException("method not available in root type");
+		}
+
+		@Override
+		public boolean remLink(Component destInst, String depName) {
 			throw new UnsupportedOperationException("method not available in root type");
 		}
 
@@ -353,43 +364,43 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 
 	 // relation uses control
 
-	 @Override
-	 public Set<Implementation> getUses() {
-		 return Collections.unmodifiableSet(uses);
-	 }
-
-	 @Override
-	 public Set<Implementation> getInvUses() {
-		 return Collections.unmodifiableSet(invUses);
-	 }
-
-	 public void addUses(Implementation dest) {
-		 if (uses.contains(dest))
-			 return;
-		 uses.add(dest);
-		 ((ImplementationImpl) dest).addInvUses(this);
-		 ((SpecificationImpl) getSpec()).addRequires(dest.getSpec());
-	 }
-
-	 public void removeUses(Implementation dest) {
-		 for (Instance inst : instances) {
-			 for (Instance instDest : inst.getWireDests())
-				 if (instDest.getImpl() == dest) {
-					 return; // it exists another instance that uses that destination. Do nothing.
-				 }
-		 }
-		 uses.remove(dest);
-		 ((ImplementationImpl) dest).removeInvUses(this);
-		 ((SpecificationImpl) getSpec()).removeRequires(dest.getSpec());
-	 }
-
-	 private void addInvUses(Implementation orig) {
-		 invUses.add(orig);
-	 }
-
-	 private void removeInvUses(Implementation orig) {
-		 invUses.remove(orig);
-	 }
+//	 @Override
+//	 public Set<Implementation> getUses() {
+//		 return Collections.unmodifiableSet(uses);
+//	 }
+//
+//	 @Override
+//	 public Set<Implementation> getInvUses() {
+//		 return Collections.unmodifiableSet(invUses);
+//	 }
+//
+//	 public void addUses(Implementation dest) {
+//		 if (uses.contains(dest))
+//			 return;
+//		 uses.add(dest);
+//		 ((ImplementationImpl) dest).addInvUses(this);
+//		 ((SpecificationImpl) getSpec()).addRequires(dest.getSpec());
+//	 }
+//
+//	 public void removeUses(Implementation dest) {
+//		 for (Instance inst : instances) {
+//			 for (Instance instDest : inst.getWireDests())
+//				 if (instDest.getImpl() == dest) {
+//					 return; // it exists another instance that uses that destination. Do nothing.
+//				 }
+//		 }
+//		 uses.remove(dest);
+//		 ((ImplementationImpl) dest).removeInvUses(this);
+//		 ((SpecificationImpl) getSpec()).removeRequires(dest.getSpec());
+//	 }
+//
+//	 private void addInvUses(Implementation orig) {
+//		 invUses.add(orig);
+//	 }
+//
+//	 private void removeInvUses(Implementation orig) {
+//		 invUses.remove(orig);
+//	 }
 
 	 @Override
 	 public Set<? extends Component> getMembers() {
@@ -400,4 +411,10 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 public Component getGroup() {
 		 return getImplDeclaration().getSpecification() != null ? mySpec : null;
 	 }
+
+
+	@Override
+	public ComponentKind getKind() {
+		return ComponentKind.IMPLEMENTATION;
+	}
 }

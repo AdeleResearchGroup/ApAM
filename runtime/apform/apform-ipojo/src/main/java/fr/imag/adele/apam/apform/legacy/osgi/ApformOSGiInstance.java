@@ -21,6 +21,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
@@ -185,15 +186,27 @@ public class ApformOSGiInstance implements ApformInstance {
      * Legacy implementations can not be injected with APAM dependencies, so they do not provide
      * injection information
      */
-    @Override
-    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-        return false;
-    }
+//    @Override
+//    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
+//        return false;
+//    }
 
 
     @Override
     public void setProperty(String attr, String value) {
     }
 
-    
+ 
+	@Override
+	public boolean setLink(Component destInst, String depName) {
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
+
+	@Override
+	public boolean remLink(Component destInst, String depName) {
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
+
 }

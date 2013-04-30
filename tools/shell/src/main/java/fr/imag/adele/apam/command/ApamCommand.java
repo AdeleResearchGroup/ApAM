@@ -54,7 +54,7 @@ import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.Apform2Apam.Request;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -496,11 +496,11 @@ public class ApamCommand {
 		}
 		out.println("");
 
-		out.print(indent + "Uses composite types : ");
-		for (Implementation comDep : compo.getUses()) {
-			out.print(comDep.getName() + " ");
-		}
-		out.println("");
+//		out.print(indent + "Uses composite types : ");
+//		for (Implementation comDep : compo.getUses()) {
+//			out.print(comDep.getName() + " ");
+//		}
+//		out.println("");
 
 		out.print(indent + "Contains Implementations: ");
 		for (Implementation impl : compo.getImpls()) {
@@ -601,16 +601,16 @@ public class ApamCommand {
 
 		out.println(specification.getDeclaration().getDependencies());
 
-		out.println(indent + "Effective Required specs:");
-		for (Specification spec : specification.getRequires()) {
-			out.println(indent + "      " + spec);
-		}
-
-		out.println(indent + "Required by:");
-
-		for (Specification spec : specification.getInvRequires()) {
-			out.println(indent + "      " + spec);
-		}
+//		out.println(indent + "Effective Required specs:");
+//		for (Specification spec : specification.getRequires()) {
+//			out.println(indent + "      " + spec);
+//		}
+//
+//		out.println(indent + "Required by:");
+//
+//		for (Specification spec : specification.getInvRequires()) {
+//			out.println(indent + "      " + spec);
+//		}
 
 		out.println(indent + "Implementations:");
 		for (Implementation impl : specification.getImpls()) {
@@ -641,14 +641,14 @@ public class ApamCommand {
 		Implementation implementation = instance.getImpl();
 		indent += "   ";
 		out.println(indent + "Dependencies:");
-		for (Wire wire : instance.getWires()) {
-			out.println(indent + "   " + wire.getDepName() + ": "
+		for (Link wire : instance.getWires()) {
+			out.println(indent + "   " + wire.getName() + ": "
 					+ wire.getDestination());
 		}
 
 		out.println(indent + "Called by:");
-		for (Wire wire : instance.getInvWires())
-			out.println(indent + "   (" + wire.getDepName() + ") "
+		for (Link wire : instance.getInvWires())
+			out.println(indent + "   (" + wire.getName() + ") "
 					+ wire.getSource());
 
 		if (implementation == null) {
@@ -688,15 +688,15 @@ public class ApamCommand {
 			out.println(indent + "      " + compo.getName());
 		}
 
-		out.println(indent + "Uses:");
-		for (Implementation implem : impl.getUses()) {
-			out.println(indent + "      " + implem);
-		}
-
-		out.println(indent + "Used by:");
-		for (Implementation implem : impl.getInvUses()) {
-			out.println(indent + "      " + implem);
-		}
+//		out.println(indent + "Uses:");
+//		for (Implementation implem : impl.getUses()) {
+//			out.println(indent + "      " + implem);
+//		}
+//
+//		out.println(indent + "Used by:");
+//		for (Implementation implem : impl.getInvUses()) {
+//			out.println(indent + "      " + implem);
+//		}
 
 		out.println(indent + "Instances:");
 		for (Instance inst : impl.getInsts()) {
@@ -761,16 +761,18 @@ public class ApamCommand {
 		out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " "
 				+ inst.getSpec());
 		indent = indent + "  ";
-		for (Wire wire : inst.getWires()) {
-			out.println(indent + wire.getDepName() + ": "
+		for (Link wire : inst.getWires()) {
+			out.println(indent + wire.getName() + ": "
 					+ wire.getDestination() + " "
-					+ wire.getDestination().getImpl() + " "
-					+ wire.getDestination().getSpec());
-			dumpState0(out, wire.getDestination(), indent, wire.getDepName(),
+					+ ((Instance)wire.getDestination()).getImpl() + " "
+					+ ((Instance)wire.getDestination()).getSpec());
+			dumpState0(out, ((Instance)wire.getDestination()), indent, wire.getName(),
 					insts);
 		}
 	}
-
+	
+//TODO Missing links
+	
 	private void dumpState0(PrintWriter out, Instance inst, String indent,
 			String dep, Set<Instance> insts) {
 		if (insts.contains(inst)) {
@@ -779,12 +781,12 @@ public class ApamCommand {
 		}
 		insts.add(inst);
 		indent = indent + "  ";
-		for (Wire wire : inst.getWires()) {
-			out.println(indent + wire.getDepName() + ": "
+		for (Link wire : inst.getWires()) {
+			out.println(indent + wire.getName() + ": "
 					+ wire.getDestination() + " "
-					+ wire.getDestination().getImpl() + " "
-					+ wire.getDestination().getSpec());
-			dumpState0(out, wire.getDestination(), indent, wire.getDepName(),
+					+ ((Instance)wire.getDestination()).getImpl() + " "
+					+ ((Instance)wire.getDestination()).getSpec());
+			dumpState0(out, ((Instance)wire.getDestination()), indent, wire.getName(),
 					insts);
 		}
 	}

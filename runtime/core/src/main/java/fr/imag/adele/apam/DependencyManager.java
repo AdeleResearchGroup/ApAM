@@ -18,7 +18,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 
 /**
@@ -62,7 +61,7 @@ public interface DependencyManager extends Manager{
 	 * @param dependency the dependency to resolve. It contains the target type and name; and the constraints. 
 	 * @param selPath the managers currently involved in this resolution.
 	 */
-	public void getSelectionPath(Instance client, DependencyDeclaration dependency,  List<DependencyManager> selPath);
+	public void getSelectionPath(Component source, Dependency dependency,  List<DependencyManager> selPath);
 
 
 	/**
@@ -85,7 +84,7 @@ public interface DependencyManager extends Manager{
 	 * @return the implementations if resolved, null otherwise
 	 * @return in insts, the valid instances, null if none.
 	 */
-	public Resolved resolveDependency(Instance client, Dependency dependency, boolean needsInstances);
+	public Resolved resolveDependency(Component source, Dependency dependency);
 
 	/**
 	 * The instance client asks for a component given its name and type.
@@ -97,10 +96,9 @@ public interface DependencyManager extends Manager{
 	 * @param implName the name of implementation to find.
 	 * @return the implementations if resolved, null otherwise
 	 */
-	public Instance findInstByName      (Instance client, String instName);
-	public Implementation findImplByName(Instance client, String implName);
-	public Specification findSpecByName (Instance client, String specName);
-	public Component findComponentByName(Instance client, String compName);
+	public Instance       findInstByName (Component client, String instName);
+	public Implementation findImplByName (Component client, String implName);
+	public Specification  findSpecByName (Component client, String specName);
 
 
 	/**
@@ -114,7 +112,7 @@ public interface DependencyManager extends Manager{
      *            maximum
 	 * @return an instance if resolved, null otherwise
 	 */
-	public Instance resolveImpl(Instance client, Implementation impl, Dependency dependency);
+	public Instance resolveImpl(Component client, Implementation impl, Dependency dependency);
 
 	/**
 	 * The manager is asked to find the all "right" instances for the required implementation.
@@ -127,7 +125,7 @@ public interface DependencyManager extends Manager{
      *            maximum
 	 * @return all the instances if resolved, null otherwise
 	 */
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, Dependency dependency);
+	public Set<Instance> resolveImpls(Component client, Implementation impl, Dependency dependency);
 
 	/**
 	 * Once the resolution terminated, either successful or not, the managers are notified of the current
@@ -142,7 +140,7 @@ public interface DependencyManager extends Manager{
 	 * @param inst : the instance selected (null if cardinality multiple)
 	 * @param insts : the set of instances selected (null if simple cardinality)
 	 */
-	public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
+	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
 			Set<Instance> insts);
 
 

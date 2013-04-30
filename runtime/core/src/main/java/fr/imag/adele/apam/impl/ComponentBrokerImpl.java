@@ -510,6 +510,18 @@ public class ComponentBrokerImpl implements ComponentBroker{
 			// No bundle so far
 			return null;
 		}
+
+		@Override
+		public boolean setLink(Component destInst, String depName) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean remLink(Component destInst, String depName) {
+			// TODO Auto-generated method stub
+			return false;
+		}
 	}
 
 }

@@ -37,7 +37,7 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
@@ -190,17 +190,17 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public void getSelectionPath(Instance client, DependencyDeclaration dep, List<DependencyManager> selPath) {
+	public void getSelectionPath(Component client, Dependency dep, List<DependencyManager> selPath) {
 	}
 
 	@Override
-	public Instance resolveImpl(Instance client, Implementation impl, Dependency dep) {
+	public Instance resolveImpl(Component client, Implementation impl, Dependency dep) {
 		waitComponent (impl.getName()) ;
 		return null;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl,  Dependency dep) {
+	public Set<Instance> resolveImpls(Component client, Implementation impl,  Dependency dep) {
 		waitComponent (impl.getName());
 		return null;
 	}
@@ -210,19 +210,19 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public Implementation findImplByName(Instance client, String implName) {
+	public Implementation findImplByName(Component client, String implName) {
 		waitComponent (implName)  ;
 		return null;
 	}
 
 	@Override
-	public Specification findSpecByName(Instance client, String specName) {
+	public Specification findSpecByName(Component client, String specName) {
 		waitComponent (specName);
 		return null;
 	}
 
 	@Override
-	public Resolved resolveDependency(Instance client, Dependency dep, boolean needsInstances) {
+	public Resolved resolveDependency(Component client, Dependency dep) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null) return null;
 
@@ -232,17 +232,17 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 
 
 	@Override
-	public Instance findInstByName(Instance client, String instName) {
+	public Instance findInstByName(Component client, String instName) {
 		waitComponent(instName);
 		return null;
 	}
 
 
-	@Override
-	public Component findComponentByName(Instance client, String componentName) {
-		waitComponent(componentName);
-		return null;
-	}
+//	@Override
+//	public Component findComponentByName(Component client, String componentName) {
+//		waitComponent(componentName);
+//		return null;
+//	}
 
 	
 	@Override
@@ -251,7 +251,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public void notifySelection(Instance client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
+	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
 			Set<Instance> insts) {
 		// do not care
 	}
@@ -261,10 +261,10 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 		logger.debug("Removed : " + lostComponent);
 	}
 	@Override
-	public void removedWire(Wire wire) {
+	public void removedLink(Link wire) {
 	}
 	@Override
-	public void addedWire(Wire wire) {
+	public void addedLink(Link wire) {
 	}
 
 

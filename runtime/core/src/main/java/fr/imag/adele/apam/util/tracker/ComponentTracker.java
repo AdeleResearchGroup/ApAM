@@ -178,10 +178,10 @@ public class ComponentTracker<T extends Component> implements  ComponentTrackerC
         }
 
 		@Override
-		public void removedWire(Wire wire) {}
+		public void removedLink(Link wire) {}
 
 		@Override
-		public void addedWire(Wire wire) {	}
+		public void addedLink(Link wire) {	}
 
 		@Override
 		public String getName() {

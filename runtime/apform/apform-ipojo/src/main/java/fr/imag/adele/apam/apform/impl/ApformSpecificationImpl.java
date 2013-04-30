@@ -21,6 +21,7 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
@@ -96,6 +97,19 @@ public class ApformSpecificationImpl extends ApformComponentImpl implements Apfo
         // TODO Auto-generated method stub
 
     }
+    
+	@Override
+	public boolean setLink(Component destInst, String depName) {
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
+
+	@Override
+	public boolean remLink(Component destInst, String depName) {
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
+
 
 
 }

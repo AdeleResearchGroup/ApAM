@@ -30,6 +30,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 
 public class ApformInstanceDeclaration extends ApformComponentImpl {
@@ -154,5 +155,18 @@ public class ApformInstanceDeclaration extends ApformComponentImpl {
         // faire un refactoring pour ne pas heriter de ApformComponent
 
     }
+
+	@Override
+	public boolean setLink(Component destInst, String depName) {
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
+
+	@Override
+	public boolean remLink(Component destInst, String depName) {
+		//TODO to implement
+		throw new UnsupportedOperationException() ;
+	}
+
 
 }

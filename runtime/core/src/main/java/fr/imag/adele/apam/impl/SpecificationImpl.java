@@ -25,6 +25,7 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.declarations.ComponentKind;
 
 
 public class SpecificationImpl extends ComponentImpl implements Specification {
@@ -34,17 +35,17 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 	private final Set<Implementation> implementations = Collections
 			.newSetFromMap(new ConcurrentHashMap<Implementation, Boolean>());
 
-	/*
-	 * All relation requires, derived from all the used implementations
-	 */
-	private final Set<Specification>  requires        = Collections
-			.newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());
-
-	/*
-	 * All reverse requires, the opposite of requires
-	 */
-	private final Set<Specification>  invRequires     = Collections
-			.newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());  // all
+//	/*
+//	 * All relation requires, derived from all the used implementations
+//	 */
+//	private final Set<Specification>  requires        = Collections
+//			.newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());
+//
+//	/*
+//	 * All reverse requires, the opposite of requires
+//	 */
+//	private final Set<Specification>  invRequires     = Collections
+//			.newSetFromMap(new ConcurrentHashMap<Specification, Boolean>());  // all
 
 
 	protected SpecificationImpl(ApformSpecification apfSpec) throws InvalidConfiguration {
@@ -118,42 +119,42 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 	}
 
 
-	// relation requires control
-	public void addRequires(Specification dest) {
-		if (requires.contains(dest))
-			return;
-		requires.add(dest);
-		((SpecificationImpl) dest).addInvRequires(this);
-	}
-
-	public void removeRequires(Specification dest) {
-		for (Implementation impl : implementations) {
-			for (Implementation implDest : impl.getUses())
-				if (implDest.getSpec() == dest) {
-					return; // it exists another instance that uses that destination. Do nothing.
-				}
-		}
-		requires.remove(dest);
-		((SpecificationImpl) dest).removeInvRequires(this);
-	}
-
-	private void addInvRequires(Specification orig) {
-		invRequires.add(orig);
-	}
-
-	private void removeInvRequires(Specification orig) {
-		invRequires.remove(orig);
-	}
-
-	@Override
-	public Set<Specification> getRequires() {
-		return Collections.unmodifiableSet(requires);
-	}
-
-	@Override
-	public Set<Specification> getInvRequires() {
-		return Collections.unmodifiableSet(invRequires);
-	}
+//	// relation requires control
+//	public void addRequires(Specification dest) {
+//		if (requires.contains(dest))
+//			return;
+//		requires.add(dest);
+//		((SpecificationImpl) dest).addInvRequires(this);
+//	}
+//
+//	public void removeRequires(Specification dest) {
+//		for (Implementation impl : implementations) {
+//			for (Implementation implDest : impl.getUses())
+//				if (implDest.getSpec() == dest) {
+//					return; // it exists another instance that uses that destination. Do nothing.
+//				}
+//		}
+//		requires.remove(dest);
+//		((SpecificationImpl) dest).removeInvRequires(this);
+//	}
+//
+//	private void addInvRequires(Specification orig) {
+//		invRequires.add(orig);
+//	}
+//
+//	private void removeInvRequires(Specification orig) {
+//		invRequires.remove(orig);
+//	}
+//
+//	@Override
+//	public Set<Specification> getRequires() {
+//		return Collections.unmodifiableSet(requires);
+//	}
+//
+//	@Override
+//	public Set<Specification> getInvRequires() {
+//		return Collections.unmodifiableSet(invRequires);
+//	}
 
 
 	protected void removeImpl(Implementation impl) {
@@ -173,6 +174,12 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 	@Override
 	public Component getGroup() {
 		return null;
+	}
+
+
+	@Override
+	public ComponentKind getKind() {
+		return ComponentKind.SPECIFICATION ;
 	}
 }
 

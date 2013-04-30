@@ -26,6 +26,7 @@ import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
@@ -170,5 +171,17 @@ public class ApformImplementationImpl extends ApformComponentImpl implements Apf
     public void setProperty(String attr, String value) {
         // TODO change factory publication?
     }
+
+	@Override
+	public boolean setLink(Component destInst, String depName) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean remLink(Component destInst, String depName) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

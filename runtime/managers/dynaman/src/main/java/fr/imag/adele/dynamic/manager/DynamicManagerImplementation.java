@@ -45,7 +45,7 @@ import fr.imag.adele.apam.PropertyManager;
 import fr.imag.adele.apam.ResolutionException;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
@@ -362,7 +362,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 
 	@Override
-	public void addedWire(Wire wire) {
+	public void addedLink(Link wire) {
 	}
 
 	@Override
@@ -389,7 +389,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	@Override
-	public void removedWire(Wire wire) {
+	public void removedLink(Link wire) {
 		/*
 		 * Update the contents of all impacted composites
 		 */

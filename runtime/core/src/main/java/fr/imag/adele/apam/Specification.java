@@ -44,20 +44,20 @@ public interface Specification extends Component {
      */
     public Set<Implementation> getImpls();
 
-    /**
-     * Return the list of currently required specification.
-     * WARNING : does not include required interfaces and messages.
-     * 
-     * @return the list of currently required specification. Null if none
-     */
-    public Set<Specification> getRequires();
-
-    /**
-     * Return the list of specification that currently require that spec.
-     * 
-     * @return the list of specifications using that spec. Null if none
-     * @throws ConnectionException the connection exception
-     */
-    public Set<Specification> getInvRequires();
+//    /**
+//     * Return the list of currently required specification.
+//     * WARNING : does not include required interfaces and messages.
+//     * 
+//     * @return the list of currently required specification. Null if none
+//     */
+//    public Set<Specification> getRequires();
+//
+//    /**
+//     * Return the list of specification that currently require that spec.
+//     * 
+//     * @return the list of specifications using that spec. Null if none
+//     * @throws ConnectionException the connection exception
+//     */
+//    public Set<Specification> getInvRequires();
 
 }

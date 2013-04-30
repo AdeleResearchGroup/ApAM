@@ -102,7 +102,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		return CompositeImpl.rootComposite;
 	}
 
-	public static Instance getRootInstance() {
+	public static Composite getRootInstance() {
 		return CompositeImpl.rootComposite;
 	}
 
