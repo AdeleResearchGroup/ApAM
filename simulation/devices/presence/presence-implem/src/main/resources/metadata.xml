@@ -18,12 +18,12 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
-	<implementation name="presence" instantiable="false"
+	<implementation name="apam-presence" instantiable="false"
 		classname="fr.imag.adele.apam.device.presence.impl.SimulatedPresence" specification="presence-spec">
 		 <callback onInit="start" onRemove="stop"/>
 			<ipojo:requires field="manager" />
 
-			<definition name="location" type="{outside,hall,livingroom,bedroom,bathroom,kitchen}" field="location" internal="true" />
+			<definition name="Location" type="string" field="location" internal="true" />
 		
 			<definition name="fault" value="no" type="string" />
 			<definition name="state" value="activated" type="string" />

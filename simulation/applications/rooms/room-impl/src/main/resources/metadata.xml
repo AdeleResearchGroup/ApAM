@@ -22,25 +22,28 @@
                     classname="fr.imag.adele.apam.application.room.impl.RoomImpl"
                     specification="room-spec">
         <callback onInit="start" onRemove="stop"/>
-        <dependency field="light" added="bindLight" removed="unBindLight">
+        <dependency field="lights" added="bindLight" removed="unBindLight">
             <constraints>
-                <implementation filter="(name=light)"/>
+                <implementation filter="(name=apam-light)"/>
+		<instance filter="(Location=$$location)"/>
             </constraints>
         </dependency>
         <dependency field="presenceSensor" added="bindPresence" removed="unBindPresence">
             <constraints>
-                <implementation filter="(name=presence)"/>
+                <implementation filter="(name=apam-presence)"/>
+		<instance filter="(Location=$$location)"/>
             </constraints>
         </dependency>
     </implementation>
 
+<!--
     <composite name="hall" specification="room-spec"
                main="room" singleton="true">
         <contentMngt>
             <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
             <export instance="false"/>
-            <own specification="light-spec" property="location" value="hall"/>
-            <own specification="presence-spec" property="location" value="hall"/>
+            <own specification="light-spec" property="Location" value="hall"/>
+            <own specification="presence-spec" property="Location" value="hall"/>
 
         </contentMngt>
 
@@ -51,8 +54,8 @@
         <contentMngt>
             <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
             <export instance="false"/>
-            <own specification="light-spec" property="location" value="bedroom"/>
-            <own specification="presence-spec" property="location" value="bedroom"/>
+            <own specification="light-spec" property="Location" value="bedroom"/>
+            <own specification="presence-spec" property="Location" value="bedroom"/>
 
         </contentMngt>
 
@@ -63,8 +66,8 @@
         <contentMngt>
             <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
             <export instance="false"/>
-            <own specification="light-spec" property="location" value="bathroom"/>
-            <own specification="presence-spec" property="location" value="bathroom"/>
+            <own specification="light-spec" property="Location" value="bathroom"/>
+            <own specification="presence-spec" property="Location" value="bathroom"/>
 
         </contentMngt>
 
@@ -75,8 +78,8 @@
         <contentMngt>
             <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
             <export instance="false"/>
-            <own specification="light-spec" property="location" value="livingroom"/>
-            <own specification="presence-spec" property="location" value="livingroom"/>
+            <own specification="light-spec" property="Location" value="livingroom"/> 
+            <own specification="presence-spec" property="Location" value="livingroom"/>
         </contentMngt>
 
     </composite>
@@ -85,8 +88,8 @@
         <contentMngt>
             <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
             <export instance="false"/>
-            <own specification="light-spec" property="location" value="kitchen"/>
-            <own specification="presence-spec" property="location" value="kitchen"/>
+            <own specification="light-spec" property="Location" value="kitchen"/>
+            <own specification="presence-spec" property="Location" value="kitchen"/>
         </contentMngt>
     </composite>
 
@@ -95,7 +98,33 @@
     <apam-instance implementation="hall"  name="ihall" />
     <apam-instance implementation="livingroom"  name="ilivingroom" />
     <apam-instance implementation="kitchen"  name="ikitchen" />
+-->
 
+    <composite name="generic-room" specification="room-spec"
+               main="room" singleton="false">
+        <contentMngt>
+            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+           <export instance="true"/>
 
+<!--
+            <own specification="light-spec" property="Location" value="$$location"/>
+            <own specification="presence-spec" property="Location" value="$$location"/>
+-->
+        </contentMngt>
+
+    </composite>
+
+    <implementation name="roommanager" instantiable="true"
+		classname="fr.imag.adele.apam.application.room.impl.RoomManager" >
+			<callback onInit="start" onRemove="stop"/>
+			<ipojo:requires field="manager" />
+			<dependency field="apam" />
+
+			<ipojo:provides specifications="{fr.liglab.adele.icasa.location.ZoneListener}">
+			<ipojo:property name="service.description" type="string" />
+		</ipojo:provides>
+
+	</implementation>
+	<apam-instance implementation="roommanager"  name="iroommanager" />
 
 </apam>

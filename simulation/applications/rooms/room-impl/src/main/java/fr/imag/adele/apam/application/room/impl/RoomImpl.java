@@ -14,6 +14,8 @@
  */
 package fr.imag.adele.apam.application.room.impl;
 
+import java.util.List;
+
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.application.room.Room;
 import fr.liglab.adele.icasa.device.DeviceListener;
@@ -23,7 +25,8 @@ import fr.liglab.adele.icasa.device.presence.PresenceSensor;
 
 public class RoomImpl implements Room, DeviceListener {
 
-	private BinaryLight light;
+	private List<BinaryLight> lights;
+	//private BinaryLight light;
 
 	private PresenceSensor presenceSensor;
 
@@ -58,6 +61,7 @@ public class RoomImpl implements Room, DeviceListener {
 		PresenceSensor presence=(PresenceSensor)instance.getServiceObject();
 		presence.setPropertyValue(PresenceSensor.PRESENCE_SENSOR_SENSED_PRESENCE, false);
 		presence.removeListener(this);
+		//lights=null;
 		
 	}
 
@@ -88,17 +92,17 @@ public class RoomImpl implements Room, DeviceListener {
 	
 	public void setLightsStates(boolean state) {
 		
-		setLightsStates(light,state);
+		for(BinaryLight li:lights){
+			setLightsStates(li,state);
+		}
 
 	}
 
 	@Override
-	public void deviceAdded(GenericDevice device) {
-	}
+	public void deviceAdded(GenericDevice device) {}
 
 	@Override
-	public void deviceRemoved(GenericDevice device) {
-	}
+	public void deviceRemoved(GenericDevice device) {}
 
 	@Override
 	public void devicePropertyModified(GenericDevice device,
