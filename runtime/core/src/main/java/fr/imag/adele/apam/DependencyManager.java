@@ -84,7 +84,7 @@ public interface DependencyManager extends Manager{
 	 * @return the implementations if resolved, null otherwise
 	 * @return in insts, the valid instances, null if none.
 	 */
-	public Resolved resolveDependency(Component source, Dependency dependency);
+	public Resolved<?> resolveDependency(Component source, Dependency dependency);
 
 	/**
 	 * The instance client asks for a component given its name and type.

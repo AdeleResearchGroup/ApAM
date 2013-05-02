@@ -15,11 +15,8 @@ public interface Dependency  {
 	/**
 	 * return true if the component matches the constraints of that dependency.
 	 * Preferences are not taken into account
-	 * @param comp
-	 * @return
-	 */
-	//	public boolean matchDep (Component comp) ;
-	//Same as matchDep (Component comp) since component extends Map<String, Object>
+	 * Same as matchDep (Component comp) since component extends Map<String, Object>
+	*/
 	public boolean matchDep (Map <String, Object> properties) ;
 
 	// Get the reference to the required resource
@@ -76,6 +73,7 @@ public interface Dependency  {
 	//Type of target
 	public ComponentKind getTargetType () ;
 
+	//True if relation cardinality is multiple
 	public boolean isMultiple();
 
 	// Get the policy associated with this dependency
@@ -83,13 +81,14 @@ public interface Dependency  {
 
 	// Whether dependencies matching this contextual policy must be resolved eagerly
 	public Boolean isEager() ;
+	
+	//true if this is a dynamic wire, or a dynamic message ...
+	public boolean isDynamic () ;
 
+	//
 	public boolean isEffectiveEager();
 
-	/**
-	 * Whether an error resolving a dependency matching this policy should trigger a backtrack
-	 * in resolution
-	 */
+	//Whether an error resolving a dependency matching this policy should trigger a backtrack
 	public Boolean isHide() ;
 
 	// Get the exception associated with the missing policy

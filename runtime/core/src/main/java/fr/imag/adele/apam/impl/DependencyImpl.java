@@ -341,6 +341,13 @@ public class DependencyImpl implements Dependency {
 	}
 
 
+
+	@Override
+	public boolean isDynamic () {
+		return isDynamic ;
+	}
+
+	
 	@Override
 	public boolean equals(Object object) {
 		if (! (object instanceof Dependency))

@@ -23,7 +23,6 @@ import java.util.Set;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -80,6 +79,7 @@ public class DependencyUtil {
 	 * @param constraints
 	 * @return
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Resolved<?> getResolved(Set<? extends Component> candidates, Dependency dep) {
 		if (dep == null) return new Resolved (candidates);
 		if (candidates == null) return null ;
@@ -345,69 +345,6 @@ public class DependencyUtil {
 	}
 
 	
-	/**
-	 * Return the dependency that can be applied to this component.
-	 * 
-	 * A dependency D can be applied on a component source if
-	 *      D.Id == id
-	 *  	D.source must be the name of source or of an ancestor of source, 
-	 *      and D.SourceType == source.getKind.
-	 * 
-	 * Looks in the group, and then 
-	 *      in the composite type, if source in an instance
-	 *      in all composite types if source is an implem.
-	 * @param source
-	 * @param id
-	 * @return
-	 */
-	public static Dependency getDependency(Component source, String id) {
-		Dependency dep = null ;
-		Component group = source ;
-		while (group != null) {
-			dep = ((ComponentImpl)group).getLocalDependency(id) ; 
-			if (dep != null) 
-				return dep ; 
-			group = group.getGroup() ;
-		}
-		
-		//Looking for composite definitions.
-		if (source instanceof Instance) {
-			CompositeType comptype = ((Instance)source).getComposite().getCompType() ; 
-			dep = comptype.getCtxtDependency (source, id) ;
-			if (dep != null)
-				return dep ; 
-		}
-		if (source instanceof Implementation) {
-			for (CompositeType comptype : ((Implementation)source).getInCompositeType()) {
-				dep = comptype.getCtxtDependency (source, id) ;
-				if (dep != null)
-					return dep ; 
-			}
-		}
-		return null ;
-	}
-
-	public static Set<Dependency> getDependencies (Component source) {
-		Set<Dependency> deps = new HashSet<Dependency> () ;
-		Component group = source ;
-		while (group != null) {
-			deps.addAll(group.getLocalDependencies()) ;
-			group = group.getGroup() ;
-		}
-		
-		//Looking for composite definitions.
-		if (source instanceof Instance) {
-			CompositeType comptype = ((Instance)source).getComposite().getCompType() ; 
-			deps.addAll(comptype.getCtxtDependencies (source)) ;
-		}
-		if (source instanceof Implementation) {
-			for (CompositeType comptype : ((Implementation)source).getInCompositeType()) {
-				deps.addAll(comptype.getCtxtDependencies (source)) ;
-			}
-		}
-		return deps ;
-	}
-
 
 	/**
 	 * Provided a client instance, checks if its dependency "clientDep", matches another dependency: "compoDep".
@@ -491,7 +428,7 @@ public class DependencyUtil {
 	 * @param sourceDep the client dependency we are trying to resolve.
 	 * @return
 	 */
-	public static boolean matchOverrideDependency(Component source, DependencyDeclaration overDep, DependencyDeclaration sourceDep) {
+	private static boolean matchOverrideDependency(Component source, DependencyDeclaration overDep, DependencyDeclaration sourceDep) {
 
 		//Check if Ids are compatible
 		if (! sourceDep.getIdentifier().matches(overDep.getIdentifier()))
@@ -545,7 +482,7 @@ public class DependencyUtil {
 	 * @param generic: the dep comes from the composite type. It can override the exception, and has hidden and eager.
 	 * @return
 	 */
-	public static void overrideDepFlags (DependencyDeclaration dependency, DependencyDeclaration dep, boolean generic) {
+	private static void overrideDepFlags (DependencyDeclaration dependency, DependencyDeclaration dep, boolean generic) {
 		//If set, cannot be changed by the group definition.
 		//NOTE: This strategy is because it cannot be compiled, and we do not want to make an error during resolution
 		if (dependency.getMissingPolicy() == null || (generic && dep.getMissingPolicy() != null)) {
