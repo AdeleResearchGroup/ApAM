@@ -321,7 +321,7 @@ public class DependencyUtil {
 				//dependency.setTarget(groupDep.getTarget()) ;
 			} 
 
-			//Add the override dependency : flags and constraints. Only for instances
+			//Add the override dependency : flags and constraints. Only for source instances
 			else if (client instanceof Instance) {
 				List<DependencyDeclaration> overDeps = ((Instance)client).getComposite().getCompType().getCompoDeclaration().getOverridenDependencies() ;
 				if (overDeps != null && ! overDeps.isEmpty()) {
@@ -366,7 +366,7 @@ public class DependencyUtil {
 		while (group != null) {
 			dep = ((ComponentImpl)group).getLocalDependency(id) ; 
 			if (dep != null) 
-				return (dep.getSourceType()== source.getKind()) ? dep : null ; 
+				return dep ; 
 			group = group.getGroup() ;
 		}
 		
@@ -375,17 +375,37 @@ public class DependencyUtil {
 			CompositeType comptype = ((Instance)source).getComposite().getCompType() ; 
 			dep = comptype.getCtxtDependency (source, id) ;
 			if (dep != null)
-				return (dep.getSourceType()== source.getKind()) ? dep : null ; 
+				return dep ; 
 		}
 		if (source instanceof Implementation) {
-			Set<CompositeType> comptypes = ((Implementation)source).getInCompositeType() ;
-			for (CompositeType comptype : comptypes) {
+			for (CompositeType comptype : ((Implementation)source).getInCompositeType()) {
 				dep = comptype.getCtxtDependency (source, id) ;
 				if (dep != null)
-					return (dep.getSourceType()== source.getKind()) ? dep : null ; 
+					return dep ; 
 			}
 		}
 		return null ;
+	}
+
+	public static Set<Dependency> getDependencies (Component source) {
+		Set<Dependency> deps = new HashSet<Dependency> () ;
+		Component group = source ;
+		while (group != null) {
+			deps.addAll(group.getLocalDependencies()) ;
+			group = group.getGroup() ;
+		}
+		
+		//Looking for composite definitions.
+		if (source instanceof Instance) {
+			CompositeType comptype = ((Instance)source).getComposite().getCompType() ; 
+			deps.addAll(comptype.getCtxtDependencies (source)) ;
+		}
+		if (source instanceof Implementation) {
+			for (CompositeType comptype : ((Implementation)source).getInCompositeType()) {
+				deps.addAll(comptype.getCtxtDependencies (source)) ;
+			}
+		}
+		return deps ;
 	}
 
 

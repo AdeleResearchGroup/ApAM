@@ -17,7 +17,15 @@ package fr.imag.adele.apam;
 import java.util.Set;
 
 /*
+ * This object is used to return the result of a resolution, provided a dependency.
  * 
+ * If the dependency is a singleton, the result (if found) must be in singletonResolved, 
+ * 		if multiple, in setResolved.
+ * 
+ * In case the target is an Instance, an that the Implementation is found but no instance is available, 
+ *      the Implementation must be provided in toInstantiate, and the other fiels at null.
+ *      
+ *  In all cases, only one field is provided, others are null.
  */
 
 public class Resolved <T extends Component> {
@@ -35,7 +43,10 @@ public class Resolved <T extends Component> {
 		this.setResolved = null ;
 	}
 
-	public Resolved (Implementation toInstantiate, T empty) {
+	/*
+	 * The boolean is useless, only to make a different signature.
+	 */
+	public Resolved (Implementation toInstantiate, boolean toInstanciate) {
 		this.toInstantiate = toInstantiate ;
 		this.setResolved = null ;
 		this.singletonResolved = null ;

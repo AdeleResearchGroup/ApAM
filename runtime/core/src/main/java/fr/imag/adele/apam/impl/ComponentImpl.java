@@ -495,6 +495,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return DependencyUtil.getDependency (this, id) ;
 	}
 
+	@Override
+	public Set<Dependency> getDependencies() {
+		return DependencyUtil.getDependencies (this) ;
+	}
+
 	protected Dependency getLocalDependency (String id) {
 		return dependencies.get(id) ;
 	}

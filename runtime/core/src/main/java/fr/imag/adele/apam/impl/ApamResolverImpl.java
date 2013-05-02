@@ -306,12 +306,17 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param compoType
 	 * @param impl
 	 */
-	private static void deployedImpl(Component source, Implementation impl, boolean deployed) {
+	private static void deployedImpl(Component source, Component comp) {
+		//We take care only of implementations
+		if ( !(comp instanceof Implementation)) 
+			return ;
+		
+		Implementation impl = (Implementation)comp ;
 		// it was not deployed
-		if (!deployed && impl.isUsed()) {
-			logger.info(" : selected " + impl);
-			return;
-		}
+//		if (!deployed && impl.isUsed()) {
+//			logger.info(" : selected " + impl);
+//			return;
+//		}
 
 		CompositeType compoType ;
 		if (source instanceof Instance) {
@@ -331,11 +336,11 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.info(" : logically deployed " + impl);
 		} else {// it was unused so far.
 			((ComponentImpl)impl).setFirstDeployed(compoType);
-			if (deployed) {
+//			if (deployed) {
 				logger.info(" : deployed " + impl);				
-			} else {
-				logger.info(" : was here, unused " + impl);
-			}
+//			} else {
+//				logger.info(" : was here, unused " + impl);
+//			}
 		}
 	}
 
@@ -547,61 +552,51 @@ public class ApamResolverImpl implements ApamResolver {
 
 		Resolved<?> res = null ;
 		boolean deployed = false;
+		
 		for (DependencyManager manager : selectionPath) {
 			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
 				deployed = true;
 			}
 			logger.debug(manager.getName() + "  ");
+			
+			//Does the real job
 			res = manager.resolveDependency(source, dependency);
 			if (res == null || res.isEmpty()) 
+				//This manager did not found a solution, try the next manager
 				continue ;
 
-			/*
-			 * This manager succeeded to find a solution. 
-			 * 
-			 * Case where the manager returned an implem instead of an instance : instantiate.
-			 * And case of deployment
-			 */
-			if (deployed && res.singletonResolved != null && res.singletonResolved instanceof Implementation) {
-				//That implem was deployed
-				Implementation deployedImpl = (Implementation)res.singletonResolved ;
-				deployedImpl(source, deployedImpl, deployed);
-				
-				//The target was Implem. Only put the implem in the right place (singleton or set)
-				if (dependency.getTargetType() == ComponentKind.IMPLEMENTATION) {
-					if (dependency.isMultiple()) {
-						Set <Implementation> implems = new HashSet <Implementation> () ;
-						implems.add(deployedImpl) ;
-						return new Resolved<Implementation> (implems) ;
-					}
-					return res ;
-				}
-
-				if (dependency.getTargetType() == ComponentKind.INSTANCE 
-						&& res.singletonResolved != null
-						&& res.singletonResolved instanceof Implementation) {
-					//Need to instantiate it
-					Composite compo = (source instanceof Instance) ? ((Instance)source).getComposite() : CompositeImpl.getRootInstance() ;
-					Instance inst = deployedImpl.createInstance(compo, null);
-					if (inst == null) { // may happen if impl is non instantiable
-						logger.error("Failed creating instance of " + deployedImpl );
-						return null;
-					}
-					logger.info("Instantiated " + inst) ;							
-					if (dependency.isMultiple()) {
-						Set <Instance> insts = new HashSet <Instance> () ;
-						insts.add(inst) ;
-						return new Resolved<Instance> (insts) ;
-					}
-					else new Resolved<Instance> (inst) ;								
-				}
-				
-				return res ;
+			// This manager succeeded to find a solution 
+			if (deployed) {
+				//If a deployed implementation. Can be into toInstancie or in singleton if an implementation is required
+				Component depl = (res.toInstantiate != null) ? res.toInstantiate : ((Implementation) res.singletonResolved) ; 
+				deployedImpl(source, depl);
 			}
-
-			logger.info("Selected : " + res.setResolved) ;
-
-			//Check case multiple dependency : result MUST be in setResolved, and right type.
+	
+			//If an implementation is returned as "toInstantiate" it has to be instantiated
+			if (res.toInstantiate != null) {			
+				if (dependency.getTargetType() != ComponentKind.INSTANCE) {
+					logger.error("Invalid Resolved value. toInstantiate is set, but target kind is not Instance") ;
+					continue ;
+				}
+				
+				Composite compo = (source instanceof Instance) ? ((Instance)source).getComposite() : CompositeImpl.getRootInstance() ;
+				Instance inst = res.toInstantiate.createInstance(compo, null);
+				if (inst == null) { // may happen if impl is non instantiable
+					logger.error("Failed creating instance of " + res.toInstantiate );
+					continue ;
+				}
+				logger.info("Instantiated " + inst) ;							
+				if (dependency.isMultiple()) {
+					Set <Instance> insts = new HashSet <Instance> () ;
+					insts.add(inst) ;
+					return new Resolved<Instance> (insts) ;
+				}
+				else return new Resolved<Instance> (inst) ;												
+			}
+			
+			/*
+			 * Because managers can be third party, we cannot trust them. Verify that the result is correct.
+			 */
 			if (dependency.isMultiple()) {
 				if (res.setResolved == null || res.setResolved.isEmpty()) {
 					logger.info("manager " + manager + " returned an empty result. Should be null." ) ;
@@ -611,7 +606,7 @@ public class ApamResolverImpl implements ApamResolver {
 					logger.error("Manager " + manager + " returned objects of the bad type for dependency " + dependency) ;
 					continue ;
 				}
-
+				logger.info("Selected : " + res.setResolved) ;
 				return res ;
 			}
 
@@ -624,9 +619,13 @@ public class ApamResolverImpl implements ApamResolver {
 				logger.error("Manager " + manager + " returned objects of the bad type for dependency " + dependency) ;
 				continue ;
 			}
+			logger.info("Selected : " + res.singletonResolved) ;
 			return res ;
 		}
+		
 		return null ;
 	}
+
+			
 
 }
