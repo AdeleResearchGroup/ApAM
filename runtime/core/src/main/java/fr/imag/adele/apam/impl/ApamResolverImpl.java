@@ -181,9 +181,8 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @return
 	 */
 
-	@SuppressWarnings("rawtypes")
 	@Override
-	public Resolved resolveWire(Component source, String depName) {
+	public Resolved<?> resolveLink(Component source, String depName) {
 		if ((depName == null) || (source == null)) {
 			logger.error("missing client or dependency name");
 			return null;
@@ -195,13 +194,13 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.error("Relation declaration invalid or not found " + depName);
 			return null;
 		}
-		return resolveWire (source, dependencyDef) ;
+		return resolveLink (source, dependencyDef) ;
 	}
 
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public Resolved resolveWire(Component source, Dependency dep) {
+	public Resolved<?> resolveLink(Component source, Dependency dep) {
 		if (source == null || dep == null){
 			logger.error("missing client or dependency ");
 			return null;
@@ -228,11 +227,11 @@ public class ApamResolverImpl implements ApamResolver {
 				isPromotion = true;
 				promoHasConstraints = promotionDependency.hasConstraints() ;
 				if (promotionDependency.isMultiple())
-					resolved = new Resolved (compo.getLinkDests(promotionDependency.getIdentifier()), null);
-				else resolved = new Resolved (null, compo.getLinkDest(promotionDependency.getIdentifier()));
+					resolved = new Resolved (compo.getLinkDests(promotionDependency.getIdentifier()));
+				else resolved = new Resolved (compo.getLinkDest(promotionDependency.getIdentifier()));
 
 				if (resolved.isEmpty()) 
-					resolved = resolveWire (compo, promotionDependency) ;
+					resolved = resolveLink (compo, promotionDependency) ;
 				if (resolved == null) {
 					logger.error("Failed to resolve " + dep.getTarget()
 							+ " from " + source + "(" + dep.getIdentifier() + ")");
@@ -390,7 +389,7 @@ public class ApamResolverImpl implements ApamResolver {
 		if (preferences != null)
 			dep.getImplementationPreferences().addAll(preferences) ;
 
-		Resolved<?> resolve = resolveWire (client, dep) ;
+		Resolved<?> resolve = resolveLink (client, dep) ;
 		if (resolve == null) 
 			return null ;
 		return (Instance)resolve.setResolved ;
@@ -407,7 +406,7 @@ public class ApamResolverImpl implements ApamResolver {
 		if (constraints != null)
 			dep.getImplementationConstraints().addAll(constraints) ;
 
-		Resolved<?> resolve = resolveWire (client, dep) ;
+		Resolved<?> resolve = resolveLink (client, dep) ;
 		if (resolve == null) 
 			return null ;
 		
@@ -436,7 +435,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		Dependency dependency = new DependencyImpl (client, componentName, false, new ComponentReference<ComponentDeclaration>(componentName), client.getKind(), targetKind) ;
-		Resolved<?> res = resolveWire (client, dependency) ;
+		Resolved<?> res = resolveLink (client, dependency) ;
 		if (res == null) return null ;
 		return res.singletonResolved ;
 	}
@@ -513,7 +512,7 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.error("Invalid target type for resolveSpecByResource. Implemntation expected, found : " + dependency.getTargetType()) ;
 			return null ;
 		}
-		Resolved resolve = resolveWire (client, dependency) ;
+		Resolved<?> resolve = resolveLink (client, dependency) ;
 		if (resolve == null) return null ;
 
 		if (resolve.singletonResolved != null) 
@@ -571,12 +570,9 @@ public class ApamResolverImpl implements ApamResolver {
 				//The target was Implem. Only put the implem in the right place (singleton or set)
 				if (dependency.getTargetType() == ComponentKind.IMPLEMENTATION) {
 					if (dependency.isMultiple()) {
-//						res.setResolved = new HashSet <Implementation> () ;
-//						res.setResolved.add(deployedImpl) ;
-//						res.singletonResolved = null ;
 						Set <Implementation> implems = new HashSet <Implementation> () ;
 						implems.add(deployedImpl) ;
-						return new Resolved<Implementation> (implems, null) ;
+						return new Resolved<Implementation> (implems) ;
 					}
 					return res ;
 				}
@@ -593,13 +589,11 @@ public class ApamResolverImpl implements ApamResolver {
 					}
 					logger.info("Instantiated " + inst) ;							
 					if (dependency.isMultiple()) {
-//						res.setResolved = new HashSet <Instance> () ;
-//						res.setResolved.add(inst) ;						
 						Set <Instance> insts = new HashSet <Instance> () ;
 						insts.add(inst) ;
-						return new Resolved<Instance> (insts, null) ;
+						return new Resolved<Instance> (insts) ;
 					}
-					else res.singletonResolved = inst ;								
+					else new Resolved<Instance> (inst) ;								
 				}
 				
 				return res ;

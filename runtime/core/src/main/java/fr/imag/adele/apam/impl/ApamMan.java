@@ -201,8 +201,8 @@ public class ApamMan implements DependencyManager {
 			}
 
 			if (dep.isMultiple())
-				return new Resolved<Implementation> (impls, null) ;
-			return new Resolved<Implementation> (null, DependencyUtil.getPrefered(impls, dep)) ;
+				return new Resolved<Implementation> (impls) ;
+			return new Resolved<Implementation> (DependencyUtil.getPrefered(impls, dep)) ;
 		}
 		
 		/*
@@ -229,8 +229,8 @@ public class ApamMan implements DependencyManager {
 		 * If dependency is singleton, select the best instance.
 		 */
 		if (dep.isMultiple()) 
-			return new Resolved<Instance> (insts, null) ;
-		return new Resolved<Instance> (null, DependencyUtil.getPrefered(insts, dep)) ;
+			return new Resolved<Instance> (insts) ;
+		return new Resolved<Instance> (DependencyUtil.getPrefered(insts, dep)) ;
 	}
 
 

@@ -122,6 +122,10 @@ public interface Component {
 	//null if not defined
 	public Dependency getDependency(String id) ;
 
+	//Get all the dependencies that can be applied to this component, including those coming from composite if any.
+	//Empty if none
+	public Set<Dependency> getDependencies() ;
+
 	//Get all the dependencies defined at that component level. 
 	//Empty if none.
 	//Return an unmodifiable collection of dependencies

@@ -292,8 +292,8 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     	Implementation impl = resolveSpec(client, dep);
     	if (impl == null)
     		return null;
-    	
-        return new Resolved<Implementation> (null, impl);
+    	//TODO BUG. Can return any kind of component
+        return new Resolved<Implementation> (impl);
     }
 
     private <C extends Component> C findByName(Component source, String componentName, Class<C> kind) {

@@ -24,6 +24,7 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
+import fr.imag.adele.apam.util.Visible;
 
 /**
  * This class is used to represent the pending requests that are waiting for resolution.
@@ -35,7 +36,7 @@ public class PendingRequest {
 	/**
 	 * The source of the dependency
 	 */
-	protected final Component source;
+	protected final Instance source;
 	
 	/**
 	 * The dependency to resolve
@@ -51,19 +52,19 @@ public class PendingRequest {
 	/**
 	 * The result of the resolution
 	 */
-	private Resolved resolution;
+	private Resolved<?> resolution;
 
 	/**
 	 * Builds a new pending request reification
 	 */
-	protected PendingRequest(ApamResolverImpl resolver, Component source, Dependency dependency) {
+	protected PendingRequest(ApamResolverImpl resolver, Instance source, Dependency dependency) {
 		this.resolver		= resolver;
 		this.source			= source;
 		this.dependency		= dependency;
 		this.resolution		= null;
 	}
 	
-	public Component getSource() {
+	public Instance getSource() {
 		return source;
 	}
 	
@@ -86,39 +87,7 @@ public class PendingRequest {
 	 * Whether this request was resolved by the last resolution retry
 	 */
 	private boolean isResolved() {
-		
-		if (resolution == null)
-			return false;
-		
-		/*
-		 * if a matching instance was required and found, it is resolved
-		 */
-//		if (needsInstances) {
-//			if (resolution.instances != null && !resolution.instances.isEmpty())
-//				return true;
-//		}
-		
-		/*
-		 * If there is no matching implementations, it can not be resolved
-		 */
-		if (resolution.isEmpty())
-			return false;
-		
-		// TODO distriman: excerpt was removed due to remote instance to not have access to their implementations, was it right to remove it?
-		/*
-		 * If an instance is needed there must be at least one instantiable implementation, 
-		 * otherwise any matching implementation is valid 
-		 */
-//		boolean hasInstantiable = false;
-//		for (Implementation implementation : resolution.implementations) {
-//			if (implementation.isInstantiable()) {
-//				hasInstantiable = true;
-//				break;
-//			}
-//		}				
-		
-//		return needsInstances; // ? hasInstantiable : true;
-		return true ;
+		return resolution != null;
 	}
 	
 	/**
@@ -146,7 +115,7 @@ public class PendingRequest {
 	/**
 	 * The result of the resolution
 	 */
-	public synchronized Resolved getResolution() {
+	public synchronized Resolved<?> getResolution() {
 		return resolution;
 	}
 
@@ -167,7 +136,7 @@ public class PendingRequest {
 		synchronized (this) {
 			try {
 				beginResolve();
-				resolution = resolver.resolveWire(source, dependency);
+				resolution = resolver.resolveLink(source, dependency);
 				this.notifyAll();
 			} finally {
 				endResolve();
@@ -207,6 +176,9 @@ public class PendingRequest {
 	 * concerned with an event.
 	 */
 	public boolean isSatisfiedBy(Component candidate) {
+	
+		if (! Visible.isVisible(source, candidate))
+			return false;
 		
 		Implementation implementation = null;
 		

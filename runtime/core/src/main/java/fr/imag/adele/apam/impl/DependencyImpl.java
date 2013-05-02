@@ -11,7 +11,6 @@ import java.util.Set;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.declarations.ComponentKind;
-import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.MissingPolicy;
 import fr.imag.adele.apam.declarations.ResolvableReference;

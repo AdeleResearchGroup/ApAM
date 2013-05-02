@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
@@ -46,7 +47,6 @@ import fr.imag.adele.apam.impl.CompositeImpl;
 import fr.imag.adele.apam.impl.DependencyUtil;
 import fr.imag.adele.apam.impl.InstanceImpl;
 import fr.imag.adele.apam.util.Util;
-import fr.imag.adele.apam.util.UtilComp;
 import fr.imag.adele.apam.util.Visible;
 
 
@@ -269,8 +269,11 @@ public class ContentManager  {
 		
 		assert instance.getComposite().equals(getComposite());
 		
-		for (DependencyDeclaration dependency : DependencyUtil.computeAllEffectiveDependency(instance)) {
+		for (Dependency dependency : instance.getDependencies()) {
 
+			/*
+			 * TODO only pull consumer
+			 */
 			boolean hasField =  false;
 			for (DependencyInjection injection : dependency.getInjections()) {
 				if (injection instanceof DependencyInjection.Field) {
@@ -330,7 +333,7 @@ public class ContentManager  {
 						continue;
 					
 //TODO This is a BUG. should use matchDependencyConstraints instead.
-					if (!candidate.match(trigger.getInstanceConstraints()))
+					if (!candidate.matchDependencyConstraints(dep)(trigger.getInstanceConstraints()))
 						continue;
 
 					//TODO This is a BUG. should use matchDependencyConstraints instead.
@@ -659,10 +662,7 @@ public class ContentManager  {
 		 * verify if the new implementation satisfies any pending resolutions in
 		 * this composite
 		 */
-		xx should use Visible.isVisible(source, instance)
-		if (Visible.checkImplVisible(getComposite().getCompType(),implementation))
-//		if (Visible.isVisible(getComposite(), implementation))
-			resolveRequestsWaitingFor(implementation);
+		resolveRequestsWaitingFor(implementation);
 	}
 	
 	
@@ -674,11 +674,8 @@ public class ContentManager  {
 		/*
 		 * verify if the new instance satisfies any pending resolutions in this composite
 		 */
-		xx should use Visible.isVisible(source, instance)
-		if (instance.isSharable() && Visible.checkInstVisible(getComposite(),instance)) {
-			resolveRequestsWaitingFor(instance);
-			resolveDynamicRequests(instance);
-		}
+		resolveRequestsWaitingFor(instance);
+		resolveDynamicRequests(instance);
 
 		/*
 		 * verify if a newly contained instance has dynamic dependencies or satisfies a trigger

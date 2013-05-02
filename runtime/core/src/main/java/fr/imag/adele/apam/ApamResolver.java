@@ -39,8 +39,8 @@ public interface ApamResolver {
      * @param depName the dependency name. Field for atomic; spec name for complex dep, type for composite.
      * @return
      */
-    public Resolved resolveWire(Component source, String depName);
-    public Resolved resolveWire(Component source, Dependency dep);
+    public Resolved<?> resolveLink(Component source, String depName);
+    public Resolved<?> resolveLink(Component source, Dependency dep);
 
 
     /**

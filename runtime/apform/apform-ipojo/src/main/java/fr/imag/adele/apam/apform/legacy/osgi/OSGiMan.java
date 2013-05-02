@@ -159,12 +159,12 @@ public class OSGiMan implements DependencyManager {
 			}
 			if (dependency.getTargetType() == ComponentKind.IMPLEMENTATION) {
 				if (dependency.isMultiple())
-					return new Resolved<Implementation> (implementations, null) ;
+					return new Resolved<Implementation> (implementations) ;
 				return new Resolved<Implementation> (null, implementations.iterator().next()) ;
 			}
 			if (dependency.getTargetType() == ComponentKind.INSTANCE) {
 				if (dependency.isMultiple())
-					return new Resolved<Instance> (instances, null) ;
+					return new Resolved<Instance> (instances) ;
 				return new Resolved<Instance> (null, instances.iterator().next()) ;
 			}
 

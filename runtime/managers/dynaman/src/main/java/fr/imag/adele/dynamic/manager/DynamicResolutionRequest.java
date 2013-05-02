@@ -15,9 +15,9 @@
 package fr.imag.adele.dynamic.manager;
 
 import fr.imag.adele.apam.ApamResolver;
+import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
@@ -51,14 +51,14 @@ public class DynamicResolutionRequest {
 	/**
 	 * The dependency to resolve
 	 */
-	private final DependencyDeclaration dependency;
+	private final Dependency dependency;
 	
     /**
      * whether this request is currently scheduled for resolution
      */
     private boolean isScheduled;
 	
-	public DynamicResolutionRequest(ApamResolver resolver, Instance source, DependencyDeclaration dependency) {
+	public DynamicResolutionRequest(ApamResolver resolver, Instance source, Dependency dependency) {
 		this.resolver		= resolver;
 		this.source			= source;
 		this.dependency		= dependency;
@@ -149,7 +149,7 @@ public class DynamicResolutionRequest {
     	 */
 		try {
 			beginResolve();
-			resolver.resolveWire(source, dependency.getIdentifier());
+			resolver.resolveLink(source, dependency.getIdentifier());
 		}
 		catch (Throwable ignoredError) {
 		}

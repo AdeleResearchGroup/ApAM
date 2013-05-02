@@ -231,7 +231,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	/**
 	 * Throws the exception associated with a missing dependency
 	 */
-	private void throwMissingException(Dependency dependency, Component client) {
+	private void throwMissingException(Dependency dependency, Instance client) {
 		try {
 			
 			/*
@@ -249,10 +249,6 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			 */
 			String exceptionName		= dependency.getMissingException();
 			
-			/**
-			 * There are cases where the client will not be available, check with herman the invalid cases and the fix for that 
-			 */
-			//TODO sure client it is an instance ?
 			Class<?> exceptionClass		= client.getImpl().getApformImpl().getBundle().loadClass(exceptionName);
 			Exception exception			= Exception.class.cast(exceptionClass.newInstance());
 			
@@ -436,8 +432,11 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 
 	@Override
-	public Resolved resolveDependency(Component client, Dependency dependency) {
-			
+	public Resolved<?> resolveDependency(Component client, Dependency dependency) {
+		
+		if (! (client instanceof Instance))
+			return null;
+		
 		/*
 		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
 		 * the unrelated thread that triggered the recalculation
@@ -455,11 +454,11 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			}
 			
 			case EXCEPTION : {
-				throwMissingException(dependency,client);
+				throwMissingException(dependency,(Instance)client);
 			}
 			
 			case WAIT : {
-				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver, client, dependency);
+				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver,(Instance) client, dependency);
 				block(request);
 				return request.getResolution();
 			}

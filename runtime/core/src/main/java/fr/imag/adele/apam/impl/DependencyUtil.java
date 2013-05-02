@@ -80,8 +80,8 @@ public class DependencyUtil {
 	 * @param constraints
 	 * @return
 	 */
-	public static Resolved getResolved(Set<? extends Component> candidates, Dependency dep) {
-		if (dep == null) return new Resolved (candidates, null);
+	public static Resolved<?> getResolved(Set<? extends Component> candidates, Dependency dep) {
+		if (dep == null) return new Resolved (candidates);
 		if (candidates == null) return null ;
 
 		Set<Component> ret = new HashSet <Component> () ;
@@ -95,13 +95,13 @@ public class DependencyUtil {
 			return null ;
 		
 		if (dep.isMultiple()) 
-			return new Resolved (ret, null) ;
+			return new Resolved (ret) ;
 
 		//look for preferences
-		return new Resolved (null, getPrefered (ret, dep)) ; 
+		return new Resolved (getPrefered (ret, dep)) ; 
 	}
 	
-	public static Resolved getResolved(Resolved candidates, Dependency dep) {
+	public static Resolved<?> getResolved(Resolved<?> candidates, Dependency dep) {
 		if (candidates.singletonResolved != null) {
 			if (candidates.singletonResolved.matchDependencyConstraints(dep))
 				return candidates ;
