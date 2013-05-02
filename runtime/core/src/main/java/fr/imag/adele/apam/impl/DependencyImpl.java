@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.declarations.ComponentKind;
@@ -15,10 +18,13 @@ import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.DependencyInjection;
 import fr.imag.adele.apam.declarations.MissingPolicy;
 import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.util.ApamFilter;
 
 
 public class DependencyImpl implements Dependency {
+
+	static Logger logger = LoggerFactory.getLogger(ApamResolverImpl.class);
 
 	//Relationship name
 	private final String identifier;
@@ -75,8 +81,8 @@ public class DependencyImpl implements Dependency {
 	private final List<ApamFilter> 	mngInstancePreferenceFilters= new ArrayList<ApamFilter> ();
 	private boolean isStaticInstPreferenceFilters = false;
 
-//	public static Dependency voidDep 		= new DependencyImpl () ;
-	
+	//	public static Dependency voidDep 		= new DependencyImpl () ;
+
 	// Whether this dependency is declared explicitly as multiple
 	private final boolean       isMultiple;
 
@@ -87,20 +93,25 @@ public class DependencyImpl implements Dependency {
 	private final String        missingException;
 
 	// Whether a dependency matching this policy must be eagerly resolved
-	private final Boolean       isEager;
+	private final boolean       isEager;
 
 	// Whether a resolution error must trigger a backtrack in the architecture
-	private final Boolean       mustHide;
+	private final boolean       mustHide;
 
-	// Whether a resolution error must trigger a backtrack in the architecture
+	// true if this is a dynamic relation : a field multiple, or a dynamic message
 	private final boolean       isDynamic;
 
-//	private DependencyImpl () {
-//		
-//	}
+	//If this is a Wire definion
+	private final boolean       isWire;
 	
+	private boolean isComputed = false ;
+
+	//	private DependencyImpl () {
+	//		
+	//	}
+
 	//The minimum info for a find.
-    protected DependencyImpl (Component component,  String id, boolean isMultiple, ResolvableReference resource, ComponentKind sourceType, ComponentKind targetType) {
+	protected DependencyImpl (Component component,  String id, boolean isMultiple, ResolvableReference resource, ComponentKind sourceType, ComponentKind targetType) {
 		this.component 			= component ;
 		this.identifier			= id ;
 		this.targetDefinition	= resource;
@@ -110,6 +121,7 @@ public class DependencyImpl implements Dependency {
 
 		this.source				= "this" ;
 		isDynamic				= false ;
+		isWire 					= false ;
 		isEager 				= false ;
 		mustHide 				= false ;
 		missingException 		= null ;
@@ -119,12 +131,12 @@ public class DependencyImpl implements Dependency {
 		isStaticInstConstraintFilters = false ;
 		isStaticImplemPreferenceFilters = false ;
 		isStaticInstPreferenceFilters = false;
-    }
-   
+	}
 
-/*
- * Component can be null; in that case filters are not substituted.
- */
+
+	/*
+	 * Component can be null; in that case filters are not substituted.
+	 */
 	public DependencyImpl (DependencyDeclaration dep, Component component) {
 		//Definition
 		this.component 			= component ;
@@ -136,8 +148,8 @@ public class DependencyImpl implements Dependency {
 
 		// Flags
 		this.isMultiple 		= dep.isMultiple();
-		this.isEager 			= dep.isEager();
-		this.mustHide 			= dep.isHide();
+		this.isEager 			= (dep.isEager() == null) ? false : dep.isEager() ;
+		this.mustHide 			= (dep.isHide()  == null) ? false : dep.isHide();
 		this.missingPolicy 		= dep.getMissingPolicy();
 		this.missingException 	= dep.getMissingException();
 
@@ -156,7 +168,16 @@ public class DependencyImpl implements Dependency {
 			}
 		}
 		isDynamic = (! hasField || dep.isMultiple() || dep.isEffectiveEager()) ;
-			
+
+		isWire = (hasField 
+				&& dep.getTargetType() == ComponentKind.INSTANCE
+				&& dep.getTarget() instanceof ResourceReference 
+				&& !dep.getTarget().getName().equals("fr.imag.adele.apam.Component")
+				&& !dep.getTarget().getName().equals("fr.imag.adele.apam.Specification")
+				&& !dep.getTarget().getName().equals("fr.imag.adele.apam.Implementation")
+				&& !dep.getTarget().getName().equals("fr.imag.adele.apam.Instance")
+				) ;
+
 		//Check if there are substitutions, and build filters
 		ApamFilter f ;
 		boolean subst ;
@@ -223,7 +244,7 @@ public class DependencyImpl implements Dependency {
 	 * First it clears the previous filters (except if immutable), and recompute them from the string contraints
 	 * Adds in mng the preferences and constraints filters 
 	 */
-	public void computeFilters () {
+	protected void computeFilters () {
 		ApamFilter f ;
 		/*
 		 * Manager constraints. Can be different for each resolution
@@ -307,7 +328,13 @@ public class DependencyImpl implements Dependency {
 		// concatenate constraints lists
 		mngImplementationConstraintFilters.addAll(implementationConstraintFilters) ;
 		mngInstanceConstraintFilters.addAll(instanceConstraintFilters) ;
-}
+		
+		isComputed = true ;
+	}
+	
+	protected void resetFilters () {
+		isComputed = false ;
+	}
 
 
 	/**
@@ -316,13 +343,19 @@ public class DependencyImpl implements Dependency {
 	 * @param comp
 	 * @return
 	 */
-//	@Override
-//	public boolean matchDep (Component comp) {
-//		return matchDep (comp.getAllProperties()) ;
-//	}
+	//	@Override
+	//	public boolean matchDep (Component comp) {
+	//		return matchDep (comp.getAllProperties()) ;
+	//	}
 
 	@Override
 	public boolean matchDep (Map <String, Object> properties) {
+		
+		if (!isComputed) {
+			logger.error("Filters not computed") ;
+			return false ;
+		}
+		
 		if (getSourceType()== ComponentKind.IMPLEMENTATION) {
 			for (ApamFilter f : mngImplementationConstraintFilters) {
 				if (! f.match0(properties)) return false ;
@@ -347,7 +380,11 @@ public class DependencyImpl implements Dependency {
 		return isDynamic ;
 	}
 
-	
+	@Override
+	public boolean isWire () {
+		return isWire ;
+	}
+
 	@Override
 	public boolean equals(Object object) {
 		if (! (object instanceof Dependency))
@@ -436,43 +473,43 @@ public class DependencyImpl implements Dependency {
 	}
 
 	// Set the missing policy used for this dependency
-//	protected void setMissingPolicy(MissingPolicy missingPolicy) {
-//		this.missingPolicy = missingPolicy;
-//	}
+	//	protected void setMissingPolicy(MissingPolicy missingPolicy) {
+	//		this.missingPolicy = missingPolicy;
+	//	}
 
 	// Whether dependencies matching this contextual policy must be resolved eagerly
-	public Boolean isEager() {
+	public boolean isEager() {
 		return isEager;
 	}
 
 	public boolean isEffectiveEager() {
-		return isEager != null ? isEager : false;
+		return isEager ;
 	}
 
-//	protected void setEager(Boolean isEager) {
-//		this.isEager = isEager;
-//	}
+	//	protected void setEager(Boolean isEager) {
+	//		this.isEager = isEager;
+	//	}
 
 	/**
 	 * Whether an error resolving a dependency matching this policy should trigger a backtrack
 	 * in resolution
 	 */
-	public Boolean isHide() {
+	public boolean isHide() {
 		return mustHide;
 	}
 
-//	protected void setHide(Boolean mustHide) {
-//		this.mustHide = mustHide;
-//	}
+	//	protected void setHide(Boolean mustHide) {
+	//		this.mustHide = mustHide;
+	//	}
 
 	// Get the exception associated with the missing policy
 	public String getMissingException() {
 		return missingException;
 	}
 
-//	protected void setMissingException(String missingException) {
-//		this.missingException = missingException;
-//	}
+	//	protected void setMissingException(String missingException) {
+	//		this.missingException = missingException;
+	//	}
 
 	@Override
 	public List<ApamFilter> getImplementationPreferenceFilters (){
@@ -553,20 +590,20 @@ public class DependencyImpl implements Dependency {
 	public Set<ApamFilter> getAllInstanceConstraintFilters() {
 		return Collections.unmodifiableSet(mngInstanceConstraintFilters) ;
 	}
-	
-//	//return the (modifiable !!) list of preferences, first intrinic, then mng.
-//	@Override	
-//	public List<ApamFilter> getImplementationPreferenceFilters () {
-//		return mngImplementationPreferenceFilters ;
-//	}
-//
-//	@Override	
-//	public List<ApamFilter> getInstancePreferenceFilters () {
-//		return mngInstancePreferenceFilters ;
-//	}
-//
+
+	//	//return the (modifiable !!) list of preferences, first intrinic, then mng.
+	//	@Override	
+	//	public List<ApamFilter> getImplementationPreferenceFilters () {
+	//		return mngImplementationPreferenceFilters ;
+	//	}
+	//
+	//	@Override	
+	//	public List<ApamFilter> getInstancePreferenceFilters () {
+	//		return mngInstancePreferenceFilters ;
+	//	}
+	//
 	//return the (non modifiable) list of constraints,  intrinic and mng.
-//	@Override
-//	public List<ApamFilter> getImplementationConstraintsFilters () ;
+	//	@Override
+	//	public List<ApamFilter> getImplementationConstraintsFilters () ;
 
 }

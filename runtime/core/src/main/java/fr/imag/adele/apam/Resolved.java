@@ -23,7 +23,7 @@ import java.util.Set;
  * 		if multiple, in setResolved.
  * 
  * In case the target is an Instance, an that the Implementation is found but no instance is available, 
- *      the Implementation must be provided in toInstantiate, and the other fiels at null.
+ *      the Implementation must be provided in toInstantiate, and the other fields at null.
  *      
  *  In all cases, only one field is provided, others are null.
  */

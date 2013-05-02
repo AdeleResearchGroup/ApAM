@@ -72,33 +72,13 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param dependency definition
 	 * @return the composite dependency from the composite.
 	 */
-	//	private  Resolved getPromotion(Component clientC, Dependency dependency) {
-	//		//Only for instances
-	//		if (! (clientC instanceof Instance)) {
-	//			return null ;
-	//		}
-	//
-	//		Instance source = (Instance)clientC ;
-	//
-	//		Composite compo = getClientComposite(source);
-	//		//Instance refClient = source;
-	//		Dependency promotionDependency = getPromotionDep(source, dependency);
-	//		// if it is a promotion, visibility and scope is the one of the embedding composite.
-	//		if (promotionDependency == null) {
-	//			return resolveWire (compo, promotionDependency) ;
-	//		}		
-	//		return new Resolved (compo.getLinkDests(promotionDependency.getIdentifier()), null) ;
-	//	}
+	private  Dependency getPromotionDep(Instance client, Dependency dependency) {
 
-
-	private  Dependency getPromotionDep(Component clientC, Dependency dependency) {
-
-		Instance client = (Instance)clientC ;
 		Composite composite = client.getComposite() ;
 
-		if (composite.getDeclaration() == null) {
-			return null;
-		}
+		//		if (composite.getDeclaration() == null) {
+		//			return null;
+		//		}
 
 		//look if a promotion is explicitly declared for that client component
 		// <promotion implementation="A" dependency="clientDep" to="compoDep" />
@@ -198,6 +178,9 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 
+	/**
+	 * The central method for the resolver.
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Resolved<?> resolveLink(Component source, Dependency dep) {
@@ -207,62 +190,73 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		logger.info("Resolving relation " + dep + " from " + source );
+		
+		//a try / finally to reset filters in all cases. Just a verification, to avoid matching outside a compute filter.
+		try {
 
-		//Will contain the candidate solution (before constraint matching).
-		Resolved resolved = null;
+			//Will contain the  solution .
+			Resolved resolved = null;
+			boolean isPromotion = false ;
+			boolean promoHasConstraints = false ;
 
-		boolean isPromotion = false ;
-		boolean promoHasConstraints = false ;
+			/*
+			 *  Promotion control
+			 *  Only for instances
+			 */
+			if (source instanceof Instance) {
+				Composite compo = getClientComposite((Instance)source);
+				Dependency promotionDependency = getPromotionDep((Instance)source, dep);
 
-		/*
-		 *  Promotion control
-		 *  Only for instances
-		 */
-		if (source instanceof Instance) {
-			Composite compo = getClientComposite((Instance)source);
-			Dependency promotionDependency = getPromotionDep((Instance)source, dep);
+				// if it is a promotion, get the composite dependency targets.
+				if (promotionDependency != null) {
+					isPromotion = true;
+					promoHasConstraints = promotionDependency.hasConstraints() ;
+					if (promotionDependency.isMultiple())
+						resolved = new Resolved (compo.getLinkDests(promotionDependency.getIdentifier()));
+					else resolved = new Resolved (compo.getLinkDest(promotionDependency.getIdentifier()));
 
-			// if it is a promotion, visibility and scope is the one of the embedding composite. We got the candidates.
-			if (promotionDependency != null) {
-				isPromotion = true;
-				promoHasConstraints = promotionDependency.hasConstraints() ;
-				if (promotionDependency.isMultiple())
-					resolved = new Resolved (compo.getLinkDests(promotionDependency.getIdentifier()));
-				else resolved = new Resolved (compo.getLinkDest(promotionDependency.getIdentifier()));
+					if (resolved.isEmpty()) //Maybe the composite did not resolve that dependency so far.
+						resolved = resolveLink (compo, promotionDependency) ;
+					if (resolved == null) {
+						logger.error("Failed to resolve " + dep.getTarget()
+								+ " from " + source + "(" + dep.getIdentifier() + ")");
+						return null;
+					}
 
-				if (resolved.isEmpty()) 
-					resolved = resolveLink (compo, promotionDependency) ;
-				if (resolved == null) {
-					logger.error("Failed to resolve " + dep.getTarget()
-							+ " from " + source + "(" + dep.getIdentifier() + ")");
-					return null;
+					//Select the sub-set that matches the dep constraints. No source visibility control (null).
+					//Adds the manager constraints and compute filters
+					computeSelectionPath(source, dep) ;
+					resolved = DependencyUtil.getResolved(null, resolved, dep) ;
 				}
-				resolved = DependencyUtil.getResolved(resolved, dep) ;
 			}
-		}
 
+			if (! isPromotion) {
+				resolved = this.resolveDependency(source, dep);
+			}
 
-		//in case promotion already provided resolved.
-		//Resolve the dependency now
-		if (resolved == null) {
-			//call the managers ...
-			resolved = this.resolveDependency(source, dep);
 			if (resolved == null) {
 				logger.error("Failed to resolve " + dep.getTarget()
 						+ " from " + source + "(" + dep.getIdentifier() + ")");
 				return null;
 			}
-		}
 
-		//It is resolved.
-		if (resolved.singletonResolved != null) {
-			source.createLink(resolved.singletonResolved, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);
+			/*
+			 * It is resolved.
+			 */
+			if (resolved.singletonResolved != null) {
+				source.createLink(resolved.singletonResolved, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);
+				return resolved ;
+			}
+			for (Object target : resolved.setResolved) {
+				source.createLink((Component)target, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);			
+			}
 			return resolved ;
+
 		}
-		for (Object target : resolved.setResolved) {
-			source.createLink((Component)target, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);			
+		//reset filters in all cases. Just a verification, to avoid matching outside a compute filter.
+		finally {
+			((DependencyImpl)dep).resetFilters() ;
 		}
-		return resolved ;
 	}
 
 
@@ -326,7 +320,7 @@ public class ApamResolverImpl implements ApamResolver {
 			compoType = ((Implementation)source).getInCompositeType().iterator().next ();
 		} else {
 			logger.error("Should not call deployedImpl on a source Specification " + source) ;
-			//TODO in which composite to put it. Still in unused ?
+			//TODO in which composite to put it. Still in root ?
 			return ;
 		}
 		((CompositeTypeImpl)compoType).deploy(impl);

@@ -154,18 +154,22 @@ public class ApamMan implements DependencyManager {
 	 */
 	@Override
 	public Resolved<?> resolveDependency(Component client, Dependency dep) {
-		String name = dep.getTarget().getName() ;
 
 		if (dep.getTargetType() == ComponentKind.SPECIFICATION) {
-			return DependencyUtil.getResolved(CST.componentBroker.getSpecs(), dep);
+			return DependencyUtil.getResolved(client, CST.componentBroker.getSpecs(), dep);
 		}
 
+		/*
+		 * The target is Implementation or Instance. First try to find out the implems that satisfy the resources
+		 * without constraints nor visibility control 
+		 */
 		Set<Implementation> impls = null ;
+		String name = dep.getTarget().getName() ;
 
 		if (dep.getTarget() instanceof SpecificationReference) {
 			Specification spec = CST.componentBroker.getSpec(name);
 			if (spec == null) {
-				System.err.println("No spec for " + name); 
+				System.err.println("No spec with name " + name + " for dependency " + dep.getIdentifier() + " from component" + client); 
 				return null;
 			}
 			impls = spec.getImpls();
@@ -174,8 +178,6 @@ public class ApamMan implements DependencyManager {
 			if (dep.getTarget() instanceof ResourceReference) {
 				for (Implementation impl : CST.componentBroker.getImpls()) {
 					if ( impl.getDeclaration().getProvidedResources().contains (((ResourceReference)dep.getTarget()))) {
-						//					for (ResourceReference ref : impl.getAllProvidedResources())  {
-						//						if (ref.equals(dep.getTarget())) 
 						impls.add(impl) ;
 					}
 				}
@@ -193,24 +195,18 @@ public class ApamMan implements DependencyManager {
 		if (impls == null || impls.isEmpty()) 
 			return null ;
 
-		if (dep.getTargetType() == ComponentKind.IMPLEMENTATION) {
-			if (dep.hasConstraints()) {
-				impls = DependencyUtil.getConstraintsComponents(impls, dep);
-				if (impls == null || impls.isEmpty()) 
-					return null ;
-			}
 
-			if (dep.isMultiple())
-				return new Resolved<Implementation> (impls) ;
-			return new Resolved<Implementation> (DependencyUtil.getPrefered(impls, dep)) ;
+		//We have the implementations. Select the good one(s)
+		if (dep.getTargetType() == ComponentKind.IMPLEMENTATION) {
+			return DependencyUtil.getResolved(client, impls, dep);
 		}
-		
+
 		/*
 		 * We have in impls all the implementations satisfying the dependency target (type and name only).
 		 * We are looking for instances
-		 * Take all the instances of these implementations satisfying the dependency constraints.
+		 * Take all the instances of these implementations satisfying the dependency constraints and visibility.
 		 */		
-		Set<Instance> insts = new HashSet<Instance> () ; ;
+		Set<Instance> insts = new HashSet<Instance> () ; 
 		//Compute all the instances visible and satisfying the constraints  ;
 		for (Implementation impl : impls) {
 			for (Instance inst : impl.getInsts()) {
@@ -224,7 +220,7 @@ public class ApamMan implements DependencyManager {
 
 		if (insts == null  ||insts.isEmpty()) 
 			return null ;
-	
+
 		/*
 		 * If dependency is singleton, select the best instance.
 		 */
@@ -234,11 +230,11 @@ public class ApamMan implements DependencyManager {
 	}
 
 
-		@Override
-		public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
-				Set<Instance> insts) {
-			// do not care
-		}
+	@Override
+	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst,
+			Set<Instance> insts) {
+		// do not care
+	}
 
 	@Override
 	public ComponentBundle findBundle(CompositeType context, String bundleSymbolicName, String componentName) {

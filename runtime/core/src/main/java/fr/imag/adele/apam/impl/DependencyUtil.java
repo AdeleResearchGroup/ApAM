@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Dependency;
@@ -32,10 +35,11 @@ import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Visible;
 
 public class DependencyUtil {
 
-//	private static Logger logger = LoggerFactory.getLogger(DependencyImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(DependencyImpl.class);
 
 	/**
 	 * 
@@ -73,20 +77,28 @@ public class DependencyUtil {
 //
 
 	/**
-	 * Return the sub-set of candidates that satisfy all the constraints
+	 * Return the sub-set of candidates that satisfy all the constraints and preferences.
+	 * Suppose the candidates are of the right kind !
+	 * Visibility is checked is source is provided
 	 * @param <T>
 	 * @param candidates
 	 * @param constraints
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Resolved<?> getResolved(Set<? extends Component> candidates, Dependency dep) {
+	public static Resolved<?> getResolved(Component source, Set<? extends Component> candidates, Dependency dep) {
 		if (dep == null) return new Resolved (candidates);
-		if (candidates == null) return null ;
+		if (candidates == null || candidates.isEmpty()) return null ;
 
+		if (candidates.iterator().next().getKind() != dep.getTargetType()) {
+			logger.error ("Invalid type in getResolved") ;
+			return null ;
+		}
+		
 		Set<Component> ret = new HashSet <Component> () ;
 		for (Component c : candidates) {
-			if (c.matchDependencyConstraints(dep)) {
+			if (Visible.isVisible(source, c) 
+					&& c.matchDependencyConstraints(dep)) {
 				ret.add (c) ;
 			}
 		}
@@ -101,13 +113,13 @@ public class DependencyUtil {
 		return new Resolved (getPrefered (ret, dep)) ; 
 	}
 	
-	public static Resolved<?> getResolved(Resolved<?> candidates, Dependency dep) {
+	public static Resolved<?> getResolved(Component source, Resolved<?> candidates, Dependency dep) {
 		if (candidates.singletonResolved != null) {
 			if (candidates.singletonResolved.matchDependencyConstraints(dep))
 				return candidates ;
 			return null ;
 		}
-		else return getResolved(candidates.setResolved, dep) ;
+		else return getResolved(source, candidates.setResolved, dep) ;
 	}
 
 	
@@ -359,10 +371,13 @@ public class DependencyUtil {
 	 * @return
 	 */
 	public static boolean matchDependency(Instance compoInst, Dependency compoDep, Dependency clientDep) {
-		boolean multiple = clientDep.isMultiple();
+		if (compoDep == null || clientDep == null)
+			return false ;
+
 		//Look for same dependency: the same specification, the same implementation or same resource name
 		//Constraints are not taken into account
-
+		boolean multiple = clientDep.isMultiple();
+		
 		// if same nature (spec, implem, internface ... make a direct comparison.
 		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { 
 			if (compoDep.getTarget().equals(clientDep.getTarget())) {

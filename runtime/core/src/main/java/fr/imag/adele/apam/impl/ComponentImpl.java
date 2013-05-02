@@ -336,7 +336,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
         // creation
         Link link ;
         if (getApformComponent().setLink(to, depName)) {
-            link = new LinkImpl(this, to, depName, hasConstraints, promotion);
+            link = new LinkImpl(this, to, depName, hasConstraints, dep.isWire());
             links.add(link);
             ((ComponentImpl) to).invlinks.add(link);
         } else {
@@ -517,7 +517,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @return
 	 */
 	@Override
-	public  Dependency getDependency( String id) {
+	public  Dependency getDependency(String id) {
 		Dependency dep = null ;
 		Component group = this ;
 		while (group != null) {

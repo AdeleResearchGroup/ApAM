@@ -80,16 +80,19 @@ public interface Dependency  {
 	public MissingPolicy getMissingPolicy();
 
 	// Whether dependencies matching this contextual policy must be resolved eagerly
-	public Boolean isEager() ;
+	public boolean isEager() ;
 	
 	//true if this is a dynamic wire, or a dynamic message ...
 	public boolean isDynamic () ;
+
+	//true if this is a Wire definition
+	public boolean isWire () ;
 
 	//
 	public boolean isEffectiveEager();
 
 	//Whether an error resolving a dependency matching this policy should trigger a backtrack
-	public Boolean isHide() ;
+	public boolean isHide() ;
 
 	// Get the exception associated with the missing policy
 	public String getMissingException() ;
