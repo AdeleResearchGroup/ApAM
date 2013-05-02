@@ -40,13 +40,12 @@ import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.PropertyManager;
 import fr.imag.adele.apam.ResolutionException;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
@@ -94,6 +93,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	 * 
 	 */
 	@Validate
+	@SuppressWarnings("unused")
 	private  synchronized void start()  {
 		
 		/*
@@ -125,6 +125,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	 * 
 	 */
 	@Invalidate
+	@SuppressWarnings("unused")
 	private synchronized void stop() {
 		ApamManagers.removeDependencyManager(this);
 		ApamManagers.removeDynamicManager(this);
@@ -386,12 +387,13 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	}
 
 	@Override
-	public void removedLink(Link wire) {
+	public void removedLink(Link link) {
 		/*
 		 * Update the contents of all impacted composites
 		 */
 		for (ContentManager manager : contentManagers.values()) {
-			manager.wireRemoved(wire);
+			if (link.getDestination() instanceof Instance)
+				manager.linkRemoved(link);
 		}
 	}
 

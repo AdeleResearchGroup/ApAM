@@ -17,6 +17,7 @@ package fr.imag.adele.dynamic.manager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,9 +34,6 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.ConstrainedReference;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
-import fr.imag.adele.apam.declarations.DependencyInjection;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
@@ -44,9 +42,7 @@ import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.CompositeImpl;
-import fr.imag.adele.apam.impl.DependencyUtil;
 import fr.imag.adele.apam.impl.InstanceImpl;
-import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.Visible;
 
 
@@ -81,7 +77,7 @@ public class ContentManager  {
 	 * The list of contained instances that must be dynamically created when the
 	 * specified triggering condition is satisfied
 	 */
-	private List<InstanceDeclaration> dynamicContains;
+	private List<FutureInstance> dynamicContains;
 
 	/**
 	 * The list of dynamic dependencies that must be updated without waiting for
@@ -199,17 +195,10 @@ public class ContentManager  {
 		/*
 		 * Initialize the list of dynamic contains
 		 */
-		dynamicContains	= new ArrayList<InstanceDeclaration>();
+		dynamicContains	= new ArrayList<FutureInstance>();
 		
 		for (InstanceDeclaration instanceDeclaration : declaration.getInstanceDeclarations()) {
-			
-			Implementation implementation = CST.apamResolver.findImplByName(composite.getMainInst(),instanceDeclaration.getImplementation().getName());			
-			
-			if (implementation == null || ! (implementation instanceof Implementation)) {
-				throw new InvalidConfiguration("Invalid instance declaration, implementation can not be found "+instanceDeclaration.getImplementation().getName());
-			}
-
-			dynamicContains.add(instanceDeclaration);
+			dynamicContains.add(new FutureInstance(this.composite,instanceDeclaration));
 		}
 		
 		/*
@@ -271,18 +260,7 @@ public class ContentManager  {
 		
 		for (Dependency dependency : instance.getDependencies()) {
 
-			/*
-			 * TODO only pull consumer
-			 */
-			boolean hasField =  false;
-			for (DependencyInjection injection : dependency.getInjections()) {
-				if (injection instanceof DependencyInjection.Field) {
-					hasField = true;
-					break;
-				}
-			}
-			
-			if (! hasField || dependency.isMultiple() || dependency.isEffectiveEager()) {
+			if (dependency.isDynamic()) {
 				DynamicResolutionRequest dynamicRequest = new DynamicResolutionRequest(CST.apamResolver,instance,dependency);
 				dynamicDependencies.add(dynamicRequest);
 
@@ -303,80 +281,17 @@ public class ContentManager  {
 		/*
 		 * Iterate over all pending dynamic instances 
 		 */
-		
-		List<InstanceDeclaration> pendingInstances = new ArrayList<InstanceDeclaration>(this.dynamicContains);
-		
-		for (InstanceDeclaration pendingInstance : pendingInstances) {
+		Iterator<FutureInstance> pendingInstances = this.dynamicContains.iterator();
+		while(pendingInstances.hasNext()) {
+
+			/*
+			 * Evaluate triggering conditions and instantiate if satisfied
+			 */
+			FutureInstance pendingInstance = pendingInstances.next();
 			
-			/*
-			 * verify if all triggering conditions are satisfied
-			 */
-			boolean satisfied = true;
-			for (ConstrainedReference trigger : pendingInstance.getTriggers()) {
-				
-				/*
-				 * evaluate the specified trigger
-				 */
-				boolean satisfiedTrigger = false;
-				for (Instance candidate : getComposite().getContainInsts()) {
-
-					/*
-					 * ignore non matching candidates
-					 */
-					
-					String target = trigger.getTarget().getName();
-					
-					if (trigger.getTarget() instanceof SpecificationReference && !candidate.getSpec().getName().equals(target))
-						continue;
-
-					if (trigger.getTarget() instanceof ImplementationReference<?> && !candidate.getImpl().getName().equals(target))
-						continue;
-					
-//TODO This is a BUG. should use matchDependencyConstraints instead.
-					if (!candidate.matchDependencyConstraints(dep)(trigger.getInstanceConstraints()))
-						continue;
-
-					//TODO This is a BUG. should use matchDependencyConstraints instead.
-					if (!candidate.getImpl().match(	trigger.getImplementationConstraints()))
-						continue;
-
-					/*
-					 * Stop evaluation at first match 
-					 */
-					satisfiedTrigger = true;
-					break;
-				}
-				
-				/*
-				 * stop at the first unsatisfied trigger
-				 */
-				if (! satisfiedTrigger) {
-					satisfied = false;
-					break;
-					
-				}
-			}
-			
-			/*
-			 * If triggering conditions are not satisfied, just keep it in the list of pending instances  
-			 */
-			if (! satisfied)
-				continue;
-			
-			/*
-			 * Remove from the list of pending dynamic containment
-			 */
-			dynamicContains.remove(pendingInstance);
-
-			/*
-			 * Otherwise try to instantiate the specified implementation.
-			 * 
-			 * TODO BUG We are initializing the properties of the instance, but we lost the dependency overrides. We need to
-			 * modify the API to allow specifying explicitly an instance declaration for Implementation.craeteInstance.
-			 */
-			Implementation implementation = CST.apamResolver.findImplByName(composite.getMainInst(),pendingInstance.getImplementation().getName());			
-			implementation.createInstance(getComposite(), pendingInstance.getProperties());
-
+			pendingInstance.checkInstatiation();
+			if (pendingInstance.isInstantiated())
+				pendingInstances.remove();
 		}
 	}
 	
@@ -785,9 +700,8 @@ public class ContentManager  {
 	 * potentially be used by a pending requests.
 	 * 
 	 */
-	public synchronized void wireRemoved(Link wire) {
-		//TODO Be sure it is a wire, not a link.
-		Instance instance = (Instance)wire.getDestination();
+	public synchronized void linkRemoved(Link link) {
+		Instance instance = (Instance)link.getDestination();
 		if (instance.isSharable() && Visible.checkInstVisible(getComposite(),instance))
 			resolveRequestsWaitingFor(instance);
 	}
