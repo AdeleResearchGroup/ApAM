@@ -344,16 +344,6 @@ public class APAMImpl implements Apam {
 			throw new UnsupportedOperationException("method not available in application composite instance");
 		}
 
-		@Override
-		public boolean setWire(Instance destInst, String depName) {
-			throw new UnsupportedOperationException("method not available in application composite instance");
-		}
-
-		@Override
-		public boolean remWire(Instance destInst, String depName) {
-			throw new UnsupportedOperationException("method not available in application composite instance");
-		}
-
     } 
     
 

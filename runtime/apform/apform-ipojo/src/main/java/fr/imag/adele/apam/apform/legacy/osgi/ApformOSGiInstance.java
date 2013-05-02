@@ -169,7 +169,7 @@ public class ApformOSGiInstance implements ApformInstance {
      * injection information
      */
     @Override
-    public boolean setWire(Instance destInst, String depName) {
+    public boolean setLink(Component destInst, String depName) {
         return false;
     }
 
@@ -178,7 +178,7 @@ public class ApformOSGiInstance implements ApformInstance {
      * injection information
      */
     @Override
-    public boolean remWire(Instance destInst, String depName) {
+    public boolean remLink(Component destInst, String depName) {
         return false;
     }
 
@@ -195,18 +195,5 @@ public class ApformOSGiInstance implements ApformInstance {
     @Override
     public void setProperty(String attr, String value) {
     }
-
- 
-	@Override
-	public boolean setLink(Component destInst, String depName) {
-		//TODO to implement
-		throw new UnsupportedOperationException() ;
-	}
-
-	@Override
-	public boolean remLink(Component destInst, String depName) {
-		//TODO to implement
-		throw new UnsupportedOperationException() ;
-	}
 
 }

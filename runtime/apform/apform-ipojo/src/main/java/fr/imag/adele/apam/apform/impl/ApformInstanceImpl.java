@@ -376,9 +376,13 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
      * Apform: resolve dependency
      */
     @Override
-    public boolean setWire(Instance destInst, String depName) {
+    public boolean setLink(Component destination, String depName) {
         // System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
 
+    	if (! (destination instanceof Instance))
+    		return true;
+    		
+    	Instance destInst = (Instance) destination;
         /*
          * Validate all the injections can be performed
          */
@@ -409,8 +413,12 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
      * Apform: unresolve dependency
      */
     @Override
-    public boolean remWire(Instance destInst, String depName) {
+    public boolean remLink(Component destination, String depName) {
         // System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
+    	if (! (destination instanceof Instance))
+    		return true;
+    		
+    	Instance destInst = (Instance) destination;
 
         /*
          * Validate all the injections can be performed
@@ -534,16 +542,4 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
         dependencyCallback.put(trigger, callbackDependecy);
     }
 
-	@Override
-	public boolean setLink(Component destInst, String depName) {
-		
-		//TODO to implement
-		throw new UnsupportedOperationException() ;
-	}
-
-	@Override
-	public boolean remLink(Component destInst, String depName) {
-		//TODO to implement
-		throw new UnsupportedOperationException() ;
-	}
 }

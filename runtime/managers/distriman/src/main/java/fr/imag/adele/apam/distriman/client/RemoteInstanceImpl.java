@@ -2,6 +2,7 @@ package fr.imag.adele.apam.distriman.client;
 
 import org.osgi.framework.Bundle;
 
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.ApformInstance;
@@ -63,16 +64,11 @@ public class RemoteInstanceImpl implements ApformInstance {
 		return serviceObject;
 	}
 	@Override
-	public boolean setWire(Instance destInst, String depName) {
+	public boolean setLink(Component destInst, String depName) {
 		return false;
 	}
 	@Override
-	public boolean remWire(Instance destInst, String depName) {
-		return false;
-	}
-	@Override
-	public boolean substWire(Instance oldDestInst, Instance newDestInst,
-			String depName) {
+	public boolean remLink(Component destInst, String depName) {
 		return false;
 	}
 	@Override

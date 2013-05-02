@@ -107,16 +107,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 			throw new UnsupportedOperationException("method not available in root instance");
 		}
 
-		@Override
-		public boolean setWire(Instance destInst, String depName) {
-			throw new UnsupportedOperationException("method not available in root instance");
-		}
-
-		@Override
-		public boolean remWire(Instance destInst, String depName) {
-			throw new UnsupportedOperationException("method not available in root instance");
-		}
-
 	}
 
 	/**
