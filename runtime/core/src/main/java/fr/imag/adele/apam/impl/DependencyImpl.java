@@ -12,6 +12,7 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.DependencyInjection;
 import fr.imag.adele.apam.declarations.MissingPolicy;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.util.ApamFilter;
@@ -80,16 +81,19 @@ public class DependencyImpl implements Dependency {
 	private final boolean       isMultiple;
 
 	// The policy to handle unresolved dependencies
-	private MissingPolicy       missingPolicy;
+	private final MissingPolicy missingPolicy;
 
 	// The exception to throw for the exception missing policy
-	private String              missingException;
+	private final String        missingException;
 
 	// Whether a dependency matching this policy must be eagerly resolved
-	private Boolean             isEager;
+	private final Boolean       isEager;
 
 	// Whether a resolution error must trigger a backtrack in the architecture
-	private Boolean             mustHide;
+	private final Boolean       mustHide;
+
+	// Whether a resolution error must trigger a backtrack in the architecture
+	private final boolean       isDynamic;
 
 //	private DependencyImpl () {
 //		
@@ -105,13 +109,22 @@ public class DependencyImpl implements Dependency {
 		this.targetType			= (targetType == null) ? ComponentKind.INSTANCE :  targetType ;
 
 		this.source				= "this" ;
+		isDynamic				= false ;
+		isEager 				= false ;
+		mustHide 				= false ;
+		missingException 		= null ;
+		missingPolicy 			= null ;
+
 		isStaticImplemConstraintFilters = false ;
 		isStaticInstConstraintFilters = false ;
 		isStaticImplemPreferenceFilters = false ;
 		isStaticInstPreferenceFilters = false;
     }
+   
 
-
+/*
+ * Component can be null; in that case filters are not substituted.
+ */
 	public DependencyImpl (DependencyDeclaration dep, Component component) {
 		//Definition
 		this.component 			= component ;
@@ -134,6 +147,16 @@ public class DependencyImpl implements Dependency {
 		this.implementationPreferences.addAll(dep.getImplementationPreferences());
 		this.instancePreferences.addAll(dep.getInstancePreferences());
 
+		// computing isDynamic
+		boolean hasField =  false;
+		for (DependencyInjection injection : dep.getInjections()) {
+			if (injection instanceof DependencyInjection.Field) {
+				hasField = true;
+				break;
+			}
+		}
+		isDynamic = (! hasField || dep.isMultiple() || dep.isEffectiveEager()) ;
+			
 		//Check if there are substitutions, and build filters
 		ApamFilter f ;
 		boolean subst ;
@@ -406,9 +429,9 @@ public class DependencyImpl implements Dependency {
 	}
 
 	// Set the missing policy used for this dependency
-	protected void setMissingPolicy(MissingPolicy missingPolicy) {
-		this.missingPolicy = missingPolicy;
-	}
+//	protected void setMissingPolicy(MissingPolicy missingPolicy) {
+//		this.missingPolicy = missingPolicy;
+//	}
 
 	// Whether dependencies matching this contextual policy must be resolved eagerly
 	public Boolean isEager() {
@@ -419,9 +442,9 @@ public class DependencyImpl implements Dependency {
 		return isEager != null ? isEager : false;
 	}
 
-	protected void setEager(Boolean isEager) {
-		this.isEager = isEager;
-	}
+//	protected void setEager(Boolean isEager) {
+//		this.isEager = isEager;
+//	}
 
 	/**
 	 * Whether an error resolving a dependency matching this policy should trigger a backtrack
@@ -431,18 +454,18 @@ public class DependencyImpl implements Dependency {
 		return mustHide;
 	}
 
-	protected void setHide(Boolean mustHide) {
-		this.mustHide = mustHide;
-	}
+//	protected void setHide(Boolean mustHide) {
+//		this.mustHide = mustHide;
+//	}
 
 	// Get the exception associated with the missing policy
 	public String getMissingException() {
 		return missingException;
 	}
 
-	protected void setMissingException(String missingException) {
-		this.missingException = missingException;
-	}
+//	protected void setMissingException(String missingException) {
+//		this.missingException = missingException;
+//	}
 
 	@Override
 	public List<ApamFilter> getImplementationPreferenceFilters (){

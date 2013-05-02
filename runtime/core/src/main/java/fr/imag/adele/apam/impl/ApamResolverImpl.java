@@ -72,23 +72,23 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param dependency definition
 	 * @return the composite dependency from the composite.
 	 */
-//	private  Resolved getPromotion(Component clientC, Dependency dependency) {
-//		//Only for instances
-//		if (! (clientC instanceof Instance)) {
-//			return null ;
-//		}
-//
-//		Instance source = (Instance)clientC ;
-//
-//		Composite compo = getClientComposite(source);
-//		//Instance refClient = source;
-//		Dependency promotionDependency = getPromotionDep(source, dependency);
-//		// if it is a promotion, visibility and scope is the one of the embedding composite.
-//		if (promotionDependency == null) {
-//			return resolveWire (compo, promotionDependency) ;
-//		}		
-//		return new Resolved (compo.getLinkDests(promotionDependency.getIdentifier()), null) ;
-//	}
+	//	private  Resolved getPromotion(Component clientC, Dependency dependency) {
+	//		//Only for instances
+	//		if (! (clientC instanceof Instance)) {
+	//			return null ;
+	//		}
+	//
+	//		Instance source = (Instance)clientC ;
+	//
+	//		Composite compo = getClientComposite(source);
+	//		//Instance refClient = source;
+	//		Dependency promotionDependency = getPromotionDep(source, dependency);
+	//		// if it is a promotion, visibility and scope is the one of the embedding composite.
+	//		if (promotionDependency == null) {
+	//			return resolveWire (compo, promotionDependency) ;
+	//		}		
+	//		return new Resolved (compo.getLinkDests(promotionDependency.getIdentifier()), null) ;
+	//	}
 
 
 	private  Dependency getPromotionDep(Component clientC, Dependency dependency) {
@@ -300,23 +300,24 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 	/**
-	 * Impl has been deployed, it becomes embedded in compoType.
-	 * If physically deployed, it is in the Unused list. remove.
+	 * Impl is either unused or deployed (and therefore also unused). 
+	 * It becomes embedded in compoType.
+	 * If unused, remove from unused list.
 	 *
 	 * @param compoType
 	 * @param impl
 	 */
-	private static void deployedImpl(Component source, Component comp) {
+	private static void deployedImpl(Component source, Component comp, boolean deployed) {
 		//We take care only of implementations
 		if ( !(comp instanceof Implementation)) 
 			return ;
-		
+
 		Implementation impl = (Implementation)comp ;
 		// it was not deployed
-//		if (!deployed && impl.isUsed()) {
-//			logger.info(" : selected " + impl);
-//			return;
-//		}
+		if (!deployed && impl.isUsed()) {
+			logger.info(" : selected " + impl);
+			return;
+		}
 
 		CompositeType compoType ;
 		if (source instanceof Instance) {
@@ -336,11 +337,11 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.info(" : logically deployed " + impl);
 		} else {// it was unused so far.
 			((ComponentImpl)impl).setFirstDeployed(compoType);
-//			if (deployed) {
+			if (deployed) {
 				logger.info(" : deployed " + impl);				
-//			} else {
-//				logger.info(" : was here, unused " + impl);
-//			}
+			} else {
+				logger.info(" : was here, unused " + impl);
+			}
 		}
 	}
 
@@ -414,15 +415,15 @@ public class ApamResolverImpl implements ApamResolver {
 		Resolved<?> resolve = resolveLink (client, dep) ;
 		if (resolve == null) 
 			return null ;
-		
+
 		//return (set<Instance>resolve.setResolved est invalide
 		return (Set<Instance>)resolve.setResolved ;
-		
-//		Set<Instance> ret = new HashSet<Instance> () ;
-//		for (Object c : resolve.setResolved) {
-//			ret.add((Instance)c) ;
-//		}
-//		return ret ;
+
+		//		Set<Instance> ret = new HashSet<Instance> () ;
+		//		for (Object c : resolve.setResolved) {
+		//			ret.add((Instance)c) ;
+		//		}
+		//		return ret ;
 	}
 
 	/**
@@ -463,9 +464,9 @@ public class ApamResolverImpl implements ApamResolver {
 		Component ret = findImplByName(client, name) ;
 		if (ret != null)
 			return ret ;
-		 ret = findSpecByName(client, name) ;
-			if (ret != null)
-				return ret ;
+		ret = findSpecByName(client, name) ;
+		if (ret != null)
+			return ret ;
 		return findInstByName (client, name) ;	
 	}
 
@@ -552,33 +553,35 @@ public class ApamResolverImpl implements ApamResolver {
 
 		Resolved<?> res = null ;
 		boolean deployed = false;
-		
+
 		for (DependencyManager manager : selectionPath) {
 			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
 				deployed = true;
 			}
 			logger.debug(manager.getName() + "  ");
-			
+
 			//Does the real job
 			res = manager.resolveDependency(source, dependency);
 			if (res == null || res.isEmpty()) 
 				//This manager did not found a solution, try the next manager
 				continue ;
 
-			// This manager succeeded to find a solution 
-			if (deployed) {
-				//If a deployed implementation. Can be into toInstancie or in singleton if an implementation is required
-				Component depl = (res.toInstantiate != null) ? res.toInstantiate : ((Implementation) res.singletonResolved) ; 
-				deployedImpl(source, depl);
-			}
-	
-			//If an implementation is returned as "toInstantiate" it has to be instantiated
+			/*
+			 *  a manager succeeded to find a solution 
+			 */
+			//If an unused or deployed implementation. Can be into singleton  or in toInstantiate if an instance is required
+			Component depl = (res.toInstantiate != null) ? res.toInstantiate : res.singletonResolved ; 
+			deployedImpl(source, depl, deployed);
+
+			/*
+			 * If an implementation is returned as "toInstantiate" it has to be instantiated
+			 */
 			if (res.toInstantiate != null) {			
 				if (dependency.getTargetType() != ComponentKind.INSTANCE) {
 					logger.error("Invalid Resolved value. toInstantiate is set, but target kind is not Instance") ;
 					continue ;
 				}
-				
+
 				Composite compo = (source instanceof Instance) ? ((Instance)source).getComposite() : CompositeImpl.getRootInstance() ;
 				Instance inst = res.toInstantiate.createInstance(compo, null);
 				if (inst == null) { // may happen if impl is non instantiable
@@ -593,7 +596,7 @@ public class ApamResolverImpl implements ApamResolver {
 				}
 				else return new Resolved<Instance> (inst) ;												
 			}
-			
+
 			/*
 			 * Because managers can be third party, we cannot trust them. Verify that the result is correct.
 			 */
@@ -622,10 +625,10 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.info("Selected : " + res.singletonResolved) ;
 			return res ;
 		}
-		
+
+		//No solution found
 		return null ;
 	}
 
-			
 
 }
