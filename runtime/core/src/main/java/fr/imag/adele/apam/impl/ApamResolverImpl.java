@@ -72,33 +72,13 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param dependency definition
 	 * @return the composite dependency from the composite.
 	 */
-//	private  Resolved getPromotion(Component clientC, Dependency dependency) {
-//		//Only for instances
-//		if (! (clientC instanceof Instance)) {
-//			return null ;
-//		}
-//
-//		Instance source = (Instance)clientC ;
-//
-//		Composite compo = getClientComposite(source);
-//		//Instance refClient = source;
-//		Dependency promotionDependency = getPromotionDep(source, dependency);
-//		// if it is a promotion, visibility and scope is the one of the embedding composite.
-//		if (promotionDependency == null) {
-//			return resolveWire (compo, promotionDependency) ;
-//		}		
-//		return new Resolved (compo.getLinkDests(promotionDependency.getIdentifier()), null) ;
-//	}
+	private  Dependency getPromotionDep(Instance client, Dependency dependency) {
 
-
-	private  Dependency getPromotionDep(Component clientC, Dependency dependency) {
-
-		Instance client = (Instance)clientC ;
 		Composite composite = client.getComposite() ;
 
-		if (composite.getDeclaration() == null) {
-			return null;
-		}
+		//		if (composite.getDeclaration() == null) {
+		//			return null;
+		//		}
 
 		//look if a promotion is explicitly declared for that client component
 		// <promotion implementation="A" dependency="clientDep" to="compoDep" />
@@ -198,6 +178,9 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 
+	/**
+	 * The central method for the resolver.
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Resolved<?> resolveLink(Component source, Dependency dep) {
@@ -207,62 +190,73 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		logger.info("Resolving relation " + dep + " from " + source );
+		
+		//a try / finally to reset filters in all cases. Just a verification, to avoid matching outside a compute filter.
+		try {
 
-		//Will contain the candidate solution (before constraint matching).
-		Resolved resolved = null;
+			//Will contain the  solution .
+			Resolved resolved = null;
+			boolean isPromotion = false ;
+			boolean promoHasConstraints = false ;
 
-		boolean isPromotion = false ;
-		boolean promoHasConstraints = false ;
+			/*
+			 *  Promotion control
+			 *  Only for instances
+			 */
+			if (source instanceof Instance) {
+				Composite compo = getClientComposite((Instance)source);
+				Dependency promotionDependency = getPromotionDep((Instance)source, dep);
 
-		/*
-		 *  Promotion control
-		 *  Only for instances
-		 */
-		if (source instanceof Instance) {
-			Composite compo = getClientComposite((Instance)source);
-			Dependency promotionDependency = getPromotionDep((Instance)source, dep);
+				// if it is a promotion, get the composite dependency targets.
+				if (promotionDependency != null) {
+					isPromotion = true;
+					promoHasConstraints = promotionDependency.hasConstraints() ;
+					if (promotionDependency.isMultiple())
+						resolved = new Resolved (compo.getLinkDests(promotionDependency.getIdentifier()));
+					else resolved = new Resolved (compo.getLinkDest(promotionDependency.getIdentifier()));
 
-			// if it is a promotion, visibility and scope is the one of the embedding composite. We got the candidates.
-			if (promotionDependency != null) {
-				isPromotion = true;
-				promoHasConstraints = promotionDependency.hasConstraints() ;
-				if (promotionDependency.isMultiple())
-					resolved = new Resolved (compo.getLinkDests(promotionDependency.getIdentifier()));
-				else resolved = new Resolved (compo.getLinkDest(promotionDependency.getIdentifier()));
+					if (resolved.isEmpty()) //Maybe the composite did not resolve that dependency so far.
+						resolved = resolveLink (compo, promotionDependency) ;
+					if (resolved == null) {
+						logger.error("Failed to resolve " + dep.getTarget()
+								+ " from " + source + "(" + dep.getIdentifier() + ")");
+						return null;
+					}
 
-				if (resolved.isEmpty()) 
-					resolved = resolveLink (compo, promotionDependency) ;
-				if (resolved == null) {
-					logger.error("Failed to resolve " + dep.getTarget()
-							+ " from " + source + "(" + dep.getIdentifier() + ")");
-					return null;
+					//Select the sub-set that matches the dep constraints. No source visibility control (null).
+					//Adds the manager constraints and compute filters
+					computeSelectionPath(source, dep) ;
+					resolved = DependencyUtil.getResolved(null, resolved, dep) ;
 				}
-				resolved = DependencyUtil.getResolved(resolved, dep) ;
 			}
-		}
 
+			if (! isPromotion) {
+				resolved = this.resolveDependency(source, dep);
+			}
 
-		//in case promotion already provided resolved.
-		//Resolve the dependency now
-		if (resolved == null) {
-			//call the managers ...
-			resolved = this.resolveDependency(source, dep);
 			if (resolved == null) {
 				logger.error("Failed to resolve " + dep.getTarget()
 						+ " from " + source + "(" + dep.getIdentifier() + ")");
 				return null;
 			}
-		}
 
-		//It is resolved.
-		if (resolved.singletonResolved != null) {
-			source.createLink(resolved.singletonResolved, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);
+			/*
+			 * It is resolved.
+			 */
+			if (resolved.singletonResolved != null) {
+				source.createLink(resolved.singletonResolved, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);
+				return resolved ;
+			}
+			for (Object target : resolved.setResolved) {
+				source.createLink((Component)target, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);			
+			}
 			return resolved ;
+
 		}
-		for (Object target : resolved.setResolved) {
-			source.createLink((Component)target, dep, dep.hasConstraints() || promoHasConstraints, isPromotion);			
+		//reset filters in all cases. Just a verification, to avoid matching outside a compute filter.
+		finally {
+			((DependencyImpl)dep).resetFilters() ;
 		}
-		return resolved ;
 	}
 
 
@@ -300,13 +294,19 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 	/**
-	 * Impl has been deployed, it becomes embedded in compoType.
-	 * If physically deployed, it is in the Unused list. remove.
+	 * Impl is either unused or deployed (and therefore also unused). 
+	 * It becomes embedded in compoType.
+	 * If unused, remove from unused list.
 	 *
 	 * @param compoType
 	 * @param impl
 	 */
-	private static void deployedImpl(Component source, Implementation impl, boolean deployed) {
+	private static void deployedImpl(Component source, Component comp, boolean deployed) {
+		//We take care only of implementations
+		if ( !(comp instanceof Implementation)) 
+			return ;
+
+		Implementation impl = (Implementation)comp ;
 		// it was not deployed
 		if (!deployed && impl.isUsed()) {
 			logger.info(" : selected " + impl);
@@ -320,7 +320,7 @@ public class ApamResolverImpl implements ApamResolver {
 			compoType = ((Implementation)source).getInCompositeType().iterator().next ();
 		} else {
 			logger.error("Should not call deployedImpl on a source Specification " + source) ;
-			//TODO in which composite to put it. Still in unused ?
+			//TODO in which composite to put it. Still in root ?
 			return ;
 		}
 		((CompositeTypeImpl)compoType).deploy(impl);
@@ -409,15 +409,15 @@ public class ApamResolverImpl implements ApamResolver {
 		Resolved<?> resolve = resolveLink (client, dep) ;
 		if (resolve == null) 
 			return null ;
-		
+
 		//return (set<Instance>resolve.setResolved est invalide
 		return (Set<Instance>)resolve.setResolved ;
-		
-//		Set<Instance> ret = new HashSet<Instance> () ;
-//		for (Object c : resolve.setResolved) {
-//			ret.add((Instance)c) ;
-//		}
-//		return ret ;
+
+		//		Set<Instance> ret = new HashSet<Instance> () ;
+		//		for (Object c : resolve.setResolved) {
+		//			ret.add((Instance)c) ;
+		//		}
+		//		return ret ;
 	}
 
 	/**
@@ -458,9 +458,9 @@ public class ApamResolverImpl implements ApamResolver {
 		Component ret = findImplByName(client, name) ;
 		if (ret != null)
 			return ret ;
-		 ret = findSpecByName(client, name) ;
-			if (ret != null)
-				return ret ;
+		ret = findSpecByName(client, name) ;
+		if (ret != null)
+			return ret ;
 		return findInstByName (client, name) ;	
 	}
 
@@ -547,61 +547,53 @@ public class ApamResolverImpl implements ApamResolver {
 
 		Resolved<?> res = null ;
 		boolean deployed = false;
+
 		for (DependencyManager manager : selectionPath) {
 			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
 				deployed = true;
 			}
 			logger.debug(manager.getName() + "  ");
+
+			//Does the real job
 			res = manager.resolveDependency(source, dependency);
 			if (res == null || res.isEmpty()) 
+				//This manager did not found a solution, try the next manager
 				continue ;
 
 			/*
-			 * This manager succeeded to find a solution. 
-			 * 
-			 * Case where the manager returned an implem instead of an instance : instantiate.
-			 * And case of deployment
+			 *  a manager succeeded to find a solution 
 			 */
-			if (deployed && res.singletonResolved != null && res.singletonResolved instanceof Implementation) {
-				//That implem was deployed
-				Implementation deployedImpl = (Implementation)res.singletonResolved ;
-				deployedImpl(source, deployedImpl, deployed);
-				
-				//The target was Implem. Only put the implem in the right place (singleton or set)
-				if (dependency.getTargetType() == ComponentKind.IMPLEMENTATION) {
-					if (dependency.isMultiple()) {
-						Set <Implementation> implems = new HashSet <Implementation> () ;
-						implems.add(deployedImpl) ;
-						return new Resolved<Implementation> (implems) ;
-					}
-					return res ;
+			//If an unused or deployed implementation. Can be into singleton  or in toInstantiate if an instance is required
+			Component depl = (res.toInstantiate != null) ? res.toInstantiate : res.singletonResolved ; 
+			deployedImpl(source, depl, deployed);
+
+			/*
+			 * If an implementation is returned as "toInstantiate" it has to be instantiated
+			 */
+			if (res.toInstantiate != null) {			
+				if (dependency.getTargetType() != ComponentKind.INSTANCE) {
+					logger.error("Invalid Resolved value. toInstantiate is set, but target kind is not Instance") ;
+					continue ;
 				}
 
-				if (dependency.getTargetType() == ComponentKind.INSTANCE 
-						&& res.singletonResolved != null
-						&& res.singletonResolved instanceof Implementation) {
-					//Need to instantiate it
-					Composite compo = (source instanceof Instance) ? ((Instance)source).getComposite() : CompositeImpl.getRootInstance() ;
-					Instance inst = deployedImpl.createInstance(compo, null);
-					if (inst == null) { // may happen if impl is non instantiable
-						logger.error("Failed creating instance of " + deployedImpl );
-						return null;
-					}
-					logger.info("Instantiated " + inst) ;							
-					if (dependency.isMultiple()) {
-						Set <Instance> insts = new HashSet <Instance> () ;
-						insts.add(inst) ;
-						return new Resolved<Instance> (insts) ;
-					}
-					else new Resolved<Instance> (inst) ;								
+				Composite compo = (source instanceof Instance) ? ((Instance)source).getComposite() : CompositeImpl.getRootInstance() ;
+				Instance inst = res.toInstantiate.createInstance(compo, null);
+				if (inst == null) { // may happen if impl is non instantiable
+					logger.error("Failed creating instance of " + res.toInstantiate );
+					continue ;
 				}
-				
-				return res ;
+				logger.info("Instantiated " + inst) ;							
+				if (dependency.isMultiple()) {
+					Set <Instance> insts = new HashSet <Instance> () ;
+					insts.add(inst) ;
+					return new Resolved<Instance> (insts) ;
+				}
+				else return new Resolved<Instance> (inst) ;												
 			}
 
-			logger.info("Selected : " + res.setResolved) ;
-
-			//Check case multiple dependency : result MUST be in setResolved, and right type.
+			/*
+			 * Because managers can be third party, we cannot trust them. Verify that the result is correct.
+			 */
 			if (dependency.isMultiple()) {
 				if (res.setResolved == null || res.setResolved.isEmpty()) {
 					logger.info("manager " + manager + " returned an empty result. Should be null." ) ;
@@ -611,7 +603,7 @@ public class ApamResolverImpl implements ApamResolver {
 					logger.error("Manager " + manager + " returned objects of the bad type for dependency " + dependency) ;
 					continue ;
 				}
-
+				logger.info("Selected : " + res.setResolved) ;
 				return res ;
 			}
 
@@ -624,9 +616,13 @@ public class ApamResolverImpl implements ApamResolver {
 				logger.error("Manager " + manager + " returned objects of the bad type for dependency " + dependency) ;
 				continue ;
 			}
+			logger.info("Selected : " + res.singletonResolved) ;
 			return res ;
 		}
+
+		//No solution found
 		return null ;
 	}
+
 
 }

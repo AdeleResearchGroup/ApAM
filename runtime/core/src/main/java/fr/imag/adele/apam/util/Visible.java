@@ -20,10 +20,14 @@ public class Visible {
 
 	/**
 	 * returns true if Component "from" can establish a wire or link towards component target. 
+	 * Return true if source is null
 	 * @param from
 	 * @param to
 	 */
 	public static boolean isVisible (Component source, Component target) {
+		if (source == null || target == null)
+			return true ;
+		
 		if (source instanceof Specification || target instanceof Specification)
 			return true;
 		
@@ -47,6 +51,9 @@ public class Visible {
 	 * @return
 	 */
 	public static boolean isVisible (Implementation source, Implementation target) {
+		if (source == null || target == null)
+			return true ;
+
 		//They have a composite type in common
 		for (CompositeType cSource : source.getInCompositeType()) {
 			if (target.getInCompositeType().contains(cSource))
@@ -77,6 +84,9 @@ public class Visible {
 	}
 
 	public static boolean isVisible (Implementation source, Instance target) {
+		if (source == null || target == null)
+			return true ;
+
 		//If target in same CT than source
 		if (((Implementation)source).getInCompositeType().contains(target.getComposite().getCompType()))
 			return true ;

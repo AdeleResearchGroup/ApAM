@@ -34,12 +34,11 @@ import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.apform.Apform2Apam;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 
 public class UpdateMan implements DependencyManager, DynamicManager {
@@ -222,7 +221,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public Resolved resolveDependency(Component client, Dependency dep) {
+	public Resolved<?> resolveDependency(Component client, Dependency dep) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null) return null;
 

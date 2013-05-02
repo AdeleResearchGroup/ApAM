@@ -336,7 +336,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
         // creation
         Link link ;
         if (getApformComponent().setLink(to, depName)) {
-            link = new LinkImpl(this, to, depName, hasConstraints, promotion);
+            link = new LinkImpl(this, to, depName, hasConstraints, dep.isWire());
             links.add(link);
             ((ComponentImpl) to).invlinks.add(link);
         } else {
@@ -490,10 +490,83 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return Util.toStringAttrValue (getPropertyObject(attr)) ;
 	}
 
+//	@Override
+//	public Dependency getDependency(String id) {
+//		return DependencyUtil.getDependency (this, id) ;
+//		xx
+//	}
+//
+//	@Override
+//	public Set<Dependency> getDependencies() {
+//		return DependencyUtil.getDependencies (this) ;
+//	}
+	
+	/**
+	 * Return the dependency that can be applied to this component.
+	 * 
+	 * A dependency D can be applied on a component source if
+	 *      D.Id == id
+	 *  	D.source must be the name of source or of an ancestor of source, 
+	 *      and D.SourceType == source.getKind.
+	 * 
+	 * Looks in the group, and then 
+	 *      in the composite type, if source in an instance
+	 *      in all composite types if source is an implem.
+	 * @param source
+	 * @param id
+	 * @return
+	 */
 	@Override
-	public Dependency getDependency(String id) {
-		return DependencyUtil.getDependency (this, id) ;
+	public  Dependency getDependency(String id) {
+		Dependency dep = null ;
+		Component group = this ;
+		while (group != null) {
+			dep = ((ComponentImpl)group).getLocalDependency(id) ; 
+			if (dep != null) 
+				return dep ; 
+			group = group.getGroup() ;
+		}
+		
+		//Looking for composite definitions.
+		if (this instanceof Instance) {
+			CompositeType comptype = ((Instance)this).getComposite().getCompType() ; 
+			dep = comptype.getCtxtDependency (this, id) ;
+			if (dep != null)
+				return dep ; 
+		}
+		if (this instanceof Implementation) {
+			for (CompositeType comptype : ((Implementation)this).getInCompositeType()) {
+				dep = comptype.getCtxtDependency (this, id) ;
+				if (dep != null)
+					return dep ; 
+			}
+		}
+		return null ;
 	}
+
+	@Override
+	public  Set<Dependency> getDependencies () {
+		Set<Dependency> deps = new HashSet<Dependency> () ;
+		Component group = this ;
+		while (group != null) {
+			deps.addAll(group.getLocalDependencies()) ;
+			group = group.getGroup() ;
+		}
+		
+		//Looking for composite definitions.
+		if (this instanceof Instance) {
+			CompositeType comptype = ((Instance)this).getComposite().getCompType() ; 
+			deps.addAll(comptype.getCtxtDependencies (this)) ;
+		}
+		if (this instanceof Implementation) {
+			for (CompositeType comptype : ((Implementation)this).getInCompositeType()) {
+				deps.addAll(comptype.getCtxtDependencies (this)) ;
+			}
+		}
+		return deps ;
+	}
+
+
 
 	protected Dependency getLocalDependency (String id) {
 		return dependencies.get(id) ;

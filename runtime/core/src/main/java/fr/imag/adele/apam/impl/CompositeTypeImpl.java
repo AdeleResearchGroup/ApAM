@@ -402,7 +402,10 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	}
 
 	/**
-	 * The ctxt dependency must have the same Id, and must indicate a source that is an ancestor of parameter source.
+	 * The ctxt dependency must have the same Id, 
+	 * must indicate a source that is an ancestor of parameter source, 
+	 * ans source must be of the right kind.
+	 * 
 	 * It is supposed that a ctxtdep has an Id and a source.
 	 * @param source
 	 * @param id
@@ -414,10 +417,37 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 			return null ;
 		Component group = source ;
 		while (group != null) {
-			if (group.getName().equals(dep.getSource()))
+			if (group.getName().equals(dep.getSource()) 
+					&& 	source.getKind() == dep.getSourceType())
 				return dep ;
 		}
 		return null ;
+	}
+
+	/**
+	 * The ctxt dependency must have the same Id, 
+	 * must indicate a source that is an ancestor of parameter source, 
+	 * ans source must be of the right kind.
+	 * 
+	 * It is supposed that a ctxtdep has an Id and a source.
+	 * @param source
+	 * @param id
+	 * @return
+	 */
+	public Set<Dependency> getCtxtDependencies (Component source) {
+		Set<Dependency> deps = new HashSet<Dependency> () ; 
+
+		Component group ;
+		for (Dependency dep : ctxtDependencies.values()) {
+			if (source.getKind() == dep.getSourceType())
+				continue ;
+			group = source ;
+			while (group != null) {
+				if (group.getName().equals(dep.getSource()))
+					deps.add(dep) ;
+			}
+		}
+		return deps ;
 	}
 
 

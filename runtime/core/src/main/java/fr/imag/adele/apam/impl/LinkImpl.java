@@ -26,7 +26,7 @@ public class LinkImpl implements Link {
 
     /**
      * Warning, only creates a Link object. Does not chain that link in the client and provider.
-     * TODO  Must be called only from createLink in ComponentImpl.
+     * Must be called only from createLink in ComponentImpl.
      * 
      * @param from
      * @param to

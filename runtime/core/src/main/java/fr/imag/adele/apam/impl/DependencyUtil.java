@@ -21,9 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -33,10 +35,11 @@ import fr.imag.adele.apam.declarations.DependencyDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.Visible;
 
 public class DependencyUtil {
 
-//	private static Logger logger = LoggerFactory.getLogger(DependencyImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(DependencyImpl.class);
 
 	/**
 	 * 
@@ -74,19 +77,28 @@ public class DependencyUtil {
 //
 
 	/**
-	 * Return the sub-set of candidates that satisfy all the constraints
+	 * Return the sub-set of candidates that satisfy all the constraints and preferences.
+	 * Suppose the candidates are of the right kind !
+	 * Visibility is checked is source is provided
 	 * @param <T>
 	 * @param candidates
 	 * @param constraints
 	 * @return
 	 */
-	public static Resolved<?> getResolved(Set<? extends Component> candidates, Dependency dep) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Resolved<?> getResolved(Component source, Set<? extends Component> candidates, Dependency dep) {
 		if (dep == null) return new Resolved (candidates);
-		if (candidates == null) return null ;
+		if (candidates == null || candidates.isEmpty()) return null ;
 
+		if (candidates.iterator().next().getKind() != dep.getTargetType()) {
+			logger.error ("Invalid type in getResolved") ;
+			return null ;
+		}
+		
 		Set<Component> ret = new HashSet <Component> () ;
 		for (Component c : candidates) {
-			if (c.matchDependencyConstraints(dep)) {
+			if (Visible.isVisible(source, c) 
+					&& c.matchDependencyConstraints(dep)) {
 				ret.add (c) ;
 			}
 		}
@@ -101,13 +113,13 @@ public class DependencyUtil {
 		return new Resolved (getPrefered (ret, dep)) ; 
 	}
 	
-	public static Resolved<?> getResolved(Resolved<?> candidates, Dependency dep) {
+	public static Resolved<?> getResolved(Component source, Resolved<?> candidates, Dependency dep) {
 		if (candidates.singletonResolved != null) {
 			if (candidates.singletonResolved.matchDependencyConstraints(dep))
 				return candidates ;
 			return null ;
 		}
-		else return getResolved(candidates.setResolved, dep) ;
+		else return getResolved(source, candidates.setResolved, dep) ;
 	}
 
 	
@@ -321,7 +333,7 @@ public class DependencyUtil {
 				//dependency.setTarget(groupDep.getTarget()) ;
 			} 
 
-			//Add the override dependency : flags and constraints. Only for instances
+			//Add the override dependency : flags and constraints. Only for source instances
 			else if (client instanceof Instance) {
 				List<DependencyDeclaration> overDeps = ((Instance)client).getComposite().getCompType().getCompoDeclaration().getOverridenDependencies() ;
 				if (overDeps != null && ! overDeps.isEmpty()) {
@@ -345,49 +357,6 @@ public class DependencyUtil {
 	}
 
 	
-	/**
-	 * Return the dependency that can be applied to this component.
-	 * 
-	 * A dependency D can be applied on a component source if
-	 *      D.Id == id
-	 *  	D.source must be the name of source or of an ancestor of source, 
-	 *      and D.SourceType == source.getKind.
-	 * 
-	 * Looks in the group, and then 
-	 *      in the composite type, if source in an instance
-	 *      in all composite types if source is an implem.
-	 * @param source
-	 * @param id
-	 * @return
-	 */
-	public static Dependency getDependency(Component source, String id) {
-		Dependency dep = null ;
-		Component group = source ;
-		while (group != null) {
-			dep = ((ComponentImpl)group).getLocalDependency(id) ; 
-			if (dep != null) 
-				return (dep.getSourceType()== source.getKind()) ? dep : null ; 
-			group = group.getGroup() ;
-		}
-		
-		//Looking for composite definitions.
-		if (source instanceof Instance) {
-			CompositeType comptype = ((Instance)source).getComposite().getCompType() ; 
-			dep = comptype.getCtxtDependency (source, id) ;
-			if (dep != null)
-				return (dep.getSourceType()== source.getKind()) ? dep : null ; 
-		}
-		if (source instanceof Implementation) {
-			Set<CompositeType> comptypes = ((Implementation)source).getInCompositeType() ;
-			for (CompositeType comptype : comptypes) {
-				dep = comptype.getCtxtDependency (source, id) ;
-				if (dep != null)
-					return (dep.getSourceType()== source.getKind()) ? dep : null ; 
-			}
-		}
-		return null ;
-	}
-
 
 	/**
 	 * Provided a client instance, checks if its dependency "clientDep", matches another dependency: "compoDep".
@@ -402,10 +371,13 @@ public class DependencyUtil {
 	 * @return
 	 */
 	public static boolean matchDependency(Instance compoInst, Dependency compoDep, Dependency clientDep) {
-		boolean multiple = clientDep.isMultiple();
+		if (compoDep == null || clientDep == null)
+			return false ;
+
 		//Look for same dependency: the same specification, the same implementation or same resource name
 		//Constraints are not taken into account
-
+		boolean multiple = clientDep.isMultiple();
+		
 		// if same nature (spec, implem, internface ... make a direct comparison.
 		if (compoDep.getTarget().getClass().equals(clientDep.getTarget().getClass())) { 
 			if (compoDep.getTarget().equals(clientDep.getTarget())) {
@@ -471,7 +443,7 @@ public class DependencyUtil {
 	 * @param sourceDep the client dependency we are trying to resolve.
 	 * @return
 	 */
-	public static boolean matchOverrideDependency(Component source, DependencyDeclaration overDep, DependencyDeclaration sourceDep) {
+	private static boolean matchOverrideDependency(Component source, DependencyDeclaration overDep, DependencyDeclaration sourceDep) {
 
 		//Check if Ids are compatible
 		if (! sourceDep.getIdentifier().matches(overDep.getIdentifier()))
@@ -525,7 +497,7 @@ public class DependencyUtil {
 	 * @param generic: the dep comes from the composite type. It can override the exception, and has hidden and eager.
 	 * @return
 	 */
-	public static void overrideDepFlags (DependencyDeclaration dependency, DependencyDeclaration dep, boolean generic) {
+	private static void overrideDepFlags (DependencyDeclaration dependency, DependencyDeclaration dep, boolean generic) {
 		//If set, cannot be changed by the group definition.
 		//NOTE: This strategy is because it cannot be compiled, and we do not want to make an error during resolution
 		if (dependency.getMissingPolicy() == null || (generic && dep.getMissingPolicy() != null)) {
