@@ -57,10 +57,11 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
     }
 
     @Override
-    public boolean resolves(RelationDeclaration dependency) {
-        return	super.resolves(dependency) ||
-        		( getSpecification() != null && getSpecification().equals(dependency.getTarget())) ||
-				dependency.getTarget().equals(this.getReference());
+	public boolean resolves(RelationDeclaration relation) {
+		return super.resolves(relation)
+				|| (getSpecification() != null && getSpecification().equals(
+						relation.getTarget()))
+				|| relation.getTarget().equals(this.getReference());
    }
 
     @Override

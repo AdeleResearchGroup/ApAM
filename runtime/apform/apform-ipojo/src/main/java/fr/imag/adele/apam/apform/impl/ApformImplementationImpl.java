@@ -77,7 +77,8 @@ public class ApformImplementationImpl extends ApformComponentImpl implements Apf
     /**
      * Register this implementation with APAM
      */
-    protected void bindToApam(Apam apam) {
+    @Override
+	protected void bindToApam(Apam apam) {
 
         /*
            * Cross-reference to provided interface, if already installed in APAM
@@ -97,7 +98,8 @@ public class ApformImplementationImpl extends ApformComponentImpl implements Apf
      *
      * @param apam
      */
-    protected void unbindFromApam(Apam apam) {
+    @Override
+	protected void unbindFromApam(Apam apam) {
         //Apform2Apam.vanishImplementation(getName());
         ComponentBrokerImpl.disappearedComponent(getName()) ;
 
@@ -116,12 +118,12 @@ public class ApformImplementationImpl extends ApformComponentImpl implements Apf
     }
 
     /**
-     * Creates an instance of the implementation, and initialize its properties with the set of
-     * provided properties.
-     *
-     * NOTE this method is called when an instance is created by the APAM platform (explicitly by
-     * the API or implicitly by a dependency resolution)
-     */
+	 * Creates an instance of the implementation, and initialize its properties
+	 * with the set of provided properties.
+	 * 
+	 * NOTE this method is called when an instance is created by the APAM
+	 * platform (explicitly by the API or implicitly by a relation resolution)
+	 */
     @Override
     public ApformInstance createInstance(Map<String, String> initialproperties) throws ComponentImpl.InvalidConfiguration {
         try {

@@ -26,22 +26,27 @@ public interface ApformComponent {
 	public void setProperty(String attr, String value);
 	
 	   /**
-     * provide the destination real address for the provided dependency.
-     * Usually performed as the return of method newWire (when lazy)
-     * 
-     * @param dependency Name of the dependency (field name)
-     * @param destInst. Real address of the destination.
-     * @return False if it cannot be performed : legacy.
-     */
+	 * provide the destination real address for the provided relation. Usually
+	 * performed as the return of method newWire (when lazy)
+	 * 
+	 * @param relation
+	 *            Name of the relation (field name)
+	 * @param destInst
+	 *            . Real address of the destination.
+	 * @return False if it cannot be performed : legacy.
+	 */
     public boolean setLink(Component destInst, String depName);
 
     /**
-     * Remove a wire. That dependency is no longer valid (disappear or other reason)
-     * 
-     * @param dependency name of that dependency
-     * @param destInst the old destination object (if multiple).
-     * @return false if it could not be performed: legacy.
-     */
+	 * Remove a wire. That relation is no longer valid (disappear or other
+	 * reason)
+	 * 
+	 * @param relation
+	 *            name of that relation
+	 * @param destInst
+	 *            the old destination object (if multiple).
+	 * @return false if it could not be performed: legacy.
+	 */
     public boolean remLink(Component destInst, String depName);
 
 	

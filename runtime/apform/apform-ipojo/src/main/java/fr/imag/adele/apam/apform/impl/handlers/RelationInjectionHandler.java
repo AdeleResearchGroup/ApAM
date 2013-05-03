@@ -179,8 +179,8 @@ public class RelationInjectionHandler extends ApformHandler {
 
             if (relationHandler.getInstanceManager() instanceof ApformInstanceImpl) {
                 ApformInstanceImpl instance = relationHandler.getInstanceManager();
-                for (RelationInjectionManager dependency : instance.getInjections()) {
-                    root.addElement(dependency.getDescription());
+                for (RelationInjectionManager relation : instance.getInjections()) {
+                    root.addElement(relation.getDescription());
                 }
             }
             return root;

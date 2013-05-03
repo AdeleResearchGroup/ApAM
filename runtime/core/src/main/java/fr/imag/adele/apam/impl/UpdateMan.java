@@ -102,8 +102,9 @@ public class UpdateMan implements RelationManager, DynamicManager {
 					UpdateMan.addDeployed (sel, implName) ;
 					try {
 						/**
-						 * WARNING: The new bundle may not start 
-						 * if the new bundle has a new package dependency not currently satisfied
+						 * WARNING: The new bundle may not start if the new
+						 * bundle has a new package relation not currently
+						 * satisfied
 						 */
 						bundle.update(sel.getBundelURL().openStream()) ;
 					} catch (BundleException e) {					

@@ -137,6 +137,7 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 	/**
 	 * Dynamic manager identifier
 	 */
+	@Override
 	public String getName() {
 		return "fr.imag.adele.dynaman";
 	}
@@ -145,6 +146,7 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 	 * Ensure this manager has the minimum priority, so that it is called only in case of binding resolution failure.
 	 * 
 	 */
+	@Override
 	public int getPriority() {
 		return 5;
 	}
@@ -230,23 +232,28 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 	
 	
 	/**
-	 * Throws the exception associated with a missing dependency
+	 * Throws the exception associated with a missing relation
 	 */
 	private void throwMissingException(Relation relation, Instance client) {
 		try {
 			
 			/*
-			 * TODO BUG : the class should be loaded using the bundle context of the component  where the dependency is
-			 * declared. This can be either the specification, or the implementation of the source instance, or a 
-			 * composite in the case of contextual dependencies.
+			 * TODO BUG : the class should be loaded using the bundle context of
+			 * the component where the relation is declared. This can be either
+			 * the specification, or the implementation of the source instance,
+			 * or a composite in the case of contextual dependencies.
 			 * 
-			 * The best solution is to modify DependencyDeclaration to load the exception class, but this is not possible
-			 * at compile time, so we can not change the signature of DependencyDeclaration.getMissingException. A possible
-			 * solution is to move this method to DependencyDeclaration and make it work only at runtime, but we need to
-			 * consider merge of contextual dependencies and use the correct bundle context. 
+			 * The best solution is to modify relationDeclaration to load the
+			 * exception class, but this is not possible at compile time, so we
+			 * can not change the signature of
+			 * relationDeclaration.getMissingException. A possible solution is
+			 * to move this method to relationDeclaration and make it work only
+			 * at runtime, but we need to consider merge of contextual
+			 * dependencies and use the correct bundle context.
 			 * 
-			 * Evaluate changes to DependencyDeclaration, CoreMetadataParser.parseDependency and Util.computeEffectiveDependency
-			 * 
+			 * Evaluate changes to relationDeclaration,
+			 * CoreMetadataParser.parserelation and
+			 * Util.computeEffectiverelation
 			 */
 			String exceptionName		= relation.getMissingException();
 			
@@ -379,7 +386,7 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 		 * Remove a content manager when its composite is removed
 		 */
 		if (component instanceof Composite) {
-			ContentManager manager = contentManagers.remove((Composite) component);
+			ContentManager manager = contentManagers.remove(component);
 			manager.dispose();
 		}
 		
@@ -490,12 +497,13 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 	}
 
 	/*
-	 * Dynaman does not have a component repository, it is usually not concerned with finding a component
+	 * Dynaman does not have a component repository, it is usually not concerned
+	 * with finding a component
 	 * 
-	 * TODO in certain cases these methods are invoked as part of a dependency resolution, how to distinguish those cases
-	 * and enforce the policy of the dependency ? currently is impossible because the resolving dependency is not 
+	 * TODO in certain cases these methods are invoked as part of a relation
+	 * resolution, how to distinguish those cases and enforce the policy of the
+	 * relation ? currently is impossible because the resolving relation is not
 	 * specified in the parameters
-	 * 
 	 */
 	
 	@Override

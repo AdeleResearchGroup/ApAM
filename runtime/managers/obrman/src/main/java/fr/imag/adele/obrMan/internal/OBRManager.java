@@ -45,7 +45,7 @@ public class OBRManager {
 
 	private Resolver       resolver;
 
-	private LinkedProperties obrModel;
+	private final LinkedProperties obrModel;
 
 	private List<Repository>     repositories= new ArrayList<Repository>();
 
@@ -214,7 +214,8 @@ public class OBRManager {
 	 * @param preferences: the preferences. can be null
 	 * @return the pair capability,
 	 */
-//	public Selected lookFor(String capability, String filterStr, Dependency dep) {
+	// public Selected lookFor(String capability, String filterStr, relation
+	// dep) {
 //		if ((preferences != null) && !preferences.isEmpty()) {
 //			return lookForPref(capability, dep, lookForAll(capability, filterStr, dep));
 //		}
@@ -290,7 +291,7 @@ public class OBRManager {
 //	 * @param constraints
 //	 * @return
 //	 */
-//	private boolean matchConstraints(Capability aCap, Dependency dep) {
+	// private boolean matchConstraints(Capability aCap, relation dep) {
 ////		if ((constraints == null) || constraints.isEmpty() || (aCap == null))
 //		if (dep == null)
 //			return true;

@@ -85,11 +85,12 @@ public class CheckObr {
 	}
 
 	/**
-	 * Checks if the constraints set on this dependency are syntacticaly valid.
+	 * Checks if the constraints set on this relation are syntacticaly valid.
 	 * Only for specification dependencies. Checks if the attributes mentioned
 	 * in the constraints can be set on an implementation of that specification.
 	 * 
-	 * @param dep a dependency
+	 * @param dep
+	 *            a relation
 	 */
 	private static void checkConstraint(ComponentDeclaration component, RelationDeclaration dep) {
 		if ((dep == null) || !(dep.getTarget() instanceof ComponentReference))
@@ -108,7 +109,7 @@ public class CheckObr {
 		if (dep.isMultiple()
 				&& (!dep.getImplementationPreferences().isEmpty() || !dep
 						.getInstancePreferences().isEmpty())) {
-			error("Preferences cannot be defined for a dependency with multiple cardinality: "
+			error("Preferences cannot be defined for a relation with multiple cardinality: "
 					+ dep.getIdentifier());
 		}
 		checkFilters(component, dep.getImplementationConstraints(), dep.getImplementationPreferences(), 
@@ -296,7 +297,7 @@ public class CheckObr {
                 	}
 //        			if (Attribute.checkAttrType(name, defaultValue, type) != null) {
 //        				return checkSubstitute (component, name, type, defaultValue) ;
-        			if (Attribute.checkAttrType(filt.attr, (String)filt.value, validAttr.get(filt.attr)) == null) {
+        			if (Attribute.checkAttrType(filt.attr, filt.value, validAttr.get(filt.attr)) == null) {
             			return false ;
         			}
         			return CheckObr.checkSubstitute (component, filt.attr, validAttr.get(filt.attr), (String)filt.value) ;
@@ -341,12 +342,13 @@ public class CheckObr {
 
 
 		/*
-		 * if we have a dependency, get the dependency target
+		 * if we have a relation, get the relation target
 		 */
 		if (sub.depId != null) {			
 			RelationDeclaration depDcl = source.dcl.getRelation(sub.depId) ;
 			if (depDcl == null) {
-				error("Dependency " + sub.depId + " undefined for component " + source.getName()) ;
+				error("relation " + sub.depId + " undefined for component "
+						+ source.getName());
 				return false ;
 			}
 
@@ -601,25 +603,26 @@ public class CheckObr {
 
 		for (RelationDeclaration dep : deps) {
 
-			//Checking for double dependency Id
+			// Checking for double relation Id
 			if (depIds.contains(dep.getIdentifier())) {
-				CheckObr.error("Dependency " + dep.getIdentifier()
+				CheckObr.error("relation " + dep.getIdentifier()
 						+ " allready defined.");
 			} else
 				depIds.add(dep.getIdentifier());
 
-			// validating dependency constraints and preferences..
+			// validating relation constraints and preferences..
 			CheckObr.checkConstraint(component, dep);
 
-			//replace the definition by the effective dependency (adding group definition)
-			computeGroupDependency (component, dep);
+			// replace the definition by the effective relation (adding group
+			// definition)
+			computeGroupRelation(component, dep);
 
 			// Checking fields and complex dependencies
 			CheckObr.checkFieldTypeDep(dep);
 
 			//eager and hide cannot be defined here
 			if (dep.isEager() != null || dep.isHide() != null) {
-				CheckObr.error("Cannot set flags \"eager\" or \"hide\" on a dependency "
+				CheckObr.error("Cannot set flags \"eager\" or \"hide\" on a relation "
 						+ dep.getIdentifier());
 			}
 
@@ -641,17 +644,20 @@ public class CheckObr {
 
 
 	/**
-	 * Provided a dependency declaration, compute the effective dependency, adding group constraint and flags.
-	 * Compute which is the good target, and check the targets are compatible. 
-	 * If needed changes the target to set the more general one.
+	 * Provided a relation declaration, compute the effective relation, adding
+	 * group constraint and flags. Compute which is the good target, and check
+	 * the targets are compatible. If needed changes the target to set the more
+	 * general one.
+	 * 
 	 * @param depComponent
-	 * @param dependency
+	 * @param relation
 	 * @return
 	 */
-	public static RelationDeclaration computeGroupDependency (ComponentDeclaration depComponent, RelationDeclaration dependency) {
-		String depName = dependency.getIdentifier() ;
+	public static RelationDeclaration computeGroupRelation(
+			ComponentDeclaration depComponent, RelationDeclaration relation) {
+		String depName = relation.getIdentifier();
 
-		//look for that dependency declaration above
+		// look for that relation declaration above
 		ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
 		RelationDeclaration groupDep = null ;
 		while (group != null && (groupDep == null)) {
@@ -661,73 +667,85 @@ public class CheckObr {
 
 		if (groupDep == null) {
 			//It is not defined above. Return it as is.
-			return dependency ;
+			return relation;
 		}
 
 		//it is declared above. Merge and check.
 		//First merge flags, and then constraints.
-		Util.overrideDepFlags (dependency, groupDep, false);
-		dependency.getImplementationConstraints().addAll(groupDep.getImplementationConstraints()) ;
-		dependency.getInstanceConstraints().addAll(groupDep.getInstanceConstraints()) ;
-		dependency.getImplementationPreferences().addAll(groupDep.getImplementationPreferences()) ;
-		dependency.getInstancePreferences().addAll(groupDep.getInstancePreferences()) ;		
+		Util.overrideDepFlags(relation, groupDep, false);
+		relation.getImplementationConstraints().addAll(
+				groupDep.getImplementationConstraints());
+		relation.getInstanceConstraints().addAll(
+				groupDep.getInstanceConstraints());
+		relation.getImplementationPreferences().addAll(
+				groupDep.getImplementationPreferences());
+		relation.getInstancePreferences().addAll(
+				groupDep.getInstancePreferences());
 
 		//Check if the targets are compatible. Keep the most general one;
-		if (dependency.getTarget() == null) {
+		if (relation.getTarget() == null) {
 			//set the target
-			dependency.setTarget(groupDep.getTarget()) ;
-			return dependency ;
+			relation.setTarget(groupDep.getTarget());
+			return relation;
 		} 
-		if (dependency.getTarget() instanceof ResourceReference) {
+		if (relation.getTarget() instanceof ResourceReference) {
 			//It is an interface or message. So either the same interface, or an interface of the group component
 			if (groupDep.getTarget() instanceof ResourceReference) {
 				//must be the same one
-				if (groupDep.getTarget().equals(dependency.getTarget())) 
-					return dependency ;
-				CheckObr.error ("Invalid target for dependency " + dependency + " expected " + groupDep.getTarget()) ;
+				if (groupDep.getTarget().equals(relation.getTarget()))
+					return relation;
+				CheckObr.error("Invalid target for relation " + relation
+						+ " expected " + groupDep.getTarget());
 				return null ;
 			}
 			//group is against a component. Check if that component implements the resource.
 			ComponentDeclaration groupTarget = ApamCapability.getDcl(((ComponentReference<?>)groupDep.getTarget())) ;
-			if (groupTarget.getProvidedResources().contains((ResourceReference)dependency.getTarget())) {
+			if (groupTarget.getProvidedResources().contains(
+					relation.getTarget())) {
 				//Keep the component as target
-				dependency.setTarget(groupDep.getTarget()) ;
-				return dependency ;
+				relation.setTarget(groupDep.getTarget());
+				return relation;
 			}
-			CheckObr.error ("Invalid target for dependency " + dependency + " In component " + groupDep + " dependency " 
-					+ depName + " is definned against " + groupDep.getTarget() + " which does not implement " + dependency.getTarget()) ;
+			CheckObr.error("Invalid target for relation " + relation
+					+ " In component " + groupDep + " relation " + depName
+					+ " is definned against " + groupDep.getTarget()
+					+ " which does not implement " + relation.getTarget());
 			return null ;
 		}
 
 		//target is a component reference, group should be too
 		if (!(groupDep.getTarget() instanceof ComponentReference<?>)) {
-			CheckObr.error ("Invalid target for dependency " + dependency + " In component " + groupDep + " dependency " 
+			CheckObr.error("Invalid target for relation " + relation
+					+ " In component " + groupDep + " relation "
 					+ depName + " is definned against " + groupDep.getTarget() ) ;
 			return null ;
 		}
-		//Should be the same or "above". The group target is supposed to be above the current dependency target.
+		// Should be the same or "above". The group target is supposed to be
+		// above the current relation target.
 
-		ComponentDeclaration targetCompo = ApamCapability.getDcl(((ComponentReference<?>)dependency.getTarget())) ;
+		ComponentDeclaration targetCompo = ApamCapability
+				.getDcl(((ComponentReference<?>) relation.getTarget()));
 		while (targetCompo != null) {
 			if (targetCompo.getReference().equals(groupDep.getTarget())) {
-				dependency.setTarget(groupDep.getTarget()) ;
-				return dependency ;							
+				relation.setTarget(groupDep.getTarget());
+				return relation;
 			}
 			targetCompo = ApamCapability.getDcl(targetCompo.getGroupReference()) ;
 		}
-		CheckObr.error ("Invalid target for dependency " + dependency + " In component " + groupDep + " dependency " 
+		CheckObr.error("Invalid target for relation " + relation
+				+ " In component " + groupDep + " relation "
 				+ depName + " is definned against " + groupDep.getTarget() ) ;
 		return null ;		
 	}
 
 
 	/**
-	 * Provided a dependency "dep" (simple or complex) checks if the field type
-	 * and attribute multiple are compatible. For complex dependency, for each
+	 * Provided a relation "dep" (simple or complex) checks if the field type
+	 * and attribute multiple are compatible. For complex relation, for each
 	 * field, checks if the target specification implements the field resource.
 	 * 
 	 * @param dep
-	 *            : a dependency
+	 *            : a relation
 	 * @param component
 	 *            : the component currently analyzed
 	 */
@@ -752,7 +770,7 @@ public class CheckObr {
 		else {
 			ApamCapability cap 	= ApamCapability.get(targetComponent);
 			if (cap == null) {
-				CheckObr.error("Dependency "
+				CheckObr.error("relation "
 						+ dep.getIdentifier()
 						+ " : the target of the reference doesn' exists "
 						+ targetComponent);
@@ -788,10 +806,12 @@ public class CheckObr {
 	/**
 	 * This class represents the main class of an implementation.
 	 * 
-	 * TODO Right now this class is only used to verify the type of a field in an implementation dependnecy.
-	 * We could think of generalizing the concept of "interface dependency" to "class dependency" and allow APAM to
-	 * resolve a field of a given class to an instance of some implementation that implements this class. In that
-	 * case we can move this class to the core of APAM.
+	 * TODO Right now this class is only used to verify the type of a field in
+	 * an implementation dependnecy. We could think of generalizing the concept
+	 * of "interface relation" to "class relation" and allow APAM to resolve a
+	 * field of a given class to an instance of some implementation that
+	 * implements this class. In that case we can move this class to the core of
+	 * APAM.
 	 */
 	private static class ImplementatioClassReference extends ResourceReference {
 
@@ -807,8 +827,8 @@ public class CheckObr {
 	}
 
 	/**
-	 * Provided an atomic dependency, returns if it is multiple or not. Checks
-	 * if the same field is declared twice.
+	 * Provided an atomic relation, returns if it is multiple or not. Checks if
+	 * the same field is declared twice.
 	 * 
 	 * @param dep
 	 * @param component
@@ -1156,7 +1176,7 @@ public class CheckObr {
 				allGrants.add(def);
 			}
 
-			// Check that the dependency exists and has as target the OWN
+			// Check that the relation exists and has as target the OWN
 			// resource
 			ComponentDeclaration granted = grantComponent.dcl;
 			String id = grant.getRelation().getIdentifier();
@@ -1168,7 +1188,7 @@ public class CheckObr {
 				if (depend.getIdentifier().equals(id)) {
 					found = true;
 
-					// Check if the dependency leads to the OWNed component
+					// Check if the relation leads to the OWNed component
 					if (depend.getTarget().getClass().equals(owned.getClass()) 
 							/* same type spec or implem	 */
 							&& (depend.getTarget().getName().equals(owned
@@ -1176,7 +1196,7 @@ public class CheckObr {
 						break;
 					}
 
-					// If the dependency is an implem check if its spec is the
+					// If the relation is an implem check if its spec is the
 					// owned one
 					if (depend.getTarget() instanceof ImplementationReference) {
 						ApamCapability depSpec = ApamCapability
@@ -1188,7 +1208,7 @@ public class CheckObr {
 						}
 					}
 
-					// Check if the dependency resource are provided by the
+					// Check if the relation resource are provided by the
 					// owned component
 					if ((depend.getTarget() instanceof ResourceReference)
 							&& (ownedComp.getProvidedResources()
@@ -1197,14 +1217,14 @@ public class CheckObr {
 					}
 
 					// This id does not lead to the owned component
-					CheckObr.error("The dependency of the grant clause "
+					CheckObr.error("The relation of the grant clause "
 							+ grant
 							+ " does not refers to the owned component "
 							+ owned);
 				}
 			}
 			if (!found) {
-				CheckObr.error("The dependency id of the grant clause "
+				CheckObr.error("The relation id of the grant clause "
 						+ grant
 						+ " is undefined for component "
 						+ grant.getRelation().getDeclaringComponent()
@@ -1254,8 +1274,8 @@ public class CheckObr {
 	}
 
 	/**
-	 * Cannot check if the component dependency is valid. Only checks that the
-	 * composite dependency is declared, and that the component is known.
+	 * Cannot check if the component relation is valid. Only checks that the
+	 * composite relation is declared, and that the component is known.
 	 * 
 	 * @param composite
 	 */
@@ -1284,7 +1304,7 @@ public class CheckObr {
 			// Check if the dependencies are compatible
 			if (internalDep == null) {
 				error("Component " + internalComp.getName()
-						+ " does not define a dependency with id="
+						+ " does not define a relation with id="
 						+ promo.getContentRelation().getIdentifier());
 				continue;
 			}
@@ -1299,27 +1319,27 @@ public class CheckObr {
 					}
 				}
 			if (compositeDep == null) {
-				error("Undefined composite dependency: "
+				error("Undefined composite relation: "
 						+ promo.getCompositeRelation().getIdentifier());
 				continue;
 			}
 
-			// Both the composite and the component have a dependency with the
+			// Both the composite and the component have a relation with the
 			// right id.
 			// Check if the targets are compatible
-			if (!checkDependencyMatch(internalDep, compositeDep)) {
-				error("Dependency " + internalDep
-						+ " does not match the composite dependency "
+			if (!checkRelationMatch(internalDep, compositeDep)) {
+				error("relation " + internalDep
+						+ " does not match the composite relation "
 						+ compositeDep);
 			}
 		}
 	}
 
 	// Copy paste of the Util class ! too bad, this one uses ApamCapability
-	private static boolean checkDependencyMatch(
+	private static boolean checkRelationMatch(
 			RelationDeclaration clientDep, RelationDeclaration compoDep) {
 		boolean multiple = clientDep.isMultiple();
-		// Look for same dependency: the same specification, the same
+		// Look for same relation: the same specification, the same
 		// implementation or same resource name
 		// Constraints are not taken into account
 
@@ -1331,12 +1351,12 @@ public class CheckObr {
 			}
 		}
 
-		// Look for a compatible dependency.
-		// Stop at the first dependency matching only based on same name (same
+		// Look for a compatible relation.
+		// Stop at the first relation matching only based on same name (same
 		// resource or same component)
 		// No provision for : cardinality, constraints or characteristics
 		// (missing, eager)
-		// for (DependencyDeclaration compoDep : compoDeps) {
+		// for (relationDeclaration compoDep : compoDeps) {
 		// Look if the client requires one of the resources provided by the
 		// specification
 		if (compoDep.getTarget() instanceof SpecificationReference) {
@@ -1349,7 +1369,7 @@ public class CheckObr {
 				if (!multiple || compoDep.isMultiple())
 					return true;
 		} else {
-			// If the composite has a dependency toward an implementation
+			// If the composite has a relation toward an implementation
 			// and the client requires a resource provided by that
 			// implementation
 			if (compoDep.getTarget() instanceof ImplementationReference) {

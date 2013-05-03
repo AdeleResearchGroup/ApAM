@@ -265,7 +265,7 @@ public class ContentManager  {
 				dynamicDependencies.add(dynamicRequest);
 
 				/*
-				 * Force initial resolution of eager dependency
+				 * Force initial resolution of eager relation
 				 */
 				if (relation.isEager())
 					dynamicRequest.resolve();

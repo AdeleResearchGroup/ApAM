@@ -21,11 +21,12 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.RelationInjection;
 
 /**
- * This class represents a kind of injection manager for a dependency. The injection manager is in charge of translating
- * the APAM events into platform specific action to inject the dependency into a field.
+ * This class represents a kind of injection manager for a relation. The
+ * injection manager is in charge of translating the APAM events into platform
+ * specific action to inject the relation into a field.
  * 
  * @author vega
- *
+ * 
  */
 public interface RelationInjectionManager extends FieldInterceptor {
 
@@ -38,12 +39,13 @@ public interface RelationInjectionManager extends FieldInterceptor {
 		/**
 		 * Registers an injection manager with a resolver.
 		 * 
-		 * The resolver can asynchronously update the dependency to modify the binding.
-	 	 *
+		 * The resolver can asynchronously update the relation to modify the
+		 * binding.
+		 * 
 		 * @see fr.imag.adele.apam.apform.impl.InterfaceInjectionManager.addTarget
 		 * @see fr.imag.adele.apam.apform.impl.InterfaceInjectionManager.removeTarget
 		 * @see fr.imag.adele.apam.apform.impl.InterfaceInjectionManager.substituteTarget
-		 *  
+		 * 
 		 */
 		public void addInjection(RelationInjectionManager injection);
 		
@@ -65,16 +67,17 @@ public interface RelationInjectionManager extends FieldInterceptor {
 		/**
 		 * Request to remove an injection.
 		 * 
-		 * This method is invoked by a injection manager to signify that the component
-		 * wants to force the resolution of the dependency the next access
-		 *  
+		 * This method is invoked by a injection manager to signify that the
+		 * component wants to force the resolution of the relation the next
+		 * access
+		 * 
 		 */
 		public boolean unresolve(RelationInjectionManager injection);
 		
 	} 
 	
 	/**
-	 * The dependency injection that is managed by this manager
+	 * The relation injection that is managed by this manager
 	 */
 	public abstract RelationInjection getRelationInjection();
 

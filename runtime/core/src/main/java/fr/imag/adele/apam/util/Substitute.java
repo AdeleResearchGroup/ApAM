@@ -303,22 +303,25 @@ public class Substitute {
 			return checkReturnSub (source, sub, attr, st) ;
 		}
 
-		//look for the dependency depId of the source component
+		// look for the relation depId of the source component
 		//No longer ! Source must be an instance; get its wire.
 		//		if (!!! (source instanceof Instance)) {
-		//			logger.error("Invalid dependency " + sub.depId + " for component " + source + ". Not an instance.") ;
+		// logger.error("Invalid relation " + sub.depId + " for component " +
+		// source + ". Not an instance.") ;
 		//			return null ;
 		//		}
 
 		Relation depDcl =  source.getRelation (sub.depId) ;
 		if (depDcl == null) {
-			logger.error("Dependency " + sub.depId + " undefined for component " + source.getName()) ;
+			logger.error("relation " + sub.depId + " undefined for component "
+					+ source.getName());
 			return null ;
 		}
 
 		Set<Component> dest = source.getLinkDests(sub.depId) ;
 		if (dest == null) {
-			logger.error("Dependency id " + sub.depId + " not resolved for component " + source) ;
+			logger.error("relation id " + sub.depId
+					+ " not resolved for component " + source);
 			return null ;
 		}
 		if (dest.size() == 1) {
@@ -333,7 +336,7 @@ public class Substitute {
 		 */
 		if (!st.isSet) {
 			logger.error("Invalid type for attribute " + attr 
-					+ " It must be a set for a multiple dependency " + sub.depId) ;
+					+ " It must be a set for a multiple relation " + sub.depId);
 			return null ;
 		}
 

@@ -79,22 +79,22 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
     /**
      * The list of injected fields handled by this instance
      */
-    private Set<RelationInjectionManager>          injectedFields;
+    private final Set<RelationInjectionManager>          injectedFields;
 
     /**
      * The list of callbacks to notify when a property is set
      */
-    private Map<String, Callback>                    propertyCallbacks;
+    private final Map<String, Callback>                    propertyCallbacks;
 
     /**
      * The list of callbacks to notify when onInit, onRemove
      */
-    private Map<CallbackTrigger, Set<Callback>>      lifeCycleCallbacks;
+    private final Map<CallbackTrigger, Set<Callback>>      lifeCycleCallbacks;
 
     /**
      * The list of callbacks to notify when bind, Unbind
      */
-    Map<CallbackTrigger, Map<String, Set<Callback>>> dependencyCallback;
+	Map<CallbackTrigger, Map<String, Set<Callback>>> relationCallback;
 
     public ApformInstanceImpl(ApformImplementationImpl implementation, boolean isApamCreated, BundleContext context,
                                HandlerManager[] handlers) {
@@ -104,7 +104,7 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
         this.isApamCreated = isApamCreated;
         injectedFields = new HashSet<RelationInjectionManager>();
         propertyCallbacks = new HashMap<String, Callback>();
-        dependencyCallback = new HashMap<CallbackTrigger, Map<String, Set<Callback>>>();
+		relationCallback = new HashMap<CallbackTrigger, Map<String, Set<Callback>>>();
         lifeCycleCallbacks = new HashMap<CallbackTrigger, Set<Callback>>();
         if (getFactory().hasInstrumentedCode()) {
             AtomicImplementationDeclaration primitive = (AtomicImplementationDeclaration) implementation
@@ -234,8 +234,8 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
      * Adds a new injected field to this instance
      */
     @Override
-    public void addInjection(RelationInjectionManager dependency) {
-        injectedFields.add(dependency);
+	public void addInjection(RelationInjectionManager relation) {
+		injectedFields.add(relation);
     }
 
     /**
@@ -261,13 +261,13 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
 //    }
 
     /**
-     * Delegate APAM to resolve a given injection.
-     *
-     * NOTE nothing is returned from this method, the call to APAM has as
-     * side-effect the update of the dependency.
-     *
-     * @param injection
-     */
+	 * Delegate APAM to resolve a given injection.
+	 * 
+	 * NOTE nothing is returned from this method, the call to APAM has as
+	 * side-effect the update of the relation.
+	 * 
+	 * @param injection
+	 */
     @Override
     public boolean resolve(RelationInjectionManager injection) {
 
@@ -285,16 +285,18 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
             return false;
         }
 
-        RelationDeclaration dependency = injection.getRelationInjection().getRelation();
-        return CST.apamResolver.resolveLink(apamInstance, dependency.getIdentifier()) != null;
+		RelationDeclaration relation = injection.getRelationInjection()
+				.getRelation();
+		return CST.apamResolver.resolveLink(apamInstance,
+				relation.getIdentifier()) != null;
 
     }
 
     /**
-     * Delegate APAM to remove the currently resolved dependency and force a new resolution
-     * the next time the injected dependency is accessed
-     *
-     */
+	 * Delegate APAM to remove the currently resolved relation and force a new
+	 * resolution the next time the injected relation is accessed
+	 * 
+	 */
     @Override
     public boolean unresolve(RelationInjectionManager injection) {
 
@@ -312,8 +314,9 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
             return false;
         }
 
-        RelationDeclaration dependency = injection.getRelationInjection().getRelation();
-        for (Link outgoing : apamInstance.getLinks(dependency.getIdentifier())) {
+		RelationDeclaration relation = injection.getRelationInjection()
+				.getRelation();
+		for (Link outgoing : apamInstance.getLinks(relation.getIdentifier())) {
             outgoing.remove();
         }
 
@@ -373,8 +376,8 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
     }
 
     /**
-     * Apform: resolve dependency
-     */
+	 * Apform: resolve relation
+	 */
     @Override
     public boolean setLink(Component destination, String depName) {
         // System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
@@ -404,14 +407,15 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
         /*
          * perform callback bind
          */
-        fireCallbacks(destInst, depName, dependencyCallback.get(CallbackTrigger.Bind));
+		fireCallbacks(destInst, depName,
+				relationCallback.get(CallbackTrigger.Bind));
 
         return true;
     }
 
     /**
-     * Apform: unresolve dependency
-     */
+	 * Apform: unresolve relation
+	 */
     @Override
     public boolean remLink(Component destination, String depName) {
         // System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
@@ -441,13 +445,14 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
         /*
          * perform callback unbind
          */
-        fireCallbacks(destInst, depName, dependencyCallback.get(CallbackTrigger.Unbind));
+		fireCallbacks(destInst, depName,
+				relationCallback.get(CallbackTrigger.Unbind));
 
         return true;
     }
 
 //    /**
-//     * Apform: substitute dependency
+	// * Apform: substitute relation
 //     */
 //    @Override
 //    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
@@ -459,7 +464,7 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
 //         * Validate all the injections can be performed
 //         */
 //
-//        for (DependencyInjectionManager injectedField : injectedFields) {
+	// for (relationInjectionManager injectedField : injectedFields) {
 //            if (!injectedField.isValid())
 //                return false;
 //        }
@@ -467,8 +472,10 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
 //        /*
 //         * perform injection update
 //         */
-//        for (DependencyInjectionManager injectedField : injectedFields) {
-//            if (injectedField.getDependencyInjection().getDependency().getIdentifier().equals(depName)) {
+	// for (relationInjectionManager injectedField : injectedFields) {
+	// if
+	// (injectedField.getrelationInjection().getrelation().getIdentifier().equals(depName))
+	// {
 //                injectedField.substituteTarget(oldDestInst, newDestInst);
 //            }
 //        }
@@ -539,7 +546,7 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
     }
 
     public void addCallbackRelation(CallbackTrigger trigger, Map<String, Set<Callback>> callbackDependecy) {
-        dependencyCallback.put(trigger, callbackDependecy);
+		relationCallback.put(trigger, callbackDependecy);
     }
 
 }

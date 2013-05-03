@@ -46,7 +46,7 @@ public class ApamRepoBuilder {
 	 */
 
 
-	private Set<SpecificationReference> bundleRequiresSpecifications = new HashSet <SpecificationReference> ();
+	private final Set<SpecificationReference> bundleRequiresSpecifications = new HashSet <SpecificationReference> ();
 
 	private static List <ComponentDeclaration> components   ;
 
@@ -288,10 +288,13 @@ public class ApamRepoBuilder {
 	private void generateRequire (StringBuffer obrContent, String target, String version) {
 		if (version == null) {
 			obrContent.append ( "   <require name='apam-component' filter='(name=" + target + ")' extend='false' multiple='false' optional='false'>"
-					+ " specification dependency toward " + target + "</require>\n") ;
+							+ " specification relation toward " + target
+							+ "</require>\n");
 		} else {
 			obrContent.append ( "   <require name='apam-component' filter='(&amp;(name=" + target + ")" + version + ")' extend='false' multiple='false' optional='false'>"
-					+ " specification dependency toward " + target + "</require>\n") ;
+							+ " specification relation toward "
+							+ target
+							+ "</require>\n");
 		}
 	}
 
