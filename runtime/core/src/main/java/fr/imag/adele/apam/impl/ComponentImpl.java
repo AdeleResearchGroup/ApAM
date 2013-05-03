@@ -126,7 +126,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		Set<ResourceReference> resources = getDeclaration().getProvidedResources() ;
 		Component group = this.getGroup() ;
 		while (group != null) { 
-			resources.addAll(group.getDeclaration().getProvidedResources()) ;
+			if (group.getDeclaration().getProvidedResources() != null)
+				resources.addAll(group.getDeclaration().getProvidedResources());
+			group = group.getGroup();
 		}
 	}
 	
@@ -318,6 +320,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
     @Override
     public boolean createLink(Component to, Relation dep, boolean hasConstraints, boolean promotion) {
+		// Not a relation
+		if (!dep.isRelation())
+			return true;
     	
         if ((to == null) || (dep == null)) {
         	throw new IllegalArgumentException ("CreateLink: Source or target are null ") ;
@@ -480,7 +485,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
     //==============================================
 	@Override
 	public String toString() {
-		return getName();
+		return getKind() + " " + getName();
 	}
 
 	@Override

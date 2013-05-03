@@ -32,6 +32,7 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.ComponentKind;
+import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -172,7 +173,7 @@ public class ApamMan implements RelationManager {
 			Specification spec = CST.componentBroker.getSpec(name);
 			if (spec == null) {
 				System.err.println("No spec with name " + name
-						+ " for relation " + relation.getIdentifier()
+				// + " for relation " + relation.getIdentifier()
 						+ " from component" + source);
 				return null;
 			}
@@ -194,6 +195,16 @@ public class ApamMan implements RelationManager {
 					if (impl != null) {
 						impls.add(impl) ;
 					} 
+				} else if (relation.getTarget() instanceof ComponentReference<?>) {
+					Component component = CST.componentBroker
+							.getComponent(name);
+					if (component instanceof Implementation) {
+						impls.add((Implementation) component);
+					} else if (component instanceof Instance) {
+						impls.add(((Instance) component).getImpl());
+					} else if (component instanceof Specification) {
+						impls.addAll(((Specification) component).getImpls());
+					}
 				}
 			}
 		}

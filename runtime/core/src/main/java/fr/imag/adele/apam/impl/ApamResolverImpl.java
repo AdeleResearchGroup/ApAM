@@ -78,6 +78,8 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @return the composite relation from the composite.
 	 */
 	private Relation getPromotionRel(Instance client, Relation relation) {
+		if (relation.getIdentifier() == null) // Not a relation
+			return null;
 
 		Composite composite = client.getComposite() ;
 
@@ -127,6 +129,7 @@ public class ApamResolverImpl implements ApamResolver {
 					return compoDep ;
 				}
 			}
+			group = group.getGroup();
 		}
 		return null ;
 	}
@@ -139,8 +142,9 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		/*
-		 * We are resolving a reference from an unused client instance. We automatically build a new composite
-		 * to create a context of execution. This allow to use Apam without requiring the explicit definition of
+		 * We are resolving a reference from an unused client instance. We
+		 * automatically build a new composite to create a context of execution.
+		 * This allows to use Apam without requiring the explicit definition of
 		 * composites, just instantiating any implementation.
 		 */
 
@@ -205,7 +209,11 @@ public class ApamResolverImpl implements ApamResolver {
 			return null;
 		}
 
-		logger.info("Resolving relation " + dep + " from " + source );
+		if (!dep.isRelation()) { // It is a find
+			logger.info("Looking for " + dep.getTarget().getName() + " (from "
+					+ source + ")");
+		} else
+		logger.info("Resolving " + dep + " from " + source);
 		
 		//a try / finally to reset filters in all cases. Just a verification, to avoid matching outside a compute filter.
 		try {
@@ -220,9 +228,12 @@ public class ApamResolverImpl implements ApamResolver {
 			 *  Only for instances
 			 */
 			if (source instanceof Instance) {
-				Composite compo = getClientComposite((Instance)source);
-				Relation promotionRelation = getPromotionRel((Instance) source,
-						dep);
+				Composite compo = null;
+				if (dep.getIdentifier() == null) {
+					compo = getClientComposite((Instance) source);
+				} else
+					compo = getClientComposite((Instance) source);
+				Relation promotionRelation = getPromotionRel((Instance) source, dep);
 
 				// if it is a promotion, get the composite relation targets.
 				if (promotionRelation != null) {
@@ -258,8 +269,9 @@ public class ApamResolverImpl implements ApamResolver {
 			}
 
 			if (resolved == null) {
-				logger.error("Failed to resolve " + dep.getTarget()
-						+ " from " + source + "(" + dep.getIdentifier() + ")");
+				logger.error("Failed to resolve " + dep.getTarget().getName()
+						+ " from " + source + "(relation "
+						+ dep.getIdentifier() + ")");
 				return null;
 			}
 
@@ -308,7 +320,8 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		((RelationImpl)relation).computeFilters(source) ;
-		logger.info("Looking for all " + relation.getTarget() + " satisfying " + relation);
+		// logger.info("Looking for all " + relation.getTarget().getName() +
+		// relation);
 
 		// To select first in Apam
 		selectionPath.add(0, apam.getApamMan());
@@ -366,7 +379,7 @@ public class ApamResolverImpl implements ApamResolver {
 	@Override
 	public Implementation resolveSpecByInterface(Component client, String interfaceName, Set<String> constraints, List<String> preferences) {
 
-		Relation dep = new RelationImpl (client, interfaceName, false, new InterfaceReference(interfaceName), null, ComponentKind.IMPLEMENTATION);
+		Relation dep = new RelationImpl(client, new InterfaceReference(interfaceName), ComponentKind.IMPLEMENTATION);
 
 		if (constraints != null)
 			dep.getImplementationConstraints().addAll(constraints) ;
@@ -379,7 +392,7 @@ public class ApamResolverImpl implements ApamResolver {
 	@Override
 	public Implementation resolveSpecByMessage(Component client, String messageName, Set<String> constraints, List<String> preferences) {
 
-		Relation dep = new RelationImpl (client, messageName, false, new MessageReference(messageName), null, ComponentKind.IMPLEMENTATION);
+		Relation dep = new RelationImpl(client, new MessageReference(messageName), ComponentKind.IMPLEMENTATION);
 
 		if (constraints != null)
 			dep.getImplementationConstraints().addAll(constraints) ;
@@ -406,7 +419,8 @@ public class ApamResolverImpl implements ApamResolver {
 			client = CompositeImpl.getRootInstance();
 		}
 
-		Relation dep = new RelationImpl (client, impl.getName(), false, new ImplementationReference<ImplementationDeclaration>(impl.getName()), null, ComponentKind.INSTANCE);
+		@SuppressWarnings("rawtypes")
+		Relation dep = new RelationImpl(client, new ImplementationReference(impl.getName()), ComponentKind.INSTANCE);
 		if (constraints != null)
 			dep.getImplementationConstraints().addAll(constraints) ;
 		if (preferences != null)
@@ -425,7 +439,8 @@ public class ApamResolverImpl implements ApamResolver {
 			client = CompositeImpl.getRootInstance();
 		}
 
-		Relation dep = new RelationImpl (client, impl.getName(), true, new ImplementationReference<ImplementationDeclaration>(impl.getName()), null, ComponentKind.INSTANCE);
+		@SuppressWarnings("rawtypes")
+		Relation dep = new RelationImpl(client, new ImplementationReference(impl.getName()), ComponentKind.INSTANCE);
 		if (constraints != null)
 			dep.getImplementationConstraints().addAll(constraints) ;
 
@@ -435,12 +450,6 @@ public class ApamResolverImpl implements ApamResolver {
 
 		//return (set<Instance>resolve.setResolved est invalide
 		return (Set<Instance>)resolve.setResolved ;
-
-		//		Set<Instance> ret = new HashSet<Instance> () ;
-		//		for (Object c : resolve.setResolved) {
-		//			ret.add((Instance)c) ;
-		//		}
-		//		return ret ;
 	}
 
 	/**
@@ -457,7 +466,9 @@ public class ApamResolverImpl implements ApamResolver {
 			client = CompositeImpl.getRootInstance();
 		}
 
-		Relation relation = new RelationImpl (client, componentName, false, new ComponentReference<ComponentDeclaration>(componentName), client.getKind(), targetKind) ;
+		// Id = null means it is a find, not a relation to resolve
+		@SuppressWarnings("rawtypes")
+		Relation relation = new RelationImpl(client, new ComponentReference(componentName), targetKind);
 		Resolved<?> res = resolveLink (client, relation) ;
 		if (res == null) return null ;
 		return res.singletonResolved ;
@@ -505,7 +516,7 @@ public class ApamResolverImpl implements ApamResolver {
 			client = CompositeImpl.getRootInstance () ;
 		}
 
-		Relation dep = new RelationImpl (client, specName, false, new SpecificationReference(specName), null, ComponentKind.IMPLEMENTATION);
+		Relation dep = new RelationImpl(client, new SpecificationReference(specName), ComponentKind.IMPLEMENTATION);
 		if (constraints != null) 
 			dep.getImplementationConstraints().addAll(constraints) ;		
 
