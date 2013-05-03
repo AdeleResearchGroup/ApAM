@@ -94,7 +94,7 @@ public class ApamResolverImpl implements ApamResolver {
 			if (!promo.getContentRelation().getIdentifier()
 					.equals(relation.getIdentifier())) {
 				continue; // this promotion is not about our relation (not
-							// "clientDep")
+				// "clientDep")
 			}
 
 			String sourceName = promo.getContentRelation()
@@ -213,8 +213,8 @@ public class ApamResolverImpl implements ApamResolver {
 			logger.info("Looking for " + dep.getTarget().getName() + " (from "
 					+ source + ")");
 		} else
-		logger.info("Resolving " + dep + " from " + source);
-		
+			logger.info("Resolving " + dep + " from " + source);
+
 		//a try / finally to reset filters in all cases. Just a verification, to avoid matching outside a compute filter.
 		try {
 
@@ -227,12 +227,8 @@ public class ApamResolverImpl implements ApamResolver {
 			 *  Promotion control
 			 *  Only for instances
 			 */
-			if (source instanceof Instance) {
-				Composite compo = null;
-				if (dep.getIdentifier() == null) {
-					compo = getClientComposite((Instance) source);
-				} else
-					compo = getClientComposite((Instance) source);
+			if (source instanceof Instance && dep.isRelation()) {
+				Composite compo = getClientComposite((Instance) source);
 				Relation promotionRelation = getPromotionRel((Instance) source, dep);
 
 				// if it is a promotion, get the composite relation targets.
@@ -249,7 +245,7 @@ public class ApamResolverImpl implements ApamResolver {
 										.getIdentifier()));
 
 					if (resolved.isEmpty()) // Maybe the composite did not
-											// resolve that relation so far.
+						// resolve that relation so far.
 						resolved = resolveLink(compo, promotionRelation);
 					if (resolved == null) {
 						logger.error("Failed to resolve " + dep.getTarget()
@@ -517,10 +513,10 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		Relation dep = new RelationImpl(client, new SpecificationReference(specName), ComponentKind.IMPLEMENTATION);
-		if (constraints != null) 
+		if (constraints != null && !constraints.isEmpty())
 			dep.getImplementationConstraints().addAll(constraints) ;		
 
-		if (preferences != null) 
+		if (preferences != null && !preferences.isEmpty())
 			dep.getImplementationPreferences().addAll(preferences) ;
 
 		return resolveSpecByResource(client, dep) ;
