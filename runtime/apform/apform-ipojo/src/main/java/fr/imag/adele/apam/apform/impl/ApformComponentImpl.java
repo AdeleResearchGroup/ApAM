@@ -169,12 +169,12 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
                 }
                 componentDescription.addElement(providesDescription);
 
-                Element dependenciesDescription = new Element("dependencies", APAM_NAMESPACE);;
+                Element relationsDescription = new Element("dependencies", APAM_NAMESPACE);;
                 for (RelationDeclaration relationDeclaration : declaration.getDependencies()) {
-                    Element dependencyDescription = new Element("dependency", APAM_NAMESPACE);
-                    dependencyDescription.addAttribute(new Attribute("id", relationDeclaration.getIdentifier()));
-                    dependencyDescription.addAttribute(new Attribute("resource", relationDeclaration.getTarget().toString()));
-                    dependencyDescription.addAttribute(new Attribute("multiple", Boolean.toString(relationDeclaration.isMultiple())));
+                    Element relationDescription = new Element("dependency", APAM_NAMESPACE);
+                    relationDescription.addAttribute(new Attribute("id", relationDeclaration.getIdentifier()));
+                    relationDescription.addAttribute(new Attribute("resource", relationDeclaration.getTarget().toString()));
+                    relationDescription.addAttribute(new Attribute("multiple", Boolean.toString(relationDeclaration.isMultiple())));
 
 
                     Element injectionsDescription = new Element("injections", APAM_NAMESPACE);
@@ -185,7 +185,7 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
                         injectionDescription.addAttribute(new Attribute("multiple", Boolean.toString(injectionDeclaration.isCollection())));
                         injectionsDescription.addElement(injectionDescription);
                     }
-                    dependencyDescription.addElement(injectionsDescription);
+                    relationDescription.addElement(injectionsDescription);
 
                     Element constraintsDescription = new Element("constraints", APAM_NAMESPACE);
                     for (String constraint : relationDeclaration.getImplementationConstraints()) {
@@ -198,7 +198,7 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
                         constraintDescription.addAttribute(new Attribute("filter", constraint));
                         constraintsDescription.addElement(constraintDescription);
                     }
-                    dependencyDescription.addElement(constraintsDescription);
+                    relationDescription.addElement(constraintsDescription);
 
                     Element preferencesDescription = new Element("preferences", APAM_NAMESPACE);
                     int priority=0;
@@ -216,11 +216,11 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
                         preferenceDescription.addAttribute(new Attribute("priority", Integer.toString(priority++)));
                         preferencesDescription.addElement(preferenceDescription);
                     }
-                    dependencyDescription.addElement(preferencesDescription);
+                    relationDescription.addElement(preferencesDescription);
 
-                    dependenciesDescription.addElement(dependencyDescription);
+                    relationsDescription.addElement(relationDescription);
                 }
-                componentDescription.addElement(dependenciesDescription);
+                componentDescription.addElement(relationsDescription);
 
                 Element definitionsDescription = new Element("definitions", APAM_NAMESPACE);;
                 for (PropertyDefinition propertyDeclaration : declaration.getPropertyDefinitions()) {

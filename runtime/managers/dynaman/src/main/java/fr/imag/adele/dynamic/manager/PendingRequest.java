@@ -34,12 +34,12 @@ import fr.imag.adele.apam.util.Visible;
 public class PendingRequest {
 
 	/**
-	 * The source of the dependency
+	 * The source of the relation
 	 */
 	protected final Instance source;
 	
 	/**
-	 * The dependency to resolve
+	 * The relation to resolve
 	 */
 	protected final Relation relation;
 
@@ -69,7 +69,7 @@ public class PendingRequest {
 	}
 	
 	/**
-	 * The dependency that needs resolution
+	 * The relation that needs resolution
 	 */
 	public Relation getRelation() {
 		return relation;

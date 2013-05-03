@@ -56,11 +56,15 @@ public class FutureInstance {
 		triggers = new ArrayList<Relation>();
 		for (ConstrainedReference trigger : declaration.getTriggers()) {
 			
-			RelationDeclaration triggerDependency = new RelationDeclaration(declaration.getReference(),"trigger-"+counter,false,trigger.getTarget());
-			triggerDependency.getImplementationConstraints().addAll(trigger.getImplementationConstraints());
-			triggerDependency.getInstanceConstraints().addAll(trigger.getInstanceConstraints());
+			RelationDeclaration triggerRelation = new RelationDeclaration(
+					declaration.getReference(), "trigger-" + counter, false,
+					trigger.getTarget());
+			triggerRelation.getImplementationConstraints().addAll(
+					trigger.getImplementationConstraints());
+			triggerRelation.getInstanceConstraints().addAll(
+					trigger.getInstanceConstraints());
 			
-			triggers.add(new RelationImpl(triggerDependency,null));
+			triggers.add(new RelationImpl(triggerRelation, null));
 			counter++;
 		}
 
@@ -134,8 +138,10 @@ public class FutureInstance {
 		/*
 		 * Try to instantiate the specified implementation.
 		 * 
-		 * TODO BUG We are initializing the properties of the instance, but we lost the dependency overrides. We need to
-		 * modify the API to allow specifying explicitly an instance declaration for Implementation.craeteInstance.
+		 * TODO BUG We are initializing the properties of the instance, but we
+		 * lost the relation overrides. We need to modify the API to allow
+		 * specifying explicitly an instance declaration for
+		 * Implementation.craeteInstance.
 		 */
 		Instance instance 	= implementation.createInstance(owner,properties);
 		isTriggered			= instance != null;

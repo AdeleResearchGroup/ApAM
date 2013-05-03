@@ -53,12 +53,12 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	private final List<InstanceDeclaration> instances;
 	
 	/**
-	 * The list of contextual dependency overrides of this composite 
+	 * The list of contextual relation overrides of this composite
 	 */
 	private final List<RelationDeclaration> contextualDependencies;
 	
 	/**
-	 * The list of contextual dependency overrides of this composite 
+	 * The list of contextual relation overrides of this composite
 	 */
 	private final List<RelationDeclaration> contextualOverrides;
 	

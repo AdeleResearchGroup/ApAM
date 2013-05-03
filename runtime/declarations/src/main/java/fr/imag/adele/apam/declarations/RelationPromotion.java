@@ -17,12 +17,12 @@ package fr.imag.adele.apam.declarations;
 public class RelationPromotion {
 
 	/**
-	 * The dependency to be promoted
+	 * The relation to be promoted
 	 */
 	private final RelationDeclaration.Reference source;
 	
 	/**
-	 * The composite dependency that will be the target of the promotion
+	 * The composite relation that will be the target of the promotion
 	 */
 	private final RelationDeclaration.Reference target;
 	
@@ -32,7 +32,7 @@ public class RelationPromotion {
 	}
 	
 	/**
-	 * The dependency to be promote
+	 * The relation to be promote
 	 */
 	public RelationDeclaration.Reference getContentRelation() {
 		return source;

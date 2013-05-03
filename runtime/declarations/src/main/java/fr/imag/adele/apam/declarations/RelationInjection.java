@@ -29,9 +29,9 @@ public abstract class RelationInjection {
     protected final AtomicImplementationDeclaration implementation;
 
     /**
-     * The dependency that must be resolved to get the injected resource.
-     */
-    protected RelationDeclaration                 dependency;
+	 * The relation that must be resolved to get the injected resource.
+	 */
+	protected RelationDeclaration relation;
 
     protected RelationInjection(AtomicImplementationDeclaration implementation) {
 
@@ -41,22 +41,22 @@ public abstract class RelationInjection {
     }
 
     /**
-     * Sets the dependency that will be injected
-     */
-    public void setDependency(RelationDeclaration dependency) {
+	 * Sets the relation that will be injected
+	 */
+	public void setRelation(RelationDeclaration relation) {
 
-        assert dependency.getComponent() == implementation.getReference();
+		assert relation.getComponent() == implementation.getReference();
 
-        // bidirectional reference to dependency
-        this.dependency = dependency;
-        this.dependency.getInjections().add(this);
+		// bidirectional reference to relation
+		this.relation = relation;
+		this.relation.getInjections().add(this);
     }
 
     /**
-     * The dependency that must be resolved
-     */
+	 * The relation that must be resolved
+	 */
     public RelationDeclaration getRelation() {
-        return dependency;
+		return relation;
     }
 
     /**
@@ -65,9 +65,9 @@ public abstract class RelationInjection {
     public abstract ResourceReference getResource();
 
     /**
-     * An unique identifier for this injection, within the scope of the declaring implementation
-     * and dependency
-     */
+	 * An unique identifier for this injection, within the scope of the
+	 * declaring implementation and relation
+	 */
     public abstract String getName();
 
     /**

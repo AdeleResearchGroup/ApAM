@@ -49,7 +49,7 @@ public class DynamicResolutionRequest {
 	private final Instance source;
 	
 	/**
-	 * The dependency to resolve
+	 * The relation to resolve
 	 */
 	private final Relation relation;
 	
@@ -66,7 +66,7 @@ public class DynamicResolutionRequest {
 	}
 	
 	/**
-	 * The source of the dependency
+	 * The source of the relation
 	 */
 	public Instance getSource() {
 		return source;
@@ -83,7 +83,7 @@ public class DynamicResolutionRequest {
 	public boolean isSatisfiedBy(Instance instance) {
 
 		/*
-		 * If this is dependency is already resolved, ignore any triggering event
+		 * If this is relation is already resolved, ignore any triggering event
 		 */
 	//TODO Sure it need to be a wire ?
 		if (! relation.isMultiple() && ! source.getLinks(relation.getIdentifier()).isEmpty())
@@ -97,9 +97,8 @@ public class DynamicResolutionRequest {
 			return false;
 		
 		/*
-		 * verify the candidate instance is a valid target of the dependency
-		 * TODO (jacky) No checking of constraints satisfaction ??
-		 * 
+		 * verify the candidate instance is a valid target of the relation TODO
+		 * (jacky) No checking of constraints satisfaction ??
 		 */
 		Implementation implementation	= instance.getImpl();
 		boolean valid 					= false;
@@ -125,28 +124,31 @@ public class DynamicResolutionRequest {
 	
 
     /**
-     * Perform a recalculation of this dependency
-     */
+	 * Perform a recalculation of this relation
+	 */
     public synchronized void resolve() {
     	
     	/*
-    	 * Avoid performing several resolutions for the same dependency in parallel. Usually this is not
-    	 * useful as the current resolution will find all solutions, but in some circumstances we may lost
-    	 * a triggering event.
-    	 */
+		 * Avoid performing several resolutions for the same relation in
+		 * parallel. Usually this is not useful as the current resolution will
+		 * find all solutions, but in some circumstances we may lost a
+		 * triggering event.
+		 */
     	if (isScheduled)
     		return;
     	
     	/*
-    	 * Invoke resolver to try to find a solution to the dynamic dependency.
-    	 * 
-    	 * IMPORTANT Notice that resolution is performed in the context of the thread that triggered the
-    	 * recalculation event. If resolution fails, the resolver must simply ignore the failure, otherwise
-    	 * this will block or kill an unrelated thread. This is ensured by the dynamic manager. 
-    	 * 
-    	 * We need to evaluate if it is safer to resolve dynamic dependencies in a background thread, but this
-    	 * may introduce some race conditions
-    	 */
+		 * Invoke resolver to try to find a solution to the dynamic relation.
+		 * 
+		 * IMPORTANT Notice that resolution is performed in the context of the
+		 * thread that triggered the recalculation event. If resolution fails,
+		 * the resolver must simply ignore the failure, otherwise this will
+		 * block or kill an unrelated thread. This is ensured by the dynamic
+		 * manager.
+		 * 
+		 * We need to evaluate if it is safer to resolve dynamic dependencies in
+		 * a background thread, but this may introduce some race conditions
+		 */
 		try {
 			beginResolve();
 			resolver.resolveLink(source, relation.getIdentifier());

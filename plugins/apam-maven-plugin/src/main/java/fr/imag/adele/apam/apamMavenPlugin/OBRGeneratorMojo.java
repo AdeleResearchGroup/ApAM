@@ -53,10 +53,11 @@ import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
  * @version $Rev$, $Date$
  * @extendsPlugin maven-ipojo-plugin
  * @goal apam-bundle
- * @extendsGoal ipojo-bundle 
+ * @extendsGoal ipojo-bundle
  * @phase package
- * @requiresDependencyResolution runtime
- * @description manipulate an OSGi bundle jar to include the obr.xml file and build APAM bundle
+ * @requiresrelationResolution runtime
+ * @description manipulate an OSGi bundle jar to include the obr.xml file and
+ *              build APAM bundle
  * 
  * @author ApAM Team
  */
@@ -163,17 +164,18 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			for (Object artifact : project.getDependencyArtifacts()) {
 				if (artifact instanceof Artifact) {
 
-					Artifact dependency = (Artifact) artifact;
+					Artifact relation = (Artifact) artifact;
 
-					VersionRange range = dependency.getVersionRange();
+					VersionRange range = relation.getVersionRange();
 					
-					OBRGeneratorMojo.versionRange.put(dependency.getArtifactId(), range);
+					OBRGeneratorMojo.versionRange.put(relation.getArtifactId(),
+							range);
 					
 					List<ComponentDeclaration> subcomponents=getComponentFromJar(((Artifact) artifact).getFile());
 					
 					if(subcomponents!=null) dependencies.addAll(subcomponents);
 					
-                    classpathDescriptor.add(dependency.getFile());
+					classpathDescriptor.add(relation.getFile());
 				}
 			}
 

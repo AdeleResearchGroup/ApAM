@@ -33,9 +33,10 @@ import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
 public class RelationDeclaration extends ConstrainedReference implements Cloneable {
 
     /**
-     * A reference to a dependency declaration. Notice that dependency identifiers must be only
-     * unique in the context of their defining component declaration.
-     */
+	 * A reference to a relation declaration. Notice that relation identifiers
+	 * must be only unique in the context of their defining component
+	 * declaration.
+	 */
     public static class Reference extends fr.imag.adele.apam.declarations.Reference {
 
         private final String identifier;
@@ -71,13 +72,14 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
      */
     private final ComponentReference<?> 			source;
     /**
-     * Whether this dependency is declared explicitly as multiple
-     */
+	 * Whether this relation is declared explicitly as multiple
+	 */
     private final boolean							isMultiple;
 
     /**
-     * The list of fields that will be injected with this dependency in a primitive component
-     */
+	 * The list of fields that will be injected with this relation in a
+	 * primitive component
+	 */
     protected final List<RelationInjection>		injections;
 
     /**
@@ -93,8 +95,8 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     private String                                    missingException;
 
     /**
-     * Whether a dependency matching this policy must be eagerly resolved
-     */
+	 * Whether a relation matching this policy must be eagerly resolved
+	 */
     private Boolean                                   isEager;
 
     /**
@@ -104,22 +106,26 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     private Boolean                                   mustHide;
 
     /**
-     * The level of abstraction where this dependency can be instantiated
-     */
+	 * The level of abstraction where this relation can be instantiated
+	 */
     private ComponentKind							sourceType;
     
     /**
-     * The level of abstraction of the target of the dependency
-     */
+	 * The level of abstraction of the target of the relation
+	 */
     private ComponentKind							targetType;
     
     /**
-     * 
-     * @param component the name of the component who had the reference
-     * @param id the id of the dependency
-     * @param isMultiple define if this dependency is multiple
-     * @param resource the resource which we should look for
-     */
+	 * 
+	 * @param component
+	 *            the name of the component who had the reference
+	 * @param id
+	 *            the id of the relation
+	 * @param isMultiple
+	 *            define if this relation is multiple
+	 * @param resource
+	 *            the resource which we should look for
+	 */
     
     public RelationDeclaration(ComponentReference<?> component,  String id, boolean isMultiple, ResolvableReference resource) {
     	this(component,component,id,isMultiple,resource);
@@ -202,8 +208,8 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 
 
     /**
-     * Get the id of the dependency in the declaring component declaration
-     */
+	 * Get the id of the relation in the declaring component declaration
+	 */
     public String getIdentifier() {
         return reference.getIdentifier();
     }
@@ -232,19 +238,20 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 	}
     
     /**
-     * The multiplicity of a dependency.
-     * 
-     * If there are calculated from the declaration of injected fields.
-     * 
-     * If this is an abstract declaration in specifications or composites, it must be
-     * explicitly defined.
-     */
+	 * The multiplicity of a relation.
+	 * 
+	 * If there are calculated from the declaration of injected fields.
+	 * 
+	 * If this is an abstract declaration in specifications or composites, it
+	 * must be explicitly defined.
+	 */
     public boolean isMultiple() {
 
         if (getInjections().isEmpty())
             return isMultiple;
 
-        // If there is at least one field declared collection the dependency is considered multiple
+		// If there is at least one field declared collection the relation is
+		// considered multiple
         
         boolean hasInterfaces 				= false;
         boolean hasOneCollectionInterface 	= false;
@@ -262,15 +269,15 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     }
 
     /**
-     * Get the policy associated with this dependency
-     */
+	 * Get the policy associated with this relation
+	 */
     public MissingPolicy getMissingPolicy() {
         return missingPolicy;
     }
 
     /**
-     * Set the missing policy used for this dependency
-     */
+	 * Set the missing policy used for this relation
+	 */
     public void setMissingPolicy(MissingPolicy missingPolicy) {
         this.missingPolicy = missingPolicy;
     }
@@ -291,9 +298,9 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     }
 
     /**
-     * Whether an error resolving a dependency matching this policy should trigger a backtrack
-     * in resolution
-     */
+	 * Whether an error resolving a relation matching this policy should trigger
+	 * a backtrack in resolution
+	 */
     public Boolean isHide() {
         return mustHide;
     }
@@ -310,27 +317,28 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     }
 
     /**
-     * Set the missing exception used for this dependency
-     */
+	 * Set the missing exception used for this relation
+	 */
     public void setMissingException(String missingException) {
         this.missingException = missingException;
     }
 
     /**
-     * Get the injections associated to this dependency declaration
-     */
+	 * Get the injections associated to this relation declaration
+	 */
     public List<RelationInjection> getInjections() {
         return injections;
     }
 
     @Override
     public String toString() {
-        return printDependencyDeclaration("");
+        return printRelationDeclaration("");
     }
 
-    public String printDependencyDeclaration(String indent) {
+    public String printRelationDeclaration(String indent) {
         StringBuffer ret = new StringBuffer ();
-        ret.append (indent + " dependency id: " + getIdentifier() + ". toward " + getTarget()) ;
+		ret.append(indent + " relation id: " + getIdentifier() + ". toward "
+				+ getTarget());
     
         
         if (!injections.isEmpty()) {

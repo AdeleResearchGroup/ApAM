@@ -30,7 +30,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Vector;
 
-//import org.apache.felix.ipojo.handlers.dependency.DependencyDescription;
+//import org.apache.felix.ipojo.handlers.relation.relationDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
@@ -244,8 +244,8 @@ public class CoreMetadataParser implements CoreParser {
 		}
 
 		/*
-		 *  Add declarations in order of dependency to ease cross-reference validation irrespective of
-		 *  the declaration order 
+		 * Add declarations in order of relation to ease cross-reference
+		 * validation irrespective of the declaration order
 		 */
 
 		declaredElements.addAll(specifications);
@@ -601,16 +601,18 @@ public class CoreMetadataParser implements CoreParser {
 		}
 
 		/*
-		 * Iterate over all sub elements looking for dependency declarations
+		 * Iterate over all sub elements looking for relation declarations
 		 */
-		for (Element dependency : optional(element.getElements(CoreMetadataParser.DEPENDENCY, CoreMetadataParser.APAM))) {
+		for (Element relation : optional(element.getElements(
+				CoreMetadataParser.DEPENDENCY, CoreMetadataParser.APAM))) {
 			/*
 			 * Add to component declaration
 			 */
-			RelationDeclaration relationDeclaration = parseDependency(dependency, component);
+			RelationDeclaration relationDeclaration = parseRelation(relation,
+					component);
 			if (! component.getDependencies().add(relationDeclaration)) {
 				errorHandler.error(Severity.ERROR,
-						"Duplicate dependency identifier "+ relationDeclaration);
+						"Duplicate relation identifier " + relationDeclaration);
 			}
 				
 		}
@@ -631,16 +633,18 @@ public class CoreMetadataParser implements CoreParser {
 		}
 
 		/*
-		 * Iterate over all sub elements looking for dependency declarations
+		 * Iterate over all sub elements looking for relation declarations
 		 */
-		for (Element dependency : optional(element.getElements(CoreMetadataParser.DEPENDENCY, CoreMetadataParser.APAM))) {
+		for (Element relation : optional(element.getElements(
+				CoreMetadataParser.DEPENDENCY, CoreMetadataParser.APAM))) {
 			/*
 			 * Add to component declaration
 			 */
-			RelationDeclaration relationDeclaration = parseDependency(dependency, component);
+			RelationDeclaration relationDeclaration = parseRelation(relation,
+					component);
 			if (! component.getContextualDependencies().add(relationDeclaration)) {
 				errorHandler.error(Severity.ERROR,
-						"Duplicate dependency identifier "+ relationDeclaration);
+						"Duplicate relation identifier " + relationDeclaration);
 			}
 			
 		}
@@ -648,12 +652,13 @@ public class CoreMetadataParser implements CoreParser {
 	}
 
 	/**
-	 * parse a dependency declaration
+	 * parse a relation declaration
 	 */
-	private RelationDeclaration parseDependency(Element element, ComponentDeclaration component) {
+	private RelationDeclaration parseRelation(Element element,
+			ComponentDeclaration component) {
 
 		/*
-		 * Get the reference to the target of the dependency if specified
+		 * Get the reference to the target of the relation if specified
 		 */
 		ResolvableReference target = parseResolvableReference(component.getName(),element, false);
 
@@ -663,7 +668,7 @@ public class CoreMetadataParser implements CoreParser {
 		String id = parseString(component.getName(),element, CoreMetadataParser.ATT_ID, false);
 		boolean isMultiple = parseBoolean(component.getName(),element, CoreMetadataParser.ATT_MULTIPLE, false, true);
 
-		RelationDeclaration dependency = null;
+		RelationDeclaration relation = null;
 
 		/*
 		 * Component dependencies reference a single mandatory component (specification, implementation, instance),
@@ -672,14 +677,17 @@ public class CoreMetadataParser implements CoreParser {
 		if (target != null && target instanceof ComponentReference<?>) {
 
 			/*
-			 * for atomic components, a field injection may be specified directly as an attribute of the dependency.
-			 * In this case, the field name is used as identifier of the dependency, if not given explicitly 
+			 * for atomic components, a field injection may be specified
+			 * directly as an attribute of the relation. In this case, the field
+			 * name is used as identifier of the relation, if not given
+			 * explicitly
 			 */
 			if (component instanceof AtomicImplementationDeclaration && id == null) {
 				id = parseString(component.getName(), element, CoreMetadataParser.ATT_FIELD, false);
 			}
 
-			dependency = new RelationDeclaration(component.getReference(), id, isMultiple, target);
+			relation = new RelationDeclaration(component.getReference(), id,
+					isMultiple, target);
 
 			if (component instanceof AtomicImplementationDeclaration) {
 
@@ -700,23 +708,26 @@ public class CoreMetadataParser implements CoreParser {
 							.equals(resourceKind)))
 						continue;
 
-					RelationInjection relationInjection = parseDependencyInjection(injection, atomic, true);
-					relationInjection.setDependency(dependency);
+					RelationInjection relationInjection = parseRelationInjection(
+							injection, atomic, true);
+					relationInjection.setRelation(relation);
 
 				}
 
 				/*
-				 * Optionally, as a shortcut, a single injection may be specified directly as an attribute of the dependency
+				 * Optionally, as a shortcut, a single injection may be
+				 * specified directly as an attribute of the relation
 				 */
-				RelationInjection relationInjection = parseDependencyInjection(element, atomic, false);
+				RelationInjection relationInjection = parseRelationInjection(
+						element, atomic, false);
 				if (relationInjection != null) {
-					relationInjection.setDependency(dependency);
+					relationInjection.setRelation(relation);
 				}
 
 				/*
 				 * At least one injection must be specified in atomic components
 				 */
-				if (dependency.getInjections().isEmpty()) {
+				if (relation.getInjections().isEmpty()) {
 					errorHandler.error(Severity.ERROR,
 							"A field must be defined for dependencies in primitive implementation "
 									+ component.getName());
@@ -726,27 +737,31 @@ public class CoreMetadataParser implements CoreParser {
 		}
 
 		/*
-		 * Simple dependencies reference a single resource, an for atomic components a single injection must be
-		 * specified directly as an attribute of the dependency
+		 * Simple dependencies reference a single resource, an for atomic
+		 * components a single injection must be specified directly as an
+		 * attribute of the relation
 		 */
 		if (target != null && target instanceof ResourceReference) {
 
-			dependency = new RelationDeclaration(component.getReference(), id, isMultiple, target);
+			relation = new RelationDeclaration(component.getReference(), id,
+					isMultiple, target);
 
 			if (component instanceof AtomicImplementationDeclaration) {
 
 				AtomicImplementationDeclaration atomic = (AtomicImplementationDeclaration) component;
-				RelationInjection relationInjection = parseDependencyInjection(element, atomic, true);
+				RelationInjection relationInjection = parseRelationInjection(
+						element, atomic, true);
 
 				/*
 				 * Both the explicit target and the specified injection must match 
 				 */
 				if (!target.equals(relationInjection.getResource())) {
 					errorHandler.error(Severity.ERROR,
-							"dependency target doesn't match the type of the field or method in " + element);
+							"relation target doesn't match the type of the field or method in "
+									+ element);
 				}
 
-				relationInjection.setDependency(dependency);
+				relationInjection.setRelation(relation);
 
 			}
 
@@ -759,13 +774,15 @@ public class CoreMetadataParser implements CoreParser {
 		if (target == null && component instanceof AtomicImplementationDeclaration) {
 
 			AtomicImplementationDeclaration atomic = (AtomicImplementationDeclaration) component;
-			RelationInjection relationInjection = parseDependencyInjection(element, atomic, true);
+			RelationInjection relationInjection = parseRelationInjection(
+					element, atomic, true);
 
 			target = relationInjection.getResource();
 			id = (id != null) ? id : relationInjection.getName();
-			dependency = new RelationDeclaration(component.getReference(), id, isMultiple, target);
+			relation = new RelationDeclaration(component.getReference(), id,
+					isMultiple, target);
 
-			relationInjection.setDependency(dependency);
+			relationInjection.setRelation(relation);
 
 		}
 
@@ -773,9 +790,11 @@ public class CoreMetadataParser implements CoreParser {
 		 * If no target was specified signal the error
 		 */
 		if (target == null && !(component instanceof AtomicImplementationDeclaration)) {
-			//errorHandler.error(Severity.ERROR, "dependency target must be specified " + element);
+			// errorHandler.error(Severity.ERROR,
+			// "relation target must be specified " + element);
 			//target = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
-			dependency = new RelationDeclaration(component.getReference(), id, isMultiple, target);
+			relation = new RelationDeclaration(component.getReference(), id,
+					isMultiple, target);
 		}
 
 		/*
@@ -791,7 +810,7 @@ public class CoreMetadataParser implements CoreParser {
 					errorHandler.error(Severity.ERROR, component.getName() + " : the specified method \"" + bindCallback + "\" in \""
 							+ CoreMetadataParser.ATT_BIND
 							+ "\" is invalid or not founded");
-				dependency.addCallback(callback);
+				relation.addCallback(callback);
 			}
 			if (unbindCallback != null) {
 				CallbackMethod callback = new CallbackMethod((AtomicImplementationDeclaration) component,
@@ -800,7 +819,7 @@ public class CoreMetadataParser implements CoreParser {
 					errorHandler.error(Severity.ERROR,  component.getName() + " : the specified method \"" + unbindCallback + "\" in \""
 							+ CoreMetadataParser.ATT_UNBIND
 							+ "\" is invalid or not founded");
-				dependency.addCallback(callback);
+				relation.addCallback(callback);
 			}
 		}
 
@@ -808,25 +827,25 @@ public class CoreMetadataParser implements CoreParser {
 		 * Get the optional missing policy
 		 */
 		MissingPolicy policy = parsePolicy(component.getName(),element, CoreMetadataParser.ATT_FAIL, false, MissingPolicy.OPTIONAL);
-		dependency.setMissingPolicy(policy);
+		relation.setMissingPolicy(policy);
 
 		/*
 		 * Get the optional missing exception specification
 		 */
 		String missingException = parseString(component.getName(),element, CoreMetadataParser.ATT_EXCEPTION, false);
 		if (policy.equals(MissingPolicy.EXCEPTION) && missingException != null) {
-			dependency.setMissingException(missingException);
+			relation.setMissingException(missingException);
 		}
 
 		String isEager = parseString(component.getName(),element, CoreMetadataParser.ATT_EAGER, false);
 		String mustHide = parseString(component.getName(),element, CoreMetadataParser.ATT_HIDE, false);
 
 		if (isEager != null) {
-			dependency.setEager(Boolean.parseBoolean(isEager));
+			relation.setEager(Boolean.parseBoolean(isEager));
 		}
 
 		if (mustHide != null) {
-			dependency.setHide(Boolean.parseBoolean(mustHide));
+			relation.setHide(Boolean.parseBoolean(mustHide));
 		}
 
 		/*
@@ -834,21 +853,22 @@ public class CoreMetadataParser implements CoreParser {
 		 */
 		 for (Element constraints : optional(element
 				 .getElements(CoreMetadataParser.CONSTRAINTS, CoreMetadataParser.APAM))) {
-			 parseConstraints(component.getName(),constraints, dependency);
+			parseConstraints(component.getName(), constraints, relation);
 		 }
 
 		 for (Element preferences : optional(element
 				 .getElements(CoreMetadataParser.PREFERENCES, CoreMetadataParser.APAM))) {
-			 parsePreferences(component.getName(),preferences, dependency);
+			parsePreferences(component.getName(), preferences, relation);
 		 }
 
-		 return dependency;
+		return relation;
 	}
 
 	/**
 	 * parse the injected dependencies of a primitive
 	 */
-	private RelationInjection parseDependencyInjection(Element element, AtomicImplementationDeclaration atomic,
+	private RelationInjection parseRelationInjection(Element element,
+			AtomicImplementationDeclaration atomic,
 			boolean mandatory) {
 
 		String field = parseString(atomic.getName(),element, CoreMetadataParser.ATT_FIELD, false);
@@ -860,12 +880,17 @@ public class CoreMetadataParser implements CoreParser {
 		String type = parseString(atomic.getName(),element, CoreMetadataParser.ATT_TYPE, false);
 
 		if ((field == null) && (push == null) && (pull == null) && mandatory)
-			errorHandler.error(Severity.ERROR, "in the component \"" + atomic.getName()+  "\" dependency attribute \"" + CoreMetadataParser.ATT_FIELD + "\" or \""
+			errorHandler.error(Severity.ERROR,
+					"in the component \"" + atomic.getName()
+							+ "\" relation attribute \""
+							+ CoreMetadataParser.ATT_FIELD + "\" or \""
 					+ CoreMetadataParser.ATT_PUSH + "\" or \"" + CoreMetadataParser.ATT_PULL
 					+ "\" must be specified in " + element.getName());
 
 		if ((field == null) && CoreMetadataParser.INTERFACE.equals(element.getName()) && mandatory)
-			errorHandler.error(Severity.ERROR, "in the component \"" + atomic.getName()+  "\" dependency attribute \""
+			errorHandler.error(Severity.ERROR,
+					"in the component \"" + atomic.getName()
+							+ "\" relation attribute \""
 					+ CoreMetadataParser.ATT_FIELD + "\" must be specified in " + element.getName());
 
 		if ((field == null) && (push == null) && (pull == null)) {
@@ -873,11 +898,13 @@ public class CoreMetadataParser implements CoreParser {
 		}
 		RelationInjection injection = null;
 
-		if (field != null) { // The dependency is a field, interface dependency
+		if (field != null) { // The relation is a field, interface relation
 			injection = new RelationInjection.Field(atomic, field);
-		} else if (push != null) { // the dependency is a method, push message dependency
+		} else if (push != null) { // the relation is a method, push message
+									// relation
 			injection = new RelationInjection.CallbackWithArgument(atomic, push, type);
-		} else if (pull != null) {// the dependency is a method, pull message dependency
+		} else if (pull != null) {// the relation is a method, pull message
+									// relation
 			injection = new RelationInjection.MessageField(atomic, pull);
 		}
 
@@ -1100,12 +1127,14 @@ public class CoreMetadataParser implements CoreParser {
 				ComponentReference<?> definingComponent = parseComponentReference(composite.getName(),grant, true);
 				String identifier = parseString(composite.getName(),grant, CoreMetadataParser.ATT_DEPENDENCY, false);
 				identifier = identifier != null ? identifier : ownedComponent.getComponent().getName();
-				RelationDeclaration.Reference dependency = new RelationDeclaration.Reference(definingComponent,
+				RelationDeclaration.Reference relation = new RelationDeclaration.Reference(
+						definingComponent,
 						identifier);
 
 				String states = parseString(composite.getName(),grant, CoreMetadataParser.ATT_WHEN, true);
 
-				GrantDeclaration grantDeclaration = new GrantDeclaration(dependency, new HashSet<String>(Arrays
+				GrantDeclaration grantDeclaration = new GrantDeclaration(
+						relation, new HashSet<String>(Arrays
 						.asList(Util.split(states))));
 				ownedComponent.getGrants().add(grantDeclaration);
 			}
@@ -1371,7 +1400,7 @@ public class CoreMetadataParser implements CoreParser {
 	}
 
 	/**
-	 * Get a dependency declaration reference coded in the element
+	 * Get a relation declaration reference coded in the element
 	 */
 	private RelationDeclaration.Reference parseRelationReference(String inComponent,Element element, boolean mandatory) {
 

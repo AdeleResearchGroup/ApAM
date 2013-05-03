@@ -161,8 +161,12 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
     	return true;
     }
     
-    /* (non-Javadoc)
-	 * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#addTarget(fr.imag.adele.apam.Instance)
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * fr.imag.adele.apam.apform.impl.handlers.relationInjectionManager#addTarget
+	 * (fr.imag.adele.apam.Instance)
 	 */
     @Override
 	public void addTarget(Instance target) {
@@ -177,8 +181,12 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 
     }
 
-    /* (non-Javadoc)
-	 * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#removeTarget(fr.imag.adele.apam.Instance)
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * fr.imag.adele.apam.apform.impl.handlers.relationInjectionManager#removeTarget
+	 * (fr.imag.adele.apam.Instance)
 	 */
     @Override
 	public void removeTarget(Instance target) {
@@ -192,8 +200,12 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
         }
     }
 
-    /* (non-Javadoc)
-	 * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#substituteTarget(fr.imag.adele.apam.Instance, fr.imag.adele.apam.Instance)
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see fr.imag.adele.apam.apform.impl.handlers.relationInjectionManager#
+	 * substituteTarget(fr.imag.adele.apam.Instance,
+	 * fr.imag.adele.apam.Instance)
 	 */
     @Override
 	public void substituteTarget(Instance oldTarget, Instance newTarget) {
@@ -236,31 +248,33 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
         		return injectedValue;
          	
          	/*
-         	 * Next handle the case in which we need to update the cached value, but the
-         	 * dependency is resolved
-         	 */
+			 * Next handle the case in which we need to update the cached value,
+			 * but the relation is resolved
+			 */
          	if (! targetServices.isEmpty()) {
             	injectedValue = getInjectedValue();
             	return injectedValue;
             }
             
             /*
-             * The worst case is when we need to resolve the dependency.
-             * 
-             * IMPORTANT notice that resolution is performed outside the synchronization block. This is 
-             * because resolution is a side-effect process that can trigger wire notifications for this
-             * dependency. These notifications can originate in other threads (for example in the cases
-             * when the resolution triggers a deployment) and that would lead to deadlocks if we keep
-             * this object locked.
-             */
+			 * The worst case is when we need to resolve the relation.
+			 * 
+			 * IMPORTANT notice that resolution is performed outside the
+			 * synchronization block. This is because resolution is a
+			 * side-effect process that can trigger wire notifications for this
+			 * relation. These notifications can originate in other threads (for
+			 * example in the cases when the resolution triggers a deployment)
+			 * and that would lead to deadlocks if we keep this object locked.
+			 */
         }
         
         /*
-         * Ask APAM to resolve the dependency. Depending on the application policies this may throw
-         * an error, or block the thread until the dependency is fulfilled, or do nothing.
-         * 
-         * Resolution has as side-effect a modification of the target services.
-         */ 
+		 * Ask APAM to resolve the relation. Depending on the application
+		 * policies this may throw an error, or block the thread until the
+		 * relation is fulfilled, or do nothing.
+		 * 
+		 * Resolution has as side-effect a modification of the target services.
+		 */ 
        	resolver.resolve(this);
  
    		/*
@@ -274,29 +288,35 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
     }
 
     /**
-     * Get the value to be injected in the field. The returned object depends on the cardinality of the dependency.
-     * 
-     * For scalar dependencies, returns directly the service object associated with the target instance. For unresolved
-     * dependencies returns null.
-     * 
-     * For aggregate dependencies, returns a collection of service objects. The kind of collection is chosen to match
-     * the declared class of the field. For unresolved dependencies returns null.
-     * 
-     * In principle the returned object should not be aliased (by keeping a reference to it or passing it in parameters
-     * to other classes), as it is potentially dynamically recalculated every time the field is accessed.
-     * 
-     * In the case of aggregate dependencies, the returned collection should be immutable, as it is calculated by APAM
-     * according to global application policies.
-     * 
-     * We suppose that components are well behaved and follow these restrictions, so we do not have a complex machinery
-     * to enforce this. This method directly return the service object or a non thread-safe mutable collection of
-     * service objects.
-     * 
-     * TODO if we want to support a less restrictive programming model (allowing aliasing), or to be more robust against
-     * bad behaved components, we should use smart proxies and collections backed up by the information in this
-     * dependency object.
-     * 
-     */
+	 * Get the value to be injected in the field. The returned object depends on
+	 * the cardinality of the relation.
+	 * 
+	 * For scalar dependencies, returns directly the service object associated
+	 * with the target instance. For unresolved dependencies returns null.
+	 * 
+	 * For aggregate dependencies, returns a collection of service objects. The
+	 * kind of collection is chosen to match the declared class of the field.
+	 * For unresolved dependencies returns null.
+	 * 
+	 * In principle the returned object should not be aliased (by keeping a
+	 * reference to it or passing it in parameters to other classes), as it is
+	 * potentially dynamically recalculated every time the field is accessed.
+	 * 
+	 * In the case of aggregate dependencies, the returned collection should be
+	 * immutable, as it is calculated by APAM according to global application
+	 * policies.
+	 * 
+	 * We suppose that components are well behaved and follow these
+	 * restrictions, so we do not have a complex machinery to enforce this. This
+	 * method directly return the service object or a non thread-safe mutable
+	 * collection of service objects.
+	 * 
+	 * TODO if we want to support a less restrictive programming model (allowing
+	 * aliasing), or to be more robust against bad behaved components, we should
+	 * use smart proxies and collections backed up by the information in this
+	 * relation object.
+	 * 
+	 */
     private final Object getInjectedValue() {
     	
     	/*

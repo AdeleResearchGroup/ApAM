@@ -32,13 +32,15 @@ public interface ApformInstance  extends ApformComponent {
     public Object getServiceObject();
 
     /**
-     * Change a dependency by another one.
-     * 
-     * @param dependency
-     * @param oldDestInst the previous destination. Can be null if cardinality one.
-     * @param newDestInst The new destination.
-     * @return false if it could not be performed: legacy.
-     */
+	 * Change a relation by another one.
+	 * 
+	 * @param relation
+	 * @param oldDestInst
+	 *            the previous destination. Can be null if cardinality one.
+	 * @param newDestInst
+	 *            The new destination.
+	 * @return false if it could not be performed: legacy.
+	 */
 //    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName);
 
     public void setInst(Instance asmInstImpl);
