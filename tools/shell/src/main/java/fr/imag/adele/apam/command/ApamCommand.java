@@ -81,7 +81,7 @@ public class ApamCommand {
 			"compoType#inspect an apam composite type",
 			"compo#inspect an apam composite instance",
 			"app#inspect an apam application",
-			"displaywires#display all the dependencies of an instance",
+			"displaywires#display all the relations of an instance",
 			"charge#creates and start a new instance of the target implementation",
 			"pending#display all pending installations in apam platform",
 			"updatecomponent#updates target component (Warning: updates the whole Bundle)",
@@ -116,6 +116,7 @@ public class ApamCommand {
 	 * "lang=french vendor=adele" "
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public void setproperty(PrintWriter out, String... args) {
 		if (args.length <= 1) {
 			argumentMessageError(
@@ -569,7 +570,7 @@ public class ApamCommand {
 	}
 
 	/**
-	 * Display all the dependencies of an instance
+	 * Display all the relations of an instance
 	 */
 
 	public void displaywires(PrintWriter out, String... args) {
@@ -640,14 +641,14 @@ public class ApamCommand {
 				+ " ] -----");
 		Implementation implementation = instance.getImpl();
 		indent += "   ";
-		out.println(indent + "Dependencies:");
-		for (Link wire : instance.getWires()) {
+		out.println(indent + "links:");
+		for (Link wire : instance.getLinks()) {
 			out.println(indent + "   " + wire.getName() + ": "
 					+ wire.getDestination());
 		}
 
 		out.println(indent + "Called by:");
-		for (Link wire : instance.getInvWires())
+		for (Link wire : instance.getInvLinks())
 			out.println(indent + "   (" + wire.getName() + ") "
 					+ wire.getSource());
 
@@ -761,7 +762,7 @@ public class ApamCommand {
 		out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " "
 				+ inst.getSpec());
 		indent = indent + "  ";
-		for (Link wire : inst.getWires()) {
+		for (Link wire : inst.getLinks()) {
 			out.println(indent + wire.getName() + ": "
 					+ wire.getDestination() + " "
 					+ ((Instance)wire.getDestination()).getImpl() + " "
@@ -781,7 +782,7 @@ public class ApamCommand {
 		}
 		insts.add(inst);
 		indent = indent + "  ";
-		for (Link wire : inst.getWires()) {
+		for (Link wire : inst.getLinks()) {
 			out.println(indent + wire.getName() + ": "
 					+ wire.getDestination() + " "
 					+ ((Instance)wire.getDestination()).getImpl() + " "

@@ -55,12 +55,12 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	/**
 	 * The list of contextual dependency overrides of this composite 
 	 */
-	private final List<DependencyDeclaration> contextualDependencies;
+	private final List<RelationDeclaration> contextualDependencies;
 	
 	/**
 	 * The list of contextual dependency overrides of this composite 
 	 */
-	private final List<DependencyDeclaration> contextualOverrides;
+	private final List<RelationDeclaration> contextualOverrides;
 	
 	/**
 	 * The list of contextual link declarations in this composite
@@ -70,7 +70,7 @@ public class CompositeDeclaration extends ImplementationDeclaration {
 	/**
 	 * The list of dependencies promotions of this composite
 	 */
-	private final List<DependencyPromotion> promotions;
+	private final List<RelationPromotion> promotions;
 	
     public CompositeDeclaration(String name, SpecificationReference specification, ComponentReference<?> mainComponent) {
         super(name, specification);
@@ -80,10 +80,10 @@ public class CompositeDeclaration extends ImplementationDeclaration {
         this.visibility				= new VisibilityDeclaration();
         this.ownedComponents		= new HashSet<OwnedComponentDeclaration>();
         this.instances				= new ArrayList<InstanceDeclaration>();
-        this.contextualDependencies	= new ArrayList<DependencyDeclaration>();
-        this.contextualOverrides	= new ArrayList<DependencyDeclaration>();
+        this.contextualDependencies	= new ArrayList<RelationDeclaration>();
+        this.contextualOverrides	= new ArrayList<RelationDeclaration>();
         this.contextualLinks		= new ArrayList<LinkDeclaration>();
-        this.promotions				= new ArrayList<DependencyPromotion>();
+        this.promotions				= new ArrayList<RelationPromotion>();
         
     }
 
@@ -160,21 +160,21 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     /**
      * The list of contextual promotions
      */
-    public List<DependencyPromotion> getPromotions() {
+    public List<RelationPromotion> getPromotions() {
 		return promotions;
 	}
     
     /**
      * The list of contextual dependencies
      */
-    public List<DependencyDeclaration> getContextualDependencies() {
+    public List<RelationDeclaration> getContextualDependencies() {
 		return contextualDependencies;
 	}
     
     /**
      * The list of contextual dependencies
      */
-    public List<DependencyDeclaration> getOverridenDependencies() {
+    public List<RelationDeclaration> getOverridenDependencies() {
 		return contextualOverrides;
 	}
     

@@ -14,19 +14,19 @@
  */
 package fr.imag.adele.apam.declarations;
 
-public class DependencyPromotion {
+public class RelationPromotion {
 
 	/**
 	 * The dependency to be promoted
 	 */
-	private final DependencyDeclaration.Reference source;
+	private final RelationDeclaration.Reference source;
 	
 	/**
 	 * The composite dependency that will be the target of the promotion
 	 */
-	private final DependencyDeclaration.Reference target;
+	private final RelationDeclaration.Reference target;
 	
-	public DependencyPromotion(DependencyDeclaration.Reference source, DependencyDeclaration.Reference target) {
+	public RelationPromotion(RelationDeclaration.Reference source, RelationDeclaration.Reference target) {
 		this.source = source;
 		this.target	= target;
 	}
@@ -34,14 +34,14 @@ public class DependencyPromotion {
 	/**
 	 * The dependency to be promote
 	 */
-	public DependencyDeclaration.Reference getContentDependency() {
+	public RelationDeclaration.Reference getContentRelation() {
 		return source;
 	}
 	
 	/**
 	 * The target of the promotion
 	 */
-	public DependencyDeclaration.Reference getCompositeDependency() {
+	public RelationDeclaration.Reference getCompositeRelation() {
 		return target;
 	}
 }

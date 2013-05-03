@@ -37,8 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Dependency;
-import fr.imag.adele.apam.DependencyManager.ComponentBundle;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager.ComponentBundle;
 import fr.imag.adele.apam.util.ApamFilter;
 
 public class OBRManager {
@@ -108,7 +108,7 @@ public class OBRManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Set<Selected> lookForAll(String capability, String filterStr, Dependency dep) { //Set<ApamFilter> constraints) {
+	public Set<Selected> lookForAll(String capability, String filterStr, Relation dep) { //Set<ApamFilter> constraints) {
 		if (filterStr == null)
 			new Exception("no filter in lookfor all").printStackTrace();
 
@@ -132,7 +132,7 @@ public class OBRManager {
 					if (aCap.getName().equals(capability)) {
 						if (filter.matchCase(aCap.getPropertiesAsMap())) {
 							//                            if ((constraints == null) || matchConstraints(aCap, constraints) ) {
-							if (dep == null || dep.matchDep (aCap.getPropertiesAsMap())) {
+							if (dep == null || dep.matchRelationConstraints (aCap.getPropertiesAsMap())) {
 								logger.debug("-->Component " + getAttributeInCapability(aCap, CST.NAME)
 										+ " found in bundle : " + res.getSymbolicName() + " From "
 										+ compositeTypeName + " repositories : \n   " + repositoriesToString());
@@ -150,7 +150,7 @@ public class OBRManager {
 		return allRes;
 	}
 
-	public Selected lookForPref(String capability, Dependency dep, Set<Selected> candidates) {
+	public Selected lookForPref(String capability, Relation dep, Set<Selected> candidates) {
 		Selected winner = lookForPrefInt(capability, dep, candidates) ;
 		if (winner == null)
 			return null;
@@ -170,13 +170,13 @@ public class OBRManager {
 	 * At the end, if n > 1 return one arbitrarily.
 	 *
 	 */
-	public Selected lookForPrefInt(String capability, Dependency dep, Set<Selected> candidates) {
+	public Selected lookForPrefInt(String capability, Relation dep, Set<Selected> candidates) {
 		if (candidates == null || candidates.isEmpty()) return null ;
 		// Trace preference filter
 		logFilterConstraintPreferences(null, dep, false);
 
 		List<ApamFilter> preferences ;
-		switch (dep.getTargetType()) {
+		switch (dep.getTargetKind()) {
 			case IMPLEMENTATION : preferences = dep.getImplementationPreferenceFilters () ;
 				break ;
 			case INSTANCE : preferences = dep.getInstancePreferenceFilters () ;
@@ -221,7 +221,7 @@ public class OBRManager {
 //		return lookFor(capability, filterStr, dep);
 //	}
 
-	/*private*/ public Selected lookFor(String capability, String filterStr, Dependency dep) {
+	/*private*/ public Selected lookFor(String capability, String filterStr, Relation dep) {
 		
 		// Take care of preferences !
 		//TODO 
@@ -241,10 +241,10 @@ public class OBRManager {
 		return getBestCandidate(allSelected) ;
 	}
 
-	private void logFilterConstraintPreferences(String filterStr, Dependency dep, boolean all) {
+	private void logFilterConstraintPreferences(String filterStr, Relation dep, boolean all) {
 		Set<ApamFilter> constraints  ;
 		List<ApamFilter> preferences ;
-		switch (dep.getTargetType()) {
+		switch (dep.getTargetKind()) {
 		case IMPLEMENTATION : 
 			constraints = dep.getAllImplementationConstraintFilters ();
 			preferences = dep.getImplementationPreferenceFilters () ;
@@ -261,9 +261,9 @@ public class OBRManager {
 		StringBuffer debugMessage = new StringBuffer ();
 		if (filterStr != null) {
 			if (all) {
-				debugMessage.append("OBR: looking for all " + dep.getTargetType() + " matching " + filterStr);
+				debugMessage.append("OBR: looking for all " + dep.getTargetKind() + " matching " + filterStr);
 			} else {
-				debugMessage.append("OBR: looking for a " + dep.getTargetType() + "  matching" + filterStr);
+				debugMessage.append("OBR: looking for a " + dep.getTargetKind() + "  matching" + filterStr);
 			}
 		}
 		if ((constraints != null) && !constraints.isEmpty()) {

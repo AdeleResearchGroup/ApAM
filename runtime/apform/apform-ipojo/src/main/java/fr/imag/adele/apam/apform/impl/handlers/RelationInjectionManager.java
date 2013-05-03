@@ -18,7 +18,7 @@ import org.apache.felix.ipojo.FieldInterceptor;
 import org.apache.felix.ipojo.metadata.Element;
 
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.declarations.DependencyInjection;
+import fr.imag.adele.apam.declarations.RelationInjection;
 
 /**
  * This class represents a kind of injection manager for a dependency. The injection manager is in charge of translating
@@ -27,7 +27,7 @@ import fr.imag.adele.apam.declarations.DependencyInjection;
  * @author vega
  *
  */
-public interface DependencyInjectionManager extends FieldInterceptor {
+public interface RelationInjectionManager extends FieldInterceptor {
 
 	/**
 	 * The interface of the external resolver that is used to bind this field. 
@@ -45,7 +45,7 @@ public interface DependencyInjectionManager extends FieldInterceptor {
 		 * @see fr.imag.adele.apam.apform.impl.InterfaceInjectionManager.substituteTarget
 		 *  
 		 */
-		public void addInjection(DependencyInjectionManager injection);
+		public void addInjection(RelationInjectionManager injection);
 		
 		/**
 		 * Request to lazily resolve an injection.
@@ -60,7 +60,7 @@ public interface DependencyInjectionManager extends FieldInterceptor {
 		 * @see fr.imag.adele.apam.apform.impl.InterfaceInjectionManager.substituteTarget
 		 *  
 		 */
-		public boolean resolve(DependencyInjectionManager injection);
+		public boolean resolve(RelationInjectionManager injection);
 		
 		/**
 		 * Request to remove an injection.
@@ -69,14 +69,14 @@ public interface DependencyInjectionManager extends FieldInterceptor {
 		 * wants to force the resolution of the dependency the next access
 		 *  
 		 */
-		public boolean unresolve(DependencyInjectionManager injection);
+		public boolean unresolve(RelationInjectionManager injection);
 		
 	} 
 	
 	/**
 	 * The dependency injection that is managed by this manager
 	 */
-	public abstract DependencyInjection getDependencyInjection();
+	public abstract RelationInjection getRelationInjection();
 
 	
     /**

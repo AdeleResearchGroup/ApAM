@@ -24,8 +24,8 @@ import org.osgi.framework.BundleContext;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Dependency;
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
@@ -39,7 +39,7 @@ import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.util.Util;
 import fr.imag.adele.apam.util.Visible;
 
-public class ApamMan implements DependencyManager {
+public class ApamMan implements RelationManager {
 
 	private BundleContext context;
 
@@ -70,22 +70,22 @@ public class ApamMan implements DependencyManager {
 
 
 	@Override
-	public void getSelectionPath(Component client, Dependency dep, List<DependencyManager> selPath) {
+	public void getSelectionPath(Component client, Relation dep, List<RelationManager> selPath) {
 	}
 
 	@Override
-	public Instance resolveImpl(Component client, Implementation impl, Dependency dep) {
+	public Instance resolveImpl(Component client, Implementation impl, Relation dep) {
 		//List<ApamFilter> f = Util.toFilterList(preferences) ;
-		return DependencyUtil.getPrefered(resolveImpls(client, impl, dep), dep) ;
+		return dep.getPrefered(resolveImpls(client, impl, dep)) ;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Component client, Implementation impl, Dependency dep) {
+	public Set<Instance> resolveImpls(Component client, Implementation impl, Relation dep) {
 
 		//Set<ApamFilter> f = Util.toFilter(constraints) ;	
 		Set<Instance> insts = new HashSet<Instance>();
 		for (Instance inst : impl.getInsts()) {
-			if (inst.isSharable() && inst.matchDependencyConstraints(dep) && Visible.isVisible(client, inst))
+			if (inst.isSharable() && inst.matchRelationConstraints(dep) && client.canSee(inst))
 				insts.add(inst);
 		}
 		return insts;
@@ -105,7 +105,7 @@ public class ApamMan implements DependencyManager {
 		if (instName == null) return null;
 		Instance inst = CST.componentBroker.getInst(instName);
 		if (inst == null) return null;
-		if (Visible.isVisible(client, inst)) {
+		if (client.canSee(inst)) {
 			return inst;
 		}
 		return null;
@@ -116,7 +116,7 @@ public class ApamMan implements DependencyManager {
 		if (implName == null)
 			return null;
 		Implementation impl = CST.componentBroker.getImpl(implName);
-		if (Visible.isVisible (client, impl)) {
+		if (client.canSee(impl)) {
 			return impl ;
 		}
 		return null ;
@@ -140,12 +140,14 @@ public class ApamMan implements DependencyManager {
 	//	}
 
 	/**
-	 * dep target can be a specification, an implementation or a resource: interface or message.
-	 * We have to find out all the implementations and all the instances that can be a target for that dependency 
-	 * and satisfy visibility and the constraints,
+	 * dep target can be a specification, an implementation or a resource:
+	 * interface or message. We have to find out all the implementations and all
+	 * the instances that can be a target for that relation and satisfy
+	 * visibility and the constraints,
 	 * 
-	 * First compute all the implementations, visible or not that is a good target; 
-	 * then add in insts all the instances of these implementations that satisfy the constraints and are visible.
+	 * First compute all the implementations, visible or not that is a good
+	 * target; then add in insts all the instances of these implementations that
+	 * satisfy the constraints and are visible.
 	 * 
 	 * If parameter needsInstances is null, do not take care of the instances.
 	 * 
@@ -153,10 +155,10 @@ public class ApamMan implements DependencyManager {
 	 * 
 	 */
 	@Override
-	public Resolved<?> resolveDependency(Component client, Dependency dep) {
+	public Resolved<?> resolveRelation(Component source, Relation relation) {
 
-		if (dep.getTargetType() == ComponentKind.SPECIFICATION) {
-			return DependencyUtil.getResolved(client, CST.componentBroker.getSpecs(), dep);
+		if (relation.getTargetKind() == ComponentKind.SPECIFICATION) {
+			return relation.getResolved(CST.componentBroker.getSpecs());
 		}
 
 		/*
@@ -164,25 +166,30 @@ public class ApamMan implements DependencyManager {
 		 * without constraints nor visibility control 
 		 */
 		Set<Implementation> impls = null ;
-		String name = dep.getTarget().getName() ;
+		String name = relation.getTarget().getName();
 
-		if (dep.getTarget() instanceof SpecificationReference) {
+		if (relation.getTarget() instanceof SpecificationReference) {
 			Specification spec = CST.componentBroker.getSpec(name);
 			if (spec == null) {
-				System.err.println("No spec with name " + name + " for dependency " + dep.getIdentifier() + " from component" + client); 
+				System.err.println("No spec with name " + name
+						+ " for relation " + relation.getIdentifier()
+						+ " from component" + source);
 				return null;
 			}
 			impls = spec.getImpls();
 		} else 	{
 			impls = new HashSet<Implementation> () ;
-			if (dep.getTarget() instanceof ResourceReference) {
+			if (relation.getTarget() instanceof ResourceReference) {
 				for (Implementation impl : CST.componentBroker.getImpls()) {
-					if ( impl.getDeclaration().getProvidedResources().contains (((ResourceReference)dep.getTarget()))) {
+					if (impl.getDeclaration()
+							.getProvidedResources()
+							.contains(
+									((ResourceReference) relation.getTarget()))) {
 						impls.add(impl) ;
 					}
 				}
 			} else {
-				if (dep.getTarget() instanceof ImplementationReference) {
+				if (relation.getTarget() instanceof ImplementationReference) {
 					Implementation impl = CST.componentBroker.getImpl(name);
 					if (impl != null) {
 						impls.add(impl) ;
@@ -195,24 +202,25 @@ public class ApamMan implements DependencyManager {
 		if (impls == null || impls.isEmpty()) 
 			return null ;
 
-
 		//We have the implementations. Select the good one(s)
-		if (dep.getTargetType() == ComponentKind.IMPLEMENTATION) {
-			return DependencyUtil.getResolved(client, impls, dep);
+		if (relation.getTargetKind() == ComponentKind.IMPLEMENTATION) {
+			return relation.getResolved(impls);
 		}
 
 		/*
-		 * We have in impls all the implementations satisfying the dependency target (type and name only).
-		 * We are looking for instances
-		 * Take all the instances of these implementations satisfying the dependency constraints and visibility.
+		 * We have in impls all the implementations satisfying the relation
+		 * target (type and name only). We are looking for instances Take all
+		 * the instances of these implementations satisfying the relation
+		 * constraints and visibility.
 		 */		
 		Set<Instance> insts = new HashSet<Instance> () ; 
 		//Compute all the instances visible and satisfying the constraints  ;
 		for (Implementation impl : impls) {
 			for (Instance inst : impl.getInsts()) {
 				if (inst.isSharable() 
-						&& Visible.isVisible(client,  inst) 
-						&& inst.matchDependencyConstraints(dep)) {
+//						&& Visible.isVisible(client,  inst) 
+						&& source.canSee(inst)
+						&& inst.matchRelationConstraints(relation)) {
 					insts.add(inst) ;
 				}
 			}
@@ -222,11 +230,11 @@ public class ApamMan implements DependencyManager {
 			return null ;
 
 		/*
-		 * If dependency is singleton, select the best instance.
+		 * If relation is singleton, select the best instance.
 		 */
-		if (dep.isMultiple()) 
+		if (relation.isMultiple())
 			return new Resolved<Instance> (insts) ;
-		return new Resolved<Instance> (DependencyUtil.getPrefered(insts, dep)) ;
+		return new Resolved<Instance>(relation.getPrefered(insts));
 	}
 
 

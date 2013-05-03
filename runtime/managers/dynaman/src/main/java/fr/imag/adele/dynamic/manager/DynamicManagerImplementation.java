@@ -35,8 +35,8 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Dependency;
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -64,7 +64,7 @@ import fr.imag.adele.apam.impl.CompositeImpl;
 @org.apache.felix.ipojo.annotations.Component(name = "DYNAMAN" , immediate=true)
 @Provides
 
-public class DynamicManagerImplementation implements DependencyManager, DynamicManager, PropertyManager {
+public class DynamicManagerImplementation implements RelationManager, DynamicManager, PropertyManager {
 
 	private final static Logger	logger = LoggerFactory.getLogger(DynamicManagerImplementation.class);
 
@@ -109,7 +109,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		/*
 		 * Register with APAM 
 		 */
-		ApamManagers.addDependencyManager(this,getPriority());
+		ApamManagers.addRelationManager(this,getPriority());
 		ApamManagers.addDynamicManager(this);
 		ApamManagers.addPropertyManager(this);
 
@@ -127,7 +127,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	@Invalidate
 	@SuppressWarnings("unused")
 	private synchronized void stop() {
-		ApamManagers.removeDependencyManager(this);
+		ApamManagers.removeRelationManager(this);
 		ApamManagers.removeDynamicManager(this);
 		ApamManagers.removePropertyManager(this);
 //		logger.info("[DYNAMAN] stopped");
@@ -232,7 +232,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 	/**
 	 * Throws the exception associated with a missing dependency
 	 */
-	private void throwMissingException(Dependency dependency, Instance client) {
+	private void throwMissingException(Relation relation, Instance client) {
 		try {
 			
 			/*
@@ -248,7 +248,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 			 * Evaluate changes to DependencyDeclaration, CoreMetadataParser.parseDependency and Util.computeEffectiveDependency
 			 * 
 			 */
-			String exceptionName		= dependency.getMissingException();
+			String exceptionName		= relation.getMissingException();
 			
 			Class<?> exceptionClass		= client.getImpl().getApformImpl().getBundle().loadClass(exceptionName);
 			Exception exception			= Exception.class.cast(exceptionClass.newInstance());
@@ -434,7 +434,7 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 
 	@Override
-	public Resolved<?> resolveDependency(Component client, Dependency dependency) {
+	public Resolved<?> resolveRelation(Component client, Relation relation) {
 		
 		if (! (client instanceof Instance))
 			return null;
@@ -444,23 +444,23 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 		 * the unrelated thread that triggered the recalculation
 		 * 
 		 */
-		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry()|| dependency.getMissingPolicy() == null )
+		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry()|| relation.getMissingPolicy() == null )
 			return null;
 		
 		/*
 		 * Apply failure policies
 		 */
-		switch (dependency.getMissingPolicy()) {
+		switch (relation.getMissingPolicy()) {
 			case OPTIONAL : {
 				return null;
 			}
 			
 			case EXCEPTION : {
-				throwMissingException(dependency,(Instance)client);
+				throwMissingException(relation,(Instance)client);
 			}
 			
 			case WAIT : {
-				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver,(Instance) client, dependency);
+				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver,(Instance) client, relation);
 				block(request);
 				return request.getResolution();
 			}
@@ -471,17 +471,17 @@ public class DynamicManagerImplementation implements DependencyManager, DynamicM
 
 
 	@Override
-	public Instance resolveImpl(Component client, Implementation impl, Dependency dep) {
+	public Instance resolveImpl(Component client, Implementation impl, Relation dep) {
 		return null;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Component client, Implementation impl, Dependency dep) {
+	public Set<Instance> resolveImpls(Component client, Implementation impl, Relation dep) {
 		return null;
 	}
 
 	@Override
-	public void getSelectionPath(Component client, Dependency dependency, List<DependencyManager> selPath) {
+	public void getSelectionPath(Component client, Relation relation, List<RelationManager> selPath) {
         selPath.add(selPath.size(), this);
 	}
 

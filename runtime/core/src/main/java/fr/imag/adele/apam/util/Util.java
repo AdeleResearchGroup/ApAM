@@ -28,8 +28,10 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
@@ -283,4 +285,79 @@ public final class Util {
 		return ret.substring(0, ret.length() - 2) + "}";
 	}
 
+	/**
+	 * Provided a source component, checks if the provided override relation 
+	 * matches the compoClient relation declaration.
+	 * Tags source and sourceType are mandatory. 
+	 * To be applied on a component C, the override must be such that :
+	 * 		id matches the override id
+	 *      source must be the name of C or of an ancestor of C.
+	 * 		target must be the same type (resource of component, and its name must match). 
+	 *
+	 * @param source the source of the relation
+	 * @param overDep the dependencies of the composite: a regExpression
+	 * @param sourceDep the client relation we are trying to resolve.
+	 * @return
+	 */
+	public static boolean matchOverrideRelation(Component source, RelationDeclaration overDep, RelationDeclaration sourceDep) {
+
+		//Check if Ids are compatible
+		if (! sourceDep.getIdentifier().matches(overDep.getIdentifier()))
+			return false ;
+		
+		//Check if overDep source is source or one of its ancestors
+		Component group = source ;
+		boolean found = false ;
+		while (group != null) {
+			if (sourceDep.getSource().getName().matches(overDep.getSource().getName())) {
+				found = true;
+				break ;
+			}
+		}
+		
+		if (!found) 
+			return false ;
+		
+		/*
+		 * Check if targets are compatible
+		 * Same target: the same specification, the same implementation or same resource name with a matching
+		 */
+		String pattern = overDep.getTarget().getName() ;
+		// same nature: direct comparison
+		if (overDep.getTarget().getClass().equals(sourceDep.getTarget().getClass())
+				&& (sourceDep.getTarget().getName().matches(pattern))) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * A relation may have properties fail= null, wait, exception; exception = null, exception
+	 * A contextual relation can also have hide: null, true, false and eager: null, true, false
+	 * The most local definition overrides the others.
+	 * Exception null can be overriden by an exception; only generic exception overrides another non null one.
+	 *
+	 * @param relation : the low level one that will be changed if needed
+	 * @param dep: the group relation
+	 * @param generic: the dep comes from the composite type. It can override the exception, and has hidden and eager.
+	 * @return
+	 */
+	public static void overrideDepFlags (RelationDeclaration relation, RelationDeclaration dep, boolean generic) {
+		//If set, cannot be changed by the group definition.
+		//NOTE: This strategy is because it cannot be compiled, and we do not want to make an error during resolution
+		if (relation.getMissingPolicy() == null || (generic && dep.getMissingPolicy() != null)) {
+			relation.setMissingPolicy(dep.getMissingPolicy()) ;
+		}
+
+		if (relation.getMissingException() == null || (generic && dep.getMissingException() != null)) {
+			relation.setMissingException(dep.getMissingException()) ;
+		}
+
+		if (generic) {
+			relation.setHide(dep.isHide()) ;
+			relation.setEager(dep.isEager()) ;
+		}
+	}
+
+	
 }

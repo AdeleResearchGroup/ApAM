@@ -30,7 +30,7 @@ import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
  * @author vega
  * 
  */
-public class DependencyDeclaration extends ConstrainedReference implements Cloneable {
+public class RelationDeclaration extends ConstrainedReference implements Cloneable {
 
     /**
      * A reference to a dependency declaration. Notice that dependency identifiers must be only
@@ -78,7 +78,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     /**
      * The list of fields that will be injected with this dependency in a primitive component
      */
-    protected final List<DependencyInjection>		injections;
+    protected final List<RelationInjection>		injections;
 
     /**
      * The policy to handle unresolved dependencies
@@ -121,11 +121,11 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
      * @param resource the resource which we should look for
      */
     
-    public DependencyDeclaration(ComponentReference<?> component,  String id, boolean isMultiple, ResolvableReference resource) {
+    public RelationDeclaration(ComponentReference<?> component,  String id, boolean isMultiple, ResolvableReference resource) {
     	this(component,component,id,isMultiple,resource);
     }
 
-    public DependencyDeclaration(ComponentReference<?> component, ComponentReference<?> source, String id, boolean isMultiple,
+    public RelationDeclaration(ComponentReference<?> component, ComponentReference<?> source, String id, boolean isMultiple,
             ResolvableReference resource) {
 
         super(resource);
@@ -143,7 +143,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
         this.missingPolicy 		= null;
         this.missingException 	= null;
         this.callbacks 			= new HashMap<CallbackTrigger, Set<CallbackMethod>>();
-        this.injections			= new ArrayList<DependencyInjection>();
+        this.injections			= new ArrayList<RelationInjection>();
         
         this.sourceType			= ComponentKind.INSTANCE;
         this.targetType			= ComponentKind.INSTANCE;
@@ -151,10 +151,10 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     
     @Override
     public boolean equals(Object object) {
-    	if (! (object instanceof DependencyDeclaration))
+    	if (! (object instanceof RelationDeclaration))
     		return false;
     	
-    	DependencyDeclaration that = (DependencyDeclaration) object;
+    	RelationDeclaration that = (RelationDeclaration) object;
     	return this.reference.equals(that.reference);
     }
     
@@ -164,9 +164,9 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     }
 
     @Override
-    public DependencyDeclaration clone() {
+    public RelationDeclaration clone() {
 
-        DependencyDeclaration clone = new DependencyDeclaration(this.reference.getDeclaringComponent(), this.source, this.reference
+        RelationDeclaration clone = new RelationDeclaration(this.reference.getDeclaringComponent(), this.source, this.reference
                 .getIdentifier(), this.isMultiple(), this.getTarget());
 
         clone.setSourceType(this.sourceType);
@@ -249,7 +249,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
         boolean hasInterfaces 				= false;
         boolean hasOneCollectionInterface 	= false;
         
-        for (DependencyInjection injection : getInjections()) {
+        for (RelationInjection injection : getInjections()) {
         	
         	boolean isInterface = injection.getResource().as(InterfaceReference.class) != null;
         	hasInterfaces 		= isInterface || hasInterfaces;
@@ -319,7 +319,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
     /**
      * Get the injections associated to this dependency declaration
      */
-    public List<DependencyInjection> getInjections() {
+    public List<RelationInjection> getInjections() {
         return injections;
     }
 
@@ -335,7 +335,7 @@ public class DependencyDeclaration extends ConstrainedReference implements Clone
         
         if (!injections.isEmpty()) {
             // ret += "\n         Injected dependencies";
-            for (DependencyInjection inj : injections) {
+            for (RelationInjection inj : injections) {
             	ret.append ("   " + inj);
             }
         }

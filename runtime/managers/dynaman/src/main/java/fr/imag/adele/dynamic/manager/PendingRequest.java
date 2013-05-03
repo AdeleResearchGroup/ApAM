@@ -16,7 +16,7 @@ package fr.imag.adele.dynamic.manager;
 
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.Dependency;
+import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
@@ -41,7 +41,7 @@ public class PendingRequest {
 	/**
 	 * The dependency to resolve
 	 */
-	protected final Dependency dependency;
+	protected final Relation relation;
 
 	
 	/**
@@ -57,10 +57,10 @@ public class PendingRequest {
 	/**
 	 * Builds a new pending request reification
 	 */
-	protected PendingRequest(ApamResolverImpl resolver, Instance source, Dependency dependency) {
+	protected PendingRequest(ApamResolverImpl resolver, Instance source, Relation relation) {
 		this.resolver		= resolver;
 		this.source			= source;
-		this.dependency		= dependency;
+		this.relation		= relation;
 		this.resolution		= null;
 	}
 	
@@ -71,8 +71,8 @@ public class PendingRequest {
 	/**
 	 * The dependency that needs resolution
 	 */
-	public Dependency getDependency() {
-		return dependency;
+	public Relation getRelation() {
+		return relation;
 	}
 	
 	/**
@@ -136,7 +136,7 @@ public class PendingRequest {
 		synchronized (this) {
 			try {
 				beginResolve();
-				resolution = resolver.resolveLink(source, dependency);
+				resolution = resolver.resolveLink(source, relation);
 				this.notifyAll();
 			} finally {
 				endResolve();
@@ -177,7 +177,7 @@ public class PendingRequest {
 	 */
 	public boolean isSatisfiedBy(Component candidate) {
 	
-		if (! Visible.isVisible(source, candidate))
+		if (! source.canSee(candidate))
 			return false;
 		
 		Implementation implementation = null;
@@ -196,15 +196,14 @@ public class PendingRequest {
 		 */
 		boolean valid = false;
 		
-		if (dependency.getTarget() instanceof ImplementationReference<?>)
-			valid = implementation.getDeclaration().getReference().equals(dependency.getTarget());
+		if (relation.getTarget() instanceof ImplementationReference<?>)
+			valid = implementation.getDeclaration().getReference().equals(relation.getTarget());
 
-		if (dependency.getTarget() instanceof SpecificationReference)
-			valid = implementation.getSpec().getDeclaration().getReference().equals(dependency.getTarget());
+		if (relation.getTarget() instanceof SpecificationReference)
+			valid = implementation.getSpec().getDeclaration().getReference().equals(relation.getTarget());
 
-		if (dependency.getTarget() instanceof ResourceReference)
-			valid = implementation.getAllProvidedResources().contains(dependency.getTarget());
-		
+		if (relation.getTarget() instanceof ResourceReference)
+			valid = implementation.getProvidedResources().contains(relation.getTarget());
 		
 		return valid;
 		

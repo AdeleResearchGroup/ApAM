@@ -41,7 +41,6 @@ import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
-import fr.imag.adele.apam.util.Visible;
 
 public class ImplementationImpl extends ComponentImpl implements Implementation {
 
@@ -261,7 +260,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	public Instance createInstance(Composite composite, Map<String, String> initialProperties) {
 
 //		if ((composite != null) && !Util.checkImplVisible(composite.getCompType(), this)) {
-			if ((composite != null) && !Visible.isVisible(composite, this)) {
+			if ((composite != null) && ! composite.canSee(this)) {
 			logger.error("cannot instantiate " + this + ". It is not visible from composite " + composite);
 			return null;
 		}

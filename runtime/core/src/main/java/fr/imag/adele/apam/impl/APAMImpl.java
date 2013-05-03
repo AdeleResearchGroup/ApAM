@@ -32,7 +32,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
@@ -62,7 +62,7 @@ public class APAMImpl implements Apam {
      * 
      * This are the managers required to start the platform.
      */
-    private DependencyManager	apamMan;
+    private RelationManager	apamMan;
     private UpdateMan	updateMan;
 
     public APAMImpl(BundleContext context) {
@@ -70,8 +70,8 @@ public class APAMImpl implements Apam {
         new CST(this);
         apamMan = new ApamMan();
         updateMan = new UpdateMan();
-        ApamManagers.addDependencyManager(apamMan, -1); // -1 to be sure it is not in the main loop
-        ApamManagers.addDependencyManager(updateMan, -2); // -2 to be sure it is not in the main loop
+        ApamManagers.addRelationManager(apamMan, -1); // -1 to be sure it is not in the main loop
+        ApamManagers.addRelationManager(updateMan, -2); // -2 to be sure it is not in the main loop
         ApamManagers.addDynamicManager(updateMan); 
 		try {
 			Util.printFileToConsole(context.getBundle().getResource("logo.txt"));
@@ -208,10 +208,10 @@ public class APAMImpl implements Apam {
         return CompositeImpl.getRootComposites();
     }
 
-	public DependencyManager getApamMan() {
+	public RelationManager getApamMan() {
 		return apamMan;
 	}
-	public DependencyManager getUpdateMan() {
+	public RelationManager getUpdateMan() {
 		return updateMan;
 	}
 

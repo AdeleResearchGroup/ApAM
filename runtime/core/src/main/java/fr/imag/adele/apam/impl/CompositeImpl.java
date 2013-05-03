@@ -357,7 +357,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		return (father == null) ? this : father.getAppliComposite();
 	}
 
-	// Composite Dependency management ===============
+	// Composite relation management ===============
 	@Override
 	public void addDepend(Composite destination) {
 		assert destination != null && !depend.contains(destination);

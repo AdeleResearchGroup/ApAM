@@ -17,9 +17,9 @@ package fr.imag.adele.apam;
 import java.util.Set;
 
 /*
- * This object is used to return the result of a resolution, provided a dependency.
+ * This object is used to return the result of a resolution, provided a relation.
  * 
- * If the dependency is a singleton, the result (if found) must be in singletonResolved, 
+ * If the relation is a singleton, the result (if found) must be in singletonResolved, 
  * 		if multiple, in setResolved.
  * 
  * In case the target is an Instance, an that the Implementation is found but no instance is available, 
@@ -54,6 +54,6 @@ public class Resolved <T extends Component> {
 	
 	
 	public boolean isEmpty () {
-		return singletonResolved == null && (setResolved == null || setResolved.isEmpty()) ;
+		return singletonResolved == null && toInstantiate == null && (setResolved == null || setResolved.isEmpty()) ;
 	}
 }

@@ -30,9 +30,9 @@ import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
-import fr.imag.adele.apam.declarations.DependencyInjection;
-import fr.imag.adele.apam.declarations.DependencyPromotion;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
+import fr.imag.adele.apam.declarations.RelationInjection;
+import fr.imag.adele.apam.declarations.RelationPromotion;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
@@ -47,11 +47,10 @@ import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
 import fr.imag.adele.apam.declarations.VisibilityDeclaration;
-import fr.imag.adele.apam.impl.DependencyUtil;
+import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Attribute;
 import fr.imag.adele.apam.util.Substitute;
 import fr.imag.adele.apam.util.Substitute.SplitSub;
-import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 
 public class CheckObr {
@@ -92,7 +91,7 @@ public class CheckObr {
 	 * 
 	 * @param dep a dependency
 	 */
-	private static void checkConstraint(ComponentDeclaration component, DependencyDeclaration dep) {
+	private static void checkConstraint(ComponentDeclaration component, RelationDeclaration dep) {
 		if ((dep == null) || !(dep.getTarget() instanceof ComponentReference))
 			return;
 
@@ -345,7 +344,7 @@ public class CheckObr {
 		 * if we have a dependency, get the dependency target
 		 */
 		if (sub.depId != null) {			
-			DependencyDeclaration depDcl = source.dcl.getDependency(sub.depId) ;
+			RelationDeclaration depDcl = source.dcl.getRelation(sub.depId) ;
 			if (depDcl == null) {
 				error("Dependency " + sub.depId + " undefined for component " + source.getName()) ;
 				return false ;
@@ -593,14 +592,14 @@ public class CheckObr {
 	 * @param component
 	 */
 	public static void checkDependencies(ComponentDeclaration component) {
-		Set<DependencyDeclaration> deps = component.getDependencies() ;	
+		Set<RelationDeclaration> deps = component.getDependencies() ;	
 		if (deps == null || deps.isEmpty())
 			return;
 
 		CheckObr.allFields.clear();
 		Set<String> depIds = new HashSet<String>();
 
-		for (DependencyDeclaration dep : deps) {
+		for (RelationDeclaration dep : deps) {
 
 			//Checking for double dependency Id
 			if (depIds.contains(dep.getIdentifier())) {
@@ -649,14 +648,14 @@ public class CheckObr {
 	 * @param dependency
 	 * @return
 	 */
-	public static DependencyDeclaration computeGroupDependency (ComponentDeclaration depComponent, DependencyDeclaration dependency) {
+	public static RelationDeclaration computeGroupDependency (ComponentDeclaration depComponent, RelationDeclaration dependency) {
 		String depName = dependency.getIdentifier() ;
 
 		//look for that dependency declaration above
 		ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
-		DependencyDeclaration groupDep = null ;
+		RelationDeclaration groupDep = null ;
 		while (group != null && (groupDep == null)) {
-			groupDep = group.getDependency(depName) ;
+			groupDep = group.getRelation(depName) ;
 			group = ApamCapability.getDcl(group.getGroupReference()) ;
 		}
 
@@ -667,7 +666,7 @@ public class CheckObr {
 
 		//it is declared above. Merge and check.
 		//First merge flags, and then constraints.
-		DependencyUtil.overrideDepFlags (dependency, groupDep, false);
+		Util.overrideDepFlags (dependency, groupDep, false);
 		dependency.getImplementationConstraints().addAll(groupDep.getImplementationConstraints()) ;
 		dependency.getInstanceConstraints().addAll(groupDep.getInstanceConstraints()) ;
 		dependency.getImplementationPreferences().addAll(groupDep.getImplementationPreferences()) ;
@@ -732,7 +731,7 @@ public class CheckObr {
 	 * @param component
 	 *            : the component currently analyzed
 	 */
-	private static void checkFieldTypeDep(DependencyDeclaration dep) {
+	private static void checkFieldTypeDep(RelationDeclaration dep) {
 		// All field must have same multiplicity, and must refer to interfaces
 		// and messages provided by the specification.
 
@@ -767,7 +766,7 @@ public class CheckObr {
 				allowedTypes.add(new ImplementatioClassReference(implementationClass));
 		}
 
-		for (DependencyInjection innerDep : dep.getInjections()) {
+		for (RelationInjection innerDep : dep.getInjections()) {
 
 			if (!innerDep.isValidInstrumentation())
 				CheckObr.error(dep.getComponent().getName() + " : invalid type for field " + innerDep.getName());
@@ -815,7 +814,7 @@ public class CheckObr {
 	 * @param component
 	 * @return
 	 */
-	public static boolean isFieldMultiple(DependencyInjection dep,
+	public static boolean isFieldMultiple(RelationInjection dep,
 			ComponentDeclaration component) {
 		if (CheckObr.allFields.contains(dep.getName())
 				&& !dep.getName().equals(CheckObr.UNDEFINED)) {
@@ -1119,14 +1118,14 @@ public class CheckObr {
 		// List<GrantDeclaration> grants = own.getGrants();
 		for (GrantDeclaration grant : own.getGrants()) {
 			ApamCapability grantComponent = ApamCapability.get(grant
-					.getDependency().getDeclaringComponent());
+					.getRelation().getDeclaringComponent());
 			ComponentDeclaration ownedComp = ApamCapability.getDcl(own
 					.getComponent());
 
 			// Check that the granted component exists
 			if (grantComponent == null) {
 				error("Unknown component "
-						+ grant.getDependency().getDeclaringComponent()
+						+ grant.getRelation().getDeclaringComponent()
 						.getName() + " in grant expression : " + grant);
 				continue;
 			}
@@ -1160,12 +1159,12 @@ public class CheckObr {
 			// Check that the dependency exists and has as target the OWN
 			// resource
 			ComponentDeclaration granted = grantComponent.dcl;
-			String id = grant.getDependency().getIdentifier();
+			String id = grant.getRelation().getIdentifier();
 			ComponentReference<?> owned = own.getComponent();
 			boolean found = false;
 			// OWN is a specification or an implem
 			// granted dep can be anything
-			for (DependencyDeclaration depend : granted.getDependencies()) {
+			for (RelationDeclaration depend : granted.getDependencies()) {
 				if (depend.getIdentifier().equals(id)) {
 					found = true;
 
@@ -1208,7 +1207,7 @@ public class CheckObr {
 				CheckObr.error("The dependency id of the grant clause "
 						+ grant
 						+ " is undefined for component "
-						+ grant.getDependency().getDeclaringComponent()
+						+ grant.getRelation().getDeclaringComponent()
 						.getName());
 			}
 		}
@@ -1223,7 +1222,7 @@ public class CheckObr {
 	 */
 	private static void checkContextualDependencies(
 			CompositeDeclaration component) {
-		for (DependencyDeclaration pol : component.getContextualDependencies()) {
+		for (RelationDeclaration pol : component.getContextualDependencies()) {
 
 			for (String constraint : pol.getImplementationConstraints()) {
 				checkSyntaxFilter(constraint);
@@ -1264,20 +1263,20 @@ public class CheckObr {
 		if (composite.getPromotions() == null)
 			return;
 
-		for (DependencyPromotion promo : composite.getPromotions()) {
+		for (RelationPromotion promo : composite.getPromotions()) {
 			ComponentDeclaration internalComp = ApamCapability.getDcl(promo
-					.getContentDependency().getDeclaringComponent());
+					.getContentRelation().getDeclaringComponent());
 			if (internalComp == null) {
 				error("Invalid promotion: unknown component "
-						+ promo.getContentDependency().getDeclaringComponent()
+						+ promo.getContentRelation().getDeclaringComponent()
 						.getName());
 			}
-			DependencyDeclaration internalDep = null;
+			RelationDeclaration internalDep = null;
 			if (internalComp.getDependencies() != null)
-				for (DependencyDeclaration intDep : internalComp
+				for (RelationDeclaration intDep : internalComp
 						.getDependencies()) {
 					if (intDep.getIdentifier().equals(
-							promo.getContentDependency().getIdentifier())) {
+							promo.getContentRelation().getIdentifier())) {
 						internalDep = intDep;
 						break;
 					}
@@ -1286,22 +1285,22 @@ public class CheckObr {
 			if (internalDep == null) {
 				error("Component " + internalComp.getName()
 						+ " does not define a dependency with id="
-						+ promo.getContentDependency().getIdentifier());
+						+ promo.getContentRelation().getIdentifier());
 				continue;
 			}
 
-			DependencyDeclaration compositeDep = null;
+			RelationDeclaration compositeDep = null;
 			if (composite.getDependencies() != null)
-				for (DependencyDeclaration dep : composite.getDependencies()) {
+				for (RelationDeclaration dep : composite.getDependencies()) {
 					if (dep.getIdentifier().equals(
-							promo.getCompositeDependency().getIdentifier())) {
+							promo.getCompositeRelation().getIdentifier())) {
 						compositeDep = dep;
 						break;
 					}
 				}
 			if (compositeDep == null) {
 				error("Undefined composite dependency: "
-						+ promo.getCompositeDependency().getIdentifier());
+						+ promo.getCompositeRelation().getIdentifier());
 				continue;
 			}
 
@@ -1318,7 +1317,7 @@ public class CheckObr {
 
 	// Copy paste of the Util class ! too bad, this one uses ApamCapability
 	private static boolean checkDependencyMatch(
-			DependencyDeclaration clientDep, DependencyDeclaration compoDep) {
+			RelationDeclaration clientDep, RelationDeclaration compoDep) {
 		boolean multiple = clientDep.isMultiple();
 		// Look for same dependency: the same specification, the same
 		// implementation or same resource name

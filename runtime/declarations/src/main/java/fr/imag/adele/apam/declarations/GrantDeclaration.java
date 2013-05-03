@@ -18,16 +18,16 @@ import java.util.Set;
 
 public class GrantDeclaration {
 
-	private final DependencyDeclaration.Reference dependency;
+	private final RelationDeclaration.Reference dependency;
 	
 	private final Set<String> states;
 	
-	public GrantDeclaration(DependencyDeclaration.Reference dependency, Set<String> states) {
+	public GrantDeclaration(RelationDeclaration.Reference dependency, Set<String> states) {
 		this.dependency = dependency;
 		this.states = states;
 	}
 	
-	public DependencyDeclaration.Reference getDependency() {
+	public RelationDeclaration.Reference getRelation() {
 		return dependency;
 	}
 	

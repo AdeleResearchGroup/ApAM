@@ -36,8 +36,8 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Dependency;
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
@@ -46,14 +46,14 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.declarations.ComponentKind;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 
 @Instantiate(name = "OSGiMan-Instance")
 @org.apache.felix.ipojo.annotations.Component(name = "OSGiMan" , immediate=true)
 @Provides
-public class OSGiMan implements DependencyManager {
+public class OSGiMan implements RelationManager {
 
 	private final static Logger	logger = LoggerFactory.getLogger(OSGiMan.class);
 
@@ -91,12 +91,12 @@ public class OSGiMan implements DependencyManager {
 
 	@Validate
 	private @SuppressWarnings("unused") synchronized void start()  {
-		ApamManagers.addDependencyManager(this,getPriority());
+		ApamManagers.addRelationManager(this,getPriority());
 	}
 	
 	@Invalidate
 	private  @SuppressWarnings("unused") synchronized void stop() {
-		ApamManagers.removeDependencyManager(this);
+		ApamManagers.removeRelationManager(this);
 	}
 	
     
@@ -106,14 +106,14 @@ public class OSGiMan implements DependencyManager {
 	}
 
 	@Override
-	public void getSelectionPath(Component client, Dependency dependency, List<DependencyManager> selPath) {
+	public void getSelectionPath(Component client, Relation relation, List<RelationManager> selPath) {
         selPath.add(selPath.size(), this);
 	}
 
 	@Override
-	public Resolved resolveDependency(Component client, Dependency dependency) {
+	public Resolved resolveRelation(Component client, Relation relation) {
 		
-		InterfaceReference target = dependency.getTarget().as(InterfaceReference.class);
+		InterfaceReference target = relation.getTarget().as(InterfaceReference.class);
 		if (target == null)
 			return null;
 		
@@ -157,13 +157,13 @@ public class OSGiMan implements DependencyManager {
 				implementations.add((Implementation)implementation);
 				
 			}
-			if (dependency.getTargetType() == ComponentKind.IMPLEMENTATION) {
-				if (dependency.isMultiple())
+			if (relation.getTargetKind() == ComponentKind.IMPLEMENTATION) {
+				if (relation.isMultiple())
 					return new Resolved<Implementation> (implementations) ;
 				return new Resolved<Implementation> (implementations.iterator().next()) ;
 			}
-			if (dependency.getTargetType() == ComponentKind.INSTANCE) {
-				if (dependency.isMultiple())
+			if (relation.getTargetKind() == ComponentKind.INSTANCE) {
+				if (relation.isMultiple())
 					return new Resolved<Instance> (instances) ;
 				return new Resolved<Instance> (instances.iterator().next()) ;
 			}
@@ -174,12 +174,12 @@ public class OSGiMan implements DependencyManager {
 	}
 
 	@Override
-	public Instance resolveImpl(Component client, Implementation impl, Dependency dep) {
+	public Instance resolveImpl(Component client, Implementation impl, Relation dep) {
 		return null;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Component client, Implementation impl,	Dependency dep) {
+	public Set<Instance> resolveImpls(Component client, Implementation impl,	Relation dep) {
 		return null;
 	}
 

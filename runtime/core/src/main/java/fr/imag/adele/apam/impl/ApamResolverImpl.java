@@ -31,8 +31,8 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Dependency;
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
@@ -41,7 +41,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.DependencyPromotion;
+import fr.imag.adele.apam.declarations.RelationPromotion;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
@@ -57,22 +57,27 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 	/**
-	 * Only instance have a well-defined and unique enclosing composite (type and instance). 
-	 * Promotion control will apply only on sources that are instances; but for relations, targetType can be any component.
-	 * We will look for a relation at the composite level, that matches the target (target and targetType), 
-	 * whatever the Id, composite rel cardinality must be multiple if the dependency is multiple. 
-	 * If so, it is a promotion. The composite dependency is resolved, then the source dependency is resolved as a subset of the composite rel.
-	 * The client becomes the embedding composite; visibility and scope become the one of the embedding composite
+	 * Only instance have a well-defined and unique enclosing composite (type
+	 * and instance). Promotion control will apply only on sources that are
+	 * instances; but for relations, targetType can be any component. We will
+	 * look for a relation at the composite level, that matches the target
+	 * (target and targetType), whatever the Id, composite rel cardinality must
+	 * be multiple if the relation is multiple. If so, it is a promotion. The
+	 * composite relation is resolved, then the source relation is resolved as a
+	 * subset of the composite rel. The client becomes the embedding composite;
+	 * visibility and scope become the one of the embedding composite
 	 * 
-	 * Note that is more than one composite dependency matches the source dependency, one arbitrarily is selected. 
-	 * To closely control promotions, use the tag “promotion” in the composite dependency definition.
-
-	 *
+	 * Note that is more than one composite relation matches the source
+	 * relation, one arbitrarily is selected. To closely control promotions, use
+	 * the tag “promotion” in the composite relation definition.
+	 * 
+	 * 
 	 * @param client
-	 * @param dependency definition
-	 * @return the composite dependency from the composite.
+	 * @param relation
+	 *            definition
+	 * @return the composite relation from the composite.
 	 */
-	private  Dependency getPromotionDep(Instance client, Dependency dependency) {
+	private Relation getPromotionRel(Instance client, Relation relation) {
 
 		Composite composite = client.getComposite() ;
 
@@ -81,37 +86,44 @@ public class ApamResolverImpl implements ApamResolver {
 		//		}
 
 		//look if a promotion is explicitly declared for that client component
-		// <promotion implementation="A" dependency="clientDep" to="compoDep" />
-		// <promotion specification="SA" dependency="clientDep" to="compoDep" />
-		for (DependencyPromotion promo: composite.getCompType().getCompoDeclaration().getPromotions()) {
-			if (! promo.getContentDependency().getIdentifier().equals(dependency.getIdentifier())) {
-				continue;		// this promotion is not about our dependency  (not "clientDep")
+		// <promotion implementation="A" relation="clientDep" to="compoDep" />
+		// <promotion specification="SA" relation="clientDep" to="compoDep" />
+		for (RelationPromotion promo: composite.getCompType().getCompoDeclaration().getPromotions()) {
+			if (!promo.getContentRelation().getIdentifier()
+					.equals(relation.getIdentifier())) {
+				continue; // this promotion is not about our relation (not
+							// "clientDep")
 			}
 
-			String sourceName = promo.getContentDependency().getDeclaringComponent().getName();
+			String sourceName = promo.getContentRelation()
+					.getDeclaringComponent().getName();
 			//sourceName = "SA" or "A"
 			if (sourceName.equals(client.getImpl().getName()) || sourceName.equals(client.getSpec().getName())) {
 				// We found the right promotion from client side.
-				//Look for the corresponding composite dependency "compoDep"
-				String toName =  promo.getCompositeDependency().getIdentifier();
-				Dependency foundPromo = composite.getCompType().getDependency(toName) ;
+				// Look for the corresponding composite relation "compoDep"
+				String toName = promo.getCompositeRelation().getIdentifier();
+				Relation foundPromo = composite.getCompType().getRelation(toName) ;
 				//					if (compoDep.getIdentifier().equals(toName)) {
 				//We found the composite side. It is an explicit promotion. It should match.
-				if (DependencyUtil.matchDependency (client, foundPromo, dependency)) {
+				if (relation.matchRelation (client, foundPromo)) {
 					return foundPromo ;
 				}
-				logger.error ("Promotion is invalid. Dependency " + promo.getContentDependency().getIdentifier()
-						+ " of component " + sourceName + " does not match the composite dependency " + foundPromo) ;
+				logger.error("Promotion is invalid. relation "
+						+ promo.getContentRelation().getIdentifier()
+						+ " of component " + sourceName
+						+ " does not match the composite relation "
+						+ foundPromo);
 				return null ;
 			}
 		}
 
-		//Look if a relation, defined in the composite, matches the current dependency
+		// Look if a relation, defined in the composite, matches the current
+		// relation
 		//Do no check composite
 		Component group = client ;
 		while (group != null) {
-			for (Dependency compoDep : group.getLocalDependencies()) {
-				if  (DependencyUtil.matchDependency(client, compoDep, dependency)) {
+			for (Relation compoDep : group.getLocalRelations()) {
+				if  (relation.matchRelation (client, compoDep)) {
 					return compoDep ;
 				}
 			}
@@ -150,31 +162,35 @@ public class ApamResolverImpl implements ApamResolver {
 	}
 
 	/**
-	 * An APAM client instance requires to be wired with one or all the instances that satisfy the dependency.
-	 * WARNING : in case of interface or message dependency , since more than one specification can implement the same
-	 * interface, any specification implementing at least the provided interface (technical name of the interface) will
-	 * be considered satisfactory.
-	 * If found, the instance(s) are bound is returned.
-	 *
-	 * @param source the instance that requires the specification
-	 * @param depName the dependency name. Field for atomic; spec name for complex dep, type for composite.
+	 * An APAM client instance requires to be wired with one or all the
+	 * instances that satisfy the relation. WARNING : in case of interface or
+	 * message relation , since more than one specification can implement the
+	 * same interface, any specification implementing at least the provided
+	 * interface (technical name of the interface) will be considered
+	 * satisfactory. If found, the instance(s) are bound is returned.
+	 * 
+	 * @param source
+	 *            the instance that requires the specification
+	 * @param depName
+	 *            the relation name. Field for atomic; spec name for complex
+	 *            dep, type for composite.
 	 * @return
 	 */
 
 	@Override
 	public Resolved<?> resolveLink(Component source, String depName) {
 		if ((depName == null) || (source == null)) {
-			logger.error("missing client or dependency name");
+			logger.error("missing client or relation name");
 			return null;
 		}
 
-		//Get the dependency
-		Dependency dependencyDef = source.getDependency(depName)  ;
-		if (dependencyDef == null) {
+		// Get the relation
+		Relation relDef = source.getRelation(depName);
+		if (relDef == null) {
 			logger.error("Relation declaration invalid or not found " + depName);
 			return null;
 		}
-		return resolveLink (source, dependencyDef) ;
+		return resolveLink(source, relDef);
 	}
 
 
@@ -183,9 +199,9 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public Resolved<?> resolveLink(Component source, Dependency dep) {
+	public Resolved<?> resolveLink(Component source, Relation dep) {
 		if (source == null || dep == null){
-			logger.error("missing client or dependency ");
+			logger.error("missing client or relation ");
 			return null;
 		}
 
@@ -205,18 +221,25 @@ public class ApamResolverImpl implements ApamResolver {
 			 */
 			if (source instanceof Instance) {
 				Composite compo = getClientComposite((Instance)source);
-				Dependency promotionDependency = getPromotionDep((Instance)source, dep);
+				Relation promotionRelation = getPromotionRel((Instance) source,
+						dep);
 
-				// if it is a promotion, get the composite dependency targets.
-				if (promotionDependency != null) {
+				// if it is a promotion, get the composite relation targets.
+				if (promotionRelation != null) {
 					isPromotion = true;
-					promoHasConstraints = promotionDependency.hasConstraints() ;
-					if (promotionDependency.isMultiple())
-						resolved = new Resolved (compo.getLinkDests(promotionDependency.getIdentifier()));
-					else resolved = new Resolved (compo.getLinkDest(promotionDependency.getIdentifier()));
+					promoHasConstraints = promotionRelation.hasConstraints();
+					if (promotionRelation.isMultiple())
+						resolved = new Resolved(
+								compo.getLinkDests(promotionRelation
+										.getIdentifier()));
+					else
+						resolved = new Resolved(
+								compo.getLinkDest(promotionRelation
+										.getIdentifier()));
 
-					if (resolved.isEmpty()) //Maybe the composite did not resolve that dependency so far.
-						resolved = resolveLink (compo, promotionDependency) ;
+					if (resolved.isEmpty()) // Maybe the composite did not
+											// resolve that relation so far.
+						resolved = resolveLink(compo, promotionRelation);
 					if (resolved == null) {
 						logger.error("Failed to resolve " + dep.getTarget()
 								+ " from " + source + "(" + dep.getIdentifier() + ")");
@@ -226,12 +249,12 @@ public class ApamResolverImpl implements ApamResolver {
 					//Select the sub-set that matches the dep constraints. No source visibility control (null).
 					//Adds the manager constraints and compute filters
 					computeSelectionPath(source, dep) ;
-					resolved = DependencyUtil.getResolved(null, resolved, dep) ;
+					resolved = dep.getResolved(resolved) ;
 				}
 			}
 
 			if (! isPromotion) {
-				resolved = this.resolveDependency(source, dep);
+				resolved = this.resolveRelation(source, dep);
 			}
 
 			if (resolved == null) {
@@ -255,7 +278,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 		//reset filters in all cases. Just a verification, to avoid matching outside a compute filter.
 		finally {
-			((DependencyImpl)dep).resetFilters() ;
+			((RelationImpl)dep).resetFilters() ;
 		}
 	}
 
@@ -271,21 +294,21 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @param preferences : the preferences added by the managers. A (empty) list must be provided as parameter.
 	 * @return : the managers that will be called for that resolution.
 	 */
-	private List<DependencyManager> computeSelectionPath(Component source, Dependency dependency) {
+	private List<RelationManager> computeSelectionPath(Component source, Relation relation) {
 
-		List<DependencyManager> selectionPath = new ArrayList<DependencyManager>();
-		for (DependencyManager dependencyManager : ApamManagers.getDependencyManagers()) {
+		List<RelationManager> selectionPath = new ArrayList<RelationManager>();
+		for (RelationManager relationManager : ApamManagers.getRelationManagers()) {
 			/*
 			 * Skip apamman and UpdateMan
 			 */
-			if (dependencyManager.getName().equals(CST.APAMMAN) || dependencyManager.getName().equals(CST.UPDATEMAN)) {
+			if (relationManager.getName().equals(CST.APAMMAN) || relationManager.getName().equals(CST.UPDATEMAN)) {
 				continue;
 			}
-			dependencyManager.getSelectionPath(source, dependency, selectionPath);
+			relationManager.getSelectionPath(source, relation, selectionPath);
 		}
 
-		((DependencyImpl)dependency).computeFilters() ;
-		logger.info("Looking for all " + dependency.getTarget() + " satisfying " + dependency);
+		((RelationImpl)relation).computeFilters(source) ;
+		logger.info("Looking for all " + relation.getTarget() + " satisfying " + relation);
 
 		// To select first in Apam
 		selectionPath.add(0, apam.getApamMan());
@@ -343,7 +366,7 @@ public class ApamResolverImpl implements ApamResolver {
 	@Override
 	public Implementation resolveSpecByInterface(Component client, String interfaceName, Set<String> constraints, List<String> preferences) {
 
-		Dependency dep = new DependencyImpl (client, interfaceName, false, new InterfaceReference(interfaceName), null, ComponentKind.IMPLEMENTATION);
+		Relation dep = new RelationImpl (client, interfaceName, false, new InterfaceReference(interfaceName), null, ComponentKind.IMPLEMENTATION);
 
 		if (constraints != null)
 			dep.getImplementationConstraints().addAll(constraints) ;
@@ -356,7 +379,7 @@ public class ApamResolverImpl implements ApamResolver {
 	@Override
 	public Implementation resolveSpecByMessage(Component client, String messageName, Set<String> constraints, List<String> preferences) {
 
-		Dependency dep = new DependencyImpl (client, messageName, false, new MessageReference(messageName), null, ComponentKind.IMPLEMENTATION);
+		Relation dep = new RelationImpl (client, messageName, false, new MessageReference(messageName), null, ComponentKind.IMPLEMENTATION);
 
 		if (constraints != null)
 			dep.getImplementationConstraints().addAll(constraints) ;
@@ -383,7 +406,7 @@ public class ApamResolverImpl implements ApamResolver {
 			client = CompositeImpl.getRootInstance();
 		}
 
-		Dependency dep = new DependencyImpl (client, impl.getName(), false, new ImplementationReference<ImplementationDeclaration>(impl.getName()), null, ComponentKind.INSTANCE);
+		Relation dep = new RelationImpl (client, impl.getName(), false, new ImplementationReference<ImplementationDeclaration>(impl.getName()), null, ComponentKind.INSTANCE);
 		if (constraints != null)
 			dep.getImplementationConstraints().addAll(constraints) ;
 		if (preferences != null)
@@ -402,7 +425,7 @@ public class ApamResolverImpl implements ApamResolver {
 			client = CompositeImpl.getRootInstance();
 		}
 
-		Dependency dep = new DependencyImpl (client, impl.getName(), true, new ImplementationReference<ImplementationDeclaration>(impl.getName()), null, ComponentKind.INSTANCE);
+		Relation dep = new RelationImpl (client, impl.getName(), true, new ImplementationReference<ImplementationDeclaration>(impl.getName()), null, ComponentKind.INSTANCE);
 		if (constraints != null)
 			dep.getImplementationConstraints().addAll(constraints) ;
 
@@ -434,8 +457,8 @@ public class ApamResolverImpl implements ApamResolver {
 			client = CompositeImpl.getRootInstance();
 		}
 
-		Dependency dependency = new DependencyImpl (client, componentName, false, new ComponentReference<ComponentDeclaration>(componentName), client.getKind(), targetKind) ;
-		Resolved<?> res = resolveLink (client, dependency) ;
+		Relation relation = new RelationImpl (client, componentName, false, new ComponentReference<ComponentDeclaration>(componentName), client.getKind(), targetKind) ;
+		Resolved<?> res = resolveLink (client, relation) ;
 		if (res == null) return null ;
 		return res.singletonResolved ;
 	}
@@ -482,7 +505,7 @@ public class ApamResolverImpl implements ApamResolver {
 			client = CompositeImpl.getRootInstance () ;
 		}
 
-		Dependency dep = new DependencyImpl (client, specName, false, new SpecificationReference(specName), null, ComponentKind.IMPLEMENTATION);
+		Relation dep = new RelationImpl (client, specName, false, new SpecificationReference(specName), null, ComponentKind.IMPLEMENTATION);
 		if (constraints != null) 
 			dep.getImplementationConstraints().addAll(constraints) ;		
 
@@ -507,12 +530,12 @@ public class ApamResolverImpl implements ApamResolver {
 	 *            number of preferences, taken in the order, and stopping at the first failure.
 	 * @return
 	 */
-	public Implementation resolveSpecByResource(Component client, Dependency dependency) {
-		if (dependency.getTargetType() != ComponentKind.IMPLEMENTATION) {
-			logger.error("Invalid target type for resolveSpecByResource. Implemntation expected, found : " + dependency.getTargetType()) ;
+	public Implementation resolveSpecByResource(Component client, Relation relation) {
+		if (relation.getTargetKind() != ComponentKind.IMPLEMENTATION) {
+			logger.error("Invalid target type for resolveSpecByResource. Implemntation expected, found : " + relation.getTargetKind()) ;
 			return null ;
 		}
-		Resolved<?> resolve = resolveLink (client, dependency) ;
+		Resolved<?> resolve = resolveLink (client, relation) ;
 		if (resolve == null) return null ;
 
 		if (resolve.singletonResolved != null) 
@@ -522,40 +545,45 @@ public class ApamResolverImpl implements ApamResolver {
 
 
 	/**
-	 * Performs a complete resolution of the dependency EXCEPT : isMultiple always assumed to be True, and preferences ignored.
+	 * Performs a complete resolution of the relation EXCEPT : isMultiple always
+	 * assumed to be True, and preferences ignored.
 	 * 
-	 * The manager is asked to find the "right" implementation and instances for the provided dependency.
-	 * First computes all the implementations that satisfy the constraints, preferences not taken into account.
-	 * Add in insts (if present) all the instances of the implems (visible or not) 
-	 * 	that satisfy the instance constraints and that are visible.
-	 * Returns those  implementations that are visible.
+	 * The manager is asked to find the "right" implementation and instances for
+	 * the provided relation. First computes all the implementations that
+	 * satisfy the constraints, preferences not taken into account. Add in insts
+	 * (if present) all the instances of the implems (visible or not) that
+	 * satisfy the instance constraints and that are visible. Returns those
+	 * implementations that are visible.
 	 * 
-	 * @param client the instance calling implem (and where to create implementation, if
-	 *            needed). Cannot be null.
-	 * @param dependency a dependency declaration containing the type and name of the dependency target. It can be
-	 *            -the specification Name (new SpecificationReference (specName))
-	 *            -an implementation name (new ImplementationRefernece (name)
-	 *            -an interface name (new InterfaceReference (interfaceName))
-	 *            -a message name (new MessageReference (dataTypeName))
-	 *            - or any future resource ...
+	 * @param client
+	 *            the instance calling implem (and where to create
+	 *            implementation, if needed). Cannot be null.
+	 * @param relation
+	 *            a relation declaration containing the type and name of the
+	 *            relation target. It can be -the specification Name (new
+	 *            SpecificationReference (specName)) -an implementation name
+	 *            (new ImplementationRefernece (name) -an interface name (new
+	 *            InterfaceReference (interfaceName)) -a message name (new
+	 *            MessageReference (dataTypeName)) - or any future resource ...
 	 * @return the implementations and the instances if resolved, null otherwise
 	 * @return null if not resolved at all. Never returns an empty set.
 	 */
-	private Resolved<?> resolveDependency(Component source, Dependency dependency) {
-		List<DependencyManager> selectionPath = computeSelectionPath(source, dependency);
-		//Transform the dependency constraints into filters after interpreting the substitutions.
+	private Resolved<?> resolveRelation(Component source, Relation relation) {
+		List<RelationManager> selectionPath = computeSelectionPath(source, relation);
+		// Transform the relation constraints into filters after interpreting
+		// the substitutions.
 
 		Resolved<?> res = null ;
 		boolean deployed = false;
 
-		for (DependencyManager manager : selectionPath) {
+		for (RelationManager manager : selectionPath) {
 			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
 				deployed = true;
 			}
 			logger.debug(manager.getName() + "  ");
 
 			//Does the real job
-			res = manager.resolveDependency(source, dependency);
+			res = manager.resolveRelation(source, relation);
 			if (res == null || res.isEmpty()) 
 				//This manager did not found a solution, try the next manager
 				continue ;
@@ -571,7 +599,7 @@ public class ApamResolverImpl implements ApamResolver {
 			 * If an implementation is returned as "toInstantiate" it has to be instantiated
 			 */
 			if (res.toInstantiate != null) {			
-				if (dependency.getTargetType() != ComponentKind.INSTANCE) {
+				if (relation.getTargetKind() != ComponentKind.INSTANCE) {
 					logger.error("Invalid Resolved value. toInstantiate is set, but target kind is not Instance") ;
 					continue ;
 				}
@@ -583,7 +611,7 @@ public class ApamResolverImpl implements ApamResolver {
 					continue ;
 				}
 				logger.info("Instantiated " + inst) ;							
-				if (dependency.isMultiple()) {
+				if (relation.isMultiple()) {
 					Set <Instance> insts = new HashSet <Instance> () ;
 					insts.add(inst) ;
 					return new Resolved<Instance> (insts) ;
@@ -594,13 +622,15 @@ public class ApamResolverImpl implements ApamResolver {
 			/*
 			 * Because managers can be third party, we cannot trust them. Verify that the result is correct.
 			 */
-			if (dependency.isMultiple()) {
+			if (relation.isMultiple()) {
 				if (res.setResolved == null || res.setResolved.isEmpty()) {
 					logger.info("manager " + manager + " returned an empty result. Should be null." ) ;
 					continue ;
 				}
-				if (((Component)res.setResolved.iterator().next()).getKind() != dependency.getTargetType()) {
-					logger.error("Manager " + manager + " returned objects of the bad type for dependency " + dependency) ;
+				if (((Component)res.setResolved.iterator().next()).getKind() != relation.getTargetKind()) {
+					logger.error("Manager " + manager
+							+ " returned objects of the bad type for relation "
+							+ relation);
 					continue ;
 				}
 				logger.info("Selected : " + res.setResolved) ;
@@ -612,8 +642,10 @@ public class ApamResolverImpl implements ApamResolver {
 				logger.info("manager " + manager + " returned an empty result. " ) ;
 				continue ;
 			}
-			if (res.singletonResolved.getKind() != dependency.getTargetType()) {
-				logger.error("Manager " + manager + " returned objects of the bad type for dependency " + dependency) ;
+			if (res.singletonResolved.getKind() != relation.getTargetKind()) {
+				logger.error("Manager " + manager
+						+ " returned objects of the bad type for relation "
+						+ relation);
 				continue ;
 			}
 			logger.info("Selected : " + res.singletonResolved) ;

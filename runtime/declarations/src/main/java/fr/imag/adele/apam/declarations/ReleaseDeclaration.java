@@ -18,16 +18,16 @@ import java.util.Set;
 
 public class ReleaseDeclaration {
 
-	public final DependencyDeclaration.Reference dependency;
+	public final RelationDeclaration.Reference dependency;
 	
 	public final Set<String> states;
 	
-	public ReleaseDeclaration(DependencyDeclaration.Reference dependency,Set<String> states) {
+	public ReleaseDeclaration(RelationDeclaration.Reference dependency,Set<String> states) {
 		this.dependency = dependency;
 		this.states = states;
 	}
 	
-	public DependencyDeclaration.Reference getDependency() {
+	public RelationDeclaration.Reference getDependency() {
 		return dependency;
 	}
 	

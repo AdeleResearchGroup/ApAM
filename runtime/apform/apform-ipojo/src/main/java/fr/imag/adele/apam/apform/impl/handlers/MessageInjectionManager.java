@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
 import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
-import fr.imag.adele.apam.declarations.DependencyInjection;
+import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.util.ApAMQueue;
@@ -61,7 +61,7 @@ import fr.imag.adele.apam.util.ApAMQueue;
  * @author vega
  *
  */
-public class MessageInjectionManager implements DependencyInjectionManager, Consumer {// MessageConsumer<Object>
+public class MessageInjectionManager implements RelationInjectionManager, Consumer {// MessageConsumer<Object>
 
     Logger logger  = LoggerFactory.getLogger(getClass());
     /**
@@ -82,7 +82,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     /**
      * The dependency injection managed by this dependency
      */
-    private final DependencyInjection injection;
+    private final RelationInjection injection;
     
     /**
      * The list of target services.
@@ -134,7 +134,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     private ApAMQueue<Object> fieldBuffer;
     
     
-    public MessageInjectionManager(ApformComponentImpl component, ApformInstanceImpl instance, DependencyInjection injection) throws ConfigurationException {
+    public MessageInjectionManager(ApformComponentImpl component, ApformInstanceImpl instance, RelationInjection injection) throws ConfigurationException {
         
         assert injection.getResource() instanceof MessageReference;
         
@@ -142,7 +142,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
         this.instance   = instance;
         this.injection  = injection;
         
-        if (injection instanceof DependencyInjection.CallbackWithArgument) {
+        if (injection instanceof RelationInjection.CallbackWithArgument) {
             MethodMetadata callbackMetadata = null;
             String callbackParameterType    = null;
             
@@ -167,7 +167,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
 
         try {
             this.messageFlavors = new Class<?>[] {this.component.loadClass(injection.getResource().getJavaType())};
-            this.consumerId     = NAME+"["+instance.getInstanceName()+","+injection.getDependency().getIdentifier()+","+injection.getName()+"]";
+            this.consumerId     = NAME+"["+instance.getInstanceName()+","+injection.getRelation().getIdentifier()+","+injection.getName()+"]";
             this.wires          = new HashMap<String,Wire>();
             this.buffer         = new ArrayBlockingQueue<Object>(MAX_BUFFER_SIZE);
             this.fieldBuffer = new ApAMQueue<Object>(buffer);
@@ -182,7 +182,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
      * The dependency injection associated to this manager
      */
     @Override
-    public DependencyInjection getDependencyInjection() {
+    public RelationInjection getRelationInjection() {
         return injection;
     }
     
@@ -192,8 +192,8 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     public Element getDescription() {
 
         Element consumerDescription = new Element("injection", ApformComponentImpl.APAM_NAMESPACE);
-        consumerDescription.addAttribute(new Attribute("dependency", injection.getDependency().getIdentifier()));
-        consumerDescription.addAttribute(new Attribute("target", injection.getDependency().getTarget().toString()));
+        consumerDescription.addAttribute(new Attribute("dependency", injection.getRelation().getIdentifier()));
+        consumerDescription.addAttribute(new Attribute("target", injection.getRelation().getTarget().toString()));
         consumerDescription.addAttribute(new Attribute("field", injection.getName()));
         consumerDescription.addAttribute(new Attribute("type", injection.getResource().toString()));
         consumerDescription.addAttribute(new Attribute("isAggregate",   Boolean.toString(injection.isCollection())));
@@ -280,7 +280,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
      * 
      */
     private WireAdmin getWireAdmin() {
-        DependencyInjectionHandler handler = getHandler(ApformComponentImpl.APAM_NAMESPACE,DependencyInjectionHandler.NAME);
+        RelationInjectionHandler handler = getHandler(ApformComponentImpl.APAM_NAMESPACE,RelationInjectionHandler.NAME);
         return handler.getWireAdmin();
     }
 

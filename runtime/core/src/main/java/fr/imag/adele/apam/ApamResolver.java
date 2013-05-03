@@ -29,18 +29,22 @@ public interface ApamResolver {
 
 	
     /**
-     * An APAM client instance requires to be wired with one or all the instance that satisfy the dependency.
-     * WARNING : in case of interface or message dependency , since more than one specification can implement the same
-     * interface, any specification implementing at least the provided interface (technical name of the interface) will
-     * be considered satisfactory.
-     * If found, the instance(s) are bound is returned.
-     * 
-     * @param client the instance that requires the resolution
-     * @param depName the dependency name. Field for atomic; spec name for complex dep, type for composite.
-     * @return
-     */
+	 * An APAM client instance requires to be wired with one or all the instance
+	 * that satisfy the relation. WARNING : in case of interface or message
+	 * relation , since more than one specification can implement the same
+	 * interface, any specification implementing at least the provided interface
+	 * (technical name of the interface) will be considered satisfactory. If
+	 * found, the instance(s) are bound is returned.
+	 * 
+	 * @param client
+	 *            the instance that requires the resolution
+	 * @param depName
+	 *            the relation name. Field for atomic; spec name for complex
+	 *            dep, type for composite.
+	 * @return
+	 */
     public Resolved<?> resolveLink(Component source, String depName);
-    public Resolved<?> resolveLink(Component source, Dependency dep);
+    public Resolved<?> resolveLink(Component source, Relation dep);
 
 
     /**

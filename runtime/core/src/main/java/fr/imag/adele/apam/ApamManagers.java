@@ -44,10 +44,10 @@ public class ApamManagers {
 	});
 
 	/**
-	 * The list of dependency managers, with their priorities
+	 * The list of relation managers, with their priorities
 	 */
-	private static Map<DependencyManager, Integer> dependencyManagersPrio	= new HashMap<DependencyManager, Integer>();
-	private static List<DependencyManager>         dependencyManagers  		= new ArrayList<DependencyManager>();
+	private static Map<RelationManager, Integer> relationManagersPrio = new HashMap<RelationManager, Integer>();
+	private static List<RelationManager>         relationManagers  		= new ArrayList<RelationManager>();
 
 
 	/**
@@ -113,7 +113,7 @@ public class ApamManagers {
 	 * @param priority : the relative priority. the lower the interger, the higher the priority. 0 is reserved for
 	 *            apamman.
 	 */
-	public static void addDependencyManager(DependencyManager manager, int priority) {
+	public static void addRelationManager(RelationManager manager, int priority) {
 
 		register (manager) ;
 		if (manager == null) return ;
@@ -124,26 +124,27 @@ public class ApamManagers {
 		}
 		
 		boolean inserted = false;
-		for (int i = 0; i < dependencyManagers.size(); i++) {
-			if (priority <= dependencyManagers.get(i).getPriority()) {
-				dependencyManagers.add(i, manager);
+		for (int i = 0; i < relationManagers.size(); i++) {
+			if (priority <= relationManagers.get(i).getPriority()) {
+				relationManagers.add(i, manager);
 				inserted = true;
 				break;
 			}
 		}
 		if (!inserted) { // put it at the end
-			dependencyManagers.add(manager) ;
+			relationManagers.add(manager) ;
 		}
 
-		ApamManagers.dependencyManagersPrio.put(manager, Integer.valueOf(priority));
+		ApamManagers.relationManagersPrio.put(manager,
+				Integer.valueOf(priority));
 	}
 
-	public static DependencyManager getManager(String managerName) {
+	public static RelationManager getManager(String managerName) {
 		if (managerName == null) {
 			logger.error("ERROR : Missing parameter manager in getManager");
 			return null;
 		}
-		for (DependencyManager man : dependencyManagers) {
+		for (RelationManager man : relationManagers) {
 			if (man.getName().equals(managerName))
 				return man;
 		}
@@ -162,8 +163,8 @@ public class ApamManagers {
 	 * 
 	 * @return the list of known managers
 	 */
-	public static List<DependencyManager> getDependencyManagers() {
-		return Collections.unmodifiableList(dependencyManagers);
+	public static List<RelationManager> getRelationManagers() {
+		return Collections.unmodifiableList(relationManagers);
 	}
 
 	/**
@@ -187,10 +188,11 @@ public class ApamManagers {
 	 * 
 	 * @param manager
 	 */
-	public static void removeDependencyManager(DependencyManager manager) {
+	public static void removeRelationManager(RelationManager manager) {
 		unregister(manager) ;
-		boolean removedManagerPrio=ApamManagers.dependencyManagersPrio.remove(manager)!=null?true:false;
-		boolean removedManager=ApamManagers.dependencyManagers.remove(manager);
+		boolean removedManagerPrio = ApamManagers.relationManagersPrio
+				.remove(manager) != null ? true : false;
+		boolean removedManager=ApamManagers.relationManagers.remove(manager);
 		
 		if(!removedManagerPrio) logger.error("impossible to remove manager {} from prior list",manager.getName());
 		if(!removedManager) logger.error("impossible to remove manager {} from main list",manager.getName());
@@ -202,8 +204,8 @@ public class ApamManagers {
 	 * @param manager
 	 * @return the priortity of that manager. -1 is unknown.
 	 */
-	public static int getPriority(DependencyManager manager) {
-		return ApamManagers.dependencyManagersPrio.get(manager);
+	public static int getPriority(RelationManager manager) {
+		return ApamManagers.relationManagersPrio.get(manager);
 	}
 
 

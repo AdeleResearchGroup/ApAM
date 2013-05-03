@@ -22,7 +22,8 @@ public class LinkImpl implements Link {
     private final ComponentImpl destination;
     private final String       depName;    // field name for atomic dep; spec name for complex dep, dest type for
     private final boolean 	   hasConstraints ;
-    private final boolean      isWire ;
+
+	// private final boolean isWire ;
 
     /**
      * Warning, only creates a Link object. Does not chain that link in the client and provider.
@@ -34,10 +35,11 @@ public class LinkImpl implements Link {
      * @param hasConstraints : true if the relation has constraints
      * @param wire true if it is a wire
      */
-    public LinkImpl(Component from, Component to, String depName, boolean hasConstraints, boolean wire) {
+	public LinkImpl(Component from, Component to, String depName,
+			boolean hasConstraints) {
         source = (ComponentImpl) from;
         destination = (ComponentImpl) to;
-        this.isWire = wire ;
+		// this.isWire = wire ;
         this.depName = depName;
         this.hasConstraints = hasConstraints ;
     }
@@ -67,9 +69,9 @@ public class LinkImpl implements Link {
         destination.removeInvLink(this);
     }
 
-	@Override
-	public boolean isWire() {
-		return isWire;
-	}
+	// @Override
+	// public boolean isWire() {
+	// return isWire;
+	// }
     
 }

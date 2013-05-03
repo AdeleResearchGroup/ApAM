@@ -35,8 +35,8 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Dependency;
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
@@ -49,7 +49,7 @@ import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.obrMan.OBRManCommand;
 import fr.imag.adele.obrMan.internal.OBRManager.Selected;
 
-public class OBRMan implements DependencyManager, OBRManCommand {
+public class OBRMan implements RelationManager, OBRManCommand {
 
     // Link compositeType with it instance of obrManager
     private final Map<String, OBRManager> obrManagers;
@@ -75,12 +75,12 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     public void start() {
-        ApamManagers.addDependencyManager(this, 3);
+        ApamManagers.addRelationManager(this, 3);
 //        logger.info("[OBRMAN] started");
     }
 
     public void stop() {
-        ApamManagers.removeDependencyManager(this);
+        ApamManagers.removeRelationManager(this);
         obrManagers.clear();
 //        logger.info("[OBRMAN] stopped");
     }
@@ -155,17 +155,17 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     // at the end
     @Override
     public void
-            getSelectionPath(Component client, Dependency dep, List<DependencyManager> involved) {
+            getSelectionPath(Component client, Relation dep, List<RelationManager> involved) {
         involved.add(involved.size(), this);
     }
 
     @Override
-    public Instance resolveImpl(Component client, Implementation impl, Dependency dep) {
+    public Instance resolveImpl(Component client, Implementation impl, Relation dep) {
         return null;
     }
 
     @Override
-    public Set<Instance> resolveImpls(Component client, Implementation impl, Dependency dep) {
+    public Set<Instance> resolveImpls(Component client, Implementation impl, Relation dep) {
         return null;
     }
 
@@ -194,7 +194,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     // interface manager
-    private Implementation resolveSpec(Component source, Dependency dep) {
+    private Implementation resolveSpec(Component source, Relation dep) {
     	ResolvableReference resource = dep.getTarget() ;
     	CompositeType compoType = null ;
     	if (source instanceof Instance) {
@@ -288,7 +288,7 @@ public class OBRMan implements DependencyManager, OBRManCommand {
     }
 
     @Override
-    public Resolved<Implementation> resolveDependency(Component client, Dependency dep) {
+    public Resolved<Implementation> resolveRelation(Component client, Relation dep) {
     	Implementation impl = resolveSpec(client, dep);
     	if (impl == null)
     		return null;

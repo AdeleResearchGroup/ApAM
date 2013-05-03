@@ -23,7 +23,7 @@ public class CST {
 
 	// Values are boolean
 	public static final String INSTANTIABLE = "instantiable";
-	// multiple on a dependency indicates more than one outgoing wire
+	// multiple on a relation indicates more than one outgoing wire
 	public static final String MULTIPLE = "multiple";
 	// remotable indicates that the instance can be used from a remote machine
 	public static final String REMOTABLE = "remotable";

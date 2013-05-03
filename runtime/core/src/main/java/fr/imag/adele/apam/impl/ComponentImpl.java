@@ -31,7 +31,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Dependency;
+import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -62,7 +62,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	private CompositeType firstDeployed ;
 
 	//Set of Dependencies
-	private Map<String, Dependency> dependencies = new HashMap<String, Dependency> () ;
+	private Map<String, Relation> relations = new HashMap<String, Relation> () ;
 
     protected final Set<Link>   links            = Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
     protected final Set<Link>   invlinks         = Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
@@ -117,10 +117,18 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param initialProperties
 	 */
 	public void finishInitialize (Map<String, String> initialProperties) {
-		dependencies = DependencyUtil.initializeDependencies (this) ;
+		relations = RelationImpl.initializeDependencies (this) ;
 		initializeProperties (initialProperties) ;
+		initializeResources () ;
 	}
 
+	private void initializeResources () {
+		Set<ResourceReference> resources = getDeclaration().getProvidedResources() ;
+		Component group = this.getGroup() ;
+		while (group != null) { 
+			resources.addAll(group.getDeclaration().getProvidedResources()) ;
+		}
+	}
 	
 	/**
 	 * to be called once the Apam entity is fully initialized.
@@ -297,10 +305,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
     }
 
     @Override
-    public Set<Link> getLinks(String dependencyName) {
+	public Set<Link> getLinks(String relName) {
         Set<Link> dests = new HashSet<Link>();
         for (Link link : links) {
-            if (link.getName().equals(dependencyName)) {
+			if (link.getName().equals(relName)) {
                 dests.add(link);
             }
         }
@@ -309,19 +317,25 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 
     @Override
-    public boolean createLink(Component to, Dependency dep, boolean hasConstraints, boolean promotion) {
+    public boolean createLink(Component to, Relation dep, boolean hasConstraints, boolean promotion) {
     	
         if ((to == null) || (dep == null)) {
         	throw new IllegalArgumentException ("CreateLink: Source or target are null ") ;
         }
-        if (!promotion && !Visible.isVisible(this, to)) {
+        if (!promotion && ! canSee(to)) {
             throw new IllegalArgumentException ("CreateLink: Source  " + this + " does not see its target " + to) ;
     	} 
-        if (this.getKind() != dep.getSourceType()) {
-        	throw new IllegalArgumentException ("CreateLink: Source kind " + getKind() + " is not compatible with dependency sourceType " + dep.getSourceType()) ;
+        if (this.getKind() != dep.getSourceKind()) {
+			throw new IllegalArgumentException("CreateLink: Source kind "
+					+ getKind()
+					+ " is not compatible with relation sourceType "
+					+ dep.getSourceKind());
         }
-        if (to.getKind() != dep.getTargetType()) {
-        	throw new IllegalArgumentException ("CreateLink: Target kind " + to.getKind() + " is not compatible with dependency targetType "+ dep.getTargetType() ) ;
+        if (to.getKind() != dep.getTargetKind()) {
+			throw new IllegalArgumentException("CreateLink: Target kind "
+					+ to.getKind()
+					+ " is not compatible with relation targetType "
+					+ dep.getTargetKind());
         }
 
         String depName = dep.getIdentifier() ;
@@ -336,7 +350,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
         // creation
         Link link ;
         if (getApformComponent().setLink(to, depName)) {
-            link = new LinkImpl(this, to, depName, hasConstraints, dep.isWire());
+			link = new LinkImpl(this, to, depName, hasConstraints);
             links.add(link);
             ((ComponentImpl) to).invlinks.add(link);
         } else {
@@ -491,37 +505,36 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 //	@Override
-//	public Dependency getDependency(String id) {
-//		return DependencyUtil.getDependency (this, id) ;
+	// public relation getrelation(String id) {
+	// return relationUtil.getrelation (this, id) ;
 //		xx
 //	}
 //
 //	@Override
-//	public Set<Dependency> getDependencies() {
-//		return DependencyUtil.getDependencies (this) ;
+	// public Set<relation> getDependencies() {
+	// return relationUtil.getDependencies (this) ;
 //	}
 	
 	/**
-	 * Return the dependency that can be applied to this component.
+	 * Return the relation that can be applied to this component.
 	 * 
-	 * A dependency D can be applied on a component source if
-	 *      D.Id == id
-	 *  	D.source must be the name of source or of an ancestor of source, 
-	 *      and D.SourceType == source.getKind.
+	 * A relation D can be applied on a component source if D.Id == id D.source
+	 * must be the name of source or of an ancestor of source, and D.SourceType
+	 * == source.getKind.
 	 * 
-	 * Looks in the group, and then 
-	 *      in the composite type, if source in an instance
-	 *      in all composite types if source is an implem.
+	 * Looks in the group, and then in the composite type, if source in an
+	 * instance in all composite types if source is an implem.
+	 * 
 	 * @param source
 	 * @param id
 	 * @return
 	 */
 	@Override
-	public  Dependency getDependency(String id) {
-		Dependency dep = null ;
+	public  Relation getRelation(String id) {
+		Relation dep = null ;
 		Component group = this ;
 		while (group != null) {
-			dep = ((ComponentImpl)group).getLocalDependency(id) ; 
+			dep = ((ComponentImpl) group).getLocalRelation(id);
 			if (dep != null) 
 				return dep ; 
 			group = group.getGroup() ;
@@ -530,13 +543,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		//Looking for composite definitions.
 		if (this instanceof Instance) {
 			CompositeType comptype = ((Instance)this).getComposite().getCompType() ; 
-			dep = comptype.getCtxtDependency (this, id) ;
+			dep = comptype.getCtxtRelation (this, id) ;
 			if (dep != null)
 				return dep ; 
 		}
 		if (this instanceof Implementation) {
 			for (CompositeType comptype : ((Implementation)this).getInCompositeType()) {
-				dep = comptype.getCtxtDependency (this, id) ;
+				dep = comptype.getCtxtRelation (this, id) ;
 				if (dep != null)
 					return dep ; 
 			}
@@ -545,22 +558,22 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 	@Override
-	public  Set<Dependency> getDependencies () {
-		Set<Dependency> deps = new HashSet<Dependency> () ;
+	public  Set<Relation> getRelations () {
+		Set<Relation> deps = new HashSet<Relation> () ;
 		Component group = this ;
 		while (group != null) {
-			deps.addAll(group.getLocalDependencies()) ;
+			deps.addAll(group.getLocalRelations()) ;
 			group = group.getGroup() ;
 		}
 		
 		//Looking for composite definitions.
 		if (this instanceof Instance) {
 			CompositeType comptype = ((Instance)this).getComposite().getCompType() ; 
-			deps.addAll(comptype.getCtxtDependencies (this)) ;
+			deps.addAll(comptype.getCtxtRelations (this)) ;
 		}
 		if (this instanceof Implementation) {
 			for (CompositeType comptype : ((Implementation)this).getInCompositeType()) {
-				deps.addAll(comptype.getCtxtDependencies (this)) ;
+				deps.addAll(comptype.getCtxtRelations (this)) ;
 			}
 		}
 		return deps ;
@@ -568,13 +581,13 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 
 
-	protected Dependency getLocalDependency (String id) {
-		return dependencies.get(id) ;
+	protected Relation getLocalRelation(String id) {
+		return relations.get(id) ;
 	}
 
 	@Override
-	public Collection<Dependency> getLocalDependencies () {
-		return Collections.unmodifiableCollection(dependencies.values()) ;
+	public Collection<Relation> getLocalRelations () {
+		return Collections.unmodifiableCollection(relations.values()) ;
 	}
 
 	/**
@@ -878,8 +891,26 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 	@Override
-	public boolean matchDependencyConstraints (Dependency dep) {
-		return dep.matchDep (this) ;
+	public boolean matchRelationConstraints (Relation dep) {
+		return dep.matchRelationConstraints (this.getAllProperties()) ;
+	}
+
+	@Override
+	public boolean matchRelationTarget (Relation dep) {
+		return dep.matchRelationTarget (this) ;
+	}
+
+	@Override
+	public boolean matchRelation (Relation dep) {
+		return dep.matchRelation (this) ;
+	}
+	
+	/**
+	 * Whether the component is instantiable
+	 */
+	@Override
+	public boolean canSee(Component target) {
+				return Visible.isVisible(this, target) ;
 	}
 
 	/**
@@ -934,16 +965,18 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 	@Override
-	public Set<ResourceReference> getAllProvidedResources () {
-		Set<ResourceReference> allResources  = new HashSet<ResourceReference> () ;
-		Component current = this ;
-		while (current != null) {
-			if (current.getDeclaration().getProvidedResources() != null)
-				allResources.addAll (current.getDeclaration().getProvidedResources()) ;
-			current = current.getGroup() ;
-		}
-		return allResources ;
+	public Set<ResourceReference> getProvidedResources () {
+		return Collections.unmodifiableSet(this.getDeclaration().getProvidedResources()) ;
 	}
+//		Set<ResourceReference> allResources  = new HashSet<ResourceReference> () ;
+//		Component current = this ;
+//		while (current != null) {
+//			if (current.getDeclaration().getProvidedResources() != null)
+//				allResources.addAll (current.getDeclaration().getProvidedResources()) ;
+//			current = current.getGroup() ;
+//		}
+//		return allResources ;
+//	}
 
 
 }

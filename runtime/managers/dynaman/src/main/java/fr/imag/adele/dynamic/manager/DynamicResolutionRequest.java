@@ -15,7 +15,7 @@
 package fr.imag.adele.dynamic.manager;
 
 import fr.imag.adele.apam.ApamResolver;
-import fr.imag.adele.apam.Dependency;
+import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.ImplementationReference;
@@ -51,17 +51,17 @@ public class DynamicResolutionRequest {
 	/**
 	 * The dependency to resolve
 	 */
-	private final Dependency dependency;
+	private final Relation relation;
 	
     /**
      * whether this request is currently scheduled for resolution
      */
     private boolean isScheduled;
 	
-	public DynamicResolutionRequest(ApamResolver resolver, Instance source, Dependency dependency) {
+	public DynamicResolutionRequest(ApamResolver resolver, Instance source, Relation relation) {
 		this.resolver		= resolver;
 		this.source			= source;
-		this.dependency		= dependency;
+		this.relation		= relation;
 		this.isScheduled	= false;
 	}
 	
@@ -86,14 +86,14 @@ public class DynamicResolutionRequest {
 		 * If this is dependency is already resolved, ignore any triggering event
 		 */
 	//TODO Sure it need to be a wire ?
-		if (! dependency.isMultiple() && ! source.getLinks(dependency.getIdentifier()).isEmpty())
+		if (! relation.isMultiple() && ! source.getLinks(relation.getIdentifier()).isEmpty())
 			return false;
 
 		/*
 		 * If the candidate is already a result, ignore it
 		 */
 	//TODO Sure it need to be a wire ?
-		if (source.getLinkDests(dependency.getIdentifier()).contains(instance))
+		if (source.getLinkDests(relation.getIdentifier()).contains(instance))
 			return false;
 		
 		/*
@@ -104,15 +104,15 @@ public class DynamicResolutionRequest {
 		Implementation implementation	= instance.getImpl();
 		boolean valid 					= false;
 		
-		if (dependency.getTarget() instanceof ImplementationReference<?>)
-			valid = implementation.getDeclaration().getReference().equals(dependency.getTarget());
+		if (relation.getTarget() instanceof ImplementationReference<?>)
+			valid = implementation.getDeclaration().getReference().equals(relation.getTarget());
 
-		if (dependency.getTarget() instanceof SpecificationReference)
-			valid = implementation.getSpec().getDeclaration().getReference().equals(dependency.getTarget());
+		if (relation.getTarget() instanceof SpecificationReference)
+			valid = implementation.getSpec().getDeclaration().getReference().equals(relation.getTarget());
 
-		if (dependency.getTarget() instanceof ResourceReference)
-			valid = implementation.getDeclaration().getProvidedResources().contains(dependency.getTarget()) ||
-					implementation.getSpec().getDeclaration().getProvidedResources().contains(dependency.getTarget());
+		if (relation.getTarget() instanceof ResourceReference)
+			valid = implementation.getDeclaration().getProvidedResources().contains(relation.getTarget()) ||
+					implementation.getSpec().getDeclaration().getProvidedResources().contains(relation.getTarget());
 		
 		return valid;
 
@@ -149,7 +149,7 @@ public class DynamicResolutionRequest {
     	 */
 		try {
 			beginResolve();
-			resolver.resolveLink(source, dependency.getIdentifier());
+			resolver.resolveLink(source, relation.getIdentifier());
 		}
 		catch (Throwable ignoredError) {
 		}

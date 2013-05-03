@@ -9,20 +9,23 @@ import fr.imag.adele.apam.declarations.MissingPolicy;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.util.ApamFilter;
 
-public interface Dependency  {
+public interface Relation  {
 
 
 	/**
-	 * return true if the component matches the constraints of that dependency.
-	 * Preferences are not taken into account
-	 * Same as matchDep (Component comp) since component extends Map<String, Object>
-	*/
-	public boolean matchDep (Map <String, Object> properties) ;
+	 * return true if the component matches the constraints of that relation.
+	 * Preferences are not taken into account Same as matchDep (Component comp)
+	 * since component extends Map<String, Object>
+	 */
+	public boolean matchRelation (Component target) ;
+	public boolean matchRelationConstraints (Map <String, Object> properties) ;
+	public boolean matchRelationConstraints (Component target) ;
+	public boolean matchRelationTarget (Component target) ;
 
 	// Get the reference to the required resource
 	public ResolvableReference getTarget() ;
 	
-	//True if the dependency has constraints (preferences ignored)
+	// True if the relation has constraints (preferences ignored)
 	public boolean hasConstraints () ;
 
 	// Get the constraints that need to be satisfied by the implementation that resolves the reference
@@ -61,22 +64,25 @@ public interface Dependency  {
 	// The defining component
 	public Component getComponent() ;
 
-	// Get the id of the dependency in the declaring component declaration
+	// Get the id of the relation in the declaring component declaration
 	public String getIdentifier() ;
 	
 	//Get the source (ancestor) for ctxt relation
 	public String getSource () ;
 	
+	//Get the source (ancestor) for ctxt relation
+	public Component getLinkSource () ;
+	
 	//Type of source
-	public ComponentKind getSourceType () ;
+	public ComponentKind getSourceKind () ;
 	
 	//Type of target
-	public ComponentKind getTargetType () ;
+	public ComponentKind getTargetKind () ;
 
 	//True if relation cardinality is multiple
 	public boolean isMultiple();
 
-	// Get the policy associated with this dependency
+	// Get the policy associated with this relation
 	public MissingPolicy getMissingPolicy();
 
 	// Whether dependencies matching this contextual policy must be resolved eagerly
@@ -85,17 +91,28 @@ public interface Dependency  {
 	//true if this is a dynamic wire, or a dynamic message ...
 	public boolean isDynamic () ;
 
-	//true if this is a Wire definition
-	public boolean isWire () ;
+	// //true if this is a Wire definition
+	// public boolean isWire () ;
 
-	//
-	public boolean isEffectiveEager();
+	// //
+	// public boolean isEffectiveEager();
 
-	//Whether an error resolving a dependency matching this policy should trigger a backtrack
+	// Whether an error resolving a relation matching this policy should trigger
+	// a backtrack
 	public boolean isHide() ;
 
 	// Get the exception associated with the missing policy
 	public String getMissingException() ;
+
+	
+	//Ex in Util
+	public Resolved<?> getResolved(Set<? extends Component> candidates) ;
+	
+	public Resolved<?> getResolved(Resolved<?> candidates) ;
+	
+	public <T extends Component> T getPrefered (Set<T> candidates) ;
+
+	public boolean matchRelation(Instance compoInst, Relation compoDep) ;
 
 }
 

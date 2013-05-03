@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.Dependency;
+import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.impl.InstanceImpl;
 
@@ -310,7 +310,7 @@ public class Substitute {
 		//			return null ;
 		//		}
 
-		Dependency depDcl =  source.getDependency (sub.depId) ;
+		Relation depDcl =  source.getRelation (sub.depId) ;
 		if (depDcl == null) {
 			logger.error("Dependency " + sub.depId + " undefined for component " + source.getName()) ;
 			return null ;

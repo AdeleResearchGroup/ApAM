@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.Dependency;
+import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
@@ -71,24 +71,24 @@ public class ContentManager  {
 	 * The instances that are owned by this content manager. This is a subset of the 
 	 * contained instances of the composite.
 	 */
-	private Map<OwnedComponentDeclaration, Set<Instance>> owned;
+	private final Map<OwnedComponentDeclaration, Set<Instance>> owned;
 
 	/**
 	 * The list of contained instances that must be dynamically created when the
 	 * specified triggering condition is satisfied
 	 */
-	private List<FutureInstance> dynamicContains;
+	private final List<FutureInstance> dynamicContains;
 
 	/**
 	 * The list of dynamic dependencies that must be updated without waiting for
 	 * lazy resolution
 	 */
-	private List<DynamicResolutionRequest> dynamicDependencies;
+	private final List<DynamicResolutionRequest> dynamicDependencies;
 	
 	/**
 	 * The list of waiting resolutions in this composite
 	 */
-	private List<PendingRequest> waitingResolutions;
+	private final List<PendingRequest> waitingResolutions;
 
 	
 	/**
@@ -110,13 +110,13 @@ public class ContentManager  {
 	/**
 	 * The active grant in the current state 
 	 */
-	private Map<OwnedComponentDeclaration, GrantDeclaration> granted;
+	private final Map<OwnedComponentDeclaration, GrantDeclaration> granted;
 
 	/**
 	 * The list of pending resolutions waiting for a grant. This is a subset
 	 * of the waiting resolutions indexed by the associated grant.
 	 */
-	private Map<GrantDeclaration, List<PendingRequest>> pendingGrants;
+	private final Map<GrantDeclaration, List<PendingRequest>> pendingGrants;
 	
 	
 	
@@ -258,16 +258,16 @@ public class ContentManager  {
 		
 		assert instance.getComposite().equals(getComposite());
 		
-		for (Dependency dependency : instance.getDependencies()) {
+		for (Relation relation : instance.getRelations()) {
 
-			if (dependency.isDynamic()) {
-				DynamicResolutionRequest dynamicRequest = new DynamicResolutionRequest(CST.apamResolver,instance,dependency);
+			if (relation.isDynamic()) {
+				DynamicResolutionRequest dynamicRequest = new DynamicResolutionRequest(CST.apamResolver,instance,relation);
 				dynamicDependencies.add(dynamicRequest);
 
 				/*
 				 * Force initial resolution of eager dependency
 				 */
-				if (dependency.isEffectiveEager())
+				if (relation.isEager())
 					dynamicRequest.resolve();
 			}			
 		}
@@ -377,19 +377,19 @@ public class ContentManager  {
 		/*
 		 * revoke all non granted wires
 		 */
-		for (Link incoming : ownedInstance.getInvWires()) {
+		for (Link incoming : ownedInstance.getInvLinks()) {
 			
 			ComponentReference<?> sourceImplementation	= ((Instance)incoming.getSource()).getImpl().getDeclaration().getReference();
 			ComponentReference<?> sourceSpecification	= ((Instance)incoming.getSource()).getSpec().getDeclaration().getReference();
-			String sourceDependency						= incoming.getName();
+			String sourceRelation						= incoming.getName();
 			
-			ComponentReference<?> grantSource			= grant.getDependency().getDeclaringComponent();
-			String grantDependency						= grant.getDependency().getIdentifier();
+			ComponentReference<?> grantSource			= grant.getRelation().getDeclaringComponent();
+			String grantRelation						= grant.getRelation().getIdentifier();
 			
 			boolean matchSource 						= grantSource.equals(sourceImplementation) || grantSource.equals(sourceSpecification);
-			boolean matchDependency						= grantDependency.equals(sourceDependency);
+			boolean matchRelation						= grantRelation.equals(sourceRelation);
 
-			if (!matchSource || !matchDependency)
+			if (!matchSource || !matchRelation)
 				incoming.remove();
 		}
 
@@ -622,7 +622,7 @@ public class ContentManager  {
 			 * the property change
 			 * 
 			 */
-			for (Link incoming : instance.getInvWires()) {
+			for (Link incoming : instance.getInvLinks()) {
 				if (incoming.hasConstraints())
 					incoming.remove();
 			}
@@ -673,9 +673,9 @@ public class ContentManager  {
 		 * update list of dynamic dependencies
 		 */
 		List<DynamicResolutionRequest> removedDynamicRequests = new ArrayList<DynamicResolutionRequest>();
-		for (DynamicResolutionRequest dynamicDependency : dynamicDependencies) {
-			if (dynamicDependency.getSource().equals(instance))
-				removedDynamicRequests.add(dynamicDependency);
+		for (DynamicResolutionRequest dynamicRelation : dynamicDependencies) {
+			if (dynamicRelation.getSource().equals(instance))
+				removedDynamicRequests.add(dynamicRelation);
 		}
 		
 		dynamicDependencies.removeAll(removedDynamicRequests);
@@ -727,18 +727,18 @@ public class ContentManager  {
 				
 				ComponentReference<?> sourceImplementation	= request.getSource().getImpl().getDeclaration().getReference();
 				ComponentReference<?> sourceSpecification	= request.getSource().getSpec().getDeclaration().getReference();
-				String sourceDependency						= request.getDependency().getIdentifier();
+				String sourceRelation						= request.getRelation().getIdentifier();
 				
-				ComponentReference<?> grantSource			= grant.getDependency().getDeclaringComponent();
-				String grantDependency						= grant.getDependency().getIdentifier();
+				ComponentReference<?> grantSource			= grant.getRelation().getDeclaringComponent();
+				String grantRelation						= grant.getRelation().getIdentifier();
 				
 				boolean matchSource 						= grantSource.equals(sourceImplementation) || grantSource.equals(sourceSpecification);
-				boolean matchDependency						= grantDependency.equals(sourceDependency);
+				boolean matchRelation						= grantRelation.equals(sourceRelation);
 
 				/*
 				 * add request to list of pending grants and try to preempt the owned instances
 				 */
-				if (matchSource && matchDependency) {
+				if (matchSource && matchRelation) {
 					pendingGrants.get(grant).add(request);
 					if (currentGrant != null && currentGrant.equals(grant))
 						preempt(ownedDeclaration, grant);

@@ -14,8 +14,6 @@
  */
 package fr.imag.adele.apam;
 
-import java.util.Set;
-
 import fr.imag.adele.apam.apform.ApformInstance;
 
 public interface Instance extends Component {
@@ -36,22 +34,22 @@ public interface Instance extends Component {
 	 */
 	public ApformInstance getApformInst();
 
-	/**
-	 * returns the wires leading to that instance
-	 * 
-	 */
-	public Set<Link> getInvWires();
-	
-	/**
-	 * returns the wires from that instance
-	 * 
-	 */
-	public Set<Link> getWires();
-	
-
-	public boolean hasWires() ;
-
-	public boolean hasInvWires() ;
+//	/**
+//	 * returns the wires leading to that instance
+//	 * 
+//	 */
+//	public Set<Link> getInvWires();
+//	
+//	/**
+//	 * returns the wires from that instance
+//	 * 
+//	 */
+//	public Set<Link> getWires();
+//	
+//
+//	public boolean hasWires() ;
+//
+//	public boolean hasInvWires() ;
 
 
 	/**

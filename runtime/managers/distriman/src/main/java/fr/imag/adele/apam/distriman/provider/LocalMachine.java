@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.distriman.Distriman;
 import fr.imag.adele.apam.distriman.discovery.ApamDiscovery;
 import fr.imag.adele.apam.distriman.dto.RemoteDependencyDeclaration;
@@ -129,7 +129,7 @@ public class LocalMachine {
 	 */
 	private class MyServlet extends HttpServlet {
 	
-		private final DependencyManager apamMan;
+		private final RelationManager apamMan;
 
 		private MyServlet() {
 			// Get ApamMan in order to resolve the dependancy

@@ -42,7 +42,7 @@ public interface Component {
 	public ComponentKind getKind() ;
 
 	//Returns the provided resources, including those inherited.
-	public Set<ResourceReference> getAllProvidedResources () ;
+	public Set<ResourceReference> getProvidedResources () ;
 
 	//The underlying entity in the execution platform
 	public ApformComponent getApformComponent();
@@ -52,6 +52,10 @@ public interface Component {
 
 	//Whether the component is instantiable
 	public boolean isInstantiable() ;
+
+	//Whether the component can see the target component (visibility control)
+	public boolean canSee(Component target) ;
+
 
 	//Whether the component is singleton
 	public boolean isSingleton() ;
@@ -74,16 +78,17 @@ public interface Component {
     //Returns all the Links toward that destination.
     public Set<Link> getInvLinks(Component destInst);
 
-    //returns all the destinations of that dependency (if multiple cardinality)
+	// returns all the destinations of that relation (if multiple cardinality)
     public Set<Component> getLinkDests(String depName);
 
-    //returns  the destinations of that dependency (if simple cardinality)
+	// returns the destinations of that relation (if simple cardinality)
     public Component getLinkDest(String depName) ;
 
-    //returns all the Links related to that dependency (if multiple cardinality)
+	// returns all the Links related to that relation (if multiple cardinality)
     public Set<Link> getLinks(String depName);
 
-    //Returns all the Links, for the provided dependency, leading to the current Component.
+	// Returns all the Links, for the provided relation, leading to the current
+	// Component.
     public Set<Link> getInvLinks(String depName);
 
     //returns all the Link from the current Component
@@ -104,8 +109,9 @@ public interface Component {
      * @param promotion true if it is a promotion
      * @return  true if the link has been created
      */
-     public boolean createLink(Component to, Dependency dep, boolean hasConstraints, boolean promotion);
-//     public boolean createLink(Component to, Dependency dep, boolean promotion);
+     public boolean createLink(Component to, Relation dep, boolean hasConstraints, boolean promotion);
+
+	// public boolean createLink(Component to, relation dep, boolean promotion);
 
     
     //================== Dependencies =================
@@ -115,21 +121,28 @@ public interface Component {
 	public boolean match(ApamFilter goal);
 
 
-	//True if the component matches the constrains contained in the filter
-	public boolean matchDependencyConstraints (Dependency dep) ;
+	// True if the component matches the constraints contained in the relation
+	// filters
+	public boolean matchRelationConstraints(Relation dep);
 
-	//Get the dependency that can be applied to this component with this id, including those coming from composite if any.
+	// True if the component matches the Target of this relation
+	public boolean matchRelationTarget(Relation dep);
+
+	// True if the component matches the relation (target and constraints)
+	public boolean matchRelation(Relation dep);
+
+	// Get the relation that can be applied to this component with this id,
+	// including those coming from composite if any.
 	//null if not defined
-	public Dependency getDependency(String id) ;
+	public Relation getRelation(String id);
 
 	//Get all the dependencies that can be applied to this component, including those coming from composite if any.
 	//Empty if none
-	public Set<Dependency> getDependencies() ;
+	public Set<Relation> getRelations();
 
 	//Get all the dependencies defined at that component level. 
-	//Empty if none.
-	//Return an unmodifiable collection of dependencies
-	public Collection<Dependency> getLocalDependencies() ;
+	//Empty if none. Return an unmodifiable collection of dependencies
+	public Collection<Relation> getLocalRelations();
 	
 	
 	//==================== Properties =============

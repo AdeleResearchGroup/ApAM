@@ -21,7 +21,7 @@ package fr.imag.adele.apam.declarations;
  * @author vega
  * 
  */
-public abstract class DependencyInjection {
+public abstract class RelationInjection {
 
     /**
      * The implementation associated to this injection
@@ -31,19 +31,19 @@ public abstract class DependencyInjection {
     /**
      * The dependency that must be resolved to get the injected resource.
      */
-    protected DependencyDeclaration                 dependency;
+    protected RelationDeclaration                 dependency;
 
-    protected DependencyInjection(AtomicImplementationDeclaration implementation) {
+    protected RelationInjection(AtomicImplementationDeclaration implementation) {
 
         // bidirectional reference to declaration
         this.implementation = implementation;
-        this.implementation.getDependencyInjections().add(this);
+        this.implementation.getRelationInjections().add(this);
     }
 
     /**
      * Sets the dependency that will be injected
      */
-    public void setDependency(DependencyDeclaration dependency) {
+    public void setDependency(RelationDeclaration dependency) {
 
         assert dependency.getComponent() == implementation.getReference();
 
@@ -55,7 +55,7 @@ public abstract class DependencyInjection {
     /**
      * The dependency that must be resolved
      */
-    public DependencyDeclaration getDependency() {
+    public RelationDeclaration getRelation() {
         return dependency;
     }
 
@@ -83,7 +83,7 @@ public abstract class DependencyInjection {
     /**
      * An injected field declaration
      */
-    public static class Field extends DependencyInjection {
+    public static class Field extends RelationInjection {
 
         private final String fieldName;
 
@@ -165,7 +165,7 @@ public abstract class DependencyInjection {
      * @author Mehdi
      * 
      */
-    public static class CallbackWithReturn extends DependencyInjection {
+    public static class CallbackWithReturn extends RelationInjection {
 
         private final String      methodName;
         private final String      type;
@@ -234,7 +234,7 @@ public abstract class DependencyInjection {
      * @author Mehdi
      * 
      */
-    public static class CallbackWithArgument extends DependencyInjection {
+    public static class CallbackWithArgument extends RelationInjection {
 
         private final String      methodName;
         private final String      type;

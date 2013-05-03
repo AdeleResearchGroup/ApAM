@@ -28,7 +28,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
@@ -242,7 +242,7 @@ public class ApamRepoBuilder {
 		//We do not generate dependencies for specification to remain lazy
 		//the spec version is mentionned in the implementations that implement that spec.
 		if (component instanceof ImplementationDeclaration) {
-			for (DependencyDeclaration dep : component.getDependencies()) {
+			for (RelationDeclaration dep : component.getDependencies()) {
 				if (dep.getTarget().as(SpecificationReference.class) != null) {
 					bundleRequiresSpecifications.add(dep.getTarget().as(SpecificationReference.class)) ;
 				}

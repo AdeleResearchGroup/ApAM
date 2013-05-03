@@ -6,17 +6,17 @@ import java.util.Map;
 
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.Dependency;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
-import fr.imag.adele.apam.impl.DependencyImpl;
+import fr.imag.adele.apam.impl.RelationImpl;
 
 /**
  * This class represents the declaration of an instance that must be dynamically created, as a result of a triggering
@@ -30,7 +30,7 @@ public class FutureInstance {
 	private final Composite				owner;
 	private final Implementation 		implementation;
 	private final Map<String,String>	properties;
-	private final List<Dependency>		triggers;
+	private final List<Relation>		triggers;
 	
 	private boolean						isTriggered;
 	
@@ -53,14 +53,14 @@ public class FutureInstance {
 		 */
 		
 		int counter = 1;
-		triggers = new ArrayList<Dependency>();
+		triggers = new ArrayList<Relation>();
 		for (ConstrainedReference trigger : declaration.getTriggers()) {
 			
-			DependencyDeclaration triggerDependency = new DependencyDeclaration(declaration.getReference(),"trigger-"+counter,false,trigger.getTarget());
+			RelationDeclaration triggerDependency = new RelationDeclaration(declaration.getReference(),"trigger-"+counter,false,trigger.getTarget());
 			triggerDependency.getImplementationConstraints().addAll(trigger.getImplementationConstraints());
 			triggerDependency.getInstanceConstraints().addAll(trigger.getInstanceConstraints());
 			
-			triggers.add(new DependencyImpl(triggerDependency,null));
+			triggers.add(new RelationImpl(triggerDependency,null));
 			counter++;
 		}
 
@@ -82,7 +82,7 @@ public class FutureInstance {
 		 * evaluate all triggering conditions
 		 */
 		boolean satisfied = true;
-		for (Dependency trigger : triggers) {
+		for (Relation trigger : triggers) {
 			
 			/*
 			 * evaluate the specified trigger
@@ -102,10 +102,10 @@ public class FutureInstance {
 				if (trigger.getTarget() instanceof ImplementationReference<?> && !candidate.getImpl().getDeclaration().getReference().equals(target))
 					continue;
 				
-				if (!candidate.matchDependencyConstraints(trigger))
+				if (!candidate.matchRelationConstraints(trigger))
 					continue;
 
-				if (!candidate.getImpl().matchDependencyConstraints(trigger))
+				if (!candidate.getImpl().matchRelationConstraints(trigger))
 					continue;
 
 				/*

@@ -35,13 +35,13 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.apform.ApformComponent;
-import fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionHandler;
+import fr.imag.adele.apam.apform.impl.handlers.RelationInjectionHandler;
 import fr.imag.adele.apam.apform.impl.handlers.MessageProviderHandler;
 import fr.imag.adele.apam.apform.impl.handlers.PropertyInjectionHandler;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
-import fr.imag.adele.apam.declarations.DependencyInjection;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
+import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
@@ -170,15 +170,15 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
                 componentDescription.addElement(providesDescription);
 
                 Element dependenciesDescription = new Element("dependencies", APAM_NAMESPACE);;
-                for (DependencyDeclaration dependencyDeclaration : declaration.getDependencies()) {
+                for (RelationDeclaration relationDeclaration : declaration.getDependencies()) {
                     Element dependencyDescription = new Element("dependency", APAM_NAMESPACE);
-                    dependencyDescription.addAttribute(new Attribute("id", dependencyDeclaration.getIdentifier()));
-                    dependencyDescription.addAttribute(new Attribute("resource", dependencyDeclaration.getTarget().toString()));
-                    dependencyDescription.addAttribute(new Attribute("multiple", Boolean.toString(dependencyDeclaration.isMultiple())));
+                    dependencyDescription.addAttribute(new Attribute("id", relationDeclaration.getIdentifier()));
+                    dependencyDescription.addAttribute(new Attribute("resource", relationDeclaration.getTarget().toString()));
+                    dependencyDescription.addAttribute(new Attribute("multiple", Boolean.toString(relationDeclaration.isMultiple())));
 
 
                     Element injectionsDescription = new Element("injections", APAM_NAMESPACE);
-                    for (DependencyInjection injectionDeclaration : dependencyDeclaration.getInjections()) {
+                    for (RelationInjection injectionDeclaration : relationDeclaration.getInjections()) {
                         Element injectionDescription = new Element("injection", APAM_NAMESPACE);
                         injectionDescription.addAttribute(new Attribute("name", injectionDeclaration.getName()));
                         injectionDescription.addAttribute(new Attribute("resource", injectionDeclaration.getResource().toString()));
@@ -188,12 +188,12 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
                     dependencyDescription.addElement(injectionsDescription);
 
                     Element constraintsDescription = new Element("constraints", APAM_NAMESPACE);
-                    for (String constraint : dependencyDeclaration.getImplementationConstraints()) {
+                    for (String constraint : relationDeclaration.getImplementationConstraints()) {
                         Element constraintDescription = new Element("implementation", APAM_NAMESPACE);
                         constraintDescription.addAttribute(new Attribute("filter", constraint));
                         constraintsDescription.addElement(constraintDescription);
                     }
-                    for (String constraint : dependencyDeclaration.getInstanceConstraints()) {
+                    for (String constraint : relationDeclaration.getInstanceConstraints()) {
                         Element constraintDescription = new Element("instance", APAM_NAMESPACE);
                         constraintDescription.addAttribute(new Attribute("filter", constraint));
                         constraintsDescription.addElement(constraintDescription);
@@ -202,7 +202,7 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
 
                     Element preferencesDescription = new Element("preferences", APAM_NAMESPACE);
                     int priority=0;
-                    for ( String preference : dependencyDeclaration.getImplementationPreferences()) {
+                    for ( String preference : relationDeclaration.getImplementationPreferences()) {
                         Element preferenceDescription = new Element("implementation", APAM_NAMESPACE);
                         preferenceDescription.addAttribute(new Attribute("filter", preference));
                         preferenceDescription.addAttribute(new Attribute("priority", Integer.toString(priority++)));
@@ -210,7 +210,7 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
                     }
 
                     priority=0;
-                    for (String preference : dependencyDeclaration.getInstancePreferences()) {
+                    for (String preference : relationDeclaration.getInstancePreferences()) {
                         Element preferenceDescription = new Element("instance", APAM_NAMESPACE);
                         preferenceDescription.addAttribute(new Attribute("filter", preference));
                         preferenceDescription.addAttribute(new Attribute("priority", Integer.toString(priority++)));
@@ -292,7 +292,7 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
         }
 
         requiredHandlers.add(new RequiredHandler(MessageProviderHandler.NAME, APAM_NAMESPACE));
-        requiredHandlers.add(new RequiredHandler(DependencyInjectionHandler.NAME, APAM_NAMESPACE));
+        requiredHandlers.add(new RequiredHandler(RelationInjectionHandler.NAME, APAM_NAMESPACE));
         requiredHandlers.add(new RequiredHandler(PropertyInjectionHandler.NAME, APAM_NAMESPACE));
 
         return requiredHandlers;

@@ -33,15 +33,15 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Dependency;
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 
 
 public class CompositeTypeImpl extends ImplementationImpl implements CompositeType {
@@ -122,7 +122,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	private Set<CompositeType>	imports		= Collections.newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
 	private Set<CompositeType>	invImports	= Collections.newSetFromMap(new ConcurrentHashMap<CompositeType, Boolean>());
 
-	private static Map<String, Dependency> ctxtDependencies = new HashMap <String, Dependency> () ;
+	private static Map<String, Relation> ctxtDependencies = new HashMap <String, Relation> () ;
 
 	/**
 	 * This is an special constructor only used for the root type of the system 
@@ -208,7 +208,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		 * must be cautious when manipulating the state and navigating the hierarchy.
 		 */
 		for (ManagerModel managerModel : models) {
-			DependencyManager manager = ApamManagers.getManager(managerModel.getManagerName());
+			RelationManager manager = ApamManagers.getManager(managerModel.getManagerName());
 			if (manager != null) {
 				manager.newComposite(managerModel, this);
 			}
@@ -225,11 +225,13 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		CompositeTypeImpl.compositeTypes.put(getName(),this);
 
 		/*
-		 * Compute Dependencies from Dependency declarations.
+		 * Compute Dependencies from relation declarations.
 		 */
-		for (DependencyDeclaration dependency : ((CompositeDeclaration)this.getDeclaration()).getContextualDependencies()) {
-			// Build the corresponding Dependency and attach it to the component
-			ctxtDependencies.put(dependency.getIdentifier(), new DependencyImpl (dependency, this)) ;
+		for (RelationDeclaration relation : ((CompositeDeclaration) this
+				.getDeclaration()).getContextualDependencies()) {
+			// Build the corresponding relation and attach it to the component
+			ctxtDependencies.put(relation.getIdentifier(), new RelationImpl(
+					relation, this));
 		}
 
 		/*
@@ -257,10 +259,10 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		 * Abstract Composite
 		 */
 		if (getCompoDeclaration().getMainComponent() == null) {
-			if (!getAllProvidedResources().isEmpty()) {
+			if (!getProvidedResources().isEmpty()) {
 				unregister();
 				throw new InvalidConfiguration("invalid composite type " 
-						+ getName() + ". No Main implementation but provides resources " + getAllProvidedResources());
+						+ getName() + ". No Main implementation but provides resources " + getProvidedResources());
 			}
 			return ;
 		}
@@ -307,7 +309,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		 * Check that the main implementation conforms to the declaration of the composite
 		 * 
 		 */
-		boolean providesResources = mainImpl.getAllProvidedResources().containsAll(getAllProvidedResources()); 
+		boolean providesResources = mainImpl.getProvidedResources().containsAll(getProvidedResources()); 
 
 		/*
 		 * If the main implementation is not conforming, we abort the registration in APAM, taking care of
@@ -402,44 +404,44 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 	}
 
 	/**
-	 * The ctxt dependency must have the same Id, 
-	 * must indicate a source that is an ancestor of parameter source, 
-	 * ans source must be of the right kind.
+	 * The ctxt relation must have the same Id, must indicate a source that is
+	 * an ancestor of parameter source, ans source must be of the right kind.
 	 * 
 	 * It is supposed that a ctxtdep has an Id and a source.
+	 * 
 	 * @param source
 	 * @param id
 	 * @return
 	 */
-	public Dependency getCtxtDependency (Component source, String id) {
-		Dependency dep = ctxtDependencies.get(id) ;
+	public Relation getCtxtRelation (Component source, String id) {
+		Relation dep = ctxtDependencies.get(id) ;
 		if (dep == null) 
 			return null ;
 		Component group = source ;
 		while (group != null) {
 			if (group.getName().equals(dep.getSource()) 
-					&& 	source.getKind() == dep.getSourceType())
+					&& 	source.getKind() == dep.getSourceKind())
 				return dep ;
 		}
 		return null ;
 	}
 
 	/**
-	 * The ctxt dependency must have the same Id, 
-	 * must indicate a source that is an ancestor of parameter source, 
-	 * ans source must be of the right kind.
+	 * The ctxt relation must have the same Id, must indicate a source that is
+	 * an ancestor of parameter source, ans source must be of the right kind.
 	 * 
 	 * It is supposed that a ctxtdep has an Id and a source.
+	 * 
 	 * @param source
 	 * @param id
 	 * @return
 	 */
-	public Set<Dependency> getCtxtDependencies (Component source) {
-		Set<Dependency> deps = new HashSet<Dependency> () ; 
+	public Set<Relation> getCtxtRelations (Component source) {
+		Set<Relation> deps = new HashSet<Relation> () ; 
 
 		Component group ;
-		for (Dependency dep : ctxtDependencies.values()) {
-			if (source.getKind() == dep.getSourceType())
+		for (Relation dep : ctxtDependencies.values()) {
+			if (source.getKind() == dep.getSourceKind())
 				continue ;
 			group = source ;
 			while (group != null) {

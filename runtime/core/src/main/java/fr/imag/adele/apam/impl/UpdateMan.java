@@ -29,8 +29,8 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Dependency;
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.DynamicManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -41,7 +41,7 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 
-public class UpdateMan implements DependencyManager, DynamicManager {
+public class UpdateMan implements RelationManager, DynamicManager {
 
 	private static Set<String> deployed = new HashSet<String> () ;
 	static Logger logger = LoggerFactory.getLogger(UpdateMan.class);
@@ -87,11 +87,11 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 			//return the composite type that physically deployed the bundle
 			CompositeType compoTypeFrom = impl.getFirstDeployed();  
 
-			List<DependencyManager> selectionPath = ApamManagers.getDependencyManagers();
+			List<RelationManager> selectionPath = ApamManagers.getRelationManagers();
 			logger.info("Updating implementation " + implName + " in composite " + compoTypeFrom );
 
 			ComponentBundle sel = null;
-			for (DependencyManager manager : selectionPath) {
+			for (RelationManager manager : selectionPath) {
 				if (manager.getName().equals(CST.APAMMAN) || manager.getName().equals(CST.UPDATEMAN)) continue ;
 				logger.debug(manager.getName() + "  ");
 				sel = manager.findBundle(compoTypeFrom, bundle.getSymbolicName(), implName);
@@ -189,17 +189,17 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public void getSelectionPath(Component client, Dependency dep, List<DependencyManager> selPath) {
+	public void getSelectionPath(Component client, Relation dep, List<RelationManager> selPath) {
 	}
 
 	@Override
-	public Instance resolveImpl(Component client, Implementation impl, Dependency dep) {
+	public Instance resolveImpl(Component client, Implementation impl, Relation dep) {
 		waitComponent (impl.getName()) ;
 		return null;
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Component client, Implementation impl,  Dependency dep) {
+	public Set<Instance> resolveImpls(Component client, Implementation impl,  Relation dep) {
 		waitComponent (impl.getName());
 		return null;
 	}
@@ -221,7 +221,7 @@ public class UpdateMan implements DependencyManager, DynamicManager {
 	}
 
 	@Override
-	public Resolved<?> resolveDependency(Component client, Dependency dep) {
+	public Resolved<?> resolveRelation(Component client, Relation dep) {
 		Specification spec = CST.componentBroker.getSpecResource(dep.getTarget());
 		if (spec == null) return null;
 

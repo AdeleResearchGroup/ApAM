@@ -29,17 +29,17 @@ import org.apache.felix.ipojo.parser.FieldMetadata;
 
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
-import fr.imag.adele.apam.declarations.DependencyInjection;
+import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 
 /**
- * This class keeps track of an APAM interface dependency, it handles the calculation of the target 
- * services based on updates to the application model.
+ * This class keeps track of an APAM interface relation, it handles the
+ * calculation of the target services based on updates to the application model.
  * 
  * @author vega
  * 
  */
-public class InterfaceInjectionManager implements DependencyInjectionManager {
+public class InterfaceInjectionManager implements RelationInjectionManager {
 
 	
 	/**
@@ -48,9 +48,9 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
 	private final Resolver				resolver;
 	
 	/**
-	 * The dependency injection managed by this dependency
+	 * The relation injection managed by this relation
 	 */
-	private final DependencyInjection 	injection;
+	private final RelationInjection 	injection;
 
 	/**
 	 * The metadata of the field that must be injected
@@ -59,20 +59,21 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     private final boolean 				isCollection;
 	
     /**
-     * The list of target APAM instances of this dependency.
-     */
+	 * The list of target APAM instances of this relation.
+	 */
     private final Set<Instance> 		targetServices;
 
     /**
-     * The last injected value.
-     * 
-     * This is a cached value that must be recalculated in case of update of the dependency.
-     */
+	 * The last injected value.
+	 * 
+	 * This is a cached value that must be recalculated in case of update of the
+	 * relation.
+	 */
     private Object             			injectedValue;
 
     
     
-    public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, DependencyInjection injection) throws ClassNotFoundException {
+    public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, RelationInjection injection) throws ClassNotFoundException {
         
     	assert injection.getResource() instanceof InterfaceReference;
     	
@@ -105,24 +106,31 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     }
 
     /**
-     * The dependency injection associated to this manager
-     */
+	 * The relation injection associated to this manager
+	 */
     @Override
-    public DependencyInjection getDependencyInjection() {
+	public RelationInjection getRelationInjection() {
     	return injection;
     }
     
     /**
-     * Get an XML representation of the state of this dependency
-     */
-    public Element getDescription() {
+	 * Get an XML representation of the state of this relation
+	 */
+    @Override
+	public Element getDescription() {
     	
-		Element dependencyDescription = new Element("injection", ApformComponentImpl.APAM_NAMESPACE);
-		dependencyDescription.addAttribute(new Attribute("dependency", injection.getDependency().getIdentifier()));
-		dependencyDescription.addAttribute(new Attribute("target", injection.getDependency().getTarget().toString()));
-		dependencyDescription.addAttribute(new Attribute("name", injection.getName()));
-		dependencyDescription.addAttribute(new Attribute("type", injection.getResource().toString()));
-		dependencyDescription.addAttribute(new Attribute("isAggregate",	Boolean.toString(injection.isCollection())));
+		Element relationDescription = new Element("injection",
+				ApformComponentImpl.APAM_NAMESPACE);
+		relationDescription.addAttribute(new Attribute("relation", injection
+				.getRelation().getIdentifier()));
+		relationDescription.addAttribute(new Attribute("target", injection
+				.getRelation().getTarget().toString()));
+		relationDescription.addAttribute(new Attribute("name", injection
+				.getName()));
+		relationDescription.addAttribute(new Attribute("type", injection
+				.getResource().toString()));
+		relationDescription.addAttribute(new Attribute("isAggregate", Boolean
+				.toString(injection.isCollection())));
 		
 		/*
 		 * show the current state of resolution. To avoid unnecessary synchronization overhead make a copy of the
@@ -133,14 +141,15 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
 			resolutions.addAll(targetServices);
 		}
 		
-		dependencyDescription.addAttribute(new Attribute("resolved",Boolean.toString(!resolutions.isEmpty())));
+		relationDescription.addAttribute(new Attribute("resolved", Boolean
+				.toString(!resolutions.isEmpty())));
 		for (Instance target : resolutions) {
 			Element bindingDescription = new Element("binding", ApformComponentImpl.APAM_NAMESPACE);
 			bindingDescription.addAttribute(new Attribute("target", target.getName()));
-			dependencyDescription.addElement(bindingDescription);
+			relationDescription.addElement(bindingDescription);
 		}
 		
-		return dependencyDescription;
+		return relationDescription;
 	
     }
 
@@ -205,7 +214,8 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     }
 
  
-    public void onSet(Object pojo, String fieldName, Object value) {
+    @Override
+	public void onSet(Object pojo, String fieldName, Object value) {
         /*
          * If the field is nullified we interpret this as an indication from the
          * component to release the currently bound instances and force a resolution
@@ -214,7 +224,8 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     		resolver.unresolve(this);
     }
 
-    public Object onGet(Object pojo, String fieldName, Object value) {
+    @Override
+	public Object onGet(Object pojo, String fieldName, Object value) {
     	
         synchronized (this) {
         	

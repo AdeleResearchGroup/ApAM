@@ -26,6 +26,6 @@ public interface Link {
     
     public void remove();
     
-    public boolean isWire () ;
+	// public boolean isWire () ;
 
 }

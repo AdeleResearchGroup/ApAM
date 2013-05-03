@@ -16,7 +16,6 @@ package fr.imag.adele.apam.impl;
 
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +34,6 @@ import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
-import fr.imag.adele.apam.util.Visible;
 
 public class InstanceImpl extends ComponentImpl implements Instance {
 
@@ -188,8 +186,9 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 	}
 
 	/**
-	 * remove from ASM It deletes the wires, which deletes the isolated used instances, and transitively. It deleted the
-	 * invWires, which removes the associated real dependency :
+	 * remove from ASM It deletes the wires, which deletes the isolated used
+	 * instances, and transitively. It deleted the invWires, which removes the
+	 * associated real relation :
 	 */
 	@Override
 	public void unregister() {
@@ -215,9 +214,9 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		getApformInst().setInst(null);
 
 		/*
-		 * Do no remove the outgoing wires, in case a Thread is still here.
-		 * If so, the dependency will be resolved again !
-		 * Should only remove the invWire ! But weird: wired only in a direction ...
+		 * Do no remove the outgoing wires, in case a Thread is still here. If
+		 * so, the relation will be resolved again ! Should only remove the
+		 * invWire ! But weird: wired only in a direction ...
 		 */
 
 		for (Link wire : links) {
@@ -254,7 +253,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		 * 
 		 */
 		for (Link incoming : this.getInvLinks()) {
-			if (! Visible.isVisible(incoming.getSource(),this))
+			if (! incoming.getSource().canSee(this))
 				incoming.remove();
 		}
 
@@ -307,7 +306,8 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
 	@Override
 	public boolean isSharable() {
-		return (!hasInvWires() || isShared());
+		// return (!hasInvWires() || isShared());
+		return (getInvLinks() == null || isShared());
 	}
 
 
@@ -326,52 +326,49 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		return ComponentKind.INSTANCE ;
 	}
 
-	/**
-	 * returns the wires leading to that instance
-	 * 
-	 */
-	public Set<Link> getInvWires() {
-		Set<Link> wires = new HashSet<Link> () ;
-		for (Link link : invlinks) {
-			if (link.isWire())
-				wires.add(link) ;
-		}
-		return wires ;
-	}
-
-	/**
-	 * returns the wires leading to that instance
-	 * 
-	 */
-	public Set<Link> getWires() {
-		Set<Link> wires = new HashSet<Link> () ;
-		for (Link link : links) {
-			if (link.isWire())
-				wires.add(link) ;
-		}
-		return wires ;
-	}
-
-
-	/**
-	 * returns the wires from that instance
-	 * 
-	 */
-	public boolean hasWires() {
-		for (Link link : links) {
-			if (link.isWire())
-				return true ;
-		}
-		return false ;
-	}
-
-	public boolean hasInvWires() {
-		for (Link link : invlinks) {
-			if (link.isWire())
-				return true ;
-		}
-		return false ;
-	}
+	// /**
+	// * returns the wires leading to that instance
+	// *
+	// */
+	// public Set<Link> getInvWires() {
+	// Set<Link> wires = new HashSet<Link> () ;
+	// for (Link link : invlinks) {
+	// if (link.isWire())
+	// wires.add(link) ;
+	// }
+	// return wires ;
+	// }
+	//
+	// // returns the wires leading to that instance
+	// public Set<Link> getWires() {
+	// Set<Link> wires = new HashSet<Link> () ;
+	// for (Link link : links) {
+	// if (link.isWire())
+	// wires.add(link) ;
+	// }
+	// return wires ;
+	// }
+	//
+	//
+	// /**
+	// * returns the wires from that instance
+	// *
+	// */
+	// public boolean hasWires() {
+	// for (Link link : links) {
+	// if (link.isWire())
+	// return true ;
+	// }
+	// return false ;
+	// }
+	//
+	// public boolean hasInvWires() {
+	// for (Link link : invlinks) {
+	// if (link.isWire())
+	// return true ;
+	// }
+	// return false ;
+	// }
 
 
 }
