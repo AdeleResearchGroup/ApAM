@@ -64,8 +64,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	//Set of Dependencies
 	private Map<String, Relation> relations = new HashMap<String, Relation> () ;
 
-    protected final Set<Link>   links            = Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
-    protected final Set<Link>   invlinks         = Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
+	protected final Set<Link> links = Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
+	protected final Set<Link> invlinks = Collections.newSetFromMap(new ConcurrentHashMap<Link, Boolean>());
 
 
 
@@ -131,7 +131,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			group = group.getGroup();
 		}
 	}
-	
+
 	/**
 	 * to be called once the Apam entity is fully initialized.
 	 * Computes all its attributes, including inheritance.
@@ -263,263 +263,257 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return declaration.getName() ;
 	}
 
-	
+
 	//=================================== Links =========
-    /**
-     * returns the connections towards the service instances actually used. return only APAM links. for SAM links the
-     * sam instance
-     */
-    @Override
-    public Set<Component> getLinkDests(String depName) {
-        Set<Component> dests = new HashSet<Component>();
-        for (Link link : links) {
-            if (link.getName().equals(depName)) {
-                dests.add(link.getDestination());
-            }
-        }
-        return dests;
-    }
+	/**
+	 * returns the connections towards the service instances actually used.
+	 * return only APAM links. for SAM links the sam instance
+	 */
+	@Override
+	public Set<Component> getLinkDests(String depName) {
+		Set<Component> dests = new HashSet<Component>();
+		for (Link link : links) {
+			if (link.getName().equals(depName)) {
+				dests.add(link.getDestination());
+			}
+		}
+		return dests;
+	}
 
-    @Override
-    public Component getLinkDest(String depName) {
-        for (Link link : links) {
-            if (link.getName().equals(depName)) {
-                 return link.getDestination();
-            }
-        }
-        return null;
-    }
+	@Override
+	public Component getLinkDest(String depName) {
+		for (Link link : links) {
+			if (link.getName().equals(depName)) {
+				return link.getDestination();
+			}
+		}
+		return null;
+	}
 
-    /**
-     */
-    @Override
-    public Set<Component> getLinkDests() {
-        Set<Component> dests = new HashSet<Component>();
-        for (Link link : links) {
-            dests.add(link.getDestination());
-        }
-        return dests;
-    }
+	/**
+	 */
+	@Override
+	public Set<Component> getLinkDests() {
+		Set<Component> dests = new HashSet<Component>();
+		for (Link link : links) {
+			dests.add(link.getDestination());
+		}
+		return dests;
+	}
 
-    @Override
-    public Set<Link> getLinks() {
-        return Collections.unmodifiableSet(links);
-    }
+	@Override
+	public Set<Link> getLinks() {
+		return Collections.unmodifiableSet(links);
+	}
 
-    @Override
+	@Override
 	public Set<Link> getLinks(String relName) {
-        Set<Link> dests = new HashSet<Link>();
-        for (Link link : links) {
+		Set<Link> dests = new HashSet<Link>();
+		for (Link link : links) {
 			if (link.getName().equals(relName)) {
-                dests.add(link);
-            }
-        }
-        return dests;
-    }
+				dests.add(link);
+			}
+		}
+		return dests;
+	}
 
-
-    @Override
-    public boolean createLink(Component to, Relation dep, boolean hasConstraints, boolean promotion) {
+	@Override
+	public boolean createLink(Component to, Relation dep, boolean hasConstraints, boolean promotion) {
 		// Not a relation
 		if (!dep.isRelation())
 			return true;
-    	
-        if ((to == null) || (dep == null)) {
-        	throw new IllegalArgumentException ("CreateLink: Source or target are null ") ;
-        }
-        if (!promotion && ! canSee(to)) {
-            throw new IllegalArgumentException ("CreateLink: Source  " + this + " does not see its target " + to) ;
-    	} 
-        if (this.getKind() != dep.getSourceKind()) {
-			throw new IllegalArgumentException("CreateLink: Source kind "
-					+ getKind()
-					+ " is not compatible with relation sourceType "
-					+ dep.getSourceKind());
-        }
-        if (to.getKind() != dep.getTargetKind()) {
-			throw new IllegalArgumentException("CreateLink: Target kind "
-					+ to.getKind()
-					+ " is not compatible with relation targetType "
-					+ dep.getTargetKind());
-        }
 
-        String depName = dep.getIdentifier() ;
-        
-        for (Link link : links) { // check if it already exists
-            if ((link.getDestination() == to) && link.getName().equals(depName)) {
-            	//It exists, do nothing.
-                return true;
-            }
-        }
+		if ((to == null) || (dep == null)) {
+			throw new IllegalArgumentException("CreateLink: Source or target are null ");
+		}
+		if (!promotion && !canSee(to)) {
+			throw new IllegalArgumentException("CreateLink: Source  " + this + " does not see its target " + to);
+		}
+		if (this.getKind() != dep.getSourceKind()) {
+			throw new IllegalArgumentException("CreateLink: Source kind " + getKind() + " is not compatible with relation sourceType " + dep.getSourceKind());
+		}
+		if (to.getKind() != dep.getTargetKind()) {
+			throw new IllegalArgumentException("CreateLink: Target kind " + to.getKind() + " is not compatible with relation targetType " + dep.getTargetKind());
+		}
 
-        // creation
-        Link link ;
-        if (getApformComponent().setLink(to, depName)) {
+		String depName = dep.getIdentifier();
+
+		for (Link link : links) { // check if it already exists
+			if ((link.getDestination() == to) && link.getName().equals(depName)) {
+				// It exists, do nothing.
+				return true;
+			}
+		}
+
+		// creation
+		Link link;
+		if (getApformComponent().setLink(to, depName)) {
 			link = new LinkImpl(this, to, depName, hasConstraints);
-            links.add(link);
-            ((ComponentImpl) to).invlinks.add(link);
-        } else {
-            logger.error("CreateLink: INTERNAL ERROR: link from " + this + " to " + to
-                    + " could not be created in the real instance.");
-            return false;
-        }
+			links.add(link);
+			((ComponentImpl) to).invlinks.add(link);
+		} else {
+			logger.error("CreateLink: INTERNAL ERROR: link from " + this + " to " + to + " could not be created in the real instance.");
+			return false;
+		}
 
-        /*
-         *  if "to" is an instance in the unused pull, move it to the from composite.
-         *  
-         */
-        if (to instanceof Instance && !((Instance)to).isUsed()) {
-            ((InstanceImpl)to).setOwner(((Instance)this).getComposite());
-        }
+		/*
+		 * if "to" is an instance in the unused pull, move it to the from
+		 * composite.
+		 */
+		if (to instanceof Instance && !((Instance) to).isUsed()) {
+			((InstanceImpl) to).setOwner(((Instance) this).getComposite());
+		}
 
-//        // Other relationships to instantiate
-//        
-//        if(to.getImpl()!=null)
-//        	((ImplementationImpl) getImpl()).addUses(to.getImpl());
-        
-       //TODO distriman: the destination (to) spec being false verification could be avoided in previous step
-//        if ((SpecificationImpl) getSpec() != null && to.getSpec()!=null) {
-//            ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
-//        }
+		// // Other relationships to instantiate
+		//
+		// if(to.getImpl()!=null)
+		// ((ImplementationImpl) getImpl()).addUses(to.getImpl());
 
-        //Notify Dynamic managers that a new link has been created
-        for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
-            manager.addedLink(link);
-        }
+		// TODO distriman: the destination (to) spec being false verification
+		// could be avoided in previous step
+		// if ((SpecificationImpl) getSpec() != null && to.getSpec()!=null) {
+		// ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
+		// }
 
-        return true;
-    }
+		// Notify Dynamic managers that a new link has been created
+		for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
+			manager.addedLink(link);
+		}
 
-    //    @Override
-    public void removeLink(Link link) {
-        if (getApformComponent().remLink(link.getDestination(), link.getName())) {
-            links.remove(link);
-            //TODO distriman: check if we have the destination implementation, is this the right way to do it?
-            
-//            if(link.getDestination().getImpl()!=null)
-//            	((ImplementationImpl) getImpl()).removeUses(link.getDestination().getImpl());
-            
-            //Notify Dynamic managers that a  link has been deleted. A new resolution can be possible now.
-            for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
-                manager.removedLink(link);
-            }
+		return true;
+	}
 
-        } else {
-            logger.error("INTERNAL ERROR: link from " + this + " to " + link.getDestination()
-                    + " could not be removed in the real instance.");
-        }
-    }
+	// @Override
+	public void removeLink(Link link) {
+		if (getApformComponent().remLink(link.getDestination(), link.getName())) {
+			links.remove(link);
+			// TODO distriman: check if we have the destination implementation,
+			// is this the right way to do it?
 
-    public void removeInvLink(Link link) {
-        invlinks.remove(link);
-//        if (invLinks.isEmpty()) {
-            /*
-             * This instance is no longer used.
-             * We do not set it unused
-             *     setUsed(false);
-             *     setOwner(CompositeImpl.getRootAllComposites());
-             * 
-             * Because it must stay in the same composite since  
-             * it may be the target of an "OWN" clause, and must not be changed. In case it will be re-used (local).
-             */
-//        }
-    }
+			// if(link.getDestination().getImpl()!=null)
+			// ((ImplementationImpl)
+			// getImpl()).removeUses(link.getDestination().getImpl());
 
-    @Override
-    public Set<Link> getInvLinks() {
-        return Collections.unmodifiableSet(invlinks);
-    }
+			// Notify Dynamic managers that a link has been deleted. A new
+			// resolution can be possible now.
+			for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
+				manager.removedLink(link);
+			}
 
-    @Override
-    public Set<Link> getInvLinks(String depName) {
-        Set<Link> w = new HashSet<Link>();
-        for (Link link : invlinks) {
-            if ((link.getDestination() == this) && (link.getName().equals(depName))) {
-                w.add(link);
-            }
-        }
-        return w;
-    }
+		} else {
+			logger.error("INTERNAL ERROR: link from " + this + " to " + link.getDestination() + " could not be removed in the real instance.");
+		}
+	}
 
-    @Override
-    public Link getInvLink(Component destInst) {
-        if (destInst == null) {
-            return null;
-        }
-        for (Link link : invlinks) {
-            if (link.getDestination() == destInst) {
-                return link;
-            }
-        }
-        return null;
-    }
+	public void removeInvLink(Link link) {
+		invlinks.remove(link);
+		// if (invLinks.isEmpty()) {
+		/*
+		 * This instance is no longer used. We do not set it unused
+		 * setUsed(false); setOwner(CompositeImpl.getRootAllComposites());
+		 * 
+		 * Because it must stay in the same composite since it may be the target
+		 * of an "OWN" clause, and must not be changed. In case it will be
+		 * re-used (local).
+		 */
+		// }
+	}
 
-    @Override
-    public Link getInvLink(Component destInst, String depName) {
-        if (destInst == null) {
-            return null;
-        }
-        for (Link link : invlinks) {
-            if ((link.getDestination() == destInst) && (link.getName().equals(depName))) {
-                return link;
-            }
-        }
-        return null;
-    }
+	@Override
+	public Set<Link> getInvLinks() {
+		return Collections.unmodifiableSet(invlinks);
+	}
 
-    @Override
-    public Set<Link> getInvLinks(Component destInst) {
-        if (destInst == null) {
-            return null;
-        }
-        Set<Link> w = new HashSet<Link>();
-        for (Link link : invlinks) {
-            if (link.getDestination() == destInst) {
-                w.add(link);
-            }
-        }
-        return w;
-    }
+	@Override
+	public Set<Link> getInvLinks(String depName) {
+		Set<Link> w = new HashSet<Link>();
+		for (Link link : invlinks) {
+			if ((link.getDestination() == this) && (link.getName().equals(depName))) {
+				w.add(link);
+			}
+		}
+		return w;
+	}
+
+	@Override
+	public Link getInvLink(Component destInst) {
+		if (destInst == null) {
+			return null;
+		}
+		for (Link link : invlinks) {
+			if (link.getDestination() == destInst) {
+				return link;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Link getInvLink(Component destInst, String depName) {
+		if (destInst == null) {
+			return null;
+		}
+		for (Link link : invlinks) {
+			if ((link.getDestination() == destInst) && (link.getName().equals(depName))) {
+				return link;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Set<Link> getInvLinks(Component destInst) {
+		if (destInst == null) {
+			return null;
+		}
+		Set<Link> w = new HashSet<Link>();
+		for (Link link : invlinks) {
+			if (link.getDestination() == destInst) {
+				w.add(link);
+			}
+		}
+		return w;
+	}
 
 
-    //==============================================
+	// ==============================================
 	@Override
 	public String toString() {
 		return getKind() + " " + getName();
 	}
 
 	@Override
-	public final ApformComponent getApformComponent () {
-		return apform ;
+	public final ApformComponent getApformComponent() {
+		return apform;
 	}
 
 	@Override
-	public final ComponentDeclaration getDeclaration () {
-		return declaration ;
+	public final ComponentDeclaration getDeclaration() {
+		return declaration;
 	}
 
 	/**
 	 * Get the value of the property.
-	 *
+	 * 
 	 * Attributes are supposed to be correct and inherited statically
-	 *
+	 * 
 	 */
 	@Override
 	public String getProperty(String attr) {
-		return Util.toStringAttrValue (getPropertyObject(attr)) ;
+		return Util.toStringAttrValue(getPropertyObject(attr));
 	}
 
-//	@Override
+	// @Override
 	// public relation getrelation(String id) {
 	// return relationUtil.getrelation (this, id) ;
-//		xx
-//	}
-//
-//	@Override
+	// xx
+	// }
+	//
+	// @Override
 	// public Set<relation> getDependencies() {
 	// return relationUtil.getDependencies (this) ;
-//	}
-	
+	// }
+
 	/**
 	 * Return the relation that can be applied to this component.
 	 * 
@@ -535,83 +529,84 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @return
 	 */
 	@Override
-	public  Relation getRelation(String id) {
-		Relation dep = null ;
-		Component group = this ;
+	public Relation getRelation(String id) {
+		Relation dep = null;
+		Component group = this;
 		while (group != null) {
 			dep = ((ComponentImpl) group).getLocalRelation(id);
-			if (dep != null) 
-				return dep ; 
-			group = group.getGroup() ;
-		}
-		
-		//Looking for composite definitions.
-		if (this instanceof Instance) {
-			CompositeType comptype = ((Instance)this).getComposite().getCompType() ; 
-			dep = comptype.getCtxtRelation (this, id) ;
 			if (dep != null)
-				return dep ; 
+				return dep;
+			group = group.getGroup();
+		}
+
+		// Looking for composite definitions.
+		if (this instanceof Instance) {
+			CompositeType comptype = ((Instance) this).getComposite().getCompType();
+			dep = comptype.getCtxtRelation(this, id);
+			if (dep != null)
+				return dep;
 		}
 		if (this instanceof Implementation) {
-			for (CompositeType comptype : ((Implementation)this).getInCompositeType()) {
-				dep = comptype.getCtxtRelation (this, id) ;
+			for (CompositeType comptype : ((Implementation) this).getInCompositeType()) {
+				dep = comptype.getCtxtRelation(this, id);
 				if (dep != null)
-					return dep ; 
+					return dep;
 			}
 		}
-		return null ;
+		return null;
 	}
 
 	@Override
-	public  Set<Relation> getRelations () {
-		Set<Relation> deps = new HashSet<Relation> () ;
-		Component group = this ;
+	public Set<Relation> getRelations() {
+		Set<Relation> deps = new HashSet<Relation>();
+		Component group = this;
 		while (group != null) {
-			deps.addAll(group.getLocalRelations()) ;
-			group = group.getGroup() ;
+			deps.addAll(group.getLocalRelations());
+			group = group.getGroup();
 		}
-		
-		//Looking for composite definitions.
+
+		// Looking for composite definitions.
 		if (this instanceof Instance) {
-			CompositeType comptype = ((Instance)this).getComposite().getCompType() ; 
-			deps.addAll(comptype.getCtxtRelations (this)) ;
+			CompositeType comptype = ((Instance) this).getComposite().getCompType();
+			deps.addAll(comptype.getCtxtRelations(this));
 		}
 		if (this instanceof Implementation) {
-			for (CompositeType comptype : ((Implementation)this).getInCompositeType()) {
-				deps.addAll(comptype.getCtxtRelations (this)) ;
+			for (CompositeType comptype : ((Implementation) this).getInCompositeType()) {
+				deps.addAll(comptype.getCtxtRelations(this));
 			}
 		}
-		return deps ;
+		return deps;
 	}
 
 
 
 	protected Relation getLocalRelation(String id) {
-		return relations.get(id) ;
+		return relations.get(id);
 	}
 
 	@Override
-	public Collection<Relation> getLocalRelations () {
-		return Collections.unmodifiableCollection(relations.values()) ;
+	public Collection<Relation> getLocalRelations() {
+		return Collections.unmodifiableCollection(relations.values());
 	}
 
 	/**
-	 * Get the value of a property, the property can be valued in this component or in its
-	 * defining group
-	 * Return will be an object of type int, String, boolean for attributes declared int, String, boolean
-	 * 					String for an enumeration.
+	 * Get the value of a property, the property can be valued in this component
+	 * or in its defining group Return will be an object of type int, String,
+	 * boolean for attributes declared int, String, boolean String for an
+	 * enumeration.
 	 * 
-	 * For sets, the return will be an array of the corresponding types. i.e; int[], String[] and so on.
-	 * Returns null if attribute is not defined or not set.
+	 * For sets, the return will be an array of the corresponding types. i.e;
+	 * int[], String[] and so on. Returns null if attribute is not defined or
+	 * not set.
 	 */
 	@Override
-	public Object getPropertyObject(String attribute) {		
-		return Substitute.substitute(attribute, get(attribute), this) ;
+	public Object getPropertyObject(String attribute) {
+		return Substitute.substitute(attribute, get(attribute), this);
 	}
 
 	/**
 	 * Get the value of all the properties in the component.
-	 *
+	 * 
 	 */
 	@Override
 	public Map<String, Object> getAllProperties() {
@@ -620,16 +615,18 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	@Override
 	public Map<String, String> getAllPropertiesString() {
-		Map<String, String> ret = new HashMap <String, String> () ;
+		Map<String, String> ret = new HashMap<String, String>();
 		for (Entry<String, Object> e : this.entrySet()) {
-			ret.put (e.getKey(), Util.toStringAttrValue(e.getValue())) ;
+			ret.put(e.getKey(), Util.toStringAttrValue(e.getValue()));
 		}
 		return ret;
 	}
 
 	/**
-	 * Warning: to be used only by Apform for setting internal attributes.
-	 * Only Inhibits the message "Attribute " + attr +  " is an internal field attribute and cannot be set.");
+	 * Warning: to be used only by Apform for setting internal attributes. Only
+	 * Inhibits the message "Attribute " + attr +
+	 * " is an internal field attribute and cannot be set.");
+	 * 
 	 * @param attr
 	 * @param value
 	 * @param forced
@@ -637,110 +634,121 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	public boolean setPropertyInt(String attr, Object value, boolean forced) {
 		/*
-		 * Validate that the property is defined and the value is valid
-		 * Forced means that we can set field attribute
+		 * Validate that the property is defined and the value is valid Forced
+		 * means that we can set field attribute
 		 */
-		PropertyDefinition def = validDef (attr, forced) ;
-		if (def == null) return false ;
-		//At initialization, all valid attributes are ok for specs
+		PropertyDefinition def = validDef(attr, forced);
+		if (def == null)
+			return false;
+		// At initialization, all valid attributes are ok for specs
 		Object val = Attribute.checkAttrType(attr, value, def.getType());
 		if (val == null)
-			return false ;
+			return false;
 
-		//does the change, notifies, changes the platform and propagate to members
-		this.propagate (attr, val) ;
-		return true ;
+		// does the change, notifies, changes the platform and propagate to
+		// members
+		this.propagate(attr, val);
+		return true;
 	}
 
 
 	/**
-	 * Set the value of the property in the Apam state model. Changing an attribute notifies
-	 * the property manager, the underlying execution platform (apform), and propagates to members
+	 * Set the value of the property in the Apam state model. Changing an
+	 * attribute notifies the property manager, the underlying execution
+	 * platform (apform), and propagates to members
 	 */
 	@Override
 	public boolean setProperty(String attr, Object value) {
-		return setPropertyInt (attr, value, false) ;
+		return setPropertyInt(attr, value, false);
 	}
 
 
 	/**
-	 * During initialisation, set the new (attrbute, value) in the object,
-	 * in the platform, and propagates to the members recursively.
-	 * Does not notify managers.
-	 * @param com the component to which is added the attribute.
+	 * During initialisation, set the new (attrbute, value) in the object, in
+	 * the platform, and propagates to the members recursively. Does not notify
+	 * managers.
+	 * 
+	 * @param com
+	 *            the component to which is added the attribute.
 	 * @param attr
 	 * @param value
 	 */
-	private void propagateInit (String attr, Object value) {
-		//Notify the execution platform
-		getApformComponent().setProperty (attr, value.toString());
-		//Propagate to members recursively
+	private void propagateInit(String attr, Object value) {
+		// Notify the execution platform
+		getApformComponent().setProperty(attr, value.toString());
+		// Propagate to members recursively
 		for (Component member : getMembers()) {
-			((ComponentImpl)member).propagate (attr, value) ;
+			((ComponentImpl) member).propagate(attr, value);
 		}
 	}
 
 
 	/**
-	 * set the value, update apform and the platform, notify managers and propagates to the members, recursively
-	 * @param com the component on which ot set the attribute
-	 * @param attr attribute name
-	 * @param value attribute value
+	 * set the value, update apform and the platform, notify managers and
+	 * propagates to the members, recursively
+	 * 
+	 * @param com
+	 *            the component on which ot set the attribute
+	 * @param attr
+	 *            attribute name
+	 * @param value
+	 *            attribute value
 	 */
 
-	private void propagate (String attr, Object value) {
-		if (value == null) return ;
+	private void propagate(String attr, Object value) {
+		if (value == null)
+			return;
 		Object oldValue = get(attr);
-		if (oldValue!= null && oldValue.equals(value.toString()))
-			return ;
+		if (oldValue != null && oldValue.equals(value.toString()))
+			return;
 
-		//Change value
+		// Change value
 		put(attr, value);
 
-		//Notify the execution platform
-		if(get(attr)==value)
-			getApformComponent().setProperty (attr,value.toString());
+		// Notify the execution platform
+		if (get(attr) == value)
+			getApformComponent().setProperty(attr, value.toString());
 
 		/*
 		 * notify property managers
 		 */
 		if (oldValue == null)
-			ApamManagers.notifyAttributeAdded(this, attr, value.toString()) ;
+			ApamManagers.notifyAttributeAdded(this, attr, value.toString());
 		else
 			ApamManagers.notifyAttributeChanged(this, attr, value.toString(), oldValue.toString());
 
-		//Propagate to members recursively
+		// Propagate to members recursively
 		for (Component member : getMembers()) {
-			((ComponentImpl)member).propagate (attr, value) ;
+			((ComponentImpl) member).propagate(attr, value);
 		}
 	}
 
 
 	/**
 	 * Sets all the values of the specified properties
-	 *
-	 * We validate all attributes before actually modifying
-	 * the value to avoid partial modifications ?
+	 * 
+	 * We validate all attributes before actually modifying the value to avoid
+	 * partial modifications ?
 	 */
 	@Override
 	public boolean setAllProperties(Map<String, String> properties) {
-		for (Map.Entry<String,String> entry : properties.entrySet()) {
+		for (Map.Entry<String, String> entry : properties.entrySet()) {
 
-			if (! setProperty(entry.getKey(), entry.getValue()))
+			if (!setProperty(entry.getKey(), entry.getValue()))
 				return false;
 		}
-		return true ;
+		return true;
 	}
 
 
 	/**
 	 * Removes the specifed property
-	 *
+	 * 
 	 */
 	@Override
 	public boolean removeProperty(String attr) {
 
-		String oldValue = getProperty(attr) ;
+		String oldValue = getProperty(attr);
 
 		if (oldValue == null) {
 			logger.error("ERROR: \"" + attr + "\" not instanciated");
@@ -757,87 +765,92 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return false;
 		}
 
-		PropertyDefinition propDef = getAttrDefinition(attr) ;
+		PropertyDefinition propDef = getAttrDefinition(attr);
 		if (propDef != null && propDef.getField() != null) {
-			logger.error("In " + this + " attribute " + attr +  " is a program field and cannot be removed.");
+			logger.error("In " + this + " attribute " + attr + " is a program field and cannot be removed.");
 			return false;
 		}
 
 		if (getGroup() != null && getGroup().getProperty(attr) != null) {
-			logger.error("In " + this + " attribute " + attr +  " inherited and cannot be removed.");
+			logger.error("In " + this + " attribute " + attr + " inherited and cannot be removed.");
 			return false;
 		}
 
-		//it is ok, remove it and propagate to members, recursively
-		propagateRemove(attr) ;
+		// it is ok, remove it and propagate to members, recursively
+		propagateRemove(attr);
 
-		//TODO. Should we notify at all levels ?
+		// TODO. Should we notify at all levels ?
 		ApamManagers.notifyAttributeRemoved(this, attr, oldValue);
 
-		return true ;
+		return true;
 	}
 
 	/**
 	 * TODO. Should we notify at all levels ?
+	 * 
 	 * @param ent
 	 * @param attr
 	 */
-	private void propagateRemove (String attr) {
+	private void propagateRemove(String attr) {
 
-		remove(attr) ;
-		for (Component member : getMembers ()) {
-			((ComponentImpl)member).propagateRemove(attr) ;
+		remove(attr);
+		for (Component member : getMembers()) {
+			((ComponentImpl) member).propagateRemove(attr);
 		}
 	}
 
 	/**
-	 * Tries to find the definition of attribute "attr" associated with component "component".
-	 * Returns null if the attribute is not explicitly defined
+	 * Tries to find the definition of attribute "attr" associated with
+	 * component "component". Returns null if the attribute is not explicitly
+	 * defined
+	 * 
 	 * @param component
 	 * @param attr
 	 * @return
 	 */
-	public PropertyDefinition getAttrDefinition (String attr) {
+	public PropertyDefinition getAttrDefinition(String attr) {
 
-		//Check if it is a local definition: <property name="..." type="..." value=".." />
+		// Check if it is a local definition: <property name="..." type="..."
+		// value=".." />
 		PropertyDefinition definition = getDeclaration().getPropertyDefinition(attr);
 		if (definition != null) {
 			if (definition.isLocal()) {
-				return definition ;
+				return definition;
 			} else {
-				return null ;
+				return null;
 			}
 		}
 
-		Component group = this.getGroup() ;
+		Component group = this.getGroup();
 		while (group != null) {
-			definition =  group.getDeclaration().getPropertyDefinition(attr);
+			definition = group.getDeclaration().getPropertyDefinition(attr);
 			if (definition != null)
 				return definition;
-			group = group.getGroup () ;
+			group = group.getGroup();
 		}
-		return null ;
+		return null;
 	}
 
 
 	/**
-	 * An attribute is valid if declared in an ancestor, and not set in an ancestor.
-	 * Check if the value is conforming to its type (string, int, boolean).
-	 * Internal attribute (associated with a field) cannot be set.
+	 * An attribute is valid if declared in an ancestor, and not set in an
+	 * ancestor. Check if the value is conforming to its type (string, int,
+	 * boolean). Internal attribute (associated with a field) cannot be set.
 	 * Must be called on the level above.
-	 *
-	 * Checks if attr is correctly defined for component ent
-	 * 	it must be explicitly defined in its upper groups,
-	 *  for the top group, it must be already existing.
-	 *
-	 *  boolean Forced = true can be set only by Apform.
-	 *  Needed when an internal attribute is set in the program, Apform propagates the value to the attribute.
-	 *
+	 * 
+	 * Checks if attr is correctly defined for component ent it must be
+	 * explicitly defined in its upper groups, for the top group, it must be
+	 * already existing.
+	 * 
+	 * boolean Forced = true can be set only by Apform. Needed when an internal
+	 * attribute is set in the program, Apform propagates the value to the
+	 * attribute.
+	 * 
 	 * @param attr
 	 * @param value
 	 * @return
 	 */
-	public PropertyDefinition validDef (String attr, boolean forced) {
+	public PropertyDefinition validDef(String attr, boolean forced) {
 		if (Attribute.isFinalAttribute(attr)) {
 			logger.error("Cannot redefine final attribute \"" + attr + "\"");
 			return null;
@@ -848,34 +861,34 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return null;
 		}
 
-		Component group = this.getGroup() ;
+		Component group = this.getGroup();
 
-		//if the same attribute exists above, it is a redefinition.
+		// if the same attribute exists above, it is a redefinition.
 		if (group != null && group.getProperty(attr) != null) {
 			logger.error("Cannot redefine attribute \"" + attr + "\"");
 			return null;
 		}
 
-		PropertyDefinition definition = this.getAttrDefinition (attr) ;
+		PropertyDefinition definition = this.getAttrDefinition(attr);
 
 		if (definition == null) {
-			logger.error("Attribute \"" + attr +  "\" is undefined.");
+			logger.error("Attribute \"" + attr + "\" is undefined.");
 			return null;
 		}
 
 		// there is a definition for attr
 		if (definition.isInternal() && !forced) {
-			logger.error("Attribute " + attr +  " is an internal field attribute and cannot be set.");
+			logger.error("Attribute " + attr + " is an internal field attribute and cannot be set.");
 			return null;
 		}
 
-		return definition ;
-		//return Attribute.checkAttrType(attr, value, definition.getType());
+		return definition;
+		// return Attribute.checkAttrType(attr, value, definition.getType());
 	}
 
-	public boolean isSubstitute (String attr) {
-		PropertyDefinition def = getDeclaration().getPropertyDefinition(attr) ;
-		return  (def != null && (def.getDefaultValue().charAt(0)=='$' || def.getDefaultValue().charAt(0)=='@')) ;
+	public boolean isSubstitute(String attr) {
+		PropertyDefinition def = getDeclaration().getPropertyDefinition(attr);
+		return (def != null && (def.getDefaultValue().charAt(0) == '$' || def.getDefaultValue().charAt(0) == '@'));
 	}
 
 
@@ -883,39 +896,42 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * Filter evaluation on the properties of this component
 	 */
 
-	//	@Override
-	//	public boolean match(String goal) {
-	//		if (goal == null) return true ;
-	//		return goal == null || match(Collections.singleton(goal));
-	//	}
+	@Override
+	public boolean match(String goal) {
+		if (goal == null)
+			return true;
+		ApamFilter f = ApamFilter.newInstance(goal);
+		return goal == null || f.match(this.getAllProperties());
+	}
 
 	@Override
 	public boolean match(ApamFilter goal) {
-		if (goal == null) return true ;
+		if (goal == null)
+			return true;
 		return goal.match(this);
 	}
 
 	@Override
-	public boolean matchRelationConstraints (Relation dep) {
-		return dep.matchRelationConstraints (this.getAllProperties()) ;
+	public boolean matchRelationConstraints(Relation dep) {
+		return dep.matchRelationConstraints(this.getAllProperties());
 	}
 
 	@Override
-	public boolean matchRelationTarget (Relation dep) {
-		return dep.matchRelationTarget (this) ;
+	public boolean matchRelationTarget(Relation dep) {
+		return dep.matchRelationTarget(this);
 	}
 
 	@Override
-	public boolean matchRelation (Relation dep) {
-		return dep.matchRelation (this) ;
+	public boolean matchRelation(Relation dep) {
+		return dep.matchRelation(this);
 	}
-	
+
 	/**
 	 * Whether the component is instantiable
 	 */
 	@Override
 	public boolean canSee(Component target) {
-				return Visible.isVisible(this, target) ;
+		return Visible.isVisible(this, target);
 	}
 
 	/**
@@ -924,18 +940,18 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	@Override
 	public boolean isInstantiable() {
 		if (declaration.isDefinedInstantiable() || getGroup() == null)
-			return declaration.isInstantiable() ;
-		return getGroup().isInstantiable() ;
+			return declaration.isInstantiable();
+		return getGroup().isInstantiable();
 	}
 
 	/**
 	 * Whether the component is singleton
 	 */
 	@Override
-	public boolean isSingleton(){
+	public boolean isSingleton() {
 		if (declaration.isDefinedSingleton() || getGroup() == null)
-			return declaration.isSingleton() ;
-		return getGroup().isSingleton() ;
+			return declaration.isSingleton();
+		return getGroup().isSingleton();
 	}
 
 	/**
@@ -944,44 +960,44 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	@Override
 	public boolean isShared() {
 		if (declaration.isDefinedShared() || getGroup() == null)
-			return declaration.isShared() ;
-		return getGroup().isShared() ;
+			return declaration.isShared();
+		return getGroup().isShared();
 	}
 
 	@Override
-	public CompositeType getFirstDeployed () {
-		return firstDeployed == null ? CompositeTypeImpl.getRootCompositeType() : firstDeployed ;
+	public CompositeType getFirstDeployed() {
+		return firstDeployed == null ? CompositeTypeImpl.getRootCompositeType() : firstDeployed;
 	}
 
-	public void setFirstDeployed (CompositeType father) {
-		firstDeployed = father ;
+	public void setFirstDeployed(CompositeType father) {
+		firstDeployed = father;
 	}
 
 	@Override
-	public Map<String, String> getValidAttributes () {
-		Map<String, String> ret = new HashMap <String, String> () ;
-		for (PropertyDefinition def: declaration.getPropertyDefinitions()) {
+	public Map<String, String> getValidAttributes() {
+		Map<String, String> ret = new HashMap<String, String>();
+		for (PropertyDefinition def : declaration.getPropertyDefinitions()) {
 			ret.put(def.getName(), def.getType());
 		}
 		if (getGroup() != null) {
-			ret.putAll (getGroup().getValidAttributes()) ;
+			ret.putAll(getGroup().getValidAttributes());
 		}
-		return ret ;
+		return ret;
 	}
 
 	@Override
-	public Set<ResourceReference> getProvidedResources () {
-		return Collections.unmodifiableSet(this.getDeclaration().getProvidedResources()) ;
+	public Set<ResourceReference> getProvidedResources() {
+		return Collections.unmodifiableSet(this.getDeclaration().getProvidedResources());
 	}
-//		Set<ResourceReference> allResources  = new HashSet<ResourceReference> () ;
-//		Component current = this ;
-//		while (current != null) {
-//			if (current.getDeclaration().getProvidedResources() != null)
-//				allResources.addAll (current.getDeclaration().getProvidedResources()) ;
-//			current = current.getGroup() ;
-//		}
-//		return allResources ;
-//	}
+	// Set<ResourceReference> allResources = new HashSet<ResourceReference> () ;
+	// Component current = this ;
+	// while (current != null) {
+	// if (current.getDeclaration().getProvidedResources() != null)
+	// allResources.addAll (current.getDeclaration().getProvidedResources()) ;
+	// current = current.getGroup() ;
+	// }
+	// return allResources ;
+	// }
 
 
 }

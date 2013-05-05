@@ -133,7 +133,7 @@ public class RelationImpl implements Relation {
 		return !identifier.isEmpty();
 	}
 
-	protected RelationImpl(Component component, ResolvableReference target, ComponentKind targetType) {
+	public RelationImpl(Component component, ResolvableReference target, ComponentKind targetType) {
 	// The minimum info for a find.
 		this.component = component;
 		this.identifier = "";
@@ -279,7 +279,9 @@ public class RelationImpl implements Relation {
 	 * immutable), and recompute them from the string contraints Adds in mng the
 	 * preferences and constraints filters
 	 */
-	protected void computeFilters(Component linkSource) {
+	public void computeFilters(Component linkSource) {
+
+		this.linkSource = linkSource;
 		ApamFilter f;
 		/*
 		 * Manager constraints. Can be different for each resolution
@@ -588,17 +590,17 @@ public class RelationImpl implements Relation {
 
 	public String toString() {
 		StringBuffer ret = new StringBuffer();
-		if (getIdentifier() != null)
+		if (isRelation())
 			ret.append(getTargetKind() + " for relation " + getIdentifier()
 					+ " towards ");
 		else
-			ret.append("resolving " + getTargetKind());
+			ret.append("resolving " + getTargetKind() + " ");
 
 		if (getTarget() instanceof ComponentReference<?>)
-			ret.append("component " + getTarget().getName());
+			ret.append(getTarget().getName());
 		else
 			ret.append("resource " + getTarget().getName());
-		ret.append(" from " + getLinkSource());
+		ret.append(" from " + linkSource);
 
 		if (!implementationConstraintFilters.isEmpty()) {
 			ret.append("\n         Implementation Constraints");

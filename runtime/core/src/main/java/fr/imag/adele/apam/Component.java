@@ -114,12 +114,13 @@ public interface Component {
 	// public boolean createLink(Component to, relation dep, boolean promotion);
 
     
-    //================== Dependencies =================
+	// ================== Relationships =================
 
 
 	//True if the component matches the filter
 	public boolean match(ApamFilter goal);
 
+	public boolean match(String goal);
 
 	// True if the component matches the constraints contained in the relation
 	// filters

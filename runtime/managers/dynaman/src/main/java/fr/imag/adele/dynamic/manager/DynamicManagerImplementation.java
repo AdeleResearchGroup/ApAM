@@ -476,17 +476,6 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 		return null;
 	}
 
-
-	@Override
-	public Instance resolveImpl(Component client, Implementation impl, Relation dep) {
-		return null;
-	}
-
-	@Override
-	public Set<Instance> resolveImpls(Component client, Implementation impl, Relation dep) {
-		return null;
-	}
-
 	@Override
 	public void getSelectionPath(Component client, Relation relation, List<RelationManager> selPath) {
         selPath.add(selPath.size(), this);
@@ -510,25 +499,37 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 	public ComponentBundle findBundle(CompositeType compoType, String bundleSymbolicName, String componentName) {
 		return null;
 	}
-	
-	@Override
-	public Instance findInstByName(Component client, String instName) {
-		return (Instance) findComponentByName(client, instName);
-	}
 
-	@Override
-	public Implementation findImplByName(Component client, String implName) {
-		return (Implementation) findComponentByName(client, implName);
-	}
 
-	@Override
-	public Specification findSpecByName(Component client, String specName) {
-		return (Specification) findComponentByName(client, specName);
-	}
-
-	//@Override
-	public Component findComponentByName(Component client, String compName) {
-		return null;
-	}
+	// @Override
+	// public Instance resolveImpl(Component client, Implementation impl,
+	// Relation dep) {
+	// return null;
+	// }
+	//
+	// @Override
+	// public Set<Instance> resolveImpls(Component client, Implementation impl,
+	// Relation dep) {
+	// return null;
+	// }
+	// @Override
+	// public Instance findInstByName(Component client, String instName) {
+	// return (Instance) findComponentByName(client, instName);
+	// }
+	//
+	// @Override
+	// public Implementation findImplByName(Component client, String implName) {
+	// return (Implementation) findComponentByName(client, implName);
+	// }
+	//
+	// @Override
+	// public Specification findSpecByName(Component client, String specName) {
+	// return (Specification) findComponentByName(client, specName);
+	// }
+	//
+	// //@Override
+	// public Component findComponentByName(Component client, String compName) {
+	// return null;
+	// }
 
 }

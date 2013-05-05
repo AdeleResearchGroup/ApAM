@@ -31,21 +31,19 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Relation;
-import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.RelationPromotion;
-import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
+import fr.imag.adele.apam.declarations.RelationPromotion;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 
 public class ApamResolverImpl implements ApamResolver {
@@ -78,8 +76,8 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @return the composite relation from the composite.
 	 */
 	private Relation getPromotionRel(Instance client, Relation relation) {
-		if (relation.getIdentifier() == null) // Not a relation
-			return null;
+		// if (relation.getIdentifier() == null) // Not a relation
+		// return null;
 
 		Composite composite = client.getComposite() ;
 
@@ -122,7 +120,7 @@ public class ApamResolverImpl implements ApamResolver {
 		// Look if a relation, defined in the composite, matches the current
 		// relation
 		//Do no check composite
-		Component group = client ;
+		Component group = composite;
 		while (group != null) {
 			for (Relation compoDep : group.getLocalRelations()) {
 				if  (relation.matchRelation (client, compoDep)) {
@@ -292,14 +290,124 @@ public class ApamResolverImpl implements ApamResolver {
 
 
 	/**
-	 * Before to resolve an implementation (i.e. to select one of its instance), this method is called to
-	 * know which managers are involved, and what are the constraints and preferences set by the managers to this
-	 * resolution.
-	 *
-	 * @param compTypeFrom : the origin of this resolution.
-	 * @param impl : the implementation to resolve.
-	 * @param constraints : the constraints added by the managers. A (empty) set must be provided as parameter.
-	 * @param preferences : the preferences added by the managers. A (empty) list must be provided as parameter.
+	 * Performs a complete resolution of the relation, or resolution.
+	 * 
+	 * The managers is asked to find the "right" component.
+	 * 
+	 * @param client
+	 *            the instance calling implem (and where to create
+	 *            implementation ans instances if needed). Cannot be null.
+	 * @param relation
+	 *            a relation declaration containing the type and name of the
+	 *            relation target. It can be -the specification Name (new
+	 *            SpecificationReference (specName)) -an implementation name
+	 *            (new ImplementationRefernece (name) -an interface name (new
+	 *            InterfaceReference (interfaceName)) -a message name (new
+	 *            MessageReference (dataTypeName))
+	 * @return the component(s) if resolved, null otherwise
+	 */
+	private Resolved<?> resolveRelation(Component source, Relation relation) {
+		List<RelationManager> selectionPath = computeSelectionPath(source, relation);
+		// Transform the relation constraints into filters after interpreting
+		// the substitutions.
+
+		Resolved<?> res = null;
+		boolean deployed = false;
+
+		for (RelationManager manager : selectionPath) {
+			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
+				deployed = true;
+			}
+			logger.debug(manager.getName() + "  ");
+
+			// Does the real job
+			res = manager.resolveRelation(source, relation);
+			if (res == null || res.isEmpty())
+				// This manager did not found a solution, try the next manager
+				continue;
+
+			/*
+			 * a manager succeeded to find a solution
+			 */
+			// If an unused or deployed implementation. Can be into singleton or
+			// in toInstantiate if an instance is required
+			Component depl = (res.toInstantiate != null) ? res.toInstantiate : res.singletonResolved;
+			deployedImpl(source, depl, deployed);
+
+			/*
+			 * If an implementation is returned as "toInstantiate" it has to be
+			 * instantiated
+			 */
+			if (res.toInstantiate != null) {
+				if (relation.getTargetKind() != ComponentKind.INSTANCE) {
+					logger.error("Invalid Resolved value. toInstantiate is set, but target kind is not Instance");
+					continue;
+				}
+
+				Composite compo = (source instanceof Instance) ? ((Instance) source).getComposite() : CompositeImpl.getRootInstance();
+				Instance inst = res.toInstantiate.createInstance(compo, null);
+				if (inst == null) { // may happen if impl is non instantiable
+					logger.error("Failed creating instance of " + res.toInstantiate);
+					continue;
+				}
+				logger.info("Instantiated " + inst);
+				if (relation.isMultiple()) {
+					Set<Instance> insts = new HashSet<Instance>();
+					insts.add(inst);
+					return new Resolved<Instance>(insts);
+				} else
+					return new Resolved<Instance>(inst);
+			}
+
+			/*
+			 * Because managers can be third party, we cannot trust them. Verify
+			 * that the result is correct.
+			 */
+			if (relation.isMultiple()) {
+				if (res.setResolved == null || res.setResolved.isEmpty()) {
+					logger.info("manager " + manager + " returned an empty result. Should be null.");
+					continue;
+				}
+				if (((Component) res.setResolved.iterator().next()).getKind() != relation.getTargetKind()) {
+					logger.error("Manager " + manager + " returned objects of the bad type for relation " + relation);
+					continue;
+				}
+				logger.info("Selected : " + res.setResolved);
+				return res;
+			}
+
+			// Result is a singleton
+			if (res.singletonResolved == null) {
+				logger.info("manager " + manager + " returned an empty result. ");
+				continue;
+			}
+			if (res.singletonResolved.getKind() != relation.getTargetKind()) {
+				logger.error("Manager " + manager + " returned objects of the bad type for relation " + relation);
+				continue;
+			}
+			logger.info("Selected : " + res.singletonResolved);
+			return res;
+		}
+
+		// No solution found
+		return null;
+	}
+
+	/**
+	 * Before to resolve an implementation (i.e. to select one of its instance),
+	 * this method is called to know which managers are involved, and what are
+	 * the constraints and preferences set by the managers to this resolution.
+	 * 
+	 * @param compTypeFrom
+	 *            : the origin of this resolution.
+	 * @param impl
+	 *            : the implementation to resolve.
+	 * @param constraints
+	 *            : the constraints added by the managers. A (empty) set must be
+	 *            provided as parameter.
+	 * @param preferences
+	 *            : the preferences added by the managers. A (empty) list must
+	 *            be provided as parameter.
 	 * @return : the managers that will be called for that resolution.
 	 */
 	private List<RelationManager> computeSelectionPath(Component source, Relation relation) {
@@ -456,13 +564,47 @@ public class ApamResolverImpl implements ApamResolver {
 	 * @return
 	 */
 
+	// private <C extends Component> C findByName (Instance client, String
+	// componentName, Class<C> kind /*, Composite composite*/) {
+	// if (componentName == null) return null;
+	// if (client == null) {
+	// client = CompositeImpl.getRootInstance();
+	// }
+	//
+	// CompositeType compoType = CompositeTypeImpl.getRootCompositeType();
+	// DependencyDeclaration dependency = new DependencyDeclaration
+	// (compoType.getImplDeclaration().getReference(),
+	// componentName, false, new
+	// ComponentReference<ComponentDeclaration>(componentName)) ;
+	//
+	// List<DependencyManager> selectionPath = computeSelectionPath(client,
+	// dependency);
+	// //Transform the dependency constraints into filters after interpreting
+	// the substitutions.
+	// // Dependency dep = new Dependency (dependency, client) ;
+	//
+	// Component compo = null;
+	// logger.info("Looking for component " + componentName + ": ");
+	// boolean deployed = false;
+	// for (DependencyManager manager : selectionPath) {
+	// if (!manager.getName().equals(CST.APAMMAN) &&
+	// !manager.getName().equals(CST.UPDATEMAN)) {
+	// deployed = true;
+	// }
+	// logger.debug(manager.getName() + "  ");
+	// compo = manager.findComponentByName(client, componentName);
+
 	private Component findByName (Component client, String componentName, ComponentKind targetKind) {
 		if (componentName == null) return null;
 		if (client == null) {
 			client = CompositeImpl.getRootInstance();
+			// hummmm patch .... TODO
+			if (componentName.equals(CST.ROOT_COMPOSITE_TYPE))
+				return CompositeTypeImpl.getRootCompositeType();
 		}
 
-		// Id = null means it is a find, not a relation to resolve
+		// CompositeType compoType = CompositeTypeImpl.getRootCompositeType();
+
 		@SuppressWarnings("rawtypes")
 		Relation relation = new RelationImpl(client, new ComponentReference(componentName), targetKind);
 		Resolved<?> res = resolveLink (client, relation) ;
@@ -550,118 +692,6 @@ public class ApamResolverImpl implements ApamResolver {
 		return (Implementation)resolve.setResolved.iterator().next() ;
 	}
 
-
-	/**
-	 * Performs a complete resolution of the relation EXCEPT : isMultiple always
-	 * assumed to be True, and preferences ignored.
-	 * 
-	 * The manager is asked to find the "right" implementation and instances for
-	 * the provided relation. First computes all the implementations that
-	 * satisfy the constraints, preferences not taken into account. Add in insts
-	 * (if present) all the instances of the implems (visible or not) that
-	 * satisfy the instance constraints and that are visible. Returns those
-	 * implementations that are visible.
-	 * 
-	 * @param client
-	 *            the instance calling implem (and where to create
-	 *            implementation, if needed). Cannot be null.
-	 * @param relation
-	 *            a relation declaration containing the type and name of the
-	 *            relation target. It can be -the specification Name (new
-	 *            SpecificationReference (specName)) -an implementation name
-	 *            (new ImplementationRefernece (name) -an interface name (new
-	 *            InterfaceReference (interfaceName)) -a message name (new
-	 *            MessageReference (dataTypeName)) - or any future resource ...
-	 * @return the implementations and the instances if resolved, null otherwise
-	 * @return null if not resolved at all. Never returns an empty set.
-	 */
-	private Resolved<?> resolveRelation(Component source, Relation relation) {
-		List<RelationManager> selectionPath = computeSelectionPath(source, relation);
-		// Transform the relation constraints into filters after interpreting
-		// the substitutions.
-
-		Resolved<?> res = null ;
-		boolean deployed = false;
-
-		for (RelationManager manager : selectionPath) {
-			if (!manager.getName().equals(CST.APAMMAN) && !manager.getName().equals(CST.UPDATEMAN)) {
-				deployed = true;
-			}
-			logger.debug(manager.getName() + "  ");
-
-			//Does the real job
-			res = manager.resolveRelation(source, relation);
-			if (res == null || res.isEmpty()) 
-				//This manager did not found a solution, try the next manager
-				continue ;
-
-			/*
-			 *  a manager succeeded to find a solution 
-			 */
-			//If an unused or deployed implementation. Can be into singleton  or in toInstantiate if an instance is required
-			Component depl = (res.toInstantiate != null) ? res.toInstantiate : res.singletonResolved ; 
-			deployedImpl(source, depl, deployed);
-
-			/*
-			 * If an implementation is returned as "toInstantiate" it has to be instantiated
-			 */
-			if (res.toInstantiate != null) {			
-				if (relation.getTargetKind() != ComponentKind.INSTANCE) {
-					logger.error("Invalid Resolved value. toInstantiate is set, but target kind is not Instance") ;
-					continue ;
-				}
-
-				Composite compo = (source instanceof Instance) ? ((Instance)source).getComposite() : CompositeImpl.getRootInstance() ;
-				Instance inst = res.toInstantiate.createInstance(compo, null);
-				if (inst == null) { // may happen if impl is non instantiable
-					logger.error("Failed creating instance of " + res.toInstantiate );
-					continue ;
-				}
-				logger.info("Instantiated " + inst) ;							
-				if (relation.isMultiple()) {
-					Set <Instance> insts = new HashSet <Instance> () ;
-					insts.add(inst) ;
-					return new Resolved<Instance> (insts) ;
-				}
-				else return new Resolved<Instance> (inst) ;												
-			}
-
-			/*
-			 * Because managers can be third party, we cannot trust them. Verify that the result is correct.
-			 */
-			if (relation.isMultiple()) {
-				if (res.setResolved == null || res.setResolved.isEmpty()) {
-					logger.info("manager " + manager + " returned an empty result. Should be null." ) ;
-					continue ;
-				}
-				if (((Component)res.setResolved.iterator().next()).getKind() != relation.getTargetKind()) {
-					logger.error("Manager " + manager
-							+ " returned objects of the bad type for relation "
-							+ relation);
-					continue ;
-				}
-				logger.info("Selected : " + res.setResolved) ;
-				return res ;
-			}
-
-			//Result is a singleton
-			if (res.singletonResolved == null ) {
-				logger.info("manager " + manager + " returned an empty result. " ) ;
-				continue ;
-			}
-			if (res.singletonResolved.getKind() != relation.getTargetKind()) {
-				logger.error("Manager " + manager
-						+ " returned objects of the bad type for relation "
-						+ relation);
-				continue ;
-			}
-			logger.info("Selected : " + res.singletonResolved) ;
-			return res ;
-		}
-
-		//No solution found
-		return null ;
-	}
 
 
 }

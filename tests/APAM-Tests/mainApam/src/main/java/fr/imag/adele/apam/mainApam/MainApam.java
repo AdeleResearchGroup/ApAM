@@ -16,24 +16,20 @@ package fr.imag.adele.apam.mainApam;
 
 //import static junit.framework.assertEquals.assertNotNull;
 
-import java.io.File;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import apam.test.attr.TestAttr;
-
-
+import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.test.s1.S1;
 import fr.imag.adele.apam.util.Util;
 
@@ -676,6 +672,7 @@ public class MainApam implements Runnable, ApamComponent {
 
 	}
 
+	@Override
 	public void run() {
 
 		System.out.println("Starting new mainApam " );
@@ -691,10 +688,12 @@ public class MainApam implements Runnable, ApamComponent {
 
 
 
+	@Override
 	public void apamInit(Instance apamInstance) {
 		new Thread(this, "APAM test").start();
 	}
 
+	@Override
 	public void apamRemove() {
 
 	}
