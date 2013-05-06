@@ -32,6 +32,7 @@ import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.ComponentKind;
+import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -73,23 +74,26 @@ public class ApamMan implements RelationManager {
 	public void getSelectionPath(Component client, Relation dep, List<RelationManager> selPath) {
 	}
 
-	@Override
-	public Instance resolveImpl(Component client, Implementation impl, Relation dep) {
-		//List<ApamFilter> f = Util.toFilterList(preferences) ;
-		return dep.getPrefered(resolveImpls(client, impl, dep)) ;
-	}
-
-	@Override
-	public Set<Instance> resolveImpls(Component client, Implementation impl, Relation dep) {
-
-		//Set<ApamFilter> f = Util.toFilter(constraints) ;	
-		Set<Instance> insts = new HashSet<Instance>();
-		for (Instance inst : impl.getInsts()) {
-			if (inst.isSharable() && inst.matchRelationConstraints(dep) && client.canSee(inst))
-				insts.add(inst);
-		}
-		return insts;
-	}
+	// @Override
+	// public Instance resolveImpl(Component client, Implementation impl,
+	// Relation dep) {
+	// //List<ApamFilter> f = Util.toFilterList(preferences) ;
+	// return dep.getPrefered(resolveImpls(client, impl, dep)) ;
+	// }
+	//
+	// @Override
+	// public Set<Instance> resolveImpls(Component client, Implementation impl,
+	// Relation dep) {
+	//
+	// //Set<ApamFilter> f = Util.toFilter(constraints) ;
+	// Set<Instance> insts = new HashSet<Instance>();
+	// for (Instance inst : impl.getInsts()) {
+	// if (inst.isSharable() && inst.matchRelationConstraints(dep) &&
+	// client.canSee(inst))
+	// insts.add(inst);
+	// }
+	// return insts;
+	// }
 
 	@Override
 	public int getPriority() {
@@ -100,34 +104,34 @@ public class ApamMan implements RelationManager {
 	public void newComposite(ManagerModel model, CompositeType composite) {
 	}
 
-	@Override
-	public Instance findInstByName(Component client, String instName) {
-		if (instName == null) return null;
-		Instance inst = CST.componentBroker.getInst(instName);
-		if (inst == null) return null;
-		if (client.canSee(inst)) {
-			return inst;
-		}
-		return null;
-	}
-
-	@Override
-	public Implementation findImplByName(Component client, String implName) {
-		if (implName == null)
-			return null;
-		Implementation impl = CST.componentBroker.getImpl(implName);
-		if (client.canSee(impl)) {
-			return impl ;
-		}
-		return null ;
-	}
-
-	@Override
-	public Specification findSpecByName(Component client, String specName) {
-		if (specName == null)
-			return null;
-		return CST.componentBroker.getSpec(specName);
-	}
+	// @Override
+	// public Instance findInstByName(Component client, String instName) {
+	// if (instName == null) return null;
+	// Instance inst = CST.componentBroker.getInst(instName);
+	// if (inst == null) return null;
+	// if (client.canSee(inst)) {
+	// return inst;
+	// }
+	// return null;
+	// }
+	//
+	// @Override
+	// public Implementation findImplByName(Component client, String implName) {
+	// if (implName == null)
+	// return null;
+	// Implementation impl = CST.componentBroker.getImpl(implName);
+	// if (client.canSee(impl)) {
+	// return impl ;
+	// }
+	// return null ;
+	// }
+	//
+	// @Override
+	// public Specification findSpecByName(Component client, String specName) {
+	// if (specName == null)
+	// return null;
+	// return CST.componentBroker.getSpec(specName);
+	// }
 
 	//	@Override
 	//	public Component findComponentByName(Component client, String componentName) {
@@ -172,7 +176,7 @@ public class ApamMan implements RelationManager {
 			Specification spec = CST.componentBroker.getSpec(name);
 			if (spec == null) {
 				System.err.println("No spec with name " + name
-						+ " for relation " + relation.getIdentifier()
+				// + " for relation " + relation.getIdentifier()
 						+ " from component" + source);
 				return null;
 			}
@@ -194,6 +198,17 @@ public class ApamMan implements RelationManager {
 					if (impl != null) {
 						impls.add(impl) ;
 					} 
+				} else if (relation.getTarget() instanceof ComponentReference<?>) {
+					Component component = CST.componentBroker.getComponent(name);
+					if (component != null) {
+						if (component instanceof Implementation) {
+							impls.add((Implementation) component);
+						} else if (component instanceof Instance) {
+							impls.add(((Instance) component).getImpl());
+						} else if (component instanceof Specification) {
+							impls.addAll(((Specification) component).getImpls());
+						}
+					}
 				}
 			}
 		}
@@ -218,7 +233,7 @@ public class ApamMan implements RelationManager {
 		for (Implementation impl : impls) {
 			for (Instance inst : impl.getInsts()) {
 				if (inst.isSharable() 
-//						&& Visible.isVisible(client,  inst) 
+				// && Visible.isVisible(client, inst)
 						&& source.canSee(inst)
 						&& inst.matchRelationConstraints(relation)) {
 					insts.add(inst) ;

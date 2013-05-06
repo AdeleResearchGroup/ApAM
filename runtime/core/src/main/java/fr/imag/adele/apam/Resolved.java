@@ -46,10 +46,10 @@ public class Resolved <T extends Component> {
 	/*
 	 * The boolean is useless, only to make a different signature.
 	 */
-	public Resolved (Implementation toInstantiate, boolean toInstanciate) {
-		this.toInstantiate = toInstantiate ;
-		this.setResolved = null ;
-		this.singletonResolved = null ;
+	public Resolved(Implementation impl, boolean toInstanciate) {
+		this.toInstantiate = impl;
+		this.singletonResolved = (T) null;
+		this.setResolved = null;
 	}
 	
 	

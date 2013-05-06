@@ -104,7 +104,8 @@ public interface Relation  {
 	// Get the exception associated with the missing policy
 	public String getMissingException() ;
 
-	
+	public boolean isRelation();
+
 	//Ex in Util
 	public Resolved<?> getResolved(Set<? extends Component> candidates) ;
 	

@@ -285,10 +285,8 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
             return false;
         }
 
-		RelationDeclaration relation = injection.getRelationInjection()
-				.getRelation();
-		return CST.apamResolver.resolveLink(apamInstance,
-				relation.getIdentifier()) != null;
+		RelationDeclaration relation = injection.getRelationInjection().getRelation();
+		return CST.apamResolver.resolveLink(apamInstance, relation.getIdentifier()) != null;
 
     }
 

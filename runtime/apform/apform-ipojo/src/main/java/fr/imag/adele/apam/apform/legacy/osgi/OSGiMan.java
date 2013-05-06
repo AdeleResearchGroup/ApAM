@@ -28,25 +28,21 @@ import org.apache.felix.ipojo.annotations.Validate;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Relation;
-import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Resolved;
-import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.declarations.ComponentKind;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 
@@ -55,12 +51,12 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
 @Provides
 public class OSGiMan implements RelationManager {
 
-	private final static Logger	logger = LoggerFactory.getLogger(OSGiMan.class);
+	// private final static Logger logger =
+	// LoggerFactory.getLogger(OSGiMan.class);
 
 	/**
 	 * A reference to the APAM machine
 	 */
-    @SuppressWarnings("unused")
 	@Requires(proxy = false)
 	private Apam apam;
 
@@ -90,12 +86,12 @@ public class OSGiMan implements RelationManager {
 	}
 
 	@Validate
-	private @SuppressWarnings("unused") synchronized void start()  {
+	private synchronized void start() {
 		ApamManagers.addRelationManager(this,getPriority());
 	}
 	
 	@Invalidate
-	private  @SuppressWarnings("unused") synchronized void stop() {
+	private synchronized void stop() {
 		ApamManagers.removeRelationManager(this);
 	}
 	
@@ -111,13 +107,13 @@ public class OSGiMan implements RelationManager {
 	}
 
 	@Override
-	public Resolved resolveRelation(Component client, Relation relation) {
+	public Resolved<?> resolveRelation(Component client, Relation relation) {
 		
 		InterfaceReference target = relation.getTarget().as(InterfaceReference.class);
 		if (target == null)
 			return null;
 		
-		Resolved resolution = null;
+		Resolved<?> resolution = null;
 		
 		/*
 		 * Get all matching OSGi services and reify them in APAM, along with their implementation
@@ -158,11 +154,15 @@ public class OSGiMan implements RelationManager {
 				
 			}
 			if (relation.getTargetKind() == ComponentKind.IMPLEMENTATION) {
+				if (implementations.isEmpty())
+					return null;
 				if (relation.isMultiple())
 					return new Resolved<Implementation> (implementations) ;
 				return new Resolved<Implementation> (implementations.iterator().next()) ;
 			}
 			if (relation.getTargetKind() == ComponentKind.INSTANCE) {
+				if (instances.isEmpty())
+					return null;
 				if (relation.isMultiple())
 					return new Resolved<Instance> (instances) ;
 				return new Resolved<Instance> (instances.iterator().next()) ;
@@ -173,30 +173,32 @@ public class OSGiMan implements RelationManager {
 		return resolution;
 	}
 
-	@Override
-	public Instance resolveImpl(Component client, Implementation impl, Relation dep) {
-		return null;
-	}
-
-	@Override
-	public Set<Instance> resolveImpls(Component client, Implementation impl,	Relation dep) {
-		return null;
-	}
-
-	@Override
-	public Implementation findImplByName(Component client, String implName) {
-		return null;
-	}
-
-	@Override
-	public Instance findInstByName(Component client, String instName) {
-		return null;
-	}
-
-	@Override
-	public Specification findSpecByName(Component client, String specName) {
-		return null;
-	}
+	// @Override
+	// public Instance resolveImpl(Component client, Implementation impl,
+	// Relation dep) {
+	// return null;
+	// }
+	//
+	// @Override
+	// public Set<Instance> resolveImpls(Component client, Implementation impl,
+	// Relation dep) {
+	// return null;
+	// }
+	//
+	// @Override
+	// public Implementation findImplByName(Component client, String implName) {
+	// return null;
+	// }
+	//
+	// @Override
+	// public Instance findInstByName(Component client, String instName) {
+	// return null;
+	// }
+	//
+	// @Override
+	// public Specification findSpecByName(Component client, String specName) {
+	// return null;
+	// }
 
 //	@Override
 //	public Component findComponentByName(Component client, String compName) {

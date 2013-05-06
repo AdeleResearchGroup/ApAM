@@ -112,7 +112,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		Implementation sansungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 
-		Instance sansungInst = (Instance) sansungImpl
+		Instance sansungInst = sansungImpl
 				.createInstance(null, null);
 
 		apam.waitForIt(Constants.CONST_WAIT_TIME);
@@ -151,16 +151,16 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		int initialSize = s1.getEletronicInstancesInArray().length;
 
-		for (Link wire : s1Inst.getWires()) {
+		for (Link wire : s1Inst.getLinks()) {
 
-			s1Inst.removeWire(wire);
+			s1Inst.removeLink(wire);
 
 		}
 
 		Implementation sansungImpl = CST.apamResolver.findImplByName(null,
 				"SamsungSwitch");
 
-		Instance sansungInst = (Instance) sansungImpl
+		Instance sansungInst = sansungImpl
 				.createInstance(null, null);
 
         apam.waitForIt(Constants.CONST_WAIT_TIME);
@@ -252,11 +252,11 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 		Instance inst3 = impl.createInstance(null, null);
 
 		System.out.println("1 ----- " + inst1 + "/"
-				+ (HouseMeterSwitch) inst1.getServiceObject());
+				+ inst1.getServiceObject());
 		System.out.println("2 ----- " + inst2 + "/"
-				+ (HouseMeterSwitch) inst2.getServiceObject());
+				+ inst2.getServiceObject());
 		System.out.println("3 ----- " + inst3 + "/"
-				+ (HouseMeterSwitch) inst3.getServiceObject());
+				+ inst3.getServiceObject());
 
 		HouseMeterSwitch houseMeter1 = (HouseMeterSwitch) inst1
 				.getServiceObject();

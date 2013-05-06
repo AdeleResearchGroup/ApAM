@@ -194,32 +194,35 @@ public class UpdateMan implements RelationManager, DynamicManager {
 	}
 
 	@Override
-	public Instance resolveImpl(Component client, Implementation impl, Relation dep) {
-		waitComponent (impl.getName()) ;
-		return null;
-	}
-
-	@Override
-	public Set<Instance> resolveImpls(Component client, Implementation impl,  Relation dep) {
-		waitComponent (impl.getName());
-		return null;
-	}
-
-	@Override
 	public void newComposite(ManagerModel model, CompositeType composite) {
 	}
 
-	@Override
-	public Implementation findImplByName(Component client, String implName) {
-		waitComponent (implName)  ;
-		return null;
-	}
-
-	@Override
-	public Specification findSpecByName(Component client, String specName) {
-		waitComponent (specName);
-		return null;
-	}
+	// @Override
+	// public Instance resolveImpl(Component client, Implementation impl,
+	// Relation dep) {
+	// waitComponent (impl.getName()) ;
+	// return null;
+	// }
+	//
+	// @Override
+	// public Set<Instance> resolveImpls(Component client, Implementation impl,
+	// Relation dep) {
+	// waitComponent (impl.getName());
+	// return null;
+	// }
+	//
+	//
+	// @Override
+	// public Implementation findImplByName(Component client, String implName) {
+	// waitComponent (implName) ;
+	// return null;
+	// }
+	//
+	// @Override
+	// public Specification findSpecByName(Component client, String specName) {
+	// waitComponent (specName);
+	// return null;
+	// }
 
 	@Override
 	public Resolved<?> resolveRelation(Component client, Relation dep) {
@@ -231,12 +234,12 @@ public class UpdateMan implements RelationManager, DynamicManager {
 	}
 
 
-	@Override
-	public Instance findInstByName(Component client, String instName) {
-		waitComponent(instName);
-		return null;
-	}
-
+	// @Override
+	// public Instance findInstByName(Component client, String instName) {
+	// waitComponent(instName);
+	// return null;
+	// }
+	//
 
 //	@Override
 //	public Component findComponentByName(Component client, String componentName) {

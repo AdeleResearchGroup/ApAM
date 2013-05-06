@@ -83,6 +83,7 @@ public class ApamCommand {
 			"app#inspect an apam application",
 			"displaywires#display all the relations of an instance",
 			"charge#creates and start a new instance of the target implementation",
+			"l#creates and start a new instance of the target implementation",
 			"pending#display all pending installations in apam platform",
 			"updatecomponent#updates target component (Warning: updates the whole Bundle)",
 			"setproperty#set properties of an instance" };
@@ -183,7 +184,7 @@ public class ApamCommand {
 		} else if (typeCall == CommandInvocationType.DEFAULT) {
 			Set<Specification> specifications = CST.componentBroker.getSpecs();
 			for (Specification specification : specifications)
-				out.println("spec " + specification);
+				out.println("spec " + specification.getName());
 			return;
 		}
 
@@ -216,7 +217,7 @@ public class ApamCommand {
 		} else if (typeCall == CommandInvocationType.DEFAULT) {
 			Set<Implementation> implementations = CST.componentBroker.getImpls();
 			for (Implementation implementation : implementations) {
-				out.println("implem " + implementation);
+				out.println("implem " + implementation.getName());
 			}
 			return;
 		}
@@ -250,7 +251,7 @@ public class ApamCommand {
 		} else if (typeCall == CommandInvocationType.DEFAULT) {
 			Set<Instance> instances = CST.componentBroker.getInsts();
 			for (Instance instance : instances) {
-				out.println("inst " + instance);
+				out.println("inst " + instance.getName());
 			}
 			return;
 		}
@@ -288,6 +289,9 @@ public class ApamCommand {
 		INVALID, DEFAULT, HELP,OTHER
 	}
 
+	public void l(PrintWriter out, String... args) {
+		charge(out, args);
+	}
 	/**
 	 * Start a new instance of the target implementation in a composite
 	 * arguments : - an implementation name - (optional) a composite name

@@ -225,7 +225,8 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		CompositeTypeImpl.compositeTypes.put(getName(),this);
 
 		/*
-		 * Compute Dependencies from relation declarations.
+		 * Compute Dependencies from relation declarations. TODO I am not sure
+		 * this is needed
 		 */
 		for (RelationDeclaration relation : ((CompositeDeclaration) this
 				.getDeclaration()).getContextualDependencies()) {
@@ -558,7 +559,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 
 	@Override
 	public String toString() {
-		return getName();
+		return "COMPOSITETYPE " + getName();
 	}
 
 

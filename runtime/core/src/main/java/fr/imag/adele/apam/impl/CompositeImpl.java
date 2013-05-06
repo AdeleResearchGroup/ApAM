@@ -436,4 +436,9 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		return getCompType().getModels();
 	}
 
+	@Override
+	public String toString() {
+		return "COMPOSITE " + getName();
+	}
+
 }
