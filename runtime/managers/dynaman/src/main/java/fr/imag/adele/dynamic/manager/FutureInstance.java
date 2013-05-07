@@ -64,7 +64,9 @@ public class FutureInstance {
 			triggerRelation.getInstanceConstraints().addAll(
 					trigger.getInstanceConstraints());
 
-			triggers.add(new RelationImpl(triggerRelation));
+			RelationImpl parsedTrigger = new RelationImpl(triggerRelation);
+			parsedTrigger.computeFilters(null);
+			triggers.add(parsedTrigger);
 			counter++;
 		}
 
@@ -77,7 +79,7 @@ public class FutureInstance {
 	public void checkInstatiation() {
 
 		/*
-		 * Verifiy if already triggered
+		 * Verify if this instance has already been triggered, to avoid nested triggers
 		 */
 		if (isInstantiated())
 			return;
@@ -138,13 +140,13 @@ public class FutureInstance {
 		/*
 		 * Try to instantiate the specified implementation.
 		 * 
-		 * TODO BUG We are initializing the properties of the instance, but we
-		 * lost the relation overrides. We need to modify the API to allow
-		 * specifying explicitly an instance declaration for
+		 * TODO BUG We are initializing the properties of the instance, but we lost the relation overrides. 
+		 * We need to modify the API to allow specifying explicitly an instance declaration for
 		 * Implementation.craeteInstance.
 		 */
-		Instance instance 	= implementation.createInstance(owner,properties);
-		isTriggered			= instance != null;
+		isTriggered			= true;
+		implementation.createInstance(owner,properties);
+		
 	}
 
 	/**

@@ -15,6 +15,7 @@
 package fr.imag.adele.dynamic.manager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -280,19 +281,40 @@ public class ContentManager  {
 		
 		/*
 		 * Iterate over all pending dynamic instances 
+		 * 
+		 * IMPORTANT Notice that this method is synchronized so we do not have concurrent accesses over
+		 * the list of pending instances. However, we must carefully handle the case of nested invocations
+		 * of this method (because instantiation of a dynamic instance may trigger other pending instances)
 		 */
-		Iterator<FutureInstance> pendingInstances = this.dynamicContains.iterator();
-		while(pendingInstances.hasNext()) {
+		
+		List<FutureInstance> processed = new ArrayList<FutureInstance>(); 
+		
+		while(! dynamicContains.isEmpty()) {
 
 			/*
-			 * Evaluate triggering conditions and instantiate if satisfied
+			 * Take the first pending instance from the list, notice that we remove it
+			 * so that we are sure that there is only a single invocation of this method
+			 * handling a given pending instance 
 			 */
-			FutureInstance pendingInstance = pendingInstances.next();
+			FutureInstance pendingInstance = dynamicContains.remove(0);
 			
+			/*
+			 * Evaluate triggering conditions and instantiate if satisfied
+			 * 
+			 */
 			pendingInstance.checkInstatiation();
-			if (pendingInstance.isInstantiated())
-				pendingInstances.remove();
+			processed.add(pendingInstance);
 		}
+
+		/*
+		 * Put back in the list all the processed requests that were not triggered
+		 */
+		while (! processed.isEmpty()) {
+			FutureInstance processedInstance = processed.remove(0);
+			if (! processedInstance.isInstantiated())
+				dynamicContains.add(processedInstance);
+		}
+		
 	}
 	
 	/**
@@ -475,10 +497,10 @@ public class ContentManager  {
 				String thatProperty						= thatDeclaration.getProperty().getIdentifier();
 				Set<String> thoseValues					= new HashSet<String>(thatDeclaration.getValues());
 				
-				if (thisSpecification.equals(thatSpecification))
+				if (!thisSpecification.equals(thatSpecification))
 					continue;
 				 
-				if( !thisProperty.equals(thatProperty) || theseValues.retainAll(thoseValues)) 
+				if( !thisProperty.equals(thatProperty) ||  !Collections.disjoint(theseValues,thoseValues)) 
 					hasConflict = true;;
 				
 			}
