@@ -52,7 +52,7 @@
 	<implementation name="group-a-private-component"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" specification="eletronic-device-private" />
+		<dependency id="eletronic-device-private" field="element" specification="eletronic-device-private" />
 		<dependency field="c" />
 	</implementation>
 
