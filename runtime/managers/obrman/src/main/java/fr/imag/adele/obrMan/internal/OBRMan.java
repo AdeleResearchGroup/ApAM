@@ -258,29 +258,9 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		if ((dep.getTarget() instanceof ResourceReference) || (((ComponentReference<?>) dep.getTarget()).getKind() == ComponentKind.SPECIFICATION && dep.getTargetKind() != ComponentKind.SPECIFICATION)) {
 			ret = resolveByResource(client, dep);
 		}
- else
+		else
 			ret = findByName(client, dep);
 
-		//
-		//		
-		//		if (dep.getTarget() instanceof ComponentReference<?>) {
-		//			/*
-		//			 * It is a find by name if the component is the same kind as the
-		//			 * target or looking for an instance, but an implementation name is
-		//			 * provided : return the implem.
-		//			 */
-		//			if (((ComponentReference<?>) dep.getTarget()).getKind() == dep.getTargetKind() || ((ComponentReference<?>) dep.getTarget()).getKind() == ComponentKind.IMPLEMENTATION && dep.getTargetKind() == ComponentKind.INSTANCE) {
-		//				ret = findByName(client, dep);
-		//			} else if (((ComponentReference<?>) dep.getTarget()).getKind() == ComponentKind.COMPONENT) {
-		//				//Unclear. Try to find a component of that name, and then check if it is of the right kind
-		//				ret = findByName(client, dep);
-		//			}
-		//		}
-		//
-		//		//It is either a resolution (spec -> instance) or a resource reference (interface or message)
-		//		else {
-		//			ret = resolveByResource(client, dep);
-		//		}
 
 		//Not found
 		if (ret == null)
@@ -358,55 +338,21 @@ public class OBRMan implements RelationManager, OBRManCommand {
 
 
 		fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
-		// Implementation impl = null;
 		if (resource instanceof SpecificationReference) {
 			selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-specification*>" + resource.as(SpecificationReference.class).getName() + ")", dep);
-			// constraints, preferences);
 		}
 		if (resource instanceof InterfaceReference) {
-			selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-interfaces*>" // =*;"
+			selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-interfaces*>"
 					+ resource.as(InterfaceReference.class).getJavaType() + ")", dep);
-			// constraints, preferences);
 		}
 		if (resource instanceof MessageReference) {
 			selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(provide-messages*>" + resource.as(MessageReference.class).getJavaType() + ")", dep);
-			// constraints, preferences);
 		}
 		if (selected != null) {
 			return installInstantiate(selected);
 		}
 		return null;
 	}
-
-	// @Override
-	// public Component findComponentByName(Component client, String
-	// componentName) {
-	// return findByName(client, componentName,
-	// fr.imag.adele.apam.Component.class);
-	// }
-
-	// @Override
-	// public Specification findSpecByName(Component client, String specName) {
-	// return (Specification) findByName(client, specName,
-	// ComponentKind.SPECIFICATION);
-	// // return findByName(client, specName,
-	// // fr.imag.adele.apam.Specification.class);
-	// }
-	//
-	// @Override
-	// public Implementation findImplByName(Component client, String implName) {
-	// return (Implementation) findByName(client, implName,
-	// ComponentKind.IMPLEMENTATION);
-	// // return findByName(client, implName,
-	// // fr.imag.adele.apam.Implementation.class);
-	// }
-	//
-	// @Override
-	// public Instance findInstByName(Component client, String instName) {
-	// return (Instance) findByName(client, instName, ComponentKind.INSTANCE);
-	// // return findByName(client, instName,
-	// // fr.imag.adele.apam.Instance.class);
-	// }
 
 	public OBRManager getOBRManager(String compositeTypeName) {
 		return obrManagers.get(compositeTypeName);

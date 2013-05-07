@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.RelationManager.ComponentBundle;
+import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.util.ApamFilter;
 
 public class OBRManager {
@@ -107,6 +108,39 @@ public class OBRManager {
 		return null ;
 	}
 
+	/**
+	 * 
+	 * @param capability
+	 *            : an OBR capability
+	 * @param filterStr
+	 *            : a single constraint like "(impl-name=xyz)" Should not be
+	 *            null
+	 * @param constraints
+	 *            : the other constraints. can be null
+	 * @param preferences
+	 *            : the preferences. can be null
+	 * @return the pair capability,
+	 */
+
+	/* private */public Selected lookFor(String capability, String filterStr, Relation dep) {
+
+		// Take care of preferences !
+		if (filterStr == null) {
+			logger.debug("No filter for lookFor");
+			return null;
+		}
+
+		// Trace constraints filter
+		//		logFilterConstraintPreferences(filterStr, dep, false);
+
+		Set<Selected> allSelected = lookForAll(capability, filterStr, dep);
+		if (allSelected == null || allSelected.isEmpty()) {
+			logger.debug("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
+			return null;
+		}
+		return getBestCandidate(allSelected);
+	}
+
 	@SuppressWarnings("unchecked")
 	public Set<Selected> lookForAll(String capability, String filterStr, Relation dep) { //Set<ApamFilter> constraints) {
 		if (filterStr == null)
@@ -128,14 +162,17 @@ public class OBRManager {
 					continue;
 				}
 				Capability[] capabilities = res.getCapabilities();
+				String candidateKind;
 				for (Capability aCap : capabilities) {
 					if (aCap.getName().equals(capability)) {
 						if (filter.matchCase(aCap.getPropertiesAsMap())) {
 							if (dep == null || dep.matchRelationConstraints (aCap.getPropertiesAsMap())) {
-								logger.debug("Component " + getAttributeInCapability(aCap, CST.NAME)
-										+ " found in bundle : " + res.getSymbolicName() + " From "
- + compositeTypeName + " repositories : " + repositoriesToString());
-								allRes.add(new Selected(res, aCap, this));
+								candidateKind = getAttributeInCapability(aCap, CST.COMPONENT_TYPE);
+								//ignore if found a matching specification, but an implementation or instance is required
+								if (!!!("specification".equals(candidateKind) && dep.getTargetKind() != ComponentKind.SPECIFICATION)) {
+									allRes.add(new Selected(res, aCap, this));
+									logger.debug("Found " + candidateKind + " " + getAttributeInCapability(aCap, CST.NAME) + " in bundle " + res.getSymbolicName() + " From " + compositeTypeName + " repositories : " + repositoriesToString());
+								}
 							}
 						}
 					}
@@ -205,33 +242,6 @@ public class OBRManager {
 		return (Selected)candidates.toArray()[0] ;
 	}
 
-	/**
-	 *
-	 * @param capability: an OBR capability
-	 * @param filterStr: a single constraint like "(impl-name=xyz)" Should not be null
-	 * @param constraints: the other constraints. can be null
-	 * @param preferences: the preferences. can be null
-	 * @return the pair capability,
-	 */
-
-	/*private*/ public Selected lookFor(String capability, String filterStr, Relation dep) {
-
-		// Take care of preferences !
-		if (filterStr == null) {
-			logger.debug("No filter for lookFor");
-			return null;
-		}
-
-		// Trace constraints filter
-		//		logFilterConstraintPreferences(filterStr, dep, false);
-
-		Set<Selected> allSelected = lookForAll(capability, filterStr, dep) ;
-		if (allSelected == null || allSelected.isEmpty()) {
-			logger.debug("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
-			return null;
-		}
-		return getBestCandidate(allSelected) ;
-	}
 
 	private void logFilterConstraintPreferences(String filterStr, Relation dep) {
 		StringBuffer debugMessage = new StringBuffer();
