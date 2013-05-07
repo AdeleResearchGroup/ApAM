@@ -130,7 +130,7 @@ public class ApamFilter /* implements Filter */ {
 		ApamFilter f = newInstanceApam(filterString, component) ;
 		ApamFilter f2 = newInstance(filterString);
 		if (f==null || f2==null) return false ;
-		return f.equals(f2) ;
+		return !f.equals(f2);
 	}
 	
 	public static ApamFilter newInstance(String filterString, boolean ignoreCase)
