@@ -376,24 +376,46 @@ public class RelationImpl implements Relation {
 			return false;
 		}
 
-		if (getSourceKind() == ComponentKind.IMPLEMENTATION) {
-			for (ApamFilter f : mngImplementationConstraintFilters) {
-				if (!f.match0(properties))
-					return false;
-			}
-			return true;
-		}
-
-		if (getSourceKind() == ComponentKind.INSTANCE) {
+		//Instance must match both implementation and instance constraints ???
+		switch (getSourceKind()) {
+		case INSTANCE:
 			for (ApamFilter f : mngInstanceConstraintFilters) {
 				if (!f.match0(properties))
 					return false;
 			}
+		case IMPLEMENTATION:
+			for (ApamFilter f : mngImplementationConstraintFilters) {
+				if (!f.match0(properties))
+					return false;
+			}
+		case SPECIFICATION:
+		case COMPONENT:
 		}
 
-		// TODO if it is a spec ...
 		return true;
 	}
+
+	//		if (getSourceKind() == ComponentKind.IMPLEMENTATION) {
+	//			for (ApamFilter f : mngImplementationConstraintFilters) {
+	//				if (!f.match0(properties))
+	//					return false;
+	//			}
+	//		}
+	//		//			return true;
+	//		//		}
+	//		//
+	//		//		if (getSourceKind() == ComponentKind.INSTANCE) {
+	//
+	//		//Instance must match both implementation and instance constraints ???
+	//		for (ApamFilter f : mngInstanceConstraintFilters) {
+	//			if (!f.match0(properties))
+	//				return false;
+	//		}
+	//		//		}
+	//
+	//		// TODO if it is a spec ...
+	//		return true;
+	//	}
 
 	@Override
 	public boolean matchRelation(Component target) {
@@ -736,11 +758,18 @@ public class RelationImpl implements Relation {
 	 * Provided a component, compute its effective relations, adding group
 	 * constraint and flags. It is supposed to be correct !! No failure expected
 	 * 
-	 * Does not add those dependencies defined "above" nor the composite ones.
+	 * Does not add those dependencies defined "above" nor the composite ones;
+	 * except for the implementation definition that are overridden by the
+	 * current composite (for instances) that are duplicated and copied at the
+	 * instance level
 	 * 
 	 */
 	protected static Map<String, Relation> initializeDependencies(Component client) {
 		Map<String, Relation> relations = new HashMap<String, Relation>();
+		List<RelationDeclaration> overDeps = null;
+		if (client instanceof Instance)
+			overDeps = ((Instance) client).getComposite().getCompType().getCompoDeclaration().getOverridenDependencies();
+
 		for (RelationDeclaration relDef : client.getDeclaration().getDependencies()) {
 			//relations.add (relation.getIdentifier(),relation)) ;
 			Component group = client.getGroup();
@@ -752,43 +781,95 @@ public class RelationImpl implements Relation {
 			}
 
 			if (groupDep != null) {
-				// it is declared above. Merge and check.
-				// First merge flags, and then constraints.
+				// it is declared above. First merge flags, and then constraints. 
 				Util.overrideDepFlags(relDef, groupDep, false);
 				relDef.getImplementationConstraints().addAll(groupDep.getImplementationConstraints());
 				relDef.getInstanceConstraints().addAll(groupDep.getInstanceConstraints());
 				relDef.getImplementationPreferences().addAll(groupDep.getImplementationPreferences());
-				relDef.getInstancePreferences().addAll(groupDep.getInstancePreferences());
-
-				// It is supposed that the compilation checked that the targets
-				// are compatible
-				// relation.setTarget(groupDep.getTarget()) ;
+				relDef.getInstancePreferences().addAll(groupDep.getInstancePreferences());	
 			}
 
-			// Add the override relation : flags and constraints. Only for
-			// source instances
-			if (client instanceof Instance) {
-				List<RelationDeclaration> overDeps = ((Instance) client).getComposite().getCompType().getCompoDeclaration().getOverridenDependencies();
-				if (overDeps != null && !overDeps.isEmpty()) {
-					for (RelationDeclaration overDep : overDeps) {
-						if (Util.matchOverrideRelation((Instance) client, overDep, relDef)) {
-							Util.overrideDepFlags(relDef, overDep, true);
-							// It is assumed that the filters have been checked
-							// at compile time (checkObr)
-							relDef.getImplementationConstraints().addAll(overDep.getImplementationConstraints());
-							relDef.getInstanceConstraints().addAll(overDep.getInstanceConstraints());
-							relDef.getImplementationPreferences().addAll(overDep.getImplementationPreferences());
-							relDef.getInstancePreferences().addAll(overDep.getInstancePreferences());
-						}
+			//for instances, return it overriden by composite, unchanged otherwise
+			relDef = overrideComposite(client, relDef, overDeps, false);
+			// Build the corresponding relation; only for those defined at that level
+			relations.put(relDef.getIdentifier(), new RelationImpl(relDef));
+		}
+
+
+		//For instances, we have to override the relation with the composite flags and constraints.
+		//And to duplicate the implementation dependencies that are overridden by the composite
+		if (client instanceof Instance && overDeps != null) {
+			Implementation impl = ((Instance)client).getImpl() ;
+			for (RelationDeclaration relDef : impl.getDeclaration().getDependencies()) {
+				//If not defined at instance level
+				if (relations.get(relDef.getIdentifier()) == null) {
+					//returns null if no override
+					relDef = overrideComposite(client, relDef, overDeps, true);
+					if (relDef != null) {
+						//If not null, the implementation definition has been cloned and overriden
+						relations.put(relDef.getIdentifier(), new RelationImpl(relDef));
 					}
 				}
 			}
-
-			// Build the corresponding relation
-			relations.put(relDef.getIdentifier(), new RelationImpl(relDef));
 		}
 		return relations;
 	}
+
+	/*
+	 * for instances, looks if the relation is overriden. If so : if duplicate
+	 * is true: duplicate the def, and override and return the modified relation
+	 * else override and return the same relation modified.
+	 */
+	private static RelationDeclaration overrideComposite(Component client, RelationDeclaration relDef, List<RelationDeclaration> overDeps, boolean duplicate) {
+		if (overDeps == null || !(client instanceof Instance)) {
+			if (duplicate)
+				return null;
+			return relDef;
+		}
+
+		for (RelationDeclaration overDep : overDeps) {
+			if (Util.matchOverrideRelation((Instance) client, overDep, relDef)) {
+				//Do not change the implemention relDeclaration
+				if (duplicate)
+					relDef = relDef.clone();
+				Util.overrideDepFlags(relDef, overDep, true);
+				// It is assumed that the filters have been checked at compile time (checkObr)
+				relDef.getImplementationConstraints().addAll(overDep.getImplementationConstraints());
+				relDef.getInstanceConstraints().addAll(overDep.getInstanceConstraints());
+				relDef.getImplementationPreferences().addAll(overDep.getImplementationPreferences());
+				relDef.getInstancePreferences().addAll(overDep.getInstancePreferences());
+				return relDef;
+			}
+		}
+
+		//No override found. Return as is if not duplicate
+		if (duplicate)
+			return null;
+		return relDef;
+	}
+
+	//		if (!(client instanceof Instance))
+	//			return new RelationImpl(relDef);
+	//
+	//		List<RelationDeclaration> overDeps = ((Instance) client).getComposite().getCompType().getCompoDeclaration().getOverridenDependencies();
+	//		if (overDeps != null && !overDeps.isEmpty()) {
+	//			for (RelationDeclaration overDep : overDeps) {
+	//				if (Util.matchOverrideRelation((Instance) client, overDep, relDef)) {
+	//					//Do not change the implemention relDeclaration
+	//					RelationDeclaration newRelDef = relDef.clone();
+	//					Util.overrideDepFlags(relDef, overDep, true);
+	//					// It is assumed that the filters have been checked
+	//					// at compile time (checkObr)
+	//					relDef.getImplementationConstraints().addAll(overDep.getImplementationConstraints());
+	//					relDef.getInstanceConstraints().addAll(overDep.getInstanceConstraints());
+	//					relDef.getImplementationPreferences().addAll(overDep.getImplementationPreferences());
+	//					relDef.getInstancePreferences().addAll(overDep.getInstancePreferences());
+	//					return new RelationImpl(newRelDef);
+	//				}
+	//			}
+	//		}
+	//		return new RelationImpl(relDef);
+	//	}
 
 	/**
 	 * Provided a client instance, checks if its relation "clientDep", matches
