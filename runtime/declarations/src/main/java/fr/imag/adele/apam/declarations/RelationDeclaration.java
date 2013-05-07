@@ -128,7 +128,7 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 	 */
     
     public RelationDeclaration(ComponentReference<?> component,  String id, boolean isMultiple, ResolvableReference resource) {
-    	this(component,component,id,isMultiple,resource);
+    	this(component,null,id,isMultiple,resource);
     }
 
     public RelationDeclaration(ComponentReference<?> component, ComponentReference<?> source, String id, boolean isMultiple,

@@ -642,7 +642,7 @@ public class CoreMetadataParser implements CoreParser {
 			 */
 			RelationDeclaration relationDeclaration = parseRelation(relation,
 					component);
-			if (! component.getContextualDependencies().add(relationDeclaration)) {
+			if (! component.getOverridenDependencies().add(relationDeclaration)) {
 				errorHandler.error(Severity.ERROR,
 						"Duplicate relation identifier " + relationDeclaration);
 			}
