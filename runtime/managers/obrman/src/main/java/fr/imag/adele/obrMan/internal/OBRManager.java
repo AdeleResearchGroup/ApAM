@@ -114,8 +114,8 @@ public class OBRManager {
 
 		Set<Selected> allRes = new HashSet<Selected>();
 
-		// Trace preference filter
-		logFilterConstraintPreferences(filterStr, dep, true);
+		// Trace
+		logFilterConstraintPreferences(filterStr, dep);
 
 		if (allResources.isEmpty()) {
 			logger.debug("no resources in OBR");
@@ -131,11 +131,10 @@ public class OBRManager {
 				for (Capability aCap : capabilities) {
 					if (aCap.getName().equals(capability)) {
 						if (filter.matchCase(aCap.getPropertiesAsMap())) {
-							//                            if ((constraints == null) || matchConstraints(aCap, constraints) ) {
 							if (dep == null || dep.matchRelationConstraints (aCap.getPropertiesAsMap())) {
-								logger.debug("-->Component " + getAttributeInCapability(aCap, CST.NAME)
+								logger.debug("Component " + getAttributeInCapability(aCap, CST.NAME)
 										+ " found in bundle : " + res.getSymbolicName() + " From "
-										+ compositeTypeName + " repositories : \n   " + repositoriesToString());
+ + compositeTypeName + " repositories : " + repositoriesToString());
 								allRes.add(new Selected(res, aCap, this));
 							}
 						}
@@ -173,17 +172,17 @@ public class OBRManager {
 	public Selected lookForPrefInt(String capability, Relation dep, Set<Selected> candidates) {
 		if (candidates == null || candidates.isEmpty()) return null ;
 		// Trace preference filter
-		logFilterConstraintPreferences(null, dep, false);
+		//		logFilterConstraintPreferences(null, dep, false);
 
 		List<ApamFilter> preferences ;
 		switch (dep.getTargetKind()) {
-			case IMPLEMENTATION : preferences = dep.getImplementationPreferenceFilters () ;
-				break ;
-			case INSTANCE : preferences = dep.getInstancePreferenceFilters () ;
-				break ;
-			default : preferences = null ;
-			//TODO Should add specification constraints
-		    //case SPECIFICATION : preferences = null ; 
+		case IMPLEMENTATION : preferences = dep.getImplementationPreferenceFilters () ;
+		break ;
+		case INSTANCE : preferences = dep.getInstancePreferenceFilters () ;
+		break ;
+		default : preferences = null ;
+		//TODO Should add specification constraints
+		//case SPECIFICATION : preferences = null ; 
 		}
 
 		if ((preferences == null) || preferences.isEmpty())
@@ -214,25 +213,17 @@ public class OBRManager {
 	 * @param preferences: the preferences. can be null
 	 * @return the pair capability,
 	 */
-	// public Selected lookFor(String capability, String filterStr, relation
-	// dep) {
-//		if ((preferences != null) && !preferences.isEmpty()) {
-//			return lookForPref(capability, dep, lookForAll(capability, filterStr, dep));
-//		}
-//		return lookFor(capability, filterStr, dep);
-//	}
 
 	/*private*/ public Selected lookFor(String capability, String filterStr, Relation dep) {
-		
+
 		// Take care of preferences !
-		//TODO 
 		if (filterStr == null) {
 			logger.debug("No filter for lookFor");
 			return null;
 		}
 
 		// Trace constraints filter
-		logFilterConstraintPreferences(filterStr, dep, false);
+		//		logFilterConstraintPreferences(filterStr, dep, false);
 
 		Set<Selected> allSelected = lookForAll(capability, filterStr, dep) ;
 		if (allSelected == null || allSelected.isEmpty()) {
@@ -242,73 +233,47 @@ public class OBRManager {
 		return getBestCandidate(allSelected) ;
 	}
 
-	private void logFilterConstraintPreferences(String filterStr, Relation dep, boolean all) {
-		Set<ApamFilter> constraints  ;
-		List<ApamFilter> preferences ;
-		switch (dep.getTargetKind()) {
-		case IMPLEMENTATION : 
-			constraints = dep.getAllImplementationConstraintFilters ();
-			preferences = dep.getImplementationPreferenceFilters () ;
-			break ;
-		case INSTANCE : preferences = dep.getInstancePreferenceFilters () ;
-			constraints = dep.getAllInstanceConstraintFilters () ;
-			preferences = dep.getInstancePreferenceFilters () ;
-			break ;
-			default : 
-				constraints = null ;
-				preferences = null ;
+	private void logFilterConstraintPreferences(String filterStr, Relation dep) {
+		StringBuffer debugMessage = new StringBuffer();
+		if (dep.isMultiple()) {
+			debugMessage.append("OBR: looking for all " + dep.getTargetKind() + " matching " + filterStr);
+		} else {
+			debugMessage.append("OBR: looking for a " + dep.getTargetKind() + "  matching" + filterStr);
 		}
-		
-		StringBuffer debugMessage = new StringBuffer ();
-		if (filterStr != null) {
-			if (all) {
-				debugMessage.append("OBR: looking for all " + dep.getTargetKind() + " matching " + filterStr);
-			} else {
-				debugMessage.append("OBR: looking for a " + dep.getTargetKind() + "  matching" + filterStr);
-			}
-		}
-		if ((constraints != null) && !constraints.isEmpty()) {
-			debugMessage.append("\n     Constraints : ");
-			for (ApamFilter constraint : constraints) {
-				debugMessage.append(constraint + ", ");
-			}
-		}
-
-		if ((preferences != null) && !preferences.isEmpty()) {
-			debugMessage.append("\n    Preferences : ");
-			for (ApamFilter preference : preferences) {
-				debugMessage.append(preference + ", ");
-			}
-		}
-
-		logger.debug(debugMessage.toString());
 	}
+	//		Set<ApamFilter> constraints  ;
+	//		List<ApamFilter> preferences ;
+	//		switch (dep.getTargetKind()) {
+	//		case IMPLEMENTATION : 
+	//			constraints = dep.getAllImplementationConstraintFilters ();
+	//			preferences = dep.getImplementationPreferenceFilters () ;
+	//			break ;
+	//		case INSTANCE : preferences = dep.getInstancePreferenceFilters () ;
+	//			constraints = dep.getAllInstanceConstraintFilters () ;
+	//			preferences = dep.getInstancePreferenceFilters () ;
+	//			break ;
+	//			default : 
+	//				constraints = null ;
+	//				preferences = null ;
+	//		}
+	//		
+	//		if ((constraints != null) && !constraints.isEmpty()) {
+	//			debugMessage.append("\n     Constraints : ");
+	//			for (ApamFilter constraint : constraints) {
+	//				debugMessage.append(constraint + ", ");
+	//			}
+	//		}
+	//
+	//		if ((preferences != null) && !preferences.isEmpty()) {
+	//			debugMessage.append("\n    Preferences : ");
+	//			for (ApamFilter preference : preferences) {
+	//				debugMessage.append(preference + ", ");
+	//			}
+	//		}
+	//
+	//		logger.debug(debugMessage.toString());
+	//	}
 
-//	/**
-//	 * return true if the provided capability has an implementation that satisfies the constraints
-//	 *
-//	 * @param aCap
-//	 * @param constraints
-//	 * @return
-//	 */
-	// private boolean matchConstraints(Capability aCap, relation dep) {
-////		if ((constraints == null) || constraints.isEmpty() || (aCap == null))
-//		if (dep == null)
-//			return true;
-//
-//		//ApamFilter filter;
-//		Map<String, Object> map = (Map<String, Object>)aCap.getPropertiesAsMap();
-//		return dep.matchDep(map) ;
-//		//       String kindS = ((String)map.get("type")) ;
-//
-//		//        for (ApamFilter constraint : constraints) {
-//		//            //filter = ApamFilter.newInstance(constraint);
-//		//            if (!constraint.match(map)) {
-//		//                return false;
-//		//            }
-//		//        }
-//		//        return true;
-//	}
 
 	/**
 	 * Deploys, installs and instantiate
@@ -476,8 +441,8 @@ public class OBRManager {
 
 		//        // Generalize not used for now
 		//        private Set<String> getComponentsByType(String componentName,String type) {
-			//
-			//            Set<String> components = new HashSet<String> () ;
+		//
+		//            Set<String> components = new HashSet<String> () ;
 		//            if (type== null) return components;
 		//            for (Capability aCap : resource.getCapabilities()) {
 		//                if (aCap.getName().equals(CST.CAPABILITY_COMPONENT)  && aCap.getPropertiesAsMap().get(CST.COMPONENT_TYPE).equals(type) ) {
@@ -535,42 +500,42 @@ public class OBRManager {
 				}
 			}
 			//        m_resolutionFlags = flags; int parameter of the resolve method:
-				else if (/* (Resolver.START & Resolver.DO_NOT_PREFER_LOCAL) != 0 || */ !bestLocal || isCurrentLocal)
-				{
-					Object v = current.getCapability().getPropertiesAsMap().get(Resource.VERSION);
+			else if (/* (Resolver.START & Resolver.DO_NOT_PREFER_LOCAL) != 0 || */ !bestLocal || isCurrentLocal)
+			{
+				Object v = current.getCapability().getPropertiesAsMap().get(Resource.VERSION);
 
-					// If there is no version, then select the resource
-					// with the greatest number of capabilities.
-					if ((v == null) && (bestVersion == null)
-							&& (best.getResource().getCapabilities().length
-									< current.getResource().getCapabilities().length))
+				// If there is no version, then select the resource
+				// with the greatest number of capabilities.
+				if ((v == null) && (bestVersion == null)
+						&& (best.getResource().getCapabilities().length
+								< current.getResource().getCapabilities().length))
+				{
+					best = current;
+					bestLocal = isCurrentLocal;
+					bestVersion = null;
+				}
+				else if ((v != null) && (v instanceof Version))
+				{
+					// If there is no best version or if the current
+					// resource's version is lower, then select it.
+					if ((bestVersion == null) || (bestVersion.compareTo(v) < 0))
 					{
 						best = current;
 						bestLocal = isCurrentLocal;
-						bestVersion = null;
+						bestVersion = (Version) v;
 					}
-					else if ((v != null) && (v instanceof Version))
+					// If the current resource version is equal to the
+					// best, then select the one with the greatest
+					// number of capabilities.
+					else if ((best.getResource().getCapabilities().length
+							< current.getResource().getCapabilities().length))
 					{
-						// If there is no best version or if the current
-						// resource's version is lower, then select it.
-						if ((bestVersion == null) || (bestVersion.compareTo(v) < 0))
-						{
-							best = current;
-							bestLocal = isCurrentLocal;
-							bestVersion = (Version) v;
-						}
-						// If the current resource version is equal to the
-						// best, then select the one with the greatest
-						// number of capabilities.
-						else if ((best.getResource().getCapabilities().length
-								< current.getResource().getCapabilities().length))
-						{
-							best = current;
-							bestLocal = isCurrentLocal;
-							bestVersion = (Version) v;
-						}
+						best = current;
+						bestLocal = isCurrentLocal;
+						bestVersion = (Version) v;
 					}
 				}
+			}
 		}
 
 		return (best == null) ? null : best;

@@ -61,14 +61,14 @@ public interface Relation  {
 	// Get the instance provider preferences
 	public List<String> getMngInstancePreferences();
 
-	// The defining component
-	public Component getComponent() ;
+	//	// The defining component
+	//	public Component getComponent() ;
 
 	// Get the id of the relation in the declaring component declaration
 	public String getIdentifier() ;
 	
-	//Get the source (ancestor) for ctxt relation
-	public String getSource () ;
+	//	//Get the source (ancestor) for ctxt relation
+	//	public String getSource () ;
 	
 	//Get the source (ancestor) for ctxt relation
 	public Component getLinkSource () ;

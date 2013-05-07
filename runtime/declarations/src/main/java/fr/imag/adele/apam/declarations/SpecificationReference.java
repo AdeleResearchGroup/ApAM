@@ -23,13 +23,18 @@ package fr.imag.adele.apam.declarations;
  */
 public class SpecificationReference extends ComponentReference<SpecificationDeclaration>  {
 
-   public SpecificationReference(String name) {
-        super(name);
-    }
+	public SpecificationReference(String name) {
+		super(name);
+	}
 
-    @Override
-    public String toString() {
-        return " specification " + getIdentifier();
-    }
+	@Override
+	public ComponentKind getKind() {
+		return ComponentKind.SPECIFICATION;
+	}
+
+	@Override
+	public String toString() {
+		return " specification " + getIdentifier();
+	}
 
 }

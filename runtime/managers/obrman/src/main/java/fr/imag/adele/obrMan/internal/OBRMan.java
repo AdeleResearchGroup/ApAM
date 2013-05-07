@@ -47,6 +47,7 @@ import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.RelationImpl;
 import fr.imag.adele.obrMan.OBRManCommand;
@@ -184,7 +185,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 	public void newComposite(ManagerModel model, CompositeType compositeType) {
 		OBRManager obrManager;
 		if (model == null) { // if no model for the compositeType, set the root
-								// composite model
+			// composite model
 			obrManager = searchOBRManager(compositeType);
 		} else {
 			try {// try to load the compositeType model
@@ -192,7 +193,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 				obrModel.load(model.getURL().openStream());
 				obrManager = new OBRManager(this, compositeType.getName(), repoAdmin, obrModel);
 			} catch (IOException e) {// if impossible to load the model for the
-										// compositeType, set the root composite
+				// compositeType, set the root composite
 				// model
 				logger.error("Invalid OBRMAN Model. Cannot be read stream " + model.getURL(), e.getCause());
 				obrManager = searchOBRManager(compositeType);
@@ -213,7 +214,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		if (obrManager == null) {
 			obrManager = obrManagers.get(CST.ROOT_COMPOSITE_TYPE);
 			if (obrManager == null) { // If the root manager was never been
-										// initialized
+				// initialized
 				// lookFor root.OBRMAN.cfg and create obrmanager for the root
 				// composite in a customized location
 				String rootModelurl = m_context.getProperty(ObrUtil.ROOT_MODEL_URL);
@@ -230,7 +231,7 @@ public class OBRMan implements RelationManager, OBRManCommand {
 						obrManagers.put(CST.ROOT_COMPOSITE_TYPE, obrManager);
 					}
 				} catch (Exception e) {// if failed to load customized location,
-										// set default properties for the root
+					// set default properties for the root
 					// model
 					logger.error("Invalid Root URL Model. Cannot be read stream " + rootModelurl, e.getCause());
 					LinkedProperties obrModel = new LinkedProperties();
@@ -252,14 +253,44 @@ public class OBRMan implements RelationManager, OBRManCommand {
 	@Override
 	public Resolved<?> resolveRelation(Component client, Relation dep) {
 		Component ret = null;
-		if (dep.getTarget() instanceof ComponentReference<?>) {
-			ret = findByName(client, dep.getTarget().getName(), dep.getTargetKind());
-		} else {
+
+		//It is either a resolution (spec -> instance) or a resource reference (interface or message)
+		if ((dep.getTarget() instanceof ResourceReference) || (((ComponentReference<?>) dep.getTarget()).getKind() == ComponentKind.SPECIFICATION && dep.getTargetKind() != ComponentKind.SPECIFICATION)) {
 			ret = resolveByResource(client, dep);
 		}
+ else
+			ret = findByName(client, dep);
+
+		//
+		//		
+		//		if (dep.getTarget() instanceof ComponentReference<?>) {
+		//			/*
+		//			 * It is a find by name if the component is the same kind as the
+		//			 * target or looking for an instance, but an implementation name is
+		//			 * provided : return the implem.
+		//			 */
+		//			if (((ComponentReference<?>) dep.getTarget()).getKind() == dep.getTargetKind() || ((ComponentReference<?>) dep.getTarget()).getKind() == ComponentKind.IMPLEMENTATION && dep.getTargetKind() == ComponentKind.INSTANCE) {
+		//				ret = findByName(client, dep);
+		//			} else if (((ComponentReference<?>) dep.getTarget()).getKind() == ComponentKind.COMPONENT) {
+		//				//Unclear. Try to find a component of that name, and then check if it is of the right kind
+		//				ret = findByName(client, dep);
+		//			}
+		//		}
+		//
+		//		//It is either a resolution (spec -> instance) or a resource reference (interface or message)
+		//		else {
+		//			ret = resolveByResource(client, dep);
+		//		}
+
+		//Not found
 		if (ret == null)
 			return null;
 
+		/*
+		 * Check if the found component if of the right kind. If requires an
+		 * Instance, and found an implementation, it is ok, but build the
+		 * "toInstantiate" result.
+		 */
 		boolean badKind = (ret.getKind() != dep.getTargetKind());
 		if (badKind) {
 			logger.debug("Looking for " + dep.getTargetKind() + " but found " + ret);
@@ -270,23 +301,22 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		}
 
 		switch (dep.getTargetKind()) {
-			case SPECIFICATION :
-				return new Resolved<Specification>((Specification) ret);
-			case IMPLEMENTATION :
-				if (badKind)
-					return new Resolved<Implementation>((Implementation) ret, true);
-				return new Resolved<Implementation>((Implementation) ret);
-			case INSTANCE :
-				if (badKind)
-					return new Resolved<Instance>((Implementation) ret, true);
-				return new Resolved<Instance>((Instance) ret);
+		case SPECIFICATION :
+			return new Resolved<Specification>((Specification) ret);
+		case IMPLEMENTATION :
+			if (badKind)
+				return new Resolved<Implementation>((Implementation) ret, true);
+			return new Resolved<Implementation>((Implementation) ret);
+		case INSTANCE :
+			if (badKind)
+				return new Resolved<Instance>((Implementation) ret, true);
+			return new Resolved<Instance>((Instance) ret);
+		case COMPONENT: //Not allowed
 		}
 		return null;
 	}
 
-	private Component findByName(Component source, String componentName, ComponentKind kind) {
-		if (componentName == null)
-			return null;
+	private Component findByName(Component source, Relation rel) {
 
 		CompositeType compoType = null;
 		if (source instanceof Instance) {
@@ -294,18 +324,20 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		}
 		// Find the composite OBRManager
 		OBRManager obrManager = searchOBRManager(compoType);
-		if (obrManager == null)
+		if (obrManager == null) {
+			logger.error("OBR: No context found for composite " + compoType);
 			return null;
+		}
 
-		Relation rel = new RelationImpl(source, new ComponentReference(componentName), kind);
-		((RelationImpl) rel).computeFilters(source);
-		Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + componentName + ")", rel);
+		// Relation rel = new RelationImpl(source, new
+		// ComponentReference(componentName), kind);
+		// ((RelationImpl) rel).computeFilters(source);
+		Selected selected = obrManager.lookFor(CST.CAPABILITY_COMPONENT, "(name=" + rel.getTarget().getName() + ")", rel);
 		fr.imag.adele.apam.Component c = installInstantiate(selected);
 		if (c == null)
 			return null;
-		if (c.getKind() != kind) {
-			logger.error("ERROR : " + componentName + " is found but is not a " + kind);
-			return null;
+		if (c.getKind() != rel.getTargetKind()) {
+			logger.debug("ERROR : " + rel.getTarget().getName() + " is found but is an " + rel.getTargetKind() + " not an " + c.getKind());
 		}
 
 		return c;
@@ -324,18 +356,6 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		if (obrManager == null)
 			return null;
 
-		// temporary ??
-		// if (preferences == null)
-		// preferences = new ArrayList<String>();
-		// preferences.add("(apam-composite=true)");
-		// // end
-		// if (constraints == null) {
-		// constraints = new HashSet <String> () ;
-		// }
-		// ApamFilter f = ApamFilter.newInstance("(" + CST.COMPONENT_TYPE + "="
-		// + CST.IMPLEMENTATION + ")");
-		// if (f != null)
-		// dep.getImplementationConstraintFilters().add(f);
 
 		fr.imag.adele.obrMan.internal.OBRManager.Selected selected = null;
 		// Implementation impl = null;

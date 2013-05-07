@@ -503,16 +503,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return Util.toStringAttrValue(getPropertyObject(attr));
 	}
 
-	// @Override
-	// public relation getrelation(String id) {
-	// return relationUtil.getrelation (this, id) ;
-	// xx
-	// }
-	//
-	// @Override
-	// public Set<relation> getDependencies() {
-	// return relationUtil.getDependencies (this) ;
-	// }
 
 	/**
 	 * Return the relation that can be applied to this component.

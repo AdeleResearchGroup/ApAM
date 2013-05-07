@@ -231,8 +231,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 		for (RelationDeclaration relation : ((CompositeDeclaration) this
 				.getDeclaration()).getContextualDependencies()) {
 			// Build the corresponding relation and attach it to the component
-			ctxtDependencies.put(relation.getIdentifier(), new RelationImpl(
-					relation, this));
+			ctxtDependencies.put(relation.getIdentifier(), new RelationImpl(relation));
 		}
 
 		/*
@@ -420,7 +419,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 			return null ;
 		Component group = source ;
 		while (group != null) {
-			if (group.getName().equals(dep.getSource()) 
+			if (group.getName().equals(dep.getLinkSource().getName())
 					&& 	source.getKind() == dep.getSourceKind())
 				return dep ;
 		}
@@ -446,7 +445,7 @@ public class CompositeTypeImpl extends ImplementationImpl implements CompositeTy
 				continue ;
 			group = source ;
 			while (group != null) {
-				if (group.getName().equals(dep.getSource()))
+				if (group.getName().equals(dep.getLinkSource().getName()))
 					deps.add(dep) ;
 			}
 		}
