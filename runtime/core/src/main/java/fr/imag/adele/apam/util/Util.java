@@ -309,10 +309,11 @@ public final class Util {
 		Component group = source ;
 		boolean found = false ;
 		while (group != null) {
-			if (sourceDep.getSource().getName().matches(overDep.getSource().getName())) {
+			if (overDep.getSource() == null || sourceDep.getSource().getName().matches(overDep.getSource().getName())) {
 				found = true;
 				break ;
 			}
+			group = group.getGroup();
 		}
 		
 		if (!found) 

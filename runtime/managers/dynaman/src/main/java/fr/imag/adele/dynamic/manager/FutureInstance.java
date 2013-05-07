@@ -31,31 +31,31 @@ public class FutureInstance {
 	private final Implementation 		implementation;
 	private final Map<String,String>	properties;
 	private final List<Relation>		triggers;
-	
+
 	private boolean						isTriggered;
-	
+
 	public FutureInstance(Composite owner, InstanceDeclaration declaration) throws InvalidConfiguration {
-		
+
 		this.owner			= owner;
 		this.implementation = CST.apamResolver.findImplByName(owner.getMainInst(),declaration.getImplementation().getName());	
 		this.properties		= declaration.getProperties();
 		this.isTriggered	= false;
-		
+
 		/*
 		 *	Verify that the implementation exists 
 		 */
 		if (implementation == null || ! (implementation instanceof Implementation)) {
 			throw new InvalidConfiguration("Invalid instance declaration, implementation can not be found "+declaration.getImplementation().getName());
 		}
-		
+
 		/*
 		 * Parse the list of triggering conditions
 		 */
-		
+
 		int counter = 1;
 		triggers = new ArrayList<Relation>();
 		for (ConstrainedReference trigger : declaration.getTriggers()) {
-			
+
 			RelationDeclaration triggerRelation = new RelationDeclaration(
 					declaration.getReference(), "trigger-" + counter, false,
 					trigger.getTarget());
@@ -63,31 +63,31 @@ public class FutureInstance {
 					trigger.getImplementationConstraints());
 			triggerRelation.getInstanceConstraints().addAll(
 					trigger.getInstanceConstraints());
-			
-			triggers.add(new RelationImpl(triggerRelation, null));
+
+			triggers.add(new RelationImpl(triggerRelation));
 			counter++;
 		}
 
 	}
-	
+
 	/**
 	 * Verifies whether all triggering conditions are satisfied, and in that case instantiate the instance in the APAM
 	 * state
 	 */
 	public void checkInstatiation() {
-		
+
 		/*
 		 * Verifiy if already triggered
 		 */
 		if (isInstantiated())
 			return;
-		
+
 		/*
 		 * evaluate all triggering conditions
 		 */
 		boolean satisfied = true;
 		for (Relation trigger : triggers) {
-			
+
 			/*
 			 * evaluate the specified trigger
 			 */
@@ -97,15 +97,15 @@ public class FutureInstance {
 				/*
 				 * ignore non matching candidates
 				 */
-				
+
 				ResolvableReference target = trigger.getTarget();
-				
+
 				if (trigger.getTarget() instanceof SpecificationReference && !candidate.getSpec().getDeclaration().getReference().equals(target))
 					continue;
 
 				if (trigger.getTarget() instanceof ImplementationReference<?> && !candidate.getImpl().getDeclaration().getReference().equals(target))
 					continue;
-				
+
 				if (!candidate.matchRelationConstraints(trigger))
 					continue;
 
@@ -118,23 +118,23 @@ public class FutureInstance {
 				satisfiedTrigger = true;
 				break;
 			}
-			
+
 			/*
 			 * stop at the first unsatisfied trigger
 			 */
 			if (! satisfiedTrigger) {
 				satisfied = false;
 				break;
-				
+
 			}
 		}
-		
+
 		/*
 		 * If some trigger is not satisfied, just keep waiting fort all conditions to be satisfied
 		 */
 		if (! satisfied)
 			return;
-		
+
 		/*
 		 * Try to instantiate the specified implementation.
 		 * 
@@ -146,7 +146,7 @@ public class FutureInstance {
 		Instance instance 	= implementation.createInstance(owner,properties);
 		isTriggered			= instance != null;
 	}
-	
+
 	/**
 	 * Whether this future instance has already bee instantiated
 	 */

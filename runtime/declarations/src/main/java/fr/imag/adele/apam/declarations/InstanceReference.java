@@ -23,4 +23,9 @@ public class InstanceReference extends ComponentReference<InstanceDeclaration> {
 		super(name);
 	}
 
+	@Override
+	public ComponentKind getKind() {
+		return ComponentKind.INSTANCE;
+	}
+
 }

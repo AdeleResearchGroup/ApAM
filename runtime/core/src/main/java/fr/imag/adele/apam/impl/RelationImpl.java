@@ -19,13 +19,12 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.MissingPolicy;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
+import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
@@ -49,14 +48,14 @@ public class RelationImpl implements Relation {
 	// Target type for this relation (Spec, implem, instance)
 	private final ComponentKind targetType;
 
-	// Name of an ancestor of the Source for this relation. For ctxt relations
-	private final String sourceName;
+	//	// Name of an ancestor of the Source for this relation. For ctxt relations
+	//	private String sourceName;
 
 	// The actual source of this relation. Set just before a resolution
 	private Component linkSource;
 
-	// The reference to the associated component
-	private final Component component;
+	// // The reference to the associated component
+	// private final Component component;
 
 	/**
 	 * The set of constraints that must be satisfied by the target component
@@ -67,7 +66,7 @@ public class RelationImpl implements Relation {
 	private final Set<String> mngImplementationConstraints = new HashSet<String>();
 	private final Set<ApamFilter> implementationConstraintFilters = new HashSet<ApamFilter>();
 	private final Set<ApamFilter> mngImplementationConstraintFilters = new HashSet<ApamFilter>();
-	private final boolean isStaticImplemConstraintFilters;
+	private boolean isStaticImplemConstraintFilters;
 
 	/**
 	 * The set of constraints that must be satisfied by the target component
@@ -77,7 +76,7 @@ public class RelationImpl implements Relation {
 	private final Set<String> mngInstanceConstraints = new HashSet<String>();
 	private final Set<ApamFilter> instanceConstraintFilters = new HashSet<ApamFilter>();
 	private final Set<ApamFilter> mngInstanceConstraintFilters = new HashSet<ApamFilter>();
-	private final boolean isStaticInstConstraintFilters;
+	private boolean isStaticInstConstraintFilters;
 
 	/**
 	 * The list of preferences to choose among candidate service provider
@@ -116,66 +115,66 @@ public class RelationImpl implements Relation {
 	// Whether a resolution error must trigger a backtrack in the architecture
 	private final boolean mustHide;
 
-	// true if this is a dynamic relation : a field multiple, or a dynamic
-	// message
+	// true if this is a dynamic relation : a field multiple, or a dynamic message
 	private final boolean isDynamic;
 
-	// //If this is a Wire definion
-	// private final boolean isWire;
+	// If this is a Wire definion
+	private final boolean isWire;
 
 	private boolean isComputed = false;
 
-	// private relationImpl () {
-	//
-	// }
+	// this relation was created but never computed so far. bool isStaticxyz are
+	// not set yet
+	private boolean isInitialized = false;
+
 
 	public boolean isRelation() {
 		return !identifier.isEmpty();
 	}
 
-	public RelationImpl(Component component, ResolvableReference target, ComponentKind targetType) {
-	// The minimum info for a find.
-		this.component = component;
+	public RelationImpl(ResolvableReference target, ComponentKind targetType, Set<String> constraints, List<String> preferences) {
+		// The minimum info for a find.
+		// this.component = component;
 		this.identifier = "";
 		this.targetDefinition = target;
 		this.isMultiple = false;
 		this.sourceType = ComponentKind.INSTANCE;
-		this.targetType = (targetType == null)
-				? ComponentKind.INSTANCE
-				: targetType;
+		this.targetType = (targetType == null) ? ComponentKind.INSTANCE : targetType;
 
-		this.linkSource = component;
-		this.sourceName = component.getName();
+		//		this.linkSource = component;
+		//		this.sourceName = component.getName();
 		isDynamic = false;
-		// isWire = false ;
+		isWire = false;
 		isEager = false;
 		mustHide = false;
 		missingException = null;
 		missingPolicy = null;
 
-		isStaticImplemConstraintFilters = false;
-		isStaticInstConstraintFilters = false;
-		isStaticImplemPreferenceFilters = false;
-		isStaticInstPreferenceFilters = false;
+		if (constraints != null) {
+			if (targetType == ComponentKind.IMPLEMENTATION)
+				implementationConstraints.addAll(constraints);
+			instanceConstraints.addAll(constraints);
+		}
+		if (preferences != null) {
+			if (targetType == ComponentKind.IMPLEMENTATION)
+				implementationPreferences.addAll(constraints);
+			instancePreferences.addAll(preferences);
+		}
 	}
 
 
 	/*
 	 * Component can be null; in that case filters are not substituted.
 	 */
-	public RelationImpl(RelationDeclaration dep, Component component) {
+	public RelationImpl(RelationDeclaration dep) {
 		// Definition
-		this.component = component;
+		// this.component = component;
 		this.targetDefinition = dep.getTarget();
 		this.identifier = dep.getIdentifier();
-		this.sourceType = (dep.getSourceType() == null)
-				? ComponentKind.INSTANCE
-				: dep.getSourceType();
-		this.targetType = (dep.getTargetType() == null)
-				? ComponentKind.INSTANCE
-				: dep.getTargetType();
-		this.sourceName = (dep.getSource() == null) ? component.getName() : dep
-				.getSource().getName();
+		this.sourceType = (dep.getSourceType() == null) ? ComponentKind.INSTANCE : dep.getSourceType();
+		this.targetType = (dep.getTargetType() == null) ? ComponentKind.INSTANCE : dep.getTargetType();
+		// this.sourceName = (dep.getSource() == null) ? component.getName() :
+		// dep.getSource().getName();
 
 		// Flags
 		this.isMultiple = dep.isMultiple();
@@ -185,11 +184,9 @@ public class RelationImpl implements Relation {
 		this.missingException = dep.getMissingException();
 
 		// Constraints
-		this.implementationConstraints.addAll(dep
-				.getImplementationConstraints());
+		this.implementationConstraints.addAll(dep.getImplementationConstraints());
 		this.instanceConstraints.addAll(dep.getInstanceConstraints());
-		this.implementationPreferences.addAll(dep
-				.getImplementationPreferences());
+		this.implementationPreferences.addAll(dep.getImplementationPreferences());
 		this.instancePreferences.addAll(dep.getInstancePreferences());
 
 		// computing isDynamic
@@ -202,77 +199,55 @@ public class RelationImpl implements Relation {
 		}
 		isDynamic = (!hasField || dep.isMultiple() || dep.isEffectiveEager());
 
-		// isWire = (hasField
-		// && dep.getTargetType() == ComponentKind.INSTANCE
-		// && dep.getTarget() instanceof ResourceReference
-		// && !dep.getTarget().getName().equals("fr.imag.adele.apam.Component")
-		// &&
-		// !dep.getTarget().getName().equals("fr.imag.adele.apam.Specification")
-		// &&
-		// !dep.getTarget().getName().equals("fr.imag.adele.apam.Implementation")
-		// && !dep.getTarget().getName().equals("fr.imag.adele.apam.Instance")
-		// ) ;
-
-		// Check if there are substitutions, and build filters
-		ApamFilter f;
-		boolean subst;
-		subst = false;
-		for (String c0 : implementationConstraints) {
-			if (ApamFilter.isSubstituteFilter(c0, component)) {
-				subst = true;
-				for (String c : implementationConstraints) {
-					f = ApamFilter.newInstanceApam(c, component);
-					if (f != null)
-						implementationConstraintFilters.add(f);
-				}
-				break;
-			}
-		}
-		isStaticImplemConstraintFilters = subst;
-
-		subst = false;
-		for (String c0 : instanceConstraints) {
-			if (ApamFilter.isSubstituteFilter(c0, component)) {
-				subst = true;
-				for (String c : instanceConstraints) {
-					f = ApamFilter.newInstanceApam(c, component);
-					if (f != null)
-						instanceConstraintFilters.add(f);
-				}
-				break;
-			}
-		}
-		isStaticInstConstraintFilters = subst;
-
-		subst = false;
-		for (String c0 : implementationPreferences) {
-			if (ApamFilter.isSubstituteFilter(c0, component)) {
-				subst = true;
-				for (String c : implementationPreferences) {
-					f = ApamFilter.newInstanceApam(c, component);
-					if (f != null)
-						implementationPreferenceFilters.add(f);
-				}
-				break;
-			}
-		}
-		isStaticImplemPreferenceFilters = subst;
-
-		subst = false;
-		for (String c0 : instancePreferences) {
-			if (ApamFilter.isSubstituteFilter(c0, component)) {
-				subst = true;
-				for (String c : instancePreferences) {
-					f = ApamFilter.newInstanceApam(c, component);
-					if (f != null)
-						instancePreferenceFilters.add(f);
-				}
-				break;
-			}
-		}
-		isStaticInstPreferenceFilters = subst;
+		isWire = (hasField
+				&& dep.getTargetType() == ComponentKind.INSTANCE
+				&& dep.getTarget() instanceof ResourceReference
+				&& !dep.getTarget().getName().equals("fr.imag.adele.apam.Component")
+				&& !dep.getTarget().getName().equals("fr.imag.adele.apam.Specification")
+				&& !dep.getTarget().getName().equals("fr.imag.adele.apam.Implementation")
+ && !dep.getTarget().getName().equals("fr.imag.adele.apam.Instance"));
 	}
 
+	private void initializeRelation(Component component) {
+		// Check if there are substitutions, and build filters
+		ApamFilter f;
+		isStaticImplemConstraintFilters = true;
+		isStaticInstConstraintFilters = true;
+		isStaticImplemPreferenceFilters = true;
+		isStaticInstPreferenceFilters = true;
+
+		for (String c : implementationConstraints) {
+			if (ApamFilter.isSubstituteFilter(c, component))
+				isStaticImplemConstraintFilters = false;
+			f = ApamFilter.newInstanceApam(c, component);
+			if (f != null)
+				implementationConstraintFilters.add(f);
+		}
+
+		for (String c : instanceConstraints) {
+			if (ApamFilter.isSubstituteFilter(c, component))
+				isStaticInstConstraintFilters = false;
+			f = ApamFilter.newInstanceApam(c, component);
+			if (f != null)
+				instanceConstraintFilters.add(f);
+		}
+
+		for (String c : implementationPreferences) {
+			if (ApamFilter.isSubstituteFilter(c, component))
+				isStaticImplemPreferenceFilters = false;
+			f = ApamFilter.newInstanceApam(c, component);
+			if (f != null)
+				implementationPreferenceFilters.add(f);
+		}
+
+		for (String c : instancePreferences) {
+			if (ApamFilter.isSubstituteFilter(c, component))
+				isStaticInstPreferenceFilters = false;
+			f = ApamFilter.newInstanceApam(c, component);
+			if (f != null)
+				instancePreferenceFilters.add(f);
+		}
+	}
 	/**
 	 * Called after the managers have added their constraints, and before to try
 	 * to resolve that relation. First it clears the previous filters (except if
@@ -280,6 +255,13 @@ public class RelationImpl implements Relation {
 	 * preferences and constraints filters
 	 */
 	public void computeFilters(Component linkSource) {
+
+		this.linkSource = linkSource;
+
+		if (!isInitialized) {
+			initializeRelation(linkSource);
+			isInitialized = true;
+		}
 
 		this.linkSource = linkSource;
 		ApamFilter f;
@@ -359,13 +341,11 @@ public class RelationImpl implements Relation {
 		}
 
 		// concatenate preference lists
-		mngImplementationPreferenceFilters
-				.addAll(implementationPreferenceFilters);
+		mngImplementationPreferenceFilters.addAll(implementationPreferenceFilters);
 		mngInstancePreferenceFilters.addAll(instancePreferenceFilters);
 
 		// concatenate constraints lists
-		mngImplementationConstraintFilters
-				.addAll(implementationConstraintFilters);
+		mngImplementationConstraintFilters.addAll(implementationConstraintFilters);
 		mngInstanceConstraintFilters.addAll(instanceConstraintFilters);
 
 		isComputed = true;
@@ -467,10 +447,10 @@ public class RelationImpl implements Relation {
 		return targetDefinition;
 	}
 
-	@Override
-	public String getSource() {
-		return sourceName;
-	}
+	//	@Override
+	//	public String getSource() {
+	//		return sourceName;
+	//	}
 
 	@Override
 	public Component getLinkSource() {
@@ -532,10 +512,10 @@ public class RelationImpl implements Relation {
 
 
 	// The defining component
-	@Override
-	public Component getComponent() {
-		return component;
-	}
+	// @Override
+	// public Component getComponent() {
+	// return component;
+	// }
 
 	// Get the id of the relation in the declaring component declaration
 	@Override
@@ -588,46 +568,6 @@ public class RelationImpl implements Relation {
 	}
 
 
-	public String toString() {
-		StringBuffer ret = new StringBuffer();
-		if (isRelation())
-			ret.append(getTargetKind() + " for relation " + getIdentifier()
-					+ " towards ");
-		else
-			ret.append("resolving " + getTargetKind() + " ");
-
-		if (getTarget() instanceof ComponentReference<?>)
-			ret.append(getTarget().getName());
-		else
-			ret.append("resource " + getTarget().getName());
-		ret.append(" from " + linkSource);
-
-		if (!implementationConstraintFilters.isEmpty()) {
-			ret.append("\n         Implementation Constraints");
-			for (ApamFilter inj : implementationConstraintFilters) {
-				ret.append("\n            " + inj);
-			}
-		}
-		if (!instanceConstraintFilters.isEmpty()) {
-			ret.append("\n         Instance Constraints");
-			for (ApamFilter inj : instanceConstraintFilters) {
-				ret.append("\n            " + inj);
-			}
-		}
-		if (!implementationPreferenceFilters.isEmpty()) {
-			ret.append("\n         Implementation Preferences");
-			for (ApamFilter inj : implementationPreferenceFilters) {
-				ret.append("\n            " + inj);
-			}
-		}
-		if (!instancePreferenceFilters.isEmpty()) {
-			ret.append("\n         Instance Preferences");
-			for (ApamFilter inj : instancePreferenceFilters) {
-				ret.append("\n            " + inj);
-			}
-		}
-		return ret.toString();
-	}
 
 
 	@Override
@@ -799,32 +739,26 @@ public class RelationImpl implements Relation {
 	 * Does not add those dependencies defined "above" nor the composite ones.
 	 * 
 	 */
-	protected static Map<String, Relation> initializeDependencies(
-			Component client) {
+	protected static Map<String, Relation> initializeDependencies(Component client) {
 		Map<String, Relation> relations = new HashMap<String, Relation>();
-		for (RelationDeclaration relation : client.getDeclaration()
-				.getDependencies()) {
+		for (RelationDeclaration relDef : client.getDeclaration().getDependencies()) {
+			//relations.add (relation.getIdentifier(),relation)) ;
 			Component group = client.getGroup();
 			// look for that relation declaration above
 			RelationDeclaration groupDep = null;
 			while (group != null && (groupDep == null)) {
-				groupDep = group.getDeclaration().getRelation(
-						relation.getIdentifier());
+				groupDep = group.getDeclaration().getRelation(relDef.getIdentifier());
 				group = group.getGroup();
 			}
 
 			if (groupDep != null) {
 				// it is declared above. Merge and check.
 				// First merge flags, and then constraints.
-				Util.overrideDepFlags(relation, groupDep, false);
-				relation.getImplementationConstraints().addAll(
-						groupDep.getImplementationConstraints());
-				relation.getInstanceConstraints().addAll(
-						groupDep.getInstanceConstraints());
-				relation.getImplementationPreferences().addAll(
-						groupDep.getImplementationPreferences());
-				relation.getInstancePreferences().addAll(
-						groupDep.getInstancePreferences());
+				Util.overrideDepFlags(relDef, groupDep, false);
+				relDef.getImplementationConstraints().addAll(groupDep.getImplementationConstraints());
+				relDef.getInstanceConstraints().addAll(groupDep.getInstanceConstraints());
+				relDef.getImplementationPreferences().addAll(groupDep.getImplementationPreferences());
+				relDef.getInstancePreferences().addAll(groupDep.getInstancePreferences());
 
 				// It is supposed that the compilation checked that the targets
 				// are compatible
@@ -833,33 +767,25 @@ public class RelationImpl implements Relation {
 
 			// Add the override relation : flags and constraints. Only for
 			// source instances
-			else if (client instanceof Instance) {
-				List<RelationDeclaration> overDeps = ((Instance) client)
-						.getComposite().getCompType().getCompoDeclaration()
-						.getOverridenDependencies();
+			if (client instanceof Instance) {
+				List<RelationDeclaration> overDeps = ((Instance) client).getComposite().getCompType().getCompoDeclaration().getOverridenDependencies();
 				if (overDeps != null && !overDeps.isEmpty()) {
 					for (RelationDeclaration overDep : overDeps) {
-						if (Util.matchOverrideRelation((Instance) client,
-								overDep, relation)) {
-							Util.overrideDepFlags(relation, overDep, true);
+						if (Util.matchOverrideRelation((Instance) client, overDep, relDef)) {
+							Util.overrideDepFlags(relDef, overDep, true);
 							// It is assumed that the filters have been checked
 							// at compile time (checkObr)
-							relation.getImplementationConstraints().addAll(
-									overDep.getImplementationConstraints());
-							relation.getInstanceConstraints().addAll(
-									overDep.getInstanceConstraints());
-							relation.getImplementationPreferences().addAll(
-									overDep.getImplementationPreferences());
-							relation.getInstancePreferences().addAll(
-									overDep.getInstancePreferences());
+							relDef.getImplementationConstraints().addAll(overDep.getImplementationConstraints());
+							relDef.getInstanceConstraints().addAll(overDep.getInstanceConstraints());
+							relDef.getImplementationPreferences().addAll(overDep.getImplementationPreferences());
+							relDef.getInstancePreferences().addAll(overDep.getInstancePreferences());
 						}
 					}
 				}
 			}
 
 			// Build the corresponding relation
-			relations.put(relation.getIdentifier(), new RelationImpl(relation,
-					client));
+			relations.put(relDef.getIdentifier(), new RelationImpl(relDef));
 		}
 		return relations;
 	}
@@ -919,7 +845,7 @@ public class RelationImpl implements Relation {
 					((SpecificationReference) compoDep.getTarget()).getName());
 			if ((spec != null)
 					&& spec.getDeclaration().getProvidedResources()
-							.contains(getTarget())
+.contains(getTarget())
 					&& (!multiple || compoDep.isMultiple())) {
 				return true;
 			}
@@ -957,6 +883,47 @@ public class RelationImpl implements Relation {
 			}
 		}
 		return false;
+	}
+
+	public String toString() {
+		StringBuffer ret = new StringBuffer();
+		ret.append("resolving ");
+
+		if (isRelation())
+			ret.append("relation " + getIdentifier() + " towards ");
+
+		if (getTarget() instanceof ComponentReference<?>)
+			ret.append(getTargetKind() + " providing " + getTarget().getName());
+		else
+			ret.append(getTarget());
+
+		ret.append(" from " + linkSource);
+
+		if (!implementationConstraintFilters.isEmpty()) {
+			ret.append("\n         Implementation Constraints");
+			for (ApamFilter inj : implementationConstraintFilters) {
+				ret.append("\n            " + inj);
+			}
+		}
+		if (!instanceConstraintFilters.isEmpty()) {
+			ret.append("\n         Instance Constraints");
+			for (ApamFilter inj : instanceConstraintFilters) {
+				ret.append("\n            " + inj);
+			}
+		}
+		if (!implementationPreferenceFilters.isEmpty()) {
+			ret.append("\n         Implementation Preferences");
+			for (ApamFilter inj : implementationPreferenceFilters) {
+				ret.append("\n            " + inj);
+			}
+		}
+		if (!instancePreferenceFilters.isEmpty()) {
+			ret.append("\n         Instance Preferences");
+			for (ApamFilter inj : instancePreferenceFilters) {
+				ret.append("\n            " + inj);
+			}
+		}
+		return ret.toString();
 	}
 
 }

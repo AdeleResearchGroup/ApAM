@@ -74,27 +74,6 @@ public class ApamMan implements RelationManager {
 	public void getSelectionPath(Component client, Relation dep, List<RelationManager> selPath) {
 	}
 
-	// @Override
-	// public Instance resolveImpl(Component client, Implementation impl,
-	// Relation dep) {
-	// //List<ApamFilter> f = Util.toFilterList(preferences) ;
-	// return dep.getPrefered(resolveImpls(client, impl, dep)) ;
-	// }
-	//
-	// @Override
-	// public Set<Instance> resolveImpls(Component client, Implementation impl,
-	// Relation dep) {
-	//
-	// //Set<ApamFilter> f = Util.toFilter(constraints) ;
-	// Set<Instance> insts = new HashSet<Instance>();
-	// for (Instance inst : impl.getInsts()) {
-	// if (inst.isSharable() && inst.matchRelationConstraints(dep) &&
-	// client.canSee(inst))
-	// insts.add(inst);
-	// }
-	// return insts;
-	// }
-
 	@Override
 	public int getPriority() {
 		return -1;
@@ -103,45 +82,6 @@ public class ApamMan implements RelationManager {
 	@Override
 	public void newComposite(ManagerModel model, CompositeType composite) {
 	}
-
-	// @Override
-	// public Instance findInstByName(Component client, String instName) {
-	// if (instName == null) return null;
-	// Instance inst = CST.componentBroker.getInst(instName);
-	// if (inst == null) return null;
-	// if (client.canSee(inst)) {
-	// return inst;
-	// }
-	// return null;
-	// }
-	//
-	// @Override
-	// public Implementation findImplByName(Component client, String implName) {
-	// if (implName == null)
-	// return null;
-	// Implementation impl = CST.componentBroker.getImpl(implName);
-	// if (client.canSee(impl)) {
-	// return impl ;
-	// }
-	// return null ;
-	// }
-	//
-	// @Override
-	// public Specification findSpecByName(Component client, String specName) {
-	// if (specName == null)
-	// return null;
-	// return CST.componentBroker.getSpec(specName);
-	// }
-
-	//	@Override
-	//	public Component findComponentByName(Component client, String componentName) {
-	//		Component ret = CST.componentBroker.getComponent (componentName) ;
-	//		if (ret == null) return null ;
-	//		if (Visible.isVisible(client, ret)) {
-	//			return ret ;
-	//		}
-	//		return null ;
-	//	}
 
 	/**
 	 * dep target can be a specification, an implementation or a resource:
@@ -185,9 +125,7 @@ public class ApamMan implements RelationManager {
 			impls = new HashSet<Implementation> () ;
 			if (relation.getTarget() instanceof ResourceReference) {
 				for (Implementation impl : CST.componentBroker.getImpls()) {
-					if (impl.getDeclaration()
-							.getProvidedResources()
-							.contains(
+					if (impl.getDeclaration().getProvidedResources().contains(
 									((ResourceReference) relation.getTarget()))) {
 						impls.add(impl) ;
 					}

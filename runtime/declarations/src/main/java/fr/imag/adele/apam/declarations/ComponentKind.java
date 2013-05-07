@@ -7,11 +7,14 @@ package fr.imag.adele.apam.declarations;
  *
  */
 public enum ComponentKind {
-	
+
+
 	INSTANCE,
-	
+
 	IMPLEMENTATION,
-	
-	SPECIFICATION
+
+	SPECIFICATION,
+
+	COMPONENT
 
 }
