@@ -891,6 +891,8 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (goal == null)
 			return true;
 		ApamFilter f = ApamFilter.newInstance(goal);
+		if (f == null)
+			return false;
 		return goal == null || f.match(this.getAllProperties());
 	}
 
