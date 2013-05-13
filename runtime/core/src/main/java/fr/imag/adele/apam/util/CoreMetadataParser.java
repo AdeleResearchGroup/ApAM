@@ -96,6 +96,9 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  PROPERTY                = "property";
 	private static final String  DEPENDENCIES            = "dependencies";
 	private static final String  DEPENDENCY              = "dependency";
+	private static final String  RELATIONS               = "relations";
+	private static final String  RELATION                = "relation";
+	private static final String  LINK                    = "link";
 	private static final String  INTERFACE               = "interface";
 	private static final String  MESSAGE                 = "message";
 	private static final String  CONSTRAINTS             = "constraints";
@@ -132,6 +135,11 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_FIELD               = "field";
 	private static final String  ATT_INTERNAL            = "internal";
 	private static final String  ATT_MULTIPLE            = "multiple";
+	private static final String  ATT_OVERRIDE            = "override";
+	private static final String  ATT_SOURCE              = "source";
+	private static final String  ATT_TARGET              = "target";
+	private static final String  ATT_SOURCE_KIND         = "sourceType";
+	private static final String  ATT_TARGET_KIND         = "targetType";
 	private static final String  ATT_FAIL                = "fail";
 	private static final String  ATT_EXCEPTION           = "exception";
 	private static final String  ATT_EAGER               = "eager";
@@ -153,6 +161,10 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  VALUE_OPTIONAL          = "optional";
 	private static final String  VALUE_WAIT              = "wait";
 	private static final String  VALUE_EXCEPTION         = "exception";
+
+	private static final String  VALUE_KIND_INSTANCE        = "instance";
+	private static final String  VALUE_KIND_IMPLEMENTATION  = "implementation";
+	private static final String  VALUE_KIND_SPECIFICATION   = "specification";
 
 	/**
 	 * The parsed metatadata
