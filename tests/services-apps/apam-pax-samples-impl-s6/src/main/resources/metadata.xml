@@ -59,13 +59,13 @@
 
 	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
 		name="spec-case-08">
-		
+		<definition name="property-subject-b" type="string" value="value-impl"/>
 	</specification>
 
 	<implementation name="impl-case-08"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="spec-case-08">
-		<definition name="property-subject-b" type="string" value="value-impl"/>
+		<property name="property-subject-b" value="value-impl"/>
 	</implementation>
 
 	<!-- /CASE 08 -->
