@@ -149,6 +149,19 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		
 	}
 	
-	
+	@Test
+	public void SubstitutionGetPropertyWithDotInMiddleOfComponentName_tcxxx() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		auxListProperties("\t", subjectA);
+		
+		System.err.println("--->"+subjectA.getProperty("property-case-10"));
+		
+		Assert.assertTrue("Substitution did not work when the component contains . (dots) in the name",subjectA.getProperty("property-case-10").equals("value-impl"));
+		
+	}
 	
 }
