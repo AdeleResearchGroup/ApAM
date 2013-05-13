@@ -500,7 +500,7 @@ public class ContentManager  {
 					continue;
 				 
 				if( !thisProperty.equals(thatProperty) ||  !Collections.disjoint(theseValues,thoseValues)) 
-					hasConflict = true;;
+					hasConflict = true;
 				
 			}
 			

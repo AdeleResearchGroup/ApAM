@@ -9,23 +9,32 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<properties>
-		<!-- icasa version -->
-		<icasa.version>0.0.1-SNAPSHOT</icasa.version>
+		<icasa.version>1.0.1-SNAPSHOT</icasa.version>
 	</properties>
 
-	<artifactId>scenario-icasa</artifactId>
+	<artifactId>apam-icasa-scenario</artifactId>
 	<packaging>pom</packaging>
-	<name>The iCasa Scenario</name>
-	<description>		</description>
+	<name>ApAM iCasa Scenario</name>
+	<description></description>
 	<modules>
 		<module>devices</module>
-     	<module>applications</module>
+     		<module>applications</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>fr.liglab.adele.icasa</groupId>
-				<artifactId>environment.api</artifactId>
+				<artifactId>context.api</artifactId>
+				<version>${icasa.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.liglab.adele.icasa</groupId>
+				<artifactId>simulator.api</artifactId>
+				<version>${icasa.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.liglab.adele.icasa</groupId>
+				<artifactId>device.light</artifactId>
 				<version>${icasa.version}</version>
 			</dependency>
 			<dependency>

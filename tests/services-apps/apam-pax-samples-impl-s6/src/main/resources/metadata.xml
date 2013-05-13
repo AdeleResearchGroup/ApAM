@@ -69,16 +69,35 @@
 	</implementation>
 
 	<!-- /CASE 08 -->
+	
+	<!-- CASE 10 
+
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="spec-case-10">
+		<property name="property-subject-b" type="string" value="value-impl"/>
+	</specification>
+
+	<implementation name="impl.case.10"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="spec-case-10">
+		
+	</implementation>
+
+-->
+
+	<!-- /CASE 10 -->
 
 	<implementation name="subject-a"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6">
 		<dependency implementation="impl-case-01" field="s6" />
-		<definition name="property-case-01" type="string" value="$impl-case-01.$property-subject-b"/>
-		<definition name="property-case-03" type="string" value="$impl-case-03.$property-subject-b"/>
-		<definition name="property-case-08" type="string" value="$impl-case-08.$property-subject-b"/>
+		<definition name="property-case-01" type="string" value="$impl-case-01$property-subject-b"/>
+		<definition name="property-case-03" type="string" value="$impl-case-03$property-subject-b"/>
+		<definition name="property-case-08" type="string" value="$impl-case-08$property-subject-b"/>
 		<definition name="property-case-09" type="string" value="\$impl-case-09.$property-subject-b"/>
-		
+		<!-- 
+		<definition name="property-case-10" type="string" value="$impl\.case\.10.$property-subject-b"/>
+		 -->
 		<definition name="function-case-01" type="string" value="@functionCall"/>
 		<definition name="function-case-02" type="string" value="\@functionCall"/>
 		

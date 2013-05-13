@@ -204,8 +204,30 @@ public class CheckObr {
 			defaultValue = "";
 
 		ApamCapability group = ApamCapability.get(component.getGroupReference()) ;
-		if (group != null && group.getAttrDefinition(name) != null) {
-			CheckObr.error ("Property " + name + " allready defined in the group.") ;
+
+		//redefinition check
+		if (group != null) {
+			String groupType = group.getAttrDefinition(name) ;
+			if (groupType != null) {
+				//Allowed only if defining a field, and it types are the same. Default values are not allowed above in that case.
+				PropertyDefinition propDef = component.getPropertyDefinition(name) ;
+				if (propDef == null) {
+					CheckObr.error("Invalid property definition " + name );	
+					return false ;
+				}
+				if  (propDef.getField() == null) {
+					CheckObr.error ("Property " + name + " allready defined in the group.") ;
+					return false ;
+				} 
+				if (! propDef.getType().equals(groupType)) {
+					CheckObr.error("Cannot refine property definition " + name + " Not the same types : " + propDef.getType() + " not equal " + groupType );
+					return false ;
+				}
+				if (group.getAttrDefault(name) != null) {
+					CheckObr.error("Cannot refine property definition with a default value properties " + name + "=" + group.getAttrDefault(name));
+					return false ;
+				}
+			}
 		}
 
 		//We have a default value, check it as if a property.
@@ -228,8 +250,8 @@ public class CheckObr {
 	}
 
 	private static boolean checkFunctionSubst (ComponentDeclaration component, String attr, String type, String defaultValue) {
-		
-//		String func = defaultValue.substring(1) ;
+
+		//		String func = defaultValue.substring(1) ;
 		/*
 		 * Add a function that checks if the public method "public <type> func (Instance inst)" is realy defined in the 
 		 * class, and if its returned type is compatible with the "type"
@@ -259,6 +281,8 @@ public class CheckObr {
 		PropertyDefinition def = component.getPropertyDefinition(attr) ;
 		return  (def != null && (def.getDefaultValue().charAt(0)=='$' || def.getDefaultValue().charAt(0)=='@')) ;
 	}
+
+
 	
     private static boolean checkFilter(ApamFilter filt, ComponentDeclaration component, Map<String, String> validAttr, String f, String spec) {
         switch (filt.op) {
@@ -310,15 +334,16 @@ public class CheckObr {
     }
 
 	
+
 	private static boolean checkSubstitute (ComponentDeclaration component, String attr, String type, String defaultValue) {
 		//If it is a function substitution
 		if (defaultValue.charAt(0) == '@')
 			return checkFunctionSubst(component, attr, type, defaultValue) ;
-		
+
 		//If it is not a substitution, do nothing
 		if (defaultValue.charAt(0) != '$')
 			return true ;
-		
+
 		/*
 		 * String substitution
 		 */
@@ -327,7 +352,7 @@ public class CheckObr {
 			error("Invalid substitute value " + defaultValue + " for attribute " + attr) ;
 			return false ;
 		}
-		
+
 		AttrType st = new AttrType (type) ;
 
 		ApamCapability source = ApamCapability.get(component.getName()) ;
@@ -364,7 +389,7 @@ public class CheckObr {
 				return false ;
 			}
 		}
-		
+
 
 		/*
 		 * check if the attribute is defined and if types are compatibles.			
@@ -929,7 +954,7 @@ public class CheckObr {
 			checkTrigger(start);
 		}
 	}
-	
+
 	private static boolean checkFilters(ComponentDeclaration component, Set<String> filters, List<String> listFilters, Map<String, String> validAttr,
 			String comp) {
 		boolean ok = true;
@@ -1072,6 +1097,14 @@ public class CheckObr {
 				error("Unknown component in own expression : "
 						+ own.getComponent().getName());
 				continue;
+			}
+			
+			ComponentReference<?> foundReference = ApamCapability.getDcl(own.getComponent()).getReference();
+			if (! own.getComponent().getClass().isAssignableFrom(foundReference.getClass()) ) {
+				error("Component in own expression is of the wrong type, expecting "
+						+ own.getComponent() +" found "+foundReference);
+				continue;
+				
 			}
 
 			// computes the attributes that can be associated with this spec or
