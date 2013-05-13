@@ -26,21 +26,18 @@ import fr.liglab.adele.icasa.device.presence.PresenceSensor;
 public class RoomImpl implements Room, DeviceListener {
 
 	private List<BinaryLight> lights;
-	//private BinaryLight light;
 
 	private PresenceSensor presenceSensor;
 
 	public void start() {
 
-		System.out.println("Start OK!");
 		if (presenceSensor != null) {
-			System.out.println("Presence OK!");
 			presenceSensor.addListener(this);
 		}
 	}
 
 	public void stop() {
-		System.out.println("Stop OK!");
+
 		 if (presenceSensor!=null){
 			 presenceSensor.removeListener(this);
 		 }
@@ -61,7 +58,6 @@ public class RoomImpl implements Room, DeviceListener {
 		PresenceSensor presence=(PresenceSensor)instance.getServiceObject();
 		presence.setPropertyValue(PresenceSensor.PRESENCE_SENSOR_SENSED_PRESENCE, false);
 		presence.removeListener(this);
-		//lights=null;
 		
 	}
 
@@ -95,6 +91,8 @@ public class RoomImpl implements Room, DeviceListener {
 		for(BinaryLight li:lights){
 			setLightsStates(li,state);
 		}
+		
+		lights=null;
 
 	}
 

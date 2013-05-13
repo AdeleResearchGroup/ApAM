@@ -70,29 +70,56 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
 		return false;
     }
 
-    /**
-     * sets the state
-     */
-    public void setState(String state) {
-        this.state = state;
-        detectUsers();
-    }
-
     @Override
 	public void enterInZones(List<Zone> zones) {
 		if (!zones.isEmpty()) {
 			m_zone = zones.get(0);
-			// setPropertyValue(SimulatedDevice.LOCATION_PROPERTY_NAME,
-			// m_zone.getId());
 			updateState();
 			location=m_zone.getId();
 		}
 
 	}
-    
-    private void detectUsers(){
 
-    }
+	/**
+	 * Calculates if a person is found in the detection zone of this device. When
+	 * there is a change of previous detection a event is sent to listeners
+	 */
+	private void updateState() {
+		if (m_zone != null) {
+
+			boolean personFound = personInZone();
+			boolean previousDetection = (Boolean) getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE);
+
+			if (!previousDetection) { // New person in Zone
+				if (personFound) {
+					setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, true);
+				}
+			} else {
+				if (!personFound) { // The person has leave the detection zone
+					setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, false);
+				}
+			}
+			
+		}
+	}
+
+	private boolean personInZone() {
+		for (Person person : manager.getPersons()) {
+			if (m_zone.contains(person))
+				return true;
+		}
+		return false;
+	}
+
+	
+	protected void start() {
+		manager.addListener(this);
+	}
+	
+	protected void stop() {
+		manager.removeListener(this);
+	}
+    
     /**
      * @return the state
      */
@@ -100,6 +127,13 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
         return state;
     }
 
+    /**
+     * sets the state
+     */
+    public void setState(String state) {
+        this.state = state;
+    }
+    
     /**
      * @return the fault
      */
@@ -177,46 +211,6 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
 
 	@Override
 	public void personDeviceDetached(Person person, LocatedDevice device) {
-	}
-
-	/**
-	 * Calculates if a person is found in the detection zone of this device. When
-	 * there is a change of previous detection a event is sent to listeners
-	 */
-	private void updateState() {
-		if (m_zone != null) {
-
-			boolean personFound = personInZone();
-			boolean previousDetection = (Boolean) getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE);
-
-			if (!previousDetection) { // New person in Zone
-				if (personFound) {
-					setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, true);
-				}
-			} else {
-				if (!personFound) { // The person has leave the detection zone
-					setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, false);
-				}
-			}
-			
-		}
-	}
-
-	private boolean personInZone() {
-		for (Person person : manager.getPersons()) {
-			if (m_zone.contains(person))
-				return true;
-		}
-		return false;
-	}
-
-	
-	protected void start() {
-		manager.addListener(this);
-	}
-	
-	protected void stop() {
-		manager.removeListener(this);
 	}
 
 	@Override

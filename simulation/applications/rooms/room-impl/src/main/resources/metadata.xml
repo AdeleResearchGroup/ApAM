@@ -31,7 +31,7 @@
         <dependency field="presenceSensor" added="bindPresence" removed="unBindPresence">
             <constraints>
                 <implementation filter="(name=apam-presence)"/>
-		<instance filter="(Location=$$location)"/>
+				<instance filter="(Location=$$location)"/>
             </constraints>
         </dependency>
     </implementation>
@@ -103,15 +103,9 @@
     <composite name="generic-room" specification="room-spec"
                main="room" singleton="false">
         <contentMngt>
-            <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
+           <dependency interface="fr.liglab.adele.icasa.device.presence.PresenceSensor" eager="true"/>
            <export instance="true"/>
-
-<!--
-            <own specification="light-spec" property="Location" value="$$location"/>
-            <own specification="presence-spec" property="Location" value="$$location"/>
--->
         </contentMngt>
-
     </composite>
 
     <implementation name="roommanager" instantiable="true"
