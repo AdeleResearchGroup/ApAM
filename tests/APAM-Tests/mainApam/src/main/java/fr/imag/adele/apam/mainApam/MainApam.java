@@ -375,6 +375,11 @@ public class MainApam implements Runnable, ApamComponent {
 		assertEquals(inst.getProperty("fieldAttr"), s);
 		inst.setProperty("fieldAttr", "a Value") ;
 		assertEquals(inst.getProperty("fieldAttr"), s);
+		
+		//Refining spec attribute with a field
+		
+		
+
 
 
 		inst.setProperty("fieldAttr", "test"); // error: cannot set

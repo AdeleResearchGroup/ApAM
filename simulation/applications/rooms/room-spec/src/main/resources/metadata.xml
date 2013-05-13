@@ -20,9 +20,19 @@
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 	<specification name="room-spec"
 		interfaces="fr.imag.adele.apam.application.room.Room">
-
+		<definition name="location" type="string" /> <!--{outside,hall,livingroom,bedroom,bathroom,kitchen}-->
+		<definition name="Location" type="string" />
 	</specification>
 
+	<specification name="light-spec"
+		interfaces="fr.liglab.adele.icasa.device.light.BinaryLight">
+		<definition name="Location" type="string" />
+	</specification>
+	
+	<specification name="presence-spec"
+		interfaces="fr.liglab.adele.icasa.device.presence.PresenceSensor">
+		<definition name="Location" type="string" />
+	</specification>
 	
 
 </apam>

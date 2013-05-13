@@ -39,6 +39,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		List<Option> neu=super.config();
 		neu.add(mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-iface").versionAsInProject());
 		neu.add(mavenBundle("fr.imag.adele.apam.tests.services","apam-pax-samples-impl-s6").versionAsInProject());
+		neu.add(packApamShell());
 		return neu;
 	}
 	
@@ -148,6 +149,19 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		
 	}
 	
-	
+	@Test
+	public void SubstitutionGetPropertyWithDotInMiddleOfComponentName_tcxxx() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"subject-a");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, null);
+		
+		auxListProperties("\t", subjectA);
+		
+		System.err.println("--->"+subjectA.getProperty("property-case-10"));
+		
+		Assert.assertTrue("Substitution did not work when the component contains . (dots) in the name",subjectA.getProperty("property-case-10").equals("value-impl"));
+		
+	}
 	
 }
