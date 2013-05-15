@@ -229,14 +229,15 @@ public class DynamanDependentTest extends ExtensionAbstract {
 				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.GenericSwitch",
 				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.HouseMeterSwitch",
 				"fr.imag.adele.apam.pax.test.deviceDead.DeadsManSwitch",
-				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch");
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch",
+				"fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyInjectionTypeSwitch");
 		
 		auxListInstances("instances existing after the test-");
 
 		Assert.assertTrue(
 				String.format(
 						message,
-						"Although, there exist no instance of dependence required(DeadsManSwitch.class), which means that it was not injected."),
+						"Although, there exist no instance of dependence required(specification 'electronic-device'), which means that it was not injected correctly."),
 				pool.size() == 1);
 
 	}	

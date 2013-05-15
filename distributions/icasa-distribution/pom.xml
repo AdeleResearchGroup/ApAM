@@ -26,99 +26,11 @@
 
     <!-- Project dependencies -->
     <dependencies>
- 		<dependency>
-	            <groupId>fr.imag.adele.apam</groupId>
-        	    <artifactId>apam-basic-distribution</artifactId>
-	            <version>0.0.2-SNAPSHOT</version>
-	            <type>pom</type>
-	        </dependency>
-        <dependency>
-            <groupId>de.akquinet.gomobile</groupId>
-            <artifactId>deployment-admin-impl</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.imag.adele.apam</groupId>
-            <artifactId>dynaman</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
-	    <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>de.akquinet.gomobile</groupId>
-            <artifactId>deployment-package-api</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>de.akquinet.gomobile</groupId>
-            <artifactId>autoconf-resource-processor</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.liglab.adele.m2mappbuilder</groupId>
-            <artifactId>deployment.package.file.install</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>fr.liglab.adele.m2mappbuilder</groupId>
-            <artifactId>autoload.res.processor</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.http.jetty</artifactId>
-            <version>2.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.http.whiteboard</artifactId>
-            <version>2.0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.ipojo.webconsole</artifactId>
-            <version>1.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.prefs</artifactId>
-            <version>1.0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.webconsole.plugins.event</artifactId>
-            <version>1.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.webconsole</artifactId>
-            <version>3.1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.ipojo.api</artifactId>
-            <version>1.6.0</version>
-        </dependency>
 	<dependency>
-		<groupId>org.apache.felix</groupId>
-		<artifactId>org.apache.felix.configadmin</artifactId>
-		<version>1.6.0</version>
+	    <groupId>org.apache.felix</groupId>
+	    <artifactId>org.apache.felix.http.jetty</artifactId>
+	    <version>2.2.0</version>
 	</dependency>
-        <dependency>
-            <groupId>org.ow2.chameleon.handies</groupId>
-            <artifactId>ipojo-log-handler</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.chameleon.handies</groupId>
-            <artifactId>ipojo-log-handler</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.ipojo.handler.extender</artifactId>
-            <version>1.4.0</version>
-        </dependency>
-
     </dependencies>
 
     <repositories>
@@ -141,7 +53,14 @@
             <name>OW2 - SNAPSHOT </name>
             <url>http://maven.ow2.org/maven2-snapshot/</url>
         </repository>
-
+	<repository>
+		<id>maven-central</id>
+		<name>Maven Central</name>
+		<url>http://repo1.maven.org/maven2/</url>
+		    <snapshots>
+		        <enabled>true</enabled>
+		    </snapshots>
+	</repository>
     </repositories>
 
 

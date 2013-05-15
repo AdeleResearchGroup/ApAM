@@ -14,38 +14,49 @@
  */
 package fr.imag.adele.apam.device.presence.impl;
 
-import java.util.Timer;
+import java.util.List;
 
-import fr.liglab.adele.icasa.device.GenericDevice;
 import fr.liglab.adele.icasa.device.presence.PresenceSensor;
 import fr.liglab.adele.icasa.device.util.AbstractDevice;
-import fr.liglab.adele.icasa.environment.SimulatedDevice;
-import fr.liglab.adele.icasa.environment.SimulatedEnvironment;
-import fr.liglab.adele.icasa.environment.SimulatedEnvironmentListener;
+import fr.liglab.adele.icasa.location.LocatedDevice;
+import fr.liglab.adele.icasa.location.Position;
+import fr.liglab.adele.icasa.location.Zone;
+import fr.liglab.adele.icasa.location.ZoneListener;
+import fr.liglab.adele.icasa.simulator.Person;
+import fr.liglab.adele.icasa.simulator.SimulatedDevice;
+import fr.liglab.adele.icasa.simulator.SimulationManager;
+import fr.liglab.adele.icasa.simulator.listener.PersonListener;
 
 /**
  * Implementation of a simulated Oven device.
  * 
  */
 
-public class SimulatedPresence extends AbstractDevice implements PresenceSensor, SimulatedDevice,
-        SimulatedEnvironmentListener {
+public class SimulatedPresence extends AbstractDevice implements PresenceSensor, fr.liglab.adele.icasa.simulator.SimulatedDevice,
+        ZoneListener, PersonListener {
 
+	private SimulationManager manager;
+	
 	private String m_serialNumber;
 
 	private String fault;
 
 	private String state;
 
-	private volatile SimulatedEnvironment m_env;
+	private volatile Zone m_zone;
 
     private double m_threshold=1;
 
     private boolean m_currentPresence=false;
-
+	    
 	protected String location;
 
-
+	public SimulatedPresence() {
+		super();
+        super.setPropertyValue(SimulatedDevice.LOCATION_PROPERTY_NAME, SimulatedDevice.LOCATION_UNKNOWN);
+        super.setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, false);
+	}
+	
     @Override
     public String getSerialNumber() {
         return m_serialNumber;
@@ -53,74 +64,62 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
 
     @Override
     public synchronized boolean getSensedPresence() {
-        return m_currentPresence;
+		Boolean presence = (Boolean) getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE);
+		if (presence != null)
+			return presence;
+		return false;
     }
 
     @Override
-    public synchronized void bindSimulatedEnvironment(SimulatedEnvironment environment) {
-        m_env = environment;
-        m_env.addListener(this);
-        location= m_env.getEnvironmentId();
-        System.out.println("Bound to simulated environment " + environment.getEnvironmentId());
-        detectUsers()       ;
-    }
+	public void enterInZones(List<Zone> zones) {
+		if (!zones.isEmpty()) {
+			m_zone = zones.get(0);
+			updateState();
+			location=m_zone.getId();
+		}
 
-    @Override
-    public synchronized String getEnvironmentId() {
-        return m_env != null ? m_env.getEnvironmentId() : null;
-    }
+	}
 
-    @Override
-    public synchronized void unbindSimulatedEnvironment(SimulatedEnvironment environment) {
-        m_env.removeListener(this);
-        m_env = null;
-        location="outside";
-        System.out.println("Unbound from simulated environment " + environment.getEnvironmentId());
-        detectUsers()       ;
-    }
+	/**
+	 * Calculates if a person is found in the detection zone of this device. When
+	 * there is a change of previous detection a event is sent to listeners
+	 */
+	private void updateState() {
+		if (m_zone != null) {
 
-    @Override
-    public void environmentPropertyChanged(final String propertyName, final Double oldValue, final Double newValue) {
+			boolean personFound = personInZone();
+			boolean previousDetection = (Boolean) getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE);
 
-        if (!(fault.equalsIgnoreCase("yes")) && SimulatedDevice.STATE_ACTIVATED.equals(state)) {
-            if (SimulatedEnvironment.PRESENCE.equals(propertyName)) {
-                final boolean oldPresence = m_currentPresence;
-                detectUsers()       ;
-                if (oldPresence != m_currentPresence) {
-                    System.out.println("Sensed presence : " + m_currentPresence);
-                    notifyListeners();
-                }
-            }
-        }
-    }
+			if (!previousDetection) { // New person in Zone
+				if (personFound) {
+					setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, true);
+				}
+			} else {
+				if (!personFound) { // The person has leave the detection zone
+					setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, false);
+				}
+			}
+			
+		}
+	}
 
+	private boolean personInZone() {
+		for (Person person : manager.getPersons()) {
+			if (m_zone.contains(person))
+				return true;
+		}
+		return false;
+	}
 
-    public String getLocation() {
-        return getEnvironmentId();
-    }
-
-    /**
-     * sets the state
-     */
-    public void setState(String state) {
-        this.state = state;
-        detectUsers();
-    }
-
-    private void detectUsers(){
-        if (SimulatedDevice.STATE_ACTIVATED.equals(state)){
-            if (m_env == null){
-                m_currentPresence = false;
-                return;
-            }
-            double presence = m_env.getProperty(SimulatedEnvironment.PRESENCE).doubleValue() ;
-            if (presence >= m_threshold) {
-                m_currentPresence = true;
-            } else {
-                m_currentPresence = false;
-            }
-        }
-    }
+	
+	protected void start() {
+		manager.addListener(this);
+	}
+	
+	protected void stop() {
+		manager.removeListener(this);
+	}
+    
     /**
      * @return the state
      */
@@ -128,6 +127,13 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
         return state;
     }
 
+    /**
+     * sets the state
+     */
+    public void setState(String state) {
+        this.state = state;
+    }
+    
     /**
      * @return the fault
      */
@@ -143,4 +149,78 @@ public class SimulatedPresence extends AbstractDevice implements PresenceSensor,
         this.fault = fault;
     }
 
+	@Override
+	public void zoneVariableAdded(Zone zone, String variableName) {
+		
+	}
+
+	@Override
+	public void zoneVariableRemoved(Zone zone, String variableName) {
+		
+	}
+
+	@Override
+	public void zoneVariableModified(Zone zone, String variableName,
+			Object oldValue) {
+		
+	}
+
+	@Override
+	public void zoneAdded(Zone zone) {
+		
+	}
+
+	@Override
+	public void zoneRemoved(Zone zone) {
+		
+	}
+
+	@Override
+	public void zoneMoved(Zone zone, Position oldPosition) {
+		
+	}
+
+	@Override
+	public void zoneResized(Zone zone) {
+		
+	}
+
+	@Override
+	public void zoneParentModified(Zone zone, Zone oldParentZone) {
+		
+	}
+
+	@Override
+	public void personAdded(Person person) {
+		updateState();
+	}
+
+	@Override
+	public void personRemoved(Person person) {
+		updateState();
+	}
+
+	@Override
+	public void personMoved(Person person, Position oldPosition) {
+		updateState();
+	}
+
+	@Override
+	public void personDeviceAttached(Person person, LocatedDevice device) {
+	}
+
+	@Override
+	public void personDeviceDetached(Person person, LocatedDevice device) {
+	}
+
+	@Override
+	public void deviceAttached(Zone arg0, LocatedDevice arg1) {
+		
+	}
+
+	@Override
+	public void deviceDetached(Zone arg0, LocatedDevice arg1) {
+		
+	}
+	
 }

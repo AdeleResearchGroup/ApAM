@@ -18,20 +18,21 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
-	<implementation name="presence" instantiable="false"
-		classname="fr.imag.adele.apam.device.presence.impl.SimulatedPresence">
+	<implementation name="apam-presence" instantiable="false"
+		classname="fr.imag.adele.apam.device.presence.impl.SimulatedPresence" specification="presence-spec">
+		 <callback onInit="start" onRemove="stop"/>
+			<ipojo:requires field="manager" />
 
-			<definition name="location" type="{outside,hall,livingroom,bedroom,bathroom,kitchen}" field="location" internal="true" value="outside"/>
-
+			<definition name="Location" type="string" field="location" internal="true" />
+		
 			<definition name="fault" value="no" type="string" />
-			<definition name="state" value="deactivated" type="string" />
+			<definition name="state" value="activated" type="string" />
 
-		<ipojo:provides
-			specifications="{fr.liglab.adele.icasa.environment.SimulatedDevice,fr.liglab.adele.icasa.device.GenericDevice,fr.liglab.adele.icasa.device.presence.PresenceSensor}">
+		<ipojo:provides specifications="{fr.liglab.adele.icasa.simulator.SimulatedDevice, fr.liglab.adele.icasa.device.GenericDevice, fr.liglab.adele.icasa.device.presence.PresenceSensor}">
 			<ipojo:property name="service.description" type="string" />
 			<ipojo:property name="device.serialNumber" field="m_serialNumber"
 				type="string" />
-            <ipojo:property name="presencesensor.sensedpresence" value="false" field="m_currentPresence" />
+           		<ipojo:property name="presenceSensor.sensedPresence" value="false" field="m_currentPresence" />
 			<ipojo:property name="fault" value="no" field="fault" />
 			<ipojo:property name="state" value="activated"
 				field="state" />
