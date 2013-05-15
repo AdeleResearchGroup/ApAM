@@ -28,7 +28,7 @@ public class S1Impl implements S1 {
     S2       s2Interf;
     S2       s2Msg;
 
-    S3_1       s3_1;
+    S3_1     s3_1;
     S3_2     s3_2;
 
     List<S3_1> s3List;

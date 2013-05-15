@@ -65,16 +65,32 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     /**
      * The reference to this declaration
      */
-    private final Reference                         reference;
+    private final Reference    reference;
 
     /**
      * The source component for this declaration in the case of contextual dependencies
      */
-    private final ComponentReference<?> 			source;
+    private final String 		sourceName;
+
+    /**
+     * The source component for this declaration in the case of contextual dependencies
+     */
+    private final String 	    targetName;
+
+    /**
+	 * The level of abstraction where this relation can be instantiated
+	 */
+    private final ComponentKind	sourceKind;
+    
+    /**
+	 * The level of abstraction of the target of the relation
+	 */
+    private final ComponentKind	targetKind;
+
     /**
 	 * Whether this relation is declared explicitly as multiple
 	 */
-    private final boolean							isMultiple;
+    private final boolean		isMultiple;
 
     /**
 	 * The list of fields that will be injected with this relation in a
@@ -86,34 +102,25 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
      * The policy to handle unresolved dependencies
      */
 
-    private MissingPolicy  							missingPolicy;
+    private MissingPolicy  		missingPolicy;
 
     /**
      * The exception to throw for the exception missing policy
      * 
      */
-    private String                                    missingException;
+    private String              missingException;
 
     /**
 	 * Whether a relation matching this policy must be eagerly resolved
 	 */
-    private Boolean                                   isEager;
+    private Boolean            isEager;
 
     /**
      * Whether a resolution error must trigger a backtrack in the architecture
      */
 
-    private Boolean                                   mustHide;
+    private Boolean             mustHide;
 
-    /**
-	 * The level of abstraction where this relation can be instantiated
-	 */
-    private ComponentKind							sourceType;
-    
-    /**
-	 * The level of abstraction of the target of the relation
-	 */
-    private ComponentKind							targetType;
     
     /**
 	 * 
@@ -128,11 +135,11 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 	 */
     
     public RelationDeclaration(ComponentReference<?> component,  String id, boolean isMultiple, ResolvableReference resource) {
-    	this(component,null,id,isMultiple,resource);
+    	this(component,id,isMultiple,resource, null, null, null, null);
     }
 
-    public RelationDeclaration(ComponentReference<?> component, ComponentReference<?> source, String id, boolean isMultiple,
-            ResolvableReference resource) {
+    public RelationDeclaration(ComponentReference<?> component, String id, boolean isMultiple,
+            ResolvableReference resource, String sourceName, ComponentKind sourceKind, String targetName, ComponentKind targetKind) {
 
         super(resource);
 
@@ -141,7 +148,10 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
         id 						= (id == null) ? getTarget().as(fr.imag.adele.apam.declarations.Reference.class).getIdentifier() : id;
         this.reference			= new Reference(component,id);
 
-        this.source				= source;
+        this.sourceName			= sourceName;
+        this.targetName			= targetName;
+        this.sourceKind			= (sourceKind == null) ? ComponentKind.INSTANCE : sourceKind;
+        this.targetKind			= (targetKind == null) ? ComponentKind.INSTANCE : targetKind;
         
         this.isMultiple 		= isMultiple;
         this.isEager 			= null;
@@ -151,8 +161,6 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
         this.callbacks 			= new HashMap<CallbackTrigger, Set<CallbackMethod>>();
         this.injections			= new ArrayList<RelationInjection>();
         
-        this.sourceType			= ComponentKind.INSTANCE;
-        this.targetType			= ComponentKind.INSTANCE;
     }
     
     @Override
@@ -172,11 +180,11 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     @Override
     public RelationDeclaration clone() {
 
-        RelationDeclaration clone = new RelationDeclaration(this.reference.getDeclaringComponent(), this.source, this.reference
-                .getIdentifier(), this.isMultiple(), this.getTarget());
+        RelationDeclaration clone = new RelationDeclaration(this.reference.getDeclaringComponent(), this.reference
+                .getIdentifier(), this.isMultiple(), this.getTarget(), this.sourceName, this.sourceKind, this.targetName, this.targetKind);
 
-        clone.setSourceType(this.sourceType);
-        clone.setTargetType(this.targetType);
+//        clone.setSourceKind(this.sourceKind);
+//        clone.setTargetType(this.targetKind);
         
         clone.callbacks.putAll(this.callbacks);
         clone.injections.addAll(this.injections);
@@ -202,10 +210,24 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     /**
      * The source component for contextual dependencies
      */
-    public ComponentReference<?> getSource() {
-        return this.source;
+    public String getSourceName() {
+        return this.sourceName;
     }
 
+    /**
+     * The source component for contextual dependencies
+     */
+    public String getTargetName() {
+        return this.targetName;
+    }
+
+    public ComponentKind getSourceKind() {
+		return sourceKind;
+	}
+    
+    public ComponentKind getTargetKind() {
+		return targetKind;
+	}
 
     /**
 	 * Get the id of the relation in the declaring component declaration
@@ -221,21 +243,15 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
         return reference;
     }
 
-    public ComponentKind getSourceType() {
-		return sourceType;
-	}
     
-    public void setSourceType(ComponentKind sourceType) {
-		this.sourceType = sourceType;
-	}
+//    public void setSourceKind(ComponentKind sourceType) {
+//		this.sourceKind = sourceType;
+//	}
     
-    public ComponentKind getTargetType() {
-		return targetType;
-	}
     
-    public void setTargetType(ComponentKind targetType) {
-		this.targetType = targetType;
-	}
+//    public void setTargetType(ComponentKind targetType) {
+//		this.targetKind = targetType;
+//	}
     
     /**
 	 * The multiplicity of a relation.
@@ -337,8 +353,8 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 
     public String printRelationDeclaration(String indent) {
         StringBuffer ret = new StringBuffer ();
-		ret.append(indent + " relation id: " + getIdentifier() + ". toward "
-				+ getTarget());
+		ret.append(indent + " relation " + getIdentifier() + " towards "
+				+ getTarget().getName());
     
         
         if (!injections.isEmpty()) {

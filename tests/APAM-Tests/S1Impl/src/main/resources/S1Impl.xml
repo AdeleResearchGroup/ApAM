@@ -20,10 +20,10 @@
 
 	<implementation name="S1Impl"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Impl" specification="S1">
-		<dependency id="S2" field="s2Spec" />
+		<dependency name="S2" field="s2Spec" />
 		<dependency interface="fr.imag.adele.apam.test.s2.S2"
 			field="s2Interf" />
-		<dependency specification="S3" id="S3Multiple"  multiple="true">
+		<dependency specification="S3" name="S3Multiple"  multiple="true">
 			<interface field="s3List" />
 			<interface field="s3ListBis" />
 		</dependency>
@@ -35,7 +35,7 @@
 	</implementation>
 
 	<apam-instance implementation="S1Impl" name="S1Impl-instance" >
-			<dependency id="S2" >
+			<dependency name="S2" >
 				<constraints>
 					<implementation filter="(impl-name=S2Impl)"/>
 				</constraints>
@@ -63,7 +63,7 @@
 	<!-- An implementation without any provided resource -->
 	<implementation name="S1Main"
 		classname="fr.imag.adele.apam.test.s1Impl.S1Main" shared="false" singleton="true">		
-		<dependency id="tos1" field="s1">
+		<dependency name="tos1" field="s1">
 			<constraints>
 				<implementation filter="(impl-name=S1Impl)" />
 			</constraints>
@@ -84,9 +84,9 @@
 		<!-- <dependency specification="S2" /> -->
 		<dependency interface="fr.imag.adele.apam.test.s2.S2" />
 		<dependency implementation="S3Impl" multiple="true" />
-		<dependency specification="S3" id="S3Id1" />
+		<dependency specification="S3" name="S3Id1" />
 		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="ddd" /> <!-- should be an error  --> 
-		<dependency specification="S3" id="S3Idmult" multiple="true"> <!-- should be an error  --> 
+		<dependency specification="S3" name="S3Idmult" multiple="true"> <!-- should be an error  --> 
 			<constraints> 
 				<implementation filter="(shared=false)" /> 
 			</constraints> 

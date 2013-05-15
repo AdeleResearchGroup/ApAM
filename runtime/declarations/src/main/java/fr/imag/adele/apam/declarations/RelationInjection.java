@@ -23,24 +23,24 @@ package fr.imag.adele.apam.declarations;
  */
 public abstract class RelationInjection {
 
-    /**
-     * The implementation associated to this injection
-     */
-    protected final AtomicImplementationDeclaration implementation;
+	/**
+	 * The implementation associated to this injection
+	 */
+	protected final AtomicImplementationDeclaration implementation;
 
-    /**
+	/**
 	 * The relation that must be resolved to get the injected resource.
 	 */
 	protected RelationDeclaration relation;
 
-    protected RelationInjection(AtomicImplementationDeclaration implementation) {
+	protected RelationInjection(AtomicImplementationDeclaration implementation) {
 
-        // bidirectional reference to declaration
-        this.implementation = implementation;
-        this.implementation.getRelationInjections().add(this);
-    }
+		// bidirectional reference to declaration
+		this.implementation = implementation;
+		this.implementation.getRelationInjections().add(this);
+	}
 
-    /**
+	/**
 	 * Sets the relation that will be injected
 	 */
 	public void setRelation(RelationDeclaration relation) {
@@ -50,253 +50,264 @@ public abstract class RelationInjection {
 		// bidirectional reference to relation
 		this.relation = relation;
 		this.relation.getInjections().add(this);
-    }
+	}
 
-    /**
+	/**
 	 * The relation that must be resolved
 	 */
-    public RelationDeclaration getRelation() {
+	public RelationDeclaration getRelation() {
 		return relation;
-    }
+	}
 
-    /**
-     * The type of the resource that will be injected
-     */
-    public abstract ResourceReference getResource();
+	/**
+	 * The type of the resource that will be injected
+	 */
+	public abstract ResourceReference getResource();
 
-    /**
+	/**
 	 * An unique identifier for this injection, within the scope of the
 	 * declaring implementation and relation
 	 */
-    public abstract String getName();
+	public abstract String getName();
 
-    /**
-     * Whether this injection accepts collection dependencies
-     */
-    public abstract boolean isCollection();
+	/**
+	 * Whether this injection accepts collection dependencies
+	 */
+	public abstract boolean isCollection();
 
-    /**
-     * Whether the injection definition is valid in the instrumented code
-     */
-    public abstract boolean isValidInstrumentation();
+	/**
+	 * Whether the injection definition is valid in the instrumented code
+	 */
+	public abstract boolean isValidInstrumentation();
 
-    /**
-     * An injected field declaration
-     */
-    public static class Field extends RelationInjection {
+	/**
+	 * An injected field declaration
+	 */
+	public static class Field extends RelationInjection {
 
-        private final String fieldName;
+		private final String fieldName;
 
-        public Field(AtomicImplementationDeclaration implementation, String fieldName) {
-            super(implementation);
-            this.fieldName = fieldName;
-        }
+		public boolean isWire () {
+			String type = getResource().getJavaType();
 
-        /**
-         * The name of the field to inject
-         */
-        @Override
-        public String getName() {
-            return fieldName;
-        }
+			boolean isApamComponent = "fr.imag.adele.apam.Component".equals(type) ||
+					"fr.imag.adele.apam.Specification".equals(type) ||
+					"fr.imag.adele.apam.Implementation".equals(type) ||
+					"fr.imag.adele.apam.Instance".equals(type);
 
-        @Override
-        public boolean isValidInstrumentation() {
-            try {
-                implementation.getInstrumentation().getFieldType(fieldName);
-                return true;
-            } catch (NoSuchFieldException e) {
-                return false;
-            }
-        }
-
-        /**
-         * The type of the resource that will be injected in the field
-         */
-        @Override
-        public ResourceReference getResource() {
-            try {
-                return implementation.getInstrumentation().getFieldType(fieldName);
-            } catch (NoSuchFieldException e) {
-                return new UndefinedReference(fieldName,ResourceReference.class);
-            }
-        }
-
-        /**
-         * whether this field is a collection or not
-         */
-        @Override
-        public boolean isCollection() {
-            try {
-                return implementation.getInstrumentation().isCollectionField(fieldName);
-            } catch (NoSuchFieldException e) {
-                return false;
-            }
-        }
-
-        @Override
-        public String toString() {
-            return "field " + getName();
-        }
-
-    }
-    
-    /**
-     * An injected message field declaration
-     */
-    public static class MessageField extends Field {
-
-		public MessageField(AtomicImplementationDeclaration implementation,	String fieldName) {
-			super(implementation, fieldName);
+			return ! isApamComponent;
 		}
 
-        @Override
-        public boolean isValidInstrumentation() {
-        	ResourceReference target = getResource();
-        	boolean isMessage = (target instanceof MessageReference) || (target instanceof UndefinedReference && ((UndefinedReference)target).getKind().equals(MessageReference.class));
-        	return super.isValidInstrumentation() && isMessage;
-        }
+	public Field(AtomicImplementationDeclaration implementation, String fieldName) {
+		super(implementation);
+		this.fieldName = fieldName;
+	}
 
-    }
-    
-    /**
-     * Callback with a return
-     * 
-     * @author Mehdi
-     * 
-     */
-    public static class CallbackWithReturn extends RelationInjection {
+	/**
+	 * The name of the field to inject
+	 */
+	@Override
+	public String getName() {
+		return fieldName;
+	}
 
-        private final String      methodName;
-        private final String      type;
-        private ResourceReference resourceRef;
-        private Boolean           isCollection;
-        private Boolean           hasInstrumentation;
+	@Override
+	public boolean isValidInstrumentation() {
+		try {
+			implementation.getInstrumentation().getFieldType(fieldName);
+			return true;
+		} catch (NoSuchFieldException e) {
+			return false;
+		}
+	}
 
-        public CallbackWithReturn(AtomicImplementationDeclaration implementation, String methodName, String type) {
-            super(implementation);
-            this.methodName = methodName;
-            this.type = type;
-        }
+	/**
+	 * The type of the resource that will be injected in the field
+	 */
+	@Override
+	public ResourceReference getResource() {
+		try {
+			return implementation.getInstrumentation().getFieldType(fieldName);
+		} catch (NoSuchFieldException e) {
+			return new UndefinedReference(fieldName,ResourceReference.class);
+		}
+	}
 
-        @Override
-        public ResourceReference getResource() {
-            if (resourceRef == null) {
-                try {
-                    resourceRef = implementation.getInstrumentation().getCallbackReturnType(methodName, type);
-                } catch (NoSuchMethodException e) {
-                    resourceRef = new UndefinedReference(methodName,MessageReference.class);
-                }
-            }
-            return resourceRef;
-        }
+	/**
+	 * whether this field is a collection or not
+	 */
+	@Override
+	public boolean isCollection() {
+		try {
+			return implementation.getInstrumentation().isCollectionField(fieldName);
+		} catch (NoSuchFieldException e) {
+			return false;
+		}
+	}
 
-        @Override
-        public String getName() {
-            return methodName;
-        }
+	@Override
+	public String toString() {
+		return "field " + getName();
+	}
 
-        @Override
-        public boolean isCollection() {
-            if (isCollection == null) {
-                try {
-                    isCollection = implementation.getInstrumentation().isCollectionReturn(methodName, type);
-                } catch (NoSuchMethodException e) {
-                    isCollection = false;
-                }
-            }
-            return isCollection;
-        }
+}
 
-        @Override
-        public boolean isValidInstrumentation() {
-            if (hasInstrumentation==null){
-                try {
-                    implementation.getInstrumentation().getCallbackReturnType(methodName, type);
-                    hasInstrumentation= true;
-                } catch (NoSuchMethodException e) {
-                    hasInstrumentation= false;
-                }
-            }
-            return hasInstrumentation;
-        }
+/**
+ * An injected message field declaration
+ */
+public static class MessageField extends Field {
 
-        @Override
-        public String toString() {
-            return "method " + getName();
-        }
+	public MessageField(AtomicImplementationDeclaration implementation,	String fieldName) {
+		super(implementation, fieldName);
+	}
 
-    }
+	@Override
+	public boolean isValidInstrumentation() {
+		ResourceReference target = getResource();
+		boolean isMessage = (target instanceof MessageReference) || (target instanceof UndefinedReference && ((UndefinedReference)target).getKind().equals(MessageReference.class));
+		return super.isValidInstrumentation() && isMessage;
+	}
 
-    /**
-     * Callback with argument
-     * 
-     * @author Mehdi
-     * 
-     */
-    public static class CallbackWithArgument extends RelationInjection {
+}
 
-        private final String      methodName;
-        private final String      type;
-        private ResourceReference resourceRef;
-        private Boolean           isCollection;
-        private Boolean           hasInstrumentation;
+/**
+ * Callback with a return
+ * 
+ * @author Mehdi
+ * 
+ */
+public static class CallbackWithReturn extends RelationInjection {
 
-        public CallbackWithArgument(AtomicImplementationDeclaration implementation, String methodName, String type) {
-            super(implementation);
-            this.methodName = methodName;
-            this.type = type;
+	private final String      methodName;
+	private final String      type;
+	private ResourceReference resourceRef;
+	private Boolean           isCollection;
+	private Boolean           hasInstrumentation;
 
-        }
+	public CallbackWithReturn(AtomicImplementationDeclaration implementation, String methodName, String type) {
+		super(implementation);
+		this.methodName = methodName;
+		this.type = type;
+	}
 
-        @Override
-        public ResourceReference getResource() {
-            if (resourceRef == null) {
-                try {
-                    resourceRef = implementation.getInstrumentation().getCallbackArgType(methodName, type);
-                } catch (NoSuchMethodException e) {
-                    resourceRef =  new UndefinedReference(methodName,MessageReference.class);
-                }
-            }
-            return resourceRef;
-        }
+	@Override
+	public ResourceReference getResource() {
+		if (resourceRef == null) {
+			try {
+				resourceRef = implementation.getInstrumentation().getCallbackReturnType(methodName, type);
+			} catch (NoSuchMethodException e) {
+				resourceRef = new UndefinedReference(methodName,MessageReference.class);
+			}
+		}
+		return resourceRef;
+	}
 
-        @Override
-        public String getName() {
-            return methodName;
-        }
+	@Override
+	public String getName() {
+		return methodName;
+	}
 
-        @Override
-        public boolean isCollection() {
-            if (isCollection == null) {
-                try {
-                    isCollection = implementation.getInstrumentation().isCollectionArgument(methodName, type);
-                } catch (NoSuchMethodException e) {
-                    isCollection = false;
-                }
-            }
-            return isCollection;
-        }
+	@Override
+	public boolean isCollection() {
+		if (isCollection == null) {
+			try {
+				isCollection = implementation.getInstrumentation().isCollectionReturn(methodName, type);
+			} catch (NoSuchMethodException e) {
+				isCollection = false;
+			}
+		}
+		return isCollection;
+	}
 
-        @Override
-        public boolean isValidInstrumentation() {
-            if (hasInstrumentation == null) {
-                try {
-                    resourceRef = implementation.getInstrumentation().getCallbackArgType(methodName, type);
-                    hasInstrumentation = true;
-                } catch (NoSuchMethodException e) {
-                    hasInstrumentation = false;
-                }
-            }
-            return hasInstrumentation;
-        }
+	@Override
+	public boolean isValidInstrumentation() {
+		if (hasInstrumentation==null){
+			try {
+				implementation.getInstrumentation().getCallbackReturnType(methodName, type);
+				hasInstrumentation= true;
+			} catch (NoSuchMethodException e) {
+				hasInstrumentation= false;
+			}
+		}
+		return hasInstrumentation;
+	}
 
-        @Override
-        public String toString() {
-            return "method " + getName();
-        }
+	@Override
+	public String toString() {
+		return "method " + getName();
+	}
 
-    }
+}
 
-  
+/**
+ * Callback with argument
+ * 
+ * @author Mehdi
+ * 
+ */
+public static class CallbackWithArgument extends RelationInjection {
+
+	private final String      methodName;
+	private final String      type;
+	private ResourceReference resourceRef;
+	private Boolean           isCollection;
+	private Boolean           hasInstrumentation;
+
+	public CallbackWithArgument(AtomicImplementationDeclaration implementation, String methodName, String type) {
+		super(implementation);
+		this.methodName = methodName;
+		this.type = type;
+
+	}
+
+	@Override
+	public ResourceReference getResource() {
+		if (resourceRef == null) {
+			try {
+				resourceRef = implementation.getInstrumentation().getCallbackArgType(methodName, type);
+			} catch (NoSuchMethodException e) {
+				resourceRef =  new UndefinedReference(methodName,MessageReference.class);
+			}
+		}
+		return resourceRef;
+	}
+
+	@Override
+	public String getName() {
+		return methodName;
+	}
+
+	@Override
+	public boolean isCollection() {
+		if (isCollection == null) {
+			try {
+				isCollection = implementation.getInstrumentation().isCollectionArgument(methodName, type);
+			} catch (NoSuchMethodException e) {
+				isCollection = false;
+			}
+		}
+		return isCollection;
+	}
+
+	@Override
+	public boolean isValidInstrumentation() {
+		if (hasInstrumentation == null) {
+			try {
+				resourceRef = implementation.getInstrumentation().getCallbackArgType(methodName, type);
+				hasInstrumentation = true;
+			} catch (NoSuchMethodException e) {
+				hasInstrumentation = false;
+			}
+		}
+		return hasInstrumentation;
+	}
+
+	@Override
+	public String toString() {
+		return "method " + getName();
+	}
+
+}
+
+
 }

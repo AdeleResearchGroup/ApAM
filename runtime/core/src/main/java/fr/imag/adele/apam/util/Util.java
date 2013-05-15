@@ -28,9 +28,11 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
@@ -238,7 +240,20 @@ public final class Util {
 	}
 
 
+	public static ComponentKind toKind(String kindString) {
+		if (kindString == null)
+			return null;
 
+		if (kindString.equals(CST.SPECIFICATION))
+			return ComponentKind.SPECIFICATION;
+		if (kindString.equals(CST.IMPLEMENTATION))
+			return ComponentKind.IMPLEMENTATION;
+		if (kindString.equals(CST.INSTANCE))
+			return ComponentKind.INSTANCE;
+		if (kindString.equals(CST.COMPONENT_TYPE))
+			return ComponentKind.COMPONENT;
+		return null;
+	}
 
 	public static void printFileToConsole(URL path) throws IOException {
 		DataInputStream in = null ;
@@ -309,7 +324,7 @@ public final class Util {
 		Component group = source ;
 		boolean found = false ;
 		while (group != null) {
-			if (overDep.getSource() == null || sourceDep.getSource().getName().matches(overDep.getSource().getName())) {
+			if (overDep.getSourceName() == null || sourceDep.getSourceName().matches(overDep.getSourceName())) {
 				found = true;
 				break ;
 			}

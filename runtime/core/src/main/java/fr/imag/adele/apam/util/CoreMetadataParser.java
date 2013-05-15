@@ -43,6 +43,7 @@ import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.Instrumen
 import fr.imag.adele.apam.declarations.CallbackMethod;
 import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
@@ -137,7 +138,11 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_EAGER               = "eager";
 	private static final String  ATT_HIDE                = "hide";
 	private static final String  ATT_FILTER              = "filter";
-	private static final String  ATT_ID                  = "id";
+	//	private static final String  ATT_ID                  = "id";
+	private static final String ATT_SOURCE = "source";
+	private static final String ATT_SOURCEKIND = "sourceKind";
+	private static final String ATT_TARGET = "target";
+	private static final String ATT_TARGETKIND = "targetKind";
 	private static final String  ATT_PROPERTY            = "property";
 	private static final String  ATT_DEPENDENCY          = "dependency";
 	private static final String  ATT_TO                  = "to";
@@ -223,23 +228,23 @@ public class CoreMetadataParser implements CoreParser {
 			/*
 			 * Ignore not APAM elements 
 			 */
-			 if (!CoreMetadataParser.isApamDefinition(element))
-				 continue;
+			if (!CoreMetadataParser.isApamDefinition(element))
+				continue;
 
-			 /*
-			  * switch depending on component type
-			  */
-			 if (CoreMetadataParser.isSpecification(element))
-				 specifications.add(parseSpecification(element));
+			/*
+			 * switch depending on component type
+			 */
+			if (CoreMetadataParser.isSpecification(element))
+				specifications.add(parseSpecification(element));
 
-			 if (CoreMetadataParser.isPrimitiveImplementation(element))
-				 primitives.add(parsePrimitive(element));
+			if (CoreMetadataParser.isPrimitiveImplementation(element))
+				primitives.add(parsePrimitive(element));
 
-			 if (CoreMetadataParser.isCompositeImplementation(element))
-				 composites.add(parseComposite(element));
+			if (CoreMetadataParser.isCompositeImplementation(element))
+				composites.add(parseComposite(element));
 
-			 if (CoreMetadataParser.isInstance(element))
-				 instances.add(parseInstance(element));
+			if (CoreMetadataParser.isInstance(element))
+				instances.add(parseInstance(element));
 
 		}
 
@@ -292,18 +297,18 @@ public class CoreMetadataParser implements CoreParser {
 		component.setDefinedShared(isDefinedShared);
 
 		// Exclusive means: shared=false and singleton=true.
-				if (isDefinedExclusive && isExclusive) {
-					if (isDefinedShared && isShared) {
-						errorHandler.error(Severity.ERROR, "A component cannot be both exclusive and shared or not singleton");
-					}
-					if (isDefinedSingleton && isSingleton) {
-						errorHandler.error(Severity.ERROR, "A component cannot be both exclusive and not singleton");
-					}
-					component.setSingleton(true);
-					component.setShared(false);
-					component.setDefinedSingleton(true);
-					component.setDefinedShared(true);
-				}
+		if (isDefinedExclusive && isExclusive) {
+			if (isDefinedShared && isShared) {
+				errorHandler.error(Severity.ERROR, "A component cannot be both exclusive and shared or not singleton");
+			}
+			if (isDefinedSingleton && isSingleton) {
+				errorHandler.error(Severity.ERROR, "A component cannot be both exclusive and not singleton");
+			}
+			component.setSingleton(true);
+			component.setShared(false);
+			component.setDefinedSingleton(true);
+			component.setDefinedShared(true);
+		}
 	}
 
 	/**
@@ -614,7 +619,7 @@ public class CoreMetadataParser implements CoreParser {
 				errorHandler.error(Severity.ERROR,
 						"Duplicate relation identifier " + relationDeclaration);
 			}
-				
+
 		}
 
 	}
@@ -646,7 +651,7 @@ public class CoreMetadataParser implements CoreParser {
 				errorHandler.error(Severity.ERROR,
 						"Duplicate relation identifier " + relationDeclaration);
 			}
-			
+
 		}
 
 	}
@@ -660,21 +665,28 @@ public class CoreMetadataParser implements CoreParser {
 		/*
 		 * Get the reference to the target of the relation if specified
 		 */
-		ResolvableReference target = parseResolvableReference(component.getName(),element, false);
+		ResolvableReference targetDef = parseResolvableReference(component.getName(),element, false);
 
 		/*
 		 * All dependencies have an optional identifier and multiplicity specification
 		 */
-		String id = parseString(component.getName(),element, CoreMetadataParser.ATT_ID, false);
-		boolean isMultiple = parseBoolean(component.getName(),element, CoreMetadataParser.ATT_MULTIPLE, false, true);
+		String id = parseString(component.getName(),element, CoreMetadataParser.ATT_NAME, false);
+		boolean isMultiple =parseBoolean(component.getName(),element, CoreMetadataParser.ATT_MULTIPLE, false, true);
+		String sourceName = parseString(component.getName(), element, CoreMetadataParser.ATT_SOURCE, false);
+		String targetName = parseString(component.getName(), element, CoreMetadataParser.ATT_TARGET, false);
+		String ssourceKind = parseString(component.getName(), element, CoreMetadataParser.ATT_SOURCEKIND, false);
+		String stargetKind = parseString(component.getName(), element, CoreMetadataParser.ATT_TARGETKIND, false);
 
+		ComponentKind sourceKind = Util.toKind(ssourceKind) ;
+		ComponentKind targetKind = Util.toKind(stargetKind) ;
+		
 		RelationDeclaration relation = null;
 
 		/*
 		 * Component dependencies reference a single mandatory component (specification, implementation, instance),
 		 * and in the case of atomic components they may optionally have a number of nested injection declarations
 		 */
-		if (target != null && target instanceof ComponentReference<?>) {
+		if (targetDef != null && targetDef instanceof ComponentReference<?>) {
 
 			/*
 			 * for atomic components, a field injection may be specified
@@ -687,7 +699,7 @@ public class CoreMetadataParser implements CoreParser {
 			}
 
 			relation = new RelationDeclaration(component.getReference(), id,
-					isMultiple, target);
+ isMultiple, targetDef, sourceName, sourceKind, targetName, targetKind);
 
 			if (component instanceof AtomicImplementationDeclaration) {
 
@@ -741,10 +753,10 @@ public class CoreMetadataParser implements CoreParser {
 		 * components a single injection must be specified directly as an
 		 * attribute of the relation
 		 */
-		if (target != null && target instanceof ResourceReference) {
+		if (targetDef != null && targetDef instanceof ResourceReference) {
 
 			relation = new RelationDeclaration(component.getReference(), id,
-					isMultiple, target);
+					isMultiple, targetDef);
 
 			if (component instanceof AtomicImplementationDeclaration) {
 
@@ -755,7 +767,7 @@ public class CoreMetadataParser implements CoreParser {
 				/*
 				 * Both the explicit target and the specified injection must match 
 				 */
-				if (!target.equals(relationInjection.getResource())) {
+				if (!targetDef.equals(relationInjection.getResource())) {
 					errorHandler.error(Severity.ERROR,
 							"relation target doesn't match the type of the field or method in "
 									+ element);
@@ -771,16 +783,15 @@ public class CoreMetadataParser implements CoreParser {
 		 * If no target was explicitly specified, but an injection was specified for an atomic component, we can infer
 		 * the target from the injection  
 		 */
-		if (target == null && component instanceof AtomicImplementationDeclaration) {
+		if (targetDef == null && component instanceof AtomicImplementationDeclaration) {
 
 			AtomicImplementationDeclaration atomic = (AtomicImplementationDeclaration) component;
 			RelationInjection relationInjection = parseRelationInjection(
 					element, atomic, true);
 
-			target = relationInjection.getResource();
+			targetDef = relationInjection.getResource();
 			id = (id != null) ? id : relationInjection.getName();
-			relation = new RelationDeclaration(component.getReference(), id,
-					isMultiple, target);
+			relation = new RelationDeclaration(component.getReference(), id, isMultiple, targetDef);
 
 			relationInjection.setRelation(relation);
 
@@ -789,12 +800,11 @@ public class CoreMetadataParser implements CoreParser {
 		/*
 		 * If no target was specified signal the error
 		 */
-		if (target == null && !(component instanceof AtomicImplementationDeclaration)) {
-			// errorHandler.error(Severity.ERROR,
-			// "relation target must be specified " + element);
-			//target = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
-			relation = new RelationDeclaration(component.getReference(), id,
-					isMultiple, target);
+		if (targetDef == null && !(component instanceof AtomicImplementationDeclaration)) {
+			//Usually the case with instance relation redefinition. Target is defined in the implementation
+			//			errorHandler.error(Severity.ERROR, "relation target must be specified " + element);
+			//			targetDef = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
+			relation = new RelationDeclaration(component.getReference(), id, isMultiple, targetDef);
 		}
 
 		/*
@@ -851,15 +861,15 @@ public class CoreMetadataParser implements CoreParser {
 		/*
 		 * Get the optional constraints and preferences
 		 */
-		 for (Element constraints : optional(element
-				 .getElements(CoreMetadataParser.CONSTRAINTS, CoreMetadataParser.APAM))) {
+		for (Element constraints : optional(element
+				.getElements(CoreMetadataParser.CONSTRAINTS, CoreMetadataParser.APAM))) {
 			parseConstraints(component.getName(), constraints, relation);
-		 }
+		}
 
-		 for (Element preferences : optional(element
-				 .getElements(CoreMetadataParser.PREFERENCES, CoreMetadataParser.APAM))) {
+		for (Element preferences : optional(element
+				.getElements(CoreMetadataParser.PREFERENCES, CoreMetadataParser.APAM))) {
 			parsePreferences(component.getName(), preferences, relation);
-		 }
+		}
 
 		return relation;
 	}
@@ -882,15 +892,14 @@ public class CoreMetadataParser implements CoreParser {
 		if ((field == null) && (push == null) && (pull == null) && mandatory)
 			errorHandler.error(Severity.ERROR,
 					"in the component \"" + atomic.getName()
-							+ "\" relation attribute \""
-							+ CoreMetadataParser.ATT_FIELD + "\" or \""
+ + "\" relation attribute \"" + CoreMetadataParser.ATT_FIELD + "\" or \""
 					+ CoreMetadataParser.ATT_PUSH + "\" or \"" + CoreMetadataParser.ATT_PULL
 					+ "\" must be specified in " + element.getName());
 
 		if ((field == null) && CoreMetadataParser.INTERFACE.equals(element.getName()) && mandatory)
 			errorHandler.error(Severity.ERROR,
 					"in the component \"" + atomic.getName()
-							+ "\" relation attribute \""
+ + "\" relation attribute \""
 					+ CoreMetadataParser.ATT_FIELD + "\" must be specified in " + element.getName());
 
 		if ((field == null) && (push == null) && (pull == null)) {
@@ -901,10 +910,10 @@ public class CoreMetadataParser implements CoreParser {
 		if (field != null) { // The relation is a field, interface relation
 			injection = new RelationInjection.Field(atomic, field);
 		} else if (push != null) { // the relation is a method, push message
-									// relation
+			// relation
 			injection = new RelationInjection.CallbackWithArgument(atomic, push, type);
 		} else if (pull != null) {// the relation is a method, pull message
-									// relation
+			// relation
 			injection = new RelationInjection.MessageField(atomic, pull);
 		}
 
@@ -1010,14 +1019,13 @@ public class CoreMetadataParser implements CoreParser {
 			 */
 			// if (component instanceof SpecificationDeclaration && !Util.isPredefinedAttribute(name)) {
 			//if (component instanceof SpecificationDeclaration) {
-				String type = parseString(component.getName(),property, ATT_TYPE, false);
-				if (type != null) {
-					String field = parseString(component.getName(),property, CoreMetadataParser.ATT_FIELD, false);
-					String callback = parseString(component.getName(),property, CoreMetadataParser.ATT_METHOD, false);
-					boolean internal = parseBoolean(component.getName(),property, CoreMetadataParser.ATT_INTERNAL, false, false);
-					component.getPropertyDefinitions().add(
-							new PropertyDefinition(component, name, type, value, field, callback, internal, true));
-				}
+			String type = parseString(component.getName(), property, ATT_TYPE, false);
+			if (type != null) {
+				String field = parseString(component.getName(), property, CoreMetadataParser.ATT_FIELD, false);
+				String callback = parseString(component.getName(), property, CoreMetadataParser.ATT_METHOD, false);
+				boolean internal = parseBoolean(component.getName(), property, CoreMetadataParser.ATT_INTERNAL, false, false);
+				component.getPropertyDefinitions().add(new PropertyDefinition(component, name, type, value, field, callback, internal, true));
+			}
 			//}
 		}
 	}
@@ -1063,7 +1071,7 @@ public class CoreMetadataParser implements CoreParser {
 			}
 
 			//            if (rule.getName().equals(CoreMetadataParser.FRIEND)) {
-				//                if (implementationsRule != null) {
+			//                if (implementationsRule != null) {
 			//                    composite.getVisibility().setFriendImplementations(implementationsRule);
 			//                }
 			//                if (instancesRule != null) {
@@ -1135,7 +1143,7 @@ public class CoreMetadataParser implements CoreParser {
 
 				GrantDeclaration grantDeclaration = new GrantDeclaration(
 						relation, new HashSet<String>(Arrays
-						.asList(Util.split(states))));
+.asList(Util.split(states))));
 				ownedComponent.getGrants().add(grantDeclaration);
 			}
 
@@ -1798,36 +1806,33 @@ public class CoreMetadataParser implements CoreParser {
 				}
 			}
 
-			
+
 			/*
 			 * Try to use reflection information
 			 */
-			 if (fieldReflectionMetadata != null) {
-				 
-				 String messageType = ApamIpojoInstrumentation.getMessageType(fieldReflectionMetadata);
-				 if (messageType != null)
-					 return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : new UndefinedReference(fieldName, MessageReference.class);
-					 
-	
-				 
-				 /*
-				  * First verify if it is a collection
-				  */
-				 String collectionType = ApamIpojoInstrumentation.getCollectionType(fieldReflectionMetadata);
-				 if (collectionType != null)
-					 return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(collectionType) : new UndefinedReference(fieldName, InterfaceReference.class);
+			if (fieldReflectionMetadata != null) {
 
-					 /*
-					  * Then verify if it is a message
-					  */
-					
-					 
-					 /*
-					  * Otherwise it's a normal field we just return its type name
-					  */
-					 return new InterfaceReference(fieldReflectionMetadata.getType().getCanonicalName());
-					 
-			 }
+				String messageType = ApamIpojoInstrumentation.getMessageType(fieldReflectionMetadata);
+				if (messageType != null)
+					return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : new UndefinedReference(fieldName, MessageReference.class);
+
+				/*
+				 * First verify if it is a collection
+				 */
+				String collectionType = ApamIpojoInstrumentation.getCollectionType(fieldReflectionMetadata);
+				if (collectionType != null)
+					return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(collectionType) : new UndefinedReference(fieldName, InterfaceReference.class);
+
+				/*
+				 * Then verify if it is a message
+				 */
+
+				/*
+				 * Otherwise it's a normal field we just return its type name
+				 */
+				return new InterfaceReference(fieldReflectionMetadata.getType().getCanonicalName());
+
+			}
 
 			/** Try to use iPojo metadata **/
 			if (fieldIPojoMetadata != null) {
@@ -1839,16 +1844,13 @@ public class CoreMetadataParser implements CoreParser {
 				if (collectionType != null)
 					return collectionType != CoreParser.UNDEFINED ? new InterfaceReference(
 							collectionType) : new UndefinedReference(fieldName,
-							InterfaceReference.class);
+ InterfaceReference.class);
 				/*
 				 * Then verify if it is a message
 				 */
-				String messageType = ApamIpojoInstrumentation
-						.getMessageType(fieldIPojoMetadata);
+				String messageType = ApamIpojoInstrumentation.getMessageType(fieldIPojoMetadata);
 				if (messageType != null)
-					return messageType != CoreParser.UNDEFINED ? new MessageReference(
-							messageType) : new UndefinedReference(fieldName,
-							MessageReference.class);
+					return messageType != CoreParser.UNDEFINED ? new MessageReference(messageType) : new UndefinedReference(fieldName, MessageReference.class);
 
 				/*
 				 * Otherwise it's a normal field we just return its type name
@@ -1856,7 +1858,7 @@ public class CoreMetadataParser implements CoreParser {
 				return new InterfaceReference(fieldIPojoMetadata.getFieldType());
 			}
 
-			 throw new NoSuchFieldException("unavailable field " + fieldName);
+			throw new NoSuchFieldException("unavailable field " + fieldName);
 
 		}
 
@@ -1877,17 +1879,17 @@ public class CoreMetadataParser implements CoreParser {
 			/*
 			 * Get iPojo metadata
 			 */
-			 FieldMetadata fieldIPojoMetadata = null;
-			 if ((pojoMetadata != null) && (pojoMetadata.getField(fieldName) != null))
-				 fieldIPojoMetadata = pojoMetadata.getField(fieldName);
+			FieldMetadata fieldIPojoMetadata = null;
+			if ((pojoMetadata != null) && (pojoMetadata.getField(fieldName) != null))
+				fieldIPojoMetadata = pojoMetadata.getField(fieldName);
 
-			 if (fieldReflectionMetadata != null)
-				 return ApamIpojoInstrumentation.getCollectionType(fieldReflectionMetadata) != null;
+			if (fieldReflectionMetadata != null)
+				return ApamIpojoInstrumentation.getCollectionType(fieldReflectionMetadata) != null;
 
-			 if (fieldIPojoMetadata != null)
-				 return ApamIpojoInstrumentation.getCollectionType(fieldIPojoMetadata) != null;
+			if (fieldIPojoMetadata != null)
+				return ApamIpojoInstrumentation.getCollectionType(fieldIPojoMetadata) != null;
 
-			 throw new NoSuchFieldException("unavailable metadata for field " + fieldName);
+			throw new NoSuchFieldException("unavailable metadata for field " + fieldName);
 
 		}
 
@@ -2006,22 +2008,20 @@ public class CoreMetadataParser implements CoreParser {
 
 								if (Message.class.equals(parameterClass)) { // Verify if the parameter type is a
 									// parameterized generic Message<D> ant try
-								// to
-								// get its actual payload
-								if (parameterType instanceof ParameterizedType) {
-									Type[] genericParameters = ((ParameterizedType) parameterType)
-											.getActualTypeArguments();
-									if ((genericParameters.length == 1) && (genericParameters[0] instanceof Class))
-										if (type != null) { // verify with the given type
-											if (((Class<?>) genericParameters[0]).getCanonicalName().equals(type)) {
+									// to
+									// get its actual payload
+									if (parameterType instanceof ParameterizedType) {
+										Type[] genericParameters = ((ParameterizedType) parameterType).getActualTypeArguments();
+										if ((genericParameters.length == 1) && (genericParameters[0] instanceof Class))
+											if (type != null) { // verify with the given type
+												if (((Class<?>) genericParameters[0]).getCanonicalName().equals(type)) {
+													methodsReflectionMetadata.put(method, new MessageReferenceExtended(type, true));
+												}
+											} else {
 												methodsReflectionMetadata.put(method, new MessageReferenceExtended(
-														type, true));
+((Class<?>) genericParameters[0]).getCanonicalName(), true));
 											}
-										} else {
-											methodsReflectionMetadata.put(method, new MessageReferenceExtended(
-													((Class<?>) genericParameters[0]).getCanonicalName(), true));
-										}
-								}
+									}
 								} else { // Otherwise it is the type of the actual message payload
 									if (type != null) { // verify with the given type
 										if (type.equals(parameterClass.getCanonicalName())) {

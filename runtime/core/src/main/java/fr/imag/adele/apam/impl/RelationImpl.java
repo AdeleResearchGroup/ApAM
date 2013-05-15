@@ -43,10 +43,10 @@ public class RelationImpl implements Relation {
 	private final ResolvableReference targetDefinition;
 
 	// Source type for this relation (Spec, implem, instance)
-	private final ComponentKind sourceType;
+	private final ComponentKind sourceKind;
 
 	// Target type for this relation (Spec, implem, instance)
-	private final ComponentKind targetType;
+	private final ComponentKind targetKind;
 
 	//	// Name of an ancestor of the Source for this relation. For ctxt relations
 	//	private String sourceName;
@@ -118,8 +118,11 @@ public class RelationImpl implements Relation {
 	// true if this is a dynamic relation : a field multiple, or a dynamic message
 	private final boolean isDynamic;
 
-	// If this is a Wire definion
-	private final boolean isWire;
+	// If this is a Wire definition. Can be overloaded. Null if unknown.
+	private boolean isWire;
+
+	//Injected. Can be overloaded. Null if unknown.
+	private boolean isInjected;
 
 	private boolean isComputed = false;
 
@@ -138,13 +141,14 @@ public class RelationImpl implements Relation {
 		this.identifier = "";
 		this.targetDefinition = target;
 		this.isMultiple = false;
-		this.sourceType = ComponentKind.INSTANCE;
-		this.targetType = (targetType == null) ? ComponentKind.INSTANCE : targetType;
+		this.sourceKind = ComponentKind.INSTANCE;
+		this.targetKind = (targetType == null) ? ComponentKind.INSTANCE : targetType;
 
 		//		this.linkSource = component;
 		//		this.sourceName = component.getName();
 		isDynamic = false;
 		isWire = false;
+		isInjected = false;
 		isEager = false;
 		mustHide = false;
 		missingException = null;
@@ -171,8 +175,8 @@ public class RelationImpl implements Relation {
 		// this.component = component;
 		this.targetDefinition = dep.getTarget();
 		this.identifier = dep.getIdentifier();
-		this.sourceType = (dep.getSourceType() == null) ? ComponentKind.INSTANCE : dep.getSourceType();
-		this.targetType = (dep.getTargetType() == null) ? ComponentKind.INSTANCE : dep.getTargetType();
+		this.sourceKind = (dep.getSourceKind() == null) ? ComponentKind.INSTANCE : dep.getSourceKind();
+		this.targetKind = (dep.getTargetKind() == null) ? ComponentKind.INSTANCE : dep.getTargetKind();
 		// this.sourceName = (dep.getSource() == null) ? component.getName() :
 		// dep.getSource().getName();
 
@@ -189,25 +193,40 @@ public class RelationImpl implements Relation {
 		this.implementationPreferences.addAll(dep.getImplementationPreferences());
 		this.instancePreferences.addAll(dep.getInstancePreferences());
 
-		// computing isDynamic
-		boolean hasField = false;
-		for (RelationInjection injection : dep.getInjections()) {
-			if (injection instanceof RelationInjection.Field) {
-				hasField = true;
-				break;
+		// computing isDynamic, isWire, hasField.
+		this.isWire = false;
+		this.isInjected = false;
+
+		if (dep.getComponent() instanceof ImplementationReference) {
+			for (RelationInjection injection : dep.getInjections()) {
+				if (injection instanceof RelationInjection.Field) {
+					this.isInjected = true;
+					if (((RelationInjection.Field) injection).isWire())
+						this.isWire = true;
+				}
 			}
 		}
-		isDynamic = (!hasField || dep.isMultiple() || dep.isEffectiveEager());
+ else { //if (dep.getComponent() instanceof InstanceReference) {
+			Instance inst = CST.componentBroker.getInst(dep.getComponent().getName());
+			if (inst != null) {
+				Implementation impl = inst.getImpl();
+				Relation relImpl = impl.getRelation(identifier);
+				if (relImpl != null) {
+					this.isWire = relImpl.isWire();
+					this.isInjected = relImpl.isInjected();
+				}
+			}
+		}
 
-		isWire = (hasField
-				&& dep.getTargetType() == ComponentKind.INSTANCE
-				&& dep.getTarget() instanceof ResourceReference
-				&& !dep.getTarget().getName().equals("fr.imag.adele.apam.Component")
-				&& !dep.getTarget().getName().equals("fr.imag.adele.apam.Specification")
-				&& !dep.getTarget().getName().equals("fr.imag.adele.apam.Implementation")
- && !dep.getTarget().getName().equals("fr.imag.adele.apam.Instance"));
+		this.isDynamic = (!isInjected || dep.isMultiple() || dep.isEffectiveEager());
 	}
 
+	/**
+	 * To be called before any use of this relation.
+	 * 
+	 * @param component
+	 *            the component source on which is defined this relation
+	 */
 	private void initializeRelation(Component component) {
 		// Check if there are substitutions, and build filters
 		ApamFilter f;
@@ -248,6 +267,7 @@ public class RelationImpl implements Relation {
 				instancePreferenceFilters.add(f);
 		}
 	}
+
 	/**
 	 * Called after the managers have added their constraints, and before to try
 	 * to resolve that relation. First it clears the previous filters (except if
@@ -395,27 +415,6 @@ public class RelationImpl implements Relation {
 		return true;
 	}
 
-	//		if (getSourceKind() == ComponentKind.IMPLEMENTATION) {
-	//			for (ApamFilter f : mngImplementationConstraintFilters) {
-	//				if (!f.match0(properties))
-	//					return false;
-	//			}
-	//		}
-	//		//			return true;
-	//		//		}
-	//		//
-	//		//		if (getSourceKind() == ComponentKind.INSTANCE) {
-	//
-	//		//Instance must match both implementation and instance constraints ???
-	//		for (ApamFilter f : mngInstanceConstraintFilters) {
-	//			if (!f.match0(properties))
-	//				return false;
-	//		}
-	//		//		}
-	//
-	//		// TODO if it is a spec ...
-	//		return true;
-	//	}
 
 	@Override
 	public boolean matchRelation(Component target) {
@@ -443,10 +442,15 @@ public class RelationImpl implements Relation {
 		return isDynamic;
 	}
 
-	// @Override
-	// public boolean isWire () {
-	// return isWire ;
-	// }
+	@Override
+	public boolean isWire() {
+		return isWire;
+	}
+
+	@Override
+	public boolean isInjected() {
+		return isInjected;
+	}
 
 	@Override
 	public boolean equals(Object object) {
@@ -533,12 +537,6 @@ public class RelationImpl implements Relation {
 	}
 
 
-	// The defining component
-	// @Override
-	// public Component getComponent() {
-	// return component;
-	// }
-
 	// Get the id of the relation in the declaring component declaration
 	@Override
 	public String getIdentifier() {
@@ -594,13 +592,13 @@ public class RelationImpl implements Relation {
 
 	@Override
 	public ComponentKind getSourceKind() {
-		return sourceType;
+		return sourceKind;
 	}
 
 
 	@Override
 	public ComponentKind getTargetKind() {
-		return targetType;
+		return targetKind;
 	}
 
 
@@ -781,6 +779,7 @@ public class RelationImpl implements Relation {
 			}
 
 			if (groupDep != null) {
+				//Check if really the same relation definition (same source and target kinds, ...)
 				// it is declared above. First merge flags, and then constraints. 
 				Util.overrideDepFlags(relDef, groupDep, false);
 				relDef.getImplementationConstraints().addAll(groupDep.getImplementationConstraints());
@@ -848,28 +847,6 @@ public class RelationImpl implements Relation {
 		return relDef;
 	}
 
-	//		if (!(client instanceof Instance))
-	//			return new RelationImpl(relDef);
-	//
-	//		List<RelationDeclaration> overDeps = ((Instance) client).getComposite().getCompType().getCompoDeclaration().getOverridenDependencies();
-	//		if (overDeps != null && !overDeps.isEmpty()) {
-	//			for (RelationDeclaration overDep : overDeps) {
-	//				if (Util.matchOverrideRelation((Instance) client, overDep, relDef)) {
-	//					//Do not change the implemention relDeclaration
-	//					RelationDeclaration newRelDef = relDef.clone();
-	//					Util.overrideDepFlags(relDef, overDep, true);
-	//					// It is assumed that the filters have been checked
-	//					// at compile time (checkObr)
-	//					relDef.getImplementationConstraints().addAll(overDep.getImplementationConstraints());
-	//					relDef.getInstanceConstraints().addAll(overDep.getInstanceConstraints());
-	//					relDef.getImplementationPreferences().addAll(overDep.getImplementationPreferences());
-	//					relDef.getInstancePreferences().addAll(overDep.getInstancePreferences());
-	//					return new RelationImpl(newRelDef);
-	//				}
-	//			}
-	//		}
-	//		return new RelationImpl(relDef);
-	//	}
 
 	/**
 	 * Provided a client instance, checks if its relation "clientDep", matches
