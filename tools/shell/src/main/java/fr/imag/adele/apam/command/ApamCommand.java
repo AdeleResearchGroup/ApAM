@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.felix.ipojo.annotations.Component;
+//import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Requires;
@@ -49,6 +49,7 @@ import org.apache.felix.ipojo.annotations.ServiceProperty;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.Implementation;
@@ -62,7 +63,7 @@ import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.impl.CompositeImpl;
 
 @Instantiate
-@Component(public_factory = false, immediate = true, name = "apam.universal.shell")
+@org.apache.felix.ipojo.annotations.Component(public_factory = false, immediate = true, name = "apam.universal.shell")
 @Provides(specifications = ApamCommand.class)
 public class ApamCommand {
 
@@ -74,19 +75,19 @@ public class ApamCommand {
 
 	@ServiceProperty(name = "org.knowhowlab.osgi.shell.commands", value = "{}")
 	String[] universalShell_groupCommands = new String[] {
-			"spec#inspect an apam specification",
-			"implem#inspect an apam implementation",
-			"inst#inspect an apam instance",
-			"dump#display the full apam state model",
-			"compoType#inspect an apam composite type",
-			"compo#inspect an apam composite instance",
-			"app#inspect an apam application",
-			"displaywires#display all the relations of an instance",
-			"charge#creates and start a new instance of the target implementation",
-			"l#creates and start a new instance of the target implementation",
-			"pending#display all pending installations in apam platform",
-			"updatecomponent#updates target component (Warning: updates the whole Bundle)",
-			"setproperty#set properties of an instance" };
+		"spec#inspect an apam specification",
+		"implem#inspect an apam implementation",
+		"inst#inspect an apam instance",
+		"dump#display the full apam state model",
+		"compoType#inspect an apam composite type",
+		"compo#inspect an apam composite instance",
+		"app#inspect an apam application",
+		"displaywires#display all the relations of an instance",
+		"charge#creates and start a new instance of the target implementation",
+		"l#creates and start a new instance of the target implementation",
+		"pending#display all pending installations in apam platform",
+		"updatecomponent#updates target component (Warning: updates the whole Bundle)",
+	"setproperty#set properties of an instance" };
 
 	// Apam injected
 	@Requires
@@ -170,7 +171,7 @@ public class ApamCommand {
 	 * inspect a specification. arguments : - the specification name
 	 */
 	public void spec(PrintWriter out, String... args) {
-		
+
 		CommandInvocationType typeCall = checkCommandInvocationType(out, 0,
 				args);
 
@@ -202,8 +203,8 @@ public class ApamCommand {
 	 * inspect an implementation arguments: - the implementation name
 	 */
 	public void implem(PrintWriter out, String... args) {
-		
-		
+
+
 		CommandInvocationType typeCall = checkCommandInvocationType(out, 0,
 				args);
 
@@ -270,14 +271,14 @@ public class ApamCommand {
 			int minimum, String... args) {
 
 		int length = args == null ? 0 : args.length;
-		
+
 		if (length < minimum) {
 			return CommandInvocationType.INVALID;
 		}
 
 		if (length == 1 && args[0].equals("--help"))
 			return CommandInvocationType.HELP;
-		
+
 		if (length == 0){
 			return CommandInvocationType.DEFAULT;
 		}		
@@ -329,7 +330,7 @@ public class ApamCommand {
 	 * Display information about the target application"
 	 */
 	public void app(PrintWriter out, String... args) {
-		
+
 		CommandInvocationType typeCall = checkCommandInvocationType(out, 0,
 				args);
 
@@ -458,7 +459,7 @@ public class ApamCommand {
 	private Composite checkComposite(PrintWriter out, String compositeTarget,
 			String componentName) {
 		if (compositeTarget == null) {// if the composite target is null, use
-										// the root composite
+			// the root composite
 			compositeTarget = "root";
 		}
 
@@ -501,11 +502,11 @@ public class ApamCommand {
 		}
 		out.println("");
 
-//		out.print(indent + "Uses composite types : ");
-//		for (Implementation comDep : compo.getUses()) {
-//			out.print(comDep.getName() + " ");
-//		}
-//		out.println("");
+		//		out.print(indent + "Uses composite types : ");
+		//		for (Implementation comDep : compo.getUses()) {
+		//			out.print(comDep.getName() + " ");
+		//		}
+		//		out.println("");
 
 		out.print(indent + "Contains Implementations: ");
 		for (Implementation impl : compo.getImpls()) {
@@ -585,6 +586,31 @@ public class ApamCommand {
 		}
 	}
 
+	private void printComponent(PrintWriter out, String indent, Component elem) {
+
+		out.println(indent + "----- [ " + elem.getKind() + " " + elem.getName() + " ] -----");
+
+		//Links
+		String w;
+		out.println(indent + "Links towards:");
+		for (Link wire : elem.getLinks()) {
+			w = wire.isWire() ? "w-" : "l-";
+			out.println(indent + "       " + w + wire.getName() + ": " + wire.getDestination());
+		}
+
+		//Reverse Links
+		out.println(indent + "Used by:");
+		for (Link wire : elem.getInvLinks()) {
+			w = wire.isWire() ? "w-" : "l-";
+			out.println(indent + "       (" + w + wire.getName() + ") " + wire.getSource());
+		}
+
+		//Properties
+		printProperties(out, indent, (ComponentImpl) elem);
+
+		out.println();
+	}
+
 	/**
 	 * Prints the specification.
 	 * 
@@ -595,8 +621,11 @@ public class ApamCommand {
 	 */
 	private void printSpecification(PrintWriter out, String indent,
 			Specification specification) {
-		out.println(indent + "----- [ ASMSpec : " + specification.getName()
-				+ " ] -----");
+		//		out.println(indent + "----- [ ASMSpec : " + specification.getName()
+		//				+ " ] -----");
+
+		printComponent(out, indent, specification);
+
 		indent += "   ";
 		out.println(indent + "Interfaces:");
 		for (ResourceReference res : specification.getDeclaration()
@@ -606,22 +635,22 @@ public class ApamCommand {
 
 		out.println(specification.getDeclaration().getDependencies());
 
-//		out.println(indent + "Effective Required specs:");
-//		for (Specification spec : specification.getRequires()) {
-//			out.println(indent + "      " + spec);
-//		}
-//
-//		out.println(indent + "Required by:");
-//
-//		for (Specification spec : specification.getInvRequires()) {
-//			out.println(indent + "      " + spec);
-//		}
+		//		out.println(indent + "Effective Required specs:");
+		//		for (Specification spec : specification.getRequires()) {
+		//			out.println(indent + "      " + spec);
+		//		}
+		//
+		//		out.println(indent + "Required by:");
+		//
+		//		for (Specification spec : specification.getInvRequires()) {
+		//			out.println(indent + "      " + spec);
+		//		}
 
 		out.println(indent + "Implementations:");
 		for (Implementation impl : specification.getImpls()) {
 			out.println(indent + "      " + impl);
 		}
-		printProperties(out, indent, (ComponentImpl) specification);
+		//		printProperties(out, indent, (ComponentImpl) specification);
 		out.println(specification.getApformSpec().getDeclaration()
 				.printDeclaration(indent));
 
@@ -639,36 +668,38 @@ public class ApamCommand {
 	 *            the instance
 	 */
 	private void printInstance(PrintWriter out, String indent, Instance instance) {
-		if (instance == null)
-			return;
-		out.println(indent + "----- [ ASMInst : " + instance.getName()
-				+ " ] -----");
-		Implementation implementation = instance.getImpl();
+		//		
+		//		if (instance == null)
+		//			return;		
+		printComponent(out, indent, instance);
+
 		indent += "   ";
-		out.println(indent + "links:");
-		for (Link wire : instance.getLinks()) {
-			out.println(indent + "   " + wire.getName() + ": "
-					+ wire.getDestination());
-		}
 
-		out.println(indent + "Called by:");
-		for (Link wire : instance.getInvLinks())
-			out.println(indent + "   (" + wire.getName() + ") "
-					+ wire.getSource());
+		//		out.println(indent + "links:");
+		//		for (Link wire : instance.getLinks()) {
+		//			out.println(indent + "   " + wire.getName() + ": "
+		//					+ wire.getDestination());
+		//		}
+		//
+		//		out.println(indent + "Called by:");
+		//		for (Link wire : instance.getInvLinks())
+		//			out.println(indent + "   (" + wire.getName() + ") "
+		//					+ wire.getSource());
 
-		if (implementation == null) {
+		if (instance.getImpl() == null) {
 			out.println(indent + "warning :  no factory for this instance");
 		} else {
 			out.println(indent + "specification  : " + instance.getSpec());
 			out.println(indent + "implementation : " + instance.getImpl());
 			out.println(indent + "in composite   : " + instance.getComposite());
-			out.println(indent + "in application : "
-					+ instance.getAppliComposite());
-			printProperties(out, indent, (ComponentImpl) instance);
+			out.println(indent + "in application : " + instance.getAppliComposite());
+			//			printProperties(out, indent, (ComponentImpl) instance);
 		}
-		out.println(instance.getApformInst().getDeclaration()
-				.printDeclaration(indent));
+
+
+		out.println(instance.getApformInst().getDeclaration().printDeclaration(indent));
 	}
+
 
 	/**
 	 * Prints the implementation.
@@ -683,7 +714,8 @@ public class ApamCommand {
 	 */
 	private void printImplementation(PrintWriter out, String indent,
 			Implementation impl) {
-		out.println(indent + "----- [ ASMImpl : " + impl + " ] -----");
+
+		printComponent(out, indent, impl);
 
 		indent += "  ";
 		out.println(indent + "specification : " + impl.getSpec());
@@ -693,21 +725,22 @@ public class ApamCommand {
 			out.println(indent + "      " + compo.getName());
 		}
 
-//		out.println(indent + "Uses:");
-//		for (Implementation implem : impl.getUses()) {
-//			out.println(indent + "      " + implem);
-//		}
-//
-//		out.println(indent + "Used by:");
-//		for (Implementation implem : impl.getInvUses()) {
-//			out.println(indent + "      " + implem);
-//		}
+		//		out.println(indent + "Uses:");
+		//		for (Implementation implem : impl.getUses()) {
+		//			out.println(indent + "      " + implem);
+		//		}
+		//
+		//		out.println(indent + "Used by:");
+		//		for (Implementation implem : impl.getInvUses()) {
+		//			out.println(indent + "      " + implem);
+		//		}
 
 		out.println(indent + "Instances:");
 		for (Instance inst : impl.getInsts()) {
 			out.println(indent + "      " + inst);
 		}
-		printProperties(out, indent, (ComponentImpl) impl);
+
+		//		printProperties(out, indent, (ComponentImpl) impl);
 
 		out.println(impl.getApformImpl().getDeclaration()
 				.printDeclaration(indent));
@@ -733,8 +766,8 @@ public class ApamCommand {
 			Object value = properties.get(key);
 			if ((value instanceof String)
 					&& (((String) value).charAt(0) == '$'
-							|| ((String) value).charAt(0) == '@' || ((String) value)
-							.charAt(0) == '\\')) {
+					|| ((String) value).charAt(0) == '@' || ((String) value)
+					.charAt(0) == '\\')) {
 				out.print(" (" + value + ")");
 			}
 			out.println();
@@ -775,9 +808,9 @@ public class ApamCommand {
 					insts);
 		}
 	}
-	
-//TODO Missing links
-	
+
+	//TODO Missing links
+
 	private void dumpState0(PrintWriter out, Instance inst, String indent,
 			String dep, Set<Instance> insts) {
 		if (insts.contains(inst)) {

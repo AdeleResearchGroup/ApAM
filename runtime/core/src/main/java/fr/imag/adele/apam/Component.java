@@ -110,12 +110,8 @@ public interface Component {
      * @return  true if the link has been created
      */
      public boolean createLink(Component to, Relation dep, boolean hasConstraints, boolean promotion);
-
-	// public boolean createLink(Component to, relation dep, boolean promotion);
-
     
 	// ================== Relationships =================
-
 
 	//True if the component matches the filter
 	public boolean match(ApamFilter goal);

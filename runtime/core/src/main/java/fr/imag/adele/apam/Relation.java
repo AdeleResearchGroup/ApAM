@@ -91,8 +91,11 @@ public interface Relation  {
 	//true if this is a dynamic wire, or a dynamic message ...
 	public boolean isDynamic () ;
 
-	// //true if this is a Wire definition
-	// public boolean isWire () ;
+	//true if this is a Wire definition
+	public boolean isWire();
+
+	//true if this is there is an associated field
+	public boolean isInjected();
 
 	// //
 	// public boolean isEffectiveEager();

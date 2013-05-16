@@ -719,7 +719,7 @@ public class CheckObr {
 				//must be the same one
 				if (groupDep.getTarget().equals(relation.getTarget()))
 					return relation;
-				CheckObr.error("Invalid target for relation " + relation
+				CheckObr.error("Invalid target for " + relation
 						+ " expected " + groupDep.getTarget());
 				return null ;
 			}
@@ -731,7 +731,7 @@ public class CheckObr {
 				relation.setTarget(groupDep.getTarget());
 				return relation;
 			}
-			CheckObr.error("Invalid target for relation " + relation
+			CheckObr.error("Invalid target for " + relation
 					+ " In component " + groupDep + " relation " + depName
 					+ " is definned against " + groupDep.getTarget()
 					+ " which does not implement " + relation.getTarget());
@@ -740,7 +740,7 @@ public class CheckObr {
 
 		//target is a component reference, group should be too
 		if (!(groupDep.getTarget() instanceof ComponentReference<?>)) {
-			CheckObr.error("Invalid target for relation " + relation
+			CheckObr.error("Invalid target for " + relation
 					+ " In component " + groupDep + " relation "
 					+ depName + " is definned against " + groupDep.getTarget() ) ;
 			return null ;
@@ -757,9 +757,9 @@ public class CheckObr {
 			}
 			targetCompo = ApamCapability.getDcl(targetCompo.getGroupReference()) ;
 		}
-		CheckObr.error("Invalid target for relation " + relation
+		CheckObr.error("Invalid target for" + relation
 				+ " In component " + groupDep + " relation "
-				+ depName + " is definned against " + groupDep.getTarget() ) ;
+				+ depName + " is defined against " + groupDep.getTarget() ) ;
 		return null ;		
 	}
 

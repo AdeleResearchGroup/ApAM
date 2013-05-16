@@ -346,15 +346,15 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 
 		// creation
-		Link link;
-		if (getApformComponent().setLink(to, depName)) {
-			link = new LinkImpl(this, to, depName, hasConstraints);
-			links.add(link);
-			((ComponentImpl) to).invlinks.add(link);
-		} else {
-			logger.error("CreateLink: INTERNAL ERROR: link from " + this + " to " + to + " could not be created in the real instance.");
-			return false;
-		}
+		//	if (dep.isWire()) {
+			if (!getApformComponent().setLink(to, depName)) {
+				logger.error("CreateLink: INTERNAL ERROR: link from " + this + " to " + to + " could not be created in the real instance.");
+				return false;
+			}
+		//		}
+		Link link = new LinkImpl(this, to, depName, hasConstraints, dep.isWire());
+		links.add(link);
+		((ComponentImpl) to).invlinks.add(link);
 
 		/*
 		 * if "to" is an instance in the unused pull, move it to the from
@@ -363,17 +363,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (to instanceof Instance && !((Instance) to).isUsed()) {
 			((InstanceImpl) to).setOwner(((Instance) this).getComposite());
 		}
-
-		// // Other relationships to instantiate
-		//
-		// if(to.getImpl()!=null)
-		// ((ImplementationImpl) getImpl()).addUses(to.getImpl());
-
-		// TODO distriman: the destination (to) spec being false verification
-		// could be avoided in previous step
-		// if ((SpecificationImpl) getSpec() != null && to.getSpec()!=null) {
-		// ((SpecificationImpl) getSpec()).addRequires(to.getSpec());
-		// }
 
 		// Notify Dynamic managers that a new link has been created
 		for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
