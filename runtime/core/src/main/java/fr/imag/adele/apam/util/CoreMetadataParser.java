@@ -138,7 +138,7 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_EAGER               = "eager";
 	private static final String  ATT_HIDE                = "hide";
 	private static final String  ATT_FILTER              = "filter";
-	//	private static final String  ATT_ID                  = "id";
+	private static final String ATT_ID = "id";
 	private static final String ATT_SOURCE = "source";
 	private static final String ATT_SOURCEKIND = "sourceKind";
 	private static final String ATT_TARGET = "target";
@@ -670,7 +670,7 @@ public class CoreMetadataParser implements CoreParser {
 		/*
 		 * All dependencies have an optional identifier and multiplicity specification
 		 */
-		String id = parseString(component.getName(),element, CoreMetadataParser.ATT_NAME, false);
+		String id = parseString(component.getName(), element, CoreMetadataParser.ATT_ID, false);
 		boolean isMultiple =parseBoolean(component.getName(),element, CoreMetadataParser.ATT_MULTIPLE, false, true);
 		String sourceName = parseString(component.getName(), element, CoreMetadataParser.ATT_SOURCE, false);
 		String targetName = parseString(component.getName(), element, CoreMetadataParser.ATT_TARGET, false);
@@ -679,7 +679,7 @@ public class CoreMetadataParser implements CoreParser {
 
 		ComponentKind sourceKind = Util.toKind(ssourceKind) ;
 		ComponentKind targetKind = Util.toKind(stargetKind) ;
-		
+
 		RelationDeclaration relation = null;
 
 		/*
@@ -769,14 +769,12 @@ public class CoreMetadataParser implements CoreParser {
 				 */
 				if (!targetDef.equals(relationInjection.getResource())) {
 					errorHandler.error(Severity.ERROR,
-							"relation target doesn't match the type of the field or method in "
+ "relation target " + targetDef.getName() + " doesn't match the type of the field or method " + relationInjection.getResource().getName() + " in "
 									+ element);
 				}
 
 				relationInjection.setRelation(relation);
-
 			}
-
 		}
 
 		/*

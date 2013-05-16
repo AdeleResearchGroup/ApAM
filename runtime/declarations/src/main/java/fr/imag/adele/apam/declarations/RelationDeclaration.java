@@ -21,6 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+
+//import fr.imag.adele.apam.apamMavenPlugin.CheckObr;
 import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
 
 /**
@@ -31,6 +35,8 @@ import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
  * 
  */
 public class RelationDeclaration extends ConstrainedReference implements Cloneable {
+	
+//	private static Logger logger = LoggerFactory.getLogger(RelationDeclaration.class);
 
     /**
 	 * A reference to a relation declaration. Notice that relation identifiers
@@ -145,6 +151,9 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 
         assert component != null;
         
+        if (id==null && getTarget() == null) {
+        	System.err.println("ERRROR Both id and target null for relation in component " + component ) ;
+        }
         id 						= (id == null) ? getTarget().as(fr.imag.adele.apam.declarations.Reference.class).getIdentifier() : id;
         this.reference			= new Reference(component,id);
 
