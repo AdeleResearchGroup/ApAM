@@ -147,10 +147,6 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_HIDE                = "hide";
 	private static final String  ATT_FILTER              = "filter";
 	private static final String ATT_ID = "id";
-	private static final String ATT_SOURCE = "source";
-	private static final String ATT_SOURCEKIND = "sourceKind";
-	private static final String ATT_TARGET = "target";
-	private static final String ATT_TARGETKIND = "targetKind";
 	private static final String  ATT_PROPERTY            = "property";
 	private static final String  ATT_DEPENDENCY          = "dependency";
 	private static final String  ATT_TO                  = "to";
@@ -686,8 +682,8 @@ public class CoreMetadataParser implements CoreParser {
 		boolean isMultiple =parseBoolean(component.getName(),element, CoreMetadataParser.ATT_MULTIPLE, false, true);
 		String sourceName = parseString(component.getName(), element, CoreMetadataParser.ATT_SOURCE, false);
 		String targetName = parseString(component.getName(), element, CoreMetadataParser.ATT_TARGET, false);
-		String ssourceKind = parseString(component.getName(), element, CoreMetadataParser.ATT_SOURCEKIND, false);
-		String stargetKind = parseString(component.getName(), element, CoreMetadataParser.ATT_TARGETKIND, false);
+		String ssourceKind = parseString(component.getName(), element, CoreMetadataParser.ATT_SOURCE_KIND, false);
+		String stargetKind = parseString(component.getName(), element, CoreMetadataParser.ATT_TARGET_KIND, false);
 
 		ComponentKind sourceKind = Util.toKind(ssourceKind) ;
 		ComponentKind targetKind = Util.toKind(stargetKind) ;
