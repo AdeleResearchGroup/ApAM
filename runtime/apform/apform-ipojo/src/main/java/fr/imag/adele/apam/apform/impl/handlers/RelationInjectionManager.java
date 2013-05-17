@@ -17,7 +17,7 @@ package fr.imag.adele.apam.apform.impl.handlers;
 import org.apache.felix.ipojo.FieldInterceptor;
 import org.apache.felix.ipojo.metadata.Element;
 
-import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.declarations.RelationInjection;
 
 /**
@@ -100,21 +100,14 @@ public interface RelationInjectionManager extends FieldInterceptor {
 	/**
 	 * Adds a new target to this injection
 	 */
-	public abstract void addTarget(Instance target);
+	public abstract void addTarget(Component target);
 
 	/**
 	 * Removes a target from the injection
 	 * 
 	 * @param target
 	 */
-	public abstract void removeTarget(Instance target);
+	public abstract void removeTarget(Component target);
 
-	/**
-	 * Substitutes an existing target by a new one
-	 * 
-	 * @param oldTarget
-	 * @param newTarget
-	 */
-	public abstract void substituteTarget(Instance oldTarget, Instance newTarget);
 
 }

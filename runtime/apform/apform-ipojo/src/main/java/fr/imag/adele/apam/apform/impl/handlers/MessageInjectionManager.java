@@ -36,6 +36,7 @@ import org.osgi.service.wireadmin.WireConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
 import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
@@ -350,7 +351,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 	 * (fr.imag.adele.apam.Instance)
 	 */
     @Override
-    public void addTarget(Instance target) {
+    public void addTarget(Component target) {
 
         /*
          * Add this target and invalidate cache
@@ -369,14 +370,14 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
                 consumer = providerHandler.getHandlerManager().getContext().registerService(Consumer.class.getCanonicalName(), this, properties);
             }
             
-            targetServices.add(target);
+            targetServices.add((Instance)target);
             
             /*
              * Create a wire at the WireAdmin level
              */
             WireAdmin wireAdmin = getWireAdmin();
             if (wireAdmin != null) {
-                MessageProducerIdentifier messageProducer = getMessageProducer(target);
+                MessageProducerIdentifier messageProducer = getMessageProducer((Instance)target);
                 Properties wireProperties = new Properties();
                 wireProperties.put(MessageProviderHandler.ATT_PROVIDER_ID, messageProducer.providerId);
                 Wire wire = wireAdmin.createWire(messageProducer.producerId, getConsumerId(), wireProperties);
@@ -395,7 +396,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 	 * (fr.imag.adele.apam.Instance)
 	 */
     @Override
-    public void removeTarget(Instance target) {
+    public void removeTarget(Component target) {
 
         /*
          * Remove this target and invalidate cache
@@ -422,47 +423,6 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
             
         }
     }
-
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see fr.imag.adele.apam.apform.impl.handlers.relationInjectionManager#
-	 * substituteTarget(fr.imag.adele.apam.Instance,
-	 * fr.imag.adele.apam.Instance)
-	 */
-    @Override
-    public void substituteTarget(Instance oldTarget, Instance newTarget) {
-
-        /*
-         * substitute the target atomically and invalidate the cache
-         */
-        synchronized (this) {
-
-            if (!targetServices.contains(oldTarget))
-                return;
-
-            /*
-             * Update wires at the WireAdmin level
-             */
-            WireAdmin wireAdmin = getWireAdmin();
-            
-            Wire wire   = wires.remove(oldTarget.getName());
-            if (wireAdmin != null && wire != null)
-                wireAdmin.deleteWire(wire);
-
-            if (wireAdmin != null) {
-                MessageProducerIdentifier messageProducer = getMessageProducer(newTarget);
-                Properties wireProperties = new Properties();
-                wireProperties.put(MessageProviderHandler.ATT_PROVIDER_ID, messageProducer.providerId);
-                wire = wireAdmin.createWire(messageProducer.producerId, getConsumerId(), wireProperties);
-                wires.put(newTarget.getName(),wire);
-            }
-
-            targetServices.remove(oldTarget);
-            targetServices.add(newTarget);
-        }
-    }
-
 
     /**
      * Consumes a message and put it in the buffer for later retrieval.

@@ -380,10 +380,6 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
     public boolean setLink(Component destination, String depName) {
         // System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
 
-    	if (! (destination instanceof Instance))
-    		return true;
-    		
-    	Instance destInst = (Instance) destination;
         /*
          * Validate all the injections can be performed
          */
@@ -398,14 +394,14 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
          */
         for (RelationInjectionManager injectedField : injectedFields) {
             if (injectedField.getRelationInjection().getRelation().getIdentifier().equals(depName)) {
-                injectedField.addTarget(destInst);
+                injectedField.addTarget(destination);
             }
         }
 
         /*
          * perform callback bind
          */
-		fireCallbacks(destInst, depName,
+		fireCallbacks(destination, depName,
 				relationCallback.get(CallbackTrigger.Bind));
 
         return true;
@@ -417,10 +413,6 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
     @Override
     public boolean remLink(Component destination, String depName) {
         // System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
-    	if (! (destination instanceof Instance))
-    		return true;
-    		
-    	Instance destInst = (Instance) destination;
 
         /*
          * Validate all the injections can be performed
@@ -436,14 +428,14 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
          */
         for (RelationInjectionManager injectedField : injectedFields) {
             if (injectedField.getRelationInjection().getRelation().getIdentifier().equals(depName)) {
-                injectedField.removeTarget(destInst);
+                injectedField.removeTarget(destination);
             }
         }
 
         /*
          * perform callback unbind
          */
-		fireCallbacks(destInst, depName,
+		fireCallbacks(destination, depName,
 				relationCallback.get(CallbackTrigger.Unbind));
 
         return true;
@@ -498,7 +490,7 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
         }
     }
 
-    private void fireCallbacks(Instance destInstance, String depName, Map<String, Set<Callback>> map) {
+    private void fireCallbacks(Component destInstance, String depName, Map<String, Set<Callback>> map) {
         Set<Callback> callbacks = map.get(depName);
         performCallbacks(destInstance, callbacks);
     }
@@ -508,7 +500,7 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
         performCallbacks(getApamInstance(), callbacks);
     }
 
-    private void performCallbacks(Instance inst, Set<Callback> callbacks) {
+    private void performCallbacks(Component inst, Set<Callback> callbacks) {
         if (callbacks != null) {
             for (Callback callback : callbacks) {
                 if (callback.getArguments().length == 1) {

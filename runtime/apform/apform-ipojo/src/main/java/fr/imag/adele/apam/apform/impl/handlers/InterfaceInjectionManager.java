@@ -27,7 +27,10 @@ import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
 
+import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
 import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.InterfaceReference;
@@ -61,7 +64,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
     /**
 	 * The list of target APAM instances of this relation.
 	 */
-    private final Set<Instance> 		targetServices;
+    private final Set<Component> 		targetServices;
 
     /**
 	 * The last injected value.
@@ -99,7 +102,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
         /*
          * Initialize target services
          */
-        targetServices 				= new HashSet<Instance>();
+        targetServices 				= new HashSet<Component>();
         injectedValue 				= null;
         
     	resolver.addInjection(this);
@@ -136,14 +139,14 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 		 * show the current state of resolution. To avoid unnecessary synchronization overhead make a copy of the
 		 * current target services and do not use directly the field that can be concurrently modified
 		 */
-		Set<Instance> resolutions = new HashSet<Instance>();
+		Set<Component> resolutions = new HashSet<Component>();
 		synchronized (this) {
 			resolutions.addAll(targetServices);
 		}
 		
 		relationDescription.addAttribute(new Attribute("resolved", Boolean
 				.toString(!resolutions.isEmpty())));
-		for (Instance target : resolutions) {
+		for (Component target : resolutions) {
 			Element bindingDescription = new Element("binding", ApformComponentImpl.APAM_NAMESPACE);
 			bindingDescription.addAttribute(new Attribute("target", target.getName()));
 			relationDescription.addElement(bindingDescription);
@@ -169,7 +172,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 	 * (fr.imag.adele.apam.Instance)
 	 */
     @Override
-	public void addTarget(Instance target) {
+	public void addTarget(Component target) {
 
         /*
          * Add this target and invalidate cache
@@ -189,7 +192,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 	 * (fr.imag.adele.apam.Instance)
 	 */
     @Override
-	public void removeTarget(Instance target) {
+	public void removeTarget(Component target) {
 
         /*
          * Remove this target and invalidate cache
@@ -200,32 +203,6 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
         }
     }
 
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see fr.imag.adele.apam.apform.impl.handlers.relationInjectionManager#
-	 * substituteTarget(fr.imag.adele.apam.Instance,
-	 * fr.imag.adele.apam.Instance)
-	 */
-    @Override
-	public void substituteTarget(Instance oldTarget, Instance newTarget) {
-
-        /*
-         * substitute the target atomically and invalidate the cache
-         */
-        synchronized (this) {
-
-            if (!targetServices.contains(oldTarget))
-                return;
-
-            targetServices.remove(oldTarget);
-            targetServices.add(newTarget);
-            injectedValue = null;
-
-        }
-    }
-
- 
     @Override
 	public void onSet(Object pojo, String fieldName, Object value) {
         /*
@@ -322,13 +299,18 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
     	/*
     	 * TODO change injection to better handle this new case 
     	 */
-    	boolean injectServiceObject = !injection.getResource().as(InterfaceReference.class).getJavaType().equals(Instance.class.getName());
+    	String injectionClass	= injection.getResource().as(InterfaceReference.class).getJavaType();
+    	boolean injectComponent = injectionClass.equals(Instance.class.getName()) ||
+    							  injectionClass.equals(Implementation.class.getName()) ||
+    							  injectionClass.equals(Specification.class.getName()) ||
+    							  injectionClass.equals(Component.class.getName()) ;
+    	
     	/*
     	 * For scalar dependencies return any of the target objects wired
     	 */
     	if (! isCollection) {
-    		Instance target = targetServices.iterator().next();
-    		return injectServiceObject ? target.getServiceObject() : target;
+    		Component target = targetServices.iterator().next();
+    		return injectComponent ? target : ((Instance)target).getServiceObject();
     	}
     	
         /*
@@ -339,8 +321,8 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
         	
             int index = 0;
         	Object array = Array.newInstance(fieldClass.getComponentType(),targetServices.size());
-            for (Instance targetService : targetServices) {
-            	Array.set(array, index++, injectServiceObject ? targetService.getServiceObject() : targetService);
+            for (Component targetService : targetServices) {
+            	Array.set(array, index++, injectComponent ? targetService :((Instance)targetService).getServiceObject() );
             }
            return array;
         }
@@ -369,8 +351,8 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
         /*
          * fill the collection with the target objects
          */
-        for (Instance targetService : targetServices) {
-        	serviceObjects.add(injectServiceObject ? targetService.getServiceObject() : targetService);
+        for (Component targetService : targetServices) {
+        	serviceObjects.add(injectComponent ? targetService :((Instance)targetService).getServiceObject() );
         }
         
         return serviceObjects;
