@@ -50,7 +50,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 	/**
 	 * The relation injection managed by this relation
 	 */
-	private final RelationInjection 	injection;
+	private final RelationInjection		injection;
 
 	/**
 	 * The metadata of the field that must be injected
@@ -90,17 +90,17 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
          */
         
 
-        FieldMetadata field = factory.getPojoMetadata().getField(injection.getName());
-        String fieldType	= FieldMetadata.getReflectionType(field.getFieldType());
+        FieldMetadata field 		= factory.getPojoMetadata().getField(injection.getName());
+        String fieldType			= FieldMetadata.getReflectionType(field.getFieldType());
         
-        this.fieldClass 	= factory.loadClass(fieldType);
-        this.isCollection	= injection.isCollection();
-
+        this.fieldClass 			= factory.loadClass(fieldType);
+        this.isCollection			= injection.isCollection();
+ 
         /*
          * Initialize target services
          */
-        targetServices 	= new HashSet<Instance>();
-        injectedValue 	= null;
+        targetServices 				= new HashSet<Instance>();
+        injectedValue 				= null;
         
     	resolver.addInjection(this);
     }
@@ -320,27 +320,33 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
     private final Object getInjectedValue() {
     	
     	/*
-    	 * For scalar dependencies return any of the service objects wired
+    	 * TODO change injection to better handle this new case 
     	 */
-    	if (! isCollection)
-    		return targetServices.iterator().next().getServiceObject();
+    	boolean injectServiceObject = !injection.getResource().as(InterfaceReference.class).getJavaType().equals(Instance.class.getName());
+    	/*
+    	 * For scalar dependencies return any of the target objects wired
+    	 */
+    	if (! isCollection) {
+    		Instance target = targetServices.iterator().next();
+    		return injectServiceObject ? target.getServiceObject() : target;
+    	}
     	
         /*
          * For arrays, we need to reflectively build a type conforming array initialized
-         * to the list of service objects
+         * to the list of target objects
          */
         if (fieldClass.isArray()) {
         	
             int index = 0;
         	Object array = Array.newInstance(fieldClass.getComponentType(),targetServices.size());
             for (Instance targetService : targetServices) {
-            	Array.set(array, index++, targetService.getServiceObject());
+            	Array.set(array, index++, injectServiceObject ? targetService.getServiceObject() : targetService);
             }
            return array;
         }
         
         /*
-         * For collections, use an erased Object collection of the service objects, with
+         * For collections, use an erased Object collection of the target objects, with
          * the type that that better fits the class of the field
          */
         Collection<Object> serviceObjects = null;
@@ -361,10 +367,10 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
         	return null;
         
         /*
-         * fill the collection with the service objects
+         * fill the collection with the target objects
          */
         for (Instance targetService : targetServices) {
-        	serviceObjects.add(targetService.getServiceObject());
+        	serviceObjects.add(injectServiceObject ? targetService.getServiceObject() : targetService);
         }
         
         return serviceObjects;
