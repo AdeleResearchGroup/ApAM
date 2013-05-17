@@ -115,9 +115,7 @@ public class ApamMan implements RelationManager {
 		if (relation.getTarget() instanceof SpecificationReference) {
 			Specification spec = CST.componentBroker.getSpec(name);
 			if (spec == null) {
-				System.err.println("No spec with name " + name
-						// + " for relation " + relation.getIdentifier()
-						+ " from component" + source);
+				//logger.debug("No spec with name " + name + " from component" + source);
 				return null;
 			}
 			if (relation.getTargetKind() == ComponentKind.SPECIFICATION) {

@@ -274,7 +274,8 @@ public class OBRMan implements RelationManager, OBRManCommand {
 		boolean badKind = (ret.getKind() != dep.getTargetKind());
 		if (badKind) {
 			logger.debug("Looking for " + dep.getTargetKind() + " but found " + ret);
-			if (!(ret instanceof Implementation)) {
+			//It is Ok to return an implem when an instance is required. The resolver will instantiate.
+			if (!(ret.getKind()==ComponentKind.IMPLEMENTATION && dep.getTargetKind()==ComponentKind.INSTANCE)) {
 				logger.error("invalide return from OBR : expected " + dep.getTargetKind() + " got " + ret.getKind());
 				return null;
 			}

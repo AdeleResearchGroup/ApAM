@@ -205,12 +205,18 @@ public class ApamResolverImpl implements ApamResolver {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public Resolved<?> resolveLink(Component source, Relation dep) {
-		if (source == null || dep == null){
+	public Resolved<?> resolveLink(Component source2, Relation dep) {
+		if (source2 == null || dep == null){
 			logger.error("missing client or relation ");
 			return null;
 		}
 
+		Component source = dep.getRelSource(source2) ;
+		if (source == null ){
+			logger.error("Component source not at the right level; found " + source2.getKind() + " expected " + dep.getSourceKind());
+			return null;
+		}
+		
 		// Will contain the solution .
 		Resolved resolved = null;
 

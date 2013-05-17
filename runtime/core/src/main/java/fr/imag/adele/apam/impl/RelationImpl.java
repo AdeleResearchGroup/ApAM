@@ -218,7 +218,8 @@ public class RelationImpl implements Relation {
 			}
 		}
 
-		this.isDynamic = (!isInjected || dep.isMultiple() || dep.isEffectiveEager());
+//		this.isDynamic = (!isInjected || dep.isMultiple() || dep.isEffectiveEager());
+		this.isDynamic = (dep.isMultiple() || dep.isEffectiveEager());
 	}
 
 	/**
@@ -624,6 +625,23 @@ public class RelationImpl implements Relation {
 		return Collections.unmodifiableSet(mngInstanceConstraintFilters);
 	}
 
+	
+	/*
+	 * return the component corresponding to the sourceKind.
+	 */
+	@Override
+	public Component getRelSource (Component base) {
+		Component source = base ;
+		while (source != null) {
+			if (source.getKind() == getSourceKind()) {
+				return source ;
+			}
+			source = source.getGroup() ;
+		}
+		return null ;
+	}
+
+	
 	// ==== ex RelationUtil
 	/**
 	 * Return the sub-set of candidates that satisfy all the constraints and

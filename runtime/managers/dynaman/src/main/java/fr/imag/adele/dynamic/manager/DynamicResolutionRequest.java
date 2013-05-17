@@ -14,7 +14,10 @@
  */
 package fr.imag.adele.dynamic.manager;
 
+import java.util.Set;
+
 import fr.imag.adele.apam.ApamResolver;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
@@ -82,23 +85,23 @@ public class DynamicResolutionRequest {
 	 */
 	public boolean isSatisfiedBy(Instance instance) {
 
-		/*
-		 * If this is relation is already resolved, ignore any triggering event
-		 */
-	//TODO Sure it need to be a wire ?
-		if (! relation.isMultiple() && ! source.getLinks(relation.getIdentifier()).isEmpty())
-			return false;
+		Set<Component> dests = source.getLinkDests(relation.getIdentifier());
 
 		/*
 		 * If the candidate is already a result, ignore it
 		 */
-	//TODO Sure it need to be a wire ?
-		if (source.getLinkDests(relation.getIdentifier()).contains(instance))
+		if (dests.contains(instance))
 			return false;
+
+		/*
+		 * If this is relation is already resolved, ignore any triggering event
+		 */
+		if (! relation.isMultiple() && ! dests.isEmpty())
+			return false;
+
 		
 		/*
-		 * verify the candidate instance is a valid target of the relation TODO
-		 * (jacky) No checking of constraints satisfaction ??
+		 * verify the candidate instance is a valid target of the relation
 		 */
 		Implementation implementation	= instance.getImpl();
 		boolean valid 					= false;
@@ -151,7 +154,7 @@ public class DynamicResolutionRequest {
 		 */
 		try {
 			beginResolve();
-			resolver.resolveLink(source, relation.getIdentifier());
+			resolver.resolveLink(source, relation);
 		}
 		catch (Throwable ignoredError) {
 		}

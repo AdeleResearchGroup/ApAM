@@ -79,6 +79,9 @@ public interface Relation  {
 	//Type of target
 	public ComponentKind getTargetKind () ;
 
+	//return the ancestor or base (including base) corresponding to the sourceKind
+	public Component getRelSource (Component base) ;
+
 	//True if relation cardinality is multiple
 	public boolean isMultiple();
 

@@ -334,10 +334,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			logger.error("relation " + relName + " undefined for " + this) ;
 			return null ;
 		}
-		Component source = getRelSource (rel) ;
+		Component source = rel.getRelSource (this) ;
 		CST.apamResolver.resolveLink(source, rel) ;
 		return getLinksInt (relName) ;
-
 	}
 
 
@@ -368,24 +367,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			logger.error("relation " + relName + " undefined for " + this) ;
 			return null ;
 		}
-		Component source = getRelSource (rel) ;
+		Component source = rel.getRelSource (this) ;
 		CST.apamResolver.resolveLink(source, rel) ;
 		return getLinkInt (relName) ;
 	}
 
-	/*
-	 * return the component corresponding to the sourceKind.
-	 */
-	private Component  getRelSource (Relation rel) {
-		Component source = this ;
-		while (source != null) {
-			if (source.getKind() == rel.getSourceKind()) {
-				return source ;
-			}
-			source = source.getGroup() ;
-		}
-		return null ;
-	}
 
 	@Override
 	public boolean createLink(Component to, Relation dep, boolean hasConstraints, boolean promotion) {
