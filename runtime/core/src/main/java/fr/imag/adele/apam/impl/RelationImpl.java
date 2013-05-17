@@ -206,7 +206,7 @@ public class RelationImpl implements Relation {
 				}
 			}
 		}
- else { //if (dep.getComponent() instanceof InstanceReference) {
+		else { //if (dep.getComponent() instanceof InstanceReference) {
 			Instance inst = CST.componentBroker.getInst(dep.getComponent().getName());
 			if (inst != null) {
 				Implementation impl = inst.getImpl();
@@ -903,7 +903,7 @@ public class RelationImpl implements Relation {
 					((SpecificationReference) compoDep.getTarget()).getName());
 			if ((spec != null)
 					&& spec.getDeclaration().getProvidedResources()
-.contains(getTarget())
+					.contains(getTarget())
 					&& (!multiple || compoDep.isMultiple())) {
 				return true;
 			}

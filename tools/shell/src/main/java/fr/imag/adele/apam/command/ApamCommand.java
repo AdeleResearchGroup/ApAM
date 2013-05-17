@@ -594,14 +594,18 @@ public class ApamCommand {
 		String w;
 		out.println(indent + "Links towards:");
 		for (Link wire : elem.getLinks()) {
-			w = wire.isWire() ? "w-" : "l-";
+			if (wire.isInjected()) {
+				w = wire.isWire() ? "IW-" : "IL-";
+			} else w="";
 			out.println(indent + "       " + w + wire.getName() + ": " + wire.getDestination());
 		}
 
 		//Reverse Links
 		out.println(indent + "Used by:");
 		for (Link wire : elem.getInvLinks()) {
-			w = wire.isWire() ? "w-" : "l-";
+			if (wire.isInjected()) {
+				w = wire.isWire() ? "IW-" : "IL-";
+			} else w="";
 			out.println(indent + "       (" + w + wire.getName() + ") " + wire.getSource());
 		}
 

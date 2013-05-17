@@ -816,7 +816,8 @@ public class CheckObr {
 
 
 			String type = innerDep.getResource().getJavaType();
-			if (!(innerDep.getResource() instanceof UndefinedReference)
+			if (!(type.startsWith("fr.imag.adele.apam.")) //For links
+					&& !(innerDep.getResource() instanceof UndefinedReference)
 					&& !(allowedTypes.contains(innerDep.getResource()))) {
 				CheckObr.error("Field "
 						+ innerDep.getName()

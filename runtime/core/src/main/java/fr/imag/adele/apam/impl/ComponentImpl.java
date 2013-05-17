@@ -306,6 +306,16 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return Collections.unmodifiableSet(links);
 	}
 
+	private Set<Link> getLinksInt(String relName) {
+		Set<Link> dests = new HashSet<Link>();
+		for (Link link : links) {
+			if (link.getName().equals(relName)) {
+				dests.add(link);
+			}
+		}
+		return dests;
+	}
+
 	@Override
 	public Set<Link> getLinks(String relName) {
 		Set<Link> dests = new HashSet<Link>();
@@ -314,7 +324,67 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 				dests.add(link);
 			}
 		}
-		return dests;
+
+		if (!dests.isEmpty())
+			return dests;
+
+		//None are present. Try to resolve
+		Relation rel = getRelation (relName) ;
+		if (rel == null) {
+			logger.error("relation " + relName + " undefined for " + this) ;
+			return null ;
+		}
+		Component source = getRelSource (rel) ;
+		CST.apamResolver.resolveLink(source, rel) ;
+		return getLinksInt (relName) ;
+
+	}
+
+
+
+
+
+	private Link getLinkInt (String relName) {
+		for (Link link : links) {
+			if (link.getName().equals(relName)) {
+				return link;
+			}
+		}
+		return null ;
+	}
+
+
+	@Override
+	public Link getLink(String relName) {
+		for (Link link : links) {
+			if (link.getName().equals(relName)) {
+				return link;
+			}
+		}
+
+		//None are present. Try to resolve
+		Relation rel = getRelation (relName) ;
+		if (rel == null) {
+			logger.error("relation " + relName + " undefined for " + this) ;
+			return null ;
+		}
+		Component source = getRelSource (rel) ;
+		CST.apamResolver.resolveLink(source, rel) ;
+		return getLinkInt (relName) ;
+	}
+
+	/*
+	 * return the component corresponding to the sourceKind.
+	 */
+	private Component  getRelSource (Relation rel) {
+		Component source = this ;
+		while (source != null) {
+			if (source.getKind() == rel.getSourceKind()) {
+				return source ;
+			}
+			source = source.getGroup() ;
+		}
+		return null ;
 	}
 
 	@Override
@@ -347,12 +417,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 		// creation
 		//	if (dep.isWire()) {
-			if (!getApformComponent().setLink(to, depName)) {
-				logger.error("CreateLink: INTERNAL ERROR: link from " + this + " to " + to + " could not be created in the real instance.");
-				return false;
-			}
+		if (!getApformComponent().setLink(to, depName)) {
+			logger.error("CreateLink: INTERNAL ERROR: link from " + this + " to " + to + " could not be created in the real instance.");
+			return false;
+		}
 		//		}
-		Link link = new LinkImpl(this, to, depName, hasConstraints, dep.isWire());
+		Link link = new LinkImpl(this, to, dep, hasConstraints);
 		links.add(link);
 		((ComponentImpl) to).invlinks.add(link);
 

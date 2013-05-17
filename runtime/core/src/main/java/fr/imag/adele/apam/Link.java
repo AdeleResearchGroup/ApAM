@@ -28,4 +28,6 @@ public interface Link {
     
 	public boolean isWire();
 
+	public boolean isInjected();
+
 }

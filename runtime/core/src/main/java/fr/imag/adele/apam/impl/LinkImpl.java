@@ -16,14 +16,15 @@ package fr.imag.adele.apam.impl;
 
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Link;
+import fr.imag.adele.apam.Relation;
 
 public class LinkImpl implements Link {
     private final ComponentImpl source;
     private final ComponentImpl destination;
-    private final String       depName;    // field name for atomic dep; spec name for complex dep, dest type for
-    private final boolean 	   hasConstraints ;
-
+	private final String depName; // field name for atomic dep; spec name for complex dep, dest type for
+	private final boolean hasConstraints;
 	private final boolean isWire;
+	private final boolean isInjected;
 
     /**
      * Warning, only creates a Link object. Does not chain that link in the client and provider.
@@ -35,11 +36,12 @@ public class LinkImpl implements Link {
      * @param hasConstraints : true if the relation has constraints
      * @param wire true if it is a wire
      */
-	public LinkImpl(Component from, Component to, String depName, boolean hasConstraints, boolean isWire) {
+	public LinkImpl(Component from, Component to, Relation dep, boolean hasConstraints) {
         source = (ComponentImpl) from;
         destination = (ComponentImpl) to;
-		this.isWire = isWire;
-        this.depName = depName;
+		this.isWire = dep.isWire();
+		this.isInjected = dep.isInjected();
+		this.depName = dep.getIdentifier();
         this.hasConstraints = hasConstraints ;
     }
 
@@ -72,5 +74,18 @@ public class LinkImpl implements Link {
 	public boolean isWire() {
 		return isWire;
 	}
-    
+
+	@Override
+	public boolean isInjected() {
+		return isInjected;
+	}
+
+	@Override
+	public String toString() {
+		String ret = "" ;
+		if (isInjected) ret = (isWire) ? "wire " : " Ilink " ;
+		else ret = "link " ;
+		return ret + depName + " from " + source + " to " + destination ;
+	}
+
 }

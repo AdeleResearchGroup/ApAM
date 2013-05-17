@@ -101,12 +101,12 @@ public class ApamMan implements RelationManager {
 	@Override
 	public Resolved<?> resolveRelation(Component source, Relation relation) {
 
-		if (relation.getTargetKind() == ComponentKind.SPECIFICATION) {
-			return relation.getResolved(CST.componentBroker.getSpecs());
-		}
+		//		if (relation.getTargetKind() == ComponentKind.SPECIFICATION) {
+		//			return relation.getResolved(CST.componentBroker.getSpecs());
+		//		}
 
 		/*
-		 * The target is Implementation or Instance. First try to find out the implems that satisfy the resources
+		 * The target kind is Implementation or Instance. First try to find out the implems that satisfy the resources
 		 * without constraints nor visibility control 
 		 */
 		Set<Implementation> impls = null ;
@@ -116,17 +116,31 @@ public class ApamMan implements RelationManager {
 			Specification spec = CST.componentBroker.getSpec(name);
 			if (spec == null) {
 				System.err.println("No spec with name " + name
-				// + " for relation " + relation.getIdentifier()
+						// + " for relation " + relation.getIdentifier()
 						+ " from component" + source);
 				return null;
+			}
+			if (relation.getTargetKind() == ComponentKind.SPECIFICATION) {
+				return new Resolved<Specification> (spec) ;
 			}
 			impls = spec.getImpls();
 		} else 	{
 			impls = new HashSet<Implementation> () ;
 			if (relation.getTarget() instanceof ResourceReference) {
+				if (relation.getTargetKind() == ComponentKind.SPECIFICATION) {
+					Set <Specification> specs = new HashSet<Specification> () ;
+					for (Specification spec : CST.componentBroker.getSpecs()) {
+						if (spec.getDeclaration().getProvidedResources().contains(
+								((ResourceReference) relation.getTarget()))) {
+							specs.add(spec) ;
+						}
+					}
+					return relation.getResolved(specs);
+				}
+				//Kind is implem or instance
 				for (Implementation impl : CST.componentBroker.getImpls()) {
 					if (impl.getDeclaration().getProvidedResources().contains(
-									((ResourceReference) relation.getTarget()))) {
+							((ResourceReference) relation.getTarget()))) {
 						impls.add(impl) ;
 					}
 				}
@@ -171,7 +185,7 @@ public class ApamMan implements RelationManager {
 		for (Implementation impl : impls) {
 			for (Instance inst : impl.getInsts()) {
 				if (inst.isSharable() 
-				// && Visible.isVisible(client, inst)
+						// && Visible.isVisible(client, inst)
 						&& source.canSee(inst)
 						&& inst.matchRelationConstraints(relation)) {
 					insts.add(inst) ;

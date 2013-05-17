@@ -49,26 +49,7 @@ public final class Util {
 	};
 
 
-	private static boolean        failed;
-
-	public static  List<ComponentDeclaration> getComponents(Element root) {
-		failed = false;
-		CoreParser parser = new CoreMetadataParser(root);
-		return parser.getDeclarations(new ErrorHandler() {
-
-			@Override
-			public void error(Severity severity, String message) {
-				logger.error("error parsing component declaration : " + message);
-				failed = true;
-			}
-		});
-	}
-
-	public static boolean getFailedParsing() {
-		return failed;
-	}
-
-
+	
 	/*
 	 * =============== String manipulation =============//
 	 */

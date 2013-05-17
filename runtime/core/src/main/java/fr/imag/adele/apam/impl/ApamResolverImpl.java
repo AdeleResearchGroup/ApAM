@@ -137,7 +137,7 @@ public class ApamResolverImpl implements ApamResolver {
 	// if the instance is unused, it will become the main instance of a new composite.
 	private Composite getClientComposite(Instance mainInst) {
 
-		if (mainInst.isUsed()) {
+		if (mainInst.isUsed() || (mainInst instanceof Composite)) {
 			return mainInst.getComposite();
 		}
 
@@ -153,9 +153,11 @@ public class ApamResolverImpl implements ApamResolver {
 		SpecificationReference specification	= mainComponent.getImplDeclaration().getSpecification();
 		Set<ManagerModel> models				= new HashSet<ManagerModel>();
 
+		logger.debug("creating a dummy root composite type " + applicationName + " to contain unused " + mainInst) ;
+		
 		CompositeType application = apam.createCompositeType(null,
-				applicationName, specification != null ? specification.getName() : null, mainComponent.getName(),
-						models, null);
+				//				applicationName, specification != null ? specification.getName() : null, mainComponent.getName(),
+				applicationName, null, mainComponent.getName(), models, null);
 
 		/*
 		 * Create an instance of the application with the specified main
@@ -233,7 +235,7 @@ public class ApamResolverImpl implements ApamResolver {
 					resolved = new Resolved(compo.getLinkDest(promotionRelation.getIdentifier()));
 
 				if (resolved.isEmpty()) // Maybe the composite did not resolved
-										// that relation so far.
+					// that relation so far.
 					resolved = resolveLink(compo, promotionRelation);
 				if (resolved == null) {
 					logger.error("Failed to resolve " + dep.getTarget() + " from " + source + "(" + dep.getIdentifier() + ")");
@@ -332,7 +334,7 @@ public class ApamResolverImpl implements ApamResolver {
 					Composite compo = (source instanceof Instance) ? ((Instance) source).getComposite() : CompositeImpl.getRootInstance();
 					Instance inst = res.toInstantiate.createInstance(compo, null);
 					if (inst == null) { // may happen if impl is non
-										// instantiable
+						// instantiable
 						logger.error("Failed creating instance of " + res.toInstantiate);
 						continue;
 					}

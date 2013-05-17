@@ -683,7 +683,7 @@ public class MainApam implements Runnable, ApamComponent {
 		System.out.println("Starting new mainApam " );
 
 //		testFindImplByName () ;
-		//testCompoURL () ;
+//		//testCompoURL () ;
 //		testCreateCompoRootS1toS2Final () ;
 //		testCreateCompoBySpec () ;
 		testInitialAttributes () ;

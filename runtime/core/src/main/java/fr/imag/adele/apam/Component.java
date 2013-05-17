@@ -84,8 +84,11 @@ public interface Component {
 	// returns the destinations of that relation (if simple cardinality)
     public Component getLinkDest(String depName) ;
 
-	// returns all the Links related to that relation (if multiple cardinality)
+	// returns all the Links with that name (if multiple cardinality)
     public Set<Link> getLinks(String depName);
+
+	// returns a Link with that name (arbitrary if multiple cardinality)
+    public Link getLink(String depName);
 
 	// Returns all the Links, for the provided relation, leading to the current
 	// Component.
