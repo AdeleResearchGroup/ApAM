@@ -1,5 +1,6 @@
 package fr.imag.adele.apam.declarations;
 
+
 /**
  * The different levels of component abstractions.
  * 
@@ -8,9 +9,14 @@ package fr.imag.adele.apam.declarations;
  */
 public enum ComponentKind {
 
+	
 	INSTANCE,
+	
 	IMPLEMENTATION,
+	
 	SPECIFICATION,
-	COMPONENT
+	
+	COMPONENT;
+
 
 }

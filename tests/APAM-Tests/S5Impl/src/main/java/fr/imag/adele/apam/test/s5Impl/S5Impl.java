@@ -25,7 +25,8 @@ import fr.imag.adele.apam.test.s5.S5;
 
 public class S5Impl implements S5, ApamComponent {
     S2 s2_inv;
-
+    String state;
+    
     @Override
     public void callS5(String s) {
         System.out.println("S5 called " + s);

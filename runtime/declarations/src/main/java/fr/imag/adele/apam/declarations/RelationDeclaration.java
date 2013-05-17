@@ -79,11 +79,6 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     private final String 		sourceName;
 
     /**
-     * The source component for this declaration in the case of contextual dependencies
-     */
-    private final String 	    targetName;
-
-    /**
 	 * The level of abstraction where this relation can be instantiated
 	 */
     private final ComponentKind	sourceKind;
@@ -97,6 +92,12 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 	 * Whether this relation is declared explicitly as multiple
 	 */
     private final boolean		isMultiple;
+    
+    /**
+	 * Whether this relation is declared explicitly as an override
+	 */
+    private final boolean		isOverride;
+    
 
     /**
 	 * The list of fields that will be injected with this relation in a
@@ -140,12 +141,14 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 	 *            the resource which we should look for
 	 */
     
-    public RelationDeclaration(ComponentReference<?> component,  String id, boolean isMultiple, ResolvableReference resource) {
-    	this(component,id,isMultiple,resource, null, null, null, null);
+    public RelationDeclaration(ComponentReference<?> component,  String id, boolean isOverride,
+    		boolean isMultiple, ResolvableReference resource) {
+    	this(component,id,isOverride,isMultiple,resource, null,ComponentKind.INSTANCE,ComponentKind.INSTANCE);
     }
 
-    public RelationDeclaration(ComponentReference<?> component, String id, boolean isMultiple,
-            ResolvableReference resource, String sourceName, ComponentKind sourceKind, String targetName, ComponentKind targetKind) {
+    public RelationDeclaration(ComponentReference<?> component, String id, boolean isOverride,
+    		boolean isMultiple, ResolvableReference resource,
+    		String sourceName, ComponentKind sourceKind, ComponentKind targetKind) {
 
         super(resource);
 
@@ -154,13 +157,14 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
         if (id==null && getTarget() == null) {
         	System.err.println("ERRROR Both id and target null for relation in component " + component ) ;
         }
+        
         id 						= (id == null) ? getTarget().as(fr.imag.adele.apam.declarations.Reference.class).getIdentifier() : id;
+        this.isOverride			= isOverride;
         this.reference			= new Reference(component,id);
 
         this.sourceName			= sourceName;
-        this.targetName			= targetName;
-        this.sourceKind			= (sourceKind == null) ? ComponentKind.INSTANCE : sourceKind;
-        this.targetKind			= (targetKind == null) ? ComponentKind.INSTANCE : targetKind;
+        this.sourceKind			= sourceKind;
+        this.targetKind			= targetKind;
         
         this.isMultiple 		= isMultiple;
         this.isEager 			= null;
@@ -189,8 +193,8 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     @Override
     public RelationDeclaration clone() {
 
-        RelationDeclaration clone = new RelationDeclaration(this.reference.getDeclaringComponent(), this.reference
-                .getIdentifier(), this.isMultiple(), this.getTarget(), this.sourceName, this.sourceKind, this.targetName, this.targetKind);
+        RelationDeclaration clone = new RelationDeclaration(this.reference.getDeclaringComponent(), this.reference.getIdentifier(), this.isOverride,
+        		this.isMultiple(), this.getTarget(), this.sourceName, this.sourceKind, this.targetKind);
 
 //        clone.setSourceKind(this.sourceKind);
 //        clone.setTargetType(this.targetKind);
@@ -223,12 +227,6 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
         return this.sourceName;
     }
 
-    /**
-     * The source component for contextual dependencies
-     */
-    public String getTargetName() {
-        return this.targetName;
-    }
 
     public ComponentKind getSourceKind() {
 		return sourceKind;
@@ -245,6 +243,13 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
         return reference.getIdentifier();
     }
 
+    /**
+     * Whether this declaration is an override
+     */
+    public boolean isOverride() {
+    	return isOverride;
+    }
+    
     /**
      * Get the reference to this declaration
      */

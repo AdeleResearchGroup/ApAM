@@ -23,6 +23,7 @@ import java.util.Set;
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.ApamComponent;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
@@ -146,15 +147,15 @@ public class Dependency implements S2, ApamComponent, Runnable {
 		
 	}
 	
-	Instance rmInst;
+	Component rmInst;
 	
 	
 
 	public void p4(){
 		System.out.println("Checking Dynamic Wire deletion to multiple dependency" ) ;
-		Link w = (Link)myInst.getWires().toArray()[0] ;
+		Link w = (Link)myInst.getLinks().toArray()[0] ;
 		rmInst = w.getDestination() ;
-		myInst.removeWire(w) ;
+		myInst.removeLink(w) ;
 	}
 	
 	public void testDependency () {
@@ -196,7 +197,7 @@ public class Dependency implements S2, ApamComponent, Runnable {
 //		Instance rmInst = w.getDestination() ;
 //		myInst.removeWire(w) ;
 		p4();
-		assertTrue (!s3_1set.contains(rmInst.getServiceObject()));
+		assertTrue (!s3_1set.contains(((Instance)rmInst).getServiceObject()));
 		assertTrue (s3_1set.containsAll (Arrays.asList(s3_2array))) ;
 		
 		//test delete instances
@@ -282,7 +283,7 @@ public class Dependency implements S2, ApamComponent, Runnable {
 	}
     
 	public Instance getRmInst() {
-		return rmInst;
+		return (Instance)rmInst;
 	}
 
 	public void setRmInst(Instance rmInst) {

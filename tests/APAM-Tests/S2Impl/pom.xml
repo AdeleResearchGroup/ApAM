@@ -80,6 +80,7 @@
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>TestAttrImpl</artifactId>
@@ -87,6 +88,7 @@
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>TestAttrSpec</artifactId>
