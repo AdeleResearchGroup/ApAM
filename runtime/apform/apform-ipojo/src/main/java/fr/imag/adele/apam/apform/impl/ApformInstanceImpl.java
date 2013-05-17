@@ -43,6 +43,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
+import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.impl.handlers.RelationInjectionManager;
@@ -285,8 +286,26 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
             return false;
         }
 
-		RelationDeclaration relation = injection.getRelationInjection().getRelation();
-		return CST.apamResolver.resolveLink(apamInstance, relation.getIdentifier()) != null;
+		/*
+		 * Find the relation to resolve and trigger resolution at the level specified in the source kind
+		 */
+		
+		Relation relation = apamInstance.getRelation(injection.getRelationInjection().getRelation().getIdentifier());
+		
+		Component source = apamInstance;
+		switch (relation.getSourceKind()) {
+			case INSTANCE:
+				source	= apamInstance;
+				break;
+			case IMPLEMENTATION:
+				source	= apamInstance.getImpl();
+				break;
+			case SPECIFICATION:
+				source	= apamInstance.getSpec();
+				break;
+		}
+		
+		return CST.apamResolver.resolveLink(source, relation.getIdentifier()) != null;
 
     }
 
