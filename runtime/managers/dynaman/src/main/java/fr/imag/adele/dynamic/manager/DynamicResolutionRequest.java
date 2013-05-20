@@ -17,13 +17,14 @@ package fr.imag.adele.dynamic.manager;
 import java.util.Set;
 
 import fr.imag.adele.apam.ApamResolver;
-import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Link;
+import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.impl.ComponentImpl;
 
 /**
  * This class handles resolution for dynamic dependencies.
@@ -85,21 +86,24 @@ public class DynamicResolutionRequest {
 	 */
 	public boolean isSatisfiedBy(Instance instance) {
 
-		Set<Component> dests = source.getLinkDests(relation.getIdentifier());
+		Set<Link> resolutions = ((ComponentImpl)source).getExistingLinks(relation.getIdentifier());
+
+		/*
+		 * If this is a single valued relation and is already resolved, ignore any triggering event
+		 */
+		if (! relation.isMultiple() && ! resolutions.isEmpty())
+			return false;
+
+
 
 		/*
 		 * If the candidate is already a result, ignore it
 		 */
-		if (dests.contains(instance))
-			return false;
+		for (Link resolution : resolutions) {
+			if (resolution.getDestination().equals(instance))
+				return false;
+		}
 
-		/*
-		 * If this is relation is already resolved, ignore any triggering event
-		 */
-		if (! relation.isMultiple() && ! dests.isEmpty())
-			return false;
-
-		
 		/*
 		 * verify the candidate instance is a valid target of the relation
 		 */
@@ -129,7 +133,7 @@ public class DynamicResolutionRequest {
     /**
 	 * Perform a recalculation of this relation
 	 */
-    public synchronized void resolve() {
+    public void resolve() {
     	
     	/*
 		 * Avoid performing several resolutions for the same relation in
@@ -137,8 +141,10 @@ public class DynamicResolutionRequest {
 		 * find all solutions, but in some circumstances we may lost a
 		 * triggering event.
 		 */
-    	if (isScheduled)
-    		return;
+    	synchronized (this) {
+        	if (isScheduled)
+        		return;
+		}
     	
     	/*
 		 * Invoke resolver to try to find a solution to the dynamic relation.
@@ -149,14 +155,13 @@ public class DynamicResolutionRequest {
 		 * block or kill an unrelated thread. This is ensured by the dynamic
 		 * manager.
 		 * 
-		 * We need to evaluate if it is safer to resolve dynamic dependencies in
-		 * a background thread, but this may introduce some race conditions
+		 * IMPORTANT resolution is performed outside synchronization, as it may
+		 * block in case of deployment.
 		 */
+    	
 		try {
 			beginResolve();
 			resolver.resolveLink(source, relation);
-		}
-		catch (Throwable ignoredError) {
 		}
 		finally {
 			endResolve();
@@ -166,17 +171,17 @@ public class DynamicResolutionRequest {
     /**
      * Start of resolution
      */
-	private void beginResolve() {
-   		isScheduled = true;	
+	private synchronized void beginResolve() {
 		current.set(this);
+   		isScheduled = true;	
 	}
 	
 	/**
 	 * End of resolution
 	 */
-	private void endResolve() {
-		current.set(null);
+	private synchronized void endResolve() {
 		isScheduled = false;
+		current.set(null);
 	}
 
 	/**

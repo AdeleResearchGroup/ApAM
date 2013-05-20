@@ -100,14 +100,12 @@ public class ApformSpecificationImpl extends ApformComponentImpl implements Apfo
     
 	@Override
 	public boolean setLink(Component destInst, String depName) {
-		//TODO to implement
-		throw new UnsupportedOperationException() ;
+		return true;
 	}
 
 	@Override
 	public boolean remLink(Component destInst, String depName) {
-		//TODO to implement
-		throw new UnsupportedOperationException() ;
+		return true;
 	}
 
 

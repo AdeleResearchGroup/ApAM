@@ -305,7 +305,7 @@ public class ApformInstanceImpl extends InstanceManager implements ApformInstanc
 				break;
 		}
 		
-		return CST.apamResolver.resolveLink(source, relation.getIdentifier()) != null;
+		return CST.apamResolver.resolveLink(source, relation) != null;
 
     }
 

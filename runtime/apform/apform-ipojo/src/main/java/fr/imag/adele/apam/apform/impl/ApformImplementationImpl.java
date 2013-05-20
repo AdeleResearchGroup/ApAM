@@ -176,14 +176,12 @@ public class ApformImplementationImpl extends ApformComponentImpl implements Apf
 
 	@Override
 	public boolean setLink(Component destInst, String depName) {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean remLink(Component destInst, String depName) {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }

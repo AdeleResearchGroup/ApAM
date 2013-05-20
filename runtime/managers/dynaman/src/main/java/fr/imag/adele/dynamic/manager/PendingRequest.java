@@ -24,7 +24,6 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
-import fr.imag.adele.apam.util.Visible;
 
 /**
  * This class is used to represent the pending requests that are waiting for resolution.
@@ -127,32 +126,45 @@ public class PendingRequest {
 		/*
 		 * avoid multiple concurrent resolutions
 		 */
-		if (!isResolved())
-			return;
+		synchronized (this) {
+			if (isResolving)
+				return;
+		}
 
 		/*
-		 * try to resolve
+		 * try to resolve.
+		 * 
+		 * IMPORTANT resolution is performed outside synchronization, as it may
+		 * block in case of deployment. Notice also that the result is temporary
+		 * confined to the stack before notifying pending threads.
+		 * 
 		 */
-		synchronized (this) {
-			try {
-				beginResolve();
-				resolution = resolver.resolveLink(source, relation);
-				this.notifyAll();
-			} finally {
-				endResolve();
-			}
+		
+		Resolved<?> resolverResult = null;
+		
+		try {
+			beginResolve();
+			resolverResult = resolver.resolveLink(source, relation);
+		} finally {
+			endResolve(resolverResult);
 		}
 	}
 
+	private boolean isResolving = false;
 	
 	private static ThreadLocal<PendingRequest> current = new ThreadLocal<PendingRequest>();
 
-	private void beginResolve() {
+	private synchronized void beginResolve() {
 		current.set(this);
+		isResolving = true;
 	}
 	
-	private void endResolve() {
+	private synchronized void endResolve(Resolved<?> resolverResult) {
+		isResolving	= false;
+		resolution	= resolverResult;
 		current.set(null);
+
+		this.notifyAll();
 	}
 	
 	/**
