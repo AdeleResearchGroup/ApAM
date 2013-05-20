@@ -17,17 +17,15 @@ package fr.imag.adele.apam.test.s1Impl;
 import java.util.List;
 import java.util.Set;
 
+import fr.imag.adele.apam.ApamComponent;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Link;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.test.s1.S1;
 import fr.imag.adele.apam.test.s2.S2;
 import fr.imag.adele.apam.test.s3.S3_1;
 import fr.imag.adele.apam.test.s3.S3_2;
-
-import fr.imag.adele.apam.ApamComponent;
-import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.Instance ;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Link;
-import fr.imag.adele.apam.Specification;
 
 public class S1Impl implements S1, Runnable, ApamComponent {
 
@@ -68,7 +66,7 @@ public class S1Impl implements S1, Runnable, ApamComponent {
 			System.out.print("    s3Insts is null " );        	
 		}
 		else for (Instance s3 : s3Insts) {
-			System.out.print("     =======" + s3);
+			System.out.println("     =======" + s3);
 		}
 		
 		Link lk = thisInst.getLink("linkS2") ;
@@ -93,7 +91,7 @@ public class S1Impl implements S1, Runnable, ApamComponent {
 		System.out.println("withoutkinds : "  + lk);
 		
 
-		lk = thisInst.getLink("IL s2Impl") ;
+		lk = thisInst.getLink("s2Impl") ;
 		System.out.println("S2Impl : "  + lk);
 
 

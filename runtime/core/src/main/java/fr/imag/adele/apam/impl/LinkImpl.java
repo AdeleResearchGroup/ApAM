@@ -65,10 +65,6 @@ public class LinkImpl implements Link {
         return hasConstraints;
     }
 
-    public void remove() {
-        source.removeLink(this);
-        destination.removeInvLink(this);
-    }
 
 	@Override
 	public boolean isWire() {
@@ -79,6 +75,12 @@ public class LinkImpl implements Link {
 	public boolean isInjected() {
 		return isInjected;
 	}
+	
+    public void remove() {
+        source.removeLink(this);
+        destination.removeInvLink(this);
+    }
+
 
 	@Override
 	public String toString() {

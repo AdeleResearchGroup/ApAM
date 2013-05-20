@@ -970,11 +970,13 @@ public class RelationImpl implements Relation {
 		
 		if (isMultiple)
 			ret.append("multiple ");
+		
+		ret.append(getTargetKind()) ;
 
 		if (getTarget() instanceof ComponentReference<?>)
-			ret.append(getTargetKind() + " providing " + getTarget().getName());
+			ret.append( " of" + getTarget());
 		else
-			ret.append(getTarget());
+			ret.append(" providing " + getTarget());
 
 		ret.append(" from " + linkSource);
 
