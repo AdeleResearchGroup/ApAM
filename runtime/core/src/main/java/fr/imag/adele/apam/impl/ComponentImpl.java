@@ -312,15 +312,23 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			allLinks.addAll(((ComponentImpl)group).getLocalLinks()) ;
 			group = group.getGroup() ;
 		}
-		return Collections.unmodifiableSet(links);
+		return allLinks;
 	}
 
 
-	protected Set<Link> getLocalLinks() {
+	/**
+	 * Only return the links instantiated on that source component (no inheritance, no resolution)
+	 */
+	public Set<Link> getLocalLinks() {
 		return Collections.unmodifiableSet(links);
 	}
 	
-	protected Set<Link> getExistingLinks(String relName) {
+	/**
+	 * Return all the link of that names, but do not resolve if nore are found
+	 * @param relName
+	 * @return
+	 */
+	public Set<Link> getExistingLinks(String relName) {
 		Set<Link> dests = new HashSet<Link>();
 		Component group = this ;
 		while (group != null) {
@@ -357,7 +365,12 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	}
 
 
-	protected Link getExistingLink (String relName) {
+	/**
+	 * Return the first link having this name, on any ancestor, but do not try to resolve is none are found
+	 * @param relName
+	 * @return
+	 */
+	public Link getExistingLink (String relName) {
 		Component group = this; 
 		while (group != null) {
 			for (Link link : ((ComponentImpl)group).getLocalLinks()) {
@@ -435,12 +448,15 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		((ComponentImpl) to).invlinks.add(link);
 
 		/*
-		 * if "to" is an instance in the unused pull, move it to the from
-		 * composite.
+		 * if "to" is an instance in the unused pull, move it to the from composite.
 		 */
-		if (to instanceof Instance && !((Instance) to).isUsed()) {
-			((InstanceImpl) to).setOwner(((Instance) this).getComposite());
-		}
+		if (dep.isWire() && to instanceof Instance && !((Instance) to).isUsed()) 
+				((InstanceImpl) to).setOwner(((Instance) this).getComposite());
+
+		//TODO What to do if it is a link towards an unused implem or spec ? Nothing ? 
+		//TODO Does isUsed (and shared) limited to the wires ?
+//			else if (to instanceof Implementation) && !((Implementation) to).isUsed() ?????
+
 
 		// Notify Dynamic managers that a new link has been created
 		for (DynamicManager manager : ApamManagers.getDynamicManagers()) {
