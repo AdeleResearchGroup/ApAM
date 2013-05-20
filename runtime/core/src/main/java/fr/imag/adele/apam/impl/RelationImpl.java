@@ -963,10 +963,13 @@ public class RelationImpl implements Relation {
 
 	public String toString() {
 		StringBuffer ret = new StringBuffer();
-		ret.append("resolving ");
+		//ret.append("resolving ");
 
 		if (isRelation())
 			ret.append("relation " + getIdentifier() + " towards ");
+		
+		if (isMultiple)
+			ret.append("multiple ");
 
 		if (getTarget() instanceof ComponentReference<?>)
 			ret.append(getTargetKind() + " providing " + getTarget().getName());

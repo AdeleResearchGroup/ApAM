@@ -151,7 +151,7 @@ public class InjectionInstantiationTest extends ExtensionAbstract {
 
 		int initialSize = s1.getEletronicInstancesInArray().length;
 
-		for (Link wire : s1Inst.getLinks()) {
+		for (Link wire : s1Inst.getRawLinks()) {
 
 			s1Inst.removeLink(wire);
 

@@ -250,7 +250,7 @@ public class ApamRepoBuilder {
 		}
 
 		// all components : checks dependencies and constraints
-		CheckObr.checkDependencies(component);
+		CheckObr.checkRelations(component);
 	}
 
 

@@ -58,7 +58,7 @@ public class S1Impl implements S1, Runnable, ApamComponent {
 		System.out.println("=== In fr.imag.adele.apam.test.s1Impl; S2  s2Interf; " + s2Interf.getName());
 		System.out.println("=== In fr.imag.adele.apam.test.s1Impl; S3_1 " + s3_1.getName());
 		System.out.println("=== In fr.imag.adele.apam.test.s1Impl; S3_2 " + s3_2.getName());
-
+	
 		System.out.println("=== In fr.imag.adele.apam.test.s1Impl; S2Inst " + s2Inst);
 		System.out.println("=== In fr.imag.adele.apam.test.s1Impl; s2Impl " + s2Impl);
 		System.out.println("=== In fr.imag.adele.apam.test.s1Impl; s2Specif " + s2Specif);
@@ -70,42 +70,51 @@ public class S1Impl implements S1, Runnable, ApamComponent {
 		else for (Instance s3 : s3Insts) {
 			System.out.print("     =======" + s3);
 		}
-
 		
 		Link lk = thisInst.getLink("linkS2") ;
 		System.out.println("linkS2 : "  + lk);
-		lk = thisInst.getLink("testId") ;
+		
+		lk = thisInst.getLink("testID") ;
 		System.out.println("testId : "  + lk);
 
-		lk = thisInst.getLink("S2Impl") ;
-		System.out.println("S2Impl : "  + lk);
-
-		lk = thisInst.getLink("withoutkinds") ;
-		System.out.println("withoutkinds : "  + lk);
+		lk = thisInst.getLink("testIDS3") ;
+		System.out.println("testId : "  + lk);
 		
+
+		lk = thisInst.getLink("spec2interf") ;
+		System.out.println("spec2interf : "  + lk);
+
 		Set<Link>lks = thisInst.getLinks("towardInterfS2") ;
 		for (Link mk : lks) 
 			System.out.println("towardInterfS2 : "  + mk);
-		
 
 		
-		System.out.println("===========before calling S2 =========");
+		lk = thisInst.getLink("withoutkinds") ;
+		System.out.println("withoutkinds : "  + lk);
+		
 
-		s2Spec.callS2("============= From S1Impl to S2 ...") ;
+		lk = thisInst.getLink("IL s2Impl") ;
+		System.out.println("S2Impl : "  + lk);
 
-		System.out.print("=== In S1Impl; S3_1  s3List :");
-		for (S3_1 s3 : s3List) {
-			System.out.print("     =======" + s3.getName());
-			s3.callS3_1("======from S1Impl, s3List ") ;
-		}
-		System.out.println("");
-		System.out.print("=== In S1Impl; S3_1  s3ListBis :");
-		for (S3_1 s3 : s3ListBis) {
-			System.out.print("     " + s3.getName());
-		}
-		System.out.println("");
 
-		System.out.println("=== In S1Impl; lastS2 " + lastS2.getName());
+//		
+//		System.out.println("===========before calling S2 =========");
+//
+//		s2Spec.callS2("============= From S1Impl to S2 ...") ;
+//
+//		System.out.print("=== In S1Impl; S3_1  s3List :");
+//		for (S3_1 s3 : s3List) {
+//			System.out.print("     =======" + s3.getName());
+//			s3.callS3_1("======from S1Impl, s3List ") ;
+//		}
+//		System.out.println("");
+//		System.out.print("=== In S1Impl; S3_1  s3ListBis :");
+//		for (S3_1 s3 : s3ListBis) {
+//			System.out.print("     " + s3.getName());
+//		}
+//		System.out.println("");
+//
+//		System.out.println("=== In S1Impl; lastS2 " + lastS2.getName());
 
 		//        System.out.println("S2  s2Spec; " + s2Spec);
 		//        System.out.println("S1 called " + s);

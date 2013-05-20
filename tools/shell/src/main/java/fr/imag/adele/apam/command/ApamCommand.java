@@ -593,7 +593,7 @@ public class ApamCommand {
 		//Links
 		String w;
 		out.println(indent + "Links towards:");
-		for (Link wire : elem.getLinks()) {
+		for (Link wire : elem.getRawLinks()) {
 			if (wire.isInjected()) {
 				w = wire.isWire() ? "IW-" : "IL-";
 			} else w="";
@@ -794,40 +794,35 @@ public class ApamCommand {
 		}
 	}
 
-	private void dumpState(PrintWriter out, Instance inst, String indent,
-			String dep) {
+	private void dumpState(PrintWriter out, Instance inst, String indent, String dep) {
 		if (inst == null)
 			return;
-		Set<Instance> insts = new HashSet<Instance>();
+		Set<Component> insts = new HashSet<Component>();
 		insts.add(inst);
-		out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " "
-				+ inst.getSpec());
+		out.println(indent + dep + ": " + inst + " " + inst.getImpl() + " " + inst.getSpec());
 		indent = indent + "  ";
-		for (Link wire : inst.getLinks()) {
+		for (Link wire : inst.getRawLinks()) {
 			out.println(indent + wire.getName() + ": "
-					+ wire.getDestination() + " "
-					+ ((Instance)wire.getDestination()).getImpl() + " "
-					+ ((Instance)wire.getDestination()).getSpec());
-			dumpState0(out, ((Instance)wire.getDestination()), indent, wire.getName(),
+					+ wire.getDestination() + " " ) ;
+//					+ ((Instance)wire.getDestination()).getImpl() + " "
+//					+ ((Instance)wire.getDestination()).getSpec());
+			dumpState0(out, (wire.getDestination()), indent, wire.getName(),
 					insts);
 		}
 	}
 
-	//TODO Missing links
-
-	private void dumpState0(PrintWriter out, Instance inst, String indent,
-			String dep, Set<Instance> insts) {
+	private void dumpState0(PrintWriter out, Component inst, String indent, String dep, Set<Component> insts) {
 		if (insts.contains(inst)) {
 			out.println(indent + "*" + dep + ": " + inst.getName());
 			return;
 		}
 		insts.add(inst);
 		indent = indent + "  ";
-		for (Link wire : inst.getLinks()) {
+		for (Link wire : inst.getRawLinks()) {
 			out.println(indent + wire.getName() + ": "
-					+ wire.getDestination() + " "
-					+ ((Instance)wire.getDestination()).getImpl() + " "
-					+ ((Instance)wire.getDestination()).getSpec());
+					+ wire.getDestination() + " " ) ;
+//					+ ((Instance)wire.getDestination()).getImpl() + " "
+//					+ ((Instance)wire.getDestination()).getSpec());
 			dumpState0(out, ((Instance)wire.getDestination()), indent, wire.getName(),
 					insts);
 		}

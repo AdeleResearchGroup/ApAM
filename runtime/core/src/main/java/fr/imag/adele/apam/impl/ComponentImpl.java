@@ -272,7 +272,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	@Override
 	public Set<Component> getLinkDests(String depName) {
 		Set<Component> dests = new HashSet<Component>();
-		for (Link link : links) {
+		for (Link link : getLinks(depName)) {
 			if (link.getName().equals(depName)) {
 				dests.add(link.getDestination());
 			}
@@ -280,51 +280,67 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return dests;
 	}
 
+	/**
+	 * resolve
+	 */
 	@Override
 	public Component getLinkDest(String depName) {
-		for (Link link : links) {
-			if (link.getName().equals(depName)) {
-				return link.getDestination();
-			}
-		}
-		return null;
+		Link link = getLink(depName) ;
+		return (link == null) ? null : link.getDestination() ;
 	}
 
 	/**
+	 * WARNING : no resolution
 	 */
 	@Override
-	public Set<Component> getLinkDests() {
+	public Set<Component> getRawLinkDests() {
 		Set<Component> dests = new HashSet<Component>();
-		for (Link link : links) {
+		for (Link link : getRawLinks()) {
 			dests.add(link.getDestination());
 		}
 		return dests;
 	}
 
+	/**
+	 * Warning : do not resolve !
+	 */
 	@Override
-	public Set<Link> getLinks() {
+	public Set<Link> getRawLinks() {
+		Set<Link> allLinks = new HashSet<Link> () ;
+		Component group = this ;
+		while (group != null) {
+			allLinks.addAll(((ComponentImpl)group).getLocalLinks()) ;
+			group = group.getGroup() ;
+		}
 		return Collections.unmodifiableSet(links);
 	}
 
-	private Set<Link> getLinksInt(String relName) {
+
+	protected Set<Link> getLocalLinks() {
+		return Collections.unmodifiableSet(links);
+	}
+	
+	protected Set<Link> getExistingLinks(String relName) {
 		Set<Link> dests = new HashSet<Link>();
-		for (Link link : links) {
-			if (link.getName().equals(relName)) {
-				dests.add(link);
+		Component group = this ;
+		while (group != null) {
+			for (Link link : ((ComponentImpl)group).getLocalLinks()) {
+				if (link.getName().equals(relName)) {
+					dests.add(link);
+				}
 			}
+			group = group.getGroup() ;
 		}
 		return dests;
 	}
-
+	
+	
+	/**
+	 * Inherits and resolve
+	 */
 	@Override
 	public Set<Link> getLinks(String relName) {
-		Set<Link> dests = new HashSet<Link>();
-		for (Link link : links) {
-			if (link.getName().equals(relName)) {
-				dests.add(link);
-			}
-		}
-
+		Set<Link> dests = getExistingLinks(relName);
 		if (!dests.isEmpty())
 			return dests;
 
@@ -334,20 +350,22 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			logger.error("relation " + relName + " undefined for " + this) ;
 			return null ;
 		}
+		
 		Component source = rel.getRelSource (this) ;
 		CST.apamResolver.resolveLink(source, rel) ;
-		return getLinksInt (relName) ;
+		return getExistingLinks (relName) ;
 	}
 
 
-
-
-
-	private Link getLinkInt (String relName) {
-		for (Link link : links) {
-			if (link.getName().equals(relName)) {
-				return link;
+	protected Link getExistingLink (String relName) {
+		Component group = this; 
+		while (group != null) {
+			for (Link link : ((ComponentImpl)group).getLocalLinks()) {
+				if (link.getName().equals(relName)) {
+					return link;
+				}
 			}
+			group = group.getGroup() ;
 		}
 		return null ;
 	}
@@ -355,10 +373,14 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	@Override
 	public Link getLink(String relName) {
-		for (Link link : links) {
-			if (link.getName().equals(relName)) {
-				return link;
+		Component group = this; 
+		while (group != null) {
+			for (Link link : ((ComponentImpl)group).getLocalLinks()) {
+				if (link.getName().equals(relName)) {
+					return link;
+				}
 			}
+			group = group.getGroup() ;
 		}
 
 		//None are present. Try to resolve
@@ -369,7 +391,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 		Component source = rel.getRelSource (this) ;
 		CST.apamResolver.resolveLink(source, rel) ;
-		return getLinkInt (relName) ;
+		return getExistingLink (relName) ;
 	}
 
 

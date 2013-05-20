@@ -43,9 +43,11 @@
 		<!--  Links -->
 		<dependency sourceKind="instance" targetKind="implementation" specification="S2" id="linkS2"/> 
 		<dependency sourceKind="implementation" targetKind="implementation" specification="S2" id="testID" /> 
-		<dependency targetKind="specification" implementation="S2Impl"  /> 
+		<dependency sourceKind="specification" targetKind="implementation" specification="S3" id="testIDS3" /> 
+		<dependency targetKind="specification" interface="fr.imag.adele.apam.test.s2.S2" id="spec2interf" /> 
+<!-- 		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="towardInterfS2" targetKind="implementation"  multiple="true"/>  -->
+		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="towardInterfS2" targetKind="implementation"  /> 
 		<dependency implementation="S2Impl" id="withoutkinds" multiple="true"/> 
-		<dependency interface="fr.imag.adele.apam.test.s2.S2" id="towardInterfS2"/> 
 		
 	</implementation>
 

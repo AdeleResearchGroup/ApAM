@@ -25,11 +25,15 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
+import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
+import fr.imag.adele.apam.declarations.InstanceReference;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.RelationPromotion;
@@ -618,7 +622,7 @@ public class CheckObr {
 	 * 
 	 * @param component
 	 */
-	public static void checkDependencies(ComponentDeclaration component) {
+	public static void checkRelations(ComponentDeclaration component) {
 		Set<RelationDeclaration> deps = component.getDependencies() ;	
 		if (deps == null || deps.isEmpty())
 			return;
@@ -638,8 +642,7 @@ public class CheckObr {
 			// validating relation constraints and preferences..
 			CheckObr.checkConstraint(component, dep);
 
-			// replace the definition by the effective relation (adding group
-			// definition)
+			// replace the definition by the effective relation (adding group definition)
 			computeGroupRelation(component, dep);
 
 			// Checking fields and complex dependencies
@@ -662,11 +665,17 @@ public class CheckObr {
 			//Checking if the interface is existing
 			if (dep.getTarget() instanceof ResourceReference) {
 				checkInterfaceExist(dep.getTarget().getName());
-			}		
-
+			} else {		
+			
+			//checking that the targetKind is not higher than the target
+				if ((dep.getTarget() instanceof ImplementationReference && dep.getTargetKind() == ComponentKind.SPECIFICATION) 
+					|| (dep.getTarget() instanceof InstanceReference && dep.getTargetKind() != ComponentKind.INSTANCE))
+					error ("TargetKind " + dep.getTargetKind() + " is higher than the target " + dep.getTarget()) ;
+			}
 		}
 	}
 
+	
 
 	/**
 	 * Provided a relation declaration, compute the effective relation, adding
@@ -950,7 +959,7 @@ public class CheckObr {
 				}
 			}
 
-			checkDependencies(start);
+			checkRelations(start);
 
 			checkTrigger(start);
 		}
@@ -1293,17 +1302,11 @@ public class CheckObr {
 
 			// Checking if the exception is existing
 			String except = pol.getMissingException();
-			// for (String cp :
-			// (Set<ClasspathDescriptor>)OBRGeneratorMojo.classpathDescriptor.getClasss())
-			// {
-			// System.out.println(cp);
-			// }
 			if (except != null
 					&& OBRGeneratorMojo.classpathDescriptor
 					.getElementsHavingClass(except) == null) {
 				error("Exception " + except + " undefined in " + pol);
 			}
-
 		}
 	}
 

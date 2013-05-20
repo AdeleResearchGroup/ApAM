@@ -67,7 +67,7 @@ public interface Component {
 	 // ====================== Links ==========================
 
     //returns all the instances this one is Linkd to.
-    public Set<Component> getLinkDests();
+    public Set<Component> getRawLinkDests();
 
     //returns the Link toward that destination
     public Link getInvLink(Component destInst);
@@ -95,7 +95,7 @@ public interface Component {
     public Set<Link> getInvLinks(String depName);
 
     //returns all the Link from the current Component
-    public Set<Link> getLinks();
+    public Set<Link> getRawLinks();
 
     //Returns all the Links leading to the current Component.
      public Set<Link> getInvLinks();

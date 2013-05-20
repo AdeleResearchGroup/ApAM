@@ -117,7 +117,7 @@ public abstract class TestUtils {
 
 	protected void auxDisconectWires(Instance instance) {
 
-		for (Link wire : instance.getLinks()) {
+		for (Link wire : instance.getRawLinks()) {
 
 			instance.removeLink(wire);
 

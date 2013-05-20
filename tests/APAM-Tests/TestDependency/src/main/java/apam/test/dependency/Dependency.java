@@ -153,7 +153,7 @@ public class Dependency implements S2, ApamComponent, Runnable {
 
 	public void p4(){
 		System.out.println("Checking Dynamic Wire deletion to multiple dependency" ) ;
-		Link w = (Link)myInst.getLinks().toArray()[0] ;
+		Link w = (Link)myInst.getRawLinks().toArray()[0] ;
 		rmInst = w.getDestination() ;
 		myInst.removeLink(w) ;
 	}
