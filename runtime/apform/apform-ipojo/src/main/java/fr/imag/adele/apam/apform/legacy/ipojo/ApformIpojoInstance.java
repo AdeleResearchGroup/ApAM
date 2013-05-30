@@ -25,10 +25,10 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.impl.BaseApformComponent;
 
-public class ApformIpojoInstance implements ApformInstance {
+public class ApformIpojoInstance extends BaseApformComponent<Instance,InstanceDeclaration> implements ApformInstance {
 
     /**
      * The iPojo instance represented by this proxy
@@ -36,25 +36,18 @@ public class ApformIpojoInstance implements ApformInstance {
     private final ComponentInstance   ipojoInstance;
 
     /**
-     * the corresponding APAM declaration
-     */
-    private final InstanceDeclaration declaration;
-
-    /**
-     * The associated APAM instance
-     */
-    private Instance                  apamInstance;
-
-    /**
      * An apform instance to represent a legacy component created using the APAM API
      * 
      * @param ipojoInstance
      */
     public ApformIpojoInstance(ComponentInstance ipojoInstance) {
-        this.ipojoInstance = ipojoInstance;
-        ImplementationReference<?> implementation = new ApformIPojoImplementation.Reference(ipojoInstance
-                .getFactory().getName());
-        this.declaration = new InstanceDeclaration(implementation, ipojoInstance.getInstanceName(), null);
+    	super( new InstanceDeclaration(
+    					new ApformIPojoImplementation.Reference(ipojoInstance.getFactory().getName()),
+    					ipojoInstance.getInstanceName(),
+    					null)
+    	);
+
+    	this.ipojoInstance = ipojoInstance;
     }
 
     /**
@@ -63,6 +56,7 @@ public class ApformIpojoInstance implements ApformInstance {
      * @param ipojoInstance
      */
     public ApformIpojoInstance(ComponentInstance ipojoInstance, ServiceReference reference) {
+    	
         this(ipojoInstance);
 
         /*
@@ -80,54 +74,12 @@ public class ApformIpojoInstance implements ApformInstance {
     	return ipojoInstance.getContext().getBundle();
     }
     
-    @Override
-    public void setInst(Instance apamInstance) {
-        this.apamInstance = apamInstance;
-    }
-
-    @Override
-    public Instance getInst() {
-    	return this.apamInstance;
-    }
-    
     /**
      * Apform: get the service object of the instance
      */
     @Override
     public Object getServiceObject() {
         return ((InstanceManager) ipojoInstance).getPojoObject();
-    }
-
-    /**
-     * Legacy implementations can not be injected with APAM dependencies, so they do not provide
-     * injection information
-     */
-    @Override
-    public boolean setLink(Component destInst, String depName) {
-        return false;
-    }
-
-    /**
-     * Legacy implementations can not be injected with APAM dependencies, so they do not provide
-     * injection information
-     */
-    @Override
-    public boolean remLink(Component destInst, String depName) {
-        return false;
-    }
-
-    /**
-     * Legacy implementations can not be injected with APAM dependencies, so they do not provide
-     * injection information
-     */
-//    @Override
-//    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-//        return false;
-//    }
-
-    @Override
-    public InstanceDeclaration getDeclaration() {
-        return declaration;
     }
 
     @Override

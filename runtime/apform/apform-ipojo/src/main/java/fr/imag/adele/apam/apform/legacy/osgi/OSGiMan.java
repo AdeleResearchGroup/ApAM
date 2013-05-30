@@ -58,6 +58,7 @@ public class OSGiMan implements RelationManager {
 	 * A reference to the APAM machine
 	 */
 	@Requires(proxy = false)
+	@SuppressWarnings("unused")
 	private Apam apam;
 
     /**
@@ -86,11 +87,13 @@ public class OSGiMan implements RelationManager {
 	}
 
 	@Validate
+	@SuppressWarnings("unused")
 	private synchronized void start() {
 		ApamManagers.addRelationManager(this,getPriority());
 	}
 	
 	@Invalidate
+	@SuppressWarnings("unused")
 	private synchronized void stop() {
 		ApamManagers.removeRelationManager(this);
 	}
@@ -153,57 +156,31 @@ public class OSGiMan implements RelationManager {
 				implementations.add((Implementation)implementation);
 				
 			}
+			
 			if (relation.getTargetKind() == ComponentKind.IMPLEMENTATION) {
+				
 				if (implementations.isEmpty())
 					return null;
-				if (relation.isMultiple())
-					return new Resolved<Implementation> (implementations) ;
-				return new Resolved<Implementation> (implementations.iterator().next()) ;
+				
+				return relation.isMultiple() ? 
+						new Resolved<Implementation> (implementations) :
+						new Resolved<Implementation> (implementations.iterator().next()) ;
 			}
+			
 			if (relation.getTargetKind() == ComponentKind.INSTANCE) {
+				
 				if (instances.isEmpty())
 					return null;
-				if (relation.isMultiple())
-					return new Resolved<Instance> (instances) ;
-				return new Resolved<Instance> (instances.iterator().next()) ;
+				
+				return relation.isMultiple() ?
+						new Resolved<Instance> (instances) :
+						new Resolved<Instance> (instances.iterator().next()) ;
 			}
 
 		} catch (InvalidSyntaxException ignored) { }
 
 		return resolution;
 	}
-
-	// @Override
-	// public Instance resolveImpl(Component client, Implementation impl,
-	// Relation dep) {
-	// return null;
-	// }
-	//
-	// @Override
-	// public Set<Instance> resolveImpls(Component client, Implementation impl,
-	// Relation dep) {
-	// return null;
-	// }
-	//
-	// @Override
-	// public Implementation findImplByName(Component client, String implName) {
-	// return null;
-	// }
-	//
-	// @Override
-	// public Instance findInstByName(Component client, String instName) {
-	// return null;
-	// }
-	//
-	// @Override
-	// public Specification findSpecByName(Component client, String specName) {
-	// return null;
-	// }
-
-//	@Override
-//	public Component findComponentByName(Component client, String compName) {
-//		return null;
-//	}
 
 	@Override
 	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {

@@ -33,8 +33,8 @@ import org.osgi.service.wireadmin.Wire;
 import org.osgi.service.wireadmin.WireAdmin;
 import org.osgi.service.wireadmin.WireConstants;
 
-import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
-import fr.imag.adele.apam.apform.impl.ApformImplementationImpl;
+import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
+import fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.MessageProducerMethodInterception;
@@ -109,7 +109,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
     @Override
     public void configure(Element componentMetadata, Dictionary configuration) throws ConfigurationException {
 
-    	if (!(getFactory() instanceof ApformImplementationImpl))
+    	if (!(getFactory() instanceof ApamAtomicComponentFactory))
     		return;
 
     	Set<MessageReference> providedMessages 	= getFactory().getDeclaration().getProvidedResources(MessageReference.class);
@@ -129,7 +129,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
     	producerId 				= NAME+"["+getInstanceManager().getInstanceName()+"]";
     	providerId				= Long.toString(System.currentTimeMillis());
     	
-    	ApformImplementationImpl implementation	= (ApformImplementationImpl) getFactory();
+    	ApamAtomicComponentFactory implementation	= (ApamAtomicComponentFactory) getFactory();
     	ImplementationDeclaration declaration		= implementation.getDeclaration();
     	
     	if (! (declaration instanceof AtomicImplementationDeclaration))
@@ -186,7 +186,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 			info.addAttribute(new Attribute("isRegistered",Boolean.toString(isRegisteredProducer)));
 			
 			for (Wire wire : wires) {
-				Element wireInfo = new Element("wire",ApformComponentImpl.APAM_NAMESPACE);
+				Element wireInfo = new Element("wire",ApamComponentFactory.APAM_NAMESPACE);
 				wireInfo.addAttribute(new Attribute("consumer.id",(String)wire.getProperties().get(WireConstants.WIREADMIN_CONSUMER_PID)));
 				wireInfo.addAttribute(new Attribute("flavors",Arrays.toString(wire.getFlavors())));
 				info.addElement(wireInfo);

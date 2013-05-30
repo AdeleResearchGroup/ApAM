@@ -30,10 +30,20 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 
-public class ApformInstanceDeclaration extends ApformComponentImpl {
+/**
+ * This class is used to represent an instance declaration
+ * 
+ * TODO Technically this class should not really be an iPOJO component factory. This is just an
+ * implementation hack to reuse the iPOJO extender, as a base to handle statically defined APAM
+ * instances.
+ * 
+ * @author vega
+ *
+ */
+public class ApamInstanceDeclaration extends ApamComponentFactory {
 
     /**
      * A dynamic reference to the apform implementation
@@ -49,7 +59,7 @@ public class ApformInstanceDeclaration extends ApformComponentImpl {
     /**
      * Creates a new declaration
      */
-    public ApformInstanceDeclaration(BundleContext context, Element element) throws ConfigurationException {
+    public ApamInstanceDeclaration(BundleContext context, Element element) throws ConfigurationException {
         super(context, element);
         try {
             String classFilter		= "(" + Constants.OBJECTCLASS + "=" + Factory.class.getName() + ")";
@@ -62,38 +72,26 @@ public class ApformInstanceDeclaration extends ApformComponentImpl {
         }
     }
 
-    @Override
     public InstanceDeclaration getDeclaration() {
-        return (InstanceDeclaration) super.getDeclaration();
-    }
+		return (InstanceDeclaration) super.getDeclaration();
+	}
 
-    @Override
-    public boolean hasInstrumentedCode() {
+	@Override
+	protected boolean hasInstrumentedCode() {
         return false;
     }
 
     @Override
-    public boolean isInstantiable() {
+    protected boolean isInstantiable() {
         return false;
     }
 
-    /**
-     * Gets the class name.
-     *
-     * @return the class name.
-     * @see org.apache.felix.ipojo.IPojoFactory#getClassName()
-     */
-    @Override
-    public String getClassName() {
-        return this.getDeclaration().getName();
-    }
-
-    @Override
-    public ApformInstanceImpl createApamInstance(IPojoContext context, HandlerManager[] handlers) {
-        throw new UnsupportedOperationException("APAM instance declaration is not instantiable");
-    }
-
-    @Override
+	@Override
+	protected ApformComponent createApform() {
+		return null;
+	}
+    
+   @Override
     protected void bindToApam(Apam apam) {
         implementationTracker.open();
     }
@@ -102,9 +100,24 @@ public class ApformInstanceDeclaration extends ApformComponentImpl {
     protected void unbindFromApam(Apam apam) {
         implementationTracker.close();
     }
-
-
+	
     /**
+     * Gets the class name.
+     *
+     * @return the class name.
+     * @see org.apache.felix.ipojo.IPojoFactory#getClassName()
+     */
+    @Override
+    public String getClassName() {
+        return getDeclaration().getName();
+    }
+
+    @Override
+    public ApamInstanceManager createApamInstance(IPojoContext context, HandlerManager[] handlers) {
+        throw new UnsupportedOperationException("APAM instance declaration is not instantiable");
+    }
+
+     /**
      * A class to dynamically track the apform implementation. This allows to dynamically create the instance
      * represented by this declaration
      *
@@ -125,7 +138,7 @@ public class ApformInstanceDeclaration extends ApformComponentImpl {
 
                 Factory factory 			= (Factory) this.context.getService(reference);
                 Properties configuration	= new Properties();
-                configuration.put(ApformInstanceImpl.ATT_DECLARATION, ApformInstanceDeclaration.this.getDeclaration());
+                configuration.put(ApamInstanceManager.ATT_DECLARATION, ApamInstanceDeclaration.this.getDeclaration());
                 iPojoInstance = factory.createComponentInstance(configuration);
 
                 return factory;
@@ -147,26 +160,5 @@ public class ApformInstanceDeclaration extends ApformComponentImpl {
         }
 
     }
-
-
-    @Override
-    public void setProperty(String attr, String value) {
-        // TODO Auto-generated method stub
-        // faire un refactoring pour ne pas heriter de ApformComponent
-
-    }
-
-	@Override
-	public boolean setLink(Component destInst, String depName) {
-		//TODO to implement
-		throw new UnsupportedOperationException() ;
-	}
-
-	@Override
-	public boolean remLink(Component destInst, String depName) {
-		//TODO to implement
-		throw new UnsupportedOperationException() ;
-	}
-
 
 }

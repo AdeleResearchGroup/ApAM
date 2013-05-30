@@ -15,9 +15,16 @@
 package fr.imag.adele.apam.apform;
 
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 
 public interface ApformInstance  extends ApformComponent {
+
+	
+	/**
+	 * Get the associated APAM instance
+	 */
+	public Instance getApamComponent();
 
 	/**
 	 * Get the development model associated with the the instance
@@ -30,21 +37,5 @@ public interface ApformInstance  extends ApformComponent {
      */
 
     public Object getServiceObject();
-
-    /**
-	 * Change a relation by another one.
-	 * 
-	 * @param relation
-	 * @param oldDestInst
-	 *            the previous destination. Can be null if cardinality one.
-	 * @param newDestInst
-	 *            The new destination.
-	 * @return false if it could not be performed: legacy.
-	 */
-//    public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName);
-
-    public void setInst(Instance asmInstImpl);
-    
-    public Instance getInst();
 
 }

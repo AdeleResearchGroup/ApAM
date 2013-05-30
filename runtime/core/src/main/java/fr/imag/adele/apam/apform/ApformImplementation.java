@@ -16,10 +16,17 @@ package fr.imag.adele.apam.apform;
 
 import java.util.Map;
 
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.impl.ComponentImpl;
 
 public interface ApformImplementation extends ApformComponent {
+	
+	
+	/**
+	 * Get the associated APAM implementation
+	 */
+	public Implementation getApamComponent();
 	
 	/**
 	 * Get the development model associated with the the implementation
@@ -34,12 +41,5 @@ public interface ApformImplementation extends ApformComponent {
      * @return the platform instance
      */
     public ApformInstance createInstance(Map<String, String> initialproperties) throws ComponentImpl.InvalidConfiguration;
-
-    /**
-     * If a specification exists in the platform, returns the associated spec.
-     * 
-     * @return
-     */
-    public ApformSpecification getSpecification(); // If existing. In general returns null !!
 
 }

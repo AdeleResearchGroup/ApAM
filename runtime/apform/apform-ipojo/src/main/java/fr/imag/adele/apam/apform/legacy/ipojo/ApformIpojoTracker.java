@@ -37,8 +37,8 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
-import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
-import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
+import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
+import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
 /**
@@ -80,7 +80,7 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer {
     @Bind(id="factories",aggregate=true,optional=true)
     public void factoryBound(Factory factory) {
 
-        if (factory instanceof ApformComponentImpl)
+        if (factory instanceof ApamComponentFactory)
             return;
 
         if (factory instanceof IPojoFactory) {
@@ -94,7 +94,7 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer {
      */
     @Unbind(id="factories",aggregate=true,optional=true)
     public void factoryUnbound(Factory factory) {
-        if (factory instanceof ApformComponentImpl)
+        if (factory instanceof ApamComponentFactory)
             return;
 
         if (factory instanceof IPojoFactory) {
@@ -133,7 +133,7 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer {
          * components), registration in APAM has already be done by the Instance
          * Manager
          */
-        if (ipojoInstance instanceof ApformInstanceImpl)
+        if (ipojoInstance instanceof ApamInstanceManager)
             return false;
 
         /*
@@ -155,7 +155,7 @@ public class ApformIpojoTracker implements ServiceTrackerCustomizer {
          * components), registration in APAM has already be done by the Instance
          * Manager
          */
-        if (ipojoInstance instanceof ApformInstanceImpl)
+        if (ipojoInstance instanceof ApamInstanceManager)
             return;
 
         /*

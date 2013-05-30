@@ -23,11 +23,13 @@ import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.BundleContext;
 
+import fr.imag.adele.apam.CompositeType;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.apform.ApformCompositeType;
+import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 
-public class ApformCompositeTypeImpl extends ApformImplementationImpl implements ApformCompositeType {
+public class ApamCompositeFactory extends ApamImplementationFactory  {
 
    
     /**
@@ -42,7 +44,7 @@ public class ApformCompositeTypeImpl extends ApformImplementationImpl implements
      * @param metadata
      * @throws ConfigurationException
      */
-    public ApformCompositeTypeImpl(BundleContext context, Element metadata) throws ConfigurationException {
+    public ApamCompositeFactory(BundleContext context, Element metadata) throws ConfigurationException {
         super(context, metadata);
 
         @SuppressWarnings("unchecked")
@@ -54,42 +56,14 @@ public class ApformCompositeTypeImpl extends ApformImplementationImpl implements
  				if (! modelFileName.endsWith(".cfg"))
  					continue;
  				
- 				if (! modelFileName.startsWith(getDeclaration().getName()))
+ 				if (! modelFileName.startsWith(declaration.getName()))
  					continue;
  				
-	            String managerName = modelFileName.substring(getDeclaration().getName().length()+1, modelFileName.lastIndexOf(".cfg"));
+	            String managerName = modelFileName.substring(declaration.getName().length()+1, modelFileName.lastIndexOf(".cfg"));
 	            URL modelURL = context.getBundle().getEntry(modelFileName);
 				managerModels.add(new ManagerModel(managerName, modelURL));
         }
         
-    }
-
-    @Override
-	public void check(Element element) throws ConfigurationException {
-    	super.check(element);
-	}
-	
-    @Override
-    public CompositeDeclaration getDeclaration() {
-    	return (CompositeDeclaration) super.getDeclaration();
-    };
-    /**
-     * This factory doesn't have an associated instrumented class
-     */
-    @Override
-    public boolean hasInstrumentedCode() {
-    	return false;
-    }
-    
-    /**
-     * Gets the class name.
-     * 
-     * @return the class name.
-     * @see org.apache.felix.ipojo.IPojoFactory#getClassName()
-     */
-    @Override
-    public String getClassName() {
-        return getDeclaration().getName();
     }
 
     /**
@@ -98,5 +72,30 @@ public class ApformCompositeTypeImpl extends ApformImplementationImpl implements
     public Set<ManagerModel> getModels() {
         return managerModels;
     }
+    
+    @Override
+    protected ApformImplementation createApform() {
+    	return this.new Apform(); 
+    }
+    
+    private class Apform extends ApamImplementationFactory.Apform<CompositeType,CompositeDeclaration> implements ApformCompositeType {
+
+		@Override
+		public Set<ManagerModel> getModels() {
+			return ApamCompositeFactory.this.getModels();
+		}
+    	
+    };
+    
+    @Override
+    protected final boolean hasInstrumentedCode() {
+        return false;
+    }
+
+    @Override
+    public String getClassName() {
+        return declaration.getName();
+    }
+
 
 }

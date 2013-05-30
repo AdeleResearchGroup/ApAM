@@ -19,33 +19,55 @@ import org.osgi.framework.Bundle;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 
+/**
+ * This class represents the interface between the logical state in APAM and
+ * the underlying executing component.
+ * 
+ * @author vega
+ *
+ */
 public interface ApformComponent {
 
-	public ComponentDeclaration getDeclaration () ;
+	/**
+	 * Get the development model associated with the the component
+	 */
+	public ComponentDeclaration getDeclaration() ;
 
+	/**
+	 * Associates the APAM corresponding APAM component.
+	 * 
+	 * This method is called when the APAM component is completely registered in the 
+	 * state model, an can be safely used.
+	 * 
+	 * When the APAM component is destroyed, this method will be called again with a
+	 * null a value.
+	 */
+	public void setApamComponent(Component apamComponent);
+	
+	
+	/**
+	 * Get the associated APAM component
+	 */
+	public Component getApamComponent();
+	
+	/**
+	 * Notifies the underlying platform of a change in a component property, performed through
+	 * the APAM API
+	 */
 	public void setProperty(String attr, String value);
 	
-	   /**
-	 * provide the destination real address for the provided relation. Usually
-	 * performed as the return of method newWire (when lazy)
+	/**
+	 * Notifies the underlying platform of a change in the outgoing links of the corresponding
+	 * APAM component. This is usually the result of a relation resolution.
 	 * 
-	 * @param relation
-	 *            Name of the relation (field name)
-	 * @param destInst
-	 *            . Real address of the destination.
-	 * @return False if it cannot be performed : legacy.
+	 * The Apform component can veto the creation of the link by returning false to ths call.
+	 * 
 	 */
     public boolean setLink(Component destInst, String depName);
 
     /**
-	 * Remove a wire. That relation is no longer valid (disappear or other
-	 * reason)
+	 * Remove a link, the relation is no longer valid (disappear target or other reason)
 	 * 
-	 * @param relation
-	 *            name of that relation
-	 * @param destInst
-	 *            the old destination object (if multiple).
-	 * @return false if it could not be performed: legacy.
 	 */
     public boolean remLink(Component destInst, String depName);
 

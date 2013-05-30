@@ -66,6 +66,11 @@ public class SpecificationImpl extends ComponentImpl implements Specification {
 		((ComponentBrokerImpl) CST.componentBroker).add(this);
 
 		/*
+		 * Bind to the underlying execution platform specification
+		 */
+		getApformSpec().setApamComponent(this);
+		
+		/*
 		 * Notify managers
 		 *
 		 * Add call back to add specification?

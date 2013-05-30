@@ -721,6 +721,18 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		// does the change, notifies, changes the platform and propagate to
 		// members
 		this.propagate(attr, val);
+		
+		/*
+		 * Force recalculation of dependencies that may have been invalidated by
+		 * the property change
+		 * 
+		 * TODO Check if this must be done for all links or only dynamic links
+		 */
+		for (Link incoming : getInvLinks()) {
+			if (incoming.hasConstraints())
+				incoming.remove();
+		}
+		
 		return true;
 	}
 

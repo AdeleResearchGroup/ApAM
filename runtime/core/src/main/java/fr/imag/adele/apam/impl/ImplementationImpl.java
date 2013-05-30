@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,6 @@ import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
@@ -68,37 +66,26 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 	 * apform object to represent it.
 	 * 
 	 */
-	private static class SystemRootImplementation implements ApformImplementation {
-
-		private final CompositeDeclaration declaration;
+	private static class SystemRootImplementation extends BaseApformComponent<CompositeType,ImplementationDeclaration> implements ApformImplementation {
 
 		public SystemRootImplementation(String name) {
-			this.declaration =  new CompositeDeclaration(name, 
-										(SpecificationReference)null, 
-										new ImplementationReference<ImplementationDeclaration>("Root Main Implem"));
+			super( new CompositeDeclaration(name, 
+							(SpecificationReference)null, 
+							new ImplementationReference<ImplementationDeclaration>("Root Main Implem"))
+			);
 		}
 		
-		@Override
-		public Bundle getBundle() {
-			return null;
-		}
-		
-
-		@Override
-		public ImplementationDeclaration getDeclaration() {
-			return declaration;
-		}
-
-		@Override
-		public ApformSpecification getSpecification() {
-			return null;
-		}
 
 		@Override
 		public ApformInstance createInstance(Map<String, String> initialproperties) {
 			throw new UnsupportedOperationException("method not available in root type");
 		}
 
+		@Override
+		public void setApamComponent(Component apamComponent) {
+			throw new UnsupportedOperationException("method not available in root type");
+		}
+		
 		@Override
 		public void setProperty(String attr,String value) {
 			throw new UnsupportedOperationException("method not available in root type");
@@ -186,6 +173,11 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		 */
 		((ComponentBrokerImpl)CST.componentBroker).add(this);
 
+		/*
+		 * Bind to the underlying execution platform implementation
+		 */
+		getApformImpl().setApamComponent(this);
+		
 		/*
 		 * Notify managers
 		 */

@@ -21,13 +21,23 @@ import org.apache.felix.ipojo.metadata.Element;
 import org.osgi.framework.BundleContext;
 
 import fr.imag.adele.apam.Apam;
-import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.Apform2Apam;
+import fr.imag.adele.apam.apform.ApformComponent;
 import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 
-public class ApformSpecificationImpl extends ApformComponentImpl implements ApformSpecification {
+/**
+ * This class represents an APAM specification at the iPOJO level.
+ * 
+ * It is actually implemented as an abstract factory that can not be 
+ * instantiated.
+ * 
+ * 
+ * @author vega
+ *
+ */
+public class ApamSpecificationFactory extends ApamComponentFactory {
 
     /**
      * Build a new factory with the specified metadata
@@ -36,14 +46,23 @@ public class ApformSpecificationImpl extends ApformComponentImpl implements Apfo
      * @param metadata
      * @throws ConfigurationException
      */
-    public ApformSpecificationImpl(BundleContext context, Element metadata) throws ConfigurationException {
+    public ApamSpecificationFactory(BundleContext context, Element metadata) throws ConfigurationException {
         super(context, metadata);
 
     }
 
+	@Override
+	protected ApformComponent createApform() {
+		return this.new Apform();
+	}
+	
+    public ApformSpecification getApform() {
+    	return (ApformSpecification) this.apform;
+    }
+    
     @Override
-    public SpecificationDeclaration getDeclaration() {
-        return (SpecificationDeclaration) super.getDeclaration();
+    public boolean isInstantiable() {
+        return false;
     }
 
     @Override
@@ -51,63 +70,30 @@ public class ApformSpecificationImpl extends ApformComponentImpl implements Apfo
         return false;
     }
 
-    /**
-     * Gets the class name.
-     *
-     * @return the class name.
-     * @see org.apache.felix.ipojo.IPojoFactory#getClassName()
-     */
     @Override
     public String getClassName() {
-        return this.getDeclaration().getName();
+        return this.declaration.getName();
     }
 
-    @Override
-    public boolean isInstantiable() {
-        return false;
-    }
 
     @Override
-    public ApformInstanceImpl createApamInstance(IPojoContext context, HandlerManager[] handlers) {
+    public ApamInstanceManager createApamInstance(IPojoContext context, HandlerManager[] handlers) {
         throw new UnsupportedOperationException("APAM specification is not instantiable");
     }
 
-
-    /**
-     * Register this implementation with APAM
-     */
     @Override
     protected void bindToApam(Apam apam) {
-        Apform2Apam.newSpecification(this);
+        Apform2Apam.newSpecification(getApform());
     }
 
-    /**
-     * Unregister this implementation from APAM
-     *
-     * @param apam
-     */
-    @Override
-    protected void unbindFromApam(Apam apam) {
-        ComponentBrokerImpl.disappearedComponent(getName()) ;
-
-    }
-
-    @Override
-    public void setProperty(String attr, String value) {
-        // TODO Auto-generated method stub
-
-    }
-    
-	@Override
-	public boolean setLink(Component destInst, String depName) {
-		return true;
+	/**
+	 * This class represents the base functionality of Apform mediation object between APAM and a specification factory
+	 */
+	private class Apform extends ApamComponentFactory.Apform<Specification,SpecificationDeclaration> implements ApformSpecification {
+		
+		public Apform() {
+			super();
+		}
 	}
-
-	@Override
-	public boolean remLink(Component destInst, String depName) {
-		return true;
-	}
-
-
 
 }

@@ -34,29 +34,34 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 import fr.imag.adele.apam.Apam;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.apform.ApformComponent;
-import fr.imag.adele.apam.apform.impl.handlers.RelationInjectionHandler;
 import fr.imag.adele.apam.apform.impl.handlers.MessageProviderHandler;
 import fr.imag.adele.apam.apform.impl.handlers.PropertyInjectionHandler;
+import fr.imag.adele.apam.apform.impl.handlers.RelationInjectionHandler;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
+import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.impl.BaseApformComponent;
+import fr.imag.adele.apam.impl.ComponentBrokerImpl;
 import fr.imag.adele.apam.util.CoreMetadataParser;
 import fr.imag.adele.apam.util.CoreMetadataParser.IntrospectionService;
 import fr.imag.adele.apam.util.CoreParser;
 
-public abstract class ApformComponentImpl extends ComponentFactory implements ApformComponent, IntrospectionService, CoreParser.ErrorHandler {
-
-    public ApformComponentImpl(BundleContext context, Element element) throws ConfigurationException {
-        super(context,element);
-        apamTracker = new ApamTracker(context);
-    }
+/**
+ * This is the base class for all component factories that are used to represent APAM components at the iPojo
+ * level.
+ * 
+ * @author vega
+ *
+ */
+public abstract class ApamComponentFactory extends ComponentFactory implements IntrospectionService, CoreParser.ErrorHandler {
 
     /**
      * The name space of this factory
@@ -67,22 +72,252 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
      */
     public static final String COMPONENT_DECLARATION_PROPERTY = "declaration";
 
-    /**
-     * The associated declaration of this component
+	/**
+     * A dynamic reference to the APAM platform
      */
-    private ComponentDeclaration declaration;
+    protected final ServiceTracker apamTracker;
+    
+    /**
+     * The corresponding component declaration
+     */
+    protected ComponentDeclaration  declaration;
+    
+	/**
+	 * The associated Apform component
+	 */
+	protected final ApformComponent 	apform;
+    
+    /**
+     * Initializes an APAM component factory
+     */
+    public ApamComponentFactory(BundleContext context, Element element) throws ConfigurationException {
+        super(context,element);
+        this.apamTracker	= new ApamTracker(context);
+        this.apform			= createApform();
+
+    }
+
+	/**
+     * Once the factory is started register it in APAM
+     */
+    @Override
+    public synchronized void start() {
+        super.start();
+        apamTracker.open();
+    }
 
     /**
-     * Get the declaration of this component if available
+     * Once the factory is stopped unregister it from APAM
+     */
+    @Override
+    public synchronized void stop() {
+        super.stop();
+        apamTracker.close();
+    }
+
+    /**
+     * Creates the Apform object used to mediate between APAM and this factory
+     */
+    protected abstract ApformComponent createApform();
+    
+	/**
+	 * This class represents the base functionality of Apform mediation object between APAM and a component factory
+	 */
+	protected abstract class Apform<C extends Component, D extends ComponentDeclaration> extends BaseApformComponent<C,D>  {
+
+		@SuppressWarnings("unchecked")
+		public Apform() {
+			super( (D) ApamComponentFactory.this.declaration);
+		}
+		
+		@Override
+		public Bundle getBundle() {
+			return ApamComponentFactory.this.getBundleContext().getBundle();
+		}
+	}
+	
+    /**
+     * Get the associated Apform component
+     */
+    public ApformComponent getApform() {
+    	return apform;
+    }
+    
+    /**
+     * Get the associated declaration
      */
     public ComponentDeclaration getDeclaration() {
-        return declaration;
+		return declaration;
+	}
+    
+    /**
+     * Register this component with APAM
+     */
+	protected abstract void bindToApam(Apam apam);
+
+    /**
+     * Unregister this component from APAM
+     *
+     * @param apam
+     */
+	protected void unbindFromApam(Apam apam) {
+        ComponentBrokerImpl.disappearedComponent(getName());
     }
 
-    public Bundle getBundle() {
-        return getBundleContext().getBundle();
+    /**
+     * Whether this component factory has an associated instrumented class
+     */
+    protected abstract boolean hasInstrumentedCode();
+
+    /**
+     * Verify implementation declaration
+     */
+    @Override
+    public void check(Element element) throws ConfigurationException {
+
+        if (hasInstrumentedCode())
+            super.check(element);
+
+        /*
+           *  Parse metadata to get APAM core declaration.
+           *
+           *  TODO change parser to accept a single declaration instead of a list of
+           *  declarations
+           */
+        try {
+            Element root = new Element("apam",APAM_NAMESPACE);
+            root.addElement(m_componentMetadata);
+
+            CoreParser parser = new CoreMetadataParser(root, this);
+            List<ComponentDeclaration> declarations = parser.getDeclarations(this);
+            
+            this.declaration = declarations.get(0);
+        }
+        catch (IllegalArgumentException e) {
+            throw new ConfigurationException(e.getLocalizedMessage());
+        }
+
     }
 
+    /**
+     * Handle errors in parsing APAM declaration
+     */
+    @Override
+    public void error(Severity severity, String message) {
+        switch (severity) {
+            case SUSPECT:
+            case WARNING:
+                getLogger().log(Logger.INFO,"Error parsing APAM declaration " + m_componentMetadata + " : " + message);
+                break;
+
+            case ERROR:
+                throw new IllegalArgumentException("Error parsing APAM declaration "+getFactoryName()+":  "+message);
+        }
+    }
+
+
+    /**
+     * Whether this component factory can be instantiated directly via the iPojo API.
+     */
+    protected abstract boolean isInstantiable();
+   
+
+    /**
+     * Creates a primitive instance.
+     * This method is called when holding the lock.
+     *
+     * NOTE In APAM component factories we override definitively this method to be sure that the created instance
+     * is an implementation of ApamInstanceManager. 
+     * 
+     * Subclasses should instead override {@link #createApamInstance(IPojoContext, HandlerManager[])} in order to
+     * specialize instance creation. 
+     */
+    @Override
+    @SuppressWarnings({ "rawtypes" })
+    public final ComponentInstance createInstance(Dictionary configuration, IPojoContext context, HandlerManager[] handlers)
+            throws ConfigurationException {
+
+        if (! isInstantiable())
+            throw new ConfigurationException(
+                    "Only APAM instantiable components can be directly instantiated by Ipojo, use instead the APAM API");
+
+        /*
+           * Create a native APAM instance and configure it.
+           */
+        ApamInstanceManager instance = createApamInstance(context,handlers);
+
+        try {
+            instance.configure(m_componentMetadata, configuration);
+            instance.start();
+            return instance;
+        } catch (ConfigurationException e) {
+            // An exception occurs while executing the configure or start
+            // methods.
+            if (instance != null) {
+                instance.dispose();
+                instance = null;
+            }
+            throw e;
+        } catch (Throwable e) { // All others exception are handled here.
+            if (instance != null) {
+                instance.dispose();
+                instance = null;
+            }
+            m_logger.log(Logger.ERROR, e.getMessage(), e);
+            throw new ConfigurationException(e.getMessage());
+        }
+    }
+
+    /**
+     * Creates a new native APAM instance, if this component represents an instantiable entity.
+     */
+    protected abstract ApamInstanceManager createApamInstance(IPojoContext context, HandlerManager[] handlers);
+    
+    /**
+     * Computes required handlers.
+     */
+    @Override
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List getRequiredHandlerList() {
+    	
+        List<RequiredHandler> requiredHandlers = (List<RequiredHandler>) super.getRequiredHandlerList();
+
+        /*
+           * APAM uses a single handler to manage several concerns, override default behavior
+           * an register the APAM handler
+           */
+        for (Iterator<RequiredHandler> handlers = requiredHandlers.iterator(); handlers.hasNext();) {
+            RequiredHandler handlerDescription = handlers.next();
+            String namespace = handlerDescription.getNamespace();
+            if ( namespace != null && APAM_NAMESPACE.equals(namespace))
+                handlers.remove();
+        }
+
+        requiredHandlers.add(new RequiredHandler(MessageProviderHandler.NAME, APAM_NAMESPACE));
+        requiredHandlers.add(new RequiredHandler(RelationInjectionHandler.NAME, APAM_NAMESPACE));
+        requiredHandlers.add(new RequiredHandler(PropertyInjectionHandler.NAME, APAM_NAMESPACE));
+
+        return requiredHandlers;
+    }
+    
+    /**
+     * Gets the component type description.
+     *
+     * @return the component type description
+     * @see org.apache.felix.ipojo.ComponentFactory#getComponentTypeDescription()
+     */
+    @Override
+    public ComponentTypeDescription getComponentTypeDescription() {
+        return new Description(this);
+    }
+
+    /**
+     * Get reflection information for the loaded implementation class
+     */
+    public Class<?> getInstrumentedClass(String classname) throws ClassNotFoundException {
+        return getBundleContext().getBundle().loadClass(classname);
+    }
+   
     /**
      * Defines the implementation description.
      *
@@ -90,24 +325,23 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
      */
     protected static class Description extends ComponentTypeDescription {
 
-
         /**
          * Creates the Apam Implementation Description.
          */
-        protected Description(ApformComponentImpl factory) {
+        protected Description(ApamComponentFactory factory) {
             super(factory);
 
             /*
              * add all provided interfaces of the component to the description
              */
-            for (InterfaceReference providedInterface : getFactory().getDeclaration().getProvidedResources(InterfaceReference.class)) {
+            for (InterfaceReference providedInterface : factory.declaration.getProvidedResources(InterfaceReference.class)) {
                 addProvidedServiceSpecification(providedInterface.getJavaType());
             }
 
             /*
              * add all local properties of the component to the description
              */
-            for (PropertyDefinition definition  : getFactory().getDeclaration().getPropertyDefinitions()) {
+            for (PropertyDefinition definition  : factory.declaration.getPropertyDefinitions()) {
             	if (definition.isLocal())
             		addProperty(definition.getName(), definition.getDefaultValue(), true);
             }
@@ -120,8 +354,8 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
          * Redefines with covariant result type.
          **/
         @Override
-        public ApformComponentImpl getFactory() {
-            return (ApformComponentImpl) super.getFactory();
+        public ApamComponentFactory getFactory() {
+            return (ApamComponentFactory) super.getFactory();
         }
 
         /**
@@ -132,9 +366,9 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
 
             Element description = super.getDescription();
 
-            if (getFactory().getDeclaration() != null) {
+            if (getFactory().declaration != null) {
 
-                ComponentDeclaration declaration = getFactory().getDeclaration();
+                ComponentDeclaration declaration = getFactory().declaration;
 
                 Element componentDescription = new Element(COMPONENT_DECLARATION_PROPERTY, APAM_NAMESPACE);
                 componentDescription.addAttribute(new Attribute("name",declaration.getName()));
@@ -251,160 +485,6 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
 
     }
 
-    /**
-     * Gets the component type description.
-     *
-     * @return the component type description
-     * @see org.apache.felix.ipojo.ComponentFactory#getComponentTypeDescription()
-     */
-    @Override
-    public ComponentTypeDescription getComponentTypeDescription() {
-        return new Description(this);
-    }
-
-    /**
-     * Whether this component declaration has an associated instrumented class
-     */
-    public abstract boolean hasInstrumentedCode();
-
-    /**
-     * Whether this component declaration can be instantiated directly via the iPojo API.
-     */
-    public abstract boolean isInstantiable();
-
-    /**
-     * Computes required handlers.
-     */
-    @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public List getRequiredHandlerList() {
-        List<RequiredHandler> requiredHandlers = (List<RequiredHandler>) super.getRequiredHandlerList();
-
-        /*
-           * APAM uses a single handler to manage several concerns, override default behavior
-           * an register the APAM handler
-           */
-        for (Iterator<RequiredHandler> handlers = requiredHandlers.iterator(); handlers.hasNext();) {
-            RequiredHandler handlerDescription = handlers.next();
-            String namespace = handlerDescription.getNamespace();
-            if ( namespace != null && APAM_NAMESPACE.equals(namespace))
-                handlers.remove();
-        }
-
-        requiredHandlers.add(new RequiredHandler(MessageProviderHandler.NAME, APAM_NAMESPACE));
-        requiredHandlers.add(new RequiredHandler(RelationInjectionHandler.NAME, APAM_NAMESPACE));
-        requiredHandlers.add(new RequiredHandler(PropertyInjectionHandler.NAME, APAM_NAMESPACE));
-
-        return requiredHandlers;
-    }
-
-    /**
-     * Creates a new native APAM instance, if this component represents an instantiable entity.
-     *
-     * TODO  Notice that for Apam an instance declaration is a kind of component, but from Ipojo point
-     * of view it is a factory, so this may seem misguiding
-     */
-    public abstract ApformInstanceImpl createApamInstance(IPojoContext context, HandlerManager[] handlers);
-
-    /**
-     * Creates an instance.
-     * This method is called with the monitor lock.
-     *
-     */
-    @Override
-    @SuppressWarnings({ "rawtypes" })
-    public ComponentInstance createInstance(Dictionary configuration,
-                                            IPojoContext context, HandlerManager[] handlers)
-            throws ConfigurationException {
-
-        if (! isInstantiable())
-            throw new ConfigurationException(
-                    "Only APAM instantiable components can be directly instantiated by Ipojo, use instead the APAM API");
-
-        /*
-           * Create a native APAM instance and configure it.
-           */
-        ApformInstanceImpl instance = createApamInstance(context,handlers);
-
-        try {
-            instance.configure(m_componentMetadata, configuration);
-            instance.start();
-            return instance;
-        } catch (ConfigurationException e) {
-            // An exception occurs while executing the configure or start
-            // methods.
-            if (instance != null) {
-                instance.dispose();
-                instance = null;
-            }
-            throw e;
-        } catch (Throwable e) { // All others exception are handled here.
-            if (instance != null) {
-                instance.dispose();
-                instance = null;
-            }
-            m_logger.log(Logger.ERROR, e.getMessage(), e);
-            throw new ConfigurationException(e.getMessage());
-        }
-    }
-
-    /**
-     * Get reflection information for the loaded implementation class
-     */
-    public Class<?> getInstrumentedClass(String classname) throws ClassNotFoundException {
-        return getBundleContext().getBundle().loadClass(classname);
-    }
-
-    /**
-     * Handle errors in parsing APAM declaration
-     */
-    @Override
-    public void error(Severity severity, String message) {
-        switch (severity) {
-            case SUSPECT:
-            case WARNING:
-                getLogger().log(Logger.INFO,
-                        "Error parsing APAM declaration " + m_componentMetadata + " : " + message);
-                break;
-
-            case ERROR:
-                throw new IllegalArgumentException("Error parsing APAM declaration "+getFactoryName()+":  "+message);
-        }
-    }
-
-    /**
-     * Verify implementation declaration
-     */
-    @Override
-    public void check(Element element) throws ConfigurationException {
-
-        if (hasInstrumentedCode())
-            super.check(element);
-
-        /*
-           *  Parse metadata to get APAM core declaration.
-           *
-           *  TODO change parser to accept a single declaration instead of a list of
-           *  declarations
-           */
-        try {
-            Element root = new Element("apam",APAM_NAMESPACE);
-            root.addElement(m_componentMetadata);
-
-            CoreParser parser = new CoreMetadataParser(root, this);
-            List<ComponentDeclaration> declarations = parser.getDeclarations(this);
-            declaration = declarations.get(0);
-        }
-        catch (IllegalArgumentException e) {
-            throw new ConfigurationException(e.getLocalizedMessage());
-        }
-
-    }
-
-    /**
-     * A dynamic reference to the APAM platform
-     */
-    protected final ServiceTracker apamTracker;
 
     /**
      * A class to dynamically track the APAM platform. This allows to dynamically register/unregister this
@@ -451,42 +531,11 @@ public abstract class ApformComponentImpl extends ComponentFactory implements Ap
     }
 
     /**
-     * Register this component with APAM
-     */
-    protected abstract void bindToApam(Apam apam) ;
-
-    /**
-     * Unregister this implementation from APAM
-     *
-     * @param apam
-     */
-    protected abstract void unbindFromApam(Apam apam);
-
-    /**
      * Get a reference to APAM
      */
     public final Apam getApam() {
         return apamTracker.size() != 0 ? (Apam) apamTracker.getService() : null;
     }
-
-
-    /**
-     * Once the factory is started register it in APAM
-     */
-    @Override
-    public synchronized void start() {
-        super.start();
-        apamTracker.open();
-    }
-
-    /**
-     * Once the factory is stopped unregister it from APAM
-     */
-    @Override
-    public synchronized void stop() {
-        super.stop();
-        apamTracker.close();
-    }
-
+ 
 
 }

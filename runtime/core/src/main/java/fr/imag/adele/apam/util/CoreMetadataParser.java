@@ -840,7 +840,7 @@ public class CoreMetadataParser implements CoreParser {
 		 */
 		if (targetDef != null && targetDef instanceof ResourceReference) {
 
-			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef);
+			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
 
 			if (component instanceof AtomicImplementationDeclaration) {
 
@@ -876,7 +876,7 @@ public class CoreMetadataParser implements CoreParser {
 
 			targetDef = relationInjection.getResource();
 			id = (id != null) ? id : relationInjection.getName();
-			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef);
+			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
 
 			relationInjection.setRelation(relation);
 
@@ -889,7 +889,7 @@ public class CoreMetadataParser implements CoreParser {
 			//Usually the case with instance relation redefinition. Target is defined in the implementation
 			//			errorHandler.error(Severity.ERROR, "relation target must be specified " + element);
 			//			targetDef = new ComponentReference<ComponentDeclaration>(CoreMetadataParser.UNDEFINED);
-			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef);
+			relation = new RelationDeclaration(component.getReference(), id, isOverride, isMultiple, targetDef, sourceName, sourceKind, targetKind);
 		}
 
 		/*

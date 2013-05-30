@@ -29,8 +29,8 @@ import org.apache.felix.ipojo.parser.MethodMetadata;
 import org.apache.felix.ipojo.util.Callback;
 import org.osgi.service.wireadmin.WireAdmin;
 
-import fr.imag.adele.apam.apform.impl.ApformImplementationImpl;
-import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
+import fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory;
+import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.CallbackMethod;
 import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
@@ -76,11 +76,11 @@ public class RelationInjectionHandler extends ApformHandler {
 		 * assume metadata is correct.
 		 */
 
-        if (!(getFactory() instanceof ApformImplementationImpl))
+        if (!(getFactory() instanceof ApamAtomicComponentFactory))
             return;
 
-        ApformImplementationImpl implementation = (ApformImplementationImpl) getFactory();
-        ImplementationDeclaration declaration = implementation.getDeclaration();
+        ApamAtomicComponentFactory implementation = (ApamAtomicComponentFactory) getFactory();
+        ImplementationDeclaration declaration = implementation.getApform().getDeclaration();
 
         if (!(declaration instanceof AtomicImplementationDeclaration))
             return;
@@ -120,7 +120,7 @@ public class RelationInjectionHandler extends ApformHandler {
         }
 
         /*
-         * Load Bind Unbind callback into the ApformInstanceImpl
+         * Load Bind Unbind callback into the ApamInstanceManager
          */
         Map<String, Set<Callback>> callbackBind 	= new HashMap<String, Set<Callback>>();
         Map<String, Set<Callback>> callbackUnbind 	= new HashMap<String, Set<Callback>>();
@@ -177,8 +177,8 @@ public class RelationInjectionHandler extends ApformHandler {
         public Element getHandlerInfo() {
             Element root = super.getHandlerInfo();
 
-            if (relationHandler.getInstanceManager() instanceof ApformInstanceImpl) {
-                ApformInstanceImpl instance = relationHandler.getInstanceManager();
+            if (relationHandler.getInstanceManager() instanceof ApamInstanceManager) {
+                ApamInstanceManager instance = relationHandler.getInstanceManager();
                 for (RelationInjectionManager relation : instance.getInjections()) {
                     root.addElement(relation.getDescription());
                 }

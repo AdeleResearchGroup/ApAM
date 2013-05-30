@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
-import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
+import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
+import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
 import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.message.Message;
@@ -76,12 +76,12 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     /**
 	 * The source component of the relation
 	 */
-    private final ApformComponentImpl  component;
+    private final ApamComponentFactory  component;
     
     /**
      * The associated resolver
      */
-    private final ApformInstanceImpl   instance;
+    private final ApamInstanceManager   instance;
     
     /**
 	 * The relation injection managed by this relation
@@ -139,7 +139,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     private ApAMQueue<Object> fieldBuffer;
     
     
-    public MessageInjectionManager(ApformComponentImpl component, ApformInstanceImpl instance, RelationInjection injection) throws ConfigurationException {
+    public MessageInjectionManager(ApamComponentFactory component, ApamInstanceManager instance, RelationInjection injection) throws ConfigurationException {
         
         assert injection.getResource() instanceof MessageReference;
         
@@ -197,7 +197,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     @Override
 	public Element getDescription() {
 
-        Element consumerDescription = new Element("injection", ApformComponentImpl.APAM_NAMESPACE);
+        Element consumerDescription = new Element("injection", ApamComponentFactory.APAM_NAMESPACE);
 		consumerDescription.addAttribute(new Attribute("relation", injection
 				.getRelation().getIdentifier()));
         consumerDescription.addAttribute(new Attribute("target", injection.getRelation().getTarget().toString()));
@@ -222,7 +222,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 
         for (Wire wire : resolutions) {
             
-            Element wireInfo = new Element("wire",ApformComponentImpl.APAM_NAMESPACE);
+            Element wireInfo = new Element("wire",ApamComponentFactory.APAM_NAMESPACE);
             wireInfo.addAttribute(new Attribute("producer.id",(String)wire.getProperties().get(WireConstants.WIREADMIN_PRODUCER_PID)));
             wireInfo.addAttribute(new Attribute("flavors",Arrays.toString(wire.getFlavors())));
             consumerDescription.addElement(wireInfo);
@@ -241,7 +241,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
      * requested handler
      */
     @SuppressWarnings("unchecked")
-    private static <T extends Handler> T getHandler(ApformInstanceImpl instance, String namespace, String handlerId) {
+    private static <T extends Handler> T getHandler(ApamInstanceManager instance, String namespace, String handlerId) {
         String qualifiedHandlerId = namespace+":"+handlerId;
         return (T) instance.getHandler(qualifiedHandlerId);
         
@@ -290,7 +290,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 	 * 
 	 */
     private WireAdmin getWireAdmin() {
-        RelationInjectionHandler handler = getHandler(ApformComponentImpl.APAM_NAMESPACE,RelationInjectionHandler.NAME);
+        RelationInjectionHandler handler = getHandler(ApamComponentFactory.APAM_NAMESPACE,RelationInjectionHandler.NAME);
         return handler.getWireAdmin();
     }
 
@@ -338,7 +338,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
      * instance
      */
     public MessageProducerIdentifier getMessageProducer(Instance target) {
-        MessageProviderHandler providerHandler = getHandler((ApformInstanceImpl)target.getApformInst(),ApformComponentImpl.APAM_NAMESPACE,MessageProviderHandler.NAME);
+        MessageProviderHandler providerHandler = getHandler((ApamInstanceManager)target.getApformInst(),ApamComponentFactory.APAM_NAMESPACE,MessageProviderHandler.NAME);
         return new MessageProducerIdentifier(providerHandler.getProviderId(),providerHandler.getProducerId());
     }
     
@@ -366,7 +366,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
                 properties.put(WireConstants.WIREADMIN_CONSUMER_FLAVORS,messageFlavors);
                 properties.put("service.pid",consumerId);
                 
-                MessageProviderHandler providerHandler = getHandler(ApformComponentImpl.APAM_NAMESPACE,MessageProviderHandler.NAME);
+                MessageProviderHandler providerHandler = getHandler(ApamComponentFactory.APAM_NAMESPACE,MessageProviderHandler.NAME);
                 consumer = providerHandler.getHandlerManager().getContext().registerService(Consumer.class.getCanonicalName(), this, properties);
             }
             

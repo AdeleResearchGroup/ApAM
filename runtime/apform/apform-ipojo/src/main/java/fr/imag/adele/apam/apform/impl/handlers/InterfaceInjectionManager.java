@@ -31,7 +31,7 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
+import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 
@@ -123,7 +123,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 	public Element getDescription() {
     	
 		Element relationDescription = new Element("injection",
-				ApformComponentImpl.APAM_NAMESPACE);
+				ApamComponentFactory.APAM_NAMESPACE);
 		relationDescription.addAttribute(new Attribute("relation", injection
 				.getRelation().getIdentifier()));
 		relationDescription.addAttribute(new Attribute("target", injection
@@ -147,7 +147,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 		relationDescription.addAttribute(new Attribute("resolved", Boolean
 				.toString(!resolutions.isEmpty())));
 		for (Component target : resolutions) {
-			Element bindingDescription = new Element("binding", ApformComponentImpl.APAM_NAMESPACE);
+			Element bindingDescription = new Element("binding", ApamComponentFactory.APAM_NAMESPACE);
 			bindingDescription.addAttribute(new Attribute("target", target.getName()));
 			relationDescription.addElement(bindingDescription);
 		}

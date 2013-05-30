@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,29 +50,17 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 	 * apform object to represent it.
 	 *
 	 */
-	private static class SystemRootInstance implements ApformInstance {
-
-		private final InstanceDeclaration declaration;
+	private static class SystemRootInstance extends BaseApformComponent<Instance,InstanceDeclaration>implements ApformInstance {
 
 		public SystemRootInstance(Implementation rootImplementation, String name) {
-			declaration = new InstanceDeclaration(rootImplementation.getImplDeclaration().getReference(), name, null);
+			super(new InstanceDeclaration(rootImplementation.getImplDeclaration().getReference(), name, null));
 		}
 
 		@Override
-		public Bundle getBundle() {
-			return null;
-		}
-
-		@Override
-		public InstanceDeclaration getDeclaration() {
-			return declaration;
-		}
-
-		@Override
-		public void setInst(Instance asmInstImpl) {
+		public void setApamComponent(Component apamComponent) {
 			throw new UnsupportedOperationException("method not available in root instance");
 		}
-
+		
 		@Override
 		public void setProperty(String attr, String value) {
 			throw new UnsupportedOperationException("method not available in root instance");
@@ -81,17 +68,6 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 
 		@Override
 		public Object getServiceObject() {
-			throw new UnsupportedOperationException("method not available in root instance");
-		}
-
-		//        @Override
-		//        public boolean substWire(Instance oldDestInst, Instance newDestInst,
-		//                                 String depName) {
-		//            throw new UnsupportedOperationException("method not available in root instance");
-		//        }
-
-		@Override
-		public Instance getInst() {
 			throw new UnsupportedOperationException("method not available in root instance");
 		}
 
@@ -177,7 +153,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		/*
 		 * Bind to the underlying execution platform instance
 		 */
-		getApformInst().setInst(this);
+		getApformInst().setApamComponent(this);
 
 		/*
 		 * Notify managers
@@ -211,7 +187,7 @@ public class InstanceImpl extends ComponentImpl implements Instance {
 		/*
 		 * Unbind from the underlying execution platform instance
 		 */
-		getApformInst().setInst(null);
+		getApformInst().setApamComponent(null);
 
 		/*
 		 * Do no remove the outgoing wires, in case a Thread is still here. If
