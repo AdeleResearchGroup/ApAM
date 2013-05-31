@@ -25,6 +25,7 @@ import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.MissingPolicy;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.RelationInjection;
+import fr.imag.adele.apam.declarations.RelationInjection.CallbackWithArgument;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
@@ -197,14 +198,21 @@ public class RelationImpl implements Relation {
 		this.isWire = false;
 		this.isInjected = false;
 
+		boolean hasCallbacks = false;
+
 		if (dep.getComponent() instanceof ImplementationReference) {
 			for (RelationInjection injection : dep.getInjections()) {
+				
+				if (injection instanceof CallbackWithArgument)
+					hasCallbacks = true;
+				
 				if (injection instanceof RelationInjection.Field) {
 					this.isInjected = true;
 					if (((RelationInjection.Field) injection).isWire())
 						this.isWire = true;
 				}
 			}
+			
 		}
 		else { //if (dep.getComponent() instanceof InstanceReference) {
 			Instance inst = CST.componentBroker.getInst(dep.getComponent().getName());
@@ -214,12 +222,13 @@ public class RelationImpl implements Relation {
 				if (relImpl != null) {
 					this.isWire = relImpl.isWire();
 					this.isInjected = relImpl.isInjected();
+					hasCallbacks = ! relImpl.isInjected() && relImpl.isDynamic();
 				}
 			}
 		}
 
-//		this.isDynamic = (!isInjected || dep.isMultiple() || dep.isEffectiveEager());
-		this.isDynamic = (dep.isMultiple() || dep.isEffectiveEager());
+		this.isDynamic = (dep.isMultiple() || dep.isEffectiveEager() || (!isInjected && hasCallbacks));
+
 	}
 
 	/**

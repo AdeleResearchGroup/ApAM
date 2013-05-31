@@ -28,7 +28,7 @@ import fr.imag.adele.apam.declarations.ResolvableReference;
  * 
  */
 
-public interface RelationManager extends Manager{
+public interface RelationManager extends Manager {
 	
 	/**
 	 * Provided that a relation resolution is required by client, each manager

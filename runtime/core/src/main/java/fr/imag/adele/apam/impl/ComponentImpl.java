@@ -110,7 +110,30 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		this.declaration	= apform.getDeclaration();
 	}
 
-
+	/**
+	 * Whether this component is an ancestor of the specified component
+	 */
+	@Override
+	public boolean isAncestorOf(Component member) {
+		
+		assert member != null;
+		
+		Component ancestor = member.getGroup();
+		while (ancestor != null && !ancestor.equals(this))
+			ancestor = ancestor.getGroup();
+		
+		return ancestor != null;
+	}
+	
+	/**
+	 * Whether this component is a descendant of the specified component
+	 */
+	@Override
+	public boolean isDescendantOf(Component group) {
+		assert group != null;
+		return group.isAncestorOf(this);
+	}
+	
 	/**
 	 * To be called when the object is fully loaded and chained.
 	 * Terminate the generic initialization : computing the dependencies, and the properties

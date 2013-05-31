@@ -35,8 +35,14 @@ public interface Component {
 	//return all the members of this component. Null if leaf (instance).
 	public Set<? extends Component> getMembers ();
 
+	//Whether this component is an anscestor of the specified member
+	public boolean isAncestorOf(Component member);
+
 	//return the representant of this group member. Null if root (Specification)
 	public Component getGroup ();
+
+	//Whether this component is a descendant of the specified group representant
+	public boolean isDescendantOf(Component group);
 
 	//Return it kind: Specification, implementation or instance
 	public ComponentKind getKind() ;

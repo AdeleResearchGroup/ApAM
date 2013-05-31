@@ -14,16 +14,20 @@
  */
 package fr.imag.adele.dynamic.manager;
 
+import java.util.Set;
+
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Resolved;
-import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.ComponentKind;
+import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
+import fr.imag.adele.apam.impl.CompositeImpl;
 
 /**
  * This class is used to represent the pending requests that are waiting for resolution.
@@ -35,13 +39,17 @@ public class PendingRequest {
 	/**
 	 * The source of the relation
 	 */
-	protected final Instance source;
+	protected final Component source;
 	
 	/**
 	 * The relation to resolve
 	 */
 	protected final Relation relation;
 
+	/**
+	 * The composite in which context the resolution will be performed
+	 */
+	protected final Composite context;
 	
 	/**
 	 * The resolver
@@ -54,16 +62,32 @@ public class PendingRequest {
 	private Resolved<?> resolution;
 
 	/**
+	 * Whether this request is being resolved in some thread
+	 */
+	private boolean isResolving = false;
+
+	/**
+	 * Whether the thread that created this request is blocked
+	 */
+	private boolean isBlocked = false;
+	
+	/**
+	 * Whether 
+	 */
+	/**
 	 * Builds a new pending request reification
 	 */
-	protected PendingRequest(ApamResolverImpl resolver, Instance source, Relation relation) {
+	protected PendingRequest(ApamResolverImpl resolver, Component source, Relation relation) {
 		this.resolver		= resolver;
+		
 		this.source			= source;
+		this.context		= (source instanceof Instance) ? ((Instance)source).getComposite() : CompositeImpl.getRootAllComposites();
 		this.relation		= relation;
+		
 		this.resolution		= null;
 	}
 	
-	public Instance getSource() {
+	public Component getSource() {
 		return source;
 	}
 	
@@ -78,8 +102,7 @@ public class PendingRequest {
 	 * The context in which the resolution is requested
 	 */
 	public Composite getContext() {
-		// ??? 
-		return source.getComposite();
+		return context;
 	}
 	
 	/**
@@ -102,9 +125,12 @@ public class PendingRequest {
 				/*
 				 * wait for resolution
 				 */
+				
+				isBlocked = true;
 				while (!isResolved())
 					this.wait();
 				
+				isBlocked = false;
 				
 			} catch (InterruptedException ignored) {
 			}
@@ -150,8 +176,6 @@ public class PendingRequest {
 		}
 	}
 
-	private boolean isResolving = false;
-	
 	private static ThreadLocal<PendingRequest> current = new ThreadLocal<PendingRequest>();
 
 	private synchronized void beginResolve() {
@@ -188,37 +212,67 @@ public class PendingRequest {
 	 * concerned with an event.
 	 */
 	public boolean isSatisfiedBy(Component candidate) {
-	
-		if (! source.canSee(candidate))
-			return false;
-		
-		Implementation implementation = null;
-		
-		if (candidate instanceof Implementation)
-			implementation = (Implementation) candidate;
-		
-		if (candidate instanceof Instance)
-			implementation	= ((Instance) candidate).getImpl();
-		
-		if (implementation == null)
+
+		/*
+		 * Check visibility
+		 */
+		if (!source.canSee(candidate))
 			return false;
 		
 		/*
-		 * Validate the implementation matches the requested specification
+		 * Check if the candidate kind matches the target kind of the relation. Consider the special
+		 * case for instantiable implementations that can satisfy an instance relation
 		 */
-		boolean valid = false;
+		boolean matchKind = relation.getTargetKind().equals(candidate.getKind()) ||
+							(relation.getTargetKind().equals(ComponentKind.INSTANCE) && candidate.getKind().equals(ComponentKind.IMPLEMENTATION));
 		
-		if (relation.getTarget() instanceof ImplementationReference<?>)
-			valid = implementation.getDeclaration().getReference().equals(relation.getTarget());
-
-		if (relation.getTarget() instanceof SpecificationReference)
-			valid = implementation.getSpec().getDeclaration().getReference().equals(relation.getTarget());
-
+		if (!matchKind)
+			return false;
+		
+		/*
+		 * Check if the candidate matches the target of the relation
+		 */
+		boolean matchTarget = false;
+		
+		if (relation.getTarget() instanceof ComponentReference<?>) {
+			Component target = CST.componentBroker.getComponent(relation.getTarget().getName());
+			matchTarget = (target != null) && (target.isAncestorOf(candidate) || target.equals(candidate));
+		}
+		
 		if (relation.getTarget() instanceof ResourceReference)
-			valid = implementation.getProvidedResources().contains(relation.getTarget());
+			matchTarget = candidate.getProvidedResources().contains(relation.getTarget());
+
+		if (! matchTarget)
+			return false;
 		
-		return valid;
+		/*
+		 * Special validations for target instances
+		 */
+		if (relation.getTargetKind().equals(ComponentKind.INSTANCE)) {
+			
+			boolean valid = ( (candidate instanceof Instance) && ((Instance) candidate).isSharable()) ||
+							( (candidate instanceof Implementation) && ((Implementation) candidate).isInstantiable());
+				
+			if (!valid)
+				return false;
+				
+		}
 		
+		/*
+		 * If this request has blocked the creating thread we should retry the resolution to unblock it.
+		 * 
+		 * Otherwise we verify if this request has not been already resolved by this candidate ( possibly
+		 * in another thread) to avoid unnecessary resolves.
+		 */
+		
+		synchronized (this) {
+			if (this.isBlocked)
+				return true;
+		}
+		
+		Set<Component> resolutions 	= source.getLinkDests(relation.getIdentifier());
+		
+		return resolutions.isEmpty() || (relation.isMultiple() && !resolutions.contains(candidate));
 	}
 
 

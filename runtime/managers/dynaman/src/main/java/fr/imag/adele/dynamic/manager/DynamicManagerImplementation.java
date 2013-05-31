@@ -15,6 +15,7 @@
 package fr.imag.adele.dynamic.manager;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,9 @@ import org.apache.felix.ipojo.annotations.Invalidate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.annotations.Requires;
 import org.apache.felix.ipojo.annotations.Validate;
+
 import org.osgi.framework.BundleContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +49,7 @@ import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.ResolutionException;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
@@ -67,17 +71,6 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 
 	private final static Logger	logger = LoggerFactory.getLogger(DynamicManagerImplementation.class);
 
-	@SuppressWarnings("unused")
-	private final BundleContext context;
-	
-	public DynamicManagerImplementation(BundleContext context) {
-		this.context = context;
-	}
-	
-    /**
-     * The content managers of all composites in APAM
-     */
-	private final Map<Composite,ContentManager> contentManagers = new HashMap<Composite, ContentManager>();
 	
 	/**
 	 * A reference to the APAM machine
@@ -85,10 +78,33 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
     @Requires(proxy = false)
 	private Apam apam;
 	
+    /**
+     * The content managers of all composites in APAM
+     */
+	private Map<Composite,ContentManager> contentManagers;
+	
 	/**
-	 * This method is automatically invoked when the manager is validated
-	 * 
-	 * TODO Should we try to synchronize with existing composites in APAM?
+	 * The content manager associated with the root composite
+	 */
+	private ContentManager rootManager;
+	
+	
+	/**
+	 * The dynamic manager handle all request concerned with dynamic management of links
+	 */
+	public DynamicManagerImplementation(BundleContext context) {
+	}
+    
+	/**
+	 * Give access to the APAM reference
+	 */
+	public Apam getApam() {
+		return apam;
+	}
+    
+	/**
+	 * This method is automatically invoked when the manager is validated, so
+	 * we can safely assume that APAM is available
 	 * 
 	 */
 	@Validate
@@ -99,9 +115,13 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 		 * Create the default content manager to be associated with the root composite
 		 */
 		try {
-			Composite root				= CompositeImpl.getRootAllComposites();
-			ContentManager rootContent	= new ContentManager(this,root);
-			contentManagers.put(root,rootContent);
+			
+			contentManagers = new HashMap<Composite, ContentManager>();
+			
+			Composite root	= CompositeImpl.getRootAllComposites();
+			rootManager		= new ContentManager(this,root);
+			
+			contentManagers.put(root,rootManager);
 		} catch (InvalidConfiguration ignored) {
 		}
 		
@@ -116,12 +136,11 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 		 * TODO if Dynaman is started or restarted after APAM, should we verify if there
 		 * are already created composites? 
 		 */
-//		  logger.info("[DYNAMAN] started");
 	}
 	
 	/**
-	 * This method is automatically invoked when the manager is invalidated
-	 * 
+	 * This method is automatically invoked when the manager is invalidated, so APAM is
+	 * no longer available
 	 */
 	@Invalidate
 	@SuppressWarnings("unused")
@@ -129,9 +148,22 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 		ApamManagers.removeRelationManager(this);
 		ApamManagers.removeDynamicManager(this);
 		ApamManagers.removePropertyManager(this);
-//		logger.info("[DYNAMAN] stopped");
+	}
+
+	/**
+	 * Get the manager associated to a composite
+	 */
+	private synchronized ContentManager getManager(Composite composite) {
+		return contentManagers.get(composite);
 	}
 	
+	/**
+	 * Get a thread safe (stack contained) copy of the current list of managers
+	 */
+	private synchronized Collection<ContentManager> getManagers() {
+		return new ArrayList<ContentManager>(contentManagers.values());
+	}
+
     
 	/**
 	 * Dynamic manager identifier
@@ -150,32 +182,237 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 		return 5;
 	}
 
+	@Override
+	public void getSelectionPath(Component client, Relation relation, List<RelationManager> selPath) {
+        selPath.add(selPath.size(), this);
+	}
 	
 	/**
-	 * Give access to the APAM reference
+	 * If this manager is invoked it means that the specified relationship could not be resolved, so we
+	 * have to apply the specified dynamic policy.  
 	 */
-	public Apam getApam() {
-		return apam;
+	@Override
+	public Resolved<?> resolveRelation(Component client, Relation relation) {
+		
+		/*
+		 * If no policy is specified for the relationship just ignore it.
+		 */
+		if (relation.getMissingPolicy() == null)
+			return null;
+		
+		/*
+		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
+		 * the unrelated thread that triggered the recalculation
+		 * 
+		 */
+		if (PendingRequest.isRetry())
+			return null;
+		
+		/*
+		 * Apply failure policies
+		 */
+		switch (relation.getMissingPolicy()) {
+			case OPTIONAL : {
+				return null;
+			}
+			
+			case EXCEPTION : {
+				throwMissingException(client,relation);
+			}
+			
+			case WAIT : {
+				
+				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver, client, relation);
+				ContentManager manager = getManager(request.getContext());
+
+				manager.addPendingRequest(request);
+				request.block();
+				manager.removePendingRequest(request);
+				
+				return request.getResolution();
+			}
+		}
+		
+		return null;
 	}
+	
+	@Override
+	public void addedComponent(Component component) {
+
+		/*
+		 * Get the list of currently existing managers
+		 */
+		Collection<ContentManager> managers = getManagers();
+
+		/*
+		 * Create a content manager associated to newly created composites
+		 */
+		if (component instanceof Composite) {
+			
+			Composite composite = (Composite) component;
+			
+			if (getManager(composite) != null) {
+				logger.error("Composite already added in APAM "+composite.getName());
+				return;
+			}
+
+			try {
+
+				ContentManager manager = new ContentManager(this,composite);
+				
+				/*
+				 * Validate there is no conflict in ownership declarations with existing composites
+				 */
+				for (ContentManager existingManager : managers) {
+					Set<OwnedComponentDeclaration> conflicts = manager.getConflictingDeclarations(existingManager);
+					if (!conflicts.isEmpty())
+						throw new InvalidConfiguration("Invalid owned declaration, conflicts with "+existingManager.getComposite().getName()+":"+conflicts);
+				}
+
+				/*
+				 * register manager
+				 */
+				synchronized (this) {
+					contentManagers.put(composite,manager);
+				}
+
+				/*
+				 * For all the existing instances we consider the impact of the newly created composite
+				 * in ownership
+				 * 
+				 */
+				for (Instance instance : CST.componentBroker.getInsts()) {
+					verifyOwnership(instance);
+				}
+				
+			} catch (InvalidConfiguration error) {
+				
+				/*
+				 * TODO We should not add the composite in APAM if the content manager could not be created,
+				 * but currently there is no way for a manager to signal an error in creation.
+				 */
+				logger.error("Error creating content manager for composite "+component.getName(),error);
+			}
+		}
+		
+		/*
+		 * Add the dynamic dependencies of the component
+		 */
+		Composite context = (component instanceof Instance) ? ((Instance)component).getComposite() : CompositeImpl.getRootAllComposites();
+		getManager(context).updateDynamicDependencies(component);
+		
+		/*
+		 * Verify ownership of newly created instances
+		 */
+		if (component instanceof Instance) {
+			verifyOwnership((Instance) component);
+		}
+
+		/*
+		 * Verify if this change may impact some pending or dynamic requests.
+		 */
+		for (ContentManager manager : managers) {
+			manager.addedComponent(component);
+		}
+		
+	}
+
+	@Override
+	public void removedComponent(Component component) {
+
+		/*
+		 * Remove the component from the associated content manager
+		 */
+		Composite context = (component instanceof Instance) ? ((Instance)component).getComposite() : CompositeImpl.getRootAllComposites();
+		getManager(context).removedComponent(component);
+
+		/*
+		 * Remove a content manager when its composite is removed
+		 */
+		if (component instanceof Composite) {
+			synchronized (this) {
+				ContentManager manager = contentManagers.remove(component);
+				manager.dispose();
+			}
+		}
+		
+		
+	}
+	
+	@Override
+	public void addedLink(Link link) {
+		
+		/*
+		 * Verify if this change may impact some pending or dynamic requests.
+		 */
+		for (ContentManager manager : getManagers()) {
+			manager.addedLink(link);
+		}
+	}
+
+
+	@Override
+	public void removedLink(Link link) {
+		/*
+		 * Verify if this change may impact some pending or dynamic requests.
+		 */
+		for (ContentManager manager : getManagers()) {
+			manager.removedLink(link);
+		}
+	}
+	
+	private void propertyChanged(Component component, String property) {		
+		
+		/*
+		 * If an instance attribute is modified, this may change ownership
+		 */
+		if (component instanceof Instance)
+			verifyOwnership((Instance) component);
+
+		/*
+		 * Verify if this change may impact some existing pending or dynamic requests.
+		 */
+		for (ContentManager manager : getManagers()) {
+			manager.propertyChanged(component, property);
+		}
+
+	}
+	
+	@Override
+	public void attributeChanged(Component component, String attr, String newValue, String oldValue) {
+		propertyChanged(component,attr);
+	}
+
+	@Override
+	public void attributeRemoved(Component component, String attr, String oldValue) {
+		propertyChanged(component,attr);
+	}
+
+	@Override
+	public void attributeAdded(Component component, String attr, String newValue) {
+		propertyChanged(component,attr);
+	}
+	
 	
 	/**
 	 * Set the ownership of an instance to one of the requesting composites, signal any detected conflict
 	 */
 	private void verifyOwnership(Instance instance) {
 
+		Collection<ContentManager> managers = getManagers();
 		/*
 		 * Get the current container and owner
 		 */
-		ContentManager container 	= contentManagers.get(instance.getComposite());
+		ContentManager container 	= getManager(instance.getComposite());
 		ContentManager owner		= container.owns(instance) ? container : null;
 		
 		/*
-		 * Get the list of composites requesting ownership
+		 * Get the list of composites requesting ownership.
 		 */
 		List<ContentManager> requesters = new ArrayList<ContentManager>();
 		StringBuffer requestersNames	= new StringBuffer();
 		
-		for (ContentManager manager : contentManagers.values()) {
+		for (ContentManager manager : managers) {
 			if (manager.requestOwnership(instance)) {
 				requesters.add(manager);
 				
@@ -200,63 +437,99 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 		if (requesters.isEmpty())
 			return;
 		
+		
 		/*
 		 * Choose an owner arbitrarily among requesters (try to keep the current owner if exists)
 		 */
 		ContentManager newOwner = requesters.isEmpty() ? null : requesters.contains(container) ? container : requesters.get(0);
-		
+
+		boolean ownershipChanged = false;
+
 		/*
 		 * Revoke ownership to previous owner (if it has changed)
 		 */
-		if (owner != null && (newOwner == null || ! newOwner.equals(owner)))
+		if (owner != null && (newOwner == null || ! newOwner.equals(owner))) {
 			owner.revokeOwnership(instance);
+			ownershipChanged = true;
+		}
 		
 		/*
 		 * Grant ownership to new owner
 		 */
-		if (newOwner != null)
+		if (newOwner != null) {
 			newOwner.grantOwnership(instance);
+			ownershipChanged = true;
+		}
+		
+		/*
+		 * Verify if this change may impact some existing pending or dynamic requests.
+		 */
+		if (ownershipChanged) {
+			for (ContentManager manager : managers) {
+				manager.ownershipChanged(instance);
+			}
+		}
+		
 	}
 
-	/**
-	 * Registers the request in the context composite, and blocks the current thread until
-	 * a component satisfying the request is available.
-	 */
-	private void block (PendingRequest request) {
-		ContentManager manager = contentManagers.get(request.getContext());
-		manager.addPendingRequest(request);
-		request.block();
-		manager.removePendingRequest(request);
-	}
-	
 	
 	/**
 	 * Throws the exception associated with a missing relation
 	 */
-	private void throwMissingException(Relation relation, Instance client) {
+	private static void throwMissingException(Component source, Relation relation) {
 		try {
+
+			/*
+			 * If no exception is specified throw ResolutionException
+			 */
+			String exceptionName = relation.getMissingException();
+			if (exceptionName == null)
+				throw new ResolutionException();
 			
 			/*
+			 * Try to find the component declaring the relation that specified the 
+			 * Exception to throw
+			 * 
 			 * TODO BUG : the class should be loaded using the bundle context of
 			 * the component where the relation is declared. This can be either
-			 * the specification, or the implementation of the source instance,
-			 * or a composite in the case of contextual dependencies.
+			 * the specification, or the implementation of the source component,
+			 * or a composite in the case of contextual dependencies. The current
+			 * implementation may not handle every case.
 			 * 
 			 * The best solution is to modify relationDeclaration to load the
 			 * exception class, but this is not possible at compile time, so we
-			 * can not change the signature of
-			 * relationDeclaration.getMissingException. A possible solution is
-			 * to move this method to relationDeclaration and make it work only
-			 * at runtime, but we need to consider merge of contextual
+			 * can not change the signature of relationDeclaration.getMissingException.
+			 * 
+			 * A possible solution is to move this method to relationDeclaration and
+			 * make it work only at runtime, but we need to consider merge of contextual
 			 * dependencies and use the correct bundle context.
 			 * 
-			 * Evaluate changes to relationDeclaration,
-			 * CoreMetadataParser.parserelation and
-			 * Util.computeEffectiverelation
+			 * Evaluate changes to relationDeclaration, relation, CoreMetadataParser
+			 * and computeEffectiverelation
 			 */
-			String exceptionName		= relation.getMissingException();
+			Component declaringComponent = source;
+			while (declaringComponent != null) {
+				
+				RelationDeclaration declaration = declaringComponent.getDeclaration().getRelation(relation.getIdentifier());
+				if ( declaration != null && declaration.getMissingException() != null && declaration.getMissingException().equals(exceptionName))
+					break;
+				
+				declaringComponent = declaringComponent.getGroup();
+			}
 			
-			Class<?> exceptionClass		= client.getImpl().getApformImpl().getBundle().loadClass(exceptionName);
+			if ( declaringComponent == null && source instanceof Instance) {
+				declaringComponent = ((Instance) source).getComposite().getCompType();
+			}
+			
+			if (declaringComponent == null)
+				throw new ResolutionException();
+
+			/*
+			 * throw the specified exception
+			 */
+			
+			
+			Class<?> exceptionClass		= declaringComponent.getApformComponent().getBundle().loadClass(exceptionName);
 			Exception exception			= Exception.class.cast(exceptionClass.newInstance());
 			
 			DynamicManagerImplementation.<RuntimeException>doThrow(exception);
@@ -271,6 +544,14 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 		
 	}
 	
+	/**
+	 * Hack to throw a checked exception from inside the framework without wrapping it.
+	 * 
+	 * When the formal type parameter E is replaced by the actual type argument RuntimeException the erased signature of
+	 * this method seems to throw an unchecked exception, however we throw the original exception.
+	 * 
+	 * Currently at runtime the specified cast is a NOOP, this may not work depending on the used JVM
+	 */
 	@SuppressWarnings("unchecked")
 	private static <E extends Exception> void doThrow(Exception e) throws E {
 		throw (E) e;
@@ -287,248 +568,14 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 	
 
 	@Override
-	public void addedComponent(Component component) {
-		
-		/*
-		 * Create a content manager associated to newly created composite
-		 */
-		if (component instanceof Composite) {
-			
-			Composite composite = (Composite) component;
-			
-			if (contentManagers.get(composite) != null) {
-				logger.error("Composite already added in APAM "+composite.getName());
-				return;
-			}
-
-			try {
-
-				ContentManager newManager = new ContentManager(this,composite);
-				
-				/*
-				 * Validate there is no conflict in ownership declarations with existing composites
-				 */
-				for (ContentManager manager : contentManagers.values()) {
-					Set<OwnedComponentDeclaration> conflicts = newManager.getConflictingDeclarations(manager);
-					if (!conflicts.isEmpty())
-						throw new InvalidConfiguration("Invalid owned declaration, conflicts with "+manager.getComposite().getName()+":"+conflicts);
-				}
-
-				/*
-				 * register manager
-				 */
-				contentManagers.put(composite,newManager);
-
-				/*
-				 * For all the existing instances we consider the impact of the newly created composite
-				 * in ownership
-				 * 
-				 */
-				for (Instance instance : CST.componentBroker.getInsts()) {
-					verifyOwnership(instance);
-				}
-				
-			} catch (InvalidConfiguration error) {
-				
-				/*
-				 * TODO We should not add the composite in APAM if the content manager could not be created,
-				 * but currently there is no way for a manager to signal an error in creation.
-				 */
-				logger.error("Error creating content manager for composite "+component.getName(),error);
-			}
-		}
-		
-		/*
-		 * Verify ownership of newly created instances
-		 */
-		if (component instanceof Instance) {
-			Instance instance = (Instance) component;
-			verifyOwnership(instance);
-		}
-
-		/*
-		 * Update the contents of all impacted composites
-		 */
-		for (ContentManager manager : contentManagers.values()) {
-			
-			if (component instanceof Instance) {
-				Instance instance = (Instance) component;
-				manager.instanceAdded(instance);
-			}
-
-			if (component instanceof Implementation) {
-				Implementation implementation = (Implementation) component;
-				manager.implementationAdded(implementation);
-			}
-
-		}
-	}
-
-
-	@Override
-	public void addedLink(Link wire) {
-	}
-
-	@Override
-	public void removedComponent(Component component) {
-
-		/*
-		 * Remove the instance from the associated content manager
-		 */
-		if (component instanceof Instance) {
-			Instance instance 		= (Instance) component;
-			ContentManager manager	= contentManagers.get(instance.getComposite());
-			manager.instanceRemoved(instance);
-		}
-
-		/*
-		 * Remove a content manager when its composite is removed
-		 */
-		if (component instanceof Composite) {
-			ContentManager manager = contentManagers.remove(component);
-			manager.dispose();
-		}
-		
-		
-	}
-
-	@Override
-	public void removedLink(Link link) {
-		/*
-		 * Update the contents of all impacted composites
-		 */
-		for (ContentManager manager : contentManagers.values()) {
-			if (link.getDestination() instanceof Instance)
-				manager.linkRemoved(link);
-		}
-	}
-
-	public void propertyChanged(Instance instance, String property) {		
-
-		/*
-		 * verify possible ownership change
-		 */
-       	verifyOwnership(instance);
-
-		
-		/*
-		 * Update the contents of all impacted composites
-		 */
-       for (ContentManager manager : contentManagers.values()) {
-        	manager.propertyChanged(instance, property);
-        }
-		
-	}
-
-	@Override
-	public void attributeChanged(Component component, String attr, String newValue, String oldValue) {
-		if (component instanceof Instance)
-			propertyChanged((Instance) component,attr);
-	}
-
-	@Override
-	public void attributeRemoved(Component component, String attr, String oldValue) {
-		if (component instanceof Instance)
-			propertyChanged((Instance) component,attr);
-	}
-
-	@Override
-	public void attributeAdded(Component component, String attr, String newValue) {
-		if (component instanceof Instance)
-			propertyChanged((Instance) component,attr);
-	}
-
-
-	@Override
-	public Resolved<?> resolveRelation(Component client, Relation relation) {
-		
-		if (! (client instanceof Instance))
-			return null;
-		
-		/*
-		 * In case of retry of a waiting or eager request we simply return to avoid blocking or killing
-		 * the unrelated thread that triggered the recalculation
-		 * 
-		 */
-		if (DynamicResolutionRequest.isRetry() || PendingRequest.isRetry()|| relation.getMissingPolicy() == null )
-			return null;
-		
-		/*
-		 * Apply failure policies
-		 */
-		switch (relation.getMissingPolicy()) {
-			case OPTIONAL : {
-				return null;
-			}
-			
-			case EXCEPTION : {
-				throwMissingException(relation,(Instance)client);
-			}
-			
-			case WAIT : {
-				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver,(Instance) client, relation);
-				block(request);
-				return request.getResolution();
-			}
-		}
-		
-		return null;
-	}
-
-	@Override
-	public void getSelectionPath(Component client, Relation relation, List<RelationManager> selPath) {
-        selPath.add(selPath.size(), this);
-	}
-
-	@Override
 	public void notifySelection(Component client, ResolvableReference resName, String depName, Implementation impl, Instance inst, Set<Instance> insts) {
 	}
 
-	/*
-	 * Dynaman does not have a component repository, it is usually not concerned
-	 * with finding a component
-	 * 
-	 * TODO in certain cases these methods are invoked as part of a relation
-	 * resolution, how to distinguish those cases and enforce the policy of the
-	 * relation ? currently is impossible because the resolving relation is not
-	 * specified in the parameters
-	 */
-	
 	@Override
 	public ComponentBundle findBundle(CompositeType compoType, String bundleSymbolicName, String componentName) {
 		return null;
 	}
 
 
-	// @Override
-	// public Instance resolveImpl(Component client, Implementation impl,
-	// Relation dep) {
-	// return null;
-	// }
-	//
-	// @Override
-	// public Set<Instance> resolveImpls(Component client, Implementation impl,
-	// Relation dep) {
-	// return null;
-	// }
-	// @Override
-	// public Instance findInstByName(Component client, String instName) {
-	// return (Instance) findComponentByName(client, instName);
-	// }
-	//
-	// @Override
-	// public Implementation findImplByName(Component client, String implName) {
-	// return (Implementation) findComponentByName(client, implName);
-	// }
-	//
-	// @Override
-	// public Specification findSpecByName(Component client, String specName) {
-	// return (Specification) findComponentByName(client, specName);
-	// }
-	//
-	// //@Override
-	// public Component findComponentByName(Component client, String compName) {
-	// return null;
-	// }
 
 }

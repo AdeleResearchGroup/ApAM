@@ -15,6 +15,7 @@
 package fr.imag.adele.dynamic.manager;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
@@ -40,10 +42,10 @@ import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.impl.ApamResolverImpl;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.CompositeImpl;
 import fr.imag.adele.apam.impl.InstanceImpl;
-import fr.imag.adele.apam.util.Visible;
 
 
 /**
@@ -59,6 +61,9 @@ public class ContentManager  {
 
 	/**
 	 * The declaration of the composite type
+	 * 
+	 * NOTE currently declarations are read-only, so we can safely navigate this information
+	 * without any thread synchronization
 	 */
 	private final CompositeDeclaration declaration;
 	
@@ -77,13 +82,13 @@ public class ContentManager  {
 	 * The list of contained instances that must be dynamically created when the
 	 * specified triggering condition is satisfied
 	 */
-	private final List<FutureInstance> dynamicContains;
+	private final List<FutureInstance> futureInstances;
 
 	/**
 	 * The list of dynamic dependencies that must be updated without waiting for
 	 * lazy resolution
 	 */
-	private final List<DynamicResolutionRequest> dynamicDependencies;
+	private final List<PendingRequest> dynamicDependencies;
 	
 	/**
 	 * The list of waiting resolutions in this composite
@@ -190,15 +195,19 @@ public class ContentManager  {
 		/*
 		 * Initialize the list of dynamic dependencies
 		 */
-		dynamicDependencies	= new ArrayList<DynamicResolutionRequest>();
+		dynamicDependencies	= new ArrayList<PendingRequest>();
 
+		/*
+		 * Initialize the list of waiting resolutions
+		 */
+		waitingResolutions	= new ArrayList<PendingRequest>();
+		
 		/*
 		 * Initialize the list of dynamic contains
 		 */
-		dynamicContains	= new ArrayList<FutureInstance>();
-		
+		futureInstances	= new ArrayList<FutureInstance>();
 		for (InstanceDeclaration instanceDeclaration : declaration.getInstanceDeclarations()) {
-			dynamicContains.add(new FutureInstance(this.composite,instanceDeclaration));
+			futureInstances.add(new FutureInstance(this.composite,instanceDeclaration));
 		}
 		
 		/*
@@ -223,10 +232,6 @@ public class ContentManager  {
 			}
 		}
 		
-		/*
-		 * Initialize the list of waiting resolutions
-		 */
-		waitingResolutions	= new ArrayList<PendingRequest>();
 		pendingGrants		= new HashMap<GrantDeclaration, List<PendingRequest>>();
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
 			for (GrantDeclaration grant : ownedDeclaration.getGrants()) {
@@ -235,12 +240,8 @@ public class ContentManager  {
 		}
 		
 		/*
-		 * Trigger an initial update of dynamic containment and instances
+		 * Trigger an initial update of dynamic containment 
 		 */
-		for (Instance contained : composite.getContainInsts()) {
-			updateDynamicDependencies(contained);
-		}
-		
 		updateContainementTriggers();
 	}
 	
@@ -252,68 +253,306 @@ public class ContentManager  {
 	}
 
 	/**
-	 * Updates the list of dynamic dependencies when a new instance is added to the composite
+	 * Accord ownership of the specified instance to this composite 
 	 */
-	private void updateDynamicDependencies(Instance instance) {
+	public void grantOwnership(Instance instance) {
 		
-		assert instance.getComposite().equals(getComposite());
-		
-		for (Relation relation : instance.getRelations()) {
+		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
 
-			if (relation.isDynamic()) {
-				DynamicResolutionRequest dynamicRequest = new DynamicResolutionRequest(CST.apamResolver,instance,relation);
-				dynamicDependencies.add(dynamicRequest);
+			/*
+			 * find matching declaration
+			 */
+			boolean matchType = false;	
+			
+			if (ownedDeclaration.getComponent() instanceof SpecificationReference)
+				matchType = instance.getSpec().getDeclaration().getReference().equals(ownedDeclaration.getComponent());
+			
+			if (ownedDeclaration.getComponent() instanceof ImplementationReference<?>)
+				matchType = instance.getImpl().getDeclaration().getReference().equals(ownedDeclaration.getComponent());
+			
+			if (!matchType)
+				continue;
+			
+			String propertyValue 	= instance.getProperty(ownedDeclaration.getProperty().getIdentifier());
+			boolean matchProperty	= propertyValue != null && ownedDeclaration.getValues().contains(propertyValue);
+			
+			if (!matchProperty)
+				continue;
 
-				/*
-				 * Force initial resolution of eager relation
-				 */
-				if (relation.isEager())
-					dynamicRequest.resolve();
-			}			
-		}
+			/*
+			 * get ownership
+			 */
+			((InstanceImpl)instance).setOwner(getComposite());
+			
+			/* 
+			 * register owned instance
+			 */
+			synchronized (owned) {
+				owned.get(ownedDeclaration).add(instance);
+			}
+			
+			/*
+			 * preempt previous users of the instance and give access to currently granted
+			 * waiting requests
+			 */
+			preempt(ownedDeclaration,instance);
+			
+		}			
 	}
 
 	/**
-	 * Verifies if the triggering conditions of pending dynamic contained instances are satisfied
+	 * Revokes ownership of the specified instance
+	 * 
 	 */
-	private synchronized void updateContainementTriggers() {
+	public void revokeOwnership(Instance instance) {
+		
+		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
+			synchronized (owned) {
+				owned.get(ownedDeclaration).remove(instance);
+			}
+		}
+
+		((InstanceImpl) instance).setOwner(CompositeImpl.getRootAllComposites());
+	}
+	
+	/**
+	 * Updates the contents of this composite when an instance changes ownership.
+	 * 
+	 * If the instance is contained in this composite, verify containment triggers
+	 */
+	public void ownershipChanged(Instance instance) {
+		
+		if (instance.getComposite().equals(getComposite())) {
+			updateContainementTriggers();
+		}
+	}
+	
+
+	/**
+	 * Add a new pending request in the content of the composite
+	 */
+	public void addPendingRequest(PendingRequest request) {
 		
 		/*
-		 * Iterate over all pending dynamic instances 
-		 * 
-		 * IMPORTANT Notice that this method is synchronized so we do not have concurrent accesses over
-		 * the list of pending instances. However, we must carefully handle the case of nested invocations
-		 * of this method (because instantiation of a dynamic instance may trigger other pending instances)
+		 * add to the list of pending requests
 		 */
+		synchronized (waitingResolutions) {
+			waitingResolutions.add(request);
+		}
 		
-		List<FutureInstance> processed = new ArrayList<FutureInstance>(); 
+		/*
+		 * If the target of the request is an instance, verify if the request corresponds
+		 * to a grant for an owned instance
+		 */
+		if (! request.getRelation().getTargetKind().equals(ComponentKind.INSTANCE))
+			return;
 		
-		while(! dynamicContains.isEmpty()) {
+		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
 
+			GrantDeclaration currentGrant	= getCurrentGrant(ownedDeclaration);
+			boolean reschedule 				= false;
 			/*
-			 * Take the first pending instance from the list, notice that we remove it
-			 * so that we are sure that there is only a single invocation of this method
-			 * handling a given pending instance 
-			 */
-			FutureInstance pendingInstance = dynamicContains.remove(0);
-			
-			/*
-			 * Evaluate triggering conditions and instantiate if satisfied
+			 * add request to list of matched pending grants 
 			 * 
 			 */
-			pendingInstance.checkInstatiation();
-			processed.add(pendingInstance);
+			for (GrantDeclaration grant : ownedDeclaration.getGrants()) {
+				
+				if (match(grant,request.getRelation()) && match(grant,request.getSource())) {
+					synchronized (pendingGrants) {
+						pendingGrants.get(grant).add(request);
+					}
+					
+					reschedule = reschedule || (currentGrant != null && currentGrant.equals(grant));
+				}
+				
+			}
+			
+			/*
+			 * force rescheduling of owned instances to give a chance to the new request
+			 */
+			if (reschedule && currentGrant != null)
+				setCurrentGrant(ownedDeclaration, currentGrant);
 		}
+	}
+	
+	/**
+	 * Remove a pending request from the content of the composite
+	 */
+	public void removePendingRequest(PendingRequest request) {
 
-		/*
-		 * Put back in the list all the processed requests that were not triggered
-		 */
-		while (! processed.isEmpty()) {
-			FutureInstance processedInstance = processed.remove(0);
-			if (! processedInstance.isInstantiated())
-				dynamicContains.add(processedInstance);
+		synchronized (waitingResolutions) {
+			waitingResolutions.remove(request);
 		}
 		
+		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
+			for (GrantDeclaration grant :ownedDeclaration.getGrants()) {
+				synchronized (pendingGrants) {
+					pendingGrants.get(grant).remove(request);
+				}
+			}
+		}
+		
+	}
+	
+	/**
+	 * Updates the contents of this composite when a new component is added in APAM
+	 */
+	public void addedComponent(Component component) {
+		
+		/*
+		 * Try to satisfy pending requests
+		 */
+		resolveRequests(getWaitingRequests(),component);
+		resolveRequests(getDynamicRequests(),component);
+
+		/*
+		 * If a new instance is created in this composite, verify if it triggers
+		 * a containment
+		 */
+		if ( (component instanceof Instance) && ((Instance)component).getComposite().equals(getComposite()) )
+			updateContainementTriggers();
+		
+	}
+	
+	/**
+	 * Updates the list of dynamic dependencies when a new component managed by this composite
+	 */
+	public void updateDynamicDependencies(Component component) {
+		
+		for (Relation relation : component.getLocalRelations()) {
+
+			if (component.getKind().equals(relation.getSourceKind()) && relation.isDynamic()) {
+				
+				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver,component,relation);
+				addDynamicRequest(request);
+				
+				if (relation.isEager())
+					request.resolve();
+			}			
+		}
+	}
+	
+	/**
+	 * Updates the contents of this composite when a component is removed from APAM
+	 * 
+	 */
+	public void removedComponent(Component component) {
+		
+		/*
+		 * Remove from the list of pending requests all requests originating from the
+		 * removed component
+		 */
+		for (PendingRequest request : getWaitingRequests()) {
+			if (request.getSource().equals(component))
+				removePendingRequest(request);
+		}
+		
+		for (PendingRequest request : getDynamicRequests()) {
+			if (request.getSource().equals(component))
+				removeDynamicRequest(request);
+		}
+		
+		/*
+		 * For instances update ownership information
+		 */
+		if ( !(component instanceof Instance))
+			return;
+		
+		
+		Instance instance = (Instance) component;
+		assert instance.getComposite().equals(getComposite());
+
+		/*
+		 * update state
+		 */
+		synchronized (this) {
+			if (instance == stateHolder)
+				stateHolder = null;
+		}
+		
+		/*
+		 * update list of owned instances
+		 */
+		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
+			synchronized (owned) {
+				owned.get(ownedDeclaration).remove(instance);
+			}
+		}
+	}
+	
+	/**
+	 * Updates the contents of this composite when a wire is added to APAM.
+	 */ 
+	public void addedLink(Link link) {
+	}
+	
+	/**
+	 * Updates the contents of this composite when a wire is removed from APAM.
+	 * 
+	 * If the target of the wire is a non sharable instance, the released instance can
+	 * potentially be used by a pending requests.
+	 * 
+	 */
+	public void removedLink(Link link) {
+		
+		if (link.getDestination() instanceof Instance) {
+			Instance instance = (Instance)link.getDestination();
+			
+			if (instance.isSharable())
+				resolveRequests(getWaitingRequests(),instance);
+
+		}
+		
+	}
+	
+	/**
+	 * Verifies all the effects of a property change in this composite
+	 * 
+	 */
+	public void propertyChanged(Component component, String property) {
+
+		/*
+		 * Force recalculation of dependencies that may have been invalidated by
+		 * the property change.
+		 * 
+		 * TODO Should we also invalidate outgoing links in the case that the
+		 * constraints use source property substitutions?
+		 * 
+		 */
+		for (Link incoming : component.getInvLinks()) {
+			if (incoming.hasConstraints())
+				incoming.remove();
+		}
+
+		resolveRequests(getWaitingRequests(),component);
+		resolveRequests(getDynamicRequests(),component);
+
+		/*
+		 * Verify if a contained instance has changed the state
+		 */
+		
+		if (! (component instanceof Instance))
+			return;
+		
+		Instance instance = (Instance) component;
+		
+		if ( ! instance.getComposite().equals(getComposite()) )
+			return;
+		
+		boolean stateChanged 	= false;
+		String newState			= null;
+		
+		synchronized (this) {
+			if (stateHolder != null && stateHolder.equals(instance) && stateProperty.equals(property)) {
+				stateChanged = true;
+				newState	 = stateHolder.getProperty(stateProperty);
+			}
+		}
+		
+		if (stateChanged)
+			stateChanged(newState);
+		
+		updateContainementTriggers();
 	}
 	
 	/**
@@ -324,7 +563,9 @@ public class ContentManager  {
 		/*
 		 * Change state
 		 */
-		this.state	= newState;
+		synchronized (this) {
+			this.state	= newState;
+		}
 		
 		/*
 		 * Reevaluate grants
@@ -343,136 +584,15 @@ public class ContentManager  {
 			 */
 			for (GrantDeclaration grant : ownedDeclaration.getGrants()) {
 				if (grant.getStates().contains(this.state))
-					preempt(ownedDeclaration,grant);
+					setCurrentGrant(ownedDeclaration,grant);
 			}
 			
 		}
 	}
-
-	
-	/**
-	 * Preempt access to the owned instances from their current clients, and give it to the
-	 * specified grant
-	 */
-	private void preempt(OwnedComponentDeclaration ownedDeclaration, GrantDeclaration newGrant) {
-		
-		/*
-		 * change current grant
-		 */
-		granted.put(ownedDeclaration, newGrant);
-
-		/*
-		 * preempt all owned instances
-		 */
-		for (Instance ownedInstance : owned.get(ownedDeclaration)) {
-			preempt(ownedInstance, newGrant);
-		}
-		
-		
-	}
-	
-	/**
-	 * Preempt access to the specified instance from their current clients and give it
-	 * to the specified grant
-	 * 
-	 * TODO IMPORTANT BUG If the old clients are concurrently resolved again (after the
-	 * revoke but before the new resolve) they can get access to the owned instance. 
-	 * 
-	 * We should find a way to make this method atomic, this requires synchronizing this
-	 * content manager and the Apam resolver.
-	 */
-	private void preempt(Instance ownedInstance,  GrantDeclaration grant) {
-
-		/*
-		 * If there is no active grant in the current state, nothing to do
-		 */
-		if (grant == null)
-			return;
-		
-		/*
-		 * If there is no pending request waiting for the grant, nothing to do
-		 */
-		if (pendingGrants.get(grant).isEmpty())
-			return;
-		
-		/*
-		 * revoke all non granted wires
-		 */
-		for (Link incoming : ownedInstance.getInvLinks()) {
-			
-			ComponentReference<?> sourceImplementation	= ((Instance)incoming.getSource()).getImpl().getDeclaration().getReference();
-			ComponentReference<?> sourceSpecification	= ((Instance)incoming.getSource()).getSpec().getDeclaration().getReference();
-			String sourceRelation						= incoming.getName();
-			
-			ComponentReference<?> grantSource			= grant.getRelation().getDeclaringComponent();
-			String grantRelation						= grant.getRelation().getIdentifier();
-			
-			boolean matchSource 						= grantSource.equals(sourceImplementation) || grantSource.equals(sourceSpecification);
-			boolean matchRelation						= grantRelation.equals(sourceRelation);
-
-			if (!matchSource || !matchRelation)
-				incoming.remove();
-		}
-
-		/*
-		 * try to resolve pending requests of this grant
-		 */
-		for (PendingRequest request : pendingGrants.get(grant)) {
-			if (request.isSatisfiedBy(ownedInstance))
-				request.resolve();
-		}
-
-	}
-	
-	/**
-	 * Whether the specified instance is owned by this composite
-	 */
-	public boolean owns(Instance instance) {
-	
-		if (!instance.getComposite().equals(getComposite()))
-			return false;
-		
-		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
-			if (owned.get(ownedDeclaration).contains(instance))
-				return true;
-		}
-		
-		return false;
-		
-	}
-	
-	/**
-	 * Whether this composite requests ownership of the specified instance
-	 */
-	public boolean requestOwnership(Instance instance) {
-		
-		/*
-		 * Iterate over all ownership declarations and verify if the instance matches the specified
-		 * condition
-		 */
-		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
-
-
-			boolean matchType = false;	
-			
-			if (ownedDeclaration.getComponent() instanceof SpecificationReference)
-				matchType = instance.getSpec().getDeclaration().getReference().equals(ownedDeclaration.getComponent());
-			
-			if (ownedDeclaration.getComponent() instanceof ImplementationReference<?>)
-				matchType = instance.getImpl().getDeclaration().getReference().equals(ownedDeclaration.getComponent());
-			
-			String propertyValue 	= instance.getProperty(ownedDeclaration.getProperty().getIdentifier());
-			boolean matchProperty	= propertyValue != null && ownedDeclaration.getValues().contains(propertyValue);
-			
-			if (matchType && matchProperty)
-				return true;
-		}
-		
-		return false;
-	}
 	
 	/**
 	 * The list of potential ownership's conflict between this content manager and the one specified in the parameter
+	 * 
 	 */
 	public Set<OwnedComponentDeclaration> getConflictingDeclarations(ContentManager that) {
 		
@@ -512,16 +632,19 @@ public class ContentManager  {
 		return conflicts;
 	}
 	
+	
 	/**
-	 * Accord ownership of the specified instance to this composite 
+	 * Whether this composite requests ownership of the specified instance
 	 */
-	public void grantOwnership(Instance instance) {
+	public boolean requestOwnership(Instance instance) {
 		
+		/*
+		 * Iterate over all ownership declarations and verify if the instance matches the specified
+		 * condition
+		 */
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
 
-			/*
-			 * find matching declaration
-			 */
+
 			boolean matchType = false;	
 			
 			if (ownedDeclaration.getComponent() instanceof SpecificationReference)
@@ -530,264 +653,275 @@ public class ContentManager  {
 			if (ownedDeclaration.getComponent() instanceof ImplementationReference<?>)
 				matchType = instance.getImpl().getDeclaration().getReference().equals(ownedDeclaration.getComponent());
 			
-			if (!matchType)
-				continue;
-			
 			String propertyValue 	= instance.getProperty(ownedDeclaration.getProperty().getIdentifier());
 			boolean matchProperty	= propertyValue != null && ownedDeclaration.getValues().contains(propertyValue);
 			
-			if (!matchProperty)
-				continue;
-
-			/*
-			 * get ownership
-			 */
-			((InstanceImpl)instance).setOwner(getComposite());
-			owned.get(ownedDeclaration).add(instance);
-			
-			
-			/*
-			 * preempt previous users of the instance and give access to granted waiting requests
-			 */
-			preempt(instance, granted.get(ownedDeclaration));
-			
-		}			
+			if (matchType && matchProperty)
+				return true;
+		}
+		
+		return false;
 	}
-
+	
 	/**
-	 * Revokes ownership of the specified instance
-	 * 
+	 * Get a thread safe (stack contained) copy of the current list of instances owned
+	 * for the specified ownership declaration
 	 */
-	public void revokeOwnership(Instance instance) {
+	private Collection<Instance> getOwned(OwnedComponentDeclaration ownedDeclaration) {
+		synchronized (owned) {
+			return new ArrayList<Instance>(owned.get(ownedDeclaration));
+		}
+	}
+	
+	/**
+	 * Whether the specified instance is owned by this composite
+	 */
+	public boolean owns(Instance instance) {
+	
+		if (!instance.getComposite().equals(getComposite()))
+			return false;
 		
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
-			owned.get(ownedDeclaration).remove(instance);
+			if (getOwned(ownedDeclaration).contains(instance))
+				return true;
 		}
-
-		((InstanceImpl) instance).setOwner(CompositeImpl.getRootAllComposites());
+		
+		return false;
+		
 	}
-
+	
 
 	/**
-	 * Try to resolve all the pending requests that are potentially satisfied by a given component
+	 * Preempt access to the owned instances from their current clients, and give it to the
+	 * requests satisfying the new grant
 	 */
-	private void resolveRequestsWaitingFor(Component candidate) {
-		for (PendingRequest request : waitingResolutions) {
+	private void setCurrentGrant(OwnedComponentDeclaration ownedDeclaration, GrantDeclaration newGrant) {
+		
+		/*
+		 * change current grant
+		 */
+		synchronized (granted) {
+			granted.put(ownedDeclaration, newGrant);
+		}
+
+		/*
+		 * preempt all owned instances
+		 */
+		for (Instance ownedInstance : getOwned(ownedDeclaration)) {
+			preempt(ownedDeclaration,ownedInstance);
+		}
+		
+		
+	}
+
+	/**
+	 * Get the current grant for the specified ownership declaration
+	 */
+	private GrantDeclaration getCurrentGrant(OwnedComponentDeclaration ownedDeclaration) {
+		synchronized (granted) {
+			return granted.get(ownedDeclaration);
+		}
+	}
+
+	/**
+	 * Get a thread safe (stack contained) copy of the current list of pending
+	 * requests of a given grant
+	 */
+	private List<PendingRequest> getPendingRequest(GrantDeclaration grant) {
+		synchronized (pendingGrants) {
+			return new ArrayList<PendingRequest>(pendingGrants.get(grant));
+		}
+	}
+
+	/**
+	 * verifies if a component matches the specified grant source
+	 */
+	private static boolean match(GrantDeclaration grant, Component candidate) {
+		ComponentReference<?> grantSource = grant.getRelation().getDeclaringComponent();
+		while (candidate != null) {
+			if (candidate.getDeclaration().getReference().equals(grantSource))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * verifies if a relation matches the specified grant
+	 */
+	private static boolean match(GrantDeclaration grant, Relation relation) {
+		return relation.getIdentifier().equals(grant.getRelation().getIdentifier());
+	}
+
+	/**
+	 * verifies if a link matches the specified grant
+	 */
+	private static boolean match(GrantDeclaration grant, Link link) {
+		return link.getName().equals(grant.getRelation().getIdentifier()) && match(grant,link.getSource());
+	}
+	
+	
+	/**
+	 * Preempt access to the specified instance from their current clients and give it
+	 * to the request currently granted
+	 * 
+	 * TODO IMPORTANT BUG If the old clients are concurrently resolved again (after the
+	 * revoke but before the new resolve) they can get access to the owned instance. 
+	 * 
+	 * We should find a way to make this method atomic, this requires synchronizing this
+	 * content manager and the Apam resolver.
+	 */
+	private void preempt(OwnedComponentDeclaration ownedDeclaration, Instance ownedInstance) {
+
+		assert this.owns(ownedInstance);
+		
+		/*
+		 * If there is no active grant in the current state, nothing to do
+		 */
+		GrantDeclaration grant = getCurrentGrant(ownedDeclaration);
+		if (grant == null)
+			return;
+		
+		/*
+		 * If there is no pending request waiting for the grant, nothing to do
+		 */
+		List<PendingRequest> grantedRequests = getPendingRequest(grant);
+		if (grantedRequests.isEmpty())
+			return;
+		
+		/*
+		 * revoke all non granted wires
+		 */
+		for (Link incoming : ownedInstance.getInvLinks()) {
+			if ( !match(grant,incoming))
+				incoming.remove();
+		}
+
+		/*
+		 * try to resolve pending requests of this grant
+		 */
+		for (PendingRequest request : grantedRequests) {
+			if (request.isSatisfiedBy(ownedInstance))
+				request.resolve();
+		}
+
+	}
+	
+	/**
+	 * Get a thread-safe (stack confined) copy of the waiting requests
+	 */
+	private List<PendingRequest> getWaitingRequests() {
+		synchronized (waitingResolutions) {
+			return new ArrayList<PendingRequest>(waitingResolutions);
+		}
+	}
+	
+	/**
+	 * Get a thread-safe (stack confined) copy of the dynamic requests
+	 */
+	private List<PendingRequest> getDynamicRequests() {
+		synchronized (dynamicDependencies) {
+			return new ArrayList<PendingRequest>(dynamicDependencies);
+		}
+	}
+	
+	
+
+	/**
+	 * Add a new dynamic request in the content of the composite
+	 */
+	private void addDynamicRequest(PendingRequest request) {
+		synchronized (dynamicDependencies) {
+			dynamicDependencies.add(request);
+		}
+	}
+	
+	/**
+	 * Remove a dynamic request from the content of the composite
+	 */
+	public void removeDynamicRequest(PendingRequest request) {
+		synchronized (dynamicDependencies) {
+			dynamicDependencies.remove(request);
+		}
+	}
+	
+	
+	/**
+	 * Try to resolve all the requests that are potentially satisfied by a given component
+	 */
+	private static void resolveRequests(List<PendingRequest> requests, Component candidate) {
+		for (PendingRequest request : requests) {
 			if (request.isSatisfiedBy(candidate))
 				request.resolve();
 		}
 	}
 	
-	/**
-	 * Try to resolve all the dynamic requests that are potentially satisfied by a given instance
-	 */
-	private void resolveDynamicRequests(Instance candidate) {
-		for (DynamicResolutionRequest request : dynamicDependencies) {
-			if (request.isSatisfiedBy(candidate))
-				request.resolve();
-		}
-	}
 
-	
 	/**
-	 * Updates the contents of this composite when a new implementation is added in APAM
+	 * Verifies if the triggering conditions of pending dynamic contained instances are satisfied
 	 */
-	public synchronized void implementationAdded(Implementation implementation) {
+	private void updateContainementTriggers() {
 		
 		/*
-		 * verify if the new implementation satisfies any pending resolutions in
-		 * this composite
+		 * Iterate over all pending dynamic instances 
+		 * 
+		 * IMPORTANT Notice that this iteration is synchronized so we do not have concurrent accesses over
+		 * the list of future instances. However, we must carefully handle the case of nested invocations
+		 * of this method (because instantiation of a dynamic instance may trigger other pending instances)
 		 */
-		resolveRequestsWaitingFor(implementation);
-	}
-	
-	
-	/**
-	 * Updates the contents of this composite when a new instance is added in APAM
-	 */
-	public synchronized void instanceAdded(Instance instance) {
 		
-		/*
-		 * verify if the new instance satisfies any pending resolutions in this composite
-		 */
-		resolveRequestsWaitingFor(instance);
-		resolveDynamicRequests(instance);
-
-		/*
-		 * verify if a newly contained instance has dynamic dependencies or satisfies a trigger
-		 */
-		if ( instance.getComposite().equals(getComposite())) {
-			updateDynamicDependencies(instance);
-			updateContainementTriggers();
-		}
-	}
-
-	/**
-	 * Verifies all the effects of a property change in a contained instance
-	 * 
-	 */
-	public synchronized void propertyChanged(Instance instance, String property) {
-
-		/*
-		 * For modified contained instances
-		 */
-		if ( instance.getComposite().equals(getComposite())) {
+		synchronized (futureInstances) {
 			
-			/*
-			 * update triggers
-			 */
-			updateContainementTriggers();
-			
-			/*
-			 * Force recalculation of dependencies that may have been invalidated by
-			 * the property change
-			 * 
-			 */
-			for (Link incoming : instance.getInvLinks()) {
-				if (incoming.hasConstraints())
-					incoming.remove();
-			}
-
-			/*
-			 * Verify if property change triggers a state change
-			 */
-			if (stateHolder != null && stateHolder.equals(instance) && stateProperty.equals(property))
-				stateChanged(stateHolder.getProperty(stateProperty));
-
-		}
-
-		/*
-		 * verify if the modified instance satisfies any pending resolutions and dynamic
-		 * dependencies in this composite
-		 */
-		if (instance.isSharable() && Visible.checkInstVisible(getComposite(),instance)) {
-			resolveRequestsWaitingFor(instance);
-	        resolveDynamicRequests(instance);
-		}
-
-	}
-
-
-	/**
-	 * Updates the contents of this composite when a contained instance is removed from APAM
-	 * 
-	 */
-	public synchronized void instanceRemoved(Instance instance) {
+			List<FutureInstance> processed = new ArrayList<FutureInstance>(); 
+			while(! futureInstances.isEmpty()) {
 		
-		assert instance.getComposite().equals(getComposite());
-
-		/*
-		 * update state
-		 */
-		if (instance == stateHolder)
-			stateHolder = null;
-		
-		/*
-		 * update list of owned instances
-		 */
-		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
-			if (owned.get(ownedDeclaration).contains(instance))
-				owned.get(ownedDeclaration).remove(instance);
-		}
-		
-		/*
-		 * update list of dynamic dependencies
-		 */
-		List<DynamicResolutionRequest> removedDynamicRequests = new ArrayList<DynamicResolutionRequest>();
-		for (DynamicResolutionRequest dynamicRelation : dynamicDependencies) {
-			if (dynamicRelation.getSource().equals(instance))
-				removedDynamicRequests.add(dynamicRelation);
-		}
-		
-		dynamicDependencies.removeAll(removedDynamicRequests);
-		
-		/*
-		 * update list of waiting requests
-		 */
-		List<PendingRequest> removedWaitingResolutions = new ArrayList<PendingRequest>();
-		for (PendingRequest pendingRequest : waitingResolutions) {
-			if (pendingRequest.getSource().equals(instance))
-				removedWaitingResolutions.add(pendingRequest);
-		}
-		
-		waitingResolutions.removeAll(removedWaitingResolutions);
-		
-	}
-	
-	/**
-	 * Updates the contents of this composite when a wire is removed from APAM.
-	 * 
-	 * If the target of the wire is a non sharable instance, the released instance can
-	 * potentially be used by a pending requests.
-	 * 
-	 */
-	public synchronized void linkRemoved(Link link) {
-		Instance instance = (Instance)link.getDestination();
-		if (instance.isSharable() && Visible.checkInstVisible(getComposite(),instance))
-			resolveRequestsWaitingFor(instance);
-	}
-	
-	/**
-	 * Add a new pending request in the content of the composite
-	 */
-	public synchronized void addPendingRequest(PendingRequest request) {
-		
-		/*
-		 * add to the list of pending requests
-		 */
-		waitingResolutions.add(request);
-		
-		/*
-		 * Verify if the request corresponds to a grant for an owned instance
-		 */
-		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
-
-			GrantDeclaration currentGrant = granted.get(ownedDeclaration);
-
-			for (GrantDeclaration grant :ownedDeclaration.getGrants()) {
-				
-				ComponentReference<?> sourceImplementation	= request.getSource().getImpl().getDeclaration().getReference();
-				ComponentReference<?> sourceSpecification	= request.getSource().getSpec().getDeclaration().getReference();
-				String sourceRelation						= request.getRelation().getIdentifier();
-				
-				ComponentReference<?> grantSource			= grant.getRelation().getDeclaringComponent();
-				String grantRelation						= grant.getRelation().getIdentifier();
-				
-				boolean matchSource 						= grantSource.equals(sourceImplementation) || grantSource.equals(sourceSpecification);
-				boolean matchRelation						= grantRelation.equals(sourceRelation);
-
 				/*
-				 * add request to list of pending grants and try to preempt the owned instances
+				 * Take the first pending instance from the list, notice that we remove it
+				 * so that we are sure that there is only a single invocation of this method
+				 * handling a given pending instance 
 				 */
-				if (matchSource && matchRelation) {
-					pendingGrants.get(grant).add(request);
-					if (currentGrant != null && currentGrant.equals(grant))
-						preempt(ownedDeclaration, grant);
-				}
+				FutureInstance futureInstance = futureInstances.remove(0);
+				
+				/*
+				 * Evaluate triggering conditions and instantiate if satisfied
+				 * 
+				 */
+				futureInstance.checkInstatiation();
+				processed.add(futureInstance);
 			}
-		}
-	}
-	
-	/**
-	 * Remove a pending request from the content of the composite
-	 */
-	public synchronized void removePendingRequest(PendingRequest request) {
 
-		waitingResolutions.remove(request);
-
-		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
-			for (GrantDeclaration grant :ownedDeclaration.getGrants()) {
-				pendingGrants.get(grant).remove(request);
+			/*
+			 * Put back in the list all the processed requests that were not triggered
+			 */
+			while (! processed.isEmpty()) {
+				FutureInstance processedInstance = processed.remove(0);
+				if (! processedInstance.isInstantiated())
+					futureInstances.add(processedInstance);
 			}
 		}
 		
 	}
-
 	
+
 	/**
 	 * The composite is removed
 	 */
-	public void dispose() {
+	public synchronized void dispose() {
+		
+		stateHolder	= null;
+		state 		= null;
+		
+		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
+			owned.get(ownedDeclaration).clear();
+			for (GrantDeclaration grant : ownedDeclaration.getGrants()) {
+				pendingGrants.get(grant).clear();
+			}
+		}
+		
+		futureInstances.clear();
+		dynamicDependencies.clear();
+		
+		waitingResolutions.clear();
 	}
 
 
