@@ -147,7 +147,7 @@ public class CoreMetadataParser implements CoreParser {
 	private static final String  ATT_EAGER               = "eager";
 	private static final String  ATT_HIDE                = "hide";
 	private static final String  ATT_FILTER              = "filter";
-	private static final String ATT_ID = "id";
+	private static final String  ATT_ID 				 = "id";
 	private static final String  ATT_PROPERTY            = "property";
 	private static final String  ATT_DEPENDENCY          = "dependency";
 	private static final String  ATT_TO                  = "to";
@@ -764,7 +764,7 @@ public class CoreMetadataParser implements CoreParser {
 
 		boolean isMultiple	= parseBoolean(component.getName(),element, CoreMetadataParser.ATT_MULTIPLE, false, false);
 
-		String sourceName 			= parseString(component.getName(), element, CoreMetadataParser.ATT_SOURCE, isContextual);
+		String sourceName 			= parseString(component.getName(), element, CoreMetadataParser.ATT_SOURCE, isContextual && ! isOverride);
 		ComponentKind sourceKind	= parseKind(component.getName(), element,CoreMetadataParser.ATT_SOURCE_KIND, isContextual && ! isOverride, ComponentKind.INSTANCE);
 
 		ComponentKind targetKind 	= parseKind(component.getName(),element,CoreMetadataParser.ATT_TARGET_KIND,false,ComponentKind.INSTANCE);
