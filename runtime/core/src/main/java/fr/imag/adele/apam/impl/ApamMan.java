@@ -38,6 +38,7 @@ import fr.imag.adele.apam.declarations.InstanceReference;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
+import fr.imag.adele.apam.util.ApamFilter;
 import fr.imag.adele.apam.util.Util;
 
 public class ApamMan implements RelationManager {
@@ -220,8 +221,34 @@ public class ApamMan implements RelationManager {
 		}
 
 		//No instance available, return the preferred implementation, it will be instantiated.
-		if (insts == null  ||insts.isEmpty()) 
-			return new Resolved <Instance> (relation.getPrefered(impls), true);
+		if (insts == null  ||insts.isEmpty()) {
+			/*
+			 *  Keep only the implementations satisfying the constraints of the relation
+			 *  
+			 *  TODO NOTE We can not use relation.getResolved because it checks the target 
+			 *  kind, so we do filtering here. This must be refactored into RelationImpl
+			 */
+			
+			Set<Implementation> valid = new HashSet<Implementation> ();
+			for (Implementation impl : impls) {
+				
+				boolean matchAll = true;
+				for (ApamFilter constraint : relation.getAllImplementationConstraintFilters()) {
+					if (!constraint.match(impl.getAllProperties())) {
+						matchAll = false;
+						break;
+					}
+				}
+				
+				if (matchAll)
+					valid.add(impl);
+			}
+			
+			if (valid.isEmpty()) 
+				return null ;
+
+			return new Resolved <Instance> (relation.getPrefered(valid), true);
+		}
 
 		/*
 		 * If relation is singleton, select the best instance.

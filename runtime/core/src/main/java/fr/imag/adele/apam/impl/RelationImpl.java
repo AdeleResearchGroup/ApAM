@@ -407,6 +407,13 @@ public class RelationImpl implements Relation {
 		}
 
 		//Instance must match both implementation and instance constraints ???
+		
+		/*
+		 *  TODO SUSPECTED BUG : The constraints to evaluate depend on the target
+		 *  kind of the relation and in the case of instantiation of an implementation
+		 *  in the kind of the component matched
+		 */
+		
 		switch (getSourceKind()) {
 		case INSTANCE:
 			for (ApamFilter f : mngInstanceConstraintFilters) {
