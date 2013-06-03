@@ -20,6 +20,7 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -150,6 +151,7 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 	}
 	
 	@Test
+	@Ignore
 	public void SubstitutionGetPropertyWithDotInMiddleOfComponentName_tcxxx() {
 		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
 				"subject-a");

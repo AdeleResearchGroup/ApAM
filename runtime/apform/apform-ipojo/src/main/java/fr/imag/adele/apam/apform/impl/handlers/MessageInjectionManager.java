@@ -24,6 +24,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.Handler;
+import org.apache.felix.ipojo.InstanceManager;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.MethodMetadata;
@@ -241,7 +242,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
      * requested handler
      */
     @SuppressWarnings("unchecked")
-    private static <T extends Handler> T getHandler(ApamInstanceManager instance, String namespace, String handlerId) {
+    private static <T extends Handler> T getHandler(InstanceManager instance, String namespace, String handlerId) {
         String qualifiedHandlerId = namespace+":"+handlerId;
         return (T) instance.getHandler(qualifiedHandlerId);
         
@@ -338,7 +339,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
      * instance
      */
     public MessageProducerIdentifier getMessageProducer(Instance target) {
-        MessageProviderHandler providerHandler = getHandler((ApamInstanceManager)target.getApformInst(),ApamComponentFactory.APAM_NAMESPACE,MessageProviderHandler.NAME);
+        MessageProviderHandler providerHandler = getHandler(((ApamInstanceManager.Apform)target.getApformInst()).getManager(),ApamComponentFactory.APAM_NAMESPACE,MessageProviderHandler.NAME);
         return new MessageProducerIdentifier(providerHandler.getProviderId(),providerHandler.getProducerId());
     }
     
@@ -353,6 +354,12 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     @Override
     public void addTarget(Component target) {
 
+    	/*
+    	 * Messages can only be exchanged between instances
+    	 */
+    	if (! (target instanceof Instance))
+    		return;
+    	
         /*
          * Add this target and invalidate cache
          */

@@ -188,7 +188,7 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
     /**
      * This class represents the mediator between APAM and this instance manager
      */
-    private class Apform extends BaseApformComponent<Instance,InstanceDeclaration> implements ApformInstance {
+    public class Apform extends BaseApformComponent<Instance,InstanceDeclaration> implements ApformInstance {
 
         /**
          * The list of injected fields handled by this instance
@@ -210,7 +210,7 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
          */
     	Map<CallbackTrigger, Map<String, Set<Callback>>>		relationCallback;
     	
-    	public Apform() {
+    	private Apform() {
 			
     		super(ApamInstanceManager.this.declaration);
 			
@@ -229,6 +229,31 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
 			
 		}
 
+    	public InstanceManager getManager() {
+    		return ApamInstanceManager.this;
+    	}
+    	
+        private void loadCallbacks(AtomicImplementationDeclaration primitive, CallbackTrigger trigger) {
+            Set<CallbackMethod> callbackMethods = primitive.getCallback(trigger);
+            if (callbackMethods != null) {
+                for (CallbackMethod callbackMethod : callbackMethods) {
+                    Set<MethodMetadata> metadatas;
+                    try {
+                        metadatas = (Set<MethodMetadata>) primitive.getInstrumentation().getCallbacks(
+                                callbackMethod.getMethodName(), false);
+                        for (MethodMetadata methodMetadata : metadatas) {
+                            if (lifeCycleCallbacks.get(trigger) == null) {
+                                lifeCycleCallbacks.put(trigger, new HashSet<Callback>());
+                            }
+                            lifeCycleCallbacks.get(trigger).add(new Callback(methodMetadata, ApamInstanceManager.this));
+                        }
+                    } catch (NoSuchMethodException e) {
+                        System.err.println("life cycle failure, when trigger : " + trigger + " " + e.getMessage());
+                    }
+                }
+            }
+        }
+    	
         @Override
         public Object getServiceObject() {
             return ApamInstanceManager.this.getPojoObject();
@@ -462,26 +487,6 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
         performCallbacks(destInstance, callbacks);
     }
 
-    private void loadCallbacks(AtomicImplementationDeclaration primitive, CallbackTrigger trigger) {
-        Set<CallbackMethod> callbackMethods = primitive.getCallback(trigger);
-        if (callbackMethods != null) {
-            for (CallbackMethod callbackMethod : callbackMethods) {
-                Set<MethodMetadata> metadatas;
-                try {
-                    metadatas = (Set<MethodMetadata>) primitive.getInstrumentation().getCallbacks(
-                            callbackMethod.getMethodName(), false);
-                    for (MethodMetadata methodMetadata : metadatas) {
-                        if (apform.lifeCycleCallbacks.get(trigger) == null) {
-                            apform.lifeCycleCallbacks.put(trigger, new HashSet<Callback>());
-                        }
-                        apform.lifeCycleCallbacks.get(trigger).add(new Callback(methodMetadata, this));
-                    }
-                } catch (NoSuchMethodException e) {
-                    System.err.println("life cycle failure, when trigger : " + trigger + " " + e.getMessage());
-                }
-            }
-        }
-    }
 
 
     private void fireCallbacks(CallbackTrigger trigger, Map<CallbackTrigger, Set<Callback>> mapCallbacks) {

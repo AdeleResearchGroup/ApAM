@@ -419,7 +419,7 @@ public class ContentManager  {
 	 */
 	public void updateDynamicDependencies(Component component) {
 		
-		for (Relation relation : component.getLocalRelations()) {
+		for (Relation relation : component.getRelations()) {
 
 			if (component.getKind().equals(relation.getSourceKind()) && relation.isDynamic()) {
 				
