@@ -143,18 +143,12 @@ public class Attribute {
 
 		if (value instanceof String) {
 			// Check if a substitution
-			if (((String)value).charAt(0)=='$') {
+			if ((((String)value).indexOf('$') != -1)) {
 				//it is a substitution : value must be a string with at least a "$"
-				if ((((String)value).indexOf('$') != -1)) {
-					return value ;
-				}
-				else {
-					logger.error("Invalid value \"" + value + "\" for substituted attribute " + attribute) ;
-					return null ;
-				}
+				return value ;
 			}
 			//It is a function substitution. Return as is.
-			if (((String)value).charAt(0)=='@') {
+			if (((String)value).indexOf('@') != -1) {
 				return value ;
 			}
 

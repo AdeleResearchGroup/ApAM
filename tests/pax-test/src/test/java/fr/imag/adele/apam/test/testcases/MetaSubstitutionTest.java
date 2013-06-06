@@ -16,6 +16,7 @@ package fr.imag.adele.apam.test.testcases;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
+import java.util.Collections;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -162,6 +163,23 @@ public class MetaSubstitutionTest extends ExtensionAbstract {
 		
 		Assert.assertTrue("Substitution did not work when the component contains . (dots) in the name",subjectA.getProperty("property-case-10").equals("value-impl"));
 		
+	}
+	
+	@Test
+	public void SubstitutionGetPropertyWithDotInMiddleOfComponentName_tc093() {
+		Implementation subjectAimpl = CST.apamResolver.findImplByName(null,
+				"impl-case-11");
+		
+		Instance subjectA = subjectAimpl.createInstance(null, Collections.singletonMap("property-subject-b", "bete"));
+		
+		auxListProperties("\t", subjectA);
+		
+		System.err.println("--->"+subjectA.getProperty("property-case-10"));
+		
+		//Assert.assertTrue("Substitution did not work when the component contains . (dots) in the name",subjectA.getProperty("property-case-10").equals("value-impl"));
+		
+		Assert.assertTrue(subjectA.getProperty("property-subject-b-spec").equals("mydefault"));
+		Assert.assertTrue(subjectA.getProperty("property-subject-b").equals("bete"));
 	}
 	
 }

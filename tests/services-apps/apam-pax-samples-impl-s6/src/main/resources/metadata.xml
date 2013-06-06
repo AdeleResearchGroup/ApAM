@@ -87,6 +87,22 @@
 
 	<!-- /CASE 10 -->
 
+	<!-- CASE 11 -->
+
+	<specification interfaces="fr.imag.adele.apam.pax.test.iface.S6"
+		name="spec-case-11">
+		<definition name="property-subject-b-spec" type="string" value="mydefault" />
+	</specification>
+
+	<implementation name="impl-case-11"
+		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
+		specification="spec-case-11">
+		<definition name="property-subject-b" type="string" value="" />
+		
+	</implementation>
+
+	<!-- /CASE 11 -->
+
 	<implementation name="subject-a"
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6">
