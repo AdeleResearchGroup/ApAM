@@ -25,26 +25,24 @@ import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.AttrType;
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
-import fr.imag.adele.apam.declarations.InstanceReference;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.RelationInjection;
-import fr.imag.adele.apam.declarations.RelationPromotion;
 import fr.imag.adele.apam.declarations.GrantDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.InstanceReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
+import fr.imag.adele.apam.declarations.RelationInjection;
+import fr.imag.adele.apam.declarations.RelationPromotion;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
@@ -283,7 +281,8 @@ public class CheckObr {
 
 	private static boolean isSubstitute (ComponentDeclaration component, String attr) {
 		PropertyDefinition def = component.getPropertyDefinition(attr) ;
-		return  (def != null && (def.getDefaultValue().charAt(0)=='$' || def.getDefaultValue().charAt(0)=='@')) ;
+		return  (def != null && def.getDefaultValue() != null &&
+				(def.getDefaultValue().indexOf('$') == 0 || def.getDefaultValue().indexOf('@') == 0)) ;
 	}
 
 

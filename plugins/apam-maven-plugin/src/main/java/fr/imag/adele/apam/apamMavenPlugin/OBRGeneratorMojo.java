@@ -161,7 +161,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
              * loop  dependencies
              */
 
-			for (Object artifact : project.getDependencyArtifacts()) {
+			for (Object artifact : project.getArtifacts()) {
 				if (artifact instanceof Artifact) {
 
 					Artifact relation = (Artifact) artifact;
