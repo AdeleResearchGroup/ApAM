@@ -18,11 +18,12 @@
  xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd" >    
 
 	<composite name="S5CompEx" main="S5Impl" specification="S5" singleton="true"
-		interfaces="[fr.imag.adele.apam.test.s5.S5,fr.imag.adele.apam.ApamComponent]">
+		interfaces="fr.imag.adele.apam.test.s5.S5,fr.imag.adele.apam.ApamComponent">
 		
 		<dependency specification="S4" fail= "wait" exception="fr.imag.failedException" />
 		
 		<contentMngt>
+		
 			<state implementation="S5Impl" property="state"/>
 			
 			<start implementation="S3Impl" name="s3Impl-int">
@@ -41,18 +42,26 @@
 				</trigger>
 			</start> 
 			
+			<!-- fastS2 not defined
 			<promote implementation="S5Impl" dependency="fastS2" to="S4"/>
-					
+			-->	
+			<!-- change to export / import
 			<borrow implementation="(b=true)" instance="false"/>
 			<local  implementation="true" instance="true"/>
-
+ 			-->
+ 			
+ 			<!-- grants imposes singleton sources and a dependnecy with the id of the specification , review grant specification to check
+ 			
 			<own specification="S1" property="location" value="{kitchen, living}">
 				<grant when="emergency" implementation="TestAttr" />
 				<grant when="threat" implementation="S2Impl" />
 			</own>
+			-->
 <!-- 			<own specification="S2" property="location" value="bedroom"/> -->
 			
-			<dependency specification="Spec_A*" eager="true" hide="true" exception="CompositeDependencyException">
+			<!-- allow attribute override in schema
+			
+			<dependency  specification="Spec_A*" eager="true" hide="true" exception="CompositeDependencyException">
 				<constraints>
 					<implementation filter="(apam-composite=true)" />
 				</constraints>
@@ -60,7 +69,7 @@
 					<implementation filter="(SCOPE=GLOBAL)" />
 				</preferences>
 			</dependency>
-			
+			-->
 		</contentMngt>
 	</composite>
 </apam>

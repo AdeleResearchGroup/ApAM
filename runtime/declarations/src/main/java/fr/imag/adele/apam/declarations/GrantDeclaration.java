@@ -18,17 +18,18 @@ import java.util.Set;
 
 public class GrantDeclaration {
 
-	private final DependencyDeclaration.Reference dependency;
+	private final RelationDeclaration.Reference relation;
 	
 	private final Set<String> states;
 	
-	public GrantDeclaration(DependencyDeclaration.Reference dependency, Set<String> states) {
-		this.dependency = dependency;
+	public GrantDeclaration(RelationDeclaration.Reference relation,
+			Set<String> states) {
+		this.relation = relation;
 		this.states = states;
 	}
 	
-	public DependencyDeclaration.Reference getDependency() {
-		return dependency;
+	public RelationDeclaration.Reference getRelation() {
+		return relation;
 	}
 	
 	public Set<String> getStates() {
@@ -37,7 +38,7 @@ public class GrantDeclaration {
 	
 	@Override
 	public String toString() {
-		return "<grant when " + states + " " + dependency.getDeclaringComponent() + " dependency=\"" 
-				+ dependency.getIdentifier() + "\"/>" ;
+		return "<grant when " + states + " " + relation.getDeclaringComponent()
+				+ " relation=\"" + relation.getIdentifier() + "\"/>";
 	}
 }

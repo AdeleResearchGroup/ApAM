@@ -32,7 +32,7 @@
 							<goal>apam-bundle</goal>
 						</goals>
 						<configuration>
-							<metadata>src/main/resources/TestCompile.xml</metadata>
+							<metadata>src/main/resources/TestPromotion.xml</metadata>
 						</configuration>
 					</execution>
 				</executions>
@@ -40,13 +40,13 @@
 		</plugins>
 	</build>
 	<dependencies>
-<!-- 		<dependency> -->
-<!-- 			<groupId>fr.imag.adele.apam</groupId> -->
-<!-- 			<artifactId>APAM</artifactId> -->
-<!-- 			<version>0.0.2-SNAPSHOT</version> -->
-<!-- 			<type>bundle</type> -->
-<!-- 			<scope>compile</scope> -->
-<!-- 		</dependency> -->
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>apam-core</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S2</artifactId>

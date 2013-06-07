@@ -24,6 +24,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.Handler;
+import org.apache.felix.ipojo.InstanceManager;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.MethodMetadata;
@@ -36,32 +37,36 @@ import org.osgi.service.wireadmin.WireConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
-import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
-import fr.imag.adele.apam.declarations.DependencyInjection;
+import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
+import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
+import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.util.ApAMQueue;
 
 
 /**
- * This handler handles message consumers. It is at the same time a OSGi's WireAdmin consumer and an APAM
- * message consumer, so that it translates message exchanges over APAM wires into concrete message exchanges
- * over WireAdmin wires.
+ * This handler handles message consumers. It is at the same time a OSGi's
+ * WireAdmin consumer and an APAM message consumer, so that it translates
+ * message exchanges over APAM wires into concrete message exchanges over
+ * WireAdmin wires.
  * 
- * This handler is also a field interceptor that injects itself into all fields used to transparently consume
- * messages. Fields must be declared of type MessageConsumer<D>, and a reference to this handler will be
- * down casted and injected.
+ * This handler is also a field interceptor that injects itself into all fields
+ * used to transparently consume messages. Fields must be declared of type
+ * MessageConsumer<D>, and a reference to this handler will be down casted and
+ * injected.
  * 
- * This handler is also in charge of triggering lazy resolution, if data is consumed and there is no producer
- * bound to this dependency. It also translates APAM notifications for wire creation and deletion into 
- * appropriate actions at the WireAdmin level.
+ * This handler is also in charge of triggering lazy resolution, if data is
+ * consumed and there is no producer bound to this relation. It also translates
+ * APAM notifications for wire creation and deletion into appropriate actions at
+ * the WireAdmin level.
  * 
  * @author vega
- *
+ * 
  */
-public class MessageInjectionManager implements DependencyInjectionManager, Consumer {// MessageConsumer<Object>
+public class MessageInjectionManager implements RelationInjectionManager, Consumer {// MessageConsumer<Object>
 
     Logger logger  = LoggerFactory.getLogger(getClass());
     /**
@@ -70,19 +75,19 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     public static final String NAME = "consumer";
     
     /**
-     * The source component of the dependency
-     */
-    private final ApformComponentImpl  component;
+	 * The source component of the relation
+	 */
+    private final ApamComponentFactory  component;
     
     /**
      * The associated resolver
      */
-    private final ApformInstanceImpl   instance;
+    private final ApamInstanceManager   instance;
     
     /**
-     * The dependency injection managed by this dependency
-     */
-    private final DependencyInjection injection;
+	 * The relation injection managed by this relation
+	 */
+    private final RelationInjection injection;
     
     /**
      * The list of target services.
@@ -90,10 +95,11 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     private final Set<Instance> targetServices;
 
     /**
-     * The WireAdmin consumer registration. A consumer is registered when the dependency is
-     * resolved and automatically unregistered when the dependency gets unresolved.
-     * 
-     */
+	 * The WireAdmin consumer registration. A consumer is registered when the
+	 * relation is resolved and automatically unregistered when the relation
+	 * gets unresolved.
+	 * 
+	 */
     private ServiceRegistration consumer;
 
     /**
@@ -134,7 +140,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     private ApAMQueue<Object> fieldBuffer;
     
     
-    public MessageInjectionManager(ApformComponentImpl component, ApformInstanceImpl instance, DependencyInjection injection) throws ConfigurationException {
+    public MessageInjectionManager(ApamComponentFactory component, ApamInstanceManager instance, RelationInjection injection) throws ConfigurationException {
         
         assert injection.getResource() instanceof MessageReference;
         
@@ -142,7 +148,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
         this.instance   = instance;
         this.injection  = injection;
         
-        if (injection instanceof DependencyInjection.CallbackWithArgument) {
+        if (injection instanceof RelationInjection.CallbackWithArgument) {
             MethodMetadata callbackMetadata = null;
             String callbackParameterType    = null;
             
@@ -167,7 +173,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
 
         try {
             this.messageFlavors = new Class<?>[] {this.component.loadClass(injection.getResource().getJavaType())};
-            this.consumerId     = NAME+"["+instance.getInstanceName()+","+injection.getDependency().getIdentifier()+","+injection.getName()+"]";
+            this.consumerId     = NAME+"["+instance.getInstanceName()+","+injection.getRelation().getIdentifier()+","+injection.getName()+"]";
             this.wires          = new HashMap<String,Wire>();
             this.buffer         = new ArrayBlockingQueue<Object>(MAX_BUFFER_SIZE);
             this.fieldBuffer = new ApAMQueue<Object>(buffer);
@@ -179,21 +185,23 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     }
 
     /**
-     * The dependency injection associated to this manager
-     */
+	 * The relation injection associated to this manager
+	 */
     @Override
-    public DependencyInjection getDependencyInjection() {
+    public RelationInjection getRelationInjection() {
         return injection;
     }
     
     /**
-     * Get an XML representation of the state of this dependency
-     */
-    public Element getDescription() {
+	 * Get an XML representation of the state of this relation
+	 */
+    @Override
+	public Element getDescription() {
 
-        Element consumerDescription = new Element("injection", ApformComponentImpl.APAM_NAMESPACE);
-        consumerDescription.addAttribute(new Attribute("dependency", injection.getDependency().getIdentifier()));
-        consumerDescription.addAttribute(new Attribute("target", injection.getDependency().getTarget().toString()));
+        Element consumerDescription = new Element("injection", ApamComponentFactory.APAM_NAMESPACE);
+		consumerDescription.addAttribute(new Attribute("relation", injection
+				.getRelation().getIdentifier()));
+        consumerDescription.addAttribute(new Attribute("target", injection.getRelation().getTarget().toString()));
         consumerDescription.addAttribute(new Attribute("field", injection.getName()));
         consumerDescription.addAttribute(new Attribute("type", injection.getResource().toString()));
         consumerDescription.addAttribute(new Attribute("isAggregate",   Boolean.toString(injection.isCollection())));
@@ -215,7 +223,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
 
         for (Wire wire : resolutions) {
             
-            Element wireInfo = new Element("wire",ApformComponentImpl.APAM_NAMESPACE);
+            Element wireInfo = new Element("wire",ApamComponentFactory.APAM_NAMESPACE);
             wireInfo.addAttribute(new Attribute("producer.id",(String)wire.getProperties().get(WireConstants.WIREADMIN_PRODUCER_PID)));
             wireInfo.addAttribute(new Attribute("flavors",Arrays.toString(wire.getFlavors())));
             consumerDescription.addElement(wireInfo);
@@ -234,7 +242,7 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
      * requested handler
      */
     @SuppressWarnings("unchecked")
-    private static <T extends Handler> T getHandler(ApformInstanceImpl instance, String namespace, String handlerId) {
+    private static <T extends Handler> T getHandler(InstanceManager instance, String namespace, String handlerId) {
         String qualifiedHandlerId = namespace+":"+handlerId;
         return (T) instance.getHandler(qualifiedHandlerId);
         
@@ -248,14 +256,16 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     /**
      * Handle modification of the injected field
      */
-    public void onSet(Object pojo, String fieldName, Object value) {
+    @Override
+	public void onSet(Object pojo, String fieldName, Object value) {
         // Nothing to do, this should never happen as we exclusively handle the field's value
     }
 
     /**
      * Handle access to the injected field
      */
-    public Object onGet(Object pojo, String fieldName, Object value) {
+    @Override
+	public Object onGet(Object pojo, String fieldName, Object value) {
 
         synchronized (this) {
             if (consumer != null)
@@ -263,12 +273,13 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
         }
 
         /*
-         * Ask APAM to resolve the dependency. Depending on the application policies this may throw an error, or
-         * block the thread until the dependency is fulfilled, or keep the dependency unresolved in the case of
-         * optional dependencies.
-         * 
-         * Resolution has as side-effect a modification of the target services.
-         */ 
+		 * Ask APAM to resolve the relation. Depending on the application
+		 * policies this may throw an error, or block the thread until the
+		 * relation is fulfilled, or keep the relation unresolved in the case of
+		 * optional dependencies.
+		 * 
+		 * Resolution has as side-effect a modification of the target services.
+		 */ 
         instance.resolve(this);
       
         return consumer !=null ? fieldBuffer : null;
@@ -276,11 +287,11 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
 
     
     /**
-     * Get access to the wireadmin, via the DependencyInjectionHandler
-     * 
-     */
+	 * Get access to the wireadmin, via the relationInjectionHandler
+	 * 
+	 */
     private WireAdmin getWireAdmin() {
-        DependencyInjectionHandler handler = getHandler(ApformComponentImpl.APAM_NAMESPACE,DependencyInjectionHandler.NAME);
+        RelationInjectionHandler handler = getHandler(ApamComponentFactory.APAM_NAMESPACE,RelationInjectionHandler.NAME);
         return handler.getWireAdmin();
     }
 
@@ -328,17 +339,27 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
      * instance
      */
     public MessageProducerIdentifier getMessageProducer(Instance target) {
-        MessageProviderHandler providerHandler = getHandler((ApformInstanceImpl)target.getApformInst(),ApformComponentImpl.APAM_NAMESPACE,MessageProviderHandler.NAME);
+        MessageProviderHandler providerHandler = getHandler(((ApamInstanceManager.Apform)target.getApformInst()).getManager(),ApamComponentFactory.APAM_NAMESPACE,MessageProviderHandler.NAME);
         return new MessageProducerIdentifier(providerHandler.getProviderId(),providerHandler.getProducerId());
     }
     
      
-    /* (non-Javadoc)
-     * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#addTarget(fr.imag.adele.apam.Instance)
-     */
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * fr.imag.adele.apam.apform.impl.handlers.relationInjectionManager#addTarget
+	 * (fr.imag.adele.apam.Instance)
+	 */
     @Override
-    public void addTarget(Instance target) {
+    public void addTarget(Component target) {
 
+    	/*
+    	 * Messages can only be exchanged between instances
+    	 */
+    	if (! (target instanceof Instance))
+    		return;
+    	
         /*
          * Add this target and invalidate cache
          */
@@ -352,18 +373,18 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
                 properties.put(WireConstants.WIREADMIN_CONSUMER_FLAVORS,messageFlavors);
                 properties.put("service.pid",consumerId);
                 
-                MessageProviderHandler providerHandler = getHandler(ApformComponentImpl.APAM_NAMESPACE,MessageProviderHandler.NAME);
+                MessageProviderHandler providerHandler = getHandler(ApamComponentFactory.APAM_NAMESPACE,MessageProviderHandler.NAME);
                 consumer = providerHandler.getHandlerManager().getContext().registerService(Consumer.class.getCanonicalName(), this, properties);
             }
             
-            targetServices.add(target);
+            targetServices.add((Instance)target);
             
             /*
              * Create a wire at the WireAdmin level
              */
             WireAdmin wireAdmin = getWireAdmin();
             if (wireAdmin != null) {
-                MessageProducerIdentifier messageProducer = getMessageProducer(target);
+                MessageProducerIdentifier messageProducer = getMessageProducer((Instance)target);
                 Properties wireProperties = new Properties();
                 wireProperties.put(MessageProviderHandler.ATT_PROVIDER_ID, messageProducer.providerId);
                 Wire wire = wireAdmin.createWire(messageProducer.producerId, getConsumerId(), wireProperties);
@@ -374,11 +395,15 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
 
     }
 
-    /* (non-Javadoc)
-     * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#removeTarget(fr.imag.adele.apam.Instance)
-     */
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * fr.imag.adele.apam.apform.impl.handlers.relationInjectionManager#removeTarget
+	 * (fr.imag.adele.apam.Instance)
+	 */
     @Override
-    public void removeTarget(Instance target) {
+    public void removeTarget(Component target) {
 
         /*
          * Remove this target and invalidate cache
@@ -396,8 +421,8 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
             targetServices.remove(target);
             
             /*
-             * Unregister the consumer if the dependency becomes unresolved
-             */
+			 * Unregister the consumer if the relation becomes unresolved
+			 */
             if (targetServices.isEmpty()) {
                 consumer.unregister();
                 consumer = null;
@@ -405,43 +430,6 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
             
         }
     }
-
-    /* (non-Javadoc)
-     * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#substituteTarget(fr.imag.adele.apam.Instance, fr.imag.adele.apam.Instance)
-     */
-    @Override
-    public void substituteTarget(Instance oldTarget, Instance newTarget) {
-
-        /*
-         * substitute the target atomically and invalidate the cache
-         */
-        synchronized (this) {
-
-            if (!targetServices.contains(oldTarget))
-                return;
-
-            /*
-             * Update wires at the WireAdmin level
-             */
-            WireAdmin wireAdmin = getWireAdmin();
-            
-            Wire wire   = wires.remove(oldTarget.getName());
-            if (wireAdmin != null && wire != null)
-                wireAdmin.deleteWire(wire);
-
-            if (wireAdmin != null) {
-                MessageProducerIdentifier messageProducer = getMessageProducer(newTarget);
-                Properties wireProperties = new Properties();
-                wireProperties.put(MessageProviderHandler.ATT_PROVIDER_ID, messageProducer.providerId);
-                wire = wireAdmin.createWire(messageProducer.producerId, getConsumerId(), wireProperties);
-                wires.put(newTarget.getName(),wire);
-            }
-
-            targetServices.remove(oldTarget);
-            targetServices.add(newTarget);
-        }
-    }
-
 
     /**
      * Consumes a message and put it in the buffer for later retrieval.
@@ -488,10 +476,11 @@ public class MessageInjectionManager implements DependencyInjectionManager, Cons
     @Override
     public void producersConnected(Wire[] newWires) {
         /*
-         * The APAM dependency handler only manages wires created indirectly by mapping APAM
-         * resolution into WireAdmin events. Those wires are already tracked by this manager,
-         * so we can ignore asynchronous notifications
-         */
+		 * The APAM relation handler only manages wires created indirectly by
+		 * mapping APAM resolution into WireAdmin events. Those wires are
+		 * already tracked by this manager, so we can ignore asynchronous
+		 * notifications
+		 */
     }
 
 //    /**

@@ -46,11 +46,64 @@
 	<dependencies>
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S1</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>		
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S3</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>		
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S4</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>		
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>S5</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
 			<type>bundle</type>
 			<scope>compile</scope>
 		</dependency>		
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S5Impl</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S2Impl</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>		
+		
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>S3Impl</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>		
+	
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>TestAttrImpl</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+			<type>bundle</type>
+			<scope>compile</scope>
+		</dependency>		
+				
 	</dependencies>
 
 </project>

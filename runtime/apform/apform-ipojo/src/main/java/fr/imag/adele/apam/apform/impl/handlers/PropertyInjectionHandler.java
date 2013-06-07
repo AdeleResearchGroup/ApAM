@@ -33,9 +33,9 @@ import org.apache.felix.ipojo.parser.MethodMetadata;
 import org.apache.felix.ipojo.util.Callback;
 
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
-import fr.imag.adele.apam.apform.impl.ApformImplementationImpl;
-import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
+import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
+import fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory;
+import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
@@ -51,10 +51,10 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 	@Override
 	public void initializeComponentFactory(ComponentTypeDescription typeDesc, Element metadata) throws ConfigurationException {
 
-		if (!(getFactory() instanceof ApformImplementationImpl))
+		if (!(getFactory() instanceof ApamAtomicComponentFactory))
 			return;
 
-		ApformImplementationImpl implementation = (ApformImplementationImpl) getFactory();
+		ApamAtomicComponentFactory implementation = (ApamAtomicComponentFactory) getFactory();
 		ImplementationDeclaration declaration = implementation.getDeclaration();
 
 		if (!(declaration instanceof AtomicImplementationDeclaration))
@@ -91,10 +91,10 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 		 * assume metadata is correct.
 		 */
 
-		if (!(getFactory() instanceof ApformImplementationImpl))
+		if (!(getFactory() instanceof ApamAtomicComponentFactory))
 			return;
 
-		ApformImplementationImpl implementation = (ApformImplementationImpl) getFactory();
+		ApamAtomicComponentFactory implementation = (ApamAtomicComponentFactory) getFactory();
 		ImplementationDeclaration declaration = implementation.getDeclaration();
 
 		if (!(declaration instanceof AtomicImplementationDeclaration))
@@ -118,14 +118,14 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 	@Override
 	public Object onGet(Object pojo, String fieldName, Object currentValue) {
 
-		if (getInstanceManager().getApamInstance() == null) {
+		if (getInstanceManager().getApamComponent() == null) {
 			return currentValue;
 		}
 		
-    	if (!(getFactory() instanceof ApformImplementationImpl))
+    	if (!(getFactory() instanceof ApamAtomicComponentFactory))
     		return currentValue;
 
-    	ApformImplementationImpl implementation	= (ApformImplementationImpl) getFactory();
+    	ApamAtomicComponentFactory implementation	= (ApamAtomicComponentFactory) getFactory();
     	ImplementationDeclaration declaration		= implementation.getDeclaration();
     	
     	if (! (declaration instanceof AtomicImplementationDeclaration))
@@ -137,7 +137,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
     		if (definition.getField() != null && definition.getField().equals(fieldName) ) {
     			
     			String property		= definition.getName();
-    			Instance instance 	= getInstanceManager().getApamInstance();
+    			Instance instance 	= getInstanceManager().getApamComponent();
  
     			/*
     			 * For primitive property fields, always return the APAM value that is already of the
@@ -256,14 +256,14 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 	@Override
 	public void onSet(Object pojo, String fieldName, Object newValue) {
 
-		if (getInstanceManager().getApamInstance() == null) {
+		if (getInstanceManager().getApamComponent() == null) {
 			return;
 		}
 
-    	if (!(getFactory() instanceof ApformImplementationImpl))
+    	if (!(getFactory() instanceof ApamAtomicComponentFactory))
     		return;
 
-    	ApformImplementationImpl implementation	= (ApformImplementationImpl) getFactory();
+    	ApamAtomicComponentFactory implementation	= (ApamAtomicComponentFactory) getFactory();
     	ImplementationDeclaration declaration	= implementation.getDeclaration();
     	
     	if (! (declaration instanceof AtomicImplementationDeclaration))
@@ -275,7 +275,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
     		if (definition.getField() != null && definition.getField().equals(fieldName)) {
     			
     			String property		= definition.getName();
-    			Instance instance 	= getInstanceManager().getApamInstance();
+    			Instance instance 	= getInstanceManager().getApamComponent();
 
     			/*
     			 * For non-internal multi-valued property fields, modification is not allowed
@@ -346,8 +346,8 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 		public Element getHandlerInfo() {
 			Element root = super.getHandlerInfo();
 
-			if (propertyHandler.getInstanceManager() instanceof ApformInstanceImpl) {
-				ApformInstanceImpl instance = (ApformInstanceImpl) propertyHandler.getInstanceManager();
+			if (propertyHandler.getInstanceManager() instanceof ApamInstanceManager) {
+				ApamInstanceManager instance = (ApamInstanceManager) propertyHandler.getInstanceManager();
 				for (PropertyDefinition definition : instance.getFactory().getDeclaration().getPropertyDefinitions()) {
 
 					/*
@@ -359,14 +359,14 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 					String name = definition.getName();
 					String field = definition.getField();
 					String method = definition.getCallback();
-					String value = instance.getApamInstance() != null ? instance.getApamInstance().getProperty(name) : null;
+					String value = instance.getApamComponent() != null ? instance.getApamComponent().getProperty(name) : null;
 
-					Element property = new Element("property", ApformComponentImpl.APAM_NAMESPACE);
+					Element property = new Element("property", ApamComponentFactory.APAM_NAMESPACE);
 					
-					property.addAttribute(new Attribute("name",	ApformComponentImpl.APAM_NAMESPACE,  name));
-					property.addAttribute(new Attribute("field", ApformComponentImpl.APAM_NAMESPACE, field != null ? field : ""));
-					property.addAttribute(new Attribute("method",ApformComponentImpl.APAM_NAMESPACE, method != null ? method : ""));
-					property.addAttribute(new Attribute("value", ApformComponentImpl.APAM_NAMESPACE, value != null ? value : ""));
+					property.addAttribute(new Attribute("name",	ApamComponentFactory.APAM_NAMESPACE,  name));
+					property.addAttribute(new Attribute("field", ApamComponentFactory.APAM_NAMESPACE, field != null ? field : ""));
+					property.addAttribute(new Attribute("method",ApamComponentFactory.APAM_NAMESPACE, method != null ? method : ""));
+					property.addAttribute(new Attribute("value", ApamComponentFactory.APAM_NAMESPACE, value != null ? value : ""));
 
 					root.addElement(property);
 				}

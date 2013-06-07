@@ -27,19 +27,22 @@ import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
 
+import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
-import fr.imag.adele.apam.declarations.DependencyInjection;
+import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
+import fr.imag.adele.apam.declarations.RelationInjection;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 
 /**
- * This class keeps track of an APAM interface dependency, it handles the calculation of the target 
- * services based on updates to the application model.
+ * This class keeps track of an APAM interface relation, it handles the
+ * calculation of the target services based on updates to the application model.
  * 
  * @author vega
  * 
  */
-public class InterfaceInjectionManager implements DependencyInjectionManager {
+public class InterfaceInjectionManager implements RelationInjectionManager {
 
 	
 	/**
@@ -48,9 +51,9 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
 	private final Resolver				resolver;
 	
 	/**
-	 * The dependency injection managed by this dependency
+	 * The relation injection managed by this relation
 	 */
-	private final DependencyInjection 	injection;
+	private final RelationInjection		injection;
 
 	/**
 	 * The metadata of the field that must be injected
@@ -59,20 +62,21 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     private final boolean 				isCollection;
 	
     /**
-     * The list of target APAM instances of this dependency.
-     */
-    private final Set<Instance> 		targetServices;
+	 * The list of target APAM instances of this relation.
+	 */
+    private final Set<Component> 		targetServices;
 
     /**
-     * The last injected value.
-     * 
-     * This is a cached value that must be recalculated in case of update of the dependency.
-     */
+	 * The last injected value.
+	 * 
+	 * This is a cached value that must be recalculated in case of update of the
+	 * relation.
+	 */
     private Object             			injectedValue;
 
     
     
-    public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, DependencyInjection injection) throws ClassNotFoundException {
+    public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, RelationInjection injection) throws ClassNotFoundException {
         
     	assert injection.getResource() instanceof InterfaceReference;
     	
@@ -89,58 +93,66 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
          */
         
 
-        FieldMetadata field = factory.getPojoMetadata().getField(injection.getName());
-        String fieldType	= FieldMetadata.getReflectionType(field.getFieldType());
+        FieldMetadata field 		= factory.getPojoMetadata().getField(injection.getName());
+        String fieldType			= FieldMetadata.getReflectionType(field.getFieldType());
         
-        this.fieldClass 	= factory.loadClass(fieldType);
-        this.isCollection	= injection.isCollection();
-
+        this.fieldClass 			= factory.loadClass(fieldType);
+        this.isCollection			= injection.isCollection();
+ 
         /*
          * Initialize target services
          */
-        targetServices 	= new HashSet<Instance>();
-        injectedValue 	= null;
+        targetServices 				= new HashSet<Component>();
+        injectedValue 				= null;
         
     	resolver.addInjection(this);
     }
 
     /**
-     * The dependency injection associated to this manager
-     */
+	 * The relation injection associated to this manager
+	 */
     @Override
-    public DependencyInjection getDependencyInjection() {
+	public RelationInjection getRelationInjection() {
     	return injection;
     }
     
     /**
-     * Get an XML representation of the state of this dependency
-     */
-    public Element getDescription() {
+	 * Get an XML representation of the state of this relation
+	 */
+    @Override
+	public Element getDescription() {
     	
-		Element dependencyDescription = new Element("injection", ApformComponentImpl.APAM_NAMESPACE);
-		dependencyDescription.addAttribute(new Attribute("dependency", injection.getDependency().getIdentifier()));
-		dependencyDescription.addAttribute(new Attribute("target", injection.getDependency().getTarget().toString()));
-		dependencyDescription.addAttribute(new Attribute("name", injection.getName()));
-		dependencyDescription.addAttribute(new Attribute("type", injection.getResource().toString()));
-		dependencyDescription.addAttribute(new Attribute("isAggregate",	Boolean.toString(injection.isCollection())));
+		Element relationDescription = new Element("injection",
+				ApamComponentFactory.APAM_NAMESPACE);
+		relationDescription.addAttribute(new Attribute("relation", injection
+				.getRelation().getIdentifier()));
+		relationDescription.addAttribute(new Attribute("target", injection
+				.getRelation().getTarget().toString()));
+		relationDescription.addAttribute(new Attribute("name", injection
+				.getName()));
+		relationDescription.addAttribute(new Attribute("type", injection
+				.getResource().toString()));
+		relationDescription.addAttribute(new Attribute("isAggregate", Boolean
+				.toString(injection.isCollection())));
 		
 		/*
 		 * show the current state of resolution. To avoid unnecessary synchronization overhead make a copy of the
 		 * current target services and do not use directly the field that can be concurrently modified
 		 */
-		Set<Instance> resolutions = new HashSet<Instance>();
+		Set<Component> resolutions = new HashSet<Component>();
 		synchronized (this) {
 			resolutions.addAll(targetServices);
 		}
 		
-		dependencyDescription.addAttribute(new Attribute("resolved",Boolean.toString(!resolutions.isEmpty())));
-		for (Instance target : resolutions) {
-			Element bindingDescription = new Element("binding", ApformComponentImpl.APAM_NAMESPACE);
+		relationDescription.addAttribute(new Attribute("resolved", Boolean
+				.toString(!resolutions.isEmpty())));
+		for (Component target : resolutions) {
+			Element bindingDescription = new Element("binding", ApamComponentFactory.APAM_NAMESPACE);
 			bindingDescription.addAttribute(new Attribute("target", target.getName()));
-			dependencyDescription.addElement(bindingDescription);
+			relationDescription.addElement(bindingDescription);
 		}
 		
-		return dependencyDescription;
+		return relationDescription;
 	
     }
 
@@ -152,11 +164,15 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     	return true;
     }
     
-    /* (non-Javadoc)
-	 * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#addTarget(fr.imag.adele.apam.Instance)
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * fr.imag.adele.apam.apform.impl.handlers.relationInjectionManager#addTarget
+	 * (fr.imag.adele.apam.Instance)
 	 */
     @Override
-	public void addTarget(Instance target) {
+	public void addTarget(Component target) {
 
         /*
          * Add this target and invalidate cache
@@ -168,11 +184,15 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
 
     }
 
-    /* (non-Javadoc)
-	 * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#removeTarget(fr.imag.adele.apam.Instance)
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * fr.imag.adele.apam.apform.impl.handlers.relationInjectionManager#removeTarget
+	 * (fr.imag.adele.apam.Instance)
 	 */
     @Override
-	public void removeTarget(Instance target) {
+	public void removeTarget(Component target) {
 
         /*
          * Remove this target and invalidate cache
@@ -183,29 +203,8 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
         }
     }
 
-    /* (non-Javadoc)
-	 * @see fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionManager#substituteTarget(fr.imag.adele.apam.Instance, fr.imag.adele.apam.Instance)
-	 */
     @Override
-	public void substituteTarget(Instance oldTarget, Instance newTarget) {
-
-        /*
-         * substitute the target atomically and invalidate the cache
-         */
-        synchronized (this) {
-
-            if (!targetServices.contains(oldTarget))
-                return;
-
-            targetServices.remove(oldTarget);
-            targetServices.add(newTarget);
-            injectedValue = null;
-
-        }
-    }
-
- 
-    public void onSet(Object pojo, String fieldName, Object value) {
+	public void onSet(Object pojo, String fieldName, Object value) {
         /*
          * If the field is nullified we interpret this as an indication from the
          * component to release the currently bound instances and force a resolution
@@ -214,7 +213,8 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     		resolver.unresolve(this);
     }
 
-    public Object onGet(Object pojo, String fieldName, Object value) {
+    @Override
+	public Object onGet(Object pojo, String fieldName, Object value) {
     	
         synchronized (this) {
         	
@@ -225,31 +225,33 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
         		return injectedValue;
          	
          	/*
-         	 * Next handle the case in which we need to update the cached value, but the
-         	 * dependency is resolved
-         	 */
+			 * Next handle the case in which we need to update the cached value,
+			 * but the relation is resolved
+			 */
          	if (! targetServices.isEmpty()) {
             	injectedValue = getInjectedValue();
             	return injectedValue;
             }
             
             /*
-             * The worst case is when we need to resolve the dependency.
-             * 
-             * IMPORTANT notice that resolution is performed outside the synchronization block. This is 
-             * because resolution is a side-effect process that can trigger wire notifications for this
-             * dependency. These notifications can originate in other threads (for example in the cases
-             * when the resolution triggers a deployment) and that would lead to deadlocks if we keep
-             * this object locked.
-             */
+			 * The worst case is when we need to resolve the relation.
+			 * 
+			 * IMPORTANT notice that resolution is performed outside the
+			 * synchronization block. This is because resolution is a
+			 * side-effect process that can trigger wire notifications for this
+			 * relation. These notifications can originate in other threads (for
+			 * example in the cases when the resolution triggers a deployment)
+			 * and that would lead to deadlocks if we keep this object locked.
+			 */
         }
         
         /*
-         * Ask APAM to resolve the dependency. Depending on the application policies this may throw
-         * an error, or block the thread until the dependency is fulfilled, or do nothing.
-         * 
-         * Resolution has as side-effect a modification of the target services.
-         */ 
+		 * Ask APAM to resolve the relation. Depending on the application
+		 * policies this may throw an error, or block the thread until the
+		 * relation is fulfilled, or do nothing.
+		 * 
+		 * Resolution has as side-effect a modification of the target services.
+		 */ 
        	resolver.resolve(this);
  
    		/*
@@ -263,53 +265,70 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
     }
 
     /**
-     * Get the value to be injected in the field. The returned object depends on the cardinality of the dependency.
-     * 
-     * For scalar dependencies, returns directly the service object associated with the target instance. For unresolved
-     * dependencies returns null.
-     * 
-     * For aggregate dependencies, returns a collection of service objects. The kind of collection is chosen to match
-     * the declared class of the field. For unresolved dependencies returns null.
-     * 
-     * In principle the returned object should not be aliased (by keeping a reference to it or passing it in parameters
-     * to other classes), as it is potentially dynamically recalculated every time the field is accessed.
-     * 
-     * In the case of aggregate dependencies, the returned collection should be immutable, as it is calculated by APAM
-     * according to global application policies.
-     * 
-     * We suppose that components are well behaved and follow these restrictions, so we do not have a complex machinery
-     * to enforce this. This method directly return the service object or a non thread-safe mutable collection of
-     * service objects.
-     * 
-     * TODO if we want to support a less restrictive programming model (allowing aliasing), or to be more robust against
-     * bad behaved components, we should use smart proxies and collections backed up by the information in this
-     * dependency object.
-     * 
-     */
+	 * Get the value to be injected in the field. The returned object depends on
+	 * the cardinality of the relation.
+	 * 
+	 * For scalar dependencies, returns directly the service object associated
+	 * with the target instance. For unresolved dependencies returns null.
+	 * 
+	 * For aggregate dependencies, returns a collection of service objects. The
+	 * kind of collection is chosen to match the declared class of the field.
+	 * For unresolved dependencies returns null.
+	 * 
+	 * In principle the returned object should not be aliased (by keeping a
+	 * reference to it or passing it in parameters to other classes), as it is
+	 * potentially dynamically recalculated every time the field is accessed.
+	 * 
+	 * In the case of aggregate dependencies, the returned collection should be
+	 * immutable, as it is calculated by APAM according to global application
+	 * policies.
+	 * 
+	 * We suppose that components are well behaved and follow these
+	 * restrictions, so we do not have a complex machinery to enforce this. This
+	 * method directly return the service object or a non thread-safe mutable
+	 * collection of service objects.
+	 * 
+	 * TODO if we want to support a less restrictive programming model (allowing
+	 * aliasing), or to be more robust against bad behaved components, we should
+	 * use smart proxies and collections backed up by the information in this
+	 * relation object.
+	 * 
+	 */
     private final Object getInjectedValue() {
     	
     	/*
-    	 * For scalar dependencies return any of the service objects wired
+    	 * TODO change injection to better handle this new case 
     	 */
-    	if (! isCollection)
-    		return targetServices.iterator().next().getServiceObject();
+    	String injectionClass	= injection.getResource().as(InterfaceReference.class).getJavaType();
+    	boolean injectComponent = injectionClass.equals(Instance.class.getName()) ||
+    							  injectionClass.equals(Implementation.class.getName()) ||
+    							  injectionClass.equals(Specification.class.getName()) ||
+    							  injectionClass.equals(Component.class.getName()) ;
+    	
+    	/*
+    	 * For scalar dependencies return any of the target objects wired
+    	 */
+    	if (! isCollection) {
+    		Component target = targetServices.iterator().next();
+    		return injectComponent ? target : ((Instance)target).getServiceObject();
+    	}
     	
         /*
          * For arrays, we need to reflectively build a type conforming array initialized
-         * to the list of service objects
+         * to the list of target objects
          */
         if (fieldClass.isArray()) {
         	
             int index = 0;
         	Object array = Array.newInstance(fieldClass.getComponentType(),targetServices.size());
-            for (Instance targetService : targetServices) {
-            	Array.set(array, index++, targetService.getServiceObject());
+            for (Component targetService : targetServices) {
+            	Array.set(array, index++, injectComponent ? targetService :((Instance)targetService).getServiceObject() );
             }
            return array;
         }
         
         /*
-         * For collections, use an erased Object collection of the service objects, with
+         * For collections, use an erased Object collection of the target objects, with
          * the type that that better fits the class of the field
          */
         Collection<Object> serviceObjects = null;
@@ -330,10 +349,10 @@ public class InterfaceInjectionManager implements DependencyInjectionManager {
         	return null;
         
         /*
-         * fill the collection with the service objects
+         * fill the collection with the target objects
          */
-        for (Instance targetService : targetServices) {
-        	serviceObjects.add(targetService.getServiceObject());
+        for (Component targetService : targetServices) {
+        	serviceObjects.add(injectComponent ? targetService :((Instance)targetService).getServiceObject() );
         }
         
         return serviceObjects;

@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
@@ -49,7 +50,7 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.ApformSpecification;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
@@ -154,7 +155,7 @@ public class RemoteMachine implements ApformInstance {
 	}
 
 	public Resolved resolveRemote(Instance client,
-			DependencyDeclaration dependency) throws IOException {
+			RelationDeclaration dependency) throws IOException {
 		if (running.get()) {
 			
 			RemoteDependencyDeclaration remoteDep = new RemoteDependencyDeclaration(dependency,this.getURLRoot());
@@ -186,7 +187,7 @@ public class RemoteMachine implements ApformInstance {
 	}
 
 	private Instance createClientProxy(String jsondep, Instance client,
-			DependencyDeclaration dependency) throws IOException {
+			RelationDeclaration dependency) throws IOException {
 		
 		HttpURLConnection connection = null;
 		PrintWriter outWriter = null;
@@ -357,6 +358,17 @@ public class RemoteMachine implements ApformInstance {
 			return null;
 		}
 		
+		@Override
+		public boolean setLink(Component destInst, String depName) {
+			return false;
+		}
+
+		@Override
+		public boolean remLink(Component destInst, String depName) {
+			return false;
+		}
+		
+		
 	}
 
 	private static class RemoteImplementationDeclaration extends ImplementationDeclaration {
@@ -405,20 +417,15 @@ public class RemoteMachine implements ApformInstance {
 	}
 
 	@Override
-	public boolean setWire(Instance destInst, String depName) {
+	public boolean setLink(Component destInst, String depName) {
 		return false;
 	}
 
 	@Override
-	public boolean remWire(Instance destInst, String depName) {
+	public boolean remLink(Component destInst, String depName) {
 		return false;
 	}
 
-	@Override
-	public boolean substWire(Instance oldDestInst, Instance newDestInst,
-			String depName) {
-		return false;
-	}
 
 	@Override
 	public void setInst(Instance asmInstImpl) {

@@ -42,10 +42,8 @@ import org.slf4j.LoggerFactory;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.util.CoreMetadataParser;
 import fr.imag.adele.apam.util.CoreParser;
-import fr.imag.adele.apam.util.Util;
-//import org.apache.felix.ipojo.plugin.MavenReporter;
 import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
-import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
+//import org.apache.felix.ipojo.plugin.MavenReporter;
 
 /**
  * Packages an OSGi jar "iPOJO bundle" as an "APAM bundle".
@@ -53,14 +51,15 @@ import fr.imag.adele.apam.util.CoreParser.ErrorHandler.Severity;
  * @version $Rev$, $Date$
  * @extendsPlugin maven-ipojo-plugin
  * @goal apam-bundle
- * @extendsGoal ipojo-bundle 
+ * @extendsGoal ipojo-bundle
  * @phase package
- * @requiresDependencyResolution runtime
- * @description manipulate an OSGi bundle jar to include the obr.xml file and build APAM bundle
+ * @requiresrelationResolution runtime
+ * @description manipulate an OSGi bundle jar to include the obr.xml file and
+ *              build APAM bundle
  * 
  * @author ApAM Team
  */
-public class OBRGeneratorMojo extends ManipulatorMojo {
+public class OBRGeneratorMojo extends ManipulatorMojo implements ErrorHandler {
 
 
 
@@ -118,6 +117,8 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
      */
     private File baseDirectory;
 
+	private boolean parsingFailed =false;
+
 
     /**
      * Contains all classes and resources
@@ -160,20 +161,21 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
              * loop  dependencies
              */
 
-			for (Object artifact : project.getDependencyArtifacts()) {
+			for (Object artifact : project.getArtifacts()) {
 				if (artifact instanceof Artifact) {
 
-					Artifact dependency = (Artifact) artifact;
+					Artifact relation = (Artifact) artifact;
 
-					VersionRange range = dependency.getVersionRange();
+					VersionRange range = relation.getVersionRange();
 					
-					OBRGeneratorMojo.versionRange.put(dependency.getArtifactId(), range);
+					OBRGeneratorMojo.versionRange.put(relation.getArtifactId(),
+							range);
 					
 					List<ComponentDeclaration> subcomponents=getComponentFromJar(((Artifact) artifact).getFile());
 					
 					if(subcomponents!=null) dependencies.addAll(subcomponents);
 					
-                    classpathDescriptor.add(dependency.getFile());
+					classpathDescriptor.add(relation.getFile());
 				}
 			}
 
@@ -182,7 +184,7 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			if (CheckObr.getFailedChecking()) {
 				throw new MojoExecutionException("Metadata Apam compilation failed.");
 			}
-			if (Util.getFailedParsing()) {
+			if (parsingFailed) {
 				throw new MojoExecutionException("Invalid xml Apam Metadata syntax");
 			}
 
@@ -250,7 +252,10 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 			getLog().info("Parsing Apam metadata for " + jar + " - SUCCESS ");
 			Element root = ManifestMetadataParser
 			.parseHeaderMetadata(ipojoMetadata);
-			List<ComponentDeclaration> ret = Util.getComponents(root);
+			
+			CoreParser parser = new CoreMetadataParser(root);
+			List<ComponentDeclaration> ret = parser.getDeclarations(this);
+			
 			String contains = "    contains components: " ;
 			for (ComponentDeclaration comp : ret) {
 				contains += comp.getName() + " ";
@@ -265,6 +270,11 @@ public class OBRGeneratorMojo extends ManipulatorMojo {
 		return null ;
 	}
 	
+	@Override
+	public void error(Severity severity, String message) {
+		logger.error("error parsing component declaration : " + message);
+		parsingFailed  = true;
+	}
 	
 
 }

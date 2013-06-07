@@ -76,4 +76,11 @@
 		classname="fr.imag.adele.apam.test.s2Impl.S2Final" specification="S2">
 	</implementation>
 
+<!-- 	<implementation name="MotorolaZ43" specification="CapteurTemp"  -->
+<!-- 		classname="apam.test.attrImpl.MotorolaZ43" > -->
+<!-- 		<property name="unit" value="C" /> -->
+<!-- 		<property name="OS" value="Linux, Android" /> -->
+<!-- 		<definition name="rate" type="high, low, medium" value="high" /> -->
+<!-- 	</implementation> -->
+
 </apam>

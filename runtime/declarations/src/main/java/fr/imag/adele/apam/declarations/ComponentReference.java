@@ -34,7 +34,7 @@ public class ComponentReference <D extends ComponentDeclaration> extends Referen
 	 * abstraction levels (Specification, Implementation, Instance) must have unique names.
 	 */
 	private final static Namespace APAM_COMPONENT_NAMESPACE = new Namespace() {};
-	
+
 	/**
 	 * The name of the component
 	 */
@@ -44,15 +44,20 @@ public class ComponentReference <D extends ComponentDeclaration> extends Referen
 		super(APAM_COMPONENT_NAMESPACE);
 		this.name = name;
 	}
-	
-	
+
+
 	/**
 	 * The component name
 	 */
+	@Override
 	public final String getName() {
 		return name;
 	}
-	
+
+	public ComponentKind getKind() {
+		return ComponentKind.COMPONENT;
+	}
+
 	@Override
 	protected final String getIdentifier() {
 		return getName();

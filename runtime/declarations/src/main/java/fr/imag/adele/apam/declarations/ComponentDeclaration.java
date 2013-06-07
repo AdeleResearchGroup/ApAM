@@ -50,8 +50,12 @@ public abstract class ComponentDeclaration{
     /**
      * The resources required by this service
      */
-    private final Set<DependencyDeclaration> 	dependencies;
+	private final Set<RelationDeclaration> relations;
 
+    /**
+     * The predefined links of this service
+     */
+    private final Set<LinkDeclaration>	predefinedLinks;
     /**
      * The properties describing this service provider
      */
@@ -101,7 +105,8 @@ public abstract class ComponentDeclaration{
         reference			= generateReference();
         properties			= new HashMap<String,String>();
         providedResources	= new HashSet<ResourceReference>();
-        dependencies		= new HashSet<DependencyDeclaration>();
+		relations = new HashSet<RelationDeclaration>();
+        predefinedLinks		= new HashSet<LinkDeclaration>();
         definitions 		= new ArrayList<PropertyDefinition>();
     }
 
@@ -291,45 +296,53 @@ public abstract class ComponentDeclaration{
      * Check if the specified resource is provided by this component
      * 
      */
-    public boolean resolves(DependencyDeclaration dependency) {
-        return providedResources.contains(dependency.getTarget());
+	public boolean resolves(RelationDeclaration relation) {
+		return providedResources.contains(relation.getTarget());
     }
 
     /**
      * Get the declared dependencies of this component
      */
-    public Set<DependencyDeclaration> getDependencies() {
-        return dependencies;
+    public Set<RelationDeclaration> getDependencies() {
+		return relations;
     }
-
+    
     /**
-     * Get a dependency declaration by name
+     * Get the declared predefined links
      */
-    public DependencyDeclaration getDependency(String id) {
-        for (DependencyDeclaration dependency : dependencies) {
-            if (dependency.getIdentifier().equals(id))
-                return dependency;
+    public Set<LinkDeclaration> getPredefinedLinks() {
+		return predefinedLinks;
+	}
+    
+    /**
+	 * Get a relation declaration by name
+	 */
+    public RelationDeclaration getRelation(String id) {
+		for (RelationDeclaration relation : relations) {
+			if (relation.getIdentifier().equals(id))
+				return relation;
         }
 
         return null;
     }
 
     /**
-     * Get a dependency declaration by reference
-     */
-    public DependencyDeclaration getDependency(DependencyDeclaration.Reference dependency) {
-    	if (! this.getReference().equals(dependency.getDeclaringComponent()))
+	 * Get a relation declaration by reference
+	 */
+	public RelationDeclaration getRelation(
+			RelationDeclaration.Reference relation) {
+		if (!this.getReference().equals(relation.getDeclaringComponent()))
     		return null;
     	
-    	return getDependency(dependency.getIdentifier());
+		return getRelation(relation.getIdentifier());
     }
 
     /**
      * Check if this component requires the specified resource
      */
     public boolean isRequired(ResourceReference resource) {
-        for (DependencyDeclaration dependency : dependencies) {
-            if ( dependency.getTarget().equals(resource))
+		for (RelationDeclaration relation : relations) {
+			if (relation.getTarget().equals(resource))
                 return true;
         }
 
@@ -358,10 +371,11 @@ public abstract class ComponentDeclaration{
             	ret.append(nl + "      " + resRef);
             }
         }
-        if (dependencies.size() != 0) {
+		if (relations.size() != 0) {
         	ret.append(nl + "   Dependencies: \n");
-            for (DependencyDeclaration resRef : dependencies) {
-            	ret.append(resRef.printDependencyDeclaration(indent + "   ") + "\n");
+			for (RelationDeclaration resRef : relations) {
+				ret.append(resRef.printRelationDeclaration(indent + "   ")
+						+ "\n");
             }
         }
         if (properties.size() != 0) {

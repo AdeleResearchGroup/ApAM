@@ -52,7 +52,7 @@
 	<implementation name="group-a-private-component"
 		classname="fr.imag.adele.apam.pax.test.implS3.S3GroupAImpl"
 		specification="fr.imag.adele.apam.pax.test.iface.S3">
-		<dependency field="element" specification="eletronic-device-private" />
+		<dependency id="eletronic-device-private" field="element" specification="eletronic-device-private" />
 		<dependency field="c" />
 	</implementation>
 
@@ -141,20 +141,20 @@
 
 	<composite name="composite-a-fail-exception" main="group-a-private-component">
 		<contentMngt>
-			<dependency specification="eletronic-device-private" fail="exception"
+			<dependency override="true" id=".*" specification="eletronic-device-private" fail="exception"
 				exception="fr.imag.adele.apam.pax.test.implS3.FailException" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-fail-wait" main="group-a-private-component">
 		<contentMngt>
-			<dependency specification="eletronic-device-private" fail="wait" />
+			<dependency override="true" id=".*" specification="eletronic-device-private" fail="wait" />
 		</contentMngt>
 	</composite>
 
 	<composite name="composite-a-hide" main="group-a-private-component">
 		<contentMngt>
-			<dependency specification="eletronic-device-private" hide="true" />
+			<dependency override="true" id=".*" specification="eletronic-device-private" hide="true" />
 		</contentMngt>
 	</composite>
 

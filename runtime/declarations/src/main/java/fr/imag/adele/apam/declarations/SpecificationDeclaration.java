@@ -48,9 +48,9 @@ public class SpecificationDeclaration extends ComponentDeclaration {
     }
 
     @Override
-    public boolean resolves(DependencyDeclaration dependency) {
-        return	super.resolves(dependency) ||
-        		dependency.getTarget().equals(this.getReference());
+	public boolean resolves(RelationDeclaration relation) {
+		return super.resolves(relation)
+				|| relation.getTarget().equals(this.getReference());
     }
 
     @Override

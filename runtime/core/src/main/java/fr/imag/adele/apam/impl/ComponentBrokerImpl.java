@@ -14,28 +14,38 @@
  */
 package fr.imag.adele.apam.impl;
 
-import fr.imag.adele.apam.*;
-import fr.imag.adele.apam.apform.*;
-import fr.imag.adele.apam.declarations.ResolvableReference;
-import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.declarations.SpecificationDeclaration;
-import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
-import fr.imag.adele.apam.util.ApamFilter;
-//import fr.imag.adele.apam.util.ApamFilter;
-import fr.imag.adele.apam.util.ApamInstall;
-import org.apache.felix.ipojo.Pojo;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
-//import org.osgi.framework.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.felix.ipojo.Pojo;
+import org.osgi.framework.BundleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import fr.imag.adele.apam.ApamManagers;
+import fr.imag.adele.apam.CST;
+import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.ComponentBroker;
+import fr.imag.adele.apam.Composite;
+import fr.imag.adele.apam.CompositeType;
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
+import fr.imag.adele.apam.apform.Apform2Apam;
+import fr.imag.adele.apam.apform.ApformCompositeType;
+import fr.imag.adele.apam.apform.ApformImplementation;
+import fr.imag.adele.apam.apform.ApformInstance;
+import fr.imag.adele.apam.apform.ApformSpecification;
+import fr.imag.adele.apam.declarations.ResolvableReference;
+import fr.imag.adele.apam.declarations.ResourceReference;
+import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
+import fr.imag.adele.apam.util.ApamFilter;
+import fr.imag.adele.apam.util.ApamInstall;
 
 public class ComponentBrokerImpl implements ComponentBroker{
 
@@ -462,11 +472,16 @@ public class ComponentBrokerImpl implements ComponentBroker{
 
 	@Override
 	public Instance getInstService(Object service) {
+		
+		/*
+		 * If this is a Apam native component (iPOJO+APAM) then just
+		 * follow the chained references
+		 */
 		if (service instanceof Pojo) {
 			Pojo pojo = (Pojo) service;
 			if (pojo.getComponentInstance() instanceof ApformInstance) {
 				ApformInstance apform = (ApformInstance)pojo.getComponentInstance();
-				return apform.getInst();
+				return apform.getApamComponent();
 			}
 		}
 
@@ -482,34 +497,18 @@ public class ComponentBrokerImpl implements ComponentBroker{
     ///special case
 
 	/**
-	 * An special apform specification created only for those specifications that do not exist
-	 * in the Apform ipojo layer. Creates a minimal definition structure.
+	 * An special apform specification created only for those specifications that do not exist in the
+	 * Apform ipojo layer. Creates a minimal definition structure.
 	 */
-	private static class ApamOnlySpecification implements ApformSpecification {
-
-		private final SpecificationDeclaration declaration;
+	private static class ApamOnlySpecification extends BaseApformComponent<Specification,SpecificationDeclaration> implements ApformSpecification {
 
 		public ApamOnlySpecification(String name, Set<ResourceReference> resources, Map<String,String> properties) {
-			declaration = new SpecificationDeclaration(name);
+			super(new SpecificationDeclaration(name));
 			declaration.getProvidedResources().addAll(resources);
 			if (properties != null)
 				declaration.getProperties().putAll(properties);
 		}
 
-		@Override
-		public SpecificationDeclaration getDeclaration() {
-			return declaration;
-		}
-
-		@Override
-		public void setProperty (String attr, String value) {
-		}
-
-		@Override
-		public Bundle getBundle() {
-			// No bundle so far
-			return null;
-		}
 	}
 
 }

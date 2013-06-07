@@ -14,16 +14,20 @@
  */
 package fr.imag.adele.dynamic.manager;
 
+import java.util.Set;
+
+import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Resolved;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
-import fr.imag.adele.apam.declarations.ImplementationReference;
+import fr.imag.adele.apam.declarations.ComponentKind;
+import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
-import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
+import fr.imag.adele.apam.impl.CompositeImpl;
 
 /**
  * This class is used to represent the pending requests that are waiting for resolution.
@@ -33,19 +37,19 @@ import fr.imag.adele.apam.impl.ApamResolverImpl;
 public class PendingRequest {
 
 	/**
-	 * The source of the dependency
+	 * The source of the relation
 	 */
-	protected final Instance source;
+	protected final Component source;
 	
 	/**
-	 * The dependency to resolve
+	 * The relation to resolve
 	 */
-	protected final DependencyDeclaration dependency;
+	protected final Relation relation;
 
 	/**
-	 * Whether instances must be resolved
+	 * The composite in which context the resolution will be performed
 	 */
-	protected final boolean needsInstances;
+	protected final Composite context;
 	
 	/**
 	 * The resolver
@@ -55,73 +59,57 @@ public class PendingRequest {
 	/**
 	 * The result of the resolution
 	 */
-	private Resolved resolution;
+	private Resolved<?> resolution;
 
+	/**
+	 * Whether this request is being resolved in some thread
+	 */
+	private boolean isResolving = false;
+
+	/**
+	 * Whether the thread that created this request is blocked
+	 */
+	private boolean isBlocked = false;
+	
+	/**
+	 * Whether 
+	 */
 	/**
 	 * Builds a new pending request reification
 	 */
-	protected PendingRequest(ApamResolverImpl resolver, Instance source, DependencyDeclaration dependency, boolean needsInstances) {
+	protected PendingRequest(ApamResolverImpl resolver, Component source, Relation relation) {
 		this.resolver		= resolver;
+		
 		this.source			= source;
-		this.dependency		= dependency;
-		this.needsInstances	= needsInstances;
+		this.context		= (source instanceof Instance) ? ((Instance)source).getComposite() : CompositeImpl.getRootAllComposites();
+		this.relation		= relation;
+		
 		this.resolution		= null;
 	}
 	
-	public Instance getSource() {
+	public Component getSource() {
 		return source;
 	}
 	
 	/**
-	 * The dependency that needs resolution
+	 * The relation that needs resolution
 	 */
-	public DependencyDeclaration getDependency() {
-		return dependency;
+	public Relation getRelation() {
+		return relation;
 	}
 	
 	/**
 	 * The context in which the resolution is requested
 	 */
 	public Composite getContext() {
-		return source.getComposite();
+		return context;
 	}
 	
 	/**
 	 * Whether this request was resolved by the last resolution retry
 	 */
 	private boolean isResolved() {
-		
-		if (resolution == null)
-			return false;
-		
-		/*
-		 * if a matching instance was required and found, it is resolved
-		 */
-		if (needsInstances) {
-			if (resolution.instances != null && !resolution.instances.isEmpty())
-				return true;
-		}
-		
-		/*
-		 * If there is no matching implementations, it can not be resolved
-		 */
-		if (resolution.implementations == null || resolution.implementations.isEmpty())
-			return false;
-		
-		// TODO distriman: excerpt was removed due to remote instance to not have access to their implementations, was it right to remove it?
-		/*
-		 * If an instance is needed there must be at least one instantiable implementation, 
-		 * otherwise any matching implementation is valid 
-		 */
-//		boolean hasInstantiable = false;
-//		for (Implementation implementation : resolution.implementations) {
-//			if (implementation.isInstantiable()) {
-//				hasInstantiable = true;
-//				break;
-//			}
-//		}				
-		
-		return needsInstances; // ? hasInstantiable : true;
+		return resolution != null;
 	}
 	
 	/**
@@ -137,9 +125,12 @@ public class PendingRequest {
 				/*
 				 * wait for resolution
 				 */
+				
+				isBlocked = true;
 				while (!isResolved())
 					this.wait();
 				
+				isBlocked = false;
 				
 			} catch (InterruptedException ignored) {
 			}
@@ -149,7 +140,7 @@ public class PendingRequest {
 	/**
 	 * The result of the resolution
 	 */
-	public synchronized Resolved getResolution() {
+	public synchronized Resolved<?> getResolution() {
 		return resolution;
 	}
 
@@ -161,32 +152,43 @@ public class PendingRequest {
 		/*
 		 * avoid multiple concurrent resolutions
 		 */
-		if (!isResolved())
-			return;
+		synchronized (this) {
+			if (isResolving)
+				return;
+		}
 
 		/*
-		 * try to resolve
+		 * try to resolve.
+		 * 
+		 * IMPORTANT resolution is performed outside synchronization, as it may
+		 * block in case of deployment. Notice also that the result is temporary
+		 * confined to the stack before notifying pending threads.
+		 * 
 		 */
-		synchronized (this) {
-			try {
-				beginResolve();
-				resolution = resolver.resolveDependency(source, dependency, needsInstances);
-				this.notifyAll();
-			} finally {
-				endResolve();
-			}
+		
+		Resolved<?> resolverResult = null;
+		
+		try {
+			beginResolve();
+			resolverResult = resolver.resolveLink(source, relation);
+		} finally {
+			endResolve(resolverResult);
 		}
 	}
 
-	
 	private static ThreadLocal<PendingRequest> current = new ThreadLocal<PendingRequest>();
 
-	private void beginResolve() {
+	private synchronized void beginResolve() {
 		current.set(this);
+		isResolving = true;
 	}
 	
-	private void endResolve() {
+	private synchronized void endResolve(Resolved<?> resolverResult) {
+		isResolving	= false;
+		resolution	= resolverResult;
 		current.set(null);
+
+		this.notifyAll();
 	}
 	
 	/**
@@ -210,35 +212,67 @@ public class PendingRequest {
 	 * concerned with an event.
 	 */
 	public boolean isSatisfiedBy(Component candidate) {
-		
-		Implementation implementation = null;
-		
-		if (candidate instanceof Implementation)
-			implementation = (Implementation) candidate;
-		
-		if (candidate instanceof Instance)
-			implementation	= ((Instance) candidate).getImpl();
-		
-		if (implementation == null)
+
+		/*
+		 * Check visibility
+		 */
+		if (!source.canSee(candidate))
 			return false;
 		
 		/*
-		 * Validate the implementation matches the requested specification
+		 * Check if the candidate kind matches the target kind of the relation. Consider the special
+		 * case for instantiable implementations that can satisfy an instance relation
 		 */
-		boolean valid = false;
+		boolean matchKind = relation.getTargetKind().equals(candidate.getKind()) ||
+							(relation.getTargetKind().equals(ComponentKind.INSTANCE) && candidate.getKind().equals(ComponentKind.IMPLEMENTATION));
 		
-		if (dependency.getTarget() instanceof ImplementationReference<?>)
-			valid = implementation.getDeclaration().getReference().equals(dependency.getTarget());
+		if (!matchKind)
+			return false;
+		
+		/*
+		 * Check if the candidate matches the target of the relation
+		 */
+		boolean matchTarget = false;
+		
+		if (relation.getTarget() instanceof ComponentReference<?>) {
+			Component target = CST.componentBroker.getComponent(relation.getTarget().getName());
+			matchTarget = (target != null) && (target.isAncestorOf(candidate) || target.equals(candidate));
+		}
+		
+		if (relation.getTarget() instanceof ResourceReference)
+			matchTarget = candidate.getProvidedResources().contains(relation.getTarget());
 
-		if (dependency.getTarget() instanceof SpecificationReference)
-			valid = implementation.getSpec().getDeclaration().getReference().equals(dependency.getTarget());
-
-		if (dependency.getTarget() instanceof ResourceReference)
-			valid = implementation.getAllProvidedResources().contains(dependency.getTarget());
+		if (! matchTarget)
+			return false;
 		
+		/*
+		 * Special validations for target instances
+		 */
+		if (relation.getTargetKind().equals(ComponentKind.INSTANCE)) {
+			
+			boolean valid = ( (candidate instanceof Instance) && ((Instance) candidate).isSharable()) ||
+							( (candidate instanceof Implementation) && ((Implementation) candidate).isInstantiable());
+				
+			if (!valid)
+				return false;
+				
+		}
 		
-		return valid;
+		/*
+		 * If this request has blocked the creating thread we should retry the resolution to unblock it.
+		 * 
+		 * Otherwise we verify if this request has not been already resolved by this candidate ( possibly
+		 * in another thread) to avoid unnecessary resolves.
+		 */
 		
+		synchronized (this) {
+			if (this.isBlocked)
+				return true;
+		}
+		
+		Set<Component> resolutions 	= source.getLinkDests(relation.getIdentifier());
+		
+		return resolutions.isEmpty() || (relation.isMultiple() && !resolutions.contains(candidate));
 	}
 
 

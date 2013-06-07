@@ -102,7 +102,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		return CompositeImpl.rootComposite;
 	}
 
-	public static Instance getRootInstance() {
+	public static Composite getRootInstance() {
 		return CompositeImpl.rootComposite;
 	}
 
@@ -175,9 +175,13 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 			assert ! mainInst.isUsed();
 		}
 		else {
-			//Abstract composites do not have main instance
+			/*
+			 * Abstract composites do not have main instance.
+			 * 
+			 * TODO should there be a way to specify the properties of the main instance?
+			 */
 			if ((ImplementationImpl) getMainImpl() != null)
-				mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this, initialProperties);
+				mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this, null);
 		}
 
 		// If not an abstract composite
@@ -357,7 +361,7 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 		return (father == null) ? this : father.getAppliComposite();
 	}
 
-	// Composite Dependency management ===============
+	// Composite relation management ===============
 	@Override
 	public void addDepend(Composite destination) {
 		assert destination != null && !depend.contains(destination);
@@ -434,6 +438,11 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 	@Override
 	public Set<ManagerModel> getModels() {
 		return getCompType().getModels();
+	}
+
+	@Override
+	public String toString() {
+		return "COMPOSITE " + getName();
 	}
 
 }

@@ -25,7 +25,7 @@ import org.osgi.framework.Bundle;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Wire;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 
@@ -48,44 +48,44 @@ public abstract class TestUtils {
 
 				AtomicImplementationDeclaration atomicInitialInstance = (AtomicImplementationDeclaration) apamImplDecl;
 
-                for(String classname:clazz){
+				for(String classname:clazz){
 
-                    if (atomicInitialInstance.getClassName().equals(classname)) {
-                        pool.add(i);
-                    }
+					if (atomicInitialInstance.getClassName().equals(classname)) {
+						pool.add(i);
+					}
 
-                }
+				}
 			}
 		}
 
 		return pool;
 	}
-	
+
 	protected Instance auxListInstanceReferencedBy(Object instance){
-		
+
 		return CST.componentBroker.getInstService(instance);
-		
+
 	}
-	
+
 	protected List<Instance> auxListInstanceReferencedBy(String prefix,Collection instances){
-		
+
 		List<Instance> res=new ArrayList<Instance>();
-		
+
 		for(Object instance:instances){
-			
+
 			Instance i=CST.componentBroker.getInstService(instance);
-			
+
 			res.add(i);
-			
+
 			System.out.println(String.format("%sInstance name %s ( oid: %s ) ",
 					prefix, i.getName(), i.getServiceObject()));
-			
+
 		}
-		
+
 		return res;
-		
+
 	}
-	
+
 	protected void auxListInstances(String prefix) {
 		System.out.println(String.format(
 				"%s------------ Instances (Total:%d) -------------", prefix,
@@ -117,12 +117,12 @@ public abstract class TestUtils {
 
 	protected void auxDisconectWires(Instance instance) {
 
-		for (Wire wire : instance.getWires()) {
+		for (Link wire : instance.getRawLinks()) {
 
-			instance.removeWire(wire);
+			instance.removeLink(wire);
 
 		}
 
 	}
-	
+
 }

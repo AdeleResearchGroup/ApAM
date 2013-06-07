@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,14 +30,12 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.DependencyManager;
 import fr.imag.adele.apam.Implementation;
-import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.apform.ApformCompositeType;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
@@ -61,7 +58,7 @@ public class APAMImpl implements Apam {
      * 
      * This are the managers required to start the platform.
      */
-    private DependencyManager	apamMan;
+    private RelationManager	apamMan;
     private UpdateMan	updateMan;
 
     public APAMImpl(BundleContext context) {
@@ -69,8 +66,8 @@ public class APAMImpl implements Apam {
         new CST(this);
         apamMan = new ApamMan();
         updateMan = new UpdateMan();
-        ApamManagers.addDependencyManager(apamMan, -1); // -1 to be sure it is not in the main loop
-        ApamManagers.addDependencyManager(updateMan, -2); // -2 to be sure it is not in the main loop
+        ApamManagers.addRelationManager(apamMan, -1); // -1 to be sure it is not in the main loop
+        ApamManagers.addRelationManager(updateMan, -2); // -2 to be sure it is not in the main loop
         ApamManagers.addDynamicManager(updateMan); 
 		try {
 			Util.printFileToConsole(context.getBundle().getResource("logo.txt"));
@@ -207,10 +204,10 @@ public class APAMImpl implements Apam {
         return CompositeImpl.getRootComposites();
     }
 
-	public DependencyManager getApamMan() {
+	public RelationManager getApamMan() {
 		return apamMan;
 	}
-	public DependencyManager getUpdateMan() {
+	public RelationManager getUpdateMan() {
 		return updateMan;
 	}
 
@@ -218,12 +215,7 @@ public class APAMImpl implements Apam {
      * An special apform implementation created only for those composites types that do not exist
      * in the Apform ipojo layer. Creates a minimal definition structure.
      */
-    private static class ApamOnlyCompositeType implements ApformCompositeType {
-
-    	/**
-    	 * The declaration with all the information regarding this composite type
-    	 */
-       	private final CompositeDeclaration declaration;
+    private static class ApamOnlyCompositeType extends BaseApformComponent<CompositeType,CompositeDeclaration> implements ApformCompositeType {
 
        	/**
        	 * The associated models
@@ -235,28 +227,25 @@ public class APAMImpl implements Apam {
     	private int  numInstances;
  
     	public ApamOnlyCompositeType(String name, String specificationName, String mainName, Set<ManagerModel> models, Map<String,String> properties) {
-    		assert name != null && mainName != null && models != null;
     		
-    		SpecificationReference specification = ((specificationName != null)&&(!specificationName.trim().isEmpty()))? new SpecificationReference(specificationName) : null;
-    		ComponentReference<?>  mainComponent = new ComponentReference<ComponentDeclaration>(mainName);
-    		
-    		declaration = new CompositeDeclaration(name,specification, mainComponent);
+    		super(new CompositeDeclaration(name,
+    					specificationName != null && !specificationName.trim().isEmpty() ? new SpecificationReference(specificationName) : null,
+    					new ComponentReference<ComponentDeclaration>(mainName))
+    		);
     		if (properties != null)
     			declaration.getProperties().putAll(properties);
+
+    	    assert name != null && mainName != null && models != null;
+    	    
     		
     		this.models.addAll(models);
     		
     		numInstances = 0;
     	}
-    	
-    	@Override
-    	public Bundle getBundle() {
-    		return null;
-    	}
-    	
+
 		@Override
-		public CompositeDeclaration getDeclaration() {
-			return declaration;
+		public Set<ManagerModel> getModels() {
+			return models;
 		}
 
 		@Override
@@ -266,79 +255,26 @@ public class APAMImpl implements Apam {
 			return new ApamOnlyComposite(declaration.getReference(),name,initialProperties);
 		}
 
-		@Override
-		public void setProperty(String attr, String value) {
-		}
-		
-		@Override
-		public ApformSpecification getSpecification() {
-			return null;
-		}
-
-		@Override
-		public Set<ManagerModel> getModels() {
-			return models;
-		}
-
     }
  
     /**
-     * An special apform instance created only for those composites that do not exist
-     * in the Apform ipojo layer. Creates a minimal definition structure.
+     * An special apform instance created only for those composites that do not exist in
+     * the Apform ipojo layer. Creates a minimal definition structure.
      */
-    private static class ApamOnlyComposite implements ApformInstance {
+    private static class ApamOnlyComposite extends BaseApformComponent<Composite,InstanceDeclaration> implements ApformInstance {
 
-    	private final InstanceDeclaration declaration;
-    	
     	public ApamOnlyComposite(ImplementationReference<?>implementation,String name,Map<String, String> initialProperties) {
-    		declaration = new InstanceDeclaration(implementation,name,null);
+    		
+    		super(new InstanceDeclaration(implementation,name,null));
     		if (initialProperties != null)
     			declaration.getProperties().putAll(initialProperties);
     	} 
-
-    	@Override
-    	public Bundle getBundle() {
-    		return null;
-    	}
-    	
-		@Override
-		public InstanceDeclaration getDeclaration() {
-			return declaration;
-		}
-
-		@Override
-		public void setInst(Instance asmInstImpl) {
-		}
-		@Override
-		public Instance getInst() {
-			return null;
-		}
-		
-		@Override
-		public void setProperty(String attr, String value) {
-		}
-
 
 		@Override
 		public Object getServiceObject() {
 			throw new UnsupportedOperationException("method not available in application composite instance");
 		}
-
-		@Override
-		public boolean setWire(Instance destInst, String depName) {
-			throw new UnsupportedOperationException("method not available in application composite instance");
-		}
-
-		@Override
-		public boolean remWire(Instance destInst, String depName) {
-			throw new UnsupportedOperationException("method not available in application composite instance");
-		}
-
-		@Override
-		public boolean substWire(Instance oldDestInst, Instance newDestInst, String depName) {
-			throw new UnsupportedOperationException("method not available in application composite instance");
-		}
-
+    	
     } 
     
 

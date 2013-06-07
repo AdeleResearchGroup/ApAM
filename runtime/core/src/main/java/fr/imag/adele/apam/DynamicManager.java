@@ -30,7 +30,7 @@ public interface DynamicManager extends Manager {
      */
     public abstract void removedComponent(Component lostComponent);
 
-    public abstract void removedWire(Wire wire);
-    public abstract void addedWire(Wire wire);
+    public abstract void removedLink(Link wire);
+    public abstract void addedLink(Link wire);
 
 }

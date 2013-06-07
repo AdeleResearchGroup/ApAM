@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * The declaration of an instance.
  * 
- *  It can include dependency and provided declarations that override the ones in the implementation
+ *  It can include dependency and provide declarations that override the ones in the implementation
  *  
  * @author vega
  *

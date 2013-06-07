@@ -23,7 +23,7 @@
 	xmlns="org.apache.felix.ipojo" >
 
 
-	<handler classname="fr.imag.adele.apam.apform.impl.handlers.DependencyInjectionHandler" name="injection"
+	<handler classname="fr.imag.adele.apam.apform.impl.handlers.RelationInjectionHandler" name="injection"
 		namespace="fr.imag.adele.apam">
 		<requires field="wireAdmin" proxy="false" nullable="false" optional="true" />
 	</handler>

@@ -21,7 +21,6 @@
 		<dependency field="s2_inv" />
 		<property name="s5b" value="false" />
 		<property name="s5c" value="vals5c" />
-		<definition name="state" type="{1,2,3}"  />
-		
+		<definition name="state" type="{threat, emergency, normal, ok, caCraint}" field="state" />
 	</implementation>
 </apam>

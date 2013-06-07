@@ -15,12 +15,17 @@
 package fr.imag.adele.apam.declarations;
 
 /**
- * A reference to an atomic implementation
+ * A reference to a named instance
  */
 public class InstanceReference extends ComponentReference<InstanceDeclaration> {
 
 	public InstanceReference(String name) {
 		super(name);
+	}
+
+	@Override
+	public ComponentKind getKind() {
+		return ComponentKind.INSTANCE;
 	}
 
 }

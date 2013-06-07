@@ -28,7 +28,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.CompositeDeclaration;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
@@ -46,7 +46,7 @@ public class ApamRepoBuilder {
 	 */
 
 
-	private Set<SpecificationReference> bundleRequiresSpecifications = new HashSet <SpecificationReference> ();
+	private final Set<SpecificationReference> bundleRequiresSpecifications = new HashSet <SpecificationReference> ();
 
 	private static List <ComponentDeclaration> components   ;
 
@@ -242,7 +242,7 @@ public class ApamRepoBuilder {
 		//We do not generate dependencies for specification to remain lazy
 		//the spec version is mentionned in the implementations that implement that spec.
 		if (component instanceof ImplementationDeclaration) {
-			for (DependencyDeclaration dep : component.getDependencies()) {
+			for (RelationDeclaration dep : component.getDependencies()) {
 				if (dep.getTarget().as(SpecificationReference.class) != null) {
 					bundleRequiresSpecifications.add(dep.getTarget().as(SpecificationReference.class)) ;
 				}
@@ -250,7 +250,7 @@ public class ApamRepoBuilder {
 		}
 
 		// all components : checks dependencies and constraints
-		CheckObr.checkDependencies(component);
+		CheckObr.checkRelations(component);
 	}
 
 
@@ -288,10 +288,13 @@ public class ApamRepoBuilder {
 	private void generateRequire (StringBuffer obrContent, String target, String version) {
 		if (version == null) {
 			obrContent.append ( "   <require name='apam-component' filter='(name=" + target + ")' extend='false' multiple='false' optional='false'>"
-					+ " specification dependency toward " + target + "</require>\n") ;
+							+ " specification relation toward " + target
+							+ "</require>\n");
 		} else {
 			obrContent.append ( "   <require name='apam-component' filter='(&amp;(name=" + target + ")" + version + ")' extend='false' multiple='false' optional='false'>"
-					+ " specification dependency toward " + target + "</require>\n") ;
+							+ " specification relation toward "
+							+ target
+							+ "</require>\n");
 		}
 	}
 

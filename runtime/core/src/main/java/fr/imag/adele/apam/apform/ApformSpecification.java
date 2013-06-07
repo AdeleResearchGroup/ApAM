@@ -14,9 +14,16 @@
  */
 package fr.imag.adele.apam.apform;
 
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
 
 public interface ApformSpecification  extends ApformComponent {
+	
+	/**
+	 * Get the associated APAM specification
+	 */
+	public Specification getApamComponent();
+	
 	/**
 	 * Get the development model associated with the the specification
 	 */

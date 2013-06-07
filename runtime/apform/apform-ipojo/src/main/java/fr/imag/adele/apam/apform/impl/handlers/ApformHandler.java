@@ -16,8 +16,8 @@ package fr.imag.adele.apam.apform.impl.handlers;
 
 import org.apache.felix.ipojo.PrimitiveHandler;
 
-import fr.imag.adele.apam.apform.impl.ApformComponentImpl;
-import fr.imag.adele.apam.apform.impl.ApformInstanceImpl;
+import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
+import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
 
 /**
  * The base class for all iPojo handlers manipulating APAM components
@@ -29,13 +29,13 @@ public abstract class ApformHandler extends PrimitiveHandler {
 
 	
 	@Override
-	public ApformComponentImpl getFactory() {
-		return (ApformComponentImpl)super.getFactory();
+	public ApamComponentFactory getFactory() {
+		return (ApamComponentFactory)super.getFactory();
 	}
 	
 	@Override
-	public ApformInstanceImpl getInstanceManager() {
-		return (ApformInstanceImpl) super.getInstanceManager();
+	public ApamInstanceManager getInstanceManager() {
+		return (ApamInstanceManager) super.getInstanceManager();
 	}
 
 }

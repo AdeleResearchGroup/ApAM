@@ -24,9 +24,9 @@
   	<module>S5Impl</module>
   	<module>S5CompEx</module>  	
   	<module>TestAttrSpec</module>
-  	<module>TestAttrImpl</module>
+  	<module>TestAttrImpl</module> 
   	<module>TestDependency</module>
-  	<module>TestPromotion</module>
+  	<!-- <module>TestPromotion</module> -->
   	<module>TestCompile</module>
   </modules>
 

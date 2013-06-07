@@ -31,7 +31,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
 
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -55,7 +55,7 @@ public class CxfEndpointFactory {
 	public static final String PROTOCOL_NAME = "cxf";
 	public static final String ROOT_NAME = "/ws";
 
-	private final DependencyManager apamMan;
+	private final RelationManager apamMan;
 	
 	private Bus cxfbus; 
 
@@ -72,7 +72,7 @@ public class CxfEndpointFactory {
 
 	private final Map<String, Server> webservices = new HashMap<String, Server>();
 
-	public CxfEndpointFactory(DependencyManager manager) {
+	public CxfEndpointFactory(RelationManager manager) {
 		apamMan = manager;
 	}
 

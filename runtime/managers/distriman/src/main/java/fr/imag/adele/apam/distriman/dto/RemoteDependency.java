@@ -1,14 +1,14 @@
 package fr.imag.adele.apam.distriman.dto;
 
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.Dependency;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 
 
 
-public class RemoteDependency extends Dependency {
+public class RemoteDependency extends Relation {
 
-	public RemoteDependency(DependencyDeclaration dd,Component comp){
+	public RemoteDependency(RelationDeclaration dd,Component comp){
 		super(dd,comp);
 	}
 

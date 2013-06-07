@@ -34,14 +34,14 @@ import fr.imag.adele.apam.ApamManagers;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.CompositeType;
-import fr.imag.adele.apam.Dependency;
-import fr.imag.adele.apam.DependencyManager;
+import fr.imag.adele.apam.Relation;
+import fr.imag.adele.apam.RelationManager;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.ManagerModel;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.Specification;
-import fr.imag.adele.apam.declarations.DependencyDeclaration;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.distriman.client.RemoteMachine;
 import fr.imag.adele.apam.distriman.discovery.ApamDiscovery;
@@ -59,7 +59,7 @@ import fr.imag.adele.apam.distriman.provider.LocalMachine;
 @org.apache.felix.ipojo.annotations.Component(name = "Apam::Distriman::core")
 @Instantiate
 @Provides
-public class Distriman implements DependencyManager {
+public class Distriman implements RelationManager {
 
 	private static Logger logger = LoggerFactory.getLogger(Distriman.class);
 
@@ -94,7 +94,7 @@ public class Distriman implements DependencyManager {
 
 	@Override
 	public void getSelectionPath(Instance client,
-			DependencyDeclaration dependency, List<DependencyManager> selPath) {
+			RelationDeclaration dependency, List<RelationManager> selPath) {
 		selPath.add(selPath.size(), this);
 	}
 
@@ -117,7 +117,7 @@ public class Distriman implements DependencyManager {
 	 * @param client
 	 *            the instance asking for the resolution (and where to create
 	 *            implementation, if needed). Cannot be null.
-	 * @param dependency
+	 * @param relation
 	 *            a dependency declaration containing the type and name of the
 	 *            dependency target. It can be -the specification Name (new
 	 *            SpecificationReference (specName)) -an implementation name
@@ -129,7 +129,7 @@ public class Distriman implements DependencyManager {
 	 */
 	@Override
 	public Resolved resolveDependency(Instance client,
-			Dependency dependency, boolean needsInstances) {
+			Relation relation, boolean needsInstances) {
 		Resolved resolved = null;
 
 		if (!needsInstances) { // TODO distriman: should really just handle only
@@ -150,7 +150,7 @@ public class Distriman implements DependencyManager {
 				logger.info("trying to resolve in machine key {} and url {}",
 						urlForResolution, urlForResolution);
 
-				resolved = machine.resolveRemote(client, dependency);
+				resolved = machine.resolveRemote(client, relation);
 
 				if (resolved != null && resolved.instances != null
 						&& resolved.instances.size() > 0)
@@ -171,7 +171,7 @@ public class Distriman implements DependencyManager {
 			logger.info("Starting...");
 
 			
-			DependencyManager manager; //= ApamManagers.getManager(CST.APAMMAN);
+			RelationManager manager; //= ApamManagers.getManager(CST.APAMMAN);
 			
 			while(CST.componentBroker==null || (manager = ApamManagers.getManager(CST.APAMMAN))==null){
 				
@@ -199,7 +199,7 @@ public class Distriman implements DependencyManager {
 			discovery.publishLocalMachine(providerLocal);
 
 			// Add this manager to Apam
-			ApamManagers.addDependencyManager(this, DistrimanConstant.APAM_PRIORITY);
+			ApamManagers.addRelationManager(this, DistrimanConstant.APAM_PRIORITY);
 
 			logger.info("Successfully initialized");
 			
@@ -216,7 +216,7 @@ public class Distriman implements DependencyManager {
 	private void stop() {
 		logger.info("Stopping...");
 
-		ApamManagers.removeDependencyManager(this);
+		ApamManagers.removeRelationManager(this);
 
 		discovery.stop();
 
@@ -286,14 +286,14 @@ public class Distriman implements DependencyManager {
 	}
 
 	@Override
-	public Instance resolveImpl(Instance client, Implementation impl,  Dependency dep) {
+	public Instance resolveImpl(Instance client, Implementation impl,  Relation dep) {
 //			Set<String> constraints, List<String> preferences) {
 		return null; // To change body of implemented methods use File |
 						// Settings | File Templates.
 	}
 
 	@Override
-	public Set<Instance> resolveImpls(Instance client, Implementation impl, Dependency dep) {
+	public Set<Instance> resolveImpls(Instance client, Implementation impl, Relation dep) {
 //			Set<String> constraints) {
 		return null; // To change body of implemented methods use File |
 						// Settings | File Templates.

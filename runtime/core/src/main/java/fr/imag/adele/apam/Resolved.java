@@ -16,21 +16,44 @@ package fr.imag.adele.apam;
 
 import java.util.Set;
 
-public class Resolved {
+/*
+ * This object is used to return the result of a resolution, provided a relation.
+ * 
+ * If the relation is a singleton, the result (if found) must be in singletonResolved, 
+ * 		if multiple, in setResolved.
+ * 
+ * In case the target is an Instance, an that the Implementation is found but no instance is available, 
+ *      the Implementation must be provided in toInstantiate, and the other fields at null.
+ *      
+ *  In all cases, only one field is provided, others are null.
+ */
 
-	public Set<Implementation> implementations ;
-	public Set<Instance> instances ;
+public class Resolved <T extends Component> {
+	public Implementation toInstantiate ;
+	public T singletonResolved ; 
+	public Set<T> setResolved ;
 	
-	public Resolved (Set<Implementation> implementations, Set<Instance> instances ) {
-//		if (implementations == null || implementations.isEmpty())
-//			this.implementations = null ;
-//		else
-			this.implementations = implementations ;
-		
-//		if (instances == null || instances.isEmpty())
-//			this.instances = null ;
-//		else 
-			this.instances = instances ;
+	public Resolved (Set<T> setResolved) {
+		this.singletonResolved = null ;
+		this.setResolved = setResolved ;
 	}
 
+	public Resolved (T singletonResolved) {
+		this.singletonResolved = singletonResolved ;
+		this.setResolved = null ;
+	}
+
+	/*
+	 * The boolean is useless, only to make a different signature.
+	 */
+	public Resolved(Implementation impl, boolean toInstanciate) {
+		this.toInstantiate = impl;
+		this.singletonResolved = (T) null;
+		this.setResolved = null;
+	}
+	
+	
+	public boolean isEmpty () {
+		return singletonResolved == null && toInstantiate == null && (setResolved == null || setResolved.isEmpty()) ;
+	}
 }

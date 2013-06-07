@@ -85,7 +85,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
     /**
      * The list of injected fields declared for dependencies of this implementation
      */
-    private final Set<DependencyInjection>           dependencyInjections;
+    private final Set<RelationInjection>           relationInjections;
 
     /**
      * The list of injected fields declared for message producers of this implementation
@@ -104,7 +104,7 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         assert instrumentation != null;
 
         this.instrumentation = instrumentation;
-        this.dependencyInjections = new HashSet<DependencyInjection>();
+        this.relationInjections = new HashSet<RelationInjection>();
         this.producerInjections = new HashSet<MessageProducerMethodInterception>();
         this.callbacks = new HashMap<CallbackTrigger, Set<CallbackMethod>>();
     }
@@ -145,8 +145,8 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
     /**
      * The list of fields that must be injected in this implementation for handling dependencies
      */
-    public Set<DependencyInjection> getDependencyInjections() {
-        return dependencyInjections;
+    public Set<RelationInjection> getRelationInjections() {
+        return relationInjections;
     }
 
     /**
@@ -165,9 +165,9 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
             	ret = ret.append( " " + trigger + " : " + callbacks.get(trigger)) ;
             }
         }
-        if (dependencyInjections.size() != 0) {
+        if (relationInjections.size() != 0) {
         	ret = ret.append("\n    Injected fields/methods : ");
-            for (DependencyInjection injection : dependencyInjections) {
+            for (RelationInjection injection : relationInjections) {
             	ret = ret.append(" " + injection.getName());
             }
         }

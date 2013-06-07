@@ -22,20 +22,22 @@ import org.apache.felix.ipojo.IPojoFactory;
 import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.osgi.framework.Bundle;
 
+import fr.imag.adele.apam.Component;
+import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;
-import fr.imag.adele.apam.apform.ApformSpecification;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
+import fr.imag.adele.apam.impl.BaseApformComponent;
 
 /**
  * This class allow integrating legacy iPojo components in the APAM runtime
 
  *
  */
-public class ApformIPojoImplementation implements ApformImplementation {
+public class ApformIPojoImplementation extends BaseApformComponent<Implementation,ImplementationDeclaration> implements ApformImplementation {
 
 	/**
 	 * A legacy implementation declaration
@@ -65,21 +67,15 @@ public class ApformIPojoImplementation implements ApformImplementation {
 		
 	}
 	
-	
 	/**
 	 * The associated iPojo factory
 	 */
 	private final IPojoFactory factory;
 	
-	/**
-	 * The declaration of this implementation
-	 */
-	private final ImplementationDeclaration declaration;
-	
 	public ApformIPojoImplementation(IPojoFactory factory) {
-		this.factory 		= factory;
-		this.declaration	= new Declaration(factory.getName());
-		
+
+		super(new Declaration(factory.getName()));		
+
 		/*
 		 * Add the list of provided interfaces
 		 */
@@ -97,6 +93,8 @@ public class ApformIPojoImplementation implements ApformImplementation {
 				declaration.getProperties().put(property.getName(), property.getValue());
 			}
 		}
+		
+		this.factory 		= factory;
 	
 	}
 	
@@ -122,17 +120,6 @@ public class ApformIPojoImplementation implements ApformImplementation {
 		} catch (Exception cause) {
 			throw new IllegalArgumentException(cause);
 		}
-	}
-
-	@Override
-	public ApformSpecification getSpecification() {
-		return null;
-	}
-
-
-	@Override
-	public ImplementationDeclaration getDeclaration() {
-		return declaration;
 	}
 
 	@Override
