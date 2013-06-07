@@ -8,7 +8,7 @@
     </parent>
     <artifactId>apam-icasa-devices</artifactId>
     <packaging>pom</packaging>
-    <name>ApAM iCasa devices</name>
+    <name>ApAM iCasa simulated devices</name>
     <modules>
         <module>light</module>
         <module>presence</module>

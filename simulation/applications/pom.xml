@@ -6,10 +6,12 @@
         <version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+    
     <artifactId>apam-applications-icasa</artifactId>
     <name>ApAM Applications for iCASA</name>
+    
     <packaging>pom</packaging>
     <modules>
-        <module>rooms</module>
+        <module>lighten</module>
     </modules>
 </project>

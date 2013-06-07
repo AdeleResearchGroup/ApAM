@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>apam-icasa-devices</artifactId>
@@ -6,10 +7,56 @@
         <version>0.0.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>apam-icasa-light</artifactId>
-    <packaging>pom</packaging>
-    <name>ApAM iCasa light</name>
-    <modules>
-        <module>light-implem</module>
-    </modules>
+    <artifactId>icasa.simulated.light</artifactId>
+    <packaging>bundle</packaging>
+    <name>ApAM iCasa basic binary light simulation</name>
+    <dependencies>
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>apam-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fr.liglab.adele.icasa</groupId>
+            <artifactId>context.api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fr.liglab.adele.icasa</groupId>
+            <artifactId>simulator.api</artifactId>
+        </dependency>        
+        <dependency>
+            <groupId>fr.imag.adele.apam</groupId>
+            <artifactId>apam-icasa-rooms-spec</artifactId>
+		<version>0.0.2-SNAPSHOT</version>
+        </dependency>  
+	<dependency>
+	    <groupId>fr.liglab.adele.icasa</groupId>
+	    <artifactId>device.light</artifactId>
+	</dependency>
+
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Widget-Factory>Test</Widget-Factory>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>fr.imag.adele.apam</groupId>
+                <artifactId>apam-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>apam-bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
