@@ -175,9 +175,13 @@ public class CompositeImpl extends InstanceImpl implements Composite {
 			assert ! mainInst.isUsed();
 		}
 		else {
-			//Abstract composites do not have main instance
+			/*
+			 * Abstract composites do not have main instance.
+			 * 
+			 * TODO should there be a way to specify the properties of the main instance?
+			 */
 			if ((ImplementationImpl) getMainImpl() != null)
-				mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this, initialProperties);
+				mainInst = ((ImplementationImpl) getMainImpl()).instantiate(this, null);
 		}
 
 		// If not an abstract composite
