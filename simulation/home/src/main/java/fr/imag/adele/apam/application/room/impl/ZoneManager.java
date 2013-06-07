@@ -16,6 +16,7 @@ import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
 import fr.liglab.adele.icasa.location.LocatedDevice;
 import fr.liglab.adele.icasa.location.Position;
 import fr.liglab.adele.icasa.location.Zone;
@@ -43,6 +44,8 @@ public class ZoneManager implements ZoneListener {
 	@Requires(proxy = false)
 	private Apam apam;
 	
+	private Specification home;
+	
 	private final Map<Zone,Instance> rooms;
 	
 	public ZoneManager() {
@@ -63,6 +66,10 @@ public class ZoneManager implements ZoneListener {
 	@Override
 	public void zoneAdded(Zone zone) {
 
+		if (home == null) {
+			home = CST.apamResolver.findSpecByName(null, "Home");
+		}
+		
 		System.out.println("------- zone added");
 		
 		Implementation roomType	= CST.apamResolver.findImplByName(null, "Room");
@@ -74,6 +81,7 @@ public class ZoneManager implements ZoneListener {
 		}
 		
 		rooms.put(zone,room);
+		
 		System.out.println("----Zone created");
 		
 		/*
