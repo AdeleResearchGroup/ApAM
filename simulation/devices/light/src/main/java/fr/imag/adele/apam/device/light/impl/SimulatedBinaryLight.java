@@ -15,26 +15,19 @@
 package fr.imag.adele.apam.device.light.impl;
 
 
-
-
-
 import java.util.List;
 
 import fr.liglab.adele.icasa.device.light.BinaryLight;
 import fr.liglab.adele.icasa.device.util.AbstractDevice;
-import fr.liglab.adele.icasa.location.LocatedDevice;
-import fr.liglab.adele.icasa.location.Position;
 import fr.liglab.adele.icasa.location.Zone;
-import fr.liglab.adele.icasa.location.ZoneListener;
 import fr.liglab.adele.icasa.simulator.SimulatedDevice;
-import fr.liglab.adele.icasa.simulator.SimulationManager;
 
 /**
  * Implementation of a simulated Oven device.
  *
  */
 
-public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight, SimulatedDevice, ZoneListener { 
+public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight, SimulatedDevice { 
 
 	private String m_serialNumber;
 
@@ -42,10 +35,6 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
 
     private String state;
     
-    private SimulationManager manager;
-    
-    private double m_maxIlluminance;
-
     private volatile boolean m_powerStatus;
 
     protected String location;
@@ -55,15 +44,6 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
         super.setPropertyValue(SimulatedDevice.LOCATION_PROPERTY_NAME, SimulatedDevice.LOCATION_UNKNOWN);
         super.setPropertyValue(BinaryLight.BINARY_LIGHT_POWER_STATUS, false);
 		super.setPropertyValue(BinaryLight.BINARY_LIGHT_MAX_POWER_LEVEL, 100.0d);
-    }
-
-    public String getSerialNumber() {
-        return m_serialNumber;
-    }
-    
-    @Override
-    public synchronized boolean getPowerStatus() {
-        return m_powerStatus;
     }
 
     @Override
@@ -77,133 +57,52 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
         
         return m_powerStatus;
     }
-
-    /**
-     * Notify the bound simulated environment that the illuminance emitted by
-     * this light has changed.
-     *
-     * @param illuminanceDiff
-     *            the illuminance difference
-     */
-    private void notifyEnvironment(double illuminanceDiff) {
-//        m_env.lock();
-//        try {
-//            double current = m_env
-//                    .getProperty(SimulatedEnvironment.ILLUMINANCE);
-//            m_env.setProperty(SimulatedEnvironment.ILLUMINANCE, current
-//                    + illuminanceDiff);
-//        } finally {
-//            m_env.unlock();
-//        }
+    
+    @Override
+    public boolean getPowerStatus() {
+        return m_powerStatus;
     }
 
-    /**
-     * Return the illuminance currently emitted by this light, according to its
-     * state.
-     *
-     * @return the illuminance currently emitted by this light
-     */
-    private double illuminance() {
-        return m_powerStatus ? m_maxIlluminance : 0.0d;
+	@Override
+	public void turnOff() {
+		setPowerStatus(false);
+	}
+
+	@Override
+	public void turnOn() {
+		setPowerStatus(true);
+	}
+
+    public String getSerialNumber() {
+        return m_serialNumber;
     }
-
-//    public String getLocation() {
-//        return getEnvironmentId();
-//    }
-
-    /**
-     * sets the state
-     */
+    
+    @Override
     public void setState(String state) {
         this.state = state;
     }
 
-
-    /**
-     * @return the state
-     */
+    @Override
     public String getState() {
         return state;
     }
 
-
-    /**
-     * @return the fault
-     */
+    @Override
     public String getFault() {
         return fault;
     }
 
-
-    /**
-     * @param fault the fault to set
-     */
+    @Override
     public void setFault(String fault) {
         this.fault = fault;
     }
-	@Override
+
+    @Override
 	public double getMaxPowerLevel() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	protected void start() {
-		manager.addListener(this);
-	}
-
-	protected void stop() {
-		manager.removeListener(this);
-	}
-
-	@Override
-	public void zoneVariableAdded(Zone zone, String variableName) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void zoneVariableRemoved(Zone zone, String variableName) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void zoneVariableModified(Zone zone, String variableName,
-			Object oldValue) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void zoneAdded(Zone zone) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void zoneRemoved(Zone zone) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void zoneMoved(Zone zone, Position oldPosition) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void zoneResized(Zone zone) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void zoneParentModified(Zone zone, Zone oldParentZone) {
-		// TODO Auto-generated method stub
-		
-	}
-	
     @Override
 	public void enterInZones(List<Zone> zones) {
 		if (!zones.isEmpty()) {
@@ -212,17 +111,4 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
 		}
 
 	}
-
-	@Override
-	public void deviceAttached(Zone arg0, LocatedDevice arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void deviceDetached(Zone arg0, LocatedDevice arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 }

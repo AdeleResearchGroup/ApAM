@@ -1,62 +1,54 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <artifactId>apam-icasa-devices</artifactId>
-        <groupId>fr.imag.adele.apam</groupId>
-        <version>0.0.2-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-    <artifactId>icasa.simulated.light</artifactId>
-    <packaging>bundle</packaging>
-    <name>ApAM iCasa basic binary light simulation</name>
-    <dependencies>
-        <dependency>
-            <groupId>fr.imag.adele.apam</groupId>
-            <artifactId>apam-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>fr.liglab.adele.icasa</groupId>
-            <artifactId>context.api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>fr.liglab.adele.icasa</groupId>
-            <artifactId>simulator.api</artifactId>
-        </dependency>        
-        <dependency>
-            <groupId>fr.imag.adele.apam</groupId>
-            <artifactId>apam-icasa-rooms-spec</artifactId>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>apam-icasa-devices</artifactId>
+		<groupId>fr.imag.adele.apam</groupId>
 		<version>0.0.2-SNAPSHOT</version>
-        </dependency>  
-	<dependency>
-	    <groupId>fr.liglab.adele.icasa</groupId>
-	    <artifactId>device.light</artifactId>
-	</dependency>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>icasa.simulated.light</artifactId>
+	<packaging>bundle</packaging>
+	<name>ApAM iCasa basic binary light simulation</name>
 
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Widget-Factory>Test</Widget-Factory>
-                    </instructions>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>fr.imag.adele.apam</groupId>
-                <artifactId>apam-maven-plugin</artifactId>
-                <version>${project.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>apam-bundle</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+	<dependencies>
+		
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>home</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>fr.liglab.adele.icasa</groupId>
+			<artifactId>device.light</artifactId>
+		</dependency>
+
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Widget-Factory>Test</Widget-Factory>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>apam-maven-plugin</artifactId>
+				<version>${project.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>apam-bundle</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

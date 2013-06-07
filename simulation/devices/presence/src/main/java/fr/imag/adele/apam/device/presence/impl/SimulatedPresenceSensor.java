@@ -45,10 +45,16 @@ public class SimulatedPresenceSensor extends AbstractDevice implements PresenceS
 
 	protected String location;
 
+	@SuppressWarnings("unused")
+	private String m_currentPresence;
+	
 	public SimulatedPresenceSensor() {
 		super();
-        super.setPropertyValue(SimulatedDevice.LOCATION_PROPERTY_NAME, SimulatedDevice.LOCATION_UNKNOWN);
+
+		super.setPropertyValue(SimulatedDevice.LOCATION_PROPERTY_NAME, SimulatedDevice.LOCATION_UNKNOWN);
         super.setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, false);
+        
+        m_currentPresence = getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE).toString();
 	}
 	
     /**
@@ -126,6 +132,8 @@ public class SimulatedPresenceSensor extends AbstractDevice implements PresenceS
 					setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, false);
 				}
 			}
+			
+			m_currentPresence = getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE).toString();
 			
 		}
 	}
