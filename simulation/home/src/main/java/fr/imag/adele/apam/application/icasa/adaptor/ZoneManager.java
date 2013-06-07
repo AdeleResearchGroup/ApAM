@@ -1,4 +1,4 @@
-package fr.imag.adele.apam.application.room.impl;
+package fr.imag.adele.apam.application.icasa.adaptor;
 
 import java.util.Collections;
 import java.util.HashMap;
