@@ -24,7 +24,7 @@
 
 	<specification name="Zone">
 		<definition name="location" type="string" />
-		<definition name="kind" type="room,other" />
+		<definition name="hosted" type="true,false" />
 	</specification>
 
 	<composite name="Home" singleton="true">
@@ -33,13 +33,15 @@
 	
 		<contentMngt>
 		
-			<!--  TODO should we allow owning all instances without filter -->
-			<own specification="Zone" property="kind" value="room"/>
+			<!--  TODO should we allow owning all instances without a filter -->
+			<own specification="Zone" property="hosted" value="true"/>
 		</contentMngt>
 		
 	</composite>
 
 	<composite name="Room" specification="Zone" singleton="false">
+		<property name="hosted" value="true"/>
+		
 		<contentMngt>
 			
 			<!--  Automatically start the lighten application and force binding to presence sensor  -->
