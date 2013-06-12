@@ -54,7 +54,7 @@ public class ZoneManager implements ZoneListener {
 	/**
 	 * The list of iCasa zones currently represented in Apam
 	 */
-	private final Map<Zone,Instance> rooms;
+	private final Map<Zone,Instance> zones;
     
 	/**
 	 * A request to be processed by the dispatcher
@@ -81,30 +81,30 @@ public class ZoneManager implements ZoneListener {
 		@Override
 		public void run() {
 			
-			synchronized (rooms) {
+			synchronized (zones) {
 				
 				System.out.println("------- zone added");
 				
 				/*
 				 * Verify if already known in APAM, otherwise create a new instance
 				 */
-				Instance room = rooms.get(zone);
+				Instance apamZone = zones.get(zone);
 				
-				if (room != null)
+				if (apamZone != null)
 					return;
 				
 			
-				Implementation roomType	= CST.apamResolver.findImplByName(null, "Room");
-				room 					= roomType.createInstance(null, Collections.singletonMap("location",zone.getId()));
+				Implementation zoneType	= CST.apamResolver.resolveSpecByName(null,"Zone",null,null);
+				apamZone				= zoneType.createInstance(null, Collections.singletonMap("location",zone.getId()));
 			
-				if (room == null) {
+				if (apamZone == null) {
 					System.out.println("----Impossible to create zone");
 					return;
 				}
 			
-				rooms.put(zone,room);
+				zones.put(zone,apamZone);
 			
-				System.out.println("----Room created");
+				System.out.println("---- zone created");
 			
 			}
 		}
@@ -119,10 +119,10 @@ public class ZoneManager implements ZoneListener {
 		@Override
 		public void run() {
 			
-			synchronized (rooms) {
+			synchronized (zones) {
 
 				@SuppressWarnings("unused")
-				Instance room = rooms.remove(zone);
+				Instance room = zones.remove(zone);
 				
 				/*
 				 * TODO dispose Apam instance
@@ -132,7 +132,7 @@ public class ZoneManager implements ZoneListener {
 		}
 	}
 	public ZoneManager() {
-		rooms	= new HashMap<Zone, Instance>();
+		zones	= new HashMap<Zone, Instance>();
 		started	= false;
 	}
 

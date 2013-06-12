@@ -35,6 +35,7 @@
 		
 			<!--  TODO should we allow owning all instances without a filter -->
 			<own specification="Zone" property="hosted" value="true"/>
+			
 		</contentMngt>
 		
 	</composite>
