@@ -128,10 +128,58 @@ public class ContentManager  {
 	/**
 	 * Initializes the content manager
 	 */
-	public ContentManager(DynamicManagerImplementation manager, Composite composite) throws InvalidConfiguration {
+	public ContentManager(DynamicManagerImplementation manager, Composite composite) {
 		
 		this.composite		= composite;
 		this.declaration	= composite.getCompType().getCompoDeclaration();
+		
+		/*
+		 * Initialize state information
+		 */
+		
+		this.stateHolder		= null;
+		this.stateProperty		= null;
+		this.state				= null;
+		
+
+		/*
+		 * Initialize the list of dynamic dependencies
+		 */
+		dynamicDependencies	= new ArrayList<PendingRequest>();
+
+		/*
+		 * Initialize the list of waiting resolutions
+		 */
+		waitingResolutions	= new ArrayList<PendingRequest>();
+		
+		/*
+		 * Initialize the list of dynamic contains
+		 */
+		futureInstances	= new ArrayList<FutureInstance>();
+		
+		/*
+		 * Initialize ownership information
+		 */
+		owned 			= new HashMap<OwnedComponentDeclaration, Set<Instance>>();
+		granted			= new HashMap<OwnedComponentDeclaration, GrantDeclaration>();
+		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
+			owned.put(ownedDeclaration, new HashSet<Instance>());
+		
+		}
+		
+		pendingGrants	= new HashMap<GrantDeclaration, List<PendingRequest>>();
+		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
+			for (GrantDeclaration grant : ownedDeclaration.getGrants()) {
+				pendingGrants.put(grant, new ArrayList<PendingRequest>());
+			}
+		}
+		
+	}
+	
+	/**
+	 * Activates the content manager
+	 */
+	public synchronized void start() throws InvalidConfiguration  {
 		
 		/*
 		 * Initialize state information
@@ -190,22 +238,10 @@ public class ContentManager  {
 			this.state	= this.stateHolder.getProperty(this.stateProperty);
 
 		}
-
-
-		/*
-		 * Initialize the list of dynamic dependencies
-		 */
-		dynamicDependencies	= new ArrayList<PendingRequest>();
-
-		/*
-		 * Initialize the list of waiting resolutions
-		 */
-		waitingResolutions	= new ArrayList<PendingRequest>();
 		
 		/*
 		 * Initialize the list of dynamic contains
 		 */
-		futureInstances	= new ArrayList<FutureInstance>();
 		for (InstanceDeclaration instanceDeclaration : declaration.getInstanceDeclarations()) {
 			futureInstances.add(new FutureInstance(this.composite,instanceDeclaration));
 		}
@@ -213,15 +249,8 @@ public class ContentManager  {
 		/*
 		 * Initialize ownership information
 		 */
-		owned 			= new HashMap<OwnedComponentDeclaration, Set<Instance>>();
-		granted			= new HashMap<OwnedComponentDeclaration, GrantDeclaration>();
-		
+
 		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
-			
-			/*
-			 * No instances are initially owned
-			 */
-			owned.put(ownedDeclaration, new HashSet<Instance>());
 			
 			/*
 			 * Compute the current grant based on the initial state
@@ -232,17 +261,32 @@ public class ContentManager  {
 			}
 		}
 		
-		pendingGrants		= new HashMap<GrantDeclaration, List<PendingRequest>>();
-		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
-			for (GrantDeclaration grant : ownedDeclaration.getGrants()) {
-				pendingGrants.put(grant, new ArrayList<PendingRequest>());
-			}
-		}
-		
 		/*
 		 * Trigger an initial update of dynamic containment 
 		 */
 		updateContainementTriggers();
+
+	}
+	
+	/**
+	 * The composite is removed
+	 */
+	public synchronized void dispose() {
+		
+		stateHolder	= null;
+		state 		= null;
+		
+		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
+			owned.get(ownedDeclaration).clear();
+			for (GrantDeclaration grant : ownedDeclaration.getGrants()) {
+				pendingGrants.get(grant).clear();
+			}
+		}
+		
+		futureInstances.clear();
+		dynamicDependencies.clear();
+		
+		waitingResolutions.clear();
 	}
 	
 	/**
@@ -415,7 +459,7 @@ public class ContentManager  {
 	}
 	
 	/**
-	 * Updates the list of dynamic dependencies when a new component managed by this composite
+	 * Updates the list of dynamic dependencies when a new component is managed by this composite
 	 */
 	public void updateDynamicDependencies(Component component) {
 		
@@ -903,26 +947,6 @@ public class ContentManager  {
 	}
 	
 
-	/**
-	 * The composite is removed
-	 */
-	public synchronized void dispose() {
-		
-		stateHolder	= null;
-		state 		= null;
-		
-		for (OwnedComponentDeclaration ownedDeclaration : declaration.getOwnedComponents()) {
-			owned.get(ownedDeclaration).clear();
-			for (GrantDeclaration grant : ownedDeclaration.getGrants()) {
-				pendingGrants.get(grant).clear();
-			}
-		}
-		
-		futureInstances.clear();
-		dynamicDependencies.clear();
-		
-		waitingResolutions.clear();
-	}
 
 
 }

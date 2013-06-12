@@ -122,6 +122,8 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 			rootManager		= new ContentManager(this,root);
 			
 			contentManagers.put(root,rootManager);
+			rootManager.start();
+			
 		} catch (InvalidConfiguration ignored) {
 		}
 		
@@ -154,7 +156,7 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 	 * Get the manager associated to a composite
 	 */
 	private synchronized ContentManager getManager(Composite composite) {
-		return contentManagers.get(composite);
+		return composite != null ? contentManagers.get(composite) : contentManagers.get(CompositeImpl.getRootAllComposites());
 	}
 	
 	/**
@@ -222,8 +224,18 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 			
 			case WAIT : {
 				
+				/*
+				 * If a field is resolved before the owner is managed, there must be an error just fail
+				 */
+				Composite context 		= (client instanceof Instance) ? ((Instance)client).getComposite() : CompositeImpl.getRootAllComposites();
+				ContentManager manager	= getManager(context);
+				if (manager == null)
+					return null;
+				
+				/*
+				 * schedule request
+				 */
 				PendingRequest request = new PendingRequest((ApamResolverImpl)CST.apamResolver, client, relation);
-				ContentManager manager = getManager(request.getContext());
 
 				manager.addPendingRequest(request);
 				request.block();
@@ -276,6 +288,8 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 					contentManagers.put(composite,manager);
 				}
 
+				manager.start();
+
 				/*
 				 * For all the existing instances we consider the impact of the newly created composite
 				 * in ownership
@@ -295,11 +309,21 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 			}
 		}
 		
+		
+		/*
+		 * Verify that the context manager is registered in dynaman, otherwise postpone
+		 * handling of the event
+		 */
+		Composite context 			= (component instanceof Instance) ? ((Instance)component).getComposite() : CompositeImpl.getRootAllComposites();
+		ContentManager container	= getManager(context);
+		if (container == null)
+			return;
+
 		/*
 		 * Add the dynamic dependencies of the component
 		 */
-		Composite context = (component instanceof Instance) ? ((Instance)component).getComposite() : CompositeImpl.getRootAllComposites();
-		getManager(context).updateDynamicDependencies(component);
+		
+		container.updateDynamicDependencies(component);
 		
 		/*
 		 * Verify ownership of newly created instances
@@ -321,20 +345,32 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 	public void removedComponent(Component component) {
 
 		/*
+		 * Verify that the context manager is registered in dynaman, otherwise postpone
+		 * handling of the event
+		 */
+		Composite context 			= (component instanceof Instance) ? ((Instance)component).getComposite() : CompositeImpl.getRootAllComposites();
+		ContentManager container	= getManager(context);
+		if (container == null)
+			return;
+
+		/*
 		 * Remove the component from the associated content manager
 		 */
-		Composite context = (component instanceof Instance) ? ((Instance)component).getComposite() : CompositeImpl.getRootAllComposites();
-		getManager(context).removedComponent(component);
+		container.removedComponent(component);
 
 		/*
 		 * Remove a content manager when its composite is removed
 		 */
 		if (component instanceof Composite) {
+			
+			ContentManager manager = getManager((Composite)component);
+			
 			synchronized (this) {
-				ContentManager manager = contentManagers.remove(component);
-				manager.dispose();
+				contentManagers.remove(component);
 			}
-		}
+
+			manager.dispose();
+}
 		
 		
 	}
@@ -366,8 +402,9 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 		/*
 		 * If an instance attribute is modified, this may change ownership
 		 */
-		if (component instanceof Instance)
+		if (component instanceof Instance) {
 			verifyOwnership((Instance) component);
+		}
 
 		/*
 		 * Verify if this change may impact some existing pending or dynamic requests.
@@ -399,13 +436,17 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 	 */
 	private void verifyOwnership(Instance instance) {
 
-		Collection<ContentManager> managers = getManagers();
 		/*
-		 * Get the current container and owner
+		 * Verify that the current container is registered in dynaman, otherwise postpone
+		 * handling of the event
 		 */
-		ContentManager container 	= getManager(instance.getComposite());
-		ContentManager owner		= container.owns(instance) ? container : null;
+		ContentManager container = getManager(instance.getComposite());
+		if (container == null)
+			return;
 		
+		Collection<ContentManager> managers = getManagers();
+		ContentManager owner				= container.owns(instance) ? container : null;
+
 		/*
 		 * Get the list of composites requesting ownership.
 		 */

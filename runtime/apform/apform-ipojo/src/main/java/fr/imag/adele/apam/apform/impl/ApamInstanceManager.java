@@ -483,7 +483,7 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
 
 
     private void fireCallbacks(Component destInstance, String depName, Map<String, Set<Callback>> map) {
-        Set<Callback> callbacks = map.get(depName);
+        Set<Callback> callbacks = map != null ? map.get(depName) : null;
         performCallbacks(destInstance, callbacks);
     }
 

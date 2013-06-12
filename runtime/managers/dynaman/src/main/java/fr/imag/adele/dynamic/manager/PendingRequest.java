@@ -19,14 +19,15 @@ import java.util.Set;
 import fr.imag.adele.apam.CST;
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Composite;
-import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Link;
 import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.Resolved;
 import fr.imag.adele.apam.declarations.ComponentKind;
 import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.impl.ApamResolverImpl;
+import fr.imag.adele.apam.impl.ComponentImpl;
 import fr.imag.adele.apam.impl.CompositeImpl;
 
 /**
@@ -210,6 +211,9 @@ public class PendingRequest {
 	 * 
 	 * This is used as a hint to avoid unnecessarily retrying a resolution that is not
 	 * concerned with an event.
+	 * 
+	 * TODO Currently we avoid forcing a resolution that will instantiate an implementation
+	 * we should specify the expected behavior.
 	 */
 	public boolean isSatisfiedBy(Component candidate) {
 
@@ -223,8 +227,8 @@ public class PendingRequest {
 		 * Check if the candidate kind matches the target kind of the relation. Consider the special
 		 * case for instantiable implementations that can satisfy an instance relation
 		 */
-		boolean matchKind = relation.getTargetKind().equals(candidate.getKind()) ||
-							(relation.getTargetKind().equals(ComponentKind.INSTANCE) && candidate.getKind().equals(ComponentKind.IMPLEMENTATION));
+		boolean matchKind = relation.getTargetKind().equals(candidate.getKind());
+				  /*    || (relation.getTargetKind().equals(ComponentKind.INSTANCE) && candidate.getKind().equals(ComponentKind.IMPLEMENTATION)); */
 		
 		if (!matchKind)
 			return false;
@@ -250,8 +254,8 @@ public class PendingRequest {
 		 */
 		if (relation.getTargetKind().equals(ComponentKind.INSTANCE)) {
 			
-			boolean valid = ( (candidate instanceof Instance) && ((Instance) candidate).isSharable()) ||
-							( (candidate instanceof Implementation) && ((Implementation) candidate).isInstantiable());
+			boolean valid = ( (candidate instanceof Instance) && ((Instance) candidate).isSharable());
+					/* ||	( (candidate instanceof Implementation) && ((Implementation) candidate).isInstantiable()); */
 				
 			if (!valid)
 				return false;
@@ -270,9 +274,36 @@ public class PendingRequest {
 				return true;
 		}
 		
-		Set<Component> resolutions 	= source.getLinkDests(relation.getIdentifier());
+				
+		Set<Link> resolutions = ((ComponentImpl)source).getExistingLinks(relation.getIdentifier());
 		
-		return resolutions.isEmpty() || (relation.isMultiple() && !resolutions.contains(candidate));
+		/*
+		 * For single-valued relations we just verify there is some resolution
+		 */
+		if (! relation.isMultiple() )
+			return resolutions.isEmpty();
+		
+		/*
+		 * For multi-valued relations we check if the candidate is already a resolution
+		 */
+		
+		/*
+		boolean instantiatedCandidate = (relation.getTargetKind().equals(ComponentKind.INSTANCE) &&
+										candidate.getKind().equals(ComponentKind.IMPLEMENTATION));
+		*/							
+		for (Link resolution : resolutions) {
+			
+			/*
+			if (instantiatedCandidate && (resolution.getDestination() instanceof Instance) && 
+				((Instance)resolution.getDestination()).getImpl().equals(candidate) )
+				return false;
+			*/
+			if (resolution.getDestination().getKind().equals(candidate))
+				return false;
+			
+		}
+		
+		return true;
 	}
 
 

@@ -226,7 +226,7 @@ public class Apform2Apam {
   
     /**
      * A request to wait for a component outside the context of an apform event. These are temporary requests
-     * that are finished as soon as they are satified.
+     * that are finished as soon as they are satisfied.
      * 
      * @author vega
      * 
@@ -238,7 +238,7 @@ public class Apform2Apam {
 		}
 	
 		/**
-		 * Automatically finish the request when resument
+		 * Automatically finish the request when resumed
 		 */
 		@Override
 		protected void resumed() {
