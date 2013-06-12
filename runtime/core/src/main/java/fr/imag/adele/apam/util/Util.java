@@ -24,17 +24,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.felix.ipojo.metadata.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.declarations.ComponentDeclaration;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.UndefinedReference;
-import fr.imag.adele.apam.util.CoreParser.ErrorHandler;
 
 /**
  * The static Class Util provides a set of static method for the iPOJO service concrete machine.
@@ -277,7 +274,7 @@ public final class Util {
 	 * @param sourceDep the client relation we are trying to resolve.
 	 * @return
 	 */
-	public static boolean matchOverrideRelation(Component source, RelationDeclaration overDep, RelationDeclaration sourceDep) {
+	public static boolean matchOverrideRelation(Instance source, RelationDeclaration overDep, RelationDeclaration sourceDep) {
 
 		//Check if Ids are compatible
 		if (! sourceDep.getIdentifier().matches(overDep.getIdentifier()))
@@ -287,7 +284,7 @@ public final class Util {
 		Component group = source ;
 		boolean found = false ;
 		while (group != null) {
-			if (overDep.getSourceName() == null || sourceDep.getSourceName().matches(overDep.getSourceName())) {
+			if (overDep.getSourceName() == null || group.getName().matches(overDep.getSourceName())) {
 				found = true;
 				break ;
 			}
