@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <name>ApAM iCasa simulated devices</name>
     <modules>
+        <module>specifications</module>
         <module>light</module>
         <module>presence</module>
     </modules>

@@ -3,6 +3,8 @@ package fr.imag.adele.apam.application.icasa.adaptor;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.apache.felix.ipojo.annotations.Component;
 import org.apache.felix.ipojo.annotations.Instantiate;
@@ -13,10 +15,8 @@ import org.apache.felix.ipojo.annotations.Validate;
 
 import fr.imag.adele.apam.Apam;
 import fr.imag.adele.apam.CST;
-import fr.imag.adele.apam.Composite;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.Specification;
 import fr.liglab.adele.icasa.location.LocatedDevice;
 import fr.liglab.adele.icasa.location.Position;
 import fr.liglab.adele.icasa.location.Zone;
@@ -44,62 +44,147 @@ public class ZoneManager implements ZoneListener {
 	@Requires(proxy = false)
 	private Apam apam;
 	
-	private Specification home;
 	
+    /**
+     * The event executor. We use a pool of a threads to handle notification
+     * to APAM of underlying platform events, without blocking the platform thread.
+     */
+    private final Executor dispatcher = Executors.newCachedThreadPool();
+    
+	/**
+	 * The list of iCasa zones currently represented in Apam
+	 */
 	private final Map<Zone,Instance> rooms;
-	
-	public ZoneManager() {
-		rooms = new HashMap<Zone, Instance>();
+    
+	/**
+	 * A request to be processed by the dispatcher
+	 */
+	private abstract class Request implements Runnable {
+		
+		protected final Zone 	zone;
+		
+		public Request(Zone zone) {
+			this.zone = zone;
+		}
+		
 	}
 	
+	/**
+	 * A request to add a new zone
+	 */
+	private class AddRequest extends Request {
+		
+		public AddRequest(Zone zone) {
+			super(zone);
+		}
+		
+		@Override
+		public void run() {
+			
+			synchronized (rooms) {
+				
+				System.out.println("------- zone added");
+				
+				/*
+				 * Verify if already known in APAM, otherwise create a new instance
+				 */
+				Instance room = rooms.get(zone);
+				
+				if (room != null)
+					return;
+				
+			
+				Implementation roomType	= CST.apamResolver.findImplByName(null, "Room");
+				room 					= roomType.createInstance(null, Collections.singletonMap("location",zone.getId()));
+			
+				if (room == null) {
+					System.out.println("----Impossible to create zone");
+					return;
+				}
+			
+				rooms.put(zone,room);
+			
+				System.out.println("----Room created");
+			
+			}
+		}
+	}
+	
+	private class RemoveRequest extends Request {
+		
+		public RemoveRequest(Zone zone) {
+			super(zone);
+		}
+		
+		@Override
+		public void run() {
+			
+			synchronized (rooms) {
+
+				@SuppressWarnings("unused")
+				Instance room = rooms.remove(zone);
+				
+				/*
+				 * TODO dispose Apam instance
+				 */
+				System.out.println("------- zone removed");
+			}
+		}
+	}
+	public ZoneManager() {
+		rooms	= new HashMap<Zone, Instance>();
+		started	= false;
+	}
+
+	private boolean started;
+
 	@Validate
 	public void start(){
+		
+		synchronized (this) {
+			started = true;
+		}
+		
 		manager.addListener(this);
+		for (Zone zone : manager.getZones()) {
+			zoneAdded(zone);
+		}
 	}
 	
 	@Invalidate
 	public void stop(){
 		manager.removeListener(this);
-		rooms.clear();
+		for (Zone zone : manager.getZones()) {
+			zoneRemoved(zone);
+		}
+		
+		synchronized (this) {
+			started = false;
+		}
+		
+	}
+	
+	private void execute(Request request) {
+		
+		/*
+		 * ignore events while stopped
+		 */
+		synchronized (this) {
+			if (! started)
+				return;
+		}
+		
+		dispatcher.execute(request);
 	}
 	
 	@Override
 	public void zoneAdded(Zone zone) {
-
-		if (home == null) {
-			home = CST.apamResolver.findSpecByName(null, "Home");
-		}
-		
-		System.out.println("------- zone added");
-		
-		Implementation roomType	= CST.apamResolver.findImplByName(null, "Room");
-		Instance room 			= roomType.createInstance(null, Collections.singletonMap("location",zone.getId()));
-		
-		if(room == null) {
-			System.out.println("----Impossible to create zone");
-			return;
-		}
-		
-		rooms.put(zone,room);
-		
-		System.out.println("----Zone created");
-		
-		/*
-		 * Automatically start applications
-		 */
-		Implementation lightAutomation = CST.apamResolver.findImplByName(null, "BasicLightAutomation");
-		lightAutomation.createInstance((Composite)room, Collections.singletonMap("location",zone.getId()));
+		execute(this.new AddRequest(zone));
 	}
 	
 	@Override
 	public void zoneRemoved(Zone zone) {
-		/*
-		 * TODO dispose Apam instance
-		 */
-		@SuppressWarnings("unused")
-		Instance room = rooms.remove(zone);
-		
-		System.out.println("------- zone removed");
+		execute(this.new RemoveRequest(zone));
 	}
 	
 	@Override

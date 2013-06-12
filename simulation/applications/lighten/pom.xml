@@ -22,7 +22,7 @@
 
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>home</artifactId>
+			<artifactId>device.specifications</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>

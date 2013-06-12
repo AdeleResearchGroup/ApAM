@@ -6,6 +6,7 @@
 	is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY 
 	KIND, either express or implied. See the License for the specific language 
 	governing permissions and limitations under the License. -->
+
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
@@ -21,34 +22,5 @@
 		interfaces="fr.liglab.adele.icasa.device.presence.PresenceSensor">
 		<definition name="location" type="string" />
 	</specification>
-
-	<specification name="Zone">
-		<definition name="location" type="string" />
-		<definition name="kind" type="room,other" />
-	</specification>
-
-	<composite name="Home" singleton="true">
-		
-		<dependency id="rooms" implementation="Room" multiple="true" />
-	
-		<contentMngt>
-		
-			<!--  TODO should we allow owning all instances without filter -->
-			<own specification="Zone" property="kind" value="room"/>
-		</contentMngt>
-		
-	</composite>
-
-	<composite name="Room" specification="Zone" singleton="false">
-		<contentMngt>
-			
-			<!--  Automatically start the lighten application and force binding to presence sensor  -->
-			<start implementation="BasicLightAutomation" name="ligthen">
-				<property name="location" value="$$location"/>
-			</start>
-			
-			<dependency override="true" source=".*Automation" id=".*" specification="Presence" eager="true" />
-		</contentMngt>
-	</composite>
 
 </apam>
