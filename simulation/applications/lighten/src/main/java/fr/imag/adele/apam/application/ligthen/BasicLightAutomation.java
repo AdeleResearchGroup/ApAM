@@ -128,4 +128,8 @@ public class BasicLightAutomation implements DeviceListener<GenericDevice> {
 	public void devicePropertyRemoved(GenericDevice device, String propertyName) {
 	}
 
+	@Override
+	public void deviceEvent(GenericDevice device, Object event) {
+	}
+
 }

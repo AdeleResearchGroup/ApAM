@@ -31,15 +31,17 @@ public class FutureInstance {
 
 	private final Composite				owner;
 	private final Implementation 		implementation;
+	private final String				name;
 	private final Map<String,String>	properties;
 	private final List<Relation>		triggers;
-
+	
 	private boolean						isTriggered;
 
 	public FutureInstance(Composite owner, InstanceDeclaration declaration) throws InvalidConfiguration {
 
 		this.owner			= owner;
-		this.implementation = CST.apamResolver.findImplByName(owner.getMainInst(),declaration.getImplementation().getName());	
+		this.implementation = CST.apamResolver.findImplByName(owner.getMainInst(),declaration.getImplementation().getName());
+		this.name			= declaration.getName();
 		this.properties		= declaration.getProperties();
 		this.isTriggered	= false;
 
@@ -152,6 +154,8 @@ public class FutureInstance {
 			String substituted = (String)Substitute.substitute(null,property.getValue(), owner);
 			evaluatedProperties.put(property.getKey(),substituted != null ? substituted : property.getValue());
 		}
+		
+		evaluatedProperties.put("instance.name", this.name);
 		
 		/*
 		 * Try to instantiate the specified implementation.

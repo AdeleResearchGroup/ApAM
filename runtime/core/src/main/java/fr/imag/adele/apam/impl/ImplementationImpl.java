@@ -292,7 +292,7 @@ public class ImplementationImpl extends ComponentImpl implements Implementation 
 		if (this.isSingleton() && !instances.isEmpty()) {
 			throw new InvalidConfiguration("Implementation " + this + " is a singleton and an instance exists");		
 		}
-        //TODO Ce n'est pas normal de passer null a l'instanciation!!!!!
+        
 		return reify(composite,getApformImpl().createInstance(initialProperties));
 	}
 

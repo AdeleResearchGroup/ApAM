@@ -23,4 +23,24 @@
 		<definition name="location" type="string" />
 	</specification>
 
+	<specification name="SmokeDetector"
+		interfaces="fr.liglab.adele.apam.device.fire.SmokeDetector">
+		<definition name="location" type="string" />
+	</specification>
+
+	<specification name="Sprinkler"
+		interfaces="fr.liglab.adele.apam.device.fire.Sprinkler">
+		<definition name="location" type="string" />
+	</specification>
+
+	<specification name="Siren"
+		interfaces="fr.liglab.adele.apam.device.alarm.Siren">
+		<definition name="location" type="string" />
+	</specification>
+
+	<specification name="Door"
+		interfaces="fr.liglab.adele.apam.device.access.Lock">
+		<definition name="location" type="string" />
+	</specification>
+
 </apam>

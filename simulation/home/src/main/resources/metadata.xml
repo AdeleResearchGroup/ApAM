@@ -12,33 +12,41 @@
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
 
-	<specification name="Light"
-		interfaces="fr.liglab.adele.icasa.device.light.BinaryLight">
-		<definition name="location" type="string" />
-	</specification>
 
-	<specification name="Presence"
-		interfaces="fr.liglab.adele.icasa.device.presence.PresenceSensor">
-		<definition name="location" type="string" />
-	</specification>
+	<composite name="Home" singleton="true">
+
+		<dependency id="rooms" implementation="Room" multiple="true" />
+		<contentMngt>
+		
+			<own specification="Zone" property="hosted" value="true"/>
+			
+			<start implementation="SecurityDomain" name="security"/>
+
+		</contentMngt>
+		
+	</composite>
+
+	<composite name="SecurityDomain" singleton="true">
+		<contentMngt>
+			<start implementation="FireDetection" name="fire"/>
+			<start implementation="IntrusionDetection" name="intrusion"/>
+		</contentMngt>
+	</composite>
+
+	<composite name="FireDetection" singleton="true">
+		<contentMngt>
+		</contentMngt>
+	</composite>
+
+	<composite name="IntrusionDetection" singleton="true">
+		<contentMngt>
+		</contentMngt>
+	</composite>
 
 	<specification name="Zone">
 		<definition name="location" type="string" />
 		<definition name="hosted" type="true,false" />
 	</specification>
-
-	<composite name="Home" singleton="true">
-		
-		<dependency id="rooms" implementation="Room" multiple="true" />
-	
-		<contentMngt>
-		
-			<!--  TODO should we allow owning all instances without a filter -->
-			<own specification="Zone" property="hosted" value="true"/>
-			
-		</contentMngt>
-		
-	</composite>
 
 	<composite name="Room" specification="Zone" singleton="false">
 		<property name="hosted" value="true"/>

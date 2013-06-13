@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import org.apache.felix.ipojo.ComponentFactory;
-import org.apache.felix.ipojo.ComponentInstance;
 import org.apache.felix.ipojo.ConfigurationException;
 import org.apache.felix.ipojo.HandlerManager;
 import org.apache.felix.ipojo.IPojoContext;
@@ -234,7 +233,7 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
      */
     @Override
     @SuppressWarnings({ "rawtypes" })
-    public final ComponentInstance createInstance(Dictionary configuration, IPojoContext context, HandlerManager[] handlers)
+    public final ApamInstanceManager createInstance(Dictionary configuration, IPojoContext context, HandlerManager[] handlers)
             throws ConfigurationException {
 
         if (! isInstantiable())
