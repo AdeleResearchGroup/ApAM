@@ -17,17 +17,16 @@ package fr.imag.adele.apam.declarations;
 public class UndefinedReference extends ResourceReference {
 
     private final String subject;
-    
-    private final Class<?> kind;
+    private final Class<? extends ResourceReference> kind;
 
-    public UndefinedReference(String subject,Class<?> kind){
-        super("<Unavailable>");
+    public UndefinedReference(String subject,Class<? extends ResourceReference> kind){
+        super("<Unavailable type for "+kind.getSimpleName()+" "+subject+">");
         this.subject = subject;
         this.kind= kind;
     }
     
-    public Class<?> getKind(){
-        return kind;
+    public boolean isKind(Class<? extends ResourceReference> kind) {
+        return kind.isAssignableFrom(this.kind);
     }
    
     public String getSubject(){
@@ -35,6 +34,6 @@ public class UndefinedReference extends ResourceReference {
     }
        
     public String toString() {
-        return "resource UNKNOWN "+subject;
+        return "resource UNKNOWN TYPE "+subject;
     }
 }

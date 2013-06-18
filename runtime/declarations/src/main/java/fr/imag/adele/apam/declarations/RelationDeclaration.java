@@ -21,12 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-
-//import fr.imag.adele.apam.apamMavenPlugin.CheckObr;
-import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
-
 /**
  * This class represents the declaration of a required resources needed by a component, that will be resolved at
  * runtime by APAM.
@@ -36,8 +30,14 @@ import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
  */
 public class RelationDeclaration extends ConstrainedReference implements Cloneable {
 	
-//	private static Logger logger = LoggerFactory.getLogger(RelationDeclaration.class);
-
+	/**
+	 * The events associated to the runtime life-cycle of the relation
+	 */
+	public enum Event {
+		BIND,
+		UNBIND
+	}
+	
     /**
 	 * A reference to a relation declaration. Notice that relation identifiers
 	 * must be only unique in the context of their defining component
@@ -66,7 +66,7 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     /**
      * The map of list of call back methods associated to the same trigger
      */
-    protected final Map<CallbackTrigger, Set<CallbackMethod>> callbacks;
+    protected final Map<Event, Set<CallbackDeclaration>> callbacks;
 
     /**
      * The reference to this declaration
@@ -100,10 +100,11 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     
 
     /**
-	 * The list of fields that will be injected with this relation in a
-	 * primitive component
+	 * The list of instrumentation that need to be performed in the source 
+	 * primitive component to implement the semantics of this relation at
+	 * runtime. 
 	 */
-    protected final List<RelationInjection>		injections;
+    protected final List<RequirerInstrumentation>		instrumentations;
 
     /**
      * The policy to handle unresolved dependencies
@@ -171,8 +172,8 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
         this.mustHide 			= null;
         this.missingPolicy 		= null;
         this.missingException 	= null;
-        this.callbacks 			= new HashMap<CallbackTrigger, Set<CallbackMethod>>();
-        this.injections			= new ArrayList<RelationInjection>();
+        this.callbacks 			= new HashMap<Event, Set<CallbackDeclaration>>();
+        this.instrumentations	= new ArrayList<RequirerInstrumentation>();
         
     }
     
@@ -200,7 +201,7 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 //        clone.setTargetType(this.targetKind);
         
         clone.callbacks.putAll(this.callbacks);
-        clone.injections.addAll(this.injections);
+        clone.instrumentations.addAll(this.instrumentations);
         
         clone.getImplementationConstraints().addAll(this.getImplementationConstraints());
         clone.getInstanceConstraints().addAll(this.getInstanceConstraints());
@@ -258,44 +259,45 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     }
 
     
-//    public void setSourceKind(ComponentKind sourceType) {
-//		this.sourceKind = sourceType;
-//	}
-    
-    
-//    public void setTargetType(ComponentKind targetType) {
-//		this.targetKind = targetType;
-//	}
-    
     /**
 	 * The multiplicity of a relation.
 	 * 
-	 * If there are calculated from the declaration of injected fields.
-	 * 
 	 * If this is an abstract declaration in specifications or composites, it
 	 * must be explicitly defined.
+	 * 
+	 * Otherwise it is inferred from the needs of the declared instrumentation.
 	 */
     public boolean isMultiple() {
 
-        if (getInjections().isEmpty())
+        if (getInstrumentations().isEmpty())
             return isMultiple;
 
-		// If there is at least one field declared collection the relation is
-		// considered multiple
+		/*
+		 * If there is at least one instrumentation that can handle multiple
+		 * providers the relation is considered is multiple.
+		 * 
+		 * TODO currently the way messages are handled, they always support multiple
+		 * providers, and consequently this forces the relation to be multi-valued. 
+		 * This is not very intuitive so we added a special case to ignore messages.
+		 *
+		 * Perhaps we should consider the more systematic alternative of declaring a
+		 * relation multiple if all the instrumentation can handle it. But allow an
+		 * explicit override.
+		 */
         
-        boolean hasInterfaces 				= false;
-        boolean hasOneCollectionInterface 	= false;
+        boolean oneRequiredService 	= false;
+        boolean supportMultiple		= false;
         
-        for (RelationInjection injection : getInjections()) {
+        for (RequirerInstrumentation injection : getInstrumentations()) {
         	
-        	boolean isInterface = injection.getResource().as(InterfaceReference.class) != null;
-        	hasInterfaces 		= isInterface || hasInterfaces;
+        	boolean isService	= injection.getRequiredResource().as(InterfaceReference.class) != null;
+        	oneRequiredService	= isService || oneRequiredService;
         	
-            if (isInterface && injection.isCollection())
-            	hasOneCollectionInterface = true;
+            if (isService && injection.acceptMultipleProviders())
+            	supportMultiple = true;
         }
 
-        return hasInterfaces ? hasOneCollectionInterface : isMultiple;
+        return oneRequiredService ? supportMultiple : isMultiple;
     }
 
     /**
@@ -354,10 +356,10 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
     }
 
     /**
-	 * Get the injections associated to this relation declaration
+	 * Get the instrumentations associated to this relation declaration
 	 */
-    public List<RelationInjection> getInjections() {
-        return injections;
+    public List<RequirerInstrumentation> getInstrumentations() {
+        return instrumentations;
     }
 
     @Override
@@ -371,23 +373,23 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 				+ getTarget().getName());
     
         
-        if (!injections.isEmpty()) {
+        if (!instrumentations.isEmpty()) {
             // ret += "\n         Injected dependencies";
-            for (RelationInjection inj : injections) {
+            for (RequirerInstrumentation inj : instrumentations) {
             	ret.append ("   " + inj);
             }
         }
 
-        if (getCallback(CallbackTrigger.Bind)!=null && !getCallback(CallbackTrigger.Bind).isEmpty()) {
+        if (getCallback(Event.BIND)!= null && !getCallback(Event.BIND).isEmpty()) {
         	ret.append ("\n         added");
-            for (CallbackMethod inj : getCallback(CallbackTrigger.Bind)) {
+            for (CallbackDeclaration inj : getCallback(Event.BIND)) {
             	ret.append ("\n            " + inj.methodName);
             }
         }
         
-        if (getCallback(CallbackTrigger.Unbind)!=null && !getCallback(CallbackTrigger.Unbind).isEmpty()) {
+        if (getCallback(Event.UNBIND)!=null && !getCallback(Event.UNBIND).isEmpty()) {
         	ret.append ("\n         removed");
-            for (CallbackMethod inj : getCallback(CallbackTrigger.Unbind)) {
+            for (CallbackDeclaration inj : getCallback(Event.UNBIND)) {
             	ret.append ("\n            " + inj.methodName);
             }
         }
@@ -420,15 +422,15 @@ public class RelationDeclaration extends ConstrainedReference implements Cloneab
 
     }
 
-    public void addCallback(CallbackMethod callback) {
-        if (callbacks.get(callback.trigger) == null) {
-            callbacks.put(callback.trigger, new HashSet<CallbackMethod>());
+    public void addCallback(Event trigger, CallbackDeclaration callback) {
+        if (callbacks.get(trigger) == null) {
+            callbacks.put(trigger, new HashSet<CallbackDeclaration>());
         }
-        callbacks.get(callback.trigger).add(callback);
+        callbacks.get(trigger).add(callback);
 
     }
 
-    public Set<CallbackMethod> getCallback(CallbackTrigger trigger) {
+    public Set<CallbackDeclaration> getCallback(Event trigger) {
         return callbacks.get(trigger);
     }
 

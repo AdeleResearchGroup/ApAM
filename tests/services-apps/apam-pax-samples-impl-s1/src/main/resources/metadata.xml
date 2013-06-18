@@ -163,8 +163,7 @@
 	<implementation name="PropertyChangeNotification"
 		classname="fr.imag.adele.apam.pax.test.impl.deviceSwitch.PropertyChangeNotificationSwitch"
 		specification="eletronic-device">
-		<definition field="state" name="state" type="string"
-			method="stateChanged" />
+		<definition field="state" name="state" type="string" value="toto" method="stateChanged" />
 	</implementation>
 
 	<implementation name="LgSwitch"

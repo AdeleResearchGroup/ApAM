@@ -22,7 +22,6 @@ import org.apache.felix.ipojo.IPojoFactory;
 import org.apache.felix.ipojo.architecture.PropertyDescription;
 import org.osgi.framework.Bundle;
 
-import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.apform.ApformImplementation;
 import fr.imag.adele.apam.apform.ApformInstance;

@@ -22,13 +22,13 @@ public class PropertyChangeNotificationSwitch extends GenericSwitch implements E
 
 	String state="old value";
 	
-	Integer stateChangedCalledCounter=0;
+	int stateChangedCalledCounter=0;
 
-	public Integer getStateChangedCounter() {
+	public int getStateChangedCounter() {
 		return stateChangedCalledCounter;
 	}
 
-	public void setStateChangedCalledCounter(Integer stateChangedCalledCounter) {
+	public void setStateChangedCalledCounter(int stateChangedCalledCounter) {
 		this.stateChangedCalledCounter = stateChangedCalledCounter;
 	}
 

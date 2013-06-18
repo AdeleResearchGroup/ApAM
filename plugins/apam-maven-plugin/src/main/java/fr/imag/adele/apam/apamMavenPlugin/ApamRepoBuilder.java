@@ -169,9 +169,9 @@ public class ApamRepoBuilder {
 		Set<UndefinedReference> undefinedReferences = component.getProvidedResources(UndefinedReference.class);
 
 		for (UndefinedReference undefinedReference : undefinedReferences) {
-			if (undefinedReference.getKind().isAssignableFrom(MessageReference.class)){
+			if (undefinedReference.isKind(MessageReference.class)){
 				undefinedMessages.add(undefinedReference);
-			}else if(undefinedReference.getKind().isAssignableFrom(InterfaceReference.class)){
+			}else if(undefinedReference.isKind(InterfaceReference.class)){
 				undefinedInterfaces.add(undefinedReference);
 			}
 		}

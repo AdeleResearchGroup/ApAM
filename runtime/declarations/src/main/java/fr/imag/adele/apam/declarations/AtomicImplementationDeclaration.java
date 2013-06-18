@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
-
 /**
  * This class represents the declaration of a java implementation of a service provider
  * 
@@ -30,17 +28,16 @@ import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
 public class AtomicImplementationDeclaration extends ImplementationDeclaration {
 
     /**
-     * An interface giving access to instrumentation data associated with this implementation
+     * An interface giving access to reflection data associated with this implementation
      */
-    public interface Instrumentation {
+    public interface CodeReflection {
 
         /**
          * The name of the associated java class
          */
         String getClassName();
 
-
-        /**
+       /**
          * The type of the specified java field
          */
         ResourceReference getFieldType(String fieldName) throws NoSuchFieldException;     
@@ -51,62 +48,55 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         boolean isCollectionField(String fieldName) throws NoSuchFieldException;
 
         /**
-         * The call back method specified, it return true if the method has a unique argument which is Instance
+         * The type of return of the specified java method 
          */
-        Set<?> getCallbacks(String callbackName, boolean mandatoryInstanceArgument) throws NoSuchMethodException;
+        String getMethodReturnType(String methodName, String signature) throws NoSuchMethodException;
         
         /**
-         * The type of return method specified in java call back method
+         * The type of the single argument of the specified java method
          */
-        ResourceReference getCallbackReturnType(String methodName, String type) throws NoSuchMethodException;
-        
-        /**
-         * The type of argument method specified in java call back method
-         */
-        ResourceReference getCallbackArgType(String methodName, String type) throws NoSuchMethodException;
-
-        /**
-         * The cardinality of the specified java return
-         */
-        boolean isCollectionReturn(String methodName, String type) throws NoSuchMethodException;
-
-        /**
-         * The cardinality of the specified java argument
-         */
-        boolean isCollectionArgument(String methodName, String type) throws NoSuchMethodException;
+        String getMethodArgumentType(String methodName) throws NoSuchMethodException;
 
     }
 
     /**
-     * A reference to the instrumentation data associated with this implementation
+     * A reference to the reflection data associated with this implementation
      */
-    private final Instrumentation                    instrumentation;
+    private final CodeReflection                    reflection;
 
     /**
-     * The list of injected fields declared for dependencies of this implementation
+     * The list of code instrumentation to perform for handling dependencies
      */
-    private final Set<RelationInjection>           relationInjections;
+    private final Set<RequirerInstrumentation>		requirerInstrumentations;
 
     /**
-     * The list of injected fields declared for message producers of this implementation
+     * The list of code instrumentation to perform for handling resource providing
      */
-    private final Set<MessageProducerMethodInterception> producerInjections;
+    private final Set<ProviderInstrumentation> 		providerInstrumentations;
+
+	/**
+	 * The events associated to the runtime life-cycle of the component
+	 */
+	public enum Event {
+		INIT,
+		REMOVE
+	}
 
     /**
      * The map of list of call back methods associated to the same trigger
      */
-    private Map<CallbackTrigger, Set<CallbackMethod>> callbacks;
+    private Map<Event, Set<CallbackDeclaration>> callbacks;
 
-    public AtomicImplementationDeclaration(String name, SpecificationReference specification,
-            Instrumentation instrumentation) {
+    public AtomicImplementationDeclaration(String name, SpecificationReference specification, CodeReflection reflection) {
         super(name, specification);
 
-        assert instrumentation != null;
+        assert reflection != null;
 
-        this.instrumentation = instrumentation;
-        this.relationInjections = new HashSet<RelationInjection>();
-        this.producerInjections = new HashSet<MessageProducerMethodInterception>();
-        this.callbacks = new HashMap<CallbackTrigger, Set<CallbackMethod>>();
+        this.reflection 				= reflection;
+        this.requirerInstrumentations	= new HashSet<RequirerInstrumentation>();
+        this.providerInstrumentations 	= new HashSet<ProviderInstrumentation>();
+        
+        this.callbacks 					= new HashMap<Event, Set<CallbackDeclaration>>();
     }
 
     /**
@@ -129,31 +119,31 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
     }
 
     /**
-     * The instrumentation data associated with this implementation
+     * The reflection data associated with this implementation
      */
-    public Instrumentation getInstrumentation() {
-        return instrumentation;
+    public CodeReflection getReflection() {
+        return reflection;
     }
 
     /**
      * The name of the class implementing the service provider
      */
     public String getClassName() {
-        return instrumentation.getClassName();
+        return reflection.getClassName();
     }
 
     /**
-     * The list of fields that must be injected in this implementation for handling dependencies
+     * The list of reflection to perform in this implementation for handling dependencies
      */
-    public Set<RelationInjection> getRelationInjections() {
-        return relationInjections;
+    public Set<RequirerInstrumentation> getRequirerInstrumentation() {
+        return requirerInstrumentations;
     }
 
     /**
-     * The list of method that must be intercepted in this implementation for handling message producers
+     * The list of code instrumentation to perform in this implementation for providing resources
      */
-    public Set<MessageProducerMethodInterception> getProducerInjections() {
-        return producerInjections;
+    public Set<ProviderInstrumentation> getProviderInstrumentation() {
+        return providerInstrumentations;
     }
 
     @Override
@@ -161,20 +151,20 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         StringBuffer ret = new StringBuffer();
         if (callbacks.size() != 0) {
             ret = ret.append("\n    callback methods : ");
-            for (CallbackTrigger trigger : callbacks.keySet()) {
+            for (Event trigger : callbacks.keySet()) {
             	ret = ret.append( " " + trigger + " : " + callbacks.get(trigger)) ;
             }
         }
-        if (relationInjections.size() != 0) {
+        if (requirerInstrumentations.size() != 0) {
         	ret = ret.append("\n    Injected fields/methods : ");
-            for (RelationInjection injection : relationInjections) {
+            for (RequirerInstrumentation injection : requirerInstrumentations) {
             	ret = ret.append(" " + injection.getName());
             }
         }
-        if (producerInjections.size() != 0) {
+        if (providerInstrumentations.size() != 0) {
         	ret = ret.append("\n    Intercepted message producer methods : ");
-            for (MessageProducerMethodInterception injection : producerInjections) {
-            	ret = ret.append(" " + injection.getMethoddName());
+            for (ProviderInstrumentation injection : providerInstrumentations) {
+            	ret = ret.append(" " + injection.getName());
             }
         }
 
@@ -182,15 +172,17 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         return ret.toString();
     }
 
-    public void addCallback(CallbackMethod callback) {
-       if(callbacks.get(callback.trigger)==null){ // Initialize list of call back
-           callbacks.put(callback.trigger,new HashSet<CallbackMethod>());
+    public void addCallback(Event trigger, CallbackDeclaration callback) {
+       
+    	if(callbacks.get(trigger)==null){ 
+           callbacks.put(trigger,new HashSet<CallbackDeclaration>());
        }       
-       callbacks.get(callback.trigger).add(callback);
+       
+       callbacks.get(trigger).add(callback);
         
     }
 
-    public Set<CallbackMethod> getCallback(CallbackTrigger trigger) {
+    public Set<CallbackDeclaration> getCallback(Event trigger) {
         return callbacks.get(trigger);
     }
 

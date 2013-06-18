@@ -21,7 +21,6 @@ import org.apache.felix.ipojo.InstanceManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 
-import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;

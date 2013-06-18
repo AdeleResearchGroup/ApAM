@@ -237,8 +237,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 
 		//and propagate, to the platform and to members, in case the spec has been created after the implem
-		for (String attr : getAllProperties().keySet()) {
-			propagateInit (attr, get(attr)) ;
+		for (Map.Entry<String,Object> entry : this.entrySet()) {
+			for (Component member : getMembers()) {
+				((ComponentImpl) member).propagate(entry.getKey(), entry.getValue());
+			}
 		}
 	}
 
@@ -770,25 +772,6 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		return setPropertyInt(attr, value, false);
 	}
 
-
-	/**
-	 * During initialisation, set the new (attrbute, value) in the object, in
-	 * the platform, and propagates to the members recursively. Does not notify
-	 * managers.
-	 * 
-	 * @param com
-	 *            the component to which is added the attribute.
-	 * @param attr
-	 * @param value
-	 */
-	private void propagateInit(String attr, Object value) {
-		// Notify the execution platform
-		getApformComponent().setProperty(attr, value.toString());
-		// Propagate to members recursively
-		for (Component member : getMembers()) {
-			((ComponentImpl) member).propagate(attr, value);
-		}
-	}
 
 
 	/**

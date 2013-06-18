@@ -30,12 +30,12 @@ import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.apache.felix.ipojo.parser.MethodMetadata;
-import org.apache.felix.ipojo.util.Callback;
 
 import fr.imag.adele.apam.Instance;
-import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory;
+import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
+import fr.imag.adele.apam.apform.impl.PropertyCallback;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
@@ -72,8 +72,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 			}
 
 			if (definition.getCallback() != null) {
-				MethodMetadata method = getPojoMetadata().getMethod(
-						definition.getCallback());
+				MethodMetadata method = getPojoMetadata().getMethod(definition.getCallback());
 				if (method == null)
 					throw new ConfigurationException("Invalid property definition "	+ definition.getName() + ": the specified method does not exist");
 			}
@@ -109,8 +108,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 			}
 
 			if (definition.getCallback() != null) {
-				MethodMetadata method = getPojoMetadata().getMethod(definition.getCallback());
-				getInstanceManager().addCallback(definition.getName(),new Callback(method, getInstanceManager()));
+				getInstanceManager().addCallback(new PropertyCallback(getInstanceManager(), definition));
 			}
 		}
 	}
