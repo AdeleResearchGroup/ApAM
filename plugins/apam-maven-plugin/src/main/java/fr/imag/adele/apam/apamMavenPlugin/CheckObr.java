@@ -411,7 +411,7 @@ public class CheckObr {
 	}
 	/**
 	 * Checks if the attribute / values pair is valid for the component ent. If
-	 * a final attribute, it is ignored but returns false. (cannot be set).
+	 * a final attribute, it is ignored but returns null. (cannot be set).
 	 * 
 	 * For "integer" returns an Integer object, otherwise it is the string "value"
 	 * 
@@ -631,12 +631,20 @@ public class CheckObr {
 
 		for (RelationDeclaration dep : deps) {
 
+			//Checking for predefined relations. Cannot be redefined
+			if (CST.isFinalRelation(dep.getIdentifier())) {
+				CheckObr.error("relation " + dep.getIdentifier()
+						+ " is predefined.");
+				continue ;
+			}
+			
 			// Checking for double relation Id
 			if (depIds.contains(dep.getIdentifier())) {
 				CheckObr.error("relation " + dep.getIdentifier()
 						+ " allready defined.");
-			} else
-				depIds.add(dep.getIdentifier());
+				continue ;
+			} 
+			depIds.add(dep.getIdentifier());
 
 			// validating relation constraints and preferences..
 			CheckObr.checkConstraint(component, dep);

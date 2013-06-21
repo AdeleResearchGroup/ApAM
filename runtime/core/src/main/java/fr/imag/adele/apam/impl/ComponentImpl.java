@@ -409,6 +409,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	@Override
 	public Link getLink(String relName) {
+		if (CST.isFinalRelation(relName)) {
+			if (relName.equals(CST.REL_GROUP))
+			//TODO
+		}
+		
 		Component group = this; 
 		while (group != null) {
 			for (Link link : ((ComponentImpl)group).getLocalLinks()) {
@@ -437,6 +442,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (!dep.isRelation())
 			return true;
 
+		if (CST.isFinalRelation(dep.getIdentifier())){
+			throw new IllegalArgumentException("CreateLink: cannot create predefine relation " + dep.getIdentifier());
+		}
+		
 		if ((to == null) || (dep == null)) {
 			throw new IllegalArgumentException("CreateLink: Source or target are null ");
 		}

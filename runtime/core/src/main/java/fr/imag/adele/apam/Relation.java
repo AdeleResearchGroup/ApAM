@@ -112,6 +112,7 @@ public interface Relation  {
 
 	public boolean isRelation();
 
+
 	//Ex in Util
 	public Resolved<?> getResolved(Set<? extends Component> candidates) ;
 	
