@@ -41,7 +41,7 @@ import fr.imag.adele.apam.Component;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
-import fr.imag.adele.apam.declarations.RelationInjection;
+import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.util.ApAMQueue;
@@ -53,10 +53,9 @@ import fr.imag.adele.apam.util.ApAMQueue;
  * message exchanges over APAM wires into concrete message exchanges over
  * WireAdmin wires.
  * 
- * This handler is also a field interceptor that injects itself into all fields
- * used to transparently consume messages. Fields must be declared of type
- * MessageConsumer<D>, and a reference to this handler will be down casted and
- * injected.
+ * This handler is also a field interceptor that injects a message queue 
+ * into fields to transparently consume messages. Fields must be declared of type
+ * Queue<D>.
  * 
  * This handler is also in charge of triggering lazy resolution, if data is
  * consumed and there is no producer bound to this relation. It also translates
@@ -66,7 +65,7 @@ import fr.imag.adele.apam.util.ApAMQueue;
  * @author vega
  * 
  */
-public class MessageInjectionManager implements RelationInjectionManager, Consumer {// MessageConsumer<Object>
+public class MessageInjectionManager implements RelationInjectionManager, Consumer {
 
     Logger logger  = LoggerFactory.getLogger(getClass());
     /**
@@ -87,7 +86,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     /**
 	 * The relation injection managed by this relation
 	 */
-    private final RelationInjection injection;
+    private final RequirerInstrumentation injection;
     
     /**
      * The list of target services.
@@ -140,15 +139,15 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     private ApAMQueue<Object> fieldBuffer;
     
     
-    public MessageInjectionManager(ApamComponentFactory component, ApamInstanceManager instance, RelationInjection injection) throws ConfigurationException {
+    public MessageInjectionManager(ApamComponentFactory component, ApamInstanceManager instance, RequirerInstrumentation injection) throws ConfigurationException {
         
-        assert injection.getResource() instanceof MessageReference;
+        assert injection.getRequiredResource() instanceof MessageReference;
         
         this.component  = component;
         this.instance   = instance;
         this.injection  = injection;
         
-        if (injection instanceof RelationInjection.CallbackWithArgument) {
+        if (injection instanceof RequirerInstrumentation.MessageConsumerCallback) {
             MethodMetadata callbackMetadata = null;
             String callbackParameterType    = null;
             
@@ -172,11 +171,11 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
         this.consumer       = null;
 
         try {
-            this.messageFlavors = new Class<?>[] {this.component.loadClass(injection.getResource().getJavaType())};
+            this.messageFlavors = new Class<?>[] {this.component.loadClass(injection.getRequiredResource().getJavaType())};
             this.consumerId     = NAME+"["+instance.getInstanceName()+","+injection.getRelation().getIdentifier()+","+injection.getName()+"]";
             this.wires          = new HashMap<String,Wire>();
             this.buffer         = new ArrayBlockingQueue<Object>(MAX_BUFFER_SIZE);
-            this.fieldBuffer = new ApAMQueue<Object>(buffer);
+            this.fieldBuffer	= new ApAMQueue<Object>(buffer);
         } catch (ClassNotFoundException e) {
             throw new ConfigurationException(e.getLocalizedMessage());
         }
@@ -188,7 +187,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 	 * The relation injection associated to this manager
 	 */
     @Override
-    public RelationInjection getRelationInjection() {
+    public RequirerInstrumentation getRelationInjection() {
         return injection;
     }
     
@@ -202,9 +201,9 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 		consumerDescription.addAttribute(new Attribute("relation", injection
 				.getRelation().getIdentifier()));
         consumerDescription.addAttribute(new Attribute("target", injection.getRelation().getTarget().toString()));
-        consumerDescription.addAttribute(new Attribute("field", injection.getName()));
-        consumerDescription.addAttribute(new Attribute("type", injection.getResource().toString()));
-        consumerDescription.addAttribute(new Attribute("isAggregate",   Boolean.toString(injection.isCollection())));
+        consumerDescription.addAttribute(new Attribute("method", injection.getName()));
+        consumerDescription.addAttribute(new Attribute("type", injection.getRequiredResource().toString()));
+        consumerDescription.addAttribute(new Attribute("isAggregate",   Boolean.toString(injection.acceptMultipleProviders())));
 
         /*
          * show the current state of resolution. To avoid unnecessary synchronization overhead make a copy of the
@@ -482,38 +481,5 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
 		 * notifications
 		 */
     }
-
-//    /**
-//     * Retrieves the first message in the buffer if available
-//     */
-//    @Override
-//    public Message pullMessage() {
-//        return buffer.poll();
-//    }
-//
-//    @Override
-//    public List<Message<Object>> getAllMessages() {
-//        List<Message<Object>> messages = new ArrayList<Message<Object>>(buffer.size());
-//        
-//        while (true) {
-//            Message<Object> message = buffer.poll();
-//            
-//            /*
-//             * finish if no more messages available
-//             */
-//            if (message == null)
-//                break;
-//            
-//            messages.add(message);
-//        }
-//
-//        return ! messages.isEmpty() ? messages : null;
-//    }
-//
-//    @Override
-//    public Object pull() {
-//        Message<Object> message = pullMessage();
-//        return message != null ? message.getData() : null;
-//    }
 
 }

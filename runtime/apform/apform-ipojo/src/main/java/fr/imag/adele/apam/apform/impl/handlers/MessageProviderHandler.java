@@ -28,6 +28,8 @@ import org.apache.felix.ipojo.MethodInterceptor;
 import org.apache.felix.ipojo.architecture.HandlerDescription;
 import org.apache.felix.ipojo.metadata.Attribute;
 import org.apache.felix.ipojo.metadata.Element;
+import org.apache.felix.ipojo.parser.MethodMetadata;
+import org.apache.felix.ipojo.parser.PojoMetadata;
 import org.osgi.service.wireadmin.Producer;
 import org.osgi.service.wireadmin.Wire;
 import org.osgi.service.wireadmin.WireAdmin;
@@ -37,11 +39,11 @@ import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.MessageProducerMethodInterception;
+import fr.imag.adele.apam.declarations.ProviderInstrumentation;
 import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.message.Message;
 import fr.imag.adele.apam.message.MessageProducer;
-import fr.imag.adele.apam.util.MessageReferenceExtended;
+import fr.imag.adele.apam.util.Util;
 
 
 /**
@@ -135,16 +137,60 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
     	if (! (declaration instanceof AtomicImplementationDeclaration))
     		return;
     	
+    	/*
+    	 * Register instrumentation for message push at the provider side
+    	 */
+    	PojoMetadata manipulation 					= getFactory().getPojoMetadata();
     	AtomicImplementationDeclaration primitive	= (AtomicImplementationDeclaration) declaration;
-    	for (MessageProducerMethodInterception messageMehod : primitive.getProducerInjections()) {
+    	for (ProviderInstrumentation providerInstrumentation : primitive.getProviderInstrumentation()) {
     		
-    	    MessageReferenceExtended messageReference = messageMehod.getResource().as(MessageReferenceExtended.class);
-    		
+    	    MessageReference messageReference = providerInstrumentation.getProvidedResource().as(MessageReference.class);
     		if (messageReference == null)
     			continue;
-    
-    		getInstanceManager().register(messageReference.getCallbackMetadata(),this);
-		}
+
+    		if (! (providerInstrumentation instanceof ProviderInstrumentation.MessageProviderMethodInterception))
+    			continue;
+
+    		ProviderInstrumentation.MessageProviderMethodInterception interception = 
+    				(ProviderInstrumentation.MessageProviderMethodInterception) providerInstrumentation;
+    			
+			/*
+			 * Search for the specified method to intercept, we always look for a perfect match of the 
+			 * specified signature, and do not allow ambiguous method names
+			 */
+			
+			MethodMetadata candidate = null;
+			for (MethodMetadata method :  manipulation.getMethods(interception.getMethodName())) {
+				
+				if (interception.getMethodSignature() == null) {
+					candidate = method;
+					break;
+				}
+				
+				String signature[]	= Util.split(interception.getMethodSignature());
+				String arguments[]	= method.getMethodArguments();
+				boolean match 		= (signature.length == arguments.length);
+
+				for (int i = 0; match && i < signature.length; i++) {
+					if (!signature[i].equals(arguments[i]))
+						match = false;
+				}
+				
+				match = match && method.getMethodReturn().equals(messageReference.getJavaType());
+				if (match) {
+					candidate = method;
+					break;
+				}
+			}
+    		
+			if (candidate != null) {
+				getInstanceManager().register(candidate,this);
+				continue;
+			}
+			
+			throw new ConfigurationException("Message producer intercepted methdod not found "+interception.getMethodName()+
+									"("+interception.getMethodSignature() != null ? interception.getMethodSignature(): ""+")");
+    	}
     	
     }
 
@@ -296,14 +342,6 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 		}
 	}
 
-//	/**
-//	 * Injects this handler in all abstract consumer fields 
-//	 */
-//	@Override
-//	public Object onGet(Object pojo, String fieldName, Object value) {
-//		if(wires.isEmpty()) return null;
-//		return this;
-//	}
 
 	@Override
 	public void start() {

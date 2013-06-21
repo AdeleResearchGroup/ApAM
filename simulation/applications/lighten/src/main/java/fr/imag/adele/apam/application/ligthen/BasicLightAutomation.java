@@ -30,7 +30,7 @@ import fr.liglab.adele.icasa.device.presence.PresenceSensor;
  * @author vega
  *
  */
-public class BasicLightAutomation implements DeviceListener<GenericDevice> {
+public class BasicLightAutomation implements DeviceListener {
 
 	private List<BinaryLight>	lights;
 	private PresenceSensor 		presenceSensor;
@@ -104,21 +104,21 @@ public class BasicLightAutomation implements DeviceListener<GenericDevice> {
 	@Override
 	public void deviceRemoved(GenericDevice device) {}
 
-	@Override
-	public void devicePropertyModified(GenericDevice device, String propertyName, Object oldValue, Object newValue) {
-		System.out.println("Device property from device:"+device);
-		System.out.println("Device property name modified:"+propertyName);
-		System.out.println("Device property old value modified:"+oldValue);
-		
-		if(presenceSensor != null 
-				&& device.equals(presenceSensor) 
-				&& propertyName.equals(PresenceSensor.PRESENCE_SENSOR_SENSED_PRESENCE)){
-			
-			setLightsStates(presenceSensor.getSensedPresence());
-			System.out.println("Presence sense " + propertyName);
-			
-		}
-	}
+//	@Override
+//	public void devicePropertyModified(GenericDevice device, String propertyName, Object oldValue, Object newValue) {
+//		System.out.println("Device property from device:"+device);
+//		System.out.println("Device property name modified:"+propertyName);
+//		System.out.println("Device property old value modified:"+oldValue);
+//		
+//		if(presenceSensor != null 
+//				&& device.equals(presenceSensor) 
+//				&& propertyName.equals(PresenceSensor.PRESENCE_SENSOR_SENSED_PRESENCE)){
+//			
+//			setLightsStates(presenceSensor.getSensedPresence());
+//			System.out.println("Presence sense " + propertyName);
+//			
+//		}
+//	}
 
 	@Override
 	public void devicePropertyAdded(GenericDevice device, String propertyName) {
@@ -129,7 +129,22 @@ public class BasicLightAutomation implements DeviceListener<GenericDevice> {
 	}
 
 	@Override
-	public void deviceEvent(GenericDevice device, Object event) {
+	public void devicePropertyModified(GenericDevice device, String propertyName,
+			Object newValue) {
+
+		System.out.println("Device property from device:"+device);
+		System.out.println("Device property name modified:"+propertyName);
+		//System.out.println("Device property old value modified:"+oldValue);
+		
+		if(presenceSensor != null 
+				&& device.equals(presenceSensor) 
+				&& propertyName.equals(PresenceSensor.PRESENCE_SENSOR_SENSED_PRESENCE)){
+			
+			setLightsStates(presenceSensor.getSensedPresence());
+			System.out.println("Presence sense " + propertyName);
+			
+		}
+		
 	}
 
 }

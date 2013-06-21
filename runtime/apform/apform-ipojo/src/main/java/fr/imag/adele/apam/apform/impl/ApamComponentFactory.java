@@ -45,7 +45,7 @@ import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.RelationInjection;
+import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.impl.BaseApformComponent;
 import fr.imag.adele.apam.impl.ComponentBrokerImpl;
@@ -410,12 +410,12 @@ public abstract class ApamComponentFactory extends ComponentFactory implements I
                     relationDescription.addAttribute(new Attribute("multiple", Boolean.toString(relationDeclaration.isMultiple())));
 
 
-                    Element injectionsDescription = new Element("injections", APAM_NAMESPACE);
-                    for (RelationInjection injectionDeclaration : relationDeclaration.getInjections()) {
-                        Element injectionDescription = new Element("injection", APAM_NAMESPACE);
+                    Element injectionsDescription = new Element("instrumentations", APAM_NAMESPACE);
+                    for (RequirerInstrumentation injectionDeclaration : relationDeclaration.getInstrumentations()) {
+                        Element injectionDescription = new Element("instrumentation", APAM_NAMESPACE);
                         injectionDescription.addAttribute(new Attribute("name", injectionDeclaration.getName()));
-                        injectionDescription.addAttribute(new Attribute("resource", injectionDeclaration.getResource().toString()));
-                        injectionDescription.addAttribute(new Attribute("multiple", Boolean.toString(injectionDeclaration.isCollection())));
+                        injectionDescription.addAttribute(new Attribute("resource", injectionDeclaration.getRequiredResource().toString()));
+                        injectionDescription.addAttribute(new Attribute("multiple", Boolean.toString(injectionDeclaration.acceptMultipleProviders())));
                         injectionsDescription.addElement(injectionDescription);
                     }
                     relationDescription.addElement(injectionsDescription);

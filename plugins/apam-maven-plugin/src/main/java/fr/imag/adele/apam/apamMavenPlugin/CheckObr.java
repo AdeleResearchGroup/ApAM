@@ -41,7 +41,7 @@ import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.RelationInjection;
+import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.RelationPromotion;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
@@ -607,7 +607,7 @@ public class CheckObr {
 	public static boolean checkInterfaceExist (String interf) {
 		//Checking if the interface is existing
 		//Can be "<Unavalable>" for generic collections, since it is not possible to get the type at compile time
-		if (interf == null || interf.equals("<Unavailable>")) return true ;
+		if (interf == null || interf.startsWith("<Unavailable")) return true ;
 		if (OBRGeneratorMojo.classpathDescriptor.getElementsHavingClass(interf) == null) {
 			CheckObr.error("Provided Interface " + interf + " does not exist in your Maven dependencies") ;
 			return false ;
@@ -804,7 +804,7 @@ public class CheckObr {
 
 		ComponentReference<?> targetComponent =  dep.getTarget().as(ComponentReference.class);
 
-		// If not explicit component target, it must be an interface reference
+		// If not explicit component target, it must be an interface/message reference
 		if (targetComponent == null) {
 			allowedTypes.add(dep.getTarget().as(ResourceReference.class));
 		}
@@ -825,16 +825,16 @@ public class CheckObr {
 				allowedTypes.add(new ImplementatioClassReference(implementationClass));
 		}
 
-		for (RelationInjection innerDep : dep.getInjections()) {
+		for (RequirerInstrumentation innerDep : dep.getInstrumentations()) {
 
 			if (!innerDep.isValidInstrumentation())
 				CheckObr.error(dep.getComponent().getName() + " : invalid type for field " + innerDep.getName());
 
 
-			String type = innerDep.getResource().getJavaType();
+			String type = innerDep.getRequiredResource().getJavaType();
 			if (!(type.startsWith("fr.imag.adele.apam.")) //For links
-					&& !(innerDep.getResource() instanceof UndefinedReference)
-					&& !(allowedTypes.contains(innerDep.getResource()))) {
+					&& !(innerDep.getRequiredResource() instanceof UndefinedReference)
+					&& !(allowedTypes.contains(innerDep.getRequiredResource()))) {
 				CheckObr.error("Field "
 						+ innerDep.getName()
 						+ " is of type "
@@ -843,6 +843,10 @@ public class CheckObr {
 						+ dep.getTarget().getName());
 			}
 		}
+		
+		/*
+		 * TODO We also need to validate callback parameters
+		 */
 	}
 
 	/**
@@ -876,8 +880,7 @@ public class CheckObr {
 	 * @param component
 	 * @return
 	 */
-	public static boolean isFieldMultiple(RelationInjection dep,
-			ComponentDeclaration component) {
+	public static boolean isFieldMultiple(RequirerInstrumentation dep, ComponentDeclaration component) {
 		if (CheckObr.allFields.contains(dep.getName())
 				&& !dep.getName().equals(CheckObr.UNDEFINED)) {
 			CheckObr.error("In " + component.getName() + " field/method "
@@ -886,7 +889,7 @@ public class CheckObr {
 			CheckObr.allFields.add(dep.getName());
 		}
 
-		return dep.isCollection();
+		return dep.acceptMultipleProviders();
 	}
 
 	/**

@@ -18,7 +18,7 @@ import org.apache.felix.ipojo.FieldInterceptor;
 import org.apache.felix.ipojo.metadata.Element;
 
 import fr.imag.adele.apam.Component;
-import fr.imag.adele.apam.declarations.RelationInjection;
+import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 
 /**
  * This class represents a kind of injection manager for a relation. The
@@ -79,7 +79,7 @@ public interface RelationInjectionManager extends FieldInterceptor {
 	/**
 	 * The relation injection that is managed by this manager
 	 */
-	public abstract RelationInjection getRelationInjection();
+	public abstract RequirerInstrumentation getRelationInjection();
 
 	
     /**

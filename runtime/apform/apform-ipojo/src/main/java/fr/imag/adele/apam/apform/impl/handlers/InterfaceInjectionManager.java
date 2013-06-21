@@ -32,7 +32,7 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
-import fr.imag.adele.apam.declarations.RelationInjection;
+import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 
 /**
@@ -53,7 +53,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 	/**
 	 * The relation injection managed by this relation
 	 */
-	private final RelationInjection		injection;
+	private final RequirerInstrumentation		injection;
 
 	/**
 	 * The metadata of the field that must be injected
@@ -76,9 +76,9 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 
     
     
-    public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, RelationInjection injection) throws ClassNotFoundException {
+    public InterfaceInjectionManager(ComponentFactory factory, Resolver resolver, RequirerInstrumentation injection) throws ClassNotFoundException {
         
-    	assert injection.getResource() instanceof InterfaceReference;
+    	assert injection.getRequiredResource() instanceof InterfaceReference;
     	
         this.resolver 	= resolver;
         this.injection	= injection;
@@ -97,7 +97,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
         String fieldType			= FieldMetadata.getReflectionType(field.getFieldType());
         
         this.fieldClass 			= factory.loadClass(fieldType);
-        this.isCollection			= injection.isCollection();
+        this.isCollection			= injection.acceptMultipleProviders();
  
         /*
          * Initialize target services
@@ -112,7 +112,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 	 * The relation injection associated to this manager
 	 */
     @Override
-	public RelationInjection getRelationInjection() {
+	public RequirerInstrumentation getRelationInjection() {
     	return injection;
     }
     
@@ -131,9 +131,9 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
 		relationDescription.addAttribute(new Attribute("name", injection
 				.getName()));
 		relationDescription.addAttribute(new Attribute("type", injection
-				.getResource().toString()));
+				.getRequiredResource().toString()));
 		relationDescription.addAttribute(new Attribute("isAggregate", Boolean
-				.toString(injection.isCollection())));
+				.toString(injection.acceptMultipleProviders())));
 		
 		/*
 		 * show the current state of resolution. To avoid unnecessary synchronization overhead make a copy of the
@@ -299,7 +299,7 @@ public class InterfaceInjectionManager implements RelationInjectionManager {
     	/*
     	 * TODO change injection to better handle this new case 
     	 */
-    	String injectionClass	= injection.getResource().as(InterfaceReference.class).getJavaType();
+    	String injectionClass	= injection.getRequiredResource().as(InterfaceReference.class).getJavaType();
     	boolean injectComponent = injectionClass.equals(Instance.class.getName()) ||
     							  injectionClass.equals(Implementation.class.getName()) ||
     							  injectionClass.equals(Specification.class.getName()) ||

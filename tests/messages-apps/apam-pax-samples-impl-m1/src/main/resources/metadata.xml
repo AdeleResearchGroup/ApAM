@@ -44,12 +44,12 @@
                     push="pushMessage"
                    specification="MessageProducerSpec01" >
      </implementation>
-<!-- 
+ 
     <implementation name="MessageProducerImpl03"
                     classname="fr.imag.adele.apam.pax.test.msg.m1.producer.impl.M1ProducerImpl"
                     push="pushMessage"
                    specification="MessageProducerSpec01" >
      </implementation>
-    -->
+  
 
 </apam>

@@ -15,9 +15,6 @@
 package fr.imag.adele.apam.apform.impl.handlers;
 
 import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.ConfigurationException;
@@ -25,20 +22,18 @@ import org.apache.felix.ipojo.FieldInterceptor;
 import org.apache.felix.ipojo.architecture.HandlerDescription;
 import org.apache.felix.ipojo.metadata.Element;
 import org.apache.felix.ipojo.parser.FieldMetadata;
-import org.apache.felix.ipojo.parser.MethodMetadata;
-import org.apache.felix.ipojo.util.Callback;
 import org.osgi.service.wireadmin.WireAdmin;
 
 import fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamInstanceManager;
+import fr.imag.adele.apam.apform.impl.RelationCallback;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.declarations.CallbackMethod;
-import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.RelationInjection;
+import fr.imag.adele.apam.declarations.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
 import fr.imag.adele.apam.declarations.InterfaceReference;
 import fr.imag.adele.apam.declarations.MessageReference;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
+import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 
 public class RelationInjectionHandler extends ApformHandler {
 
@@ -86,14 +81,14 @@ public class RelationInjectionHandler extends ApformHandler {
             return;
 
         AtomicImplementationDeclaration primitive = (AtomicImplementationDeclaration) declaration;
-		for (RelationInjection injection : primitive.getRelationInjections()) {
+		for (RequirerInstrumentation injection : primitive.getRequirerInstrumentation()) {
 
             /*
              * Get the field interceptor depending on the kind of reference
              */
 
-            InterfaceReference interfaceReference = injection.getResource().as(InterfaceReference.class);
-            MessageReference messageReference = injection.getResource().as(MessageReference.class);
+            InterfaceReference interfaceReference = injection.getRequiredResource().as(InterfaceReference.class);
+            MessageReference messageReference = injection.getRequiredResource().as(MessageReference.class);
             FieldInterceptor interceptor = null;
             try {
 
@@ -112,7 +107,7 @@ public class RelationInjectionHandler extends ApformHandler {
                         + error.getLocalizedMessage());
             }
 
-            if (injection instanceof RelationInjection.Field) {
+            if (injection instanceof RequirerInstrumentation.InjectedField) {
                 FieldMetadata field = getPojoMetadata().getField(injection.getName());
                 if (field != null)
                     getInstanceManager().register(field, interceptor);
@@ -120,44 +115,21 @@ public class RelationInjectionHandler extends ApformHandler {
         }
 
         /*
-         * Load Bind Unbind callback into the ApamInstanceManager
+         * Load callback into the ApamInstanceManager
          */
-        Map<String, Set<Callback>> callbackBind 	= new HashMap<String, Set<Callback>>();
-        Map<String, Set<Callback>> callbackUnbind 	= new HashMap<String, Set<Callback>>();
-
-        for (RelationDeclaration relationDeclaration : primitive.getDependencies()) {
-        	callbackBind.put(relationDeclaration.getIdentifier(),loadBindCallback(primitive, relationDeclaration, CallbackTrigger.Bind));
-        	callbackUnbind.put(relationDeclaration.getIdentifier(),loadBindCallback(primitive, relationDeclaration, CallbackTrigger.Unbind));
-        }
+        for (RelationDeclaration relation : primitive.getDependencies()) {
+        	for (RelationDeclaration.Event trigger : RelationDeclaration.Event.values()) {
+        		Set<CallbackDeclaration> callbacks = relation.getCallback(trigger);
+        		
+        		if (callbacks == null)
+        			return;
+        		
+        		for (CallbackDeclaration callback : callbacks) {
+        			getInstanceManager().addCallback(new RelationCallback(getInstanceManager(),relation,trigger,callback));
+				}
+        	}
+		}
         
-		getInstanceManager().addCallbackRelation(CallbackTrigger.Bind,
-				callbackBind);
-		getInstanceManager().addCallbackRelation(CallbackTrigger.Unbind,
-				callbackUnbind);
-    }
-
-    private Set<Callback> loadBindCallback(AtomicImplementationDeclaration primitive,
-            RelationDeclaration relationDeclaration,
-            CallbackTrigger trigger) {
-        
-        Set<CallbackMethod> callbackMethods = relationDeclaration.getCallback(trigger);
-        Set<Callback> callbacks = new HashSet<Callback>();
-        if (callbackMethods != null) {
-            for (CallbackMethod callbackMethod : callbackMethods) {
-                try {
-                    Set<MethodMetadata> methodMetadatas = (Set<MethodMetadata>) primitive.getInstrumentation()
-                            .getCallbacks(
-                                    callbackMethod.getMethodName(), false);
-                    for (MethodMetadata methodMetadata : methodMetadatas) {
-                        callbacks.add(new Callback(methodMetadata, getInstanceManager()));
-                    }
-                } catch (NoSuchMethodException e) {
-                    System.err.println("binding callback failure, when trigger : " + trigger + " " + e.getMessage());
-                }
-            }
-        }
-        return callbacks;
-       
     }
 
     /**

@@ -14,12 +14,9 @@
  */
 package fr.imag.adele.apam.apform.impl;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.ComponentInstance;
@@ -31,8 +28,6 @@ import org.apache.felix.ipojo.handlers.configuration.ConfigurationHandlerDescrip
 import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceDescription;
 import org.apache.felix.ipojo.handlers.providedservice.ProvidedServiceHandlerDescription;
 import org.apache.felix.ipojo.metadata.Element;
-import org.apache.felix.ipojo.parser.MethodMetadata;
-import org.apache.felix.ipojo.util.Callback;
 import org.apache.felix.ipojo.util.Logger;
 import org.osgi.framework.BundleContext;
 
@@ -47,8 +42,7 @@ import fr.imag.adele.apam.apform.Apform2Apam;
 import fr.imag.adele.apam.apform.ApformInstance;
 import fr.imag.adele.apam.apform.impl.handlers.RelationInjectionManager;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
-import fr.imag.adele.apam.declarations.CallbackMethod;
-import fr.imag.adele.apam.declarations.CallbackMethod.CallbackTrigger;
+import fr.imag.adele.apam.declarations.CallbackDeclaration;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.impl.BaseApformComponent;
@@ -59,17 +53,17 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
     /**
      * The property used to configure this instance with its declaration
      */
-    public final static String                       		ATT_DECLARATION = "declaration";
+    public final static String                       	ATT_DECLARATION = "declaration";
 
     /**
      * Whether this instance was created directly using the APAM API
      */
-    private final boolean									isApamCreated;
+    private final boolean								isApamCreated;
 
     /**
      * The corresponding APAM declaration
      */
-    private InstanceDeclaration								declaration;
+    private InstanceDeclaration							declaration;
     
 	/**
 	 * The associated Apform component
@@ -123,21 +117,25 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
         }
 
         /*
-         * Create the associated apform component
+         * Create the associated Apform component
          * 
          * IMPORTANT This must be done before invoking super.configure() because APAM handler configuration
-         * requires that the apform be initialized.
+         * requires that the Apform be initialized.
          * 
-         * TODO refactor responsibilities between the apform and the instance manager to avoid such fragile
+         * TODO refactor responsibilities between the Apform and the instance manager to avoid such fragile
          * ordering problems
          */
         apform 	= this.new Apform();
         
+        
         configuration.put("instance.name", declaration.getName());
         super.configure(metadata, configuration);
-        
 
-
+        /*
+         * TODO Currently there is no life-cycle handler, so we perform configuration directly in the instance
+         * manager. Consider implementing life-cycle management as a handler..
+         */
+        loadLifeCycleCallbacks();
     }
 
     /**
@@ -184,199 +182,6 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
             ComponentBrokerImpl.disappearedComponent(getInstanceName());
     }
 
-    
-    /**
-     * This class represents the mediator between APAM and this instance manager
-     */
-    public class Apform extends BaseApformComponent<Instance,InstanceDeclaration> implements ApformInstance {
-
-        /**
-         * The list of injected fields handled by this instance
-         */
-        private final Set<RelationInjectionManager>				injectedFields;
-
-        /**
-         * The list of callbacks to notify when a property is set
-         */
-        private final Map<String, Callback>						propertyCallbacks;
-
-        /**
-         * The list of callbacks to notify when onInit, onRemove
-         */
-        private final Map<CallbackTrigger, Set<Callback>>		lifeCycleCallbacks;
-
-        /**
-         * The list of callbacks to notify when bind, Unbind
-         */
-    	Map<CallbackTrigger, Map<String, Set<Callback>>>		relationCallback;
-    	
-    	private Apform() {
-			
-    		super(ApamInstanceManager.this.declaration);
-			
-	        injectedFields 		= new HashSet<RelationInjectionManager>();
-	        propertyCallbacks 	= new HashMap<String, Callback>();
-			relationCallback 	= new HashMap<CallbackTrigger, Map<String, Set<Callback>>>();
-	        lifeCycleCallbacks 	= new HashMap<CallbackTrigger, Set<Callback>>();
-	        
-	        
-	        if (ApamInstanceManager.this.getFactory().hasInstrumentedCode()) {
-	            AtomicImplementationDeclaration primitive = (AtomicImplementationDeclaration) ApamInstanceManager.this.getFactory().getDeclaration();
-	            loadCallbacks(primitive, CallbackTrigger.onInit);
-	            loadCallbacks(primitive, CallbackTrigger.onRemove);
-
-	        }
-			
-		}
-
-    	public InstanceManager getManager() {
-    		return ApamInstanceManager.this;
-    	}
-    	
-        private void loadCallbacks(AtomicImplementationDeclaration primitive, CallbackTrigger trigger) {
-            Set<CallbackMethod> callbackMethods = primitive.getCallback(trigger);
-            if (callbackMethods != null) {
-                for (CallbackMethod callbackMethod : callbackMethods) {
-                    Set<MethodMetadata> metadatas;
-                    try {
-                        metadatas = (Set<MethodMetadata>) primitive.getInstrumentation().getCallbacks(
-                                callbackMethod.getMethodName(), false);
-                        for (MethodMetadata methodMetadata : metadatas) {
-                            if (lifeCycleCallbacks.get(trigger) == null) {
-                                lifeCycleCallbacks.put(trigger, new HashSet<Callback>());
-                            }
-                            lifeCycleCallbacks.get(trigger).add(new Callback(methodMetadata, ApamInstanceManager.this));
-                        }
-                    } catch (NoSuchMethodException e) {
-                        System.err.println("life cycle failure, when trigger : " + trigger + " " + e.getMessage());
-                    }
-                }
-            }
-        }
-    	
-        @Override
-        public Object getServiceObject() {
-            return ApamInstanceManager.this.getPojoObject();
-        }
-
-    	@Override
-    	public void setApamComponent(Component apamComponent) {
-    		
-    		super.setApamComponent(apamComponent);
-
-            /*
-	         * Invoke the execution platform instance callback on the pojo object
-	         */
-    		
-            Object pojo = getServiceObject();
-	        if (pojo == null)
-	        	return;
-
-	        
-            if (apamComponent != null) { // starting the instance
-                if (pojo instanceof ApamComponent) {
-                    ApamComponent serviceComponent = (ApamComponent) pojo;
-                    serviceComponent.apamInit(this.apamComponent);
-                }
-                // call backs methods
-                fireCallbacks(CallbackTrigger.onInit, lifeCycleCallbacks);
-                
-                return;
-            }
-            
-            if (apamComponent == null) {  // stopping the instance
-                if (pojo instanceof ApamComponent) {
-                    ApamComponent serviceComponent = (ApamComponent) pojo;
-                    serviceComponent.apamRemove();
-                }
-                // call back methods
-                fireCallbacks(CallbackTrigger.onRemove,lifeCycleCallbacks);
-            	
-            } 
-    	}
-    	
-        @Override
-        public boolean setLink(Component destination, String depName) {
-            // System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
-
-            /*
-             * Validate all the injections can be performed
-             */
-
-            for (RelationInjectionManager injectedField : injectedFields) {
-                if (!injectedField.isValid())
-                    return false;
-            }
-
-            /*
-             * perform injection update
-             */
-            for (RelationInjectionManager injectedField : injectedFields) {
-                if (injectedField.getRelationInjection().getRelation().getIdentifier().equals(depName)) {
-                    injectedField.addTarget(destination);
-                }
-            }
-
-            /*
-             * perform callback bind
-             */
-    		fireCallbacks(destination, depName,	relationCallback.get(CallbackTrigger.Bind));
-
-            return true;
-        }
-
-        @Override
-        public boolean remLink(Component destination, String depName) {
-            // System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
-
-            /*
-             * Validate all the injections can be performed
-             */
-
-            for (RelationInjectionManager injectedField : injectedFields) {
-                if (!injectedField.isValid())
-                    return false;
-            }
-
-            /*
-             * perform injection update
-             */
-            for (RelationInjectionManager injectedField : injectedFields) {
-                if (injectedField.getRelationInjection().getRelation().getIdentifier().equals(depName)) {
-                    injectedField.removeTarget(destination);
-                }
-            }
-
-            /*
-             * perform callback unbind
-             */
-    		fireCallbacks(destination, depName, relationCallback.get(CallbackTrigger.Unbind));
-
-            return true;
-        }
-        
-        
-        @Override
-        public void setProperty(String attr, String value) {
-
-            Object pojo = getPojoObject();
-            Callback callback = propertyCallbacks.get(attr);
-
-            if (pojo == null || callback == null)
-                return;
-
-            try {
-                callback.call(pojo, new Object[] { value });
-            } catch (Exception ignored) {
-                getLogger().log(Logger.ERROR, "error invoking callback " + callback.getMethod() + " for property " + attr,
-                        ignored);
-            }
-        }
-        
-    }
-    
-
-    
     /**
 	 * Delegate APAM to resolve a given injection.
 	 * 
@@ -471,62 +276,246 @@ public class ApamInstanceManager extends InstanceManager implements RelationInje
     }
 
     /**
-     * Adds a new callback to a property
+     * Loads the definition of the life-cycle callbacks associated with this instance
      */
-    public void addCallback(String property, Callback callback) {
-        apform.propertyCallbacks.put(property, callback);
+    private void loadLifeCycleCallbacks() throws ConfigurationException {
+
+    	if (! (getFactory().getDeclaration() instanceof AtomicImplementationDeclaration))
+    		return;
+
+    	AtomicImplementationDeclaration implementation 	= (AtomicImplementationDeclaration) getFactory().getDeclaration();
+    	for (AtomicImplementationDeclaration.Event trigger : AtomicImplementationDeclaration.Event.values()) {
+    		
+    		Set<CallbackDeclaration> callbacks = implementation.getCallback(trigger);
+        	
+    		if (callbacks == null)
+        		continue;
+     
+        	for (CallbackDeclaration callback : callbacks) {
+            	addCallback(new LifecycleCallback(this, trigger, callback));
+        	}    	
+        	
+		}
     }
 
-    public void addCallbackRelation(CallbackTrigger trigger, Map<String, Set<Callback>> callbackDependecy) {
-		apform.relationCallback.put(trigger, callbackDependecy);
+    /**
+     * Adds a new life-cycle change callback
+     */
+    public void addCallback(LifecycleCallback callback) throws ConfigurationException {
+    	apform.lifeCycleCallbacks.add(callback);
     }
 
-
-    private void fireCallbacks(Component destInstance, String depName, Map<String, Set<Callback>> map) {
-        Set<Callback> callbacks = map != null ? map.get(depName) : null;
-        performCallbacks(destInstance, callbacks);
+    /**
+     * Adds a new property change callback
+     */
+    public void addCallback(PropertyCallback callback) throws ConfigurationException {
+    	apform.propertyCallbacks.add(callback);
     }
 
-
-
-    private void fireCallbacks(CallbackTrigger trigger, Map<CallbackTrigger, Set<Callback>> mapCallbacks) {
-        Set<Callback> callbacks = mapCallbacks.get(trigger);
-        performCallbacks(getApform().getApamComponent(), callbacks);
-    }
-
-    private void performCallbacks(Component inst, Set<Callback> callbacks) {
-        if (callbacks != null) {
-            for (Callback callback : callbacks) {
-                if (callback.getArguments().length == 1) {
-                    try {
-                        callback.call(new Object[] { inst });
-                    } catch (NoSuchMethodException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                } else if (callback.getArguments().length == 0) {
-                    try {
-                        callback.call();
-                    } catch (NoSuchMethodException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-
+    /**
+     * Adds a new relation life-cycle callback
+     */
+    public void addCallback(RelationCallback callback) throws ConfigurationException {
+		apform.relationCallbacks.add(callback);
     }
     
+
+    
+    /**
+     * This class represents the mediator between APAM and this instance manager
+     */
+    public class Apform extends BaseApformComponent<Instance,InstanceDeclaration> implements ApformInstance {
+
+        /**
+         * The list of injected fields handled by this instance
+         */
+        private final Set<RelationInjectionManager>		injectedFields;
+
+        /**
+         * The list of callbacks to notify when onInit, onRemove
+         */
+        private final Set<LifecycleCallback>			lifeCycleCallbacks;
+
+        /**
+         * The list of callbacks to notify when a property is set
+         */
+        private final Set<PropertyCallback>				propertyCallbacks;
+
+        /**
+         * The list of callbacks to notify when bind, Unbind
+         */
+    	private final Set<RelationCallback>				relationCallbacks;
+    	
+    	private Apform() throws ConfigurationException {
+			
+    		super(ApamInstanceManager.this.declaration);
+			
+	        injectedFields 		= new HashSet<RelationInjectionManager>();
+	        lifeCycleCallbacks 	= new HashSet<LifecycleCallback>();
+	        propertyCallbacks 	= new HashSet<PropertyCallback>();
+			relationCallbacks	= new HashSet<RelationCallback>();
+	        
+		}
+
+    	public InstanceManager getManager() {
+    		return ApamInstanceManager.this;
+    	}
+    	
+        @Override
+        public Object getServiceObject() {
+            return ApamInstanceManager.this.getPojoObject();
+        }
+
+    	@Override
+    	public void setApamComponent(Component apamComponent) {
+    		
+    		Instance previousComponent = this.apamComponent;
+    		super.setApamComponent(apamComponent);
+
+            /*
+	         * Invoke the execution platform instance callback on the pojo object
+	         */
+    		
+            Object pojo = getServiceObject();
+	        if (pojo == null)
+	        	return;
+
+	        
+            if (apamComponent != null) { // starting the instance
+                if (pojo instanceof ApamComponent) {
+                    ApamComponent serviceComponent = (ApamComponent) pojo;
+                    serviceComponent.apamInit(this.apamComponent);
+                }
+
+                fireCallbacks(AtomicImplementationDeclaration.Event.INIT,this.apamComponent);
+                return;
+            }
+            
+            if (apamComponent == null) {  // stopping the instance
+                if (pojo instanceof ApamComponent) {
+                    ApamComponent serviceComponent = (ApamComponent) pojo;
+                    serviceComponent.apamRemove();
+                }
+
+                fireCallbacks(AtomicImplementationDeclaration.Event.REMOVE,previousComponent);
+                return;
+            } 
+    	}
+    	
+		@Override
+        public boolean setLink(Component destination, String depName) {
+            // System.err.println("Native instance set wire " + depName + " :" + getInstanceName() + "->" + destInst);
+
+            /*
+             * Validate all the instrumentations can be performed
+             */
+
+            for (RelationInjectionManager injectedField : injectedFields) {
+                if (!injectedField.isValid())
+                    return false;
+            }
+
+            /*
+             * perform injection update
+             */
+            for (RelationInjectionManager injectedField : injectedFields) {
+                if (injectedField.getRelationInjection().getRelation().getIdentifier().equals(depName)) {
+                    injectedField.addTarget(destination);
+                }
+            }
+
+            /*
+             * perform callback bind
+             */
+            
+            Object pojo = getServiceObject();
+	        if (pojo == null)
+	        	return false;
+            
+	        fireCallbacks(RelationDeclaration.Event.BIND,depName,destination);
+
+            return true;
+        }
+
+        @Override
+        public boolean remLink(Component destination, String depName) {
+            // System.err.println("Native instance rem wire " + depName + " :" + getInstanceName() + "->" + destInst);
+
+            /*
+             * Validate all the instrumentations can be performed
+             */
+
+            for (RelationInjectionManager injectedField : injectedFields) {
+                if (!injectedField.isValid())
+                    return false;
+            }
+
+            /*
+             * perform injection update
+             */
+            for (RelationInjectionManager injectedField : injectedFields) {
+                if (injectedField.getRelationInjection().getRelation().getIdentifier().equals(depName)) {
+                    injectedField.removeTarget(destination);
+                }
+            }
+
+            /*
+             * perform callback unbind
+             */
+            
+            Object pojo = getServiceObject();
+	        if (pojo == null)
+	        	return false;
+            
+	        fireCallbacks(RelationDeclaration.Event.UNBIND,depName,destination);
+
+            return true;
+        }
+        
+        
+        @Override
+        public void setProperty(String attr, String value) {
+
+            Object pojo = getPojoObject();
+            if (pojo == null)
+                return;
+
+            fireCallbacks(attr, value);
+        }
+
+        
+        private void fireCallbacks(AtomicImplementationDeclaration.Event event, Instance component) {
+        	for (LifecycleCallback callback : lifeCycleCallbacks) {
+                try {
+					if (callback.isTriggeredBy(event))
+						callback.invoke(component);
+                } catch (Exception ignored) {
+                    getLogger().log(Logger.ERROR, "error invoking lifecycle callback " + callback.getMethod(),ignored);
+                }
+			}
+		}
+        
+        private void fireCallbacks(String attr, String value) {
+        	for (PropertyCallback callback : propertyCallbacks) {
+                try {
+					if (callback.isTriggeredBy(attr))
+						callback.invoke(value);
+                } catch (Exception ignored) {
+                    getLogger().log(Logger.ERROR, "error invoking callback " + callback.getMethod()+ " for property " + attr,ignored);
+                }
+			}
+        }
+        
+        private void fireCallbacks(RelationDeclaration.Event event, String relationName, Component target) {
+        	for (RelationCallback callback : relationCallbacks) {
+                try {
+					if (callback.isTriggeredBy(relationName,event))
+						callback.invoke(target);
+                } catch (Exception ignored) {
+                    getLogger().log(Logger.ERROR, "error invoking lifecycle callback " + callback.getMethod(),ignored);
+                }
+			}
+		}
+        
+    }
 }

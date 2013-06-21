@@ -24,8 +24,7 @@ import fr.imag.adele.apam.declarations.ComponentReference;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.MissingPolicy;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.RelationInjection;
-import fr.imag.adele.apam.declarations.RelationInjection.CallbackWithArgument;
+import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
@@ -201,14 +200,14 @@ public class RelationImpl implements Relation {
 		boolean hasCallbacks = false;
 
 		if (dep.getComponent() instanceof ImplementationReference) {
-			for (RelationInjection injection : dep.getInjections()) {
+			for (RequirerInstrumentation injection : dep.getInstrumentations()) {
 				
-				if (injection instanceof CallbackWithArgument)
+				if (injection instanceof RequirerInstrumentation.MessageConsumerCallback)
 					hasCallbacks = true;
 				
-				if (injection instanceof RelationInjection.Field) {
+				if (injection instanceof RequirerInstrumentation.RequiredServiceField) {
 					this.isInjected = true;
-					if (((RelationInjection.Field) injection).isWire())
+					if (((RequirerInstrumentation.RequiredServiceField) injection).isWire())
 						this.isWire = true;
 				}
 			}

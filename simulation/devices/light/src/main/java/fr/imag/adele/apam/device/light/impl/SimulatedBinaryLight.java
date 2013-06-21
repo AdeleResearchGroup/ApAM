@@ -63,15 +63,15 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
         return m_powerStatus;
     }
 
-	@Override
-	public void turnOff() {
-		setPowerStatus(false);
-	}
-
-	@Override
-	public void turnOn() {
-		setPowerStatus(true);
-	}
+//	@Override
+//	public void turnOff() {
+//		setPowerStatus(false);
+//	}
+//
+//	@Override
+//	public void turnOn() {
+//		setPowerStatus(true);
+//	}
 
     public String getSerialNumber() {
         return m_serialNumber;
