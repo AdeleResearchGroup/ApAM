@@ -19,6 +19,7 @@
 	<description></description>
 	
 	<modules>
+		<module>icasa-embedded</module>
 		<module>devices</module>
      	<module>applications</module>
      	<module>home</module>

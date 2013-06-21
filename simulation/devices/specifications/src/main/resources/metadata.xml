@@ -19,7 +19,8 @@
 	</specification>
 
 	<specification name="Presence"
-		interfaces="fr.liglab.adele.icasa.device.presence.PresenceSensor">
+		interfaces="fr.liglab.adele.icasa.device.presence.PresenceSensor"
+		messages="boolean">
 		<definition name="location" type="string" />
 	</specification>
 

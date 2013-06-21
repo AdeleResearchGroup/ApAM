@@ -13,22 +13,25 @@
 
 	<implementation name="SimulatedPresenceSensor"
 		specification="Presence" instantiable="false"
-		classname="fr.imag.adele.apam.device.presence.impl.SimulatedPresenceSensor">
+		classname="fr.imag.adele.apam.device.presence.impl.SimulatedPresenceSensor"
+		push="notify">
 
-		<ipojo:provides specifications="{	
+		<ipojo:provides
+			specifications="{	
 							fr.liglab.adele.icasa.simulator.SimulatedDevice, 
 							fr.liglab.adele.icasa.device.GenericDevice,
 							fr.liglab.adele.icasa.device.presence.PresenceSensor
 						}">
-											
+
 			<ipojo:property name="service.description" type="string" />
-			<ipojo:property name="device.serialNumber" type="string" field="m_serialNumber"/>
-			
-			<ipojo:property name="presenceSensor.sensedPresence" field="m_currentPresence"/>
-			 
+			<ipojo:property name="device.serialNumber" type="string" field="m_serialNumber" />
+
+			<ipojo:property name="presenceSensor.sensedPresence" field="m_currentPresence" />
+
 			<ipojo:property name="fault" value="no" field="fault" />
-			<ipojo:property name="state" value="activated" field="state" />
-		
+			<ipojo:property name="state" value="activated"
+				field="state" />
+
 		</ipojo:provides>
 
 		<ipojo:requires field="manager" />

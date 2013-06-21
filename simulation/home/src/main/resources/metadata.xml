@@ -15,7 +15,7 @@
 
 	<composite name="Home" singleton="true">
 
-		<dependency id="rooms" implementation="Room" multiple="true" />
+		<dependency id="contains" specification="Zone" multiple="true" />
 		<contentMngt>
 		
 			<own specification="Zone" property="hosted" value="true"/>

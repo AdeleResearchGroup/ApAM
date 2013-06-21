@@ -29,7 +29,11 @@
             </constraints>
         </dependency>
         
-        <dependency field="presenceSensor" specification="Presence" added="bindPresence" removed="unBindPresence">
+        <dependency specification="Presence" added="bindPresence" removed="unBindPresence">
+        	
+        	<interface 	field="presenceSensor"/>
+            <message 	push="presenceChanged"/>
+            
             <constraints>
             	<instance filter="(location=$$location)"/>
             </constraints>

@@ -151,11 +151,12 @@ public class FutureInstance {
 		Map<String, String> evaluatedProperties = new HashMap<String, String>();
 		for (Map.Entry<String, String> property : properties.entrySet()) {
 			
-			String substituted = (String)Substitute.substitute(null,property.getValue(), owner);
-			evaluatedProperties.put(property.getKey(),substituted != null ? substituted : property.getValue());
+			Object substituted = Substitute.substitute(null,property.getValue(), owner);
+			evaluatedProperties.put(property.getKey(),substituted != null ? substituted.toString() : property.getValue());
 		}
 		
-		evaluatedProperties.put("instance.name", this.name);
+		String instanceName = owner.isSingleton() ? this.name : owner.getName()+":"+this.name;
+		evaluatedProperties.put("instance.name",instanceName);
 		
 		/*
 		 * Try to instantiate the specified implementation.

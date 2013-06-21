@@ -295,7 +295,7 @@ public class Substitute {
 			source = CST.apamResolver.findComponentByName(source, sub.sourceName) ;
 			if (source == null) {
 				logger.error("Component " + sub.sourceName + " not found in substitution : " + value + " of attribute " + attr) ;
-				return false ;
+				return null ;
 			}
 		}  
 

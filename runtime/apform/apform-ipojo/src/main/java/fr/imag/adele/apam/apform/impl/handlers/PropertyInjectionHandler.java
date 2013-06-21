@@ -312,10 +312,10 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
         				continue;
 
         			if (newValue == null)
-        				instance.removeProperty(property);
+        				((InstanceImpl)instance).removeProperty(property,true);
         			
         			if (newValue != null)
-        				((InstanceImpl)instance).setPropertyInt(property, newValue, true);
+        				((InstanceImpl)instance).setProperty(property, newValue, true);
         			
     			}
     			
@@ -432,7 +432,7 @@ public class PropertyInjectionHandler extends ApformHandler implements	FieldInte
 		 * Updates the associated property when the backing collection is changed
 		 */
 		private final void propagate() {
-			((InstanceImpl)instance).setPropertyInt(property.getName(),this.unwrap(),true);
+			((InstanceImpl)instance).setProperty(property.getName(),this.unwrap(),true);
 		}
 		
 		/**

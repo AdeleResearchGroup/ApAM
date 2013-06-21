@@ -730,7 +730,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param forced
 	 * @return
 	 */
-	public boolean setPropertyInt(String attr, Object value, boolean forced) {
+	public boolean setProperty(String attr, Object value, boolean forced) {
 		/*
 		 * Validate that the property is defined and the value is valid Forced
 		 * means that we can set field attribute
@@ -743,13 +743,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (val == null)
 			return false;
 
-		// does the change, notifies, changes the platform and propagate to
-		// members
-		this.propagate(attr, val);
-		
 		/*
 		 * Force recalculation of dependencies that may have been invalidated by
-		 * the property change
+		 * the property change. This must be done before notification and propagation,
+		 * otherwise we risk to remove links updated by managers.
 		 * 
 		 * TODO Check if this must be done for all links or only dynamic links
 		 */
@@ -757,6 +754,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			if (incoming.hasConstraints())
 				incoming.remove();
 		}
+		
+		
+		// does the change, notifies managers, changes the platform and propagate to
+		// members
+		this.propagate(attr, val);
 		
 		return true;
 	}
@@ -769,7 +771,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public boolean setProperty(String attr, Object value) {
-		return setPropertyInt(attr, value, false);
+		return setProperty(attr, value, false);
 	}
 
 
@@ -838,6 +840,15 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public boolean removeProperty(String attr) {
+		return removeProperty(attr, false);
+	}
+	
+	/**
+	 * Warning: to be used only by Apform for removing internal attributes. Only
+	 * Inhibits the message "Attribute " + attr +
+	 * " is an program field attribute and cannot be removed.");
+	 */
+	public boolean removeProperty(String attr, boolean forced) {
 
 		String oldValue = getProperty(attr);
 
@@ -857,7 +868,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 
 		PropertyDefinition propDef = getAttrDefinition(attr);
-		if (propDef != null && propDef.getField() != null) {
+		if (propDef != null && propDef.getField() != null && !forced) {
 			logger.error("In " + this + " attribute " + attr + " is a program field and cannot be removed.");
 			return false;
 		}

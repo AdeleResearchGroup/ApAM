@@ -131,6 +131,8 @@ public class ZoneManager implements ZoneListener {
 			}
 		}
 	}
+	
+	
 	public ZoneManager() {
 		zones	= new HashMap<Zone, Instance>();
 		started	= false;
@@ -186,7 +188,28 @@ public class ZoneManager implements ZoneListener {
 	public void zoneRemoved(Zone zone) {
 		execute(this.new RemoveRequest(zone));
 	}
+
+	@Override
+	public void zoneMoved(Zone arg0, Position arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void zoneResized(Zone zone) {
+	}
+
+	@Override
+	public void zoneParentModified(Zone arg0, Zone arg1) {
+		// TODO Auto-generated method stub
+		
+	}
 	
+	
+	@Override
+	public void zoneVariableModified(Zone arg0, String arg1, Object arg2) {
+	}
+
 	@Override
 	public void zoneVariableAdded(Zone zone, String variable) {
 	}
@@ -201,40 +224,6 @@ public class ZoneManager implements ZoneListener {
 
 	@Override
 	public void deviceDetached(Zone zone, LocatedDevice device) {
-	}
-
-//	@Override
-//	public void zoneMoved(Zone zone, Position position, Position  oldPosition) {
-//	}
-//
-//	@Override
-//	public void zoneParentModified(Zone zone, Zone parent, Zone formerParent) {
-//	}
-//
-//	@Override
-//	public void zoneVariableModified(Zone zone, String variable, Object value, Object oldValue) {
-//	}
-	
-	@Override
-	public void zoneResized(Zone zone) {
-	}
-
-	@Override
-	public void zoneVariableModified(Zone arg0, String arg1, Object arg2) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void zoneMoved(Zone arg0, Position arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void zoneParentModified(Zone arg0, Zone arg1) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	
