@@ -135,14 +135,14 @@ public class RelationImpl implements Relation {
 		return !identifier.isEmpty();
 	}
 
-	public RelationImpl(ResolvableReference target, ComponentKind targetType, Set<String> constraints, List<String> preferences) {
+	public RelationImpl(ResolvableReference target, ComponentKind sourceKind, ComponentKind targetKind, Set<String> constraints, List<String> preferences) {
 		// The minimum info for a find.
 		// this.component = component;
 		this.identifier = "";
 		this.targetDefinition = target;
 		this.isMultiple = false;
-		this.sourceKind = ComponentKind.INSTANCE;
-		this.targetKind = (targetType == null) ? ComponentKind.INSTANCE : targetType;
+		this.sourceKind = (sourceKind == null) ? ComponentKind.INSTANCE : sourceKind ;
+		this.targetKind = (targetKind == null) ? ComponentKind.INSTANCE : targetKind;
 
 		//		this.linkSource = component;
 		//		this.sourceName = component.getName();
@@ -155,12 +155,12 @@ public class RelationImpl implements Relation {
 		missingPolicy = null;
 
 		if (constraints != null) {
-			if (targetType == ComponentKind.IMPLEMENTATION)
+			if (targetKind == ComponentKind.IMPLEMENTATION)
 				implementationConstraints.addAll(constraints);
 			instanceConstraints.addAll(constraints);
 		}
 		if (preferences != null) {
-			if (targetType == ComponentKind.IMPLEMENTATION)
+			if (targetKind == ComponentKind.IMPLEMENTATION)
 				implementationPreferences.addAll(constraints);
 			instancePreferences.addAll(preferences);
 		}
@@ -807,7 +807,7 @@ public class RelationImpl implements Relation {
 			// look for that relation declaration above
 			RelationDeclaration groupDep = null;
 			while (group != null && (groupDep == null)) {
-				groupDep = group.getDeclaration().getRelation(relDef.getIdentifier());
+				groupDep = group.getDeclaration().getLocalRelation(relDef.getIdentifier());
 				group = group.getGroup();
 			}
 
@@ -976,7 +976,7 @@ public class RelationImpl implements Relation {
 		return false;
 	}
 	
-
+//	public static LinkImpl createLink ()
 
 	public String toString() {
 		StringBuffer ret = new StringBuffer();
@@ -1022,6 +1022,36 @@ public class RelationImpl implements Relation {
 			}
 		}
 		return ret.toString();
+	}
+
+	@Override
+	public boolean isManual() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isLazy() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isExist() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isInternal() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isExternal() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

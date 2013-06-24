@@ -105,7 +105,7 @@ public abstract class ComponentDeclaration{
         reference			= generateReference();
         properties			= new HashMap<String,String>();
         providedResources	= new HashSet<ResourceReference>();
-		relations = new HashSet<RelationDeclaration>();
+		relations 			= new HashSet<RelationDeclaration>();
         predefinedLinks		= new HashSet<LinkDeclaration>();
         definitions 		= new ArrayList<PropertyDefinition>();
     }
@@ -317,7 +317,7 @@ public abstract class ComponentDeclaration{
     /**
 	 * Get a relation declaration by name
 	 */
-    public RelationDeclaration getRelation(String id) {
+    public RelationDeclaration getLocalRelation(String id) {
 		for (RelationDeclaration relation : relations) {
 			if (relation.getIdentifier().equals(id))
 				return relation;
@@ -329,12 +329,11 @@ public abstract class ComponentDeclaration{
     /**
 	 * Get a relation declaration by reference
 	 */
-	public RelationDeclaration getRelation(
-			RelationDeclaration.Reference relation) {
+	public RelationDeclaration getRelation(RelationDeclaration.Reference relation) {
 		if (!this.getReference().equals(relation.getDeclaringComponent()))
     		return null;
     	
-		return getRelation(relation.getIdentifier());
+		return getLocalRelation(relation.getIdentifier());
     }
 
     /**
