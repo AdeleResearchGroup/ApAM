@@ -37,7 +37,7 @@
 		<provides specifications="org.osgi.service.wireadmin.Producer">
 			<property name="wireadmin.producer.flavors" field="messageFlavors" />
 			<property name="service.pid" field="producerId" />
-			<controller field="isRegisteredProducer" />
+			<controller field="isRegisteredProducer" value="false" />
 		</provides>
 
 		<requires field="wireAdmin" proxy="false" nullable="false" optional="true" />

@@ -52,8 +52,10 @@ public class SimulatedPresenceSensor extends AbstractDevice implements PresenceS
 		super();
 
 		super.setPropertyValue(SimulatedDevice.LOCATION_PROPERTY_NAME, SimulatedDevice.LOCATION_UNKNOWN);
+		location = SimulatedDevice.LOCATION_UNKNOWN;
+		m_zone = null;
+		
         super.setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, false);
-        
         m_currentPresence = getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE).toString();
 	}
 	
@@ -105,44 +107,49 @@ public class SimulatedPresenceSensor extends AbstractDevice implements PresenceS
 
     @Override
 	public void enterInZones(List<Zone> zones) {
-		if (!zones.isEmpty()) {
-			m_zone = zones.get(0);
-			updateState();
-			location = m_zone.getId();
-		}
-
+    	
+    	if (m_zone == null && zones.isEmpty())
+    		return;
+    	
+    	if (m_zone != null && zones.contains(m_zone))
+    		return;
+    	
+    	m_zone = zones.isEmpty() ? null : zones.get(0);
+    	location = m_zone != null ? m_zone.getId() : SimulatedDevice.LOCATION_UNKNOWN;
+    	
+		updateState();
 	}
 
 	/**
 	 * Calculates if a person is found in the detection zone of this device. When
 	 * there is a change of previous detection a event is sent to listeners
 	 */
-	private void updateState() {
-		if (m_zone != null) {
+	private boolean updateState() {
 
-			boolean personFound = personInZone();
-			boolean previousDetection = (Boolean) getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE);
+		boolean personFound = personInZone();
+		boolean previousDetection = (Boolean) getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE);
 
-			if (!previousDetection) { // New person in Zone
-				if (personFound) {
-					setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, true);
-				}
-			} else {
-				if (!personFound) { // The person has leave the detection zone
-					setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, false);
-				}
-			}
-			
-			m_currentPresence = getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE).toString();
-			
+		if (!previousDetection && personFound) { // New person in Zone
+				setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, true);
+		} 
+		
+		if (previousDetection && !personFound) {// The person or sensor has leave the detection zone
+			setPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE, false);
 		}
+		
+		m_currentPresence = getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE).toString();
+		return (Boolean) getPropertyValue(PRESENCE_SENSOR_SENSED_PRESENCE);
 	}
 
 	private boolean personInZone() {
+		if (m_zone == null)
+			return false;
+		
 		for (Person person : manager.getPersons()) {
 			if (m_zone.contains(person))
 				return true;
 		}
+		
 		return false;
 	}
 

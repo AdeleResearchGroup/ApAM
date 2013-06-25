@@ -555,19 +555,6 @@ public class ContentManager  {
 	 */
 	public void propertyChanged(Component component, String property) {
 
-		/*
-		 * Force recalculation of dependencies that may have been invalidated by
-		 * the property change.
-		 * 
-		 * TODO Should we also invalidate outgoing links in the case that the
-		 * constraints use source property substitutions?
-		 * 
-		 */
-		for (Link incoming : component.getInvLinks()) {
-			if (incoming.hasConstraints())
-				incoming.remove();
-		}
-
 		resolveRequests(getWaitingRequests(),component);
 		resolveRequests(getDynamicRequests(),component);
 

@@ -162,7 +162,7 @@ public class PendingRequest {
 		 * try to resolve.
 		 * 
 		 * IMPORTANT resolution is performed outside synchronization, as it may
-		 * block in case of deployment. Notice also that the result is temporary
+		 * block in case of deployment. Notice also that the result is temporarily
 		 * confined to the stack before notifying pending threads.
 		 * 
 		 */

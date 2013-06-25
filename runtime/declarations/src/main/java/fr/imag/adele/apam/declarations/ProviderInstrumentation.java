@@ -70,7 +70,7 @@ public abstract class ProviderInstrumentation extends Instrumentation {
 			@Override
 			protected MessageReference evaluate(CodeReflection reflection) {
 				try {
-					return new MessageReference(reflection.getMethodReturnType(methodName,methodSignature));
+					return new MessageReference(reflection.getMethodReturnType(methodName,methodSignature,false));
 				} catch (NoSuchMethodException e) {
 					return null;
 				}

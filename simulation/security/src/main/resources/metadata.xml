@@ -11,38 +11,20 @@
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
                           org.apache.felix.ipojo http://felix.apache.org/ipojo/schemas/CURRENT/core.xsd">
 
-
-
-	<composite name="Home" singleton="true">
-
-		<dependency id="contains" specification="Zone" multiple="true" />
+	<composite name="SecurityDomain" singleton="true">
 		<contentMngt>
-		
-			<own specification="Zone" property="hosted" value="true"/>
-			
-			<start implementation="SecurityDomain" name="security"/>
-
+			<start implementation="FireDetection" name="fire"/>
+			<start implementation="IntrusionDetection" name="intrusion"/>
 		</contentMngt>
-		
 	</composite>
 
-
-	<specification name="Zone">
-		<definition name="location" type="string" />
-		<definition name="hosted" type="true,false" />
-	</specification>
-
-	<composite name="Room" specification="Zone" singleton="false">
-		<property name="hosted" value="true"/>
-		
+	<composite name="FireDetection" singleton="true">
 		<contentMngt>
-			
-			<!--  Automatically start the lighten application and force binding to presence sensor  -->
-			<start implementation="BasicLightAutomation" name="ligthen">
-				<property name="location" value="$$location"/>
-			</start>
-			
-			<dependency override="true" source=".*Automation" id=".*" specification="Presence" eager="true" />
+		</contentMngt>
+	</composite>
+
+	<composite name="IntrusionDetection" singleton="true">
+		<contentMngt>
 		</contentMngt>
 	</composite>
 

@@ -14,7 +14,7 @@
 	<implementation name="SimulatedPresenceSensor"
 		specification="Presence" instantiable="false"
 		classname="fr.imag.adele.apam.device.presence.impl.SimulatedPresenceSensor"
-		push="notify">
+		push="updateState">
 
 		<ipojo:provides
 			specifications="{	

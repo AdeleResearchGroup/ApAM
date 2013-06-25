@@ -22,8 +22,10 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Vector;
@@ -1841,7 +1843,7 @@ public class CoreMetadataParser implements CoreParser {
 		}
 		
 		@Override
-		public String getMethodReturnType(String methodName, String methodSignature) throws NoSuchMethodException {
+		public String getMethodReturnType(String methodName, String methodSignature, boolean includeInherited) throws NoSuchMethodException {
 				
 			MethodMetadata methodIPojoMetadata = null;
 			if (pojoMetadata != null) {
@@ -1870,7 +1872,7 @@ public class CoreMetadataParser implements CoreParser {
 			
 			Method methodReflectionMetadata = null;
 			if (instrumentedCode != null) {
-				for (Method method :  instrumentedCode.getMethods()) {
+				for (Method method :  includeInherited ? instrumentedCode.getMethods() : instrumentedCode.getDeclaredMethods()) {
 					
 					if (!method.getName().equals(methodName))
 						continue;
@@ -1897,17 +1899,17 @@ public class CoreMetadataParser implements CoreParser {
 			}
 			
 			if (methodReflectionMetadata != null)
-				return methodReflectionMetadata.getReturnType().getCanonicalName();
+				return wrap(methodReflectionMetadata.getReturnType().getCanonicalName());
 
 			if (methodIPojoMetadata != null)
-				return methodIPojoMetadata.getMethodReturn();
+				return wrap(methodIPojoMetadata.getMethodReturn());
 
 			throw new NoSuchMethodException("unavailable metadata for method " + methodName+"("+methodSignature != null ? methodSignature : ""+")");
 			
 		}
 
 		@Override
-		public String getMethodArgumentType(String methodName) throws NoSuchMethodException {
+		public String getMethodArgumentType(String methodName, boolean includeInherited) throws NoSuchMethodException {
 			
 			MethodMetadata methodIPojoMetadata = null;
 			if (pojoMetadata != null) {
@@ -1922,7 +1924,7 @@ public class CoreMetadataParser implements CoreParser {
 			
 			Method methodReflectionMetadata = null;
 			if (instrumentedCode != null) {
-				for (Method method :  instrumentedCode.getMethods()) {
+				for (Method method :  includeInherited ? instrumentedCode.getMethods() : instrumentedCode.getDeclaredMethods()) {
 					
 					if (!method.getName().equals(methodName))
 						continue;
@@ -1936,10 +1938,10 @@ public class CoreMetadataParser implements CoreParser {
 			}
 			
 			if (methodReflectionMetadata != null)
-				return methodReflectionMetadata.getParameterTypes()[0].getCanonicalName();
+				return wrap(methodReflectionMetadata.getParameterTypes()[0].getCanonicalName());
 
 			if (methodIPojoMetadata != null)
-				return methodIPojoMetadata.getMethodArguments()[0];
+				return wrap(methodIPojoMetadata.getMethodArguments()[0]);
 
 			throw new NoSuchMethodException("unavailable metadata for method " + methodName);
 			
@@ -1995,6 +1997,27 @@ public class CoreMetadataParser implements CoreParser {
 		}
 
 		/**
+		 * Utility method to get the associated wrapper class name for a primitive type
+		 */
+
+		private final static Map<String,Class<?>> wrappers = new HashMap<String, Class<?>>();
+		static {
+			wrappers.put(Boolean.TYPE.getName(), Boolean.class);
+			wrappers.put(Character.TYPE.getName(), Character.class);
+			wrappers.put(Byte.TYPE.getName(), Byte.class);
+			wrappers.put(Short.TYPE.getName(), Short.class);
+			wrappers.put(Integer.TYPE.getName(), Integer.class);
+			wrappers.put(Float.TYPE.getName(), Float.class);
+			wrappers.put(Long.TYPE.getName(), Long.class);
+			wrappers.put(Double.TYPE.getName(), Double.class);
+		}
+		
+		private static String wrap(String type) {
+			Class<?> wrapper = wrappers.get(type);
+			return wrapper != null ? wrapper.getCanonicalName() : type;
+		}
+		
+		/**
 		 * If the type of the specified field is one of the supported collections returns the type of the
 		 * elements in the collection, otherwise return null.
 		 * 
@@ -2013,13 +2036,13 @@ public class CoreMetadataParser implements CoreParser {
 			 * First try to see if the field is an array declaration
 			 */
 			if (fieldType instanceof Class && fieldClass.isArray()) {
-				return fieldClass.getComponentType().getCanonicalName();
+				return wrap(fieldClass.getComponentType().getCanonicalName());
 			}
 
 			if (fieldType instanceof GenericArrayType) {
 				Type elementType = ((GenericArrayType)fieldType).getGenericComponentType();
 				if (elementType instanceof Class)
-					((Class<?>) elementType).getCanonicalName();
+					return ((Class<?>) elementType).getCanonicalName();
 				else
 					return CoreParser.UNDEFINED;
 			}
@@ -2032,7 +2055,7 @@ public class CoreMetadataParser implements CoreParser {
 			for (Class<?> supportedCollection : supportedCollections) {
 				if (supportedCollection.equals(fieldClass)) {
 					Class<?> element = getSingleTypeArgument(fieldType);
-					return element != null ? element.getCanonicalName() : CoreParser.UNDEFINED;
+					return element != null ? wrap(element.getCanonicalName()) : CoreParser.UNDEFINED;
 				}
 			}
 
@@ -2055,7 +2078,7 @@ public class CoreMetadataParser implements CoreParser {
 
 			if (fieldType.endsWith("[]")) {
 				int index = fieldType.indexOf('[');
-				return fieldType.substring(0, index);
+				return wrap(fieldType.substring(0, index));
 			}
 
 			for (Class<?> supportedCollection : supportedCollections) {
@@ -2088,7 +2111,7 @@ public class CoreMetadataParser implements CoreParser {
 			for (Class<?> supportedMessageQueue : supportedMessageQueues) {
 				if (supportedMessageQueue.equals(fieldClass)) {
 					Class<?> element = getSingleTypeArgument(fieldType);
-					return element != null ? element.getCanonicalName() : CoreParser.UNDEFINED;
+					return element != null ? wrap(element.getCanonicalName()) : CoreParser.UNDEFINED;
 				}
 			}
 
@@ -2110,161 +2133,6 @@ public class CoreMetadataParser implements CoreParser {
 
 			return null;
 		}
-
-//
-//		private Map<MethodMetadata, MessageReferenceExtended>
-//		getMethodsWithArgFromMetadata(String methodName, String type, int numberOfArgument) {
-//			Map<MethodMetadata, MessageReferenceExtended> methodsIPojoMetadata = new HashMap<MethodMetadata, MessageReferenceExtended>();
-//			if (pojoMetadata != null) {
-//				for (MethodMetadata method : pojoMetadata.getMethods(methodName)) {
-//					if (method.getMethodArguments().length == numberOfArgument) {
-//						String parameterType = method.getMethodArguments()[0];
-//						MessageReferenceExtended mRef;
-//						/*
-//						 * If the single parameter type is a parameterized generic Message<D> we cannot determine its
-//						 * actual message payload
-//						 */
-//						if (Message.class.getCanonicalName().equals(parameterType)) {
-//							mRef = new MessageReferenceExtended(parameterType, true);
-//							mRef.setCallbackMetadata(method);
-//							mRef.setResourceUndefined(true);
-//							methodsIPojoMetadata.put(method, mRef);
-//						} else {// Otherwise it is the type of the actual message payload
-//							if (type != null) {
-//								if (parameterType.equals(type)) {
-//									mRef = new MessageReferenceExtended(type);
-//									mRef.setCallbackMetadata(method);
-//									methodsIPojoMetadata.put(method, mRef);
-//								}
-//							} else {
-//								mRef = new MessageReferenceExtended(parameterType);
-//								mRef.setCallbackMetadata(method);
-//								methodsIPojoMetadata.put(method, mRef);
-//							}
-//						}
-//					}
-//				}
-//			}
-//			return methodsIPojoMetadata;
-//		}
-//
-//		private Map<MethodMetadata, MessageReferenceExtended> getMethodsWithReturnFromMetadata(String methodName,
-//				String type) {
-//			Map<MethodMetadata, MessageReferenceExtended> methodsIPojoMetadata = new HashMap<MethodMetadata, MessageReferenceExtended>();
-//			if (pojoMetadata != null) {
-//				for (MethodMetadata method : pojoMetadata.getMethods(methodName)) {
-//					if (!method.getMethodReturn().equals("void")) {
-//						MessageReferenceExtended mRef;
-//						if (Message.class.getCanonicalName().equals(method.getMethodReturn())) { // we cannot determine
-//							// its actual message
-//							// payload
-//							mRef = new MessageReferenceExtended(method.getMethodReturn(), true);
-//							mRef.setCallbackMetadata(method);
-//							mRef.setResourceUndefined(true);
-//							methodsIPojoMetadata.put(method, mRef);
-//						} else { // Otherwise it is the type of the actual message payload
-//							if (type != null) {
-//								if (method.getMethodReturn().equals(type)) {
-//									mRef = new MessageReferenceExtended(type);
-//									mRef.setCallbackMetadata(method);
-//									methodsIPojoMetadata.put(method, mRef);
-//								}
-//							} else {
-//								mRef = new MessageReferenceExtended(method.getMethodReturn());
-//								mRef.setCallbackMetadata(method);
-//								methodsIPojoMetadata.put(method, mRef);
-//							}
-//						}
-//					}
-//				}
-//			}
-//			return methodsIPojoMetadata;
-//		}
-//
-//		private Map<Method, MessageReferenceExtended> getMethodsWithArgFromReflection(String methodName, String type,
-//				int numberOfArgument) {
-//			Map<Method, MessageReferenceExtended> methodsReflectionMetadata = new HashMap<Method, MessageReferenceExtended>();
-//			if (instrumentedCode != null) {
-//				for (Method method : instrumentedCode.getDeclaredMethods()) {
-//					if (method.getName().equals(methodName) && (method.getParameterTypes().length == numberOfArgument)) {
-//						if (numberOfArgument > 0) {
-//							Type parameterType = method.getGenericParameterTypes()[0];
-//							Class<?> parameterClass = null;
-//
-//							if (parameterType instanceof Class)
-//								parameterClass = (Class<?>) parameterType;
-//							if (parameterType instanceof ParameterizedType) {
-//								parameterClass = (Class<?>) ((ParameterizedType) parameterType).getRawType();
-//							}
-//
-//							if ((parameterClass != null) && Message.class.equals(parameterClass)) {
-//
-//								if (Message.class.equals(parameterClass)) { // Verify if the parameter type is a
-//									// parameterized generic Message<D> ant try
-//									// to
-//									// get its actual payload
-//									if (parameterType instanceof ParameterizedType) {
-//										Type[] genericParameters = ((ParameterizedType) parameterType).getActualTypeArguments();
-//										if ((genericParameters.length == 1) && (genericParameters[0] instanceof Class))
-//											if (type != null) { // verify with the given type
-//												if (((Class<?>) genericParameters[0]).getCanonicalName().equals(type)) {
-//													methodsReflectionMetadata.put(method, new MessageReferenceExtended(type, true));
-//												}
-//											} else {
-//												methodsReflectionMetadata.put(method, new MessageReferenceExtended(
-//														((Class<?>) genericParameters[0]).getCanonicalName(), true));
-//											}
-//									}
-//								} else { // Otherwise it is the type of the actual message payload
-//									if (type != null) { // verify with the given type
-//										if (type.equals(parameterClass.getCanonicalName())) {
-//											methodsReflectionMetadata.put(method, new MessageReferenceExtended(
-//													parameterClass
-//													.getCanonicalName()));
-//										}
-//									} else {
-//										methodsReflectionMetadata.put(method, new MessageReferenceExtended(
-//												parameterClass
-//												.getCanonicalName()));
-//									}
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-//			return methodsReflectionMetadata;
-//		}
-//
-//
-//		private Map<Method, MessageReferenceExtended>
-//		getMethodsWithReturnFromReflection(String methodName, String type) {
-//			Map<Method, MessageReferenceExtended> methodsReflectionMetadata = new HashMap<Method, MessageReferenceExtended>();
-//			if (instrumentedCode != null) {
-//				for (Method method : instrumentedCode.getDeclaredMethods()) {
-//					if ((method.getName().equals(methodName)) && (!method.getReturnType().equals(Void.TYPE))) {
-//						if (method.getReturnType().getCanonicalName().equals(Message.class.getCanonicalName())) {
-//							Class<?> parameterType = getParameterizedType(method.getGenericReturnType());
-//							if (parameterType != null) {
-//								methodsReflectionMetadata.put(method, new MessageReferenceExtended(parameterType
-//										.getCanonicalName()));
-//							}
-//						} else {
-//							if (type != null) {
-//								if (method.getReturnType().getCanonicalName().equals(type)) {
-//									methodsReflectionMetadata.put(method, new MessageReferenceExtended(type));
-//								}
-//							} else {
-//								methodsReflectionMetadata.put(method, new MessageReferenceExtended(method
-//										.getReturnType()
-//										.getCanonicalName()));
-//							}
-//						}
-//					}
-//				}
-//			}
-//			return methodsReflectionMetadata;
-//		}
 
 
 	}

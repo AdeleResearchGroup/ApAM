@@ -188,7 +188,7 @@ public class CompositeDeclaration extends ImplementationDeclaration {
     @Override
     public String toString() {
         String ret = "\nComposite declaration " + super.toString();
-        ret += "\n   Main Implementation: " + mainComponent.getIdentifier();
+        ret += "\n   Main Implementation: " + mainComponent != null ? mainComponent.getIdentifier() : "";
         return ret;
     }
 

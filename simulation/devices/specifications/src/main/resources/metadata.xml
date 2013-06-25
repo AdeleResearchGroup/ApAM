@@ -20,7 +20,7 @@
 
 	<specification name="Presence"
 		interfaces="fr.liglab.adele.icasa.device.presence.PresenceSensor"
-		messages="boolean">
+		messages="java.lang.Boolean">
 		<definition name="location" type="string" />
 	</specification>
 

@@ -41,9 +41,13 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
 
     public SimulatedBinaryLight(){
 		super();
-        super.setPropertyValue(SimulatedDevice.LOCATION_PROPERTY_NAME, SimulatedDevice.LOCATION_UNKNOWN);
-        super.setPropertyValue(BinaryLight.BINARY_LIGHT_POWER_STATUS, false);
+
+		super.setPropertyValue(BinaryLight.BINARY_LIGHT_POWER_STATUS, false);
 		super.setPropertyValue(BinaryLight.BINARY_LIGHT_MAX_POWER_LEVEL, 100.0d);
+		
+        super.setPropertyValue(SimulatedDevice.LOCATION_PROPERTY_NAME, SimulatedDevice.LOCATION_UNKNOWN);
+        location = SimulatedDevice.LOCATION_UNKNOWN;
+
     }
 
     @Override
@@ -97,13 +101,13 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
     	 */
     	
     	String currentLocation = location;
-    	if (currentLocation == null && zones.isEmpty())
+    	if (currentLocation == SimulatedDevice.LOCATION_UNKNOWN && zones.isEmpty())
     		return;
     	
-    	if (currentLocation != null && zones.contains(currentLocation))
+    	if (currentLocation != SimulatedDevice.LOCATION_UNKNOWN && zones.contains(currentLocation))
     		return;
     	
-    	location = zones.isEmpty() ? null : zones.get(0).getId();
+    	location = zones.isEmpty() ? SimulatedDevice.LOCATION_UNKNOWN : zones.get(0).getId();
 
 	}
 }
