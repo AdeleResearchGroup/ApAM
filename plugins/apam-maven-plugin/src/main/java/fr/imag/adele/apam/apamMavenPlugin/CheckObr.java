@@ -737,8 +737,9 @@ public class CheckObr {
 	}
 
 	public static RelationDeclaration getRelationDefinition (ComponentDeclaration depComponent, String relName) {
-		// look for that relation declaration above
-		ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
+		// look for that relation declaration 
+		//ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
+		ComponentDeclaration group = depComponent ;
 		RelationDeclaration relDef = null ;
 		while (group != null && (relDef == null)) {
 			relDef = group.getLocalRelation(relName) ;
