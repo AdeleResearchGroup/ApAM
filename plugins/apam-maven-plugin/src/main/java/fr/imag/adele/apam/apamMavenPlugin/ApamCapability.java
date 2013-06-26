@@ -32,6 +32,7 @@ import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
+import fr.imag.adele.apam.util.Attribute;
 
 
 public class ApamCapability {
@@ -47,6 +48,13 @@ public class ApamCapability {
 	private Map <String,String>  propertiesDefaults =  new HashMap <String, String> ();
 	private Map <String, String> finalProperties = new HashMap <String, String> () ;
 
+	//Only to return a true value
+	public static ApamCapability trueCap = new ApamCapability();
+	private ApamCapability () { } ;
+//		if (group.dcl instanceof SpecificationDeclaration) {
+//			this.dcl = new AtomicImplementationDeclaration ("void-" + group.getName(), group.dcl.getReference()) ;
+//	} ;
+	
 	public ApamCapability (ComponentDeclaration dcl) {
 		this.dcl = dcl ;
 		capabilities.put(dcl.getName(), this) ;
@@ -66,7 +74,8 @@ public class ApamCapability {
 			new ApamCapability(dcl) ;
 		}
 		for (ComponentDeclaration dcl : dependencies) {
-			new ApamCapability(dcl) ;
+			if (!capabilities.containsKey(dcl.getName()))
+				new ApamCapability(dcl) ;
 		}
 	}
 
@@ -170,6 +179,9 @@ public class ApamCapability {
 	public String getAttrDefinition (String name) {
 		ApamCapability group = this ; // (getGroup() == null) ? this : getGroup() ;
 		String defAttr ;
+		if (Attribute.isFinalAttribute(name)) {
+			return "string" ;
+		}
 		while (group != null) {
 			defAttr = group.getLocalAttrDefinition(name)  ;
 			if (defAttr != null) return defAttr ;

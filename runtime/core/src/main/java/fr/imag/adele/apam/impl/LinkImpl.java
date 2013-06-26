@@ -21,10 +21,11 @@ import fr.imag.adele.apam.Relation;
 public class LinkImpl implements Link {
     private final ComponentImpl source;
     private final ComponentImpl destination;
-	private final String depName; // field name for atomic dep; spec name for complex dep, dest type for
 	private final boolean hasConstraints;
-	private final boolean isWire;
-	private final boolean isInjected;
+	private final Relation definition ;
+//	private final String depName; // field name for atomic dep; spec name for complex dep, dest type for
+//	private final boolean isWire;
+//	private final boolean isInjected;
 
     /**
      * Warning, only creates a Link object. Does not chain that link in the client and provider.
@@ -39,10 +40,11 @@ public class LinkImpl implements Link {
 	public LinkImpl(Component from, Component to, Relation dep, boolean hasConstraints) {
         source = (ComponentImpl) from;
         destination = (ComponentImpl) to;
-		this.isWire = dep.isWire();
-		this.isInjected = dep.isInjected();
-		this.depName = dep.getIdentifier();
         this.hasConstraints = hasConstraints ;
+        definition = dep ;
+//		this.isWire = dep.isWire();
+//		this.isInjected = dep.isInjected();
+//		this.depName = dep.getIdentifier();
     }
 
     @Override
@@ -57,7 +59,7 @@ public class LinkImpl implements Link {
 
     @Override
     public String getName() {
-        return depName;
+        return definition.getIdentifier();
     }
 
     @Override
@@ -68,14 +70,19 @@ public class LinkImpl implements Link {
 
 	@Override
 	public boolean isWire() {
-		return isWire;
+		return definition.isWire();
 	}
 
 	@Override
 	public boolean isInjected() {
-		return isInjected;
+		return definition.isInjected();
 	}
 	
+	@Override
+    public Relation getDefinition () {
+    	return definition ;
+    }
+
     public void remove() {
         source.removeLink(this);
         destination.removeInvLink(this);
@@ -85,9 +92,9 @@ public class LinkImpl implements Link {
 	@Override
 	public String toString() {
 		String ret = "" ;
-		if (isInjected) ret = (isWire) ? "wire " : " Ilink " ;
+		if (isInjected()) ret = (isWire()) ? "wire " : " Ilink " ;
 		else ret = "link " ;
-		return ret + depName + " from " + source + " to " + destination ;
+		return ret + getName() + " from " + source + " to " + destination ;
 	}
 
 }

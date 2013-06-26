@@ -551,7 +551,7 @@ public class DynamicManagerImplementation implements RelationManager, DynamicMan
 			Component declaringComponent = source;
 			while (declaringComponent != null) {
 				
-				RelationDeclaration declaration = declaringComponent.getDeclaration().getRelation(relation.getIdentifier());
+				RelationDeclaration declaration = declaringComponent.getDeclaration().getLocalRelation(relation.getIdentifier());
 				if ( declaration != null && declaration.getMissingException() != null && declaration.getMissingException().equals(exceptionName))
 					break;
 				

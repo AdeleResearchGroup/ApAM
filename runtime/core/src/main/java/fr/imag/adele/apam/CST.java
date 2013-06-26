@@ -32,16 +32,16 @@ public class CST {
 	//a single instance per implementation
 	public static final String SINGLETON = "singleton" ;
 
-	
-//	// APAM ROOT COMPOSITE
+
+	//	// APAM ROOT COMPOSITE
 	public static final String ROOT_COMPOSITE_TYPE = "root";
 
 	// Constant used by OBR
 	// Capability
 	public static final String         MAVEN                 = "maven";
-    public static final String         GROUP_ID              = "groupId";
-    public static final String         ARTIFACT_ID           = "artifactId";
-    
+	public static final String         GROUP_ID              = "groupId";
+	public static final String         ARTIFACT_ID           = "artifactId";
+
 	public static final String CAPABILITY_COMPONENT = "apam-component";
 	public static final String COMPONENT_TYPE 		= "component-type";
 	public static final String SPECIFICATION 		= "specification";
@@ -72,24 +72,47 @@ public class CST {
 	// These prefix cannot be used by users because they would conflict in the
 	// OBR.
 	public static final String[] reservedPrefix = { CST.DEFINITION_PREFIX,
-			CST.PROVIDE_PREFIX, CST.REQUIRE_PREFIX };
+		CST.PROVIDE_PREFIX, CST.REQUIRE_PREFIX };
 
 	public static final String[] notInheritedAttribute = {NAME,
-			COMPONENT_TYPE, VERSION, APAM_COMPOSITETYPE };
+		COMPONENT_TYPE, VERSION, APAM_COMPOSITETYPE };
 
 	// Attributes that cannot be changed nor set by users
 	public static final String[] finalAttributes = { 
-			CST.NAME, VERSION, CST.SPECNAME, 
-			CST.IMPLNAME, CST.INSTNAME, CST.MESSAGE, CST.APAM_COMPOSITE, 
-			CST.APAM_COMPOSITETYPE, CST.APAM_MAIN_COMPONENT, CST.APAM_MAIN_INSTANCE, 
-			CST.INTERFACE, CST.REQUIRE_INTERFACE, CST.REQUIRE_SPECIFICATION,
-			CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, 
-			CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION,
-			CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, 
-			CST.SHARED, CST.SINGLETON};
+		CST.NAME, VERSION, CST.SPECNAME, 
+		CST.IMPLNAME, CST.INSTNAME, CST.MESSAGE, CST.APAM_COMPOSITE, 
+		CST.APAM_COMPOSITETYPE, CST.APAM_MAIN_COMPONENT, CST.APAM_MAIN_INSTANCE, 
+		CST.INTERFACE, CST.REQUIRE_INTERFACE, CST.REQUIRE_SPECIFICATION,
+		CST.REQUIRE_MESSAGE, CST.PROVIDE_INTERFACES, 
+		CST.PROVIDE_MESSAGES, CST.PROVIDE_SPECIFICATION,
+		CST.INSTANTIABLE, CST.MULTIPLE, CST.REMOTABLE, 
+		CST.SHARED, CST.SINGLETON};
 
 	public static final String V_TRUE = "true";
 	public static final String V_FALSE = "false";
+
+	//Relations that cannot be changed nor set by users
+	public static final String REL_GROUP 	= "group";
+	public static final String REL_MEMBERS 	= "members";
+	public static final String REL_CONTAINS	= "contains";
+	public static final String REL_COMPOSITE= "composite";
+	public static final String REL_COMPOTYPE= "compotype";
+	public static final String REL_APPLI 	= "appli";
+//	public static final String REL_SPEC 	= "spec";
+
+	public static final String[] finalRelations = { 
+		REL_GROUP, REL_MEMBERS, REL_CONTAINS, REL_COMPOSITE, REL_APPLI, REL_COMPOTYPE
+	};
+
+	public static boolean isFinalRelation (String attr) {
+		for (String pred : CST.finalRelations) {
+			if (pred.equals(attr)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 	// Managers
 	public static final String APAMMAN   = "APAMMAN";

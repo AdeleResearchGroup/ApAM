@@ -296,7 +296,41 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public Set<Component> getLinkDests(String depName) {
+		if (depName == null || depName.isEmpty()) return null ;
 		Set<Component> dests = new HashSet<Component>();
+		
+		if (CST.isFinalRelation(depName)) {
+			if (depName.equals(CST.REL_GROUP)) {
+				dests.add(getGroup()) ;
+				return dests ;
+			}
+			if (depName.equals(CST.REL_MEMBERS)) {
+				dests.addAll(getMembers()) ;
+				return dests ;
+			}
+			if (depName.equals(CST.REL_COMPOSITE)) {
+				if (this instanceof Instance)
+					dests.add(((Instance)this).getComposite()) ;
+				return dests ;
+			}				
+			if (depName.equals(CST.REL_COMPOTYPE)) {
+				if (this instanceof Instance)
+					dests.add(((Instance)this).getComposite().getCompType()) ;
+				else if (this instanceof Implementation)
+					dests.addAll(((Implementation)this).getInCompositeType()) ;
+				return dests ;
+			}
+			if (depName.equals(CST.REL_CONTAINS)) {
+				if (this instanceof Composite)
+					dests.addAll(((Composite)this).getContainInsts()) ;
+				else if (this instanceof CompositeType)
+					dests.addAll(((CompositeType)this).getImpls()) ;
+				return dests ;
+			}
+
+			return dests ;
+		}
+		
 		for (Link link : getLinks(depName)) {
 			if (link.getName().equals(depName)) {
 				dests.add(link.getDestination());
@@ -384,6 +418,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return null ;
 		}
 		
+//		if (!rel.isLazy()) 
+//			return dests ;
+
 		Component source = rel.getRelSource (this) ;
 		CST.apamResolver.resolveLink(source, rel) ;
 		return getExistingLinks (relName) ;
@@ -411,6 +448,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	@Override
 	public Link getLink(String relName) {
+//		if (CST.isFinalRelation(relName)) {
+//			if (relName.equals(CST.REL_GROUP))
+//			//TODO
+//		}
+		
 		Component group = this; 
 		while (group != null) {
 			for (Link link : ((ComponentImpl)group).getLocalLinks()) {
@@ -439,6 +481,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (!dep.isRelation())
 			return true;
 
+		if (CST.isFinalRelation(dep.getIdentifier())){
+			throw new IllegalArgumentException("CreateLink: cannot create predefine relation " + dep.getIdentifier());
+		}
+		
 		if ((to == null) || (dep == null)) {
 			throw new IllegalArgumentException("CreateLink: Source or target are null ");
 		}
@@ -613,10 +659,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 
 	/**
-	 * Return the relation that can be applied to this component.
+	 * Return the relation with name "id" if it can be applied to this component.
 	 * 
 	 * A relation D can be applied on a component source if D.Id == id D.source
-	 * must be the name of source or of an ancestor of source, and D.SourceType
+	 * must be the name of source or of an ancestor of source, and D.SourceKind
 	 * == source.getKind.
 	 * 
 	 * Looks in the group, and then in the composite type, if source in an
@@ -629,7 +675,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	@Override
 	public Relation getRelation(String id) {
 		Relation dep = null;
-		Component group = this;
+		Component group = this.getGroup();
 		while (group != null) {
 			dep = ((ComponentImpl) group).getLocalRelation(id);
 			if (dep != null)
