@@ -155,6 +155,18 @@
 			</modules>
 		</profile>
 
+		<!-- Profile used to build ApAM -->
+		<profile>
+			<id>test</id>
+			<modules>
+				<module>runtime</module>
+				<module>plugins</module>
+				<module>tools</module>
+				<module>tests</module>
+			</modules>
+		</profile>
+
+
 		<!-- Profile used to release ApAM -->
 		<profile>
 			<id>release</id>

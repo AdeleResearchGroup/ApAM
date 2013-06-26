@@ -34,6 +34,9 @@ import org.apache.felix.ipojo.parser.FieldMetadata;
 import org.apache.felix.ipojo.parser.MethodMetadata;
 import org.apache.felix.ipojo.parser.PojoMetadata;
 
+import fr.imag.adele.apam.Implementation;
+import fr.imag.adele.apam.Instance;
+import fr.imag.adele.apam.Specification;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration.CodeReflection;
 import fr.imag.adele.apam.declarations.CallbackDeclaration;
@@ -842,10 +845,14 @@ public class CoreMetadataParser implements CoreParser {
 
 				if (relationInstrumentation != null) {
 
+					String fieldType = relationInstrumentation.getRequiredResource().getJavaType();
+					boolean match    = (targetKind.equals(ComponentKind.SPECIFICATION) && fieldType.equals(Specification.class.getName())) ||
+									   (targetKind.equals(ComponentKind.IMPLEMENTATION) && fieldType.equals(Implementation.class.getName())) ||
+							           (targetKind.equals(ComponentKind.INSTANCE) && ( fieldType.equals(Instance.class.getName()) || relationInstrumentation.getRequiredResource().equals(targetDef))); 
 					/*
 					 * Both the explicit target and the specified injection must match 
 					 */
-					if (!targetDef.equals(relationInstrumentation.getRequiredResource())) {
+					if (!match) {
 						errorHandler.error(Severity.ERROR,
 								"relation target " + targetDef.getName() + " doesn't match the type of the field or method " + relationInstrumentation.getName() + " in "
 										+ element);
