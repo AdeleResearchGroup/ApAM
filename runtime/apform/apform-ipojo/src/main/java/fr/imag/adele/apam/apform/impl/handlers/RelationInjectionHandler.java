@@ -122,7 +122,7 @@ public class RelationInjectionHandler extends ApformHandler {
         		Set<CallbackDeclaration> callbacks = relation.getCallback(trigger);
         		
         		if (callbacks == null)
-        			return;
+        			continue;
         		
         		for (CallbackDeclaration callback : callbacks) {
         			getInstanceManager().addCallback(new RelationCallback(getInstanceManager(),relation,trigger,callback));

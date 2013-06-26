@@ -41,8 +41,8 @@ import fr.imag.adele.apam.declarations.MessageReference;
 import fr.imag.adele.apam.declarations.OwnedComponentDeclaration;
 import fr.imag.adele.apam.declarations.PropertyDefinition;
 import fr.imag.adele.apam.declarations.RelationDeclaration;
-import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.RelationPromotion;
+import fr.imag.adele.apam.declarations.RequirerInstrumentation;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.ResourceReference;
 import fr.imag.adele.apam.declarations.SpecificationDeclaration;
@@ -128,8 +128,7 @@ public class CheckObr {
 	 * @param component
 	 *            the component to check
 	 */
-	public static Map<String, Object> getValidProperties(
-			ComponentDeclaration component) {
+	public static Map<String, Object> getValidProperties(ComponentDeclaration component) {
 		// the attributes to return
 		Map<String, Object> ret = new HashMap<String, Object>();
 		// Properties of this component
@@ -150,13 +149,12 @@ public class CheckObr {
 				continue;
 			}
 			//checkSubstitute (ComponentDeclaration component, String attr, String type, String defaultValue) 
-			//			if (checkSubstitute(component, attr, defAttr, properties.get(attr))) {
+			//if (checkSubstitute(component, attr, defAttr, properties.get(attr))) {
 			ret.put(attr, val);
-			//			}
+			//}
 		}
 
-		// add the attribute coming from "above" if not already instantiated and
-		// heritable
+		// add the attribute coming from "above" if not already instantiated and heritable
 		ApamCapability group = entCap.getGroup();
 		if (group != null && group.getProperties() != null) {
 			for (String prop : group.getProperties().keySet()) {
@@ -286,57 +284,57 @@ public class CheckObr {
 	}
 
 
-	
-    private static boolean checkFilter(ApamFilter filt, ComponentDeclaration component, Map<String, String> validAttr, String f, String spec) {
-        switch (filt.op) {
-            case ApamFilter.AND:
-            case ApamFilter.OR: {
-                ApamFilter[] filters = (ApamFilter[]) filt.value;
-                boolean ok = true ;
-                for (ApamFilter filter : filters) {
-                    if (!checkFilter(filter, component, validAttr, f, spec)) ok = false ;
-                }
-                return ok;
-            }
 
-            case ApamFilter.NOT: {
-                ApamFilter filter = (ApamFilter) filt.value;
-                return checkFilter(filter, component, validAttr, f, spec);
-            }
+	private static boolean checkFilter(ApamFilter filt, ComponentDeclaration component, Map<String, String> validAttr, String f, String spec) {
+		switch (filt.op) {
+		case ApamFilter.AND:
+		case ApamFilter.OR: {
+			ApamFilter[] filters = (ApamFilter[]) filt.value;
+			boolean ok = true ;
+			for (ApamFilter filter : filters) {
+				if (!checkFilter(filter, component, validAttr, f, spec)) ok = false ;
+			}
+			return ok;
+		}
 
-            case ApamFilter.SUBSTRING:
-            case ApamFilter.EQUAL:
-            case ApamFilter.GREATER:
-            case ApamFilter.LESS:
-            case ApamFilter.APPROX:
-            case ApamFilter.SUBSET:
-            case ApamFilter.SUPERSET:
-            case ApamFilter.PRESENT: {
-                if (!Attribute.isFinalAttribute(filt.attr) && !validAttr.containsKey(filt.attr)) {
-                    logger.error("Members of component " + spec + " cannot have property " + filt.attr
-                            + ". Invalid constraint " + f);
-                    return false ;
-                }
-                if (validAttr.containsKey(filt.attr)) {
-                	if (isSubstitute (component, filt.attr)) {
-                		error("Filter attribute  " +  filt.attr + " is a substitution: .  Invalid constraint " + f);
-                		return false ;
-                	}
-//        			if (Attribute.checkAttrType(name, defaultValue, type) != null) {
-//        				return checkSubstitute (component, name, type, defaultValue) ;
-        			if (Attribute.checkAttrType(filt.attr, filt.value, validAttr.get(filt.attr)) == null) {
-            			return false ;
-        			}
-        			return CheckObr.checkSubstitute (component, filt.attr, validAttr.get(filt.attr), (String)filt.value) ;
-//                    return Attribute.checkAttrType(attr, (String)value, validAttr.get(attr)) != null;
-                }
-            }
-            return true ;
-        }
-        return true ;
-    }
+		case ApamFilter.NOT: {
+			ApamFilter filter = (ApamFilter) filt.value;
+			return checkFilter(filter, component, validAttr, f, spec);
+		}
 
-	
+		case ApamFilter.SUBSTRING:
+		case ApamFilter.EQUAL:
+		case ApamFilter.GREATER:
+		case ApamFilter.LESS:
+		case ApamFilter.APPROX:
+		case ApamFilter.SUBSET:
+		case ApamFilter.SUPERSET:
+		case ApamFilter.PRESENT: {
+			if (!Attribute.isFinalAttribute(filt.attr) && !validAttr.containsKey(filt.attr)) {
+				logger.error("Members of component " + spec + " cannot have property " + filt.attr
+						+ ". Invalid constraint " + f);
+				return false ;
+			}
+			if (validAttr.containsKey(filt.attr)) {
+				if (isSubstitute (component, filt.attr)) {
+					error("Filter attribute  " +  filt.attr + " is a substitution: .  Invalid constraint " + f);
+					return false ;
+				}
+				//        			if (Attribute.checkAttrType(name, defaultValue, type) != null) {
+				//        				return checkSubstitute (component, name, type, defaultValue) ;
+				if (Attribute.checkAttrType(filt.attr, filt.value, validAttr.get(filt.attr)) == null) {
+					return false ;
+				}
+				return CheckObr.checkSubstitute (component, filt.attr, validAttr.get(filt.attr), (String)filt.value) ;
+				//                    return Attribute.checkAttrType(attr, (String)value, validAttr.get(attr)) != null;
+			}
+		}
+		return true ;
+		}
+		return true ;
+	}
+
+
 
 	private static boolean checkSubstitute (ComponentDeclaration component, String attr, String type, String defaultValue) {
 		//If it is a function substitution
@@ -370,29 +368,11 @@ public class CheckObr {
 
 
 		/*
-		 * if we have a relation, get the relation target
+		 * if we have a navigation, get the navigation target
 		 */
-		if (sub.depId != null) {			
-			RelationDeclaration depDcl = source.dcl.getRelation(sub.depId) ;
-			if (depDcl == null) {
-				error("relation " + sub.depId + " undefined for component "
-						+ source.getName());
-				return false ;
-			}
-
-			ComponentReference<?> targetComponent = depDcl.getTarget().as(ComponentReference.class) ;
-			if (targetComponent == null) { //it is an interface or message target. Cannot check.
-				warning(depDcl.getTarget().getName() + " is an interface or message. Substitution \"" + defaultValue + "\" cannot be checked for attribute " + attr ) ;
-				return true ;
-			}
-
-			source = ApamCapability.get(targetComponent.getName()) ;
-			if (source == null) {
-				error("Component " + targetComponent.getName() + " not found in substitution : " + defaultValue + " of attribute " + attr) ;
-				return false ;
-			}
-		}
-
+		source = getTargetNavigation(source, sub.depIds, defaultValue) ;
+		if (source == null) return false ;
+		if (source == ApamCapability.trueCap) return true ;
 
 		/*
 		 * check if the attribute is defined and if types are compatibles.			
@@ -409,9 +389,83 @@ public class CheckObr {
 		return false ;
 
 	}
+
+	private static ApamCapability getCapFinalRelation (ApamCapability source, String depName) {
+		if (CST.isFinalRelation(depName)) {
+			if (depName.equals(CST.REL_GROUP)) {
+				return source.getGroup() ;
+			}
+			if (depName.equals(CST.REL_MEMBERS)) {
+				//expecting that the relation will be inherited
+				//creating a dummy capability and dummy component that only refers to its group
+				if (source.dcl instanceof SpecificationDeclaration) {
+					AtomicImplementationDeclaration bidon = new AtomicImplementationDeclaration("void-" + source.getName(),
+							((SpecificationReference)source.dcl.getReference()), null) ;
+					return new ApamCapability(bidon) ;
+				}
+				if (source.dcl instanceof ImplementationDeclaration) {
+					InstanceDeclaration bidon = new InstanceDeclaration (((ImplementationReference)source.dcl.getReference()), 
+							"void-" + source.getName(), null) ;
+					return new ApamCapability(bidon) ;
+				}
+				return null ;
+			}
+			if (depName.equals(CST.REL_COMPOSITE)) {
+				//cannot compute staticaly
+				return ApamCapability.trueCap ;
+			}				
+			if (depName.equals(CST.REL_COMPOTYPE)) {
+				//cannot compute staticaly
+				return ApamCapability.trueCap ;
+			}
+			if (depName.equals(CST.REL_CONTAINS)) {
+				//cannot compute staticaly
+				return ApamCapability.trueCap ;
+			}
+		}
+
+		return null ;
+	}
+	/**
+	 * Return the definition of the last component for a navigation. 
+	 * @param source
+	 * @param navigation
+	 * @return null if false, ApamCapability.trueCap if not possible to check, the last ApamCompoent in the navigation if successfull
+	 */
+	private static ApamCapability getTargetNavigation (ApamCapability source, List<String> navigation, String defaultValue) {
+		if (navigation == null || navigation.isEmpty()) return source ;
+
+		for (String rel : navigation) {
+			if (CST.isFinalRelation(rel)) {
+				source = getCapFinalRelation (source, rel) ;
+				continue ;
+			}
+
+			RelationDeclaration depDcl = getRelationDefinition(source.dcl, rel) ;
+			if (depDcl == null ) {
+				error("relation " + rel + " undefined for " + source.dcl.getReference().getKind() + " " +    source.dcl.getName());
+				return null ;
+			}
+
+			ComponentReference<?> targetComponent = depDcl.getTarget().as(ComponentReference.class) ;
+			if (targetComponent == null) { //it is an interface or message target. Cannot check.
+				warning(depDcl.getTarget().getName() + " is an interface or message. Substitution \"" + defaultValue + "\" cannot be checked") ;
+				return ApamCapability.trueCap ;
+			}
+
+			source = ApamCapability.get(targetComponent.getName()) ;
+			if (source == null) {
+				error("Component " + targetComponent.getName() + " not found in substitution : " + defaultValue ) ;
+				return null ;
+			}
+		}
+
+		return source ;
+
+	}
 	/**
 	 * Checks if the attribute / values pair is valid for the component ent. If
-	 * a final attribute, it is ignored but returns false. (cannot be set).
+	 * a final attribute, it is ignored but returns null. (cannot be set).
 	 * 
 	 * For "integer" returns an Integer object, otherwise it is the string "value"
 	 * 
@@ -631,12 +685,20 @@ public class CheckObr {
 
 		for (RelationDeclaration dep : deps) {
 
+			//Checking for predefined relations. Cannot be redefined
+			if (CST.isFinalRelation(dep.getIdentifier())) {
+				CheckObr.error("relation " + dep.getIdentifier()
+						+ " is predefined.");
+				continue ;
+			}
+
 			// Checking for double relation Id
 			if (depIds.contains(dep.getIdentifier())) {
 				CheckObr.error("relation " + dep.getIdentifier()
 						+ " allready defined.");
-			} else
-				depIds.add(dep.getIdentifier());
+				continue ;
+			} 
+			depIds.add(dep.getIdentifier());
 
 			// validating relation constraints and preferences..
 			CheckObr.checkConstraint(component, dep);
@@ -665,16 +727,25 @@ public class CheckObr {
 			if (dep.getTarget() instanceof ResourceReference) {
 				checkInterfaceExist(dep.getTarget().getName());
 			} else {		
-			
-			//checking that the targetKind is not higher than the target
+
+				//checking that the targetKind is not higher than the target
 				if ((dep.getTarget() instanceof ImplementationReference && dep.getTargetKind() == ComponentKind.SPECIFICATION) 
-					|| (dep.getTarget() instanceof InstanceReference && dep.getTargetKind() != ComponentKind.INSTANCE))
+						|| (dep.getTarget() instanceof InstanceReference && dep.getTargetKind() != ComponentKind.INSTANCE))
 					error ("TargetKind " + dep.getTargetKind() + " is higher than the target " + dep.getTarget()) ;
 			}
 		}
 	}
 
-	
+	public static RelationDeclaration getRelationDefinition (ComponentDeclaration depComponent, String relName) {
+		// look for that relation declaration above
+		ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
+		RelationDeclaration relDef = null ;
+		while (group != null && (relDef == null)) {
+			relDef = group.getLocalRelation(relName) ;
+			group = ApamCapability.getDcl(group.getGroupReference()) ;
+		}
+		return relDef;
+	}
 
 	/**
 	 * Provided a relation declaration, compute the effective relation, adding
@@ -686,17 +757,19 @@ public class CheckObr {
 	 * @param relation
 	 * @return
 	 */
-	public static RelationDeclaration computeGroupRelation(
-			ComponentDeclaration depComponent, RelationDeclaration relation) {
+	public static RelationDeclaration computeGroupRelation(ComponentDeclaration depComponent, RelationDeclaration relation) {
 		String depName = relation.getIdentifier();
 
 		// look for that relation declaration above
-		ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
-		RelationDeclaration groupDep = null ;
-		while (group != null && (groupDep == null)) {
-			groupDep = group.getRelation(depName) ;
-			group = ApamCapability.getDcl(group.getGroupReference()) ;
-		}
+		RelationDeclaration groupDep = getRelationDefinition (depComponent, depName) ;
+
+		//		// look for that relation declaration above
+		//		ComponentDeclaration group = ApamCapability.getDcl(depComponent.getGroupReference()) ;
+		//		RelationDeclaration groupDep = null ;
+		//		while (group != null && (groupDep == null)) {
+		//			groupDep = group.getLocalRelation(depName) ;
+		//			group = ApamCapability.getDcl(group.getGroupReference()) ;
+		//		}
 
 		if (groupDep == null) {
 			//It is not defined above. Return it as is.
@@ -835,7 +908,7 @@ public class CheckObr {
 						+ dep.getTarget().getName());
 			}
 		}
-		
+
 		/*
 		 * TODO We also need to validate callback parameters
 		 */
@@ -1110,13 +1183,13 @@ public class CheckObr {
 						+ own.getComponent().getName());
 				continue;
 			}
-			
+
 			ComponentReference<?> foundReference = ApamCapability.getDcl(own.getComponent()).getReference();
 			if (! own.getComponent().getClass().isAssignableFrom(foundReference.getClass()) ) {
 				error("Component in own expression is of the wrong type, expecting "
 						+ own.getComponent() +" found "+foundReference);
 				continue;
-				
+
 			}
 
 			// computes the attributes that can be associated with this spec or

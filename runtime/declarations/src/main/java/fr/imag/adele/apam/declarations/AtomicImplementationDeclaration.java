@@ -50,12 +50,12 @@ public class AtomicImplementationDeclaration extends ImplementationDeclaration {
         /**
          * The type of return of the specified java method 
          */
-        String getMethodReturnType(String methodName, String signature) throws NoSuchMethodException;
+        String getMethodReturnType(String methodName, String signature, boolean includeInherited) throws NoSuchMethodException;
         
         /**
          * The type of the single argument of the specified java method
          */
-        String getMethodArgumentType(String methodName) throws NoSuchMethodException;
+        String getMethodArgumentType(String methodName, boolean includeInherited) throws NoSuchMethodException;
 
     }
 

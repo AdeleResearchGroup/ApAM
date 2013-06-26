@@ -31,7 +31,7 @@ public class Substitute {
 	public static class SplitSub {
 		public String attr ;
 		public String sourceName ;
-		public String depId ;
+		public List<String> depIds ;
 		public String prefix ;
 		public String suffix ;
 
@@ -41,8 +41,10 @@ public class Substitute {
 				ret.append(prefix + "+") ;
 			if (sourceName != null) 
 				ret.append(sourceName) ;
-			if (depId != null)
-				ret.append ("." + depId) ;
+			if (depIds != null) {
+				for (String depId : depIds)
+					ret.append ("." + depId) ;
+			}
 			ret.append("$" + attr) ;
 			if (suffix != null) 
 				ret.append("+" + suffix) ;
@@ -73,9 +75,23 @@ public class Substitute {
 				this.attr = attrSub ;
 			}
 
-			if (depId != null && depId.isEmpty())
-				this.depId = null ;
-			else this.depId = depId ;
+			//Compute the navigation
+			if (depId == null || depId.isEmpty())
+				this.depIds = null ;
+			else {
+				depIds = new ArrayList<String> ();
+				while (depId != null) {
+					s= depId.indexOf('.') ;
+					if (s < 0) { //It is the last one
+						depIds.add(depId) ;
+						depId = null ; 
+					}
+					else {
+						depIds.add(depId.substring(0, s)) ;
+						depId = depId.substring(s+1) ; 						
+					}
+				}
+			}
 
 			s = sourceName.indexOf('+') ;			
 			if (s < 1) { // invalid : source = "+azer" or "azert"
@@ -90,7 +106,8 @@ public class Substitute {
 	}
 
 	/**
-	 * Value is a substitution, with syntax [source[.depId]]"$"Attr
+	 * Value is a substitution, with syntax $[source[.depIds]]"$"Attr
+	 * Only split in three parts "source", "depIds" and "attr"
 	 *  
 	 * @param value a string to substitute
 	 * @return a SplitSub object the three elements. Null is not a substitution
@@ -98,14 +115,17 @@ public class Substitute {
 	public static SplitSub split (String value) {
 		if (value.charAt(0) != '$')
 			return null ;
+
+		//eliminate first "$"
 		value = value.substring(1);
 
+		//If no "$Attr" it is invalid
 		int i = value.indexOf('$') ;
 		if (i==-1) 
 			return null ;
 
 		String attr = value.substring(i+1) ;
-		if (i==0) { //no prefix
+		if (i==0) { //no source, no navigation "$$Attr"
 			return new SplitSub (attr,"this", null) ;
 		}
 
@@ -133,8 +153,8 @@ public class Substitute {
 	public static boolean checkSubType (AttrType sourceType, AttrType targetType, String attr, SplitSub sub) {
 
 		/*
-		 * We are in a filter, source is the target, ans the real source is ignore.
-		 *Validity has been checked at compile time  
+		 * We are in a filter, source is the target, and the real source is ignored.
+		 * Validity has been checked at compile time  
 		 */		
 		if (sourceType == null)
 			return true ;
@@ -178,6 +198,7 @@ public class Substitute {
 		}
 		return ret ;
 	}
+
 	/**
 	 * Return the value of attribute "attr" of component source, if the types are compatibles.
 	 * Types are compatible if the type of "attr" and "typeAttr" are equal.
@@ -248,7 +269,7 @@ public class Substitute {
 	 * If not a substitution returns the value as is.
 	 * If the substitution fails, returns null.
 	 * 
-	 * Syntax is : subst == [prefix "+"][sourceName]["." depId] "$" attr ["+" Suffix]
+	 * Syntax is : subst == [prefix "+"][sourceName][{"." depId}] "$" attr ["+" Suffix]
 	 * 
 	 * The depId element is valid only if source is an instance.
 	 * @param attr 
@@ -279,8 +300,9 @@ public class Substitute {
 		if (value.charAt(0) == '@')
 			return functionSubstitute(attr, value, source) ;
 
-		//a meta substitution
-
+		/*
+		 * It is a meta substitution
+		 */
 		AttrType st = null ;
 		// If attr is null, it is because it is a substitution in a filter. Source is currently the target ! Do no check the attr
 		if (attr != null) {
@@ -295,48 +317,32 @@ public class Substitute {
 			source = CST.apamResolver.findComponentByName(source, sub.sourceName) ;
 			if (source == null) {
 				logger.error("Component " + sub.sourceName + " not found in substitution : " + value + " of attribute " + attr) ;
-				return false ;
+				return null ;
 			}
 		}  
 
-		if (sub.depId == null) {
+		if (sub.depIds == null) {
 			return checkReturnSub (source, sub, attr, st) ;
 		}
 
-		// look for the relation depId of the source component
-		//No longer ! Source must be an instance; get its wire.
-		//		if (!!! (source instanceof Instance)) {
-		// logger.error("Invalid relation " + sub.depId + " for component " +
-		// source + ". Not an instance.") ;
-		//			return null ;
-		//		}
+		/*
+		 *  look for the navigation from the source component
+		 */
+		Set<Component> dest = navigate (source, sub.depIds) ;
 
-		Relation depDcl =  source.getRelation (sub.depId) ;
-		if (depDcl == null) {
-			logger.error("relation " + sub.depId + " undefined for component "
-					+ source.getName());
-			return null ;
-		}
-
-		Set<Component> dest = source.getLinkDests(sub.depId) ;
-		if (dest == null) {
-			logger.error("relation id " + sub.depId
-					+ " not resolved for component " + source);
-			return null ;
-		}
 		if (dest.size() == 1) {
 			return checkReturnSub (dest.iterator().next(), sub, attr, st) ;
 		}
 
 		/*
-		 * TypeAttr must be a set, and each destination must be either a singleton of the right type, 
+		 * We have more than one source; TypeAttr must be a set, and each destination must be either a singleton of the right type, 
 		 * or the same type of Set.
 		 * We are building a collection with all the values.
 		 * 
 		 */
 		if (!st.isSet) {
 			logger.error("Invalid type for attribute " + attr 
-					+ " It must be a set for a multiple relation " + sub.depId);
+					+ " It must be a set for a multiple relation or navigation" + sub.depIds);
 			return null ;
 		}
 
@@ -369,6 +375,48 @@ public class Substitute {
 		return retSetString ;
 	}
 
+	/**
+	 * From an unique component source, and a list of relation names, compute the set of components reached by that navigation.
+	 * 
+	 * @param firstSource
+	 * @param navigation
+	 * @return
+	 */
+	private static Set<Component> navigate (Component firstSource, List<String> navigation) {
+		//Compute the navigation. It returns a set of components
+		Relation depDcl ;
+		Set<Component> dests   = new HashSet <Component> ();
+
+		Set<Component> sources = new HashSet <Component> ()  ;
+		sources.add(firstSource) ;
+		if (navigation == null || navigation.isEmpty())
+			return sources ;
+		
+		Set<Component> tempDests ;
+
+		for (String depId : navigation ) {
+			for (Component source : sources) {
+				depDcl =  source.getRelation (depId) ;
+				if (depDcl == null && !CST.isFinalRelation(depId)) {
+					logger.error("relation " + depId + " undefined for component " + source.getName());
+				} else {
+					tempDests = source.getLinkDests(depId) ;
+					if (tempDests.isEmpty()) {
+						logger.debug("relation id " + depId + " not resolved for component " + source.getName());
+					} else
+						dests.addAll (tempDests) ; //never null
+				}
+			}
+			if (dests.isEmpty()) return dests ; //no solution
+			
+			//Go one step further
+			sources.clear();
+			sources.addAll(dests) ;
+			dests.clear () ;
+		}
+		
+		return sources ;
+	}
 	/**
 	 * Transforms a list of constraint in string, into a list of filters, and substitute the values if needed
 	 * @param filterString

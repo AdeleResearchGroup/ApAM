@@ -136,7 +136,7 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
     /**
      * The field injected in the instance
      */
-    private ApAMQueue<Object> fieldBuffer;
+    private ApAMQueue<?> fieldBuffer;
     
     
     public MessageInjectionManager(ApamComponentFactory component, ApamInstanceManager instance, RequirerInstrumentation injection) throws ConfigurationException {
@@ -442,14 +442,13 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
         
         if (!(value instanceof Message))
             return;
+
+        Message<?> message = (Message<?>) value;
+        message.markAsReceived(wire.getProperties());
         
         if (isMessageCallback){
-            Message<Object> message = (Message<Object>) value;
-            message.markAsReceived(wire.getProperties());
             buffer.offer(message);
         }else {
-            Message<Object> message = (Message<Object>) value;
-            message.markAsReceived(wire.getProperties());
             buffer.offer(message.getData());
         }
        
@@ -467,7 +466,8 @@ public class MessageInjectionManager implements RelationInjectionManager, Consum
                         callback.call(new Object[] {consumed});
                 }
             } catch (Exception e) {
-                System.err.println("error invoking callbaack "+e);
+                System.err.println("error invoking callback "+e);
+                e.printStackTrace(System.err);
             }   
         }
     }

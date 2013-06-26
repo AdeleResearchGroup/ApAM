@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.felix.ipojo.ConfigurationException;
@@ -35,14 +34,13 @@ import org.osgi.service.wireadmin.Wire;
 import org.osgi.service.wireadmin.WireAdmin;
 import org.osgi.service.wireadmin.WireConstants;
 
-import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.apform.impl.ApamAtomicComponentFactory;
+import fr.imag.adele.apam.apform.impl.ApamComponentFactory;
 import fr.imag.adele.apam.declarations.AtomicImplementationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationDeclaration;
-import fr.imag.adele.apam.declarations.ProviderInstrumentation;
 import fr.imag.adele.apam.declarations.MessageReference;
+import fr.imag.adele.apam.declarations.ProviderInstrumentation;
 import fr.imag.adele.apam.message.Message;
-import fr.imag.adele.apam.message.MessageProducer;
 import fr.imag.adele.apam.util.Util;
 
 
@@ -51,14 +49,11 @@ import fr.imag.adele.apam.util.Util;
  * message producer, so that it translates message exchanges over APAM wires into concrete message exchanges
  * over WireAdmin wires.
  * 
- * This handler is also a field interceptor that injects itself into all fields used to transparently produce
- * messages. Fields must be declared of type MessageProducer<D>, and a reference to this handler will be
- * down casted and injected.
  *   
  * @author vega
  *
  */
-public class MessageProviderHandler extends ApformHandler implements Producer, MessageProducer<Object>, MethodInterceptor {
+public class MessageProviderHandler extends ApformHandler implements Producer, MethodInterceptor {
 
 
 	/**
@@ -111,8 +106,10 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
     @Override
     public void configure(Element componentMetadata, Dictionary configuration) throws ConfigurationException {
 
-    	if (!(getFactory() instanceof ApamAtomicComponentFactory))
+    	if (!(getFactory() instanceof ApamAtomicComponentFactory)) {
+    		isRegisteredProducer = false;
     		return;
+    	}
 
     	Set<MessageReference> providedMessages 	= getFactory().getDeclaration().getProvidedResources(MessageReference.class);
     	Set<Class<?>> providedFlavors 			=  new HashSet<Class<?>>();
@@ -289,22 +286,8 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 		}
 	}
 
-	/**
-	 * Broadcast the message to all connected consumers expecting this flavor
-	 */
-	@Override
-	public void push(Object data, Map<String,Object> properties) {
-		Message<Object> m = new Message<Object>(data);
-		m.getProperties().putAll(properties);
-		push(m);
-	}
 
-	@Override
-	public void push(Object data) {
-		push(new Message<Object>(data));
-	}
-
-	private void push(Message<Object> message) {
+	private void push(Message<?> message) {
 		
 	    
 		if (message.getData() == null)
@@ -357,7 +340,7 @@ public class MessageProviderHandler extends ApformHandler implements Producer, M
 	    if (returnedObj instanceof Message){
 	        push((Message<?>)returnedObj);
 	    }else {
-	        push(returnedObj);
+	    	push(new Message<Object>(returnedObj));
 	    }
 	}
 

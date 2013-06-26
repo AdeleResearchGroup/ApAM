@@ -75,56 +75,6 @@ public interface RelationManager extends Manager {
 	 */
 	public Resolved<?> resolveRelation(Component source, Relation relation);
 
-	// /**
-	// * The instance client asks for a component given its name and type.
-	// * The component must be visible from the client.
-	// *
-	// * @param client the instance calling implem (and where to create the
-	// component, if
-	// * needed). If null, the system root instance is assumed.
-	// * The search scope is compoType.
-	// * @param implName the name of implementation to find.
-	// * @return the implementations if resolved, null otherwise
-	// */
-	// public Instance findInstByName (Component client, String instName);
-	// public Implementation findImplByName (Component client, String implName);
-	// public Specification findSpecByName (Component client, String specName);
-	//
-	//
-	// /**
-	// * The manager is asked to find the "right" instance for the required
-	// implementation.
-	// * The returned instances must be "visible" from the client.
-	// *
-	// * @param client the instance that ask for an "impl" instance.
-	// * @param impl the implementation to resolve. Cannot be null.
-	// * @param constraints. The constraints to satisfy. They must be all
-	// satisfied.
-	// * @param preferences. If more than one implementation satisfies the
-	// constraints, returns the one that satisfies the
-	// * maximum
-	// * @return an instance if resolved, null otherwise
-	// */
-	// public Instance resolveImpl(Component client, Implementation impl,
-	// Relation relation);
-	//
-	// /**
-	// * The manager is asked to find the all "right" instances for the required
-	// implementation.
-	// * The returned instances must be "visible" from the client.
-	// *
-	// * @param client the instance that ask for an "impl" instance.
-	// * @param impl the implementation to resolve. Cannot be null.
-	// * @param constraints. The constraints to satisfy. They must be all
-	// satisfied.
-	// * @param preferences. If more than one implementation satisfies the
-	// constraints, returns the one that satisfies the
-	// * maximum
-	// * @return all the instances if resolved, null otherwise
-	// */
-	// public Set<Instance> resolveImpls(Component client, Implementation impl,
-	// Relation relation);
-	//
 	/**
 	 * Once the resolution terminated, either successful or not, the managers
 	 * are notified of the current selection. Currently, the managers cannot

@@ -21,15 +21,17 @@
                           
     <implementation name="BasicLightAutomation" classname="fr.imag.adele.apam.application.ligthen.BasicLightAutomation">
         
-        <callback onInit="start" onRemove="stop"/>
-        
         <dependency field="lights" specification="Light" added="bindLight" removed="unBindLight">
             <constraints>
             	<instance filter="(location=$$location)"/>
             </constraints>
         </dependency>
         
-        <dependency field="presenceSensor" specification="Presence" added="bindPresence" removed="unBindPresence">
+        <dependency specification="Presence">
+        	
+        	<interface 	field="presenceSensor"/>
+            <message 	push="presenceChanged"/>
+            
             <constraints>
             	<instance filter="(location=$$location)"/>
             </constraints>

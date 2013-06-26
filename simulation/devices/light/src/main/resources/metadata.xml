@@ -24,7 +24,7 @@
 			<ipojo:property name="service.description" type="string" />
 			<ipojo:property name="device.serialNumber" type="string" field="m_serialNumber"/>
 			
-			<ipojo:property name="light.powerStatus" value="false" 		field="m_powerStatus" />
+			<ipojo:property name="light.powerStatus" value="false" 	field="m_powerStatus" />
 			
 			<ipojo:property name="fault" value="no" field="fault" />
 			<ipojo:property name="state" value="activated" field="state" />

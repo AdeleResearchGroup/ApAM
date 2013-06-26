@@ -1,0 +1,9 @@
+[submodule "simulation/icasa-embedded/icasa-simulator"]
+	path = simulation/icasa-embedded/icasa-simulator
+	url = file:///G:/iCasa-Simulator/.git
+[submodule ".\\simulation\\icasa-embedded/icasa-common"]
+	path = .\\simulation\\icasa-embedded/icasa-common
+	url = https://github.com/jandernascimento/ADELE-Common.git
+[submodule ".\\simulation\\icasa-embedded/icasa-platform"]
+	path = .\\simulation\\icasa-embedded/icasa-platform
+	url = https://github.com/jandernascimento/iCasa-Platform.git

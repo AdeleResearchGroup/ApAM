@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>apam-icasa-scenario</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.2-SNAPSHOT</version>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
 	<groupId>fr.imag.adele.apam</groupId>
@@ -20,26 +20,22 @@
 		<dependency>
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.ipojo.annotations</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
 			<artifactId>apam-core</artifactId>
-			<scope>compile</scope>
 		</dependency>
 	
 		<dependency>
 			<groupId>fr.liglab.adele.icasa</groupId>
 			<artifactId>context.api</artifactId>
-			<scope>compile</scope>
 		</dependency>
 
 
 		<dependency>
 			<groupId>fr.liglab.adele.icasa</groupId>
 			<artifactId>simulator.api</artifactId>
-			<scope>compile</scope>
 		</dependency>
 	
 		<dependency>
@@ -49,7 +45,12 @@
 			<scope>compile</scope>
 		</dependency>
 		
-		
+		<dependency>
+			<groupId>fr.imag.adele.apam</groupId>
+			<artifactId>security</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
 
 	</dependencies>
 
@@ -62,7 +63,6 @@
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
-				<version>${project.version}</version>
 				<executions>
 					<execution>
 						<goals>

@@ -296,7 +296,41 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public Set<Component> getLinkDests(String depName) {
+		if (depName == null || depName.isEmpty()) return null ;
 		Set<Component> dests = new HashSet<Component>();
+		
+		if (CST.isFinalRelation(depName)) {
+			if (depName.equals(CST.REL_GROUP)) {
+				dests.add(getGroup()) ;
+				return dests ;
+			}
+			if (depName.equals(CST.REL_MEMBERS)) {
+				dests.addAll(getMembers()) ;
+				return dests ;
+			}
+			if (depName.equals(CST.REL_COMPOSITE)) {
+				if (this instanceof Instance)
+					dests.add(((Instance)this).getComposite()) ;
+				return dests ;
+			}				
+			if (depName.equals(CST.REL_COMPOTYPE)) {
+				if (this instanceof Instance)
+					dests.add(((Instance)this).getComposite().getCompType()) ;
+				else if (this instanceof Implementation)
+					dests.addAll(((Implementation)this).getInCompositeType()) ;
+				return dests ;
+			}
+			if (depName.equals(CST.REL_CONTAINS)) {
+				if (this instanceof Composite)
+					dests.addAll(((Composite)this).getContainInsts()) ;
+				else if (this instanceof CompositeType)
+					dests.addAll(((CompositeType)this).getImpls()) ;
+				return dests ;
+			}
+
+			return dests ;
+		}
+		
 		for (Link link : getLinks(depName)) {
 			if (link.getName().equals(depName)) {
 				dests.add(link.getDestination());
@@ -384,6 +418,9 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			return null ;
 		}
 		
+//		if (!rel.isLazy()) 
+//			return dests ;
+
 		Component source = rel.getRelSource (this) ;
 		CST.apamResolver.resolveLink(source, rel) ;
 		return getExistingLinks (relName) ;
@@ -411,6 +448,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	@Override
 	public Link getLink(String relName) {
+//		if (CST.isFinalRelation(relName)) {
+//			if (relName.equals(CST.REL_GROUP))
+//			//TODO
+//		}
+		
 		Component group = this; 
 		while (group != null) {
 			for (Link link : ((ComponentImpl)group).getLocalLinks()) {
@@ -439,6 +481,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (!dep.isRelation())
 			return true;
 
+		if (CST.isFinalRelation(dep.getIdentifier())){
+			throw new IllegalArgumentException("CreateLink: cannot create predefine relation " + dep.getIdentifier());
+		}
+		
 		if ((to == null) || (dep == null)) {
 			throw new IllegalArgumentException("CreateLink: Source or target are null ");
 		}
@@ -613,10 +659,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 
 	/**
-	 * Return the relation that can be applied to this component.
+	 * Return the relation with name "id" if it can be applied to this component.
 	 * 
 	 * A relation D can be applied on a component source if D.Id == id D.source
-	 * must be the name of source or of an ancestor of source, and D.SourceType
+	 * must be the name of source or of an ancestor of source, and D.SourceKind
 	 * == source.getKind.
 	 * 
 	 * Looks in the group, and then in the composite type, if source in an
@@ -730,7 +776,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 * @param forced
 	 * @return
 	 */
-	public boolean setPropertyInt(String attr, Object value, boolean forced) {
+	public boolean setProperty(String attr, Object value, boolean forced) {
 		/*
 		 * Validate that the property is defined and the value is valid Forced
 		 * means that we can set field attribute
@@ -743,13 +789,10 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		if (val == null)
 			return false;
 
-		// does the change, notifies, changes the platform and propagate to
-		// members
-		this.propagate(attr, val);
-		
 		/*
 		 * Force recalculation of dependencies that may have been invalidated by
-		 * the property change
+		 * the property change. This must be done before notification and propagation,
+		 * otherwise we risk to remove links updated by managers.
 		 * 
 		 * TODO Check if this must be done for all links or only dynamic links
 		 */
@@ -757,6 +800,11 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 			if (incoming.hasConstraints())
 				incoming.remove();
 		}
+		
+		
+		// does the change, notifies managers, changes the platform and propagate to
+		// members
+		this.propagate(attr, val);
 		
 		return true;
 	}
@@ -769,7 +817,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public boolean setProperty(String attr, Object value) {
-		return setPropertyInt(attr, value, false);
+		return setProperty(attr, value, false);
 	}
 
 
@@ -838,6 +886,15 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	 */
 	@Override
 	public boolean removeProperty(String attr) {
+		return removeProperty(attr, false);
+	}
+	
+	/**
+	 * Warning: to be used only by Apform for removing internal attributes. Only
+	 * Inhibits the message "Attribute " + attr +
+	 * " is an program field attribute and cannot be removed.");
+	 */
+	public boolean removeProperty(String attr, boolean forced) {
 
 		String oldValue = getProperty(attr);
 
@@ -857,7 +914,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 		}
 
 		PropertyDefinition propDef = getAttrDefinition(attr);
-		if (propDef != null && propDef.getField() != null) {
+		if (propDef != null && propDef.getField() != null && !forced) {
 			logger.error("In " + this + " attribute " + attr + " is a program field and cannot be removed.");
 			return false;
 		}

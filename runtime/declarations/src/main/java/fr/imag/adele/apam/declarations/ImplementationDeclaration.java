@@ -30,7 +30,7 @@ public abstract class ImplementationDeclaration extends ComponentDeclaration {
     private final SpecificationReference specification;
 
 
-    protected ImplementationDeclaration(String name, SpecificationReference specification) {
+    public ImplementationDeclaration(String name, SpecificationReference specification) {
         super(name);
         this.specification = specification;
     }

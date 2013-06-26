@@ -76,20 +76,23 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 <!-- 		<property name="fd2metaStr" type="string" value="$prefixx+$c+sufixx"/> -->
 <!-- 		<property name="fd2metaS1i" type="{int}" value="$S2Impl$intSet"/> -->
 		<property name="d2metaBool" type="boolean" value="$S2Impl$b"/>
+		<property name="mauvais" type="boolean" value="$S2_Instance.S4_2$b" />
+		<property name="d5metaEnumLoc" type="exit, entrance, garage, bedroom" value="$S2_Instance.S4_2$locationSingle" />
 <!-- 		<property name="fd2metaBool" type="boolean" value="$prefixx+S2Impl$bmissing"/> -->
-		<property name="d2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$S2Impl.S4_2$locationSingle" />
-		<property name="d5metaEnumLoc" type="{exit, entrance, garage, bedroom}" value="$S2Impl.S4_2$locationSingle" />
+		<property name="d2metaEnumLoc" type="{exit, entrance, garage, bedroom}" value="$S2Impl.members.S4_2$locationSingle" />
+		<property name="d21metaEnumLoc" type="{string}" value="$destinations de S4-2+S2Impl.members.S4_2$name" />
+		<property name="d2m2etaEnumLoc" type="{string}" value="$destinations de s2+S2Impl.members.S3$name" />
 <!-- 		<property name="fd2metaEnumLoc" type="exit, x, garage, bedroom" value="$S2Impl.S4_2$locationSingle" /> -->
 <!-- 		<property name="fd2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$S2Impl.S4_2$location" /> -->
 <!-- 		<property name="fd2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$S2Impl.S4_2$locationf" /> -->
 <!-- 		<property name="fd3metaEnumLoc" type="exit, b, garage, bedroom" value="$prefixx+S2Impl.S4_2$location+sufixx" /> -->
-		<property name="metaEnumLoc8" type="{exit, entrance, garage, bedroom}" value="$S2Impl.S4_2$location" />
+		<property name="metaEnumLoc8" type="{exit, entrance, garage, bedroom}" value="$S2Impl.members.S4_2$location" />
 <!-- 		<property name="metaEnumLoc" type="{string}" value="$S2Impl.S4_2$location" /> -->
 
-		<property name="d6metaEnumLoc" type="{string}" value="$.s2$setstring" />
-		<property name="d6metaEnumLoc6" type="{string}" value="$xxx+.s2$setstring+YYY" />
-		<property name="d6metaEnumLoc2" type="{string}" value="$aaaa+this.s2$setstring+bbbb" />
-		<property name="d6metaEnumLoc4" type="{string}" value="$this.s2$setstring" />
+		<property name="d6metaEnumLoc"  type="{string}" value="$.members.s2$setstring" />
+		<property name="d6metaEnumLoc6" type="{string}" value="$xxx+.members.s2$setstring+YYY" />
+		<property name="d6metaEnumLoc2" type="{string}" value="$aaaa+this.members.s2$setstring+bbbb" />
+		<property name="d6metaEnumLoc4" type="{string}" value="$this.members.s2$setstring" />
 <!-- 		<property name="d2metaEnumLoc" type="exit, entrance, garage, bedroom" value="$.s2.s4_2$locationSingle" /> -->
 <!-- 		<property name="d5metaEnumLoc" type="{exit, entrance, garage, bedroom}" value="$S2Impl.S4_2$locationSingle" /> -->
 
@@ -100,6 +103,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 
 	</implementation>
 
+
+
 <implementation name="MotorolaZ43" specification="CapteurTemp" 
 	classname="apam.test.attrImpl.MotorolaZ43" >
 	<property name="unit" value="C" />
@@ -108,7 +113,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 </implementation>
 
 
-<!-- 	<instance implementation="TestAttr" name="TestAttr_Instance" /> -->
+	<apam-instance implementation="S2Impl" name="S2_Instance" />
 		
 		
 </apam>

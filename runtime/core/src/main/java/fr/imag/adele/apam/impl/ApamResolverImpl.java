@@ -150,7 +150,7 @@ public class ApamResolverImpl implements ApamResolver {
 
 		Implementation mainComponent			= mainInst.getImpl();
 		String applicationName 					= mainComponent.getName() + "_Appli";
-		SpecificationReference specification	= mainComponent.getImplDeclaration().getSpecification();
+//		SpecificationReference specification	= mainComponent.getImplDeclaration().getSpecification();
 		Set<ManagerModel> models				= new HashSet<ManagerModel>();
 
 		logger.debug("creating a dummy root composite type " + applicationName + " to contain unused " + mainInst) ;
@@ -213,7 +213,7 @@ public class ApamResolverImpl implements ApamResolver {
 
 		Component source = dep.getRelSource(source2) ;
 		if (source == null ){
-			logger.error("Component source not at the right level; found " + source2.getKind() + " expected " + dep.getSourceKind());
+			logger.error("Component source not at the right level; found " + source2 + " expected " + dep.getSourceKind());
 			return null;
 		}
 		
@@ -501,7 +501,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		@SuppressWarnings("rawtypes")
-		Relation dep = new RelationImpl(new ImplementationReference(impl.getName()), ComponentKind.INSTANCE, constraints, preferences);
+		Relation dep = new RelationImpl(new ImplementationReference(impl.getName()), client.getKind(), ComponentKind.INSTANCE, constraints, preferences);
 
 		Resolved<?> resolve = resolveLink (client, dep) ;
 		if (resolve == null) 
@@ -517,7 +517,7 @@ public class ApamResolverImpl implements ApamResolver {
 		}
 
 		@SuppressWarnings("rawtypes")
-		Relation dep = new RelationImpl(new ImplementationReference(impl.getName()), ComponentKind.INSTANCE, constraints, null);
+		Relation dep = new RelationImpl(new ImplementationReference(impl.getName()), client.getKind(), ComponentKind.INSTANCE, constraints, null);
 
 		Resolved<?> resolve = resolveLink (client, dep) ;
 		if (resolve == null) 
@@ -536,7 +536,7 @@ public class ApamResolverImpl implements ApamResolver {
 
 		// CompositeType compoType = CompositeTypeImpl.getRootCompositeType();
 
-		Relation relation = new RelationImpl(targetComponent, targetKind, null, null);
+		Relation relation = new RelationImpl(targetComponent, client.getKind(), targetKind, null, null);
 		Resolved<?> res = resolveLink (client, relation) ;
 		if (res == null) return null ;
 		return res.singletonResolved ;
@@ -569,14 +569,14 @@ public class ApamResolverImpl implements ApamResolver {
 	@Override
 	public Implementation resolveSpecByInterface(Component client, String interfaceName, Set<String> constraints, List<String> preferences) {
 
-		Relation dep = new RelationImpl(new InterfaceReference(interfaceName), ComponentKind.IMPLEMENTATION, constraints, preferences);
+		Relation dep = new RelationImpl(new InterfaceReference(interfaceName), client.getKind(), ComponentKind.IMPLEMENTATION, constraints, preferences);
 		return resolveSpecByResource(client, dep);
 	}
 
 	@Override
 	public Implementation resolveSpecByMessage(Component client, String messageName, Set<String> constraints, List<String> preferences) {
 
-		Relation dep = new RelationImpl(new MessageReference(messageName), ComponentKind.IMPLEMENTATION, constraints, preferences);
+		Relation dep = new RelationImpl(new MessageReference(messageName), client.getKind(), ComponentKind.IMPLEMENTATION, constraints, preferences);
 		return resolveSpecByResource(client, dep);
 	}
 
@@ -598,7 +598,7 @@ public class ApamResolverImpl implements ApamResolver {
 			client = CompositeImpl.getRootInstance () ;
 		}
 
-		Relation dep = new RelationImpl(new SpecificationReference(specName), ComponentKind.IMPLEMENTATION, constraints, preferences);
+		Relation dep = new RelationImpl(new SpecificationReference(specName), client.getKind(), ComponentKind.IMPLEMENTATION, constraints, preferences);
 
 		return resolveSpecByResource(client, dep) ;
 	}

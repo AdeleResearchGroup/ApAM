@@ -41,20 +41,19 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
 
     public SimulatedBinaryLight(){
 		super();
-        super.setPropertyValue(SimulatedDevice.LOCATION_PROPERTY_NAME, SimulatedDevice.LOCATION_UNKNOWN);
-        super.setPropertyValue(BinaryLight.BINARY_LIGHT_POWER_STATUS, false);
+
+		super.setPropertyValue(BinaryLight.BINARY_LIGHT_POWER_STATUS, false);
 		super.setPropertyValue(BinaryLight.BINARY_LIGHT_MAX_POWER_LEVEL, 100.0d);
+		
+        super.setPropertyValue(SimulatedDevice.LOCATION_PROPERTY_NAME, SimulatedDevice.LOCATION_UNKNOWN);
+        location = SimulatedDevice.LOCATION_UNKNOWN;
+
     }
 
     @Override
     public synchronized boolean setPowerStatus(boolean status) {
-    	
-    	System.out.println("Configuring lights to "+status);
-    	
     	setPropertyValue(BinaryLight.BINARY_LIGHT_POWER_STATUS, status);
-    	
         m_powerStatus=status;
-        
         return m_powerStatus;
     }
     
@@ -63,16 +62,7 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
         return m_powerStatus;
     }
 
-//	@Override
-//	public void turnOff() {
-//		setPowerStatus(false);
-//	}
-//
-//	@Override
-//	public void turnOn() {
-//		setPowerStatus(true);
-//	}
-
+    @Override
     public String getSerialNumber() {
         return m_serialNumber;
     }
@@ -99,16 +89,25 @@ public class SimulatedBinaryLight extends AbstractDevice implements BinaryLight,
 
     @Override
 	public double getMaxPowerLevel() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
     @Override
 	public void enterInZones(List<Zone> zones) {
-		if (!zones.isEmpty()) {
-			location = zones.get(0).getId();
-			
-		}
+    	
+    	/*
+    	 * NOTE filed "location" is an APAM injected field that is recalculated
+    	 * on each access, use a copy to avoid side-effects on multiple evaluations.
+    	 */
+    	
+    	String currentLocation = location;
+    	if (currentLocation == SimulatedDevice.LOCATION_UNKNOWN && zones.isEmpty())
+    		return;
+    	
+    	if (currentLocation != SimulatedDevice.LOCATION_UNKNOWN && zones.contains(currentLocation))
+    		return;
+    	
+    	location = zones.isEmpty() ? SimulatedDevice.LOCATION_UNKNOWN : zones.get(0).getId();
 
 	}
 }

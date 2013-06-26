@@ -2,19 +2,34 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>fr.imag.adele.apam</groupId>
-		<artifactId>apam-project</artifactId>
-		<version>0.0.2-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	
 	<properties>
+
+		<!-- Dependencies version -->
+
+		<apam.version>0.0.2-SNAPSHOT</apam.version>
 		<icasa.version>1.0.1-SNAPSHOT</icasa.version>
+
+		<!-- java compilation version -->
+		<compiler.plugin.version>2.5.1</compiler.plugin.version>
+		<java.version>1.6</java.version>
+		<javadoc.plugin.version>2.9</javadoc.plugin.version>
+		<source.plugin.version>2.1.2</source.plugin.version>
+		<release.plugin.version>2.4</release.plugin.version>
+		
+		<!-- ipojo compilation version -->
+		<osgi.version>4.2.0</osgi.version>
+		<bundle.plugin.version>2.3.7</bundle.plugin.version>
+
+		<ipojo.version>1.8.0</ipojo.version>
+		<ipojo.plugin.version>1.8.6</ipojo.plugin.version>
+		
 	</properties>
 
+    <groupId>fr.imag.adele.apam</groupId>
 	<artifactId>apam-icasa-scenario</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
+	
 	<name>ApAM iCasa Scenario</name>
 	<description></description>
 	
@@ -22,29 +37,41 @@
 		<module>devices</module>
      	<module>applications</module>
      	<module>home</module>
+     	<module>security</module>
 	</modules>
+	
 	
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>org.apache.felix.ipojo.annotations</artifactId>
+				<version>${ipojo.version}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>fr.imag.adele.apam</groupId>
+				<artifactId>apam-core</artifactId>
+				<version>${apam.version}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
 				<groupId>fr.liglab.adele.icasa</groupId>
 				<artifactId>context.api</artifactId>
 				<version>${icasa.version}</version>
+				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>fr.liglab.adele.icasa</groupId>
 				<artifactId>simulator.api</artifactId>
 				<version>${icasa.version}</version>
+				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>fr.liglab.adele.icasa</groupId>
 				<artifactId>device.light</artifactId>
 				<version>${icasa.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>fr.imag.adele.apam</groupId>
-				<artifactId>apam-core</artifactId>
-				<version>${project.version}</version>
+				<scope>compile</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -64,4 +91,72 @@
 		</repository>
 
 	</repositories>
+	
+	<build>
+		<pluginManagement>
+		<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${compiler.plugin.version}</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+					</configuration>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>${bundle.plugin.version}</version>
+					<extensions>true</extensions>
+					<configuration>
+						<instructions>
+							<Bundle-Name>${project.name}</Bundle-Name>
+							<Bundle-Description>
+								${project.description}
+							</Bundle-Description>
+							<Bundle-SymbolicName>
+								${project.artifactId}
+							</Bundle-SymbolicName>
+							<Bundle-Vendor>
+								Adele/LIG/ Grenoble University, France
+							</Bundle-Vendor>
+							<Bundle-Version>${project.version}</Bundle-Version>
+						</instructions>
+						<remoteOBR>${remote.obr.url}</remoteOBR>
+					</configuration>
+				</plugin>
+				
+				<plugin>
+					<groupId>fr.imag.adele.apam</groupId>
+					<artifactId>apam-maven-plugin</artifactId>
+					<version>${apam.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>apam-bundle</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>${source.plugin.version}</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>install</phase>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+		</plugins>
+		
+		</pluginManagement>
+	</build>
 </project>

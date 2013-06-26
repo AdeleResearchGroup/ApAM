@@ -14,14 +14,14 @@
 		classname="fr.imag.adele.apam.pax.test.implS6.S6Impl"
 		specification="fr.imag.adele.apam.pax.test.iface.S6">
 		<definition name="surname" type="string" value="goethe"/>
-		<definition name="name" type="string" value="johann"/>
+		<definition name="givenname" type="string" value="johann"/>
 		
 		<definition name="meta_string_retrieve" type="string" value="$.$surname"/>
 		<definition name="meta_string_prefix" type="string" value="$pre+.$surname"/>
 		<definition name="meta_string_suffix" type="string" value="$.$surname+post"/>
 		<definition name="meta_string_prefix_suffix" type="string" value="$pre+.$surname+post"/>
 		
-		<definition name="meta_string_retrieve_merging" type="string" value="$.$name"/>
+		<definition name="meta_string_retrieve_merging" type="string" value="$.$givenname"/>
 		
 	</implementation>
 

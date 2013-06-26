@@ -2,9 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>apam-icasa-devices</artifactId>
+		<artifactId>apam-icasa-scenario</artifactId>
 		<groupId>fr.imag.adele.apam</groupId>
-		<version>0.0.2-SNAPSHOT</version>
+		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>icasa.simulated.light</artifactId>
@@ -15,9 +15,8 @@
 		
 		<dependency>
 			<groupId>fr.imag.adele.apam</groupId>
-			<artifactId>home</artifactId>
+			<artifactId>device.specifications</artifactId>
 			<version>${project.version}</version>
-			<scope>compile</scope>
 		</dependency>
 
 		<dependency>
@@ -35,14 +34,6 @@
 			<plugin>
 				<groupId>fr.imag.adele.apam</groupId>
 				<artifactId>apam-maven-plugin</artifactId>
-				<version>${project.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>apam-bundle</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

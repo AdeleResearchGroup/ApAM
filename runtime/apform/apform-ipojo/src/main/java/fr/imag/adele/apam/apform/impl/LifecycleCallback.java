@@ -56,68 +56,90 @@ public class LifecycleCallback extends Callback {
 
 	@Override
 	protected void searchMethod() throws NoSuchMethodException {
-        
+		
+		
+		m_methodObj 	= null;
+		needsArgument	= false;
+		
 		/*
-		 * Try to find the declared method with the specified name that best matches the callback signature
+		 * Try to find the declared method with the specified name that best matches the callback signature.
+		 * Try first the locally declared methods, and only if not found search publicly declared methods
+		 * of super classes.
 		 * 
 		 * NOTE Notice that we force class loading of the implementation class (and its super classes) by using
 		 * reflection to search for methods.
 		 */
 		
-        Method[] methods = instance.getClazz().getMethods();
-        
-        Method candidate 			= null;
-        Class<?> candidateParameter	= null;
-        
-        for (Method method : methods) {
-			
-        	if (! method.getName().equals(declaration.getMethodName()))
-				continue;
-
-        	/*
-        	 * We are looking for a method with an optional, single parameter of kind
-        	 * APAM instance
-        	 */
-        	
-        	Class<?>[] parameters = method.getParameterTypes();
-        	if (parameters.length > 1)
-        		continue;
-
-           	Class<?> parameter = parameters.length == 1 ? parameters[0] : null;
-           	if (parameter != null && ! parameter.isAssignableFrom(Instance.class))
-        		continue;
-        	
-        	if (candidate == null) {
-        		candidate 			= method;
-        		candidateParameter	= parameter;
-        		continue;
-        	}
-        	
-        	if (candidateParameter == null && parameter != null) {
-        		candidate 			= method;
-        		candidateParameter	= parameter;
-        		continue;
-        	}
-        	
-        	if (candidateParameter != null && parameter != null && candidateParameter.isAssignableFrom(parameter)) {
-        		candidate 			= method;
-        		candidateParameter	= parameter;
-        		continue;
-        	}
-        	
-        	
-		}
-
-        m_methodObj 	= candidate;
-        needsArgument	= (candidateParameter != null);
-        
-		if (m_methodObj == null) {
-			throw new NoSuchMethodException(declaration.getMethodName());
-        } else {
-            if (! m_methodObj.isAccessible()) { 
-                m_methodObj.setAccessible(true);
-            }
+		Method[] candidates = instance.getClazz().getDeclaredMethods();
+        int match = searchMethod(candidates);
+        if (match == -1) {
+        	candidates = instance.getClazz().getMethods();
+        	match = searchMethod(candidates);
         }
+        
+        if (match == -1)
+        	throw new NoSuchMethodException(declaration.getMethodName());
+        
+        m_methodObj = candidates[match];
+        if (! m_methodObj.isAccessible()) { 
+            m_methodObj.setAccessible(true);
+        }
+        
+        needsArgument	= m_methodObj.getParameterTypes().length == 1;
+        
 	}
 	
+	/**
+	 * Search the method associated with this callback in the specified array
+	 */
+	private int searchMethod(Method[] methods) {
+
+	        Method candidate 			= null;
+			int candidateIndex			= -1;
+	        Class<?> candidateParameter	= null;
+	        
+	        for (int index = 0; index < methods.length; index++) {
+				
+	        	Method method = methods[index];
+	        	if (! method.getName().equals(declaration.getMethodName()))
+					continue;
+
+	        	/*
+	        	 * We are looking for a method with an optional, single parameter of kind
+	        	 * APAM instance
+	        	 */
+	        	
+	        	Class<?>[] parameters = method.getParameterTypes();
+	        	if (parameters.length > 1)
+	        		continue;
+
+	           	Class<?> parameter = parameters.length == 1 ? parameters[0] : null;
+	           	if (parameter != null && ! parameter.isAssignableFrom(Instance.class))
+	        		continue;
+	        	
+	        	if (candidate == null) {
+	        		candidate 			= method;
+	        		candidateIndex		= index;
+	        		candidateParameter	= parameter;
+	        		continue;
+	        	}
+	        	
+	        	if (candidateParameter == null && parameter != null) {
+	        		candidate 			= method;
+	        		candidateIndex		= index;
+	        		candidateParameter	= parameter;
+	        		continue;
+	        	}
+	        	
+	        	if (candidateParameter != null && parameter != null && candidateParameter.isAssignableFrom(parameter)) {
+	        		candidate 			= method;
+	        		candidateIndex		= index;
+	        		candidateParameter	= parameter;
+	        		continue;
+	        	}
+			}
+	        
+	        return candidateIndex;
+
+	}
 }
