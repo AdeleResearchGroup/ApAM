@@ -675,7 +675,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 	@Override
 	public Relation getRelation(String id) {
 		Relation dep = null;
-		Component group = this.getGroup();
+		Component group = this;
 		while (group != null) {
 			dep = ((ComponentImpl) group).getLocalRelation(id);
 			if (dep != null)
