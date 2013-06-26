@@ -30,6 +30,7 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -76,6 +77,7 @@ public class DistriManTest extends ExtensionAbstract {
 
 	}
 
+	@Ignore
 	@Test
 	public void ProviderDependencyInterface_tc086()
 			throws MalformedURLException, IOException {
@@ -132,6 +134,7 @@ public class DistriManTest extends ExtensionAbstract {
 
 	}
 
+	@Ignore
 	@Test
 	public void ProviderDependencySpecificationMultipleInterface_tc087()
 			throws MalformedURLException, IOException {
@@ -175,6 +178,7 @@ public class DistriManTest extends ExtensionAbstract {
 
 	}
 
+	@Ignore
 	@Test
 	public void ProviderDependencySpecificationSingleInterface_tc088()
 			throws MalformedURLException, IOException {
@@ -217,6 +221,7 @@ public class DistriManTest extends ExtensionAbstract {
 
 	}
 
+	@Ignore
 	@Test
 	public void ProviderDependencyConstraintRespected_tc096()
 			throws MalformedURLException, IOException {
