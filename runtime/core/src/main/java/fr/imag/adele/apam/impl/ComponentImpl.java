@@ -1058,7 +1058,7 @@ public abstract class ComponentImpl extends ConcurrentHashMap<String, Object> im
 
 	@Override
 	public boolean matchRelationConstraints(Relation dep) {
-		return dep.matchRelationConstraints(this.getAllProperties());
+		return dep.matchRelationConstraints(dep.getSourceKind(), this.getAllProperties());
 	}
 
 	@Override
