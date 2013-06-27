@@ -521,8 +521,7 @@ public class CheckObr {
 
 		if (spec == null)
 			return true;
-		ApamCapability cap = ApamCapability
-				.get(new SpecificationReference(spec));
+		ApamCapability cap = ApamCapability.get(new SpecificationReference(spec));
 		if (cap == null) {
 			return true;
 		}

@@ -201,17 +201,17 @@ public class RelationImpl implements Relation {
 
 		if (dep.getComponent() instanceof ImplementationReference) {
 			for (RequirerInstrumentation injection : dep.getInstrumentations()) {
-				
+
 				if (injection instanceof RequirerInstrumentation.MessageConsumerCallback)
 					hasCallbacks = true;
-				
+
 				if (injection instanceof RequirerInstrumentation.RequiredServiceField) {
 					this.isInjected = true;
 					if (((RequirerInstrumentation.RequiredServiceField) injection).isWire())
 						this.isWire = true;
 				}
 			}
-			
+
 		}
 		else { //if (dep.getComponent() instanceof InstanceReference) {
 			Instance inst = CST.componentBroker.getInst(dep.getComponent().getName());
@@ -406,12 +406,12 @@ public class RelationImpl implements Relation {
 		}
 
 		//Instance must match both implementation and instance constraints ???
-		
+
 		/*
 		 *  TODO SUSPECTED BUG : in the case of instantiation of an implementation
 		 *  is the kind of the component matched
 		 */
-		
+
 		switch (candidateKind) {
 		case INSTANCE:
 			for (ApamFilter f : mngInstanceConstraintFilters) {
@@ -639,7 +639,7 @@ public class RelationImpl implements Relation {
 		return Collections.unmodifiableSet(mngInstanceConstraintFilters);
 	}
 
-	
+
 	/*
 	 * return the component corresponding to the sourceKind.
 	 */
@@ -655,7 +655,7 @@ public class RelationImpl implements Relation {
 		return null ;
 	}
 
-	
+
 	// ==== ex RelationUtil
 	/**
 	 * Return the sub-set of candidates that satisfy all the constraints and
@@ -668,7 +668,7 @@ public class RelationImpl implements Relation {
 	 * @return
 	 */
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	public Resolved<?> getResolved(Set<? extends Component> candidates) {
+	public Resolved<?> getResolved(Set<? extends Component> candidates, boolean isPromotion) {
 		// if (dep == null) return new Resolved (candidates);
 		if (candidates == null || candidates.isEmpty())
 			return null;
@@ -679,9 +679,18 @@ public class RelationImpl implements Relation {
 		}
 
 		Set<Component> ret = new HashSet<Component>();
-		for (Component c : candidates) {
-			if (getLinkSource().canSee(c) && c.matchRelationConstraints(this)) {
-				ret.add(c);
+		if (isPromotion) { 
+			//In case of promotion we do no check the visibility (source is inside the composite, candidate outside; only the constraints
+			for (Component c : candidates) {
+				if (c.matchRelationConstraints(this)) {
+					ret.add(c);
+				}
+			}
+		} else {
+			for (Component c : candidates) {
+				if (getLinkSource().canSee(c) && c.matchRelationConstraints(this)) {
+					ret.add(c);
+				}
 			}
 		}
 
@@ -695,13 +704,13 @@ public class RelationImpl implements Relation {
 		return new Resolved(getPrefered(ret));
 	}
 
-	public Resolved<?> getResolved(Resolved<?> candidates) {
+	public Resolved<?> getResolved(Resolved<?> candidates, boolean isPromotion) {
 		if (candidates.singletonResolved != null) {
 			if (candidates.singletonResolved.matchRelationConstraints(this))
 				return candidates;
 			return null;
 		} else
-			return getResolved(candidates.setResolved);
+			return getResolved(candidates.setResolved, isPromotion);
 	}
 
 	/**
@@ -974,8 +983,8 @@ public class RelationImpl implements Relation {
 		}
 		return false;
 	}
-	
-//	public static LinkImpl createLink ()
+
+	//	public static LinkImpl createLink ()
 
 	public String toString() {
 		StringBuffer ret = new StringBuffer();
@@ -983,10 +992,10 @@ public class RelationImpl implements Relation {
 
 		if (isRelation())
 			ret.append("relation " + getIdentifier() + " towards ");
-		
+
 		if (isMultiple)
 			ret.append("multiple ");
-		
+
 		ret.append(getTargetKind()) ;
 
 		if (getTarget() instanceof ComponentReference<?>)
