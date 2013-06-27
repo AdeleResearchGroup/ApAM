@@ -18,7 +18,7 @@ public interface Relation  {
 	 * since component extends Map<String, Object>
 	 */
 	public boolean matchRelation (Component target) ;
-	public boolean matchRelationConstraints (Map <String, Object> properties) ;
+	public boolean matchRelationConstraints (ComponentKind candidateKind, Map<String, Object> properties)  ;
 	public boolean matchRelationConstraints (Component target) ;
 	public boolean matchRelationTarget (Component target) ;
 
