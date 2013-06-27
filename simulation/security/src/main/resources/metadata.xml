@@ -17,13 +17,15 @@
 	<composite name="SecurityDomain" singleton="true">
 		<contentMngt>
 
-			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
+			<start implementation="FireManagementDomain" name="fireManagementDomain" />
+			<start implementation="BuildingAccessDomain" name="buildingAccessDomain" />
 
 			<own specification="Door"/>
 			<export instance="false"/>
+			
+			<dependency override="true" source=".*" id=".*" specification="Door" eager="true" />
+			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
 
-			<start implementation="FireManagementDomain" name="fireManagementDomain" />
-			<start implementation="BuildingAccessDomain" name="buildingAccessDomain" />
 		</contentMngt>
 	</composite>
 
@@ -36,20 +38,25 @@
 		</dependency>
 
 		<contentMngt>
-			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
-			<dependency override="true" source=".*" id=".*" specification="Door" eager="true" />
 
 			<import instance="false" />
-			
-			<own specification="SmokeDetector"/>
 			<export instance="false"/>
+
+			<dependency override="true" source=".*" id=".*" specification="Door" eager="true" />
+			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
+
 		</contentMngt>
 
 	</composite>
 
 	<composite name="BuildingAccessDomain" singleton="true">
 		<contentMngt>
+
+			<dependency override="true" source=".*" id=".*" specification="Door" eager="true" />
 			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
+
+			<import instance="true" />
+			<export instance="true"/>
 		</contentMngt>
 	</composite>
 

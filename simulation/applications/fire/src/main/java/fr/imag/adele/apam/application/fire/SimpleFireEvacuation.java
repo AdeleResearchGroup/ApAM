@@ -12,40 +12,56 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package fr.imag.adele.apam.application.lock;
+package fr.imag.adele.apam.application.fire;
 
 import java.util.List;
 
 import fr.liglab.adele.apam.device.access.Lock;
+import fr.liglab.adele.apam.device.fire.EmergencyEvent;
 
 /**
- * This class implements a simplistic test application that lock doors when people
- * are detected in the home
+ * This class implements simple test application that unlock the doors in
+ * case of fire
  * 
  * @author vega
  *
  */
-public class LockHomeAutomation {
+public class SimpleFireEvacuation {
 
 	private List<Lock>		doors;
 
 	/**
-	 * Notification callback for a presence change
+	 * Notification callback for a fire state change
+	 * 
+	 * It returns whether there is an emergency or not
 	 */
 	@SuppressWarnings("unused")
-	private void presenceChanged(boolean presenceSensed) {
+	private EmergencyEvent smokeDetected(boolean smokeDetected) {
 		
-		if (!presenceSensed)
-			return;
+		/*
+		 * calculate emergency state. 
+		 * 
+		 * In this toy example, simply use the smoke detection value
+		 */
+		EmergencyEvent event = new EmergencyEvent(smokeDetected);
+		
+		/*
+		 * Unlock doors to allow evacuation
+		 */
+		if (!smokeDetected)
+			return event;
 		
 		List<Lock> boundDoors = doors;
 		
 		if (boundDoors == null)
-			return;
+			return event;
 		
 		for(Lock lock:boundDoors){
-			lock.lock();
+			lock.unlock();
 		}
+		
+		return event;
 	}
+
 
 }
