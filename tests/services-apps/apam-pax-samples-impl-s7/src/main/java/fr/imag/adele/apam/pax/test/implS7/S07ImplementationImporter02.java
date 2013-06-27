@@ -8,8 +8,7 @@ public class S07ImplementationImporter02 implements S07Interface02 {
 
 	@Override
 	public String whoami() {
-		// TODO Auto-generated method stub
-		return "helloooo";
+		return "";
 	}
 
 	public Specification getInjected() {
