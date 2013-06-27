@@ -157,7 +157,7 @@ public class ApamMan implements RelationManager {
 						specs.add(spec) ;
 					}
 				}
-				return relation.getResolved(specs);
+				return relation.getResolved(specs,false);
 			}
 			
 			/*
@@ -200,7 +200,7 @@ public class ApamMan implements RelationManager {
 
 		//If TargetKind is implem, select the good one(s)
 		if (relation.getTargetKind() == ComponentKind.IMPLEMENTATION) {
-			return relation.getResolved(impls);
+			return relation.getResolved(impls,false);
 		}
 
 		/*

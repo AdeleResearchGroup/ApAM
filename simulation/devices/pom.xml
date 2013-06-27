@@ -13,5 +13,7 @@
         <module>specifications</module>
         <module>light</module>
         <module>presence</module>
+        <module>door</module>
+       	<module>smoke</module>
     </modules>
 </project>

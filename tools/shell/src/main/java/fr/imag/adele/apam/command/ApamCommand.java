@@ -291,13 +291,13 @@ public class ApamCommand {
 	}
 
 	public void l(PrintWriter out, String... args) {
-		charge(out, args);
+		load(out, args);
 	}
 	/**
 	 * Start a new instance of the target implementation in a composite
 	 * arguments : - an implementation name - (optional) a composite name
 	 */
-	public void charge(PrintWriter out, String... args) {
+	public void load(PrintWriter out, String... args) {
 
 		String componentName = null;
 		String compositeName = null;
@@ -308,7 +308,7 @@ public class ApamCommand {
 			return;
 		}
 
-		if (args.length == 1) {
+		if (args.length >= 1) {
 			componentName = args[0];
 		}
 

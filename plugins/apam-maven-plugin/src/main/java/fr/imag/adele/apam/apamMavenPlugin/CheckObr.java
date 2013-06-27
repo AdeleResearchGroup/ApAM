@@ -521,8 +521,7 @@ public class CheckObr {
 
 		if (spec == null)
 			return true;
-		ApamCapability cap = ApamCapability
-				.get(new SpecificationReference(spec));
+		ApamCapability cap = ApamCapability.get(new SpecificationReference(spec));
 		if (cap == null) {
 			return true;
 		}
@@ -1195,32 +1194,35 @@ public class CheckObr {
 
 			// computes the attributes that can be associated with this spec or
 			// implementations members
-			if (own.getProperty() == null) {
-				error("Need a property for an own clause");
-				continue;
-			}
-			String prop = own.getProperty().getIdentifier();
-			String type = ownCap.getAttrDefinition(prop);
-			if (type == null) {
-				error("Undefined attribute "
-						+ own.getProperty().getIdentifier() + " for component "
-						+ own.getComponent().getName() + " in own expression");
-				continue;
-			}
-			Set<String> values = Util.splitSet(type);
-			if (values.size() == 1) {
-				error("Attribute " + own.getProperty().getIdentifier()
-						+ " for component " + own.getComponent().getName()
-						+ " is not an enumeration. Invalid in own expression");
-				continue;
-			}
+			if (own.getProperty() != null) {
+				String prop = own.getProperty().getIdentifier();
+				String type = ownCap.getAttrDefinition(prop);
+				if (type == null) {
+					error("Undefined attribute "
+							+ own.getProperty().getIdentifier() + " for component "
+							+ own.getComponent().getName() + " in own expression");
+					continue;
+				}
+				Set<String> values = Util.splitSet(type);
+				if (values.size() == 1) {
+					error("Attribute " + own.getProperty().getIdentifier()
+							+ " for component " + own.getComponent().getName()
+							+ " is not an enumeration. Invalid in own expression");
+					continue;
+				}
 
-			if (!values.containsAll(own.getValues())) {
-				error("In own clause, invalid values for attribute " + prop
-						+ "=" + Util.toStringResources(own.getValues())
-						+ " \n    for component "
-						+ own.getComponent().getName() + ". Expected "
-						+ Util.toStringResources(values));
+				if (own.getValues().isEmpty())
+					error("In own clause, values not specified for attribute " + prop
+							+ " \n    for component "
+							+ own.getComponent().getName() + ". Expected "
+							+ Util.toStringResources(values));
+					
+				if (!values.containsAll(own.getValues())) {
+					error("In own clause, invalid values : "+ Util.toStringResources(own.getValues())+" for attribute " + prop
+							+ " \n    for component "
+							+ own.getComponent().getName() + ". Expected "
+							+ Util.toStringResources(values));
+				}
 			}
 
 			/**

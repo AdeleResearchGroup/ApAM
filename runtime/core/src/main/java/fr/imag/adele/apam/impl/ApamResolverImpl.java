@@ -252,7 +252,7 @@ public class ApamResolverImpl implements ApamResolver {
 				// source visibility control (null).
 				// Adds the manager constraints and compute filters
 				computeSelectionPath(source, dep);
-				resolved = dep.getResolved(resolved);
+				resolved = dep.getResolved(resolved, isPromotion);
 			}
 		}
 
