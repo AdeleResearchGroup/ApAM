@@ -1,11 +1,14 @@
-<!-- Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team Licensed 
+<!--
+	Copyright 2011-2012 Universite Joseph Fourier, LIG, ADELE team Licensed 
 	under the Apache License, Version 2.0 (the "License"); you may not use this 
 	file except in compliance with the License. You may obtain a copy of the 
 	License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by 
 	applicable law or agreed to in writing, software distributed under the License 
 	is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY 
 	KIND, either express or implied. See the License for the specific language 
-	governing permissions and limitations under the License. -->
+	governing permissions and limitations under the License. 
+-->
+
 <apam xmlns="fr.imag.adele.apam" xmlns:ipojo="org.apache.felix.ipojo"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="fr.imag.adele.apam http://repository-apam.forge.cloudbees.com/release/schema/ApamCore.xsd
@@ -13,18 +16,40 @@
 
 	<composite name="SecurityDomain" singleton="true">
 		<contentMngt>
-			<start implementation="FireDetection" name="fire"/>
-			<start implementation="IntrusionDetection" name="intrusion"/>
+
+			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
+
+			<own specification="Door"/>
+			<export instance="false"/>
+
+			<start implementation="FireManagementDomain" name="fireManagementDomain" />
+			<start implementation="BuildingAccessDomain" name="buildingAccessDomain" />
 		</contentMngt>
 	</composite>
 
-	<composite name="FireDetection" singleton="true">
+	<composite name="FireManagementDomain" singleton="true">
+
+		<dependency specification="Door" multiple="true">
+			<constraints>
+				<instance filter="(access=true)"/>
+			</constraints>
+		</dependency>
+
 		<contentMngt>
+			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
+			<dependency override="true" source=".*" id=".*" specification="Door" eager="true" />
+
+			<import instance="false" />
+			
+			<own specification="SmokeDetector"/>
+			<export instance="false"/>
 		</contentMngt>
+
 	</composite>
 
-	<composite name="IntrusionDetection" singleton="true">
+	<composite name="BuildingAccessDomain" singleton="true">
 		<contentMngt>
+			<dependency override="true" source=".*" id=".*" specification="Presence" eager="true" />
 		</contentMngt>
 	</composite>
 

@@ -1204,11 +1204,12 @@ public class CoreMetadataParser implements CoreParser {
 	private void parseOwns(Element element, CompositeDeclaration composite) {
 		for (Element owned : optional(element.getElements(CoreMetadataParser.OWN, CoreMetadataParser.APAM))) {
 
-			PropertyDefinition.Reference property = parsePropertyReference(composite.getName(),owned, true);
-			String values = parseString(composite.getName(),owned, CoreMetadataParser.ATT_VALUE);
+			ComponentReference<?> ownedComponentTarget = parseComponentReference(composite.getName(),owned, true);
+			String property = parseString(composite.getName(),owned, CoreMetadataParser.ATT_PROPERTY, false);
+			String values = parseString(composite.getName(),owned, CoreMetadataParser.ATT_VALUE, property != null);
 
-			OwnedComponentDeclaration ownedComponent = new OwnedComponentDeclaration(property, new HashSet<String>(
-					Arrays.asList(Util.split(values))));
+			OwnedComponentDeclaration ownedComponent = new OwnedComponentDeclaration(ownedComponentTarget,property,
+																new HashSet<String>(Arrays.asList(Util.split(values))));
 
 			/*
 			 * parse optional grants

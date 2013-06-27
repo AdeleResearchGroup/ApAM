@@ -1,7 +1,6 @@
 package fr.imag.adele.dynamic.manager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,14 +10,13 @@ import fr.imag.adele.apam.Implementation;
 import fr.imag.adele.apam.Instance;
 import fr.imag.adele.apam.Relation;
 import fr.imag.adele.apam.declarations.ConstrainedReference;
-import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ImplementationReference;
 import fr.imag.adele.apam.declarations.InstanceDeclaration;
+import fr.imag.adele.apam.declarations.RelationDeclaration;
 import fr.imag.adele.apam.declarations.ResolvableReference;
 import fr.imag.adele.apam.declarations.SpecificationReference;
 import fr.imag.adele.apam.impl.ComponentImpl.InvalidConfiguration;
 import fr.imag.adele.apam.impl.RelationImpl;
-import fr.imag.adele.apam.util.Substitute;
 
 /**
  * This class represents the declaration of an instance that must be dynamically created, as a result of a triggering
@@ -141,23 +139,9 @@ public class FutureInstance {
 		if (! satisfied)
 			return;
 
-		/*
-		 * Perform property value substitution in the context of the owner composite
-		 * 
-		 * TODO We should identify in which cases we want to resolve in the context of
-		 * the containing composite, and in which cases in the context of the created
-		 * instance
-		 */
-		Map<String, String> evaluatedProperties = new HashMap<String, String>();
-		for (Map.Entry<String, String> property : properties.entrySet()) {
-			
-			Object substituted = Substitute.substitute(null,property.getValue(), owner);
-			evaluatedProperties.put(property.getKey(),substituted != null ? substituted.toString() : property.getValue());
-		}
-		
 		String instanceName = owner.isSingleton() ? this.name : owner.getName()+":"+this.name;
-		evaluatedProperties.put("instance.name",instanceName);
-		
+		properties.put("instance.name",instanceName);
+
 		/*
 		 * Try to instantiate the specified implementation.
 		 * 
@@ -166,7 +150,7 @@ public class FutureInstance {
 		 * Implementation.craeteInstance.
 		 */
 		isTriggered			= true;
-		implementation.createInstance(owner,evaluatedProperties);
+		implementation.createInstance(owner,properties);
 		
 	}
 

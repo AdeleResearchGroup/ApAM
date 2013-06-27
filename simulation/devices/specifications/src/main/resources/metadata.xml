@@ -25,7 +25,8 @@
 	</specification>
 
 	<specification name="SmokeDetector"
-		interfaces="fr.liglab.adele.apam.device.fire.SmokeDetector">
+		interfaces="fr.liglab.adele.apam.device.fire.SmokeDetector"
+		messages="java.lang.Boolean">
 		<definition name="location" type="string" />
 	</specification>
 
@@ -42,6 +43,7 @@
 	<specification name="Door"
 		interfaces="fr.liglab.adele.apam.device.access.Lock">
 		<definition name="location" type="string" />
+		<definition name="access" type="true,false" />
 	</specification>
 
 </apam>

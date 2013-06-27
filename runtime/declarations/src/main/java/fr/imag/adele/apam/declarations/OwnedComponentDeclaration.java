@@ -21,7 +21,10 @@ import java.util.Set;
 
 public class OwnedComponentDeclaration  {
 	
-	
+	/**
+	 * The owned component reference
+	 */
+	private final ComponentReference<?> component;
 	/**
 	 * The property used to filter the owned instances
 	 */
@@ -37,17 +40,18 @@ public class OwnedComponentDeclaration  {
 	 */
 	private final List<GrantDeclaration> grants;
 	
-	public OwnedComponentDeclaration(PropertyDefinition.Reference property, Set<String> values) {
-		this.property		= property;
-		this.values			= values;
-		this.grants			= new ArrayList<GrantDeclaration>();
+	public OwnedComponentDeclaration(ComponentReference<?> component, String property, Set<String> values) {
+		this.component	= component;
+		this.property	= property != null ? new PropertyDefinition.Reference(component, property): null;
+		this.values		= values;
+		this.grants		= new ArrayList<GrantDeclaration>();
 	}
 	
 	/**
 	 * The owned component
 	 */
 	public ComponentReference<?> getComponent() {
-		return property.getDeclaringComponent();
+		return component;
 	}
 	
 	/**
@@ -71,4 +75,13 @@ public class OwnedComponentDeclaration  {
 		return grants;
 	}
 	
+    @Override
+    public String toString() {
+    	StringBuffer description = new StringBuffer();
+    	description.append("own").append(getComponent());
+    	if (getProperty() != null) {
+    		description.append(" property ").append(getProperty().getIdentifier()).append(" values : "+getValues());
+    	}
+    	return description.toString();
+    }
 }

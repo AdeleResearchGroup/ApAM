@@ -317,8 +317,9 @@ public class ContentManager  {
 			if (!matchType)
 				continue;
 			
-			String propertyValue 	= instance.getProperty(ownedDeclaration.getProperty().getIdentifier());
-			boolean matchProperty	= propertyValue != null && ownedDeclaration.getValues().contains(propertyValue);
+			String property			= ownedDeclaration.getProperty() != null ? ownedDeclaration.getProperty().getIdentifier() : null;
+			String propertyValue 	= property != null ? instance.getProperty(property) : null;
+			boolean matchProperty	= property == null || (propertyValue != null && ownedDeclaration.getValues().contains(propertyValue));
 			
 			if (!matchProperty)
 				continue;
@@ -631,8 +632,8 @@ public class ContentManager  {
 		
 		for (OwnedComponentDeclaration thisDeclaration : declaration.getOwnedComponents()) {
 			
-			ComponentReference<?> thisSpecification = thisDeclaration.getProperty().getDeclaringComponent();
-			String thisProperty						= thisDeclaration.getProperty().getIdentifier();
+			ComponentReference<?> thisSpecification = thisDeclaration.getComponent();
+			String thisProperty						= thisDeclaration.getProperty() != null ? thisDeclaration.getProperty().getIdentifier() : null;
 			Set<String> theseValues					= new HashSet<String>(thisDeclaration.getValues());
 			
 			/*
@@ -643,14 +644,14 @@ public class ContentManager  {
 			boolean hasConflict = false;
 			for (OwnedComponentDeclaration	thatDeclaration : that.declaration.getOwnedComponents()) {
 				
-				ComponentReference<?> thatSpecification = thatDeclaration.getProperty().getDeclaringComponent();
-				String thatProperty						= thatDeclaration.getProperty().getIdentifier();
+				ComponentReference<?> thatSpecification = thatDeclaration.getComponent();
+				String thatProperty						= thatDeclaration.getProperty() != null ? thatDeclaration.getProperty().getIdentifier() : null;
 				Set<String> thoseValues					= new HashSet<String>(thatDeclaration.getValues());
 				
 				if (!thisSpecification.equals(thatSpecification))
 					continue;
 				 
-				if( !thisProperty.equals(thatProperty) ||  !Collections.disjoint(theseValues,thoseValues)) 
+				if( thisProperty == null || thatProperty == null || !thisProperty.equals(thatProperty) ||  !Collections.disjoint(theseValues,thoseValues)) 
 					hasConflict = true;
 				
 			}
@@ -684,8 +685,9 @@ public class ContentManager  {
 			if (ownedDeclaration.getComponent() instanceof ImplementationReference<?>)
 				matchType = instance.getImpl().getDeclaration().getReference().equals(ownedDeclaration.getComponent());
 			
-			String propertyValue 	= instance.getProperty(ownedDeclaration.getProperty().getIdentifier());
-			boolean matchProperty	= propertyValue != null && ownedDeclaration.getValues().contains(propertyValue);
+			String property			= ownedDeclaration.getProperty() != null ? ownedDeclaration.getProperty().getIdentifier() : null;
+			String propertyValue 	= property != null ? instance.getProperty(property) : null;
+			boolean matchProperty	= property == null || (propertyValue != null && ownedDeclaration.getValues().contains(propertyValue));
 			
 			if (matchType && matchProperty)
 				return true;
