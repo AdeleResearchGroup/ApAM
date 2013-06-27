@@ -394,11 +394,11 @@ public class RelationImpl implements Relation {
 	 */
 	@Override
 	public boolean matchRelationConstraints(Component comp) {
-		return matchRelationConstraints(comp.getAllProperties());
+		return matchRelationConstraints(comp.getKind(), comp.getAllProperties());
 	}
 
 	@Override
-	public boolean matchRelationConstraints(Map<String, Object> properties) {
+	public boolean matchRelationConstraints(ComponentKind candidateKind, Map<String, Object> properties) {
 
 		if (!isComputed) {
 			logger.error("Filters not computed");
@@ -408,12 +408,11 @@ public class RelationImpl implements Relation {
 		//Instance must match both implementation and instance constraints ???
 		
 		/*
-		 *  TODO SUSPECTED BUG : The constraints to evaluate depend on the target
-		 *  kind of the relation and in the case of instantiation of an implementation
-		 *  in the kind of the component matched
+		 *  TODO SUSPECTED BUG : in the case of instantiation of an implementation
+		 *  is the kind of the component matched
 		 */
 		
-		switch (getSourceKind()) {
+		switch (candidateKind) {
 		case INSTANCE:
 			for (ApamFilter f : mngInstanceConstraintFilters) {
 				if (!f.match0(properties))

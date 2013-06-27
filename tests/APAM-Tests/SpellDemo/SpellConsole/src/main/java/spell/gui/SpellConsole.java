@@ -1,6 +1,9 @@
 
 package spell.gui;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Set;
 
 import spell.check.SpellCheck ;
@@ -11,9 +14,21 @@ public class SpellConsole implements Runnable, ApamComponent {
 
 	SpellCheck spell ;
 
+	public String getLine() {
+		System.out.println("Enter something here : ");
+		try{
+			BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
+			return bufferRead.readLine();
+		}
+		catch(IOException e) {e.printStackTrace();}
+		return "no line" ;
+	}
+
 	public void run() {
 		System.out.println("=== executing  SpellConsole ");
-		Set<String> errors = spell.check ("essai pour voir") ;
+//		String line = getLine () ;
+//		System.out.println("read : " + line);
+		Set<String> errors = spell.check ("une ligne a voir") ;
 		System.out.println(errors);
 	}
 

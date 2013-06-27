@@ -135,7 +135,7 @@ public class OBRManager {
 
 		Set<Selected> allSelected = lookForAll(capability, filterStr, dep);
 		if (allSelected == null || allSelected.isEmpty()) {
-			logger.debug("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
+			//logger.debug("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
 			return null;
 		}
 		return getBestCandidate(allSelected);
@@ -156,20 +156,23 @@ public class OBRManager {
 			return null;
 		}
 		try {
-			ApamFilter filter = ApamFilter.newInstance(filterStr, false);
+			ApamFilter filter = ApamFilter.newInstance(filterStr, true);
 			for (Resource res : allResources) {
 				if (obrMan.bundleInactif(res.getSymbolicName())){
 					continue;
 				}
 				Capability[] capabilities = res.getCapabilities();
-				String candidateKind;
+				ComponentKind candidateKind;
 				for (Capability aCap : capabilities) {
 					if (aCap.getName().equals(capability)) {
 						if (filter.matchCase(aCap.getPropertiesAsMap())) {
-							if (dep == null || dep.matchRelationConstraints (aCap.getPropertiesAsMap())) {
-								candidateKind = getAttributeInCapability(aCap, CST.COMPONENT_TYPE);
+							candidateKind = toKind (aCap) ;
+							if (dep == null || dep.matchRelationConstraints (candidateKind, aCap.getPropertiesAsMap())) {
+								//candidateKind = getAttributeInCapability(aCap, CST.COMPONENT_TYPE);
 								//ignore if found a matching specification, but an implementation or instance is required
-								if (!!!("specification".equals(candidateKind) && dep.getTargetKind() != ComponentKind.SPECIFICATION)) {
+//								if (!!!("specification".equals(candidateKind) && dep.getTargetKind() != ComponentKind.SPECIFICATION)) {
+								if (!!!(candidateKind.equals(ComponentKind.SPECIFICATION) 
+										&& dep.getTargetKind() != ComponentKind.SPECIFICATION)) {
 									allRes.add(new Selected(res, aCap, this));
 									logger.debug("Found " + candidateKind + " " + getAttributeInCapability(aCap, CST.NAME) + " in bundle " + res.getSymbolicName() + " From " + compositeTypeName + " repositories : " + repositoriesToString());
 								}
@@ -182,8 +185,17 @@ public class OBRManager {
 			e.printStackTrace();
 		}
 		if (allRes.isEmpty())
-			logger.debug("   Not Found in " + compositeTypeName + "  repositories : " + repositoriesToString());
+				logger.debug("Not Found " + dep.getTargetKind() + " matching " + filterStr);
+
 		return allRes;
+	}
+	
+	private ComponentKind toKind (Capability aCap) {
+		String candidateKindS = getAttributeInCapability(aCap, CST.COMPONENT_TYPE);
+		if (CST.SPECIFICATION.equals(candidateKindS)) return ComponentKind.SPECIFICATION ;
+		if (CST.IMPLEMENTATION.equals(candidateKindS)) return ComponentKind.IMPLEMENTATION ;
+		if (CST.INSTANCE.equals(candidateKindS)) return ComponentKind.INSTANCE ;
+		return ComponentKind.COMPONENT ;
 	}
 
 	public Selected lookForPref(String capability, Relation dep, Set<Selected> candidates) {

@@ -1,4 +1,4 @@
-package spell.check; 
+package spell.check.impl; 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
